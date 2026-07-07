@@ -14,6 +14,8 @@
 
 ## Phase M — mapper + coverage pre-experiments (this box; new in rev 2, panel O3/O4)
 
+**AMENDMENT A1 (2026-07-07, pre-E1, coordinator-signed) — shadowed-concept policy.** Five kernel concepts were unreachable under the original abstain-on-ambiguity policy (permanently shadowed by prime/inflection collisions). On the measured evidence (`mapper/m0/results/m0a-shadowed-policy.md`; 50-item agent-judged samples per concept, human audit pending — bead dix): the mapper adopts **sense-priority tiers for {inside, near, broken}** (sense-correct 100%/100%/86%; ~129 wrong-sense tokens injected, declared) and **exclusion for {kind, lost}** (no defensible deterministic winner). Policy artifact sha `e13dc838…` is quoted beside the lexicon hash in every E1 data build; the python-port parity fixture MUST be regenerated under this policy before any E1 shard build; **E1's evaluated concept set is 52**, with `kind` and `lost` named as excluded in every E1/E4 report. Conservative fallback (pure exclusion, set=49, sha `a115ec99…`) is recorded but not adopted.
+
 **M0a — mapper measurement.** Phrase→concept mapper precision/recall against human annotation on a ≥500-token sample; % of corpus token mass mapped; ambiguity/abstention rates. Published before E1. TinyStories' semantically clean 1.5k-word domain is exploited deliberately — near-exact mapping by construction; this is stated as a *favourable-case* design choice.
 **M0b — kernel-expressibility estimate.** Crude token-mass coverage: % of content-word mass in a representative corpus slice with a plausible profile-1 explication. This number bounds every benefit claim and goes in the prospectus unvarnished.
 
