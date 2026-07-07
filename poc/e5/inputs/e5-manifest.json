@@ -1,0 +1,89 @@
+{
+  "artifact": "e5-manifest",
+  "date": "2026-07-07T12:16:58.495Z",
+  "spec": "docs/poc-design.md E5 rev 2 (MINOR 23) + poc/e5/README.md pinned operationalisations O1-O6",
+  "specVerbatim": "E5 — adapter + shuffled-kernel control (3–6 GPU-h). Rev 2 (MINOR 23): n ≥ 20 nonce concepts; exact permutation test, α=0.05; scoring by a fixed non-LLM rubric (slot-filling accuracy against the nonce's explication) or a leak-checked judge (judge prompt contains no explications). Success: true kernel > shuffled kernel on nonce-concept usage.",
+  "pins": {
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "glossHash": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "e4SyntheticsSha256": "4c81bf9b563609061a1cdc934de640b38da60d7cd03ebf859f9ce6a5df8d0aab",
+    "kernelV0": {
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "conceptCount": 54
+    },
+    "itemsSha256": "aea74f7c5ae27c4064bbd0b0941d5b6866f0821ac445e554ad79c2fa5078454f",
+    "vectorTablesManifestSha256": "79d811a3e24fa3a3571e45f9152df7cac23c14ce4ddc2434aa714ea1f4e0c774"
+  },
+  "model": {
+    "id": "HuggingFaceTB/SmolLM2-135M",
+    "dModel": 576,
+    "frozen": "ALL model parameters frozen (eval mode, no grad); the adapter is the only trainable component",
+    "precision": "fp32 (TF32 matmul allowed, recorded in results)"
+  },
+  "adapter": {
+    "form": "single shared affine map y = W k + b, W in R^{576 x d_model}, b in R^{d_model}",
+    "init": "W ~ N(0, sigma^2) with sigma = std of the frozen embedding-matrix entries (measured at run time, recorded); b = mean embedding row; seeded per experiment seed, IDENTICAL across arms (Common rule 1 pairing)",
+    "injection": "one input-embedding position ([SLOT]) carries the adapter output; the concept surface form appears nowhere; no vocab surgery; the nonce token is never emitted"
+  },
+  "frame": {
+    "prefix": "The word",
+    "suffix": " means:",
+    "candidatePrefix": " ",
+    "bos": true,
+    "tokenCap": 192,
+    "note": "tokens(prefix) ++ [SLOT] ++ tokens(suffix) ++ tokens(candidatePrefix + gloss); identical in training and eval, identical across arms"
+  },
+  "training": {
+    "lossTokens": "cross-entropy on the gloss tokens only",
+    "batch": 32,
+    "steps": 2000,
+    "warmupSteps": 100,
+    "schedule": "linear warmup 100 steps then cosine decay to 0.1x",
+    "gradClip": 1,
+    "optimizer": "AdamW, betas 0.9/0.999, eps 1e-8, weight decay 0",
+    "dataOrder": "seeded shuffle per epoch, function of the seed index only (identical across arms)",
+    "lrRule": "Common rule 5: per-arm sweep on seed 0 only, lrs {3e-4, 1e-3, 3e-3} at half budget (1000 steps), best by val cross-entropy, then fixed for all 5 seeds of that arm",
+    "lrSweep": [
+      0.0003,
+      0.001,
+      0.003
+    ],
+    "sweepSteps": 1000
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "arms": {
+    "trueKernel": "row i -> kernel vector of concept i (inputs/vectors/kernel-jl576.f32)",
+    "shuffledKernel": "row i -> kernel[perm_s[i]], perm_s = seeded derangement of ALL 524 rows per vector-tables-manifest (same spectrum, assignment destroyed; Common rule 4)",
+    "randomVector": "row i -> unit-norm i.i.d. Gaussian (DESCRIPTIVE ONLY; no inferential claim)"
+  },
+  "scoring": {
+    "rubric": "FIXED NON-LLM RUBRIC (the spec's first option): candidate score = mean per-token log-probability of the candidate gloss tokens under the frozen model given the frame + injected embedding; prediction = argmax over the 5 candidates; exact float ties score as incorrect. \"Slot-filling accuracy against the nonce's explication\" = the definition slot must be filled with the realizer gloss of the nonce's OWN explication rather than a competing explication's gloss. No LLM judge exists anywhere in E5.",
+    "chance": 0.2
+  },
+  "statistics": {
+    "primaryEndpoint": "nonce slot-filling accuracy, true-kernel vs shuffled-kernel: per nonce j, d_j = mean over the 5 paired seeds of (acc_true[s,j] - acc_shuffled[s,j]) over that nonce's 5 items; one-sided exact sign-flip permutation over the 24 nonce-level paired differences (statistic = sum_j d_j; full 2^24 enumeration, exact integer-lattice convolution; p includes the observed assignment), alpha = 0.05. Operationalises the spec's \"n >= 20 nonce concepts; exact permutation test, alpha=0.05\" with the nonce as the permutation unit. Pinned caveat: nonce-level differences share the 5 trained adapter pairs; the seed-level secondary treats the training run as the unit.",
+    "instrumentValidityGate": "the TRUE arm must beat chance on the SEEN validity items in >= 4 of 5 seeds (per-seed one-sided exact binomial vs 0.2 over 500 items, p < 0.05); otherwise the run is INSTRUMENT-INVALID (neither success nor null), no primary claim in either direction (the E1 step-0 lesson)",
+    "secondaryEndpoints": [
+      "one-sided exact paired sign-flip over the 5 paired seed-mean nonce accuracies, true vs shuffled, Holm-corrected (m=1; min attainable p = 1/32)"
+    ],
+    "descriptive": [
+      "random-arm accuracies",
+      "step-0 (untrained-adapter) accuracies for all arms",
+      "shuffled/random seen-item accuracies",
+      "per-item score margins",
+      "compositional shared/novel nonce split (feature definition verbatim from poc/e4/harness/holdout.ts)",
+      "per-seed and per-nonce tables"
+    ],
+    "successCriterion": "SUCCESS (spec, verbatim): \"true kernel > shuffled kernel on nonce-concept usage\" = the primary test rejects at alpha=0.05 with positive mean difference AND the validity gate passed. Non-rejection with the gate passed = NULL (no TOST equivalence bound is pre-registered for E5). Gate failed = INSTRUMENT-INVALID.",
+    "noHotControlRule": "no shuffled-arm hot-control invalidation is pre-registered: an above-chance shuffled arm is legitimate here (frame/style regularities are shared by both arms); the contrast itself is the control",
+    "nonceExclusionRule": "NONE: all 24 nonces enter the primary; no post-hoc exclusion of any kind"
+  },
+  "scopeLimits": "README O6 / Common rule 6: single model, single basis, toy scale, realizer-English glosses, synthetic clean domain; a positive is an A2 statement only and does not establish code uniqueness, scale behaviour, or anything about A1"
+}

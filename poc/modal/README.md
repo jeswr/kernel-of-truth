@@ -44,6 +44,22 @@ coordinator reviews and commits deliberately, exactly like the AWS pull path.
 HF model downloads persist in Modal Volume `kot-hf-cache`, so only the first
 run pays download time.
 
+## Run E5
+
+```bash
+.venv/bin/modal run poc/modal/modal_e5.py --mock       # transport smoke, ~pennies
+.venv/bin/modal run poc/modal/modal_e5.py              # full pre-registered E5 (A10G)
+.venv/bin/modal run poc/modal/modal_e5.py --gpu t4     # T4 flavour (fp32, ~3x slower — timeout risk)
+```
+
+Same contract as E2 (`modal_e5.py` pattern-matches `modal_e2.py`): pinned
+image, recursive sha256 staged-manifest asserted in-container (fail closed),
+the unchanged `poc/e5/runner/e5_runner.py` subprocessed with `--device cuda`,
+results returned as opaque bytes to `poc/e5/results-incoming/<UTC stamp>-modal/`
+with sidecar-only provenance, `OUTCOME:` echo, NOT auto-committed. Uses the
+same `kot-hf-cache` Volume (SmolLM2-135M is already warm from E2). Budget:
+~2-2.5 A10G-h expected (~$2.5-3), 4 h hard timeout (~$4.4 worst case).
+
 ## Run E1 (+E4 chain)
 
 ```bash

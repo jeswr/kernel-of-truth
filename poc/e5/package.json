@@ -1,0 +1,23 @@
+{
+  "name": "@jeswr/kernel-e5-prep",
+  "version": "0.1.0",
+  "description": "E5 adapter + shuffled-kernel control prep (docs/poc-design.md Phase E, E5 rev 2; bead kernel-of-truth-c24): seeded seen/nonce concept selection over the E4 vocabulary, full-D kernel vectors through the pinned X4 JL 8192->576 projection, forced-choice definitional item construction against the E4 hash-published gloss set, and the pre-registration manifest. The GPU runner lives in runner/.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "select": "npm run build && nice -n 10 node dist/harness/selectConcepts.js",
+    "vectors": "npm run build && nice -n 10 node dist/harness/vectors.js",
+    "items": "npm run build && nice -n 10 node dist/harness/items.js",
+    "inputs": "npm run select && npm run vectors && npm run items",
+    "test": "npm run build && nice -n 10 node --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../../encoder"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,56 @@
+$ e5_runner.py --mock --device cpu  (2026-07-07T12:21:05Z)
+[e5     3.5s] mode=MOCK device=cpu seeds=[0, 1] steps=40 sweep=[0.0003, 0.001]@20 batch=8
+[e5     8.2s] sequences: 1800 train / 200 val / 50 seen-eval / 120 nonce-eval
+[e5     8.2s] sweep arm=true lr=0.0003
+[e5     8.5s]     step 0/20 loss 6.2075
+[e5     9.5s]     step 19/20 loss 6.1928
+[e5     9.9s]   arm=true lr=0.0003 valCE=6.1917
+[e5     9.9s] sweep arm=true lr=0.001
+[e5     9.9s]     step 0/20 loss 6.2075
+[e5    10.6s]     step 19/20 loss 6.1833
+[e5    11.0s]   arm=true lr=0.001 valCE=6.1865
+[e5    11.0s] selected lr=0.001 for arm=true
+[e5    11.0s] sweep arm=shuffled lr=0.0003
+[e5    11.0s]     step 0/20 loss 6.2046
+[e5    12.3s]     step 19/20 loss 6.1901
+[e5    12.9s]   arm=shuffled lr=0.0003 valCE=6.1927
+[e5    12.9s] sweep arm=shuffled lr=0.001
+[e5    12.9s]     step 0/20 loss 6.2046
+[e5    14.1s]     step 19/20 loss 6.1833
+[e5    14.4s]   arm=shuffled lr=0.001 valCE=6.1883
+[e5    14.4s] selected lr=0.001 for arm=shuffled
+[e5    14.4s] sweep arm=random lr=0.0003
+[e5    14.4s]     step 0/20 loss 6.2153
+[e5    15.1s]     step 19/20 loss 6.2051
+[e5    15.4s]   arm=random lr=0.0003 valCE=6.2072
+[e5    15.4s] sweep arm=random lr=0.001
+[e5    15.5s]     step 0/20 loss 6.2153
+[e5    16.1s]     step 19/20 loss 6.1970
+[e5    16.5s]   arm=random lr=0.001 valCE=6.2013
+[e5    16.5s] selected lr=0.001 for arm=random
+[e5    16.5s] train arm=true seed=0 lr=0.001
+[e5    18.0s]     step 0/40 loss 6.2075
+[e5    19.5s]     step 39/40 loss 6.1657
+[e5    20.9s]   arm=true seed=0: seenAcc=0.0600 nonceAcc=0.1917 valCE=6.1852
+[e5    20.9s] train arm=true seed=1 lr=0.001
+[e5    21.6s]     step 0/40 loss 6.1792
+[e5    22.5s]     step 39/40 loss 6.1710
+[e5    24.2s]   arm=true seed=1: seenAcc=0.0600 nonceAcc=0.2250 valCE=6.1859
+[e5    24.2s] train arm=shuffled seed=0 lr=0.001
+[e5    25.3s]     step 0/40 loss 6.2046
+[e5    26.8s]     step 39/40 loss 6.1706
+[e5    29.0s]   arm=shuffled seed=0: seenAcc=0.0600 nonceAcc=0.1833 valCE=6.1875
+[e5    29.0s] train arm=shuffled seed=1 lr=0.001
+[e5    30.1s]     step 0/40 loss 6.1801
+[e5    31.3s]     step 39/40 loss 6.1757
+[e5    33.1s]   arm=shuffled seed=1: seenAcc=0.0600 nonceAcc=0.2083 valCE=6.1879
+[e5    33.1s] train arm=random seed=0 lr=0.001
+[e5    34.1s]     step 0/40 loss 6.2153
+[e5    35.3s]     step 39/40 loss 6.1771
+[e5    37.0s]   arm=random seed=0: seenAcc=0.0800 nonceAcc=0.2333 valCE=6.1960
+[e5    37.0s] train arm=random seed=1 lr=0.001
+[e5    38.1s]     step 0/40 loss 6.1783
+[e5    39.3s]     step 39/40 loss 6.1879
+[e5    41.2s]   arm=random seed=1: seenAcc=0.0600 nonceAcc=0.1833 valCE=6.1957
+[e5    41.2s] OUTCOME: MOCK-INSTRUMENT-INVALID (results in /home/ec2-user/css/kernel/kernel-of-truth/poc/e5/results/smoke-out)
+check_smoke: PASS (1066 assertions) — outcome MOCK-INSTRUMENT-INVALID
