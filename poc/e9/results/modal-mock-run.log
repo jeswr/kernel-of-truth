@@ -1,0 +1,78 @@
+✓ Initialized. View run at 
+https://modal.com/apps/jmwright-045/main/ap-IQIhUF6JnUCoVxyng3RpVo
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_e9.py
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/poc/e5/inputs
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/poc/e9/inputs
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/e5/runner/e5_runner.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/e9/runner/requirements.txt
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/e9/runner/e9_runner.py
+├── 🔨 Created mount PythonPackage:modal_common
+├── 🔨 Created function run_e9_t4.
+└── 🔨 Created function run_e9_a10g.
+kot-e9 via Modal: gpu=A10G mock=True (18 staged files, runner e1c3d0645eec…)
+[e9     3.0s] mode=MOCK device=cuda seeds=[0, 1] steps=40 sweep=[0.0003, 0.001]@20 batch=8 arms=['true', 'shuffled', 'defl']
+[e9     7.1s] sequences: 1800 train / 200 val / 50 seen-eval / 120 nonce-eval
+[e9     7.2s] sweep arm=true lr=0.0003
+[e9     8.2s]     step 0/20 loss 6.2075
+[e9     8.3s]     step 19/20 loss 6.1928
+[e9     8.3s]   arm=true lr=0.0003 valCE=6.1917
+[e9     8.3s] sweep arm=true lr=0.001
+[e9     8.4s]     step 0/20 loss 6.2075
+[e9     8.5s]     step 19/20 loss 6.1833
+[e9     8.5s]   arm=true lr=0.001 valCE=6.1865
+[e9     8.5s] selected lr=0.001 for arm=true
+[e9     8.5s] sweep arm=shuffled lr=0.0003
+[e9     8.5s]     step 0/20 loss 6.2046
+[e9     8.7s]     step 19/20 loss 6.1901
+[e9     8.7s]   arm=shuffled lr=0.0003 valCE=6.1927
+[e9     8.7s] sweep arm=shuffled lr=0.001
+[e9     8.7s]     step 0/20 loss 6.2046
+[e9     8.9s]     step 19/20 loss 6.1833
+[e9     8.9s]   arm=shuffled lr=0.001 valCE=6.1883
+[e9     8.9s] selected lr=0.001 for arm=shuffled
+[e9     8.9s] sweep arm=defl lr=0.0003
+[e9     8.9s]     step 0/20 loss 6.2113
+[e9     9.0s]     step 19/20 loss 6.1906
+[e9     9.1s]   arm=defl lr=0.0003 valCE=6.1932
+[e9     9.1s] sweep arm=defl lr=0.001
+[e9     9.1s]     step 0/20 loss 6.2113
+[e9     9.2s]     step 19/20 loss 6.1843
+[e9     9.3s]   arm=defl lr=0.001 valCE=6.1890
+[e9     9.3s] selected lr=0.001 for arm=defl
+[e9     9.3s] train arm=true seed=0 lr=0.001
+[e9     9.3s]     step 0/40 loss 6.2075
+[e9     9.6s]     step 39/40 loss 6.1657
+[e9     9.8s]   arm=true seed=0: seenAcc=0.0600 nonceAcc=0.1917 valCE=6.1852
+[e9     9.8s] train arm=true seed=1 lr=0.001
+[e9     9.8s]     step 0/40 loss 6.1792
+[e9    10.1s]     step 39/40 loss 6.1710
+[e9    10.3s]   arm=true seed=1: seenAcc=0.0600 nonceAcc=0.2250 valCE=6.1859
+[e9    10.3s] train arm=shuffled seed=0 lr=0.001
+[e9    10.3s]     step 0/40 loss 6.2046
+[e9    10.6s]     step 39/40 loss 6.1706
+[e9    10.7s]   arm=shuffled seed=0: seenAcc=0.0600 nonceAcc=0.1833 valCE=6.1875
+[e9    10.7s] train arm=shuffled seed=1 lr=0.001
+[e9    10.8s]     step 0/40 loss 6.1801
+[e9    11.1s]     step 39/40 loss 6.1757
+[e9    11.2s]   arm=shuffled seed=1: seenAcc=0.0600 nonceAcc=0.2083 valCE=6.1879
+[e9    11.2s] train arm=defl seed=0 lr=0.001
+[e9    11.3s]     step 0/40 loss 6.2113
+[e9    11.6s]     step 39/40 loss 6.1713
+[e9    11.7s]   arm=defl seed=0: seenAcc=0.0400 nonceAcc=0.2083 valCE=6.1878
+[e9    11.7s] train arm=defl seed=1 lr=0.001
+[e9    11.8s]     step 0/40 loss 6.1793
+[e9    12.1s]     step 39/40 loss 6.1748
+[e9    12.2s]   arm=defl seed=1: seenAcc=0.0400 nonceAcc=0.1917 valCE=6.1883
+[e9    12.2s] OUTCOME: MOCK-INSTRUMENT-INVALID (results in /tmp/e9-results)
+
+wrote 17 files to /home/ec2-user/css/kernel/kernel-of-truth/poc/e9/results-incoming/20260707-143731-modal
+OUTCOME: MOCK-INSTRUMENT-INVALID
+done — review and commit deliberately (results are NOT auto-committed)
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/jmwright-045/main/ap-IQIhUF6JnUCoVxyng3RpVo
