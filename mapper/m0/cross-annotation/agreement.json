@@ -1,0 +1,128 @@
+{
+  "date": "2026-07-07",
+  "annotators": {
+    "A": "agent (Claude Fable 5), mapper/m0/agent-judgments.jsonl",
+    "B": "codex-gpt (OpenAI Codex v0.142.5, model gpt-5.5), codex-judgments.jsonl"
+  },
+  "itemsCompared": 300,
+  "itemsMissing": [],
+  "overall": {
+    "n": 300,
+    "rawAgreement": 0.7967,
+    "cohensKappa": 0.453,
+    "confusion": {
+      "correct|correct": 203,
+      "correct|incorrect": 43,
+      "incorrect|correct": 7,
+      "incorrect|incorrect": 36,
+      "unclear|correct": 5,
+      "unclear|incorrect": 6
+    }
+  },
+  "perStratum": {
+    "concept": {
+      "n": 100,
+      "rawAgreement": 0.91,
+      "cohensKappa": 0.6241,
+      "confusion": {
+        "correct|correct": 82,
+        "incorrect|correct": 7,
+        "incorrect|incorrect": 9,
+        "unclear|correct": 2
+      }
+    },
+    "prime": {
+      "n": 100,
+      "rawAgreement": 0.89,
+      "cohensKappa": 0.6383,
+      "confusion": {
+        "correct|correct": 80,
+        "correct|incorrect": 2,
+        "incorrect|incorrect": 9,
+        "unclear|correct": 3,
+        "unclear|incorrect": 6
+      }
+    },
+    "abstain": {
+      "n": 50,
+      "rawAgreement": 0.5,
+      "cohensKappa": 0.1678,
+      "confusion": {
+        "correct|correct": 7,
+        "correct|incorrect": 25,
+        "incorrect|incorrect": 18
+      }
+    },
+    "none": {
+      "n": 50,
+      "rawAgreement": 0.68,
+      "cohensKappa": 0.0,
+      "confusion": {
+        "correct|correct": 34,
+        "correct|incorrect": 16
+      }
+    }
+  },
+  "disagreementCount": 61,
+  "disagreementsByStratum": {
+    "concept": 9,
+    "prime": 11,
+    "abstain": 25,
+    "none": 16
+  },
+  "prSensitivity": {
+    "claudeAgent": {
+      "precisionStrict": 0.82,
+      "precisionLenient": 0.8968,
+      "perStratumPrecisionStrict": {
+        "concept": 0.82,
+        "prime": 0.82
+      },
+      "recallStrict": 0.8865,
+      "recallLenient": 0.8952,
+      "abstainMissRateStrict": 0.36,
+      "noneMissRateStrict": 0.0
+    },
+    "codexGpt": {
+      "precisionStrict": 0.8451,
+      "precisionLenient": 0.8451,
+      "perStratumPrecisionStrict": {
+        "concept": 0.91,
+        "prime": 0.83
+      },
+      "recallStrict": 0.3228,
+      "recallLenient": 0.3228,
+      "abstainMissRateStrict": 0.86,
+      "noneMissRateStrict": 0.32
+    },
+    "decomposition": {
+      "codexMappedAndAbstain_agentNone": {
+        "precisionStrict": 0.8451,
+        "precisionLenient": 0.8451,
+        "perStratumPrecisionStrict": {
+          "concept": 0.91,
+          "prime": 0.83
+        },
+        "recallStrict": 0.7712,
+        "recallLenient": 0.7712,
+        "abstainMissRateStrict": 0.86,
+        "noneMissRateStrict": 0.0
+      },
+      "codexMappedAndNone_agentAbstain": {
+        "precisionStrict": 0.8451,
+        "precisionLenient": 0.8451,
+        "perStratumPrecisionStrict": {
+          "concept": 0.91,
+          "prime": 0.83
+        },
+        "recallStrict": 0.3419,
+        "recallLenient": 0.3419,
+        "abstainMissRateStrict": 0.36,
+        "noneMissRateStrict": 0.32
+      },
+      "note": "isolates which non-mapped stratum drives the recall gap between annotators"
+    },
+    "note": "compute-pr.py logic; strict counts unclear as incorrect (mapped strata) / as a miss (abstain+none strata). Claude-agent row differs from results/m0a-report.json recall only in that the original had zero unclear judgments in abstain/none so strict==original there.",
+    "codexNoneCaveat": "codex was not shown the kernel-v0 inventory (54 concepts + 65 prime exponent lists); its none-stratum should-map judgments are semantic coverage claims that may name targets the inventory does not contain. By mapper construction every none-stratum token has NO lexicon entry for its surface or lemma."
+  }
+}

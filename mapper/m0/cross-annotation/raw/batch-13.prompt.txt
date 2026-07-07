@@ -1,0 +1,134 @@
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-241, m0a-242, m0a-243, m0a-244, m0a-245, m0a-246, m0a-247, m0a-248, m0a-249, m0a-250, m0a-251, m0a-252, m0a-253, m0a-254, m0a-255, m0a-256, m0a-257, m0a-258, m0a-259, m0a-260).
+
+itemId: m0a-241
+context: ...s okay," she said. "It will get better soon. Next time, don't touch things that «TOKEN: are» not yours, okay?" Lily nodded and said sorry to mom and Max. She learned her le...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-242
+context: ...do not fill the floor with a zigzag. Please keep some blocks in the box. Please «TOKEN: be» tidy." Jen and Ben said, "OK, mom. We will." They started to pick up the blocks...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-243
+context: ...sked Lily. "I don't know," said mommy. "Let's open it and see!" Inside the box «TOKEN: was» a little kitten. "Meow!" it said. "Oh no, the poor kitty is cold," said Lily. "...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-244
+context: ...cause he had been playing outside all day. He went to his mom and said, "Mommy, «TOKEN: I'm» so tired. Can we go inside and rest?" His mom said, "Of course, Timmy. But firs...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-245
+context: ...armer replied, "You have to trust your instincts and let yourself fall. It will «TOKEN: be» like you're taking a big jump, but just trust and you'll land safely." So, Til...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-246
+context: ...own. She puts some frosting on it. She gives Tom and Sue a slice each. The cake «TOKEN: is» yummy. It is brown and sweet. Tom and Sue are happy. They say thank you to Mom....
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-247
+context: ...the sky. One of the butterflies flew so close to Sue that she could almost feel «TOKEN: it's» wings. All of a sudden Sue saw something behind her. It was a big brown dog! T...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-248
+context: ...re, they saw something bad. Lily was gone. Anna gasped. She said, "Oh no, where «TOKEN: is» Lily? She was here. I left her here. Who took her?" Ben looked around. He saw a...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-249
+context: ...Once upon a time, there was a «TOKEN: little» girl named Max. She had a box in her hand and she was walking around town. Max ...
+mapper decision: ABSTAINED; candidates: prime:LITTLE~FEW, prime:SMALL
+
+---
+
+itemId: m0a-250
+context: ...One day, a little girl named Lucy «TOKEN: was» walking through the park. She was very alert and looking around for any fun thi...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-251
+context: ...r child and wanted to play, so he ran up to them. The child didn't want to talk «TOKEN: or» play, so Tom tried to show them his favorite toy. He held it up and smiled, but...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-252
+context: ...crumbs. "Ben, chew quietly, please," mom said. "And don't drop your sandwich on «TOKEN: the» floor." "Sorry, mom," Ben said. He tried to chew quieter, but he still dropped ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-253
+context: ...Tom and Sue are friends. They like to «TOKEN: play» with toys. Tom has a car and Sue has a doll. They share their toys and have fun...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-254
+context: ...closer to the bull. Mommy said no and held John tight. They watched as the bull «TOKEN: walked» further away. John asked if he could pet the bull. Mommy told him maybe when he...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-255
+context: ...w the hot air coming out of the soup and knew that it was hot. Timmy's dad came «TOKEN: into» the room and saw Timmy playing with his trains. He asked Timmy if he wanted to ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-256
+context: ... liked to put stones in the deep hole under the tree. One day, Tim said, "Let's «TOKEN: put» more stones in the hole!" Kitty meowed and they put many stones in the hole. Th...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-257
+context: ...The bike is hard to pedal, but they do not mind. They have fun. They are happy. «TOKEN: They» are friends....
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-258
+context: ...Once upon a time, there was a little boy named Timmy. Timmy «TOKEN: loved» to play in the park with his friends. One day, as they were playing hide-and-se...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-259
+context: ...o excited that she quickly closed the door and started playing in the fort. She «TOKEN: spent» the whole day inside her fort, playing with her toys and make believe. When it...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-260
+context: ...Once there was «TOKEN: a» rabbit who was hungry. He knew he would have to find food, so he started to loo...
+mapper decision: UNMAPPED (no target, no candidates)
+
+Now output the JSON array (one entry per itemId above, same order).

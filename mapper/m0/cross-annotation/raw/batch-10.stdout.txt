@@ -1,0 +1,155 @@
+[{"itemId":"m0a-181","judgment":"correct"},{"itemId":"m0a-182","judgment":"incorrect"},{"itemId":"m0a-183","judgment":"correct"},{"itemId":"m0a-184","judgment":"correct"},{"itemId":"m0a-185","judgment":"correct"},{"itemId":"m0a-186","judgment":"correct"},{"itemId":"m0a-187","judgment":"correct"},{"itemId":"m0a-188","judgment":"correct"},{"itemId":"m0a-189","judgment":"incorrect"},{"itemId":"m0a-190","judgment":"correct"},{"itemId":"m0a-191","judgment":"incorrect"},{"itemId":"m0a-192","judgment":"correct"},{"itemId":"m0a-193","judgment":"correct"},{"itemId":"m0a-194","judgment":"correct"},{"itemId":"m0a-195","judgment":"correct"},{"itemId":"m0a-196","judgment":"correct"},{"itemId":"m0a-197","judgment":"correct"},{"itemId":"m0a-198","judgment":"correct"},{"itemId":"m0a-199","judgment":"correct"},{"itemId":"m0a-200","judgment":"incorrect"}]
+
+--- STDERR ---
+Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/ec2-user/css/kernel/kernel-of-truth/mapper/m0/cross-annotation
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f3c08-282f-7853-942c-33b2c97cccac
+--------
+user
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-181, m0a-182, m0a-183, m0a-184, m0a-185, m0a-186, m0a-187, m0a-188, m0a-189, m0a-190, m0a-191, m0a-192, m0a-193, m0a-194, m0a-195, m0a-196, m0a-197, m0a-198, m0a-199, m0a-200).
+
+itemId: m0a-181
+context: ...rl named Emma. She liked to stand and look at all the pretty things around her. «TOKEN: One» day, Emma went out into the woods. She saw a wolf that looked dizzy. She though...
+mapper decision: MAPPED (prime) -> prime:ONE
+
+---
+
+itemId: m0a-182
+context: ... dog that was sleeping under the table. The dog woke up and saw the peaches. He «TOKEN: liked» peaches too. He jumped on the table and knocked over the basket. The peaches ro...
+mapper decision: MAPPED (prime) -> prime:LIKE~AS~WAY
+
+---
+
+itemId: m0a-183
+context: ...Once upon a time, there was a princess. She wanted to «TOKEN: do» something very special, but she didn't know what. She thought and thought but s...
+mapper decision: MAPPED (prime) -> prime:DO
+
+---
+
+itemId: m0a-184
+context: ...an ever. She started running around, chomping on her apple. Her mom laughed and «TOKEN: said», "Time for bed! What a enthusiastic girl you are." Molly yawned once more and p...
+mapper decision: MAPPED (prime) -> prime:SAY
+
+---
+
+itemId: m0a-185
+context: ... have her yummy ice cream and to have paid for it herself. She told her mommy, "«TOKEN: I» paid for it!" and her mommy was proud of her....
+mapper decision: MAPPED (prime) -> prime:I
+
+---
+
+itemId: m0a-186
+context: ... forest. It was big and strong, and it had the most delicious leaves on it. She «TOKEN: couldn't» resists touching them, so she did. Then, something magical happened - the leave...
+mapper decision: MAPPED (prime) -> prime:NOT
+
+---
+
+itemId: m0a-187
+context: ...lew back down to the ground. After soaring so high, he was very tired, but also «TOKEN: very» proud of himself. The storm had also brought with it an unexpected surprise – a...
+mapper decision: MAPPED (prime) -> prime:VERY
+
+---
+
+itemId: m0a-188
+context: ...g. He was sorry and sad. He said, "Thank you, sir. Thank you, Mia. I was wrong. «TOKEN: I» should have listened to mom. I should have listened to you. I was not safe. I w...
+mapper decision: MAPPED (prime) -> prime:I
+
+---
+
+itemId: m0a-189
+context: ...ome in, come in!" Sara hugged grandma and said, "Hi, grandma! I brought Lily to «TOKEN: see» you. She is my best doll. Look, I combed her hair with my pink comb." Sara rais...
+mapper decision: MAPPED (prime) -> prime:SEE
+
+---
+
+itemId: m0a-190
+context: ...ttle dog was very happy. While playing, the little dog found a red ball. He did «TOKEN: not» know who the ball belonged to. He wanted to find the owner of the ball. The lit...
+mapper decision: MAPPED (prime) -> prime:NOT
+
+---
+
+itemId: m0a-191
+context: ...Once upon a time, there were two «TOKEN: best» friends, Lucy and Jack. They loved playing together every day. One day, Jack de...
+mapper decision: MAPPED (prime) -> prime:GOOD
+
+---
+
+itemId: m0a-192
+context: ...sie picked up as many carrots as she could carry and hopped back to her family. «TOKEN: When» Rosie got back, her family was so happy to see all the carrots. Rosie's mom sai...
+mapper decision: MAPPED (prime) -> prime:WHEN~TIME
+
+---
+
+itemId: m0a-193
+context: ...mom said. She followed them to the bush. She saw the bottle and gasped. "Oh no, «TOKEN: this» is very dangerous. This is not normal. This is weed killer. It kills plants and...
+mapper decision: MAPPED (prime) -> prime:THIS
+
+---
+
+itemId: m0a-194
+context: ... the dog would not leave. He barked and wagged his tail, begging for attention. «TOKEN: After» some coaxing, the child dropped his defenses and started petting the dog. Litt...
+mapper decision: MAPPED (prime) -> prime:AFTER
+
+---
+
+itemId: m0a-195
+context: ...y, "Shall we go up the hill — shall we try?" The boy said, "Yes, let's!" So the «TOKEN: two» friends started walking up the hill. The hill was quite big, and it was very de...
+mapper decision: MAPPED (prime) -> prime:TWO
+
+---
+
+itemId: m0a-196
+context: ...re cold. They tried to put them back in the nest, but it was too high. They did «TOKEN: not» know what to do. "Please, help us!" they called. A man heard them and came to s...
+mapper decision: MAPPED (prime) -> prime:NOT
+
+---
+
+itemId: m0a-197
+context: ...is mom. They would buy toys and eat yummy treats together. One day, Timmy saw a «TOKEN: big», high slide in the mall's play area. He wanted to go down it so badly, but his ...
+mapper decision: MAPPED (prime) -> prime:BIG
+
+---
+
+itemId: m0a-198
+context: ...rough a long hallway and came to a big chamber. Inside the chamber, there was a «TOKEN: big» dragon staring at them! Timmy and Max were scared, but they remembered that dra...
+mapper decision: MAPPED (prime) -> prime:BIG
+
+---
+
+itemId: m0a-199
+context: ...wished hard enough, her toy frog would grow. The next morning, Lily woke up and «TOKEN: saw» that Mr. Rubber had not grown. She felt sad but did not give up. She took Mr. R...
+mapper decision: MAPPED (prime) -> prime:SEE
+
+---
+
+itemId: m0a-200
+context: ... would miss their plane. They felt a big urge to panic. "Tom, think hard. Where «TOKEN: did» you last see your passport?" Dad asked. Tom tried to think. He remembered that ...
+mapper decision: MAPPED (prime) -> prime:DO
+
+Now output the JSON array (one entry per itemId above, same order).
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[{"itemId":"m0a-181","judgment":"correct"},{"itemId":"m0a-182","judgment":"incorrect"},{"itemId":"m0a-183","judgment":"correct"},{"itemId":"m0a-184","judgment":"correct"},{"itemId":"m0a-185","judgment":"correct"},{"itemId":"m0a-186","judgment":"correct"},{"itemId":"m0a-187","judgment":"correct"},{"itemId":"m0a-188","judgment":"correct"},{"itemId":"m0a-189","judgment":"incorrect"},{"itemId":"m0a-190","judgment":"correct"},{"itemId":"m0a-191","judgment":"incorrect"},{"itemId":"m0a-192","judgment":"correct"},{"itemId":"m0a-193","judgment":"correct"},{"itemId":"m0a-194","judgment":"correct"},{"itemId":"m0a-195","judgment":"correct"},{"itemId":"m0a-196","judgment":"correct"},{"itemId":"m0a-197","judgment":"correct"},{"itemId":"m0a-198","judgment":"correct"},{"itemId":"m0a-199","judgment":"correct"},{"itemId":"m0a-200","judgment":"incorrect"}]
+tokens used
+5,532

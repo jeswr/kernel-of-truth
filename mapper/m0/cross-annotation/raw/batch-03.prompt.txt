@@ -1,0 +1,134 @@
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-041, m0a-042, m0a-043, m0a-044, m0a-045, m0a-046, m0a-047, m0a-048, m0a-049, m0a-050, m0a-051, m0a-052, m0a-053, m0a-054, m0a-055, m0a-056, m0a-057, m0a-058, m0a-059, m0a-060).
+
+itemId: m0a-041
+context: ...tend. She used her imagination to make up new games and adventures. One day she «TOKEN: found» a penny on the ground. She thought it was so unusual to find a penny on the gro...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-042
+context: ...Tom and Lily decided to play with the plane in the backyard. They took turns to «TOKEN: make» the plane zoom and soar and loop in the sky. They pretended they were pilots an...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+---
+
+itemId: m0a-043
+context: ...nda. He asked his mommy, "Where is panda?" His mommy said, "It's difficult to «TOKEN: find» a panda, Timmy. They are very rare." Timmy was sad, but then he saw a big truc...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-044
+context: ...e knew what to do with it. But one little girl had an idea. She got some of her «TOKEN: friends» together and they all put their hands on the steam engine. After a lot of pushi...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-045
+context: ...loo, Lily was impressed. It was huge, and beautifully decorated. The walls were «TOKEN: made» of shining ice blocks, and the bed was the softest wool. Everything was so attr...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+---
+
+itemId: m0a-046
+context: ...Jimmy was a «TOKEN: happy» little boy. He loved to go outside and play in the sunshine. He loved to skip a...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-047
+context: ...ed that he finally got an answer to his question. From then on, the little bird «TOKEN: remembered» to be careful not to ask any more questions of the river....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:remember
+
+---
+
+itemId: m0a-048
+context: ...iced that the chalk was magical. It made her drawings come to life! Lily was so «TOKEN: happy» and amazed. She couldn't wait to draw more with her mysterious chalk. From that...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-049
+context: ...hat was going on, Jamie felt scared. But Maria spoke up and said that Jamie was «TOKEN: sad» because she had made a mistake in school. Jamie's parents were sad to hear it ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:sad
+
+---
+
+itemId: m0a-050
+context: ...hole time. When they reached the cow's barn, the cow thanked Sue for helping it «TOKEN: find» its way home. Before the cow left, it noticed something funny about Sue: she wa...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-051
+context: ... with the basketball when I'm done. I want to serve you.” The little one was so «TOKEN: happy»! From then on the children always played basketball together. The older child w...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-052
+context: ...Jill and Tom are «TOKEN: friends». They like to play with books and crayons. One day, they find a big book with m...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-053
+context: ...e girl named Lily. She loved to play outside in the rain. One day, Lily's mommy «TOKEN: gave» her an envelope and told her to keep it safe. The envelope was wet because it w...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:give
+
+---
+
+itemId: m0a-054
+context: ...Lily had an idea. She took a flashlight from her backpack and turned it on. She «TOKEN: made» it glow under the blanket. "Look, we have a magic stone. It can make us invisib...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+---
+
+itemId: m0a-055
+context: ...he park. But they do not like to work. They do not like to clean their room, or «TOKEN: help» mom and dad, or do their homework. One day, mom and dad tell them they have to ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:help
+
+---
+
+itemId: m0a-056
+context: ...hat day on, Lily learned that even though something might be fake, it can still «TOKEN: make» someone else happy....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+---
+
+itemId: m0a-057
+context: ... right weight! The storekeeper then took the football outside and Sarah and her «TOKEN: friends» played a game of football with it. They all had so much fun!...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-058
+context: ...ame into his room and grabbed the eraser. She didn't know it was fragile and it «TOKEN: broke» into tiny pieces. Timmy was sad, but he knew he could trust his sister to make ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:break
+
+---
+
+itemId: m0a-059
+context: ...all mouse named Mimi. Mimi lived in a tiny house near a big tree. One day, Mimi «TOKEN: found» a piece of iron. She did not know what it was, but she thought it was very spec...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-060
+context: ...appier and the rain had stopped. When Joe opened his eyes, he was surprised to «TOKEN: find» he was still in the car. He was just as happy, because he had still enjoyed the...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+Now output the JSON array (one entry per itemId above, same order).

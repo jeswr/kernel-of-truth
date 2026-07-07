@@ -1,0 +1,134 @@
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-281, m0a-282, m0a-283, m0a-284, m0a-285, m0a-286, m0a-287, m0a-288, m0a-289, m0a-290, m0a-291, m0a-292, m0a-293, m0a-294, m0a-295, m0a-296, m0a-297, m0a-298, m0a-299, m0a-300).
+
+itemId: m0a-281
+context: ...wanted the lollipop, but she was also troubled. She did not trust the water and «TOKEN: the» soap and the shampoo. Her mom filled the tub with warm water and bubbles. She p...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-282
+context: ...as always getting tangled up. One day she decided she wanted to measure how far «TOKEN: she» could go. She asked her friend, a tree, if he could help. "How can I measure?" ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-283
+context: ...gate and saw the jumping kitten. She was excited and said, "Look mommy, there's «TOKEN: a» cute kitten jumping!" She ran towards the kitten, but it was too fast for her. ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-284
+context: ...e the dolphin. He felt excited and amazed. The dolphin swam closer to the shore «TOKEN: and» Timmy could see it better. It had a shiny grey skin and a big smile on its face...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-285
+context: ...terpillar become a butterfly. Lily knew that she couldn't keep the butterfly in «TOKEN: her» collection. It needed to be free and fly in the sky. So, she let the butterfly ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-286
+context: ...y airplane. Suddenly, his toy airplane disappeared! Timmy looked everywhere but «TOKEN: he» couldn't find it. He asked his mommy, "Where did my airplane go?" His mommy rep...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-287
+context: ...led Steve. He lived in a town and he wanted to do something special. He decided «TOKEN: to» go for a walk around the town. Steve was a brave potato and he explored everyw...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-288
+context: ...tiful dress and a sparkly crown and pretended to become a princess. She twirled «TOKEN: around» and said, "Look at me, I'm a princess!" Her mom came into the room and said, "W...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-289
+context: ...tried her best, but it was too hard for her. Mama saw that Jane was struggling. «TOKEN: She» came and helped her. As they were tidying up the backyard, Mama said "Jane, I r...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-290
+context: ... and looked for comfort in his mommy's arms. Suddenly, a wild animal appeared! «TOKEN: Bob» was so excited and forgot about his lost thread. He smiled and tried to get a c...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-291
+context: ...marker!" shouted Mike, proudly holding it up in the air. "I love markers," said «TOKEN: Lily». "Let's paint our hair!" Mike and Lily laughed at the idea. They each used the ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-292
+context: ...ast and have fun. Red liked to go fast, but he also wanted to be safe. One day, «TOKEN: Red» was racing with his friends and he was going really fast. He was having so much...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-293
+context: ...ghs. "Don't worry, Lila and Ben. That is not a real tiger. That is a toy tiger. «TOKEN: It» belongs to Mr. Lee. He lives next door. He likes to collect toy animals. He mus...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-294
+context: ...ke herself a special treat. She made a warm cake with a sweet, delicious taste. «TOKEN: She» called out to her cat, "Come try it with me!" The cat came running right away, ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-295
+context: ...his work, it shone brightly in the sun. He was so happy and he couldn't wait to «TOKEN: go» back inside his tent. As he stepped inside, he noticed something funny. His mum...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-296
+context: ...ot!" said Lily. As she was picking the corn, she saw a scarecrow in the field. "«TOKEN: Hey», Mr. Scarecrow, do you want to come play with me?" she asked. The scarecrow did...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-297
+context: ...Lily liked «TOKEN: to» play with her dolls. She had many dolls, but her favorite was Anna. Anna had a ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-298
+context: ... rain outside. They did not mind the rain anymore. They had some shine in their «TOKEN: house»....
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-299
+context: ...ve any closer to them. But suddenly the fireflies flew right over and landed on «TOKEN: the» rock. The fireflies made the rock glow brighter than ever before! It was so hap...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-300
+context: ...him everywhere, even to bed. One day, his mom told him that they had to move to «TOKEN: a» new house. Sam was sad and scared. He did not want to leave his old house and h...
+mapper decision: UNMAPPED (no target, no candidates)
+
+Now output the JSON array (one entry per itemId above, same order).

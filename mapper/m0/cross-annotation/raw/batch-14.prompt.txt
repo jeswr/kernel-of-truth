@@ -1,0 +1,134 @@
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-261, m0a-262, m0a-263, m0a-264, m0a-265, m0a-266, m0a-267, m0a-268, m0a-269, m0a-270, m0a-271, m0a-272, m0a-273, m0a-274, m0a-275, m0a-276, m0a-277, m0a-278, m0a-279, m0a-280).
+
+itemId: m0a-261
+context: ...Once upon a time, there was a new bell in «TOKEN: the» town. The bell was big and shiny. Everyone in the town loved the bell. They wer...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-262
+context: ...Max and his family lived in a lively house. They «TOKEN: loved» it because it always had energy and life. One day, as Max was playing around in...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-263
+context: ...d. When she woke up the next morning, she felt rested and refreshed. She smiled «TOKEN: and» went out to explore the west....
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-264
+context: ...One «TOKEN: day», there was a little girl named Jin. She was very excited because her family was...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-265
+context: ...bit friend," said Lily. She looked all around, but couldn't find him. Just when «TOKEN: Lily» was about to give up, she heard a rustling in the bushes. It was the rabbit! "I...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-266
+context: ...ried. They prayed for someone to help them. But no one came. They were alone in «TOKEN: the» park. They had no toys. They had no friends. They had nothing. They learned a h...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-267
+context: ...said goodbye. The next day, Jack went to visit them and said, "Let's celebrate «TOKEN: again» someday. I think next time we should have a picnic in the park." Joanne said, "...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-268
+context: ... to go on adventures with her mommy and daddy. One day, they went for a walk in «TOKEN: the» forest. As they walked, they saw an owl sitting on a tree branch. "Look, mommy!...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-269
+context: ..., but they also wanted to be happy and fair. They did not want to fight or cry. «TOKEN: They» wanted to be friends and siblings. They put down their toys and hugged each oth...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-270
+context: ...emperature of the lake. The kitten thought it was a funny game, so she kept the «TOKEN: thermometer» and they decided to follow the buoy, which seemed to be leading somewhere. The ...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-271
+context: ...ey put it on the wall. They were proud of their shapes. They were also proud of «TOKEN: their» towel. They learned a lesson. They did not cut anything rude again....
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-272
+context: ... such a clean and creative picture." Sarah smiled and said, "Yes, I am grateful «TOKEN: for» my pencil."...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-273
+context: ...the room. He thought it looked like fun, so he decided to try and record it. He «TOKEN: scurried» over and grabbed the mouse. The fake mouse said, “Stop!” Sam was so startled he...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-274
+context: ...and Lily were playing with the number machine in their room. They took turns to «TOKEN: press» the buttons and say the numbers out loud. "Two, four, six, eight!" Tom said, pr...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-275
+context: ...ho did everything together. They were Tom and Joe. Tom was very excited because «TOKEN: he» had just made some new pants. He was so proud of them! He showed them to Joe. T...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-276
+context: ...missile was so high up, it was hard for people to reach it. But then one day, a «TOKEN: brave» boy thought of a plan. He remembered he had a spoon in his pocket, so he took i...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-277
+context: ...ard work, but she felt proud of herself when she was done. Her mom was so happy «TOKEN: and» gave her a big hug. Lily learned that cleaning up was important and made her an...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-278
+context: ... to invite all their friends over, everyone was excited. All their friends came «TOKEN: and» they had a great time. The result of the invite was lots of laughter and fun. T...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-279
+context: ...Tom and Lily were playing with «TOKEN: a» big tube in the garden. The tube was white and had a red cap. They liked to cra...
+mapper decision: UNMAPPED (no target, no candidates)
+
+---
+
+itemId: m0a-280
+context: ...Once upon a time, there was a little «TOKEN: dog». His name was Chew. Chew was a happy dog, but sometimes he found things difficu...
+mapper decision: UNMAPPED (no target, no candidates)
+
+Now output the JSON array (one entry per itemId above, same order).

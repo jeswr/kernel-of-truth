@@ -1,0 +1,155 @@
+[{"itemId":"m0a-021","judgment":"correct"},{"itemId":"m0a-022","judgment":"correct"},{"itemId":"m0a-023","judgment":"correct"},{"itemId":"m0a-024","judgment":"correct"},{"itemId":"m0a-025","judgment":"correct"},{"itemId":"m0a-026","judgment":"correct"},{"itemId":"m0a-027","judgment":"correct"},{"itemId":"m0a-028","judgment":"correct"},{"itemId":"m0a-029","judgment":"correct"},{"itemId":"m0a-030","judgment":"correct"},{"itemId":"m0a-031","judgment":"correct"},{"itemId":"m0a-032","judgment":"correct"},{"itemId":"m0a-033","judgment":"correct"},{"itemId":"m0a-034","judgment":"correct"},{"itemId":"m0a-035","judgment":"correct"},{"itemId":"m0a-036","judgment":"correct"},{"itemId":"m0a-037","judgment":"correct"},{"itemId":"m0a-038","judgment":"correct"},{"itemId":"m0a-039","judgment":"incorrect"},{"itemId":"m0a-040","judgment":"correct"}]
+
+--- STDERR ---
+Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/ec2-user/css/kernel/kernel-of-truth/mapper/m0/cross-annotation
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f3c06-0ecd-70b3-b075-f5102f254988
+--------
+user
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-021, m0a-022, m0a-023, m0a-024, m0a-025, m0a-026, m0a-027, m0a-028, m0a-029, m0a-030, m0a-031, m0a-032, m0a-033, m0a-034, m0a-035, m0a-036, m0a-037, m0a-038, m0a-039, m0a-040).
+
+itemId: m0a-021
+context: ...ully threw them into the fire one by one. As the rocks hit the fire, the colors «TOKEN: began» to dance and swirl around the flames, becoming even more incredible! He then t...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:begin
+
+---
+
+itemId: m0a-022
+context: ...put them back on the shelf. Tim and Sam cried and begged, but their mom did not «TOKEN: change» her mind. She took them by the hand and left the toy store. They went home with...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:change
+
+---
+
+itemId: m0a-023
+context: ...One day, a big whale was swimming in the sea. The whale had a «TOKEN: friend», a small fish. The fish was not pretty. It was an ugly fish. But the whale did ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-024
+context: ..., we can play now." They played together until it was time for dinner. Lily was «TOKEN: happy» she helped her mommy and had a fun day....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-025
+context: ... because she wanted to play outside but now it rained. Her mom saw that she was «TOKEN: sad» and brought out a big yellow banana. The little girl smiled as she ate the bana...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:sad
+
+---
+
+itemId: m0a-026
+context: ...s friends. While playing, Timmy fell and ripped his new shirt. His friends were «TOKEN: sad» for him. Timmy was serious and didn't know what to do. Timmy's mom told him th...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:sad
+
+---
+
+itemId: m0a-027
+context: ...Once upon a time, there was a tiger living in the forest. He was «TOKEN: happy» and liked playing all day long. One day, he saw an orange in a tree and wanted ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-028
+context: ...d them. The 3 year old never forgot how much the team cared for her and she was «TOKEN: happy» to be part of their team. The team was happy too, because the 3 year old made t...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-029
+context: ...ly's eraser disappeared. She looked everywhere for it, but it was nowhere to be «TOKEN: found». She was very sad. Lily asked her friends if they had seen her eraser, but they...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-030
+context: ...og hopped by and noticed the tank struggling. The frog was kind and offered her «TOKEN: help». She hopped onto the tank's back and balanced there until he could get out. The...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:help
+
+---
+
+itemId: m0a-031
+context: ...ny pin on the ground. He picked it up and showed it to his friend. "Look what I «TOKEN: found»!" he said. His friend replied, "Wow, that's cool! Let's go print some pictures...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-032
+context: ...of the sun. They hear the birds singing. They smell the sweet flowers. They are «TOKEN: happy»....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-033
+context: ...ame in and saw them fighting. She said, "Stop it! Fighting is not nice. You are «TOKEN: friends»." Timmy and Tommy felt stupid for fighting over chocolate. They said sorry to e...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-034
+context: ...ke her? She is very cute!" Their mom does not know what to say. She is a little «TOKEN: angry», but also a little amused. She says, "Well, I guess she is very cute, but you s...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:angry
+
+---
+
+itemId: m0a-035
+context: ...Lily and Tom were «TOKEN: friends». They liked to play outside. One day, they saw a huge hill near their house. Th...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-036
+context: ...s yes!" they said, and hugged the flag tight. The flag was so happy that it the «TOKEN: happiest» flag in the sky. From then on, it would always remember the magical moment when...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-037
+context: ...ed the pig to be clean and happy. He thought of a plan to surprise the pig. Tim «TOKEN: found» a big bucket of water. He threw the water on the filthy pig. The pig was surpri...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-038
+context: ... his toy car. Tom's mom looked under the sofa and found the toy car. Tom was so «TOKEN: happy», and they both laughed. Then, they put pepper on their food and enjoyed their m...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-039
+context: ...to go to school every day. One day, when she arrived at university, her teacher «TOKEN: gave» her a big surprise. The teacher gave her a magical kiss and said, “This is a sp...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:give
+
+---
+
+itemId: m0a-040
+context: ...ted. The family was joyful and everyone was glad that the sister found a way to «TOKEN: help» her brother. They hugged each other and felt grateful for their special bond. T...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:help
+
+Now output the JSON array (one entry per itemId above, same order).
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[{"itemId":"m0a-021","judgment":"correct"},{"itemId":"m0a-022","judgment":"correct"},{"itemId":"m0a-023","judgment":"correct"},{"itemId":"m0a-024","judgment":"correct"},{"itemId":"m0a-025","judgment":"correct"},{"itemId":"m0a-026","judgment":"correct"},{"itemId":"m0a-027","judgment":"correct"},{"itemId":"m0a-028","judgment":"correct"},{"itemId":"m0a-029","judgment":"correct"},{"itemId":"m0a-030","judgment":"correct"},{"itemId":"m0a-031","judgment":"correct"},{"itemId":"m0a-032","judgment":"correct"},{"itemId":"m0a-033","judgment":"correct"},{"itemId":"m0a-034","judgment":"correct"},{"itemId":"m0a-035","judgment":"correct"},{"itemId":"m0a-036","judgment":"correct"},{"itemId":"m0a-037","judgment":"correct"},{"itemId":"m0a-038","judgment":"correct"},{"itemId":"m0a-039","judgment":"incorrect"},{"itemId":"m0a-040","judgment":"correct"}]
+tokens used
+5,378

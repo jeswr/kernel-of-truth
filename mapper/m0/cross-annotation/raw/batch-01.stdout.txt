@@ -1,0 +1,155 @@
+[{"itemId":"m0a-001","judgment":"correct"},{"itemId":"m0a-002","judgment":"correct"},{"itemId":"m0a-003","judgment":"correct"},{"itemId":"m0a-004","judgment":"correct"},{"itemId":"m0a-005","judgment":"correct"},{"itemId":"m0a-006","judgment":"incorrect"},{"itemId":"m0a-007","judgment":"correct"},{"itemId":"m0a-008","judgment":"correct"},{"itemId":"m0a-009","judgment":"correct"},{"itemId":"m0a-010","judgment":"correct"},{"itemId":"m0a-011","judgment":"correct"},{"itemId":"m0a-012","judgment":"correct"},{"itemId":"m0a-013","judgment":"correct"},{"itemId":"m0a-014","judgment":"correct"},{"itemId":"m0a-015","judgment":"correct"},{"itemId":"m0a-016","judgment":"correct"},{"itemId":"m0a-017","judgment":"correct"},{"itemId":"m0a-018","judgment":"correct"},{"itemId":"m0a-019","judgment":"correct"},{"itemId":"m0a-020","judgment":"incorrect"}]
+
+--- STDERR ---
+Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/ec2-user/css/kernel/kernel-of-truth/mapper/m0/cross-annotation
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f3c05-d5f2-7621-91ae-e0a7fe0969c7
+--------
+user
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-001, m0a-002, m0a-003, m0a-004, m0a-005, m0a-006, m0a-007, m0a-008, m0a-009, m0a-010, m0a-011, m0a-012, m0a-013, m0a-014, m0a-015, m0a-016, m0a-017, m0a-018, m0a-019, m0a-020).
+
+itemId: m0a-001
+context: ...tarted hammering the fence posts into the ground. She was curious and wanted to «TOKEN: help». "Can I help, Daddy?" she asked. "Sure, you can help me hold the fence while I ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:help
+
+---
+
+itemId: m0a-002
+context: ...is not fair to the other children." Lily felt ashamed. She knew the teacher was «TOKEN: right». She took out her coin and gave it to the teacher. She said, "I'm sorry, teache...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:right
+
+---
+
+itemId: m0a-003
+context: ... car. They drove to the hospital. They said, "We love you, Tom, but you have to «TOKEN: learn». You have to be safe and smart. You have to listen to your sister. She is your ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:learn
+
+---
+
+itemId: m0a-004
+context: ...ad, he put it on a shelf in his room so he could look at it every day. Lucy was «TOKEN: happy» that she could make something so special for her friend. And they both lived ha...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-005
+context: ...suddenly exploded, sending sparks everywhere! The brave little rabbit had to be «TOKEN: taken» to the animal hospital to get bandaged up - he had been injured in the explosio...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:take
+
+---
+
+itemId: m0a-006
+context: ...of the different letters and packages that go in there, right?" Lucy agreed and «TOKEN: took» a few steps forward to get a closer look. She wondered why it was so jolly and ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:take
+
+---
+
+itemId: m0a-007
+context: ...croscope. He did not know what to do. He wished he could fix his microscope and «TOKEN: find» his caterpillar. He wished he could be a scientist....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-008
+context: .... He says, "Thank you, Mia. You are very kind. I like you. Do you want to be my «TOKEN: friend»?" Mia says, "Yes, Tom. I like you too. You are very brave. Do you want to play ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-009
+context: ...t one day, the forest was empty. Not a single creature could be found. Bean was «TOKEN: sad». He missed all of his friends. He decided to find them. He set off with a brave...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:sad
+
+---
+
+itemId: m0a-010
+context: ...ball, Timmy?" asked Billy. "No, it's mine!" replied Timmy harshly. Billy felt «TOKEN: sad» and didn't know what to do. Suddenly, he saw a stick standing nearby. He picked...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:sad
+
+---
+
+itemId: m0a-011
+context: ...h of birds in a tree nearby. He saw that the birds were dancing and singing and «TOKEN: making» noise. He was so amazed, he stopped to watch them. The boy noticed that some of...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+---
+
+itemId: m0a-012
+context: ...dn't reach the pedals. He tried to stretch and stand on the seat, but it didn't «TOKEN: help». His Dad asked Bobby why he wanted to drive. Bobby said he wanted to help. His ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:help
+
+---
+
+itemId: m0a-013
+context: ... and having lots of fun. They were really quite clever and proved that with the «TOKEN: right» friend, anything is possible....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:right
+
+---
+
+itemId: m0a-014
+context: ...turn dark and cloudy. He knew that a big flood was coming. Benny warned all his «TOKEN: friends» to be careful and to stay safe. As the rain poured down, the water rose higher ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:friend
+
+---
+
+itemId: m0a-015
+context: ...image," said his mom. Jack smiled. He had done something special today. He felt «TOKEN: happy» and he was so proud of himself....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-016
+context: ...it's so pretty!" Ben said, looking around. They reached the top of the hill and «TOKEN: found» a bench. They sat down and enjoyed the view. They felt happy and proud. But the...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:find
+
+---
+
+itemId: m0a-017
+context: ...ad but relieved that Billy was okay. She helped him back home for a rest. Billy «TOKEN: learned» a lesson that day. He never tried to climb the tall gym again....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:learn
+
+---
+
+itemId: m0a-018
+context: ...Lily's parents explained that it was for her safety. In the end, Lily went home «TOKEN: happy» and safe, knowing that she made the right choice....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:happy
+
+---
+
+itemId: m0a-019
+context: ...and the sauce spilled on the tablecloth. "Oh no!" Lily said. "I'm sorry, mom. I «TOKEN: made» a mess." Mom came over and saw the sauce on the tablecloth. She was not happy. ...
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+---
+
+itemId: m0a-020
+context: ...bed even more. From then on, she always remembered the feeling of a bed, and it «TOKEN: made» her feel safe and secure....
+mapper decision: MAPPED (concept) -> urn:kernel-v0:make
+
+Now output the JSON array (one entry per itemId above, same order).
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[{"itemId":"m0a-001","judgment":"correct"},{"itemId":"m0a-002","judgment":"correct"},{"itemId":"m0a-003","judgment":"correct"},{"itemId":"m0a-004","judgment":"correct"},{"itemId":"m0a-005","judgment":"correct"},{"itemId":"m0a-006","judgment":"incorrect"},{"itemId":"m0a-007","judgment":"correct"},{"itemId":"m0a-008","judgment":"correct"},{"itemId":"m0a-009","judgment":"correct"},{"itemId":"m0a-010","judgment":"correct"},{"itemId":"m0a-011","judgment":"correct"},{"itemId":"m0a-012","judgment":"correct"},{"itemId":"m0a-013","judgment":"correct"},{"itemId":"m0a-014","judgment":"correct"},{"itemId":"m0a-015","judgment":"correct"},{"itemId":"m0a-016","judgment":"correct"},{"itemId":"m0a-017","judgment":"correct"},{"itemId":"m0a-018","judgment":"correct"},{"itemId":"m0a-019","judgment":"correct"},{"itemId":"m0a-020","judgment":"incorrect"}]
+tokens used
+5,366

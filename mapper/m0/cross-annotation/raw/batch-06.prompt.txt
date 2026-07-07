@@ -1,0 +1,134 @@
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-101, m0a-102, m0a-103, m0a-104, m0a-105, m0a-106, m0a-107, m0a-108, m0a-109, m0a-110, m0a-111, m0a-112, m0a-113, m0a-114, m0a-115, m0a-116, m0a-117, m0a-118, m0a-119, m0a-120).
+
+itemId: m0a-101
+context: ...Lily nodded and did what the farmer said. They learned their lesson. They still «TOKEN: liked» to play with the pumpkins, but they did not throw them anymore. They were more ...
+mapper decision: MAPPED (prime) -> prime:LIKE~AS~WAY
+
+---
+
+itemId: m0a-102
+context: ...o to your face? You look like a clown!" Lily felt sad. She did not want to look «TOKEN: like» a clown. She wanted to look like a princess. She said, "I'm sorry, mom. I wante...
+mapper decision: MAPPED (prime) -> prime:LIKE~AS~WAY
+
+---
+
+itemId: m0a-103
+context: ...y. The girl and boy both watched, amazed. The next day the bird came back with «TOKEN: something» incredible! It had finished the special project perfectly. The girl and the boy...
+mapper decision: MAPPED (prime) -> prime:SOMETHING~THING
+
+---
+
+itemId: m0a-104
+context: ...listened to her mom and did a few more exercises. She realized it wasn't so bad «TOKEN: after» all and felt proud of herself for trying something new....
+mapper decision: MAPPED (prime) -> prime:AFTER
+
+---
+
+itemId: m0a-105
+context: ...One day, a little bunny hopped over and saw the fox. The bunny asked, "What are «TOKEN: you» thinking about, fox?" The fox said, "I'm thinking about understanding." The b...
+mapper decision: MAPPED (prime) -> prime:YOU
+
+---
+
+itemId: m0a-106
+context: ...Once upon a «TOKEN: time», there was a little piggy named Peppa. Peppa lived on a ranch with other animal...
+mapper decision: MAPPED (prime) -> prime:WHEN~TIME
+
+---
+
+itemId: m0a-107
+context: ...ands. He set off with a small bag. Max spoke humbly to anyone who would listen. «TOKEN: People» were impressed by his ambition and they helped him to find the things he needed...
+mapper decision: MAPPED (prime) -> prime:PEOPLE
+
+---
+
+itemId: m0a-108
+context: ... a big house. She loved to play with her dolls, but she felt lonely because she «TOKEN: didn't» have any friends to play with. One day, her mom said, "Lily, we are going to th...
+mapper decision: MAPPED (prime) -> prime:NOT
+
+---
+
+itemId: m0a-109
+context: ...s, and juice. She also had a surprise for them. "Look what I have for you," Mom «TOKEN: said», lifting a lid from the tray. "Cupcakes with sprinkles!" Anna and Ben gasped an...
+mapper decision: MAPPED (prime) -> prime:SAY
+
+---
+
+itemId: m0a-110
+context: ...e she loved her umbrella so much. The teacher tried to make her feel better and «TOKEN: said», "Don't worry Lily, we can fix it." But Lily knew it wouldn't be the same. She ...
+mapper decision: MAPPED (prime) -> prime:SAY
+
+---
+
+itemId: m0a-111
+context: ...sic. He says, "OK, Mom. I will take the pill. But can you stay with me and read «TOKEN: me» a story?" Mom smiles. She says, "Of course, Tom. I love you. I want you to be w...
+mapper decision: MAPPED (prime) -> prime:I
+
+---
+
+itemId: m0a-112
+context: ...Look, Mommy! The bird is rising up high!" he said excitedly. "Yes, Timmy, birds «TOKEN: can» fly high in the sky," his mom replied. Later that day, Timmy's friend came over...
+mapper decision: MAPPED (prime) -> prime:CAN
+
+---
+
+itemId: m0a-113
+context: ...utside in the sweet, fresh air. She ran around the yard, playing and exploring. «TOKEN: After» a while, she tired of the yard and decided to settle in the shade of a big tree...
+mapper decision: MAPPED (prime) -> prime:AFTER
+
+---
+
+itemId: m0a-114
+context: ...y wanted to play with her dolls upstairs. But when she went to go upstairs, she «TOKEN: saw» that her mommy had covered the stairs with a big blanket. "Mommy, can you pleas...
+mapper decision: MAPPED (prime) -> prime:SEE
+
+---
+
+itemId: m0a-115
+context: ...lace. The little girl was very excited and friendly. She talked to all the new «TOKEN: people» and things she saw. The end....
+mapper decision: MAPPED (prime) -> prime:PEOPLE
+
+---
+
+itemId: m0a-116
+context: ...nce upon a time, there was a little girl called Sally. Sally was very silly and «TOKEN: liked» to play games. One day, her mother told her it was time to go to bed. But Sally...
+mapper decision: MAPPED (prime) -> prime:LIKE~AS~WAY
+
+---
+
+itemId: m0a-117
+context: ...very confused. He went to ask his mom and dad what the words meant but all they «TOKEN: could» say was, "it's just a weird dictionary". The 3 year old saw this wasn't going t...
+mapper decision: MAPPED (prime) -> prime:CAN
+
+---
+
+itemId: m0a-118
+context: ...y could have fun inside the house too. The moral of the story is that even when «TOKEN: things» don't go the way you want, you can still find a way to have fun and be happy....
+mapper decision: MAPPED (prime) -> prime:SOMETHING~THING
+
+---
+
+itemId: m0a-119
+context: ..., and only Alex stayed behind, bravely facing the witch. Alex spoke some magic «TOKEN: words», and the witch transformed into an old friend of his brothers. Everyone was rel...
+mapper decision: MAPPED (prime) -> prime:WORDS
+
+---
+
+itemId: m0a-120
+context: ...oved their church and did not want it to be hurt. They wanted to help, but they «TOKEN: knew» they were too small and the fire was too dangerous. They prayed to God to prote...
+mapper decision: MAPPED (prime) -> prime:KNOW
+
+Now output the JSON array (one entry per itemId above, same order).

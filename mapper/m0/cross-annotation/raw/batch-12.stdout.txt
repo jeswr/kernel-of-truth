@@ -1,0 +1,155 @@
+[{"itemId":"m0a-221","judgment":"incorrect"},{"itemId":"m0a-222","judgment":"incorrect"},{"itemId":"m0a-223","judgment":"incorrect"},{"itemId":"m0a-224","judgment":"incorrect"},{"itemId":"m0a-225","judgment":"incorrect"},{"itemId":"m0a-226","judgment":"incorrect"},{"itemId":"m0a-227","judgment":"incorrect"},{"itemId":"m0a-228","judgment":"incorrect"},{"itemId":"m0a-229","judgment":"incorrect"},{"itemId":"m0a-230","judgment":"incorrect"},{"itemId":"m0a-231","judgment":"correct"},{"itemId":"m0a-232","judgment":"incorrect"},{"itemId":"m0a-233","judgment":"incorrect"},{"itemId":"m0a-234","judgment":"incorrect"},{"itemId":"m0a-235","judgment":"incorrect"},{"itemId":"m0a-236","judgment":"incorrect"},{"itemId":"m0a-237","judgment":"incorrect"},{"itemId":"m0a-238","judgment":"incorrect"},{"itemId":"m0a-239","judgment":"incorrect"},{"itemId":"m0a-240","judgment":"incorrect"}]
+
+--- STDERR ---
+Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/ec2-user/css/kernel/kernel-of-truth/mapper/m0/cross-annotation
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f3c08-bb6b-7342-9808-9205370f52ee
+--------
+user
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-221, m0a-222, m0a-223, m0a-224, m0a-225, m0a-226, m0a-227, m0a-228, m0a-229, m0a-230, m0a-231, m0a-232, m0a-233, m0a-234, m0a-235, m0a-236, m0a-237, m0a-238, m0a-239, m0a-240).
+
+itemId: m0a-221
+context: ...ill and silent. One day, a little boy decided to go to the sleepy lake. The boy «TOKEN: was» excited and he brought his special recording machine. He wanted to record the p...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-222
+context: ...ways keep it close and warn the animals to stay away. The old man's ancient jar «TOKEN: was» safe for years and years after that. The end!...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-223
+context: ...Once upon a time, there was a «TOKEN: little» boy called Pete. Pete was very persistent. One day he clapped his hands togethe...
+mapper decision: ABSTAINED; candidates: prime:LITTLE~FEW, prime:SMALL
+
+---
+
+itemId: m0a-224
+context: ... her mom, "What is that?" Her mom said, "It's a box, Sue. Let's open it and see «TOKEN: what's» inside." They opened the black box and found lots of popcorn inside! Sue and he...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-225
+context: ...e driver wanted to see the fireworks. The man lit the fireworks. The fireworks «TOKEN: were» pretty. They made loud noises. The driver was happy. The driver got back in the...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-226
+context: ...went home and hung the sail up to dry. The next day, the sun came out. The sail «TOKEN: was» dry again. Tim was excited to play with the sail another day....
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-227
+context: ...he broken crayon and saw that it had a white part inside. They wondered what it «TOKEN: was». Sara said, "Maybe it is an eraser. Maybe we can use it to erase our drawings a...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-228
+context: ... was nobody else like him. Every day he went to the river to see if anyone else «TOKEN: was» there, but nobody ever came. One day there was something different in the river...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-229
+context: ...Once upon a time, there was a «TOKEN: little» girl named Lily. She loved going to the beach with her family. One day, while p...
+mapper decision: ABSTAINED; candidates: prime:LITTLE~FEW, prime:SMALL
+
+---
+
+itemId: m0a-230
+context: ...Kim thought this was really funny and had to tell her friends all about it! She «TOKEN: was» very proud of her new knowledge about the clock....
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-231
+context: ...One day, Sam «TOKEN: was» sitting in his room, when he noticed it was getting dark. He wanted to go play,...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-232
+context: ... your new friends. What is your name?" The kitten looked at them and meowed. It «TOKEN: was» a little scared, but also curious. It sniffed their hands and let them pet it. ...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-233
+context: ...nd his parents worked together to scrub and wash the picture until all the dirt «TOKEN: was» gone. When the picture was clean, his parents said, "Now let's load it up and p...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-234
+context: ...Nina was a brave «TOKEN: little» girl. She loved exploring and finding new things. One day, she was playing in t...
+mapper decision: ABSTAINED; candidates: prime:LITTLE~FEW, prime:SMALL
+
+---
+
+itemId: m0a-235
+context: ... cat. The cat lived in a big house with a piano. One day, the cat saw the piano «TOKEN: was» dirty. So, the cat decided to polish the piano. The cat worked hard and made th...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-236
+context: ...nd furry and loud. It barks at them. They are scared. "Go away!" Lily says. She «TOKEN: is» angry. "Shoo!" Ben says. He is nervous. But the dog does not go away. It comes ...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-237
+context: ...a long time. As it got dark, Lily saw that the caterpillar started to glow. It «TOKEN: was» so bright! Lily was amazed. She ran inside to show her mom. "Look, mom! Look at...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-238
+context: ...friend to eat it with," Tom says. Lily thinks for a moment. Then she nods. "You «TOKEN: are» right, Tom. Sharing is nice. And you are my best friend. Here, you can have a b...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-239
+context: ...of the slide. He felt very proud and happy. But then, he heard a loud noise. It «TOKEN: was» a dog barking. Tom looked down and saw a big, black dog at the bottom of the sl...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+---
+
+itemId: m0a-240
+context: ...Once upon a time there was a white bird. It «TOKEN: was» a trade bird who would travel from place to place looking for things to trade. ...
+mapper decision: ABSTAINED; candidates: prime:BE-SOMEWHERE, prime:BE-SPEC
+
+Now output the JSON array (one entry per itemId above, same order).
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[{"itemId":"m0a-221","judgment":"incorrect"},{"itemId":"m0a-222","judgment":"incorrect"},{"itemId":"m0a-223","judgment":"incorrect"},{"itemId":"m0a-224","judgment":"incorrect"},{"itemId":"m0a-225","judgment":"incorrect"},{"itemId":"m0a-226","judgment":"incorrect"},{"itemId":"m0a-227","judgment":"incorrect"},{"itemId":"m0a-228","judgment":"incorrect"},{"itemId":"m0a-229","judgment":"incorrect"},{"itemId":"m0a-230","judgment":"incorrect"},{"itemId":"m0a-231","judgment":"correct"},{"itemId":"m0a-232","judgment":"incorrect"},{"itemId":"m0a-233","judgment":"incorrect"},{"itemId":"m0a-234","judgment":"incorrect"},{"itemId":"m0a-235","judgment":"incorrect"},{"itemId":"m0a-236","judgment":"incorrect"},{"itemId":"m0a-237","judgment":"incorrect"},{"itemId":"m0a-238","judgment":"incorrect"},{"itemId":"m0a-239","judgment":"incorrect"},{"itemId":"m0a-240","judgment":"incorrect"}]
+tokens used
+5,528

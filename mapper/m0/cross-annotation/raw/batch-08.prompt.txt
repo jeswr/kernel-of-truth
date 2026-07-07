@@ -1,0 +1,134 @@
+You are an independent annotator judging the output of a deterministic word-sense mapper ("kernel mapper") over children's-story text (TinyStories). The mapper maps word tokens to a small fixed inventory: kernel-v0 CONCEPTS (urn:kernel-v0:<name> — everyday concepts named by their gloss word, e.g. urn:kernel-v0:help = the helping sense of "help") and NSM-style semantic PRIMES (prime:<NAME>, e.g. prime:SAY, prime:LIKE~AS~WAY = the similarity/manner sense "like/as/way", prime:AFTER~TIME = temporal after). For some tokens it ABSTAINED (recorded candidate targets but committed to none) and some tokens it left UNMAPPED.
+
+Judge each item below ON ITS CONTEXTUAL WORD SENSE ONLY. The target's sense is the one its name/gloss word denotes literally. Light-verb, phrasal-verb, idiomatic and auxiliary uses whose sense differs from the target's literal sense are incorrect (e.g. causative "make her feel safe" is NOT the creation sense of make; auxiliary "do you know" is NOT the action prime DO; "liked to play" = enjoy is NOT similarity LIKE~AS~WAY). Use "unclear" only for genuinely contestable sense assignments.
+
+Per-item question by kind:
+- MAPPED (concept or prime): judgment=correct iff the mapped target is the meaning of this token in this context; incorrect iff it is not; unclear if genuinely contestable.
+- ABSTAINED: the mapper recorded candidates but mapped nothing. judgment=correct iff abstention was right, i.e. NO listed candidate is the correct annotation for this token in context; judgment=incorrect iff at least ONE listed candidate IS the correct annotation (the mapper should have committed); unclear if genuinely contestable.
+- UNMAPPED: the mapper mapped nothing and recorded nothing. judgment=correct iff that was right (no kernel-v0 concept/prime with a matching gloss would be the correct annotation for this token in context — grammatical function words, proper names etc.); judgment=incorrect iff the token clearly SHOULD have mapped to some everyday-concept or semantic-prime target; unclear if genuinely contestable.
+
+OUTPUT CONTRACT (STRICT): reply with a single JSON array and NOTHING else — no prose, no markdown fences, no keys other than itemId and judgment. One entry per item, in order:
+[{"itemId": "m0a-001", "judgment": "correct"}, ...]
+judgment MUST be exactly one of: correct | incorrect | unclear.
+
+This batch has 20 items (m0a-141, m0a-142, m0a-143, m0a-144, m0a-145, m0a-146, m0a-147, m0a-148, m0a-149, m0a-150, m0a-151, m0a-152, m0a-153, m0a-154, m0a-155, m0a-156, m0a-157, m0a-158, m0a-159, m0a-160).
+
+itemId: m0a-141
+context: ... Lily knew she wasn't supposed to take candy from strangers. She told Timmy she «TOKEN: couldn't» take the candy because her mommy told her not to trust strangers. Timmy was sad...
+mapper decision: MAPPED (prime) -> prime:NOT
+
+---
+
+itemId: m0a-142
+context: ... will not play on the tree again. We will be careful and respectful. We will be «TOKEN: good»." They smile. They thank the park keeper. He gives them some limes. They are ha...
+mapper decision: MAPPED (prime) -> prime:GOOD
+
+---
+
+itemId: m0a-143
+context: ...Once upon a time, there was a «TOKEN: big» elephant named Ellie. Ellie had a wife named Ella who was very large too. One d...
+mapper decision: MAPPED (prime) -> prime:BIG
+
+---
+
+itemId: m0a-144
+context: ... house, lived a creative girl named Lily. Lily loved to draw and paint all day. «TOKEN: One» day, she found a secret door in her room. She called her friend, Tom. "Tom, I f...
+mapper decision: MAPPED (prime) -> prime:ONE
+
+---
+
+itemId: m0a-145
+context: ...rass. She got so excited that she wanted to go and catch it, so she quickly ran «TOKEN: after» it. When she got close to the squirrel, it stopped and looked back at her. Sudd...
+mapper decision: MAPPED (prime) -> prime:AFTER
+
+---
+
+itemId: m0a-146
+context: ...oice. It was an old man, leaning on his cane. "Yes, please! My name is Frog and «TOKEN: I» want to explore the world," he replied. The old man smiled. "I'm sure you can, ...
+mapper decision: MAPPED (prime) -> prime:I
+
+---
+
+itemId: m0a-147
+context: ...as right. She shut off the TV and climbed into bed. As she closed her eyes, she «TOKEN: thought» about the video she had just watched. The next day, Lily woke up feeling happy...
+mapper decision: MAPPED (prime) -> prime:THINK
+
+---
+
+itemId: m0a-148
+context: ...ve. One day when Jack was playing in his room, he saw a big monster. “What are «TOKEN: you»?” asked Jack. The monster chuckled and said, “I am a monster. I am here to play...
+mapper decision: MAPPED (prime) -> prime:YOU
+
+---
+
+itemId: m0a-149
+context: ..." he shouted, running after her. But Mia did not hear him. She was too happy to «TOKEN: see» the big bird. She reached out her hand to touch it. The big bird landed on Mia'...
+mapper decision: MAPPED (prime) -> prime:SEE
+
+---
+
+itemId: m0a-150
+context: ...Once upon a time, there was a little girl named Lily. She «TOKEN: liked» to play outside in the sunshine with her dog. One day, while they were playing,...
+mapper decision: MAPPED (prime) -> prime:LIKE~AS~WAY
+
+---
+
+itemId: m0a-151
+context: ... of the woods. He soon realized he was lost. Bob started to get scared until he «TOKEN: saw» a bush. He decided to hide behind the bush so he wouldn't get lost again. Sudde...
+mapper decision: MAPPED (prime) -> prime:SEE
+
+---
+
+itemId: m0a-152
+context: ...oofsteps. It stopped hopping and looked around. As it peered around the pond it «TOKEN: saw» a horse. The horse was visiting the pond and it had come with a friend. The fro...
+mapper decision: MAPPED (prime) -> prime:SEE
+
+---
+
+itemId: m0a-153
+context: ...head. They rubbed them softly and slowly. Mom closed her eyes and smiled. "That «TOKEN: feels» wonderful," Mom said. "You are very good at giving massages. Thank you, my love...
+mapper decision: MAPPED (prime) -> prime:FEEL
+
+---
+
+itemId: m0a-154
+context: ...me, there was a little girl named Lily. She loved to take baths in her bathtub. «TOKEN: One» day, while she was playing with her toys, she accidentally turned the faucet to...
+mapper decision: MAPPED (prime) -> prime:ONE
+
+---
+
+itemId: m0a-155
+context: ...ce upon a time, there was a grumpy cat named Tom. Tom did not like to play with «TOKEN: others». One day, he saw a rake in the yard. Tom decided to have some fun with it. Tom ...
+mapper decision: MAPPED (prime) -> prime:OTHER~ELSE~ANOTHER
+
+---
+
+itemId: m0a-156
+context: ...e dog. They saw that it was harmless. They felt sorry for their ice cream. They «TOKEN: felt» sorry for the dog. "Can we give the dog some more ice cream, Mom?" Lily asked. ...
+mapper decision: MAPPED (prime) -> prime:FEEL
+
+---
+
+itemId: m0a-157
+context: ... better. He learned his lesson. He decided to leave the bees alone and look for «TOKEN: other» insects. He hoped he would find a butterfly or a ladybug soon. He still liked i...
+mapper decision: MAPPED (prime) -> prime:OTHER~ELSE~ANOTHER
+
+---
+
+itemId: m0a-158
+context: ..."Don't worry, Timmy. The panda will be okay." But unfortunately, the panda did «TOKEN: not» survive. Timmy was heartbroken and learned that sometimes things don't always h...
+mapper decision: MAPPED (prime) -> prime:NOT
+
+---
+
+itemId: m0a-159
+context: ...Once upon a time, there was a little bear named Teddy. Teddy «TOKEN: lived» in a cabin in the woods with his family. One day, Teddy's dad came home and sai...
+mapper decision: MAPPED (prime) -> prime:LIVE
+
+---
+
+itemId: m0a-160
+context: ...saw an ugly collar lying on the street. He picked it up and started running. He «TOKEN: wanted» to get away from the car and the bad feeling he had. Spot ran and ran until he ...
+mapper decision: MAPPED (prime) -> prime:WANT
+
+Now output the JSON array (one entry per itemId above, same order).
