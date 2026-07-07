@@ -18,9 +18,10 @@ What is covered:
     OUTCOME echo — everything except Modal's transport itself;
   - cross-"transport" determinism: two independent runs produce identical
     results JSON up to the runner's own `date` field (the byte-identity
-    contract vs the AWS path);
-  - modal_e1e4 scaffold: imports, declares the grid resources, and every
-    stage fails loudly as SCAFFOLD.
+    contract vs the AWS path).
+
+The E1+E4 port (bead kernel-of-truth-af7) is covered separately by
+poc/modal/test_modal_e1e4.py.
 """
 
 from __future__ import annotations
@@ -393,46 +394,6 @@ class TestEndToEndMock(unittest.TestCase):
             j.pop("date")
             outs.append(j)
         self.assertEqual(outs[0], outs[1])
-
-
-# ---------------------------------------------------------------------------
-# modal_e1e4 scaffold (Modal stubbed)
-# ---------------------------------------------------------------------------
-
-
-class TestScaffold(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.m = _import_with_stub("modal_e1e4")
-
-    @classmethod
-    def tearDownClass(cls):
-        sys.modules.pop("modal_e1e4", None)
-        sys.modules.pop("modal", None)
-
-    def test_shape(self):
-        self.assertEqual(self.m.app.name, "kot-e1e4")
-        expected = {"fetch_corpus", "build_data", "lr_sweep", "select_lrs",
-                    "train_arm_seed", "eval_ckpt", "stats_verdict",
-                    "e4_build_emission", "e4_finetune", "e4_eval", "e4_stats"}
-        self.assertEqual(set(self.m.app.functions), expected)
-        for gpu_fn in ("lr_sweep", "train_arm_seed", "eval_ckpt", "e4_finetune", "e4_eval"):
-            self.assertEqual(self.m.app.functions[gpu_fn].kwargs["gpu"], "A10G")
-        for fn in expected:
-            self.assertIn("/vol/e1work", self.m.app.functions[fn].kwargs["volumes"])
-        self.assertEqual(len(self.m.ARMS), 5)
-        self.assertEqual(len(self.m.SEEDS), 5)
-        self.assertEqual(len(self.m.LRS), 3)
-
-    def test_every_stage_is_loudly_scaffold(self):
-        jobs = [("kernel-frozen", 0, "3e-4")]
-        with self.assertRaises(NotImplementedError) as cm:
-            self.m.train_arm_seed.starmap(jobs)
-        self.assertIn("SCAFFOLD", str(cm.exception))
-        self.assertIn("kernel-of-truth-af7", str(cm.exception))
-        with self.assertRaises(SystemExit):
-            with redirect_stdout(io.StringIO()):
-                self.m.main()
 
 
 if __name__ == "__main__":

@@ -52,7 +52,10 @@ GPU_CHOICES = ("T4", "A10G")             # T4 default; A10G optional (--gpu a10g
 
 
 def _image_pins() -> list:
-    lines = (_HERE / "requirements-image.txt").read_text().splitlines()
+    p = _HERE / "requirements-image.txt"
+    if not p.exists():  # container-side re-import: the image is already built,
+        return []       # only the coordinator needs the pins (kernel-of-truth-af7 fix)
+    lines = p.read_text().splitlines()
     return [ln.strip() for ln in lines if ln.strip() and not ln.strip().startswith("#")]
 
 
