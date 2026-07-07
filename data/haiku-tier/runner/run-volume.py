@@ -15,9 +15,14 @@ Max20 subscription; Haiku gets ~half of each 5h window):
   - max MAX_CALLS_PER_WINDOW calls per 5h window (default 500, conservative);
     windows are anchored at the first call after the previous window closed
     (approximates the plan's rolling 5h session), plus a safety margin.
-  - concurrency default 2, hard cap 12 (maintainer authorized pushing
-    concurrency until API limits bite, 2026-07-07; limit-error backoff is
-    the real safety).
+  - ADAPTIVE concurrency (maintainer directive 2026-07-07: "keep
+    parallelising indefinitely until rate limits are hit", round budget
+    ~$300 API-equiv): AIMD — ramp +2 after each target-many successes,
+    halve on a transient rate-limit/overload, guarded by /proc/meminfo
+    MemAvailable so the live server sharing this 2-core box is never
+    OOM-squeezed. --concurrency is the STARTING target, --concurrency-max
+    the ceiling. --max-cost-usd stops the round when API-equiv spend
+    crosses it.
   - any usage-limit error from claude -p => stop the window immediately,
     parse a reset time from the error if present (epoch, ISO, or h:mm am/pm)
     and sleep past it + 10 min margin; else sleep 60 min.
@@ -118,6 +123,20 @@ def parse_reset_seconds(msg):
 class UsageLimit(Exception):
     def __init__(self, msg): super().__init__(msg); self.msg = msg
 
+class RateLimited(Exception):
+    """Transient per-request rate limit / overload — scheduler halves the
+    concurrency target and requeues the lemma; NOT a window stop."""
+    def __init__(self, msg): super().__init__(msg); self.msg = msg
+
+def mem_available_mb():
+    try:
+        for line in open('/proc/meminfo'):
+            if line.startswith('MemAvailable:'):
+                return int(line.split()[1]) // 1024
+    except Exception:
+        pass
+    return None
+
 def call_claude(system_file, user_text, attempts=3):
     env = dict(os.environ, MAX_THINKING_TOKENS='0')
     cmd = ['nice', '-n', '10', 'claude', '-p', '--model', MODEL,
@@ -133,18 +152,30 @@ def call_claude(system_file, user_text, attempts=3):
             last = 'claude timeout after 300s'
             time.sleep(5 * 3 ** attempt)
             continue
-        blob = (r.stdout or '') + (r.stderr or '')
+        if r.returncode == 0:
+            try:
+                out = json.loads(r.stdout)
+            except Exception:
+                last = f'unparseable stdout: {(r.stdout or "")[:200]}'
+                time.sleep(5 * 3 ** attempt)
+                continue
+            if not out.get('is_error'):
+                # limit patterns are only scanned on ERROR paths — a lemma
+                # whose generated text mentions "rate limit" must not trip them
+                return out
+            blob = r.stdout
+        else:
+            blob = (r.stdout or '') + (r.stderr or '')
         # window-level limits stop the run (the 2026-07-07 burn: "You've hit
         # your session limit" matched nothing here and 253 lemmas were logged
         # as transport errors instead of pausing — hence 'session limit')
-        if re.search(r'usage limit|session limit|rate limit|limit reached|'
+        if re.search(r'usage limit|session limit|limit reached|'
                      r'out of.*(quota|credits)|5-hour', blob, re.I):
             raise UsageLimit(blob[:1000])
-        if r.returncode != 0:
-            last = f'claude exit {r.returncode}: {blob[:400]}'
-            time.sleep(5 * 3 ** attempt)
-            continue
-        return json.loads(r.stdout)
+        if re.search(r'rate.?limit|overloaded|too many requests|429', blob, re.I):
+            raise RateLimited(blob[:400])
+        last = f'claude exit {r.returncode}: {blob[:400]}'
+        time.sleep(5 * 3 ** attempt)
     raise RuntimeError(last)
 
 def main():
@@ -157,13 +188,19 @@ def main():
                          'best pipeline from s1 (framework G)')
     ap.add_argument('--max-per-window', type=int, default=500)
     ap.add_argument('--window-hours', type=float, default=5.0)
-    ap.add_argument('--concurrency', type=int, default=2)
+    ap.add_argument('--concurrency', type=int, default=2,
+                    help='STARTING concurrency target (adaptive AIMD)')
+    ap.add_argument('--concurrency-max', type=int, default=14,
+                    help='adaptive ceiling; bounded by box RAM, not the API')
+    ap.add_argument('--max-cost-usd', type=float,
+                    help='stop the round when cumulative API-equiv cost crosses this')
     ap.add_argument('--bands', default='ABCD')
     ap.add_argument('--start-rank', type=int, default=1)
     ap.add_argument('--limit', type=int)
     ap.add_argument('--dry-run', action='store_true')
     args = ap.parse_args()
-    assert 1 <= args.concurrency <= 12, 'concurrency hard cap is 12'
+    assert 1 <= args.concurrency <= args.concurrency_max <= 64, \
+        'need 1 <= concurrency <= concurrency-max <= 64'
 
     os.makedirs(VOL, exist_ok=True); os.makedirs(RECORDS, exist_ok=True)
     sysfile = os.path.join(S1, 'prompts', f'system-{args.framework}.txt')
@@ -223,6 +260,8 @@ def main():
             state.update(windowStart=time.time(), calls=0, ok=0, fail=0, cf=0,
                          tokensIn=0, tokensOut=0, costUSD=0.0)
 
+    round_tot = {'calls': 0, 'costUSD': 0.0}   # whole-invocation, never reset
+
     def account(env):
         mu = list(env.get('modelUsage', {}).values())
         mu = mu[0] if mu else {}
@@ -230,6 +269,8 @@ def main():
         state['tokensIn'] += (mu.get('inputTokens') or 0)
         state['tokensOut'] += (mu.get('outputTokens') or 0)
         state['costUSD'] = round(state['costUSD'] + (mu.get('costUSD') or 0), 5)
+        round_tot['calls'] += 1
+        round_tot['costUSD'] = round(round_tot['costUSD'] + (mu.get('costUSD') or 0), 5)
         return mu
 
     def gate_one(lemma, result_text):
@@ -310,29 +351,61 @@ def main():
         with open(os.path.join(VOL, 'transport-errors.jsonl'), 'a') as f:
             f.write(json.dumps({'lemma': lemma, 'error': str(err)[:500]}) + '\n')
 
-    # sliding-window scheduler: keep args.concurrency lemmas in flight at all
-    # times (lockstep batches stall the whole batch on one slow item, which
-    # matters at concurrency 8+). Lemmas interrupted by a usage limit are
-    # requeued, never burned.
+    # sliding-window scheduler with ADAPTIVE concurrency (AIMD): keep `target`
+    # lemmas in flight; +2 after target-many successes (if RAM headroom),
+    # halve on a transient rate-limit. Lemmas interrupted by a limit are
+    # requeued, never burned. The pool is sized at the ceiling; the effective
+    # concurrency is how many futures we keep in flight.
     pending = collections.deque(todo)
     processed, last_report = 0, 0
-    with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
+    target, succ_since = args.concurrency, 0
+    with ThreadPoolExecutor(max_workers=args.concurrency_max) as ex:
         inflight = {}
         while pending or inflight:
-            while pending and len(inflight) < args.concurrency:
+            if (args.max_cost_usd and pending
+                    and round_tot['costUSD'] >= args.max_cost_usd):
+                print(f'round budget ${args.max_cost_usd:.0f} reached '
+                      f'(${round_tot["costUSD"]:.2f} API-equiv, '
+                      f'{round_tot["calls"]} calls); stopping submissions',
+                      file=sys.stderr)
+                pending.clear()
+            while pending and len(inflight) < target:
                 window_gate()
                 it = pending.popleft()
                 inflight[ex.submit(process, it)] = it
+            if not inflight:
+                continue
             done_futs, _ = wait(set(inflight), return_when=FIRST_COMPLETED)
-            limit_hit = None
+            limit_hit, rate_limited = None, False
             for fu in done_futs:
                 it = inflight.pop(fu)
                 try:
-                    fu.result(); processed += 1
+                    fu.result(); processed += 1; succ_since += 1
                 except UsageLimit as e:
                     pending.appendleft(it); limit_hit = (e.msg, it['lemma'])
+                except RateLimited as e:
+                    pending.appendleft(it); rate_limited = True
+                    print(f'rate-limited at {it["lemma"]}: {e.msg[:120]}',
+                          file=sys.stderr)
                 except Exception as e:
                     processed += 1; log_transport_error(it['lemma'], e)
+            if rate_limited and not limit_hit:
+                target = max(4, target // 2); succ_since = 0
+                print(f'concurrency target halved -> {target}', file=sys.stderr)
+                time.sleep(10)
+            elif succ_since >= target and target < args.concurrency_max:
+                mem = mem_available_mb()
+                if mem is None or mem > 1000:
+                    target = min(args.concurrency_max, target + 2); succ_since = 0
+                    print(f'concurrency target raised -> {target} '
+                          f'(MemAvailable {mem} MB)', file=sys.stderr)
+                else:
+                    succ_since = 0   # hold: box RAM is the binding constraint
+            mem = mem_available_mb()
+            if mem is not None and mem < 600 and target > 4:
+                target = max(4, target - 2)
+                print(f'RAM guard: MemAvailable {mem} MB, target -> {target}',
+                      file=sys.stderr)
             if limit_hit:
                 # drain in-flight work before sleeping; requeue anything that
                 # also hit the limit
@@ -353,11 +426,14 @@ def main():
                 time.sleep(slp)
             if processed - last_report >= 25:
                 last_report = processed
-                print(f'progress: {processed}/{len(todo)} done, {len(pending)} queued; '
-                      f'window calls {state["calls"]}, ok {state["ok"]} '
-                      f'fail {state["fail"]} cf {state["cf"]}, '
-                      f'${state["costUSD"]:.2f} API-equiv', file=sys.stderr)
+                print(f'progress: {processed}/{len(todo)} done, {len(pending)} queued, '
+                      f'target {target}; window calls {state["calls"]}, ok {state["ok"]} '
+                      f'fail {state["fail"]} cf {state["cf"]}; round '
+                      f'${round_tot["costUSD"]:.2f} API-equiv / {round_tot["calls"]} calls',
+                      file=sys.stderr)
     log_window()
+    print(f'ROUND COMPLETE: {processed} lemmas, {round_tot["calls"]} calls, '
+          f'${round_tot["costUSD"]:.2f} API-equiv', file=sys.stderr)
 
 if __name__ == '__main__':
     main()
