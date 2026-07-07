@@ -1,54 +1,66 @@
-# PoC experiment programme (rev 1, pre-registered)
+# PoC experiment programme (rev 2, post-adversarial-panel, pre-registered)
 
-**Status:** draft, 2026-07-07 — companion to `architecture.md` §5. Experiments are **pre-registered**: success/failure criteria are fixed here, before any run; results will be reported against these criteria verbatim, including nulls. Derived from `../reports/architecture-and-poc-options.md` §2.3 (which carries the citations) with encoder-level phase X added.
+**Status:** 2026-07-07 — companion to `architecture.md` §5. Rev 2 resolves all four BLOCKERs and the MAJOR findings of `../notes/panel-experiment-rigor.md` and folds in `../notes/panel-frontier-skeptic.md`'s ladder changes. Experiments are **pre-registered**: criteria fixed here before any run; results reported against them verbatim, including nulls.
 **Author:** Kern (Claude Fable 5). Tracker: beads (`bd list` in repo root).
 
-## Common rules
+## Common rules (rev 2 — three additions are load-bearing)
 
-- ≥3 seeds per trained condition; conditions matched for tokens, steps, LR schedule, and embedding-norm distribution.
-- Kernel vectors are derived **training-free** from explication structure (encoder v0; no text-encoder shortcuts — they would smuggle trained semantics into the "training-free" claim).
-- The two load-bearing controls, everywhere applicable: **random-frozen** (same norms, no structure — the arXiv:2507.04886 null) and **shuffled-kernel** (same geometry, permuted concept↔vector assignment).
-- Negative results are first-class deliverables; the kill-chain logic is stated in advance (§ Kill chain).
+1. ≥**5** seeds per trained condition (rev 2; was 3 — underpowered). Seeds are **paired across conditions** (identical data order/batch schedule per seed index); tests are paired permutation tests. One **primary endpoint per experiment** (named below); all secondary endpoints Holm-corrected.
+2. Kernel vectors derived training-free from explication structure. **Encoder pinning (BLOCKER 4):** one encoder version, selected on Phase-X results alone; its content hash is written into this file before the first E-run; any E-run against a different encoder hash is a **new pre-registration** and is reported as such.
+3. **Dimension policy (BLOCKER 1):** two pre-registered injection paths, per `architecture.md` §1.3 — (i) *toy-native*: kernel re-encoded natively at D = d_model for E1/E4 (tests content-vs-content-free at matched D; explicitly NOT the capacity story); (ii) *projected*: full-D vectors through one fixed, seeded, published JL matrix per (D, d) pair for E2/E5/E8, with R^D→R^d RDM distortion measured on kernel v0 and margins restated in R^d (X4). A **learned** projection in any A1-labelled experiment is forbidden (it silently becomes A2).
+4. Controls: **shuffled-kernel** (same vectors, permuted concept↔vector assignment — isolates *assignment correctness*) and **random-frozen** (i.i.d., norm-matched to the trainable arm's init distribution — isolates *fixedness*). Freezing scope everywhere: **concept rows only; all other rows trainable in all arms.** Frozen rows excluded from weight decay AND never given a gradient step before masking attaches (Adam momentum would keep moving them). If the architecture normalises embeddings before use, the post-norm kernel RDM distortion is reported.
+5. Learning rate: per-condition selection rule — small sweep on seed 0 only, best of 3 by val loss, then fixed for all seeds (a single global schedule is a confound between frozen and trainable arms).
+6. Negative results are first-class deliverables. **Scope limit (pre-registered): what a positive cannot license** — no cross-model/canonical-coordinates claim (single basis, single model per run), no scale claim (5–15M params, small vocab, synthetic clean domain, near-exact mapper — all four invert at scale), no cross-lingual claim (English exponents only; one cheap extension: E2 repeated on one non-English model). A clean sweep licenses exactly: "at toy scale, in a clean domain, structure-derived frozen content beats assignment-shuffled content on concept-slice metrics."
 
-## Phase X — encoder property tests (this box, CPU, no GPU; run first)
+## Phase M — mapper + coverage pre-experiments (this box; new in rev 2, panel O3/O4)
 
-**X0 — encoder verification.** Byte-determinism across platforms/runs; golden vectors for a fixed corpus (mirroring `@jeswr/concept-hash`'s golden-vector discipline).
-**X1 — injectivity margins [pre-registered].** Over kernel v0 (~115 concepts) plus ≥10⁴ synthetic capped explications: pairwise cosine distribution; **success** = minimum pairwise angular separation of non-identical explications > 5× the fp16 noise floor at D=8192; **failure** = any collision or margin < 2×.
-**X2 — decode depth.** Recursive unbind + cleanup over kernel v0: report exact-recovery rate by tree depth and clause count; **success** = 100% at depth ≤ 4 on kernel v0, degradation curve documented beyond.
-**X3 — similarity pathology (documentation, not pass/fail).** Measure the NOT-flip / polarity problem quantitatively (cosine shift under single-operator meaning inversions vs under meaning-preserving paraphrase edits); publish the numbers — consumers of kernel similarity must see them. Test polarity-weighted variants; report whether any dominates.
+**M0a — mapper measurement.** Phrase→concept mapper precision/recall against human annotation on a ≥500-token sample; % of corpus token mass mapped; ambiguity/abstention rates. Published before E1. TinyStories' semantically clean 1.5k-word domain is exploited deliberately — near-exact mapping by construction; this is stated as a *favourable-case* design choice.
+**M0b — kernel-expressibility estimate.** Crude token-mass coverage: % of content-word mass in a representative corpus slice with a plausible profile-1 explication. This number bounds every benefit claim and goes in the prospectus unvarnished.
 
-## Phase E — model experiments (rented T4/A10G; ~$10–80 total)
+## Phase X — encoder property tests (this box, CPU, TypeScript on node v22.23.1)
 
-**E2 — geometry-alignment probe** (first: cheapest genuine falsifier; <1 GPU-h, ~$1).
-RSA (Spearman) between kernel pairwise-cosine matrix over prime/molecule exponent words and embedding-/mid-layer representations of TinyStories-33M, SmolLM2-135M, Qwen2.5-0.5B. Baselines: permutation null, frequency-matched random word sets.
-**Success:** ρ beats permuted null at p<0.01 in ≥2 model families. **Failure:** no alignment → the canonical-coordinates claim (arch A1) loses its empirical hook; A2 becomes primary.
+**X0 — verification.** Byte-determinism across runs/platforms; golden vectors (concept-hash discipline).
+**X1 — margins, adversarial-first (rev 2, MAJOR 17/18).** Headline number = the margin distribution over the **single-edit-neighbour suite**: every kernel-v0 explication and a sample of synthetics, mutated by one operator flip / clause swap / referent-index change / filler substitution. Secondary: min pairwise angle over ≥10⁴ random synthetic capped explications (near-vacuous, reported for completeness). **Noise floor defined operationally:** the maximum angular self-distance of any kernel-v0 vector under an fp16 round-trip + cross-platform re-encode, measured. **Success:** min adversarial-suite angle > 5× measured floor at D=8192. **Failure:** < 2×. **2–5×: inconclusive ⇒ raise D or revise encoder ⇒ new pre-registration.** Compute note: ~10⁴ vectors at D=8192 ≈ 10¹² flops + ~160 MB fp32 — blockwise, checkpointed, `nice`d; hours on 2 shared cores; fits.
+**X2 — decode depth.** Exact-recovery rate by (depth × clause-count) cell, n ≥ 30 per cell (synthesise cells kernel v0 leaves empty). Success: 100% at depth ≤ 4.
+**X3 — similarity pathology (documentation).** Cosine shift under meaning-inverting single edits vs meaning-preserving paraphrase edits; sensitivity to the superposition-weighting free parameter (rev 2); polarity-aware variants compared — a variant must *dominate* before any consumer uses kernel similarity (bans naive kernel-kNN in A5 until then).
+**X4 — projection distortion (rev 2, BLOCKER 1).** For each pre-registered (D, d) JL matrix: Spearman between R^D and R^d RDMs on kernel v0; X1's adversarial margins recomputed in R^d. These R^d numbers, not the D=8192 ones, are what E-series claims inherit.
 
-**E1 — frozen kernel rows vs random-frozen vs trainable** (the core experiment; 9 runs, 15–30 T4-h, $5–25).
-TinyStories corpus + phrase→concept mapper augmentation; GPT-2-style 5–15M non-embedding params; three embedding conditions (kernel-frozen / random-frozen norm-matched / trainable), AdamW weight-decay masked off frozen rows (the silent-unfreezing gotcha).
-Metrics: val loss vs tokens; concept-token perplexity; linear probes for explication relations; cloze on held-out explication-entailment templates.
-**Success:** kernel-frozen beats random-frozen on concept probes + concept cloze, non-overlapping 95% CIs over 3 seeds, at ≤50% of training tokens. **Failure:** kernel ≈ random-frozen everywhere (the 2507.04886 prediction) → the content-matters claim is damaged at its strongest test.
+## Phase E — model experiments (rented T4/A10G; ~$30–80)
 
-**E4 — unseen-concept emission** (most discriminating; 2–5 GPU-h, <$5).
-On the E1 kernel-frozen model (tied rows): gloss→concept-token task, ~20% of concepts held out of emission training. Only vector geometry can place `h` near a never-trained read-out direction.
-**Success:** ≥90% top-1 on seen; unseen top-10 above chance with random-frozen control at chance. **Failure:** unseen at chance → rows function as arbitrary ids. *A positive here is the single cheapest result making the strong claim credible.*
+**E2 — geometry-alignment probe** (first; ~$1). **(rev 2 — re-labelled, MAJOR 9:) tests A2's precondition (geometry-up-to-transform), NOT A1's raw coordinates** (RSA is rotation-invariant by construction).
+Item set: **explicated concepts only** — the prime–prime block is exactly orthonormal by construction (constant RDM block, degenerate; MAJOR 8) — item counts and tie policy published. Protocol pinned (MAJOR 10): layer L/2 per model (max-over-layers only with the null computed on the same max); each word in ≥20 contexts, mean-pooled over word tokens; Mantel permutation over concept labels, ≥10⁴ permutations; per-model in-vocabulary lists published (tokenizer attrition differs).
+**Primary criterion (rev 2, MAJOR 9):** kernel RDM adds explanatory power **beyond baseline relatedness RDMs** (word2vec cosine, WordNet path, gloss word-overlap) via partial Spearman, p<0.01, in ≥2 of 3 model families; the frequency-matched random word sets must fall below the kernel set (kernel ρ > 95th percentile of k=100 random sets) or the result is reported as "generic relatedness detected". Interpretation is conditioned on X3 (polarity-stratified subsets reported).
+**Failure:** no partial-RSA signal ⇒ A2's premise loses its hook; E5 remains runnable only because a non-orthogonal linear adapter can reshape the Gram structure RSA sees (stated explicitly, MAJOR 16-iv).
 
-**E3 — concept-density I/O** (6–12 GPU-h, $5–15).
-NSM-explicable entailment/paraphrase tasks (2505.11764-style synthesis pipeline); SmolLM2-135M, frozen embeddings + LoRA attention, kernel-initialised concept rows excluded from training (PEFT `trainable_token_indices`); codings: text-only / text+concept-tokens / concept-only. Metric: accuracy per input token and per training example.
-**Success:** concept-only ≥ text-only at ≤50% tokens. **Failure:** concept coding strictly worse at matched training.
+**E1 — the core freezing experiment** (rev 2: 5 arms × 5 seeds ≈ 25–40 T4-h, $15–40).
+TinyStories, **small vocab (4–8k BPE or word-level — concept rows must be a meaningful parameter fraction)**; augmentation = **stochastic substitution, p=0.5 per occurrence, seeded** (MAJOR 13; deterministic policies kill the metric both ways — if concept-token PPL saturates within 2% across all arms it is declared uninformative, pre-registered). GPT-2-style, 5–15M non-embedding params. Arms: kernel-frozen / **shuffled-kernel-frozen** (BLOCKER 2) / random-frozen / trainable / **kernel-init-trainable** (MINOR 20 — separates "head start that washes out" from "content + fixedness").
+**Primary endpoint:** concept cloze on held-out template *types* (the held-out unit is template-type × concept, not instance — MAJOR 6). **Primary criterion:** kernel-frozen > shuffled-kernel-frozen, paired permutation across 5 paired seeds, p<0.05, **single look: kernel at the 50%-token checkpoint vs shuffled at the 100%-token endpoint** (that is the C2 sample-efficiency claim; all other checkpoints descriptive — MAJOR 12). Kernel > random-frozen is secondary (Holm-corrected), demoted per BLOCKER 2.
+**Circularity guard (MAJOR 5):** every metric also evaluated on the **untrained step-0 kernel-frozen model**; trained success requires beating the step-0 baseline (kernel rows linearly encode the probe targets by construction — the probe must not read the encoder's output back out). Probes run only on mid-layer states at non-concept-token positions.
+**Kill direction (MAJOR 11):** "null" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance.
 
-**E5 — adapter + shuffled-kernel control** (tests arch A2; 3–6 GPU-h).
-Frozen SmolLM2-135M; single shared linear adapter kernel→model space; CoLLEGe-style nonce-concept test (concept defined only by its kernel-space composition).
-**Success:** true kernel beats shuffled kernel significantly on nonce-concept usage/definition-match. This is the fallback claim's decisive test.
+**E4 — emission / unseen-concept decode** (rev 2 substantially rebuilt; 3–6 GPU-h).
+Concept vocabulary scaled to **≥10³** (synthetic capped explications from X1 reused as emission targets — panel O7). Gloss→concept task on the E1 kernel-frozen model (tied frozen rows). **Glosses are naturalistic paraphrases authored independently of the explication renderings and disjoint from the mapper lexicon; gloss-set hash published before training (MAJOR 6).** Two held-out tiers (MAJOR 7): **tier 1** ~20% held out of emission training (tokens still seen in corpus); **tier 2** ~10 concepts fully excluded from all training text (rows in vocab, never seen — the actual zero-exposure test; the "cheapest decisive result" label attaches HERE). ≥5 glosses per held-out concept.
+**Statistics (BLOCKER 3):** candidate set = concept tokens only; chance = 10/|C|; the test is **kernel vs shuffled-kernel unseen accuracy** (control = empirical chance floor), Fisher exact / permutation, p<0.05. **Compositional split** reported: held-out concepts whose explications share structure with seen ones vs not — compositional generalisation is the part classic zero-shot learning (Palatucci 2009, DeViSE 2013 — cited and positioned against, panel O7) does not give.
+**Advance rule (MAJOR 16):** the strong-claim "credible" verdict requires tier-2 success **plus** replication in a second model family — a single tier-1 positive triggers nothing.
 
-**E6 — graph-input (arch A4) — phase 2, deferred** until E1/E4 read out (10–20 GPU-h).
+**E3 — concept-density I/O** (6–12 GPU-h). Rev 2 guards (MAJOR 14): (i) **no-LM baseline first** — logistic regression on summed kernel vectors of the input; if it solves the task, the task is degenerate and is re-synthesised before any LM run; (ii) shuffled-kernel concept-only arm — content claim requires true > shuffled; (iii) **primary criterion at matched examples**; per-token efficiency reported as descriptive only (the per-token metric wins by arithmetic). SmolLM2-135M, frozen concept rows via PEFT `trainable_token_indices` complement, LoRA attention.
 
-## Kill chain (pre-registered decision rule)
+**E5 — adapter + shuffled-kernel control** (3–6 GPU-h). Rev 2 (MINOR 23): n ≥ 20 nonce concepts; exact permutation test, α=0.05; scoring by a fixed non-LLM rubric (slot-filling accuracy against the nonce's explication) or a leak-checked judge (judge prompt contains no explications). Success: true kernel > shuffled kernel on nonce-concept usage.
 
-- E2 fail **and** E1 null **and** E4 unseen-at-chance ⇒ **strong hypothesis dead** (~$30 spent): canonical training-free coordinates as native LM vocabulary is not supported. Programme pivots to A2/A5 ("canonical kernel outside the model; adapters as interface; verifiable grounding") — honestly weaker, still novel, still composes with the estate.
-- E4 positive (unseen decode above chance, control at chance) ⇒ strong claim credible; scale E1 grid and begin frontier-lab prospectus on the strong form.
-- Mixed (e.g. E2 positive, E1 null) ⇒ geometry is natural but content-as-inductive-bias unproven at tiny scale; report as such; A2 primary, A1 parked with the scaling caveat stated.
+**E6 — graph-input (A4)** — phase 2, deferred until E1/E4 read out.
+**E7 — scale slope (new, panel O1; ~$2–10k; NOT started without maintainer budget sign-off).** If the strong claim survives the kill chain: kernel-frozen advantage at 15M / 160M / ~1B non-embedding params, matched token budgets, ≥10³ concepts, ≥2 seeds per scale. The pre-registered question: is the advantage flat/growing or shrinking with scale? This — not E4 — is the pretraining-audience artifact.
+**E8 — kernel↔SAE alignment (new, panel O6; the fallback room-mover).** Align kernel geometry to SAE feature dictionaries across ≥2 open model families (projected path, X4 distortion reported); criterion: kernel coordinates predict cross-model feature correspondence beyond shuffled-kernel and permutation nulls. Survives A1's death entirely; primary artifact for the interpretability audience.
+**E9 — decode-verify vs RAG (new, panel O5; phase 2).** A5's tier finally gets an experiment: factual-consistency benchmark, decode-verify vs vanilla RAG-with-citations, measuring what each catches that the other misses.
+
+## Kill chain (rev 2 — rewritten per MAJOR 16)
+
+All verdicts are **scale-qualified**: "dead" means *dead in this instantiation at 5–15M params, this corpus, this projection* — the licensed conclusion, nothing more (though it removes the cheap-evidence basis for pitching the strong form).
+
+- **Kill:** E2 partial-RSA null **and** E1 equivalence-bounded null (vs shuffled) **and** E4 tier-2 at chance ⇒ strong hypothesis dead at toy scale (~$50–80 spent). Pivot: **A2/A4 per the source report's recommendation, plus A5/A6/A8-tier work** (rev 2: rev 1 silently swapped A4→A5; both are now named, as a decision, with A6/E8 added as the new fallback headline).
+- **Advance:** E4 **tier-2** positive (control at empirical chance) **and** replication in a second model family ⇒ strong claim credible at toy scale ⇒ E7 decision gate with maintainer (budget sign-off). **No frontier pitch on E4 alone.**
+- **Mixed:** reported branch-by-branch with the specific architecture each outcome bears on (E2→A2's premise; E1→A1's content claim; E4→A1's emission claim; E5→A2; E8→A6).
 
 ## Hardware
 
-- **This box** (2 cores/8GB shared with a live server, ~3GB disk, Python 3.9, no torch/compilers): phase X (encoder is TypeScript on node 22), kernel v0 data, mapper, configs, aggregation. Everything `nice`d.
-- **Rented** (needs AWS permissions or user-provisioned instance): one T4 spot (g4dn.xlarge, ~$0.16–0.26/hr spot) covers E2/E4/E5/E3; T4 or A10G (g5.xlarge, ~$0.4–0.6/hr spot) for the E1 grid. Whole programme **≈ $10–80**.
+- **This box:** phases M and X (TypeScript encoder; node v22.23.1 verified), kernel v0 data, configs, aggregation. Everything `nice`d; ~3 GB disk headroom respected.
+- **Rented:** T4 (g4dn.xlarge; report figures: ~$0.06/hr marketplace spot to ~$0.53/hr AWS on-demand) for E2/E4/E5/E3; T4 or A10G (g5.xlarge, $0.43–1.01/hr) for the E1 grid. (Rev 2: prices restored to the source report's figures — rev 1's "$0.16–0.26 spot" range was an uncited estimate.) Kill chain ≈ **$30–80** (upper half of the original envelope after the added arms/seeds). E7 is a separate ~$2–10k decision.
