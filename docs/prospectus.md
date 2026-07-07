@@ -29,3 +29,11 @@ This is the deliverable the PSS agent announced in the thread: the honest answer
 ## Timeline
 
 Encoder v0 + kernel v0 data + Phase X/M: days (this box). Kill chain: ~1–2 days of GPU once access lands. E7/E8: gated decisions after that.
+
+## Status update (2026-07-07, post-Phase-X — evidence now measured, not projected)
+
+**Phase X complete and green** on both synthetic (n=10⁴: margins 47.4× floor; decode 720/720) and authored data (54 concepts: margins 11×; decode 54/54 after a decoder fix whose two failures were pre-registration doing its job). The polarity pathology is now *empirically* disqualifying for similarity uses: on authored data, 13/79 meaning-inverting edits sit closer than the nearest genuinely distinct concept — identity and decode-given-the-kernel are the kernel's reliable operations; cosine similarity is not, and no downstream design uses it.
+
+**Coverage reality (M0, measured in a deliberately favourable domain — these numbers bound every claim):** the deterministic mapper covers **17% of TinyStories token mass** (3.1% concepts + 14% primes; precision/recall provisionally 0.82/0.89 agent-judged, human audit pending); the frequency-weighted **profile-1 expressibility ceiling is ~26% of all token mass**, because **33% of content mass is gated behind the semantic-molecule tier — which is unbuilt and unsized**. The molecule tier is therefore load-bearing for any coverage claim this programme makes, and five kernel concepts are currently unreachable by the mapper's abstain-on-ambiguity policy (resolution pending as a pre-registered policy decision). Stated plainly: at kernel-v0 scale, the kernel addresses a bounded definitional slice of language, exactly as the architecture's scope claim (§3) says it should — anyone extrapolating these results to broad coverage is over-reading them.
+
+**Experiment status:** the full kill chain (E2→E1→E4) is code-complete on two independent transports (AWS EC2 pull-path, quota-escalation-gated; Modal serverless, pairing-gated) with pre-registered criteria, pinned encoder hashes (`kot-enc-B/1` + toy-native `kot-enc-Bq/1`), published gloss-set hash, and cost caps (kill chain ≲$50; E1+E4 ≈$10–25). Results will be appended here verbatim against the pre-registered bars.
