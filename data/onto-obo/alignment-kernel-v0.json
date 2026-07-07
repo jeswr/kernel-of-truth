@@ -1,0 +1,107 @@
+{
+  "purpose": "Hand-checked candidate bridges from the hand-authored kernel-v0 (54 Explicated profile-1 concepts) and molecules-v0 (54 molecules) into the onto-obo bulk tier (BFO/RO/GO). These are ANNOTATION-layer bridge candidates (categorial correspondences), NOT identity claims. BFO/RO are a foundational realist ontology and gUFO (which kernel-v0 already targets: gufo:Event, gufo:Kind) is a BFO-adjacent lightweight UFO; kernel-v0 concepts are NSM explications. The correspondence is 'this NSM concept falls under this BFO category / uses this RO relation', not sameConceptAs. Nothing here is endorsed and nothing enters the mapper.",
+  "method": "manual review by the extracting agent (2026-07-07) against the pinned onto-obo records. Only correspondences the agent is confident of are listed; confidence + caveat per link. gUFO is the intended bridge target for the Event/Kind alignments (kernel-v0 uses gufo: URIs); BFO is cited because gUFO's categories are BFO-aligned and BFO is what we extracted.",
+  "sourcePins": {
+    "kernel-v0": "data/kernel-v0 (schema kot-ast/1, 54 concepts)",
+    "molecules-v0": "data/molecules-v0 (54 molecules)",
+    "onto-obo": "manifest.json sourceFiles pins (BFO/RO/GO)"
+  },
+  "confidenceScale": "high = the NSM concept clearly instantiates the BFO category / RO relation; medium = a defensible categorial fit with a known gap; low = suggestive only.",
+  "alignments": [
+    {
+      "from": "urn:kernel-v0:event",
+      "to": "urn:onto-obo:BFO_0000015",
+      "toLabel": "process",
+      "relation": "fallsUnder",
+      "confidence": "high",
+      "note": "kernel-v0:event (gufo:Event: 'this something happens at some time; after this time it is not happening') is a BFO occurrent, specifically a process. The directive's named anchor (BFO continuant/occurrent <-> our Event). Also fallsUnder BFO:0000003 (occurrent)."
+    },
+    {
+      "from": "urn:kernel-v0:event",
+      "to": "urn:onto-obo:BFO_0000003",
+      "toLabel": "occurrent",
+      "relation": "fallsUnder",
+      "confidence": "high",
+      "note": "The genus one level up from process; gufo:Event corresponds to BFO occurrent (something with temporal parts that unfolds in time)."
+    },
+    {
+      "from": "urn:kernel-v0:part_of",
+      "to": "urn:onto-obo:BFO_0000050",
+      "toLabel": "part of",
+      "relation": "sameRelationAs",
+      "confidence": "high",
+      "note": "kernel-v0:part_of ('X is a part of Y') is exactly RO/BFO parthood BFO:0000050. Caveat: RO parthood carries temporal-index + category-compatibility semantics (continuant/occurrent) that the NSM explication leaves implicit."
+    },
+    {
+      "from": "urn:kernel-v0:has_part",
+      "to": "urn:onto-obo:BFO_0000051",
+      "toLabel": "has part",
+      "relation": "sameRelationAs",
+      "confidence": "high",
+      "note": "kernel-v0:has_part ('Y is a part of X; X is one something') is the inverse relation BFO:0000051, the has-part converse of BFO:0000050."
+    },
+    {
+      "from": "urn:kernel-v0:cause",
+      "to": "urn:onto-obo:RO_0002410",
+      "toLabel": "causally related to",
+      "relation": "narrowerThan",
+      "confidence": "medium",
+      "note": "kernel-v0:cause ('X happens; because X happens, Y happens after') is a directed causal-influence-between-occurrents relation, narrower than RO's symmetric-closure 'causally related to'; the closest directed RO term is RO:0002411 'causally upstream of'. RO's causal relations are biological-process-scoped."
+    },
+    {
+      "from": "urn:kernel-v0:kind",
+      "to": "urn:onto-obo:BFO_0000002",
+      "toLabel": "continuant",
+      "relation": "metaTypeOver",
+      "confidence": "low",
+      "note": "kernel-v0:kind (gufo:Kind: a rigid sortal, 'it cannot not be of this kind') is a META-type of continuants (a kind classifies endurants), not a BFO class itself; BFO has no rigidity meta-level. Low-confidence categorial hint only."
+    },
+    {
+      "from": "urn:kernel-v0:alive",
+      "to": "urn:onto-obo:GO_0008150",
+      "toLabel": "biological_process",
+      "relation": "relatedTo",
+      "confidence": "low",
+      "note": "Suggestive only: kernel-v0:alive ('this someone lives now; the body can move') sits over the biological-process domain GO axiomatizes, but GO defines processes of organisms, not the predicate 'is alive'. Recorded to mark the domain touch-point, not a real bridge."
+    },
+    {
+      "from": "molecules-v0:material-objects",
+      "toMembers": ["ball", "book", "box", "car", "rock", "house", "picture", "money", "clothes"],
+      "to": "urn:onto-obo:BFO_0000030",
+      "toLabel": "object",
+      "relation": "fallsUnder",
+      "confidence": "medium",
+      "note": "The inanimate artefact/natural-object molecules are BFO objects (BFO:0000030, a material entity that is spatially/causally unified and maximally self-connected). Medium: the molecule set is not individuated by BFO's unity criteria."
+    },
+    {
+      "from": "molecules-v0:living-things",
+      "toMembers": ["animal", "bear", "bird", "cat", "dog", "fish", "rabbit", "tree", "flower", "grass"],
+      "to": "urn:onto-obo:BFO_0000030",
+      "toLabel": "object",
+      "relation": "fallsUnder",
+      "confidence": "medium",
+      "note": "Living-thing molecules are BFO objects (material entities). A tighter bridge would be to a species/organism class in NCBITaxon or an anatomical-object class; recorded at BFO object level to stay within the extracted set."
+    },
+    {
+      "from": "molecules-v0:body-parts",
+      "toMembers": ["eye", "hand", "head", "mouth"],
+      "to": "urn:onto-obo:BFO_0000024",
+      "toLabel": "fiat object part",
+      "relation": "fallsUnder",
+      "confidence": "medium",
+      "note": "Body-part molecules are BFO fiat object parts (BFO:0000024) or objects, part_of an organism. The eye/hand demarcation is anatomical; UBERON is the true home. part_of (BFO:0000050) relates them to the organism molecule."
+    },
+    {
+      "from": "molecules-v0:process-verbs",
+      "toMembers": ["run", "jump", "walk", "sit", "sleep", "eat", "cry", "laugh", "smile", "hug"],
+      "to": "urn:onto-obo:BFO_0000015",
+      "toLabel": "process",
+      "relation": "fallsUnder",
+      "confidence": "medium",
+      "note": "The bodily-activity molecules denote BFO processes (occurrents), with the animate molecule as RO participant (RO:0000056 'participates in'). Medium: NSM verb molecules also carry manner/telic content BFO process leaves unspecified."
+    }
+  ],
+  "notAligned": {
+    "note": "Deliberately unaligned: the emotion/epistemic kernel concepts (afraid, angry, happy, sad, believe, know, forget, remember) — BFO's specifically-dependent-continuant qualities/dispositions (BFO:0000019/0000016) are a categorial home but the NSM mental-predicate content is not what BFO axiomatizes; the artefact-history concepts (bookmark, archived, reminder, memory) — these are information/social-artefact concepts (IAO/gUFO territory, not core BFO); and the speech-act concepts (promise, lie, condolence) — social acts, out of BFO scope."
+  }
+}

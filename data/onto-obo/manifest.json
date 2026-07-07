@@ -1,0 +1,174 @@
+{
+  "corpus": "onto-obo",
+  "schema": "kot-obo/1",
+  "version": "0.1.0",
+  "semanticStatus": "AxiomsOnly",
+  "statusNote": "Structural axioms mechanically extracted from fixed OBO Foundry sources; NO semantic-adequacy claim. The LOGICAL definition (intersection_of genus-differentia) is inside record identity (a genuine mechanical definition, a tier richer than WordNet hypernymy) and flagged upgradeCandidate:true — the upgrade path to a profile-1 structured explication (docs/design-bulk-kernel.md). Textual definitions/labels/synonyms are annotations OUTSIDE identity. Not a mapper/pre-registration surface.",
+  "extractor": {
+    "name": "kot-obo-extractor",
+    "version": "0.1.0",
+    "files": [
+      "parse-obo.mjs",
+      "extract.mjs"
+    ],
+    "contentHash": "3b1a6474aaaff81fd7bd1c94f04c5352f2a6a88fc7b4da0d0c0bc9a73138a133",
+    "hashRule": "sha256 over concatenated bytes of listed files, in listed order"
+  },
+  "extractionDate": "2026-07-07",
+  "ontologies": {
+    "BFO": {
+      "sourceName": "Basic Formal Ontology (OBO Foundry canonical serialization)",
+      "purl": "http://purl.obolibrary.org/obo/bfo.obo",
+      "sourceVersion": "sha256:a2510be533829ef988330f4a01cd43ccf7881bdb167cf801bad21611cc04b2ae",
+      "dataVersion": "2019-08-26",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Basic Formal Ontology, its authors, http://purl.obolibrary.org/obo/bfo).",
+      "note": "OBO serialization is class-only (data-version 2019-08-26); BFO 2020's core RELATIONS are serialized in OWL only and are captured here via RO's BFO-relation Typedefs (BFO:0000050 etc.). bfo-2020.owl sha256 recorded for provenance completeness (not parsed).",
+      "shard": "bfo.jsonl",
+      "counts": {
+        "records": 35,
+        "classes": 35,
+        "relations": 0,
+        "withLogicalDef": 0,
+        "genusDifferentia": 0,
+        "obsoleteSkipped": 0,
+        "importedAliasesSkipped": 0,
+        "axiomsByRel": {
+          "is_a": 34,
+          "disjoint_from": 19
+        },
+        "differentiaProps": {}
+      },
+      "topDifferentiaProperties": []
+    },
+    "RO": {
+      "sourceName": "Relation Ontology (RO)",
+      "purl": "http://purl.obolibrary.org/obo/ro.obo",
+      "sourceVersion": "sha256:e34a2ea60fc15114edd4494c912ac0558ae51d31a1e5d62c6c0db0dac9e90449",
+      "dataVersion": "releases/2025-12-17",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC0 1.0 is a public-domain dedication; no restrictions on derived records.",
+      "note": "The relation vocabulary used across OBO. [Typedef] stanzas -> relation records (kind:\"relation\") with inverse_of/domain/range/transitive_over/holds_over_chain axioms and boolean characteristics; [Term] stanzas -> class records.",
+      "shard": "ro.jsonl",
+      "counts": {
+        "records": 721,
+        "classes": 33,
+        "relations": 688,
+        "withLogicalDef": 0,
+        "genusDifferentia": 0,
+        "obsoleteSkipped": 17,
+        "importedAliasesSkipped": 20,
+        "axiomsByRel": {
+          "is_a": 755,
+          "relationship": 1,
+          "disjoint_from": 11,
+          "inverse_of": 121,
+          "domain": 147,
+          "range": 135,
+          "holds_over_chain": 101,
+          "transitive_over": 38
+        },
+        "differentiaProps": {}
+      },
+      "topDifferentiaProperties": []
+    },
+    "GO": {
+      "sourceName": "Gene Ontology (GO)",
+      "purl": "http://purl.obolibrary.org/obo/go.obo",
+      "sourceVersion": "sha256:f6a7004c2ee92896691359aa211c418aa1f9430a5906d7913af67afeda05e34c",
+      "dataVersion": "releases/2026-06-15",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Gene Ontology Consortium, http://geneontology.org).",
+      "note": "Domain exemplar chosen for its heavy genus-differentia logical definitions (intersection_of). Obsolete terms (is_obsolete:true) are excluded from records and counted; they carry no definitional axioms.",
+      "shard": "go.jsonl",
+      "counts": {
+        "records": 38256,
+        "classes": 38245,
+        "relations": 11,
+        "withLogicalDef": 9307,
+        "genusDifferentia": 9303,
+        "obsoleteSkipped": 10084,
+        "importedAliasesSkipped": 0,
+        "axiomsByRel": {
+          "is_a": 57827,
+          "relationship": 16209,
+          "disjoint_from": 29,
+          "transitive_over": 1,
+          "inverse_of": 1,
+          "holds_over_chain": 1
+        },
+        "differentiaProps": {
+          "regulates": 2915,
+          "part_of": 1088,
+          "negatively_regulates": 2564,
+          "happens_during": 9,
+          "has_part": 53,
+          "positively_regulates": 2586,
+          "occurs_in": 177
+        }
+      },
+      "topDifferentiaProperties": [
+        [
+          "regulates",
+          2915
+        ],
+        [
+          "positively_regulates",
+          2586
+        ],
+        [
+          "negatively_regulates",
+          2564
+        ],
+        [
+          "part_of",
+          1088
+        ],
+        [
+          "occurs_in",
+          177
+        ],
+        [
+          "has_part",
+          53
+        ],
+        [
+          "happens_during",
+          9
+        ]
+      ]
+    }
+  },
+  "sourceFiles": {
+    "bfo.obo": "sha256:a2510be533829ef988330f4a01cd43ccf7881bdb167cf801bad21611cc04b2ae",
+    "bfo-2020.owl": "sha256:af81eb7144c3d3db3a2d2beabff9dd299b14a91dc69cc84e663ca91e0c98039c",
+    "ro.obo": "sha256:e34a2ea60fc15114edd4494c912ac0558ae51d31a1e5d62c6c0db0dac9e90449",
+    "go.obo": "sha256:f6a7004c2ee92896691359aa211c418aa1f9430a5906d7913af67afeda05e34c"
+  },
+  "shards": {
+    "bfo.jsonl": {
+      "records": 35,
+      "bytes": 30197,
+      "sha256": "c845126441764932fe7de16fd3031aeaf4c9c19875f26165b3452dff7396e42a"
+    },
+    "ro.jsonl": {
+      "records": 721,
+      "bytes": 606278,
+      "sha256": "4b62823ef440481161231f92b5152fe3f5452646722e0e30c1ce1ff41d713372"
+    },
+    "go.jsonl": {
+      "records": 38256,
+      "bytes": 44965428,
+      "sha256": "6c65be58f05cd34a0efb35155ac58b3f1e668e6172d623d883b2d57c4e426d2d"
+    }
+  },
+  "totals": {
+    "records": 39012,
+    "withLogicalDef": 9307,
+    "genusDifferentia": 9303,
+    "bytes": 45601903
+  }
+}
