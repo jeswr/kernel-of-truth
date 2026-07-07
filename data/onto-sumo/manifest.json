@@ -1,0 +1,134 @@
+{
+  "corpus": "onto-sumo",
+  "schema": "kot-sumo/1",
+  "version": "0.1.0",
+  "semanticStatus": "AxiomsOnly",
+  "statusNote": "SUMO SUO-KIF statements as canonical one-line strings (form:\"sumo-kif-canonical\") + a declared-term inventory with structured declaration axioms. NO semantic translation, NO semantic-adequacy claim. SUMO's <=> biconditional axioms are its genuinely-definitional statements (analogous to set.mm df-*) and are linked from each term they define. documentation/termFormat are annotations OUTSIDE identity. Not a mapper/pre-registration surface.",
+  "subsetRule": "Merge.kif (SUMO upper ontology) + Mid-level-ontology.kif (MILO) only — SUMO's language-independent definitional core. The ~100 domain .kif files are out of scope for this ingestion (follow-up filed).",
+  "source": {
+    "repository": "https://github.com/ontologyportal/sumo",
+    "commit": "ceb2954bccf98b3d113ea82797493a2b92b3e987",
+    "license": "IEEE / Articulate Software SUMO licence (permissive; redistribution + derivative works permitted with IEEE attribution)",
+    "licenseVerdict": "REDISTRIBUTABLE: the IEEE licence header in each .kif grants a \"perpetual, non-exclusive, royalty-free, world-wide right and license to copy, publish and distribute the Document in any way, and to prepare derivative works ... provided that the IEEE is appropriately acknowledged as the source and copyright owner.\" Derived records may be redistributed with IEEE attribution. NOT public domain (IEEE remains copyright holder)."
+  },
+  "extractor": {
+    "name": "kot-sumo-extractor",
+    "version": "0.1.0",
+    "files": [
+      "parse-kif.mjs",
+      "extract.mjs"
+    ],
+    "contentHash": "7723916d3cf0bc06cf405f147acb421febf44be96fbf5a4264f753a44a50cb54",
+    "hashRule": "sha256 over concatenated bytes of listed files, in listed order"
+  },
+  "extractionDate": "2026-07-07",
+  "sourceFiles": {
+    "Merge.kif": "sha256:532d9b2c6f0ab2309c58c72ca9b137e896474a8637a711c5fda09f96a235c307",
+    "Mid-level-ontology.kif": "sha256:6bd907c1c2d038a4c0f4b85887dd50dfa84eb311e4265a40ff5cef102368067e"
+  },
+  "files": {
+    "terms.jsonl": 3705,
+    "axioms.jsonl": 15595
+  },
+  "perFile": {
+    "Merge.kif": {
+      "role": "SUMO upper ontology",
+      "axioms": 5486
+    },
+    "Mid-level-ontology.kif": {
+      "role": "Mid-Level Ontology (MILO)",
+      "axioms": 10109
+    }
+  },
+  "axiomStats": {
+    "byForm": {
+      "instance": 1751,
+      "domain": 1327,
+      "documentation": 3637,
+      "subrelation": 216,
+      "=>": 3089,
+      "domainSubclass": 140,
+      "relatedInternalConcept": 142,
+      "disjointRelation": 23,
+      "range": 144,
+      "rangeSubclass": 35,
+      "partition": 54,
+      "exists": 1,
+      "subclass": 2947,
+      "termFormat": 664,
+      "disjoint": 106,
+      "format": 110,
+      "<=>": 65,
+      "disjointDecomposition": 16,
+      "contraryAttribute": 37,
+      "trichotomizingOn": 4,
+      "inverse": 4,
+      "forall": 7,
+      "equal": 57,
+      "identityElement": 4,
+      "not": 2,
+      "subAttribute": 79,
+      "successorClass": 17,
+      "names": 115,
+      "comment": 6,
+      "externalImage": 4,
+      "exhaustiveAttribute": 4,
+      "successorAttribute": 4,
+      "abbreviation": 1,
+      "typicalPart": 27,
+      "typicallyContainsPart": 4,
+      "initialPart": 27,
+      "partTypes": 14,
+      "roomTempState": 199,
+      "angleOfFigure": 1,
+      "subsumesContentClass": 3,
+      "pathologyTreatment": 1,
+      "secretesSubstance": 13,
+      "antagonistMuscles": 4,
+      "connectedBodyPart": 8,
+      "oppositeDirection": 3,
+      "utterance": 1,
+      "defaultMeasure": 13,
+      "habitatOfOrganism": 12,
+      "meatOfAnimal": 3,
+      "subField": 13,
+      "initiallyContainsPart": 3,
+      "successorAttributeClosure": 1,
+      "conventionalShortName": 108,
+      "atomicNumber": 110,
+      "meltingPoint": 99,
+      "boilingPoint": 95,
+      "defaultMaximumMeasure": 4,
+      "property": 13,
+      "defaultMinimumMeasure": 2,
+      "defaultMaximumLength": 1,
+      "defaultMinimumLength": 1
+    },
+    "total": 15595
+  },
+  "termStats": {
+    "records": 3705,
+    "byKind": {
+      "class": 2483,
+      "relation": 746,
+      "instance": 328,
+      "attribute": 146,
+      "term": 2
+    },
+    "withDoc": 3605,
+    "withBiconditionalDef": 48,
+    "danglingTargets": 1
+  },
+  "shards": {
+    "terms.jsonl": {
+      "records": 3705,
+      "bytes": 3066600,
+      "sha256": "47d4d8be71a3837372bdcf343d4684065ff62adaa76f03b0faac059013be20e9"
+    },
+    "axioms.jsonl": {
+      "records": 15595,
+      "bytes": 10912465,
+      "sha256": "d5ee964faa5585c37899de3bf301fea49c7de6cf055e100f90b503bcc498ce37"
+    }
+  }
+}
