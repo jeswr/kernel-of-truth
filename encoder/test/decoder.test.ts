@@ -57,6 +57,20 @@ test('round-trip: shallow synthetics decode exactly (seeds 0..9)', () => {
   }
 });
 
+test('regression (kernel-of-truth-sq2): depth-4 x 8-clause deep quote-chain decodes exactly', () => {
+  // The single X2 boundary failure of encoder v0's first run: seed x2/4/8/3
+  // nests clause -> complement clause -> quote -> quote clause whose required
+  // experiencer is the atomic prime YOU. Before the sq2 decoder fix, unpeeled
+  // sibling atoms/clauses pushed the true atom under the presence gate and the
+  // required-slot best-effort path fabricated a phantom SP (ok-but-wrong at
+  // 0.135 confidence). Must round-trip exactly.
+  const e = generateExplication({ seed: 'x2/4/8/3', topClauses: 8, depth: 4 });
+  const v = encodeExplication(e);
+  const r = decodeExplication(v);
+  assert.equal(r.ok, true, r.validationError);
+  assert.equal(canonicalJson(r.explication), canonicalJson(e));
+});
+
 test('concept references decode via nearest-neighbour cleanup against the lexicon', () => {
   const leaf = generateExplication({ seed: 'dec-leaf', topClauses: 2, depth: 1 });
   const defs = new Map([['urn:concept:leaf', leaf]]);

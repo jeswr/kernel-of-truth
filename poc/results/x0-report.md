@@ -1,6 +1,6 @@
 # X0 — golden vectors / byte-determinism
 
-date: 2026-07-07T01:56:10.185Z
+date: 2026-07-07T03:17:03.035Z
 encoder content-hash: `40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c`
 algorithm: kot-enc-B/1, D=8192
 golden vectors: 11

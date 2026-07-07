@@ -254,6 +254,15 @@ class Dec {
     const residual = Float64Array.from(z);
     const headAtomic = this.pickBest(residual, 'head', HEAD_CANDIDATES);
     let head: SPHead | null = null;
+    /**
+     * KIND/PART heads: the `of` target is resolved AFTER the sibling atomic
+     * peels (det/quant/mods/bind). Bound atoms are exactly orthogonal, so the
+     * deferral cannot change any atomic decision — but a structured of-target
+     * is recovered by unbinding, and every unpeeled sibling atom's energy
+     * turns into noise on that estimate (kernel-of-truth-sq2: the same
+     * ordering effect at clause level caused the X2 depth-4x8 failure).
+     */
+    let pendingOfFrame: 'kindFrame' | 'partFrame' | null = null;
     let localScale = headAtomic.score;
     if (headAtomic.score >= this.thetaAbs || (assumePresent && headAtomic.score >= this.conceptSignatureAt(residual))) {
       const name = headAtomic.name;
@@ -263,36 +272,8 @@ class Dec {
       } else {
         const prime = name.slice(6);
         if (prime === 'KIND' || prime === 'PART') {
-          const kindTag = prime === 'KIND' ? ('kindFrame' as const) : ('partFrame' as const);
+          pendingOfFrame = prime === 'KIND' ? 'kindFrame' : 'partFrame';
           this.peel(residual, this.cb.boundAtom('head', name));
-          let of: SP | { kind: 'concept'; id: string } | { kind: 'ref'; index: number } | null = null;
-          const ofAtomic = this.pickBest(residual, 'of', REF_FILLERS);
-          if (ofAtomic.score >= Math.max(this.thetaAbs, 0.4 * localScale)) {
-            of = { kind: 'ref', index: Number(ofAtomic.name.slice(4)) };
-            this.peel(residual, this.cb.boundAtom('of', ofAtomic.name));
-            this.step(`${path}.head.of`, 'of-ref', ofAtomic.name, ofAtomic.margin);
-          } else {
-            const zOf = normalisedCopy(this.unbind(residual, 'of'));
-            if (zOf !== null) {
-              const spSig = this.spSignature(zOf);
-              const ccSig = this.conceptSignature(zOf);
-              if (ccSig >= Math.max(this.thetaAbs, spSig)) {
-                const nn = this.conceptNN(zOf, `${path}.head.of`);
-                if (nn !== null) of = { kind: 'concept', id: nn.id };
-              } else if (spSig >= this.thetaAbs) {
-                of = this.decodeSP(zOf, depth + 1, `${path}.head.of`);
-              }
-              if (of !== null) {
-                // structured of-target (SP or concept): peel its bound contribution
-                this.peel(residual, this.bind('of', this.reencodeFiller(of as Filler)));
-              }
-            }
-          }
-          if (of === null) {
-            this.step(`${path}.head.of`, 'of-missing', '-', 0);
-            return null; // a KIND/PART frame without its of-target cannot round-trip
-          }
-          head = { kind: kindTag, of };
         } else {
           head = { kind: 'primeHead', prime };
           this.peel(residual, this.cb.boundAtom('head', name));
@@ -359,6 +340,38 @@ class Dec {
       this.peel(residual, this.cb.boundAtom('bind', bind.name));
       this.step(`${path}.bind`, 'bind', bind.name, bind.margin);
     }
+    if (pendingOfFrame !== null) {
+      // Deferred KIND/PART of-target (see note at the top of this method).
+      let of: SP | { kind: 'concept'; id: string } | { kind: 'ref'; index: number } | null = null;
+      const ofAtomic = this.pickBest(residual, 'of', REF_FILLERS);
+      if (ofAtomic.score >= Math.max(this.thetaAbs, 0.4 * localScale)) {
+        of = { kind: 'ref', index: Number(ofAtomic.name.slice(4)) };
+        this.peel(residual, this.cb.boundAtom('of', ofAtomic.name));
+        this.step(`${path}.head.of`, 'of-ref', ofAtomic.name, ofAtomic.margin);
+      } else {
+        const zOf = normalisedCopy(this.unbind(residual, 'of'));
+        if (zOf !== null) {
+          const spSig = this.spSignature(zOf);
+          const ccSig = this.conceptSignature(zOf);
+          if (ccSig >= Math.max(this.thetaAbs, spSig)) {
+            const nn = this.conceptNN(zOf, `${path}.head.of`);
+            if (nn !== null) of = { kind: 'concept', id: nn.id };
+          } else if (spSig >= this.thetaAbs) {
+            of = this.decodeSP(zOf, depth + 1, `${path}.head.of`);
+          }
+          if (of !== null) {
+            // structured of-target (SP or concept): peel its bound contribution
+            this.peel(residual, this.bind('of', this.reencodeFiller(of as Filler)));
+          }
+        }
+      }
+      if (of === null) {
+        this.step(`${path}.head.of`, 'of-missing', '-', 0);
+        return null; // a KIND/PART frame without its of-target cannot round-trip
+      }
+      head = { kind: pendingOfFrame, of };
+    }
+    if (head === null) return null; // unreachable: every accepting branch sets head or pendingOfFrame
     let restrictedBy: Clause | undefined;
     {
       const zR = normalisedCopy(this.unbind(residual, 'restrictedBy'));
@@ -471,17 +484,11 @@ class Dec {
     return null;
   }
 
-  decodeRole(
-    residual: Float64Array,
+  /** Candidate sets licensed at a role slot; null = nothing licensed (unknown adjunct). */
+  private roleCandidateSets(
     role: Role,
     kind: SlotFillerKind | 'adjunct',
-    required: boolean,
-    localScale: number,
-    depth: number,
-    path: string,
-  ): Filler | null {
-    const thetaOpt = Math.max(this.thetaAbs, 0.4 * localScale);
-    const gate = required ? this.thetaAbs : thetaOpt;
+  ): { atomicCands: readonly string[]; structured: readonly StructKind[] } | null {
     let atomicCands: readonly string[] = [];
     let structured: readonly StructKind[] = [];
     switch (kind) {
@@ -535,6 +542,34 @@ class Dec {
         }
         break;
     }
+    return { atomicCands, structured };
+  }
+
+  /**
+   * Decode one role slot. `phase` implements the two-phase clause sweep
+   * (kernel-of-truth-sq2 fix — see decodeClause):
+   *  - 'atomic': commit an above-gate atomic filler, otherwise decide nothing
+   *    (no peel, no step) — structured decoding is deferred so that EVERY
+   *    committed atom is already out of the residual first.
+   *  - 'full': the remaining work — atomic gate re-check (structured peels by
+   *    earlier phase-2 roles shift scores slightly), structured decode, and
+   *    the required-slot fallbacks.
+   */
+  decodeRole(
+    residual: Float64Array,
+    role: Role,
+    kind: SlotFillerKind | 'adjunct',
+    required: boolean,
+    localScale: number,
+    depth: number,
+    path: string,
+    phase: 'atomic' | 'full' = 'full',
+  ): Filler | null {
+    const sets = this.roleCandidateSets(role, kind);
+    if (sets === null) return null;
+    const { atomicCands, structured } = sets;
+    const thetaOpt = Math.max(this.thetaAbs, 0.4 * localScale);
+    const gate = required ? this.thetaAbs : thetaOpt;
     const toAtomic = (name: string): Filler =>
       name.startsWith('ref:')
         ? { kind: 'ref', index: Number(name.slice(4)) }
@@ -545,12 +580,37 @@ class Dec {
       this.step(`${path}.${role}`, 'atomic', atomicPick.name, atomicPick.margin);
       return toAtomic(atomicPick.name);
     }
+    if (phase === 'atomic') return null;
     if (structured.length > 0) {
       // Optional slots gate structured presence relative to the local signal
       // scale (phantom-SP protection). REQUIRED slots are grammar-guaranteed
       // present, so they decode by best-effort relative competition instead
       // of an absolute floor (the floor would turn deep-but-real content into
       // a certain failure).
+      if (required && atomicPick !== null) {
+        // Matched-filter competition ON A COMMON SCALE first: unbinding is
+        // unitary, so structure signatures on the RAW (unnormalised) unbound
+        // estimate are directly comparable with the atomic probe scores.
+        // Without this, `assumePresent` fabricates a phantom SP even when the
+        // sub-gate atomic argmax is the stronger hypothesis (the X2 depth-4x8
+        // boundary failure, kernel-of-truth-sq2).
+        const zRaw = this.unbind(residual, role);
+        let rawSig = -Infinity;
+        for (const k of structured) {
+          const s =
+            k === 'sp' ? this.spSignature(zRaw)
+            : k === 'clause' ? this.clauseSignature(zRaw)
+            : k === 'quote' ? this.quoteSignature(zRaw)
+            : k === 'temporal' ? this.temporalSignature(zRaw)
+            : this.conceptSignature(zRaw);
+          if (s > rawSig) rawSig = s;
+        }
+        if (atomicPick.score >= rawSig) {
+          this.peel(residual, this.cb.boundAtom(role, atomicPick.name));
+          this.step(`${path}.${role}`, 'atomic-forced', atomicPick.name, 0);
+          return toAtomic(atomicPick.name);
+        }
+      }
       const structGate = required ? this.thetaAbs : Math.max(this.thetaAbs, 0.2 * localScale);
       const f = this.decodeStructuredAt(residual, role, structured, depth, `${path}.${role}`, structGate, required);
       if (f !== null) return f;
@@ -583,20 +643,30 @@ class Dec {
       if (frame === undefined) return null;
       const localScale = (tp + pred.score) / 2;
       const roles: Partial<Record<Role, Filler>> = {};
+      // Two-phase role sweep (kernel-of-truth-sq2). Phase 1 commits every
+      // above-gate ATOMIC filler across all roles before any structured
+      // unbinding. Bound atoms are exactly orthogonal (Hadamard TPR), so the
+      // reordering cannot change any atomic decision — but it keeps committed
+      // atoms' energy out of every structured child estimate. Previously the
+      // adjunct atoms (decoded last in ROLES order) stayed in the residual
+      // while complement/quote were unbound, and that noise compounded down
+      // deep chains (X2 depth-4x8: corr of a depth-4 clause estimate fell
+      // 0.60 -> 0.15, pushing a true filler under the presence gate).
+      const pending: { role: Role; kind: SlotFillerKind | 'adjunct'; required: boolean }[] = [];
       for (const role of ROLES) {
         const slot = frame.slots.find((sl) => sl.role === role);
         const isAdjunct = (ADJUNCT_ROLES as readonly string[]).includes(role);
         if (slot === undefined && !isAdjunct) continue;
-        const f = this.decodeRole(
-          residual,
-          role,
-          slot?.kind ?? 'adjunct',
-          slot?.required ?? false,
-          localScale,
-          depth,
-          path,
-        );
+        const kind = slot?.kind ?? 'adjunct';
+        const required = slot?.required ?? false;
+        const f = this.decodeRole(residual, role, kind, required, localScale, depth, path, 'atomic');
         if (f !== null) roles[role] = f;
+        else pending.push({ role, kind, required });
+      }
+      // Phase 2: structured / sub-gate roles against the atom-free residual.
+      for (const p of pending) {
+        const f = this.decodeRole(residual, p.role, p.kind, p.required, localScale, depth, path, 'full');
+        if (f !== null) roles[p.role] = f;
       }
       return { type: 'pred', pred: predName, roles };
     }
@@ -689,6 +759,8 @@ class Dec {
   /** Decode an ordered clause list from a node residual (quote bodies). */
   decodeClauseList(residual: Float64Array, localScale: number, depth: number, path: string): Clause[] {
     const clauses: Clause[] = [];
+    const recons: Float64Array[] = [];
+    const coeffs: number[] = [];
     for (let i = 0; i < CAPS.maxClauses; i++) {
       const u = applyPermutation(this.cb.clausePermInv(i), residual);
       if (this.clauseSignature(u) < Math.max(this.thetaAbs, 0.2 * localScale)) break;
@@ -698,7 +770,44 @@ class Dec {
       const c = uU === null ? null : this.decodeClause(uU, depth + 1, `${path}[${i}]`);
       if (c === null) break;
       clauses.push(c);
-      this.peel(residual, applyPermutation(this.cb.clausePerm(i), this.enc.encodeClause(c)));
+      const rec = applyPermutation(this.cb.clausePerm(i), this.enc.encodeClause(c));
+      recons.push(rec);
+      coeffs.push(this.peel(residual, rec));
+    }
+    // One local refinement pass (restore-self / peel-siblings), mirroring the
+    // top-level global refinement: clause i was first decoded with clauses
+    // i+1.. still in the residual as noise; re-decode each against the
+    // residual of all the others (kernel-of-truth-sq2 — the sibling clause
+    // of a depth-4 quote body cost ~35% of the deep clause's SNR in the X2
+    // depth-4x8 boundary case).
+    if (clauses.length > 1) {
+      for (let i = 0; i < clauses.length; i++) {
+        const restored = Float64Array.from(residual);
+        const rec = recons[i]!;
+        const c0 = coeffs[i]!;
+        for (let j = 0; j < restored.length; j++) restored[j] = restored[j]! + c0 * rec[j]!;
+        const uU = normalisedCopy(applyPermutation(this.cb.clausePermInv(i), restored));
+        if (uU === null) continue;
+        // Steps bookkeeping: a successful re-decode supersedes the first-pass
+        // steps under this clause's path; a failed one leaves them untouched.
+        const saved = this.steps;
+        this.steps = [];
+        const c = this.decodeClause(uU, depth + 1, `${path}[${i}]`);
+        if (c === null) {
+          this.steps = saved; // keep the first-pass decode (residual untouched)
+          continue;
+        }
+        const pfx = `${path}[${i}]`;
+        this.steps = [
+          ...saved.filter((s) => s.path !== pfx && !s.path.startsWith(`${pfx}.`) && !s.path.startsWith(`${pfx}[`)),
+          ...this.steps,
+        ];
+        clauses[i] = c;
+        residual.set(restored);
+        const rec2 = applyPermutation(this.cb.clausePerm(i), this.enc.encodeClause(c));
+        recons[i] = rec2;
+        coeffs[i] = this.peel(residual, rec2);
+      }
     }
     return clauses;
   }
