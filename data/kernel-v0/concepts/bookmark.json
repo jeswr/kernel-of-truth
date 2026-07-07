@@ -1,0 +1,170 @@
+{
+  "id": "urn:kernel-v0:bookmark",
+  "label": "bookmark",
+  "status": "walkthrough",
+  "pattern": "concept-hash-design.md §3.4 (the Bookmark pattern description: maker-coreference; SAY/WORDS vs the thing said-about carrying the document/subject split; 'because there is this something, this someone can know where that other thing is' for locator semantics)",
+  "gloss": "someone did something; because of this, there is this something. There is another something. This something is words; these words say something about that other something. Because there is this something, this someone can know where that other something is.",
+  "notes": "The gist describes this record's pattern but does not print it; this is corpus material authored to that description. The document/subject split is rendered with the words themselves as SAY agent (\"these words say something about that other thing\") - grammatically licensed, semantically a stretch of the agent role, flagged.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "BE-SOMEWHERE",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 3
+                        },
+                        "locus": {
+                          "kind": "sp",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "WHERE~PLACE"
+                          },
+                          "det": "SOME",
+                          "bind": 4
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

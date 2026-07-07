@@ -1,0 +1,117 @@
+{
+  "id": "urn:kernel-v0:remember",
+  "label": "remember (X remembers Y)",
+  "status": "research-grade",
+  "pattern": "NSM-style: knowing-before grounding present thinkability",
+  "gloss": "X knew this something before now; because X knew it before, X can think about it now; X knows it now.",
+  "notes": "KNOWN-WEAK: the before-clause is repeated under BECAUSE (no clause anaphora in profile-1), and the retrieval event itself is not separable from standing knowledge.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "temporal",
+            "op": "BEFORE",
+            "anchor": {
+              "kind": "prime",
+              "prime": "NOW"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              },
+              "time": {
+                "kind": "temporal",
+                "op": "BEFORE",
+                "anchor": {
+                  "kind": "prime",
+                  "prime": "NOW"
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THINK",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "time": {
+                    "kind": "prime",
+                    "prime": "NOW"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "prime",
+            "prime": "NOW"
+          }
+        }
+      }
+    ]
+  }
+}

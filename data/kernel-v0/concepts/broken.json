@@ -1,0 +1,108 @@
+{
+  "id": "urn:kernel-v0:broken",
+  "label": "broken",
+  "status": "research-grade",
+  "pattern": "event-kind concept reference: 'some something of kind <break> happened'",
+  "gloss": "before now, some something of kind break happened; because of it, people cannot do things with this something.",
+  "notes": "The referenced relational concept's role bindings (that THIS thing was the broken one) are not threadable through a kind-reference; flagged.",
+  "references": [
+    "urn:kernel-v0:break"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:break"
+                  }
+                },
+                "det": "SOME",
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        }
+                      },
+                      "undergoer": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "quant": "SOME"
+                      },
+                      "instrument": {
+                        "kind": "ref",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "urn:kernel-v0:has-part",
+  "label": "has part (X has part Y)",
+  "status": "research-grade",
+  "pattern": "inverse of part-of (role positions swapped)",
+  "gloss": "Y is a part of X; X is one something.",
+  "notes": "KNOWN-WEAK: thin inverse; exists to give X-runs a role-swapped near-neighbour of part-of.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "quant": "ONE"
+          }
+        }
+      }
+    ]
+  }
+}

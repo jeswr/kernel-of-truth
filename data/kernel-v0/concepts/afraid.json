@@ -1,0 +1,133 @@
+{
+  "id": "urn:kernel-v0:afraid",
+  "label": "afraid",
+  "status": "research-grade",
+  "pattern": "NSM emotion schema (Wierzbicka): prospective bad happening under CAN/MAYBE",
+  "gloss": "this someone thinks like this: 'some very bad something can happen after now; I don't want it; maybe it will happen'; because of this, this someone feels something bad.",
+  "notes": "NSM's 'can happen TO ME' benefactive dropped (no beneficiary role). Uses MAYBE and the VERY+BAD intensified modifier.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "sp",
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            },
+                            "quant": "SOME",
+                            "mods": [
+                              {
+                                "mod": "BAD",
+                                "intensifier": "VERY"
+                              }
+                            ],
+                            "bind": 2
+                          },
+                          "time": {
+                            "kind": "temporal",
+                            "op": "AFTER",
+                            "anchor": {
+                              "kind": "prime",
+                              "prime": "NOW"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "DON'T-WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "MAYBE",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "time": {
+                            "kind": "temporal",
+                            "op": "AFTER",
+                            "anchor": {
+                              "kind": "prime",
+                              "prime": "NOW"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "id": "urn:kernel-v0:lie",
+  "label": "lie (the words)",
+  "status": "research-grade",
+  "pattern": "Wierzbicka lie schema: said + known-not-true + deceptive intent; TRUE over a referent per gist §4.4",
+  "gloss": "this something is words; someone says them to someone else; this someone knows they are not true; this someone says them because this someone wants the other someone to think they are true.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 2
+          },
+          "addressee": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 3
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "NOT",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "TRUE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "THINK",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "quote": {
+                      "kind": "quote",
+                      "clauses": [
+                        {
+                          "type": "pred",
+                          "pred": "TRUE",
+                          "roles": {
+                            "undergoer": {
+                              "kind": "ref",
+                              "index": 1
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "addressee": {
+                "kind": "ref",
+                "index": 3
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

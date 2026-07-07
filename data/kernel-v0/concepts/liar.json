@@ -1,0 +1,121 @@
+{
+  "id": "urn:kernel-v0:liar",
+  "label": "liar",
+  "status": "research-grade",
+  "pattern": "role-concept via kind-reference to lie (twice)",
+  "gloss": "this someone says many things of kind lie; because this someone says some thing of kind lie, other people can think: 'this someone is a bad someone'.",
+  "references": [
+    "urn:kernel-v0:lie"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:lie"
+              }
+            },
+            "quant": "MUCH~MANY"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:lie"
+                  }
+                },
+                "quant": "SOME"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THINK",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    },
+                    "det": "OTHER~ELSE~ANOTHER"
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "quote": {
+                    "kind": "quote",
+                    "clauses": [
+                      {
+                        "type": "pred",
+                        "pred": "BE-SPEC",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                          },
+                          "attribute": {
+                            "kind": "sp",
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMEONE"
+                            },
+                            "mods": [
+                              {
+                                "mod": "BAD"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

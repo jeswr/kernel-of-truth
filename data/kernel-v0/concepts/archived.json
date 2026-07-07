@@ -1,0 +1,220 @@
+{
+  "id": "urn:kernel-v0:archived",
+  "label": "archived (bookmark boolean property)",
+  "status": "walkthrough",
+  "pattern": "concept-hash-design.md §3.4 (the complete bookmark:archived record: maker-coreference clause 1; THINK-quote with re-anchored I/NOW and the IF clause)",
+  "gloss": "someone did something; because of this, there is this something [the bookmark]. When archived is true of it, this someone thinks like this: 'I saw this something before now; I don't want to see it now; if I want to see it at some time after now, I can see it at this time.'",
+  "notes": "Two mechanical adaptations from the gist RDF: (a) the anchor-only restrictedBy [op AFTER; anchor NOW] is rendered AFTER(NOW, THERE-IS(t3)) because kot-ast/1 op-clauses are arity-fixed (anchor-only AFTER exists only as a temporal-anchor filler); (b) quote-local referent 3 is declared in the dense referent list per kot-ast/1, where the gist declares 1-2 and leaves 3 implicit in its bind (§4.2). Operator arg order is [cause, effect] per lexicon.ts §4.5 mirror.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "SEE",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "stimulus": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "time": {
+                    "kind": "temporal",
+                    "op": "BEFORE",
+                    "anchor": {
+                      "kind": "prime",
+                      "prime": "NOW"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "DON'T-WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "SEE",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "prime",
+                          "prime": "I"
+                        },
+                        "stimulus": {
+                          "kind": "ref",
+                          "index": 1
+                        },
+                        "time": {
+                          "kind": "prime",
+                          "prime": "NOW"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "IF",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "clause",
+                        "clause": {
+                          "type": "pred",
+                          "pred": "SEE",
+                          "roles": {
+                            "experiencer": {
+                              "kind": "prime",
+                              "prime": "I"
+                            },
+                            "stimulus": {
+                              "kind": "ref",
+                              "index": 1
+                            },
+                            "time": {
+                              "kind": "sp",
+                              "head": {
+                                "kind": "primeHead",
+                                "prime": "WHEN~TIME"
+                              },
+                              "det": "SOME",
+                              "bind": 3,
+                              "restrictedBy": {
+                                "type": "op",
+                                "op": "AFTER",
+                                "args": [
+                                  {
+                                    "kind": "prime",
+                                    "prime": "NOW"
+                                  },
+                                  {
+                                    "type": "pred",
+                                    "pred": "THERE-IS",
+                                    "roles": {
+                                      "undergoer": {
+                                        "kind": "ref",
+                                        "index": 3
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "SEE",
+                        "roles": {
+                          "experiencer": {
+                            "kind": "prime",
+                            "prime": "I"
+                          },
+                          "stimulus": {
+                            "kind": "ref",
+                            "index": 1
+                          },
+                          "time": {
+                            "kind": "ref",
+                            "index": 3
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

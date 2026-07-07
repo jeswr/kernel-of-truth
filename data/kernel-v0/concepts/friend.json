@@ -1,0 +1,154 @@
+{
+  "id": "urn:kernel-v0:friend",
+  "label": "friend (X is a friend of Y)",
+  "status": "research-grade",
+  "pattern": "NSM social-relation schema; quote re-anchoring per gist §4.6 (I = the quoted thinker)",
+  "gloss": "X knows Y. X thinks like this about Y: 'when I do things with this someone, I feel something good; I want this someone to feel something good; I don't want this someone to feel something bad.'",
+  "notes": "Benefactive 'good things happen to Y' rendered as Y's experiencer-anchored FEEL - the licensed workaround for the missing beneficiary role.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "WHEN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "undergoer": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "quant": "SOME"
+                      },
+                      "comitative": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "FEEL",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "attribute": {
+                        "kind": "prime",
+                        "prime": "GOOD"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "FEEL",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "ref",
+                          "index": 2
+                        },
+                        "attribute": {
+                          "kind": "prime",
+                          "prime": "GOOD"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "DON'T-WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "FEEL",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "ref",
+                          "index": 2
+                        },
+                        "attribute": {
+                          "kind": "prime",
+                          "prime": "BAD"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

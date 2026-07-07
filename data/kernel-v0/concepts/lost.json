@@ -1,0 +1,103 @@
+{
+  "id": "urn:kernel-v0:lost",
+  "label": "lost",
+  "status": "research-grade",
+  "pattern": "event-kind concept reference over lose",
+  "gloss": "before now, some something of kind lose happened; someone does not know now at which place this something is.",
+  "references": [
+    "urn:kernel-v0:lose"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:lose"
+                  }
+                },
+                "det": "SOME",
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 3
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "locus": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "WHERE~PLACE"
+                      },
+                      "det": "SOME"
+                    }
+                  }
+                }
+              },
+              "time": {
+                "kind": "prime",
+                "prime": "NOW"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

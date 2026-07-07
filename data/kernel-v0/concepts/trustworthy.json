@@ -1,0 +1,160 @@
+{
+  "id": "urn:kernel-v0:trustworthy",
+  "label": "trustworthy",
+  "status": "research-grade",
+  "pattern": "kind-references to the promise and lie word-classes",
+  "gloss": "if this someone says some words of kind promise, this someone does something after; this someone does not say things of kind lie; other people can think: 'this someone is a good someone'.",
+  "notes": "KNOWN-WEAK: 'does the promised thing' is not threadable through the kind-reference; habitual negation approximated.",
+  "references": [
+    "urn:kernel-v0:lie",
+    "urn:kernel-v0:promise"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:promise"
+                  }
+                },
+                "det": "SOME",
+                "bind": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "SOME"
+              },
+              "time": {
+                "kind": "temporal",
+                "op": "AFTER",
+                "anchor": {
+                  "kind": "prime",
+                  "prime": "NOW"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:lie"
+                  }
+                },
+                "quant": "SOME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "det": "OTHER~ELSE~ANOTHER"
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMEONE"
+                        },
+                        "mods": [
+                          {
+                            "mod": "GOOD"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "id": "urn:kernel-v0:angry",
+  "label": "angry",
+  "status": "research-grade",
+  "pattern": "NSM emotion schema (Wierzbicka): agentive bad deed + reactive want-to-do",
+  "gloss": "this someone thinks like this: 'someone did some bad something before now; I don't want it; I want to do something (because of this)'; because of this, this someone feels something bad.",
+  "notes": "The 'because of this' link inside the reactive want is dropped to keep the quote flat; referents 2-3 are quote-local.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMEONE"
+                        },
+                        "bind": 2
+                      },
+                      "undergoer": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "quant": "SOME",
+                        "mods": [
+                          {
+                            "mod": "BAD"
+                          }
+                        ],
+                        "bind": 3
+                      },
+                      "time": {
+                        "kind": "temporal",
+                        "op": "BEFORE",
+                        "anchor": {
+                          "kind": "prime",
+                          "prime": "NOW"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "DON'T-WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "ref",
+                        "index": 3
+                      }
+                    }
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "clause",
+                        "clause": {
+                          "type": "pred",
+                          "pred": "DO",
+                          "roles": {
+                            "agent": {
+                              "kind": "prime",
+                              "prime": "I"
+                            },
+                            "undergoer": {
+                              "kind": "sp",
+                              "head": {
+                                "kind": "primeHead",
+                                "prime": "SOMETHING~THING"
+                              },
+                              "quant": "SOME"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "id": "urn:kernel-v0:gift",
+  "label": "gift",
+  "status": "research-grade",
+  "pattern": "event-kind reference (give) + quote-re-anchored IS-MINE",
+  "gloss": "some something of kind give happened before now; because of it, someone can say of this something 'it is mine'; another someone [the giver] wants that someone to feel something good.",
+  "notes": "KNOWN-WEAK: the giver/receiver roles of the referenced give-event are not threadable through the kind-reference.",
+  "references": [
+    "urn:kernel-v0:give"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:give"
+              }
+            },
+            "det": "SOME",
+            "bind": 2
+          },
+          "time": {
+            "kind": "temporal",
+            "op": "BEFORE",
+            "anchor": {
+              "kind": "prime",
+              "prime": "NOW"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SAY",
+                "roles": {
+                  "agent": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    },
+                    "bind": 3
+                  },
+                  "quote": {
+                    "kind": "quote",
+                    "clauses": [
+                      {
+                        "type": "pred",
+                        "pred": "IS-MINE",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                          },
+                          "possessor": {
+                            "kind": "prime",
+                            "prime": "I"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 4
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "FEEL",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 3
+                },
+                "attribute": {
+                  "kind": "prime",
+                  "prime": "GOOD"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "id": "urn:kernel-v0:happy",
+  "label": "happy",
+  "status": "research-grade",
+  "pattern": "NSM emotion schema (Wierzbicka): X feels something good because X thinks like this: quote",
+  "gloss": "this someone thinks like this: 'some good something happened before now; I wanted it; I don't want another something now'; because of this, this someone feels something good.",
+  "notes": "NSM's 'good things happened TO ME' loses the benefactive: profile-1 HAPPEN has no beneficiary role, so the quote carries only 'a good something happened'. Referent 2 is quote-local.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "quant": "SOME",
+                        "mods": [
+                          {
+                            "mod": "GOOD"
+                          }
+                        ],
+                        "bind": 2
+                      },
+                      "time": {
+                        "kind": "temporal",
+                        "op": "BEFORE",
+                        "anchor": {
+                          "kind": "prime",
+                          "prime": "NOW"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "DON'T-WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        },
+                        "det": "OTHER~ELSE~ANOTHER"
+                      },
+                      "time": {
+                        "kind": "prime",
+                        "prime": "NOW"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "id": "urn:kernel-v0:grieving",
+  "label": "grieving",
+  "status": "research-grade",
+  "pattern": "event-kind reference (death) + direct concept ref as BE-SPEC attribute (sad)",
+  "gloss": "before now, some something of kind death happened; because of it, this someone is sad; this someone thinks about it for some time.",
+  "notes": "KNOWN-WEAK: BE-SPEC with a WhenTrue concept as attribute reads 'is a sad one' - a category stretch, kept deliberately as an attribute-position concept-reference exercise.",
+  "references": [
+    "urn:kernel-v0:death",
+    "urn:kernel-v0:sad"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:death"
+                  }
+                },
+                "det": "SOME",
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:sad"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      }
+    ]
+  }
+}

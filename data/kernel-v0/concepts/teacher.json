@@ -1,0 +1,138 @@
+{
+  "id": "urn:kernel-v0:teacher",
+  "label": "teacher",
+  "status": "research-grade",
+  "pattern": "role-concept via wanted event-kind (learn)",
+  "gloss": "this someone wants many somethings of kind learn to happen; because this someone wants other people to know many things, this someone does many things; this someone says many things to other people.",
+  "notes": "KNOWN-WEAK: occupation/role habituality approximated with MANY.",
+  "references": [
+    "urn:kernel-v0:learn"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "kindFrame",
+                    "of": {
+                      "kind": "concept",
+                      "id": "urn:kernel-v0:learn"
+                    }
+                  },
+                  "quant": "MUCH~MANY"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "KNOW",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "PEOPLE"
+                      },
+                      "det": "OTHER~ELSE~ANOTHER"
+                    },
+                    "topic": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      },
+                      "quant": "MUCH~MANY"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "MUCH~MANY"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "det": "OTHER~ELSE~ANOTHER"
+          },
+          "topic": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "quant": "MUCH~MANY"
+          }
+        }
+      }
+    ]
+  }
+}

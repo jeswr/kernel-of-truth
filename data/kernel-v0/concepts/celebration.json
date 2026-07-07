@@ -1,0 +1,166 @@
+{
+  "id": "urn:kernel-v0:celebration",
+  "label": "celebration",
+  "status": "research-grade",
+  "pattern": "class-membership reference to event + attribute-position concept reference to happy",
+  "gloss": "this something is a big something of kind event; because some very good something happened before now, it happens; when it happens, many people are happy; when it happens, many people feel something good.",
+  "notes": "KNOWN-WEAK: same BE-SPEC-attribute stretch as grieving ('are happy ones').",
+  "references": [
+    "urn:kernel-v0:event",
+    "urn:kernel-v0:happy"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:event"
+              }
+            },
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "SOME",
+                "mods": [
+                  {
+                    "mod": "GOOD",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "bind": 2
+              },
+              "time": {
+                "kind": "temporal",
+                "op": "BEFORE",
+                "anchor": {
+                  "kind": "prime",
+                  "prime": "NOW"
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "quant": "MUCH~MANY"
+              },
+              "attribute": {
+                "kind": "concept",
+                "id": "urn:kernel-v0:happy"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "quant": "MUCH~MANY"
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

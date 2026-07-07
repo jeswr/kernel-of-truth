@@ -1,0 +1,129 @@
+{
+  "id": "urn:kernel-v0:thief",
+  "label": "thief",
+  "status": "research-grade",
+  "pattern": "role-concept via event-kind references to take",
+  "gloss": "because this someone does many things, many somethings of kind take happen; other people do not want somethings of this kind to happen; this someone does not want other people to see this someone.",
+  "notes": "KNOWN-WEAK: 'takes what is not theirs' is exactly the third-party-possession gap; the wrongness is carried by other people's DON'T-WANT.",
+  "references": [
+    "urn:kernel-v0:take"
+  ],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "MUCH~MANY"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "concept",
+                    "id": "urn:kernel-v0:take"
+                  }
+                },
+                "quant": "MUCH~MANY"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "det": "OTHER~ELSE~ANOTHER"
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "kindFrame",
+                    "of": {
+                      "kind": "concept",
+                      "id": "urn:kernel-v0:take"
+                    }
+                  },
+                  "det": "SOME"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "SEE",
+              "roles": {
+                "experiencer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  },
+                  "det": "OTHER~ELSE~ANOTHER"
+                },
+                "stimulus": {
+                  "kind": "ref",
+                  "index": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
