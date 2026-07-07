@@ -9,6 +9,18 @@
  * output on every platform. Generated explications are valid by construction
  * AND re-checked through the validation gates before being returned (fail
  * closed on generator bugs).
+ *
+ * GENERATOR VERSION: v2 (2026-07-07). v1 computed `canEmbedClause` once per
+ * pred clause, but nested entity/SP generation could consume the remaining
+ * clause budget before the quote/complement branches used that stale check —
+ * overflowing the 32-clause cap at rare seeds (surfaced by the full X1 run,
+ * ERR_CAP_CLAUSES). v2 consumes the budget ATOMICALLY at every embedding
+ * site (`takeClause` / genQuote's own take), so the cap holds by
+ * construction; see the 20k-seed regression test. v2's rng draw order
+ * differs from v1, so synthetic corpora differ; the generator is OUTSIDE the
+ * encoder content-hash pin (contentHash.ts covers {schema, algorithm, D,
+ * codebook, weighting} only), and X0 goldens store ASTs inline, so both are
+ * unaffected.
  */
 
 import type {
@@ -127,8 +139,7 @@ function genSP(ctx: GenCtx, dl: number, allowBind: boolean): SP {
     ctx.introduced.push(index);
     sp.bind = index;
   }
-  if (dl >= 2 && ctx.clauseBudget > 0 && rng.bool(0.15)) {
-    ctx.clauseBudget -= 1;
+  if (dl >= 2 && rng.bool(0.15) && takeClause(ctx)) {
     sp.restrictedBy = genPredClause(ctx, dl - 1); // restricting clause one level deeper
   }
   return sp;
@@ -148,10 +159,23 @@ function genEntity(ctx: GenCtx, dl: number): Filler {
   return { kind: 'prime', prime: rng.bool(0.5) ? 'I' : 'YOU' };
 }
 
-/** Quote body: clauses sit one level below the carrying clause (validate.ts). */
-function genQuote(ctx: GenCtx, dl: number): Filler {
+/** Atomically consume one embedded-clause slot from the global 32-clause budget. */
+function takeClause(ctx: GenCtx): boolean {
+  if (ctx.clauseBudget < 1) return false;
+  ctx.clauseBudget -= 1;
+  return true;
+}
+
+/**
+ * Quote body: clauses sit one level below the carrying clause (validate.ts).
+ * Returns null when the clause budget is exhausted — the budget is taken
+ * HERE, at consumption time, never against a caller's stale check (v2).
+ */
+function genQuote(ctx: GenCtx, dl: number): Filler | null {
   const rng = ctx.rng;
-  const n = Math.max(1, Math.min(ctx.clauseBudget, rng.bool(0.5) ? 1 : 2));
+  const want = rng.bool(0.5) ? 1 : 2;
+  const n = Math.min(ctx.clauseBudget, want);
+  if (n < 1) return null;
   ctx.clauseBudget -= n;
   const wasInQuote = ctx.inQuote;
   ctx.inQuote = true;
@@ -182,6 +206,9 @@ function genTimeAdjunct(ctx: GenCtx, dl: number): Filler {
 function genPredClause(ctx: GenCtx, dl: number): PredClause {
   const rng = ctx.rng;
   const roles: Partial<Record<Role, Filler>> = {};
+  // NOTE (v2): this is only an ADVISORY snapshot for predicate choice; every
+  // embedding site below re-takes the budget atomically at consumption time
+  // (nested entity/SP generation in between may spend it — the v1 overflow).
   const canEmbedClause = dl >= 2 && ctx.clauseBudget > 0; // embedded clause / quote body
   const canSP = dl >= 2;
   const preds: string[] = [
@@ -210,21 +237,22 @@ function genPredClause(ctx: GenCtx, dl: number): PredClause {
     case 'THINK': {
       roles.experiencer = genEntity(ctx, dl);
       if (rng.bool(0.4)) roles.topic = genEntity(ctx, Math.min(dl, 2));
-      if (canEmbedClause && rng.bool(0.4)) roles.quote = genQuote(ctx, dl);
+      if (dl >= 2 && rng.bool(0.4)) {
+        const q = genQuote(ctx, dl); // takes the budget itself; null if spent
+        if (q !== null) roles.quote = q;
+      }
       break;
     }
     case 'KNOW':
       roles.experiencer = genEntity(ctx, dl);
-      if (canEmbedClause && rng.bool(0.7)) {
-        ctx.clauseBudget -= 1;
+      if (dl >= 2 && rng.bool(0.7) && takeClause(ctx)) {
         roles.complement = { kind: 'clause', clause: genPredClause(ctx, dl - 1) };
       } else if (rng.bool(0.5)) roles.topic = genEntity(ctx, Math.min(dl, 2));
       break;
     case 'WANT':
     case "DON'T-WANT":
       roles.experiencer = genEntity(ctx, dl);
-      if (canEmbedClause && rng.bool(0.5)) {
-        ctx.clauseBudget -= 1;
+      if (dl >= 2 && rng.bool(0.5) && takeClause(ctx)) {
         roles.complement = { kind: 'clause', clause: genPredClause(ctx, dl - 1) };
       } else {
         roles.complement = genEntity(ctx, Math.min(dl, 2));
@@ -239,12 +267,20 @@ function genPredClause(ctx: GenCtx, dl: number): PredClause {
       roles.experiencer = genEntity(ctx, dl);
       roles.stimulus = genEntity(ctx, dl);
       break;
-    case 'SAY':
+    case 'SAY': {
       roles.agent = genEntity(ctx, dl);
       if (rng.bool(0.3)) roles.addressee = genEntity(ctx, Math.min(dl, 2));
-      if (canEmbedClause && rng.bool(0.4)) roles.quote = genQuote(ctx, dl);
-      else if (rng.bool(0.4)) roles.topic = genEntity(ctx, Math.min(dl, 2));
+      let saidQuote = false;
+      if (dl >= 2 && rng.bool(0.4)) {
+        const q = genQuote(ctx, dl);
+        if (q !== null) {
+          roles.quote = q;
+          saidQuote = true;
+        }
+      }
+      if (!saidQuote && rng.bool(0.4)) roles.topic = genEntity(ctx, Math.min(dl, 2));
       break;
+    }
     case 'TRUE': {
       const clauseRefs = ctx.referents.filter(
         (r) => r.refKind === 'ClauseRef' && ctx.introduced.includes(r.index),
@@ -252,7 +288,17 @@ function genPredClause(ctx: GenCtx, dl: number): PredClause {
       if (clauseRefs.length > 0 && rng.bool(0.6)) {
         roles.undergoer = { kind: 'ref', index: rng.pick(clauseRefs).index };
       } else {
-        roles.undergoer = genQuote(ctx, dl);
+        const q = genQuote(ctx, dl);
+        if (q !== null) {
+          roles.undergoer = q;
+        } else if (clauseRefs.length > 0) {
+          roles.undergoer = { kind: 'ref', index: rng.pick(clauseRefs).index };
+        } else {
+          // Budget exhausted between predicate choice and here and no
+          // ClauseRef in scope: TRUE cannot be realised — emit a budget-free
+          // clause instead (valid by construction).
+          return { type: 'pred', pred: 'HAPPEN', roles: { undergoer: genEntity(ctx, dl) } };
+        }
       }
       break;
     }
@@ -283,6 +329,8 @@ function genPredClause(ctx: GenCtx, dl: number): PredClause {
 
 function genOpClause(ctx: GenCtx, dl: number): OpClause {
   const rng = ctx.rng;
+  // Budget checks and decrements below are ADJACENT (no nested generation in
+  // between), so they are atomic in the takeClause sense.
   const two = dl >= 2 && ctx.clauseBudget >= 2 && rng.bool(0.4);
   if (two) {
     const op = rng.pick(['IF', 'BECAUSE', 'WHEN'] as const);
