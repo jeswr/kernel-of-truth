@@ -1,0 +1,25 @@
+{
+  "name": "@jeswr/kernel-e4-prep",
+  "version": "0.1.0",
+  "description": "E4 emission-test data prep (docs/poc-design.md Phase E, E4 rev 2): 1e3-concept synthetic vocabulary, kernel/control vector tables at d_model=512 (kot-enc-Bq/1), independently authored naturalistic glosses (>=5 per concept, target-lexicon-disjoint, hash-published-before-training), two-tier holdout + compositional split pre-registration, and the gloss->concept emission shard builder (python, E1 shard format).",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "synth": "npm run build && nice -n 10 node dist/harness/synthVocab.js",
+    "vectors": "npm run build && nice -n 10 node dist/harness/vectorTables.js",
+    "glosses": "npm run build && nice -n 10 node dist/harness/glosses.js",
+    "holdout": "npm run build && nice -n 10 node dist/harness/holdout.js",
+    "inputs": "npm run synth && npm run vectors && npm run glosses && npm run holdout",
+    "test": "npm run build && nice -n 10 node --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../../encoder",
+    "@jeswr/kernel-mapper": "file:../../mapper"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
