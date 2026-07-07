@@ -1,0 +1,46 @@
+{
+  "name": "@jeswr/kernel-mapper",
+  "version": "0.1.0",
+  "description": "Kernel of Truth phrase->concept mapper v0: deterministic transducer from English text to kernel-v0 concept/prime references. Lexicon-driven (concept labels + prime exponents incl. allolexes), rule-based lemmatizer, longest-match-first multiword matching, abstain-and-record ambiguity policy (poc-design.md Phase M; architecture.md section 3.2).",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeswr/kernel-of-truth.git",
+    "directory": "mapper"
+  },
+  "keywords": [
+    "nsm",
+    "semantic-primes",
+    "lexicon",
+    "lemmatizer",
+    "deterministic",
+    "concept-mapping"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
