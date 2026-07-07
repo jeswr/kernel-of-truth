@@ -1,0 +1,92 @@
+{
+  "artifact": "e9-manifest",
+  "date": "2026-07-07T14:26:25.299Z",
+  "spec": "poc/e9/README.md (NEW pre-registration, 2026-07-07, coordinator-directed): deflationary control kernel on the E5 instrument. NOT poc-design.md E9 (decode-verify vs RAG, phase 2), which remains pre-registered and untouched.",
+  "question": "Is the kernel's signal specifically the semantic content of the explications, or would ANY consistent structured deterministic vector set do?",
+  "deflationPrinciple": "The kernel machinery's marginal value over its own deflation is measured, never asserted. (docs/poc-design.md E9 rev 3 sentence; notes/panel-kernel-design-review.md §3.1)",
+  "pins": {
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "e5ManifestSha256": "0b384d4e3434a89ee0e8ea3e489dec0b865e51958a2e9e5f43a5c3f315695ea1",
+    "e5ItemsSha256": "aea74f7c5ae27c4064bbd0b0941d5b6866f0821ac445e554ad79c2fa5078454f",
+    "e5ConceptsSha256": "c58256e9b6bb40cd8050ba600846df258c8224c5279545e08677cd9cc895a682",
+    "e5VectorTablesManifestSha256": "79d811a3e24fa3a3571e45f9152df7cac23c14ce4ddc2434aa714ea1f4e0c774",
+    "e5KernelF32Sha256": "8e637dcdd0984205be831d4bbeedc2125f6356dea0466623f9393ec2bfcb3cab",
+    "deflConceptsSha256": "35ac5d8bfb93bd72fe3029516782128133653d9c7a4ea72ac35129f05d7afa91",
+    "deflTablesManifestSha256": "d47c2ccf98d6f18b37d031416d42e63c1fd9f9fd9baaaa56655945815f1960c7",
+    "deflF32Sha256": "f8ab1df7d33d2b7d12814659d8203020d7b1864839394b10a83453377367b35c",
+    "e5CommittedSummarySha256": "c8bc6c9211d17e06d37fb47e06166474706d032a8f7ac8b6dddfc82fd524ad86",
+    "glossHash": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12"
+  },
+  "instrument": "poc/e5 byte-identical (J4): same frozen SmolLM2-135M, adapter form/init/budget/LR rule, training/val/seen-validity/nonce items, glosses, 5 paired seeds, scoring rubric. poc/e5 runner code imported READ-ONLY (the poc/e4-reuses-stats_e1 precedent).",
+  "model": {
+    "id": "HuggingFaceTB/SmolLM2-135M",
+    "dModel": 576,
+    "frozen": "ALL model parameters frozen (eval mode, no grad); the adapter is the only trainable component",
+    "precision": "fp32 (TF32 matmul allowed, recorded in results)"
+  },
+  "adapter": {
+    "form": "single shared affine map y = W k + b, W in R^{576 x d_model}, b in R^{d_model}",
+    "init": "W ~ N(0, sigma^2) with sigma = std of the frozen embedding-matrix entries (measured at run time, recorded); b = mean embedding row; seeded per experiment seed, IDENTICAL across arms (Common rule 1 pairing)",
+    "injection": "one input-embedding position ([SLOT]) carries the adapter output; the concept surface form appears nowhere; no vocab surgery; the nonce token is never emitted"
+  },
+  "frame": {
+    "prefix": "The word",
+    "suffix": " means:",
+    "candidatePrefix": " ",
+    "bos": true,
+    "tokenCap": 192,
+    "note": "tokens(prefix) ++ [SLOT] ++ tokens(suffix) ++ tokens(candidatePrefix + gloss); identical in training and eval, identical across arms"
+  },
+  "training": {
+    "lossTokens": "cross-entropy on the gloss tokens only",
+    "batch": 32,
+    "steps": 2000,
+    "warmupSteps": 100,
+    "schedule": "linear warmup 100 steps then cosine decay to 0.1x",
+    "gradClip": 1,
+    "optimizer": "AdamW, betas 0.9/0.999, eps 1e-8, weight decay 0",
+    "dataOrder": "seeded shuffle per epoch, function of the seed index only (identical across arms)",
+    "lrRule": "Common rule 5: per-arm sweep on seed 0 only, lrs {3e-4, 1e-3, 3e-3} at half budget (1000 steps), best by val cross-entropy, then fixed for all 5 seeds of that arm",
+    "lrSweep": [
+      0.0003,
+      0.001,
+      0.003
+    ],
+    "sweepSteps": 1000
+  },
+  "scoring": {
+    "rubric": "FIXED NON-LLM RUBRIC (the spec's first option): candidate score = mean per-token log-probability of the candidate gloss tokens under the frozen model given the frame + injected embedding; prediction = argmax over the 5 candidates; exact float ties score as incorrect. \"Slot-filling accuracy against the nonce's explication\" = the definition slot must be filled with the realizer gloss of the nonce's OWN explication rather than a competing explication's gloss. No LLM judge exists anywhere in E5.",
+    "chance": 0.2
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "arms": {
+    "trueKernel": "row i -> E5 kernel vector of concept i (poc/e5 table, sha-pinned)",
+    "shuffledKernel": "row i -> E5 kernel[perm_s[i]] (poc/e5 derangements, per seed)",
+    "deflKernel": "row i -> vector of the structure-matched semantically-scrambled explication for concept i (inputs/vectors/defl-jl576.f32; construction pinned in README + defl-concepts.json; same table for all seeds)",
+    "note": "E5's random arm dropped (J5); true/shuffled re-run fresh alongside defl in ONE run (J6)"
+  },
+  "statistics": {
+    "instrumentValidityGate": "the TRUE arm must beat chance on the SEEN validity items in >= 4 of 5 seeds (per-seed one-sided exact binomial vs 0.2 over 500 items, p < 0.05); otherwise the run is INSTRUMENT-INVALID (neither success nor null), no primary claim in either direction",
+    "primaryEndpoint": "nonce slot-filling accuracy, true-kernel vs defl-kernel: per nonce j, d_j = mean over the 5 paired seeds of (acc_true[s,j] - acc_defl[s,j]) over that nonce's 5 items; one-sided exact sign-flip permutation over the 24 nonce-level paired differences (statistic = sum_j d_j; full 2^24 enumeration, exact integer-lattice convolution; p includes the observed assignment), alpha = 0.05. This is the marginal value of kernel content over its structural deflation, measured. Pinned caveat: nonce-level differences share the 5 trained adapter pairs; S2 treats the training run as the unit.",
+    "secondaryEndpoints": [
+      "S1: defl-kernel vs shuffled-kernel, same nonce-level one-sided test (defl > shuffled) — does the structural channel carry ANY transfer? Holm-corrected, m=2",
+      "S2: seed-level one-sided exact paired sign-flip over the 5 per-seed mean nonce-accuracy differences, true vs defl (min attainable p = 1/32), Holm-corrected, m=2"
+    ],
+    "outcomes": "gate failed => INSTRUMENT-INVALID; primary rejects => PASS (marginal value of content shown on this instrument); primary non-reject AND S1 rejects => DEFLATED (a semantics-scrambled structured code reproduces the transfer; every external quote of E5 must carry this); primary non-reject AND S1 non-reject => AMBIGUOUS-NULL (no measurable separation; power follow-up filed). All reported verbatim with full tables.",
+    "descriptive": [
+      "recovered fraction (defl - shuffled)/(true - shuffled), per seed and pooled",
+      "drift of rerun true/shuffled numbers vs poc/e5 committed run (replication datum)",
+      "defl seen-validity accuracy",
+      "compositional shared/novel nonce splits",
+      "per-nonce and per-seed tables; margins; step-0 accuracies"
+    ],
+    "inheritedPins": "no nonce exclusions; no post-hoc arms; exact float ties score as incorrect (E5 pins)"
+  },
+  "scopeLimits": "poc/e5 README O6 verbatim, plus: a PASS shows content-specificity relative to THIS deflation (shape-matched scrambled explications); it does not exclude every conceivable non-semantic channel and does not upgrade any A1 claim."
+}

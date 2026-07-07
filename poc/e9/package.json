@@ -1,0 +1,23 @@
+{
+  "name": "@jeswr/kernel-e9-defl-prep",
+  "version": "0.1.0",
+  "description": "E9-defl deflationary-control-kernel prep (poc/e9/README.md, new pre-registration): structure-matched semantically-scrambled explications through the pinned encoder + X4 JL 8192->576, consumed by the E5 nonce-transfer instrument. The GPU runner lives in runner/.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "defl": "npm run build && nice -n 10 node dist/harness/deflVocab.js",
+    "vectors": "npm run build && nice -n 10 node dist/harness/vectors.js",
+    "manifest": "npm run build && nice -n 10 node dist/harness/manifest.js",
+    "inputs": "npm run defl && npm run vectors && npm run manifest",
+    "test": "npm run build && nice -n 10 node --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../../encoder"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
