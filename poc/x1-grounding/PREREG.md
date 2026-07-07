@@ -366,6 +366,43 @@ and the caveat log). Encoder note: X1-grounding touches no encoder code; no
 
 ## 9. Amendments
 
-*(none — any entry here must be dated, signed with its reason, and written before
+*(any entry here must be dated, signed with its reason, and written before
 `nsm_test.py` first runs on the full graph; pre-authorized: the N_MS→300 fallback of
 §4.4, which must still be recorded here when triggered.)*
+
+**Amendment 1 — 2026-07-07 — Kern (builder). Smoke spot-check expectations
+hand-derived from the frozen §2.3 rules; two §7 illustrative examples superseded.
+Zero effect on graph construction or the NSM analysis.**
+§7's smoke item 2 lists illustrative (token→lemma) examples "men→man" and
+"running→run". Under the *frozen* §2.3 rule order (exact-match in the index vocabulary
+is step 1, before exception and detachment), `men`, `teeth`, `running`, `words`, `ate`,
+and `better` are **themselves** WordNet 3.1 index lemmas (verified in `index.noun`/`.adj`/
+`.verb`/`.adv` on 2026-07-07: e.g. `men`=workforce, `ate`=the goddess Atë, `better`=n/v/a/r),
+so exact-match-first correctly resolves each to itself. The committed
+`fixtures/morphy_spotchecks.json` therefore encodes the true frozen-pipeline behaviour
+(`men→men`, `running→running`, `ate→ate`, `better→better`) rather than the §7 illustrative
+strings, and includes clean exception cases (`wolves→wolf`, `mice→mouse`, `geese→goose`,
+`feet→foot`, `children→child`, `went→go`) and clean detachment cases (`dogs→dog`,
+`boxes→box`, `abilities→ability`, `walks→walk`, `helped→help`, `jumped→jump`). This is a
+smoke-fixture clarification only; §2.3 is unchanged and the graph pipeline is unaffected.
+Smoke passes 34/34 spot checks + toy fixture (7 distinct minimal grounding sets) + 2000-noun
+determinism slice.
+
+**Amendment 2 — 2026-07-07 — Kern (builder). T2 lemmatization audit HALT
+(§8): audit error rate exceeds the pre-registered 10% ceiling; `nsm_test.py` NOT run;
+remediation escalated to the coordinator.**
+The pre-registered T2 audit (100 (gloss-token→lemma) resolutions, seed 7, population
+854,458; `t2-audit-sample.json`, `t2-audit-result.json`) was manually audited. Error
+rate = **17/100 (17%)** under the strict reading and **12/100 (12%)** counting only
+closed-class function words; **both exceed the 10% gate**. Errors are dominated by a small,
+enumerable set of function words that are rare WordNet content-homograph lemmas
+(`in`, `or`, `as`, `by`, `so`, `an`) surviving §2.4's mechanical OOV drop-out (`or` alone
+5× in-sample), plus a few inflections kept unreduced by exact-match-first
+(`made`, `making`, `being`, `based`). Per §8 ("if > 10% the run halts for a §9 amendment
+before the NSM test"), the run is **halted before `nsm_test.py`**. The natural remediation
+— a minimal pinned closed-class stoplist, or POS-restriction — conflicts with §2.4's
+*pinned* "No stopword list" decision, so it is a coordinator design call, not a unilateral
+builder change. Stages 1–3 (graph, prime-map, strata) and the §4.3 corridor gates all
+completed and PASSED (no CONSTRUCTION-ANOMALY); those artifacts and the scaffold graph
+stand regardless. nsm_test and stage-4 MinSets are held pending the coordinator's decision
+so compute is not spent on a graph that may be rebuilt.
