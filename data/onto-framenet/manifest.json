@@ -1,0 +1,76 @@
+{
+  "corpus": "onto-framenet",
+  "schema": "kot-framenet/1",
+  "version": "0.1.0",
+  "semanticStatus": "AxiomsOnly",
+  "statusNote": "FrameNet 1.7 frame metadata: frames + frame elements (the valency skeleton, INSIDE identity) + frame-to-frame relations. Definition prose, FE-definition prose and lexical-unit lemmas are annotations OUTSIDE identity. The annotated corpus (lu/, fulltext/) is NOT extracted. NO semantic-adequacy claim; not a mapper surface.",
+  "source": {
+    "dataset": "FrameNet 1.7 (Berkeley FrameNet Project, ICSI)",
+    "author": "Collin F. Baker et al.",
+    "obtainedVia": "NLTK public redistribution (github.com/nltk/nltk_data, packages/corpora/framenet_v17.zip)",
+    "zipSha256": "22f6aad6fb799ba4dbed0440714e1118442ad7d7345351de37428581284f471c",
+    "nltkIndexChecksumMatch": true,
+    "license": "CC BY 3.0 Unported",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "licenseVerdict": "REDISTRIBUTABLE with attribution. FrameNet 1.7 is licensed \"Creative Commons Attribution 3.0 Unported License\" (authoritative source: NLTK's official nltk_data index.xml package metadata for framenet_v17, author Collin F. Baker; our zip sha256 matches NLTK's recorded checksum). CC BY 3.0 permits copying, redistribution and derivative works with attribution to the Berkeley FrameNet Project. (NOTE: FrameNet 1.5 was non-commercial-only; 1.7 was relicensed to CC BY 3.0.)",
+    "licensingBoundary": "The official site (framenet.icsi.berkeley.edu) gates the download behind a registration/request form (direct fetches return a JS-app placeholder). That form is a courtesy tracker, NOT a licence restriction — the CC BY 3.0 licence permits redistribution. We therefore used NLTK's authorized public CC-BY copy and did not circumvent the form. We extract the freely-licensed frame metadata (frames + frame elements + frame relations) and deliberately exclude the annotated corpus (lu/, fulltext/).",
+    "attribution": "Baker, Collin F., Charles J. Fillmore, and John B. Lowe (1998); FrameNet, https://framenet.icsi.berkeley.edu, CC BY 3.0."
+  },
+  "extractor": {
+    "name": "kot-framenet-extractor",
+    "version": "0.1.0",
+    "files": [
+      "parse-fn.mjs",
+      "extract.mjs"
+    ],
+    "contentHash": "7b0453a15715dc1bc13da797448447b3099590de227970788df1d3044dad3fa8",
+    "hashRule": "sha256 over concatenated bytes of listed files, in listed order"
+  },
+  "extractionDate": "2026-07-07",
+  "files": {
+    "frames.jsonl": 1221,
+    "frame-relations.jsonl": 2070
+  },
+  "frameStats": {
+    "frames": 1221,
+    "frameElements": 11428,
+    "coreFEs": 3501,
+    "lexicalUnits": 13631,
+    "coreTypeCounts": {
+      "Core": 3501,
+      "Peripheral": 5023,
+      "Extra-Thematic": 2781,
+      "Core-Unexpressed": 123
+    },
+    "framesWithDefinition": 1221
+  },
+  "relationStats": {
+    "relations": 2070,
+    "byType": {
+      "Causative_of": 60,
+      "Inchoative_of": 19,
+      "Inheritance": 781,
+      "Metaphor": 4,
+      "Perspective_on": 127,
+      "Precedes": 89,
+      "ReFraming_Mapping": 217,
+      "See_also": 86,
+      "Subframe": 131,
+      "Using": 556
+    },
+    "feMappings": 12393,
+    "danglingFrameRefs": 0
+  },
+  "shards": {
+    "frames.jsonl": {
+      "records": 1221,
+      "bytes": 3660222,
+      "sha256": "08f4387fdc91f6804b6604e20ad98494eac351b49e973265f3565e8de8c88f58"
+    },
+    "frame-relations.jsonl": {
+      "records": 2070,
+      "bytes": 2015035,
+      "sha256": "af881b7544a4829554ab42f8dc98b18b7880106928e923accf4afebd36d92b4d"
+    }
+  }
+}
