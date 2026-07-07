@@ -1,0 +1,29 @@
+{
+  "name": "@jeswr/kernel-e2-prep",
+  "version": "0.1.0",
+  "description": "E2 geometry-alignment probe prep (docs/poc-design.md Phase E, E2): kernel-side RDM inputs, baseline RDMs, context/pool generation, and tests. The GPU-side runner lives in runner/ (python).",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "items": "npm run build && nice -n 10 node dist/harness/itemsGen.js",
+    "kernel-rdm": "npm run build && nice -n 10 node dist/harness/kernelRdm.js",
+    "gloss-rdm": "npm run build && nice -n 10 node dist/harness/glossRdm.js",
+    "wordnet-rdm": "npm run build && nice -n 10 node dist/harness/wordnetRdm.js",
+    "fetch-glove": "nice -n 10 bash scripts/fetch-glove-slice.sh",
+    "word2vec-rdm": "npm run build && nice -n 10 node dist/harness/word2vecRdm.js",
+    "contexts": "npm run build && nice -n 10 node dist/harness/contexts.js",
+    "freq-pools": "npm run build && nice -n 10 node dist/harness/freqPools.js",
+    "inputs": "npm run items && npm run kernel-rdm && npm run gloss-rdm && npm run wordnet-rdm && npm run word2vec-rdm && npm run contexts && npm run freq-pools",
+    "test": "npm run build && nice -n 10 node --test dist/test/"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../../encoder"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "wordnet-db": "^3.1.14"
+  }
+}
