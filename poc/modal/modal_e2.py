@@ -36,7 +36,12 @@ sys.path.insert(0, str(_HERE))
 import modal_common as mc  # noqa: E402  (stdlib-only; shipped into the image below)
 
 # ---- local (coordinator-side) paths ----------------------------------------
-REPO_ROOT = _HERE.parents[1]
+# In the container Modal mounts this file at /root, which has no second parent;
+# only the REMOTE_* constants are dereferenced there, so import must not crash.
+try:
+    REPO_ROOT = _HERE.parents[1]
+except IndexError:
+    REPO_ROOT = _HERE  # container: local-path constants are never dereferenced
 E2_DIR = REPO_ROOT / "poc" / "e2"
 RUNNER = E2_DIR / "runner" / "e2_runner.py"
 RUNNER_REQS = E2_DIR / "runner" / "requirements.txt"

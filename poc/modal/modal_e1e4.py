@@ -54,7 +54,11 @@ import modal_common as mc  # noqa: E402  (stdlib-only; shipped into the image)
 import modal_e1e4_lib as lib  # noqa: E402  (stdlib-only; shipped into the image)
 
 # ---- coordinator-side paths --------------------------------------------------
-REPO_ROOT = _HERE.parents[1]
+# Container mount is /root (no second parent); only REMOTE_* paths are used there.
+try:
+    REPO_ROOT = _HERE.parents[1]
+except IndexError:
+    REPO_ROOT = _HERE  # container: local-path constants are never dereferenced
 INCOMING_ROOT = REPO_ROOT / "poc" / "e1" / "results-incoming"
 
 # ---- container-side layout ---------------------------------------------------
