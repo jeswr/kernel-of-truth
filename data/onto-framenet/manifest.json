@@ -72,5 +72,19 @@
       "bytes": 2015035,
       "sha256": "af881b7544a4829554ab42f8dc98b18b7880106928e923accf4afebd36d92b4d"
     }
+  },
+  "minting": {
+    "profileHeader": "kot-framenet/1\n",
+    "mintedCount": 3291,
+    "uniqueUrnCount": 3291,
+    "mintToolHash": "e07bc2acf525ab0dad61e40bf97f30353ff9a0e820b74d85a2c3fc42d9190fef",
+    "corpusIdentityRoot": "fb06d17be6be4e85c0e6feaa7b954cb82709156717d91d40456fac0908d905d9",
+    "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
+    "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
+    "referenceMode": "substitute",
+    "identityPayload": "Frame identity = {sourceId, schema, semanticStatus, form, frame, frameId, frameElements}; relation identity = {sourceId, schema, semanticStatus, form, relationType, sub, super, feMappings}. definition/frameElementDefinitions/lexicalUnits are annotation; subFrame/superFrame labels and the redundant *FrameId ints are dropped. Relation sub/super substituted to minted frame URNs in reverse topological order (DAG).",
+    "duplicateIdentityGroups": 0,
+    "cyclicComponents": [],
+    "mintDate": "2026-07-07"
   }
 }

@@ -273,5 +273,24 @@
     "syntax.jsonl": 1440,
     "definitions.jsonl": 1432,
     "axioms.jsonl": 126
+  },
+  "minting": {
+    "profileHeader": "kot-pm-mm/1\n",
+    "mintedCount": 2998,
+    "uniqueUrnCount": 2998,
+    "mintToolHash": "e07bc2acf525ab0dad61e40bf97f30353ff9a0e820b74d85a2c3fc42d9190fef",
+    "corpusIdentityRoot": "465c638fe52b706c3e921e59754d9ceeb630699094872b48e27f95e12ebf7deb",
+    "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
+    "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
+    "referenceMode": "substitute",
+    "identityPayload": "Identity = {sourceId (set.mm label), status, references (the curated forward dependency vector, substituted to minted URNs), definition (mm-canonical token string verbatim; syntaxFormer substituted; the DERIVED `definedBy` inverse pointer EXCLUDED — it is the inverse of syntaxFormer and would manufacture 1,431 spurious 2-cycles)}. Over `references` the only non-trivial SCC is {df-cleq, df-clel} (set.mm's class-theory bootstrap), minted via the gist s6 component algorithm. sourceComment/dependencies/provenance/label excluded.",
+    "duplicateIdentityGroups": 0,
+    "cyclicComponents": [
+      [
+        "urn:math-mm:df-clel",
+        "urn:math-mm:df-cleq"
+      ]
+    ],
+    "mintDate": "2026-07-07"
   }
 }

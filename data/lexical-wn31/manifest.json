@@ -98,5 +98,19 @@
       "indexOffsetsDangling": 0,
       "synsetsNotInIndex": 0
     }
+  },
+  "minting": {
+    "profileHeader": "kot-lex/1\n",
+    "mintedCount": 117791,
+    "uniqueUrnCount": 117791,
+    "mintToolHash": "e07bc2acf525ab0dad61e40bf97f30353ff9a0e820b74d85a2c3fc42d9190fef",
+    "corpusIdentityRoot": "e68610ac8602b12df88beb5eefacaa574c41818d5e408f6e5475b2f582e62fe1",
+    "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
+    "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
+    "referenceMode": "stable",
+    "identityPayload": "Identity = {sourceId (synset offset), schema, semanticStatus, pos, ssType, axioms}. STABLE ids: the axiom graph is NOT a DAG (antonymy/similarTo cycles) so no reverse-topo order exists. lemmas/gloss/lexFile/markers are annotation. NOTE: the README's 'inside identity' list omitted the synset offset; including it (as sourceId) is REQUIRED — without it 66,569 records (incl. 3,620 axiom-less adjectives) collapse to shared URNs, an unsound merge of distinct concepts. Deviation filed as a follow-up bead.",
+    "duplicateIdentityGroups": 0,
+    "cyclicComponents": [],
+    "mintDate": "2026-07-07"
   }
 }
