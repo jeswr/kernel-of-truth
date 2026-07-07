@@ -1,0 +1,13 @@
+$ /usr/local/bin/python /root/kot/poc/e8/runner/e8_scale_runner.py --manifest /root/kot/poc/e8/inputs/e8-manifest-scale.json --glosses /root/kot/poc/e4/inputs/glosses.jsonl --out-dir /tmp/e8-out --device cuda
+=== family gpt2 (openai-community/gpt2) ===
+  gpt2: RDM (1054, 1054), FVU 0.1421, mean L0 50.9, zero-sigs 0
+=== family pythia-160m (EleutherAI/pythia-160m) ===
+  pythia-160m: RDM (1054, 1054), FVU 0.0038, mean L0 32.0, zero-sigs 0
+=== family smollm2-135m (HuggingFaceTB/SmolLM2-135M) ===
+  smollm2-135m: RDM (1054, 1054), FVU 0.2969, mean L0 32.0, zero-sigs 0
+=== embedder minilm (sentence-transformers/all-MiniLM-L6-v2, mean-pool) ===
+  minilm: commit 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+=== embedder bge (BAAI/bge-small-en-v1.5, cls-pool) ===
+  bge: commit 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+wrote /tmp/e8-out/e8-scale-extraction.json
+[runner exit rc=0]

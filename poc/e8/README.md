@@ -276,6 +276,71 @@ reported per-pair, verbatim, no cherry-picking. Statistics run through
 `analyze.full_battery` UNCHANGED (`analyze_ext1.py` is a loader around it;
 `analyze.py`'s bytes stay as committed with the original verdict).
 
+## Extension 2 — at-scale geometry, 1,054 concepts (pre-registered 2026-07-07 BEFORE any ext-2 code, encode, or download)
+
+**Question:** does the E8 correspondence survive a 20x vocabulary — the
+1,054-concept E4 vocabulary (54 kernel-v0 + 1,000 synthetic capped
+explications, `poc/e4/inputs/synthetic-concepts.json`, combined per that
+file's note) instead of the 51 word-anchored items?
+
+**Kernel side (path discipline):** the E4 vector tables are kot-enc-Bq/1 @
+D=512 — the TOY-NATIVE path, which E8's pre-registration does NOT use
+(Common rule 3 pins E8 to the projected path). The 1,054 concepts are
+therefore RE-ENCODED at D=8192 with the pinned kot-enc-B/1 encoder (content
+hash asserted == `40e8c8ba…`, fail closed) and projected through the SAME
+fixed Achlioptas JL streams `jl/8192/512` and `jl/8192/576` (jlProject
+copied verbatim from the E2 harness, which copied it verbatim from
+poc/harness/x4.ts — the construction the X4 numbers were measured on).
+X4's distortion was measured on kernel v0 only, so the at-scale distortion
+(full-D vs jl512/jl576 RDM Spearman over the 1,054) is RE-MEASURED and
+published with the artifact. RDMs ship as raw float32 binaries + a
+sha-pinned manifest (`poc/e8/scale/`, ~13 MB committed).
+
+**Estimator changes forced by scale (each pinned here, before running):**
+1. **Signature via glosses, not word-contexts.** Synthetic concepts have no
+   exponent words. Signature = per-token SAE encode -> mean over all real
+   tokens of the gloss (attention==1, nonzero offset width, prepended BOS
+   excluded for gpt2) -> mean over the concept's 5 glosses
+   (`poc/e4/inputs/glosses.jsonl`, GLOSS-HASH `36181f9b…` asserted). Same
+   three families and revision pins as ext-1 (A gpt2 residual, B pythia-160m
+   residual, C smollm2-135m MLP-out).
+2. **Covariates: orig3 does not exist for synthetics** (no words for
+   word2vec/WordNet). Deflation guard = cov2: gloss-TEXT embedding RDMs from
+   the two committed E2-reanalysis embedders (all-MiniLM-L6-v2 mean-pool+L2;
+   bge-small-en-v1.5 CLS-pool+L2), each gloss embedded separately, the 5
+   unit vectors averaged then re-L2-normalised, cosine RDM. P2' = partial |
+   cov2. Note this guard is STRONG by construction: signal and covariate
+   read the same gloss strings — if SAE signatures only carry gloss surface
+   semantics, cov2 removes them.
+3. **Permutation budgets.** Mantel tests 2,000 permutations (min p 5x10^-4;
+   10^4 is prohibitive at 555k off-diagonal cells x the full battery); gate
+   G stays at 10^4 (cheap). **Retrieval (S4/S5) demoted to DESCRIPTIVE** —
+   top-1 accuracy vs 1/n chance, NO permutation null (each null draw would
+   rebuild a 1054^2 masked-profile matrix).
+4. **Secondaries:** Holm over {S2', S3'} (per-family partial | cov2).
+   Sensitivity: full-D + jl576 kernels on the P2' form.
+
+**Pairs + decision rules (fixed before any number is seen):** all three
+pairs run; per-pair rule as before with P2' in place of P2 ("gloss-surface
+semantics not excluded" replaces "generic relatedness detected"). **The
+at-scale headline claim holds iff the (gpt2, pythia-160m) pair — the pair
+that PASSED at n=51 — passes gate + P1 + P2' at n~1054.** The two C-pairs
+are reported alongside, framed by ext-1's outcome, whatever it is.
+
+**Pre-named weaknesses (in addition to §6):** (i) gloss-mediated signatures
+test correspondence of gloss RENDERINGS — one step further from the concept
+than the word bridge, and the NSM-register gloss style is highly uniform
+across concepts, pushing signatures toward a shared register direction
+(depresses discriminability; conservative); (ii) the glosses were authored
+by this programme for E4 — they are not independent text; (iii) 1,000 of
+1,054 concepts are PURE PRIME synthetic structures with no corpus-attested
+meaning — at-scale correspondence, if found, is about structural geometry,
+not lexical semantics, and is reported in exactly those words.
+
+**Cost:** one T4 container (3 families x 5,270 gloss texts + 2 embedders);
+~10-20 min ~= $0.15-0.30. CPU analysis ~1-2 h niced (X build ~40 s per
+pair; 6 Mantel tests x ~2.5 min per pair).
+
 ## Layout
 
 - `build_inputs.py` — writes `inputs/e8-manifest.json`: sha-pins over the

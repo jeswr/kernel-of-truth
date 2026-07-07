@@ -1,0 +1,19 @@
+{
+  "name": "@jeswr/kernel-e8-scale",
+  "version": "0.1.0",
+  "description": "E8 extension 2 kernel-side prep: encode the 1,054-concept E4 vocabulary at D=8192 (pinned kot-enc-B/1) and project through the fixed JL streams (projected path, Common rule 3). Emits raw float32 RDM binaries + meta for poc/e8/build_inputs.py --scale.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "kernel-rdm-scale": "npm run build && nice -n 10 node dist/kernelRdmScale.js"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../../../encoder"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

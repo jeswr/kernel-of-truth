@@ -14,6 +14,8 @@ re-runnable without spend.
     .venv/bin/modal run poc/modal/modal_e8.py           # THE run (T4, ~$0.10-0.50)
     .venv/bin/modal run poc/modal/modal_e8.py --ext1    # extension 1: family C only
                                                         # (then poc/e8/analyze_ext1.py)
+    .venv/bin/modal run poc/modal/modal_e8.py --scale   # extension 2: 1,054-concept
+                                                        # gloss variant (then analyze_scale.py)
 
 Results land in poc/e8/results-incoming/<UTC stamp>-modal/ — NOT
 auto-committed; review, run analyze.py, commit deliberately (E2 discipline).
@@ -42,6 +44,9 @@ E8_DIR = REPO_ROOT / "poc" / "e8"
 E8_RUNNER = E8_DIR / "runner" / "e8_runner.py"
 E8_MANIFEST = E8_DIR / "inputs" / "e8-manifest.json"
 E8_MANIFEST_EXT1 = E8_DIR / "inputs" / "e8-manifest-ext1.json"
+E8_MANIFEST_SCALE = E8_DIR / "inputs" / "e8-manifest-scale.json"
+E8_SCALE_RUNNER = E8_DIR / "runner" / "e8_scale_runner.py"
+E4_GLOSSES = REPO_ROOT / "poc" / "e4" / "inputs" / "glosses.jsonl"
 E2_RUNNER = REPO_ROOT / "poc" / "e2" / "runner" / "e2_runner.py"
 E2_ITEMS = REPO_ROOT / "poc" / "e2" / "inputs" / "items.json"
 E2_CONTEXTS = REPO_ROOT / "poc" / "e2" / "inputs" / "contexts.json"
@@ -52,6 +57,9 @@ REMOTE_KOT = "/root/kot/poc"
 REMOTE_E8_RUNNER = f"{REMOTE_KOT}/e8/runner/e8_runner.py"
 REMOTE_E8_MANIFEST = f"{REMOTE_KOT}/e8/inputs/e8-manifest.json"
 REMOTE_E8_MANIFEST_EXT1 = f"{REMOTE_KOT}/e8/inputs/e8-manifest-ext1.json"
+REMOTE_E8_MANIFEST_SCALE = f"{REMOTE_KOT}/e8/inputs/e8-manifest-scale.json"
+REMOTE_E8_SCALE_RUNNER = f"{REMOTE_KOT}/e8/runner/e8_scale_runner.py"
+REMOTE_E4_GLOSSES = f"{REMOTE_KOT}/e4/inputs/glosses.jsonl"
 REMOTE_E2_RUNNER = f"{REMOTE_KOT}/e2/runner/e2_runner.py"
 REMOTE_E2_INPUTS = f"{REMOTE_KOT}/e2/inputs"
 REMOTE_OUT = "/tmp/e8-out"
@@ -70,6 +78,9 @@ def _staged_manifest() -> dict:
         "e8/runner/e8_runner.py": mc.sha256_file(str(E8_RUNNER)),
         "e8/inputs/e8-manifest.json": mc.sha256_file(str(E8_MANIFEST)),
         "e8/inputs/e8-manifest-ext1.json": mc.sha256_file(str(E8_MANIFEST_EXT1)),
+        "e8/inputs/e8-manifest-scale.json": mc.sha256_file(str(E8_MANIFEST_SCALE)),
+        "e8/runner/e8_scale_runner.py": mc.sha256_file(str(E8_SCALE_RUNNER)),
+        "e4/inputs/glosses.jsonl": mc.sha256_file(str(E4_GLOSSES)),
         "e2/runner/e2_runner.py": mc.sha256_file(str(E2_RUNNER)),
         "e2/inputs/items.json": mc.sha256_file(str(E2_ITEMS)),
         "e2/inputs/contexts.json": mc.sha256_file(str(E2_CONTEXTS)),
@@ -93,6 +104,9 @@ image = (
     .add_local_file(E8_RUNNER, REMOTE_E8_RUNNER)
     .add_local_file(E8_MANIFEST, REMOTE_E8_MANIFEST)
     .add_local_file(E8_MANIFEST_EXT1, REMOTE_E8_MANIFEST_EXT1)
+    .add_local_file(E8_MANIFEST_SCALE, REMOTE_E8_MANIFEST_SCALE)
+    .add_local_file(E8_SCALE_RUNNER, REMOTE_E8_SCALE_RUNNER)
+    .add_local_file(E4_GLOSSES, REMOTE_E4_GLOSSES)
     .add_local_file(E2_RUNNER, REMOTE_E2_RUNNER)
     .add_local_file(E2_ITEMS, f"{REMOTE_E2_INPUTS}/items.json")
     .add_local_file(E2_CONTEXTS, f"{REMOTE_E2_INPUTS}/contexts.json")
@@ -101,7 +115,8 @@ image = (
 hf_cache = modal.Volume.from_name("kot-hf-cache", create_if_missing=True)
 
 
-def _run_in_container(local_manifest: dict, mock: bool, ext1: bool = False) -> dict:
+def _run_in_container(local_manifest: dict, mock: bool, ext1: bool = False,
+                      scale: bool = False) -> dict:
     import os
 
     import modal_common as cmc
@@ -111,6 +126,9 @@ def _run_in_container(local_manifest: dict, mock: bool, ext1: bool = False) -> d
         "e8/runner/e8_runner.py": cmc.sha256_file(REMOTE_E8_RUNNER),
         "e8/inputs/e8-manifest.json": cmc.sha256_file(REMOTE_E8_MANIFEST),
         "e8/inputs/e8-manifest-ext1.json": cmc.sha256_file(REMOTE_E8_MANIFEST_EXT1),
+        "e8/inputs/e8-manifest-scale.json": cmc.sha256_file(REMOTE_E8_MANIFEST_SCALE),
+        "e8/runner/e8_scale_runner.py": cmc.sha256_file(REMOTE_E8_SCALE_RUNNER),
+        "e4/inputs/glosses.jsonl": cmc.sha256_file(REMOTE_E4_GLOSSES),
         "e2/runner/e2_runner.py": cmc.sha256_file(REMOTE_E2_RUNNER),
         "e2/inputs/items.json": cmc.sha256_file(f"{REMOTE_E2_INPUTS}/items.json"),
         "e2/inputs/contexts.json": cmc.sha256_file(f"{REMOTE_E2_INPUTS}/contexts.json"),
@@ -125,13 +143,22 @@ def _run_in_container(local_manifest: dict, mock: bool, ext1: bool = False) -> d
     import huggingface_hub  # noqa: F401
     import safetensors  # noqa: F401
 
-    cmd = [sys.executable, REMOTE_E8_RUNNER,
-           "--e2-inputs-dir", REMOTE_E2_INPUTS,
-           "--manifest", REMOTE_E8_MANIFEST_EXT1 if ext1 else REMOTE_E8_MANIFEST,
-           "--out-dir", REMOTE_OUT,
-           "--device", "cpu" if mock else "cuda"]
-    if mock:
-        cmd.append("--mock")
+    if scale:
+        cmd = [sys.executable, REMOTE_E8_SCALE_RUNNER,
+               "--manifest", REMOTE_E8_MANIFEST_SCALE,
+               "--glosses", REMOTE_E4_GLOSSES,
+               "--out-dir", REMOTE_OUT,
+               "--device", "cpu" if mock else "cuda"]
+        if mock:
+            cmd += ["--mock", "--limit", "80"]
+    else:
+        cmd = [sys.executable, REMOTE_E8_RUNNER,
+               "--e2-inputs-dir", REMOTE_E2_INPUTS,
+               "--manifest", REMOTE_E8_MANIFEST_EXT1 if ext1 else REMOTE_E8_MANIFEST,
+               "--out-dir", REMOTE_OUT,
+               "--device", "cpu" if mock else "cuda"]
+        if mock:
+            cmd.append("--mock")
     lines = [f"$ {' '.join(cmd)}\n"]
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                           text=True, bufsize=1) as proc:
@@ -174,8 +201,9 @@ def _run_in_container(local_manifest: dict, mock: bool, ext1: bool = False) -> d
 
 
 @app.function(image=image, gpu="T4", volumes={HF_CACHE_MOUNT: hf_cache}, timeout=TIMEOUT_S)
-def run_e8_t4(local_manifest: dict = None, mock: bool = False, ext1: bool = False) -> dict:  # noqa: RUF013
-    return _run_in_container(local_manifest or {}, mock, ext1)
+def run_e8_t4(local_manifest: dict = None, mock: bool = False, ext1: bool = False,  # noqa: RUF013
+              scale: bool = False) -> dict:
+    return _run_in_container(local_manifest or {}, mock, ext1, scale)
 
 
 def _print_plan() -> None:
@@ -204,6 +232,10 @@ def _print_plan() -> None:
           f"warm {WARM_MINUTES[0]}-{WARM_MINUTES[1]} min ~= ${wlo:.2f}-{whi:.2f}")
     print("  run: .venv/bin/modal run poc/modal/modal_e8.py    (coordinator-gated)")
     print("  then: python3 poc/e8/analyze.py poc/e8/results-incoming/<stamp>-modal")
+    if E8_MANIFEST_SCALE.exists():
+        m2 = json.loads(E8_MANIFEST_SCALE.read_text())
+        print(f"  scale (n={m2['n']}, 3 families x 5,270 glosses + 2 embedders, 0 new downloads): "
+              "run with --scale, then poc/e8/analyze_scale.py")
     if E8_MANIFEST_EXT1.exists():
         m1 = json.loads(E8_MANIFEST_EXT1.read_text())
         dl1 = m1["downloadPlanBytes"]
@@ -213,15 +245,19 @@ def _print_plan() -> None:
 
 
 @app.local_entrypoint()
-def main(mock: bool = False, ext1: bool = False, out_root: str = "") -> None:
+def main(mock: bool = False, ext1: bool = False, scale: bool = False, out_root: str = "") -> None:
+    if ext1 and scale:
+        raise SystemExit("choose one of --ext1 / --scale")
     local_manifest = _staged_manifest()
     print(f"kot-e8 via Modal: T4, {len(local_manifest)} staged files, "
-          f"manifest {local_manifest['e8/inputs/e8-manifest.json'][:12]}… mock={mock} ext1={ext1}")
+          f"manifest {local_manifest['e8/inputs/e8-manifest.json'][:12]}… "
+          f"mock={mock} ext1={ext1} scale={scale}")
 
-    files = run_e8_t4.remote(local_manifest=local_manifest, mock=mock, ext1=ext1)
+    files = run_e8_t4.remote(local_manifest=local_manifest, mock=mock, ext1=ext1, scale=scale)
 
     stamp = (time.strftime("%Y%m%d-%H%M%S", time.gmtime())
-             + ("-mock" if mock else "") + ("-ext1" if ext1 else "") + "-modal")
+             + ("-mock" if mock else "") + ("-ext1" if ext1 else "")
+             + ("-scale" if scale else "") + "-modal")
     dest = Path(out_root) / stamp if out_root else INCOMING_ROOT / stamp
     mc.unpack_files(files, str(dest))
 
@@ -239,7 +275,8 @@ def main(mock: bool = False, ext1: bool = False, out_root: str = "") -> None:
     }
     prov_path.write_text(json.dumps(prov, indent=2, sort_keys=True) + "\n")
     print(f"\nwrote {len(files)} files to {dest}")
-    print(f"next: python3 poc/e8/{'analyze_ext1' if ext1 else 'analyze'}.py " + str(dest))
+    nxt = "analyze_ext1" if ext1 else ("analyze_scale" if scale else "analyze")
+    print(f"next: python3 poc/e8/{nxt}.py " + str(dest))
 
 
 if __name__ == "__main__":

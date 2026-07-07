@@ -1,0 +1,129 @@
+{
+  "experiment": "E8 extension 2: at-scale geometry, 1,054 concepts (gloss-based)",
+  "date": "2026-07-07T15:06:02.333230+00:00",
+  "mock": false,
+  "limit": null,
+  "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "glossHash": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+  "manifest_sha256": "fb36b8ed02f3db80a3c13c367c740ac54e2f8634751581e07e20ad092387edf1",
+  "n_concepts": 1054,
+  "ids_sha256": "13d1d98e94d242016825572ec62b6b7a0be3e13c5ef02ee793fbaf6706f92082",
+  "families": {
+    "gpt2": {
+      "spec_pins": {
+        "model_id": "openai-community/gpt2",
+        "model_revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        "sae_repo": "jbloom/GPT2-Small-SAEs-Reformatted",
+        "sae_revision": "57d08a4fd333fbf18caf3fbea63ceeb88e2f50d9",
+        "sae_file": "blocks.6.hook_resid_pre/sae_weights.safetensors",
+        "sae_arch": "sae_lens_standard",
+        "d_in": 768,
+        "d_sae": 24576,
+        "topk": null,
+        "hookpoint": "blocks.6.hook_resid_pre",
+        "hidden_state_index": 6,
+        "basis": "subtract_hidden_mean",
+        "prepend_bos": true
+      },
+      "resolved": {
+        "model_commit": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        "sae_path": "/root/.cache/huggingface/hub/models--jbloom--GPT2-Small-SAEs-Reformatted/snapshots/57d08a4fd333fbf18caf3fbea63ceeb88e2f50d9/blocks.6.hook_resid_pre/sae_weights.safetensors",
+        "sae_sha256": "3ff899406a9fb3c33aebca365d6a8065a2f48eba9cef699543fb8602abe207be"
+      },
+      "zero_signature_ids": [],
+      "diagnostics": {
+        "fvu": 0.14214537022183732,
+        "mean_l0": 50.88416283985212,
+        "n_span_tokens": 145247
+      },
+      "rdm_file": "rdm-gpt2-scale.npz",
+      "rdm_sha256": "e29ef5b49722f588579b2565fb7871772a7f116260f49c2f0917881ecb4e59ca",
+      "signature_density_mean": 0.055116521942698456,
+      "signatures_retained": false
+    },
+    "pythia-160m": {
+      "spec_pins": {
+        "model_id": "EleutherAI/pythia-160m",
+        "model_revision": "50f5173d932e8e61f858120bcb800b97af589f46",
+        "sae_repo": "EleutherAI/sae-pythia-160m-32k",
+        "sae_revision": "2046768ae0c8cb69a2e8ed64f2eafb9f8c5fa294",
+        "sae_file": "layers.5/sae.safetensors",
+        "sae_arch": "eleuther_topk",
+        "d_in": 768,
+        "d_sae": 32768,
+        "topk": 32,
+        "hookpoint": "layers.5",
+        "hidden_state_index": 6,
+        "basis": "none",
+        "prepend_bos": false
+      },
+      "resolved": {
+        "model_commit": "50f5173d932e8e61f858120bcb800b97af589f46",
+        "sae_path": "/root/.cache/huggingface/hub/models--EleutherAI--sae-pythia-160m-32k/snapshots/2046768ae0c8cb69a2e8ed64f2eafb9f8c5fa294/layers.5/sae.safetensors",
+        "sae_sha256": "9ee4f50d036eee569fba77a740e4bd1f68b87ec5f1466be40f627ca809774509"
+      },
+      "zero_signature_ids": [],
+      "diagnostics": {
+        "fvu": 0.0038121622655014485,
+        "mean_l0": 32.0,
+        "n_span_tokens": 145332
+      },
+      "rdm_file": "rdm-pythia-160m-scale.npz",
+      "rdm_sha256": "2bb60906b6ebe92a53459a34b9c5f1c7fed2ce79519ff62e40f780c8fcae4d9e",
+      "signature_density_mean": 0.028373501106276684,
+      "signatures_retained": false
+    },
+    "smollm2-135m": {
+      "spec_pins": {
+        "model_id": "HuggingFaceTB/SmolLM2-135M",
+        "model_revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+        "sae_repo": "EleutherAI/sae-SmolLM2-135M-64x",
+        "sae_revision": "57ea2cb986e2545844cdd4a5bb2eb39523243494",
+        "sae_file": "layers.15.mlp/sae.safetensors",
+        "sae_arch": "eleuther_topk",
+        "d_in": 576,
+        "d_sae": 36864,
+        "topk": 32,
+        "hookpoint": "layers.15.mlp",
+        "site": "mlp_output",
+        "module_path": "layers.15.mlp",
+        "block_index": 15,
+        "basis": "none",
+        "prepend_bos": false
+      },
+      "resolved": {
+        "model_commit": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+        "sae_path": "/root/.cache/huggingface/hub/models--EleutherAI--sae-SmolLM2-135M-64x/snapshots/57ea2cb986e2545844cdd4a5bb2eb39523243494/layers.15.mlp/sae.safetensors",
+        "sae_sha256": "a3ef608c777678311ae5164dba56bef4907f407f524708fc29d137c27d92f553"
+      },
+      "zero_signature_ids": [],
+      "diagnostics": {
+        "fvu": 0.2968524355513892,
+        "mean_l0": 32.0,
+        "n_span_tokens": 146036
+      },
+      "rdm_file": "rdm-smollm2-135m-scale.npz",
+      "rdm_sha256": "139112bbde9ec5040cbf852b737dd1e4b97a61a3e8db03d3652301ee38662bd3",
+      "signature_density_mean": 0.044323285219665824,
+      "signatures_retained": false
+    }
+  },
+  "embedders": {
+    "minilm": {
+      "hf_id": "sentence-transformers/all-MiniLM-L6-v2",
+      "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "pooling": "mean+l2norm(gloss)->mean(5)->l2norm",
+      "resolved_commit_hash": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "rdm_file": "rdm-cov-minilm-scale.npz",
+      "rdm_sha256": "d9fbe9198d155510d79f79d6594bcf5a16efb3b32517085d26b06d4213f722e6"
+    },
+    "bge": {
+      "hf_id": "BAAI/bge-small-en-v1.5",
+      "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "pooling": "cls+l2norm(gloss)->mean(5)->l2norm",
+      "resolved_commit_hash": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "rdm_file": "rdm-cov-bge-scale.npz",
+      "rdm_sha256": "b0330abf307ab52540353a22ec040dcd1bc14ce870cae982930f19c18f4c9b3a"
+    }
+  }
+}

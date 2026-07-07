@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """E8 inputs builder — writes poc/e8/inputs/e8-manifest.json (bead kernel-of-truth-u0x).
 
-Stdlib only, offline, deterministic (idempotent given unchanged inputs; the
+Stdlib only for the original + ext1 manifests (--scale additionally uses
+numpy + e2_runner.rankdata to measure at-scale JL distortion), offline,
+deterministic (idempotent given unchanged inputs; the
 `date` field is refreshed on regeneration and is the only volatile field —
 compare with `diff -I '"date"'`). The manifest is THE pin: the Modal container
 asserts every reused artifact and every HF revision against it, fail closed.
@@ -9,6 +11,8 @@ asserts every reused artifact and every HF revision against it, fail closed.
     python3 poc/e8/build_inputs.py          # original two-family manifest
     python3 poc/e8/build_inputs.py --ext1    # extension-1 manifest (family C
                                              # + pairs vs committed signatures)
+    python3 poc/e8/build_inputs.py --scale   # extension-2 manifest (1,054-concept
+                                             # gloss-based variant; needs scale/out)
 
 All SAE-source facts below (revisions, file names, sizes, weight-key layouts)
 were surveyed 2026-07-07 via the HF API + ranged safetensors-header reads and
@@ -31,6 +35,10 @@ REANALYSIS_RDMS = os.path.join(
 )
 OUT = os.path.join(HERE, "inputs", "e8-manifest.json")
 OUT_EXT1 = os.path.join(HERE, "inputs", "e8-manifest-ext1.json")
+OUT_SCALE = os.path.join(HERE, "inputs", "e8-manifest-scale.json")
+SCALE_OUT = os.path.join(HERE, "scale", "out")
+GLOSSES = os.path.join(REPO, "poc", "e4", "inputs", "glosses.jsonl")
+GLOSS_HASH_TXT = os.path.join(REPO, "poc", "e4", "GLOSS-HASH.txt")
 COMMITTED_STAMP = os.path.join(HERE, "results-incoming", "20260707-131303-modal")
 
 # Reused E2 artifacts (byte-pinned; container stages items+contexts only,
@@ -203,6 +211,95 @@ def build_ext1() -> None:
     print(f"  reused: " + ", ".join(f"{k} {v['sha256'][:12]}…" for k, v in reused.items()))
 
 
+def build_scale() -> None:
+    """Extension-2 manifest (README §Extension 2, pre-registered before build):
+    1,054-concept gloss-based variant. Pins the TS-built kernel RDM binaries
+    (scale/out), measures the at-scale JL distortion (X4 was kernel-v0-only),
+    asserts GLOSS-HASH, and pins the cov2 embedders at the revisions the
+    committed E2 re-analysis resolved."""
+    import sys as _sys
+
+    import numpy as _np
+    _sys.path.insert(0, os.path.join(REPO, "poc", "e2", "runner"))
+    import e2_runner as _r
+
+    with open(os.path.join(SCALE_OUT, "kernel-rdm-scale-meta.json")) as f:
+        meta = json.load(f)
+    n = meta["n"]
+    rdms = {}
+    mats = {}
+    for name, pin in meta["rdms"].items():
+        path = os.path.join(SCALE_OUT, pin["file"])
+        got = sha256_file(path)
+        if got != pin["sha256"]:
+            raise SystemExit(f"ERR_MISSING_INPUT: {pin['file']} sha drifted")
+        rdms[name] = {"file": os.path.join("scale", "out", pin["file"]), "sha256": got}
+        mats[name] = _np.fromfile(path, dtype=_np.float32).reshape(n, n)
+
+    # at-scale JL distortion (pre-registered re-measurement; X4 measured v0 only)
+    iu = _np.triu_indices(n, k=1)
+    full_od = mats["full"][iu].astype(_np.float64)
+    distortion = {}
+    for d in ("jl512", "jl576"):
+        distortion[d] = float(_r.pearson(_r.rankdata(full_od), _r.rankdata(mats[d][iu].astype(_np.float64))))
+        print(f"  at-scale RDM Spearman full vs {d}: {distortion[d]:.4f}")
+
+    gloss_sha = sha256_file(GLOSSES)
+    with open(GLOSS_HASH_TXT) as f:
+        pinned = f.readline().split("=")[1].strip()
+    if gloss_sha != pinned:
+        raise SystemExit(f"ERR_MISSING_INPUT: glosses.jsonl sha {gloss_sha[:12]}… != GLOSS-HASH.txt {pinned[:12]}…")
+
+    # cov2 embedders at the revisions the committed re-analysis resolved
+    with open(REANALYSIS_RDMS) as f:
+        rean = json.load(f)
+    embedders = {}
+    for name, pooling in (("minilm", "mean"), ("bge", "cls")):
+        e = rean["embedders"][name]
+        embedders[name] = {"hf_id": e["hf_id"], "revision": e["resolved_commit_hash"],
+                           "pooling": pooling}
+
+    manifest = {
+        "experiment": "E8 extension 2: at-scale geometry, 1,054 concepts (gloss-based)",
+        "date": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "designPin": "poc/e8/README.md §Extension 2 (pre-registered before any ext-2 code, encode, or download)",
+        "encoderContentHash": meta["encoderContentHash"],
+        "glossHash": gloss_sha,
+        "ids": meta["ids"],
+        "n": n,
+        "kernelRdmScale": {
+            "metaFile": os.path.join("scale", "out", "kernel-rdm-scale-meta.json"),
+            "metaSha256": sha256_file(os.path.join(SCALE_OUT, "kernel-rdm-scale-meta.json")),
+            "rdms": rdms,
+            "atScaleDistortionRdmSpearman": distortion,
+            "x4KernelV0DistortionRdmSpearman": {"jl512": 0.9717634748044783, "jl576": 0.9705671745304928},
+            "pathNote": "projected path (Common rule 3): re-encoded at D=8192 with pinned kot-enc-B/1, "
+                        "jl/8192/512 + jl/8192/576 streams; the E4 Bq@512 tables are NOT used",
+        },
+        "families": {**FAMILIES, **FAMILY_C},
+        "embedders": embedders,
+        "pairs": [["gpt2", "pythia-160m"], ["gpt2", "smollm2-135m"], ["pythia-160m", "smollm2-135m"]],
+        "headlineRule": "the at-scale claim holds iff the (gpt2, pythia-160m) pair — the pair that "
+                        "PASSED at n=51 — passes gate + P1 + P2' at n~1054",
+        "stats": {
+            "seed": 20260707,
+            "nPermMantel": 2000,
+            "nPermGate": 10000,
+            "retrieval": "descriptive only (top-1 acc vs 1/n chance; permutation null dropped — "
+                         "each draw would rebuild a 1054^2 masked-profile matrix)",
+            "alphaPrimary": 0.01,
+            "primaryKernelVariant": "jl512",
+            "holmSecondaries": ["S2p_partial_cov2_vs_S_famA", "S3p_partial_cov2_vs_S_famB"],
+        },
+        "downloadPlanBytes": {"models": 0, "saes": 0,
+                              "destination": "all five models + three SAEs already in kot-hf-cache"},
+    }
+    with open(OUT_SCALE, "w") as f:
+        json.dump(manifest, f, indent=2)
+        f.write("\n")
+    print(f"wrote {OUT_SCALE} (n={n}, pairs={len(manifest['pairs'])})")
+
+
 def main() -> None:
     with open(os.path.join(E2_INPUTS, "items.json")) as f:
         items = json.load(f)
@@ -268,7 +365,12 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--ext1", action="store_true",
                     help="write the extension-1 manifest instead of the original")
-    if ap.parse_args().ext1:
+    ap.add_argument("--scale", action="store_true",
+                    help="write the extension-2 (1,054-concept) manifest")
+    _args = ap.parse_args()
+    if _args.ext1:
         build_ext1()
+    elif _args.scale:
+        build_scale()
     else:
         main()

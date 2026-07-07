@@ -281,6 +281,70 @@ class TestExt1(unittest.TestCase):
             self.assertIn("Pre-registered replication rule", v)
 
 
+class TestScale(unittest.TestCase):
+    """Extension 2 (at-scale): manifest pins + mock e2e at --limit 80."""
+
+    def test_scale_manifest_pins(self):
+        with open(HERE / "inputs" / "e8-manifest-scale.json") as f:
+            man = json.load(f)
+        self.assertEqual(man["n"], 1054)
+        self.assertEqual(len(man["ids"]), 1054)
+        self.assertEqual(len(man["pairs"]), 3)
+        self.assertEqual(man["pairs"][0], ["gpt2", "pythia-160m"])  # headline pair
+        import hashlib
+        for name, pin in man["kernelRdmScale"]["rdms"].items():
+            with open(HERE / pin["file"], "rb") as f:
+                self.assertEqual(hashlib.sha256(f.read()).hexdigest(), pin["sha256"],
+                                 f"kernel RDM {name} drifted")
+        # at-scale distortion measured and sane
+        d = man["kernelRdmScale"]["atScaleDistortionRdmSpearman"]
+        self.assertGreater(d["jl512"], 0.9)
+        # GLOSS-HASH matches the pinned E4 artifact
+        with open(REPO / "poc" / "e4" / "GLOSS-HASH.txt") as f:
+            pinned = f.readline().split("=")[1].strip()
+        self.assertEqual(man["glossHash"], pinned)
+
+    def test_mock_scale_end_to_end(self):
+        with tempfile.TemporaryDirectory(prefix="e8-scale-") as td:
+            rc = subprocess.run(
+                [sys.executable, str(HERE / "runner" / "e8_scale_runner.py"), "--mock",
+                 "--limit", "60", "--out-dir", td,
+                 "--manifest", str(HERE / "inputs" / "e8-manifest-scale.json"),
+                 "--glosses", str(REPO / "poc" / "e4" / "inputs" / "glosses.jsonl")],
+                capture_output=True, text=True)
+            self.assertEqual(rc.returncode, 0, rc.stdout + rc.stderr)
+            with open(os.path.join(td, "e8-scale-extraction.json")) as f:
+                ext = json.load(f)
+            self.assertTrue(ext["mock"])
+            self.assertEqual(ext["n_concepts"], 60)
+            self.assertEqual(len(ext["families"]), 3)
+            self.assertEqual(len(ext["embedders"]), 2)
+
+            rc2 = subprocess.run(
+                [sys.executable, str(HERE / "analyze_scale.py"), td],
+                capture_output=True, text=True)
+            self.assertEqual(rc2.returncode, 0, rc2.stdout + rc2.stderr)
+            with open(os.path.join(td, "results-e8-scale.json")) as f:
+                res = json.load(f)
+            self.assertTrue(res["mock"])
+            self.assertEqual(len(res["per_pair"]), 3)
+            self.assertIn("headline_pass", res)
+            with open(os.path.join(td, "verdict-e8-scale.md")) as f:
+                v = f.read()
+            self.assertIn("MOCK RUN", v)
+            self.assertIn("headline rule", v)
+
+    def test_limit_rejected_without_mock(self):
+        rc = subprocess.run(
+            [sys.executable, str(HERE / "runner" / "e8_scale_runner.py"),
+             "--limit", "10", "--out-dir", "/tmp/never",
+             "--manifest", str(HERE / "inputs" / "e8-manifest-scale.json"),
+             "--glosses", str(REPO / "poc" / "e4" / "inputs" / "glosses.jsonl")],
+            capture_output=True, text=True)
+        self.assertNotEqual(rc.returncode, 0)
+        self.assertIn("ERR_LIMIT", rc.stdout + rc.stderr)
+
+
 class TestModalWiring(unittest.TestCase):
     """Import poc/modal/modal_e8.py against a Modal stub; no token, no network."""
 
@@ -339,7 +403,7 @@ class TestModalWiring(unittest.TestCase):
             sys.modules.pop("modal_e8", None)
             import modal_e8  # noqa: F401  (staged-file existence asserted in stub)
             man = modal_e8._staged_manifest()
-            self.assertEqual(len(man), 6)
+            self.assertEqual(len(man), 9)
             with open(HERE / "inputs" / "e8-manifest.json", "rb") as f:
                 import hashlib
                 self.assertEqual(man["e8/inputs/e8-manifest.json"],
