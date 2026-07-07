@@ -13,8 +13,11 @@ import { test } from 'node:test';
 import { buildLexicon, loadManifestConcepts, type Lexicon } from '../src/lexicon.js';
 import { mapText, type AnnotatedToken, type Decision } from '../src/mapper.js';
 import {
+  A1_POLICY_SHA256,
+  A1_PRESET_NAME,
   compilePriorityIndex,
   policyHash,
+  policyPreset,
   SHADOWED_CONCEPTS,
   SHADOWED_EXCLUDE_ALL5,
   SHADOWED_HYBRID_RECOMMENDED,
@@ -155,6 +158,26 @@ test('malformed declarations fail closed with ERR_POLICY_*', () => {
       }),
     /ERR_POLICY_DUPLICATE_SET/,
   );
+});
+
+test('Amendment A1 preset: a1-hybrid resolves to the signed declaration at the pinned hash', () => {
+  const p = policyPreset(A1_PRESET_NAME);
+  assert.equal(p, SHADOWED_HYBRID_RECOMMENDED, 'preset ALIASES the signed declaration');
+  assert.equal(policyHash(p), A1_POLICY_SHA256);
+  assert.ok(A1_POLICY_SHA256.startsWith('e13dc838'), 'pin matches the sha quoted in Amendment A1');
+  // the adopted policy: tiers for {inside, near, broken}, exclusion for {kind, lost}
+  const winners = (p.priorityTiers ?? []).map((r) => r.winner).sort();
+  assert.deepEqual(winners, [
+    'urn:kernel-v0:broken',
+    'urn:kernel-v0:inside',
+    'urn:kernel-v0:near',
+  ]);
+  assert.deepEqual([...(p.excludeConcepts ?? [])].sort(), [
+    'urn:kernel-v0:kind',
+    'urn:kernel-v0:lost',
+  ]);
+  // unknown presets fail closed
+  assert.throws(() => policyPreset('no-such-preset'), /ERR_POLICY_UNKNOWN_PRESET/);
 });
 
 test('policyHash: content-addressed, order-insensitive, distinct per declaration', () => {

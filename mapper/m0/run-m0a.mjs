@@ -56,6 +56,9 @@ const POLICIES = {
   'tiers-all5': SHADOWED_TIERS_ALL5,
   'exclude-shadowed': SHADOWED_EXCLUDE_ALL5,
   'hybrid-recommended': SHADOWED_HYBRID_RECOMMENDED,
+  // Amendment A1 preset (docs/poc-design.md Phase M): alias of the signed
+  // hybrid declaration — same policy object, same content hash e13dc838…
+  'a1-hybrid': SHADOWED_HYBRID_RECOMMENDED,
 };
 
 const positional = [];

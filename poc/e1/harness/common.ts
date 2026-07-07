@@ -97,7 +97,16 @@ export function mapperPin(): { version: string; srcSha256: Record<string, string
     version: string;
   };
   const src: Record<string, string> = {};
-  for (const f of ['lexicon.ts', 'lemmatize.ts', 'tokenize.ts', 'mapper.ts', 'primes.ts']) {
+  // policy.ts joined the pin under Amendment A1 (the a1-hybrid preset sits on
+  // E1's critical path).
+  for (const f of [
+    'lexicon.ts',
+    'lemmatize.ts',
+    'tokenize.ts',
+    'mapper.ts',
+    'primes.ts',
+    'policy.ts',
+  ]) {
     src[f] = sha256Hex(readFileSync(join(MAPPER_DIR, 'src', f)));
   }
   return { version: pkg.version, srcSha256: src };

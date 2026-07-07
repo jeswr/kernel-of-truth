@@ -23,18 +23,31 @@
  * reproduce the stream hash bit-for-bit before any shard it produces is
  * trusted (fail-closed gate in build_data.py).
  *
- * Provenance stamped: mapper package version + sha-256 of the five mapper
- * source files, kernel-v0 corpus pin, corpus-file sha-256.
+ * AMENDMENT A1 (docs/poc-design.md Phase M, coordinator-signed 2026-07-07;
+ * bead kernel-of-truth-9qm): every E1 data build runs the mapper under the
+ * `a1-hybrid` policy preset (sense-priority tiers for {inside, near, broken},
+ * evaluated-set exclusion for {kind, lost}; policy sha e13dc838…). This
+ * generator therefore (i) embeds the full policy declaration in the lexicon
+ * artifact so the python port can apply the tiers bit-exactly, (ii) annotates
+ * the parity fixture UNDER the policy, and (iii) stamps preset name + policy
+ * sha into both artifacts. The preset hash is verified against the
+ * amendment's pin at generation time (fail closed in policyPreset()).
+ *
+ * Provenance stamped: mapper package version + sha-256 of the six mapper
+ * source files (incl. policy.ts), kernel-v0 corpus pin, corpus-file sha-256.
  */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  A1_PRESET_NAME,
   buildLexicon,
   irregularBase,
   lemmaCandidates,
   loadManifestConcepts,
   mapText,
+  policyHash,
+  policyPreset,
   targetKey,
   tokenize,
 } from '@jeswr/kernel-mapper';
@@ -210,6 +223,27 @@ export function decisionLine(t: AnnotatedToken): string {
 function main(): void {
   verifyTables();
 
+  // Amendment A1 policy: resolved by preset name; policyPreset() fails closed
+  // if the declaration no longer hashes to the amendment's pinned sha.
+  const policy = policyPreset(A1_PRESET_NAME);
+  const policySha = policyHash(policy);
+  const policyBlock = {
+    preset: A1_PRESET_NAME,
+    name: policy.name,
+    sha256: policySha,
+    amendment:
+      'Amendment A1 (docs/poc-design.md Phase M, coordinator-signed 2026-07-07): ' +
+      'sense-priority tiers for {inside, near, broken}; {kind, lost} excluded from ' +
+      "E1's evaluated concept set (52 evaluated); mapper decisions for excluded " +
+      'concepts are UNCHANGED (they stay abstained)',
+    priorityTiers: (policy.priorityTiers ?? []).map((r) => ({
+      decisionSet: [...r.decisionSet].sort(),
+      winner: r.winner,
+      evidence: r.evidence,
+    })),
+    excludeConcepts: [...(policy.excludeConcepts ?? [])].sort(),
+  };
+
   const lexicon = buildLexicon(loadManifestConcepts(join(KERNEL_V0_DIR, 'manifest.json')));
   const artifact = {
     artifact: 'e1-mapper-lexicon',
@@ -222,11 +256,13 @@ function main(): void {
         'lemmatizer/tokenizer tables transcribed from mapper/src and verified ' +
         'behaviourally against exported functions at generation time (fail-closed)',
     },
+    policy: policyBlock,
     decisionStreamFormat:
       "per WORD token: 'norm|kind|target|phraseLen|phrasePos'; kind in " +
       "{concept,prime,abstain,none}; target = conceptId | 'prime:'+name | " +
       "sorted abstain candidate keys joined by ',' | ''; lines joined by \\n; " +
-      "stories separated by a '#<storyIndex>' line; sha-256 over the utf-8 bytes",
+      "stories separated by a '#<storyIndex>' line; sha-256 over the utf-8 bytes; " +
+      'decisions taken under the embedded `policy` (Amendment A1)',
     entries: lexicon.entries.map((e) => ({
       phrase: e.phrase,
       target: e.target,
@@ -247,16 +283,32 @@ function main(): void {
   const stories = raw.split('<|endoftext|>').map((s) => s.trim()).filter((s) => s.length > 0);
   const hash = createHash('sha256');
   const norms = new Set<string>();
-  const counts = { stories: stories.length, wordTokens: 0, concept: 0, prime: 0, abstain: 0, none: 0 };
+  const counts = {
+    stories: stories.length,
+    wordTokens: 0,
+    concept: 0,
+    prime: 0,
+    abstain: 0,
+    none: 0,
+    tierResolved: 0,
+  };
+  const tierResolutions: Record<string, number> = {};
   const sampleAnnotations: string[][] = [];
   for (let s = 0; s < stories.length; s++) {
     hash.update(`#${s}\n`);
-    const anns = mapText(stories[s]!, lexicon);
+    // Amendment A1: the canonical stream is the POLICY-annotated stream.
+    const anns = mapText(stories[s]!, lexicon, policy);
     const lines: string[] = [];
     for (const t of anns) {
       if (!t.isWord) continue;
       counts.wordTokens += 1;
       counts[t.decision.kind] += 1;
+      const d = t.decision;
+      if ((d.kind === 'concept' || d.kind === 'prime') && d.resolvedFrom !== undefined) {
+        counts.tierResolved += 1;
+        const key = d.resolvedFrom.map(targetKey).sort().join('|');
+        tierResolutions[key] = (tierResolutions[key] ?? 0) + 1;
+      }
       norms.add(t.norm);
       lines.push(decisionLine(t));
     }
@@ -279,7 +331,9 @@ function main(): void {
       stories: counts.stories,
     },
     provenance: { mapper: mapperPin(), kernelV0: corpusPin() },
+    policy: { preset: A1_PRESET_NAME, name: policy.name, sha256: policySha },
     counts,
+    tierResolutions,
     decisionStreamSha256: hash.digest('hex'),
     sampleAnnotations,
     lemmaTable,

@@ -235,8 +235,25 @@ def main():
     with open(args.out_prefix + ".json", "w") as f:
         json.dump(out, f, indent=2)
 
+    # Amendment A1: name E1's evaluated-set exclusions in every E4 report.
+    # E4's candidate set is unaffected (all 54 authored concept tokens remain
+    # in the vocab; candidate set stays 1,054) — only E1's evaluated slice
+    # shrank to 52.
+    e1_eval_set = meta.get("provenance", {}).get("e1EvaluatedConceptSet")
+    if e1_eval_set is not None:
+        a1_line = (f"**E1 evaluated concept set (Amendment A1): {e1_eval_set['size']} of "
+                   f"{e1_eval_set['vocabConceptTokens']} — excluded by policy (sha "
+                   f"`{e1_eval_set['policySha256'][:8]}…`): "
+                   f"{', '.join(e1_eval_set['excludedByPolicy'])}. E4's candidate set is "
+                   f"unaffected ({n_cand}-way; the exclusion shrinks E1's evaluated/attested "
+                   f"slice only).**")
+    else:
+        a1_line = ("**E1 evaluated concept set: UNDECLARED (pre-Amendment-A1 E1 vocab; "
+                   "real E4 runs must consume an A1-stamped E1 build).**")
     md = [
         f"# E4 verdict{' (MOCK — pipeline check only)' if args.mock else ''}",
+        "",
+        a1_line,
         "",
         "Pre-registered criteria (poc/e4/inputs/holdout-manifest.json `statistics`, quoted verbatim):",
         f"- **Primary:** \"{spec['primaryEndpoint']}\"",

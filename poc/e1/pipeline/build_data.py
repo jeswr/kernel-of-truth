@@ -13,6 +13,16 @@ reproduce the TS mapper bit-for-bit on the committed fixture
 sample annotations, and — when the corpus file IS the fixture slice — the
 full-slice decision-stream sha-256.
 
+AMENDMENT A1 GATE (docs/poc-design.md Phase M, signed 2026-07-07; bead
+kernel-of-truth-9qm): the mapper-lexicon artifact must carry the adopted
+`a1-hybrid` policy (sha e13dc838…) and the parity fixture must have been
+regenerated under the SAME policy sha — mismatch or absence fails closed.
+The policy's excludeConcepts ({kind, lost}) define the DECLARED evaluated
+concept set (52 of 54 vocab concept tokens): mapper decisions and the vocab
+are unchanged (54 concept rows stay frozen/controlled); only the evaluated/
+reported concept universe shrinks, stamped in meta.json + vocab.json so
+every E1/E4 report names the exclusions automatically.
+
 PAIRED SEEDS (Common rule 1): all seed-dependent choices (story order,
 substitution draws) come from SHA-256 DetStream labels keyed by the seed
 index; the 5 arms of a given seed consume IDENTICAL shards and batch
@@ -68,6 +78,32 @@ def read_stories(path):
     with open(path, "r", encoding="utf-8") as f:
         raw = f.read()
     return [s for s in (t.strip() for t in raw.split("<|endoftext|>")) if s]
+
+
+def policy_gate(mapper, fixture):
+    """Amendment A1 fail-closed checks; returns the policy block for stamping.
+
+    The E1 data build runs ONLY under the adopted a1-hybrid policy: the
+    lexicon artifact must embed it and the parity fixture must have been
+    regenerated under the same policy sha (a fixture annotated under a
+    different policy would let a broken tier port pass the lemma-table-only
+    gate silently).
+    """
+    pol = mapper.policy
+    if pol is None:
+        raise SystemExit("ERR_POLICY: mapper-lexicon artifact has no Amendment-A1 policy block "
+                         "— regenerate inputs (npm run lexicon)")
+    fix_pol = fixture.get("policy")
+    if fix_pol is None:
+        raise SystemExit("ERR_POLICY: parity fixture has no policy stamp — regenerate the "
+                         "fixture under the a1-hybrid preset")
+    if fix_pol.get("sha256") != pol.get("sha256"):
+        raise SystemExit(f"ERR_POLICY: fixture policy sha {fix_pol.get('sha256')} != lexicon "
+                         f"artifact policy sha {pol.get('sha256')}")
+    if pol.get("preset") != "a1-hybrid":
+        raise SystemExit(f"ERR_POLICY: preset '{pol.get('preset')}' is not the adopted "
+                         "'a1-hybrid' (adopting another policy is a new pre-registration)")
+    return {"preset": pol["preset"], "name": pol.get("name"), "sha256": pol["sha256"]}
 
 
 def parity_gate(mapper, fixture, stories, corpus_sha):
@@ -152,13 +188,38 @@ def main():
     stories = read_stories(args.corpus)
     print(f"[{time.time()-t0:.0f}s] {len(stories)} stories from {args.corpus}")
 
+    policy = policy_gate(mapper, fixture)
+    print(f"[{time.time()-t0:.0f}s] policy gate: preset {policy['preset']} "
+          f"sha {policy['sha256'][:8]}…")
     parity = parity_gate(mapper, fixture, stories, corpus_sha)
     print(f"[{time.time()-t0:.0f}s] parity gate: {parity['mode']}")
+
+    # Amendment A1 evaluated-set declaration: excludeConcepts leave mapper
+    # decisions AND the vocab untouched; they shrink the declared evaluated/
+    # reported concept universe only.
+    excluded_slugs = sorted(
+        cid[len("urn:kernel-v0:"):] for cid in mapper.policy.get("excludeConcepts", []))
 
     # ---- special tokens ----------------------------------------------------
     concept_slugs = [c["slug"] for c in templates["concepts"]]  # alphabetical
     if concept_slugs != sorted(concept_slugs):
         raise SystemExit("ERR_ORDER: template concepts not alphabetical")
+    if any(s not in concept_slugs for s in excluded_slugs):
+        raise SystemExit(f"ERR_POLICY: excluded slugs {excluded_slugs} not all in the "
+                         "54-concept vocabulary")
+    evaluated_slugs = [s for s in concept_slugs if s not in excluded_slugs]
+    evaluated_set = {
+        "size": len(evaluated_slugs),
+        "vocabConceptTokens": len(concept_slugs),
+        "excludedByPolicy": excluded_slugs,
+        "policySha256": policy["sha256"],
+        "policyPreset": policy["preset"],
+        "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from "
+                "E1's evaluated/reported concept universe (no defensible deterministic "
+                "sense winner). Their concept tokens REMAIN in the vocab and their rows "
+                "remain frozen/controlled in all arms; the mapper still abstains on their "
+                "surfaces, so they can never be attested or substituted.",
+    }
     primes = sorted({e["target"]["prime"] for e in json.load(open(lex_path))["entries"]
                      if e["target"]["kind"] == "prime"})
     concept_tok = {f"urn:kernel-v0:{s}": i for i, s in enumerate(concept_slugs)}
@@ -270,6 +331,8 @@ def main():
                          "primeCount": len(primes)},
             "conceptSlugs": concept_slugs,
             "primes": primes,
+            "policy": policy,
+            "evaluatedConceptSet": evaluated_set,
             "coveragePct": covered / total * 100,
             "tokens": vocab,
         }, f)
@@ -336,15 +399,22 @@ def main():
                     train_full = True
         ftrain.close()
         fval.close()
+        leaked = sorted(set(exposure) & set(excluded_slugs))
+        if leaked:
+            raise SystemExit(f"ERR_POLICY: excluded concepts {leaked} received substitution "
+                             f"exposure in seed {seed} — the a1-hybrid policy must leave them "
+                             "shadowed (tier/exclusion drift)")
         stats["conceptExposure"] = dict(sorted(exposure.items()))
         stats["primeSubstitutedTrain"] = prime_exposure
         stats["attestedConcepts"] = sorted(exposure.keys())
         seed_stats[str(seed)] = stats
         print(f"[{time.time()-t0:.0f}s] seed {seed}: train {stats['train']} val {stats['val']} "
-              f"tokens; {len(exposure)}/54 concepts attested")
+              f"tokens; {len(exposure)}/{evaluated_set['size']} evaluated concepts attested")
 
     attested_all = sorted(set.intersection(
         *[set(seed_stats[str(s)]["attestedConcepts"]) for s in seeds]))
+    if any(s not in evaluated_slugs for s in attested_all):
+        raise SystemExit("ERR_POLICY: attested set not a subset of the evaluated set")
 
     meta = {
         "artifact": "e1-data",
@@ -353,10 +423,12 @@ def main():
                    "stories": len(stories)},
         "provenance": {
             "mapperLexiconSha256": sha256_json_file(lex_path),
+            "policy": policy,   # Amendment A1: quoted beside the lexicon hash
             "parityFixtureSha256": sha256_json_file(fix_path),
             "templatesSha256": sha256_json_file(tpl_path),
             "parity": parity,
         },
+        "evaluatedConceptSet": evaluated_set,
         "args": {"vocabSize": args.vocab_size, "pSub": args.p_sub,
                  "valEvery": args.val_every, "maxTrainTokens": args.max_train_tokens,
                  "seeds": seeds},
@@ -369,8 +441,9 @@ def main():
         "attestedInAllSeeds": attested_all,
         "primaryEndpointConceptRule":
             "pre-registered: the primary cloze endpoint averages over concepts attested "
-            "(>=1 substituted train occurrence) in ALL seeds; the all-54 average is "
-            "reported as secondary/descriptive",
+            "(>=1 substituted train occurrence) in ALL seeds; attested is asserted to be "
+            "a subset of the Amendment-A1 evaluated set (52; kind, lost excluded); the "
+            "all-54 average is reported as secondary/descriptive",
     }
     with open(os.path.join(args.out, "meta.json"), "w") as f:
         json.dump(meta, f, indent=2)
@@ -378,7 +451,8 @@ def main():
     if not args.keep_intermediate:
         os.remove(inter_path)
     print(f"[{time.time()-t0:.0f}s] done -> {args.out}; attested in all seeds: "
-          f"{len(attested_all)}/54")
+          f"{len(attested_all)}/{evaluated_set['size']} evaluated "
+          f"(excluded by policy: {', '.join(excluded_slugs)})")
 
 
 if __name__ == "__main__":

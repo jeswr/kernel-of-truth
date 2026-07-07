@@ -199,12 +199,65 @@ export const SHADOWED_EXCLUDE_ALL5: MapperPolicy = {
 };
 
 /**
- * Recommended hybrid (coordinator decision pending): tiers where a winner is
- * measured defensible ({inside, near, broken}), exclusion for the two where
- * none exists ({kind, lost}).
+ * Recommended hybrid: tiers where a winner is measured defensible
+ * ({inside, near, broken}), exclusion for the two where none exists
+ * ({kind, lost}). ADOPTED for E1 by pre-registration Amendment A1
+ * (docs/poc-design.md Phase M, coordinator-signed 2026-07-07) under the
+ * preset name `a1-hybrid` below.
  */
 export const SHADOWED_HYBRID_RECOMMENDED: MapperPolicy = {
   name: 'shadowed-hybrid-recommended',
   priorityTiers: SHADOWED_TIERS_MEASURED.priorityTiers ?? [],
   excludeConcepts: ['urn:kernel-v0:kind', 'urn:kernel-v0:lost'],
 };
+
+// ---------------------------------------------------------------------------
+// Amendment A1 (docs/poc-design.md Phase M, signed 2026-07-07): the adopted
+// E1 policy, exposed as a named preset. The preset ALIASES the declaration
+// above — it does not redeclare it — so the content hash quoted in the
+// amendment stays the hash of the signed declaration. Nothing here changes
+// default behaviour: `mapText`/`mapTokens` without a policy argument remain
+// byte-identical to v0.1.0.
+// ---------------------------------------------------------------------------
+
+/** The policy sha256 quoted in Amendment A1 (`e13dc838…`). */
+export const A1_POLICY_SHA256 =
+  'e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696';
+
+/** Preset name adopted by Amendment A1 for every E1 data build. */
+export const A1_PRESET_NAME = 'a1-hybrid';
+
+/**
+ * Named policy presets for CLI/build flags (`--policy <preset>`). `a1-hybrid`
+ * is the Amendment-A1 adoption of SHADOWED_HYBRID_RECOMMENDED; the other
+ * names match the m0 measurement flags (run-m0a.mjs).
+ */
+export const POLICY_PRESETS: Readonly<Record<string, MapperPolicy>> = {
+  [A1_PRESET_NAME]: SHADOWED_HYBRID_RECOMMENDED,
+  'tiers-measured': SHADOWED_TIERS_MEASURED,
+  'tiers-all5': SHADOWED_TIERS_ALL5,
+  'exclude-shadowed': SHADOWED_EXCLUDE_ALL5,
+  'hybrid-recommended': SHADOWED_HYBRID_RECOMMENDED,
+};
+
+/**
+ * Resolve a policy preset by name; fails closed on unknown names. For
+ * `a1-hybrid` the resolved declaration's content hash is verified against
+ * the amendment's pinned sha256 — drift in the signed declaration is an
+ * ERR_POLICY_A1_DRIFT, never silently honoured.
+ */
+export function policyPreset(name: string): MapperPolicy {
+  const policy = POLICY_PRESETS[name];
+  if (policy === undefined) {
+    throw new Error(
+      `ERR_POLICY_UNKNOWN_PRESET: '${name}' (known: ${Object.keys(POLICY_PRESETS).join(' | ')})`,
+    );
+  }
+  if (name === A1_PRESET_NAME && policyHash(policy) !== A1_POLICY_SHA256) {
+    throw new Error(
+      `ERR_POLICY_A1_DRIFT: preset '${name}' hashes to ${policyHash(policy)}, ` +
+        `not the Amendment-A1 pin ${A1_POLICY_SHA256}`,
+    );
+  }
+  return policy;
+}

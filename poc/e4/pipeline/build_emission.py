@@ -319,6 +319,12 @@ def main():
             "holdoutSha256": sha256_file(args.holdout),
             "e1VocabSha256": sha256_file(args.e1_vocab),
             "mapperLexiconSha256": sha256_file(args.mapper_lexicon),
+            # Amendment A1 pass-through (E1's declaration; None on pre-A1
+            # vocabs). E4's candidate set is UNAFFECTED: all 54 authored
+            # concept tokens stay in the vocab (candidateIds = 1,054); only
+            # E1's evaluated/attested slice shrank to 52.
+            "e1Policy": e1_vocab.get("policy"),
+            "e1EvaluatedConceptSet": e1_vocab.get("evaluatedConceptSet"),
         },
         "args": {"seeds": seeds, "exposurePerConcept": args.exposure_per_concept,
                  "smoke": args.smoke},

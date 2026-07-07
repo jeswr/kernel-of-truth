@@ -5,6 +5,22 @@
     0,
     1
   ],
+  "policy": {
+    "preset": "a1-hybrid",
+    "name": "shadowed-hybrid-recommended",
+    "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+  },
+  "evaluatedConceptSet": {
+    "size": 52,
+    "vocabConceptTokens": 54,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "policyPreset": "a1-hybrid",
+    "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+  },
   "preRegisteredCriteria": {
     "primary": "kernel-frozen > shuffled-kernel-frozen, paired permutation across 5 paired seeds, p<0.05, single look: kernel at the 50%-token checkpoint vs shuffled at the 100%-token endpoint",
     "kill": "\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance",
@@ -14,39 +30,39 @@
   },
   "primary": {
     "kernel50": [
-      0.02702702702702703,
-      0.02702702702702703
+      0.03048780487804878,
+      0.024390243902439025
     ],
     "shuffled100": [
-      0.033783783783783786,
-      0.016891891891891893
+      0.021341463414634148,
+      0.012195121951219513
     ],
     "diffs": [
-      -0.006756756756756757,
-      0.010135135135135136
+      0.009146341463414632,
+      0.012195121951219513
     ],
-    "meanDiff": 0.0016891891891891893,
-    "p": 0.5,
+    "meanDiff": 0.010670731707317072,
+    "p": 0.25,
     "n": 2,
     "minAttainableP": 0.25,
     "test": "exact one-sided sign-flip permutation",
     "pass": false
   },
   "tost": {
-    "meanDiff": 0.0016891891891891893,
-    "sd": 0.011944371303826817,
-    "cohensD": 0.1414213562373095,
+    "meanDiff": 0.010670731707317072,
+    "sd": 0.0021558133572760615,
+    "cohensD": 4.949747468305827,
     "sesoiD": 0.5,
-    "rawBound": 0.005972185651913408,
-    "pLower": 0.26549230424914533,
-    "pUpper": 0.3506118046650386,
+    "rawBound": 0.0010779066786380308,
+    "pLower": 0.041071371954819386,
+    "pUpper": 0.9498369969641791,
     "equivalent": false,
     "test": "paired TOST, bounds +/- sesoi_d*sd, alpha=0.05 per side"
   },
   "circularityGuard": {
-    "step0Mean": 0.02027027027027027,
-    "kernel50Mean": 0.02702702702702703,
-    "kernel100Mean": 0.02702702702702703,
+    "step0Mean": 0.01829268292682927,
+    "kernel50Mean": 0.027439024390243903,
+    "kernel100Mean": 0.024390243902439025,
     "beatsStep0At50pct": true,
     "beatsStep0At100pct": true,
     "probeStep0": [
@@ -54,39 +70,39 @@
       0.06018518656492233
     ],
     "probe100": [
-      0.03703703731298447,
-      0.018518518656492233
+      0.046296294778585434,
+      0.02777777798473835
     ]
   },
   "pplSaturation": {
     "conceptSlicePplByArm": {
-      "kernel-frozen": 1596.2379993286677,
-      "kernel-init": 948.8313585730276,
-      "random-frozen": 1618.3216019270344,
-      "shuffled-frozen": 1652.3959305629287,
-      "trainable": 954.4544529041482
+      "kernel-frozen": 1591.5441067860038,
+      "kernel-init": 998.381197580512,
+      "random-frozen": 1665.0061357984187,
+      "shuffled-frozen": 1658.0212506994608,
+      "trainable": 1006.0549111224323
     },
-    "spread": 0.7415064496266337,
+    "spread": 0.6677058220180958,
     "saturated": false
   },
   "secondariesHolm": {
+    "kernel100_vs_shuffled100_cloze": {
+      "p": 0.25,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.007621951219512195
+    },
     "kernel100_vs_random100_cloze": {
       "p": 0.25,
       "pAdj": 1.0,
       "reject": false,
-      "meanDiff": 0.015202702702702704
-    },
-    "kernel100_vs_shuffled100_cloze": {
-      "p": 0.5,
-      "pAdj": 1.0,
-      "reject": false,
-      "meanDiff": 0.0016891891891891893
+      "meanDiff": 0.012195121951219513
     },
     "kernel100_vs_trainable100_cloze": {
       "p": 1.0,
       "pAdj": 1.0,
       "reject": false,
-      "meanDiff": -0.0033783783783783786
+      "meanDiff": -0.0015243902439024386
     },
     "kernel100_vs_kernelInit100_cloze": {
       "p": 1.0,
@@ -98,9 +114,9 @@
       "p": 1.0,
       "pAdj": 1.0,
       "reject": false,
-      "meanDiff": -0.006944444961845875
+      "meanDiff": -0.013888888992369175
     }
   },
   "verdict": "MOCK RUN \u2014 machinery check only, not a result. (INCONCLUSIVE)",
-  "verdictReason": "primary p = 0.5000 >= 0.05 but TOST does NOT exclude d = 0.5 \u2014 neither a pass nor a pre-registered null (\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance)"
+  "verdictReason": "primary p = 0.2500 >= 0.05 but TOST does NOT exclude d = 0.5 \u2014 neither a pass nor a pre-registered null (\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance)"
 }

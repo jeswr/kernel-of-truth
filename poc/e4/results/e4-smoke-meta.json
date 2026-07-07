@@ -5,8 +5,24 @@
     "glossesSha256": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
     "glossHashPin": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
     "holdoutSha256": "3f085944d8821fd36974159097e35747c795434903142bd6ef5c8c5f66c70a39",
-    "e1VocabSha256": "9b89197e532a91a019bdea75a87d582318a325d1ebdf14a3750dcd88448a6ead",
-    "mapperLexiconSha256": "bfbf0d660106cbb0351a9d6bd0a4ab24581ec973baef4d2fd6d6db1b91ce2c08"
+    "e1VocabSha256": "d0327a15367d2a76e31feab4178abc6607b4630e766b4891ed8b5343bcc4e06e",
+    "mapperLexiconSha256": "64e0a7bded1f3c0e4ce8b1514a016b09f38ae599bdc6ea685fc76ce5c596219a",
+    "e1Policy": {
+      "preset": "a1-hybrid",
+      "name": "shadowed-hybrid-recommended",
+      "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+    },
+    "e1EvaluatedConceptSet": {
+      "size": 52,
+      "vocabConceptTokens": 54,
+      "excludedByPolicy": [
+        "kind",
+        "lost"
+      ],
+      "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+      "policyPreset": "a1-hybrid",
+      "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+    }
   },
   "args": {
     "seeds": [

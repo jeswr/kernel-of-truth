@@ -10,11 +10,15 @@ import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  A1_POLICY_SHA256,
+  A1_PRESET_NAME,
   buildLexicon,
   irregularBase,
   lemmaCandidates,
   loadManifestConcepts,
   mapText,
+  policyHash,
+  policyPreset,
 } from '@jeswr/kernel-mapper';
 import { encoderContentHashQ } from '@jeswr/kernel-encoder';
 import {
@@ -90,6 +94,71 @@ test('parity fixture: stream hash + lemma table present and self-consistent', ()
     assert.deepEqual(lemmaCandidates(w), cands, `lemmaTable ${w}`);
   }
   assert.ok(fx.sampleAnnotations.length === 25);
+});
+
+test('Amendment A1: artifacts are stamped with the a1-hybrid policy at the pinned sha', () => {
+  const policy = policyPreset(A1_PRESET_NAME);
+  assert.equal(policyHash(policy), A1_POLICY_SHA256);
+
+  interface PolicyStamp {
+    preset: string;
+    name: string;
+    sha256: string;
+    priorityTiers?: { decisionSet: string[]; winner: string; evidence: string }[];
+    excludeConcepts?: string[];
+  }
+  const art = readInput<{ policy: PolicyStamp }>('mapper-lexicon.json');
+  assert.equal(art.policy.preset, A1_PRESET_NAME);
+  assert.equal(art.policy.sha256, A1_POLICY_SHA256);
+  // the embedded declaration IS the signed one (content-hash over the
+  // embedded fields reproduces the pin — the python port applies these)
+  assert.equal(
+    policyHash({
+      name: art.policy.name,
+      priorityTiers: art.policy.priorityTiers ?? [],
+      excludeConcepts: art.policy.excludeConcepts ?? [],
+    }),
+    A1_POLICY_SHA256,
+  );
+  assert.deepEqual(art.policy.excludeConcepts, ['urn:kernel-v0:kind', 'urn:kernel-v0:lost']);
+
+  const fx = readInput<{
+    policy: { preset: string; sha256: string };
+    counts: { concept: number; tierResolved: number };
+    tierResolutions: Record<string, number>;
+  }>('mapper-parity-fixture.json');
+  assert.equal(fx.policy.preset, A1_PRESET_NAME);
+  assert.equal(fx.policy.sha256, A1_POLICY_SHA256);
+  // the fixture stream was annotated UNDER the policy: the three declared
+  // tiers all fired on the M0a slice (m0a-shadowed-policy.md mass table)
+  assert.equal(Object.keys(fx.tierResolutions).length, 3);
+  assert.ok(fx.counts.tierResolved > 0);
+  assert.equal(
+    Object.values(fx.tierResolutions).reduce((a, b) => a + b, 0),
+    fx.counts.tierResolved,
+  );
+});
+
+test('A1 policy behaviour: tiers resolve {inside, near, broken}; {kind, lost} still abstain', () => {
+  const lex = buildLexicon(loadManifestConcepts(join(KERNEL_V0_DIR, 'manifest.json')));
+  const policy = policyPreset(A1_PRESET_NAME);
+  const text = 'The toy was broken. She lost her way inside the box near the tree. She was kind.';
+  const byNorm = new Map(
+    mapText(text, lex, policy)
+      .filter((t) => t.isWord)
+      .map((t) => [t.norm, t.decision]),
+  );
+  for (const [norm, concept] of [
+    ['inside', 'urn:kernel-v0:inside'],
+    ['near', 'urn:kernel-v0:near'],
+    ['broken', 'urn:kernel-v0:broken'],
+  ] as const) {
+    const d = byNorm.get(norm)!;
+    assert.equal(d.kind, 'concept', norm);
+    assert.equal((d as { conceptId: string }).conceptId, concept);
+  }
+  assert.equal(byNorm.get('kind')!.kind, 'abstain');
+  assert.equal(byNorm.get('lost')!.kind, 'abstain');
 });
 
 test('decisionLine format matches the python contract', () => {

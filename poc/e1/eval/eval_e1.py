@@ -86,21 +86,36 @@ def cloze(model, mapper, vocab_ids, templates, concept_ids, seq_len, device):
     return results
 
 
-def cloze_aggregates(results, templates, attested):
+def cloze_aggregates(results, templates, attested, evaluated_set):
     held = set(templates["definitional"]["split"]["heldOut"])
     dev = set(templates["definitional"]["split"]["dev"])
     att = set(attested)
+    # Amendment A1: the declared evaluated universe (52; kind, lost excluded).
+    # Candidate restriction stays 54-way (all concept tokens are in vocab), so
+    # per-item chance is unchanged; only which items are REPORTED shrinks.
+    excluded = set(evaluated_set["excludedByPolicy"])
+    if att & excluded:
+        raise SystemExit(f"ERR_POLICY: attested concepts {sorted(att & excluded)} are "
+                         "policy-excluded — data build and eval disagree")
 
     def acc(rows):
         return sum(r["correct"] for r in rows) / len(rows) if rows else None
 
+    def ev(r):
+        return r["concept"] not in excluded
+
     return {
         "heldOutAccAttested": acc([r for r in results if r["type"] in held and r["concept"] in att]),
         "devAccAttested": acc([r for r in results if r["type"] in dev and r["concept"] in att]),
+        "heldOutAccEvaluated": acc([r for r in results if r["type"] in held and ev(r)]),
+        "devAccEvaluated": acc([r for r in results if r["type"] in dev and ev(r)]),
         "heldOutAccAll54": acc([r for r in results if r["type"] in held]),
         "devAccAll54": acc([r for r in results if r["type"] in dev]),
         "attestedCount": len(att),
+        "evaluatedCount": evaluated_set["size"],
+        "excludedByPolicy": sorted(excluded),
         "chance": 1.0 / 54,
+        "candidateSetSize": 54,
     }
 
 
@@ -183,10 +198,14 @@ def main():
     sp = vocab["specials"]
     concept_ids = list(range(sp["conceptBase"], sp["conceptBase"] + sp["conceptCount"]))
     attested = meta["attestedInAllSeeds"]
+    evaluated_set = meta.get("evaluatedConceptSet")
+    if evaluated_set is None:
+        raise SystemExit("ERR_POLICY: meta.json has no evaluatedConceptSet — rebuild the data "
+                         "with the Amendment-A1 pipeline (build_data.py)")
 
     results = cloze(model, mapper, vocab_ids, templates, concept_ids,
                     ck["config"]["seq_len"], device)
-    agg = cloze_aggregates(results, templates, attested)
+    agg = cloze_aggregates(results, templates, attested, evaluated_set)
 
     val_shard = Shard(os.path.join(args.data, f"seed{ck['seed']}", "val.bin"),
                       ck["config"]["seq_len"])
@@ -202,6 +221,8 @@ def main():
         "arm": ck["arm"], "seed": ck["seed"], "tag": ck["tag"], "step": ck["step"],
         "ckpt": os.path.basename(args.ckpt),
         "frozenRowsBitIdentical": ck.get("frozenRowsBitIdentical"),
+        "policy": meta["provenance"].get("policy"),   # Amendment A1 stamp
+        "evaluatedConceptSet": evaluated_set,
         "cloze": agg,
         "ppl": ppl,
         "probe": probe,

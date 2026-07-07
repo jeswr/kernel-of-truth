@@ -35,13 +35,20 @@ annotation-only and does not exist in v0). Zero runtime dependencies.
   `resolvedFrom` for audit) and evaluated-set exclusion lists (reporting
   only; decisions untouched). Candidate declarations for the five
   ambiguity-shadowed concepts (broken, lost, inside, near, kind) are
-  measured in `m0/results/m0a-shadowed-policy.md`; adopting one for E1 is a
-  pre-registration amendment — coordinator decision pending.
+  measured in `m0/results/m0a-shadowed-policy.md`.
+- **Amendment A1 preset** (signed 2026-07-07, docs/poc-design.md Phase M):
+  the hybrid declaration is ADOPTED for E1 as the named preset `a1-hybrid`
+  (`policyPreset('a1-hybrid')`, also `--policy=a1-hybrid` on run-m0a.mjs) —
+  tiers for {inside, near, broken}, evaluated-set exclusion for {kind, lost},
+  policy sha `e13dc838…` (pinned as `A1_POLICY_SHA256`; resolution fails
+  closed on drift). The preset ALIASES `SHADOWED_HYBRID_RECOMMENDED`; the
+  package default (no policy argument) remains byte-identical v0.1.0
+  abstain-and-record.
 
 ## Build & test
 
 ```sh
-cd mapper && npm install && npm test   # tsc build + node:test (27 tests)
+cd mapper && npm install && npm test   # tsc build + node:test (37 tests)
 ```
 
 ## M0 measurements (pre-registered; poc-design.md Phase M)

@@ -202,6 +202,14 @@ def main():
     arms = sorted({k[0] for k in db})
     P = ["cloze", "heldOutAccAttested"]
 
+    # ---- Amendment A1 evaluated-set declaration (must be uniform) ----------
+    decls = {json.dumps(e.get("evaluatedConceptSet"), sort_keys=True) for e in db.values()}
+    if len(decls) != 1 or decls == {"null"}:
+        raise SystemExit("ERR_POLICY: evals carry missing/inconsistent evaluatedConceptSet "
+                         "declarations — rebuild data + evals with the Amendment-A1 pipeline")
+    evaluated_set = next(iter(db.values()))["evaluatedConceptSet"]
+    policy = next(iter(db.values())).get("policy")
+
     # ---- primary: kernel@50% vs shuffled@100% (single look, MAJOR 12) ------
     kernel50 = series(db, "kernel-frozen", "50pct", P, seeds)
     shuffled100 = series(db, "shuffled-frozen", "100pct", P, seeds)
@@ -276,6 +284,8 @@ def main():
 
     out = {
         "experiment": "E1", "mock": args.mock, "seeds": seeds,
+        "policy": policy,
+        "evaluatedConceptSet": evaluated_set,
         "preRegisteredCriteria": {"primary": PRIMARY_QUOTE, "kill": KILL_QUOTE,
                                   "circularityGuard": GUARD_QUOTE, "pplRule": PPL_QUOTE,
                                   "secondary": SECONDARY_QUOTE},
@@ -291,8 +301,14 @@ def main():
     with open(args.out_prefix + ".json", "w") as f:
         json.dump(out, f, indent=2)
 
+    excl = ", ".join(evaluated_set["excludedByPolicy"])
+    pol_sha = (policy or {}).get("sha256", evaluated_set.get("policySha256", "?"))
     md = [
         f"# E1 verdict{' (MOCK — pipeline check only)' if args.mock else ''}",
+        "",
+        f"**Evaluated concept set (Amendment A1): {evaluated_set['size']} of "
+        f"{evaluated_set['vocabConceptTokens']} vocab concept tokens — excluded by policy "
+        f"`{(policy or {}).get('preset', 'a1-hybrid')}` (sha `{pol_sha[:8]}…`): {excl}.**",
         "",
         "Pre-registered criteria (docs/poc-design.md, quoted verbatim):",
         f"- **Primary:** \"{PRIMARY_QUOTE}\"",

@@ -19,9 +19,13 @@ export {
   type Decision,
 } from './mapper.js';
 export {
+  A1_POLICY_SHA256,
+  A1_PRESET_NAME,
   compilePriorityIndex,
   decisionSetKey,
+  POLICY_PRESETS,
   policyHash,
+  policyPreset,
   SHADOWED_CONCEPTS,
   SHADOWED_EXCLUDE_ALL5,
   SHADOWED_HYBRID_RECOMMENDED,

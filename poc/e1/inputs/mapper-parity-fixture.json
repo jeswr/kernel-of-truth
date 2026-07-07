@@ -1,6 +1,6 @@
 {
   "artifact": "e1-mapper-parity-fixture",
-  "date": "2026-07-07T05:16:35.880Z",
+  "date": "2026-07-07T08:52:14.608Z",
   "corpus": {
     "note": "roneneldan/TinyStories TinyStories-valid.txt (HuggingFace) — the M0a slice",
     "bytes": 19432980,
@@ -14,8 +14,9 @@
         "lexicon.ts": "32bcbfd4226050fa74040ffb2137dffe6d3fd39f3fad6afe7a837ade77213926",
         "lemmatize.ts": "05b6a486cb40942e2a0b7b3c6c0cddfeb54c44a50e699df3a4d1031a4b6e1f8f",
         "tokenize.ts": "417efa5723a0a29495e80f9f56a7992e43255621bf2aec87e48aa1292fed7dbb",
-        "mapper.ts": "ab2ea8f6c8e99316f844e01cd6f71808db015c844efed3cdc53e82616d0f81ea",
-        "primes.ts": "2cfc6b725a24577edae01456d715ec5ee90ed341bf66fdd821ed960c8d42779f"
+        "mapper.ts": "a2b3ea92e195835c7e3e21b138ea9dfc68cade48875eae38a98b47f692e1dd76",
+        "primes.ts": "2cfc6b725a24577edae01456d715ec5ee90ed341bf66fdd821ed960c8d42779f",
+        "policy.ts": "7ffa31f0a0ea64a0fa3c7284efae5b88af6441148619b14830c112aee4f3a0c0"
       }
     },
     "kernelV0": {
@@ -24,15 +25,26 @@
       "conceptCount": 54
     }
   },
+  "policy": {
+    "preset": "a1-hybrid",
+    "name": "shadowed-hybrid-recommended",
+    "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+  },
   "counts": {
     "stories": 21990,
     "wordTokens": 3786603,
-    "concept": 117787,
+    "concept": 124045,
     "prime": 529011,
-    "abstain": 181388,
-    "none": 2958417
+    "abstain": 175130,
+    "none": 2958417,
+    "tierResolved": 6258
   },
-  "decisionStreamSha256": "13da4b825def7079e047417dac1ba6b230158e4197285829f10b118be462b8cb",
+  "tierResolutions": {
+    "prime:NEAR|urn:kernel-v0:near": 1185,
+    "prime:INSIDE|urn:kernel-v0:inside": 4154,
+    "urn:kernel-v0:break|urn:kernel-v0:broken": 919
+  },
+  "decisionStreamSha256": "ebc119f17c54baf7bc0b65dd76450a12146d337389d0609b096cfa36a2c4f1cf",
   "sampleAnnotations": [
     [
       "spot|none||1|0",
@@ -747,7 +759,7 @@
       "big|prime|prime:BIG|1|0",
       "green|none||1|0",
       "park|none||1|0",
-      "near|abstain|prime:NEAR,urn:kernel-v0:near|1|0",
+      "near|concept|urn:kernel-v0:near|1|0",
       "their|none||1|0",
       "house|none||1|0",
       "one|prime|prime:ONE|1|0",
@@ -836,7 +848,7 @@
       "she|none||1|0",
       "found|concept|urn:kernel-v0:find|1|0",
       "him|none||1|0",
-      "near|abstain|prime:NEAR,urn:kernel-v0:near|1|0",
+      "near|concept|urn:kernel-v0:near|1|0",
       "a|none||1|0",
       "big|prime|prime:BIG|1|0",
       "tree|none||1|0",
@@ -1052,7 +1064,7 @@
       "in|none||1|0",
       "the|none||1|0",
       "land|none||1|0",
-      "near|abstain|prime:NEAR,urn:kernel-v0:near|1|0",
+      "near|concept|urn:kernel-v0:near|1|0",
       "his|none||1|0",
       "home|none||1|0",
       "tom|none||1|0",
@@ -1106,7 +1118,7 @@
       "found|concept|urn:kernel-v0:find|1|0",
       "his|none||1|0",
       "ball|none||1|0",
-      "near|abstain|prime:NEAR,urn:kernel-v0:near|1|0",
+      "near|concept|urn:kernel-v0:near|1|0",
       "a|none||1|0",
       "big|prime|prime:BIG|1|0",
       "tree|none||1|0",
@@ -1788,7 +1800,7 @@
       "saw|prime|prime:SEE|1|0",
       "a|none||1|0",
       "wreck|none||1|0",
-      "near|abstain|prime:NEAR,urn:kernel-v0:near|1|0",
+      "near|concept|urn:kernel-v0:near|1|0",
       "the|none||1|0",
       "park|none||1|0",
       "the|none||1|0",
@@ -2498,7 +2510,7 @@
       "to|none||1|0",
       "the|none||1|0",
       "store|none||1|0",
-      "inside|abstain|prime:INSIDE,urn:kernel-v0:inside|1|0",
+      "inside|concept|urn:kernel-v0:inside|1|0",
       "the|none||1|0",
       "store|none||1|0",
       "tim|none||1|0",
@@ -2627,7 +2639,7 @@
       "big|prime|prime:BIG|1|0",
       "red|none||1|0",
       "barn|none||1|0",
-      "inside|abstain|prime:INSIDE,urn:kernel-v0:inside|1|0",
+      "inside|concept|urn:kernel-v0:inside|1|0",
       "the|none||1|0",
       "barn|none||1|0",
       "there|prime|prime:THERE-IS|2|0",
@@ -2773,7 +2785,7 @@
       "alligator|none||1|0",
       "he|none||1|0",
       "lived|prime|prime:LIVE|1|0",
-      "near|abstain|prime:NEAR,urn:kernel-v0:near|1|0",
+      "near|concept|urn:kernel-v0:near|1|0",
       "a|none||1|0",
       "small|prime|prime:SMALL|1|0",
       "pond|none||1|0",

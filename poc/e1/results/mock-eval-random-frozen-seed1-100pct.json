@@ -5,24 +5,48 @@
   "step": 200,
   "ckpt": "ckpt-random-frozen-seed1-100pct.pt",
   "frozenRowsBitIdentical": true,
+  "policy": {
+    "preset": "a1-hybrid",
+    "name": "shadowed-hybrid-recommended",
+    "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+  },
+  "evaluatedConceptSet": {
+    "size": 52,
+    "vocabConceptTokens": 54,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "policyPreset": "a1-hybrid",
+    "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+  },
   "cloze": {
-    "heldOutAccAttested": 0.0033783783783783786,
+    "heldOutAccAttested": 0.003048780487804878,
     "devAccAttested": 0.0,
-    "heldOutAccAll54": 0.020833333333333332,
+    "heldOutAccEvaluated": 0.014423076923076924,
+    "devAccEvaluated": 0.014423076923076924,
+    "heldOutAccAll54": 0.016203703703703703,
     "devAccAll54": 0.018518518518518517,
-    "attestedCount": 37,
-    "chance": 0.018518518518518517
+    "attestedCount": 41,
+    "evaluatedCount": 52,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "chance": 0.018518518518518517,
+    "candidateSetSize": 54
   },
   "ppl": {
-    "valLoss": 5.215274739265442,
-    "valPpl": 184.06238319757037,
-    "conceptSliceLoss": 7.428361913357401,
-    "conceptSlicePpl": 1683.0483350514473,
-    "conceptTargets": 1108
+    "valLoss": 5.241074442863464,
+    "valPpl": 188.87292659273282,
+    "conceptSliceLoss": 7.447134444566267,
+    "conceptSlicePpl": 1714.9418367033888,
+    "conceptTargets": 1149
   },
   "probe": {
-    "trainAcc": 0.7222222089767456,
-    "testAcc": 0.0416666679084301,
+    "trainAcc": 0.7175925970077515,
+    "testAcc": 0.05092592537403107,
     "chance": 0.018518518518518517,
     "midLayerStateIndex": 0,
     "positionRule": "final word token of the stimulus (non-concept position)"

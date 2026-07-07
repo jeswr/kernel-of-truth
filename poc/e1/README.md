@@ -29,6 +29,21 @@ E1_CORPUS=<TinyStories-valid.txt> bash smoke/run_smoke.sh   # CPU mock end-to-en
 
 ## Design decisions bound to the pre-registration
 
+- **Amendment A1 (docs/poc-design.md Phase M, signed 2026-07-07; bead
+  kernel-of-truth-9qm):** every E1 data build runs the mapper under the
+  `a1-hybrid` policy preset (sense-priority tiers for {inside, near, broken},
+  exclusion for {kind, lost}; policy sha `e13dc838…`). The policy declaration
+  is embedded in `inputs/mapper-lexicon.json`, the parity fixture is
+  annotated UNDER it (tier application is part of the bit-exact TS↔python
+  contract; +6,258 tier-resolved tokens on the M0a slice), and
+  `build_data.py` fails closed unless artifact + fixture carry the same
+  policy sha. The shard manifest (`meta.json`) and `vocab.json` stamp
+  `provenance.policy` {preset, name, sha256} beside the lexicon hash plus an
+  `evaluatedConceptSet` declaration: **52 evaluated of 54 vocab concept
+  tokens; kind, lost excluded by policy** (their tokens stay in vocab, their
+  rows stay frozen/controlled, they can never be attested — asserted at
+  build). eval/stats propagate the declaration so every E1 report names the
+  exclusions; the cloze candidate set stays 54-way.
 - **Dimension / encoder pin (Common rules 2-3, path (i)):** d_model = 512 so
   the pinned `kot-enc-Bq/1`@512 hash
   `3492799e…` applies; the vector-table generator and the TS tests verify the

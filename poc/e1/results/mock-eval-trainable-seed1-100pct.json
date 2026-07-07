@@ -5,23 +5,47 @@
   "step": 200,
   "ckpt": "ckpt-trainable-seed1-100pct.pt",
   "frozenRowsBitIdentical": null,
+  "policy": {
+    "preset": "a1-hybrid",
+    "name": "shadowed-hybrid-recommended",
+    "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+  },
+  "evaluatedConceptSet": {
+    "size": 52,
+    "vocabConceptTokens": 54,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "policyPreset": "a1-hybrid",
+    "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+  },
   "cloze": {
-    "heldOutAccAttested": 0.02702702702702703,
-    "devAccAttested": 0.02702702702702703,
+    "heldOutAccAttested": 0.024390243902439025,
+    "devAccAttested": 0.024390243902439025,
+    "heldOutAccEvaluated": 0.019230769230769232,
+    "devAccEvaluated": 0.019230769230769232,
     "heldOutAccAll54": 0.018518518518518517,
     "devAccAll54": 0.018518518518518517,
-    "attestedCount": 37,
-    "chance": 0.018518518518518517
+    "attestedCount": 41,
+    "evaluatedCount": 52,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "chance": 0.018518518518518517,
+    "candidateSetSize": 54
   },
   "ppl": {
-    "valLoss": 5.194847369194031,
-    "valPpl": 180.34061516283947,
-    "conceptSliceLoss": 6.845862929141048,
-    "conceptSlicePpl": 939.9840707793481,
-    "conceptTargets": 1108
+    "valLoss": 5.197154521942139,
+    "valPpl": 180.75716885042567,
+    "conceptSliceLoss": 6.900066086891115,
+    "conceptSlicePpl": 992.3402941230281,
+    "conceptTargets": 1149
   },
   "probe": {
-    "trainAcc": 0.5509259104728699,
+    "trainAcc": 0.5416666865348816,
     "testAcc": 0.0416666679084301,
     "chance": 0.018518518518518517,
     "midLayerStateIndex": 0,
