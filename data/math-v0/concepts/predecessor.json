@@ -1,0 +1,27 @@
+{
+  "id": "urn:math-v0:predecessor",
+  "label": "predecessor (truncated)",
+  "status": "core",
+  "gloss": "pred(0) = 0; pred(S(n)) = n.",
+  "notes": "RecursiveFunctionDef: primitive recursion on the last parameter; stepCase context is params[0..k-2] then n : N (predecessor, index 1 when innermost-but-one) then rec (the recursive value, index 0). Guardedness holds by construction - there is no self-application node (design SS3.2).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal; truncation at zero has no natural-language analogue worth recording."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "RecursiveFunctionDef",
+    "params": [
+      "N"
+    ],
+    "resultSort": "N",
+    "baseCase": {
+      "kind": "zero"
+    },
+    "stepCase": {
+      "kind": "var",
+      "index": 1
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "urn:math-v0:subset-nat",
+  "label": "subset (of sets of naturals)",
+  "status": "core",
+  "gloss": "subset(A, B) iff every member of A is a member of B.",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "PART-prime parthood is mereological, not extensional inclusion; no bridge recorded (see set-membership)."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      {
+        "kind": "Set",
+        "of": "N"
+      },
+      {
+        "kind": "Set",
+        "of": "N"
+      }
+    ],
+    "definiens": {
+      "kind": "forall",
+      "sort": "N",
+      "body": {
+        "kind": "implies",
+        "left": {
+          "kind": "member",
+          "element": {
+            "kind": "var",
+            "index": 0
+          },
+          "set": {
+            "kind": "var",
+            "index": 2
+          }
+        },
+        "right": {
+          "kind": "member",
+          "element": {
+            "kind": "var",
+            "index": 0
+          },
+          "set": {
+            "kind": "var",
+            "index": 1
+          }
+        }
+      }
+    }
+  }
+}

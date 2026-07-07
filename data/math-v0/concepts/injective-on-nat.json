@@ -1,0 +1,90 @@
+{
+  "id": "urn:math-v0:injective-on-nat",
+  "label": "injective (for graphs over Pair(N,N))",
+  "status": "core",
+  "gloss": "injective(F) iff (x1, y) in F and (x2, y) in F imply x1 = x2. Stated for any relation-graph; meaningful for function graphs (function-on-nat is deliberately not required in the definiens).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      {
+        "kind": "Set",
+        "of": {
+          "kind": "Pair",
+          "fst": "N",
+          "snd": "N"
+        }
+      }
+    ],
+    "definiens": {
+      "kind": "forall",
+      "sort": "N",
+      "body": {
+        "kind": "forall",
+        "sort": "N",
+        "body": {
+          "kind": "forall",
+          "sort": "N",
+          "body": {
+            "kind": "implies",
+            "left": {
+              "kind": "and",
+              "left": {
+                "kind": "member",
+                "element": {
+                  "kind": "pair",
+                  "fst": {
+                    "kind": "var",
+                    "index": 2
+                  },
+                  "snd": {
+                    "kind": "var",
+                    "index": 0
+                  }
+                },
+                "set": {
+                  "kind": "var",
+                  "index": 3
+                }
+              },
+              "right": {
+                "kind": "member",
+                "element": {
+                  "kind": "pair",
+                  "fst": {
+                    "kind": "var",
+                    "index": 1
+                  },
+                  "snd": {
+                    "kind": "var",
+                    "index": 0
+                  }
+                },
+                "set": {
+                  "kind": "var",
+                  "index": 3
+                }
+              }
+            },
+            "right": {
+              "kind": "eq",
+              "left": {
+                "kind": "var",
+                "index": 2
+              },
+              "right": {
+                "kind": "var",
+                "index": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

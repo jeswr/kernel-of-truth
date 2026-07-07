@@ -1,0 +1,58 @@
+{
+  "id": "urn:math-v0:union-nat",
+  "label": "union (of sets of naturals)",
+  "status": "core",
+  "gloss": "union(A, B) = {n : N | n in A or n in B}.",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal set algebra."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "TermDef",
+    "params": [
+      {
+        "kind": "Set",
+        "of": "N"
+      },
+      {
+        "kind": "Set",
+        "of": "N"
+      }
+    ],
+    "resultSort": {
+      "kind": "Set",
+      "of": "N"
+    },
+    "definiens": {
+      "kind": "comprehension",
+      "sort": "N",
+      "body": {
+        "kind": "or",
+        "left": {
+          "kind": "member",
+          "element": {
+            "kind": "var",
+            "index": 0
+          },
+          "set": {
+            "kind": "var",
+            "index": 2
+          }
+        },
+        "right": {
+          "kind": "member",
+          "element": {
+            "kind": "var",
+            "index": 0
+          },
+          "set": {
+            "kind": "var",
+            "index": 1
+          }
+        }
+      }
+    }
+  }
+}

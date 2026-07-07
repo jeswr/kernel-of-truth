@@ -1,0 +1,90 @@
+{
+  "id": "urn:math-v0:function-on-nat",
+  "label": "function N -> N (as a graph)",
+  "status": "core",
+  "gloss": "function(F) iff for every x : N there is exactly one y : N with (x, y) in F. Functions are graphs: subsets of Pair(N,N); there is no function sort in v0 (design SS2.2).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal; totality-and-uniqueness has no prime-level rendering."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      {
+        "kind": "Set",
+        "of": {
+          "kind": "Pair",
+          "fst": "N",
+          "snd": "N"
+        }
+      }
+    ],
+    "definiens": {
+      "kind": "forall",
+      "sort": "N",
+      "body": {
+        "kind": "exists",
+        "sort": "N",
+        "body": {
+          "kind": "and",
+          "left": {
+            "kind": "member",
+            "element": {
+              "kind": "pair",
+              "fst": {
+                "kind": "var",
+                "index": 1
+              },
+              "snd": {
+                "kind": "var",
+                "index": 0
+              }
+            },
+            "set": {
+              "kind": "var",
+              "index": 2
+            }
+          },
+          "right": {
+            "kind": "forall",
+            "sort": "N",
+            "body": {
+              "kind": "implies",
+              "left": {
+                "kind": "member",
+                "element": {
+                  "kind": "pair",
+                  "fst": {
+                    "kind": "var",
+                    "index": 2
+                  },
+                  "snd": {
+                    "kind": "var",
+                    "index": 0
+                  }
+                },
+                "set": {
+                  "kind": "var",
+                  "index": 3
+                }
+              },
+              "right": {
+                "kind": "eq",
+                "left": {
+                  "kind": "var",
+                  "index": 0
+                },
+                "right": {
+                  "kind": "var",
+                  "index": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

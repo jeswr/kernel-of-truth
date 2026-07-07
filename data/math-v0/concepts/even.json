@@ -1,0 +1,36 @@
+{
+  "id": "urn:math-v0:even",
+  "label": "even",
+  "status": "core",
+  "gloss": "even(n) iff 2 divides n.",
+  "references": [
+    "urn:math-v0:divides",
+    "urn:math-v0:two"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "'can be put in two equal groups' needs exact cardinality matching, which profile-1 cannot express (see addition bridge note)."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      "N"
+    ],
+    "definiens": {
+      "kind": "const",
+      "ref": "urn:math-v0:divides",
+      "args": [
+        {
+          "kind": "const",
+          "ref": "urn:math-v0:two",
+          "args": []
+        },
+        {
+          "kind": "var",
+          "index": 0
+        }
+      ]
+    }
+  }
+}

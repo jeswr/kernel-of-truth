@@ -1,0 +1,37 @@
+{
+  "id": "urn:math-v0:singleton-nat",
+  "label": "singleton set (of a natural)",
+  "status": "core",
+  "gloss": "singleton(x) = {n : N | n = x}.",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "'the set whose only member is x' requires membership; see set-membership bridge note."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "TermDef",
+    "params": [
+      "N"
+    ],
+    "resultSort": {
+      "kind": "Set",
+      "of": "N"
+    },
+    "definiens": {
+      "kind": "comprehension",
+      "sort": "N",
+      "body": {
+        "kind": "eq",
+        "left": {
+          "kind": "var",
+          "index": 0
+        },
+        "right": {
+          "kind": "var",
+          "index": 1
+        }
+      }
+    }
+  }
+}

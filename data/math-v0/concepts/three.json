@@ -1,0 +1,27 @@
+{
+  "id": "urn:math-v0:three",
+  "label": "three",
+  "status": "core",
+  "gloss": "the natural number 3, defined as S(2).",
+  "references": [
+    "urn:math-v0:two"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "no prime beyond TWO; 'two and one more' is not licensed by profile-1's closed grammar without numeral molecules (MUCH~MANY / LITTLE~FEW do not reach exact cardinalities)."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "TermDef",
+    "params": [],
+    "resultSort": "N",
+    "definiens": {
+      "kind": "succ",
+      "arg": {
+        "kind": "const",
+        "ref": "urn:math-v0:two",
+        "args": []
+      }
+    }
+  }
+}

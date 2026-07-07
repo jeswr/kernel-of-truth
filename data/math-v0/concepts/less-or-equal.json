@@ -1,0 +1,46 @@
+{
+  "id": "urn:math-v0:less-or-equal",
+  "label": "less than or equal",
+  "status": "core",
+  "gloss": "le(x, y) iff there exists k : N with x + k = y.",
+  "references": [
+    "urn:math-v0:addition"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "the natural route is the MORE prime (comparative), but profile-1 licenses MORE only over mods/quantifiers inside an SP, not as a binary relation between counted collections; an honest explication was not achievable within the closed grammar."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      "N",
+      "N"
+    ],
+    "definiens": {
+      "kind": "exists",
+      "sort": "N",
+      "body": {
+        "kind": "eq",
+        "left": {
+          "kind": "const",
+          "ref": "urn:math-v0:addition",
+          "args": [
+            {
+              "kind": "var",
+              "index": 2
+            },
+            {
+              "kind": "var",
+              "index": 0
+            }
+          ]
+        },
+        "right": {
+          "kind": "var",
+          "index": 1
+        }
+      }
+    }
+  }
+}

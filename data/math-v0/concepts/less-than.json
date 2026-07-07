@@ -1,0 +1,38 @@
+{
+  "id": "urn:math-v0:less-than",
+  "label": "strictly less than",
+  "status": "core",
+  "gloss": "lt(x, y) iff S(x) <= y. One succ-node away from less-or-equal: the le/lt pair is the corpus's sharpest single-edit meaning distinction (design SS4 pathology 1, SS5 probe candidate).",
+  "references": [
+    "urn:math-v0:less-or-equal"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "same MORE-prime obstacle as less-or-equal."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      "N",
+      "N"
+    ],
+    "definiens": {
+      "kind": "const",
+      "ref": "urn:math-v0:less-or-equal",
+      "args": [
+        {
+          "kind": "succ",
+          "arg": {
+            "kind": "var",
+            "index": 1
+          }
+        },
+        {
+          "kind": "var",
+          "index": 0
+        }
+      ]
+    }
+  }
+}

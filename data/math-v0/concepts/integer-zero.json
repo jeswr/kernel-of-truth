@@ -1,0 +1,50 @@
+{
+  "id": "urn:math-v0:integer-zero",
+  "label": "the integer zero",
+  "status": "sketch",
+  "gloss": "the ~-class of (0,0): {p : Pair(N,N) | fst(p) = snd(p)}. That integer(integer-zero) holds is a theorem of the basis, and v0 has no proof layer to record it (design L1).",
+  "notes": "Integers-as-equivalence-classes sketch (status: sketch): the classic quotient construction without quotient sorts - classes are Set(Pair(N,N)) values, class-hood is a predicate. Integer addition needs image-set formers v0 lacks (design L3).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "TermDef",
+    "params": [],
+    "resultSort": {
+      "kind": "Set",
+      "of": {
+        "kind": "Pair",
+        "fst": "N",
+        "snd": "N"
+      }
+    },
+    "definiens": {
+      "kind": "comprehension",
+      "sort": {
+        "kind": "Pair",
+        "fst": "N",
+        "snd": "N"
+      },
+      "body": {
+        "kind": "eq",
+        "left": {
+          "kind": "fst",
+          "arg": {
+            "kind": "var",
+            "index": 0
+          }
+        },
+        "right": {
+          "kind": "snd",
+          "arg": {
+            "kind": "var",
+            "index": 0
+          }
+        }
+      }
+    }
+  }
+}

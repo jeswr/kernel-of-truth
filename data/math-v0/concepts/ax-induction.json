@@ -1,0 +1,92 @@
+{
+  "id": "urn:math-v0:ax-induction",
+  "label": "induction over N (via Set(N))",
+  "status": "axiom",
+  "gloss": "for all S : Set(N), if 0 is in S and S is closed under successor, then every n : N is in S. Second-order induction in two-sorted first-order clothing; Dedekind-categorical under full semantics, Henkin caveat recorded in design SS2.2.",
+  "notes": "AxiomDef: a closed Prop statement of the profile-M v0 basis. Stated at fixed sorts; v0 has no schema mechanism (design-math-sector.md L2).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal axiom; no NSM correspondence attempted."
+  },
+  "characterizes": [
+    "urn:math-v0:zero",
+    "urn:math-v0:successor",
+    "urn:math-v0:set-membership",
+    "urn:math-v0:natural-number"
+  ],
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "AxiomDef",
+    "statement": {
+      "kind": "forall",
+      "sort": {
+        "kind": "Set",
+        "of": "N"
+      },
+      "body": {
+        "kind": "implies",
+        "left": {
+          "kind": "and",
+          "left": {
+            "kind": "member",
+            "element": {
+              "kind": "zero"
+            },
+            "set": {
+              "kind": "var",
+              "index": 0
+            }
+          },
+          "right": {
+            "kind": "forall",
+            "sort": "N",
+            "body": {
+              "kind": "implies",
+              "left": {
+                "kind": "member",
+                "element": {
+                  "kind": "var",
+                  "index": 0
+                },
+                "set": {
+                  "kind": "var",
+                  "index": 1
+                }
+              },
+              "right": {
+                "kind": "member",
+                "element": {
+                  "kind": "succ",
+                  "arg": {
+                    "kind": "var",
+                    "index": 0
+                  }
+                },
+                "set": {
+                  "kind": "var",
+                  "index": 1
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "kind": "forall",
+          "sort": "N",
+          "body": {
+            "kind": "member",
+            "element": {
+              "kind": "var",
+              "index": 0
+            },
+            "set": {
+              "kind": "var",
+              "index": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

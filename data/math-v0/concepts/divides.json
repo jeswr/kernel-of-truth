@@ -1,0 +1,46 @@
+{
+  "id": "urn:math-v0:divides",
+  "label": "divides",
+  "status": "core",
+  "gloss": "divides(d, n) iff there exists k : N with d * k = n.",
+  "references": [
+    "urn:math-v0:multiplication"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal; no honest NSM rendering."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      "N",
+      "N"
+    ],
+    "definiens": {
+      "kind": "exists",
+      "sort": "N",
+      "body": {
+        "kind": "eq",
+        "left": {
+          "kind": "const",
+          "ref": "urn:math-v0:multiplication",
+          "args": [
+            {
+              "kind": "var",
+              "index": 2
+            },
+            {
+              "kind": "var",
+              "index": 0
+            }
+          ]
+        },
+        "right": {
+          "kind": "var",
+          "index": 1
+        }
+      }
+    }
+  }
+}

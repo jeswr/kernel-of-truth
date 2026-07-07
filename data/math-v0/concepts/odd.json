@@ -1,0 +1,33 @@
+{
+  "id": "urn:math-v0:odd",
+  "label": "odd",
+  "status": "core",
+  "gloss": "odd(n) iff n is not even.",
+  "references": [
+    "urn:math-v0:even"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "negation of even; inherits its obstacle."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      "N"
+    ],
+    "definiens": {
+      "kind": "not",
+      "arg": {
+        "kind": "const",
+        "ref": "urn:math-v0:even",
+        "args": [
+          {
+            "kind": "var",
+            "index": 0
+          }
+        ]
+      }
+    }
+  }
+}

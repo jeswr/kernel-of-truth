@@ -1,0 +1,53 @@
+{
+  "id": "urn:math-v0:ax-pair-eta-nat",
+  "label": "pair eta law (at Pair(N,N))",
+  "status": "axiom",
+  "gloss": "for all p : Pair(N,N), pair(fst(p), snd(p)) = p.",
+  "notes": "AxiomDef: a closed Prop statement of the profile-M v0 basis. Stated at fixed sorts; v0 has no schema mechanism (design-math-sector.md L2).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal axiom; no NSM correspondence attempted."
+  },
+  "characterizes": [
+    "urn:math-v0:ordered-pair",
+    "urn:math-v0:pair-first",
+    "urn:math-v0:pair-second"
+  ],
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "AxiomDef",
+    "statement": {
+      "kind": "forall",
+      "sort": {
+        "kind": "Pair",
+        "fst": "N",
+        "snd": "N"
+      },
+      "body": {
+        "kind": "eq",
+        "left": {
+          "kind": "pair",
+          "fst": {
+            "kind": "fst",
+            "arg": {
+              "kind": "var",
+              "index": 0
+            }
+          },
+          "snd": {
+            "kind": "snd",
+            "arg": {
+              "kind": "var",
+              "index": 0
+            }
+          }
+        },
+        "right": {
+          "kind": "var",
+          "index": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "urn:math-v0:integer",
+  "label": "integer (as an equivalence class)",
+  "status": "sketch",
+  "gloss": "integer(S) iff S is exactly one ~-class: some p is in S, and membership in S coincides with ~-equivalence to p.",
+  "notes": "Integers-as-equivalence-classes sketch (status: sketch): the classic quotient construction without quotient sorts - classes are Set(Pair(N,N)) values, class-hood is a predicate. Integer addition needs image-set formers v0 lacks (design L3).",
+  "references": [
+    "urn:math-v0:int-pair-equiv"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      {
+        "kind": "Set",
+        "of": {
+          "kind": "Pair",
+          "fst": "N",
+          "snd": "N"
+        }
+      }
+    ],
+    "definiens": {
+      "kind": "exists",
+      "sort": {
+        "kind": "Pair",
+        "fst": "N",
+        "snd": "N"
+      },
+      "body": {
+        "kind": "and",
+        "left": {
+          "kind": "member",
+          "element": {
+            "kind": "var",
+            "index": 0
+          },
+          "set": {
+            "kind": "var",
+            "index": 1
+          }
+        },
+        "right": {
+          "kind": "forall",
+          "sort": {
+            "kind": "Pair",
+            "fst": "N",
+            "snd": "N"
+          },
+          "body": {
+            "kind": "iff",
+            "left": {
+              "kind": "member",
+              "element": {
+                "kind": "var",
+                "index": 0
+              },
+              "set": {
+                "kind": "var",
+                "index": 2
+              }
+            },
+            "right": {
+              "kind": "const",
+              "ref": "urn:math-v0:int-pair-equiv",
+              "args": [
+                {
+                  "kind": "var",
+                  "index": 1
+                },
+                {
+                  "kind": "var",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

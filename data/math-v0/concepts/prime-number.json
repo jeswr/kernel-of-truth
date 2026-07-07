@@ -1,0 +1,87 @@
+{
+  "id": "urn:math-v0:prime-number",
+  "label": "prime number",
+  "status": "core",
+  "gloss": "prime(p) iff 1 < p and every divisor of p is 1 or p. (Slug 'prime-number' avoids collision with NSM 'prime' terminology.)",
+  "references": [
+    "urn:math-v0:divides",
+    "urn:math-v0:less-than",
+    "urn:math-v0:one"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal; deepest reference chain in the corpus (prime-number -> less-than -> less-or-equal -> addition)."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "PredicateDef",
+    "params": [
+      "N"
+    ],
+    "definiens": {
+      "kind": "and",
+      "left": {
+        "kind": "const",
+        "ref": "urn:math-v0:less-than",
+        "args": [
+          {
+            "kind": "const",
+            "ref": "urn:math-v0:one",
+            "args": []
+          },
+          {
+            "kind": "var",
+            "index": 0
+          }
+        ]
+      },
+      "right": {
+        "kind": "forall",
+        "sort": "N",
+        "body": {
+          "kind": "implies",
+          "left": {
+            "kind": "const",
+            "ref": "urn:math-v0:divides",
+            "args": [
+              {
+                "kind": "var",
+                "index": 0
+              },
+              {
+                "kind": "var",
+                "index": 1
+              }
+            ]
+          },
+          "right": {
+            "kind": "or",
+            "left": {
+              "kind": "eq",
+              "left": {
+                "kind": "var",
+                "index": 0
+              },
+              "right": {
+                "kind": "const",
+                "ref": "urn:math-v0:one",
+                "args": []
+              }
+            },
+            "right": {
+              "kind": "eq",
+              "left": {
+                "kind": "var",
+                "index": 0
+              },
+              "right": {
+                "kind": "var",
+                "index": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

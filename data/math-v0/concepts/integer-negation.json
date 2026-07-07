@@ -1,0 +1,66 @@
+{
+  "id": "urn:math-v0:integer-negation",
+  "label": "integer negation",
+  "status": "sketch",
+  "gloss": "negate(S) = {p : Pair(N,N) | (snd(p), fst(p)) in S} - swap the pair components.",
+  "notes": "Integers-as-equivalence-classes sketch (status: sketch): the classic quotient construction without quotient sorts - classes are Set(Pair(N,N)) values, class-hood is a predicate. Integer addition needs image-set formers v0 lacks (design L3).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "TermDef",
+    "params": [
+      {
+        "kind": "Set",
+        "of": {
+          "kind": "Pair",
+          "fst": "N",
+          "snd": "N"
+        }
+      }
+    ],
+    "resultSort": {
+      "kind": "Set",
+      "of": {
+        "kind": "Pair",
+        "fst": "N",
+        "snd": "N"
+      }
+    },
+    "definiens": {
+      "kind": "comprehension",
+      "sort": {
+        "kind": "Pair",
+        "fst": "N",
+        "snd": "N"
+      },
+      "body": {
+        "kind": "member",
+        "element": {
+          "kind": "pair",
+          "fst": {
+            "kind": "snd",
+            "arg": {
+              "kind": "var",
+              "index": 0
+            }
+          },
+          "snd": {
+            "kind": "fst",
+            "arg": {
+              "kind": "var",
+              "index": 0
+            }
+          }
+        },
+        "set": {
+          "kind": "var",
+          "index": 1
+        }
+      }
+    }
+  }
+}

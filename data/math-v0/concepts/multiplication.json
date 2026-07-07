@@ -1,0 +1,40 @@
+{
+  "id": "urn:math-v0:multiplication",
+  "label": "multiplication",
+  "status": "core",
+  "gloss": "x * 0 = 0; x * S(n) = x + (x * n).",
+  "notes": "RecursiveFunctionDef: primitive recursion on the last parameter; stepCase context is params[0..k-2] then n : N (predecessor, index 1 when innermost-but-one) then rec (the recursive value, index 0). Guardedness holds by construction - there is no self-application node (design SS3.2).",
+  "references": [
+    "urn:math-v0:addition"
+  ],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "iterated addition has no honest profile-1 rendering (the addition attempt already strains the grammar; iteration is out of reach)."
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "RecursiveFunctionDef",
+    "params": [
+      "N",
+      "N"
+    ],
+    "resultSort": "N",
+    "baseCase": {
+      "kind": "zero"
+    },
+    "stepCase": {
+      "kind": "const",
+      "ref": "urn:math-v0:addition",
+      "args": [
+        {
+          "kind": "var",
+          "index": 2
+        },
+        {
+          "kind": "var",
+          "index": 0
+        }
+      ]
+    }
+  }
+}

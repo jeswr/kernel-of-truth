@@ -1,0 +1,74 @@
+{
+  "id": "urn:math-v0:ax-pair-projections-nat",
+  "label": "pair projection laws (at Pair(N,N))",
+  "status": "axiom",
+  "gloss": "for all x, y : N, fst(pair(x,y)) = x and snd(pair(x,y)) = y.",
+  "notes": "AxiomDef: a closed Prop statement of the profile-M v0 basis. Stated at fixed sorts; v0 has no schema mechanism (design-math-sector.md L2).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "none",
+    "note": "pure-formal axiom; no NSM correspondence attempted."
+  },
+  "characterizes": [
+    "urn:math-v0:ordered-pair",
+    "urn:math-v0:pair-first",
+    "urn:math-v0:pair-second"
+  ],
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "AxiomDef",
+    "statement": {
+      "kind": "forall",
+      "sort": "N",
+      "body": {
+        "kind": "forall",
+        "sort": "N",
+        "body": {
+          "kind": "and",
+          "left": {
+            "kind": "eq",
+            "left": {
+              "kind": "fst",
+              "arg": {
+                "kind": "pair",
+                "fst": {
+                  "kind": "var",
+                  "index": 1
+                },
+                "snd": {
+                  "kind": "var",
+                  "index": 0
+                }
+              }
+            },
+            "right": {
+              "kind": "var",
+              "index": 1
+            }
+          },
+          "right": {
+            "kind": "eq",
+            "left": {
+              "kind": "snd",
+              "arg": {
+                "kind": "pair",
+                "fst": {
+                  "kind": "var",
+                  "index": 1
+                },
+                "snd": {
+                  "kind": "var",
+                  "index": 0
+                }
+              }
+            },
+            "right": {
+              "kind": "var",
+              "index": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

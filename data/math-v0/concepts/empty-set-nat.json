@@ -1,0 +1,74 @@
+{
+  "id": "urn:math-v0:empty-set-nat",
+  "label": "empty set (of naturals)",
+  "status": "core",
+  "gloss": "the set {n : N | false}, encoded as {n : N | not (n = n)} - the grammar has no falsum constant (design L4).",
+  "notes": "The comprehension's not(x = x) body is the v0 falsum encoding; a v1 grammar would add a bottom constant (design L4).",
+  "references": [],
+  "nsmBridge": {
+    "kind": "explication",
+    "note": "KNOWN-WEAK research-grade attempt, machine-checked profile-1-LEGAL but adequacy unvalidated: 'there is not something in this something' conflates spatial containment (place adjunct) with set membership - profile-1 has no membership relation, so location stands in for element-hood. Recorded as the honest best available.",
+    "explication": {
+      "schema": "kot-ast/1",
+      "frame": "InstanceSchema",
+      "referents": [
+        {
+          "index": 1,
+          "refKind": "SomethingRef"
+        }
+      ],
+      "clauses": [
+        {
+          "type": "op",
+          "op": "NOT",
+          "args": [
+            {
+              "type": "pred",
+              "pred": "THERE-IS",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  }
+                },
+                "place": {
+                  "kind": "ref",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "definition": {
+    "schema": "pm-ast/1",
+    "frame": "TermDef",
+    "params": [],
+    "resultSort": {
+      "kind": "Set",
+      "of": "N"
+    },
+    "definiens": {
+      "kind": "comprehension",
+      "sort": "N",
+      "body": {
+        "kind": "not",
+        "arg": {
+          "kind": "eq",
+          "left": {
+            "kind": "var",
+            "index": 0
+          },
+          "right": {
+            "kind": "var",
+            "index": 0
+          }
+        }
+      }
+    }
+  }
+}
