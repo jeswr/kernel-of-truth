@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""haiku-tier volume runner — session-budget-governed, checkpointed. NOT YET
-RUN: stage 2 is coordinator-gated on the stage-1 quality readout
-(kernel-of-truth-63c).
+"""haiku-tier volume runner — session-budget-governed, checkpointed.
 
 Processes data/haiku-tier/inventory/inventory.jsonl in rank order (highest
 value first): fetch definitional text (cached), call claude-haiku with the
@@ -17,7 +15,9 @@ Max20 subscription; Haiku gets ~half of each 5h window):
   - max MAX_CALLS_PER_WINDOW calls per 5h window (default 500, conservative);
     windows are anchored at the first call after the previous window closed
     (approximates the plan's rolling 5h session), plus a safety margin.
-  - concurrency fixed low (default 2, hard cap 3).
+  - concurrency default 2, hard cap 12 (maintainer authorized pushing
+    concurrency until API limits bite, 2026-07-07; limit-error backoff is
+    the real safety).
   - any usage-limit error from claude -p => stop the window immediately,
     parse a reset time from the error if present (epoch, ISO, or h:mm am/pm)
     and sleep past it + 10 min margin; else sleep 60 min.
@@ -32,8 +32,8 @@ Usage:
 Options: --framework A --max-per-window 500 --window-hours 5 --concurrency 2
          --bands ABCD --start-rank N --limit N --dry-run
 """
-import argparse, datetime, hashlib, importlib.util, json, os, re, subprocess, sys, time, unicodedata
-from concurrent.futures import ThreadPoolExecutor
+import argparse, collections, datetime, hashlib, importlib.util, json, os, re, subprocess, sys, time, unicodedata
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 
 HERE = os.path.dirname(os.path.abspath(__file__))          # data/haiku-tier/runner
 TIER = os.path.abspath(os.path.join(HERE, '..'))            # data/haiku-tier
@@ -118,20 +118,34 @@ def parse_reset_seconds(msg):
 class UsageLimit(Exception):
     def __init__(self, msg): super().__init__(msg); self.msg = msg
 
-def call_claude(system_file, user_text):
+def call_claude(system_file, user_text, attempts=3):
     env = dict(os.environ, MAX_THINKING_TOKENS='0')
     cmd = ['nice', '-n', '10', 'claude', '-p', '--model', MODEL,
            '--system-prompt-file', system_file, '--tools', '',
            '--strict-mcp-config', '--exclude-dynamic-system-prompt-sections',
            '--effort', 'low', '--output-format', 'json', '--max-turns', '1']
-    r = subprocess.run(cmd, input=user_text, capture_output=True, text=True,
-                       env=env, timeout=300)
-    blob = (r.stdout or '') + (r.stderr or '')
-    if re.search(r'usage limit|rate limit|limit reached|out of.*(quota|credits)|5-hour', blob, re.I):
-        raise UsageLimit(blob[:1000])
-    if r.returncode != 0:
-        raise RuntimeError(f'claude exit {r.returncode}: {blob[:400]}')
-    return json.loads(r.stdout)
+    last = None
+    for attempt in range(attempts):
+        try:
+            r = subprocess.run(cmd, input=user_text, capture_output=True,
+                               text=True, env=env, timeout=300)
+        except subprocess.TimeoutExpired:
+            last = 'claude timeout after 300s'
+            time.sleep(5 * 3 ** attempt)
+            continue
+        blob = (r.stdout or '') + (r.stderr or '')
+        # window-level limits stop the run (the 2026-07-07 burn: "You've hit
+        # your session limit" matched nothing here and 253 lemmas were logged
+        # as transport errors instead of pausing — hence 'session limit')
+        if re.search(r'usage limit|session limit|rate limit|limit reached|'
+                     r'out of.*(quota|credits)|5-hour', blob, re.I):
+            raise UsageLimit(blob[:1000])
+        if r.returncode != 0:
+            last = f'claude exit {r.returncode}: {blob[:400]}'
+            time.sleep(5 * 3 ** attempt)
+            continue
+        return json.loads(r.stdout)
+    raise RuntimeError(last)
 
 def main():
     ap = argparse.ArgumentParser()
@@ -149,7 +163,7 @@ def main():
     ap.add_argument('--limit', type=int)
     ap.add_argument('--dry-run', action='store_true')
     args = ap.parse_args()
-    assert 1 <= args.concurrency <= 3, 'concurrency hard cap is 3'
+    assert 1 <= args.concurrency <= 12, 'concurrency hard cap is 12'
 
     os.makedirs(VOL, exist_ok=True); os.makedirs(RECORDS, exist_ok=True)
     sysfile = os.path.join(S1, 'prompts', f'system-{args.framework}.txt')
@@ -291,31 +305,57 @@ def main():
                                     'provenance': prov}) + '\n')
             state['fail'] += 1
 
-    i = 0
+    def log_transport_error(lemma, err):
+        print(f'ERROR {lemma}: {str(err)[:200]}', file=sys.stderr)
+        with open(os.path.join(VOL, 'transport-errors.jsonl'), 'a') as f:
+            f.write(json.dumps({'lemma': lemma, 'error': str(err)[:500]}) + '\n')
+
+    # sliding-window scheduler: keep args.concurrency lemmas in flight at all
+    # times (lockstep batches stall the whole batch on one slow item, which
+    # matters at concurrency 8+). Lemmas interrupted by a usage limit are
+    # requeued, never burned.
+    pending = collections.deque(todo)
+    processed, last_report = 0, 0
     with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
-        while i < len(todo):
-            window_gate()
-            batch = todo[i:i + args.concurrency]
-            futs = [ex.submit(process, it) for it in batch]
-            for it, fu in zip(batch, futs):
+        inflight = {}
+        while pending or inflight:
+            while pending and len(inflight) < args.concurrency:
+                window_gate()
+                it = pending.popleft()
+                inflight[ex.submit(process, it)] = it
+            done_futs, _ = wait(set(inflight), return_when=FIRST_COMPLETED)
+            limit_hit = None
+            for fu in done_futs:
+                it = inflight.pop(fu)
                 try:
-                    fu.result()
+                    fu.result(); processed += 1
                 except UsageLimit as e:
-                    slp = parse_reset_seconds(e.msg)
-                    slp = (slp + 600) if slp is not None else 3600
-                    print(f'usage limit hit at {it["lemma"]}; backing off '
-                          f'{slp/60:.0f} min', file=sys.stderr)
-                    log_window(); state['windowStart'] = None
-                    time.sleep(slp)
+                    pending.appendleft(it); limit_hit = (e.msg, it['lemma'])
                 except Exception as e:
-                    print(f'ERROR {it["lemma"]}: {str(e)[:200]}', file=sys.stderr)
-                    with open(os.path.join(VOL, 'transport-errors.jsonl'), 'a') as f:
-                        f.write(json.dumps({'lemma': it['lemma'],
-                                            'error': str(e)[:500]}) + '\n')
-            i += len(batch)
-            if state['calls'] and state['calls'] % 50 == 0:
-                print(f'progress: {i}/{len(todo)}; window calls {state["calls"]}, '
-                      f'ok {state["ok"]} fail {state["fail"]} cf {state["cf"]}, '
+                    processed += 1; log_transport_error(it['lemma'], e)
+            if limit_hit:
+                # drain in-flight work before sleeping; requeue anything that
+                # also hit the limit
+                for fu, it in list(inflight.items()):
+                    try:
+                        fu.result(); processed += 1
+                    except UsageLimit:
+                        pending.appendleft(it)
+                    except Exception as e:
+                        processed += 1; log_transport_error(it['lemma'], e)
+                inflight.clear()
+                msg, lemma = limit_hit
+                slp = parse_reset_seconds(msg)
+                slp = (slp + 600) if slp is not None else 3600
+                print(f'usage limit hit at {lemma}; backing off {slp/60:.0f} min',
+                      file=sys.stderr)
+                log_window(); state['windowStart'] = None
+                time.sleep(slp)
+            if processed - last_report >= 25:
+                last_report = processed
+                print(f'progress: {processed}/{len(todo)} done, {len(pending)} queued; '
+                      f'window calls {state["calls"]}, ok {state["ok"]} '
+                      f'fail {state["fail"]} cf {state["cf"]}, '
                       f'${state["costUSD"]:.2f} API-equiv', file=sys.stderr)
     log_window()
 
