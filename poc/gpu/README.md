@@ -2,6 +2,14 @@
 
 E2 (below) and E1 (see "E1 grid" at the bottom) each launch with one command.
 
+> **No AWS GPU quota?** (bead `kernel-of-truth-wve`, VcpuLimitExceeded @ 0)
+> The same E2 runner + inputs also launch on Modal serverless GPUs — no
+> quota, per-second billing: `modal run poc/modal/modal_e2.py` after a
+> one-time `modal token new`. Same analysis, different transport; results
+> land in `poc/e2/results-incoming/<stamp>-modal/`. See `poc/modal/README.md`
+> (E1/E4 Modal scaffold there too). This directory stays the primary path
+> once quota lands — spot is cheaper.
+
 Two ways to get E2 results off the GPU box. **Option B (pull) is the default**:
 it needs no standing credentials anywhere — nothing in the repo, nothing in
 user-data, nothing registered on GitHub.
