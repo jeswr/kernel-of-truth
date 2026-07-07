@@ -1,0 +1,24 @@
+{
+  "note": "Hand review of a seeded random sample (verification bar: >=100 records, docs/design-bulk-kernel.md). Sample is reproducible: node tools/sample-review.mjs (mulberry32, seed 0x6b6f7451) over the emitted corpus -> 45 QuantityKind + 60 Unit = 105 records. Reviewer: extracting agent (Claude Fable 5), 2026-07-07. Protocol: for every sampled record, check (a) faithfulness to the pinned QUDT source (label/kind/bridge/dim), (b) exactness and correctness of the derived scale/offset against the cited primary convention (independent arithmetic spot-check), (c) sanity of the primary quantity-kind assignment.",
+  "sampleSize": 105,
+  "composition": { "QuantityKind": 45, "Unit": 60 },
+  "extractionErrors": 0,
+  "errorRate": "0/105 record-level extraction errors (0%; one-sided 95% upper bound ~2.8%)",
+  "ruleGapsFoundDuringReview": [
+    {
+      "what": "quantitykind:Currency (and CurrencyPerFlight/CurrencyPerTime) were initially emitted because QUDT stamps them with the dimensionless vector, so the dimension-based exclusion rules did not catch them; the stated currency skip rule was therefore violated at the kind level.",
+      "action": "extractor rule added (^Currency local-name family -> excluded 'currency'); corpus re-extracted and re-validated before commit",
+      "recordsAffected": 3
+    }
+  ],
+  "unitArithmeticSpotChecks": "all 60 sampled unit scales recomputed independently (e.g. FT-LB_F-PER-MIN = 1.3558179483314004/60 = 0.02259696580552334; PDL-SEC-PER-IN2 = 0.138254954376/0.00064516 = 136077711/635000; OERSTED-CentiM = (250/pi)*0.01 = 2.5/pi; KiloTONNE-PER-YR = 1e6/31557600 = 1250/39447; BTU_TH-PER-DEG_F = 4.184*453.59237 = 1897.83047608 exactly) — all agree",
+  "sourceQuestionableObservations": [
+    "quantitykind:LuminousIntensityDistribution carries rdfs:label 'Ion Concentration'@en (QUDT copy-paste error; see qudt-discrepancies.md §1.9)",
+    "quantitykind:MagneticPolarization stamped A/m where ISO 80000-6 uses tesla (mirrored faithfully; §4)",
+    "quantitykind:MacroscopicCrossSection stamped L2 where ISO 80000-10 gives 1/m (mirrored faithfully; §4)",
+    "quantitykind:MagneticReluctivity stamped E1 where dimensional algebra of H/B gives E2 (mirrored faithfully; §4)",
+    "quantitykind:MotorConstant stamped L1; the true dimension is fractional (§1.8)",
+    "quantitykind:StochasticProcess and IncidenceProportion modelled as T^-1 rates (QUDT's choice, mirrored)"
+  ],
+  "verdictSummary": "0/105 extraction errors; 6 source-questionable observations recorded as findings, not errors (records are AxiomsOnly assertions about the source); 1 corpus-level rule gap found and fixed during review"
+}

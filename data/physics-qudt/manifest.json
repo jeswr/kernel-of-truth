@@ -1,0 +1,103 @@
+{
+  "corpus": "physics-qudt",
+  "schema": "kot-phys/1",
+  "version": "0.1.0",
+  "generated": "2026-07-07",
+  "authorship": "research-grade, agent-extracted bulk tier (docs/design-bulk-kernel.md); NOT federation-endorsed. Dimension vectors derived mechanically from QUDT dimension-vector IRIs; unit conversions derived EXACTLY from the curated atom table (tools/atoms.mjs, primary conventions cited) + prefix/factor composition — QUDT stated conversion factors are cross-checked, never copied. semanticStatus: AxiomsOnly (no semantic-adequacy claim).",
+  "dimOrder": [
+    "T",
+    "L",
+    "M",
+    "I",
+    "Theta",
+    "N",
+    "J"
+  ],
+  "expCap": 10,
+  "piCap": 8,
+  "scaleModel": "value_SI = lexical * (scale * pi^piExponent) + offset; scale/offset exact rationals (decimal or p/q strings), piExponent an integer (omitted when 0) carrying pi symbolically for the angle/CGS families",
+  "source": {
+    "name": "QUDT public repo (github.com/qudt/qudt-public-repo)",
+    "release": "v3.4.0",
+    "releasedAt": "2026-06-25",
+    "commit": "1137205617d03d3d5c8351ea58105b6719c5d6f0",
+    "zip": "qudt-public-repo-3.4.0.zip",
+    "zipSha256": "26aab21644a6531abec1e0285a3907a33a553da7d78d0675ffa323cbab800a95",
+    "files": {
+      "units": {
+        "path": "vocab/unit/VOCAB_QUDT-UNITS-ALL.ttl",
+        "sha256": "ad9b76adb7e1b106f7a74c699ebeea17c2479c20fc67f6de9363bb2538134ba8"
+      },
+      "quantitykinds": {
+        "path": "vocab/quantitykinds/VOCAB_QUDT-QUANTITY-KINDS-ALL.ttl",
+        "sha256": "b50cdec5596f04dc3ac3ff7cc62f9961869084b4046c7c1ea0a4bfeb3fc6e403"
+      },
+      "dimensionvectors": {
+        "path": "vocab/dimensionvectors/VOCAB_QUDT-DIMENSION-VECTORS.ttl",
+        "sha256": "355932a5d73fdc6f5fa545f068c6c21cfb76cc01fa1eedaa096c840e004cc033"
+      },
+      "prefixes": {
+        "path": "vocab/prefixes/VOCAB_QUDT-PREFIXES.ttl",
+        "sha256": "0b646c2cfa66fa0a3a5bd84d68f19f26ab33a301431c3116f42c0b9d283929c7"
+      }
+    }
+  },
+  "extractor": {
+    "version": "physics-qudt-extract/1.0.0",
+    "entry": "tools/extract.mjs"
+  },
+  "recordCount": 3070,
+  "counts": {
+    "QuantityKind": 1098,
+    "Unit": 1972
+  },
+  "sourceSubjectCounts": {
+    "quantityKinds": 1218,
+    "units": 2925
+  },
+  "exclusionCounts": {
+    "quantityKinds": {
+      "currency": 3,
+      "deprecated": 83,
+      "fractional-dimension": 2,
+      "not-applicable-dimension": 32
+    },
+    "units": {
+      "blocked-by:counting": 18,
+      "blocked-by:currency": 19,
+      "blocked-by:empirical-factor": 1,
+      "blocked-by:log-scale": 7,
+      "blocked-by:nonaffine-or-arbitrary": 14,
+      "blocked-by:transcendental-factor": 48,
+      "counting": 35,
+      "currency": 183,
+      "deprecated": 85,
+      "empirical-factor": 41,
+      "fractional-dimension": 3,
+      "log-scale": 5,
+      "nonaffine-or-arbitrary": 47,
+      "not-applicable-dimension": 1,
+      "quantity-kind-excluded": 441,
+      "transcendental-factor": 5
+    }
+  },
+  "crossCheck": {
+    "conversionMultiplier": {
+      "exact": 1643,
+      "truncation": 498,
+      "decimalDust": 200,
+      "discrepancy": 72
+    },
+    "conversionOffset": {
+      "discrepancy": 0
+    },
+    "otherFindingCounts": {},
+    "unitQkDimMismatchPairs": 0
+  },
+  "dimensionLane": {
+    "quantityKinds": 1098,
+    "distinctVectors": 175,
+    "collisionClasses": 108
+  },
+  "broaderLinksDropped": 0
+}

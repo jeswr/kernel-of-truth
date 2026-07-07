@@ -1,0 +1,5290 @@
+{
+  "note": "Cross-validation of exact derived values against QUDT stated floats. exact: literal equality of rationals. truncation: QUDT literal is the exact value correctly rounded at its own precision (half-ulp criterion) — benign float publication. DISCREPANCY: disagreement beyond stated precision — analysed in qudt-discrepancies.md.",
+  "multiplierCounts": {
+    "exact": 1643,
+    "truncation": 498,
+    "decimalDust": 200,
+    "discrepancy": 72
+  },
+  "discrepancies": [
+    {
+      "unit": "AC-FT_US",
+      "field": "conversionMultiplier",
+      "stated": "1233.48426566137344",
+      "derived": "119493792/96875",
+      "derivedApprox": "1.2334843045161290322e3",
+      "how": "product FT_US^1 AC^1",
+      "cls": "DISCREPANCY",
+      "sig": 18,
+      "rel": "3.15e-8",
+      "statedVal": "1.23348426566137344e3",
+      "derivedVal": "1.2334843045161290322e3"
+    },
+    {
+      "unit": "AU",
+      "field": "conversionMultiplier",
+      "stated": "149597870691.6",
+      "derived": "149597870700",
+      "derivedApprox": "1.495978707e11",
+      "how": "atom [IAU 2012 Resolution B2: 1 au = 149 597 870 700 m, exact]",
+      "cls": "DISCREPANCY",
+      "sig": 13,
+      "rel": "5.61505e-11",
+      "statedVal": "1.495978706916e11",
+      "derivedVal": "1.495978707e11"
+    },
+    {
+      "unit": "BBL_UK_PET-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.000001841587962962962962962962962962962",
+      "derived": "3182263/1728000000000",
+      "derivedApprox": "1.8415873842592592592e-6",
+      "how": "product DAY^-1 BBL_UK_PET^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "3.14241e-7",
+      "statedVal": "1.8415879629629629629e-6",
+      "derivedVal": "1.8415873842592592592e-6"
+    },
+    {
+      "unit": "BBL_UK_PET-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.00004419811111111111111111111111111111",
+      "derived": "3182263/72000000000",
+      "derivedApprox": "4.4198097222222222222e-5",
+      "how": "product BBL_UK_PET^1 HR^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "3.14241e-7",
+      "statedVal": "4.4198111111111111111e-5",
+      "derivedVal": "4.4198097222222222222e-5"
+    },
+    {
+      "unit": "BBL_UK_PET-PER-MIN",
+      "field": "conversionMultiplier",
+      "stated": "0.002651886666666666666666666666666667",
+      "derived": "3182263/1200000000",
+      "derivedApprox": "2.6518858333333333333e-3",
+      "how": "product MIN^-1 BBL_UK_PET^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "3.14241e-7",
+      "statedVal": "2.6518866666666666666e-3",
+      "derivedVal": "2.6518858333333333333e-3"
+    },
+    {
+      "unit": "BBL_US-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.000001840130787037037037037037037037036",
+      "derived": "1104078437/600000000000000",
+      "derivedApprox": "1.8401307283333333333e-6",
+      "how": "product DAY^-1 BBL_US^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "3.19019e-8",
+      "statedVal": "1.840130787037037037e-6",
+      "derivedVal": "1.8401307283333333333e-6"
+    },
+    {
+      "unit": "BBL_US-PER-MIN",
+      "field": "conversionMultiplier",
+      "stated": "0.002649788333333333333333333333333334",
+      "derived": "0.0026497882488",
+      "derivedApprox": "2.6497882488e-3",
+      "how": "product BBL_US^1 MIN^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "3.19019e-8",
+      "statedVal": "2.6497883333333333333e-3",
+      "derivedVal": "2.6497882488e-3"
+    },
+    {
+      "unit": "BBL_US_DRY",
+      "field": "conversionMultiplier",
+      "stated": "0.1156281989625",
+      "derived": "0.115627123584",
+      "derivedApprox": "1.15627123584e-1",
+      "how": "atom [US dry barrel = 7056 in^3 (15 USC 234); QUDT evidently used the approximate 105-dry-quart identity — see discrepancy report]",
+      "cls": "DISCREPANCY",
+      "sig": 13,
+      "rel": "9.30039e-6",
+      "statedVal": "1.156281989625e-1",
+      "derivedVal": "1.15627123584e-1"
+    },
+    {
+      "unit": "BBL_US_PET-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.00004416313888888888888888888888888889",
+      "derived": "0.00004416313748",
+      "derivedApprox": "4.416313748e-5",
+      "how": "product HR^-1 BBL_US_PET^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "3.19019e-8",
+      "statedVal": "4.4163138888888888888e-5",
+      "derivedVal": "4.416313748e-5"
+    },
+    {
+      "unit": "BTU_TH-FT-PER-FT2-HR-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "1.729577205544619422572178477690289",
+      "derived": "23722880951/13716000000",
+      "derivedApprox": "1.7295772055263925342e0",
+      "how": "product FT^-2 FT^1 DEG_F^-1 BTU_TH^1 HR^-1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.7295772055446194225e0",
+      "derivedVal": "1.7295772055263925342e0"
+    },
+    {
+      "unit": "BTU_TH-FT-PER-HR-FT2-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "1.729577205544619422572178477690289",
+      "derived": "23722880951/13716000000",
+      "derivedApprox": "1.7295772055263925342e0",
+      "how": "product DEG_F^-1 BTU_TH^1 FT^1 FT^-2 HR^-1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.7295772055446194225e0",
+      "derivedVal": "1.7295772055263925342e0"
+    },
+    {
+      "unit": "BTU_TH-IN-PER-FT2-HR-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "0.1441314337953849518810148731408574",
+      "derived": "23722880951/164592000000",
+      "derivedApprox": "1.4413143379386604452e-1",
+      "how": "product FT^-2 DEG_F^-1 HR^-1 IN^1 BTU_TH^1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.4413143379538495188e-1",
+      "derivedVal": "1.4413143379386604452e-1"
+    },
+    {
+      "unit": "BTU_TH-IN-PER-FT2-SEC-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "518.8731616633858267716535433070866",
+      "derived": "23722880951/45720000",
+      "derivedApprox": "5.1887316165791776027e2",
+      "how": "product FT^-2 DEG_F^-1 BTU_TH^1 SEC^-1 IN^1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "5.1887316166338582677e2",
+      "derivedVal": "5.1887316165791776027e2"
+    },
+    {
+      "unit": "BTU_TH-PER-DEG_R",
+      "field": "conversionMultiplier",
+      "stated": "1897.830476099999848173561912000013",
+      "derived": "1897.83047608",
+      "derivedApprox": "1.89783047608e3",
+      "how": "product BTU_TH^1 DEG_R^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05382e-11",
+      "statedVal": "1.8978304760999998481e3",
+      "derivedVal": "1.89783047608e3"
+    },
+    {
+      "unit": "BTU_TH-PER-FT2",
+      "field": "conversionMultiplier",
+      "stated": "11348.93179491220093551298213707538",
+      "derived": "118614404755/10451592",
+      "derivedApprox": "1.134893179479260193e4",
+      "how": "product BTU_TH^1 FT^-2",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.1348931794912200935e4",
+      "derivedVal": "1.134893179479260193e4"
+    },
+    {
+      "unit": "BTU_TH-PER-FT2-HR",
+      "field": "conversionMultiplier",
+      "stated": "3.152481054142278037642495038076496",
+      "derived": "23722880951/7525146240",
+      "derivedApprox": "3.1524810541090560919e0",
+      "how": "product BTU_TH^1 FT^-2 HR^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "3.1524810541422780376e0",
+      "derivedVal": "3.1524810541090560919e0"
+    },
+    {
+      "unit": "BTU_TH-PER-FT2-MIN",
+      "field": "conversionMultiplier",
+      "stated": "189.1488632485366822585497022845898",
+      "derived": "23722880951/125419104",
+      "derivedApprox": "1.8914886324654336551e2",
+      "how": "product MIN^-1 FT^-2 BTU_TH^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.8914886324853668225e2",
+      "derivedVal": "1.8914886324654336551e2"
+    },
+    {
+      "unit": "BTU_TH-PER-FT2-SEC",
+      "field": "conversionMultiplier",
+      "stated": "11348.93179491220093551298213707538",
+      "derived": "118614404755/10451592",
+      "derivedApprox": "1.134893179479260193e4",
+      "how": "product SEC^-1 FT^-2 BTU_TH^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.1348931794912200935e4",
+      "derivedVal": "1.134893179479260193e4"
+    },
+    {
+      "unit": "BTU_TH-PER-FT3",
+      "field": "conversionMultiplier",
+      "stated": "37234.02819853084296428143745759641",
+      "derived": "74134002971875/1991028276",
+      "derivedApprox": "3.7234028198138457778e4",
+      "how": "product FT^-3 BTU_TH^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "3.7234028198530842964e4",
+      "derivedVal": "3.7234028198138457778e4"
+    },
+    {
+      "unit": "BTU_TH-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.2928750734722222222222222222222222",
+      "derived": "23722880951/81000000000",
+      "derivedApprox": "2.9287507346913580246e-1",
+      "how": "product HR^-1 BTU_TH^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "2.9287507347222222222e-1",
+      "derivedVal": "2.9287507346913580246e-1"
+    },
+    {
+      "unit": "BTU_TH-PER-HR-FT2-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "5.674465897456100467756491068537693",
+      "derived": "23722880951/4180636800",
+      "derivedApprox": "5.6744658973963009654e0",
+      "how": "product FT^-2 HR^-1 BTU_TH^1 DEG_F^-1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "5.6744658974561004677e0",
+      "derivedVal": "5.6744658973963009654e0"
+    },
+    {
+      "unit": "BTU_TH-PER-LB",
+      "field": "conversionMultiplier",
+      "stated": "2324.444444468940251353875286746997",
+      "derived": "20920/9",
+      "derivedApprox": "2.3244444444444444444e3",
+      "how": "product BTU_TH^1 LB^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "2.3244444444689402513e3",
+      "derivedVal": "2.3244444444444444444e3"
+    },
+    {
+      "unit": "BTU_TH-PER-LB-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "4184.000000044092452436975516144594",
+      "derived": "4184",
+      "derivedApprox": "4.184e3",
+      "how": "product LB^-1 BTU_TH^1 DEG_F^-1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "4.1840000000440924524e3",
+      "derivedVal": "4.184e3"
+    },
+    {
+      "unit": "BTU_TH-PER-LB-DEG_R",
+      "field": "conversionMultiplier",
+      "stated": "4184.000000044092117716975512617226",
+      "derived": "4184",
+      "derivedApprox": "4.184e3",
+      "how": "product BTU_TH^1 LB^-1 DEG_R^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05382e-11",
+      "statedVal": "4.1840000000440921177e3",
+      "derivedVal": "4.184e3"
+    },
+    {
+      "unit": "BTU_TH-PER-MIN",
+      "field": "conversionMultiplier",
+      "stated": "17.57250440833333333333333333333334",
+      "derived": "23722880951/1350000000",
+      "derivedApprox": "1.7572504408148148148e1",
+      "how": "product MIN^-1 BTU_TH^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.7572504408333333333e1",
+      "derivedVal": "1.7572504408148148148e1"
+    },
+    {
+      "unit": "BTU_TH-PER-SEC-FT2-DEG_F",
+      "field": "conversionMultiplier",
+      "stated": "20428.07723084196168392336784673569",
+      "derived": "23722880951/1161288",
+      "derivedApprox": "2.0428077230626683475e4",
+      "how": "product DEG_F^-1 BTU_TH^1 SEC^-1 FT^-2 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "2.0428077230841961683e4",
+      "derivedVal": "2.0428077230626683475e4"
+    },
+    {
+      "unit": "CUP",
+      "field": "conversionMultiplier",
+      "stated": "0.00023658825",
+      "derived": "0.0002365882365",
+      "derivedApprox": "2.365882365e-4",
+      "how": "atom [US customary cup = gal_us/16 (QUDT ucum [cup_us])]",
+      "cls": "DISCREPANCY",
+      "sig": 8,
+      "rel": "5.70611e-8",
+      "statedVal": "2.3658825e-4",
+      "derivedVal": "2.365882365e-4"
+    },
+    {
+      "unit": "CUP_US",
+      "field": "conversionMultiplier",
+      "stated": "0.00023658825",
+      "derived": "0.0002365882365",
+      "derivedApprox": "2.365882365e-4",
+      "how": "atom [US cup = gal/16]",
+      "cls": "DISCREPANCY",
+      "sig": 8,
+      "rel": "5.70611e-8",
+      "statedVal": "2.3658825e-4",
+      "derivedVal": "2.365882365e-4"
+    },
+    {
+      "unit": "DEG_F-HR-FT2-PER-BTU_TH",
+      "field": "conversionMultiplier",
+      "stated": "0.1762280394439072102115454062182767",
+      "derived": "4180636800/23722880951",
+      "derivedApprox": "1.762280394457643628e-1",
+      "how": "product FT^2 HR^1 DEG_F^1 BTU_TH^-1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.7622803944390721021e-1",
+      "derivedVal": "1.762280394457643628e-1"
+    },
+    {
+      "unit": "DEG_F-HR-FT2-PER-BTU_TH-IN",
+      "field": "conversionMultiplier",
+      "stated": "6.938111789130205126438795520404595",
+      "derived": "164592000000/23722880951",
+      "derivedApprox": "6.9381117892033213702e0",
+      "how": "product IN^-1 HR^1 DEG_F^1 FT^2 BTU_TH^-1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "6.9381117891302051264e0",
+      "derivedVal": "6.9381117892033213702e0"
+    },
+    {
+      "unit": "DEG_F-HR-PER-BTU_TH",
+      "field": "conversionMultiplier",
+      "stated": "1.896902829486604638680773053478947",
+      "derived": "45000000000/23722880951",
+      "derivedApprox": "1.8969028295065948628e0",
+      "how": "product BTU_TH^-1 DEG_F^1 HR^1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "1.8969028294866046386e0",
+      "derivedVal": "1.8969028295065948628e0"
+    },
+    {
+      "unit": "DEG_F-SEC-PER-BTU_TH",
+      "field": "conversionMultiplier",
+      "stated": "0.0005269174526351679551891036259663741",
+      "derived": "12500000/23722880951",
+      "derivedApprox": "5.2691745264072079522e-4",
+      "how": "product BTU_TH^-1 SEC^1 DEG_F^1 (interval scale used for affine DEG_F)",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "5.2691745263516795518e-4",
+      "derivedVal": "5.2691745264072079522e-4"
+    },
+    {
+      "unit": "F",
+      "field": "conversionMultiplier",
+      "stated": "96485.3399",
+      "derived": "96485.3321233100184",
+      "derivedApprox": "9.64853321233100184e4",
+      "how": "atom [faraday = e x N_A = 96485.33212331001840 C exact (SI Brochure 9th ed. Table 1: e, N_A exact since 2019)]",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "8.05997e-8",
+      "statedVal": "9.64853399e4",
+      "derivedVal": "9.64853321233100184e4"
+    },
+    {
+      "unit": "GI_UK-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.000000001644274305555555555555555555555555",
+      "derived": "454609/276480000000000",
+      "derivedApprox": "1.6442744502314814814e-9",
+      "how": "product DAY^-1 GI_UK^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "8.79876e-8",
+      "statedVal": "1.6442743055555555555e-9",
+      "derivedVal": "1.6442744502314814814e-9"
+    },
+    {
+      "unit": "GI_UK-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.00000003946258333333333333333333333333334",
+      "derived": "454609/11520000000000",
+      "derivedApprox": "3.9462586805555555555e-8",
+      "how": "product HR^-1 GI_UK^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "8.79876e-8",
+      "statedVal": "3.9462583333333333333e-8",
+      "derivedVal": "3.9462586805555555555e-8"
+    },
+    {
+      "unit": "GI_US",
+      "field": "conversionMultiplier",
+      "stated": "0.000118294125",
+      "derived": "0.00011829411825",
+      "derivedApprox": "1.1829411825e-4",
+      "how": "atom [US gill = gal_us/32]",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "5.70611e-8",
+      "statedVal": "1.18294125e-4",
+      "derivedVal": "1.1829411825e-4"
+    },
+    {
+      "unit": "GI_US-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.000000001369144965277777777777777777777777",
+      "derived": "157725491/115200000000000000",
+      "derivedApprox": "1.3691448871527777777e-9",
+      "how": "product DAY^-1 GI_US^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "5.70611e-8",
+      "statedVal": "1.3691449652777777777e-9",
+      "derivedVal": "1.3691448871527777777e-9"
+    },
+    {
+      "unit": "GI_US-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.00000003285947916666666666666666666666667",
+      "derived": "157725491/4800000000000000",
+      "derivedApprox": "3.2859477291666666666e-8",
+      "how": "product HR^-1 GI_US^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "5.70611e-8",
+      "statedVal": "3.2859479166666666666e-8",
+      "derivedVal": "3.2859477291666666666e-8"
+    },
+    {
+      "unit": "GI_US-PER-MIN",
+      "field": "conversionMultiplier",
+      "stated": "0.00000197156875",
+      "derived": "0.0000019715686375",
+      "derivedApprox": "1.9715686375e-6",
+      "how": "product MIN^-1 GI_US^1",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "5.70611e-8",
+      "statedVal": "1.97156875e-6",
+      "derivedVal": "1.9715686375e-6"
+    },
+    {
+      "unit": "GI_US-PER-SEC",
+      "field": "conversionMultiplier",
+      "stated": "0.000118294125",
+      "derived": "0.00011829411825",
+      "derivedApprox": "1.1829411825e-4",
+      "how": "product SEC^-1 GI_US^1",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "5.70611e-8",
+      "statedVal": "1.18294125e-4",
+      "derivedVal": "1.1829411825e-4"
+    },
+    {
+      "unit": "KiloBTU_TH-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "292.8750734722222222222222222222222",
+      "derived": "23722880951/81000000",
+      "derivedApprox": "2.9287507346913580246e2",
+      "how": "product HR^-1 KiloBTU_TH^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.05383e-11",
+      "statedVal": "2.9287507347222222222e2",
+      "derivedVal": "2.9287507346913580246e2"
+    },
+    {
+      "unit": "KiloW-PER-TON_FG",
+      "field": "conversionMultiplier",
+      "stated": "0.2843451233247451627918482802664769",
+      "derived": "15000000000/52752792631",
+      "derivedApprox": "2.8434513609399516e-1",
+      "how": "product KiloW^1 TON_FG^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "4.49075e-8",
+      "statedVal": "2.8434512332474516279e-1",
+      "derivedVal": "2.8434513609399516e-1"
+    },
+    {
+      "unit": "LA_FT",
+      "field": "conversionMultiplier",
+      "stated": "3.426259099594588078065045018978927",
+      "derived": "1562500/145161 * pi^-1",
+      "derivedApprox": "3.4262590996353905269e0",
+      "how": "atom [footlambert = (1/pi) cd/ft^2, exact with symbolic pi (QUDT factor list [CD^1 FT^-2] omits the 1/pi)]",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.19087e-11",
+      "statedVal": "3.426259099594588078e0",
+      "derivedVal": "3.4262590996353905269e0"
+    },
+    {
+      "unit": "MI_US2",
+      "field": "conversionMultiplier",
+      "stated": "2589998.471303033961",
+      "derived": "40144896000000/15499969",
+      "derivedApprox": "2.5899984703195212842e6",
+      "how": "product MI_US^2",
+      "cls": "DISCREPANCY",
+      "sig": 19,
+      "rel": "3.79734e-10",
+      "statedVal": "2.589998471303033961e6",
+      "derivedVal": "2.5899984703195212842e6"
+    },
+    {
+      "unit": "MOMME_Pearl",
+      "field": "conversionMultiplier",
+      "stated": "3.750",
+      "derived": "0.00375",
+      "derivedApprox": "3.75e-3",
+      "how": "atom [momme = 3.75 g exact (Japanese pearl trade convention; QUDT states 3.750, a 1000x error — see discrepancy report)]",
+      "cls": "DISCREPANCY",
+      "sig": 4,
+      "rel": "9.99e2",
+      "statedVal": "3.75e0",
+      "derivedVal": "3.75e-3"
+    },
+    {
+      "unit": "MegaEV-PER-SpeedOfLight",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "801088317/1498962290000000000000000000000",
+      "derivedApprox": "5.344285992678308138e-22",
+      "how": "product MegaEV^1 SpeedOfLight^-1",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "MilliOSM",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "0.001",
+      "derivedApprox": "1.0e-3",
+      "how": "prefix Milli (10^n/2^n exact, SI Brochure Table 7) x OSM",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "MilliOSM-PER-KiloGM",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "0.001",
+      "derivedApprox": "1.0e-3",
+      "how": "product KiloGM^-1 MilliOSM^1",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "N-M-PER-ARCMIN",
+      "field": "conversionMultiplier",
+      "stated": "3437.746766834402696604316471280553",
+      "derived": "10800 * pi^-1",
+      "derivedApprox": "3.4377467707849392526e3",
+      "how": "product N^1 ARCMIN^-1 M^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.14916e-9",
+      "statedVal": "3.4377467668344026966e3",
+      "derivedVal": "3.4377467707849392526e3"
+    },
+    {
+      "unit": "N-M-PER-MIN_Angle",
+      "field": "conversionMultiplier",
+      "stated": "3437.746766834402696604316471280553",
+      "derived": "10800 * pi^-1",
+      "derivedApprox": "3.4377467707849392526e3",
+      "how": "product M^1 N^1 MIN_Angle^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.14916e-9",
+      "statedVal": "3.4377467668344026966e3",
+      "derivedVal": "3.4377467707849392526e3"
+    },
+    {
+      "unit": "NCM",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "16887500000000000000/378515910691426251",
+      "derivedApprox": "4.4615033405470313557e1",
+      "how": "atom [normal cubic metre = 101325/(R x 273.15) = 44.6150334... mol exact (R exact since SI 2019; QUDT states 0.0 — see discrepancy report)]",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "NCM_1ATM_0DEG_C_NL",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "16887500000000000000/378515910691426251",
+      "derivedApprox": "4.4615033405470313557e1",
+      "how": "atom [normal cubic metre (0 degC, 1 atm) = 44.6150334... mol exact]",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "OHM-MIL_Circ-PER-FT",
+      "field": "conversionMultiplier",
+      "stated": "0.000000001662426181102362204724409448818898",
+      "derived": "127/240000000000 * pi^1",
+      "derivedApprox": "1.662426112524598922e-9",
+      "how": "product MIL_Circ^1 FT^-1 OHM^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "4.12516e-8",
+      "statedVal": "1.6624261811023622047e-9",
+      "derivedVal": "1.662426112524598922e-9"
+    },
+    {
+      "unit": "OKTA",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "0.125",
+      "derivedApprox": "1.25e-1",
+      "how": "atom [okta = 1/8 of sky cover, definition (QUDT states 0.0 — see discrepancy report)]",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "OSM",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "1",
+      "derivedApprox": "1.0e0",
+      "how": "atom [osmole = 1 mol of osmotically active entities, convention (QUDT states 0.0 — see discrepancy report)]",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "OZ_F-IN",
+      "field": "conversionMultiplier",
+      "stated": "0.0070615518142316",
+      "derived": "0.00706155181422604375",
+      "derivedApprox": "7.06155181422604375e-3",
+      "how": "product IN^1 OZ_F^1",
+      "cls": "DISCREPANCY",
+      "sig": 14,
+      "rel": "7.86831e-13",
+      "statedVal": "7.0615518142316e-3",
+      "derivedVal": "7.06155181422604375e-3"
+    },
+    {
+      "unit": "OZ_F-PER-IN3",
+      "field": "conversionMultiplier",
+      "stated": "16965.44609540793884737375773964146",
+      "derived": "8896443230521/524386048",
+      "derivedApprox": "1.6965446095394589903e4",
+      "how": "product IN^-3 OZ_F^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "7.86831e-13",
+      "statedVal": "1.6965446095407938847e4",
+      "derivedVal": "1.6965446095394589903e4"
+    },
+    {
+      "unit": "OZ_VOL_US-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.0000000003422862222222222222222222222222221",
+      "derived": "157725491/460800000000000000",
+      "derivedApprox": "3.4228622178819444444e-10",
+      "how": "product OZ_VOL_US^1 DAY^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.26802e-9",
+      "statedVal": "3.4228622222222222222e-10",
+      "derivedVal": "3.4228622178819444444e-10"
+    },
+    {
+      "unit": "OZ_VOL_US-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.000000008214869333333333333333333333333334",
+      "derived": "157725491/19200000000000000",
+      "derivedApprox": "8.2148693229166666666e-9",
+      "how": "product OZ_VOL_US^1 HR^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.26802e-9",
+      "statedVal": "8.2148693333333333333e-9",
+      "derivedVal": "8.2148693229166666666e-9"
+    },
+    {
+      "unit": "OZ_VOL_US-PER-MIN",
+      "field": "conversionMultiplier",
+      "stated": "0.0000004928921600000000000000000000000001",
+      "derived": "0.000000492892159375",
+      "derivedApprox": "4.92892159375e-7",
+      "how": "product MIN^-1 OZ_VOL_US^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.26802e-9",
+      "statedVal": "4.9289216e-7",
+      "derivedVal": "4.92892159375e-7"
+    },
+    {
+      "unit": "PK_UK",
+      "field": "conversionMultiplier",
+      "stated": "0.009092181",
+      "derived": "0.00909218",
+      "derivedApprox": "9.09218e-3",
+      "how": "atom [imperial peck = 2 imperial gal]",
+      "cls": "DISCREPANCY",
+      "sig": 7,
+      "rel": "1.09984e-7",
+      "statedVal": "9.092181e-3",
+      "derivedVal": "9.09218e-3"
+    },
+    {
+      "unit": "PK_UK-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.0000001052335763888888888888888888888889",
+      "derived": "454609/4320000000000",
+      "derivedApprox": "1.0523356481481481481e-7",
+      "how": "product PK_UK^1 DAY^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.09984e-7",
+      "statedVal": "1.0523357638888888888e-7",
+      "derivedVal": "1.0523356481481481481e-7"
+    },
+    {
+      "unit": "PK_UK-PER-HR",
+      "field": "conversionMultiplier",
+      "stated": "0.000002525605833333333333333333333333334",
+      "derived": "454609/180000000000",
+      "derivedApprox": "2.5256055555555555555e-6",
+      "how": "product HR^-1 PK_UK^1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.09984e-7",
+      "statedVal": "2.5256058333333333333e-6",
+      "derivedVal": "2.5256055555555555555e-6"
+    },
+    {
+      "unit": "PK_UK-PER-MIN",
+      "field": "conversionMultiplier",
+      "stated": "0.00015153635",
+      "derived": "454609/3000000000",
+      "derivedApprox": "1.5153633333333333333e-4",
+      "how": "product MIN^-1 PK_UK^1",
+      "cls": "DISCREPANCY",
+      "sig": 8,
+      "rel": "1.09984e-7",
+      "statedVal": "1.5153635e-4",
+      "derivedVal": "1.5153633333333333333e-4"
+    },
+    {
+      "unit": "PK_UK-PER-SEC",
+      "field": "conversionMultiplier",
+      "stated": "0.009092181",
+      "derived": "0.00909218",
+      "derivedApprox": "9.09218e-3",
+      "how": "product SEC^-1 PK_UK^1",
+      "cls": "DISCREPANCY",
+      "sig": 7,
+      "rel": "1.09984e-7",
+      "statedVal": "9.092181e-3",
+      "derivedVal": "9.09218e-3"
+    },
+    {
+      "unit": "PK_US_DRY-PER-DAY",
+      "field": "conversionMultiplier",
+      "stated": "0.0000001019649020833333333333333333333333",
+      "derived": "220244188543/2160000000000000000",
+      "derivedApprox": "1.0196490210324074074e-7",
+      "how": "product PK_US_DRY^1 DAY^-1",
+      "cls": "DISCREPANCY",
+      "sig": 34,
+      "rel": "1.95237e-10",
+      "statedVal": "1.0196490208333333333e-7",
+      "derivedVal": "1.0196490210324074074e-7"
+    },
+    {
+      "unit": "SpeedOfLight",
+      "field": "conversionMultiplier",
+      "stated": "0.0",
+      "derived": "299792458",
+      "derivedApprox": "2.99792458e8",
+      "how": "atom [speed-of-light velocity unit = 299792458 m/s exact (SI 2019; QUDT states 0.0 — see discrepancy report)]",
+      "cls": "DISCREPANCY",
+      "why": "stated zero for nonzero unit"
+    },
+    {
+      "unit": "TBSP",
+      "field": "conversionMultiplier",
+      "stated": "0.0000147867656",
+      "derived": "0.00001478676478125",
+      "derivedApprox": "1.478676478125e-5",
+      "how": "atom [US tablespoon = gal_us/256 (= fl oz/2) exact]",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "5.53704e-8",
+      "statedVal": "1.47867656e-5",
+      "derivedVal": "1.478676478125e-5"
+    },
+    {
+      "unit": "TON_FG-HR",
+      "field": "conversionMultiplier",
+      "stated": "12660670.8",
+      "derived": "12660670.23144",
+      "derivedApprox": "1.266067023144e7",
+      "how": "product HR^1 TON_FG^1",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "4.49075e-8",
+      "statedVal": "1.26606708e7",
+      "derivedVal": "1.266067023144e7"
+    },
+    {
+      "unit": "TON_SHIPPING_UK",
+      "field": "conversionMultiplier",
+      "stated": "1.1326",
+      "derived": "1.13267386368",
+      "derivedApprox": "1.13267386368e0",
+      "how": "atom [shipping/freight (measurement) ton = 40 ft^3 (QUDT states the 40 ft^3 value for the UK entry too; UK shipping ton is 42 ft^3 in some sources — see discrepancy report)]",
+      "cls": "DISCREPANCY",
+      "sig": 5,
+      "rel": "6.52117e-5",
+      "statedVal": "1.1326e0",
+      "derivedVal": "1.13267386368e0"
+    },
+    {
+      "unit": "TON_SHIPPING_US",
+      "field": "conversionMultiplier",
+      "stated": "1.1326",
+      "derived": "1.13267386368",
+      "derivedApprox": "1.13267386368e0",
+      "how": "atom [shipping/freight (measurement) ton = 40 ft^3 exact convention]",
+      "cls": "DISCREPANCY",
+      "sig": 5,
+      "rel": "6.52117e-5",
+      "statedVal": "1.1326e0",
+      "derivedVal": "1.13267386368e0"
+    },
+    {
+      "unit": "TSP",
+      "field": "conversionMultiplier",
+      "stated": "0.00000492892187",
+      "derived": "0.00000492892159375",
+      "derivedApprox": "4.92892159375e-6",
+      "how": "atom [US teaspoon = gal_us/768 exact]",
+      "cls": "DISCREPANCY",
+      "sig": 9,
+      "rel": "5.60467e-8",
+      "statedVal": "4.92892187e-6",
+      "derivedVal": "4.92892159375e-6"
+    }
+  ],
+  "otherFindings": [],
+  "decimalDust": [
+    {
+      "unit": "BTU_IT-IN-PER-FT2-SEC-DEG_F",
+      "stated": "519.2203999114173228346456692913385",
+      "derived": "52752792631/101600000",
+      "rel": "1.59233e-34"
+    },
+    {
+      "unit": "BTU_IT-IN-PER-SEC-FT2-DEG_F",
+      "stated": "519.2203999114173228346456692913385",
+      "derived": "52752792631/101600000",
+      "rel": "1.59233e-34"
+    },
+    {
+      "unit": "BTU_IT-PER-DEG_R",
+      "stated": "1899.100534715999848071957222720013",
+      "derived": "1899.100534716",
+      "rel": "7.99999e-17"
+    },
+    {
+      "unit": "BTU_IT-PER-HR-FT2-DEG_R",
+      "stated": "5.678263341113487328270053328717806",
+      "derived": "52752792631/9290304000",
+      "rel": "7.99999e-17"
+    },
+    {
+      "unit": "BTU_IT-PER-LB-DEG_F",
+      "stated": "4186.799999999999999999999999999999",
+      "derived": "4186.8",
+      "rel": "2.38845e-34"
+    },
+    {
+      "unit": "BTU_IT-PER-LB-DEG_R",
+      "stated": "4186.799999999999665056000000000027",
+      "derived": "4186.8",
+      "rel": "7.99999e-17"
+    },
+    {
+      "unit": "BTU_IT-PER-LB_F",
+      "stated": "237.1859911386661092218035720658942",
+      "derived": "46520000/196133",
+      "rel": "5.83159e-34"
+    },
+    {
+      "unit": "BTU_IT-PER-LB_F-DEG_F",
+      "stated": "426.9347840495989965992464297186096",
+      "derived": "83736000/196133",
+      "rel": "6.76851e-34"
+    },
+    {
+      "unit": "BTU_IT-PER-LB_F-DEG_R",
+      "stated": "426.9347840495989624444637057506927",
+      "derived": "83736000/196133",
+      "rel": "7.99999e-17"
+    },
+    {
+      "unit": "BTU_IT-PER-MIN",
+      "stated": "17.58426421033333333333333333333334",
+      "derived": "52752792631/3000000000",
+      "rel": "3.79126e-34"
+    },
+    {
+      "unit": "BTU_IT-PER-MOL_LB-DEG_F",
+      "stated": "4.186799999999999999999999999999999",
+      "derived": "4.1868",
+      "rel": "2.38845e-34"
+    },
+    {
+      "unit": "BTU_IT-PER-SEC-FT-DEG_R",
+      "stated": "6230.644798937007375564164116535474",
+      "derived": "158258377893/25400000",
+      "rel": "7.99999e-17"
+    },
+    {
+      "unit": "BTU_IT-PER-SEC-FT2-DEG_R",
+      "stated": "20441.7480280085543817721919833841",
+      "derived": "52752792631/2580640",
+      "rel": "7.99999e-17"
+    },
+    {
+      "unit": "BU_UK-PER-DAY",
+      "stated": "0.0000004209342592592592592592592592592591",
+      "derived": "454609/1080000000000",
+      "rel": "3.78347e-34"
+    },
+    {
+      "unit": "BU_UK-PER-MIN",
+      "stated": "0.0006061453333333333333333333333333335",
+      "derived": "454609/750000000",
+      "rel": "2.74961e-34"
+    },
+    {
+      "unit": "BU_US_DRY-PER-DAY",
+      "stated": "0.0000004078596084129629629629629629629628",
+      "derived": "220244188543/540000000000000000",
+      "rel": "3.99556e-34"
+    },
+    {
+      "unit": "BU_US_DRY-PER-HR",
+      "stated": "0.000009788630601911111111111111111111112",
+      "derived": "220244188543/22500000000000000",
+      "rel": "9.08082e-35"
+    },
+    {
+      "unit": "BU_US_DRY-PER-MIN",
+      "stated": "0.0005873178361146666666666666666666668",
+      "derived": "220244188543/375000000000000",
+      "rel": "2.2702e-34"
+    },
+    {
+      "unit": "CAL_TH-PER-CentiM2-MIN",
+      "stated": "697.3333333333333333333333333333335",
+      "derived": "2092/3",
+      "rel": "2.39005e-34"
+    },
+    {
+      "unit": "CAL_TH-PER-MIN",
+      "stated": "0.06973333333333333333333333333333335",
+      "derived": "523/7500",
+      "rel": "2.39005e-34"
+    },
+    {
+      "unit": "DEG-PER-HR",
+      "stated": "0.000004848136811095359935899141023579481",
+      "derived": "1/648000 * pi^1",
+      "rel": "2.55858e-34"
+    },
+    {
+      "unit": "DEG-PER-MIN",
+      "stated": "0.0002908882086657215961539484614147689",
+      "derived": "1/10800 * pi^1",
+      "rel": "3.93368e-34"
+    },
+    {
+      "unit": "DEG2",
+      "stated": "0.0003046174197867085993467435493788937",
+      "derived": "1/32400 * pi^2",
+      "rel": "4.80737e-34"
+    },
+    {
+      "unit": "DEG_F-PER-MIN",
+      "stated": "0.009259259259259259259259259259259262",
+      "derived": "1/108",
+      "rel": "2.96e-34"
+    },
+    {
+      "unit": "DEG_F-SEC-PER-BTU_IT",
+      "stated": "0.0005265650668407317777848805802642282",
+      "derived": "250000000/474775133679",
+      "rel": "1.31187e-34"
+    },
+    {
+      "unit": "DEG_R-PER-MIN",
+      "stated": "0.009259259259259260000000000000000002",
+      "derived": "1/108",
+      "rel": "8.0e-17"
+    },
+    {
+      "unit": "FT-HR-PER-IN3",
+      "stated": "66960133.92026784053568107136214273",
+      "derived": "1080000000000/16129",
+      "rel": "8.53425e-35"
+    },
+    {
+      "unit": "FT-LB_F-PER-FT2",
+      "stated": "14.59390293720636482939632545931758",
+      "derived": "8896443230521/609600000000",
+      "rel": "3.63291e-34"
+    },
+    {
+      "unit": "FT-LB_F-PER-FT2-SEC",
+      "stated": "14.59390293720636482939632545931758",
+      "derived": "8896443230521/609600000000",
+      "rel": "3.63291e-34"
+    },
+    {
+      "unit": "FT-LB_F-PER-HR",
+      "stated": "0.0003766160967587223333333333333333332",
+      "derived": "1129848290276167/3000000000000000000",
+      "rel": "3.54029e-34"
+    },
+    {
+      "unit": "FT-LB_F-PER-M2",
+      "stated": "1.355817948331400399999999999999999",
+      "derived": "1.3558179483314004",
+      "rel": "7.37562e-34"
+    },
+    {
+      "unit": "FT-LB_F-PER-MIN",
+      "stated": "0.02259696580552333999999999999999999",
+      "derived": "0.02259696580552334",
+      "rel": "4.42537e-34"
+    },
+    {
+      "unit": "FT-LB_F-PER-SEC",
+      "stated": "1.355817948331400399999999999999999",
+      "derived": "1.3558179483314004",
+      "rel": "7.37562e-34"
+    },
+    {
+      "unit": "FT-LB_F-SEC",
+      "stated": "1.355817948331400399999999999999999",
+      "derived": "1.3558179483314004",
+      "rel": "7.37562e-34"
+    },
+    {
+      "unit": "FT-LB_F_Energy",
+      "stated": "1.355817948331400399999999999999999",
+      "derived": "1.3558179483314004",
+      "rel": "7.37562e-34"
+    },
+    {
+      "unit": "FT-LB_F_Torque",
+      "stated": "1.355817948331400399999999999999999",
+      "derived": "1.3558179483314004",
+      "rel": "7.37562e-34"
+    },
+    {
+      "unit": "FT-PER-DAY",
+      "stated": "0.000003527777777777777777777777777777777",
+      "derived": "127/36000000",
+      "rel": "2.20472e-34"
+    },
+    {
+      "unit": "FT-PER-MIN",
+      "stated": "0.005080000000000000000000000000000001",
+      "derived": "0.00508",
+      "rel": "1.9685e-34"
+    },
+    {
+      "unit": "FT-PER-PSI",
+      "stated": "0.00004420750246016776877901266531952396",
+      "derived": "393289536/8896443230521",
+      "rel": "8.12114e-34"
+    },
+    {
+      "unit": "FT-PER-SEC-PSI",
+      "stated": "0.00004420750246016776877901266531952396",
+      "derived": "393289536/8896443230521",
+      "rel": "8.12114e-34"
+    },
+    {
+      "unit": "FT-SEC-PER-GAL_UK",
+      "stated": "67.04662688156195763832216256167389",
+      "derived": "30480000/454609",
+      "rel": "1.79101e-34"
+    },
+    {
+      "unit": "FT3-PER-DAY",
+      "stated": "0.0000003277412799999999999999999999999999",
+      "derived": "0.00000032774128",
+      "rel": "3.05118e-34"
+    },
+    {
+      "unit": "FT3-PER-HR",
+      "stated": "0.000007865790720000000000000000000000001",
+      "derived": "0.00000786579072",
+      "rel": "1.27132e-34"
+    },
+    {
+      "unit": "FT3-PER-LB",
+      "stated": "0.06242796057614461195632545582722213",
+      "derived": "1769802912/28349523125",
+      "rel": "1.24902e-34"
+    },
+    {
+      "unit": "FT3-PER-MIN",
+      "stated": "0.0004719474432000000000000000000000001",
+      "derived": "0.0004719474432",
+      "rel": "2.11888e-34"
+    },
+    {
+      "unit": "FT3-PER-MIN-FT2",
+      "stated": "0.005080000000000000000000000000000001",
+      "derived": "0.00508",
+      "rel": "1.9685e-34"
+    },
+    {
+      "unit": "FT3-PER-PSI",
+      "stated": "0.000004107011369357064629587364806686347",
+      "derived": "14272575583824/3475173136922265625",
+      "rel": "7.54447e-34"
+    },
+    {
+      "unit": "GAL_UK-PER-DAY",
+      "stated": "0.00000005261678240740740740740740740740739",
+      "derived": "454609/8640000000000",
+      "rel": "3.30833e-34"
+    },
+    {
+      "unit": "GAL_UK-PER-MIN",
+      "stated": "0.00007576816666666666666666666666666668",
+      "derived": "454609/6000000000",
+      "rel": "1.75975e-34"
+    },
+    {
+      "unit": "GAL_US-PER-DAY",
+      "stated": "0.00000004381263638888888888888888888888887",
+      "derived": "157725491/3600000000000000",
+      "rel": "4.31128e-34"
+    },
+    {
+      "unit": "GAL_US-PER-MIN",
+      "stated": "0.00006309019640000000000000000000000001",
+      "derived": "0.0000630901964",
+      "rel": "1.58503e-34"
+    },
+    {
+      "unit": "GRAIN-PER-LB_M",
+      "stated": "0.0001428571428571428571428571428571428",
+      "derived": "1/7000",
+      "rel": "4.0e-34"
+    },
+    {
+      "unit": "IN-PER-MIN",
+      "stated": "0.0004233333333333333333333333333333334",
+      "derived": "127/300000",
+      "rel": "1.5748e-34"
+    },
+    {
+      "unit": "IN-PER-REV",
+      "stated": "0.004042535554534141528529647589661866",
+      "derived": "0.0127 * pi^-1",
+      "rel": "2.97913e-34"
+    },
+    {
+      "unit": "IN-PER-YR",
+      "stated": "0.0000000008048774304763353360204831799629884",
+      "derived": "127/157788000000",
+      "rel": "1.07552e-34"
+    },
+    {
+      "unit": "IN3-PER-HR",
+      "stated": "0.000000004551962222222222222222222222222223",
+      "derived": "2048383/450000000000000",
+      "rel": "1.70866e-34"
+    },
+    {
+      "unit": "IN3-PER-MIN",
+      "stated": "0.0000002731177333333333333333333333333334",
+      "derived": "2048383/7500000000000",
+      "rel": "2.44094e-34"
+    },
+    {
+      "unit": "KIP_F",
+      "stated": "4448.221615260499999999999999999998",
+      "derived": "4448.2216152605",
+      "rel": "4.49617e-34"
+    },
+    {
+      "unit": "KIP_F-PER-IN2",
+      "stated": "6894757.293168361336722673445346887",
+      "derived": "8896443230521/1290320",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "KN",
+      "stated": "0.5144444444444444444444444444444445",
+      "derived": "463/900",
+      "rel": "1.07991e-34"
+    },
+    {
+      "unit": "KN-PER-SEC",
+      "stated": "0.5144444444444444444444444444444445",
+      "derived": "463/900",
+      "rel": "1.07991e-34"
+    },
+    {
+      "unit": "KiloCAL-PER-CentiM2-MIN",
+      "stated": "697333.3333333333333333333333333335",
+      "derived": "2092000/3",
+      "rel": "2.39005e-34"
+    },
+    {
+      "unit": "KiloCAL-PER-MIN",
+      "stated": "69.73333333333333333333333333333335",
+      "derived": "1046/15",
+      "rel": "2.39005e-34"
+    },
+    {
+      "unit": "KiloCAL_TH-PER-MIN",
+      "stated": "69.73333333333333333333333333333335",
+      "derived": "1046/15",
+      "rel": "2.39005e-34"
+    },
+    {
+      "unit": "KiloLB_F",
+      "stated": "4448.221615260499999999999999999998",
+      "derived": "4448.2216152605",
+      "rel": "4.49617e-34"
+    },
+    {
+      "unit": "KiloLB_F-FT-PER-A",
+      "stated": "1355.817948331400399999999999999999",
+      "derived": "1355.8179483314004",
+      "rel": "7.37562e-34"
+    },
+    {
+      "unit": "KiloLB_F-FT-PER-LB",
+      "stated": "2989.066919999999999999999999999998",
+      "derived": "2989.06692",
+      "rel": "6.69105e-34"
+    },
+    {
+      "unit": "KiloLB_F-PER-FT",
+      "stated": "14593.90293720636482939632545931758",
+      "derived": "8896443230521/609600000",
+      "rel": "3.63291e-34"
+    },
+    {
+      "unit": "KiloLB_F-PER-IN2",
+      "stated": "6894757.293168361336722673445346887",
+      "derived": "8896443230521/1290320",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "KiloN-M-PER-DEG",
+      "stated": "57295.77951308232087679815481410516",
+      "derived": "180000 * pi^-1",
+      "rel": "1.80334e-34"
+    },
+    {
+      "unit": "KiloN-M-PER-DEG-M",
+      "stated": "57295.77951308232087679815481410516",
+      "derived": "180000 * pi^-1",
+      "rel": "1.80334e-34"
+    },
+    {
+      "unit": "LB-DEG_R",
+      "stated": "0.251995761111111131270772",
+      "derived": "45359237/180000000",
+      "rel": "8.0e-17"
+    },
+    {
+      "unit": "LB-FT2-PER-GAL_UK-LB_F-SEC",
+      "stated": "2.083872869277488713083529558901175",
+      "derived": "185806080000/89163826997",
+      "rel": "4.79639e-34"
+    },
+    {
+      "unit": "LB-FT2-PER-GAL_US-LB_F-SEC",
+      "stated": "2.502626967120388365035507294871633",
+      "derived": "4800000000/1917984607",
+      "rel": "4.44781e-34"
+    },
+    {
+      "unit": "LB-FT2-PER-IN3-LB_F-SEC",
+      "stated": "578.1068294048097123232021851153473",
+      "derived": "14400000000/24908891",
+      "rel": "5.77975e-34"
+    },
+    {
+      "unit": "LB-HR-PER-FT3-YD3",
+      "stated": "75424.89272556986456342335109381842",
+      "derived": "692127029418945312500/9176374064424843",
+      "rel": "2.21401e-34"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_UK-IN3",
+      "stated": "21919420195.53753583785588572330633",
+      "derived": "20411656650000000000000/931213347247",
+      "rel": "3.54662e-34"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_UK-YD3",
+      "stated": "469809.2463035308607222197728760785",
+      "derived": "35436903906250000000/75428281127007",
+      "rel": "1.70169e-34"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_US-YD3",
+      "stated": "564217.3793497174284224915614290831",
+      "derived": "575274414062500000000/1019597118269427",
+      "rel": "4.7966e-34"
+    },
+    {
+      "unit": "LB-HR-PER-IN3-GAL_UK",
+      "stated": "21919420195.53753583785588572330633",
+      "derived": "20411656650000000000000/931213347247",
+      "rel": "3.54662e-34"
+    },
+    {
+      "unit": "LB-HR-PER-IN3-YD3",
+      "stated": "130334214.6297847259655955506901182",
+      "derived": "44296129882812500000000/339865706089809",
+      "rel": "4.49737e-34"
+    },
+    {
+      "unit": "LB-HR-PER-IN6",
+      "stated": "6080873117767.236174650826012998158",
+      "derived": "25514570812500000000000000/4195872914689",
+      "rel": "8.65014e-35"
+    },
+    {
+      "unit": "LB-IN2-PER-GAL_UK-LB_F-SEC",
+      "stated": "0.01447133936998256050752451082570261",
+      "derived": "1290320000/89163826997",
+      "rel": "8.82735e-34"
+    },
+    {
+      "unit": "LB-IN2-PER-GAL_US-LB_F-SEC",
+      "stated": "0.01737935393833603031274657843660856",
+      "derived": "100000000/5753953821",
+      "rel": "3.00933e-34"
+    },
+    {
+      "unit": "LB-IN2-PER-IN3-LB_F-SEC",
+      "stated": "4.014630759755623002244459618856579",
+      "derived": "100000000/24908891",
+      "rel": "7.09438e-34"
+    },
+    {
+      "unit": "LB-MIN-PER-FT6",
+      "stated": "33941.20172650643905354050799221829",
+      "derived": "34606351470947265625/1019597118269427",
+      "rel": "1.91938e-34"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_UK-IN3",
+      "stated": "365323669.9256255972975980953884388",
+      "derived": "340194277500000000000/931213347247",
+      "rel": "2.63418e-34"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_UK-YD3",
+      "stated": "7830.154105058847678703662881267974",
+      "derived": "1771845195312500000/226284843381021",
+      "rel": "2.9788e-34"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_UK2",
+      "stated": "1316864.021562727949282563045476102",
+      "derived": "272155422000000000/206669342881",
+      "rel": "4.41399e-34"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_US-YD3",
+      "stated": "9403.622989161957140374859357151386",
+      "derived": "28763720703125000000/3058791354808281",
+      "rel": "3.73318e-34"
+    },
+    {
+      "unit": "LB-MIN-PER-IN3-GAL_UK",
+      "stated": "365323669.9256255972975980953884388",
+      "derived": "340194277500000000000/931213347247",
+      "rel": "2.63418e-34"
+    },
+    {
+      "unit": "LB-PER-AC",
+      "stated": "0.0001120851156194456047722420921833988",
+      "derived": "4123567/36789603840",
+      "rel": "6.00628e-34"
+    },
+    {
+      "unit": "LB-PER-DAY",
+      "stated": "0.000005249911689814814814814814814814813",
+      "derived": "45359237/8640000000000",
+      "rel": "3.45684e-34"
+    },
+    {
+      "unit": "LB-PER-FT-LB_F-SEC",
+      "stated": "0.3345525633129685835203716349047149",
+      "derived": "25000000/74726673",
+      "rel": "6.59621e-34"
+    },
+    {
+      "unit": "LB-PER-FT-MIN",
+      "stated": "0.02480273239282589676290463692038496",
+      "derived": "45359237/1828800000",
+      "rel": "3.27342e-34"
+    },
+    {
+      "unit": "LB-PER-FT2",
+      "stated": "4.882427636383050543878865535508848",
+      "derived": "45359237/9290304",
+      "rel": "1.62926e-34"
+    },
+    {
+      "unit": "LB-PER-FT3-DEG_F",
+      "stated": "28.83323407312825124337912717820187",
+      "derived": "5669904625/196644768",
+      "rel": "2.43975e-34"
+    },
+    {
+      "unit": "LB-PER-FT3-PSI",
+      "stated": "0.002323281689673392941113691909060521",
+      "derived": "1562500/672540057",
+      "rel": "1.03026e-33"
+    },
+    {
+      "unit": "LB-PER-GAL_IMP",
+      "stated": "99.77637266310169838256611725680751",
+      "derived": "45359237/454609",
+      "rel": "1.17144e-34"
+    },
+    {
+      "unit": "LB-PER-GAL_UK",
+      "stated": "99.77637266310169838256611725680751",
+      "derived": "45359237/454609",
+      "rel": "1.17144e-34"
+    },
+    {
+      "unit": "LB-PER-IN",
+      "stated": "17.85796732283464566929133858267716",
+      "derived": "45359237/2540000",
+      "rel": "2.99828e-34"
+    },
+    {
+      "unit": "LB-PER-LB",
+      "stated": "0.9999999999999999999999999999999998",
+      "derived": "1",
+      "rel": "2.0e-34"
+    },
+    {
+      "unit": "LB-PER-MIN",
+      "stated": "0.007559872833333333333333333333333335",
+      "derived": "45359237/6000000000",
+      "rel": "2.20462e-34"
+    },
+    {
+      "unit": "LB-PER-PSI",
+      "stated": "0.00006578801119648401849765210341961838",
+      "derived": "16129/245166250",
+      "rel": "9.08653e-34"
+    },
+    {
+      "unit": "LB-PER-YD2",
+      "stated": "0.5424919595981167270976517261676497",
+      "derived": "45359237/83612736",
+      "rel": "3.06297e-34"
+    },
+    {
+      "unit": "LB-PER-YD3",
+      "stated": "0.5932764212577829473946322464650587",
+      "derived": "28349523125/47784678624",
+      "rel": "3.51864e-34"
+    },
+    {
+      "unit": "LB-SEC-PER-FT3-GAL_US",
+      "stated": "4231.630345122880713168686710718126",
+      "derived": "1438186035156250000/339865706089809",
+      "rel": "1.70207e-34"
+    },
+    {
+      "unit": "LB-SEC-PER-FT3-YD3",
+      "stated": "20.95135909043607348983981974828289",
+      "derived": "6921270294189453125/330349466319294348",
+      "rel": "4.33532e-34"
+    },
+    {
+      "unit": "LB-SEC-PER-FT6",
+      "stated": "565.6866954417739842256751332036382",
+      "derived": "6921270294189453125/12235165419233124",
+      "rel": "1.33013e-34"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_UK-IN3",
+      "stated": "6088727.832093759954959968256473979",
+      "derived": "5669904625000000000/931213347247",
+      "rel": "9.91809e-35"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_US-FT3",
+      "stated": "4231.630345122880713168686710718126",
+      "derived": "1438186035156250000/339865706089809",
+      "rel": "1.70207e-34"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_US-YD3",
+      "stated": "156.7270498193659523395809892858564",
+      "derived": "1438186035156250000/9176374064424843",
+      "rel": "5.86002e-34"
+    },
+    {
+      "unit": "LB-SEC-PER-IN3-GAL_UK",
+      "stated": "6088727.832093759954959968256473979",
+      "derived": "5669904625000000000/931213347247",
+      "rel": "9.91809e-35"
+    },
+    {
+      "unit": "LB-SEC-PER-IN3-YD3",
+      "stated": "36203.94850827353499044320852503284",
+      "derived": "110740324707031250000/3058791354808281",
+      "rel": "2.65595e-34"
+    },
+    {
+      "unit": "LB_F",
+      "stated": "4.448221615260499999999999999999998",
+      "derived": "4.4482216152605",
+      "rel": "4.49617e-34"
+    },
+    {
+      "unit": "LB_F-FT-PER-IN",
+      "stated": "53.37865938312599999999999999999997",
+      "derived": "53.378659383126",
+      "rel": "5.62022e-34"
+    },
+    {
+      "unit": "LB_F-IN",
+      "stated": "0.1129848290276166999999999999999999",
+      "derived": "0.1129848290276167",
+      "rel": "8.85074e-34"
+    },
+    {
+      "unit": "LB_F-IN-PER-IN",
+      "stated": "4.448221615260499999999999999999998",
+      "derived": "4.4482216152605",
+      "rel": "4.49617e-34"
+    },
+    {
+      "unit": "LB_F-PER-FT",
+      "stated": "14.59390293720636482939632545931758",
+      "derived": "8896443230521/609600000000",
+      "rel": "3.63291e-34"
+    },
+    {
+      "unit": "LB_F-PER-FT2",
+      "stated": "47.88025898033584261612967670379783",
+      "derived": "8896443230521/185806080000",
+      "rel": "4.60318e-34"
+    },
+    {
+      "unit": "LB_F-PER-IN",
+      "stated": "175.1268352464763779527559055118109",
+      "derived": "8896443230521/50800000000",
+      "rel": "7.059e-34"
+    },
+    {
+      "unit": "LB_F-PER-IN2",
+      "stated": "6894.757293168361336722673445346887",
+      "derived": "8896443230521/1290320000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "LB_F-PER-IN2-SEC",
+      "stated": "6894.757293168361336722673445346887",
+      "derived": "8896443230521/1290320000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "LB_F-PER-LB",
+      "stated": "9.806649999999999999999999999999994",
+      "derived": "9.80665",
+      "rel": "6.11829e-34"
+    },
+    {
+      "unit": "LB_F-PER-YD",
+      "stated": "4.864634312402121609798775153105859",
+      "derived": "8896443230521/1828800000000",
+      "rel": "5.68856e-34"
+    },
+    {
+      "unit": "LB_F-SEC-PER-FT2",
+      "stated": "47.88025898033584261612967670379783",
+      "derived": "8896443230521/185806080000",
+      "rel": "4.60318e-34"
+    },
+    {
+      "unit": "LB_F-SEC-PER-IN2",
+      "stated": "6894.757293168361336722673445346887",
+      "derived": "8896443230521/1290320000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "M2-HR-DEG_C-PER-KiloCAL_IT",
+      "stated": "0.8598452278589853826311263972484954",
+      "derived": "1000/1163",
+      "rel": "1.502e-34"
+    },
+    {
+      "unit": "M2-PER-HZ-DEG",
+      "stated": "57.29577951308232087679815481410516",
+      "derived": "180 * pi^-1",
+      "rel": "1.80334e-34"
+    },
+    {
+      "unit": "MI-PER-MIN",
+      "stated": "26.82240000000000000000000000000001",
+      "derived": "26.8224",
+      "rel": "3.72822e-34"
+    },
+    {
+      "unit": "MI_N-PER-HR",
+      "stated": "0.5144444444444444444444444444444445",
+      "derived": "463/900",
+      "rel": "1.07991e-34"
+    },
+    {
+      "unit": "MOL_LB-PER-LB",
+      "stated": "999.9999999999999999999999999999998",
+      "derived": "1000",
+      "rel": "2.0e-34"
+    },
+    {
+      "unit": "MOL_LB-PER-MIN",
+      "stated": "7.559872833333333333333333333333335",
+      "derived": "45359237/6000000",
+      "rel": "2.20462e-34"
+    },
+    {
+      "unit": "MegaLB_F",
+      "stated": "4448221.615260499999999999999999998",
+      "derived": "4448221.6152605",
+      "rel": "4.49617e-34"
+    },
+    {
+      "unit": "MegaPSI",
+      "stated": "6894757293.168361336722673445346887",
+      "derived": "222411080763025/32258",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "MilliA-IN2-PER-LB_F",
+      "stated": "0.0000001450377377302092151542410279511941",
+      "derived": "1290320/8896443230521",
+      "rel": "8.50117e-34"
+    },
+    {
+      "unit": "MilliA-PER-LB_F-IN2",
+      "stated": "0.3484545587136686758479127866004985",
+      "derived": "50000000000000000/143490732865073209",
+      "rel": "6.3173e-34"
+    },
+    {
+      "unit": "N-M-PER-DEG",
+      "stated": "57.29577951308232087679815481410516",
+      "derived": "180 * pi^-1",
+      "rel": "1.80334e-34"
+    },
+    {
+      "unit": "N-M-PER-DEG-M",
+      "stated": "57.29577951308232087679815481410516",
+      "derived": "180 * pi^-1",
+      "rel": "1.80334e-34"
+    },
+    {
+      "unit": "NanoM-PER-CentiM-PSI",
+      "stated": "0.00000000001450377377302092151542410279511941",
+      "derived": "16129/1112055403815125",
+      "rel": "8.50117e-34"
+    },
+    {
+      "unit": "OZ-FT2-PER-IN3-LB_F-SEC",
+      "stated": "36.13167683780060702020013656970921",
+      "derived": "900000000/24908891",
+      "rel": "6.81762e-34"
+    },
+    {
+      "unit": "OZ-HR-PER-IN3-YD3",
+      "stated": "8145888.414361545372849721918132388",
+      "derived": "2768508117675781250000/339865706089809",
+      "rel": "3.88356e-34"
+    },
+    {
+      "unit": "OZ-HR-PER-IN6",
+      "stated": "380054569860.4522609156766258123849",
+      "derived": "1594660675781250000000000/4195872914689",
+      "rel": "1.52281e-34"
+    },
+    {
+      "unit": "OZ-IN2-PER-IN3-LB_F-SEC",
+      "stated": "0.2509144224847264376402787261785362",
+      "derived": "6250000/24908891",
+      "rel": "7.59256e-34"
+    },
+    {
+      "unit": "OZ-MIN-PER-IN3-YD3",
+      "stated": "135764.8069060257562141620319688731",
+      "derived": "138425405883789062500/1019597118269427",
+      "rel": "6.33879e-34"
+    },
+    {
+      "unit": "OZ-MIN-PER-IN6",
+      "stated": "6334242831.007537681927943763539748",
+      "derived": "26577677929687500000000/4195872914689",
+      "rel": "9.96574e-35"
+    },
+    {
+      "unit": "OZ-PER-DAY",
+      "stated": "0.0000003281194806134259259259259259259258",
+      "derived": "45359237/138240000000000",
+      "rel": "3.8378e-34"
+    },
+    {
+      "unit": "OZ-PER-HR",
+      "stated": "0.000007874867534722222222222222222222223",
+      "derived": "45359237/5760000000000",
+      "rel": "9.8767e-35"
+    },
+    {
+      "unit": "OZ-PER-MIN",
+      "stated": "0.0004724920520833333333333333333333334",
+      "derived": "45359237/96000000000",
+      "rel": "1.41095e-34"
+    },
+    {
+      "unit": "OZ-PER-YD2",
+      "stated": "0.03390574747488229544360323288547811",
+      "derived": "45359237/1337803776",
+      "rel": "1.95696e-34"
+    },
+    {
+      "unit": "OZ-PER-YD3",
+      "stated": "0.03707977632861143421216451540406617",
+      "derived": "28349523125/764554857984",
+      "rel": "3.18153e-34"
+    },
+    {
+      "unit": "OZ-SEC-PER-IN3-FT3",
+      "stated": "61094.16310771159029637291438599294",
+      "derived": "6921270294189453125/113288568696603",
+      "rel": "1.02688e-34"
+    },
+    {
+      "unit": "OZ-SEC-PER-IN3-GAL_UK",
+      "stated": "380545.4895058599971849980160296237",
+      "derived": "354369039062500000/931213347247",
+      "rel": "1.32028e-34"
+    },
+    {
+      "unit": "OZ-SEC-PER-IN3-YD3",
+      "stated": "2262.746781767095936902700532814552",
+      "derived": "6921270294189453125/3058791354808281",
+      "rel": "4.86565e-34"
+    },
+    {
+      "unit": "OZ_VOL_UK-PER-DAY",
+      "stated": "0.0000000003288548900462962962962962962962962",
+      "derived": "454609/1382400000000000",
+      "rel": "2.92823e-34"
+    },
+    {
+      "unit": "OZ_VOL_UK-PER-HR",
+      "stated": "0.000000007892517361111111111111111111111112",
+      "derived": "454609/57600000000000",
+      "rel": "1.12624e-34"
+    },
+    {
+      "unit": "OZ_VOL_UK-PER-MIN",
+      "stated": "0.0000004735510416666666666666666666666668",
+      "derived": "454609/960000000000",
+      "rel": "2.8156e-34"
+    },
+    {
+      "unit": "PER-PSI",
+      "stated": "0.0001450377377302092151542410279511941",
+      "derived": "1290320000/8896443230521",
+      "rel": "8.50117e-34"
+    },
+    {
+      "unit": "PERCENT-FT-HR-PER-LB",
+      "stated": "24.19088310502224717757046927398712",
+      "derived": "1097280000/45359237",
+      "rel": "2.63353e-34"
+    },
+    {
+      "unit": "PERCENT-FT-SEC-PER-LB",
+      "stated": "0.006719689751395068660436241464996423",
+      "derived": "304800/45359237",
+      "rel": "1.47607e-34"
+    },
+    {
+      "unit": "PERCENT-FT2-PER-LB_F-SEC",
+      "stated": "0.0002088543423315012698221070802497194",
+      "derived": "1858060800/8896443230521",
+      "rel": "3.52162e-34"
+    },
+    {
+      "unit": "PERCENT-HR-PER-GAL_UK",
+      "stated": "7918.892938767160350982932586024475",
+      "derived": "3600000000/454609",
+      "rel": "1.54243e-34"
+    },
+    {
+      "unit": "PERCENT-HR-PER-YD3",
+      "stated": "47.08622229531812033391734713867015",
+      "derived": "7812500000/165919023",
+      "rel": "4.0867e-34"
+    },
+    {
+      "unit": "PERCENT-IN2-PER-LB_F-SEC",
+      "stated": "0.000001450377377302092151542410279511941",
+      "derived": "12903200/8896443230521",
+      "rel": "8.50117e-34"
+    },
+    {
+      "unit": "PERCENT-MIN-PER-YD3",
+      "stated": "0.7847703715886353388986224523111692",
+      "derived": "390625000/497757069",
+      "rel": "3.66195e-34"
+    },
+    {
+      "unit": "PERCENT-PER-DEG",
+      "stated": "0.5729577951308232087679815481410516",
+      "derived": "1.8 * pi^-1",
+      "rel": "1.80334e-34"
+    },
+    {
+      "unit": "PERMILLE-PER-PSI",
+      "stated": "0.0000001450377377302092151542410279511941",
+      "derived": "1290320/8896443230521",
+      "rel": "8.50117e-34"
+    },
+    {
+      "unit": "PINT_UK-PER-DAY",
+      "stated": "0.000000006577097800925925925925925925925924",
+      "derived": "454609/69120000000000",
+      "rel": "2.92823e-34"
+    },
+    {
+      "unit": "PINT_UK-PER-MIN",
+      "stated": "0.000009471020833333333333333333333333335",
+      "derived": "454609/48000000000",
+      "rel": "1.75975e-34"
+    },
+    {
+      "unit": "PINT_US-PER-DAY",
+      "stated": "0.000000005476579548611111111111111111111109",
+      "derived": "157725491/28800000000000000",
+      "rel": "3.85479e-34"
+    },
+    {
+      "unit": "PINT_US-PER-MIN",
+      "stated": "0.000007886274550000000000000000000000002",
+      "derived": "0.00000788627455",
+      "rel": "2.53605e-34"
+    },
+    {
+      "unit": "PSI",
+      "stated": "6894.757293168361336722673445346887",
+      "derived": "8896443230521/1290320000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "PSI-IN3-PER-SEC",
+      "stated": "0.1129848290276166999999999999999999",
+      "derived": "0.1129848290276167",
+      "rel": "8.85074e-34"
+    },
+    {
+      "unit": "PSI-L-PER-SEC",
+      "stated": "6.894757293168361336722673445346887",
+      "derived": "8896443230521/1290320000000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "PSI-M3-PER-SEC",
+      "stated": "6894.757293168361336722673445346887",
+      "derived": "8896443230521/1290320000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "PSI-PER-FT",
+      "stated": "22620.59479385945320447071340336905",
+      "derived": "8896443230521/393289536",
+      "rel": "6.16958e-34"
+    },
+    {
+      "unit": "PSI-PER-IN",
+      "stated": "271447.1375263134384536485608404286",
+      "derived": "8896443230521/32774128",
+      "rel": "6.16958e-34"
+    },
+    {
+      "unit": "PSI-PER-M",
+      "stated": "6894.757293168361336722673445346887",
+      "derived": "8896443230521/1290320000",
+      "rel": "5.35737e-34"
+    },
+    {
+      "unit": "PSI-YD3-PER-SEC",
+      "stated": "5271.420183112484755199999999999997",
+      "derived": "5271.4201831124847552",
+      "rel": "5.69106e-34"
+    },
+    {
+      "unit": "QT_UK-PER-HR",
+      "stated": "0.0000003157006944444444444444444444444445",
+      "derived": "454609/1440000000000",
+      "rel": "1.75975e-34"
+    },
+    {
+      "unit": "QT_US-PER-HR",
+      "stated": "0.0000002628758183333333333333333333333334",
+      "derived": "157725491/600000000000000",
+      "rel": "2.53605e-34"
+    },
+    {
+      "unit": "SLUG",
+      "stated": "14.59390293720636482939632545931758",
+      "derived": "8896443230521/609600000000",
+      "rel": "3.63291e-34"
+    },
+    {
+      "unit": "SLUG-PER-DAY",
+      "stated": "0.0001689109136250736670069019150383979",
+      "derived": "8896443230521/52669440000000000",
+      "rel": "4.61962e-34"
+    },
+    {
+      "unit": "SLUG-PER-FT",
+      "stated": "47.88025898033584261612967670379783",
+      "derived": "8896443230521/185806080000",
+      "rel": "4.60318e-34"
+    },
+    {
+      "unit": "SLUG-PER-FT-SEC",
+      "stated": "47.88025898033584261612967670379783",
+      "derived": "8896443230521/185806080000",
+      "rel": "4.60318e-34"
+    },
+    {
+      "unit": "SLUG-PER-FT2",
+      "stated": "157.0874638462462028088243986345073",
+      "derived": "8896443230521/56633693184",
+      "rel": "5.63909e-34"
+    },
+    {
+      "unit": "SLUG-PER-FT3",
+      "stated": "515.3788183931962034410249299032393",
+      "derived": "5560277019075625/10788718551552",
+      "rel": "3.17932e-34"
+    },
+    {
+      "unit": "SLUG-PER-SEC",
+      "stated": "14.59390293720636482939632545931758",
+      "derived": "8896443230521/609600000000",
+      "rel": "3.63291e-34"
+    },
+    {
+      "unit": "TON_LONG-PER-YD3",
+      "stated": "1328.939183617433802163976232081731",
+      "derived": "1984466618750/1493271207",
+      "rel": "7.19075e-34"
+    },
+    {
+      "unit": "TON_SHORT-PER-HR-PSI",
+      "stated": "0.00003654889510915778805425116856645466",
+      "derived": "16129/441299250",
+      "rel": "1.03025e-33"
+    },
+    {
+      "unit": "TON_SHORT-PER-PSI",
+      "stated": "0.1315760223929680369953042068392368",
+      "derived": "129032/980665",
+      "rel": "1.21266e-33"
+    },
+    {
+      "unit": "TON_SHORT-PER-YD3",
+      "stated": "1186.552842515565894789264492930117",
+      "derived": "3543690390625/2986542414",
+      "rel": "6.88975e-34"
+    },
+    {
+      "unit": "TON_UK-PER-DAY",
+      "stated": "0.01175980218518518518518518518518518",
+      "derived": "317514659/27000000000",
+      "rel": "4.40924e-34"
+    },
+    {
+      "unit": "TON_UK-PER-HR",
+      "stated": "0.2822352524444444444444444444444445",
+      "derived": "317514659/1125000000",
+      "rel": "1.96841e-34"
+    },
+    {
+      "unit": "TON_UK-PER-YD3",
+      "stated": "1328.939183617433802163976232081731",
+      "derived": "1984466618750/1493271207",
+      "rel": "7.19075e-34"
+    },
+    {
+      "unit": "TON_US-PER-YD3",
+      "stated": "1186.552842515565894789264492930117",
+      "derived": "3543690390625/2986542414",
+      "rel": "6.88975e-34"
+    },
+    {
+      "unit": "V-IN2-PER-LB_F",
+      "stated": "0.0001450377377302092151542410279511941",
+      "derived": "1290320000/8896443230521",
+      "rel": "8.50117e-34"
+    },
+    {
+      "unit": "YD-PER-PSI",
+      "stated": "0.0001326225073805033063370379959585719",
+      "derived": "1179868608/8896443230521",
+      "rel": "9.62918e-34"
+    },
+    {
+      "unit": "YD3-PER-DAY",
+      "stated": "0.000008849014559999999999999999999999997",
+      "derived": "0.00000884901456",
+      "rel": "3.3902e-34"
+    },
+    {
+      "unit": "YD3-PER-PSI",
+      "stated": "0.0001108893069726407449988588497805314",
+      "derived": "385359540763248/3475173136922265625",
+      "rel": "1.034e-33"
+    }
+  ],
+  "truncations": [
+    {
+      "unit": "A-PER-A-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "ARCMIN",
+      "stated": "0.000290888209",
+      "derived": "1/10800 * pi^1",
+      "derivedApprox": "2.90888208665721596e-4"
+    },
+    {
+      "unit": "ARCSEC",
+      "stated": "0.00000484813681",
+      "derived": "1/648000 * pi^1",
+      "derivedApprox": "4.84813681109535993e-6"
+    },
+    {
+      "unit": "AT-PER-IN",
+      "stated": "39.37007874015748031496062992125984",
+      "derived": "5000/127",
+      "derivedApprox": "3.93700787401574803e1"
+    },
+    {
+      "unit": "A_Stat",
+      "stated": "0.000000000333564095",
+      "derived": "1/2997924580",
+      "derivedApprox": "3.33564095198152049e-10"
+    },
+    {
+      "unit": "A_Stat-PER-CentiM2",
+      "stated": "0.00000333564095",
+      "derived": "500/149896229",
+      "derivedApprox": "3.33564095198152049e-6"
+    },
+    {
+      "unit": "BARN-PER-EV",
+      "stated": "0.0000000006241509074460762607776240980930446",
+      "derived": "1/1602176634",
+      "derivedApprox": "6.2415090744607626e-10"
+    },
+    {
+      "unit": "BARN-PER-SR-EV",
+      "stated": "0.0000000006241509074460762607776240980930446",
+      "derived": "1/1602176634",
+      "derivedApprox": "6.2415090744607626e-10"
+    },
+    {
+      "unit": "BBL",
+      "stated": "0.1589873",
+      "derived": "0.158987294928",
+      "derivedApprox": "1.58987294928e-1"
+    },
+    {
+      "unit": "BBL_UK_PET",
+      "stated": "0.1591132",
+      "derived": "0.15911315",
+      "derivedApprox": "1.5911315e-1"
+    },
+    {
+      "unit": "BBL_UK_PET-PER-SEC",
+      "stated": "0.1591132",
+      "derived": "0.15911315",
+      "derivedApprox": "1.5911315e-1"
+    },
+    {
+      "unit": "BBL_US",
+      "stated": "0.1589873",
+      "derived": "0.158987294928",
+      "derivedApprox": "1.58987294928e-1"
+    },
+    {
+      "unit": "BBL_US_PET",
+      "stated": "0.1589873",
+      "derived": "0.158987294928",
+      "derivedApprox": "1.58987294928e-1"
+    },
+    {
+      "unit": "BBL_US_PET-PER-SEC",
+      "stated": "0.1589873",
+      "derived": "0.158987294928",
+      "derivedApprox": "1.58987294928e-1"
+    },
+    {
+      "unit": "BTU_IT-FT-PER-FT2-HR-DEG_F",
+      "stated": "1.730734666371391076115485564304462",
+      "derived": "52752792631/30480000000",
+      "derivedApprox": "1.73073466637139107e0"
+    },
+    {
+      "unit": "BTU_IT-IN-PER-FT2-HR-DEG_F",
+      "stated": "0.1442278888642825896762904636920385",
+      "derived": "52752792631/365760000000",
+      "derivedApprox": "1.44227888864282589e-1"
+    },
+    {
+      "unit": "BTU_IT-IN-PER-HR-FT2-DEG_F",
+      "stated": "0.1442278888642825896762904636920385",
+      "derived": "52752792631/365760000000",
+      "derivedApprox": "1.44227888864282589e-1"
+    },
+    {
+      "unit": "BTU_IT-PER-FT2",
+      "stated": "11356.52668222697556506224123559358",
+      "derived": "52752792631/4645152",
+      "derivedApprox": "1.13565266822269755e4"
+    },
+    {
+      "unit": "BTU_IT-PER-FT2-HR",
+      "stated": "3.154590745063048768072844787664884",
+      "derived": "52752792631/16722547200",
+      "derivedApprox": "3.15459074506304876e0"
+    },
+    {
+      "unit": "BTU_IT-PER-FT2-HR-DEG_F",
+      "stated": "5.678263341113487782531120617796791",
+      "derived": "52752792631/9290304000",
+      "derivedApprox": "5.67826334111348778e0"
+    },
+    {
+      "unit": "BTU_IT-PER-FT2-SEC",
+      "stated": "11356.52668222697556506224123559358",
+      "derived": "52752792631/4645152",
+      "derivedApprox": "1.13565266822269755e4"
+    },
+    {
+      "unit": "BTU_IT-PER-FT2-SEC-DEG_F",
+      "stated": "20441.74802800855601711203422406845",
+      "derived": "52752792631/2580640",
+      "derivedApprox": "2.0441748028008556e4"
+    },
+    {
+      "unit": "BTU_IT-PER-FT3",
+      "stated": "37258.94580783128466227769434249863",
+      "derived": "32970495394375/884901456",
+      "derivedApprox": "3.72589458078312846e4"
+    },
+    {
+      "unit": "BTU_IT-PER-HR",
+      "stated": "0.2930710701722222222222222222222222",
+      "derived": "52752792631/180000000000",
+      "derivedApprox": "2.93071070172222222e-1"
+    },
+    {
+      "unit": "BTU_IT-PER-HR-FT2",
+      "stated": "3.154590745063048768072844787664884",
+      "derived": "52752792631/16722547200",
+      "derivedApprox": "3.15459074506304876e0"
+    },
+    {
+      "unit": "BTU_IT-PER-HR-FT2-DEG_F",
+      "stated": "5.678263341113487782531120617796791",
+      "derived": "52752792631/9290304000",
+      "derivedApprox": "5.67826334111348778e0"
+    },
+    {
+      "unit": "BTU_IT-PER-IN2-SEC",
+      "stated": "1635339.842240684481368962737925476",
+      "derived": "52752792631/32258",
+      "derivedApprox": "1.63533984224068448e6"
+    },
+    {
+      "unit": "BTU_IT-PER-SEC-FT2",
+      "stated": "11356.52668222697556506224123559358",
+      "derived": "52752792631/4645152",
+      "derivedApprox": "1.13565266822269755e4"
+    },
+    {
+      "unit": "BTU_IT-PER-SEC-FT2-DEG_F",
+      "stated": "20441.74802800855601711203422406845",
+      "derived": "52752792631/2580640",
+      "derivedApprox": "2.0441748028008556e4"
+    },
+    {
+      "unit": "BTU_TH",
+      "stated": "1054.3502645",
+      "derived": "23722880951/22500000",
+      "derivedApprox": "1.05435026448888888e3"
+    },
+    {
+      "unit": "BTU_TH-PER-DEG_F",
+      "stated": "1897.8304761",
+      "derived": "1897.83047608",
+      "derivedApprox": "1.89783047608e3"
+    },
+    {
+      "unit": "BTU_TH-PER-SEC",
+      "stated": "1054.3502645",
+      "derived": "23722880951/22500000",
+      "derivedApprox": "1.05435026448888888e3"
+    },
+    {
+      "unit": "BU_UK-PER-HR",
+      "stated": "0.00001010242222222222222222222222222222",
+      "derived": "454609/45000000000",
+      "derivedApprox": "1.01024222222222222e-5"
+    },
+    {
+      "unit": "CAL_MEAN",
+      "stated": "4.19",
+      "derived": "4.19002",
+      "derivedApprox": "4.19002e0"
+    },
+    {
+      "unit": "CD-PER-FT2",
+      "stated": "10.7639104167097223083335055559",
+      "derived": "1562500/145161",
+      "derivedApprox": "1.07639104167097223e1"
+    },
+    {
+      "unit": "CD-PER-IN2",
+      "stated": "1550.0031000062000124000248000496",
+      "derived": "25000000/16129",
+      "derivedApprox": "1.55000310000620001e3"
+    },
+    {
+      "unit": "CHAIN_US",
+      "stated": "20.11684023",
+      "derived": "79200/3937",
+      "derivedApprox": "2.01168402336804673e1"
+    },
+    {
+      "unit": "CWT_LONG",
+      "stated": "50.80235",
+      "derived": "50.80234544",
+      "derivedApprox": "5.080234544e1"
+    },
+    {
+      "unit": "C_Stat",
+      "stated": "0.00000000033356409519815204957557671447492",
+      "derived": "1/2997924580",
+      "derivedApprox": "3.33564095198152049e-10"
+    },
+    {
+      "unit": "C_Stat-PER-CentiM2",
+      "stated": "0.0000033356409519815204957557671447492",
+      "derived": "500/149896229",
+      "derivedApprox": "3.33564095198152049e-6"
+    },
+    {
+      "unit": "C_Stat-PER-MOL",
+      "stated": "0.00000000033356409519815204957557671447492",
+      "derived": "1/2997924580",
+      "derivedApprox": "3.33564095198152049e-10"
+    },
+    {
+      "unit": "CentiM-PER-HR",
+      "stated": "0.000002777777777777777777777777777777778",
+      "derived": "1/360000",
+      "derivedApprox": "2.77777777777777777e-6"
+    },
+    {
+      "unit": "CentiM-PER-KiloYR",
+      "stated": "0.0000000000003168808781402895023702689684893655",
+      "derived": "1/3155760000000",
+      "derivedApprox": "3.16880878140289502e-13"
+    },
+    {
+      "unit": "CentiM-PER-YR",
+      "stated": "0.0000000003168808781402895023702689684893655",
+      "derived": "1/3155760000",
+      "derivedApprox": "3.16880878140289502e-10"
+    },
+    {
+      "unit": "CentiM3-PER-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "CentiM3-PER-DAY-BAR",
+      "stated": "0.0000000000000001157407407407407407407407407407407",
+      "derived": "1/8640000000000000",
+      "derivedApprox": "1.1574074074074074e-16"
+    },
+    {
+      "unit": "CentiM3-PER-DAY-K",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "CentiM3-PER-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "CentiM3-PER-HR-BAR",
+      "stated": "0.000000000000002777777777777777777777777777777778",
+      "derived": "1/360000000000000",
+      "derivedApprox": "2.77777777777777777e-15"
+    },
+    {
+      "unit": "CentiM3-PER-HR-K",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "CentiM3-PER-MIN",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "CentiM3-PER-MIN-BAR",
+      "stated": "0.0000000000001666666666666666666666666666666667",
+      "derived": "1/6000000000000",
+      "derivedApprox": "1.66666666666666666e-13"
+    },
+    {
+      "unit": "CentiM3-PER-MIN-K",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "CentiM_HG",
+      "stated": "1333.224",
+      "derived": "1333.22387415",
+      "derivedApprox": "1.33322387415e3"
+    },
+    {
+      "unit": "CentiM_HG_0DEG_C",
+      "stated": "1333.224",
+      "derived": "1333.22387415",
+      "derivedApprox": "1.33322387415e3"
+    },
+    {
+      "unit": "DARCY",
+      "stated": "0.0000000000009869233",
+      "derived": "1/1013250000000",
+      "derivedApprox": "9.8692326671601283e-13"
+    },
+    {
+      "unit": "DEBYE",
+      "stated": "0.00000000000000000000000000000333564",
+      "derived": "1/299792458000000000000000000000",
+      "derivedApprox": "3.33564095198152049e-30"
+    },
+    {
+      "unit": "DEG",
+      "stated": "0.01745329251994329576923690768488613",
+      "derived": "1/180 * pi^1",
+      "derivedApprox": "1.74532925199432957e-2"
+    },
+    {
+      "unit": "DEG-PER-M",
+      "stated": "0.01745329251994329576923690768488613",
+      "derived": "1/180 * pi^1",
+      "derivedApprox": "1.74532925199432957e-2"
+    },
+    {
+      "unit": "DEG-PER-SEC",
+      "stated": "0.01745329251994329576923690768488613",
+      "derived": "1/180 * pi^1",
+      "derivedApprox": "1.74532925199432957e-2"
+    },
+    {
+      "unit": "DEG-PER-SEC2",
+      "stated": "0.01745329251994329576923690768488613",
+      "derived": "1/180 * pi^1",
+      "derivedApprox": "1.74532925199432957e-2"
+    },
+    {
+      "unit": "DEG_C-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "DEG_C-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "DEG_C-PER-YR",
+      "stated": "0.00000003168808781402895023702689684893655",
+      "derived": "1/31557600",
+      "derivedApprox": "3.16880878140289502e-8"
+    },
+    {
+      "unit": "DEG_F",
+      "stated": "0.5555555555555555555555555555555556",
+      "derived": "5/9",
+      "derivedApprox": "5.55555555555555555e-1"
+    },
+    {
+      "unit": "DEG_F-HR-FT2-PER-BTU_IT",
+      "stated": "0.1761101836823058407309515389966389",
+      "derived": "9290304000/52752792631",
+      "derivedApprox": "1.7611018368230584e-1"
+    },
+    {
+      "unit": "DEG_F-HR-FT2-PER-BTU_IT-IN",
+      "stated": "6.933471798515977981533525157347987",
+      "derived": "365760000000/52752792631",
+      "derivedApprox": "6.93347179851597798e0"
+    },
+    {
+      "unit": "DEG_F-HR-PER-BTU_IT",
+      "stated": "1.895634240626634400025570088951221",
+      "derived": "100000000000/52752792631",
+      "derivedApprox": "1.8956342406266344e0"
+    },
+    {
+      "unit": "DEG_F-PER-BAR",
+      "stated": "0.000005555555555555555555555555555555556",
+      "derived": "1/180000",
+      "derivedApprox": "5.55555555555555555e-6"
+    },
+    {
+      "unit": "DEG_F-PER-HR",
+      "stated": "0.000154320987654320987654320987654321",
+      "derived": "1/6480",
+      "derivedApprox": "1.54320987654320987e-4"
+    },
+    {
+      "unit": "DEG_F-PER-K",
+      "stated": "0.5555555555555555555555555555555556",
+      "derived": "5/9",
+      "derivedApprox": "5.55555555555555555e-1"
+    },
+    {
+      "unit": "DEG_F-PER-SEC",
+      "stated": "0.5555555555555555555555555555555556",
+      "derived": "5/9",
+      "derivedApprox": "5.55555555555555555e-1"
+    },
+    {
+      "unit": "DEG_F-PER-SEC2",
+      "stated": "0.5555555555555555555555555555555556",
+      "derived": "5/9",
+      "derivedApprox": "5.55555555555555555e-1"
+    },
+    {
+      "unit": "DEG_R",
+      "stated": "0.5555555555555556",
+      "derived": "5/9",
+      "derivedApprox": "5.55555555555555555e-1"
+    },
+    {
+      "unit": "DEG_R-PER-HR",
+      "stated": "0.000154320987654321",
+      "derived": "1/6480",
+      "derivedApprox": "1.54320987654320987e-4"
+    },
+    {
+      "unit": "DEG_R-PER-SEC",
+      "stated": "0.5555555555555556",
+      "derived": "5/9",
+      "derivedApprox": "5.55555555555555555e-1"
+    },
+    {
+      "unit": "DENIER",
+      "stated": "0.0000001111111111",
+      "derived": "1/9000000",
+      "derivedApprox": "1.11111111111111111e-7"
+    },
+    {
+      "unit": "DU",
+      "stated": "0.000446150334054703",
+      "derived": "168875000000000/378515910691426251",
+      "derivedApprox": "4.46150334054703135e-4"
+    },
+    {
+      "unit": "DeciBAR-PER-YR",
+      "stated": "0.0003168808781402895023702689684893655",
+      "derived": "25/78894",
+      "derivedApprox": "3.16880878140289502e-4"
+    },
+    {
+      "unit": "DeciM3-PER-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "DeciM3-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "DeciM3-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "ENZ",
+      "stated": "0.000000016667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "ENZ-PER-L",
+      "stated": "0.000016667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "FA",
+      "stated": "12.5663706",
+      "derived": "4 * pi^1",
+      "derivedApprox": "1.25663706143591729e1"
+    },
+    {
+      "unit": "FARAD_Stat",
+      "stated": "0.000000000001112650056053618432174089964848",
+      "derived": "25000/22468879468420441",
+      "derivedApprox": "1.11265005605361843e-12"
+    },
+    {
+      "unit": "FC",
+      "stated": "10.764",
+      "derived": "1562500/145161",
+      "derivedApprox": "1.07639104167097223e1"
+    },
+    {
+      "unit": "FR",
+      "stated": "0.00000000033356409519815204957557671447492",
+      "derived": "1/2997924580",
+      "derivedApprox": "3.33564095198152049e-10"
+    },
+    {
+      "unit": "FT-HR-PER-GAL_UK",
+      "stated": "241367.856773623047497959785222026",
+      "derived": "109728000000/454609",
+      "derivedApprox": "2.41367856773623047e5"
+    },
+    {
+      "unit": "FT-HR-PER-GAL_US",
+      "stated": "289870.7096115490932280565859833018",
+      "derived": "360000000000/1241933",
+      "derivedApprox": "2.89870709611549093e5"
+    },
+    {
+      "unit": "FT-PER-HR",
+      "stated": "0.00008466666666666666666666666666666667",
+      "derived": "127/1500000",
+      "derivedApprox": "8.46666666666666666e-5"
+    },
+    {
+      "unit": "FT-SEC-PER-GAL_US",
+      "stated": "80.51964155876363700779349610647273",
+      "derived": "100000000/1241933",
+      "derivedApprox": "8.0519641558763637e1"
+    },
+    {
+      "unit": "FT-SEC-PER-IN3",
+      "stated": "18600.0372000744001488002976005952",
+      "derived": "300000000/16129",
+      "derivedApprox": "1.86000372000744001e4"
+    },
+    {
+      "unit": "FT2-HR-DEG_F-PER-BTU_IT",
+      "stated": "0.1761101836823058407309515389966389",
+      "derived": "9290304000/52752792631",
+      "derivedApprox": "1.7611018368230584e-1"
+    },
+    {
+      "unit": "FT2-PER-BTU_IT-IN",
+      "stated": "0.003466735899257988990766762578673993",
+      "derived": "182880000/52752792631",
+      "derivedApprox": "3.46673589925798899e-3"
+    },
+    {
+      "unit": "FT_H2O",
+      "stated": "2989.067",
+      "derived": "2989.06692",
+      "derivedApprox": "2.98906692e3"
+    },
+    {
+      "unit": "FT_HG",
+      "stated": "40636.66",
+      "derived": "40636.663684092",
+      "derivedApprox": "4.0636663684092e4"
+    },
+    {
+      "unit": "FT_US",
+      "stated": "0.3048006",
+      "derived": "1200/3937",
+      "derivedApprox": "3.04800609601219202e-1"
+    },
+    {
+      "unit": "GAL_UK-PER-HR",
+      "stated": "0.000001262802777777777777777777777777778",
+      "derived": "454609/360000000000",
+      "derivedApprox": "1.26280277777777777e-6"
+    },
+    {
+      "unit": "GAL_US-PER-HR",
+      "stated": "0.000001051503273333333333333333333333333",
+      "derived": "157725491/150000000000000",
+      "derivedApprox": "1.05150327333333333e-6"
+    },
+    {
+      "unit": "GAUGE_FR",
+      "stated": "0.0003333333",
+      "derived": "1/3000",
+      "derivedApprox": "3.33333333333333333e-4"
+    },
+    {
+      "unit": "GA_Charriere",
+      "stated": "0.0003333333",
+      "derived": "1/3000",
+      "derivedApprox": "3.33333333333333333e-4"
+    },
+    {
+      "unit": "GI",
+      "stated": "0.795774715",
+      "derived": "2.5 * pi^-1",
+      "derivedApprox": "7.95774715459476678e-1"
+    },
+    {
+      "unit": "GI_UK",
+      "stated": "0.0001420653",
+      "derived": "0.0001420653125",
+      "derivedApprox": "1.420653125e-4"
+    },
+    {
+      "unit": "GI_UK-PER-MIN",
+      "stated": "0.000002367755",
+      "derived": "454609/192000000000",
+      "derivedApprox": "2.36775520833333333e-6"
+    },
+    {
+      "unit": "GI_UK-PER-SEC",
+      "stated": "0.0001420653",
+      "derived": "0.0001420653125",
+      "derivedApprox": "1.420653125e-4"
+    },
+    {
+      "unit": "GM-PER-CentiM2-YR",
+      "stated": "0.0000003168808781402895023702689684893655",
+      "derived": "1/3155760",
+      "derivedApprox": "3.16880878140289502e-7"
+    },
+    {
+      "unit": "GM-PER-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "GM-PER-DAY-BAR",
+      "stated": "0.0000000000001157407407407407407407407407407407",
+      "derived": "1/8640000000000",
+      "derivedApprox": "1.1574074074074074e-13"
+    },
+    {
+      "unit": "GM-PER-DAY-K",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "GM-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "GM-PER-HR-BAR",
+      "stated": "0.000000000002777777777777777777777777777777778",
+      "derived": "1/360000000000",
+      "derivedApprox": "2.77777777777777777e-12"
+    },
+    {
+      "unit": "GM-PER-HR-K",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "GM-PER-M2-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "GM-PER-M2-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "GM-PER-M2-YR",
+      "stated": "0.00000000003168808781402895023702689684893655",
+      "derived": "1/31557600000",
+      "derivedApprox": "3.16880878140289502e-11"
+    },
+    {
+      "unit": "GM-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "GM-PER-MIN-BAR",
+      "stated": "0.0000000001666666666666666666666666666666667",
+      "derived": "1/6000000000",
+      "derivedApprox": "1.66666666666666666e-10"
+    },
+    {
+      "unit": "GM-PER-MIN-K",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "GM_Carbon-PER-M2-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "GM_Nitrogen-PER-M2-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "GON",
+      "stated": "0.015707963267949",
+      "derived": "0.005 * pi^1",
+      "derivedApprox": "1.57079632679489661e-2"
+    },
+    {
+      "unit": "GRAD",
+      "stated": "0.015707963267949",
+      "derived": "0.005 * pi^1",
+      "derivedApprox": "1.57079632679489661e-2"
+    },
+    {
+      "unit": "GRAIN-PER-GAL_IMP",
+      "stated": "0.01425376752330024262608087389382964",
+      "derived": "6479891/454609000",
+      "derivedApprox": "1.42537675233002426e-2"
+    },
+    {
+      "unit": "GRAIN-PER-GAL_US",
+      "stated": "0.01711806104527094693484475082935918",
+      "derived": "2945405/172064172",
+      "derivedApprox": "1.71180610452709469e-2"
+    },
+    {
+      "unit": "GRAY-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "GRAY-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "GigaJ-PER-HR",
+      "stated": "277777.7777777777777777777777777778",
+      "derived": "2500000/9",
+      "derivedApprox": "2.77777777777777777e5"
+    },
+    {
+      "unit": "GigaW-HR-PER-FT2",
+      "stated": "38750077500155.00031000062000124",
+      "derived": "625000000000000000/16129",
+      "derivedApprox": "3.87500775001550003e13"
+    },
+    {
+      "unit": "HP",
+      "stated": "745.6999",
+      "derived": "745.69987158227022",
+      "derivedApprox": "7.4569987158227022e2"
+    },
+    {
+      "unit": "HP_Brake",
+      "stated": "745.69987",
+      "derived": "745.69987158227022",
+      "derivedApprox": "7.4569987158227022e2"
+    },
+    {
+      "unit": "HR-PER-FT2",
+      "stated": "38750.07750015500031000062000124",
+      "derived": "625000000/16129",
+      "derivedApprox": "3.87500775001550003e4"
+    },
+    {
+      "unit": "HR-PER-YR",
+      "stated": "0.0001140771161305042208532968286561716",
+      "derived": "1/8766",
+      "derivedApprox": "1.1407711613050422e-4"
+    },
+    {
+      "unit": "H_Stat",
+      "stated": "898755179000.0",
+      "derived": "898755178736.81764",
+      "derivedApprox": "8.9875517873681764e11"
+    },
+    {
+      "unit": "H_Stat-PER-CentiM",
+      "stated": "89875517900000.0",
+      "derived": "89875517873681.764",
+      "derivedApprox": "8.9875517873681764e13"
+    },
+    {
+      "unit": "HectoPA-PER-HR",
+      "stated": "0.02777777777777777777777777777777778",
+      "derived": "1/36",
+      "derivedApprox": "2.77777777777777777e-2"
+    },
+    {
+      "unit": "Hundredweight_UK",
+      "stated": "50.80235",
+      "derived": "50.80234544",
+      "derivedApprox": "5.080234544e1"
+    },
+    {
+      "unit": "IN-PER-PSI",
+      "stated": "0.00000368395853834731406491772210996033",
+      "derived": "32774128/8896443230521",
+      "derivedApprox": "3.68395853834731406e-6"
+    },
+    {
+      "unit": "IN-PER-SEC-PSI",
+      "stated": "0.00000368395853834731406491772210996033",
+      "derived": "32774128/8896443230521",
+      "derivedApprox": "3.68395853834731406e-6"
+    },
+    {
+      "unit": "IN3-PER-LB",
+      "stated": "0.00003612729200008368747472537952964244",
+      "derived": "2048383/56699046250",
+      "derivedApprox": "3.61272920000836874e-5"
+    },
+    {
+      "unit": "IN_H2O",
+      "stated": "249.0889",
+      "derived": "249.08891",
+      "derivedApprox": "2.4908891e2"
+    },
+    {
+      "unit": "IN_HG",
+      "stated": "3386.389",
+      "derived": "3386.388640341",
+      "derivedApprox": "3.386388640341e3"
+    },
+    {
+      "unit": "J-PER-CentiM2-DAY",
+      "stated": "0.1157407407407407407407407407407407",
+      "derived": "25/216",
+      "derivedApprox": "1.1574074074074074e-1"
+    },
+    {
+      "unit": "J-PER-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "J-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "J-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "K-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "K-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "KiloBTU_IT-PER-FT2",
+      "stated": "11356526.68222697556506224123559358",
+      "derived": "6594099078875/580644",
+      "derivedApprox": "1.13565266822269755e7"
+    },
+    {
+      "unit": "KiloBTU_IT-PER-HR",
+      "stated": "293.0710701722222222222222222222222",
+      "derived": "52752792631/180000000",
+      "derivedApprox": "2.93071070172222222e2"
+    },
+    {
+      "unit": "KiloBTU_TH",
+      "stated": "1054350.2645",
+      "derived": "23722880951/22500",
+      "derivedApprox": "1.05435026448888888e6"
+    },
+    {
+      "unit": "KiloCAL_Mean",
+      "stated": "4190.0",
+      "derived": "4190.02",
+      "derivedApprox": "4.19002e3"
+    },
+    {
+      "unit": "KiloCAL_TH-PER-HR",
+      "stated": "1.162222222222222222222222222222222",
+      "derived": "523/450",
+      "derivedApprox": "1.16222222222222222e0"
+    },
+    {
+      "unit": "KiloGM-PER-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "KiloGM-PER-DAY-BAR",
+      "stated": "0.0000000001157407407407407407407407407407407",
+      "derived": "1/8640000000",
+      "derivedApprox": "1.1574074074074074e-10"
+    },
+    {
+      "unit": "KiloGM-PER-DAY-K",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "KiloGM-PER-FT2",
+      "stated": "10.7639104167097223083335055559",
+      "derived": "1562500/145161",
+      "derivedApprox": "1.07639104167097223e1"
+    },
+    {
+      "unit": "KiloGM-PER-HA-YR",
+      "stated": "0.000000000003168808781402895023702689684893655",
+      "derived": "1/315576000000",
+      "derivedApprox": "3.16880878140289502e-12"
+    },
+    {
+      "unit": "KiloGM-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "KiloGM-PER-HR-BAR",
+      "stated": "0.000000002777777777777777777777777777777778",
+      "derived": "1/360000000",
+      "derivedApprox": "2.77777777777777777e-9"
+    },
+    {
+      "unit": "KiloGM-PER-HR-K",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "KiloGM-PER-M-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "KiloGM-PER-M-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "KiloGM-PER-M-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "KiloGM-PER-M2-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "KiloGM-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "KiloGM-PER-MIN-BAR",
+      "stated": "0.0000001666666666666666666666666666666667",
+      "derived": "1/6000000",
+      "derivedApprox": "1.66666666666666666e-7"
+    },
+    {
+      "unit": "KiloGM-PER-MIN-K",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "KiloGM-PER-MegaBTU_IT",
+      "stated": "0.0000000009478171203133172000127850444756106",
+      "derived": "50/52752792631",
+      "derivedApprox": "9.478171203133172e-10"
+    },
+    {
+      "unit": "KiloGM-PER-YR",
+      "stated": "0.00000003168808781402895023702689684893655",
+      "derived": "1/31557600",
+      "derivedApprox": "3.16880878140289502e-8"
+    },
+    {
+      "unit": "KiloJ-PER-DAY",
+      "stated": "0.01157407407407407407407407407407407",
+      "derived": "5/432",
+      "derivedApprox": "1.1574074074074074e-2"
+    },
+    {
+      "unit": "KiloJ-PER-HR",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "KiloJ-PER-MIN",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "KiloL-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "KiloLB-PER-HR",
+      "stated": "0.1259978805555555555555555555555556",
+      "derived": "45359237/360000000",
+      "derivedApprox": "1.25997880555555555e-1"
+    },
+    {
+      "unit": "KiloM-PER-DAY",
+      "stated": "0.01157407407407407407407407407407407",
+      "derived": "5/432",
+      "derivedApprox": "1.1574074074074074e-2"
+    },
+    {
+      "unit": "KiloM-PER-HR",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "KiloMIL_Circ",
+      "stated": "0.0000005067075",
+      "derived": "0.00000016129 * pi^1",
+      "derivedApprox": "5.06707479097497751e-7"
+    },
+    {
+      "unit": "KiloMOL-PER-HR",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "KiloMOL-PER-MIN",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "KiloTONNE-PER-YR",
+      "stated": "0.03168808781402895023702689684893655",
+      "derived": "1250/39447",
+      "derivedApprox": "3.16880878140289502e-2"
+    },
+    {
+      "unit": "KiloW-HR-PER-FT2",
+      "stated": "38750077.50015500031000062000124",
+      "derived": "625000000000/16129",
+      "derivedApprox": "3.87500775001550003e7"
+    },
+    {
+      "unit": "L-PER-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "L-PER-DAY-BAR",
+      "stated": "0.0000000000001157407407407407407407407407407407",
+      "derived": "1/8640000000000",
+      "derivedApprox": "1.1574074074074074e-13"
+    },
+    {
+      "unit": "L-PER-DAY-K",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "L-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "L-PER-HR-BAR",
+      "stated": "0.000000000002777777777777777777777777777777778",
+      "derived": "1/360000000000",
+      "derivedApprox": "2.77777777777777777e-12"
+    },
+    {
+      "unit": "L-PER-HR-K",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "L-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "L-PER-MIN-BAR",
+      "stated": "0.0000000001666666666666666666666666666666667",
+      "derived": "1/6000000000",
+      "derivedApprox": "1.66666666666666666e-10"
+    },
+    {
+      "unit": "L-PER-MIN-K",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "LA",
+      "stated": "3183.0988618",
+      "derived": "10000 * pi^-1",
+      "derivedApprox": "3.18309886183790671e3"
+    },
+    {
+      "unit": "LB-DEG_F",
+      "stated": "0.2519957611111111111111111111111111",
+      "derived": "45359237/180000000",
+      "derivedApprox": "2.51995761111111111e-1"
+    },
+    {
+      "unit": "LB-HR-PER-FT3-GAL_UK",
+      "stated": "12684849.65019533323949993386765412",
+      "derived": "35436903906250000000/2793640041741",
+      "derivedApprox": "1.26848496501953332e7"
+    },
+    {
+      "unit": "LB-HR-PER-FT3-GAL_US",
+      "stated": "15233869.24244237056740727215858525",
+      "derived": "575274414062500000000/37762856232201",
+      "derivedApprox": "1.52338692424423705e7"
+    },
+    {
+      "unit": "LB-HR-PER-FT3-IN3",
+      "stated": "3519023795.004187601071079868633193",
+      "derived": "44296129882812500000000/12587618744067",
+      "derivedApprox": "3.5190237950041876e9"
+    },
+    {
+      "unit": "LB-HR-PER-FT6",
+      "stated": "2036472.103590386343212430479533098",
+      "derived": "692127029418945312500/339865706089809",
+      "derivedApprox": "2.03647210359038634e6"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_UK-FT3",
+      "stated": "12684849.65019533323949993386765412",
+      "derived": "35436903906250000000/2793640041741",
+      "derivedApprox": "1.26848496501953332e7"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_UK2",
+      "stated": "79011841.29376367695695378272856609",
+      "derived": "16329325320000000000/206669342881",
+      "derivedApprox": "7.90118412937636769e7"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_US-FT3",
+      "stated": "15233869.24244237056740727215858525",
+      "derived": "575274414062500000000/37762856232201",
+      "derivedApprox": "1.52338692424423705e7"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_US-IN3",
+      "stated": "26324126050.94041634047976629003531",
+      "derived": "110452687500000000000000/4195872914689",
+      "derivedApprox": "2.63241260509404163e10"
+    },
+    {
+      "unit": "LB-HR-PER-GAL_US2",
+      "stated": "113957255.6317766941146310229005858",
+      "derived": "36817562500000000000000/323082214431053",
+      "derivedApprox": "1.13957255631776694e8"
+    },
+    {
+      "unit": "LB-HR-PER-IN3-FT3",
+      "stated": "3519023795.004187601071079868633193",
+      "derived": "44296129882812500000000/12587618744067",
+      "derivedApprox": "3.5190237950041876e9"
+    },
+    {
+      "unit": "LB-HR-PER-IN3-GAL_US",
+      "stated": "26324126050.94041634047976629003531",
+      "derived": "110452687500000000000000/4195872914689",
+      "derivedApprox": "2.63241260509404163e10"
+    },
+    {
+      "unit": "LB-IN2-PER-FT3-LB_F-SEC",
+      "stated": "0.00232328168967339294111369190906052",
+      "derived": "1562500/672540057",
+      "derivedApprox": "2.32328168967339294e-3"
+    },
+    {
+      "unit": "LB-MIN-PER-FT3-GAL_UK",
+      "stated": "211414.1608365888873249988977942354",
+      "derived": "1771845195312500000/8380920125223",
+      "derivedApprox": "2.11414160836588887e5"
+    },
+    {
+      "unit": "LB-MIN-PER-FT3-GAL_US",
+      "stated": "253897.8207073728427901212026430875",
+      "derived": "28763720703125000000/113288568696603",
+      "derivedApprox": "2.53897820707372842e5"
+    },
+    {
+      "unit": "LB-MIN-PER-FT3-IN3",
+      "stated": "58650396.58340312668451799781055322",
+      "derived": "2214806494140625000000/37762856232201",
+      "derivedApprox": "5.86503965834031266e7"
+    },
+    {
+      "unit": "LB-MIN-PER-FT3-YD3",
+      "stated": "1257.081545426164409390389184896974",
+      "derived": "34606351470947265625/27529122193274529",
+      "derivedApprox": "1.2570815454261644e3"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_UK-FT3",
+      "stated": "211414.1608365888873249988977942354",
+      "derived": "1771845195312500000/8380920125223",
+      "derivedApprox": "2.11414160836588887e5"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_US-FT3",
+      "stated": "253897.8207073728427901212026430875",
+      "derived": "28763720703125000000/113288568696603",
+      "derivedApprox": "2.53897820707372842e5"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_US-IN3",
+      "stated": "438735434.1823402723413294381672552",
+      "derived": "1840878125000000000000/4195872914689",
+      "derivedApprox": "4.38735434182340272e8"
+    },
+    {
+      "unit": "LB-MIN-PER-GAL_US2",
+      "stated": "1899287.593862944901910517048343096",
+      "derived": "1840878125000000000000/969246643293159",
+      "derivedApprox": "1.8992875938629449e6"
+    },
+    {
+      "unit": "LB-MIN-PER-IN3-FT3",
+      "stated": "58650396.58340312668451799781055322",
+      "derived": "2214806494140625000000/37762856232201",
+      "derivedApprox": "5.86503965834031266e7"
+    },
+    {
+      "unit": "LB-MIN-PER-IN3-GAL_US",
+      "stated": "438735434.1823402723413294381672552",
+      "derived": "1840878125000000000000/4195872914689",
+      "derivedApprox": "4.38735434182340272e8"
+    },
+    {
+      "unit": "LB-MIN-PER-IN3-YD3",
+      "stated": "2172236.91049641209942659251150197",
+      "derived": "2214806494140625000000/1019597118269427",
+      "derivedApprox": "2.17223691049641209e6"
+    },
+    {
+      "unit": "LB-MIN-PER-IN6",
+      "stated": "101347885296.120602910847100216636",
+      "derived": "425242846875000000000000/4195872914689",
+      "derivedApprox": "1.01347885296120602e11"
+    },
+    {
+      "unit": "LB-PER-FT",
+      "stated": "1.488163943569553805774278215223097",
+      "derived": "45359237/30480000",
+      "derivedApprox": "1.4881639435695538e0"
+    },
+    {
+      "unit": "LB-PER-FT-DAY",
+      "stated": "0.00001722411971724020608535044230582288",
+      "derived": "45359237/2633472000000",
+      "derivedApprox": "1.7224119717240206e-5"
+    },
+    {
+      "unit": "LB-PER-FT-HR",
+      "stated": "0.0004133788732137649460484106153397492",
+      "derived": "45359237/109728000000",
+      "derivedApprox": "4.13378873213764946e-4"
+    },
+    {
+      "unit": "LB-PER-FT-SEC",
+      "stated": "1.488163943569553805774278215223097",
+      "derived": "45359237/30480000",
+      "derivedApprox": "1.4881639435695538e0"
+    },
+    {
+      "unit": "LB-PER-FT3",
+      "stated": "16.01846337396013957965507065455659",
+      "derived": "28349523125/1769802912",
+      "derivedApprox": "1.60184633739601395e1"
+    },
+    {
+      "unit": "LB-PER-GAL_US",
+      "stated": "119.8264273168966285439132558055142",
+      "derived": "736351250/6145149",
+      "derivedApprox": "1.19826427316896628e2"
+    },
+    {
+      "unit": "LB-PER-HR",
+      "stated": "0.0001259978805555555555555555555555556",
+      "derived": "45359237/360000000000",
+      "derivedApprox": "1.25997880555555555e-4"
+    },
+    {
+      "unit": "LB-PER-IN2",
+      "stated": "703.0695796391592783185566371132742",
+      "derived": "45359237/64516",
+      "derivedApprox": "7.03069579639159278e2"
+    },
+    {
+      "unit": "LB-PER-IN3",
+      "stated": "27679.90471020312119364396209107379",
+      "derived": "56699046250/2048383",
+      "derivedApprox": "2.76799047102031211e4"
+    },
+    {
+      "unit": "LB-PER-IN3-DEG_F",
+      "stated": "49823.82847836561814855913176393282",
+      "derived": "102058283250/2048383",
+      "derivedApprox": "4.98238284783656181e4"
+    },
+    {
+      "unit": "LB-PER-IN3-PSI",
+      "stated": "4.01463075975562300224445961885658",
+      "derived": "100000000/24908891",
+      "derivedApprox": "4.014630759755623e0"
+    },
+    {
+      "unit": "LB-PER-YD",
+      "stated": "0.496054647856517935258092738407699",
+      "derived": "45359237/91440000",
+      "derivedApprox": "4.96054647856517935e-1"
+    },
+    {
+      "unit": "LB-SEC-PER-FT3-GAL_UK",
+      "stated": "3523.56934727648145541664829657059",
+      "derived": "88592259765625000/25142760375669",
+      "derivedApprox": "3.52356934727648145e3"
+    },
+    {
+      "unit": "LB-SEC-PER-FT3-IN3",
+      "stated": "977506.609723385444741966630175887",
+      "derived": "110740324707031250000/113288568696603",
+      "derivedApprox": "9.77506609723385444e5"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_UK-FT3",
+      "stated": "3523.56934727648145541664829657059",
+      "derived": "88592259765625000/25142760375669",
+      "derivedApprox": "3.52356934727648145e3"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_UK-YD3",
+      "stated": "130.5025684176474613117277146877996",
+      "derived": "88592259765625000/678854530143063",
+      "derivedApprox": "1.30502568417647461e2"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_UK2",
+      "stated": "21947.73369271213248804271742460169",
+      "derived": "4535923700000000/206669342881",
+      "derivedApprox": "2.19477336927121324e4"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_US-IN3",
+      "stated": "7312257.23637233787235549063612092",
+      "derived": "92043906250000000000/12587618744067",
+      "derivedApprox": "7.31225723637233787e6"
+    },
+    {
+      "unit": "LB-SEC-PER-GAL_US2",
+      "stated": "31654.79323104908169850861747238494",
+      "derived": "92043906250000000000/2907739929879477",
+      "derivedApprox": "3.16547932310490816e4"
+    },
+    {
+      "unit": "LB-SEC-PER-IN3-FT3",
+      "stated": "977506.609723385444741966630175887",
+      "derived": "110740324707031250000/113288568696603",
+      "derivedApprox": "9.77506609723385444e5"
+    },
+    {
+      "unit": "LB-SEC-PER-IN3-GAL_US",
+      "stated": "7312257.23637233787235549063612092",
+      "derived": "92043906250000000000/12587618744067",
+      "derivedApprox": "7.31225723637233787e6"
+    },
+    {
+      "unit": "LB-SEC-PER-IN6",
+      "stated": "1689131421.602010048514118336943933",
+      "derived": "7087380781250000000000/4195872914689",
+      "derivedApprox": "1.68913142160201004e9"
+    },
+    {
+      "unit": "LB_F-PER-IN2-DEG_F",
+      "stated": "12410.5631277030504061008122016244",
+      "derived": "80067989074689/6451600000",
+      "derivedApprox": "1.24105631277030504e4"
+    },
+    {
+      "unit": "LM-PER-FT2",
+      "stated": "10.7639104167097223083335055559",
+      "derived": "1562500/145161",
+      "derivedApprox": "1.07639104167097223e1"
+    },
+    {
+      "unit": "M-PER-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "M-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "M-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "M-PER-YR",
+      "stated": "0.00000003168808781402895023702689684893655",
+      "derived": "1/31557600",
+      "derivedApprox": "3.16880878140289502e-8"
+    },
+    {
+      "unit": "M2-PER-HA-YR",
+      "stated": "0.000000000003168808781402895023702689684893655",
+      "derived": "1/315576000000",
+      "derivedApprox": "3.16880878140289502e-12"
+    },
+    {
+      "unit": "M2-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "M3-PER-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "M3-PER-DAY-BAR",
+      "stated": "0.0000000001157407407407407407407407407407407",
+      "derived": "1/8640000000",
+      "derivedApprox": "1.1574074074074074e-10"
+    },
+    {
+      "unit": "M3-PER-DAY-K",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "M3-PER-HA-YR",
+      "stated": "0.000000000003168808781402895023702689684893655",
+      "derived": "1/315576000000",
+      "derivedApprox": "3.16880878140289502e-12"
+    },
+    {
+      "unit": "M3-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "M3-PER-HR-BAR",
+      "stated": "0.000000002777777777777777777777777777777778",
+      "derived": "1/360000000",
+      "derivedApprox": "2.77777777777777777e-9"
+    },
+    {
+      "unit": "M3-PER-HR-K",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "M3-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "M3-PER-MIN-BAR",
+      "stated": "0.0000001666666666666666666666666666666667",
+      "derived": "1/6000000",
+      "derivedApprox": "1.66666666666666666e-7"
+    },
+    {
+      "unit": "M3-PER-MIN-K",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "M3-PER-YR",
+      "stated": "0.00000003168808781402895023702689684893655",
+      "derived": "1/31557600",
+      "derivedApprox": "3.16880878140289502e-8"
+    },
+    {
+      "unit": "MHO_Stat",
+      "stated": "0.0000000000011126500561",
+      "derived": "25000/22468879468420441",
+      "derivedApprox": "1.11265005605361843e-12"
+    },
+    {
+      "unit": "MIL_Angle",
+      "stated": "0.00098174770424681038701957605727484",
+      "derived": "0.0003125 * pi^1",
+      "derivedApprox": "9.81747704246810387e-4"
+    },
+    {
+      "unit": "MIL_Circ",
+      "stated": "0.0000000005067075",
+      "derived": "0.00000000016129 * pi^1",
+      "derivedApprox": "5.06707479097497751e-10"
+    },
+    {
+      "unit": "MIN-PER-MI",
+      "stated": "0.03728227153424003817704605106179909",
+      "derived": "625/16764",
+      "derivedApprox": "3.72822715342400381e-2"
+    },
+    {
+      "unit": "MIN_Angle",
+      "stated": "0.000290888209",
+      "derived": "1/10800 * pi^1",
+      "derivedApprox": "2.90888208665721596e-4"
+    },
+    {
+      "unit": "MI_N-PER-MIN",
+      "stated": "30.86666666666666666666666666666667",
+      "derived": "463/15",
+      "derivedApprox": "3.08666666666666666e1"
+    },
+    {
+      "unit": "MI_US",
+      "stated": "1609.347219",
+      "derived": "6336000/3937",
+      "derivedApprox": "1.60934721869443738e3"
+    },
+    {
+      "unit": "MI_US-PER-SEC2",
+      "stated": "1609.347219",
+      "derived": "6336000/3937",
+      "derivedApprox": "1.60934721869443738e3"
+    },
+    {
+      "unit": "MOL-PER-GM-HR",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "MOL-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "MOL-PER-M2-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "MOL-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "MOL_LB-DEG_F",
+      "stated": "251.9957611111111111111111111111111",
+      "derived": "45359237/180000",
+      "derivedApprox": "2.51995761111111111e2"
+    },
+    {
+      "unit": "MegaBTU_IT-PER-HR",
+      "stated": "293071.0701722222222222222222222222",
+      "derived": "52752792631/180000",
+      "derivedApprox": "2.93071070172222222e5"
+    },
+    {
+      "unit": "MegaGM-PER-HA-YR",
+      "stated": "0.000000003168808781402895023702689684893655",
+      "derived": "1/315576000",
+      "derivedApprox": "3.16880878140289502e-9"
+    },
+    {
+      "unit": "MegaJ-PER-HR",
+      "stated": "277.7777777777777777777777777777778",
+      "derived": "2500/9",
+      "derivedApprox": "2.77777777777777777e2"
+    },
+    {
+      "unit": "MegaJ-PER-M2-DAY",
+      "stated": "11.57407407407407407407407407407407",
+      "derived": "625/54",
+      "derivedApprox": "1.1574074074074074e1"
+    },
+    {
+      "unit": "MegaTONNE-PER-YR",
+      "stated": "31.68808781402895023702689684893655",
+      "derived": "1250000/39447",
+      "derivedApprox": "3.16880878140289502e1"
+    },
+    {
+      "unit": "MegaW-HR-PER-FT2",
+      "stated": "38750077500.15500031000062000124",
+      "derived": "625000000000000/16129",
+      "derivedApprox": "3.87500775001550003e10"
+    },
+    {
+      "unit": "MicroGM-PER-CentiM2-WK",
+      "stated": "0.00000000001653439153439153439153439153439153",
+      "derived": "1/60480000000",
+      "derivedApprox": "1.65343915343915343e-11"
+    },
+    {
+      "unit": "MicroGM-PER-GM-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MicroGM-PER-GM-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MicroGM-PER-IN2",
+      "stated": "0.0000015500031000062000124000248000496",
+      "derived": "1/645160",
+      "derivedApprox": "1.55000310000620001e-6"
+    },
+    {
+      "unit": "MicroGM-PER-L-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MicroGM-PER-L-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MicroGM-PER-M2-DAY",
+      "stated": "0.00000000000001157407407407407407407407407407407",
+      "derived": "1/86400000000000",
+      "derivedApprox": "1.1574074074074074e-14"
+    },
+    {
+      "unit": "MicroGM-PER-M3-HR",
+      "stated": "0.0000000000002777777777777777777777777777777778",
+      "derived": "1/3600000000000",
+      "derivedApprox": "2.77777777777777777e-13"
+    },
+    {
+      "unit": "MicroGRAY-PER-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MicroGRAY-PER-MIN",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MicroM-PER-L-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "MicroM-PER-MIN",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MicroMOL-PER-GM-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MicroMOL-PER-KiloGM-YR",
+      "stated": "0.00000000000003168808781402895023702689684893655",
+      "derived": "1/31557600000000",
+      "derivedApprox": "3.16880878140289502e-14"
+    },
+    {
+      "unit": "MicroMOL-PER-L-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MicroMOL-PER-M2-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MicroMOL-PER-M2-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MicroMOL-PER-MicroMOL-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "MicroSV-PER-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MicroSV-PER-MIN",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MicroTORR",
+      "stated": "0.000133322368421052631578947",
+      "derived": "4053/30400000",
+      "derivedApprox": "1.33322368421052631e-4"
+    },
+    {
+      "unit": "MilliA-PER-IN",
+      "stated": "0.03937007874015748031496062992125984",
+      "derived": "5/127",
+      "derivedApprox": "3.93700787401574803e-2"
+    },
+    {
+      "unit": "MilliA-PER-L-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "MilliARCSEC",
+      "stated": "0.00000000484813681",
+      "derived": "1/648000000 * pi^1",
+      "derivedApprox": "4.84813681109535993e-9"
+    },
+    {
+      "unit": "MilliBQ-PER-M2-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "MilliDARCY",
+      "stated": "0.0000000000000009869233",
+      "derived": "1/1013250000000000",
+      "derivedApprox": "9.8692326671601283e-16"
+    },
+    {
+      "unit": "MilliGALILEO-PER-MO",
+      "stated": "0.000000000003919350772901616281311709002114104",
+      "derived": "1/255144297600",
+      "derivedApprox": "3.91935077290161628e-12"
+    },
+    {
+      "unit": "MilliGM-PER-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliGM-PER-DAY-BAR",
+      "stated": "0.0000000000000001157407407407407407407407407407407",
+      "derived": "1/8640000000000000",
+      "derivedApprox": "1.1574074074074074e-16"
+    },
+    {
+      "unit": "MilliGM-PER-DAY-K",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliGM-PER-GM-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MilliGM-PER-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MilliGM-PER-HR-BAR",
+      "stated": "0.000000000000002777777777777777777777777777777778",
+      "derived": "1/360000000000000",
+      "derivedApprox": "2.77777777777777777e-15"
+    },
+    {
+      "unit": "MilliGM-PER-HR-K",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MilliGM-PER-KiloGM-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliGM-PER-M2-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliGM-PER-M2-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MilliGM-PER-M3-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliGM-PER-M3-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MilliGM-PER-MIN",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MilliGM-PER-MIN-BAR",
+      "stated": "0.0000000000001666666666666666666666666666666667",
+      "derived": "1/6000000000000",
+      "derivedApprox": "1.66666666666666666e-13"
+    },
+    {
+      "unit": "MilliGM-PER-MIN-K",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MilliGRAY-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MilliGRAY-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "MilliL-PER-CentiM2-MIN",
+      "stated": "0.0001666666666666666666666666666666667",
+      "derived": "1/6000",
+      "derivedApprox": "1.66666666666666666e-4"
+    },
+    {
+      "unit": "MilliL-PER-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliL-PER-DAY-BAR",
+      "stated": "0.0000000000000001157407407407407407407407407407407",
+      "derived": "1/8640000000000000",
+      "derivedApprox": "1.1574074074074074e-16"
+    },
+    {
+      "unit": "MilliL-PER-DAY-K",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliL-PER-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MilliL-PER-HR-BAR",
+      "stated": "0.000000000000002777777777777777777777777777777778",
+      "derived": "1/360000000000000",
+      "derivedApprox": "2.77777777777777777e-15"
+    },
+    {
+      "unit": "MilliL-PER-HR-K",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "MilliL-PER-M2-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "MilliL-PER-MIN",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MilliL-PER-MIN-BAR",
+      "stated": "0.0000000000001666666666666666666666666666666667",
+      "derived": "1/6000000000000",
+      "derivedApprox": "1.66666666666666666e-13"
+    },
+    {
+      "unit": "MilliL-PER-MIN-K",
+      "stated": "0.00000001666666666666666666666666666666667",
+      "derived": "1/60000000",
+      "derivedApprox": "1.66666666666666666e-8"
+    },
+    {
+      "unit": "MilliM-PER-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "MilliM-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MilliM-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "MilliM-PER-YR",
+      "stated": "0.00000000003168808781402895023702689684893655",
+      "derived": "1/31557600000",
+      "derivedApprox": "3.16880878140289502e-11"
+    },
+    {
+      "unit": "MilliMOL-PER-M2-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "MilliMOL-PER-M2-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MilliMOL-PER-M3-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "MilliRAD_R-PER-HR",
+      "stated": "0.000000002777777777777777777777777777777778",
+      "derived": "1/360000000",
+      "derivedApprox": "2.77777777777777777e-9"
+    },
+    {
+      "unit": "MilliSV-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "MilliSV-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "MilliTORR",
+      "stated": "0.133322368421052631578947",
+      "derived": "4053/30400",
+      "derivedApprox": "1.33322368421052631e-1"
+    },
+    {
+      "unit": "MilliV-PER-MIN",
+      "stated": "0.00001666666666666666666666666666666667",
+      "derived": "1/60000",
+      "derivedApprox": "1.66666666666666666e-5"
+    },
+    {
+      "unit": "NUM-PER-CentiM-KiloYR",
+      "stated": "0.000000003168808781402895023702689684893655",
+      "derived": "1/315576000",
+      "derivedApprox": "3.16880878140289502e-9"
+    },
+    {
+      "unit": "NUM-PER-HA-YR",
+      "stated": "0.000000000003168808781402895023702689684893655",
+      "derived": "1/315576000000",
+      "derivedApprox": "3.16880878140289502e-12"
+    },
+    {
+      "unit": "NUM-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "NUM-PER-M2-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "NUM-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "NUM-PER-YR",
+      "stated": "0.00000003168808781402895023702689684893655",
+      "derived": "1/31557600",
+      "derivedApprox": "3.16880878140289502e-8"
+    },
+    {
+      "unit": "NanoGM-PER-CentiM2-DAY",
+      "stated": "0.0000000000001157407407407407407407407407407407",
+      "derived": "1/8640000000000",
+      "derivedApprox": "1.1574074074074074e-13"
+    },
+    {
+      "unit": "NanoGM-PER-DAY",
+      "stated": "0.00000000000000001157407407407407407407407407407407",
+      "derived": "1/86400000000000000",
+      "derivedApprox": "1.1574074074074074e-17"
+    },
+    {
+      "unit": "NanoGRAY-PER-HR",
+      "stated": "0.0000000000002777777777777777777777777777777778",
+      "derived": "1/3600000000000",
+      "derivedApprox": "2.77777777777777777e-13"
+    },
+    {
+      "unit": "NanoGRAY-PER-MIN",
+      "stated": "0.00000000001666666666666666666666666666666667",
+      "derived": "1/60000000000",
+      "derivedApprox": "1.66666666666666666e-11"
+    },
+    {
+      "unit": "NanoMOL-PER-CentiM3-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "NanoMOL-PER-GM-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "NanoMOL-PER-L-DAY",
+      "stated": "0.00000000001157407407407407407407407407407407",
+      "derived": "1/86400000000",
+      "derivedApprox": "1.1574074074074074e-11"
+    },
+    {
+      "unit": "NanoMOL-PER-L-HR",
+      "stated": "0.0000000002777777777777777777777777777777778",
+      "derived": "1/3600000000",
+      "derivedApprox": "2.77777777777777777e-10"
+    },
+    {
+      "unit": "NanoMOL-PER-M2-DAY",
+      "stated": "0.00000000000001157407407407407407407407407407407",
+      "derived": "1/86400000000000",
+      "derivedApprox": "1.1574074074074074e-14"
+    },
+    {
+      "unit": "NanoMOL-PER-MicroGM-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "NanoMOL-PER-MicroMOL-DAY",
+      "stated": "0.00000001157407407407407407407407407407407",
+      "derived": "1/86400000",
+      "derivedApprox": "1.1574074074074074e-8"
+    },
+    {
+      "unit": "NanoSV-PER-HR",
+      "stated": "0.0000000000002777777777777777777777777777777778",
+      "derived": "1/3600000000000",
+      "derivedApprox": "2.77777777777777777e-13"
+    },
+    {
+      "unit": "NanoSV-PER-MIN",
+      "stated": "0.00000000001666666666666666666666666666666667",
+      "derived": "1/60000000000",
+      "derivedApprox": "1.66666666666666666e-11"
+    },
+    {
+      "unit": "OERSTED",
+      "stated": "79.5774715",
+      "derived": "250 * pi^-1",
+      "derivedApprox": "7.95774715459476678e1"
+    },
+    {
+      "unit": "OERSTED-CentiM",
+      "stated": "0.795774715",
+      "derived": "2.5 * pi^-1",
+      "derivedApprox": "7.95774715459476678e-1"
+    },
+    {
+      "unit": "OHM-PER-MI",
+      "stated": "0.0006213711922373339696174341843633182",
+      "derived": "125/201168",
+      "derivedApprox": "6.21371192237333969e-4"
+    },
+    {
+      "unit": "OHM_Stat",
+      "stated": "898755179000.0",
+      "derived": "898755178736.81764",
+      "derivedApprox": "8.9875517873681764e11"
+    },
+    {
+      "unit": "OZ-FT-HR-PER-IN3-LB",
+      "stated": "4185008.37001674003348006696013392",
+      "derived": "67500000000/16129",
+      "derivedApprox": "4.18500837001674003e6"
+    },
+    {
+      "unit": "OZ-FT-SEC-PER-IN3-LB",
+      "stated": "1162.5023250046500093000186000372",
+      "derived": "18750000/16129",
+      "derivedApprox": "1.16250232500465e3"
+    },
+    {
+      "unit": "OZ-HR-PER-IN3-FT3",
+      "stated": "219938987.1877617250669424917895746",
+      "derived": "2768508117675781250000/12587618744067",
+      "derivedApprox": "2.19938987187761725e8"
+    },
+    {
+      "unit": "OZ-HR-PER-IN3-GAL_UK",
+      "stated": "1369963762.221095989865992857706645",
+      "derived": "1275728540625000000000/931213347247",
+      "derivedApprox": "1.36996376222109598e9"
+    },
+    {
+      "unit": "OZ-HR-PER-IN3-GAL_US",
+      "stated": "1645257878.183776021279985393127207",
+      "derived": "6903292968750000000000/4195872914689",
+      "derivedApprox": "1.64525787818377602e9"
+    },
+    {
+      "unit": "OZ-MIN-PER-IN3-FT3",
+      "stated": "3665649.786462695417782374863159576",
+      "derived": "138425405883789062500/37762856232201",
+      "derivedApprox": "3.66564978646269541e6"
+    },
+    {
+      "unit": "OZ-MIN-PER-IN3-GAL_UK",
+      "stated": "22832729.37035159983109988096177742",
+      "derived": "21262142343750000000/931213347247",
+      "derivedApprox": "2.28327293703515998e7"
+    },
+    {
+      "unit": "OZ-MIN-PER-IN3-GAL_US",
+      "stated": "27420964.63639626702133308988545345",
+      "derived": "115054882812500000000/4195872914689",
+      "derivedApprox": "2.7420964636396267e7"
+    },
+    {
+      "unit": "OZ-PER-FT2",
+      "stated": "0.305151727273940658992429095969303",
+      "derived": "45359237/148644864",
+      "derivedApprox": "3.05151727273940658e-1"
+    },
+    {
+      "unit": "OZ-PER-GAL_IMP",
+      "stated": "6.236023291443856148910382328550469",
+      "derived": "45359237/7273744",
+      "derivedApprox": "6.23602329144385614e0"
+    },
+    {
+      "unit": "OZ-PER-GAL_UK",
+      "stated": "6.236023291443856148910382328550469",
+      "derived": "45359237/7273744",
+      "derivedApprox": "6.23602329144385614e0"
+    },
+    {
+      "unit": "OZ-PER-GAL_US",
+      "stated": "7.48915170730603928399457848784464",
+      "derived": "368175625/49161192",
+      "derivedApprox": "7.48915170730603928e0"
+    },
+    {
+      "unit": "OZ-PER-IN2",
+      "stated": "43.94184872744745489490978981957964",
+      "derived": "45359237/1032256",
+      "derivedApprox": "4.39418487274474548e1"
+    },
+    {
+      "unit": "OZ-PER-IN3",
+      "stated": "1729.994044387695074602747630692112",
+      "derived": "28349523125/16387064",
+      "derivedApprox": "1.72999404438769507e3"
+    },
+    {
+      "unit": "OZ-SEC-PER-IN3-GAL_US",
+      "stated": "457016.0772732711170222181647575575",
+      "derived": "5752744140625000000/12587618744067",
+      "derivedApprox": "4.57016077273271117e5"
+    },
+    {
+      "unit": "OZ-SEC-PER-IN6",
+      "stated": "105570713.8501256280321323960589958",
+      "derived": "442961298828125000000/4195872914689",
+      "derivedApprox": "1.05570713850125628e8"
+    },
+    {
+      "unit": "OZ_F",
+      "stated": "0.278013850954",
+      "derived": "0.27801385095378125",
+      "derivedApprox": "2.7801385095378125e-1"
+    },
+    {
+      "unit": "OZ_VOL_US",
+      "stated": "0.0000295735296",
+      "derived": "0.0000295735295625",
+      "derivedApprox": "2.95735295625e-5"
+    },
+    {
+      "unit": "OZ_VOL_US-PER-SEC",
+      "stated": "0.0000295735296",
+      "derived": "0.0000295735295625",
+      "derivedApprox": "2.95735295625e-5"
+    },
+    {
+      "unit": "PA-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "PA-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "PARSEC",
+      "stated": "30856780000000000.0",
+      "derived": "96939420213600000 * pi^-1",
+      "derivedApprox": "3.08567758149136727e16"
+    },
+    {
+      "unit": "PCA",
+      "stated": "0.0042333",
+      "derived": "127/30000",
+      "derivedApprox": "4.23333333333333333e-3"
+    },
+    {
+      "unit": "PDL-PER-FT2",
+      "stated": "1.488163943569553805774278215223097",
+      "derived": "45359237/30480000",
+      "derivedApprox": "1.4881639435695538e0"
+    },
+    {
+      "unit": "PDL-PER-IN2",
+      "stated": "214.295607874015748031496062992126",
+      "derived": "136077711/635000",
+      "derivedApprox": "2.14295607874015748e2"
+    },
+    {
+      "unit": "PDL-SEC-PER-FT2",
+      "stated": "1.488163943569553805774278215223097",
+      "derived": "45359237/30480000",
+      "derivedApprox": "1.4881639435695538e0"
+    },
+    {
+      "unit": "PDL-SEC-PER-IN2",
+      "stated": "214.295607874015748031496062992126",
+      "derived": "136077711/635000",
+      "derivedApprox": "2.14295607874015748e2"
+    },
+    {
+      "unit": "PER-DAY",
+      "stated": "0.00001157407407407407407407407407407407",
+      "derived": "1/86400",
+      "derivedApprox": "1.1574074074074074e-5"
+    },
+    {
+      "unit": "PER-EV-M3",
+      "stated": "6241509074460762607.776240980930446",
+      "derived": "5000000000000000000000000000/801088317",
+      "derivedApprox": "6.2415090744607626e18"
+    },
+    {
+      "unit": "PER-EV2",
+      "stated": "38956435526576045471002924268900840000.0",
+      "derived": "25000000000000000000000000000000000000000000000000000000/641742491633892489",
+      "derivedApprox": "3.89564355265760454e37"
+    },
+    {
+      "unit": "PER-FT3",
+      "stated": "35.31466672148859025043801035400263",
+      "derived": "1953125000/55306341",
+      "derivedApprox": "3.53146667214885902e1"
+    },
+    {
+      "unit": "PER-GigaEV2",
+      "stated": "38956435526576045471.00292426890084",
+      "derived": "25000000000000000000000000000000000000/641742491633892489",
+      "derivedApprox": "3.89564355265760454e19"
+    },
+    {
+      "unit": "PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "PER-IN",
+      "stated": "39.37007874015748031496062992125984",
+      "derived": "5000/127",
+      "derivedApprox": "3.93700787401574803e1"
+    },
+    {
+      "unit": "PER-IN2",
+      "stated": "1550.0031000062000124000248000496",
+      "derived": "25000000/16129",
+      "derivedApprox": "1.55000310000620001e3"
+    },
+    {
+      "unit": "PER-IN3",
+      "stated": "61023.74409473228395275688189171654",
+      "derived": "125000000000/2048383",
+      "derivedApprox": "6.10237440947322839e4"
+    },
+    {
+      "unit": "PER-KiloVA-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "PER-LB",
+      "stated": "2.20462262184877580722973801345027",
+      "derived": "100000000/45359237",
+      "derivedApprox": "2.2046226218487758e0"
+    },
+    {
+      "unit": "PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "PER-MO",
+      "stated": "0.0000003919350772901616281311709002114104",
+      "derived": "125/318930372",
+      "derivedApprox": "3.91935077290161628e-7"
+    },
+    {
+      "unit": "PER-OZ",
+      "stated": "35.27396194958041291567580821520433",
+      "derived": "1600000000/45359237",
+      "derivedApprox": "3.52739619495804129e1"
+    },
+    {
+      "unit": "PER-TON",
+      "stated": "0.001102311310924387903614869006725135",
+      "derived": "50000/45359237",
+      "derivedApprox": "1.1023113109243879e-3"
+    },
+    {
+      "unit": "PER-WK",
+      "stated": "0.000001653439153439153439153439153439153",
+      "derived": "1/604800",
+      "derivedApprox": "1.65343915343915343e-6"
+    },
+    {
+      "unit": "PER-YD3",
+      "stated": "1.307950619314392231497704087185282",
+      "derived": "1953125000/1493271207",
+      "derivedApprox": "1.30795061931439223e0"
+    },
+    {
+      "unit": "PER-YR",
+      "stated": "0.00000003168808781402895023702689684893655",
+      "derived": "1/31557600",
+      "derivedApprox": "3.16880878140289502e-8"
+    },
+    {
+      "unit": "PERCENT-HR-PER-FT3",
+      "stated": "1271.328001973589249015768372744095",
+      "derived": "7812500000/6145149",
+      "derivedApprox": "1.27132800197358924e3"
+    },
+    {
+      "unit": "PERCENT-HR-PER-GAL_US",
+      "stated": "9510.19388489334295367639717792985",
+      "derived": "1500000000000/157725491",
+      "derivedApprox": "9.51019388489334295e3"
+    },
+    {
+      "unit": "PERCENT-HR-PER-IN3",
+      "stated": "2196854.787410362222299247748101795",
+      "derived": "4500000000000/2048383",
+      "derivedApprox": "2.19685478741036222e6"
+    },
+    {
+      "unit": "PERCENT-MIN-PER-FT3",
+      "stated": "21.18880003289315415026280621240158",
+      "derived": "390625000/18435447",
+      "derivedApprox": "2.11888000328931541e1"
+    },
+    {
+      "unit": "PERCENT-MIN-PER-GAL_UK",
+      "stated": "131.9815489794526725163822097670746",
+      "derived": "60000000/454609",
+      "derivedApprox": "1.31981548979452672e2"
+    },
+    {
+      "unit": "PERCENT-MIN-PER-GAL_US",
+      "stated": "158.5032314148890492279399529654975",
+      "derived": "25000000000/157725491",
+      "derivedApprox": "1.58503231414889049e2"
+    },
+    {
+      "unit": "PERCENT-MIN-PER-IN3",
+      "stated": "36614.24645683937037165412913502992",
+      "derived": "75000000000/2048383",
+      "derivedApprox": "3.66142464568393703e4"
+    },
+    {
+      "unit": "PERCENT-PER-DAY",
+      "stated": "0.0000001157407407407407407407407407407407",
+      "derived": "1/8640000",
+      "derivedApprox": "1.1574074074074074e-7"
+    },
+    {
+      "unit": "PERCENT-PER-HR",
+      "stated": "0.000002777777777777777777777777777777778",
+      "derived": "1/360000",
+      "derivedApprox": "2.77777777777777777e-6"
+    },
+    {
+      "unit": "PERCENT-PER-IN",
+      "stated": "0.3937007874015748031496062992125984",
+      "derived": "50/127",
+      "derivedApprox": "3.93700787401574803e-1"
+    },
+    {
+      "unit": "PERCENT-PER-MO",
+      "stated": "0.000000003919350772901616281311709002114104",
+      "derived": "5/1275721488",
+      "derivedApprox": "3.91935077290161628e-9"
+    },
+    {
+      "unit": "PERCENT-PER-WK",
+      "stated": "0.00000001653439153439153439153439153439153",
+      "derived": "1/60480000",
+      "derivedApprox": "1.65343915343915343e-8"
+    },
+    {
+      "unit": "PERCENT-PER-YR",
+      "stated": "0.0000000003168808781402895023702689684893655",
+      "derived": "1/3155760000",
+      "derivedApprox": "3.16880878140289502e-10"
+    },
+    {
+      "unit": "PERCENT-SEC-PER-FT3",
+      "stated": "0.3531466672148859025043801035400263",
+      "derived": "19531250/55306341",
+      "derivedApprox": "3.53146667214885902e-1"
+    },
+    {
+      "unit": "PERCENT-SEC-PER-GAL_UK",
+      "stated": "2.199692482990877875273036829451243",
+      "derived": "1000000/454609",
+      "derivedApprox": "2.19969248299087787e0"
+    },
+    {
+      "unit": "PERCENT-SEC-PER-GAL_US",
+      "stated": "2.641720523581484153798999216091625",
+      "derived": "1250000000/473176473",
+      "derivedApprox": "2.64172052358148415e0"
+    },
+    {
+      "unit": "PERCENT-SEC-PER-IN3",
+      "stated": "610.2374409473228395275688189171654",
+      "derived": "1250000000/2048383",
+      "derivedApprox": "6.10237440947322839e2"
+    },
+    {
+      "unit": "PERCENT-SEC-PER-YD3",
+      "stated": "0.01307950619314392231497704087185282",
+      "derived": "19531250/1493271207",
+      "derivedApprox": "1.30795061931439223e-2"
+    },
+    {
+      "unit": "PERM_US",
+      "stated": "0.0000000000572135",
+      "derived": "4049931875/70786304844557745744",
+      "derivedApprox": "5.72134946709451013e-11"
+    },
+    {
+      "unit": "PINT_UK-PER-HR",
+      "stated": "0.0000001578503472222222222222222222222222",
+      "derived": "454609/2880000000000",
+      "derivedApprox": "1.57850347222222222e-7"
+    },
+    {
+      "unit": "PINT_US-PER-HR",
+      "stated": "0.0000001314379091666666666666666666666667",
+      "derived": "157725491/1200000000000000",
+      "derivedApprox": "1.31437909166666666e-7"
+    },
+    {
+      "unit": "PINT_US_DRY",
+      "stated": "0.000550610471",
+      "derived": "0.0005506104713575",
+      "derivedApprox": "5.506104713575e-4"
+    },
+    {
+      "unit": "PK_US_DRY",
+      "stated": "0.00880976754",
+      "derived": "0.00880976754172",
+      "derivedApprox": "8.80976754172e-3"
+    },
+    {
+      "unit": "PK_US_DRY-PER-HR",
+      "stated": "0.00000244715765",
+      "derived": "220244188543/90000000000000000",
+      "derivedApprox": "2.44715765047777777e-6"
+    },
+    {
+      "unit": "PK_US_DRY-PER-MIN",
+      "stated": "0.000146829459",
+      "derived": "220244188543/1500000000000000",
+      "derivedApprox": "1.46829459028666666e-4"
+    },
+    {
+      "unit": "PK_US_DRY-PER-SEC",
+      "stated": "0.00880976754",
+      "derived": "0.00880976754172",
+      "derivedApprox": "8.80976754172e-3"
+    },
+    {
+      "unit": "PPTH-PER-HR",
+      "stated": "0.0000002777777777777777777777777777777778",
+      "derived": "1/3600000",
+      "derivedApprox": "2.77777777777777777e-7"
+    },
+    {
+      "unit": "PT",
+      "stated": "0.000351460",
+      "derived": "0.0003514598",
+      "derivedApprox": "3.514598e-4"
+    },
+    {
+      "unit": "PT_BIG",
+      "stated": "0.0003527778",
+      "derived": "127/360000",
+      "derivedApprox": "3.52777777777777777e-4"
+    },
+    {
+      "unit": "PicoMOL-PER-L-DAY",
+      "stated": "0.00000000000001157407407407407407407407407407407",
+      "derived": "1/86400000000000",
+      "derivedApprox": "1.1574074074074074e-14"
+    },
+    {
+      "unit": "PicoMOL-PER-L-HR",
+      "stated": "0.0000000000002777777777777777777777777777777778",
+      "derived": "1/3600000000000",
+      "derivedApprox": "2.77777777777777777e-13"
+    },
+    {
+      "unit": "PicoMOL-PER-M2-DAY",
+      "stated": "0.00000000000000001157407407407407407407407407407407",
+      "derived": "1/86400000000000000",
+      "derivedApprox": "1.1574074074074074e-17"
+    },
+    {
+      "unit": "QT_UK-PER-DAY",
+      "stated": "0.00000001315419560185185185185185185185185",
+      "derived": "454609/34560000000000",
+      "derivedApprox": "1.31541956018518518e-8"
+    },
+    {
+      "unit": "QT_UK-PER-MIN",
+      "stated": "0.00001894204166666666666666666666666667",
+      "derived": "454609/24000000000",
+      "derivedApprox": "1.89420416666666666e-5"
+    },
+    {
+      "unit": "QT_US-PER-DAY",
+      "stated": "0.00000001095315909722222222222222222222222",
+      "derived": "157725491/14400000000000000",
+      "derivedApprox": "1.09531590972222222e-8"
+    },
+    {
+      "unit": "RAD-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "RAD-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "REV",
+      "stated": "6.283185307179586476925286766559006",
+      "derived": "2 * pi^1",
+      "derivedApprox": "6.28318530717958647e0"
+    },
+    {
+      "unit": "REV-PER-HR",
+      "stated": "0.001745329251994329576923690768488613",
+      "derived": "1/1800 * pi^1",
+      "derivedApprox": "1.74532925199432957e-3"
+    },
+    {
+      "unit": "REV-PER-MIN",
+      "stated": "0.1047197551196597746154214461093168",
+      "derived": "1/30 * pi^1",
+      "derivedApprox": "1.04719755119659774e-1"
+    },
+    {
+      "unit": "REV-PER-MIN-SEC",
+      "stated": "0.1047197551196597746154214461093168",
+      "derived": "1/30 * pi^1",
+      "derivedApprox": "1.04719755119659774e-1"
+    },
+    {
+      "unit": "REV-PER-SEC",
+      "stated": "6.283185307179586476925286766559006",
+      "derived": "2 * pi^1",
+      "derivedApprox": "6.28318530717958647e0"
+    },
+    {
+      "unit": "REV-PER-SEC2",
+      "stated": "6.283185307179586476925286766559006",
+      "derived": "2 * pi^1",
+      "derivedApprox": "6.28318530717958647e0"
+    },
+    {
+      "unit": "SEC-PER-FT2",
+      "stated": "10.7639104167097223083335055559",
+      "derived": "1562500/145161",
+      "derivedApprox": "1.07639104167097223e1"
+    },
+    {
+      "unit": "SLUG-PER-HR",
+      "stated": "0.00405386192700176800816564596092155",
+      "derived": "8896443230521/2194560000000000",
+      "derivedApprox": "4.053861927001768e-3"
+    },
+    {
+      "unit": "SLUG-PER-MIN",
+      "stated": "0.243231715620106080489938757655293",
+      "derived": "8896443230521/36576000000000",
+      "derivedApprox": "2.4323171562010608e-1"
+    },
+    {
+      "unit": "STANDARD",
+      "stated": "4.672",
+      "derived": "4.67227968768",
+      "derivedApprox": "4.67227968768e0"
+    },
+    {
+      "unit": "SV-PER-HR",
+      "stated": "0.0002777777777777777777777777777777778",
+      "derived": "1/3600",
+      "derivedApprox": "2.77777777777777777e-4"
+    },
+    {
+      "unit": "SV-PER-MIN",
+      "stated": "0.01666666666666666666666666666666667",
+      "derived": "1/60",
+      "derivedApprox": "1.66666666666666666e-2"
+    },
+    {
+      "unit": "S_Stat",
+      "stated": "0.0000000000011126500561",
+      "derived": "25000/22468879468420441",
+      "derivedApprox": "1.11265005605361843e-12"
+    },
+    {
+      "unit": "THM_US-PER-HR",
+      "stated": "29300.11111111111111111111111111111",
+      "derived": "263701/9",
+      "derivedApprox": "2.93001111111111111e4"
+    },
+    {
+      "unit": "TONNE-PER-DAY",
+      "stated": "0.01157407407407407407407407407407407",
+      "derived": "5/432",
+      "derivedApprox": "1.1574074074074074e-2"
+    },
+    {
+      "unit": "TONNE-PER-DAY-BAR",
+      "stated": "0.0000001157407407407407407407407407407407",
+      "derived": "1/8640000",
+      "derivedApprox": "1.1574074074074074e-7"
+    },
+    {
+      "unit": "TONNE-PER-DAY-K",
+      "stated": "0.01157407407407407407407407407407407",
+      "derived": "5/432",
+      "derivedApprox": "1.1574074074074074e-2"
+    },
+    {
+      "unit": "TONNE-PER-HA-YR",
+      "stated": "0.000000003168808781402895023702689684893655",
+      "derived": "1/315576000",
+      "derivedApprox": "3.16880878140289502e-9"
+    },
+    {
+      "unit": "TONNE-PER-HR",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "TONNE-PER-HR-BAR",
+      "stated": "0.000002777777777777777777777777777777778",
+      "derived": "1/360000",
+      "derivedApprox": "2.77777777777777777e-6"
+    },
+    {
+      "unit": "TONNE-PER-HR-K",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "TONNE-PER-MIN",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "TONNE-PER-MIN-BAR",
+      "stated": "0.0001666666666666666666666666666666667",
+      "derived": "1/6000",
+      "derivedApprox": "1.66666666666666666e-4"
+    },
+    {
+      "unit": "TONNE-PER-MIN-K",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "TONNE-PER-MO",
+      "stated": "0.0003919350772901616281311709002114104",
+      "derived": "31250/79732593",
+      "derivedApprox": "3.91935077290161628e-4"
+    },
+    {
+      "unit": "TONNE-PER-YR",
+      "stated": "0.00003168808781402895023702689684893655",
+      "derived": "5/157788",
+      "derivedApprox": "3.16880878140289502e-5"
+    },
+    {
+      "unit": "TON_Assay",
+      "stated": "0.02916667",
+      "derived": "7/240",
+      "derivedApprox": "2.91666666666666666e-2"
+    },
+    {
+      "unit": "TON_FG",
+      "stated": "3516.853",
+      "derived": "52752792631/15000000",
+      "derivedApprox": "3.51685284206666666e3"
+    },
+    {
+      "unit": "TON_Metric-PER-DAY",
+      "stated": "0.01157407407407407407407407407407407",
+      "derived": "5/432",
+      "derivedApprox": "1.1574074074074074e-2"
+    },
+    {
+      "unit": "TON_Metric-PER-DAY-BAR",
+      "stated": "0.0000001157407407407407407407407407407407",
+      "derived": "1/8640000",
+      "derivedApprox": "1.1574074074074074e-7"
+    },
+    {
+      "unit": "TON_Metric-PER-DAY-K",
+      "stated": "0.01157407407407407407407407407407407",
+      "derived": "5/432",
+      "derivedApprox": "1.1574074074074074e-2"
+    },
+    {
+      "unit": "TON_Metric-PER-HR",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "TON_Metric-PER-HR-BAR",
+      "stated": "0.000002777777777777777777777777777777778",
+      "derived": "1/360000",
+      "derivedApprox": "2.77777777777777777e-6"
+    },
+    {
+      "unit": "TON_Metric-PER-HR-K",
+      "stated": "0.2777777777777777777777777777777778",
+      "derived": "5/18",
+      "derivedApprox": "2.77777777777777777e-1"
+    },
+    {
+      "unit": "TON_Metric-PER-MIN",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "TON_Metric-PER-MIN-BAR",
+      "stated": "0.0001666666666666666666666666666666667",
+      "derived": "1/6000",
+      "derivedApprox": "1.66666666666666666e-4"
+    },
+    {
+      "unit": "TON_Metric-PER-MIN-K",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "TON_SHORT-PER-HR",
+      "stated": "0.2519957611111111111111111111111111",
+      "derived": "45359237/180000000",
+      "derivedApprox": "2.51995761111111111e-1"
+    },
+    {
+      "unit": "TON_US-PER-DAY",
+      "stated": "0.01049982337962962962962962962962963",
+      "derived": "45359237/4320000000",
+      "derivedApprox": "1.04998233796296296e-2"
+    },
+    {
+      "unit": "TON_US-PER-HR",
+      "stated": "0.2519957611111111111111111111111111",
+      "derived": "45359237/180000000",
+      "derivedApprox": "2.51995761111111111e-1"
+    },
+    {
+      "unit": "TORR",
+      "stated": "133.322368421052631578947",
+      "derived": "20265/152",
+      "derivedApprox": "1.33322368421052631e2"
+    },
+    {
+      "unit": "TORR-PER-M",
+      "stated": "133.322368421052631578947",
+      "derived": "20265/152",
+      "derivedApprox": "1.33322368421052631e2"
+    },
+    {
+      "unit": "TeraW-HR-PER-YR",
+      "stated": "114077116.1305042208532968286561716",
+      "derived": "500000000000/4383",
+      "derivedApprox": "1.1407711613050422e8"
+    },
+    {
+      "unit": "UnitPole",
+      "stated": "0.0000001256637",
+      "derived": "0.00000004 * pi^1",
+      "derivedApprox": "1.25663706143591729e-7"
+    },
+    {
+      "unit": "V-PER-IN",
+      "stated": "39.37007874015748031496062992125984",
+      "derived": "5000/127",
+      "derivedApprox": "3.93700787401574803e1"
+    },
+    {
+      "unit": "V-PER-L-MIN",
+      "stated": "16.66666666666666666666666666666667",
+      "derived": "50/3",
+      "derivedApprox": "1.66666666666666666e1"
+    },
+    {
+      "unit": "W-HR-PER-FT2",
+      "stated": "38750.07750015500031000062000124",
+      "derived": "625000000/16129",
+      "derivedApprox": "3.87500775001550003e4"
+    },
+    {
+      "unit": "W-PER-FT2",
+      "stated": "10.7639104167097223083335055559",
+      "derived": "1562500/145161",
+      "derivedApprox": "1.07639104167097223e1"
+    },
+    {
+      "unit": "W-PER-IN2",
+      "stated": "1550.0031000062000124000248000496",
+      "derived": "25000000/16129",
+      "derivedApprox": "1.55000310000620001e3"
+    }
+  ],
+  "blockingLeaves": [
+    {
+      "unit": "BIT",
+      "blocks": 45
+    },
+    {
+      "unit": "CCY_EUR",
+      "blocks": 6
+    },
+    {
+      "unit": "DeciB",
+      "blocks": 5
+    },
+    {
+      "unit": "FLOPS",
+      "blocks": 4
+    },
+    {
+      "unit": "CCY_CHF",
+      "blocks": 3
+    },
+    {
+      "unit": "IU",
+      "blocks": 3
+    },
+    {
+      "unit": "THOUSAND",
+      "blocks": 3
+    },
+    {
+      "unit": "BAUD",
+      "blocks": 2
+    },
+    {
+      "unit": "DEATHS",
+      "blocks": 2
+    },
+    {
+      "unit": "HUNDRED",
+      "blocks": 2
+    },
+    {
+      "unit": "KiloINDIV",
+      "blocks": 2
+    },
+    {
+      "unit": "MegaCCY_USD",
+      "blocks": 2
+    },
+    {
+      "unit": "ONE",
+      "blocks": 2
+    },
+    {
+      "unit": "SCF",
+      "blocks": 2
+    },
+    {
+      "unit": "SCM",
+      "blocks": 2
+    },
+    {
+      "unit": "B",
+      "blocks": 1
+    },
+    {
+      "unit": "BEAT",
+      "blocks": 1
+    },
+    {
+      "unit": "BREATH",
+      "blocks": 1
+    },
+    {
+      "unit": "CASES",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_BGN",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_CZK",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_DKK",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_GBP",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_HUF",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_NOK",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_PLN",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_RON",
+      "blocks": 1
+    },
+    {
+      "unit": "CCY_SEK",
+      "blocks": 1
+    },
+    {
+      "unit": "CYC",
+      "blocks": 1
+    },
+    {
+      "unit": "DEG_C_GROWING_CEREAL",
+      "blocks": 1
+    },
+    {
+      "unit": "FLIGHT",
+      "blocks": 1
+    },
+    {
+      "unit": "FRAME",
+      "blocks": 1
+    },
+    {
+      "unit": "GigaBYTE",
+      "blocks": 1
+    },
+    {
+      "unit": "HART",
+      "blocks": 1
+    },
+    {
+      "unit": "KiloBYTE",
+      "blocks": 1
+    },
+    {
+      "unit": "MegaBYTE",
+      "blocks": 1
+    },
+    {
+      "unit": "MegaINDIV",
+      "blocks": 1
+    },
+    {
+      "unit": "NAT",
+      "blocks": 1
+    },
+    {
+      "unit": "NP",
+      "blocks": 1
+    },
+    {
+      "unit": "PlanckMass",
+      "blocks": 1
+    },
+    {
+      "unit": "SAMPLE",
+      "blocks": 1
+    },
+    {
+      "unit": "SHANNON",
+      "blocks": 1
+    },
+    {
+      "unit": "TEN",
+      "blocks": 1
+    }
+  ]
+}
