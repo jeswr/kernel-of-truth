@@ -1,0 +1,226 @@
+{
+  "experiment": "E8 kernel<->SAE alignment (docs/poc-design.md E8)",
+  "date": "2026-07-07T13:45:30.653158+00:00",
+  "mock": false,
+  "criterion_verbatim": "Align kernel geometry to SAE feature dictionaries across >=2 open model families (projected path, X4 distortion reported); criterion: kernel coordinates predict cross-model feature correspondence beyond shuffled-kernel and permutation nulls.",
+  "bead": "kernel-of-truth-u0x",
+  "design_pin": "poc/e8/README.md (fixed before build)",
+  "families": {
+    "gpt2": {
+      "model_id": "openai-community/gpt2",
+      "model_revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+      "sae_repo": "jbloom/GPT2-Small-SAEs-Reformatted",
+      "sae_revision": "57d08a4fd333fbf18caf3fbea63ceeb88e2f50d9",
+      "sae_file": "blocks.6.hook_resid_pre/sae_weights.safetensors",
+      "sae_arch": "sae_lens_standard",
+      "d_in": 768,
+      "d_sae": 24576,
+      "topk": null,
+      "hookpoint": "blocks.6.hook_resid_pre",
+      "hidden_state_index": 6,
+      "basis": "subtract_hidden_mean",
+      "prepend_bos": true
+    },
+    "pythia-160m": {
+      "model_id": "EleutherAI/pythia-160m",
+      "model_revision": "50f5173d932e8e61f858120bcb800b97af589f46",
+      "sae_repo": "EleutherAI/sae-pythia-160m-32k",
+      "sae_revision": "2046768ae0c8cb69a2e8ed64f2eafb9f8c5fa294",
+      "sae_file": "layers.5/sae.safetensors",
+      "sae_arch": "eleuther_topk",
+      "d_in": 768,
+      "d_sae": 32768,
+      "topk": 32,
+      "hookpoint": "layers.5",
+      "hidden_state_index": 6,
+      "basis": "none",
+      "prepend_bos": false
+    }
+  },
+  "family_order_note": "famA=gpt2, famB=pythia-160m",
+  "diagnostics": {
+    "gpt2": {
+      "fvu": 0.1510806564370584,
+      "mean_l0": 49.64663461538461,
+      "n_span_tokens": 1248
+    },
+    "pythia-160m": {
+      "fvu": 0.20947315333463357,
+      "mean_l0": 32.0,
+      "n_span_tokens": 1344
+    }
+  },
+  "attrition": {
+    "in_vocab_dropped": {
+      "gpt2": [],
+      "pythia-160m": []
+    },
+    "zero_signature_dropped_ids": [],
+    "analysed_ids": [
+      "urn:kernel-v0:afraid",
+      "urn:kernel-v0:alive",
+      "urn:kernel-v0:angry",
+      "urn:kernel-v0:archived",
+      "urn:kernel-v0:begin",
+      "urn:kernel-v0:believe",
+      "urn:kernel-v0:birth",
+      "urn:kernel-v0:bookmark",
+      "urn:kernel-v0:break",
+      "urn:kernel-v0:broken",
+      "urn:kernel-v0:cause",
+      "urn:kernel-v0:celebration",
+      "urn:kernel-v0:change",
+      "urn:kernel-v0:condolence",
+      "urn:kernel-v0:conversation",
+      "urn:kernel-v0:dead",
+      "urn:kernel-v0:death",
+      "urn:kernel-v0:end",
+      "urn:kernel-v0:event",
+      "urn:kernel-v0:find",
+      "urn:kernel-v0:forget",
+      "urn:kernel-v0:friend",
+      "urn:kernel-v0:gift",
+      "urn:kernel-v0:give",
+      "urn:kernel-v0:grieving",
+      "urn:kernel-v0:happy",
+      "urn:kernel-v0:help",
+      "urn:kernel-v0:helpful",
+      "urn:kernel-v0:inside",
+      "urn:kernel-v0:kind",
+      "urn:kernel-v0:learn",
+      "urn:kernel-v0:liar",
+      "urn:kernel-v0:lie",
+      "urn:kernel-v0:lose",
+      "urn:kernel-v0:lost",
+      "urn:kernel-v0:make",
+      "urn:kernel-v0:memory",
+      "urn:kernel-v0:near",
+      "urn:kernel-v0:promise",
+      "urn:kernel-v0:remember",
+      "urn:kernel-v0:reminder",
+      "urn:kernel-v0:repair",
+      "urn:kernel-v0:right",
+      "urn:kernel-v0:sad",
+      "urn:kernel-v0:take",
+      "urn:kernel-v0:teacher",
+      "urn:kernel-v0:thief",
+      "urn:kernel-v0:trustworthy",
+      "urn:kernel-v0:useful",
+      "urn:kernel-v0:visible",
+      "urn:kernel-v0:wrong"
+    ]
+  },
+  "pins": {
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "corpusPin": {
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "conceptCount": 54
+    },
+    "manifest_sha256": "1c2bebba5dcca3f6204a2278546e2ffbcc6481277a8e2182d1a53d6e89e0ca3b",
+    "primary_kernel_variant": "jl512",
+    "x4_distortion_rdm_spearman": {
+      "jl512": 0.9717634748044783,
+      "jl576": 0.9705671745304928
+    }
+  },
+  "seed": 20260707,
+  "n_perm": 10000,
+  "n_perm_retrieval": 2000,
+  "alpha_primary": 0.01,
+  "alpha_gate": 0.05,
+  "results": {
+    "n_items": 51,
+    "gate_G": {
+      "acc": 0.06862745098039216,
+      "acc_a2b": 0.09803921568627451,
+      "acc_b2a": 0.0392156862745098,
+      "mean_diag_rank_a2b": 7.117647058823529,
+      "chance_acc": 0.0196078431372549,
+      "p": 0.0012998700129987,
+      "n_perm": 10000
+    },
+    "P1_spearman_vs_Xsym": {
+      "rho": 0.3856509244751624,
+      "p": 9.999000099990002e-05
+    },
+    "P2_partial_orig3_vs_Xsym": {
+      "rho": 0.3602879150745886,
+      "p": 9.999000099990002e-05
+    },
+    "secondaries": {
+      "S1_partial_orig3+emb4_vs_Xsym": {
+        "rho": 0.29981510921377136,
+        "p": 9.999000099990002e-05
+      },
+      "S2_partial_orig3_vs_S_famA": {
+        "rho": 0.40386431369898435,
+        "p": 9.999000099990002e-05
+      },
+      "S3_partial_orig3_vs_S_famB": {
+        "rho": 0.17068185658203502,
+        "p": 0.00039996000399960006
+      },
+      "S4_retrieval_famA": {
+        "acc": 0.09803921568627451,
+        "chance_acc": 0.0196078431372549,
+        "p": 0.0024987506246876563,
+        "n_perm": 2000
+      },
+      "S5_retrieval_famB": {
+        "acc": 0.058823529411764705,
+        "chance_acc": 0.0196078431372549,
+        "p": 0.03248375812093953,
+        "n_perm": 2000
+      }
+    },
+    "holm": {
+      "S1_partial_orig3+emb4_vs_Xsym": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.0004999500049995,
+        "reject_at_0.05": true
+      },
+      "S2_partial_orig3_vs_S_famA": {
+        "p": 9.999000099990002e-05,
+        "p_holm": 0.0004999500049995,
+        "reject_at_0.05": true
+      },
+      "S3_partial_orig3_vs_S_famB": {
+        "p": 0.00039996000399960006,
+        "p_holm": 0.0011998800119988001,
+        "reject_at_0.05": true
+      },
+      "S4_retrieval_famA": {
+        "p": 0.0024987506246876563,
+        "p_holm": 0.004997501249375313,
+        "reject_at_0.05": true
+      },
+      "S5_retrieval_famB": {
+        "p": 0.03248375812093953,
+        "p_holm": 0.03248375812093953,
+        "reject_at_0.05": true
+      }
+    },
+    "kernel_variant_sensitivity_P2form": {
+      "full": {
+        "rho": 0.37482448887098335,
+        "p": 9.999000099990002e-05
+      },
+      "jl576": {
+        "rho": 0.3594068874245115,
+        "p": 9.999000099990002e-05
+      }
+    },
+    "direction_asymmetry": {
+      "acc_a2b": 0.09803921568627451,
+      "acc_b2a": 0.0392156862745098
+    },
+    "outcome": "PASS (kernel coordinates predict cross-model feature correspondence beyond shuffled-kernel and permutation nulls)",
+    "decision_flags": {
+      "gate_pass": true,
+      "P1_pass": true,
+      "P2_pass": true
+    }
+  },
+  "outcome": "PASS (kernel coordinates predict cross-model feature correspondence beyond shuffled-kernel and permutation nulls)"
+}
