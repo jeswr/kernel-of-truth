@@ -5,9 +5,9 @@ rev 2, MAJOR 6/7, BLOCKER 3, panel O7; bead `kernel-of-truth-73u`): the
 1,054-concept vocabulary, kernel/control vector tables at d_model = 512,
 the independently authored gloss set with its pre-published hash, the
 two-tier holdout + compositional-split pre-registration, and the builder
-that emits gloss→concept-token shards in poc/e1's format. **Data side only**
-— the E4 fine-tune/eval runner (on the E1 kernel-frozen model) is a
-follow-up.
+that emits gloss→concept-token shards in poc/e1's format. The fine-tune/eval
+runner that consumes all of this lives in `runner/` (bead
+`kernel-of-truth-hkp`; see "Runner" below).
 
 ## Layout
 
@@ -21,6 +21,7 @@ follow-up.
 | `pipeline/build_emission.py` | gloss→concept shards in e1's uint16 format against a real e1 `vocab.json`; leakage gates fail closed |
 | `smoke/` | CPU end-to-end data smoke (mock corpus → real e1 vocab builder → emission builder → independent assertions); evidence in `results/` |
 | `test/e4prep.test.ts` | artifact gates: pin, AST validity/determinism, table hashes/norms/derangements, gloss disjointness + n-gram + distinctness + hash, manifest consistency |
+| `runner/` | the E4 experiment runner: emission fine-tune of the E1 kernel-frozen model (3 arms, E1 freezing discipline), 1,054-way candidate-restricted eval, pre-registered stats + verdict, mock smoke (see "Runner" below) |
 
 ```bash
 cd poc/e4 && npm install && npm test        # verify committed artifacts
@@ -142,12 +143,88 @@ verification — **PASS**. The 14% gloss-OOV rate is an artifact of the tiny
 mock vocab; the real E1 vocab (8k over TinyStories) is expected to be far
 lower — measured and recorded in `meta.json` at real build time.
 
-## What this prep does NOT do
+## What the data prep does NOT do
 
-- No model training or evaluation, no GPU use, no claims.
+- No model training or evaluation, no GPU use, no claims (that is
+  `runner/`'s job, below).
 - No modification to `encoder/`, `mapper/`, `data/kernel-v0`, `poc/e1`,
   `poc/e2`, `poc/gpu`, `docs/`, `reports/`.
 - The tier-1 "seen in corpus" property for SYNTHETIC tier-1 members rests
   entirely on the exposure-line mechanism (they cannot occur in TinyStories);
   analyses must stratify authored vs synthetic tier-1 if corpus exposure
   matters to the question being asked.
+
+## Runner (`runner/` — bead kernel-of-truth-hkp)
+
+Consumes an E1 trainer work dir (READ-ONLY: `$E1_WORK/data` +
+`$E1_WORK/ckpts`, poc/e1's own output layout) plus the committed prep
+artifacts above (never regenerated) and runs the pre-registered E4 protocol
+end-to-end:
+
+```bash
+bash runner/run_e4.sh mock     # CPU end-to-end machinery check (see below)
+# full run: chained after the E1 grid on the SAME GPU box —
+poc/gpu/launch-e1-pull.sh --with-e4        # one boot, E1 grid then E4
+# or standalone on a box that already has /opt/e1work:
+E1_WORK=/opt/e1work bash runner/run_e4.sh full
+```
+
+Pipeline: fail-closed pins (sha-256 of `inputs/glosses.jsonl` vs
+`GLOSS-HASH.txt` AND the holdout manifest; `vector-tables-manifest.json` vs
+the manifest's recorded sha — re-verified downstream by `build_emission.py`
+and per-`.f32`-file by the fine-tuner) → `pipeline/build_emission.py`
+against the REAL E1 `vocab.json` (the measured gloss OOV rate is copied into
+results as `e4-data-meta-<mode>.json`) → `finetune_e4.py` (3 arms x paired
+seeds) → `eval_e4.py` → `stats_e4.py` (verdict JSON + md quoting the
+manifest's `statistics` strings verbatim).
+
+Design decisions bound to the pre-registration (`finetune_e4.py` header has
+the full statement):
+
+- **Base model:** the E1 `kernel-frozen` **100pct** checkpoint of the SAME
+  seed (Common rule 1 pairing), for ALL THREE arms — that is the manifest's
+  "E1 kernel-frozen model + ..." arm definitions.
+- **Vocab surgery:** V→V+1001 per `e4-vocab.json` (EMIT + 1000 synthetic
+  rows appended); everything else copied bit-exact; appended rows init
+  N(0, 0.02²) from a seed-paired arm-independent generator; then the 1,054
+  concept rows are set per arm from the tables (kernel/shuffled ×
+  `frozenScale` at load per the manifest `scalePolicy`; random raw) and
+  FROZEN with poc/e1's full discipline (wd-exclusion, grad-zero
+  optimizer-state masking from step 0, bit-identity assertion at every
+  check; violation crashes the run).
+- **Kernel arm continuity:** the 54 authored rows are KEPT from the E1
+  checkpoint and the table-derived rows are asserted bit-equal to them
+  (fail closed; `--authored-row-tol` relaxes to a RECORDED deviation).
+- **Shuffled arm consequence (stated before any full run):** the manifest's
+  derangement spans all 1,054 ids, so the 54 authored rows are ALSO deranged
+  — the shuffled model's authored rows differ from the rows the E1 base was
+  trained around. Identical glosses, content-free assignment: that is what
+  makes it the EMPIRICAL chance floor; the control-floor validity check
+  guards the readout.
+- **Fine-tune budget/LR (runner-level, arm-symmetric):** fixed 10M tokens,
+  lr 1e-4, batch 64 @ seq 256, identical across arms — arms differ only in
+  frozen-row CONTENT, so this cannot confound the kernel-vs-shuffled
+  contrast. Recorded in every summary json.
+- **Stats:** exactly the manifest `statistics` block — 1,054-way candidate
+  restriction, tier-2 top-1 primary (one-sided exact paired sign-flip,
+  reused READ-ONLY from `poc/e1/eval/stats_e1.py`), tier-2 top-10 +
+  tier-1 top-1/top-10 Holm secondaries, per-seed one-sided Fisher exact on
+  pooled items (Holm over seeds), compositional shared/novel splits
+  descriptive only, exact-binomial control-floor validity check (a
+  "positive" with a hot control is emitted as INVALID), MAJOR 16 advance
+  rule quoted in the verdict.
+
+### Runner mock-smoke status (mechanics only, committed evidence in `results/`)
+
+`run_e4.sh mock` (2026-07-07, CPU, niced, disposable venv): generated a mock
+E1 checkpoint pair with poc/e1's OWN trainer (tiny d=64 config, 2 seeds,
+mock corpus — poc/e1 code untouched), built the emission shards with the
+real builder (`--smoke 30`, gloss pin verified, OOV 14% = known mock-vocab
+artifact), fine-tuned 3 arms x 2 seeds under the freezing mask, evaluated,
+and emitted `results/verdict-e4-mock.{json,md}` (MOCK-labelled). Independent
+assertions (`runner/check_smoke.py`, `results/runner-smoke-log.txt`): 6,324
+frozen-row bit-identity comparisons — all 1,054 frozen rows equal the
+table-recomputed expectations bit-exactly through emission fine-tuning, the
+kernel arm's 54 authored rows bit-identical to the E1 checkpoint through the
+vocab surgery AND the fine-tune, EMIT + non-frozen rows actually trained,
+tier-2 eval coverage complete — **PASS**.

@@ -60,6 +60,9 @@ poc/gpu/launch-e2.sh                  # box pushes results/e2-<stamp>, self-term
 - `launch-e2-pull.sh` / `user-data-e2-pull.sh.tpl` / `collect-e2.sh` — Option B
   (above). Env overrides: `KOT_E2_REGION`, `KOT_E2_REPO`, `KOT_E2_BRANCH`,
   `KOT_E2_EPHEMERAL_KEY`.
+- `launch-e1-pull.sh` / `user-data-e1-pull.sh.tpl` / `collect-e1.sh` — the E1
+  clone of the Option B trio (see "E1 grid" below), key pair
+  `kernel-of-truth-e1`, SG `kot-e1-sg`, optional `--with-e4` chain.
 - `launch-e2.sh` — Option A launcher. Flags: `--dry-run`, `--on-demand`,
   `--fallback` (spot -> on-demand), `--no-push`, `--key-name <ec2 keypair>`,
   `--az <az>`, `--branch <src branch>`. Env: `KOT_E2_REGION`, `KOT_E2_REPO`,
@@ -117,35 +120,48 @@ own console); `collect-e2.sh --cleanup-only` deleted the key pair + SG for
 real and both verified gone. AMI resolved to an Ubuntu 24.04 DLAMI (ssh user
 `ubuntu`; collect-e2.sh tries `ubuntu` then `ec2-user`).
 
-## E1 grid (launch-e1.sh — bead kernel-of-truth-bk0)
+## E1 grid (launch-e1-pull.sh — beads kernel-of-truth-bk0 + -cs2)
+
+**Results-path decision (bead kernel-of-truth-cs2): the pull path (Option B)
+is adopted for E1.** The deploy-key Option A launcher (`launch-e1.sh`) is
+RETIRED unless a run must be truly unattended (no coordinator alive to run
+the collect loop across the ~20 h window) — no deploy key is registered
+today, and none should be minted for E1.
 
 ```bash
-poc/gpu/launch-e1.sh --dry-run        # validate everything, launch nothing
-poc/gpu/launch-e1.sh                  # g5.xlarge SPOT; box pushes results/e1-<stamp>, self-terminates
+poc/gpu/launch-e1-pull.sh --dry-run   # validate everything, launch nothing
+poc/gpu/launch-e1-pull.sh             # g5.xlarge SPOT; prints <instance-id>
+poc/gpu/launch-e1-pull.sh --with-e4   # ...and chain the E4 runner on the same boot
+poc/gpu/collect-e1.sh <instance-id>   # poll DONE, scp results, terminate box
 ```
 
-Runs the full pre-registered E1 (docs/poc-design.md E1) unattended:
+Same structure as the validated E2 pair: ephemeral local key
+`~/.ssh/kot-e1-ephemeral` imported as EC2 key pair `kernel-of-truth-e1`,
+SG `kot-e1-sg` (tagged, 22/tcp from this box's private /32 only), rendered
+user-data with a credential-pattern refusal guard (NO credentials anywhere),
+DONE-marker + scp collection into `poc/e1/results-incoming/<stamp>/`, failure
+path pulls cloud-init/user-data/run logs (or console output) before
+terminating. Failsafe poweroff: **36 h** (E1 alone) / **42 h**
+(`--with-e4`); `collect-e1.sh` default `--timeout-mins 2520` matches, and
+exits as soon as DONE appears. Flags: `--dry-run`, `--on-demand`,
+`--fallback`, `--with-e4`, `--az`, `--branch`; env: `KOT_E1_REGION`,
+`KOT_E1_REPO`, `KOT_E1_BRANCH`, `KOT_E1_EPHEMERAL_KEY`. `--cleanup` /
+`--cleanup-only` on collect-e1.sh delete the key pair + SG.
+
+The box runs the full pre-registered E1 (docs/poc-design.md E1) via
 `poc/e1/run_all.sh full` = TinyStories-train fetch -> data build (5 paired
 seeds, parity-gated mapper port, p=0.5 seeded substitution) -> per-condition
 LR sweep (5 arms x 3 LRs, seed 0, half budget; Common rule 5) -> 5 arms x
 5 seeds at the selected LRs (checkpoints at step-0/50%/100%) -> eval suite
 (cloze on held-out template types, concept-slice PPL, mid-layer probes,
-step-0 circularity baselines) -> pre-registered stats + verdict. Only
-`poc/e1/results/` (eval JSONs, verdict, lr-selection, logs — no checkpoints)
-is committed to the results branch.
+step-0 circularity baselines) -> pre-registered stats + verdict.
+`--with-e4` then runs `poc/e4/runner/run_e4.sh full` against the SAME
+`/opt/e1work` (one boot, sequential runs — no second box, no re-fetch);
+E4 results land under `results-incoming/<stamp>/e4/`. Instance + volume
+tagged `Name=kot-e1`; `terminate.sh` only matches `kot-e2`, so use the
+terminate one-liner the launcher prints.
 
-E1 uses the **Option A deploy-key flow**, REUSING the kot-e2 deploy key
-(`~/.ssh/kot-e2-deploy`; override `KOT_E1_DEPLOY_KEY`) — no new key is minted
-or registered. Option A fits E1: the run is ~20 h, so unattended push beats
-holding a coordinator poll loop open across it (Option B's 4 h collect
-window would need re-arming). A pull-style variant can be cloned from
-`launch-e2-pull.sh` if the key is revoked first (follow-up bead filed).
-`--no-push` runs credential-free (results stay on the volume). Instance +
-volume tagged `Name=kot-e1`; `terminate.sh` only matches `kot-e2`, so use the
-terminate one-liner the launcher prints. Env: `KOT_E1_REGION`, `KOT_E1_REPO`,
-`KOT_E1_BRANCH`, `KOT_E1_DEPLOY_KEY`.
-
-### E1 cost table (g5.xlarge, 1x A10G, eu-west-2; poc-design rates $0.43-1.01/h)
+### E1 (+E4) cost table (g5.xlarge, 1x A10G, eu-west-2; poc-design rates $0.43-1.01/h)
 
 | phase | wall est. | notes |
 |---|---|---|
@@ -153,18 +169,26 @@ terminate one-liner the launcher prints. Env: `KOT_E1_REGION`, `KOT_E1_REPO`,
 | LR sweep: 5 arms x 3 LRs, half budget | ~3.5 h | seed 0 only, best-of-3 by val loss (Common rule 5) |
 | grid: 5 arms x 5 seeds, 200M tokens | ~12 h | ~28 min/run (12.6M non-emb params, d=512, bf16) |
 | evals (35) + stats | ~1.5 h | incl. step-0 baselines |
-| **total** | **~20-21 h** | **spot ~$9-13; on-demand ~$21; 36 h failsafe caps at ~$36 OD** |
+| **E1 total** | **~20-21 h** | **spot ~$9-13; on-demand ~$21; 36 h failsafe caps at ~$36 OD** |
+| E4 chain (`--with-e4`): shards + 15 fine-tunes (10M tok) + 15 evals + stats | ~1-2 h | well inside poc-design's 3-6 GPU-h E4 envelope |
+| **E1+E4 total** | **~22-23 h** | **spot ~$10-14; on-demand ~$23-25; 42 h failsafe caps at ~$42 OD** |
 
 Within the pre-registered E1 envelope ("5 arms x 5 seeds ≈ 25-40 T4-h,
 $15-40" — A10G ≈ 2-3x T4 throughput). EBS 125 GB gp3 ≈ $0.012/h extra.
 
-### E1 dry-run status (2026-07-07, this box)
+### E1 pull-path validation status (2026-07-07, this box — no instance launched)
 
-`launch-e1.sh --dry-run --no-push` run for real: AMI resolved live
-(PyTorch 2.12 Ubuntu 24.04 DLAMI, 20260704), default-for-az subnet resolved,
-and the exact `run-instances` request (g5.xlarge, SPOT, kot-e1 tags, 125 GB
-gp3) returned `DryRunOperation` — the request would have succeeded under the
-live IAM policy. NOTE: `~/.ssh/kot-e2-deploy` does not currently exist (the
-E2 campaign chose Option B, no key registered), so a PUSH launch first needs
-the coordinator to run `setup-deploy-key.sh` + register the key — or clone
-the pull path for E1 (follow-up bead filed). `--no-push` launches work today.
+`launch-e1-pull.sh --dry-run --with-e4` run for real: ephemeral key minted +
+imported as `kernel-of-truth-e1` (Project-tagged), `kot-e1-sg` created +
+22/tcp authorised from this box's private /32 (172.31.2.135), AMI resolved
+live (PyTorch 2.12 Ubuntu 24.04 DLAMI, 20260704), default-for-az subnet
+resolved, and the exact `run-instances` request (g5.xlarge, SPOT, kot-e1
+tags, 125 GB gp3, key + SG attached) returned `DryRunOperation` = would have
+succeeded under the live IAM policy. A second `--dry-run` proved idempotency
+(no duplicate key/SG); the rendered user-data passed the credential guard
+(and the guard was verified to TRIP on an injected `ghp_` token);
+`collect-e1.sh --cleanup-only` then deleted the key pair + SG for real and
+both were verified gone. `bash -n` + shellcheck (warning level) clean on all
+three files. The earlier `launch-e1.sh` (Option A) dry-run record: AMI +
+subnet + `run-instances` DryRun validated 2026-07-07; kept for the
+unattended fallback only.
