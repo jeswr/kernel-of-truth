@@ -1,0 +1,600 @@
+{
+  "experiment": "E2 geometry-alignment probe (poc-design.md rev 2)",
+  "date": "2026-07-07T09:07:01.431142+00:00",
+  "mock": true,
+  "criterion_verbatim": "kernel RDM adds explanatory power beyond baseline relatedness RDMs (word2vec cosine, WordNet path, gloss word-overlap) via partial Spearman, p<0.01, in >=2 of 3 model families; the frequency-matched random word sets must fall below the kernel set (kernel rho > 95th percentile of k=100 random sets) or the result is reported as 'generic relatedness detected'",
+  "operationalisation": {
+    "primary_kernel_variant": "jl512",
+    "primary_layer": "L//2 (num_hidden_layers // 2), hidden_states index L//2",
+    "partial_null": "permute concept labels of the kernel matrix only; baselines + model fixed; one-sided",
+    "random_sets": "per family: kernel rho (Spearman of kernel RDM vs model RDM at L/2) must exceed the 95th percentile of k=100 sets where each item's label word is replaced by a frequency- and frame-class-matched random word in the same contexts",
+    "verdict_rule": "PRIMARY MET iff >=2 families pass partial p<0.01 AND the random-set check; 'generic relatedness detected' iff >=2 pass partial but <2 also pass random-set; else NULL",
+    "x3_conditioning": "polarity-stratified subset reporting (pre-registered interpretation condition) is deferred to the analysis write-up; see poc/results/x3-report"
+  },
+  "pins": {
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "corpusPin": {
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "conceptCount": 54
+    }
+  },
+  "n_perm": 1000,
+  "k_sets": 25,
+  "seed": 20260707,
+  "outcome": "NULL (no partial-RSA signal in >=2 families)",
+  "families_partial_pass": [],
+  "families_full_pass": [],
+  "per_model": [
+    {
+      "model": "mock/family-a",
+      "mock": true,
+      "n_layers_total": null,
+      "mid_layer_index": 4,
+      "hidden_states_note": "hidden_states[0] = embedding output (includes learned absolute positions for GPT-Neo-style models; pure token embedding for rotary models); hidden_states[L//2] = output of block L//2",
+      "in_vocab_definition": "tokenize \" \"+word, add_special_tokens=False: 1..4 tokens, no UNK id",
+      "in_vocab_surviving_words": [
+        "afraid",
+        "alive",
+        "angry",
+        "archived",
+        "begin",
+        "believe",
+        "birth",
+        "bookmark",
+        "break",
+        "broken",
+        "cause",
+        "change",
+        "condolence",
+        "dead",
+        "death",
+        "end",
+        "event",
+        "find",
+        "forget",
+        "friend",
+        "gift",
+        "give",
+        "grieving",
+        "happy",
+        "help",
+        "helpful",
+        "inside",
+        "kind",
+        "learn",
+        "liar",
+        "lie",
+        "lose",
+        "lost",
+        "make",
+        "memory",
+        "near",
+        "promise",
+        "remember",
+        "reminder",
+        "repair",
+        "right",
+        "sad",
+        "take",
+        "teacher",
+        "thief",
+        "useful",
+        "visible",
+        "wrong"
+      ],
+      "in_vocab_dropped_words": [
+        "celebration",
+        "conversation",
+        "trustworthy"
+      ],
+      "n_items_analysed": 48,
+      "layers": {
+        "0": {
+          "layer": 0,
+          "role": "embedding (secondary)",
+          "full": {
+            "spearman": 0.004239289584975593,
+            "mantel_p": 0.4435564435564436,
+            "partial_spearman": 0.016562688989840018,
+            "partial_p": 0.3096903096903097
+          },
+          "jl512": {
+            "spearman": 0.0062854502142829635,
+            "mantel_p": 0.4115884115884116,
+            "partial_spearman": 0.017936373236041574,
+            "partial_p": 0.3046953046953047
+          },
+          "jl576": {
+            "spearman": 0.010009748670450007,
+            "mantel_p": 0.3956043956043956,
+            "partial_spearman": 0.01974925291717934,
+            "partial_p": 0.26373626373626374
+          }
+        },
+        "4": {
+          "layer": 4,
+          "role": "L/2 (primary)",
+          "full": {
+            "spearman": 0.0022920637722473533,
+            "mantel_p": 0.48151848151848153,
+            "partial_spearman": 0.015763775493830248,
+            "partial_p": 0.3176823176823177
+          },
+          "jl512": {
+            "spearman": 0.0039359719752521324,
+            "mantel_p": 0.4325674325674326,
+            "partial_spearman": 0.016758577426071956,
+            "partial_p": 0.27472527472527475
+          },
+          "jl576": {
+            "spearman": 0.007715494336050729,
+            "mantel_p": 0.37162837162837165,
+            "partial_spearman": 0.01847114520564457,
+            "partial_p": 0.2817182817182817
+          }
+        }
+      },
+      "random_sets": {
+        "0": {
+          "kernel_rho": 0.0062854502142829635,
+          "random_pctl95": 0.051920652287203536,
+          "random_max": 0.05965163272713901,
+          "random_mean": 0.008123077018777347,
+          "kernel_above_pctl95": false,
+          "rhos": [
+            -0.010649401179736444,
+            -0.0281631629684097,
+            -0.01631743058229774,
+            0.04060050599310214,
+            0.0075738853621302735,
+            0.00817038714139348,
+            0.01049073592035825,
+            -0.003680019001370874,
+            0.03723345310803229,
+            0.05965163272713901,
+            -0.0034191079994129294,
+            0.05409430196156814,
+            0.016062639776886396,
+            0.038466655990323805,
+            -0.022146466303025546,
+            -0.03130533207408896,
+            -0.062398438808092725,
+            0.03097567755299693,
+            0.02710443585324177,
+            0.033331041882695533,
+            0.04322605358974527,
+            -0.061038233486535004,
+            0.03721865427212043,
+            -0.03849167187566182,
+            0.03648612861633175
+          ]
+        },
+        "4": {
+          "kernel_rho": 0.0039359719752521324,
+          "random_pctl95": 0.05056872929720192,
+          "random_max": 0.062190193267947676,
+          "random_mean": 0.008026485267608354,
+          "kernel_above_pctl95": false,
+          "rhos": [
+            -0.011530910144628773,
+            -0.028921356661627425,
+            -0.01171971653590655,
+            0.036589620136623854,
+            0.005668623028182619,
+            0.010943831126988544,
+            0.005743971677469454,
+            -0.001142470132395737,
+            0.03786920106569678,
+            0.062190193267947676,
+            0.0006639744379122029,
+            0.05214379866653626,
+            0.014551285666845831,
+            0.03846878802600602,
+            -0.022281227679990172,
+            -0.02936389202093756,
+            -0.061565306150876124,
+            0.03042172451721139,
+            0.025636324443391117,
+            0.03291661595069369,
+            0.04426845181986469,
+            -0.06120017622821684,
+            0.032105547772556975,
+            -0.03945922311194905,
+            0.03766445875280996
+          ]
+        }
+      },
+      "primary": {
+        "kernel_variant": "jl512",
+        "layer": 4,
+        "spearman": 0.0039359719752521324,
+        "mantel_p": 0.4325674325674326,
+        "partial_spearman": 0.016758577426071956,
+        "partial_p": 0.27472527472527475,
+        "partial_pass": false,
+        "random_set_pass": false
+      }
+    },
+    {
+      "model": "mock/family-b",
+      "mock": true,
+      "n_layers_total": null,
+      "mid_layer_index": 4,
+      "hidden_states_note": "hidden_states[0] = embedding output (includes learned absolute positions for GPT-Neo-style models; pure token embedding for rotary models); hidden_states[L//2] = output of block L//2",
+      "in_vocab_definition": "tokenize \" \"+word, add_special_tokens=False: 1..4 tokens, no UNK id",
+      "in_vocab_surviving_words": [
+        "afraid",
+        "alive",
+        "angry",
+        "archived",
+        "begin",
+        "believe",
+        "birth",
+        "bookmark",
+        "break",
+        "broken",
+        "cause",
+        "change",
+        "condolence",
+        "dead",
+        "death",
+        "end",
+        "event",
+        "find",
+        "forget",
+        "friend",
+        "gift",
+        "give",
+        "grieving",
+        "happy",
+        "help",
+        "helpful",
+        "inside",
+        "kind",
+        "learn",
+        "liar",
+        "lie",
+        "lose",
+        "lost",
+        "make",
+        "memory",
+        "near",
+        "promise",
+        "remember",
+        "reminder",
+        "repair",
+        "right",
+        "sad",
+        "take",
+        "teacher",
+        "thief",
+        "useful",
+        "visible",
+        "wrong"
+      ],
+      "in_vocab_dropped_words": [
+        "celebration",
+        "conversation",
+        "trustworthy"
+      ],
+      "n_items_analysed": 48,
+      "layers": {
+        "0": {
+          "layer": 0,
+          "role": "embedding (secondary)",
+          "full": {
+            "spearman": 0.019439332807609566,
+            "mantel_p": 0.26173826173826176,
+            "partial_spearman": 0.02129697143788527,
+            "partial_p": 0.23676323676323677
+          },
+          "jl512": {
+            "spearman": 0.012069964013411524,
+            "mantel_p": 0.32867132867132864,
+            "partial_spearman": 0.0126914269341491,
+            "partial_p": 0.33266733266733267
+          },
+          "jl576": {
+            "spearman": 0.010814905675146222,
+            "mantel_p": 0.34265734265734266,
+            "partial_spearman": 0.01154977966585426,
+            "partial_p": 0.35764235764235763
+          }
+        },
+        "4": {
+          "layer": 4,
+          "role": "L/2 (primary)",
+          "full": {
+            "spearman": 0.01787984485669635,
+            "mantel_p": 0.27472527472527475,
+            "partial_spearman": 0.02021886591690518,
+            "partial_p": 0.24275724275724275
+          },
+          "jl512": {
+            "spearman": 0.0107507355815736,
+            "mantel_p": 0.35264735264735264,
+            "partial_spearman": 0.011764757473306024,
+            "partial_p": 0.35264735264735264
+          },
+          "jl576": {
+            "spearman": 0.009907695229127869,
+            "mantel_p": 0.34665334665334663,
+            "partial_spearman": 0.01103370298615806,
+            "partial_p": 0.35864135864135865
+          }
+        }
+      },
+      "random_sets": {
+        "0": {
+          "kernel_rho": 0.012069964013411524,
+          "random_pctl95": 0.01473346184519812,
+          "random_max": 0.046805674612794314,
+          "random_mean": -0.01280456050291695,
+          "kernel_above_pctl95": false,
+          "rhos": [
+            0.007487700955023227,
+            -0.011806335711074284,
+            -0.10090570380746959,
+            -0.011568868740696486,
+            -0.012463629770515539,
+            0.013906900874437295,
+            -0.07160655042295323,
+            0.004030692886012293,
+            0.006037197651630419,
+            0.0016233654121372962,
+            -0.014158272061832847,
+            -0.036154158119224136,
+            -0.02027114443879562,
+            -0.014068425569906933,
+            0.046805674612794314,
+            0.0023620865127907675,
+            -0.06941247668284545,
+            0.005094051953211398,
+            0.01494010208788833,
+            0.009141792763757185,
+            -0.011722040872846378,
+            -0.01870869672070003,
+            0.00026945586653530205,
+            0.0005748720682440041,
+            -0.03954160329852508
+          ]
+        },
+        "4": {
+          "kernel_rho": 0.0107507355815736,
+          "random_pctl95": 0.01683040003962408,
+          "random_max": 0.04577444657746486,
+          "random_mean": -0.01248104490684183,
+          "kernel_above_pctl95": false,
+          "rhos": [
+            0.011463596343540411,
+            -0.011069504179299954,
+            -0.10316300285671043,
+            -0.01296179871974518,
+            -0.01097953227351038,
+            0.017503996229156278,
+            -0.06689756083579879,
+            0.0026865321780787906,
+            0.004743428234115444,
+            0.007084971956038729,
+            -0.013574035758435575,
+            -0.03522030140764019,
+            -0.022982291177848713,
+            -0.013782189328413944,
+            0.04577444657746486,
+            0.004677092661163629,
+            -0.0713320529190988,
+            0.0014556870764240815,
+            0.014136015281495346,
+            0.006678104299553455,
+            -0.011462927469600892,
+            -0.018240928092021536,
+            0.002573425594906097,
+            0.0007733269660993451,
+            -0.03991062105095781
+          ]
+        }
+      },
+      "primary": {
+        "kernel_variant": "jl512",
+        "layer": 4,
+        "spearman": 0.0107507355815736,
+        "mantel_p": 0.35264735264735264,
+        "partial_spearman": 0.011764757473306024,
+        "partial_p": 0.35264735264735264,
+        "partial_pass": false,
+        "random_set_pass": false
+      }
+    },
+    {
+      "model": "mock/family-c",
+      "mock": true,
+      "n_layers_total": null,
+      "mid_layer_index": 4,
+      "hidden_states_note": "hidden_states[0] = embedding output (includes learned absolute positions for GPT-Neo-style models; pure token embedding for rotary models); hidden_states[L//2] = output of block L//2",
+      "in_vocab_definition": "tokenize \" \"+word, add_special_tokens=False: 1..4 tokens, no UNK id",
+      "in_vocab_surviving_words": [
+        "afraid",
+        "alive",
+        "angry",
+        "archived",
+        "begin",
+        "believe",
+        "birth",
+        "bookmark",
+        "break",
+        "broken",
+        "cause",
+        "change",
+        "condolence",
+        "dead",
+        "death",
+        "end",
+        "event",
+        "find",
+        "forget",
+        "friend",
+        "gift",
+        "give",
+        "grieving",
+        "happy",
+        "help",
+        "helpful",
+        "inside",
+        "kind",
+        "learn",
+        "liar",
+        "lie",
+        "lose",
+        "lost",
+        "make",
+        "memory",
+        "near",
+        "promise",
+        "remember",
+        "reminder",
+        "repair",
+        "right",
+        "sad",
+        "take",
+        "teacher",
+        "thief",
+        "useful",
+        "visible",
+        "wrong"
+      ],
+      "in_vocab_dropped_words": [
+        "celebration",
+        "conversation",
+        "trustworthy"
+      ],
+      "n_items_analysed": 48,
+      "layers": {
+        "0": {
+          "layer": 0,
+          "role": "embedding (secondary)",
+          "full": {
+            "spearman": -0.016112245140425988,
+            "mantel_p": 0.6933066933066933,
+            "partial_spearman": -0.030657533429459503,
+            "partial_p": 0.8321678321678322
+          },
+          "jl512": {
+            "spearman": -0.003960711950090098,
+            "mantel_p": 0.5304695304695305,
+            "partial_spearman": -0.017942209806639374,
+            "partial_p": 0.7162837162837162
+          },
+          "jl576": {
+            "spearman": -0.02074075247080779,
+            "mantel_p": 0.7382617382617382,
+            "partial_spearman": -0.03268202343574501,
+            "partial_p": 0.8301698301698301
+          }
+        },
+        "4": {
+          "layer": 4,
+          "role": "L/2 (primary)",
+          "full": {
+            "spearman": -0.014399409477953757,
+            "mantel_p": 0.6583416583416584,
+            "partial_spearman": -0.027372797773881387,
+            "partial_p": 0.8501498501498501
+          },
+          "jl512": {
+            "spearman": -0.0031200042955084398,
+            "mantel_p": 0.5104895104895105,
+            "partial_spearman": -0.015464721298489446,
+            "partial_p": 0.6773226773226774
+          },
+          "jl576": {
+            "spearman": -0.019279379965897795,
+            "mantel_p": 0.7342657342657343,
+            "partial_spearman": -0.02991290674814975,
+            "partial_p": 0.8501498501498501
+          }
+        }
+      },
+      "random_sets": {
+        "0": {
+          "kernel_rho": -0.003960711950090098,
+          "random_pctl95": 0.037138840889287296,
+          "random_max": 0.04601485659317654,
+          "random_mean": -0.000777784342032301,
+          "kernel_above_pctl95": false,
+          "rhos": [
+            0.02226005781980439,
+            0.03716895693841415,
+            0.0299019174960383,
+            0.021935286078470853,
+            0.009611869007527023,
+            -0.015434909945571888,
+            0.009551126892894437,
+            -0.08330880934903834,
+            -0.044453378742293256,
+            -0.0025231179137300106,
+            0.037018376692779895,
+            -0.01451763294676377,
+            -0.0053252649522546915,
+            -0.042860271514994955,
+            0.011936640715416863,
+            -0.00846322851303922,
+            -0.06902442110590915,
+            0.01881148592335564,
+            0.014651951194743466,
+            -0.0032673488634602714,
+            0.007368114655561442,
+            0.021808885625750216,
+            -0.014040048593022832,
+            -0.004265701744662356,
+            0.04601485659317654
+          ]
+        },
+        "4": {
+          "kernel_rho": -0.0031200042955084398,
+          "random_pctl95": 0.037402977535818574,
+          "random_max": 0.044450636359141225,
+          "random_mean": -0.0006900337665958711,
+          "kernel_above_pctl95": false,
+          "rhos": [
+            0.02232946185195375,
+            0.03759329056564512,
+            0.03003354352641143,
+            0.024827254526148715,
+            0.007441975060332847,
+            -0.013433463539121376,
+            0.007652695434054122,
+            -0.08417452452803377,
+            -0.04412141660610989,
+            -0.0035293718683426663,
+            0.0366417254165124,
+            -0.015552489623215116,
+            -0.007275157899816764,
+            -0.03876925456056228,
+            0.008083976989331845,
+            -0.005671273441167963,
+            -0.06925447193648253,
+            0.018444583484756638,
+            0.01568269429646677,
+            -0.0034857362047132838,
+            0.009067447425379628,
+            0.023631717607576375,
+            -0.011778886796781265,
+            -0.0060857997042607324,
+            0.044450636359141225
+          ]
+        }
+      },
+      "primary": {
+        "kernel_variant": "jl512",
+        "layer": 4,
+        "spearman": -0.0031200042955084398,
+        "mantel_p": 0.5104895104895105,
+        "partial_spearman": -0.015464721298489446,
+        "partial_p": 0.6773226773226774,
+        "partial_pass": false,
+        "random_set_pass": false
+      }
+    }
+  ]
+}
