@@ -135,11 +135,26 @@ class SAEFamilyExtractor:
             spec["model_id"], revision=spec["model_revision"], torch_dtype=torch.float32
         ).to(device).eval()
         n_layers = self.model.config.num_hidden_layers
-        if n_layers != spec["n_layers_expected"] or spec["hidden_state_index"] != n_layers // 2:
-            raise SystemExit(
-                f"ERR_LAYERS: {name} has {n_layers} layers; pinned hidden_state_index "
-                f"{spec['hidden_state_index']} must equal L//2 of {spec['n_layers_expected']}")
-        self.hs_index = spec["hidden_state_index"]
+        self.site = spec.get("site", "hidden_state")
+        if self.site == "hidden_state":
+            if n_layers != spec["n_layers_expected"] or spec["hidden_state_index"] != n_layers // 2:
+                raise SystemExit(
+                    f"ERR_LAYERS: {name} has {n_layers} layers; pinned hidden_state_index "
+                    f"{spec['hidden_state_index']} must equal L//2 of {spec['n_layers_expected']}")
+            self.hs_index = spec["hidden_state_index"]
+        elif self.site == "mlp_output":
+            # extension 1 (README §Extension 1): EleutherAI MLP-output SAEs;
+            # hookpoint = named-module output, block_index pinned to L//2
+            if n_layers != spec["n_layers_expected"] or spec["block_index"] != n_layers // 2:
+                raise SystemExit(
+                    f"ERR_LAYERS: {name} has {n_layers} layers; pinned block_index "
+                    f"{spec['block_index']} must equal L//2 of {spec['n_layers_expected']}")
+            try:
+                self.hook_module = self.model.get_submodule(spec["module_path"])
+            except AttributeError as e:
+                raise SystemExit(f"ERR_LAYERS: {name}: module {spec['module_path']!r} not found: {e}")
+        else:
+            raise SystemExit(f"ERR_LAYERS: unknown site {self.site!r}")
         sae_path = hf_hub_download(
             spec["sae_repo"], spec["sae_file"], revision=spec["sae_revision"])
         self.sae = SAEDict(spec, load_file(sae_path), torch)
@@ -162,9 +177,25 @@ class SAEFamilyExtractor:
 
     def _hidden(self, enc: dict):
         torch = self.torch
-        with torch.no_grad():
-            hs = self.model(**enc, output_hidden_states=True).hidden_states
-        h = hs[self.hs_index]
+        if self.site == "mlp_output":
+            cap = {}
+
+            def hook(_mod, _args, output):
+                cap["h"] = output[0] if isinstance(output, tuple) else output
+
+            handle = self.hook_module.register_forward_hook(hook)
+            try:
+                with torch.no_grad():
+                    self.model(**enc)
+            finally:
+                handle.remove()
+            if "h" not in cap:
+                raise SystemExit("ERR_LAYERS: forward hook never fired")
+            h = cap["h"]
+        else:
+            with torch.no_grad():
+                hs = self.model(**enc, output_hidden_states=True).hidden_states
+            h = hs[self.hs_index]
         if self.spec["basis"] == "subtract_hidden_mean":
             # transformer_lens center_writing_weights equivalence (README §1).
             h = h - h.mean(dim=-1, keepdim=True)
@@ -275,8 +306,10 @@ def run(args) -> dict:
     man, items_doc, contexts = load_pinned_inputs(args.e2_inputs_dir, args.manifest)
     items = items_doc["items"]
 
+    extract_names = man.get("extraction_families") or list(man["families"])
     families = {}
-    for name, spec in man["families"].items():
+    for name in extract_names:
+        spec = man["families"][name]
         print(f"=== family {name} ({'MOCK' if args.mock else spec['model_id']}) ===", flush=True)
         ext = MockSAEFamily(name, spec) if args.mock else SAEFamilyExtractor(
             name, spec, args.device, args.batch_size)
@@ -333,7 +366,8 @@ def run(args) -> dict:
             "spec_pins": {k: fam["spec"][k] for k in (
                 "model_id", "model_revision", "sae_repo", "sae_revision", "sae_file",
                 "sae_arch", "d_in", "d_sae", "topk", "hookpoint", "hidden_state_index",
-                "basis", "prepend_bos")},
+                "site", "module_path", "block_index", "basis", "prepend_bos")
+                if k in fam["spec"]},
             "resolved": ext.resolved,
             "in_vocab_dropped_words": [it["word"] for it in items if not fam["in_vocab"][it["id"]]],
             "zero_signature_ids": zero_ids,

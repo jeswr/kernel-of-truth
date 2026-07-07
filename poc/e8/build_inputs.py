@@ -6,7 +6,9 @@ Stdlib only, offline, deterministic (idempotent given unchanged inputs; the
 compare with `diff -I '"date"'`). The manifest is THE pin: the Modal container
 asserts every reused artifact and every HF revision against it, fail closed.
 
-    python3 poc/e8/build_inputs.py
+    python3 poc/e8/build_inputs.py          # original two-family manifest
+    python3 poc/e8/build_inputs.py --ext1    # extension-1 manifest (family C
+                                             # + pairs vs committed signatures)
 
 All SAE-source facts below (revisions, file names, sizes, weight-key layouts)
 were surveyed 2026-07-07 via the HF API + ranged safetensors-header reads and
@@ -28,6 +30,8 @@ REANALYSIS_RDMS = os.path.join(
     REPO, "poc", "e2", "results-incoming", "20260707-112247-reanalysis", "rdms-reanalysis.json"
 )
 OUT = os.path.join(HERE, "inputs", "e8-manifest.json")
+OUT_EXT1 = os.path.join(HERE, "inputs", "e8-manifest-ext1.json")
+COMMITTED_STAMP = os.path.join(HERE, "results-incoming", "20260707-131303-modal")
 
 # Reused E2 artifacts (byte-pinned; container stages items+contexts only,
 # analyze.py additionally consumes the kernel + baseline RDMs on this box).
@@ -93,6 +97,38 @@ FAMILIES = {
     },
 }
 
+# Extension 1 (bead kernel-of-truth-fnq; README §Extension 1): third family,
+# MLP-output site (no ungated residual suites exist for a third architecture
+# — survey 2026-07-07, recorded in the README).
+FAMILY_C = {
+    "smollm2-135m": {
+        "model_id": "HuggingFaceTB/SmolLM2-135M",
+        "model_revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+        "sae_repo": "EleutherAI/sae-SmolLM2-135M-64x",
+        "sae_revision": "57ea2cb986e2545844cdd4a5bb2eb39523243494",
+        "sae_file": "layers.15.mlp/sae.safetensors",
+        "sae_cfg_file": "layers.15.mlp/cfg.json",
+        "sae_file_bytes": 170019400,
+        "sae_arch": "eleuther_topk",
+        "sae_keys": {"encoder.weight": [36864, 576], "encoder.bias": [36864],
+                     "W_dec": [36864, 576], "b_dec": [576]},
+        "d_in": 576,
+        "d_sae": 36864,  # 64x of 576; repo cfg.json says expansion_factor 32 —
+        # num_latents/d_in/k are the authoritative fields (README ext-1 note)
+        "topk": 32,
+        "hookpoint": "layers.15.mlp",
+        "site": "mlp_output",            # named-module output via forward hook
+        "module_path": "layers.15.mlp",  # AutoModel (LlamaModel) submodule path
+        "block_index": 15,               # == 30 // 2, the L/2 discipline
+        "n_layers_expected": 30,
+        "basis": "none",                 # sparsify trains on raw HF module outputs
+        "prepend_bos": False,
+        "fvu_gate": 0.75,
+        "training": {"dataset": "EleutherAI/fineweb-edu-dedup-10b", "k": 32},
+        "model_bytes_approx": 270_000_000,
+    },
+}
+
 
 def sha256_file(path: str) -> str:
     h = hashlib.sha256()
@@ -100,6 +136,71 @@ def sha256_file(path: str) -> str:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def build_ext1() -> None:
+    """Extension-1 manifest: family C pins + committed-signature reuse pins +
+    the two pre-registered pairs (README §Extension 1, fixed before build)."""
+    with open(os.path.join(E2_INPUTS, "items.json")) as f:
+        items = json.load(f)
+    e2_pins = {name: sha256_file(os.path.join(E2_INPUTS, name)) for name in E2_FILES}
+    reused = {}
+    for fam, npz in (("gpt2", "signatures-gpt2.npz"), ("pythia-160m", "signatures-pythia-160m.npz")):
+        path = os.path.join(COMMITTED_STAMP, npz)
+        if not os.path.exists(path):
+            raise SystemExit(f"ERR_MISSING_INPUT: committed signatures not found: {path}")
+        reused[fam] = {"file": npz, "sha256": sha256_file(path)}
+    manifest = {
+        "experiment": "E8 extension 1: third-family replication (bead kernel-of-truth-fnq)",
+        "date": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "designPin": "poc/e8/README.md §Extension 1 (fixed before any ext-1 code or download)",
+        "encoderContentHash": items["encoderContentHash"],
+        "corpusPin": items["corpusPin"],
+        "itemSource": "poc/e2/inputs/items.json — the 51 E2 analysis items, reused byte-identically",
+        "itemCountAnalysis": items["itemCountAnalysis"],
+        "e2InputSha256": e2_pins,
+        "reanalysisRdms": {
+            "path": os.path.relpath(REANALYSIS_RDMS, REPO),
+            "sha256": sha256_file(REANALYSIS_RDMS),
+            "use": "emb4 sentence-embedding RDMs as S1 covariates (unchanged from the original run)",
+        },
+        "families": {**FAMILIES, **FAMILY_C},
+        "extraction_families": ["smollm2-135m"],  # runner extracts ONLY family C
+        "reusedSignatures": {
+            "stamp": os.path.relpath(COMMITTED_STAMP, REPO),
+            "extraction_json_sha256": sha256_file(os.path.join(COMMITTED_STAMP, "e8-extraction.json")),
+            "families": reused,
+        },
+        "pairs": [["gpt2", "smollm2-135m"], ["pythia-160m", "smollm2-135m"]],
+        "replicationRule": "the extension REPLICATES iff BOTH new pairs pass P1 AND P2 "
+                           "(p<0.01) with gates passed; anything weaker is reported "
+                           "per-pair, verbatim, no cherry-picking",
+        "signature": {
+            "definition": "per-token SAE encode -> mean over word-span tokens -> mean over the 24 bank contexts; fp32",
+            "siteNote": "family C dictionary lives on the MLP OUTPUT of block 15 (L/2 of 30), "
+                        "named-module output per the EleutherAI sae convention — a site mismatch "
+                        "vs families A/B (residual stream), named as a confound (conservative direction)",
+        },
+        "stats": {
+            "seed": 20260707,
+            "nPerm": 10000,
+            "nPermRetrieval": 2000,
+            "alphaPrimary": 0.01,
+            "primaryKernelVariant": "jl512",
+            "x4DistortionRdmSpearman": {"jl512": 0.9717634748044783, "jl576": 0.9705671745304928},
+        },
+        "downloadPlanBytes": {
+            "models": FAMILY_C["smollm2-135m"]["model_bytes_approx"],
+            "saes": FAMILY_C["smollm2-135m"]["sae_file_bytes"],
+            "destination": "Modal volume kot-hf-cache (families A/B already cached; signatures reused)",
+        },
+    }
+    with open(OUT_EXT1, "w") as f:
+        json.dump(manifest, f, indent=2)
+        f.write("\n")
+    print(f"wrote {OUT_EXT1}")
+    print(f"  pairs: {manifest['pairs']}")
+    print(f"  reused: " + ", ".join(f"{k} {v['sha256'][:12]}…" for k, v in reused.items()))
 
 
 def main() -> None:
@@ -163,4 +264,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ext1", action="store_true",
+                    help="write the extension-1 manifest instead of the original")
+    if ap.parse_args().ext1:
+        build_ext1()
+    else:
+        main()

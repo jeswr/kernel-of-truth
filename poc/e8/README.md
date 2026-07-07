@@ -229,6 +229,53 @@ R^8192→R^576 **0.9706**. Full-D + jl576 are sensitivity rows.
    cosines may bunch near zero; all statistics are mid-rank Spearman (ties
    handled), and signature-density diagnostics are published with the run.
 
+## Extension 1 — third-family replication (bead kernel-of-truth-fnq; pre-registered 2026-07-07 BEFORE any ext-1 code or download)
+
+**Context:** the original pair ran and PASSED (committed stamp
+`results-incoming/20260707-131303-modal`: gate p=.0013; P1 rho=.386, P2
+rho=.360, both p=1e-4; 5/5 Holm secondaries). This extension adds ONE new
+family and pre-registers TWO new pairs against the committed signatures.
+
+**Family C (surveyed via HF API 2026-07-07; both repos ungated):**
+`HuggingFaceTB/SmolLM2-135M` @ `93efa2f097d58c2a74874c7e644dbc9b0cee75a2`
+(llama architecture, 30 layers, d_model 576 — a genuinely THIRD architecture
+family vs GPT-2 and GPT-NeoX, and one of E2's three model families) +
+`EleutherAI/sae-SmolLM2-135M-64x` @
+`57ea2cb986e2545844cdd4a5bb2eb39523243494`,
+file `layers.15.mlp/sae.safetensors` (170.0 MB; TopK k=32, num_latents
+36,864, d_in 576, FineWeb-Edu-dedup-10B). Two honesty notes: (i) the repo
+name says 64x and 36,864/576 = 64, but its cfg.json says `expansion_factor:
+32` — num_latents/d_in/k are the authoritative fields we pin; (ii) this
+suite (like every recent ungated EleutherAI suite surveyed: pythia-410m-65k,
+DeepSeek-R1-Distill-Qwen-1.5B-65k, SmolLM2) is **MLP-OUTPUT SAEs only** — no
+residual hookpoints exist. Family C's dictionary therefore lives on the MLP
+output of block 15 (= L/2 of 30, exactly), captured as the named-module
+output (`layers.15.mlp`) per the EleutherAI `sae` convention, via a forward
+hook. The site mismatch vs families A/B (residual stream) is a NEW named
+confound (README §6.3 class): it can only depress correspondence strength —
+conservative for the kernel claim. Basis "none", no BOS (sparsify
+convention, as family B). Gemma Scope remains excluded (gated base model).
+Rejected: pythia-410m (same family as B — replication value is lower than a
+third architecture) and DeepSeek-R1-Distill-Qwen-1.5B (10x download for the
+same MLP-site evidence).
+
+**Reuse:** families A/B signatures are NOT re-extracted; the committed
+`signatures-gpt2.npz` (sha256 `b40fe32e1e80…`) and
+`signatures-pythia-160m.npz` (sha256 `3bbd06e57174…`) are consumed
+byte-identically (full pins in `inputs/e8-manifest-ext1.json`). The Modal
+run downloads family C only (~270 MB model + 170 MB SAE).
+
+**Pre-registered pairs and criterion:** pairs (A=gpt2, C) and
+(B=pythia-160m, C); per-pair battery IDENTICAL to the original (gate G;
+P1 + P2 at p<0.01; Holm secondaries S1–S5; jl512 primary, full-D/jl576
+sensitivity; item set per pair = committed 51 ∩ C survivors ∩ nonzero
+signatures). **Replication rule (fixed before any number is seen): the
+extension REPLICATES iff BOTH new pairs pass P1 AND P2 with gates passed** —
+E8 then reports 3/3 pairs across 3 architecture families. Anything weaker is
+reported per-pair, verbatim, no cherry-picking. Statistics run through
+`analyze.full_battery` UNCHANGED (`analyze_ext1.py` is a loader around it;
+`analyze.py`'s bytes stay as committed with the original verdict).
+
 ## Layout
 
 - `build_inputs.py` — writes `inputs/e8-manifest.json`: sha-pins over the

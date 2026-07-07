@@ -231,6 +231,56 @@ class TestMockEndToEnd(unittest.TestCase):
             self.assertIn("ERR_MANIFEST_PIN", rc.stdout + rc.stderr)
 
 
+class TestExt1(unittest.TestCase):
+    """Extension 1 (bead fnq): manifest pins, family filter, mock e2e."""
+
+    def test_manifest_pins_committed_signatures(self):
+        with open(HERE / "inputs" / "e8-manifest-ext1.json") as f:
+            man = json.load(f)
+        self.assertEqual(man["extraction_families"], ["smollm2-135m"])
+        self.assertEqual(man["pairs"], [["gpt2", "smollm2-135m"], ["pythia-160m", "smollm2-135m"]])
+        stamp = REPO / man["reusedSignatures"]["stamp"]
+        import hashlib
+        for fam, pin in man["reusedSignatures"]["families"].items():
+            with open(stamp / pin["file"], "rb") as f:
+                self.assertEqual(hashlib.sha256(f.read()).hexdigest(), pin["sha256"],
+                                 f"{fam} committed signature drifted")
+        spec = man["families"]["smollm2-135m"]
+        self.assertEqual(spec["site"], "mlp_output")
+        self.assertEqual(spec["block_index"], spec["n_layers_expected"] // 2)
+        self.assertEqual(spec["d_sae"], 36864)
+
+    def test_mock_ext1_end_to_end(self):
+        with tempfile.TemporaryDirectory(prefix="e8-ext1-") as td:
+            rc = subprocess.run(
+                [sys.executable, str(HERE / "runner" / "e8_runner.py"), "--mock",
+                 "--out-dir", td,
+                 "--e2-inputs-dir", str(REPO / "poc" / "e2" / "inputs"),
+                 "--manifest", str(HERE / "inputs" / "e8-manifest-ext1.json")],
+                capture_output=True, text=True)
+            self.assertEqual(rc.returncode, 0, rc.stdout + rc.stderr)
+            with open(os.path.join(td, "e8-extraction.json")) as f:
+                ext = json.load(f)
+            # extraction_families filter honoured: family C only
+            self.assertEqual(list(ext["families"]), ["smollm2-135m"])
+
+            rc2 = subprocess.run(
+                [sys.executable, str(HERE / "analyze_ext1.py"), td],
+                capture_output=True, text=True)
+            self.assertEqual(rc2.returncode, 0, rc2.stdout + rc2.stderr)
+            with open(os.path.join(td, "results-e8-ext1.json")) as f:
+                res = json.load(f)
+            self.assertTrue(res["mock"])
+            self.assertEqual(len(res["per_pair"]), 2)
+            self.assertIn("replicated", res)
+            for pdata in res["per_pair"].values():
+                self.assertIn("gate_G", pdata["battery"])
+            with open(os.path.join(td, "verdict-e8-ext1.md")) as f:
+                v = f.read()
+            self.assertIn("MOCK RUN", v)
+            self.assertIn("Pre-registered replication rule", v)
+
+
 class TestModalWiring(unittest.TestCase):
     """Import poc/modal/modal_e8.py against a Modal stub; no token, no network."""
 
@@ -289,7 +339,7 @@ class TestModalWiring(unittest.TestCase):
             sys.modules.pop("modal_e8", None)
             import modal_e8  # noqa: F401  (staged-file existence asserted in stub)
             man = modal_e8._staged_manifest()
-            self.assertEqual(len(man), 5)
+            self.assertEqual(len(man), 6)
             with open(HERE / "inputs" / "e8-manifest.json", "rb") as f:
                 import hashlib
                 self.assertEqual(man["e8/inputs/e8-manifest.json"],

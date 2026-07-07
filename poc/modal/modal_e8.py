@@ -12,6 +12,8 @@ re-runnable without spend.
     .venv/bin/python poc/modal/modal_e8.py --dry-plan   # plan + $ — NO token
     .venv/bin/modal run poc/modal/modal_e8.py --mock    # transport smoke, ~pennies
     .venv/bin/modal run poc/modal/modal_e8.py           # THE run (T4, ~$0.10-0.50)
+    .venv/bin/modal run poc/modal/modal_e8.py --ext1    # extension 1: family C only
+                                                        # (then poc/e8/analyze_ext1.py)
 
 Results land in poc/e8/results-incoming/<UTC stamp>-modal/ — NOT
 auto-committed; review, run analyze.py, commit deliberately (E2 discipline).
@@ -39,6 +41,7 @@ except IndexError:
 E8_DIR = REPO_ROOT / "poc" / "e8"
 E8_RUNNER = E8_DIR / "runner" / "e8_runner.py"
 E8_MANIFEST = E8_DIR / "inputs" / "e8-manifest.json"
+E8_MANIFEST_EXT1 = E8_DIR / "inputs" / "e8-manifest-ext1.json"
 E2_RUNNER = REPO_ROOT / "poc" / "e2" / "runner" / "e2_runner.py"
 E2_ITEMS = REPO_ROOT / "poc" / "e2" / "inputs" / "items.json"
 E2_CONTEXTS = REPO_ROOT / "poc" / "e2" / "inputs" / "contexts.json"
@@ -48,6 +51,7 @@ INCOMING_ROOT = E8_DIR / "results-incoming"
 REMOTE_KOT = "/root/kot/poc"
 REMOTE_E8_RUNNER = f"{REMOTE_KOT}/e8/runner/e8_runner.py"
 REMOTE_E8_MANIFEST = f"{REMOTE_KOT}/e8/inputs/e8-manifest.json"
+REMOTE_E8_MANIFEST_EXT1 = f"{REMOTE_KOT}/e8/inputs/e8-manifest-ext1.json"
 REMOTE_E2_RUNNER = f"{REMOTE_KOT}/e2/runner/e2_runner.py"
 REMOTE_E2_INPUTS = f"{REMOTE_KOT}/e2/inputs"
 REMOTE_OUT = "/tmp/e8-out"
@@ -65,6 +69,7 @@ def _staged_manifest() -> dict:
     return {
         "e8/runner/e8_runner.py": mc.sha256_file(str(E8_RUNNER)),
         "e8/inputs/e8-manifest.json": mc.sha256_file(str(E8_MANIFEST)),
+        "e8/inputs/e8-manifest-ext1.json": mc.sha256_file(str(E8_MANIFEST_EXT1)),
         "e2/runner/e2_runner.py": mc.sha256_file(str(E2_RUNNER)),
         "e2/inputs/items.json": mc.sha256_file(str(E2_ITEMS)),
         "e2/inputs/contexts.json": mc.sha256_file(str(E2_CONTEXTS)),
@@ -87,6 +92,7 @@ image = (
     .add_local_python_source("modal_common")
     .add_local_file(E8_RUNNER, REMOTE_E8_RUNNER)
     .add_local_file(E8_MANIFEST, REMOTE_E8_MANIFEST)
+    .add_local_file(E8_MANIFEST_EXT1, REMOTE_E8_MANIFEST_EXT1)
     .add_local_file(E2_RUNNER, REMOTE_E2_RUNNER)
     .add_local_file(E2_ITEMS, f"{REMOTE_E2_INPUTS}/items.json")
     .add_local_file(E2_CONTEXTS, f"{REMOTE_E2_INPUTS}/contexts.json")
@@ -95,7 +101,7 @@ image = (
 hf_cache = modal.Volume.from_name("kot-hf-cache", create_if_missing=True)
 
 
-def _run_in_container(local_manifest: dict, mock: bool) -> dict:
+def _run_in_container(local_manifest: dict, mock: bool, ext1: bool = False) -> dict:
     import os
 
     import modal_common as cmc
@@ -104,6 +110,7 @@ def _run_in_container(local_manifest: dict, mock: bool) -> dict:
     staged = {
         "e8/runner/e8_runner.py": cmc.sha256_file(REMOTE_E8_RUNNER),
         "e8/inputs/e8-manifest.json": cmc.sha256_file(REMOTE_E8_MANIFEST),
+        "e8/inputs/e8-manifest-ext1.json": cmc.sha256_file(REMOTE_E8_MANIFEST_EXT1),
         "e2/runner/e2_runner.py": cmc.sha256_file(REMOTE_E2_RUNNER),
         "e2/inputs/items.json": cmc.sha256_file(f"{REMOTE_E2_INPUTS}/items.json"),
         "e2/inputs/contexts.json": cmc.sha256_file(f"{REMOTE_E2_INPUTS}/contexts.json"),
@@ -120,7 +127,7 @@ def _run_in_container(local_manifest: dict, mock: bool) -> dict:
 
     cmd = [sys.executable, REMOTE_E8_RUNNER,
            "--e2-inputs-dir", REMOTE_E2_INPUTS,
-           "--manifest", REMOTE_E8_MANIFEST,
+           "--manifest", REMOTE_E8_MANIFEST_EXT1 if ext1 else REMOTE_E8_MANIFEST,
            "--out-dir", REMOTE_OUT,
            "--device", "cpu" if mock else "cuda"]
     if mock:
@@ -167,8 +174,8 @@ def _run_in_container(local_manifest: dict, mock: bool) -> dict:
 
 
 @app.function(image=image, gpu="T4", volumes={HF_CACHE_MOUNT: hf_cache}, timeout=TIMEOUT_S)
-def run_e8_t4(local_manifest: dict = None, mock: bool = False) -> dict:  # noqa: RUF013
-    return _run_in_container(local_manifest or {}, mock)
+def run_e8_t4(local_manifest: dict = None, mock: bool = False, ext1: bool = False) -> dict:  # noqa: RUF013
+    return _run_in_container(local_manifest or {}, mock, ext1)
 
 
 def _print_plan() -> None:
@@ -197,17 +204,24 @@ def _print_plan() -> None:
           f"warm {WARM_MINUTES[0]}-{WARM_MINUTES[1]} min ~= ${wlo:.2f}-{whi:.2f}")
     print("  run: .venv/bin/modal run poc/modal/modal_e8.py    (coordinator-gated)")
     print("  then: python3 poc/e8/analyze.py poc/e8/results-incoming/<stamp>-modal")
+    if E8_MANIFEST_EXT1.exists():
+        m1 = json.loads(E8_MANIFEST_EXT1.read_text())
+        dl1 = m1["downloadPlanBytes"]
+        print(f"  ext1 (family C only, {(dl1['models'] + dl1['saes']) / 1e9:.2f} GB): "
+              "run with --ext1, then poc/e8/analyze_ext1.py; pairs "
+              f"{m1['pairs']}")
 
 
 @app.local_entrypoint()
-def main(mock: bool = False, out_root: str = "") -> None:
+def main(mock: bool = False, ext1: bool = False, out_root: str = "") -> None:
     local_manifest = _staged_manifest()
     print(f"kot-e8 via Modal: T4, {len(local_manifest)} staged files, "
-          f"manifest {local_manifest['e8/inputs/e8-manifest.json'][:12]}… mock={mock}")
+          f"manifest {local_manifest['e8/inputs/e8-manifest.json'][:12]}… mock={mock} ext1={ext1}")
 
-    files = run_e8_t4.remote(local_manifest=local_manifest, mock=mock)
+    files = run_e8_t4.remote(local_manifest=local_manifest, mock=mock, ext1=ext1)
 
-    stamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + ("-mock-modal" if mock else "-modal")
+    stamp = (time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+             + ("-mock" if mock else "") + ("-ext1" if ext1 else "") + "-modal")
     dest = Path(out_root) / stamp if out_root else INCOMING_ROOT / stamp
     mc.unpack_files(files, str(dest))
 
@@ -225,7 +239,7 @@ def main(mock: bool = False, out_root: str = "") -> None:
     }
     prov_path.write_text(json.dumps(prov, indent=2, sort_keys=True) + "\n")
     print(f"\nwrote {len(files)} files to {dest}")
-    print("next: python3 poc/e8/analyze.py " + str(dest))
+    print(f"next: python3 poc/e8/{'analyze_ext1' if ext1 else 'analyze'}.py " + str(dest))
 
 
 if __name__ == "__main__":
