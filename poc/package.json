@@ -1,0 +1,26 @@
+{
+  "name": "@jeswr/kernel-poc",
+  "version": "0.1.0",
+  "description": "Phase-X property-test harnesses (X0-X4) for the Kernel of Truth encoder v0. Pre-registered in docs/poc-design.md.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "x0": "npm run build && nice -n 10 node dist/x0.js",
+    "x0:write": "npm run build && nice -n 10 node dist/x0.js --write",
+    "x1": "npm run build && nice -n 10 node dist/x1.js",
+    "x1:full": "npm run build && nice -n 10 node dist/x1.js --n 10000 --pairs full",
+    "x2": "npm run build && nice -n 10 node dist/x2.js",
+    "x3": "npm run build && nice -n 10 node dist/x3.js",
+    "x4": "npm run build && nice -n 10 node dist/x4.js",
+    "x:reduced": "npm run x0 && npm run x1 && npm run x2 && npm run x3 && npm run x4"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../encoder"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

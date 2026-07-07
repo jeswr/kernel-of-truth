@@ -53,18 +53,42 @@ bd close <id>         # Complete work
 
 ## Build & Test
 
-_Add your build and test commands here_
-
 ```bash
-# Example:
-# npm install
-# npm test
+# encoder package (@jeswr/kernel-encoder)
+cd encoder && npm install && npm test        # tsc build + node:test property suites
+
+# Phase-X harnesses (pre-registered in docs/poc-design.md)
+cd poc && npm install
+npm run x0          # golden vectors / byte-determinism (verify against committed fixture)
+npm run x0:write    # regenerate goldens — ONLY on a deliberate encoder version change
+npm run x1          # adversarial single-edit margins, reduced n=500
+npm run x1:full     # full pre-registered n=10^4 run (hours; niced, checkpointed)
+npm run x2          # decode recovery by (depth x clause-count) cell
+npm run x3          # polarity pathology + weighting sensitivity
+npm run x4          # JL projection distortion (8192->512, 8192->576)
 ```
+
+Reports land in `poc/results/` (JSON + markdown). All compute-heavy scripts are
+`nice -n 10`'d and checkpointed for this box's 2 shared cores.
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+- `encoder/` — deterministic explication->vector encoder v0 (construction B:
+  exact Hadamard TPR within clauses; whitened unitary circular-convolution HRR
+  across clauses/depth), decoder with confidence reporting, 65-prime profile-1
+  lexicon data, seeded synthetic generator + single-edit mutator, and the
+  encoder content-hash pin. Zero runtime deps; node:crypto + own FFT.
+- `poc/` — Phase-X harnesses only (X0-X4). Keep harness code OUT of encoder/.
+- `docs/`, `reports/`, `notes/` — design record, wave-1 evidence, panel notes.
+  Spec anchors: docs/architecture.md §1 (encoder), docs/poc-design.md Phase X
+  (pre-registered tests), reports/deterministic-concept-vectors.md §7.
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- Every mathematical choice in encoder code carries a comment citing its
+  source (report section). No silent fallbacks; fail closed with ERR_* codes.
+- The encoder content-hash pins {schema, algorithm, D, codebook, weighting};
+  changing any of these is an encoder version change: bump ALGORITHM_VERSION,
+  regenerate X0 goldens deliberately, re-run Phase X.
+- Synthetic generation takes an explicit seed; the ENCODER itself is seeded by
+  nothing (SHA-256 over fixed labels only).
