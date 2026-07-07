@@ -1,0 +1,26 @@
+{
+  "note": "Pinned external sources for the haiku-tier inventory. Files live in data/haiku-tier/cache/ (gitignored); re-fetch by URL and verify sha256 before any rebuild. Fetched 2026-07-07.",
+  "sources": {
+    "core-wordnet": {
+      "file": "core-wordnet.txt",
+      "url": "https://wordnetcode.princeton.edu/standoff-files/core-wordnet.txt",
+      "sha256": "bddc8163a6091cb58a41bf3ee6b6307c753bb654c997fb4ba1bc28d0ae274ad2",
+      "what": "Princeton WordNet 'core' standoff list, 4,997 (pos, sense-key, lemma[, gloss hint]) lines - the standard ~5k most-frequent/salient sense list (Boyd-Graber et al.)",
+      "fetched": "2026-07-07"
+    },
+    "freq-en50k": {
+      "file": "en_50k.txt",
+      "url": "https://raw.githubusercontent.com/hermitdave/FrequencyWords/072bbed282316a23651aa7068c7173aa7898cf80/content/2018/en/en_50k.txt",
+      "sha256": "5351ff405b1126ef555791dd4d9798a48e3e9a501a9fc481a9da957752cfb458",
+      "what": "hermitdave/FrequencyWords OpenSubtitles-2018 English top-50k surface frequency list, pinned at commit 072bbed (2019-02-13)",
+      "fetched": "2026-07-07"
+    },
+    "wn31-dict": {
+      "file": "wn3.1.dict.tar.gz",
+      "url": "https://wordnetcode.princeton.edu/wn3.1.dict.tar.gz",
+      "sha256": "3f7d8be8ef6ecc7167d39b10d66954ec734280b5bdcd57f7d9eafe429d11c22a",
+      "what": "WordNet 3.1 database files; used for lemma membership (index.*), proper-noun/instance heuristics + unit-of-measurement subtree (data.noun), morphology folds (*.exc). Independent copy - data/lexical-wn31 is another agent's stream and is not touched.",
+      "fetched": "2026-07-07"
+    }
+  }
+}
