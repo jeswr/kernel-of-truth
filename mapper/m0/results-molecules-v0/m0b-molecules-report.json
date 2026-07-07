@@ -1,0 +1,3270 @@
+{
+  "experiment": "M0b-molecules-v0 (coverage delta)",
+  "date": "2026-07-07",
+  "caveat": "AGENT-JUDGED single-annotator reclassification of the m0b molecule class (Claude Fable 5); criteria in this file; same epistemic status as m0b itself (\u00b1few points). Committed m0b results untouched; only class=molecule rows reclassified.",
+  "inputs": {
+    "m0bReport": "mapper/m0/results/m0b-report.json",
+    "molecules": "data/molecules-v0/manifest.json (54 molecules, all pass validate.mjs)"
+  },
+  "basis": {
+    "corpus": "M0b-vocab",
+    "contentMassTokens": 1709765,
+    "pctContentOfAllWords": 45.5506,
+    "topN": 500,
+    "topNMassPctOfContent": 80.3502
+  },
+  "headlinePctOfTop500Mass": {
+    "kernel-lexicon": 25.95,
+    "kernel-synonym": 2.41,
+    "explicable": 29.81,
+    "oos": 8.85,
+    "molecule-v0-label": 13.2,
+    "molecule-v0-synonym": 3.37,
+    "explicable-with-molecules-clear": 12.86,
+    "explicable-with-molecules-borderline": 1.46,
+    "still-molecule-gated": 2.07
+  },
+  "moleculeMassSplit": {
+    "moleculeClassTotalPct": 32.97,
+    "directPct": 16.57,
+    "transitiveClearPct": 12.86,
+    "transitiveBorderlinePct": 1.46,
+    "stillGatedPct": 2.07,
+    "shareOfMoleculeMassUnlocked": {
+      "directOnly": 50.3,
+      "plusClear": 89.3,
+      "plusBorderline": 93.7
+    }
+  },
+  "ceilings": {
+    "convention": "content-mass ceilings are % of top-500 content mass (80.35% of content mass classified; long tail skews concrete/named => generous, same as m0b); all-token ceilings apply the 45.55% content share, same convention as the m0b ~26% number",
+    "old": {
+      "contentPct": 58.2,
+      "allTokenPct": 26.5
+    },
+    "newDirectOnly": {
+      "contentPct": 74.7,
+      "allTokenPct": 34.0
+    },
+    "newPlusTransitiveClear": {
+      "contentPct": 87.6,
+      "allTokenPct": 39.9
+    },
+    "newPlusBorderline": {
+      "contentPct": 89.1,
+      "allTokenPct": 40.6
+    }
+  },
+  "classMassTokens": {
+    "kernel-lexicon": 356554,
+    "kernel-synonym": 33100,
+    "explicable": 409581,
+    "oos": 121624,
+    "molecule-v0-label": 181380,
+    "molecule-v0-synonym": 46320,
+    "explicable-with-molecules-clear": 176701,
+    "explicable-with-molecules-borderline": 20058,
+    "still-molecule-gated": 28481
+  },
+  "rows": [
+    {
+      "lemma": "say",
+      "count": 43582,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "lily",
+      "count": 30752,
+      "class": "oos"
+    },
+    {
+      "lemma": "day",
+      "count": 28329,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:day"
+    },
+    {
+      "lemma": "see",
+      "count": 26412,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "go",
+      "count": 25412,
+      "class": "explicable"
+    },
+    {
+      "lemma": "play",
+      "count": 23868,
+      "class": "explicable"
+    },
+    {
+      "lemma": "mom",
+      "count": 22838,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:mother"
+    },
+    {
+      "lemma": "one",
+      "count": 21354,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "want",
+      "count": 20461,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "time",
+      "count": 19424,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "little",
+      "count": 19391,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "happy",
+      "count": 18024,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "big",
+      "count": 17529,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "look",
+      "count": 16152,
+      "class": "explicable"
+    },
+    {
+      "lemma": "make",
+      "count": 15812,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "friend",
+      "count": 15213,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "like",
+      "count": 14315,
+      "class": "explicable"
+    },
+    {
+      "lemma": "feel",
+      "count": 13667,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "girl",
+      "count": 13049,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "m:woman"
+      ],
+      "note": "a child that can be a woman after a long time \u2014 NSM's own derivation over the child/woman molecules"
+    },
+    {
+      "lemma": "love",
+      "count": 11984,
+      "class": "explicable"
+    },
+    {
+      "lemma": "smile",
+      "count": 11681,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:smile"
+    },
+    {
+      "lemma": "get",
+      "count": 11578,
+      "class": "explicable"
+    },
+    {
+      "lemma": "find",
+      "count": 11311,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "tom",
+      "count": 10810,
+      "class": "oos"
+    },
+    {
+      "lemma": "name",
+      "count": 10801,
+      "class": "explicable"
+    },
+    {
+      "lemma": "run",
+      "count": 10623,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:run"
+    },
+    {
+      "lemma": "good",
+      "count": 10452,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "timmy",
+      "count": 10359,
+      "class": "oos"
+    },
+    {
+      "lemma": "come",
+      "count": 10309,
+      "class": "explicable"
+    },
+    {
+      "lemma": "ask",
+      "count": 10183,
+      "class": "explicable"
+    },
+    {
+      "lemma": "take",
+      "count": 10104,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "help",
+      "count": 10088,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "ben",
+      "count": 9740,
+      "class": "oos"
+    },
+    {
+      "lemma": "know",
+      "count": 8618,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "toy",
+      "count": 8556,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:make"
+      ],
+      "note": "functional kind: a thing people make for children to do things with for pleasure; function IS the identity, so explication (not minting) is the honest tier"
+    },
+    {
+      "lemma": "boy",
+      "count": 8364,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "m:man"
+      ],
+      "note": "mirror of girl over child/man"
+    },
+    {
+      "lemma": "fun",
+      "count": 8279,
+      "class": "explicable"
+    },
+    {
+      "lemma": "start",
+      "count": 7973,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "mommy",
+      "count": 7681,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:mother"
+    },
+    {
+      "lemma": "bird",
+      "count": 7305,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:bird"
+    },
+    {
+      "lemma": "try",
+      "count": 7089,
+      "class": "explicable"
+    },
+    {
+      "lemma": "thing",
+      "count": 6716,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "park",
+      "count": 6714,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree",
+        "m:grass",
+        "m:child"
+      ],
+      "note": "functional-relational place kind over tree/grass/child"
+    },
+    {
+      "lemma": "put",
+      "count": 6603,
+      "class": "explicable"
+    },
+    {
+      "lemma": "sad",
+      "count": 6373,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "home",
+      "count": 6357,
+      "class": "explicable"
+    },
+    {
+      "lemma": "new",
+      "count": 6337,
+      "class": "explicable"
+    },
+    {
+      "lemma": "give",
+      "count": 6188,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "tim",
+      "count": 6184,
+      "class": "oos"
+    },
+    {
+      "lemma": "think",
+      "count": 6048,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "walk",
+      "count": 5974,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:walk"
+    },
+    {
+      "lemma": "thank",
+      "count": 5809,
+      "class": "explicable"
+    },
+    {
+      "lemma": "excited",
+      "count": 5723,
+      "class": "explicable"
+    },
+    {
+      "lemma": "decide",
+      "count": 5697,
+      "class": "explicable"
+    },
+    {
+      "lemma": "tree",
+      "count": 5654,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:tree"
+    },
+    {
+      "lemma": "hug",
+      "count": 5602,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:hug"
+    },
+    {
+      "lemma": "scare",
+      "count": 5345,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "dad",
+      "count": 5329,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:father"
+    },
+    {
+      "lemma": "man",
+      "count": 5245,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:man"
+    },
+    {
+      "lemma": "dog",
+      "count": 5136,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:dog"
+    },
+    {
+      "lemma": "eat",
+      "count": 5024,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:eat"
+    },
+    {
+      "lemma": "tell",
+      "count": 5020,
+      "class": "explicable"
+    },
+    {
+      "lemma": "max",
+      "count": 4959,
+      "class": "oos"
+    },
+    {
+      "lemma": "car",
+      "count": 4870,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:car"
+    },
+    {
+      "lemma": "hear",
+      "count": 4699,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "sam",
+      "count": 4623,
+      "class": "oos"
+    },
+    {
+      "lemma": "fly",
+      "count": 4585,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:bird",
+        "m:sky",
+        "m:ground"
+      ],
+      "note": "move far above the ground, in the sky, like a bird moves"
+    },
+    {
+      "lemma": "old",
+      "count": 4491,
+      "class": "explicable"
+    },
+    {
+      "lemma": "learn",
+      "count": 4376,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "keep",
+      "count": 4288,
+      "class": "explicable"
+    },
+    {
+      "lemma": "anna",
+      "count": 4282,
+      "class": "oos"
+    },
+    {
+      "lemma": "special",
+      "count": 4277,
+      "class": "explicable"
+    },
+    {
+      "lemma": "suddenly",
+      "count": 4124,
+      "class": "explicable"
+    },
+    {
+      "lemma": "laugh",
+      "count": 4079,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:laugh"
+    },
+    {
+      "lemma": "house",
+      "count": 3867,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:house"
+    },
+    {
+      "lemma": "show",
+      "count": 3781,
+      "class": "explicable"
+    },
+    {
+      "lemma": "jack",
+      "count": 3765,
+      "class": "oos"
+    },
+    {
+      "lemma": "sorry",
+      "count": 3744,
+      "class": "explicable"
+    },
+    {
+      "lemma": "ball",
+      "count": 3403,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:ball"
+    },
+    {
+      "lemma": "hand",
+      "count": 3392,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:hand"
+    },
+    {
+      "lemma": "pick",
+      "count": 3387,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand",
+        "k:take"
+      ]
+    },
+    {
+      "lemma": "water",
+      "count": 3385,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:water"
+    },
+    {
+      "lemma": "room",
+      "count": 3374,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "yes",
+      "count": 3362,
+      "class": "explicable"
+    },
+    {
+      "lemma": "proud",
+      "count": 3357,
+      "class": "explicable"
+    },
+    {
+      "lemma": "stop",
+      "count": 3355,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "bear",
+      "count": 3325,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:bear"
+    },
+    {
+      "lemma": "open",
+      "count": 3279,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:open"
+    },
+    {
+      "lemma": "share",
+      "count": 3256,
+      "class": "explicable"
+    },
+    {
+      "lemma": "live",
+      "count": 3237,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "long",
+      "count": 3234,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "box",
+      "count": 3195,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:box"
+    },
+    {
+      "lemma": "watch",
+      "count": 3186,
+      "class": "explicable"
+    },
+    {
+      "lemma": "cry",
+      "count": 3164,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:cry"
+    },
+    {
+      "lemma": "close",
+      "count": 3146,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:close"
+    },
+    {
+      "lemma": "small",
+      "count": 3133,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "end",
+      "count": 3123,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "mia",
+      "count": 3055,
+      "class": "oos"
+    },
+    {
+      "lemma": "need",
+      "count": 3005,
+      "class": "explicable"
+    },
+    {
+      "lemma": "nice",
+      "count": 3003,
+      "class": "explicable"
+    },
+    {
+      "lemma": "work",
+      "count": 2989,
+      "class": "explicable"
+    },
+    {
+      "lemma": "animal",
+      "count": 2920,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:animal"
+    },
+    {
+      "lemma": "sara",
+      "count": 2831,
+      "class": "oos"
+    },
+    {
+      "lemma": "spot",
+      "count": 2803,
+      "class": "oos"
+    },
+    {
+      "lemma": "jump",
+      "count": 2792,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:jump"
+    },
+    {
+      "lemma": "cat",
+      "count": 2785,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:cat"
+    },
+    {
+      "lemma": "flower",
+      "count": 2736,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:flower"
+    },
+    {
+      "lemma": "explore",
+      "count": 2731,
+      "class": "explicable"
+    },
+    {
+      "lemma": "kind",
+      "count": 2725,
+      "class": "explicable"
+    },
+    {
+      "lemma": "call",
+      "count": 2724,
+      "class": "explicable"
+    },
+    {
+      "lemma": "way",
+      "count": 2699,
+      "class": "explicable"
+    },
+    {
+      "lemma": "sky",
+      "count": 2649,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:sky"
+    },
+    {
+      "lemma": "garden",
+      "count": 2649,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house",
+        "m:flower",
+        "m:grass"
+      ]
+    },
+    {
+      "lemma": "beautiful",
+      "count": 2639,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wait",
+      "count": 2634,
+      "class": "explicable"
+    },
+    {
+      "lemma": "fast",
+      "count": 2633,
+      "class": "explicable"
+    },
+    {
+      "lemma": "safe",
+      "count": 2596,
+      "class": "explicable"
+    },
+    {
+      "lemma": "careful",
+      "count": 2591,
+      "class": "explicable"
+    },
+    {
+      "lemma": "stay",
+      "count": 2515,
+      "class": "explicable"
+    },
+    {
+      "lemma": "listen",
+      "count": 2507,
+      "class": "explicable"
+    },
+    {
+      "lemma": "noise",
+      "count": 2470,
+      "class": "explicable"
+    },
+    {
+      "lemma": "people",
+      "count": 2459,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "family",
+      "count": 2451,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:mother",
+        "m:father",
+        "m:child"
+      ]
+    },
+    {
+      "lemma": "loud",
+      "count": 2438,
+      "class": "explicable"
+    },
+    {
+      "lemma": "hurt",
+      "count": 2427,
+      "class": "explicable"
+    },
+    {
+      "lemma": "hard",
+      "count": 2416,
+      "class": "explicable"
+    },
+    {
+      "lemma": "two",
+      "count": 2329,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "hop",
+      "count": 2323,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:jump",
+      "note": "counted as jump-synonym: dominant TinyStories use is rabbit/child hopping (small jumps); weakest synonym call"
+    },
+    {
+      "lemma": "john",
+      "count": 2318,
+      "class": "oos"
+    },
+    {
+      "lemma": "brave",
+      "count": 2309,
+      "class": "explicable"
+    },
+    {
+      "lemma": "sun",
+      "count": 2295,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:sun"
+    },
+    {
+      "lemma": "surprise",
+      "count": 2289,
+      "class": "explicable"
+    },
+    {
+      "lemma": "high",
+      "count": 2267,
+      "class": "explicable"
+    },
+    {
+      "lemma": "break",
+      "count": 2243,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "fall",
+      "count": 2232,
+      "class": "explicable"
+    },
+    {
+      "lemma": "sure",
+      "count": 2232,
+      "class": "explicable"
+    },
+    {
+      "lemma": "red",
+      "count": 2229,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:red"
+    },
+    {
+      "lemma": "nod",
+      "count": 2211,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:head"
+      ]
+    },
+    {
+      "lemma": "pretty",
+      "count": 2191,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bad",
+      "count": 2190,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "lucy",
+      "count": 2165,
+      "class": "oos"
+    },
+    {
+      "lemma": "clean",
+      "count": 2160,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ],
+      "note": "arguably never needed a molecule ('nothing bad on it'); m0b classed it molecule via the scrubbing-activity sense"
+    },
+    {
+      "lemma": "sit",
+      "count": 2155,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:sit"
+    },
+    {
+      "lemma": "angry",
+      "count": 2134,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "idea",
+      "count": 2105,
+      "class": "explicable"
+    },
+    {
+      "lemma": "ground",
+      "count": 2088,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:ground"
+    },
+    {
+      "lemma": "hold",
+      "count": 2074,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "shiny",
+      "count": 2056,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:light"
+      ]
+    },
+    {
+      "lemma": "place",
+      "count": 2038,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "next",
+      "count": 1998,
+      "class": "explicable"
+    },
+    {
+      "lemma": "eye",
+      "count": 1990,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:eye"
+    },
+    {
+      "lemma": "doll",
+      "count": 1978,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "reach",
+      "count": 1963,
+      "class": "explicable"
+    },
+    {
+      "lemma": "finally",
+      "count": 1956,
+      "class": "explicable"
+    },
+    {
+      "lemma": "turn",
+      "count": 1954,
+      "class": "explicable"
+    },
+    {
+      "lemma": "door",
+      "count": 1944,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house",
+        "m:open",
+        "m:close"
+      ]
+    },
+    {
+      "lemma": "worry",
+      "count": 1918,
+      "class": "explicable"
+    },
+    {
+      "lemma": "happen",
+      "count": 1906,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "face",
+      "count": 1903,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:head",
+        "m:eye",
+        "m:mouth"
+      ]
+    },
+    {
+      "lemma": "rock",
+      "count": 1902,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:rock"
+    },
+    {
+      "lemma": "grab",
+      "count": 1902,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand",
+        "k:take"
+      ]
+    },
+    {
+      "lemma": "wave",
+      "count": 1894,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "climb",
+      "count": 1890,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand",
+        "m:tree"
+      ]
+    },
+    {
+      "lemma": "leave",
+      "count": 1886,
+      "class": "explicable"
+    },
+    {
+      "lemma": "notice",
+      "count": 1875,
+      "class": "explicable"
+    },
+    {
+      "lemma": "become",
+      "count": 1873,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "book",
+      "count": 1871,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:book"
+    },
+    {
+      "lemma": "food",
+      "count": 1862,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:food"
+    },
+    {
+      "lemma": "bite",
+      "count": 1860,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:mouth",
+        "m:eat"
+      ],
+      "note": "teeth [m] unminted; NSM bites with teeth"
+    },
+    {
+      "lemma": "adventure",
+      "count": 1848,
+      "class": "explicable"
+    },
+    {
+      "lemma": "move",
+      "count": 1846,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "mean",
+      "count": 1845,
+      "class": "explicable"
+    },
+    {
+      "lemma": "remember",
+      "count": 1832,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "sing",
+      "count": 1825,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:music",
+        "m:mouth"
+      ],
+      "note": "make music with the mouth/say words like music \u2014 NSM might well molecule this; kept clear because the differentia is fully functional"
+    },
+    {
+      "lemma": "stick",
+      "count": 1805,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree"
+      ]
+    },
+    {
+      "lemma": "slide",
+      "count": 1800,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:make"
+      ],
+      "note": "playground artifact + motion-on-surface verb sense"
+    },
+    {
+      "lemma": "great",
+      "count": 1798,
+      "class": "explicable"
+    },
+    {
+      "lemma": "story",
+      "count": 1791,
+      "class": "explicable"
+    },
+    {
+      "lemma": "forest",
+      "count": 1786,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree"
+      ]
+    },
+    {
+      "lemma": "enjoy",
+      "count": 1780,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bob",
+      "count": 1778,
+      "class": "oos"
+    },
+    {
+      "lemma": "fish",
+      "count": 1774,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:fish"
+    },
+    {
+      "lemma": "picture",
+      "count": 1760,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:picture"
+    },
+    {
+      "lemma": "sue",
+      "count": 1752,
+      "class": "oos"
+    },
+    {
+      "lemma": "rabbit",
+      "count": 1750,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:rabbit"
+    },
+    {
+      "lemma": "catch",
+      "count": 1744,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "sarah",
+      "count": 1743,
+      "class": "oos"
+    },
+    {
+      "lemma": "year",
+      "count": 1724,
+      "class": "still-molecule-gated",
+      "note": "calendar unit; 'very many days' would be dishonest"
+    },
+    {
+      "lemma": "important",
+      "count": 1720,
+      "class": "explicable"
+    },
+    {
+      "lemma": "quickly",
+      "count": 1711,
+      "class": "explicable"
+    },
+    {
+      "lemma": "game",
+      "count": 1685,
+      "class": "explicable"
+    },
+    {
+      "lemma": "mum",
+      "count": 1683,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:mother"
+    },
+    {
+      "lemma": "please",
+      "count": 1679,
+      "class": "explicable"
+    },
+    {
+      "lemma": "replied",
+      "count": 1675,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wish",
+      "count": 1661,
+      "class": "explicable"
+    },
+    {
+      "lemma": "truck",
+      "count": 1652,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:car"
+      ]
+    },
+    {
+      "lemma": "strong",
+      "count": 1635,
+      "class": "explicable"
+    },
+    {
+      "lemma": "blue",
+      "count": 1635,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:blue"
+    },
+    {
+      "lemma": "daddy",
+      "count": 1633,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:father"
+    },
+    {
+      "lemma": "swing",
+      "count": 1622,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "m:sit",
+        "k:make"
+      ],
+      "note": "playground artifact: a thing children sit on that moves one way then the other; motion verb sense explicable with MOVE"
+    },
+    {
+      "lemma": "right",
+      "count": 1606,
+      "class": "explicable"
+    },
+    {
+      "lemma": "goodbye",
+      "count": 1602,
+      "class": "explicable"
+    },
+    {
+      "lemma": "sound",
+      "count": 1587,
+      "class": "explicable"
+    },
+    {
+      "lemma": "shout",
+      "count": 1584,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bed",
+      "count": 1578,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sleep",
+        "m:house",
+        "k:make"
+      ],
+      "note": "same functional-artifact logic as chair-via-sit; consistency with chair/table calls"
+    },
+    {
+      "lemma": "head",
+      "count": 1574,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:head"
+    },
+    {
+      "lemma": "child",
+      "count": 1573,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:child"
+    },
+    {
+      "lemma": "voice",
+      "count": 1571,
+      "class": "explicable"
+    },
+    {
+      "lemma": "jane",
+      "count": 1568,
+      "class": "oos"
+    },
+    {
+      "lemma": "touch",
+      "count": 1564,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "swim",
+      "count": 1547,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "follow",
+      "count": 1536,
+      "class": "explicable"
+    },
+    {
+      "lemma": "dress",
+      "count": 1530,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:clothes",
+        "m:woman"
+      ]
+    },
+    {
+      "lemma": "different",
+      "count": 1529,
+      "class": "explicable"
+    },
+    {
+      "lemma": "talk",
+      "count": 1527,
+      "class": "explicable"
+    },
+    {
+      "lemma": "store",
+      "count": 1521,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:money",
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "boat",
+      "count": 1496,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "forget",
+      "count": 1493,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "buy",
+      "count": 1491,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:money",
+        "k:give",
+        "k:take"
+      ]
+    },
+    {
+      "lemma": "cake",
+      "count": 1489,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "bunny",
+      "count": 1468,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:rabbit",
+      "note": "child-register surface of rabbit"
+    },
+    {
+      "lemma": "first",
+      "count": 1453,
+      "class": "explicable"
+    },
+    {
+      "lemma": "hello",
+      "count": 1451,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bring",
+      "count": 1429,
+      "class": "explicable"
+    },
+    {
+      "lemma": "night",
+      "count": 1416,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:night"
+    },
+    {
+      "lemma": "grandma",
+      "count": 1414,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:mother",
+        "m:father"
+      ]
+    },
+    {
+      "lemma": "three",
+      "count": 1411,
+      "class": "explicable"
+    },
+    {
+      "lemma": "tire",
+      "count": 1410,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bright",
+      "count": 1400,
+      "class": "explicable"
+    },
+    {
+      "lemma": "curious",
+      "count": 1400,
+      "class": "explicable"
+    },
+    {
+      "lemma": "realize",
+      "count": 1398,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wear",
+      "count": 1397,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:clothes"
+      ]
+    },
+    {
+      "lemma": "dance",
+      "count": 1368,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:music"
+      ]
+    },
+    {
+      "lemma": "pull",
+      "count": 1354,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "warm",
+      "count": 1349,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:fire",
+        "m:cold"
+      ]
+    },
+    {
+      "lemma": "block",
+      "count": 1348,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "kid",
+      "count": 1346,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:child"
+    },
+    {
+      "lemma": "yummy",
+      "count": 1343,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:eat",
+        "m:food"
+      ]
+    },
+    {
+      "lemma": "ready",
+      "count": 1336,
+      "class": "explicable"
+    },
+    {
+      "lemma": "begin",
+      "count": 1334,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "brother",
+      "count": 1327,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:mother",
+        "m:father",
+        "ew:boy"
+      ]
+    },
+    {
+      "lemma": "lose",
+      "count": 1325,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "use",
+      "count": 1323,
+      "class": "explicable"
+    },
+    {
+      "lemma": "finish",
+      "count": 1306,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "lila",
+      "count": 1302,
+      "class": "oos"
+    },
+    {
+      "lemma": "kitchen",
+      "count": 1298,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house",
+        "m:food",
+        "m:eat"
+      ]
+    },
+    {
+      "lemma": "favorite",
+      "count": 1293,
+      "class": "explicable"
+    },
+    {
+      "lemma": "daisy",
+      "count": 1291,
+      "class": "oos"
+    },
+    {
+      "lemma": "grass",
+      "count": 1267,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:grass"
+    },
+    {
+      "lemma": "understand",
+      "count": 1266,
+      "class": "explicable"
+    },
+    {
+      "lemma": "draw",
+      "count": 1263,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:picture",
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "benny",
+      "count": 1262,
+      "class": "oos"
+    },
+    {
+      "lemma": "hide",
+      "count": 1256,
+      "class": "explicable"
+    },
+    {
+      "lemma": "glad",
+      "count": 1253,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "world",
+      "count": 1248,
+      "class": "explicable"
+    },
+    {
+      "lemma": "teach",
+      "count": 1237,
+      "class": "explicable"
+    },
+    {
+      "lemma": "color",
+      "count": 1234,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:color"
+    },
+    {
+      "lemma": "joe",
+      "count": 1228,
+      "class": "oos"
+    },
+    {
+      "lemma": "rain",
+      "count": 1227,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water",
+        "m:sky"
+      ]
+    },
+    {
+      "lemma": "light",
+      "count": 1226,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:light"
+    },
+    {
+      "lemma": "parent",
+      "count": 1223,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:mother",
+        "m:father"
+      ]
+    },
+    {
+      "lemma": "butterfly",
+      "count": 1219,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "tommy",
+      "count": 1194,
+      "class": "oos"
+    },
+    {
+      "lemma": "piece",
+      "count": 1190,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "pond",
+      "count": 1185,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "fill",
+      "count": 1175,
+      "class": "explicable"
+    },
+    {
+      "lemma": "hat",
+      "count": 1163,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:clothes",
+        "m:head"
+      ]
+    },
+    {
+      "lemma": "cool",
+      "count": 1162,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:cold"
+      ]
+    },
+    {
+      "lemma": "mouse",
+      "count": 1153,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "hole",
+      "count": 1149,
+      "class": "explicable"
+    },
+    {
+      "lemma": "sally",
+      "count": 1149,
+      "class": "oos"
+    },
+    {
+      "lemma": "fix",
+      "count": 1144,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "star",
+      "count": 1140,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sky",
+        "m:night",
+        "m:light"
+      ]
+    },
+    {
+      "lemma": "billy",
+      "count": 1138,
+      "class": "oos"
+    },
+    {
+      "lemma": "top",
+      "count": 1133,
+      "class": "explicable"
+    },
+    {
+      "lemma": "promise",
+      "count": 1133,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "funny",
+      "count": 1125,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:laugh"
+      ]
+    },
+    {
+      "lemma": "sometimes",
+      "count": 1124,
+      "class": "explicable"
+    },
+    {
+      "lemma": "duck",
+      "count": 1123,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "leaf",
+      "count": 1116,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree"
+      ]
+    },
+    {
+      "lemma": "soft",
+      "count": 1109,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [],
+      "note": "touch-percept quality; prime-only sketch ('parts of it move when the body touches it')"
+    },
+    {
+      "lemma": "full",
+      "count": 1108,
+      "class": "explicable"
+    },
+    {
+      "lemma": "frog",
+      "count": 1107,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "throw",
+      "count": 1101,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "ice",
+      "count": 1101,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water",
+        "m:cold"
+      ]
+    },
+    {
+      "lemma": "wow",
+      "count": 1100,
+      "class": "oos"
+    },
+    {
+      "lemma": "carefully",
+      "count": 1093,
+      "class": "explicable"
+    },
+    {
+      "lemma": "dark",
+      "count": 1093,
+      "class": "explicable"
+    },
+    {
+      "lemma": "care",
+      "count": 1085,
+      "class": "explicable"
+    },
+    {
+      "lemma": "paper",
+      "count": 1085,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:book",
+        "k:make"
+      ],
+      "note": "material kind; NSM molecules materials"
+    },
+    {
+      "lemma": "lady",
+      "count": 1082,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:woman",
+      "note": "polite/adult-register surface of woman"
+    },
+    {
+      "lemma": "grow",
+      "count": 1080,
+      "class": "explicable"
+    },
+    {
+      "lemma": "baby",
+      "count": 1075,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:birth"
+      ]
+    },
+    {
+      "lemma": "push",
+      "count": 1071,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "read",
+      "count": 1068,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:book"
+      ]
+    },
+    {
+      "lemma": "delicious",
+      "count": 1067,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:eat",
+        "m:food"
+      ]
+    },
+    {
+      "lemma": "pretend",
+      "count": 1066,
+      "class": "explicable"
+    },
+    {
+      "lemma": "happily",
+      "count": 1056,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "teddy",
+      "count": 1056,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:make",
+        "m:bear"
+      ]
+    },
+    {
+      "lemma": "cold",
+      "count": 1055,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:cold"
+    },
+    {
+      "lemma": "meet",
+      "count": 1055,
+      "class": "explicable"
+    },
+    {
+      "lemma": "ride",
+      "count": 1048,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:car",
+        "m:animal"
+      ]
+    },
+    {
+      "lemma": "farm",
+      "count": 1038,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:animal",
+        "m:food",
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "yellow",
+      "count": 1036,
+      "class": "still-molecule-gated",
+      "note": "color kind (sun prototype available but unminted in v0 \u2014 next-100 candidate)"
+    },
+    {
+      "lemma": "tall",
+      "count": 1031,
+      "class": "explicable"
+    },
+    {
+      "lemma": "green",
+      "count": 1026,
+      "class": "still-molecule-gated",
+      "note": "color kind (grass/tree prototype available but unminted in v0 \u2014 next-100 candidate)"
+    },
+    {
+      "lemma": "lesson",
+      "count": 1017,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bag",
+      "count": 1015,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "k:make",
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "floor",
+      "count": 1015,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house",
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "arrive",
+      "count": 1008,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wind",
+      "count": 1004,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [],
+      "note": "prime-only sketch ('it moves, people feel it on the body, small things move because of it'); m0b classed it weather-molecule"
+    },
+    {
+      "lemma": "window",
+      "count": 1003,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "paint",
+      "count": 998,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:picture",
+        "m:color",
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "hill",
+      "count": 993,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "molly",
+      "count": 993,
+      "class": "oos"
+    },
+    {
+      "lemma": "step",
+      "count": 987,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:walk",
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "wrong",
+      "count": 982,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "cream",
+      "count": 978,
+      "class": "still-molecule-gated",
+      "note": "ice-cream sense dominates; food kind"
+    },
+    {
+      "lemma": "wood",
+      "count": 966,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree",
+        "m:fire",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "rest",
+      "count": 966,
+      "class": "explicable"
+    },
+    {
+      "lemma": "lion",
+      "count": 965,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "able",
+      "count": 962,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "friendly",
+      "count": 957,
+      "class": "explicable"
+    },
+    {
+      "lemma": "build",
+      "count": 957,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "wet",
+      "count": 937,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "mama",
+      "count": 937,
+      "class": "molecule-v0-synonym",
+      "moleculeTarget": "urn:molecule-v0:mother"
+    },
+    {
+      "lemma": "sweet",
+      "count": 934,
+      "class": "still-molecule-gated",
+      "note": "taste quality; needs sugar/honey-style prototype molecule"
+    },
+    {
+      "lemma": "apple",
+      "count": 933,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "cookies",
+      "count": 931,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "shake",
+      "count": 930,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "clap",
+      "count": 927,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "train",
+      "count": 921,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:car"
+      ]
+    },
+    {
+      "lemma": "dinner",
+      "count": 920,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:eat",
+        "m:food",
+        "m:day",
+        "m:night"
+      ]
+    },
+    {
+      "lemma": "dream",
+      "count": 909,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sleep"
+      ]
+    },
+    {
+      "lemma": "set",
+      "count": 908,
+      "class": "still-molecule-gated",
+      "note": "highly polysemous light verb; phrasal uses dominate (m0b's own note)"
+    },
+    {
+      "lemma": "pink",
+      "count": 905,
+      "class": "still-molecule-gated",
+      "note": "color kind"
+    },
+    {
+      "lemma": "drive",
+      "count": 901,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:car"
+      ]
+    },
+    {
+      "lemma": "fight",
+      "count": 897,
+      "class": "explicable"
+    },
+    {
+      "lemma": "later",
+      "count": 896,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "amy",
+      "count": 893,
+      "class": "oos"
+    },
+    {
+      "lemma": "moment",
+      "count": 892,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "continued",
+      "count": 891,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wonderful",
+      "count": 890,
+      "class": "explicable"
+    },
+    {
+      "lemma": "puppy",
+      "count": 888,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:dog",
+        "k:birth"
+      ]
+    },
+    {
+      "lemma": "squirrel",
+      "count": 885,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "table",
+      "count": 884,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "k:make",
+        "m:eat",
+        "m:food"
+      ],
+      "note": "under-determined artifact kind (flat-top essence needs shape molecules)"
+    },
+    {
+      "lemma": "sleep",
+      "count": 884,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:sleep"
+    },
+    {
+      "lemma": "strange",
+      "count": 884,
+      "class": "explicable"
+    },
+    {
+      "lemma": "enough",
+      "count": 881,
+      "class": "explicable"
+    },
+    {
+      "lemma": "morning",
+      "count": 879,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:day",
+        "m:night",
+        "m:sleep"
+      ],
+      "note": "the part of the day a short time after night ends"
+    },
+    {
+      "lemma": "agreed",
+      "count": 859,
+      "class": "explicable"
+    },
+    {
+      "lemma": "pet",
+      "count": 851,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:animal",
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "stand",
+      "count": 849,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:sit",
+        "m:ground"
+      ],
+      "note": "posture differentia from sit is coarse without legs [m]"
+    },
+    {
+      "lemma": "race",
+      "count": 844,
+      "class": "explicable"
+    },
+    {
+      "lemma": "far",
+      "count": 838,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "castle",
+      "count": 838,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:house",
+        "k:make"
+      ],
+      "note": "very big old house of rock \u2014 rock ref fine but royalty/fortification content lost"
+    },
+    {
+      "lemma": "mother",
+      "count": 838,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:mother"
+    },
+    {
+      "lemma": "hot",
+      "count": 837,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:fire"
+      ]
+    },
+    {
+      "lemma": "bug",
+      "count": 836,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:animal"
+      ]
+    },
+    {
+      "lemma": "join",
+      "count": 833,
+      "class": "explicable"
+    },
+    {
+      "lemma": "beach",
+      "count": 833,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:water",
+        "m:ground"
+      ],
+      "note": "sand [m] unminted"
+    },
+    {
+      "lemma": "wall",
+      "count": 823,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "hair",
+      "count": 817,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:head"
+      ],
+      "note": "body-covering kind; 'very many small long things on the head' strains the lexicon"
+    },
+    {
+      "lemma": "deep",
+      "count": 815,
+      "class": "explicable"
+    },
+    {
+      "lemma": "joy",
+      "count": 810,
+      "class": "explicable"
+    },
+    {
+      "lemma": "taste",
+      "count": 803,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:mouth",
+        "m:food",
+        "m:eat"
+      ],
+      "note": "percept kind; the quality space (sweet/sour) stays gated"
+    },
+    {
+      "lemma": "drop",
+      "count": 803,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand",
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "drink",
+      "count": 800,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water",
+        "m:mouth"
+      ]
+    },
+    {
+      "lemma": "miss",
+      "count": 797,
+      "class": "explicable"
+    },
+    {
+      "lemma": "hungry",
+      "count": 797,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:eat"
+      ]
+    },
+    {
+      "lemma": "song",
+      "count": 796,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:music",
+        "ew:sing"
+      ]
+    },
+    {
+      "lemma": "smell",
+      "count": 792,
+      "class": "still-molecule-gated",
+      "note": "sensory kind; nose [m] unminted"
+    },
+    {
+      "lemma": "oh",
+      "count": 791,
+      "class": "oos"
+    },
+    {
+      "lemma": "write",
+      "count": 790,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand",
+        "p:WORDS"
+      ]
+    },
+    {
+      "lemma": "arm",
+      "count": 788,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "visit",
+      "count": 788,
+      "class": "explicable"
+    },
+    {
+      "lemma": "search",
+      "count": 785,
+      "class": "explicable"
+    },
+    {
+      "lemma": "air",
+      "count": 781,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [],
+      "note": "invisible material kind; prime-only sketch exists ('something in all places, people cannot see it') but NSM molecules it"
+    },
+    {
+      "lemma": "shine",
+      "count": 778,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:light"
+      ]
+    },
+    {
+      "lemma": "treat",
+      "count": 777,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:food",
+        "k:give",
+        "m:child"
+      ]
+    },
+    {
+      "lemma": "today",
+      "count": 774,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:day"
+      ]
+    },
+    {
+      "lemma": "mess",
+      "count": 770,
+      "class": "explicable"
+    },
+    {
+      "lemma": "balloon",
+      "count": 770,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:child",
+        "k:make",
+        "m:sky"
+      ],
+      "note": "needs air [m]"
+    },
+    {
+      "lemma": "scary",
+      "count": 769,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "clothes",
+      "count": 769,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:clothes"
+    },
+    {
+      "lemma": "well",
+      "count": 768,
+      "class": "explicable"
+    },
+    {
+      "lemma": "perfect",
+      "count": 762,
+      "class": "explicable"
+    },
+    {
+      "lemma": "amazed",
+      "count": 760,
+      "class": "explicable"
+    },
+    {
+      "lemma": "white",
+      "count": 759,
+      "class": "still-molecule-gated",
+      "note": "color kind"
+    },
+    {
+      "lemma": "point",
+      "count": 755,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "amazing",
+      "count": 753,
+      "class": "explicable"
+    },
+    {
+      "lemma": "carry",
+      "count": 738,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand",
+        "m:walk"
+      ],
+      "note": "hold in the hands while moving"
+    },
+    {
+      "lemma": "moral",
+      "count": 736,
+      "class": "explicable"
+    },
+    {
+      "lemma": "fluffy",
+      "count": 736,
+      "class": "still-molecule-gated",
+      "note": "texture kind; fur/hair [m] unminted"
+    },
+    {
+      "lemma": "cut",
+      "count": 736,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:hand"
+      ],
+      "note": "instrument (sharp [m]) unminted; 'after this it is two things' captures result only"
+    },
+    {
+      "lemma": "chase",
+      "count": 734,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wonder",
+      "count": 733,
+      "class": "explicable"
+    },
+    {
+      "lemma": "jill",
+      "count": 731,
+      "class": "oos"
+    },
+    {
+      "lemma": "cheer",
+      "count": 730,
+      "class": "explicable"
+    },
+    {
+      "lemma": "count",
+      "count": 723,
+      "class": "explicable"
+    },
+    {
+      "lemma": "silly",
+      "count": 723,
+      "class": "explicable"
+    },
+    {
+      "lemma": "alone",
+      "count": 722,
+      "class": "explicable"
+    },
+    {
+      "lemma": "blow",
+      "count": 721,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:mouth"
+      ],
+      "note": "needs air/wind"
+    },
+    {
+      "lemma": "colorful",
+      "count": 718,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:color"
+      ]
+    },
+    {
+      "lemma": "bike",
+      "count": 717,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "k:make",
+        "m:ground"
+      ],
+      "note": "mechanism (wheels, pedalling) unminted; functional sketch only"
+    },
+    {
+      "lemma": "wake",
+      "count": 717,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sleep"
+      ]
+    },
+    {
+      "lemma": "slowly",
+      "count": 717,
+      "class": "explicable"
+    },
+    {
+      "lemma": "word",
+      "count": 712,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "mr",
+      "count": 712,
+      "class": "oos"
+    },
+    {
+      "lemma": "magical",
+      "count": 711,
+      "class": "explicable"
+    },
+    {
+      "lemma": "believe",
+      "count": 710,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "welcome",
+      "count": 706,
+      "class": "explicable"
+    },
+    {
+      "lemma": "tail",
+      "count": 703,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:animal"
+      ]
+    },
+    {
+      "lemma": "treasure",
+      "count": 702,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:money"
+      ],
+      "note": "value-kind; hidden-precious content under-determined"
+    },
+    {
+      "lemma": "monster",
+      "count": 701,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:animal",
+        "k:afraid"
+      ],
+      "note": "story-kind; 'big bad animal-like thing in stories' is a stretch of KIND"
+    },
+    {
+      "lemma": "river",
+      "count": 701,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "fox",
+      "count": 700,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "candy",
+      "count": 696,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "shape",
+      "count": 696,
+      "class": "still-molecule-gated",
+      "note": "percept determinable; determinates (round, flat) all unminted"
+    },
+    {
+      "lemma": "roll",
+      "count": 694,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:ball",
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "grateful",
+      "count": 694,
+      "class": "explicable"
+    },
+    {
+      "lemma": "fire",
+      "count": 692,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:fire"
+    },
+    {
+      "lemma": "snack",
+      "count": 690,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:food",
+        "m:eat"
+      ]
+    },
+    {
+      "lemma": "party",
+      "count": 688,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "sister",
+      "count": 688,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:mother",
+        "m:father",
+        "ew:girl"
+      ]
+    },
+    {
+      "lemma": "music",
+      "count": 683,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:music"
+    },
+    {
+      "lemma": "field",
+      "count": 681,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:grass"
+      ]
+    },
+    {
+      "lemma": "princess",
+      "count": 679,
+      "class": "still-molecule-gated",
+      "note": "royalty institution"
+    },
+    {
+      "lemma": "branch",
+      "count": 676,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree"
+      ]
+    },
+    {
+      "lemma": "money",
+      "count": 673,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:money"
+    },
+    {
+      "lemma": "job",
+      "count": 672,
+      "class": "explicable"
+    },
+    {
+      "lemma": "tight",
+      "count": 671,
+      "class": "still-molecule-gated",
+      "note": "force/fit percept"
+    },
+    {
+      "lemma": "heavy",
+      "count": 670,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [],
+      "note": "effort-based prime-only sketch; NSM treats weight words as molecule-backed"
+    },
+    {
+      "lemma": "sand",
+      "count": 670,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:ground",
+        "m:water",
+        "m:rock"
+      ],
+      "note": "granular material kind"
+    },
+    {
+      "lemma": "bush",
+      "count": 667,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree"
+      ]
+    },
+    {
+      "lemma": "seem",
+      "count": 666,
+      "class": "explicable"
+    },
+    {
+      "lemma": "wing",
+      "count": 661,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:bird"
+      ]
+    },
+    {
+      "lemma": "side",
+      "count": 660,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "sign",
+      "count": 655,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "k:make",
+        "p:WORDS"
+      ]
+    },
+    {
+      "lemma": "splash",
+      "count": 652,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "explain",
+      "count": 651,
+      "class": "explicable"
+    },
+    {
+      "lemma": "carrot",
+      "count": 649,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "bee",
+      "count": 648,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "land",
+      "count": 647,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:ground"
+      ],
+      "note": "verb sense dominates in TinyStories (landed on the ground) \u2014 end-of-flight schema"
+    },
+    {
+      "lemma": "bark",
+      "count": 647,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:dog"
+      ],
+      "note": "dog-sound sense dominates in TinyStories; tree-bark minority sense would be still-gated"
+    },
+    {
+      "lemma": "lake",
+      "count": 646,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "plant",
+      "count": 642,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:tree",
+        "m:grass",
+        "m:flower"
+      ]
+    },
+    {
+      "lemma": "brown",
+      "count": 640,
+      "class": "still-molecule-gated",
+      "note": "color kind"
+    },
+    {
+      "lemma": "emma",
+      "count": 638,
+      "class": "oos"
+    },
+    {
+      "lemma": "scream",
+      "count": 637,
+      "class": "explicable"
+    },
+    {
+      "lemma": "cloud",
+      "count": 636,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sky"
+      ]
+    },
+    {
+      "lemma": "town",
+      "count": 636,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "answer",
+      "count": 635,
+      "class": "explicable"
+    },
+    {
+      "lemma": "mark",
+      "count": 635,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "k:make"
+      ],
+      "note": "highly schematic; visible-trace reading only"
+    },
+    {
+      "lemma": "hi",
+      "count": 633,
+      "class": "explicable"
+    },
+    {
+      "lemma": "shoe",
+      "count": 633,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:clothes",
+        "m:walk",
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "dangerous",
+      "count": 632,
+      "class": "explicable"
+    },
+    {
+      "lemma": "blanket",
+      "count": 632,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sleep",
+        "m:cold",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "nap",
+      "count": 629,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sleep",
+        "m:day"
+      ]
+    },
+    {
+      "lemma": "mouth",
+      "count": 625,
+      "class": "molecule-v0-label",
+      "moleculeTarget": "urn:molecule-v0:mouth"
+    },
+    {
+      "lemma": "spend",
+      "count": 616,
+      "class": "explicable"
+    },
+    {
+      "lemma": "chair",
+      "count": 612,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:sit",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "jimmy",
+      "count": 612,
+      "class": "oos"
+    },
+    {
+      "lemma": "dry",
+      "count": 607,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    },
+    {
+      "lemma": "tower",
+      "count": 602,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house",
+        "k:make",
+        "m:ground"
+      ]
+    },
+    {
+      "lemma": "soup",
+      "count": 600,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "fruit",
+      "count": 599,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "gift",
+      "count": 599,
+      "class": "kernel-lexicon"
+    },
+    {
+      "lemma": "dragon",
+      "count": 598,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:animal",
+        "m:fire"
+      ],
+      "note": "story-kind, same caveat as monster"
+    },
+    {
+      "lemma": "sail",
+      "count": 595,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "ew:boat",
+        "k:make"
+      ],
+      "note": "wind [m] unminted"
+    },
+    {
+      "lemma": "elephant",
+      "count": 595,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "monkey",
+      "count": 594,
+      "class": "still-molecule-gated",
+      "note": "animal kind"
+    },
+    {
+      "lemma": "dirty",
+      "count": 590,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "ew:clean"
+      ]
+    },
+    {
+      "lemma": "plan",
+      "count": 590,
+      "class": "explicable"
+    },
+    {
+      "lemma": "kiss",
+      "count": 586,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:mouth"
+      ]
+    },
+    {
+      "lemma": "save",
+      "count": 585,
+      "class": "explicable"
+    },
+    {
+      "lemma": "young",
+      "count": 583,
+      "class": "explicable"
+    },
+    {
+      "lemma": "hit",
+      "count": 579,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "eventually",
+      "count": 578,
+      "class": "explicable"
+    },
+    {
+      "lemma": "quiet",
+      "count": 576,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bubble",
+      "count": 575,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:water"
+      ],
+      "note": "needs air [m]; round-shape content lost"
+    },
+    {
+      "lemma": "gentle",
+      "count": 568,
+      "class": "explicable"
+    },
+    {
+      "lemma": "mitten",
+      "count": 563,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:clothes",
+        "m:hand",
+        "m:cold"
+      ]
+    },
+    {
+      "lemma": "smart",
+      "count": 563,
+      "class": "explicable"
+    },
+    {
+      "lemma": "mary",
+      "count": 563,
+      "class": "oos"
+    },
+    {
+      "lemma": "tiny",
+      "count": 561,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "fairy",
+      "count": 561,
+      "class": "still-molecule-gated",
+      "note": "story-kind institution"
+    },
+    {
+      "lemma": "upset",
+      "count": 560,
+      "class": "explicable"
+    },
+    {
+      "lemma": "bowl",
+      "count": 555,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:food",
+        "m:eat",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "doctor",
+      "count": 553,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "k:help"
+      ],
+      "note": "institution; sick [m] unminted"
+    },
+    {
+      "lemma": "bucket",
+      "count": 552,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water",
+        "m:hand",
+        "k:make"
+      ]
+    },
+    {
+      "lemma": "button",
+      "count": 552,
+      "class": "explicable-with-molecules-borderline",
+      "refs": [
+        "m:clothes"
+      ],
+      "note": "small artifact kind; fastening mechanism under-determined"
+    },
+    {
+      "lemma": "juice",
+      "count": 550,
+      "class": "still-molecule-gated",
+      "note": "food kind"
+    },
+    {
+      "lemma": "wash",
+      "count": 547,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water",
+        "m:hand"
+      ]
+    },
+    {
+      "lemma": "yard",
+      "count": 544,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:house"
+      ]
+    },
+    {
+      "lemma": "school",
+      "count": 544,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:child",
+        "k:teacher",
+        "k:learn"
+      ],
+      "note": "place where children are so that someone (kernel teacher) can teach them \u2014 kernel-v0 already carries teacher/learn"
+    },
+    {
+      "lemma": "sammy",
+      "count": 540,
+      "class": "oos"
+    },
+    {
+      "lemma": "street",
+      "count": 538,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "ew:town",
+        "m:car",
+        "m:walk"
+      ]
+    },
+    {
+      "lemma": "nearby",
+      "count": 538,
+      "class": "kernel-synonym"
+    },
+    {
+      "lemma": "sea",
+      "count": 534,
+      "class": "explicable-with-molecules-clear",
+      "refs": [
+        "m:water"
+      ]
+    }
+  ]
+}
