@@ -52,7 +52,7 @@ Concept vocabulary scaled to **≥10³** (synthetic capped explications from X1 
 **E6 — graph-input (A4)** — phase 2, deferred until E1/E4 read out.
 **E7 — scale slope (new, panel O1; ~$2–10k; NOT started without maintainer budget sign-off).** If the strong claim survives the kill chain: kernel-frozen advantage at 15M / 160M / ~1B non-embedding params, matched token budgets, ≥10³ concepts, ≥2 seeds per scale. The pre-registered question: is the advantage flat/growing or shrinking with scale? This — not E4 — is the pretraining-audience artifact.
 **E8 — kernel↔SAE alignment (new, panel O6; the fallback room-mover).** Align kernel geometry to SAE feature dictionaries across ≥2 open model families (projected path, X4 distortion reported); criterion: kernel coordinates predict cross-model feature correspondence beyond shuffled-kernel and permutation nulls. Survives A1's death entirely; primary artifact for the interpretability audience.
-**E9 — decode-verify vs RAG (new, panel O5; phase 2).** A5's tier finally gets an experiment: factual-consistency benchmark, decode-verify vs vanilla RAG-with-citations, measuring what each catches that the other misses.
+**E9 — decode-verify vs RAG (new, panel O5; phase 2).** A5's tier finally gets an experiment: factual-consistency benchmark, decode-verify vs vanilla RAG-with-citations, measuring what each catches that the other misses. **(rev 3, design-review change 3:) third arm = the deflationary null architecture — RAG over a hash-pinned definition-TEXT dictionary (no encoder, no structured records). The kernel machinery's marginal value over its own deflation is measured, never asserted.**
 
 ## Kill chain (rev 2 — rewritten per MAJOR 16)
 
