@@ -406,3 +406,78 @@ builder change. Stages 1–3 (graph, prime-map, strata) and the §4.3 corridor g
 completed and PASSED (no CONSTRUCTION-ANOMALY); those artifacts and the scaffold graph
 stand regardless. nsm_test and stage-4 MinSets are held pending the coordinator's decision
 so compute is not spent on a graph that may be rebuilt.
+
+**Amendment 3 — 2026-07-07 — coordinator decision (Option B) + Kern
+(builder). Pinned closed-class definer stoplist resolves the T2 halt. Written
+BEFORE `nsm_test.py` runs (no-peeking still binds; the builder saw no nsm_test output
+before this fix was frozen).**
+
+*Reasoning (coordinator, recorded per instruction):* the function-word homographs
+(`in`, `or`, `as`, `by`, `so`, `an`, `of`, `the`, `to`, `a`, `and`, …) are **not merely
+symmetric noise**. As very-high-out-degree hubs they inflate the Core and can distort
+**where** the strata boundaries fall — and the strata are precisely what the primes are
+tested against. Amendment-2's Option-A self-cancellation argument protects the null
+comparison but **not** the strata definitions; Option B protects validity, not just
+tidiness. This is also almost certainly why |K| came out 23.6% vs the 2016 paper's ~10%
+and why the Core is a 17,393-node monster that makes MinSets infeasible — so B additionally
+unblocks stage 4.
+
+*Spec (amends §2.4):*
+1. **Pinned closed-class stoplist**, applied to **definer (definition) tokens only**,
+   at the tokenized surface-form level (post-lowercase, post-possessive-strip). Source:
+   the **NLTK English `stopwords` list (179 entries)** — a standard published list
+   (articles, prepositions, coordinating/subordinating conjunctions, pronouns,
+   auxiliary/modal verbs, particles, high-frequency determiners) — transcribed **verbatim**
+   into `x1g_lib.STOPLIST_STANDARD` and chosen **once, blind** to any downstream statistic
+   (not tuned to the audit sample or the NSM result). Verbatim list:
+   `i, me, my, myself, we, our, ours, ourselves, you, you're, you've, you'll, you'd, your,
+   yours, yourself, yourselves, he, him, his, himself, she, she's, her, hers, herself, it,
+   it's, its, itself, they, them, their, theirs, themselves, what, which, who, whom, this,
+   that, that'll, these, those, am, is, are, was, were, be, been, being, have, has, had,
+   having, do, does, did, doing, a, an, the, and, but, if, or, because, as, until, while,
+   of, at, by, for, with, about, against, between, into, through, during, before, after,
+   above, below, to, from, up, down, in, out, on, off, over, under, again, further, then,
+   once, here, there, when, where, why, how, all, any, both, each, few, more, most, other,
+   some, such, no, nor, not, only, own, same, so, than, too, very, s, t, can, will, just,
+   don, don't, should, should've, now, d, ll, m, o, re, ve, y, ain, aren, aren't, couldn,
+   couldn't, didn, didn't, doesn, doesn't, hadn, hadn't, hasn, hasn't, haven, haven't, isn,
+   isn't, ma, mightn, mightn't, mustn, mustn't, needn, needn't, shan, shan't, shouldn,
+   shouldn't, wasn, wasn't, weren, weren't, won, won't, wouldn, wouldn't`.
+2. **Evaluable-prime guardrail (load-bearing, asserted in `definer_stoplist()`):** the 51
+   frozen evaluable-prime node forms are **subtracted** from the stoplist before it is
+   applied, so the filter can never remove a node under test. The 14 protected forms that
+   the standard list would otherwise have removed: `same, other, some, all, do, now, before,
+   after, here, above, below, not, very, more`. Applied stoplist size = 179 − 14 = 165.
+3. **Node vocabulary unchanged** (still the WordNet index); only edges *out of* stoplisted
+   definer tokens are suppressed. A stoplisted word can still be *defined* (retain in-edges).
+   `graph-stats.json` reports `stoplistDroppedTokenCount` and edge/|K|/Core deltas.
+
+*Procedure:* rebuild stages 1–3; **re-run the T2 audit** (seed 7, 100 samples). If it still
+exceeds 10%, STOP and report (do NOT force). Otherwise proceed to stage 4 (with the
+§4.4 incremental-SCC sampler and, if needed after the first 25 samples, the pre-authorized
+N_MS→300 fallback) and `nsm_test`.
+
+*Outcome (2026-07-07, Kern):* post-stoplist T2 re-audit = **5% < 10%** (gate passed;
+`t2-audit-result.json` v2). Rebuilt census: 403,059 definer tokens suppressed, edges
+1,405,063 → 1,175,680. **Notable:** the stoplist barely moved the strata — |K| 19,617 →
+19,559, |Core| 17,393 → 17,324 (still 88.6% of K; all four §4.3 gates still pass). The
+giant strongly-connected Core is therefore a genuine **content-word** phenomenon, robust to
+closed-class removal — not an artifact of function-word hubs (the Amendment-3 core-inflation
+hypothesis is not borne out, though the stoplist remains correct for T2 validity and removes
+the spurious edges). nsm_test proceeds.
+
+**Amendment 4 — 2026-07-07 — Kern (builder). Pre-authorized N_MS→300 fallback
+(§4.4) invoked, and the two-worker plan reduced to one niced worker.**
+Benchmarking the §4.4 sampler on the post-stoplist Kernel (19,559 nodes / 251,543
+kernel-induced edges, Core 17,324) gives **≥ ~200 s CPU per grounding-set sample**: the
+degree-product heuristic must re-decompose the persistent 17k-node Core after essentially
+every removal (the "recompute only within the modified SCC" optimization does not help a
+monolithic Core — an inherent property of *this* graph, not an implementation defect; the
+neighbour-sort and per-SCC-sort hot paths were removed for a constant-factor win). At that
+rate **N_MS=1000 ≈ 55 h ≫ 24 h**, so the pre-authorized fallback to **N_MS=300** is invoked
+now (m(v) resolution 1/300 is ample for the effect sizes at stake, per §4.4) and recorded in
+`x1g-results.json`. Additionally, the box is at **load average ~17 on 2 shared cores** with a
+live server + a running agent fleet (CLAUDE.md), so the §4.4/§7 "2 workers" plan is reduced
+to **one `nice`-d detached worker** over seeds 0–299, checkpointing every 25 (resumable), to
+avoid starving the server. E-core/E-kern (the PRIMARY endpoint) need only stages 1–3 and are
+computed immediately; the MinSet secondaries (E-ms, E-inv) follow when stage 4 completes.

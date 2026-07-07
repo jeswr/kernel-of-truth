@@ -66,6 +66,65 @@ EXC_FILES = {
 
 ERR_SOURCE_MISSING = "ERR_X1G_SOURCE_MISSING"
 
+# ---------------------------------------------------------------------------
+# Closed-class definer stoplist (PREREG §9 Amendment 3, 2026-07-07).
+# STANDARD published English stopword list, transcribed VERBATIM: the NLTK
+# `stopwords` English list (179 entries; articles, prepositions, coordinating/
+# subordinating conjunctions, pronouns, auxiliary/modal verbs, particles,
+# high-frequency determiners). Chosen ONCE, blind to any downstream statistic.
+# Applied to DEFINER (definition) tokens only; the node vocabulary is unchanged.
+# GUARDRAIL: the 51 frozen evaluable-prime node forms are subtracted before use,
+# so the filter can never remove a node under test (asserted in definer_stoplist).
+# ---------------------------------------------------------------------------
+
+STOPLIST_STANDARD = [
+    "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you",
+    "you're", "you've", "you'll", "you'd", "your", "yours", "yourself",
+    "yourselves", "he", "him", "his", "himself", "she", "she's", "her", "hers",
+    "herself", "it", "it's", "its", "itself", "they", "them", "their", "theirs",
+    "themselves", "what", "which", "who", "whom", "this", "that", "that'll",
+    "these", "those", "am", "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an",
+    "the", "and", "but", "if", "or", "because", "as", "until", "while", "of",
+    "at", "by", "for", "with", "about", "against", "between", "into", "through",
+    "during", "before", "after", "above", "below", "to", "from", "up", "down",
+    "in", "out", "on", "off", "over", "under", "again", "further", "then",
+    "once", "here", "there", "when", "where", "why", "how", "all", "any",
+    "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor",
+    "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can",
+    "will", "just", "don", "don't", "should", "should've", "now", "d", "ll",
+    "m", "o", "re", "ve", "y", "ain", "aren", "aren't", "couldn", "couldn't",
+    "didn", "didn't", "doesn", "doesn't", "hadn", "hadn't", "hasn", "hasn't",
+    "haven", "haven't", "isn", "isn't", "ma", "mightn", "mightn't", "mustn",
+    "mustn't", "needn", "needn't", "shan", "shan't", "shouldn", "shouldn't",
+    "wasn", "wasn't", "weren", "weren't", "won", "won't", "wouldn", "wouldn't",
+]
+
+# The 51 frozen evaluable-prime node forms (PREREG §5.1). Single source of truth;
+# prime_map.py cross-checks its target column against this set.
+EVALUABLE_PRIME_NODES = frozenset([
+    "someone", "thing", "people", "body", "kind", "part", "same", "other",
+    "one", "two", "some", "all", "much", "little", "good", "bad", "big",
+    "small", "think", "know", "want", "feel", "see", "hear", "say", "word",
+    "true", "do", "happen", "move", "live", "die", "time", "now", "before",
+    "after", "moment", "place", "here", "above", "below", "far", "near",
+    "side", "inside", "touch", "not", "maybe", "very", "more", "like",
+])
+
+
+def definer_stoplist():
+    """Applied stoplist = STOPLIST_STANDARD minus the 51 evaluable-prime nodes.
+    Asserts the guardrail (PREREG §9 Amendment 3 spec item 2)."""
+    applied = frozenset(STOPLIST_STANDARD) - EVALUABLE_PRIME_NODES
+    assert applied.isdisjoint(EVALUABLE_PRIME_NODES), \
+        "GUARDRAIL VIOLATION: stoplist would remove a node under test"
+    return applied
+
+
+def stoplist_guardrail_removed():
+    """Prime node forms that were present in the standard list and protected."""
+    return sorted(frozenset(STOPLIST_STANDARD) & EVALUABLE_PRIME_NODES)
+
 
 # ---------------------------------------------------------------------------
 # Index vocabulary (PREREG §3: nodes = index lemmas, lowercased, POS-collapsed).
@@ -248,8 +307,9 @@ def tarjan_scc(nodes, out_adj, alive=None):
                 counter += 1
                 stack.append(v)
                 on_stack.add(v)
-                # sorted for determinism (adjacency may be sets during sampling)
-                neigh_cache[v] = sorted(w for w in out_adj[v] if w in consider)
+                # SCC partition is canonical regardless of neighbour order; skip
+                # the O(deg log deg) sort (hot path over the ~17k-node core).
+                neigh_cache[v] = [w for w in out_adj[v] if w in consider]
             neigh = neigh_cache[v]
             if pi < len(neigh):
                 work[-1] = (v, pi + 1)

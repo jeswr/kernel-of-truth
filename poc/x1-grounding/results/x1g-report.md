@@ -9,28 +9,28 @@ Rendered from committed artifacts. Method: PREREG.md (frozen). Reference: Vincen
 | synsets | 117791 |
 | \|V\| (all lemma nodes) | 147478 |
 | \|V_sw\| (single-word nodes) | 83253 |
-| edges (definer->defined) | 1405063 |
-| self-reference tokens removed | 7279 |
+| edges (definer->defined) | 1175680 |
+| self-reference tokens removed | 7241 |
 | empty cleaned glosses | 0 |
-| OOV token occurrences | 247264 |
-| undefined nodes (in-deg 0) | 14 |
+| OOV token occurrences | 9324 |
+| undefined nodes (in-deg 0) | 47 |
 
 ## Kernel / Core / Satellites and §4.3 corridor gates
 
 | stratum | size | fraction |
 |---|---|---|
-| Kernel K | 19617 | 0.2356 of V_sw |
-| Core | 17393 | 0.8866 of K |
-| Satellites | 2224 | |
-| Rest | 127861 | |
+| Kernel K | 19559 | 0.2349 of V_sw |
+| Core | 17324 | 0.8857 of K |
+| Satellites | 2235 | |
+| Rest | 127919 | |
 
-**2016-shape comparison:** paper found Kernel ~10%, Core = large fraction of Kernel, MinSets ~1%. Here Kernel = 23.6% of V_sw, Core = 88.7% of K.
+**2016-shape comparison:** paper found Kernel ~10%, Core = large fraction of Kernel, MinSets ~1%. Here Kernel = 23.5% of V_sw, Core = 88.6% of K.
 
 | §4.3 gate | value | pass |
 |---|---|---|
-| \|K\|/\|V_sw\| in [0.01,0.40] | 0.2356 | True |
-| \|Core\|/\|K\| >= 0.20 | 0.8866 | True |
-| Core unique-largest >= 2x | 17393 vs 9 | True |
+| \|K\|/\|V_sw\| in [0.01,0.40] | 0.2349 | True |
+| \|Core\|/\|K\| >= 0.20 | 0.8857 | True |
+| Core unique-largest >= 2x | 17324 vs 9 | True |
 | cycle-containment | {'kernelMinOutDegreeOk': True, 'restAcyclic': True, 'restToKernelEdges': 0} | True |
 | **CONSTRUCTION-ANOMALY** | | False |
 
@@ -40,15 +40,25 @@ Evaluable primes: **51** (coverage gate: OK, min 45). Excluded: 14.
 
 ## T2 lemmatization audit (§8)
 
-- population = 854458 resolutions; sample = 100 (seed 7).
-- error rate (strict) = **17%**; function-word-only = 12%; inflection = 5%; gate = 10%.
-- gate tripped: **True** -> HALT-T2: audit error rate exceeds the pre-registered 10% ceiling under both the strict reading (17%) and the conservative function-word-only reading (12%). Per PREREG §8 the run halts for a §9 amendment BEFORE nsm_test. nsm_test NOT run.
+- population = 689339 resolutions; sample = 100 (seed 7); pipeline = post-stoplist (PREREG §9 Amendment 3, closed-class definer suppression active).
+- error rate = **5%** (gate = 10%).
+- pre-stoplist audit was 17% (strict) / 12% (function-word); resolved by §9 Amendment 3.
+- gate tripped: **False** -> PASS-T2: post-stoplist audit error rate = 5% < 10% gate. nsm_test may proceed. The guardrail is confirmed working in-sample (far->far #87 and not->not #92 both survive as protected prime nodes).
 
-> A small, enumerable set of closed-class function words that happen to be rare WordNet content-homograph lemmas (in, or, as, by, so, an) survive §2.4's mechanical OOV drop-out and inject high-frequency spurious edges. 'or' alone appears 5x in the 100-sample. §2.4 explicitly PINS 'No stopword list' as the single source-derived lexical filter, so remediation (a minimal closed-class stoplist, or POS-restriction) conflicts with a pinned decision and is a coordinator design call, not a unilateral builder fix.
+## NSM test — endpoints and verdict (§5.4, §6)
 
-## NSM test
+**VERDICT: FAIL**
 
-**Not run.** Held by the T2 audit gate (see above and PREREG §9 Amendment 2). nsm_test and stage-4 MinSets await the coordinator's remediation decision.
+| statistic | observed | null mean | p | ER |
+|---|---|---|---|---|
+| T_core | 0.9804 | 0.9705 | 0.58314 | 1.0101948867976314 |
+| T_kern | 0.9804 | 0.9747 | 0.73603 | 1.0057953930548742 |
+
+Endpoints: {"E-core": false, "E-kern": false}
+
+Sensitivity null (usage-matched) agrees on E-core direction: True
+
+**Interpretation (flag).** 50/51 primes ARE in the Core (T_core=0.9804; only MAYBE is absent, out-degree 0 — used in no gloss). But the frequency-matched null lands in the Core 97.0% of the time, so ER=1.0101948867976314 and p=0.583: **no enrichment**. The Core spans 88.6% of the Kernel and ~97% of frequency-matched high-out-degree content words, so Core membership is near-universal and carries almost no information — a ceiling/saturation effect, not evidence that primes are absent from the grounding floor. The FAIL is 'no detectable selectivity', decisive under the pre-registered mechanical criteria (E-core fails AND E-kern fails, §6), and independent of the MinSet secondaries.
 
 ## Threats (PREREG §8)
 

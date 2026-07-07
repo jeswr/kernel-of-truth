@@ -81,14 +81,17 @@ def main():
 
     if t2:
         A("## T2 lemmatization audit (§8)\n")
-        A("- population = %d resolutions; sample = %d (seed 7)."
-          % (t2["populationSize"], t2["sampleSize"]))
-        A("- error rate (strict) = **%.0f%%**; function-word-only = %.0f%%; "
-          "inflection = %.0f%%; gate = %.0f%%."
-          % (t2["errorRateStrict"] * 100, t2["errorRateFunctionWordOnly"] * 100,
-             t2["errorRateUnreducedInflection"] * 100, t2["gateThreshold"] * 100))
+        A("- population = %d resolutions; sample = %d (seed 7); pipeline = %s."
+          % (t2["populationSize"], t2["sampleSize"], t2.get("pipeline", "n/a")))
+        rate = t2.get("errorRate", t2.get("errorRateStrict"))
+        A("- error rate = **%.0f%%** (gate = %.0f%%)."
+          % (rate * 100, t2["gateThreshold"] * 100))
+        prior = t2.get("priorAuditPreStoplist")
+        if prior:
+            A("- pre-stoplist audit was %.0f%% (strict) / %.0f%% (function-word); "
+              "resolved by §9 Amendment 3."
+              % (prior["errorRateStrict"] * 100, prior["errorRateFunctionWordOnly"] * 100))
         A("- gate tripped: **%s** -> %s\n" % (t2["gateTripped"], t2["verdict"]))
-        A("> %s\n" % t2["dominantCause"])
 
     if minsets:
         A("## MinSets (§4.4)\n")
@@ -112,6 +115,21 @@ def main():
             {k: v.get("holds") for k, v in pr["endpoints"].items()}))
         A("Sensitivity null (usage-matched) agrees on E-core direction: %s\n"
           % results["sensitivityAgreesDirection"])
+        # Interpretation (saturation / ceiling effect).
+        tc = pr["results"]["T_core"]
+        if strata and results["verdict"].startswith("FAIL"):
+            A("**Interpretation (flag).** 50/51 primes ARE in the Core (T_core=%.4f; "
+              "only MAYBE is absent, out-degree 0 — used in no gloss). But the "
+              "frequency-matched null lands in the Core %.1f%% of the time, so ER=%s "
+              "and p=%.3f: **no enrichment**. The Core spans %.1f%% of the Kernel and "
+              "~97%% of frequency-matched high-out-degree content words, so Core "
+              "membership is near-universal and carries almost no information — a "
+              "ceiling/saturation effect, not evidence that primes are absent from the "
+              "grounding floor. The FAIL is 'no detectable selectivity', decisive under "
+              "the pre-registered mechanical criteria (E-core fails AND E-kern fails, "
+              "§6), and independent of the MinSet secondaries.\n"
+              % (tc["observed"], tc["nullMean"] * 100, tc["ER"], tc["p"],
+                 strata["gates"]["coreOverK"] * 100))
     else:
         A("## NSM test\n")
         A("**Not run.** Held by the T2 audit gate (see above and PREREG §9 "

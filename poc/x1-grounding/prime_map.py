@@ -96,6 +96,11 @@ def main():
     ap.add_argument("--out", default=os.path.join(L.HERE, "primes-mapping.json"))
     args = ap.parse_args()
 
+    # cross-check the frozen target column against the shared stoplist-guard set.
+    targets = frozenset(t for _, _, t, _ in EVALUABLE)
+    assert targets == L.EVALUABLE_PRIME_NODES, \
+        "prime target set diverged from x1g_lib.EVALUABLE_PRIME_NODES"
+
     with gzip.open(args.graph, "rt") as f:
         graph = json.loads(f.read())
     nodes = graph["nodes"]

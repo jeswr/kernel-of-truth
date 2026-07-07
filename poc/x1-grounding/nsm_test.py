@@ -58,17 +58,29 @@ def build_pools(vsw_nodes, outdeg, covar, prime_ids):
 
 def draw_null(pools, prime_ids, rng):
     """One null draw: one control per prime (chartIndex order), without
-    replacement within the draw. Returns (controls, fallback_used)."""
+    replacement within the draw. Returns (controls, fallback_used).
+
+    Rejection sampling avoids an O(pool) rescan per prime per draw; collisions
+    are rare (pools have >=50 candidates, <=50 already used). Falls back to a
+    full scan only if 64 draws all collide."""
     used = set()
     controls = []
     fallback = 0
     for p in prime_ids:
         pool, _ = pools[p]
-        avail = [v for v in pool if v not in used]
-        if not avail:
-            avail = pool
-            fallback = 1
-        c = avail[rng.randrange(len(avail))]
+        n = len(pool)
+        c = None
+        for _ in range(64):
+            cand = pool[rng.randrange(n)]
+            if cand not in used:
+                c = cand
+                break
+        if c is None:
+            avail = [v for v in pool if v not in used]
+            if not avail:
+                avail = pool
+                fallback = 1
+            c = avail[rng.randrange(len(avail))]
         used.add(c)
         controls.append(c)
     return controls, fallback
@@ -227,11 +239,16 @@ def compute_verdict(endpoints, primes, have_ms, results, er_val):
     if primes["coverageGate"] != "OK":
         return "INCONCLUSIVE-BY-COVERAGE"
     e_core = endpoints["E-core"]["holds"]
+    e_kern = endpoints.get("E-kern", {}).get("holds", False)
     secs = [endpoints[e]["holds"] for e in ("E-kern", "E-ms", "E-inv") if e in endpoints]
     n_sec = sum(secs)
+    # §6 FAIL depends ONLY on E-core and E-kern (both from stages 1-3); it is
+    # decidable without MinSets. Report it as locked even in the preliminary run.
+    if (not e_core) and (not e_kern):
+        return "FAIL"
     if not have_ms:
         return "PRELIMINARY (E-core=%s, E-kern=%s; T_ms/T_inv pending MinSets)" % (
-            e_core, endpoints.get("E-kern", {}).get("holds"))
+            e_core, e_kern)
     e_kern_strong = endpoints.get("E-kern", {}).get("pRaw_lt_0.01_and_ER_ge_1.5", False)
     if e_core and n_sec >= 2:
         return "PASS"

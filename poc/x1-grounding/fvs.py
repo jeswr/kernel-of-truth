@@ -100,14 +100,18 @@ def sample_fvs(inv, kout_static, kin_static, seed):
         comp = [v for v in comps.pop() if alive[v]]
         if len(comp) < 2:
             continue
-        for scc in L.tarjan_scc(sorted(comp), out):
+        # process sub-SCCs in a deterministic order (by min vertex) so the
+        # cross-SCC trim cascades are reproducible; argmax below is unique (u
+        # is continuous), so no per-SCC sort of the ~17k core is needed.
+        subsccs = sorted((min(c), c) for c in L.tarjan_scc(comp, out))
+        for _, scc in subsccs:
             scc = [v for v in scc if alive[v]]
             if len(scc) < 2:
                 continue
             # greedy degree-product pick, randomized tie via u (§4.4 step 3).
             best = None
             best_key = None
-            for v in sorted(scc):
+            for v in scc:
                 key = (len(inn[v]) + u[v]) * (len(out[v]) + u[v])
                 if best_key is None or key > best_key:
                     best_key = key

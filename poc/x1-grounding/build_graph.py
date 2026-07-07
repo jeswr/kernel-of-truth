@@ -33,11 +33,13 @@ def iter_synsets(pos_files, noun_limit=None):
                 yield pos, rec
 
 
-def build(noun_limit=None, pos_subset=None):
+def build(noun_limit=None, pos_subset=None, use_stoplist=True):
     t0 = time.time()
     per_pos, union = L.load_index()
     exc = L.load_exc()
     morphy = L.Morphy(per_pos, union, exc)
+    stoplist = L.definer_stoplist() if use_stoplist else frozenset()
+    stoplist_dropped = 0
 
     # Node set V = index lemmas, lowercased, POS-collapsed (PREREG §3).
     nodes = sorted(union)
@@ -82,6 +84,9 @@ def build(noun_limit=None, pos_subset=None):
         # D(s): resolved gloss lemma-node ids.
         Ds_ids = set()
         for tok in L.tokenize(cleaned):
+            if tok in stoplist:  # closed-class definer suppression (§9 Amendment 3)
+                stoplist_dropped += 1
+                continue
             resolved = morphy.resolve_token(tok)
             if not resolved:
                 oov_token_count += 1
@@ -134,6 +139,10 @@ def build(noun_limit=None, pos_subset=None):
         "emptyGlossCount": empty_gloss_count,
         "emptyDefSetCount": empty_defset_count,
         "oovTokenCount": oov_token_count,
+        "stoplistEnabled": use_stoplist,
+        "stoplistDroppedTokenCount": stoplist_dropped,
+        "stoplistAppliedSize": len(stoplist),
+        "stoplistGuardrailProtected": L.stoplist_guardrail_removed(),
         "undefinedNodeCount": undefined_nodes,
         "lemmaNotInVocabCount": lemma_not_in_vocab,
         "distinctOovTypes": len(oov_counter),
@@ -172,10 +181,13 @@ def main():
     ap.add_argument("--graph-name", default="graph.json.gz")
     ap.add_argument("--stats-name", default="graph-stats.json")
     ap.add_argument("--no-sha", action="store_true")
+    ap.add_argument("--no-stoplist", action="store_true",
+                    help="disable §9 Amendment 3 closed-class definer suppression")
     args = ap.parse_args()
 
     pos_subset = args.pos.split(",") if args.pos else None
-    graph, stats = build(noun_limit=args.noun_limit, pos_subset=pos_subset)
+    graph, stats = build(noun_limit=args.noun_limit, pos_subset=pos_subset,
+                         use_stoplist=not args.no_stoplist)
     stats["inputsSha256"] = {} if args.no_sha else input_shas()
     graph["inputsSha256"] = stats["inputsSha256"]
 

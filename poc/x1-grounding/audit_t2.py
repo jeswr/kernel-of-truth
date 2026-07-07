@@ -14,15 +14,18 @@ import x1g_lib as L
 import build_graph
 
 
-def collect_population():
+def collect_population(use_stoplist=True):
     per_pos, union = L.load_index()
     exc = L.load_exc()
     morphy = L.Morphy(per_pos, union, exc)
+    stoplist = L.definer_stoplist() if use_stoplist else frozenset()
     events = []  # (pos, synset_id, token, lemma, gloss)
     for pos, rec in build_graph.iter_synsets(L.SYNSET_FILES):
         gloss = (rec.get("annotations", {}).get("gloss", "") or "")
         cleaned = L.clean_gloss(gloss)
         for tok in L.tokenize(cleaned):
+            if tok in stoplist:  # closed-class definer suppression (§9 Amendment 3)
+                continue
             for lem in morphy.resolve_token(tok):
                 events.append((pos, rec.get("id", ""), tok, lem, gloss))
     return events
