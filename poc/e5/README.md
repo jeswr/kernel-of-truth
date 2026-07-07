@@ -244,6 +244,36 @@ poc/modal/.venv/bin/modal run poc/modal/modal_e5.py --mock   # transport smoke, 
 poc/modal/.venv/bin/modal run poc/modal/modal_e5.py          # full pre-registered E5 (A10G)
 ```
 
+## Result (2026-07-07, one full pre-registered run — Modal A10G)
+
+**OUTCOME: PASS** (`results-incoming/20260707-140918-modal/`, rc=0,
+1.74 h A10G ≈ $1.9, provenance sidecars + per-item records shipped;
+headline numbers independently re-derived from the per-item records at
+review time).
+
+- Instrument-validity gate: **5/5 seeds** — true-arm seen accuracy
+  0.770/0.798/0.802/0.760/0.822 vs chance 0.2 (per-seed binomial p ≈ 0).
+- **Primary: mean nonce accuracy diff (true − shuffled) = +0.285**,
+  one-sided exact sign-flip p = **1.19e-7** (= 2/2²⁴: 23/24 nonces positive,
+  1 tie at zero; n = 24 nonces, α = 0.05) ⇒ pre-registered success criterion
+  met.
+- Secondary (seed level, Holm m=1): all 5 paired seeds positive
+  (+0.317/+0.250/+0.225/+0.308/+0.325), p = 1/32 = 0.0312.
+- Nonce accuracy (chance 0.2): true 0.425–0.508; shuffled 0.150–0.208;
+  random arm (descriptive) 0.158–0.258; step-0 untrained adapters 0.167–0.192.
+- Instructive descriptive: the random arm fits SEEN concepts best
+  (0.886–0.914 — unconstrained vectors are easiest to interpolate) yet sits
+  at chance on nonces; the true kernel trades a little seen-fit
+  (0.760–0.822) for **+28.5 points on never-seen concepts** — the A2
+  signature (geometry carries content usable up to a learned linear map).
+- Compositional split (descriptive): shared-structure nonces +0.473 vs
+  novel-structure +0.222 — generalisation tracks compositional overlap, and
+  persists on the novel subset.
+
+Scope: README O6 limits apply verbatim — single model (SmolLM2-135M), single
+basis, toy scale, realizer-English glosses; this is an A2 statement, not a
+code-uniqueness, scale, or A1 claim.
+
 ## Cost/budget guard
 
 Estimate: 39,000 training steps total (9 sweep runs × 1,000 + 15 full runs ×

@@ -1,0 +1,56 @@
+$ /usr/local/bin/python /root/kot/poc/e5/runner/e5_runner.py --inputs-dir /root/kot/poc/e5/inputs --out-dir /tmp/e5-results --device cuda --mock
+[e5     2.1s] mode=MOCK device=cuda seeds=[0, 1] steps=40 sweep=[0.0003, 0.001]@20 batch=8
+[e5     5.4s] sequences: 1800 train / 200 val / 50 seen-eval / 120 nonce-eval
+[e5     5.4s] sweep arm=true lr=0.0003
+[e5     6.1s]     step 0/20 loss 6.2075
+[e5     6.3s]     step 19/20 loss 6.1928
+[e5     6.3s]   arm=true lr=0.0003 valCE=6.1917
+[e5     6.3s] sweep arm=true lr=0.001
+[e5     6.3s]     step 0/20 loss 6.2075
+[e5     6.4s]     step 19/20 loss 6.1833
+[e5     6.4s]   arm=true lr=0.001 valCE=6.1865
+[e5     6.4s] selected lr=0.001 for arm=true
+[e5     6.4s] sweep arm=shuffled lr=0.0003
+[e5     6.4s]     step 0/20 loss 6.2046
+[e5     6.6s]     step 19/20 loss 6.1901
+[e5     6.6s]   arm=shuffled lr=0.0003 valCE=6.1927
+[e5     6.6s] sweep arm=shuffled lr=0.001
+[e5     6.6s]     step 0/20 loss 6.2046
+[e5     6.7s]     step 19/20 loss 6.1833
+[e5     6.7s]   arm=shuffled lr=0.001 valCE=6.1883
+[e5     6.7s] selected lr=0.001 for arm=shuffled
+[e5     6.7s] sweep arm=random lr=0.0003
+[e5     6.8s]     step 0/20 loss 6.2153
+[e5     6.9s]     step 19/20 loss 6.2051
+[e5     6.9s]   arm=random lr=0.0003 valCE=6.2072
+[e5     6.9s] sweep arm=random lr=0.001
+[e5     6.9s]     step 0/20 loss 6.2153
+[e5     7.0s]     step 19/20 loss 6.1970
+[e5     7.1s]   arm=random lr=0.001 valCE=6.2013
+[e5     7.1s] selected lr=0.001 for arm=random
+[e5     7.1s] train arm=true seed=0 lr=0.001
+[e5     7.1s]     step 0/40 loss 6.2075
+[e5     7.4s]     step 39/40 loss 6.1657
+[e5     7.5s]   arm=true seed=0: seenAcc=0.0600 nonceAcc=0.1917 valCE=6.1852
+[e5     7.5s] train arm=true seed=1 lr=0.001
+[e5     7.5s]     step 0/40 loss 6.1792
+[e5     7.8s]     step 39/40 loss 6.1710
+[e5     7.9s]   arm=true seed=1: seenAcc=0.0600 nonceAcc=0.2250 valCE=6.1859
+[e5     7.9s] train arm=shuffled seed=0 lr=0.001
+[e5     8.0s]     step 0/40 loss 6.2046
+[e5     8.2s]     step 39/40 loss 6.1706
+[e5     8.3s]   arm=shuffled seed=0: seenAcc=0.0600 nonceAcc=0.1833 valCE=6.1875
+[e5     8.3s] train arm=shuffled seed=1 lr=0.001
+[e5     8.4s]     step 0/40 loss 6.1801
+[e5     8.6s]     step 39/40 loss 6.1757
+[e5     8.7s]   arm=shuffled seed=1: seenAcc=0.0600 nonceAcc=0.2083 valCE=6.1879
+[e5     8.7s] train arm=random seed=0 lr=0.001
+[e5     8.8s]     step 0/40 loss 6.2153
+[e5     9.1s]     step 39/40 loss 6.1771
+[e5     9.2s]   arm=random seed=0: seenAcc=0.0800 nonceAcc=0.2333 valCE=6.1959
+[e5     9.2s] train arm=random seed=1 lr=0.001
+[e5     9.2s]     step 0/40 loss 6.1783
+[e5     9.5s]     step 39/40 loss 6.1879
+[e5     9.6s]   arm=random seed=1: seenAcc=0.0600 nonceAcc=0.1833 valCE=6.1957
+[e5     9.6s] OUTCOME: MOCK-INSTRUMENT-INVALID (results in /tmp/e5-results)
+[runner exit rc=0]

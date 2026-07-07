@@ -1,0 +1,518 @@
+{
+  "armSeed": {
+    "random-seed0": {
+      "adapterInitSigma": 0.019955532625317574,
+      "arm": "random",
+      "curve": [
+        {
+          "loss": 6.215267658233643,
+          "lr": 0.0002,
+          "step": 0
+        },
+        {
+          "loss": 6.177094459533691,
+          "lr": 0.00010181156770214242,
+          "step": 39
+        }
+      ],
+      "lr": 0.001,
+      "meanNonceMargin": -0.029278425375620525,
+      "nonceAcc": 0.23333333333333334,
+      "seed": 0,
+      "seenAcc": 0.08,
+      "seenCorrect": 4,
+      "seenN": 50,
+      "step0NonceAcc": 0.14166666666666666,
+      "valCE": 6.195949554443359
+    },
+    "random-seed1": {
+      "adapterInitSigma": 0.019955532625317574,
+      "arm": "random",
+      "curve": [
+        {
+          "loss": 6.178323745727539,
+          "lr": 0.0002,
+          "step": 0
+        },
+        {
+          "loss": 6.187870502471924,
+          "lr": 0.00010181156770214242,
+          "step": 39
+        }
+      ],
+      "lr": 0.001,
+      "meanNonceMargin": -0.03082375923792521,
+      "nonceAcc": 0.18333333333333332,
+      "seed": 1,
+      "seenAcc": 0.06,
+      "seenCorrect": 3,
+      "seenN": 50,
+      "step0NonceAcc": 0.19166666666666668,
+      "valCE": 6.195705413818359
+    },
+    "shuffled-seed0": {
+      "adapterInitSigma": 0.019955532625317574,
+      "arm": "shuffled",
+      "curve": [
+        {
+          "loss": 6.2045817375183105,
+          "lr": 0.0002,
+          "step": 0
+        },
+        {
+          "loss": 6.170609474182129,
+          "lr": 0.00010181156770214242,
+          "step": 39
+        }
+      ],
+      "lr": 0.001,
+      "meanNonceMargin": -0.031975714365641277,
+      "nonceAcc": 0.18333333333333332,
+      "seed": 0,
+      "seenAcc": 0.06,
+      "seenCorrect": 3,
+      "seenN": 50,
+      "step0NonceAcc": 0.14166666666666666,
+      "valCE": 6.187463760375977
+    },
+    "shuffled-seed1": {
+      "adapterInitSigma": 0.019955532625317574,
+      "arm": "shuffled",
+      "curve": [
+        {
+          "loss": 6.180135726928711,
+          "lr": 0.0002,
+          "step": 0
+        },
+        {
+          "loss": 6.175673961639404,
+          "lr": 0.00010181156770214242,
+          "step": 39
+        }
+      ],
+      "lr": 0.001,
+      "meanNonceMargin": -0.030854634443918862,
+      "nonceAcc": 0.20833333333333334,
+      "seed": 1,
+      "seenAcc": 0.06,
+      "seenCorrect": 3,
+      "seenN": 50,
+      "step0NonceAcc": 0.175,
+      "valCE": 6.187855243682861
+    },
+    "true-seed0": {
+      "adapterInitSigma": 0.019955532625317574,
+      "arm": "true",
+      "curve": [
+        {
+          "loss": 6.207484722137451,
+          "lr": 0.0002,
+          "step": 0
+        },
+        {
+          "loss": 6.165718078613281,
+          "lr": 0.00010181156770214242,
+          "step": 39
+        }
+      ],
+      "lr": 0.001,
+      "meanNonceMargin": -0.0292826771736145,
+      "nonceAcc": 0.19166666666666668,
+      "seed": 0,
+      "seenAcc": 0.06,
+      "seenCorrect": 3,
+      "seenN": 50,
+      "step0NonceAcc": 0.14166666666666666,
+      "valCE": 6.1851582527160645
+    },
+    "true-seed1": {
+      "adapterInitSigma": 0.019955532625317574,
+      "arm": "true",
+      "curve": [
+        {
+          "loss": 6.179187774658203,
+          "lr": 0.0002,
+          "step": 0
+        },
+        {
+          "loss": 6.171008110046387,
+          "lr": 0.00010181156770214242,
+          "step": 39
+        }
+      ],
+      "lr": 0.001,
+      "meanNonceMargin": -0.028885320822397868,
+      "nonceAcc": 0.225,
+      "seed": 1,
+      "seenAcc": 0.06,
+      "seenCorrect": 3,
+      "seenN": 50,
+      "step0NonceAcc": 0.13333333333333333,
+      "valCE": 6.185857772827148
+    }
+  },
+  "date": "2026-07-07T12:23:47.099973+00:00",
+  "device": "cuda",
+  "instrumentValidityGate": {
+    "nPass": 0,
+    "needed": 1,
+    "passed": false,
+    "perSeed": [
+      {
+        "p": 0.9987145850467837,
+        "pass": false,
+        "seed": 0,
+        "seenCorrect": 3,
+        "seenN": 50
+      },
+      {
+        "p": 0.9987145850467837,
+        "pass": false,
+        "seed": 1,
+        "seenCorrect": 3,
+        "seenN": 50
+      }
+    ],
+    "rule": "the TRUE arm must beat chance on the SEEN validity items in >= 4 of 5 seeds (per-seed one-sided exact binomial vs 0.2 over 500 items, p < 0.05); otherwise the run is INSTRUMENT-INVALID (neither success nor null), no primary claim in either direction (the E1 step-0 lesson)"
+  },
+  "lrSelection": {
+    "random": {
+      "lr": 0.001,
+      "rule": "Common rule 5: per-arm sweep on seed 0 only, lrs {3e-4, 1e-3, 3e-3} at half budget (1000 steps), best by val cross-entropy, then fixed for all 5 seeds of that arm",
+      "sweepSteps": 20,
+      "swept": [
+        0.0003,
+        0.001
+      ],
+      "valCE": 6.201281547546387
+    },
+    "shuffled": {
+      "lr": 0.001,
+      "rule": "Common rule 5: per-arm sweep on seed 0 only, lrs {3e-4, 1e-3, 3e-3} at half budget (1000 steps), best by val cross-entropy, then fixed for all 5 seeds of that arm",
+      "sweepSteps": 20,
+      "swept": [
+        0.0003,
+        0.001
+      ],
+      "valCE": 6.188294887542725
+    },
+    "true": {
+      "lr": 0.001,
+      "rule": "Common rule 5: per-arm sweep on seed 0 only, lrs {3e-4, 1e-3, 3e-3} at half budget (1000 steps), best by val cross-entropy, then fixed for all 5 seeds of that arm",
+      "sweepSteps": 20,
+      "swept": [
+        0.0003,
+        0.001
+      ],
+      "valCE": 6.186534404754639
+    }
+  },
+  "mode": "MOCK",
+  "model": "mock-llama-64",
+  "outcome": "MOCK-INSTRUMENT-INVALID",
+  "paramChecksum": {
+    "after": 2634.784080505371,
+    "before": 2634.784080505371
+  },
+  "perNonce": {
+    "urn:kernel-e4:syn-0008": {
+      "composition": {
+        "featureCoverage": 1,
+        "features": 5,
+        "sharesStructureWithSeen": true
+      },
+      "intDiff": 1,
+      "meanDiff": 0.1
+    },
+    "urn:kernel-e4:syn-0117": {
+      "composition": {
+        "featureCoverage": 0.6,
+        "features": 5,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 1,
+      "meanDiff": 0.1
+    },
+    "urn:kernel-e4:syn-0151": {
+      "composition": {
+        "featureCoverage": 0.6923076923076923,
+        "features": 13,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0280": {
+      "composition": {
+        "featureCoverage": 0.5555555555555556,
+        "features": 9,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0322": {
+      "composition": {
+        "featureCoverage": 0.9,
+        "features": 10,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0346": {
+      "composition": {
+        "featureCoverage": 0.8,
+        "features": 5,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0399": {
+      "composition": {
+        "featureCoverage": 0.8,
+        "features": 10,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0403": {
+      "composition": {
+        "featureCoverage": 0.8333333333333334,
+        "features": 6,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0416": {
+      "composition": {
+        "featureCoverage": 0.7272727272727273,
+        "features": 11,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0503": {
+      "composition": {
+        "featureCoverage": 0.9230769230769231,
+        "features": 13,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0547": {
+      "composition": {
+        "featureCoverage": 0.75,
+        "features": 4,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": -1,
+      "meanDiff": -0.1
+    },
+    "urn:kernel-e4:syn-0558": {
+      "composition": {
+        "featureCoverage": 1,
+        "features": 4,
+        "sharesStructureWithSeen": true
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0589": {
+      "composition": {
+        "featureCoverage": 1,
+        "features": 6,
+        "sharesStructureWithSeen": true
+      },
+      "intDiff": -1,
+      "meanDiff": -0.1
+    },
+    "urn:kernel-e4:syn-0625": {
+      "composition": {
+        "featureCoverage": 1,
+        "features": 4,
+        "sharesStructureWithSeen": true
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0669": {
+      "composition": {
+        "featureCoverage": 0.8333333333333334,
+        "features": 6,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 2,
+      "meanDiff": 0.2
+    },
+    "urn:kernel-e4:syn-0670": {
+      "composition": {
+        "featureCoverage": 0.8,
+        "features": 10,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0749": {
+      "composition": {
+        "featureCoverage": 0.6923076923076923,
+        "features": 13,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": -2,
+      "meanDiff": -0.2
+    },
+    "urn:kernel-e4:syn-0823": {
+      "composition": {
+        "featureCoverage": 0.8571428571428571,
+        "features": 7,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0836": {
+      "composition": {
+        "featureCoverage": 1,
+        "features": 4,
+        "sharesStructureWithSeen": true
+      },
+      "intDiff": 2,
+      "meanDiff": 0.2
+    },
+    "urn:kernel-e4:syn-0840": {
+      "composition": {
+        "featureCoverage": 0.6666666666666666,
+        "features": 9,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    },
+    "urn:kernel-e4:syn-0863": {
+      "composition": {
+        "featureCoverage": 0.7777777777777778,
+        "features": 9,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 1,
+      "meanDiff": 0.1
+    },
+    "urn:kernel-e4:syn-0921": {
+      "composition": {
+        "featureCoverage": 0.7857142857142857,
+        "features": 14,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": 1,
+      "meanDiff": 0.1
+    },
+    "urn:kernel-e4:syn-0940": {
+      "composition": {
+        "featureCoverage": 0.8571428571428571,
+        "features": 7,
+        "sharesStructureWithSeen": false
+      },
+      "intDiff": -1,
+      "meanDiff": -0.1
+    },
+    "urn:kernel-e4:syn-0956": {
+      "composition": {
+        "featureCoverage": 1,
+        "features": 10,
+        "sharesStructureWithSeen": true
+      },
+      "intDiff": 0,
+      "meanDiff": 0.0
+    }
+  },
+  "pins": {
+    "e4SyntheticsSha256": "4c81bf9b563609061a1cdc934de640b38da60d7cd03ebf859f9ce6a5df8d0aab",
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "glossHash": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "itemsSha256": "aea74f7c5ae27c4064bbd0b0941d5b6866f0821ac445e554ad79c2fa5078454f",
+    "kernelV0": {
+      "conceptCount": 54,
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde"
+    },
+    "vectorTablesManifestSha256": "79d811a3e24fa3a3571e45f9152df7cac23c14ce4ddc2434aa714ea1f4e0c774"
+  },
+  "primary": {
+    "alpha": 0.05,
+    "intDiffs": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -1,
+      0,
+      -1,
+      0,
+      2,
+      0,
+      -2,
+      0,
+      2,
+      0,
+      1,
+      1,
+      -1,
+      0
+    ],
+    "itemsPerNonce": 5,
+    "meanDiff": 0.012500000000000002,
+    "nNonces": 24,
+    "p": 0.328125,
+    "reject": false,
+    "test": "one-sided exact sign-flip permutation over nonce-level paired differences (integer-lattice convolution, full 2^n enumeration)"
+  },
+  "secondary": {
+    "p": 0.25,
+    "pHolm": 0.25,
+    "reject": false,
+    "seedMeanDiffs": [
+      0.008333333333333333,
+      0.016666666666666666
+    ],
+    "test": "one-sided exact paired sign-flip over per-seed mean nonce accuracy diffs (true - shuffled), Holm m=1"
+  },
+  "seeds": [
+    0,
+    1
+  ],
+  "specVerbatim": "E5 \u2014 adapter + shuffled-kernel control (3\u20136 GPU-h). Rev 2 (MINOR 23): n \u2265 20 nonce concepts; exact permutation test, \u03b1=0.05; scoring by a fixed non-LLM rubric (slot-filling accuracy against the nonce's explication) or a leak-checked judge (judge prompt contains no explications). Success: true kernel > shuffled kernel on nonce-concept usage.",
+  "statisticsSpec": {
+    "descriptive": [
+      "random-arm accuracies",
+      "step-0 (untrained-adapter) accuracies for all arms",
+      "shuffled/random seen-item accuracies",
+      "per-item score margins",
+      "compositional shared/novel nonce split (feature definition verbatim from poc/e4/harness/holdout.ts)",
+      "per-seed and per-nonce tables"
+    ],
+    "instrumentValidityGate": "the TRUE arm must beat chance on the SEEN validity items in >= 4 of 5 seeds (per-seed one-sided exact binomial vs 0.2 over 500 items, p < 0.05); otherwise the run is INSTRUMENT-INVALID (neither success nor null), no primary claim in either direction (the E1 step-0 lesson)",
+    "noHotControlRule": "no shuffled-arm hot-control invalidation is pre-registered: an above-chance shuffled arm is legitimate here (frame/style regularities are shared by both arms); the contrast itself is the control",
+    "nonceExclusionRule": "NONE: all 24 nonces enter the primary; no post-hoc exclusion of any kind",
+    "primaryEndpoint": "nonce slot-filling accuracy, true-kernel vs shuffled-kernel: per nonce j, d_j = mean over the 5 paired seeds of (acc_true[s,j] - acc_shuffled[s,j]) over that nonce's 5 items; one-sided exact sign-flip permutation over the 24 nonce-level paired differences (statistic = sum_j d_j; full 2^24 enumeration, exact integer-lattice convolution; p includes the observed assignment), alpha = 0.05. Operationalises the spec's \"n >= 20 nonce concepts; exact permutation test, alpha=0.05\" with the nonce as the permutation unit. Pinned caveat: nonce-level differences share the 5 trained adapter pairs; the seed-level secondary treats the training run as the unit.",
+    "secondaryEndpoints": [
+      "one-sided exact paired sign-flip over the 5 paired seed-mean nonce accuracies, true vs shuffled, Holm-corrected (m=1; min attainable p = 1/32)"
+    ],
+    "successCriterion": "SUCCESS (spec, verbatim): \"true kernel > shuffled kernel on nonce-concept usage\" = the primary test rejects at alpha=0.05 with positive mean difference AND the validity gate passed. Non-rejection with the gate passed = NULL (no TOST equivalence bound is pre-registered for E5). Gate failed = INSTRUMENT-INVALID."
+  },
+  "tf32": true,
+  "torch": "2.6.0+cu124",
+  "wallClockHours": 0.0026651685767703588
+}
