@@ -1,0 +1,26 @@
+{
+  "schema": "kot-phys/1",
+  "type": "DefiningRelation",
+  "id": "urn:physics-v0:eq:momentum-mass-velocity",
+  "label": "momentum",
+  "statement": "p = m·v",
+  "lhs": {
+    "kind": "quantity",
+    "ref": "urn:physics-v0:qk:momentum"
+  },
+  "rhs": {
+    "kind": "product",
+    "factors": [
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:mass"
+      },
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:velocity"
+      }
+    ]
+  },
+  "status": "research-grade",
+  "semantics": "dimensional: dim(lhs) MUST equal dim(rhs) exactly (integer vectors); the record asserts the definitional relation between quantity KINDS, not a world-layer numeric fact"
+}

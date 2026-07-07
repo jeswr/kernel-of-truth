@@ -1,0 +1,542 @@
+{
+  "corpus": "physics-v0",
+  "schema": "kot-phys/1",
+  "version": "0.1.0",
+  "generated": "2026-07-07",
+  "authorship": "research-grade, agent-authored; NOT federation-endorsed. Definitional numeric content (dimension vectors, unit scale/offset, defining-constant values) is re-derived from the SI Brochure 9th ed. (BIPM 2019) and is exact; NSM glosses are research-grade prose, not profile-1 explications; bridgesTo IRIs are asserted-unverified.",
+  "dimOrder": [
+    "T",
+    "L",
+    "M",
+    "I",
+    "Theta",
+    "N",
+    "J"
+  ],
+  "recordCount": 83,
+  "counts": {
+    "BaseDimension": 7,
+    "QuantityKind": 31,
+    "Unit": 28,
+    "DefiningConstant": 7,
+    "DefiningRelation": 10
+  },
+  "collisionClasses": [
+    [
+      "urn:physics-v0:qk:energy",
+      "urn:physics-v0:qk:torque"
+    ],
+    [
+      "urn:physics-v0:qk:action",
+      "urn:physics-v0:qk:angular-momentum"
+    ],
+    [
+      "urn:physics-v0:qk:entropy",
+      "urn:physics-v0:qk:heat-capacity"
+    ],
+    [
+      "urn:physics-v0:qk:luminous-intensity",
+      "urn:physics-v0:qk:luminous-flux"
+    ]
+  ],
+  "records": [
+    {
+      "id": "urn:physics-v0:dim:time",
+      "type": "BaseDimension",
+      "label": "time",
+      "file": "dimensions/time.json"
+    },
+    {
+      "id": "urn:physics-v0:dim:length",
+      "type": "BaseDimension",
+      "label": "length",
+      "file": "dimensions/length.json"
+    },
+    {
+      "id": "urn:physics-v0:dim:mass",
+      "type": "BaseDimension",
+      "label": "mass",
+      "file": "dimensions/mass.json"
+    },
+    {
+      "id": "urn:physics-v0:dim:electric-current",
+      "type": "BaseDimension",
+      "label": "electric current",
+      "file": "dimensions/electric-current.json"
+    },
+    {
+      "id": "urn:physics-v0:dim:thermodynamic-temperature",
+      "type": "BaseDimension",
+      "label": "thermodynamic temperature",
+      "file": "dimensions/thermodynamic-temperature.json"
+    },
+    {
+      "id": "urn:physics-v0:dim:amount-of-substance",
+      "type": "BaseDimension",
+      "label": "amount of substance",
+      "file": "dimensions/amount-of-substance.json"
+    },
+    {
+      "id": "urn:physics-v0:dim:luminous-intensity",
+      "type": "BaseDimension",
+      "label": "luminous intensity",
+      "file": "dimensions/luminous-intensity.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:time",
+      "type": "QuantityKind",
+      "label": "time (duration)",
+      "file": "quantitykinds/time.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:length",
+      "type": "QuantityKind",
+      "label": "length",
+      "file": "quantitykinds/length.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:mass",
+      "type": "QuantityKind",
+      "label": "mass",
+      "file": "quantitykinds/mass.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:electric-current",
+      "type": "QuantityKind",
+      "label": "electric current",
+      "file": "quantitykinds/electric-current.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:thermodynamic-temperature",
+      "type": "QuantityKind",
+      "label": "thermodynamic temperature",
+      "file": "quantitykinds/thermodynamic-temperature.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:amount-of-substance",
+      "type": "QuantityKind",
+      "label": "amount of substance",
+      "file": "quantitykinds/amount-of-substance.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:luminous-intensity",
+      "type": "QuantityKind",
+      "label": "luminous intensity",
+      "file": "quantitykinds/luminous-intensity.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:plane-angle",
+      "type": "QuantityKind",
+      "label": "plane angle",
+      "file": "quantitykinds/plane-angle.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:area",
+      "type": "QuantityKind",
+      "label": "area",
+      "file": "quantitykinds/area.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:volume",
+      "type": "QuantityKind",
+      "label": "volume",
+      "file": "quantitykinds/volume.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:frequency",
+      "type": "QuantityKind",
+      "label": "frequency",
+      "file": "quantitykinds/frequency.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:velocity",
+      "type": "QuantityKind",
+      "label": "velocity (speed)",
+      "file": "quantitykinds/velocity.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:acceleration",
+      "type": "QuantityKind",
+      "label": "acceleration",
+      "file": "quantitykinds/acceleration.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:momentum",
+      "type": "QuantityKind",
+      "label": "momentum",
+      "file": "quantitykinds/momentum.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:force",
+      "type": "QuantityKind",
+      "label": "force",
+      "file": "quantitykinds/force.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:pressure",
+      "type": "QuantityKind",
+      "label": "pressure",
+      "file": "quantitykinds/pressure.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:energy",
+      "type": "QuantityKind",
+      "label": "energy",
+      "file": "quantitykinds/energy.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:torque",
+      "type": "QuantityKind",
+      "label": "torque (moment of force)",
+      "file": "quantitykinds/torque.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:power",
+      "type": "QuantityKind",
+      "label": "power",
+      "file": "quantitykinds/power.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:action",
+      "type": "QuantityKind",
+      "label": "action",
+      "file": "quantitykinds/action.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:angular-momentum",
+      "type": "QuantityKind",
+      "label": "angular momentum",
+      "file": "quantitykinds/angular-momentum.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:electric-charge",
+      "type": "QuantityKind",
+      "label": "electric charge",
+      "file": "quantitykinds/electric-charge.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:voltage",
+      "type": "QuantityKind",
+      "label": "voltage (electric potential difference)",
+      "file": "quantitykinds/voltage.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:electric-resistance",
+      "type": "QuantityKind",
+      "label": "electric resistance",
+      "file": "quantitykinds/electric-resistance.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:electric-capacitance",
+      "type": "QuantityKind",
+      "label": "electric capacitance",
+      "file": "quantitykinds/electric-capacitance.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:magnetic-flux",
+      "type": "QuantityKind",
+      "label": "magnetic flux",
+      "file": "quantitykinds/magnetic-flux.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:entropy",
+      "type": "QuantityKind",
+      "label": "entropy",
+      "file": "quantitykinds/entropy.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:heat-capacity",
+      "type": "QuantityKind",
+      "label": "heat capacity",
+      "file": "quantitykinds/heat-capacity.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:luminous-flux",
+      "type": "QuantityKind",
+      "label": "luminous flux",
+      "file": "quantitykinds/luminous-flux.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:luminous-efficacy",
+      "type": "QuantityKind",
+      "label": "luminous efficacy",
+      "file": "quantitykinds/luminous-efficacy.json"
+    },
+    {
+      "id": "urn:physics-v0:qk:reciprocal-amount-of-substance",
+      "type": "QuantityKind",
+      "label": "reciprocal amount of substance",
+      "file": "quantitykinds/reciprocal-amount-of-substance.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:second",
+      "type": "Unit",
+      "label": "second",
+      "file": "units/second.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:metre",
+      "type": "Unit",
+      "label": "metre",
+      "file": "units/metre.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:kilogram",
+      "type": "Unit",
+      "label": "kilogram",
+      "file": "units/kilogram.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:ampere",
+      "type": "Unit",
+      "label": "ampere",
+      "file": "units/ampere.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:kelvin",
+      "type": "Unit",
+      "label": "kelvin",
+      "file": "units/kelvin.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:mole",
+      "type": "Unit",
+      "label": "mole",
+      "file": "units/mole.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:candela",
+      "type": "Unit",
+      "label": "candela",
+      "file": "units/candela.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:hertz",
+      "type": "Unit",
+      "label": "hertz",
+      "file": "units/hertz.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:radian",
+      "type": "Unit",
+      "label": "radian",
+      "file": "units/radian.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:newton",
+      "type": "Unit",
+      "label": "newton",
+      "file": "units/newton.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:pascal",
+      "type": "Unit",
+      "label": "pascal",
+      "file": "units/pascal.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:joule",
+      "type": "Unit",
+      "label": "joule",
+      "file": "units/joule.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:watt",
+      "type": "Unit",
+      "label": "watt",
+      "file": "units/watt.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:coulomb",
+      "type": "Unit",
+      "label": "coulomb",
+      "file": "units/coulomb.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:volt",
+      "type": "Unit",
+      "label": "volt",
+      "file": "units/volt.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:farad",
+      "type": "Unit",
+      "label": "farad",
+      "file": "units/farad.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:ohm",
+      "type": "Unit",
+      "label": "ohm",
+      "file": "units/ohm.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:weber",
+      "type": "Unit",
+      "label": "weber",
+      "file": "units/weber.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:lumen",
+      "type": "Unit",
+      "label": "lumen",
+      "file": "units/lumen.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:metre-per-second",
+      "type": "Unit",
+      "label": "metre per second",
+      "file": "units/metre-per-second.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:metre-per-second-squared",
+      "type": "Unit",
+      "label": "metre per second squared",
+      "file": "units/metre-per-second-squared.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:joule-second",
+      "type": "Unit",
+      "label": "joule second",
+      "file": "units/joule-second.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:joule-per-kelvin",
+      "type": "Unit",
+      "label": "joule per kelvin",
+      "file": "units/joule-per-kelvin.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:lumen-per-watt",
+      "type": "Unit",
+      "label": "lumen per watt",
+      "file": "units/lumen-per-watt.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:reciprocal-mole",
+      "type": "Unit",
+      "label": "reciprocal mole",
+      "file": "units/reciprocal-mole.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:degree-celsius",
+      "type": "Unit",
+      "label": "degree Celsius",
+      "file": "units/degree-celsius.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:degree-fahrenheit",
+      "type": "Unit",
+      "label": "degree Fahrenheit",
+      "file": "units/degree-fahrenheit.json"
+    },
+    {
+      "id": "urn:physics-v0:unit:electronvolt",
+      "type": "Unit",
+      "label": "electronvolt",
+      "file": "units/electronvolt.json"
+    },
+    {
+      "id": "urn:physics-v0:const:caesium-hyperfine-frequency",
+      "type": "DefiningConstant",
+      "label": "caesium-133 hyperfine transition frequency",
+      "file": "constants/caesium-hyperfine-frequency.json"
+    },
+    {
+      "id": "urn:physics-v0:const:speed-of-light",
+      "type": "DefiningConstant",
+      "label": "speed of light in vacuum",
+      "file": "constants/speed-of-light.json"
+    },
+    {
+      "id": "urn:physics-v0:const:planck-constant",
+      "type": "DefiningConstant",
+      "label": "Planck constant",
+      "file": "constants/planck-constant.json"
+    },
+    {
+      "id": "urn:physics-v0:const:elementary-charge",
+      "type": "DefiningConstant",
+      "label": "elementary charge",
+      "file": "constants/elementary-charge.json"
+    },
+    {
+      "id": "urn:physics-v0:const:boltzmann-constant",
+      "type": "DefiningConstant",
+      "label": "Boltzmann constant",
+      "file": "constants/boltzmann-constant.json"
+    },
+    {
+      "id": "urn:physics-v0:const:avogadro-constant",
+      "type": "DefiningConstant",
+      "label": "Avogadro constant",
+      "file": "constants/avogadro-constant.json"
+    },
+    {
+      "id": "urn:physics-v0:const:luminous-efficacy-540thz",
+      "type": "DefiningConstant",
+      "label": "luminous efficacy of monochromatic radiation of frequency 540 THz",
+      "file": "constants/luminous-efficacy-540thz.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:force-mass-acceleration",
+      "type": "DefiningRelation",
+      "label": "Newton second law (defining relation for force)",
+      "file": "equations/force-mass-acceleration.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:momentum-mass-velocity",
+      "type": "DefiningRelation",
+      "label": "momentum",
+      "file": "equations/momentum-mass-velocity.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:work-force-displacement",
+      "type": "DefiningRelation",
+      "label": "work (defining relation for the joule)",
+      "file": "equations/work-force-displacement.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:pressure-force-area",
+      "type": "DefiningRelation",
+      "label": "pressure (defining relation for the pascal)",
+      "file": "equations/pressure-force-area.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:charge-current-time",
+      "type": "DefiningRelation",
+      "label": "charge (defining relation for the coulomb)",
+      "file": "equations/charge-current-time.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:resistance-voltage-current",
+      "type": "DefiningRelation",
+      "label": "resistance (defining relation for the ohm)",
+      "file": "equations/resistance-voltage-current.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:planck-relation",
+      "type": "DefiningRelation",
+      "label": "Planck relation",
+      "file": "equations/planck-relation.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:mass-energy",
+      "type": "DefiningRelation",
+      "label": "mass–energy equivalence",
+      "file": "equations/mass-energy.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:thermal-energy-scale",
+      "type": "DefiningRelation",
+      "label": "thermal energy scale",
+      "file": "equations/thermal-energy-scale.json"
+    },
+    {
+      "id": "urn:physics-v0:eq:kinetic-energy",
+      "type": "DefiningRelation",
+      "label": "kinetic energy",
+      "file": "equations/kinetic-energy.json"
+    }
+  ]
+}

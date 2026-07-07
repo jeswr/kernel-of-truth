@@ -1,0 +1,35 @@
+{
+  "schema": "kot-phys/1",
+  "type": "DefiningRelation",
+  "id": "urn:physics-v0:eq:kinetic-energy",
+  "label": "kinetic energy",
+  "statement": "E_k = ½·m·v²",
+  "lhs": {
+    "kind": "quantity",
+    "ref": "urn:physics-v0:qk:energy"
+  },
+  "rhs": {
+    "kind": "product",
+    "factors": [
+      {
+        "kind": "scalar",
+        "value": "1/2"
+      },
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:mass"
+      },
+      {
+        "kind": "power",
+        "base": {
+          "kind": "quantity",
+          "ref": "urn:physics-v0:qk:velocity"
+        },
+        "exponent": 2
+      }
+    ]
+  },
+  "status": "research-grade",
+  "semantics": "dimensional: dim(lhs) MUST equal dim(rhs) exactly (integer vectors); the record asserts the definitional relation between quantity KINDS, not a world-layer numeric fact",
+  "notes": "Scalar exhibit: the ½ is dimensionless and invisible to the dimension check — dimensional consistency is NECESSARY, not sufficient (E = m·v² also checks). Recorded as the honest limit of the A5 verifier."
+}

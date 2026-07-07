@@ -1,0 +1,31 @@
+{
+  "schema": "kot-phys/1",
+  "type": "DefiningRelation",
+  "id": "urn:physics-v0:eq:resistance-voltage-current",
+  "label": "resistance (defining relation for the ohm)",
+  "statement": "R = V/I",
+  "lhs": {
+    "kind": "quantity",
+    "ref": "urn:physics-v0:qk:electric-resistance"
+  },
+  "rhs": {
+    "kind": "product",
+    "factors": [
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:voltage"
+      },
+      {
+        "kind": "power",
+        "base": {
+          "kind": "quantity",
+          "ref": "urn:physics-v0:qk:electric-current"
+        },
+        "exponent": -1
+      }
+    ]
+  },
+  "status": "research-grade",
+  "semantics": "dimensional: dim(lhs) MUST equal dim(rhs) exactly (integer vectors); the record asserts the definitional relation between quantity KINDS, not a world-layer numeric fact",
+  "notes": "The definitional reading (the ohm is V/A); NOT an assertion of empirical Ohm-law linearity for materials."
+}

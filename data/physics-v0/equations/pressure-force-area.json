@@ -1,0 +1,30 @@
+{
+  "schema": "kot-phys/1",
+  "type": "DefiningRelation",
+  "id": "urn:physics-v0:eq:pressure-force-area",
+  "label": "pressure (defining relation for the pascal)",
+  "statement": "p = F/A",
+  "lhs": {
+    "kind": "quantity",
+    "ref": "urn:physics-v0:qk:pressure"
+  },
+  "rhs": {
+    "kind": "product",
+    "factors": [
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:force"
+      },
+      {
+        "kind": "power",
+        "base": {
+          "kind": "quantity",
+          "ref": "urn:physics-v0:qk:area"
+        },
+        "exponent": -1
+      }
+    ]
+  },
+  "status": "research-grade",
+  "semantics": "dimensional: dim(lhs) MUST equal dim(rhs) exactly (integer vectors); the record asserts the definitional relation between quantity KINDS, not a world-layer numeric fact"
+}

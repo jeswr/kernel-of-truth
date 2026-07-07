@@ -1,0 +1,27 @@
+{
+  "schema": "kot-phys/1",
+  "type": "DefiningRelation",
+  "id": "urn:physics-v0:eq:work-force-displacement",
+  "label": "work (defining relation for the joule)",
+  "statement": "E = F·l",
+  "lhs": {
+    "kind": "quantity",
+    "ref": "urn:physics-v0:qk:energy"
+  },
+  "rhs": {
+    "kind": "product",
+    "factors": [
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:force"
+      },
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:length"
+      }
+    ]
+  },
+  "status": "research-grade",
+  "semantics": "dimensional: dim(lhs) MUST equal dim(rhs) exactly (integer vectors); the record asserts the definitional relation between quantity KINDS, not a world-layer numeric fact",
+  "notes": "CONFOUNDER exhibit: torque = force·length dimension-checks identically (τ = r × F). The dimension layer cannot and does not distinguish them; the quantity-kind refs in the tree do."
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "kot-phys/1",
+  "type": "DefiningRelation",
+  "id": "urn:physics-v0:eq:mass-energy",
+  "label": "mass–energy equivalence",
+  "statement": "E = m·c²",
+  "lhs": {
+    "kind": "quantity",
+    "ref": "urn:physics-v0:qk:energy"
+  },
+  "rhs": {
+    "kind": "product",
+    "factors": [
+      {
+        "kind": "quantity",
+        "ref": "urn:physics-v0:qk:mass"
+      },
+      {
+        "kind": "power",
+        "base": {
+          "kind": "constant",
+          "ref": "urn:physics-v0:const:speed-of-light"
+        },
+        "exponent": 2
+      }
+    ]
+  },
+  "status": "research-grade",
+  "semantics": "dimensional: dim(lhs) MUST equal dim(rhs) exactly (integer vectors); the record asserts the definitional relation between quantity KINDS, not a world-layer numeric fact",
+  "notes": "Constant under an integer power: dim(mass) + 2·dim(velocity) = energy, exactly."
+}
