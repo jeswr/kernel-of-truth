@@ -1,0 +1,65 @@
+{
+  "artifact": "e4-emission-data",
+  "mock": true,
+  "provenance": {
+    "glossesSha256": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "glossHashPin": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "holdoutSha256": "3f085944d8821fd36974159097e35747c795434903142bd6ef5c8c5f66c70a39",
+    "e1VocabSha256": "372000cbf9851007357d98729a0542a4178d94ac2c7cd7da4ea30ca41620e125",
+    "mapperLexiconSha256": "64e0a7bded1f3c0e4ce8b1514a016b09f38ae599bdc6ea685fc76ce5c596219a",
+    "e1Policy": {
+      "preset": "a1-hybrid",
+      "name": "shadowed-hybrid-recommended",
+      "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+    },
+    "e1EvaluatedConceptSet": {
+      "size": 52,
+      "vocabConceptTokens": 54,
+      "excludedByPolicy": [
+        "kind",
+        "lost"
+      ],
+      "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+      "policyPreset": "a1-hybrid",
+      "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+    }
+  },
+  "args": {
+    "seeds": [
+      0,
+      1
+    ],
+    "exposurePerConcept": 2,
+    "smoke": 30
+  },
+  "format": {
+    "train": "uint16 LE stream; sequences <gloss> EMIT <concept> <eos> (emission) and <carrier with concept token> <eos> (exposure); order = det_permutation('e4/order/<seed>')",
+    "eval": "eval.jsonl items end at EMIT; score next-token logits restricted to candidateIds (e4-vocab.json)"
+  },
+  "counts": {
+    "concepts": 1054,
+    "train": 30,
+    "tier1": 10,
+    "tier2": 10,
+    "evalItems": 130,
+    "evalTier2": 50,
+    "glossOovTokens": 20474,
+    "glossTokens": 146181,
+    "glossOovRate": 0.1400592416251086
+  },
+  "assertions": "tier-2 absent from all train streams; no held-out token after EMIT; verified on the emitted uint16 streams (fail closed)",
+  "seedStats": {
+    "0": {
+      "sequences": 200,
+      "emission": 120,
+      "exposure": 80,
+      "tokens": 3809
+    },
+    "1": {
+      "sequences": 200,
+      "emission": 120,
+      "exposure": 80,
+      "tokens": 3808
+    }
+  }
+}

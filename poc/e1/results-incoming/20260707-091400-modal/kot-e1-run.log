@@ -1,0 +1,194 @@
+===== 00-fetch-corpus-mock.log =====
+$ /usr/local/bin/python -c import sys
+sents = []
+subj = ["the little dog", "a happy child", "the old man", "mom", "tom", "the bird",
+        "a small cat", "the teacher", "grandma", "the boy"]
+verb = ["saw", "found", "made", "took", "gave", "liked", "helped", "wanted", "heard", "knew"]
+obj = ["a big red ball", "the shiny stone", "some sweet cake", "a new toy", "the open door",
+       "a warm blanket", "the tall tree", "some cold water", "a funny hat", "the green book"]
+tail = ["in the park", "at home", "near the river", "after lunch", "one sunny day",
+        "before bed", "with a smile", "very fast", "again and again", "for a while"]
+# 600 stories (~24k train tokens): enough for the e1 trainer's 128-token
+# val/train windows (the poc/e4 data smoke's 60-story corpus is too small
+# to TRAIN on — its val split is under one window).
+for i in range(2400):
+    sents.append(f"{subj[i % 10]} {verb[(i // 10) % 10]} {obj[(i // 100) % 10]} {tail[i % 7]} .")
+stories = []
+for i in range(0, len(sents), 4):
+    stories.append(" ".join(sents[i:i + 4]))
+with open(sys.argv[1], "w") as f:
+    f.write("\n<|endoftext|>\n".join(stories) + "\n")
+print(f"mock corpus: {len(stories)} stories")
+ /vol/e1work/corpus/corpus-mock.txt
+mock corpus: 600 stories
+[00-fetch-corpus-mock exit rc=0]
+===== 10-build-data.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/pipeline/build_data.py --corpus /vol/e1work/corpus/corpus-mock.txt --out /vol/e1work/data --seeds 0,1 --vocab-size 4000 --max-train-tokens 500000
+[0s] 600 stories from /vol/e1work/corpus/corpus-mock.txt
+[0s] policy gate: preset a1-hybrid sha e13dc838…
+[0s] parity gate: lemma-table only
+[0s] pass A done: 21111 word tokens, 64 distinct symbols
+vocab 432 (specials 121, forced 287); corpus coverage 100.00% of 23511 tokens
+[0s] seed 0: train 23604 val 507 tokens; 8/52 evaluated concepts attested
+[1s] seed 1: train 23604 val 507 tokens; 8/52 evaluated concepts attested
+[1s] done -> /vol/e1work/data; attested in all seeds: 8/52 evaluated (excluded by policy: kind, lost)
+[10-build-data exit rc=0]
+===== 12-mock-tables.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/pipeline/mock_tables.py --d 64 --out /vol/e1work/vector-tables-mock-d64.json --seeds 0,1
+wrote MOCK tables (D=64) -> /vol/e1work/vector-tables-mock-d64.json
+[12-mock-tables exit rc=0]
+===== 30-select-lrs.log =====
+$ /usr/local/bin/python -c import json, sys
+lr = float(sys.argv[2])
+sel = {a: {"lr": lr, "valLoss": None} for a in
+       ("kernel-frozen", "shuffled-frozen", "random-frozen", "trainable", "kernel-init")}
+json.dump({"rule": f"mock mode: fixed lr={lr}, no sweep", "selected": sel},
+          open(sys.argv[1], "w"), indent=2)
+ /vol/e1work/lr-selection.json 1e-3
+[30-select-lrs exit rc=0]
+===== 40-train-kernel-frozen-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm kernel-frozen --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[3s] ckpt step0 @step 0: val 6.0504 conceptSlice 5.977021353585379
+[7s] ckpt 50pct @step 100: val 2.0265 conceptSlice 6.0556215558733255
+[10s] ckpt 100pct @step 200: val 1.5337 conceptSlice 6.510825020926339
+{"arm": "kernel-frozen", "seed": 0, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": true}
+[10s] done: final val 1.5337
+[40-train-kernel-frozen-seed0 exit rc=0]
+===== 40-train-kernel-frozen-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm kernel-frozen --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[3s] ckpt step0 @step 0: val 6.0957 conceptSlice 6.065380096435547
+[5s] ckpt 50pct @step 100: val 2.0338 conceptSlice 6.171778678894043
+[7s] ckpt 100pct @step 200: val 1.5575 conceptSlice 6.579835891723633
+{"arm": "kernel-frozen", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": true}
+[7s] done: final val 1.5575
+[40-train-kernel-frozen-seed1 exit rc=0]
+===== 40-train-kernel-init-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm kernel-init --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[1s] ckpt step0 @step 0: val 6.0504 conceptSlice 5.977021353585379
+[3s] ckpt 50pct @step 100: val 1.8905 conceptSlice 3.1848327091761996
+[5s] ckpt 100pct @step 200: val 1.4528 conceptSlice 2.8812901633126393
+{"arm": "kernel-init", "seed": 0, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[5s] done: final val 1.4528
+[40-train-kernel-init-seed0 exit rc=0]
+===== 40-train-kernel-init-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm kernel-init --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[1s] ckpt step0 @step 0: val 6.0957 conceptSlice 6.065380096435547
+[3s] ckpt 50pct @step 100: val 1.8687 conceptSlice 3.1104202270507812
+[5s] ckpt 100pct @step 200: val 1.4537 conceptSlice 2.880032539367676
+{"arm": "kernel-init", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[5s] done: final val 1.4537
+[40-train-kernel-init-seed1 exit rc=0]
+===== 40-train-random-frozen-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm random-frozen --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[3s] ckpt step0 @step 0: val 6.0489 conceptSlice 5.845498221261161
+[5s] ckpt 50pct @step 100: val 1.9814 conceptSlice 5.517754146030971
+[8s] ckpt 100pct @step 200: val 1.5222 conceptSlice 5.958892277308872
+{"arm": "random-frozen", "seed": 0, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": true}
+[8s] done: final val 1.5222
+[40-train-random-frozen-seed0 exit rc=0]
+===== 40-train-random-frozen-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm random-frozen --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[2s] ckpt step0 @step 0: val 6.0970 conceptSlice 6.033172607421875
+[4s] ckpt 50pct @step 100: val 2.0390 conceptSlice 6.146013259887695
+[6s] ckpt 100pct @step 200: val 1.5597 conceptSlice 6.643696308135986
+{"arm": "random-frozen", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": true}
+[6s] done: final val 1.5597
+[40-train-random-frozen-seed1 exit rc=0]
+===== 40-train-shuffled-frozen-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm shuffled-frozen --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[3s] ckpt step0 @step 0: val 6.0504 conceptSlice 6.003846304757254
+[6s] ckpt 50pct @step 100: val 1.9881 conceptSlice 6.112043108258929
+[9s] ckpt 100pct @step 200: val 1.5243 conceptSlice 6.506491524832589
+{"arm": "shuffled-frozen", "seed": 0, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": true}
+[9s] done: final val 1.5243
+[40-train-shuffled-frozen-seed0 exit rc=0]
+===== 40-train-shuffled-frozen-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm shuffled-frozen --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[2s] ckpt step0 @step 0: val 6.1005 conceptSlice 6.136159420013428
+[4s] ckpt 50pct @step 100: val 2.0282 conceptSlice 6.303316116333008
+[6s] ckpt 100pct @step 200: val 1.5564 conceptSlice 6.656248092651367
+{"arm": "shuffled-frozen", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": true}
+[6s] done: final val 1.5564
+[40-train-shuffled-frozen-seed1 exit rc=0]
+===== 40-train-trainable-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm trainable --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[3s] ckpt step0 @step 0: val 6.0528 conceptSlice 6.167212894984654
+[6s] ckpt 50pct @step 100: val 1.8866 conceptSlice 3.1281228746686662
+[9s] ckpt 100pct @step 200: val 1.4531 conceptSlice 2.8700438908168246
+{"arm": "trainable", "seed": 0, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[9s] done: final val 1.4531
+[40-train-trainable-seed0 exit rc=0]
+===== 40-train-trainable-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /vol/e1work/vector-tables-mock-d64.json --arm trainable --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 2 --n-head 2 --d-model 64 --d-ff 128 --seq-len 128 --batch-size 16 --total-tokens 409600 --allow-any-size --device cpu
+[3s] ckpt step0 @step 0: val 6.0981 conceptSlice 6.011375427246094
+[6s] ckpt 50pct @step 100: val 1.9038 conceptSlice 3.0730783939361572
+[9s] ckpt 100pct @step 200: val 1.4598 conceptSlice 2.850775957107544
+{"arm": "trainable", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[9s] done: final val 1.4598
+[40-train-trainable-seed1 exit rc=0]
+===== 50-eval-kernel-frozen-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed0-100pct.json
+{"arm": "kernel-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.078125, "probeTestAcc": 0.02777777798473835, "conceptSlicePpl": 672.3809171498921}
+[50-eval-kernel-frozen-seed0-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed0-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed0-50pct.json
+{"arm": "kernel-frozen", "seed": 0, "tag": "50pct", "heldOutAccAttested": 0.015625, "probeTestAcc": 0.013888888992369175, "conceptSlicePpl": 426.50391910159505}
+[50-eval-kernel-frozen-seed0-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed0-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed0-step0.json
+{"arm": "kernel-frozen", "seed": 0, "tag": "step0", "heldOutAccAttested": 0.046875, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 394.26424361966815}
+[50-eval-kernel-frozen-seed0-step0 exit rc=0]
+===== 50-eval-kernel-frozen-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed1-100pct.json
+{"arm": "kernel-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.03125, "probeTestAcc": 0.05092592537403107, "conceptSlicePpl": 720.4210924838634}
+[50-eval-kernel-frozen-seed1-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed1-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed1-50pct.json
+{"arm": "kernel-frozen", "seed": 1, "tag": "50pct", "heldOutAccAttested": 0.046875, "probeTestAcc": 0.05092592537403107, "conceptSlicePpl": 479.03740249062014}
+[50-eval-kernel-frozen-seed1-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed1-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed1-step0.json
+{"arm": "kernel-frozen", "seed": 1, "tag": "step0", "heldOutAccAttested": 0.0, "probeTestAcc": 0.0694444477558136, "conceptSlicePpl": 430.6863489108611}
+[50-eval-kernel-frozen-seed1-step0 exit rc=0]
+===== 50-eval-kernel-init-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed0-100pct.json
+{"arm": "kernel-init", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.125, "probeTestAcc": 0.023148149251937866, "conceptSlicePpl": 17.83726647353713}
+[50-eval-kernel-init-seed0-100pct exit rc=0]
+===== 50-eval-kernel-init-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed1-100pct.json
+{"arm": "kernel-init", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.109375, "probeTestAcc": 0.032407406717538834, "conceptSlicePpl": 17.814844359446354}
+[50-eval-kernel-init-seed1-100pct exit rc=0]
+===== 50-eval-random-frozen-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed0-100pct.json
+{"arm": "random-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.0, "probeTestAcc": 0.03703703731298447, "conceptSlicePpl": 387.18078643164523}
+[50-eval-random-frozen-seed0-100pct exit rc=0]
+===== 50-eval-random-frozen-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed1-100pct.json
+{"arm": "random-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.078125, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 767.9275205894598}
+[50-eval-random-frozen-seed1-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed0-100pct.json
+{"arm": "shuffled-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.0625, "probeTestAcc": 0.018518518656492233, "conceptSlicePpl": 669.4734613460655}
+[50-eval-shuffled-frozen-seed0-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed1-100pct.json
+{"arm": "shuffled-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.109375, "probeTestAcc": 0.0555555559694767, "conceptSlicePpl": 777.6271276952301}
+[50-eval-shuffled-frozen-seed1-100pct exit rc=0]
+===== 50-eval-trainable-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed0-100pct.json
+{"arm": "trainable", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.125, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 17.63779712587839}
+[50-eval-trainable-seed0-100pct exit rc=0]
+===== 50-eval-trainable-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed1-100pct.json
+{"arm": "trainable", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.125, "probeTestAcc": 0.032407406717538834, "conceptSlicePpl": 17.30120162367519}
+[50-eval-trainable-seed1-100pct exit rc=0]
+===== 60-check-smoke.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/smoke/check_smoke.py /vol/e1work/ckpts /vol/e1work/results 0,1
+smoke assertions: 20 row-identity comparisons over 5 arms x 2 seeds
+SMOKE PASS: frozen rows bit-identical (step0 vs 50% vs 100%); trainable rows moved; losses improved; verdict emitted (mock-labelled)
+[60-check-smoke exit rc=0]
+===== 60-stats-verdict.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/stats_e1.py --evals /vol/e1work/evals --seeds 0,1 --out-prefix /vol/e1work/results/verdict-e1-mock --mock
+verdict: MOCK RUN — machinery check only, not a result. (INCONCLUSIVE)
+wrote /vol/e1work/results/verdict-e1-mock.json / .md
+[60-stats-verdict exit rc=0]

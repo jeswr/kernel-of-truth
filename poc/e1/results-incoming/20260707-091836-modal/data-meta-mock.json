@@ -1,0 +1,115 @@
+{
+  "artifact": "e1-data",
+  "date": "2026-07-07T09:14:14Z",
+  "corpus": {
+    "path": "/vol/e1work/corpus/corpus-mock.txt",
+    "sha256": "d555ca478bf0506533f024c8253c1f4238d776416c92f3de3a72937fb189f011",
+    "stories": 600
+  },
+  "provenance": {
+    "mapperLexiconSha256": "64e0a7bded1f3c0e4ce8b1514a016b09f38ae599bdc6ea685fc76ce5c596219a",
+    "policy": {
+      "preset": "a1-hybrid",
+      "name": "shadowed-hybrid-recommended",
+      "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+    },
+    "parityFixtureSha256": "bdbd1103435fb86c333a8a9f878843853492b6db78198ee99698fb0629689333",
+    "templatesSha256": "22eb72fcd39f7b464273289a49be525a3b821d91662571728ab4139ce948e4fd",
+    "parity": {
+      "lemmaTable": "ok",
+      "fullStream": "skipped (corpus != fixture slice; gate ran on the fixture slice at prep time)",
+      "mode": "lemma-table only"
+    }
+  },
+  "evaluatedConceptSet": {
+    "size": 52,
+    "vocabConceptTokens": 54,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "policyPreset": "a1-hybrid",
+    "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+  },
+  "args": {
+    "vocabSize": 4000,
+    "pSub": 0.5,
+    "valEvery": 50,
+    "maxTrainTokens": 500000,
+    "seeds": [
+      0,
+      1
+    ]
+  },
+  "substitutionRule": "per mapped occurrence (concept AND prime; phrase head), one float from DetStream label 'e1/sub/<seed>/<originalStoryIndex>' consumed in story order; substitute iff float < pSub; abstained/unmapped tokens never substituted; story order = det_permutation('e1/order/<seed>')",
+  "seedStats": {
+    "0": {
+      "train": 23604,
+      "val": 507,
+      "unk": 0,
+      "substituted": 2643,
+      "kept": 2649,
+      "conceptExposure": {
+        "find": 118,
+        "give": 133,
+        "happy": 115,
+        "help": 110,
+        "make": 117,
+        "near": 167,
+        "take": 115,
+        "teacher": 117
+      },
+      "primeSubstitutedTrain": 1596,
+      "attestedConcepts": [
+        "find",
+        "give",
+        "happy",
+        "help",
+        "make",
+        "near",
+        "take",
+        "teacher"
+      ]
+    },
+    "1": {
+      "train": 23604,
+      "val": 507,
+      "unk": 0,
+      "substituted": 2644,
+      "kept": 2648,
+      "conceptExposure": {
+        "find": 110,
+        "give": 135,
+        "happy": 103,
+        "help": 130,
+        "make": 126,
+        "near": 175,
+        "take": 127,
+        "teacher": 125
+      },
+      "primeSubstitutedTrain": 1553,
+      "attestedConcepts": [
+        "find",
+        "give",
+        "happy",
+        "help",
+        "make",
+        "near",
+        "take",
+        "teacher"
+      ]
+    }
+  },
+  "attestedInAllSeeds": [
+    "find",
+    "give",
+    "happy",
+    "help",
+    "make",
+    "near",
+    "take",
+    "teacher"
+  ],
+  "primaryEndpointConceptRule": "pre-registered: the primary cloze endpoint averages over concepts attested (>=1 substituted train occurrence) in ALL seeds; attested is asserted to be a subset of the Amendment-A1 evaluated set (52; kind, lost excluded); the all-54 average is reported as secondary/descriptive"
+}

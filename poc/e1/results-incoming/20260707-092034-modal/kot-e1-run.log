@@ -1,0 +1,610 @@
+===== 00-fetch-corpus-mock.log =====
+$ /usr/local/bin/python -c import sys
+sents = []
+subj = ["the little dog", "a happy child", "the old man", "mom", "tom", "the bird",
+        "a small cat", "the teacher", "grandma", "the boy"]
+verb = ["saw", "found", "made", "took", "gave", "liked", "helped", "wanted", "heard", "knew"]
+obj = ["a big red ball", "the shiny stone", "some sweet cake", "a new toy", "the open door",
+       "a warm blanket", "the tall tree", "some cold water", "a funny hat", "the green book"]
+tail = ["in the park", "at home", "near the river", "after lunch", "one sunny day",
+        "before bed", "with a smile", "very fast", "again and again", "for a while"]
+# 600 stories (~24k train tokens): enough for the e1 trainer's 128-token
+# val/train windows (the poc/e4 data smoke's 60-story corpus is too small
+# to TRAIN on — its val split is under one window).
+for i in range(2400):
+    sents.append(f"{subj[i % 10]} {verb[(i // 10) % 10]} {obj[(i // 100) % 10]} {tail[i % 7]} .")
+stories = []
+for i in range(0, len(sents), 4):
+    stories.append(" ".join(sents[i:i + 4]))
+with open(sys.argv[1], "w") as f:
+    f.write("\n<|endoftext|>\n".join(stories) + "\n")
+print(f"mock corpus: {len(stories)} stories")
+ /vol/e1work/corpus/corpus-mock.txt
+mock corpus: 600 stories
+[00-fetch-corpus-mock exit rc=0]
+===== 10-build-data.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/pipeline/build_data.py --corpus /vol/e1work/corpus/TinyStories-train.txt --out /vol/e1work/data --seeds 0,1,2,3,4 --vocab-size 8000 --max-train-tokens 210000000
+[18s] 2119489 stories from /vol/e1work/corpus/TinyStories-train.txt
+[18s] policy gate: preset a1-hybrid sha e13dc838…
+[18s] parity gate: lemma-table only
+[42s] annotated 20000 stories
+[66s] annotated 40000 stories
+[90s] annotated 60000 stories
+[113s] annotated 80000 stories
+[136s] annotated 100000 stories
+[160s] annotated 120000 stories
+[184s] annotated 140000 stories
+[209s] annotated 160000 stories
+[234s] annotated 180000 stories
+[258s] annotated 200000 stories
+[282s] annotated 220000 stories
+[306s] annotated 240000 stories
+[330s] annotated 260000 stories
+[356s] annotated 280000 stories
+[380s] annotated 300000 stories
+[403s] annotated 320000 stories
+[427s] annotated 340000 stories
+[451s] annotated 360000 stories
+[475s] annotated 380000 stories
+[500s] annotated 400000 stories
+[525s] annotated 420000 stories
+[549s] annotated 440000 stories
+[574s] annotated 460000 stories
+[599s] annotated 480000 stories
+[621s] annotated 500000 stories
+[645s] annotated 520000 stories
+[669s] annotated 540000 stories
+[693s] annotated 560000 stories
+[717s] annotated 580000 stories
+[742s] annotated 600000 stories
+[766s] annotated 620000 stories
+[791s] annotated 640000 stories
+[815s] annotated 660000 stories
+[841s] annotated 680000 stories
+[867s] annotated 700000 stories
+[892s] annotated 720000 stories
+[918s] annotated 740000 stories
+[942s] annotated 760000 stories
+[966s] annotated 780000 stories
+[991s] annotated 800000 stories
+[1014s] annotated 820000 stories
+[1037s] annotated 840000 stories
+[1060s] annotated 860000 stories
+[1084s] annotated 880000 stories
+[1109s] annotated 900000 stories
+[1134s] annotated 920000 stories
+[1159s] annotated 940000 stories
+[1183s] annotated 960000 stories
+[1208s] annotated 980000 stories
+[1233s] annotated 1000000 stories
+[1256s] annotated 1020000 stories
+[1280s] annotated 1040000 stories
+[1306s] annotated 1060000 stories
+[1329s] annotated 1080000 stories
+[1353s] annotated 1100000 stories
+[1376s] annotated 1120000 stories
+[1400s] annotated 1140000 stories
+[1425s] annotated 1160000 stories
+[1449s] annotated 1180000 stories
+[1474s] annotated 1200000 stories
+[1498s] annotated 1220000 stories
+[1523s] annotated 1240000 stories
+[1547s] annotated 1260000 stories
+[1572s] annotated 1280000 stories
+[1598s] annotated 1300000 stories
+[1623s] annotated 1320000 stories
+[1646s] annotated 1340000 stories
+[1671s] annotated 1360000 stories
+[1696s] annotated 1380000 stories
+[1721s] annotated 1400000 stories
+[1746s] annotated 1420000 stories
+[1769s] annotated 1440000 stories
+[1793s] annotated 1460000 stories
+[1817s] annotated 1480000 stories
+[1841s] annotated 1500000 stories
+[1865s] annotated 1520000 stories
+[1890s] annotated 1540000 stories
+[1914s] annotated 1560000 stories
+[1939s] annotated 1580000 stories
+[1964s] annotated 1600000 stories
+[1989s] annotated 1620000 stories
+[2013s] annotated 1640000 stories
+[2038s] annotated 1660000 stories
+[2061s] annotated 1680000 stories
+[2086s] annotated 1700000 stories
+[2111s] annotated 1720000 stories
+[2136s] annotated 1740000 stories
+[2160s] annotated 1760000 stories
+[2183s] annotated 1780000 stories
+[2205s] annotated 1800000 stories
+[2228s] annotated 1820000 stories
+[2252s] annotated 1840000 stories
+[2275s] annotated 1860000 stories
+[2302s] annotated 1880000 stories
+[2325s] annotated 1900000 stories
+[2348s] annotated 1920000 stories
+[2374s] annotated 1940000 stories
+[2399s] annotated 1960000 stories
+[2422s] annotated 1980000 stories
+[2445s] annotated 2000000 stories
+[2468s] annotated 2020000 stories
+[2491s] annotated 2040000 stories
+[2514s] annotated 2060000 stories
+[2539s] annotated 2080000 stories
+[2565s] annotated 2100000 stories
+[2591s] pass A done: 375046986 word tokens, 43872 distinct symbols
+vocab 8000 (specials 121, forced 287); corpus coverage 99.83% of 439292799 tokens
+[2932s] seed 0: train 210000359 val 8811163 tokens; 49/52 evaluated concepts attested
+[3189s] seed 1: train 210000144 val 8810895 tokens; 49/52 evaluated concepts attested
+[3440s] seed 2: train 210000154 val 8810781 tokens; 49/52 evaluated concepts attested
+[3692s] seed 3: train 210000034 val 8811038 tokens; 50/52 evaluated concepts attested
+[3944s] seed 4: train 210000033 val 8810956 tokens; 50/52 evaluated concepts attested
+[3944s] done -> /vol/e1work/data; attested in all seeds: 48/52 evaluated (excluded by policy: kind, lost)
+[10-build-data exit rc=0]
+===== 12-mock-tables.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/pipeline/mock_tables.py --d 64 --out /vol/e1work/vector-tables-mock-d64.json --seeds 0,1
+wrote MOCK tables (D=64) -> /vol/e1work/vector-tables-mock-d64.json
+[12-mock-tables exit rc=0]
+===== 20-sweep-kernel-frozen-lr1e-3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 0 --lr 1e-3 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "kernel-frozen", "seed": 0, "lr": 0.001, "steps": 6103, "frozenRowsBitIdentical": true}
+[463s] done: final val 1.8356
+[20-sweep-kernel-frozen-lr1e-3 exit rc=0]
+===== 20-sweep-kernel-frozen-lr3e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 0 --lr 3e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "kernel-frozen", "seed": 0, "lr": 0.0003, "steps": 6103, "frozenRowsBitIdentical": true}
+[431s] done: final val 1.9295
+[20-sweep-kernel-frozen-lr3e-4 exit rc=0]
+===== 20-sweep-kernel-frozen-lr6e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 0 --lr 6e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "kernel-frozen", "seed": 0, "lr": 0.0006, "steps": 6103, "frozenRowsBitIdentical": true}
+[459s] done: final val 1.8582
+[20-sweep-kernel-frozen-lr6e-4 exit rc=0]
+===== 20-sweep-kernel-init-lr1e-3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 0 --lr 1e-3 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "kernel-init", "seed": 0, "lr": 0.001, "steps": 6103, "frozenRowsBitIdentical": null}
+[456s] done: final val 1.8264
+[20-sweep-kernel-init-lr1e-3 exit rc=0]
+===== 20-sweep-kernel-init-lr3e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 0 --lr 3e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "kernel-init", "seed": 0, "lr": 0.0003, "steps": 6103, "frozenRowsBitIdentical": null}
+[440s] done: final val 1.9189
+[20-sweep-kernel-init-lr3e-4 exit rc=0]
+===== 20-sweep-kernel-init-lr6e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 0 --lr 6e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "kernel-init", "seed": 0, "lr": 0.0006, "steps": 6103, "frozenRowsBitIdentical": null}
+[456s] done: final val 1.8503
+[20-sweep-kernel-init-lr6e-4 exit rc=0]
+===== 20-sweep-random-frozen-lr1e-3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 0 --lr 1e-3 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "random-frozen", "seed": 0, "lr": 0.001, "steps": 6103, "frozenRowsBitIdentical": true}
+[460s] done: final val 1.8334
+[20-sweep-random-frozen-lr1e-3 exit rc=0]
+===== 20-sweep-random-frozen-lr3e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 0 --lr 3e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "random-frozen", "seed": 0, "lr": 0.0003, "steps": 6103, "frozenRowsBitIdentical": true}
+[459s] done: final val 1.9239
+[20-sweep-random-frozen-lr3e-4 exit rc=0]
+===== 20-sweep-random-frozen-lr6e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 0 --lr 6e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "random-frozen", "seed": 0, "lr": 0.0006, "steps": 6103, "frozenRowsBitIdentical": true}
+[439s] done: final val 1.8527
+[20-sweep-random-frozen-lr6e-4 exit rc=0]
+===== 20-sweep-shuffled-frozen-lr1e-3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 0 --lr 1e-3 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "shuffled-frozen", "seed": 0, "lr": 0.001, "steps": 6103, "frozenRowsBitIdentical": true}
+[458s] done: final val 1.8379
+[20-sweep-shuffled-frozen-lr1e-3 exit rc=0]
+===== 20-sweep-shuffled-frozen-lr3e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 0 --lr 3e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "shuffled-frozen", "seed": 0, "lr": 0.0003, "steps": 6103, "frozenRowsBitIdentical": true}
+[433s] done: final val 1.9302
+[20-sweep-shuffled-frozen-lr3e-4 exit rc=0]
+===== 20-sweep-shuffled-frozen-lr6e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 0 --lr 6e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "shuffled-frozen", "seed": 0, "lr": 0.0006, "steps": 6103, "frozenRowsBitIdentical": true}
+[459s] done: final val 1.8586
+[20-sweep-shuffled-frozen-lr6e-4 exit rc=0]
+===== 20-sweep-trainable-lr1e-3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 0 --lr 1e-3 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "trainable", "seed": 0, "lr": 0.001, "steps": 6103, "frozenRowsBitIdentical": null}
+[433s] done: final val 1.8268
+[20-sweep-trainable-lr1e-3 exit rc=0]
+===== 20-sweep-trainable-lr3e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 0 --lr 3e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "trainable", "seed": 0, "lr": 0.0003, "steps": 6103, "frozenRowsBitIdentical": null}
+[460s] done: final val 1.9176
+[20-sweep-trainable-lr3e-4 exit rc=0]
+===== 20-sweep-trainable-lr6e-4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 0 --lr 6e-4 --out /vol/e1work/ckpts/sweep --budget-frac 0.5 --no-checkpoints --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+{"arm": "trainable", "seed": 0, "lr": 0.0006, "steps": 6103, "frozenRowsBitIdentical": null}
+[431s] done: final val 1.8507
+[20-sweep-trainable-lr6e-4 exit rc=0]
+===== 30-select-lrs.log =====
+$ /usr/local/bin/python -c import glob, json, sys
+sweep_dir, out = sys.argv[1], sys.argv[2]
+best = {}
+for p in glob.glob(f"{sweep_dir}/summary-*.json"):
+    s = json.load(open(p))
+    k = s["arm"]
+    v = s["final"]["valLoss"]
+    if k not in best or v < best[k][1]:
+        best[k] = (s["lr"], v)
+sel = {k: {"lr": v[0], "valLoss": v[1]} for k, v in best.items()}
+json.dump({"rule": "seed 0 only, best of sweep by val loss, then fixed for all seeds "
+                   "(poc-design Common rule 5)", "selected": sel}, open(out, "w"), indent=2)
+print(json.dumps(sel, indent=2))
+ /vol/e1work/ckpts/sweep /vol/e1work/lr-selection.json
+{
+  "kernel-frozen": {
+    "lr": 0.001,
+    "valLoss": 1.8356323897838593
+  },
+  "kernel-init": {
+    "lr": 0.001,
+    "valLoss": 1.8263658702373504
+  },
+  "random-frozen": {
+    "lr": 0.001,
+    "valLoss": 1.8333906769752502
+  },
+  "shuffled-frozen": {
+    "lr": 0.001,
+    "valLoss": 1.8379347801208497
+  },
+  "trainable": {
+    "lr": 0.001,
+    "valLoss": 1.8267975807189942
+  }
+}
+[30-select-lrs exit rc=0]
+===== 40-train-kernel-frozen-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[6s] ckpt step0 @step 0: val 9.0910 conceptSlice 9.18338635053791
+[459s] ckpt 50pct @step 6103: val 1.8883 conceptSlice 3.6317507150785517
+[910s] ckpt 100pct @step 12207: val 1.7312 conceptSlice 3.42559737075222
+{"arm": "kernel-frozen", "seed": 0, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[910s] done: final val 1.7312
+[40-train-kernel-frozen-seed0 exit rc=0]
+===== 40-train-kernel-frozen-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[5s] ckpt step0 @step 0: val 9.0334 conceptSlice 9.042603586069799
+[459s] ckpt 50pct @step 6103: val 1.8992 conceptSlice 3.668278731276288
+[910s] ckpt 100pct @step 12207: val 1.7425 conceptSlice 3.395773537583159
+{"arm": "kernel-frozen", "seed": 1, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[910s] done: final val 1.7425
+[40-train-kernel-frozen-seed1 exit rc=0]
+===== 40-train-kernel-frozen-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 2 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[5s] ckpt step0 @step 0: val 9.0438 conceptSlice 8.774544330006282
+[433s] ckpt 50pct @step 6103: val 1.8848 conceptSlice 3.6640640141313354
+[862s] ckpt 100pct @step 12207: val 1.7262 conceptSlice 3.361897464487877
+{"arm": "kernel-frozen", "seed": 2, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[862s] done: final val 1.7262
+[40-train-kernel-frozen-seed2 exit rc=0]
+===== 40-train-kernel-frozen-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 3 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[6s] ckpt step0 @step 0: val 9.0375 conceptSlice 9.13373340560852
+[460s] ckpt 50pct @step 6103: val 1.8804 conceptSlice 3.5916386779595015
+[911s] ckpt 100pct @step 12207: val 1.7232 conceptSlice 3.326183093299747
+{"arm": "kernel-frozen", "seed": 3, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[911s] done: final val 1.7232
+[40-train-kernel-frozen-seed3 exit rc=0]
+===== 40-train-kernel-frozen-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-frozen --seed 4 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[5s] ckpt step0 @step 0: val 9.0586 conceptSlice 9.49254470530041
+[460s] ckpt 50pct @step 6103: val 1.8931 conceptSlice 3.57869473009886
+[911s] ckpt 100pct @step 12207: val 1.7347 conceptSlice 3.3739253639155984
+{"arm": "kernel-frozen", "seed": 4, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[911s] done: final val 1.7347
+[40-train-kernel-frozen-seed4 exit rc=0]
+===== 40-train-kernel-init-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[3s] ckpt step0 @step 0: val 9.0910 conceptSlice 9.183386270491804
+[433s] ckpt 50pct @step 6103: val 1.8776 conceptSlice 3.052109748548497
+[862s] ckpt 100pct @step 12207: val 1.7230 conceptSlice 2.8995258335467895
+{"arm": "kernel-init", "seed": 0, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[862s] done: final val 1.7230
+[40-train-kernel-init-seed0 exit rc=0]
+===== 40-train-kernel-init-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0334 conceptSlice 9.042603666608821
+[436s] ckpt 50pct @step 6103: val 1.8871 conceptSlice 3.0844281852861433
+[868s] ckpt 100pct @step 12207: val 1.7314 conceptSlice 2.8472644544995327
+{"arm": "kernel-init", "seed": 1, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[868s] done: final val 1.7314
+[40-train-kernel-init-seed1 exit rc=0]
+===== 40-train-kernel-init-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 2 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[3s] ckpt step0 @step 0: val 9.0438 conceptSlice 8.774544330006282
+[438s] ckpt 50pct @step 6103: val 1.8733 conceptSlice 3.049398613139235
+[872s] ckpt 100pct @step 12207: val 1.7171 conceptSlice 2.817212316090475
+{"arm": "kernel-init", "seed": 2, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[872s] done: final val 1.7171
+[40-train-kernel-init-seed2 exit rc=0]
+===== 40-train-kernel-init-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 3 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0375 conceptSlice 9.13373340560852
+[459s] ckpt 50pct @step 6103: val 1.8713 conceptSlice 3.030734202678224
+[911s] ckpt 100pct @step 12207: val 1.7184 conceptSlice 2.8154398736075184
+{"arm": "kernel-init", "seed": 3, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[911s] done: final val 1.7184
+[40-train-kernel-init-seed3 exit rc=0]
+===== 40-train-kernel-init-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm kernel-init --seed 4 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0586 conceptSlice 9.49254470530041
+[457s] ckpt 50pct @step 6103: val 1.8817 conceptSlice 2.9721255489045633
+[908s] ckpt 100pct @step 12207: val 1.7258 conceptSlice 2.7958537731093434
+{"arm": "kernel-init", "seed": 4, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[908s] done: final val 1.7258
+[40-train-kernel-init-seed4 exit rc=0]
+===== 40-train-random-frozen-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[3s] ckpt step0 @step 0: val 9.0908 conceptSlice 9.192968483179644
+[433s] ckpt 50pct @step 6103: val 1.8821 conceptSlice 3.4360870661501024
+[862s] ckpt 100pct @step 12207: val 1.7249 conceptSlice 3.2345087703850752
+{"arm": "random-frozen", "seed": 0, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[862s] done: final val 1.7249
+[40-train-random-frozen-seed0 exit rc=0]
+===== 40-train-random-frozen-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0361 conceptSlice 9.18482390303703
+[439s] ckpt 50pct @step 6103: val 1.8940 conceptSlice 3.486944584105076
+[871s] ckpt 100pct @step 12207: val 1.7374 conceptSlice 3.213910155068761
+{"arm": "random-frozen", "seed": 1, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[871s] done: final val 1.7374
+[40-train-random-frozen-seed1 exit rc=0]
+===== 40-train-random-frozen-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 2 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[3s] ckpt step0 @step 0: val 9.0471 conceptSlice 9.081798439254303
+[438s] ckpt 50pct @step 6103: val 1.8801 conceptSlice 3.4032385102493117
+[871s] ckpt 100pct @step 12207: val 1.7214 conceptSlice 3.1549860136033736
+{"arm": "random-frozen", "seed": 2, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[871s] done: final val 1.7214
+[40-train-random-frozen-seed2 exit rc=0]
+===== 40-train-random-frozen-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 3 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0382 conceptSlice 9.21393183532905
+[457s] ckpt 50pct @step 6103: val 1.8795 conceptSlice 3.3878346448693746
+[908s] ckpt 100pct @step 12207: val 1.7222 conceptSlice 3.16076463224838
+{"arm": "random-frozen", "seed": 3, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[908s] done: final val 1.7222
+[40-train-random-frozen-seed3 exit rc=0]
+===== 40-train-random-frozen-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm random-frozen --seed 4 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0545 conceptSlice 9.109880413925438
+[457s] ckpt 50pct @step 6103: val 1.8879 conceptSlice 3.3637362405946005
+[909s] ckpt 100pct @step 12207: val 1.7296 conceptSlice 3.1628467252648096
+{"arm": "random-frozen", "seed": 4, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[909s] done: final val 1.7296
+[40-train-random-frozen-seed4 exit rc=0]
+===== 40-train-shuffled-frozen-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0904 conceptSlice 9.14297155161373
+[434s] ckpt 50pct @step 6103: val 1.8885 conceptSlice 3.700809946529201
+[866s] ckpt 100pct @step 12207: val 1.7312 conceptSlice 3.4887808310920425
+{"arm": "shuffled-frozen", "seed": 0, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[866s] done: final val 1.7312
+[40-train-shuffled-frozen-seed0 exit rc=0]
+===== 40-train-shuffled-frozen-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[5s] ckpt step0 @step 0: val 9.0343 conceptSlice 9.090360219908044
+[459s] ckpt 50pct @step 6103: val 1.8998 conceptSlice 3.7233243748883194
+[910s] ckpt 100pct @step 12207: val 1.7411 conceptSlice 3.4745719780469955
+{"arm": "shuffled-frozen", "seed": 1, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[910s] done: final val 1.7411
+[40-train-shuffled-frozen-seed1 exit rc=0]
+===== 40-train-shuffled-frozen-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 2 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0468 conceptSlice 9.015043025347184
+[437s] ckpt 50pct @step 6103: val 1.8835 conceptSlice 3.7485487834320197
+[871s] ckpt 100pct @step 12207: val 1.7234 conceptSlice 3.452914705431492
+{"arm": "shuffled-frozen", "seed": 2, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[871s] done: final val 1.7234
+[40-train-shuffled-frozen-seed2 exit rc=0]
+===== 40-train-shuffled-frozen-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 3 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[5s] ckpt step0 @step 0: val 9.0371 conceptSlice 9.044629411480933
+[459s] ckpt 50pct @step 6103: val 1.8815 conceptSlice 3.554208725783684
+[911s] ckpt 100pct @step 12207: val 1.7253 conceptSlice 3.318709709191248
+{"arm": "shuffled-frozen", "seed": 3, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[911s] done: final val 1.7253
+[40-train-shuffled-frozen-seed3 exit rc=0]
+===== 40-train-shuffled-frozen-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm shuffled-frozen --seed 4 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[6s] ckpt step0 @step 0: val 9.0574 conceptSlice 9.467052080477888
+[459s] ckpt 50pct @step 6103: val 1.8967 conceptSlice 3.6869684477620335
+[911s] ckpt 100pct @step 12207: val 1.7365 conceptSlice 3.4651602514681383
+{"arm": "shuffled-frozen", "seed": 4, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": true}
+[911s] done: final val 1.7365
+[40-train-shuffled-frozen-seed4 exit rc=0]
+===== 40-train-trainable-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 0 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0888 conceptSlice 9.085823514344263
+[457s] ckpt 50pct @step 6103: val 1.8783 conceptSlice 3.0665254519936815
+[908s] ckpt 100pct @step 12207: val 1.7222 conceptSlice 2.9080842031676912
+{"arm": "trainable", "seed": 0, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[908s] done: final val 1.7222
+[40-train-trainable-seed0 exit rc=0]
+===== 40-train-trainable-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 1 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0337 conceptSlice 8.998533948164654
+[457s] ckpt 50pct @step 6103: val 1.8862 conceptSlice 3.049432476405288
+[908s] ckpt 100pct @step 12207: val 1.7320 conceptSlice 2.84881781063579
+{"arm": "trainable", "seed": 1, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[908s] done: final val 1.7320
+[40-train-trainable-seed1 exit rc=0]
+===== 40-train-trainable-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 2 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0470 conceptSlice 9.065728780650195
+[458s] ckpt 50pct @step 6103: val 1.8725 conceptSlice 3.0735752963938197
+[910s] ckpt 100pct @step 12207: val 1.7164 conceptSlice 2.828948517759403
+{"arm": "trainable", "seed": 2, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[910s] done: final val 1.7164
+[40-train-trainable-seed2 exit rc=0]
+===== 40-train-trainable-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 3 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0351 conceptSlice 8.915402231186722
+[457s] ckpt 50pct @step 6103: val 1.8716 conceptSlice 3.067063430494131
+[908s] ckpt 100pct @step 12207: val 1.7171 conceptSlice 2.8255154143241334
+{"arm": "trainable", "seed": 3, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[908s] done: final val 1.7171
+[40-train-trainable-seed3 exit rc=0]
+===== 40-train-trainable-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/train/train_e1.py --data /vol/e1work/data --tables /root/kot/poc/e1/inputs/vector-tables-d512.json --arm trainable --seed 4 --lr 0.001 --out /vol/e1work/ckpts --n-layer 4 --n-head 8 --d-model 512 --d-ff 2048 --seq-len 256 --batch-size 64 --total-tokens 200000000
+[4s] ckpt step0 @step 0: val 9.0533 conceptSlice 9.086543046725637
+[457s] ckpt 50pct @step 6103: val 1.8808 conceptSlice 2.977559174174293
+[908s] ckpt 100pct @step 12207: val 1.7239 conceptSlice 2.7985497258881753
+{"arm": "trainable", "seed": 4, "lr": 0.001, "steps": 12207, "frozenRowsBitIdentical": null}
+[908s] done: final val 1.7239
+[40-train-trainable-seed4 exit rc=0]
+===== 50-eval-kernel-frozen-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed0-100pct.json
+{"arm": "kernel-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.015625, "probeTestAcc": 0.032407406717538834, "conceptSlicePpl": 29.599962743847428}
+[50-eval-kernel-frozen-seed0-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed0-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed0-50pct.json
+{"arm": "kernel-frozen", "seed": 0, "tag": "50pct", "heldOutAccAttested": 0.020833333333333332, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 36.21684452608834}
+[50-eval-kernel-frozen-seed0-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed0-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed0-step0.json
+{"arm": "kernel-frozen", "seed": 0, "tag": "step0", "heldOutAccAttested": 0.010416666666666666, "probeTestAcc": 0.25925925374031067, "conceptSlicePpl": 9748.67527835592}
+[50-eval-kernel-frozen-seed0-step0 exit rc=0]
+===== 50-eval-kernel-frozen-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed1-100pct.json
+{"arm": "kernel-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.03125, "probeTestAcc": 0.0694444477558136, "conceptSlicePpl": 27.91548046147719}
+[50-eval-kernel-frozen-seed1-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed1-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed1-50pct.json
+{"arm": "kernel-frozen", "seed": 1, "tag": "50pct", "heldOutAccAttested": 0.033854166666666664, "probeTestAcc": 0.0694444477558136, "conceptSlicePpl": 36.8677725187566}
+[50-eval-kernel-frozen-seed1-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed1-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed1-step0.json
+{"arm": "kernel-frozen", "seed": 1, "tag": "step0", "heldOutAccAttested": 0.020833333333333332, "probeTestAcc": 0.2222222238779068, "conceptSlicePpl": 8534.054034550489}
+[50-eval-kernel-frozen-seed1-step0 exit rc=0]
+===== 50-eval-kernel-frozen-seed2-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed2-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed2-100pct.json
+{"arm": "kernel-frozen", "seed": 2, "tag": "100pct", "heldOutAccAttested": 0.036458333333333336, "probeTestAcc": 0.0833333358168602, "conceptSlicePpl": 27.888134188303898}
+[50-eval-kernel-frozen-seed2-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed2-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed2-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed2-50pct.json
+{"arm": "kernel-frozen", "seed": 2, "tag": "50pct", "heldOutAccAttested": 0.020833333333333332, "probeTestAcc": 0.05092592537403107, "conceptSlicePpl": 37.8780217860345}
+[50-eval-kernel-frozen-seed2-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed2-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed2-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed2-step0.json
+{"arm": "kernel-frozen", "seed": 2, "tag": "step0", "heldOutAccAttested": 0.013020833333333334, "probeTestAcc": 0.27314814925193787, "conceptSlicePpl": 6438.944746579534}
+[50-eval-kernel-frozen-seed2-step0 exit rc=0]
+===== 50-eval-kernel-frozen-seed3-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed3-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed3-100pct.json
+{"arm": "kernel-frozen", "seed": 3, "tag": "100pct", "heldOutAccAttested": 0.018229166666666668, "probeTestAcc": 0.03703703731298447, "conceptSlicePpl": 26.611477530899176}
+[50-eval-kernel-frozen-seed3-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed3-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed3-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed3-50pct.json
+{"arm": "kernel-frozen", "seed": 3, "tag": "50pct", "heldOutAccAttested": 0.0234375, "probeTestAcc": 0.03703703731298447, "conceptSlicePpl": 34.89812662354528}
+[50-eval-kernel-frozen-seed3-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed3-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed3-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed3-step0.json
+{"arm": "kernel-frozen", "seed": 3, "tag": "step0", "heldOutAccAttested": 0.015625, "probeTestAcc": 0.25, "conceptSlicePpl": 9343.599712143465}
+[50-eval-kernel-frozen-seed3-step0 exit rc=0]
+===== 50-eval-kernel-frozen-seed4-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed4-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed4-100pct.json
+{"arm": "kernel-frozen", "seed": 4, "tag": "100pct", "heldOutAccAttested": 0.033854166666666664, "probeTestAcc": 0.04629629850387573, "conceptSlicePpl": 30.066445468051562}
+[50-eval-kernel-frozen-seed4-100pct exit rc=0]
+===== 50-eval-kernel-frozen-seed4-50pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed4-50pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed4-50pct.json
+{"arm": "kernel-frozen", "seed": 4, "tag": "50pct", "heldOutAccAttested": 0.0234375, "probeTestAcc": 0.04629629850387573, "conceptSlicePpl": 36.63930586659086}
+[50-eval-kernel-frozen-seed4-50pct exit rc=0]
+===== 50-eval-kernel-frozen-seed4-step0.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed4-step0.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-frozen-seed4-step0.json
+{"arm": "kernel-frozen", "seed": 4, "tag": "step0", "heldOutAccAttested": 0.036458333333333336, "probeTestAcc": 0.28703704476356506, "conceptSlicePpl": 13251.072413023086}
+[50-eval-kernel-frozen-seed4-step0 exit rc=0]
+===== 50-eval-kernel-init-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed0-100pct.json
+{"arm": "kernel-init", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.049479166666666664, "probeTestAcc": 0.10185185074806213, "conceptSlicePpl": 17.716068356582163}
+[50-eval-kernel-init-seed0-100pct exit rc=0]
+===== 50-eval-kernel-init-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed1-100pct.json
+{"arm": "kernel-init", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.0546875, "probeTestAcc": 0.09259259700775146, "conceptSlicePpl": 16.392995212554037}
+[50-eval-kernel-init-seed1-100pct exit rc=0]
+===== 50-eval-kernel-init-seed2-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed2-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed2-100pct.json
+{"arm": "kernel-init", "seed": 2, "tag": "100pct", "heldOutAccAttested": 0.028645833333333332, "probeTestAcc": 0.13425925374031067, "conceptSlicePpl": 16.07409408571068}
+[50-eval-kernel-init-seed2-100pct exit rc=0]
+===== 50-eval-kernel-init-seed3-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed3-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed3-100pct.json
+{"arm": "kernel-init", "seed": 3, "tag": "100pct", "heldOutAccAttested": 0.046875, "probeTestAcc": 0.10185185074806213, "conceptSlicePpl": 15.984574761263737}
+[50-eval-kernel-init-seed3-100pct exit rc=0]
+===== 50-eval-kernel-init-seed4-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-kernel-init-seed4-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-kernel-init-seed4-100pct.json
+{"arm": "kernel-init", "seed": 4, "tag": "100pct", "heldOutAccAttested": 0.041666666666666664, "probeTestAcc": 0.10648148506879807, "conceptSlicePpl": 16.69647859426922}
+[50-eval-kernel-init-seed4-100pct exit rc=0]
+===== 50-eval-random-frozen-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed0-100pct.json
+{"arm": "random-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.0234375, "probeTestAcc": 0.0555555559694767, "conceptSlicePpl": 24.18577196106302}
+[50-eval-random-frozen-seed0-100pct exit rc=0]
+===== 50-eval-random-frozen-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed1-100pct.json
+{"arm": "random-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.03125, "probeTestAcc": 0.06481481343507767, "conceptSlicePpl": 23.391825305704092}
+[50-eval-random-frozen-seed1-100pct exit rc=0]
+===== 50-eval-random-frozen-seed2-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed2-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed2-100pct.json
+{"arm": "random-frozen", "seed": 2, "tag": "100pct", "heldOutAccAttested": 0.020833333333333332, "probeTestAcc": 0.05092592537403107, "conceptSlicePpl": 22.373982653378068}
+[50-eval-random-frozen-seed2-100pct exit rc=0]
+===== 50-eval-random-frozen-seed3-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed3-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed3-100pct.json
+{"arm": "random-frozen", "seed": 3, "tag": "100pct", "heldOutAccAttested": 0.03125, "probeTestAcc": 0.04629629850387573, "conceptSlicePpl": 22.783379685524046}
+[50-eval-random-frozen-seed3-100pct exit rc=0]
+===== 50-eval-random-frozen-seed4-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-random-frozen-seed4-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-random-frozen-seed4-100pct.json
+{"arm": "random-frozen", "seed": 4, "tag": "100pct", "heldOutAccAttested": 0.033854166666666664, "probeTestAcc": 0.05092592537403107, "conceptSlicePpl": 23.640533296251498}
+[50-eval-random-frozen-seed4-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed0-100pct.json
+{"arm": "shuffled-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.036458333333333336, "probeTestAcc": 0.06481481343507767, "conceptSlicePpl": 30.951588805553737}
+[50-eval-shuffled-frozen-seed0-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed1-100pct.json
+{"arm": "shuffled-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.020833333333333332, "probeTestAcc": 0.09259259700775146, "conceptSlicePpl": 30.11008128550708}
+[50-eval-shuffled-frozen-seed1-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed2-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed2-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed2-100pct.json
+{"arm": "shuffled-frozen", "seed": 2, "tag": "100pct", "heldOutAccAttested": 0.033854166666666664, "probeTestAcc": 0.07870370149612427, "conceptSlicePpl": 30.13286485172443}
+[50-eval-shuffled-frozen-seed2-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed3-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed3-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed3-100pct.json
+{"arm": "shuffled-frozen", "seed": 3, "tag": "100pct", "heldOutAccAttested": 0.028645833333333332, "probeTestAcc": 0.06018518656492233, "conceptSlicePpl": 26.492186264520413}
+[50-eval-shuffled-frozen-seed3-100pct exit rc=0]
+===== 50-eval-shuffled-frozen-seed4-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-shuffled-frozen-seed4-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-shuffled-frozen-seed4-100pct.json
+{"arm": "shuffled-frozen", "seed": 4, "tag": "100pct", "heldOutAccAttested": 0.026041666666666668, "probeTestAcc": 0.06018518656492233, "conceptSlicePpl": 32.8094728043029}
+[50-eval-shuffled-frozen-seed4-100pct exit rc=0]
+===== 50-eval-trainable-seed0-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed0-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed0-100pct.json
+{"arm": "trainable", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.041666666666666664, "probeTestAcc": 0.10185185074806213, "conceptSlicePpl": 17.791117487135136}
+[50-eval-trainable-seed0-100pct exit rc=0]
+===== 50-eval-trainable-seed1-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed1-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed1-100pct.json
+{"arm": "trainable", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.03125, "probeTestAcc": 0.14814814925193787, "conceptSlicePpl": 16.38156989866683}
+[50-eval-trainable-seed1-100pct exit rc=0]
+===== 50-eval-trainable-seed2-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed2-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed2-100pct.json
+{"arm": "trainable", "seed": 2, "tag": "100pct", "heldOutAccAttested": 0.026041666666666668, "probeTestAcc": 0.1527777761220932, "conceptSlicePpl": 16.097684400668303}
+[50-eval-trainable-seed2-100pct exit rc=0]
+===== 50-eval-trainable-seed3-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed3-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed3-100pct.json
+{"arm": "trainable", "seed": 3, "tag": "100pct", "heldOutAccAttested": 0.03125, "probeTestAcc": 0.08796296268701553, "conceptSlicePpl": 16.247176169696154}
+[50-eval-trainable-seed3-100pct exit rc=0]
+===== 50-eval-trainable-seed4-100pct.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/eval_e1.py --ckpt /vol/e1work/ckpts/ckpt-trainable-seed4-100pct.pt --data /vol/e1work/data --out /vol/e1work/evals/eval-trainable-seed4-100pct.json
+{"arm": "trainable", "seed": 4, "tag": "100pct", "heldOutAccAttested": 0.057291666666666664, "probeTestAcc": 0.09259259700775146, "conceptSlicePpl": 16.843951019794837}
+[50-eval-trainable-seed4-100pct exit rc=0]
+===== 60-check-smoke.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/smoke/check_smoke.py /vol/e1work/ckpts /vol/e1work/results 0,1
+smoke assertions: 20 row-identity comparisons over 5 arms x 2 seeds
+SMOKE PASS: frozen rows bit-identical (step0 vs 50% vs 100%); trainable rows moved; losses improved; verdict emitted (mock-labelled)
+[60-check-smoke exit rc=0]
+===== 60-stats-verdict.log =====
+$ /usr/local/bin/python /root/kot/poc/e1/eval/stats_e1.py --evals /vol/e1work/evals --seeds 0,1,2,3,4 --out-prefix /vol/e1work/results/verdict-e1
+verdict: INCONCLUSIVE
+wrote /vol/e1work/results/verdict-e1.json / .md
+[60-stats-verdict exit rc=0]

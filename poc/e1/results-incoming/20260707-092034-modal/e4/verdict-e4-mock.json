@@ -1,0 +1,305 @@
+{
+  "experiment": "E4",
+  "mock": true,
+  "seeds": [
+    0,
+    1
+  ],
+  "candidateSetSize": 1054,
+  "chance": {
+    "top1": 0.0009487666034155598,
+    "top10": 0.009487666034155597,
+    "note": "poc-design E4: \"chance = 10/|C|\" is the top-10 figure; top-1 chance = 1/|C|"
+  },
+  "preRegisteredCriteria": {
+    "primaryEndpoint": "tier-2 top-1 accuracy over the candidate set, kernel vs shuffled-kernel, one-sided exact paired sign-flip permutation across the 5 paired seeds, alpha = 0.05 (min attainable p = 1/32; Common rule 1 pairing)",
+    "secondaryEndpoints": [
+      "tier-2 top-10 accuracy (same test)",
+      "tier-1 top-1 and top-10 accuracy (same test)",
+      "per-seed one-sided Fisher exact on pooled item counts (tier-2: 50 gloss-items/arm; tier-1: 1055 items/arm), Holm-corrected over seeds",
+      "compositional subsets (shared vs novel): descriptive accuracies, no inferential claim"
+    ],
+    "controlFloorCheck": "the shuffled-kernel arm must sit at empirical chance: pooled tier-2 accuracy inside the exact binomial 95% CI of 1/1054 \u2014 otherwise the control itself carries signal and the run is reported as invalid, not as a positive",
+    "advanceRule": "poc-design MAJOR 16: \"credible\" requires tier-2 success PLUS replication in a second model family; a single tier-1 positive triggers nothing",
+    "candidateSet": "concept tokens ONLY (all 1054 rows; BLOCKER 3) \u2014 scoring restricted to these logits",
+    "arms": {
+      "kernel": "E1 kernel-frozen model + kernel rows for the 1000 new concepts (frozen)",
+      "shuffledKernel": "same, with the concept<->vector assignment deranged per vector-tables-manifest (the EMPIRICAL CHANCE FLOOR \u2014 BLOCKER 3)",
+      "randomFrozen": "descriptive secondary arm"
+    },
+    "trainingDataRule": "MAJOR 6: emission training may only consume the gloss file whose sha-256 equals GLOSS-HASH.txt (committed before any training); build_emission.py verifies this and fails closed"
+  },
+  "provenance": {
+    "glossesSha256": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "glossHashPin": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "holdoutSha256": "3f085944d8821fd36974159097e35747c795434903142bd6ef5c8c5f66c70a39",
+    "e1VocabSha256": "372000cbf9851007357d98729a0542a4178d94ac2c7cd7da4ea30ca41620e125",
+    "mapperLexiconSha256": "64e0a7bded1f3c0e4ce8b1514a016b09f38ae599bdc6ea685fc76ce5c596219a",
+    "e1Policy": {
+      "preset": "a1-hybrid",
+      "name": "shadowed-hybrid-recommended",
+      "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+    },
+    "e1EvaluatedConceptSet": {
+      "size": 52,
+      "vocabConceptTokens": 54,
+      "excludedByPolicy": [
+        "kind",
+        "lost"
+      ],
+      "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+      "policyPreset": "a1-hybrid",
+      "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+    },
+    "glossOovRate": 0.1400592416251086,
+    "glossOovTokens": 20474,
+    "glossTokens": 146181
+  },
+  "primary": {
+    "kernel": [
+      0.0,
+      0.0
+    ],
+    "shuffled": [
+      0.0,
+      0.0
+    ],
+    "diffs": [
+      0.0,
+      0.0
+    ],
+    "meanDiff": 0.0,
+    "p": 1.0,
+    "n": 2,
+    "minAttainableP": 0.25,
+    "test": "exact one-sided sign-flip permutation",
+    "pass": false
+  },
+  "secondariesHolm": {
+    "tier1_top1": {
+      "p": 0.5,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.02,
+      "kernel": [
+        0.04,
+        0.0
+      ],
+      "shuffled": [
+        0.0,
+        0.0
+      ]
+    },
+    "tier1_top10": {
+      "p": 0.5,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.05,
+      "kernel": [
+        0.1,
+        0.0
+      ],
+      "shuffled": [
+        0.0,
+        0.0
+      ]
+    },
+    "tier2_top10": {
+      "p": 1.0,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.0,
+      "kernel": [
+        0.0,
+        0.0
+      ],
+      "shuffled": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "fisherPerSeedHolm": {
+    "tier2": {
+      "seed0": {
+        "k": [
+          0,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 1.0,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      },
+      "seed1": {
+        "k": [
+          0,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 1.0,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      }
+    },
+    "tier1": {
+      "seed0": {
+        "k": [
+          2,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 0.2474747474747475,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 0.494949494949495,
+        "reject": false
+      },
+      "seed1": {
+        "k": [
+          0,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 1.0,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      }
+    }
+  },
+  "controlFloor": {
+    "shuffledPooledTier2": {
+      "correct": 0,
+      "n": 100,
+      "acc": 0.0
+    },
+    "p0": 0.0009487666034155598,
+    "acceptanceRegion": [
+      0,
+      1
+    ],
+    "interpretation": "equal-tailed exact binomial 95% acceptance region under rate 1/|C|; the shuffled arm's pooled tier-2 correct count must fall inside it",
+    "pass": true,
+    "kernelPooledTier2": {
+      "correct": 0,
+      "n": 100,
+      "acc": 0.0
+    },
+    "randomPooledTier2": {
+      "correct": 0,
+      "n": 100,
+      "acc": 0.0
+    }
+  },
+  "descriptive": {
+    "kernel": {
+      "tier2": {
+        "top1": 0.0,
+        "top10": 0.0,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 20
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 30
+          }
+        }
+      },
+      "tier1": {
+        "top1": 0.02,
+        "top10": 0.05,
+        "composition": {
+          "shared": {
+            "top1": 0.03333333333333333,
+            "n": 30
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 20
+          }
+        }
+      },
+      "seenHeldglossTop1": 0.0
+    },
+    "shuffled": {
+      "tier2": {
+        "top1": 0.0,
+        "top10": 0.0,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 20
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 30
+          }
+        }
+      },
+      "tier1": {
+        "top1": 0.0,
+        "top10": 0.0,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 30
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 20
+          }
+        }
+      },
+      "seenHeldglossTop1": 0.016666666666666666
+    },
+    "random": {
+      "tier2": {
+        "top1": 0.0,
+        "top10": 0.0,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 20
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 30
+          }
+        }
+      },
+      "tier1": {
+        "top1": 0.0,
+        "top10": 0.0,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 30
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 20
+          }
+        }
+      },
+      "seenHeldglossTop1": 0.016666666666666666
+    }
+  },
+  "verdict": "MOCK RUN \u2014 machinery check only, not a result. (TIER-2 NULL (AT/NEAR CHANCE))",
+  "verdictReason": "primary p = 1.0000 >= 0.05 \u2014 no pre-registered kernel-vs-shuffled advantage on tier-2 top-1 (kill-chain input: \"E4 tier-2 at chance\")"
+}

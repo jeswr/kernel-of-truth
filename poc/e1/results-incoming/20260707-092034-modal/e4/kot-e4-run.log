@@ -1,0 +1,172 @@
+===== 70-e4-build-emission.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/pipeline/build_emission.py --e1-vocab /vol/e1work/data/vocab.json --out /vol/e1work/e4data --seeds 0,1,2,3,4
+seed 0: 24212 sequences, 254442 tokens -> /vol/e1work/e4data/seed0/train.bin
+seed 1: 24212 sequences, 254429 tokens -> /vol/e1work/e4data/seed1/train.bin
+seed 2: 24212 sequences, 253966 tokens -> /vol/e1work/e4data/seed2/train.bin
+seed 3: 24212 sequences, 254314 tokens -> /vol/e1work/e4data/seed3/train.bin
+seed 4: 24212 sequences, 254205 tokens -> /vol/e1work/e4data/seed4/train.bin
+eval items: 1938 (tier2 50); OOV rate 0.0003; wrote /vol/e1work/e4data/meta.json
+[70-e4-build-emission exit rc=0]
+===== 70-e4-pin-gate.log =====
+$ /usr/local/bin/python -c import json, sys
+m = json.load(open(sys.argv[1]))
+assert m["artifact"] == "e4-holdout-manifest", "ERR_ARTIFACT: holdout manifest"
+if m["inputs"]["glossesSha256"] != sys.argv[2]:
+    raise SystemExit("ERR_GLOSS_PIN: holdout manifest pinned a different gloss set")
+if m["inputs"]["vectorManifestSha256"] != sys.argv[3]:
+    raise SystemExit("ERR_TABLES_PIN: holdout manifest pinned a different vector-tables manifest")
+print("pins OK: glosses.jsonl + vector-tables-manifest.json match the pre-registration")
+ /root/kot/poc/e4/inputs/holdout-manifest.json 36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12 c0a0fb8cc0de32287e6747ef6c1476e28bfa145e3df55c11eee705e074f9a65e
+pins OK: glosses.jsonl + vector-tables-manifest.json match the pre-registration
+[70-e4-pin-gate exit rc=0]
+===== 72-e4-mock-tables.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/mock_tables_e4.py --d 64 --e1-tables /vol/e1work/vector-tables-mock-d64.json --out /vol/e1work/e4tables --seeds 0,1
+wrote MOCK e4 tables (D=64, 1054 rows) -> /vol/e1work/e4tables/vector-tables-mock-manifest.json
+[72-e4-mock-tables exit rc=0]
+===== 80-e4-ft-kernel-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm kernel --seed 0 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "kernel", "seed": 0, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[51s] done -> /vol/e1work/e4ckpts/ckpt-e4-kernel-seed0-final.pt
+[80-e4-ft-kernel-seed0 exit rc=0]
+===== 80-e4-ft-kernel-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm kernel --seed 1 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "kernel", "seed": 1, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[60s] done -> /vol/e1work/e4ckpts/ckpt-e4-kernel-seed1-final.pt
+[80-e4-ft-kernel-seed1 exit rc=0]
+===== 80-e4-ft-kernel-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed2-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm kernel --seed 2 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "kernel", "seed": 2, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[55s] done -> /vol/e1work/e4ckpts/ckpt-e4-kernel-seed2-final.pt
+[80-e4-ft-kernel-seed2 exit rc=0]
+===== 80-e4-ft-kernel-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed3-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm kernel --seed 3 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "kernel", "seed": 3, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[51s] done -> /vol/e1work/e4ckpts/ckpt-e4-kernel-seed3-final.pt
+[80-e4-ft-kernel-seed3 exit rc=0]
+===== 80-e4-ft-kernel-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed4-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm kernel --seed 4 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "kernel", "seed": 4, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[54s] done -> /vol/e1work/e4ckpts/ckpt-e4-kernel-seed4-final.pt
+[80-e4-ft-kernel-seed4 exit rc=0]
+===== 80-e4-ft-random-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm random --seed 0 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "random", "seed": 0, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[50s] done -> /vol/e1work/e4ckpts/ckpt-e4-random-seed0-final.pt
+[80-e4-ft-random-seed0 exit rc=0]
+===== 80-e4-ft-random-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm random --seed 1 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "random", "seed": 1, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[50s] done -> /vol/e1work/e4ckpts/ckpt-e4-random-seed1-final.pt
+[80-e4-ft-random-seed1 exit rc=0]
+===== 80-e4-ft-random-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed2-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm random --seed 2 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "random", "seed": 2, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[50s] done -> /vol/e1work/e4ckpts/ckpt-e4-random-seed2-final.pt
+[80-e4-ft-random-seed2 exit rc=0]
+===== 80-e4-ft-random-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed3-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm random --seed 3 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "random", "seed": 3, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[49s] done -> /vol/e1work/e4ckpts/ckpt-e4-random-seed3-final.pt
+[80-e4-ft-random-seed3 exit rc=0]
+===== 80-e4-ft-random-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed4-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm random --seed 4 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "random", "seed": 4, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[52s] done -> /vol/e1work/e4ckpts/ckpt-e4-random-seed4-final.pt
+[80-e4-ft-random-seed4 exit rc=0]
+===== 80-e4-ft-shuffled-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed0-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm shuffled --seed 0 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "shuffled", "seed": 0, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[50s] done -> /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed0-final.pt
+[80-e4-ft-shuffled-seed0 exit rc=0]
+===== 80-e4-ft-shuffled-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed1-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm shuffled --seed 1 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "shuffled", "seed": 1, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[51s] done -> /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed1-final.pt
+[80-e4-ft-shuffled-seed1 exit rc=0]
+===== 80-e4-ft-shuffled-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed2-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm shuffled --seed 2 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "shuffled", "seed": 2, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[55s] done -> /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed2-final.pt
+[80-e4-ft-shuffled-seed2 exit rc=0]
+===== 80-e4-ft-shuffled-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed3-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm shuffled --seed 3 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "shuffled", "seed": 3, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[51s] done -> /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed3-final.pt
+[80-e4-ft-shuffled-seed3 exit rc=0]
+===== 80-e4-ft-shuffled-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/finetune_e4.py --e1-ckpt /vol/e1work/ckpts/ckpt-kernel-frozen-seed4-100pct.pt --e1-data /vol/e1work/data --e4-data /vol/e1work/e4data --tables /root/kot/poc/e4/inputs/vector-tables-manifest.json --arm shuffled --seed 4 --out /vol/e1work/e4ckpts --batch-size 64 --total-tokens 10000000 --lr 1e-4
+{"arm": "shuffled", "seed": 4, "lr": 0.0001, "steps": 610, "frozenRowsBitIdentical": true}
+[57s] done -> /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed4-final.pt
+[80-e4-ft-shuffled-seed4 exit rc=0]
+===== 90-e4-eval-kernel-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-kernel-seed0-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-kernel-seed0.json
+{"arm": "kernel", "seed": 0, "tier2Top1": 0.02, "tier1Top1": 0.008530805687203791, "seenHeldglossTop1": 0.060024009603841535}
+[90-e4-eval-kernel-seed0 exit rc=0]
+===== 90-e4-eval-kernel-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-kernel-seed1-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-kernel-seed1.json
+{"arm": "kernel", "seed": 1, "tier2Top1": 0.02, "tier1Top1": 0.016113744075829384, "seenHeldglossTop1": 0.06962785114045618}
+[90-e4-eval-kernel-seed1 exit rc=0]
+===== 90-e4-eval-kernel-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-kernel-seed2-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-kernel-seed2.json
+{"arm": "kernel", "seed": 2, "tier2Top1": 0.0, "tier1Top1": 0.011374407582938388, "seenHeldglossTop1": 0.04561824729891957}
+[90-e4-eval-kernel-seed2 exit rc=0]
+===== 90-e4-eval-kernel-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-kernel-seed3-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-kernel-seed3.json
+{"arm": "kernel", "seed": 3, "tier2Top1": 0.0, "tier1Top1": 0.012322274881516588, "seenHeldglossTop1": 0.062424969987995196}
+[90-e4-eval-kernel-seed3 exit rc=0]
+===== 90-e4-eval-kernel-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-kernel-seed4-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-kernel-seed4.json
+{"arm": "kernel", "seed": 4, "tier2Top1": 0.0, "tier1Top1": 0.007582938388625593, "seenHeldglossTop1": 0.05282112845138055}
+[90-e4-eval-kernel-seed4 exit rc=0]
+===== 90-e4-eval-random-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-random-seed0-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-random-seed0.json
+{"arm": "random", "seed": 0, "tier2Top1": 0.0, "tier1Top1": 0.0, "seenHeldglossTop1": 0.010804321728691477}
+[90-e4-eval-random-seed0 exit rc=0]
+===== 90-e4-eval-random-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-random-seed1-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-random-seed1.json
+{"arm": "random", "seed": 1, "tier2Top1": 0.0, "tier1Top1": 0.0, "seenHeldglossTop1": 0.015606242496998799}
+[90-e4-eval-random-seed1 exit rc=0]
+===== 90-e4-eval-random-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-random-seed2-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-random-seed2.json
+{"arm": "random", "seed": 2, "tier2Top1": 0.0, "tier1Top1": 0.0, "seenHeldglossTop1": 0.012004801920768308}
+[90-e4-eval-random-seed2 exit rc=0]
+===== 90-e4-eval-random-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-random-seed3-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-random-seed3.json
+{"arm": "random", "seed": 3, "tier2Top1": 0.0, "tier1Top1": 0.0009478672985781991, "seenHeldglossTop1": 0.01800720288115246}
+[90-e4-eval-random-seed3 exit rc=0]
+===== 90-e4-eval-random-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-random-seed4-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-random-seed4.json
+{"arm": "random", "seed": 4, "tier2Top1": 0.0, "tier1Top1": 0.0009478672985781991, "seenHeldglossTop1": 0.009603841536614645}
+[90-e4-eval-random-seed4 exit rc=0]
+===== 90-e4-eval-shuffled-seed0.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed0-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-shuffled-seed0.json
+{"arm": "shuffled", "seed": 0, "tier2Top1": 0.0, "tier1Top1": 0.0018957345971563982, "seenHeldglossTop1": 0.0024009603841536613}
+[90-e4-eval-shuffled-seed0 exit rc=0]
+===== 90-e4-eval-shuffled-seed1.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed1-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-shuffled-seed1.json
+{"arm": "shuffled", "seed": 1, "tier2Top1": 0.0, "tier1Top1": 0.0018957345971563982, "seenHeldglossTop1": 0.006002400960384154}
+[90-e4-eval-shuffled-seed1 exit rc=0]
+===== 90-e4-eval-shuffled-seed2.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed2-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-shuffled-seed2.json
+{"arm": "shuffled", "seed": 2, "tier2Top1": 0.0, "tier1Top1": 0.0, "seenHeldglossTop1": 0.004801920768307323}
+[90-e4-eval-shuffled-seed2 exit rc=0]
+===== 90-e4-eval-shuffled-seed3.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed3-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-shuffled-seed3.json
+{"arm": "shuffled", "seed": 3, "tier2Top1": 0.0, "tier1Top1": 0.0, "seenHeldglossTop1": 0.004801920768307323}
+[90-e4-eval-shuffled-seed3 exit rc=0]
+===== 90-e4-eval-shuffled-seed4.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/eval_e4.py --ckpt /vol/e1work/e4ckpts/ckpt-e4-shuffled-seed4-final.pt --e4-data /vol/e1work/e4data --out /vol/e1work/e4evals/eval-e4-shuffled-seed4.json
+{"arm": "shuffled", "seed": 4, "tier2Top1": 0.0, "tier1Top1": 0.0009478672985781991, "seenHeldglossTop1": 0.004801920768307323}
+[90-e4-eval-shuffled-seed4 exit rc=0]
+===== 95-e4-check-smoke.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/check_smoke.py --e1-ckpts /vol/e1work/ckpts --e4-ckpts /vol/e1work/e4ckpts --e4-data /vol/e1work/e4data --evals /vol/e1work/e4evals --tables /vol/e1work/e4tables/vector-tables-mock-manifest.json --verdict /vol/e1work/e4results/verdict-e4-mock.json --results /vol/e1work/e4results --seeds 0,1
+OK  6324 frozen-row bit-identity comparisons over 3 arms x 2 seeds
+OK  eval files present for all arms/seeds (tier-2 items per model: 50)
+OK  verdict present + mock-labelled: MOCK RUN — machinery check only, not a result. (TIER-2 NULL (AT/NEAR CHANCE))
+RUNNER SMOKE PASS: frozen rows bit-identical through emission fine-tuning (incl. E1->E4 authored-row continuity in the kernel arm); EMIT + base rows trained; evals complete; verdict emitted (mock-labelled)
+[95-e4-check-smoke exit rc=0]
+===== 95-e4-stats.log =====
+$ /usr/local/bin/python /root/kot/poc/e4/runner/stats_e4.py --evals /vol/e1work/e4evals --meta /vol/e1work/e4data/meta.json --seeds 0,1,2,3,4 --out-prefix /vol/e1work/e4results/verdict-e4
+verdict: TIER-2 NULL (AT/NEAR CHANCE)
+wrote /vol/e1work/e4results/verdict-e4.json / .md
+[95-e4-stats exit rc=0]

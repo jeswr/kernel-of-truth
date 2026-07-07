@@ -1,0 +1,54 @@
+{
+  "arm": "kernel-frozen",
+  "seed": 1,
+  "tag": "100pct",
+  "step": 200,
+  "ckpt": "ckpt-kernel-frozen-seed1-100pct.pt",
+  "frozenRowsBitIdentical": true,
+  "policy": {
+    "preset": "a1-hybrid",
+    "name": "shadowed-hybrid-recommended",
+    "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+  },
+  "evaluatedConceptSet": {
+    "size": 52,
+    "vocabConceptTokens": 54,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "policyPreset": "a1-hybrid",
+    "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+  },
+  "cloze": {
+    "heldOutAccAttested": 0.03125,
+    "devAccAttested": 0.015625,
+    "heldOutAccEvaluated": 0.019230769230769232,
+    "devAccEvaluated": 0.019230769230769232,
+    "heldOutAccAll54": 0.018518518518518517,
+    "devAccAll54": 0.018518518518518517,
+    "attestedCount": 8,
+    "evaluatedCount": 52,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "chance": 0.018518518518518517,
+    "candidateSetSize": 54
+  },
+  "ppl": {
+    "valLoss": 1.5575019518534343,
+    "valPpl": 4.74694831629471,
+    "conceptSliceLoss": 6.579835891723633,
+    "conceptSlicePpl": 720.4210924838634,
+    "conceptTargets": 8
+  },
+  "probe": {
+    "trainAcc": 0.7314814925193787,
+    "testAcc": 0.05092592537403107,
+    "chance": 0.018518518518518517,
+    "midLayerStateIndex": 0,
+    "positionRule": "final word token of the stimulus (non-concept position)"
+  }
+}

@@ -1,0 +1,419 @@
+{
+  "experiment": "E4",
+  "mock": false,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "candidateSetSize": 1054,
+  "chance": {
+    "top1": 0.0009487666034155598,
+    "top10": 0.009487666034155597,
+    "note": "poc-design E4: \"chance = 10/|C|\" is the top-10 figure; top-1 chance = 1/|C|"
+  },
+  "preRegisteredCriteria": {
+    "primaryEndpoint": "tier-2 top-1 accuracy over the candidate set, kernel vs shuffled-kernel, one-sided exact paired sign-flip permutation across the 5 paired seeds, alpha = 0.05 (min attainable p = 1/32; Common rule 1 pairing)",
+    "secondaryEndpoints": [
+      "tier-2 top-10 accuracy (same test)",
+      "tier-1 top-1 and top-10 accuracy (same test)",
+      "per-seed one-sided Fisher exact on pooled item counts (tier-2: 50 gloss-items/arm; tier-1: 1055 items/arm), Holm-corrected over seeds",
+      "compositional subsets (shared vs novel): descriptive accuracies, no inferential claim"
+    ],
+    "controlFloorCheck": "the shuffled-kernel arm must sit at empirical chance: pooled tier-2 accuracy inside the exact binomial 95% CI of 1/1054 \u2014 otherwise the control itself carries signal and the run is reported as invalid, not as a positive",
+    "advanceRule": "poc-design MAJOR 16: \"credible\" requires tier-2 success PLUS replication in a second model family; a single tier-1 positive triggers nothing",
+    "candidateSet": "concept tokens ONLY (all 1054 rows; BLOCKER 3) \u2014 scoring restricted to these logits",
+    "arms": {
+      "kernel": "E1 kernel-frozen model + kernel rows for the 1000 new concepts (frozen)",
+      "shuffledKernel": "same, with the concept<->vector assignment deranged per vector-tables-manifest (the EMPIRICAL CHANCE FLOOR \u2014 BLOCKER 3)",
+      "randomFrozen": "descriptive secondary arm"
+    },
+    "trainingDataRule": "MAJOR 6: emission training may only consume the gloss file whose sha-256 equals GLOSS-HASH.txt (committed before any training); build_emission.py verifies this and fails closed"
+  },
+  "provenance": {
+    "glossesSha256": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "glossHashPin": "36181f9b65090887d8af45c845abe122d12d6352b61a16bcaa68f9c3c5794e12",
+    "holdoutSha256": "3f085944d8821fd36974159097e35747c795434903142bd6ef5c8c5f66c70a39",
+    "e1VocabSha256": "9b0af5f9f5b91056557e79fa6af21c2cd722928b7b8bd568eed6473234fb8b37",
+    "mapperLexiconSha256": "64e0a7bded1f3c0e4ce8b1514a016b09f38ae599bdc6ea685fc76ce5c596219a",
+    "e1Policy": {
+      "preset": "a1-hybrid",
+      "name": "shadowed-hybrid-recommended",
+      "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+    },
+    "e1EvaluatedConceptSet": {
+      "size": 52,
+      "vocabConceptTokens": 54,
+      "excludedByPolicy": [
+        "kind",
+        "lost"
+      ],
+      "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+      "policyPreset": "a1-hybrid",
+      "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+    },
+    "glossOovRate": 0.0003376530123777611,
+    "glossOovTokens": 237,
+    "glossTokens": 701904
+  },
+  "primary": {
+    "kernel": [
+      0.02,
+      0.02,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "shuffled": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "diffs": [
+      0.02,
+      0.02,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "meanDiff": 0.008,
+    "p": 0.25,
+    "n": 5,
+    "minAttainableP": 0.03125,
+    "test": "exact one-sided sign-flip permutation",
+    "pass": false
+  },
+  "secondariesHolm": {
+    "tier2_top10": {
+      "p": 0.03125,
+      "pAdj": 0.09375,
+      "reject": false,
+      "meanDiff": 0.047999999999999994,
+      "kernel": [
+        0.06,
+        0.12,
+        0.02,
+        0.04,
+        0.02
+      ],
+      "shuffled": [
+        0.0,
+        0.02,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "tier1_top1": {
+      "p": 0.03125,
+      "pAdj": 0.09375,
+      "reject": false,
+      "meanDiff": 0.01023696682464455,
+      "kernel": [
+        0.008530805687203791,
+        0.016113744075829384,
+        0.011374407582938388,
+        0.012322274881516588,
+        0.007582938388625593
+      ],
+      "shuffled": [
+        0.0018957345971563982,
+        0.0018957345971563982,
+        0.0,
+        0.0,
+        0.0009478672985781991
+      ]
+    },
+    "tier1_top10": {
+      "p": 0.03125,
+      "pAdj": 0.09375,
+      "reject": false,
+      "meanDiff": 0.10767772511848342,
+      "kernel": [
+        0.10995260663507109,
+        0.13649289099526066,
+        0.1023696682464455,
+        0.11374407582938388,
+        0.1061611374407583
+      ],
+      "shuffled": [
+        0.011374407582938388,
+        0.004739336492890996,
+        0.0037914691943127963,
+        0.0009478672985781991,
+        0.009478672985781991
+      ]
+    }
+  },
+  "fisherPerSeedHolm": {
+    "tier2": {
+      "seed0": {
+        "k": [
+          1,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 0.5,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      },
+      "seed1": {
+        "k": [
+          1,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 0.5,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      },
+      "seed2": {
+        "k": [
+          0,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 1.0,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      },
+      "seed3": {
+        "k": [
+          0,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 1.0,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      },
+      "seed4": {
+        "k": [
+          0,
+          0
+        ],
+        "n": [
+          50,
+          50
+        ],
+        "p": 1.0,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 1.0,
+        "reject": false
+      }
+    },
+    "tier1": {
+      "seed0": {
+        "k": [
+          9,
+          2
+        ],
+        "n": [
+          1055,
+          1055
+        ],
+        "p": 0.03237136078939196,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 0.03866309449745909,
+        "reject": true
+      },
+      "seed1": {
+        "k": [
+          17,
+          2
+        ],
+        "n": [
+          1055,
+          1055
+        ],
+        "p": 0.00034621278027339194,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 0.0010386383408201758,
+        "reject": true
+      },
+      "seed2": {
+        "k": [
+          12,
+          0
+        ],
+        "n": [
+          1055,
+          1055
+        ],
+        "p": 0.00023658160456988138,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 0.0009463264182795255,
+        "reject": true
+      },
+      "seed3": {
+        "k": [
+          13,
+          0
+        ],
+        "n": [
+          1055,
+          1055
+        ],
+        "p": 0.00011761421047015552,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 0.0005880710523507776,
+        "reject": true
+      },
+      "seed4": {
+        "k": [
+          8,
+          1
+        ],
+        "n": [
+          1055,
+          1055
+        ],
+        "p": 0.019331547248729545,
+        "test": "one-sided Fisher exact (pooled items, kernel > shuffled)",
+        "pAdj": 0.03866309449745909,
+        "reject": true
+      }
+    }
+  },
+  "controlFloor": {
+    "shuffledPooledTier2": {
+      "correct": 0,
+      "n": 250,
+      "acc": 0.0
+    },
+    "p0": 0.0009487666034155598,
+    "acceptanceRegion": [
+      0,
+      1
+    ],
+    "interpretation": "equal-tailed exact binomial 95% acceptance region under rate 1/|C|; the shuffled arm's pooled tier-2 correct count must fall inside it",
+    "pass": true,
+    "kernelPooledTier2": {
+      "correct": 2,
+      "n": 250,
+      "acc": 0.008
+    },
+    "randomPooledTier2": {
+      "correct": 0,
+      "n": 250,
+      "acc": 0.0
+    }
+  },
+  "descriptive": {
+    "kernel": {
+      "tier2": {
+        "top1": 0.008,
+        "top10": 0.052000000000000005,
+        "composition": {
+          "shared": {
+            "top1": 0.01,
+            "n": 20
+          },
+          "novel": {
+            "top1": 0.006666666666666666,
+            "n": 30
+          }
+        }
+      },
+      "tier1": {
+        "top1": 0.011184834123222749,
+        "top10": 0.11374407582938388,
+        "composition": {
+          "shared": {
+            "top1": 0.012121212121212121,
+            "n": 495
+          },
+          "novel": {
+            "top1": 0.010357142857142856,
+            "n": 560
+          }
+        }
+      },
+      "seenHeldglossTop1": 0.0581032412965186
+    },
+    "shuffled": {
+      "tier2": {
+        "top1": 0.0,
+        "top10": 0.004,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 20
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 30
+          }
+        }
+      },
+      "tier1": {
+        "top1": 0.0009478672985781991,
+        "top10": 0.006066350710900474,
+        "composition": {
+          "shared": {
+            "top1": 0.0012121212121212121,
+            "n": 495
+          },
+          "novel": {
+            "top1": 0.0007142857142857143,
+            "n": 560
+          }
+        }
+      },
+      "seenHeldglossTop1": 0.004561824729891957
+    },
+    "random": {
+      "tier2": {
+        "top1": 0.0,
+        "top10": 0.0,
+        "composition": {
+          "shared": {
+            "top1": 0.0,
+            "n": 20
+          },
+          "novel": {
+            "top1": 0.0,
+            "n": 30
+          }
+        }
+      },
+      "tier1": {
+        "top1": 0.0003791469194312796,
+        "top10": 0.004739336492890996,
+        "composition": {
+          "shared": {
+            "top1": 0.00040404040404040404,
+            "n": 495
+          },
+          "novel": {
+            "top1": 0.00035714285714285714,
+            "n": 560
+          }
+        }
+      },
+      "seenHeldglossTop1": 0.013205282112845138
+    }
+  },
+  "verdict": "TIER-2 NULL (AT/NEAR CHANCE)",
+  "verdictReason": "primary p = 0.2500 >= 0.05 \u2014 no pre-registered kernel-vs-shuffled advantage on tier-2 top-1 (kill-chain input: \"E4 tier-2 at chance\")"
+}

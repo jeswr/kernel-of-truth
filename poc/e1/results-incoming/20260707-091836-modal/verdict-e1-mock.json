@@ -1,0 +1,122 @@
+{
+  "experiment": "E1",
+  "mock": true,
+  "seeds": [
+    0,
+    1
+  ],
+  "policy": {
+    "preset": "a1-hybrid",
+    "name": "shadowed-hybrid-recommended",
+    "sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696"
+  },
+  "evaluatedConceptSet": {
+    "size": 52,
+    "vocabConceptTokens": 54,
+    "excludedByPolicy": [
+      "kind",
+      "lost"
+    ],
+    "policySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "policyPreset": "a1-hybrid",
+    "note": "Amendment A1 (docs/poc-design.md Phase M): {kind, lost} are excluded from E1's evaluated/reported concept universe (no defensible deterministic sense winner). Their concept tokens REMAIN in the vocab and their rows remain frozen/controlled in all arms; the mapper still abstains on their surfaces, so they can never be attested or substituted."
+  },
+  "preRegisteredCriteria": {
+    "primary": "kernel-frozen > shuffled-kernel-frozen, paired permutation across 5 paired seeds, p<0.05, single look: kernel at the 50%-token checkpoint vs shuffled at the 100%-token endpoint",
+    "kill": "\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance",
+    "circularityGuard": "every metric also evaluated on the untrained step-0 kernel-frozen model; trained success requires beating the step-0 baseline",
+    "pplRule": "if concept-token PPL saturates within 2% across all arms it is declared uninformative, pre-registered",
+    "secondary": "Kernel > random-frozen is secondary (Holm-corrected), demoted per BLOCKER 2"
+  },
+  "primary": {
+    "kernel50": [
+      0.015625,
+      0.046875
+    ],
+    "shuffled100": [
+      0.0625,
+      0.109375
+    ],
+    "diffs": [
+      -0.046875,
+      -0.0625
+    ],
+    "meanDiff": -0.0546875,
+    "p": 1.0,
+    "n": 2,
+    "minAttainableP": 0.25,
+    "test": "exact one-sided sign-flip permutation",
+    "pass": false
+  },
+  "tost": {
+    "meanDiff": -0.0546875,
+    "sd": 0.011048543456039806,
+    "cohensD": -4.949747468305833,
+    "sesoiD": 0.5,
+    "rawBound": 0.005524271728019903,
+    "pLower": 0.9498369969641792,
+    "pUpper": 0.04107137195481936,
+    "equivalent": false,
+    "test": "paired TOST, bounds +/- sesoi_d*sd, alpha=0.05 per side"
+  },
+  "circularityGuard": {
+    "step0Mean": 0.0234375,
+    "kernel50Mean": 0.03125,
+    "kernel100Mean": 0.0546875,
+    "beatsStep0At50pct": false,
+    "beatsStep0At100pct": true,
+    "probeStep0": [
+      0.0416666679084301,
+      0.0694444477558136
+    ],
+    "probe100": [
+      0.02777777798473835,
+      0.05092592537403107
+    ]
+  },
+  "pplSaturation": {
+    "conceptSlicePplByArm": {
+      "kernel-frozen": 696.4010048168777,
+      "kernel-init": 17.82605541649174,
+      "random-frozen": 577.5541535105525,
+      "shuffled-frozen": 723.5502945206479,
+      "trainable": 17.469499374776788
+    },
+    "spread": 40.41791810962487,
+    "saturated": false
+  },
+  "secondariesHolm": {
+    "kernel100_vs_random100_cloze": {
+      "p": 0.5,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.015625
+    },
+    "kernel100_vs_shuffled100_probe": {
+      "p": 0.5,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.002314814366400242
+    },
+    "kernel100_vs_shuffled100_cloze": {
+      "p": 0.75,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": -0.03125
+    },
+    "kernel100_vs_trainable100_cloze": {
+      "p": 1.0,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": -0.0703125
+    },
+    "kernel100_vs_kernelInit100_cloze": {
+      "p": 1.0,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": -0.0625
+    }
+  },
+  "verdict": "MOCK RUN \u2014 machinery check only, not a result. (INCONCLUSIVE)",
+  "verdictReason": "primary p = 1.0000 >= 0.05 but TOST does NOT exclude d = 0.5 \u2014 neither a pass nor a pre-registered null (\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance)"
+}
