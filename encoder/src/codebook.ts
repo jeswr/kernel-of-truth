@@ -192,12 +192,16 @@ export function checkParams(params: EncoderParams): void {
 }
 
 /**
- * All deterministic structure shared by encoder and decoder for a given D.
- * Construction involves no seeds and no input data; instances are cached per D.
+ * Deterministic structure shared by encoder and decoder for a given D that
+ * does NOT depend on how atoms are constructed: the unitary tag spectra, the
+ * position/referent permutations, and the spectral whitener. Construction
+ * involves no seeds and no input data. The two concrete codebooks are
+ * `Codebook` below (exact Sylvester-Hadamard atoms, D >= 8192, kot-enc-B/1)
+ * and `QuasiCodebook` (codebookQ.ts; quasi-orthogonal seeded sign atoms for
+ * toy-native D = d_model, kot-enc-Bq/1 — architecture.md §1.3 path (i)).
  */
-export class Codebook {
+export abstract class CodebookBase {
   readonly D: number;
-  private readonly rowCache = new Map<number, Float64Array>();
   private readonly tagCache = new Map<string, Complex64>();
   private readonly clausePerms: Uint32Array[] = [];
   private readonly clausePermInvs: Uint32Array[] = [];
@@ -208,8 +212,11 @@ export class Codebook {
   private readonly spreadSign: Float64Array;
 
   constructor(D: number) {
-    assertPowerOfTwo(D, 'D');
-    if (D < MIN_D) throw new Error(`ERR_DIMENSION_TOO_SMALL: D=${D} < ${MIN_D}`);
+    // Even D is required by the conjugate-symmetric tag spectra (Nyquist bin
+    // at D/2); subclasses impose their own, stricter dimension gates first.
+    if (!Number.isInteger(D) || D < 2 || D % 2 !== 0) {
+      throw new Error(`ERR_DIMENSION: D must be an even integer >= 2, got ${D}`);
+    }
     this.D = D;
     for (let i = 0; i < CAPS.maxClauses; i++) {
       const p = detPermutation(`clause/${i}`, D);
@@ -256,41 +263,24 @@ export class Codebook {
     return out;
   }
 
-  /** Sylvester-Hadamard row `index`, scaled to unit norm. Cached. */
-  row(index: number): Float64Array {
-    if (!Number.isInteger(index) || index < 0 || index >= this.D) {
-      throw new Error(`ERR_CODEBOOK_INDEX: row ${index} out of range for D=${this.D}`);
-    }
-    const hit = this.rowCache.get(index);
-    if (hit !== undefined) return hit;
-    const v = new Float64Array(this.D);
-    const scale = 1 / Math.sqrt(this.D);
-    for (let j = 0; j < this.D; j++) {
-      v[j] = (popcount32(index & j) & 1) === 1 ? -scale : scale;
-    }
-    this.rowCache.set(index, v);
-    return v;
-  }
-
-  private slotId(slot: SlotName): number {
+  protected slotId(slot: SlotName): number {
     const id = SLOT_TABLE.get(slot);
     if (id === undefined) throw new Error(`ERR_CODEBOOK_SLOT: unknown slot '${slot}'`);
     return id;
   }
 
-  private fillerId(filler: string): number {
+  protected fillerId(filler: string): number {
     const id = FILLER_TABLE.get(filler);
     if (id === undefined) throw new Error(`ERR_CODEBOOK_FILLER: unknown filler '${filler}'`);
     return id;
   }
 
   /**
-   * Exact bound atom for (slot, filler): row((slotId << 8) | fillerId).
-   * This IS the within-clause TPR binding (see module header).
+   * Bound atom for (slot, filler) — the within-clause TPR binding. Exactly
+   * orthonormal rows in the Hadamard codebook; quasi-orthogonal deterministic
+   * codes in the toy-native variant (codebookQ.ts).
    */
-  boundAtom(slot: SlotName, filler: string): Float64Array {
-    return this.row((this.slotId(slot) << FILLER_BITS) | this.fillerId(filler));
-  }
+  abstract boundAtom(slot: SlotName, filler: string): Float64Array;
 
   /**
    * Unitary tag spectrum for a slot binding STRUCTURED fillers: quarter-phase
@@ -349,6 +339,44 @@ export class Codebook {
     const p = this.refdeclPermInvs[n - 1];
     if (p === undefined) throw new Error(`ERR_REF_INDEX: ${n} exceeds cap ${CAPS.maxReferents}`);
     return p;
+  }
+}
+
+/**
+ * The EXACT codebook of construction B (kot-enc-B/1): Sylvester-Hadamard
+ * rows, D a power of two >= 8192 (see module header). Instances cached per D.
+ */
+export class Codebook extends CodebookBase {
+  private readonly rowCache = new Map<number, Float64Array>();
+
+  constructor(D: number) {
+    assertPowerOfTwo(D, 'D');
+    if (D < MIN_D) throw new Error(`ERR_DIMENSION_TOO_SMALL: D=${D} < ${MIN_D}`);
+    super(D);
+  }
+
+  /** Sylvester-Hadamard row `index`, scaled to unit norm. Cached. */
+  row(index: number): Float64Array {
+    if (!Number.isInteger(index) || index < 0 || index >= this.D) {
+      throw new Error(`ERR_CODEBOOK_INDEX: row ${index} out of range for D=${this.D}`);
+    }
+    const hit = this.rowCache.get(index);
+    if (hit !== undefined) return hit;
+    const v = new Float64Array(this.D);
+    const scale = 1 / Math.sqrt(this.D);
+    for (let j = 0; j < this.D; j++) {
+      v[j] = (popcount32(index & j) & 1) === 1 ? -scale : scale;
+    }
+    this.rowCache.set(index, v);
+    return v;
+  }
+
+  /**
+   * Exact bound atom for (slot, filler): row((slotId << 8) | fillerId).
+   * This IS the within-clause TPR binding (see module header).
+   */
+  boundAtom(slot: SlotName, filler: string): Float64Array {
+    return this.row((this.slotId(slot) << FILLER_BITS) | this.fillerId(filler));
   }
 }
 

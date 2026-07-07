@@ -85,6 +85,7 @@ export {
   codebookTable,
   getCodebook,
   Codebook,
+  CodebookBase,
 } from './codebook.js';
 export type { EncoderParams, SlotName } from './codebook.js';
 
@@ -92,6 +93,7 @@ export {
   ALGORITHM_VERSION,
   encodeExplication,
   encodeConceptSet,
+  encodeConceptSetWith,
   resolveParams,
 } from './encoder.js';
 export type { EncodeOptions, ConceptSetResult } from './encoder.js';
@@ -99,8 +101,21 @@ export type { EncodeOptions, ConceptSetResult } from './encoder.js';
 export { decodeExplication } from './decoder.js';
 export type { DecodeOptions, DecodeResult, DecodeStep } from './decoder.js';
 
-export { encoderContentHash, encoderPin } from './contentHash.js';
-export type { EncoderPin } from './contentHash.js';
+export { encoderContentHash, encoderPin, encoderContentHashQ, encoderPinQ } from './contentHash.js';
+export type { EncoderPin, EncoderPinQ } from './contentHash.js';
+
+// Toy-native quasi-orthogonal variant kot-enc-Bq/1 (architecture.md §1.3
+// path (i); bead kernel-of-truth-5xo). A separate pre-registration with its
+// own content-hash per D; the kot-enc-B/1 D=8192 pin above is untouched.
+export { QUASI_DIMS, QuasiCodebook, getQuasiCodebook, allAtomPairs } from './codebookQ.js';
+export {
+  ALGORITHM_VERSION_Q,
+  DEFAULT_PARAMS_Q,
+  encodeExplicationQ,
+  encodeConceptSetQ,
+  decodeExplicationQ,
+  resolveParamsQ,
+} from './encoderQ.js';
 
 export {
   generateExplication,

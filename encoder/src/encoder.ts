@@ -41,7 +41,7 @@ import type {
 import { applyPermutation } from './det.js';
 import { fftReal, ifftToReal, spectrumMultiply } from './fft.js';
 import {
-  Codebook,
+  CodebookBase,
   DEFAULT_PARAMS,
   checkParams,
   getCodebook,
@@ -77,13 +77,17 @@ export function resolveParams(partial?: Partial<EncoderParams>): EncoderParams {
  * why this class must not validate.
  */
 export class InternalEncoder {
-  readonly cb: Codebook;
+  readonly cb: CodebookBase;
 
   constructor(
     readonly params: EncoderParams,
     readonly concepts: ReadonlyMap<string, Float64Array> | undefined,
+    cb?: CodebookBase,
   ) {
-    this.cb = getCodebook(params.D);
+    // Default: the exact Hadamard codebook of construction B (kot-enc-B/1).
+    // The toy-native variant (encoderQ.ts) injects a QuasiCodebook instead;
+    // traversal, binding operators and weighting are shared unchanged.
+    this.cb = cb ?? getCodebook(params.D);
   }
 
   /** v += w * t, fixed loop order. */
@@ -363,7 +367,21 @@ export function encodeConceptSet(
   defs: ReadonlyMap<string, Explication>,
   opts?: EncodeOptions,
 ): ConceptSetResult {
-  const params = resolveParams(opts?.params);
+  return encodeConceptSetWith(defs, resolveParams(opts?.params), undefined, opts);
+}
+
+/**
+ * INTERNAL (used by the toy-native variant encoderQ.ts and by certification
+ * harnesses that need to inject a fresh codebook instance): memoised
+ * reference-DAG concept-set encoding against an explicit codebook. `params`
+ * must already be validated by the caller's resolve function.
+ */
+export function encodeConceptSetWith(
+  defs: ReadonlyMap<string, Explication>,
+  params: EncoderParams,
+  cb: CodebookBase | undefined,
+  opts?: EncodeOptions,
+): ConceptSetResult {
   const resolved = new Map<string, Float64Array>(opts?.concepts ?? []);
   const inProgress = new Set<string>();
 
@@ -381,7 +399,7 @@ export function encodeConceptSet(
     inProgress.add(id);
     validateExplication(def);
     for (const dep of [...collectConceptRefs(def)].sort()) resolve(dep, [...chain, id]);
-    const enc = new InternalEncoder(params, resolved);
+    const enc = new InternalEncoder(params, resolved, cb);
     resolved.set(id, enc.encodeExplication(def));
     inProgress.delete(id);
   };

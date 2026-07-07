@@ -58,6 +58,30 @@ const back = decodeExplication(v);           // { explication, ok, steps, minCon
 console.log(encoderContentHash());           // pinned encoder version
 ```
 
+## Toy-native variant `kot-enc-Bq/1` (D ∈ {512, 576})
+
+A SEPARATE pre-registration (own `ALGORITHM_VERSION_Q` + content-hash per D
+via `encoderContentHashQ`) implementing architecture.md §1.3 dimension-policy
+path (i): the kernel re-encoded natively at the host model's `d_model`
+(512 = E1 toy, 576 = SmolLM2-135M) for the E1/E4 "structure-derived content
+vs content-free at matched D" question — explicitly NOT the capacity story.
+
+- Same AST → vector pipeline (`InternalEncoder` shared verbatim): whitened
+  unitary circular convolution, position permutations, pinned weighting.
+  D = 576 runs the convolution on a Bluestein chirp-z FFT (fft.ts).
+- The exact Hadamard codebook needs 13 index bits (D ≥ 8192), so the variant
+  substitutes a **quasi-orthogonal** deterministic codebook: independent
+  Rademacher ±1/√D atoms per (slot, filler) from SHA-256 label
+  `qatom/<D>/<slotId>/<fillerId>` — design decision, rejected alternatives,
+  and what is lost (exact unbinding; zero crosstalk floor) documented in
+  `src/codebookQ.ts`; coherence certified offline by `poc` `npm run cert:q`.
+- Entry points: `encodeExplicationQ`, `encodeConceptSetQ`,
+  `decodeExplicationQ` (decode is measurement-only at this D — see the
+  ungated X2-q report). Non-pre-registered dimensions fail closed
+  (`ERR_QUASI_DIMENSION`).
+- Variant Phase-X: `npm run x0:q / x1:q / x2:q / x4:q / cert:q` in
+  [`../poc`](../poc), goldens in `poc/fixtures/golden-vectors-q.json`.
+
 ## Determinism contract
 
 - Float64 `+ − × ÷` and `Math.sqrt` are IEEE-754 exact; all superposition

@@ -20,7 +20,14 @@
     "x2:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x2-corpus.js",
     "x3:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x3-corpus.js",
     "x4:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x4-corpus.js",
-    "x:corpus": "npm run x1:corpus && npm run x2:corpus && npm run x3:corpus && npm run x4:corpus"
+    "x:corpus": "npm run x1:corpus && npm run x2:corpus && npm run x3:corpus && npm run x4:corpus",
+    "cert:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/qcert.js",
+    "x0:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x0-q.js",
+    "x0:q:write": "npm run corpus:build && nice -n 10 node dist-corpus/src/x0-q.js --write",
+    "x1:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x1-q.js",
+    "x2:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x2-q.js",
+    "x4:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x4-q.js",
+    "x:q": "npm run cert:q && npm run x0:q && npm run x1:q && npm run x2:q && npm run x4:q"
   },
   "dependencies": {
     "@jeswr/kernel-encoder": "file:../encoder"

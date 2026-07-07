@@ -1,0 +1,72 @@
+{
+  "date": "2026-07-07T04:53:08.901Z",
+  "suite": "X4-q: RDM geometry — toy-native re-encode vs full-D vs fixed JL projection (kernel-v0)",
+  "algorithmVersion": "kot-enc-Bq/1",
+  "baseEncoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "corpusManifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+  "corpusContentHash": "f23f5211ff1755975dd1ce8128ff810b316051c00ee2c1d56bae488f8f928751",
+  "jlDerivation": "Achlioptas sign matrix, +/-1/sqrt(d), signs from SHA-256 stream label jl/<D>/<d> (det.ts DET_DOMAIN) — pinned labels reused from harness/x4.ts, no new projections",
+  "note": "The native re-encode is a DIFFERENT function of the AST, not a compression of the 8192-D vector: rho(8192, native) < 1 reflects codebook-level geometry change (quasi-orthogonal atoms + shared-D binding), while rho(8192, JL) reflects pure metric distortion. E1 interpretation: path-(i) results transfer to path-(ii) only to the extent rho(JL, native) is high.",
+  "perDim": {
+    "512": {
+      "encoderContentHashQ": "3492799ed73b49a612bebca920421041edd31d7bd4098bcf55da52df127ab9ee",
+      "rdmPairs": 1431,
+      "rhoBaseNative": 0.9711062101174887,
+      "rhoJlNative": 0.9382704906210756,
+      "rhoBaseJl": 0.9717634748044783,
+      "minPairNative": {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.11131446915677029
+      },
+      "minPairJl": {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.11071177365778341
+      },
+      "nativeAbsCosDeviation": {
+        "n": 1431,
+        "min": 0.000006604376474039775,
+        "p1": 0.0005352175905455059,
+        "p5": 0.0022713544533245963,
+        "p25": 0.01211017272308422,
+        "median": 0.026258108143348488,
+        "p75": 0.046093480618062455,
+        "p95": 0.07997339926749844,
+        "p99": 0.10313273990651825,
+        "max": 0.16586671244219323,
+        "mean": 0.03182902311680409
+      }
+    },
+    "576": {
+      "encoderContentHashQ": "6ad0b2bc01c06447aae8468f500e2a2178e9a40f0d95de048b0418afcaea77db",
+      "rdmPairs": 1431,
+      "rhoBaseNative": 0.9794762169538179,
+      "rhoJlNative": 0.9480184023137539,
+      "rhoBaseJl": 0.9705671745304928,
+      "minPairNative": {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.10819343748812503
+      },
+      "minPairJl": {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.11698701082080097
+      },
+      "nativeAbsCosDeviation": {
+        "n": 1431,
+        "min": 0.000025991326969787565,
+        "p1": 0.0006686256236250743,
+        "p5": 0.0023132589000513376,
+        "p25": 0.011418392951437456,
+        "median": 0.02363999014213669,
+        "p75": 0.04043211342948813,
+        "p95": 0.07293667092149099,
+        "p99": 0.09767757848642865,
+        "max": 0.14399955139324858,
+        "mean": 0.028724970297582066
+      }
+    }
+  }
+}

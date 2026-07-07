@@ -1,0 +1,443 @@
+{
+  "date": "2026-07-07T04:54:05.077Z",
+  "suite": "X1-q: adversarial single-edit margins at toy-native D (corpus + n=500 synthetics)",
+  "algorithmVersion": "kot-enc-Bq/1",
+  "corpusManifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+  "corpusContentHash": "f23f5211ff1755975dd1ce8128ff810b316051c00ee2c1d56bae488f8f928751",
+  "criteria": "per D: success > 5x fp16 floor at that D; failure < 2x; else inconclusive (poc-design X1 restated for kot-enc-Bq/1)",
+  "gateSuite": "corpus (bead kernel-of-truth-5xo closes only on corpus verdict SUCCESS at both D)",
+  "unsaturatedConcepts": [],
+  "encodeFailures": 0,
+  "perDim": {
+    "512": {
+      "encoderContentHashQ": "3492799ed73b49a612bebca920421041edd31d7bd4098bcf55da52df127ab9ee",
+      "corpus": {
+        "fp16FloorRad": 0.00022500772101290343,
+        "fp16FloorWorstConcept": "urn:kernel-v0:end",
+        "totalNeighbours": 2475,
+        "minAdversarialRad": 0.002543041299107677,
+        "minAdversarialEdit": {
+          "concept": "urn:kernel-v0:archived",
+          "edit": "filler-substitution",
+          "detail": "pred THERE-IS at clauses.1.roles.quote.clauses.2.args.0.roles.complement.clause.roles.time.restrictedBy.args.1"
+        },
+        "ratioToFloor": 11.302017938139295,
+        "verdict": "SUCCESS",
+        "adversarialSummaryRad": {
+          "n": 2475,
+          "min": 0.002543041299107677,
+          "p1": 0.011427085365053153,
+          "p5": 0.019455815569497253,
+          "p25": 0.05719562467558391,
+          "median": 0.1057725456676202,
+          "p75": 0.16834692248801542,
+          "p95": 0.31890664851826794,
+          "p99": 0.7030622215570175,
+          "max": 1.1060730160213619,
+          "mean": 0.13589155549890578
+        },
+        "byEdit": {
+          "operator-flip": {
+            "n": 290,
+            "min": 0.004132579190664051,
+            "p1": 0.016957169270039724,
+            "p5": 0.051915155643167336,
+            "p25": 0.14603737421008517,
+            "median": 0.23739069936077584,
+            "p75": 0.28986244547934403,
+            "p95": 0.35653236718913295,
+            "p99": 0.37864387478951167,
+            "max": 0.4225606811180362,
+            "mean": 0.21597948993074143
+          },
+          "clause-swap": {
+            "n": 82,
+            "min": 0.08207732690694006,
+            "p1": 0.08944470149912626,
+            "p5": 0.1295914761879449,
+            "p25": 0.4926203307232899,
+            "median": 0.6324256190161678,
+            "p75": 0.7420884115538786,
+            "p95": 0.9519821796487704,
+            "p99": 1.0608877338166036,
+            "max": 1.1060730160213619,
+            "mean": 0.5946353299635762
+          },
+          "referent-index": {
+            "n": 357,
+            "min": 0.0025996427501323756,
+            "p1": 0.008100373668362935,
+            "p5": 0.024404359596327287,
+            "p25": 0.07218052225769392,
+            "median": 0.12320612954309769,
+            "p75": 0.21771454930476328,
+            "p95": 0.2821578200844679,
+            "p99": 0.3067453398043106,
+            "max": 0.3234836906154338,
+            "mean": 0.137598449800659
+          },
+          "filler-substitution": {
+            "n": 1746,
+            "min": 0.002543041299107677,
+            "p1": 0.011325229833209199,
+            "p5": 0.01892576741336932,
+            "p25": 0.04862210501003047,
+            "median": 0.08975882071506344,
+            "p75": 0.14191923857391434,
+            "p95": 0.23040244487724001,
+            "p99": 0.3027554410967851,
+            "max": 0.35031893611306764,
+            "mean": 0.100695764114564
+          }
+        },
+        "perConceptMin10": [
+          {
+            "id": "archived",
+            "neighbours": 62,
+            "saturated": true,
+            "minAngle": 0.002543041299107677
+          },
+          {
+            "id": "promise",
+            "neighbours": 63,
+            "saturated": true,
+            "minAngle": 0.007379163868458699
+          },
+          {
+            "id": "sad",
+            "neighbours": 44,
+            "saturated": true,
+            "minAngle": 0.011026026856161336
+          },
+          {
+            "id": "afraid",
+            "neighbours": 31,
+            "saturated": true,
+            "minAngle": 0.012109793310584564
+          },
+          {
+            "id": "kind",
+            "neighbours": 122,
+            "saturated": true,
+            "minAngle": 0.013149351935442111
+          },
+          {
+            "id": "give",
+            "neighbours": 60,
+            "saturated": true,
+            "minAngle": 0.014366252292535865
+          },
+          {
+            "id": "angry",
+            "neighbours": 51,
+            "saturated": true,
+            "minAngle": 0.015142709512792138
+          },
+          {
+            "id": "take",
+            "neighbours": 36,
+            "saturated": true,
+            "minAngle": 0.01549699279930521
+          },
+          {
+            "id": "bookmark",
+            "neighbours": 82,
+            "saturated": true,
+            "minAngle": 0.018182434056588863
+          },
+          {
+            "id": "happy",
+            "neighbours": 39,
+            "saturated": true,
+            "minAngle": 0.021340297085460022
+          }
+        ],
+        "pairwise": {
+          "pairs": 1431,
+          "minPair": {
+            "a": "urn:kernel-v0:afraid",
+            "b": "urn:kernel-v0:sad",
+            "angle": 0.11131446915677029
+          },
+          "top5Nearest": [
+            {
+              "a": "urn:kernel-v0:afraid",
+              "b": "urn:kernel-v0:sad",
+              "angle": 0.11131446915677029
+            },
+            {
+              "a": "urn:kernel-v0:happy",
+              "b": "urn:kernel-v0:sad",
+              "angle": 0.2125814082252822
+            },
+            {
+              "a": "urn:kernel-v0:afraid",
+              "b": "urn:kernel-v0:happy",
+              "angle": 0.22613494204942824
+            },
+            {
+              "a": "urn:kernel-v0:repair",
+              "b": "urn:kernel-v0:take",
+              "angle": 0.4915690898604181
+            },
+            {
+              "a": "urn:kernel-v0:birth",
+              "b": "urn:kernel-v0:death",
+              "angle": 0.5078415816706819
+            }
+          ],
+          "summaryRad": {
+            "n": 1431,
+            "min": 0.11131446915677029,
+            "p1": 0.6782837564221884,
+            "p5": 0.9225736415261945,
+            "p25": 1.145279395839661,
+            "median": 1.291575364633275,
+            "p75": 1.399932356156527,
+            "p95": 1.5292007305917426,
+            "p99": 1.5656029267939564,
+            "max": 1.5884955065399304,
+            "mean": 1.2616581827108404
+          }
+        }
+      },
+      "synthetic": {
+        "n": 495,
+        "skippedNoEdit": 5,
+        "fp16FloorRad": 0.00023212235725900997,
+        "fp16FloorN": 200,
+        "minAdversarialRad": 0.01511530304256419,
+        "ratioToFloor": 65.11782501716552,
+        "verdict": "SUCCESS",
+        "adversarialSummaryRad": {
+          "n": 495,
+          "min": 0.01511530304256419,
+          "p1": 0.028445570300980418,
+          "p5": 0.04988201096984273,
+          "p25": 0.1106770768599511,
+          "median": 0.20347993174806328,
+          "p75": 0.3848454306900928,
+          "p95": 0.7612252392884818,
+          "p99": 0.9387703838953818,
+          "max": 1.0725927799063049,
+          "mean": 0.2741124045889136
+        }
+      }
+    },
+    "576": {
+      "encoderContentHashQ": "6ad0b2bc01c06447aae8468f500e2a2178e9a40f0d95de048b0418afcaea77db",
+      "corpus": {
+        "fp16FloorRad": 0.0002228215067916117,
+        "fp16FloorWorstConcept": "urn:kernel-v0:part-of",
+        "totalNeighbours": 2475,
+        "minAdversarialRad": 0.002136370481484412,
+        "minAdversarialEdit": {
+          "concept": "urn:kernel-v0:archived",
+          "edit": "filler-substitution",
+          "detail": "pred THERE-IS at clauses.1.roles.quote.clauses.2.args.0.roles.complement.clause.roles.time.restrictedBy.args.1"
+        },
+        "ratioToFloor": 9.5878109444902,
+        "verdict": "SUCCESS",
+        "adversarialSummaryRad": {
+          "n": 2475,
+          "min": 0.002136370481484412,
+          "p1": 0.009404198676729132,
+          "p5": 0.01821199926913761,
+          "p25": 0.055733953664917624,
+          "median": 0.1025367352781627,
+          "p75": 0.1638765985438011,
+          "p95": 0.31953664499938733,
+          "p99": 0.7276146531976632,
+          "max": 1.0731313602497259,
+          "mean": 0.13387783739381062
+        },
+        "byEdit": {
+          "operator-flip": {
+            "n": 290,
+            "min": 0.003564972689064567,
+            "p1": 0.015338860445326787,
+            "p5": 0.04674322445327447,
+            "p25": 0.13935395971919082,
+            "median": 0.23062115631438135,
+            "p75": 0.28524399007237466,
+            "p95": 0.35414008815117326,
+            "p99": 0.37929642684684695,
+            "max": 0.41671097753576647,
+            "mean": 0.21253669079655893
+          },
+          "clause-swap": {
+            "n": 82,
+            "min": 0.0746105390209788,
+            "p1": 0.08725944400991979,
+            "p5": 0.12455379746079562,
+            "p25": 0.4602916538727031,
+            "median": 0.636602621382419,
+            "p75": 0.768198814739004,
+            "p95": 0.9734690611803228,
+            "p99": 1.0679068354592207,
+            "max": 1.0731313602497259,
+            "mean": 0.5934673246843107
+          },
+          "referent-index": {
+            "n": 357,
+            "min": 0.0021529803423968384,
+            "p1": 0.007862641234422868,
+            "p5": 0.022229437979486715,
+            "p25": 0.07097853806146777,
+            "median": 0.12138240833761724,
+            "p75": 0.21754850379140164,
+            "p95": 0.2776092916828858,
+            "p99": 0.29946018697392823,
+            "max": 0.3105404016855679,
+            "mean": 0.13425952242601594
+          },
+          "filler-substitution": {
+            "n": 1746,
+            "min": 0.002136370481484412,
+            "p1": 0.00933917739449509,
+            "p5": 0.017596147450138242,
+            "p25": 0.04707131656373762,
+            "median": 0.08660239253487576,
+            "p75": 0.1385600006263995,
+            "p95": 0.23257311200976563,
+            "p99": 0.3149022840951429,
+            "max": 0.34159975456389435,
+            "mean": 0.09915065125342354
+          }
+        },
+        "perConceptMin10": [
+          {
+            "id": "archived",
+            "neighbours": 62,
+            "saturated": true,
+            "minAngle": 0.002136370481484412
+          },
+          {
+            "id": "promise",
+            "neighbours": 63,
+            "saturated": true,
+            "minAngle": 0.007655343217783475
+          },
+          {
+            "id": "sad",
+            "neighbours": 44,
+            "saturated": true,
+            "minAngle": 0.008590733361205112
+          },
+          {
+            "id": "afraid",
+            "neighbours": 31,
+            "saturated": true,
+            "minAngle": 0.010447919032834945
+          },
+          {
+            "id": "give",
+            "neighbours": 60,
+            "saturated": true,
+            "minAngle": 0.012340532660360908
+          },
+          {
+            "id": "kind",
+            "neighbours": 122,
+            "saturated": true,
+            "minAngle": 0.012933969065465824
+          },
+          {
+            "id": "take",
+            "neighbours": 36,
+            "saturated": true,
+            "minAngle": 0.013347677485838018
+          },
+          {
+            "id": "angry",
+            "neighbours": 51,
+            "saturated": true,
+            "minAngle": 0.01371732573809533
+          },
+          {
+            "id": "bookmark",
+            "neighbours": 82,
+            "saturated": true,
+            "minAngle": 0.01849345692743557
+          },
+          {
+            "id": "liar",
+            "neighbours": 41,
+            "saturated": true,
+            "minAngle": 0.0189064638305207
+          }
+        ],
+        "pairwise": {
+          "pairs": 1431,
+          "minPair": {
+            "a": "urn:kernel-v0:afraid",
+            "b": "urn:kernel-v0:sad",
+            "angle": 0.10819343748812503
+          },
+          "top5Nearest": [
+            {
+              "a": "urn:kernel-v0:afraid",
+              "b": "urn:kernel-v0:sad",
+              "angle": 0.10819343748812503
+            },
+            {
+              "a": "urn:kernel-v0:happy",
+              "b": "urn:kernel-v0:sad",
+              "angle": 0.193783545826991
+            },
+            {
+              "a": "urn:kernel-v0:afraid",
+              "b": "urn:kernel-v0:happy",
+              "angle": 0.21694038007766234
+            },
+            {
+              "a": "urn:kernel-v0:repair",
+              "b": "urn:kernel-v0:take",
+              "angle": 0.4657631938441305
+            },
+            {
+              "a": "urn:kernel-v0:birth",
+              "b": "urn:kernel-v0:death",
+              "angle": 0.4738471909527821
+            }
+          ],
+          "summaryRad": {
+            "n": 1431,
+            "min": 0.10819343748812503,
+            "p1": 0.6722290066440254,
+            "p5": 0.9195294944117169,
+            "p25": 1.160964183010483,
+            "median": 1.3152925604092283,
+            "p75": 1.423867088672847,
+            "p95": 1.594086029626888,
+            "p99": 1.6446397892950457,
+            "max": 1.6921983708993156,
+            "mean": 1.2863897492359924
+          }
+        }
+      },
+      "synthetic": {
+        "n": 495,
+        "skippedNoEdit": 5,
+        "fp16FloorRad": 0.0002576751826952364,
+        "fp16FloorN": 200,
+        "minAdversarialRad": 0.015190224985809749,
+        "ratioToFloor": 58.95105934115466,
+        "verdict": "SUCCESS",
+        "adversarialSummaryRad": {
+          "n": 495,
+          "min": 0.015190224985809749,
+          "p1": 0.028189397582492184,
+          "p5": 0.05123657952704086,
+          "p25": 0.11225540740592133,
+          "median": 0.20046057819262833,
+          "p75": 0.3786593675989214,
+          "p95": 0.7418703339738792,
+          "p99": 0.896562215414113,
+          "max": 1.0747684768405372,
+          "mean": 0.2712029861226531
+        }
+      }
+    }
+  }
+}

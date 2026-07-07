@@ -48,7 +48,7 @@ import type {
 import { AST_SCHEMA, canonicalJson } from './ast.js';
 import { applyPermutation } from './det.js';
 import { fftReal, ifftToReal, spectrumMultiply } from './fft.js';
-import { getCodebook, type Codebook, type EncoderParams, type SlotName } from './codebook.js';
+import { type CodebookBase, type EncoderParams, type SlotName } from './codebook.js';
 import { INTENSIFIED_MODS } from './codebook.js';
 import {
   CAPS,
@@ -134,7 +134,7 @@ function normalisedCopy(a: Float64Array): Float64Array | null {
 type StructKind = 'sp' | 'clause' | 'quote' | 'concept' | 'temporal';
 
 class Dec {
-  readonly cb: Codebook;
+  readonly cb: CodebookBase;
   steps: DecodeStep[] = [];
 
   constructor(
@@ -143,7 +143,9 @@ class Dec {
     readonly thetaAbs: number,
     readonly enc: InternalEncoder,
   ) {
-    this.cb = getCodebook(params.D);
+    // Decode against the SAME codebook the encoder instance carries (exact
+    // Hadamard by default; QuasiCodebook for the toy-native variant).
+    this.cb = enc.cb;
   }
 
   step(path: string, decision: string, value: string, confidence: number): void {
@@ -1094,13 +1096,26 @@ interface PartialDecode {
 
 export function decodeExplication(v: Float64Array, opts?: DecodeOptions): DecodeResult {
   const params = resolveParams(opts?.params);
+  return decodeWithEncoder(v, params, new InternalEncoder(params, opts?.concepts), opts);
+}
+
+/**
+ * INTERNAL (used by the toy-native variant encoderQ.ts): decode against the
+ * codebook carried by `enc`. `params` must already be validated by the
+ * caller's resolve function and must match `enc.params`.
+ */
+export function decodeWithEncoder(
+  v: Float64Array,
+  params: EncoderParams,
+  enc: InternalEncoder,
+  opts?: DecodeOptions,
+): DecodeResult {
   if (v.length !== params.D) {
     throw new Error(`ERR_DIMENSION: vector has D=${v.length}, decoder params D=${params.D}`);
   }
   const thetaAbs = opts?.thetaAbs ?? 5 / Math.sqrt(params.D);
   const refine = opts?.refineIterations ?? 3;
-  const cb = getCodebook(params.D);
-  const enc = new InternalEncoder(params, opts?.concepts);
+  const cb = enc.cb;
 
   let prior: PartialDecode | null = null;
   let dec = new Dec(params, opts?.concepts, thetaAbs, enc);
