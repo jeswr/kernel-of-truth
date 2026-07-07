@@ -1,0 +1,277 @@
+{
+  "corpus": "math-mm",
+  "schema": "pm-mm/1",
+  "profile": "profile-M formal-sector bulk tier (docs/design-bulk-kernel.md; docs/design-math-sector.md §1.1)",
+  "version": "0.1.0",
+  "extractionDate": "2026-07-07",
+  "authorship": "bulk-extracted mechanically from set.mm; formal-sector records (the source is already definitional; full definitional force per design-bulk-kernel.md §honesty-architecture item 4); NOT federation-endorsed",
+  "recordRule": "every $a statement of set.mm: typecode!=|- -> syntax-former; |- and df-* -> definition; |- and ax-* -> axiom; other |- $a excluded and listed (empirically zero). $p theorems out of scope (no proof layer, design-math-sector.md L1). No subset truncation: this is the complete $a inventory.",
+  "nsmBridgePolicy": "none for all records (bulk mechanical extraction; NSM explication is hand-authored territory). Hand-checked links to the math-v0 corpus live in alignment-v0.json.",
+  "source": {
+    "repository": "https://github.com/metamath/set.mm",
+    "file": "set.mm",
+    "commit": "7010d9c53cbae4d47cf84ec552a29f06bad1606b",
+    "sha256": "c1a0052dbf8b601d6ff2d99cc5ac658d90153b179417a2e7a60c853bb04ed30a",
+    "bytes": 50872478,
+    "mathboxStartLine": 506258
+  },
+  "extractor": {
+    "version": "1.0.0",
+    "contentHash": "f211ebcd2eed9ea5bdb32130607bc0f5aa5a676707b923d11f5e3cc3cda3e4b7",
+    "files": [
+      "parse-mm.mjs",
+      "extract.mjs"
+    ],
+    "hashRule": "sha256 over the concatenated bytes of the listed files, in listed order"
+  },
+  "counts": {
+    "records": 2998,
+    "syntaxFormers": 1440,
+    "definitions": 1432,
+    "axioms": 126,
+    "mathboxRecords": 1147,
+    "aStatementsTotal": 2998,
+    "aStatementTypecodes": {
+      "wff": 96,
+      "|-": 1558,
+      "class": 1344
+    },
+    "pStatementsSkipped": 47436,
+    "excludedProvableAStatements": [],
+    "irregularDefinitionShapes": [
+      "df-bi"
+    ],
+    "fallbackAssignedSyntaxFormers": [
+      "df-bi",
+      "df-clab"
+    ],
+    "primitiveSyntaxFormers": {
+      "count": 8,
+      "note": "syntax formers with no defining df-* (logical/set-theoretic primitives and purely notational formers)",
+      "labels": [
+        "cprvb",
+        "csm",
+        "csp",
+        "cv",
+        "cva",
+        "wal",
+        "wi",
+        "wn"
+      ],
+      "truncatedListing": false
+    },
+    "unintroducedConstants": []
+  },
+  "dag": {
+    "nodes": 2998,
+    "edges": 33688,
+    "acyclic": false,
+    "nontrivialSccs": [
+      [
+        "df-clel",
+        "df-cleq"
+      ]
+    ],
+    "selfLoops": [],
+    "sccNote": "Cycles are the SOURCE's real structure, reported as findings: set.mm's class-theory bootstrap (df-cleq defines class = via e.; df-clel defines e. via =) is documented by set.mm itself as not-strict definitions, exempt from its definitional soundness check. Depths are computed on the SCC condensation (members share a depth).",
+    "edgeRule": "record -> dependencies.syntax ∪ dependencies.definitional (see extract.mjs header for the stated dependency semantics)",
+    "allEdgesPointToEarlierDatabasePosition": false,
+    "backEdgeViolations": [
+      [
+        "df-tru",
+        "df-cleq"
+      ],
+      [
+        "ax-6",
+        "df-cleq"
+      ],
+      [
+        "ax-7",
+        "df-cleq"
+      ],
+      [
+        "df-sb",
+        "df-cleq"
+      ],
+      [
+        "ax-8",
+        "df-clel"
+      ],
+      [
+        "ax-8",
+        "df-cleq"
+      ],
+      [
+        "ax-9",
+        "df-clel"
+      ],
+      [
+        "ax-9",
+        "df-cleq"
+      ],
+      [
+        "ax-12",
+        "df-cleq"
+      ],
+      [
+        "ax-13",
+        "df-cleq"
+      ],
+      [
+        "df-mo",
+        "df-cleq"
+      ],
+      [
+        "ax-ext",
+        "df-clel"
+      ],
+      [
+        "ax-ext",
+        "df-cleq"
+      ],
+      [
+        "df-cleq",
+        "df-clel"
+      ],
+      [
+        "wf1",
+        "df-f"
+      ],
+      [
+        "wfo",
+        "df-f"
+      ],
+      [
+        "wf1o",
+        "df-f"
+      ],
+      [
+        "walsc",
+        "df-alsi"
+      ]
+    ],
+    "backEdgeViolationCount": 18,
+    "maxDepth": 53,
+    "maxDepthWitness": [
+      "df-hlhil",
+      "df-hgmap",
+      "df-hdmap",
+      "df-hdmap1",
+      "df-lcdual",
+      "df-doch",
+      "df-dih",
+      "df-dvech",
+      "df-edring",
+      "df-tendo",
+      "df-trl",
+      "df-ltrn",
+      "df-ldil",
+      "df-lhyp",
+      "df-covers",
+      "df-plt",
+      "df-ple",
+      "df-dec",
+      "df-9",
+      "df-8",
+      "df-7",
+      "df-6",
+      "df-5",
+      "df-4",
+      "df-3",
+      "df-2",
+      "df-add",
+      "df-c",
+      "df-nr",
+      "df-enr",
+      "df-plp",
+      "df-np",
+      "df-ltnq",
+      "df-nq",
+      "df-enq",
+      "df-mi",
+      "df-omul",
+      "df-oadd",
+      "df-rdg",
+      "df-recs",
+      "df-wrecs",
+      "df-frecs",
+      "df-fn",
+      "df-fun",
+      "df-rel",
+      "df-xp",
+      "df-op",
+      "df-v",
+      "df-clab",
+      "df-sb",
+      "df-cleq",
+      "df-bi",
+      "wb",
+      "wi"
+    ],
+    "depthHistogram": {
+      "0": 1322,
+      "1": 63,
+      "2": 5,
+      "3": 14,
+      "4": 95,
+      "5": 26,
+      "6": 28,
+      "7": 28,
+      "8": 32,
+      "9": 56,
+      "10": 46,
+      "11": 51,
+      "12": 34,
+      "13": 30,
+      "14": 35,
+      "15": 18,
+      "16": 27,
+      "17": 28,
+      "18": 24,
+      "19": 19,
+      "20": 4,
+      "21": 4,
+      "22": 8,
+      "23": 6,
+      "24": 3,
+      "25": 6,
+      "26": 9,
+      "27": 21,
+      "28": 44,
+      "29": 17,
+      "30": 35,
+      "31": 46,
+      "32": 42,
+      "33": 47,
+      "34": 51,
+      "35": 83,
+      "36": 63,
+      "37": 64,
+      "38": 87,
+      "39": 92,
+      "40": 78,
+      "41": 71,
+      "42": 59,
+      "43": 32,
+      "44": 13,
+      "45": 12,
+      "46": 5,
+      "47": 3,
+      "48": 3,
+      "49": 5,
+      "50": 1,
+      "51": 1,
+      "52": 1,
+      "53": 1
+    },
+    "syntaxFormersUnreachableFromDfAx": [
+      "cv"
+    ],
+    "unreachabilityNote": "cv (setvar-to-class coercion, \"class x\") is expected here: its pattern is a bare variable, so token-level constant scanning cannot see uses of it; grammatical parse-tree dependencies would require a full grammar parser (out of scope, stated rule)."
+  },
+  "files": {
+    "syntax.jsonl": 1440,
+    "definitions.jsonl": 1432,
+    "axioms.jsonl": 126
+  }
+}
