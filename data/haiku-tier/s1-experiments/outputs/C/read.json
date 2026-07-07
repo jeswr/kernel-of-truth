@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6815,
+ "duration_api_ms": 8207,
+ "ttft_ms": 6748,
+ "ttft_stream_ms": 1125,
+ "time_to_request_ms": 119,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone looks at words and sees them; because of this, the someone knows what the words mean.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}},\"adjuncts\":{\"cause\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"ref\",\"index\":2}}}}}}}]}}\n```\n\n**Changes made:**\n\n1. **Removed the initial DO clause** \u2014 \"read\" is fundamentally about *perceiving and understanding*, not about an external action. The verb's core sense is SEE + KNOW, not an agent doing something to words.\n\n2. **Repaired the KNOW clause** \u2014 moved the causal link from a narrative gap into a proper adjunct `\"cause\"` on the KNOW predicate. This correctly captures: *because someone sees the words, they thereby know their meaning*.\n\n3. **Simplified the attribute** \u2014 kept the undergoer of BE-SPEC as SOMETHING~THING (the abstract meaning), but removed the redundant wrapper that was just repeating the bind-2 referent.\n\n4. **Tightened the gloss** \u2014 removed \"the words are visible\" (covered by SEE) and \"this someone can know\" (covered by KNOW with cause adjunct).\n\nThe record now legally reflects the dominant everyday sense: perception of written symbols yields semantic comprehension.",
+ "stop_reason": "end_turn",
+ "session_id": "bc4db534-c72e-43ee-9e38-a0d41473dcd9",
+ "total_cost_usd": 0.014400000000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5360,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 519,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5360,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 519,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5360,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5360
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1025,
+   "outputTokens": 531,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5360,
+   "webSearchRequests": 0,
+   "costUSD": 0.014400000000000001,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "418b2122-f37e-4138-a916-4297d893b055"
+}

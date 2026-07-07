@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 14826,
+ "duration_api_ms": 16498,
+ "ttft_ms": 14804,
+ "ttft_stream_ms": 1199,
+ "time_to_request_ms": 52,
+ "num_turns": 1,
+ "result": "I need to repair this DRAFT, which currently claims cannot-formalise.\n\nLet me reconsider. The dominant everyday sense of \"hysterical\" in modern English is **\"provoking uncontrollable laughter\"** \u2014 that is, \"very funny.\" This is not a technical psychological state; it's a simple property of things that make people laugh so hard they lose composure.\n\nThe repair path:\n1. Drop the historical/medical framing entirely.\n2. Ground it as: something that causes people to laugh in a way they cannot control; laughter is in the catalog (as a molecule); uncontrollable laughter is expressible via negation of control.\n3. Use an explication frame: **WhenTrue** (property concept), where referent 1 is the thing that is hysterical.\n\n**Grounding note attempt:**\n\"something that makes people laugh in a way they cannot stop\"\n\nLet me check word-by-word:\n- something \u2713 (ALLOWED)\n- that \u2713 (allowed in relative clauses via context)\n- makes \u2192 not in ALLOWED directly; \"do\" is the action prime. Rephrase: \"causes people to laugh\"\n- people \u2713 (ALLOWED)\n- to \u2713 (ALLOWED)\n- laugh \u2713 (laugh is a molecule: {urn:molecule-v0:laugh|laugh} [m])\n- in \u2713 (ALLOWED)\n- a \u2713 (ALLOWED)\n- way \u2713 (ALLOWED)\n- they \u2713 (they = people, ok)\n- cannot \u2713 (ALLOWED)\n- stop \u2192 not in ALLOWED. Use \"not\" + verb. \"cannot\" covers this.\n\nBetter grounding note:\n\"something people cannot stop laughing at\"\n\nCheck:\n- something \u2713\n- people \u2713\n- cannot \u2713\n- stop \u2192 \"stop\" is not in ALLOWED. Rephrase: \"something people want to laugh about; they laugh; they cannot not laugh\" \u2014 awkward. \n\nActually, simpler: \"something that makes people laugh so much they cannot do anything else\"\n\nOr even simpler, using the molecule:\n\"something that makes people {urn:molecule-v0:laugh|laugh} [m] very much\"\n\nChecking: very \u2713, much \u2713, makes \u2192 still not a prime verb. I need DO, HAPPEN, MOVE, THINK, KNOW, WANT, FEEL, SEE, HEAR, SAY, TRUE, BE-SOMEWHERE, BE-SPEC, IS-MINE, LIVE, DIE.\n\nReframe: \"something that causes people to laugh very much\"\n\n\"causes\" = \u2192 not an ALLOWED word. Use the kernel concept {urn:kernel-v0:cause|cause}.\n\nActually, the simplest: define it via WhenTrue explication directly, avoiding the grounding-note bottleneck. Make it a **property concept** (WhenTrue frame).\n\nLet me produce the explication:\n\n```json\n{\n  \"kind\": \"explication\",\n  \"gloss\": \"provoking uncontrollable laughter\",\n  \"record\": {\n    \"schema\": \"kot-ast/1\",\n    \"frame\": \"WhenTrue\",\n    \"referents\": [\n      {\"index\": 2, \"refKind\": \"SomeoneRef\"}\n    ],\n    \"clauses\": [\n      {\n        \"type\": \"pred\",\n        \"pred\": \"FEEL\",\n        \"roles\": {\n          \"experiencer\": {\"kind\": \"ref\", \"index\": 2},\n          \"attribute\": {\"kind\": \"prime\", \"prime\": \"GOOD\"}\n        }\n      },\n      {\n        \"type\": \"pred\",\n        \"pred\": \"DO\",\n        \"roles\": {\n          \"agent\": {\"kind\": \"ref\", \"index\": 2},\n          \"undergoer\": {\n            \"kind\": \"conceptHead\",\n            \"id\": \"urn:molecule-v0:laugh\"\n          }\n        }\n      },\n      {\n        \"type\": \"op\",\n        \"op\": \"NOT\",\n        \"args\": [\n          {\n            \"type\": \"pred\",\n            \"pred\": \"KNOW\",\n            \"roles\": {\n              \"experiencer\": {\"kind\": \"ref\", \"index\": 2},\n              \"complement\": {\n                \"kind\": \"clause\",\n                \"clause\": {\n                  \"type\": \"pred\",\n                  \"pred\": \"DO\",\n                  \"roles\": {\n                    \"agent\": {\"kind\": \"ref\", \"index\": 2},\n                    \"undergoer\": {\"kind\": \"prime\", \"prime\": \"SOMETHING~THING\"}\n                  }\n                }\n              }\n            }\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\nWait, that's too complex and doesn't properly use molecules. Let me reconsider with a molecule-based grounding note instead.\n\n**Simpler approach: molecule with grounding note**\n\nGrounding note: \"something that makes people {urn:molecule-v0:laugh|laugh} [m] very much\"\n\nProblem: \"makes\" is not in ALLOWED.\n\nAlternative: \"something; people laugh [m] about it; very much; they cannot not laugh\"\n\nTry: \"something such that people laugh [m] very much about it\"\n\nCheck each token:\n- something \u2713\n- such \u2713 (no, \"such\" is not in ALLOWED)\n- that \u2713\n- people \u2713\n- laugh \u2713 (molecule ref) [m]\n- very \u2713\n- much \u2713\n- about \u2713\n- it \u2713\n\nDrop \"such\": \"something that people laugh [m] very much about it\"\n\nThat's awkward. Try: \"something; people laugh [m] about it very much\"\n\nUsing semicolon: \"something; people {urn:molecule-v0:laugh|laugh} [m] about it very much\"\n\nCheck:\n- something \u2713\n- ; \u2713\n- people \u2713\n- laugh [m] \u2713\n- about \u2713\n- it \u2713\n- very \u2713\n- much \u2713\n\n**Grounding note:** `something; people {urn:molecule-v0:laugh|laugh} [m] about it very much`\n\n**Ground refs:** `[\"urn:molecule-v0:laugh\"]`\n\nDepth = 1 + 2 (laugh is d2) = 3. \u2713\n\n```json\n{\n  \"kind\": \"molecule\",\n  \"gloss\": \"something that provokes uncontrollable laughter\",\n  \"groundingNote\": \"something; people {urn:molecule-v0:laugh|laugh} [m] about it very much\",\n  \"groundingRefs\": [\"urn:molecule-v0:laugh\"]\n}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "d5024f4b-c864-4fa9-80cc-171141c54d61",
+ "total_cost_usd": 0.020180000000000003,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5553,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1624,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5553,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1624,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5553,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5553
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 874,
+   "outputTokens": 1640,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5553,
+   "webSearchRequests": 0,
+   "costUSD": 0.020180000000000003,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "b644f78f-3d3b-4a33-acee-1f2726642c2a"
+}

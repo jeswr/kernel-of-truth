@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 21334,
+ "duration_api_ms": 22912,
+ "ttft_ms": 21298,
+ "ttft_stream_ms": 2021,
+ "time_to_request_ms": 82,
+ "num_turns": 1,
+ "result": "I'll check this draft against the rules systematically.\n\n**Checking the explication structure:**\n\n1. **Schema & frame**: \"InstanceSchema\" with frame-implicit referent 1 (SomethingRef) \u2713\n2. **Referents**: Dense from 1, only referent 1 declared \u2713\n3. **Clause count**: 4 clauses, within limit \u2713\n4. **Depth**: No molecule refs, only kernel primes; depth = 0 \u2713\n\n**Checking each clause:**\n\n**Clause 1**: `BE-SPEC` with undergoer=ref:1, attribute=SP(quant:MANY, prime:SOMETHING~THING)\n- Valency: BE-SPEC takes undergoer* and attribute* \u2713\n- SP structure valid \u2713\n\n**Clause 2**: BEFORE operator wrapping a BE-SPEC\n- `BE-SPEC` with undergoer=ref:1, attribute=SP(quant:ONE, prime:SOMETHING~THING)\n- Valency: BE-SPEC takes undergoer* and attribute* \u2713\n- BEFORE(time-clause, main) \u2014 but this is used as a wrapper around only the time-clause, not paired with a main clause. This violates BEFORE's arity: it requires both antecedent AND scope-clause as args. \u2717\n\n**Clause 3**: `HAPPEN` with undergoer=ref:1, cause=SP(mod:BIG, prime:SOMETHING~THING)\n- HAPPEN takes undergoer (required). It has no \"cause\" role in the predicate table. The only optional adjunct it allows is time/duration/place/manner. \"cause\" is not valid. \u2717\n- Also: HAPPEN describes an event; the cause here is vague (\"something big\" \u2014 force should be named or conceptually grounded).\n\n**Clause 4**: `NOT(CAN(DO(...)))`\n- Inner DO has roles: agent=PEOPLE, undergoer=ref:1, goal=SP(det:THE-SAME, prime:SOMETHING~THING)\n- DO valency: agent*, undergoer, instrument, comitative. \"goal\" is not a valid role. \u2717\n- The intent is \"people cannot make it the same again\" \u2014 this needs \"reassemble\" or \"make whole\" conceptually, not a bare \"goal\".\n\n**Core semantic issues:**\n- Clause 2's BEFORE is malformed (missing scope-clause).\n- Clause 3 invents a \"cause\" role that doesn't exist.\n- Clause 4 uses invalid \"goal\" role and doesn't capture \"reassembly\" (which needs a kernel concept or valid predicate structure).\n\n**Correction:**\n\nThe draft tries to encode: (1) referent becomes many parts, (2) before it was one, (3) because of force, (4) cannot easily become one again. The structure should use:\n- BEFORE to properly pair the \"was one\" state with the \"becomes many\" event\n- A valid adjunct (manner/cause as conceptual) for the force\n- A proper predicate for the reassembly negation using available predicates\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"something separates into many pieces because of force; before, it was one piece; after, people cannot easily make it into one thing again.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\"}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BIG\"}]}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MANY\"}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CAN\",\"roles\":{\"undergoer\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"instrument\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}}}]}]}}\n```\n\nWait\u2014I've introduced a new error: CAN is an operator, not a predicate; it cannot be the direct argument to NOT. Let me use DO inside a CAN inside a NOT:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"something separates into many pieces because of force; before, it was one piece; after, people cannot easily make it one thing again.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\"}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MANY\"}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]}]}}\n```\n\nThis is now gate-legal: BEFORE pairs two clauses (before-state, after-event); HAPPEN has valid undergoer; BE-SPEC describes the final state; NOT(CAN(DO)) correctly nests the impossibility of reassembly.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"something separates into many pieces because of force; before, it was one piece; after, people cannot easily make it one thing again.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\"}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"MANY\"}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "b6678fdc-00b7-4344-a765-986bad508d7c",
+ "total_cost_usd": 0.021683,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5481,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1902,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5481,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1902,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5481,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5481
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1146,
+   "outputTokens": 1915,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5481,
+   "webSearchRequests": 0,
+   "costUSD": 0.021683,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "32bd0ad2-83df-4260-a08f-077fa239b2c7"
+}

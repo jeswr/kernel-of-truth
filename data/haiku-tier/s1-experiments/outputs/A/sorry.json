@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5365,
+ "duration_api_ms": 6477,
+ "ttft_ms": 5330,
+ "ttft_stream_ms": 926,
+ "time_to_request_ms": 81,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone feels something bad because they did something; they want the other person to not feel something bad; they say words to the other person about this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BAD\"}}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BAD\"}}}}]}}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BAD\"}}}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "54e8b2f0-f88b-4ab2-b209-cb796cb30e2f",
+ "total_cost_usd": 0.006307,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1503,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 411,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1503,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 411,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1503,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1503
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 726,
+   "outputTokens": 424,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1503,
+   "webSearchRequests": 0,
+   "costUSD": 0.006307,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "ffdf6be9-3f82-44e9-9c76-bb60fb1528f6"
+}

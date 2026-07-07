@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 12667,
+ "duration_api_ms": 13845,
+ "ttft_ms": 12486,
+ "ttft_stream_ms": 1474,
+ "time_to_request_ms": 320,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"laughing so hard or being so upset that someone cannot control their body or words\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"prime\",\"prime\":\"VERY\"}}},{\"type\":\"op\",\"op\":\"OR\",\"args\":[{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"LAUGH\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}},{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}}]},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"manner\":{\"kind\":\"prime\",\"prime\":\"VERY\"}}}]}}\n```\n\nWait \u2014 I must reconsider. The draft argues that \"hysterical\" is either a medical category or depends on psychological states unavailable in the lexicon. Let me check the ALLOWED primes and predicates carefully.\n\nThe dominant everyday sense is: *a person loses control of laughter or emotional expression \u2014 body and speech become uncontrollable.* This is observable: we see/hear someone laugh extremely hard, or cry extremely hard, or speak rapidly/incoherently. These ARE in the lexicon (LAUGH, FEEL BAD, WORDS, DO).\n\nHowever, the draft's core objection stands: \"hysterical\" as everyday colloquial denotes a *state of losing voluntary control* \u2014 a property of the person at a moment. To capture \"they are hysterical\" I need WhenTrue (property frame), and the explication should say: *when this thing (a person) is hysterical, they are laughing or distressed so much that their body and speech are not under their will.*\n\nBut the crux: can I express \"not under their will\" (loss of agency/control) in the lexicon? The primes have WANT, DO, but not a negation of *can control*. The available operators include NOT, but NOT(DO(...)) says \"they do not do X\" \u2014 not \"they cannot help but do X.\"\n\nThe draft is right: the concept requires expressing psychological loss-of-control, which is NOT in the available primes. The everyday sense *is* tied to uncontrollable emotional/physical state, and that state-of-uncontrollability is not a prime or a combination the lexicon supports.\n\nThe draft should remain unchanged.\n\n```json\n{\"kind\":\"cannot-formalise\",\"why\":\"'hysterical' in everyday English refers to a state of emotional dysregulation (loss of composure, uncontrollable laughter or distress) that is historically rooted in obsolete medical theory (hysteria as a disease condition). The dominant sense conflates a behavioural symptom with a now-discredited pathological category. To formalize it would require either (a) a grounding note using 'hysteria' (which itself is a technical-medical construct not in the prime lexicon and not anchored in perception or bodily action), or (b) an explication of emotional loss-of-control that depends on psychological states (shame, panic, distress) not expressible in the available primes. The modern colloquial use ('that's hysterical' = 'very funny') is a metonymic extension of the dysregulation sense and cannot be separated from it without introducing synonymy. The concept belongs to the psychology/medical sector, not the everyday sensorimotor tier.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "a44c37ef-ebb5-4b1e-95fb-3d44bde35982",
+ "total_cost_usd": 0.016052,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5209,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 934,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5209,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 934,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5209,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5209
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 874,
+   "outputTokens": 952,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5209,
+   "webSearchRequests": 0,
+   "costUSD": 0.016052,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "38f222e4-13ff-4762-b706-271f6341f774"
+}

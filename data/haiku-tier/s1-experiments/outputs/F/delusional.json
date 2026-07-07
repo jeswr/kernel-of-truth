@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 14166,
+ "duration_api_ms": 15199,
+ "ttft_ms": 14140,
+ "ttft_stream_ms": 1140,
+ "time_to_request_ms": 221,
+ "num_turns": 1,
+ "result": "I need to repair this explication for \"delusional\" (WhenTrue frame). Let me work through it systematically.\n\n**Problems identified:**\n\n1. Referent 3 is introduced with `\"bind\":3` but never properly scoped \u2014 it's meant to be \"things that show the belief is false\" but the restrictedBy clause uses malformed OR operator (OR is not in the allowed operators list).\n\n2. The temporal anchor uses AFTER with a complex SP that has a restrictedBy with an illegal OR \u2014 operators can only appear at clause level, not inside SP restrictedBy.\n\n3. The third clause tries to say \"does not change belief\" but uses a kindFrame on referent 2 (the belief-thing), which is awkward and confusing.\n\n4. The core insight is simpler: someone believes X; others know X is false; when shown/told evidence, this someone does not change their belief.\n\n**Repair:**\n\nThe everyday sense of \"delusional\" is: a person holds a belief; that belief is not true (others know this); even when encountering evidence against it, the person does not abandon or revise the belief.\n\nSimpler structure:\n- Referent 1: the delusional person (frame-implicit, WhenTrue)\n- Referent 2: the false belief (something they believe)\n- Referent 3: evidence or information that contradicts it\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone believes something that is not true; when they see or hear things that show it is not true, they do not change their belief.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":2}}}}]}}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":3},\"manner\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}]}]}}\n```\n\nWait \u2014 \"manner\": \"GOOD\" doesn't make sense. Let me reconsider: the evidence itself shows the belief is false. I should use a restrictedBy clause on the stimulus SP instead:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone believes something that is not true; when they see or hear things that show it is not true, they do not change their belief.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":2}}}}]}}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":3,\"restrictedBy\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}]}]}}\n```\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone believes something that is not true; when they see or hear evidence against it, they do not change their belief.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":2}}}}]}}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":3,\"restrictedBy\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "64b218e4-73c1-446c-925b-706a95169d9e",
+ "total_cost_usd": 0.02005,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5888,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1398,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5888,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1398,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5888,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5888
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1209,
+   "outputTokens": 1413,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5888,
+   "webSearchRequests": 0,
+   "costUSD": 0.02005,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "45f6e180-31bf-4c47-848d-8c9e9dd1fc25"
+}

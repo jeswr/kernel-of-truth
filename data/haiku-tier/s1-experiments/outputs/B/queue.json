@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6271,
+ "duration_api_ms": 7165,
+ "ttft_ms": 6233,
+ "ttft_stream_ms": 994,
+ "time_to_request_ms": 155,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"people are in a line at one place; each person is behind another or before another; people want that the person before them is dealt with before they are; one person at the front is dealt with first; when this happens, that person is not in the line anymore; then the next person is at the front.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\",\"bind\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"det\":\"ONE\"}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\"}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"},\"bind\":2},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"GOOD\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"},\"bind\":3},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"GOOD\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3}}}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}}}}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "88f5b423-051c-4f91-82dc-b86cd2a0b933",
+ "total_cost_usd": 0.007633299999999999,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1564,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 639,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1564,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 639,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1564,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1564
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 787,
+   "outputTokens": 653,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1564,
+   "webSearchRequests": 0,
+   "costUSD": 0.007633299999999999,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "7c232a4c-fa70-4c83-87ee-c4a053c2bd95"
+}

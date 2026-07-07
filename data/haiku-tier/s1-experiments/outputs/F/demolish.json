@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 12571,
+ "duration_api_ms": 14070,
+ "ttft_ms": 12539,
+ "ttft_stream_ms": 6670,
+ "time_to_request_ms": 110,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does something to a thing so that it breaks into many small parts.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"quant\":\"MANY\",\"mods\":[{\"mod\":\"SMALL\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"quant\":\"MANY\",\"mods\":[{\"mod\":\"SMALL\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"}}}}]}]}}\n```\n\n**Repair summary:**\n\n1. **Removed the outer negation clause** \u2014 it was redundant and made the structure weaker. The core sense is that the agent *causes* the thing to break into many small parts, not that it is left \"not the same.\"\n\n2. **Simplified the HAPPEN clause** \u2014 the `restrictedBy` now directly says the thing comes to have many small sides (i.e. breaks), rather than nesting an unnecessary BE-SPEC about sides of the thing.\n\n3. **Fixed the BECAUSE causation** \u2014 the consequent now directly states \"the thing is in a state of having many small sides\" (broken), which is what demolition *does*. This is simpler and gate-legal.\n\n4. **Removed \"THING\" as the subject of breakage** \u2014 the clause now says many small parts (sides) happen, and the thing has (comes to have) many small sides, which avoids the awkward \"many small parts of one kind\" construction.\n\nThe result is shorter, avoids the \"same/not the same\" negation, and captures the everyday sense: demolish = someone acts on a thing such that it breaks into many small pieces.",
+ "stop_reason": "end_turn",
+ "session_id": "6721c606-f270-48dc-b763-06ee0beb6163",
+ "total_cost_usd": 0.015725,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5768,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 605,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5768,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 605,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5768,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5768
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1089,
+   "outputTokens": 620,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5768,
+   "webSearchRequests": 0,
+   "costUSD": 0.015725,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "768e78f7-e604-419f-a9b2-ce33babc4ca6"
+}

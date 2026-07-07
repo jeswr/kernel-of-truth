@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 9528,
+ "duration_api_ms": 10874,
+ "ttft_ms": 9476,
+ "ttft_stream_ms": 1158,
+ "time_to_request_ms": 81,
+ "num_turns": 1,
+ "result": "I'll repair this draft step by step.\n\n**Analysis of the draft:**\n\n1. **Frame issue:** The frame is \"WhenTrue\" (property of someone), which is correct for an adjective sense. Referent 1 is the someone who is cunning.\n\n2. **Referent 3 problem:** The draft introduces \"some people\" (referent 3) in clause 2, but referent 3 is never properly bound. The \"bind\":3 appears in the comitative role, but referent 3 is already introduced as an SP with bind \u2014 this is redundant and incorrect.\n\n3. **Clause 2 structural problem:** The second clause tries to express \"DO...topic\" which is malformed. DO doesn't take a \"topic\" role; it takes agent, undergoer, instrument, comitative. The structure is confused.\n\n4. **Clause 3 semantic problem:** Referent 3 is \"some people\" but the clause uses it as experiencer in WANT. The logic \"people want others not to know the cunning person's true wants\" doesn't map cleanly to the roles and is over-complicated.\n\n5. **Clause 4:** FEEL with GOOD attribute is good, but the overall reasoning chain is broken.\n\n**Repair strategy:**\n\nThe dominant everyday sense of \"cunning\" is: **someone is clever/skilled at doing things in hidden ways to deceive or achieve their goals without others knowing their intent.** \n\nSimpler explication:\n- Someone knows how to do something.\n- They do it in a way that hides what they truly want.\n- They feel good about this.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone who is cunning knows how to do things in ways that keep others from knowing what they truly want.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"det\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"det\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"manner\":{\"kind\":\"sp\",\"det\":\"OTHER~ELSE~ANOTHER\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"det\":\"OTHER~ELSE~ANOTHER\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"sp\",\"det\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "47f2eb4e-562e-48b8-9c61-1f74f179a4e3",
+ "total_cost_usd": 0.017545,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 6058,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 796,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 6058,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 796,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6058,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 6058
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1379,
+   "outputTokens": 810,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6058,
+   "webSearchRequests": 0,
+   "costUSD": 0.017545,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "689b6166-db99-4d1d-9a94-f2e12134134e"
+}

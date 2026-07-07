@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5983,
+ "duration_api_ms": 6992,
+ "ttft_ms": 5913,
+ "ttft_stream_ms": 1101,
+ "time_to_request_ms": 138,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"fair and not excessive given the circumstances\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"prime\",\"prime\":\"SOMEONE\"},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}},\"adjuncts\":{\"place\":{\"kind\":\"ref\",\"index\":1}}}]}}\n```\n\n**Repair logic:** The DRAFT abstained on grounds of context-sensitivity and norm-relativity. However, the everyday core sense of \"reasonable\" in typical use\u2014\"fair and acceptable; not bad\"\u2014is the _evaluative judgment_ that something merits approval rather than complaint. This is precisely what FEEL + GOOD captures: someone perceiving or judging the thing as good (fair, fitting, not excessive). \n\nThe repair drops the false requirement for explicit \"due limits\" or \"contextual standards\" as separate primitives. Instead, FEEL + GOOD_attribute is the semantic primitive for how people evaluate reasonableness in ordinary language: \"that's reasonable\" = \"that seems good/fair to me.\" This is expressible, gate-legal, and matches the everyday sense across the four dictionary senses (rational judgment is good; fairness is good; moderation is good; fair pricing is good).\n\nNo molecule grounding needed; \"reasonable\" is a property concept (WhenTrue frame), not a thing-kind.",
+ "stop_reason": "end_turn",
+ "session_id": "e5c27ea0-2dfd-41cc-b644-7030a6acc9f1",
+ "total_cost_usd": 0.013689,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5516,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 349,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5516,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 349,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5516,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5516
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 837,
+   "outputTokens": 364,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5516,
+   "webSearchRequests": 0,
+   "costUSD": 0.013689,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "10596f78-7b6e-486a-8140-17b08fee5d99"
+}

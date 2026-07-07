@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 12534,
+ "duration_api_ms": 14477,
+ "ttft_ms": 12503,
+ "ttft_stream_ms": 1554,
+ "time_to_request_ms": 246,
+ "num_turns": 1,
+ "result": "I'll check this draft against all the rules systematically.\n\n**Frame & Referents Check:**\n- Frame: \"WhenTrue\" \u2713 (property concept)\n- Referent 1 (SomeoneRef) implicit from frame \u2713\n- Referents 2,3 declared: 2=SomethingRef, 3=SomeoneRef\n- Index 2 introduced with \"bind\":2 in clause 1 \u2713\n- Index 3 introduced with \"bind\":3 in clause 2 \u2713\n- All later uses are {\"kind\":\"ref\",\"index\":n} \u2713\n\n**Clause-by-clause inspection:**\n\n1. KNOW clause: experiencer=ref:1, topic=SP with bind:2, complement=embedded clause\n   - Topic SP: det=\"SOME\", head is primeHead SOMETHING~THING, bind:2 \u2713\n   - Complement clause: DO with agent=ref:1, undergoer=ref:2, manner=SP\n   - Manner SP: det=\"OTHER~ELSE~ANOTHER\", head is SOMETHING~THING (OK) \u2713\n\n2. DO clause: agent=ref:1, topic=embedded clause, comitative=SP with bind:3\n   - Topic clause: DO with agent=ref:1, undergoer=ref:2, manner=SP\n   - Manner SP: same as above \u2713\n   - Comitative SP: head=PEOPLE, quant=\"SOME\", bind:3 \u2713\n   - **ERROR**: DO predicate doesn't have \"topic\" in its valency. Allowed roles: agent*, undergoer, instrument, comitative. This is **ERR_EXPLICATION_VALENCY**.\n\n3. WANT clause (inside NOT/NOT inside): experiencer=ref:3\n   - The innermost WANT has only experiencer role, no complement\u2014this violates WANT's valency (complement*). **ERR_EXPLICATION_VALENCY**.\n\n4. FEEL clause: experiencer=ref:1, attribute=prime GOOD \u2713\n\n**Semantic issues:**\n- The draft tries to say \"cunning\" = someone knows how to do something *non-straightforwardly*, *to hide their true wants from others*, *and feels good about it*.\n- But the grammar violations break the structure.\n\n**Correction:**\n\nThe dominant everyday sense of cunning is: **someone is skilled at doing things in a hidden/deceptive way to achieve their aims without others noticing**. Let me restructure:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone knows how to do things in a way that others do not see; they do this to make things happen the way they want.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}]}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\"}}}}}},{\"type\":\"pred\",\"pred\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"OTHER~ELSE~ANOTHER\"},\"stimulus\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n```\n\nWait\u2014that final clause is an OP not a PRED. Let me recorrect to make it a proper operator wrapper:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone knows how to do things in a way that others do not see; they do this to make things happen the way they want.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\"},\"stimulus\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}]}}\n```\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone knows how to do things in a way that others do not see; they do this to make things happen the way they want.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\"},\"stimulus\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "5bd56ad1-5ca3-4535-9873-145432708948",
+ "total_cost_usd": 0.022192,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5714,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1863,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5714,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1863,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5714,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5714
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1379,
+   "outputTokens": 1877,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5714,
+   "webSearchRequests": 0,
+   "costUSD": 0.022192,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "251d3fa5-4b0a-4217-b30d-a7260d6c96f6"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4992,
+ "duration_api_ms": 5935,
+ "ttft_ms": 4944,
+ "ttft_stream_ms": 1620,
+ "time_to_request_ms": 694,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone looks at words; because of this, this someone knows what the words say.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"topic\":{\"kind\":\"ref\",\"index\":2}}}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "6617eeb5-6cf2-49d8-9692-e8b659a307eb",
+ "total_cost_usd": 0.0056053,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1503,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 271,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1503,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 271,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1503,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1503
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 726,
+   "outputTokens": 284,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1503,
+   "webSearchRequests": 0,
+   "costUSD": 0.0056053,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "33a29e21-4de6-405a-9dd2-8ac12844956f"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7667,
+ "duration_api_ms": 8825,
+ "ttft_ms": 7611,
+ "ttft_stream_ms": 1400,
+ "time_to_request_ms": 171,
+ "num_turns": 1,
+ "result": "I'll check this draft against the rules systematically.\n\n## Rule Violations Found\n\n1. **BEFORE operator misuse (clause 4)**: The `BEFORE` operator takes `(time-anchor, scope-clause)` as args. The draft has three args: a prime, a pred clause, and a temporal adjunct. This breaks the arity for BEFORE.\n\n2. **Temporal adjunct in BEFORE args (clause 4)**: The third element `{\"type\":\"temporal\",...}` shouldn't be in the args array; temporal info belongs as an adjunct within a clause role, not as a standalone arg.\n\n3. **Structural confusion (clause 4)**: The intent seems to be \"before NOW, the thing was not alive\" but the structure doesn't express this cleanly. BEFORE's scope-clause should express the negated state.\n\n4. **AFTER operator args (clause 5)**: Similar problem \u2014 the clause inside AFTER's args doesn't carry the time adjunct correctly. AFTER takes `(anchor, scope-clause)` where anchor is a time SP/ref/NOW-prime, and scope-clause should be the main predicate. The structure is malformed.\n\n5. **Referent 2 unused**: TimeRef at index 2 is declared but never introduced with `\"bind\":2` and never used; it should be removed.\n\n## Corrected Record\n\nThe core sense is: \"something is alive (now); it can move, feel, do things; it was not alive before; it will not be alive after.\" I'll restructure using WHEN and NOT operators more cleanly:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"the state of something that is alive and can move, feel, and do things; it was not alive before and will not be alive after.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:alive\"}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:alive\"}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:dead\"}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "2b375565-a1bf-4b62-bcab-2aca65badf5a",
+ "total_cost_usd": 0.016691,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5687,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 780,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5687,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 780,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5687,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5687
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1352,
+   "outputTokens": 793,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5687,
+   "webSearchRequests": 0,
+   "costUSD": 0.016691,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "0dde1f0c-32d4-47b6-8fd4-b303aa63ea80"
+}

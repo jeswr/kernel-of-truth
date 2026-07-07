@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4302,
+ "duration_api_ms": 5252,
+ "ttft_ms": 4257,
+ "ttft_stream_ms": 989,
+ "time_to_request_ms": 233,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone causes another someone to know something; after this, that someone understands it; it is like someone gives them words about it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"instrument\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"bind\":4}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":3}}}]},{\"type\":\"op\",\"op\":\"LIKE\",\"args\":[{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}},{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"comitative\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "9e7ed9c1-e455-4162-bd49-387c13c3950d",
+ "total_cost_usd": 0.005847,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1388,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 388,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1388,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 388,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1388,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1388
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 611,
+   "outputTokens": 401,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1388,
+   "webSearchRequests": 0,
+   "costUSD": 0.005847,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "20318944-5b10-49a1-bdd8-ac62dda3862a"
+}

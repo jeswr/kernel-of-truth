@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 10843,
+ "duration_api_ms": 11896,
+ "ttft_ms": 10736,
+ "ttft_stream_ms": 1090,
+ "time_to_request_ms": 87,
+ "num_turns": 1,
+ "result": "I'll check this draft against all the gate rules.\n\n**Gate check:**\n\n1. **Schema & frame**: `kot-ast/1` \u2713, `InstanceSchema` \u2713 (referent 1 = arbitrary instance of death)\n2. **Referents**: `[{\"index\":1,\"refKind\":\"SomeoneRef\"}]` \u2014 **VIOLATION**. Death applies to any living thing (people, animals, organisms), not just \"someone\". Should be `SomethingRef` for a living organism, or we need to ground it more broadly. The draft's use of `SomeoneRef` is too narrow.\n3. **Frame-implicit referent 1**: Introduced by frame \u2713\n4. **Clauses**:\n   - Clause 1: `DIE` with `undergoer` (ref to index 1) \u2713\n   - Clause 2: `NOT(LIVE)` with undergoer ref 1 \u2713\n   - Clause 3: `NOT(MOVE)` with undergoer = SP with `BODY` head \u2014 **potential issue**: the SP introduces an *implicit* body, but it's a generic reference, not bound to referent 1. The body should be a part *of* referent 1, not a separate something. This is semantically odd.\n   - Clause 4: `NOT(FEEL)` with experiencer ref 1 \u2713\n\n5. **Logic issue**: After someone dies, *their body* doesn't move and they don't feel \u2014 but the draft's clause 3 treats \"body\" as a detached entity. Should express \"the body (of index 1)\" or use a part-relation.\n\n6. **Deeper issue**: Death is not primarily about the *aftermath* (not moving, not feeling). Death *is* the event of dying \u2014 the transition. The explication should center on `DIE` as the main predicate, with consequences, not redundant negations.\n\n**Corrected version:**\n\nThe concept should define death as the event where a living thing undergoes the process of dying. The clearest everyday sense: when something alive stops being alive.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"the event when a living thing dies and ceases to live.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}}\n```\n\nWait \u2014 let me reconsider. `DIE` is already a predicate (from the lexicon), so making \"death\" an explication with `DIE` as the main clause works: death is the event/instance of dying. But I should simplify: death just *is* the DIE event itself.\n\nActually, the cleanest reading: **death** = the state/outcome where something that was alive is no longer alive. So:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"the end of life; when a living thing no longer lives.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n```\n\nHmm, but `WhenTrue` is for *properties* (adjectives), and death is a noun/event. Let me use `InstanceSchema` and define death as a *thing* (the event/outcome):\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"the event where a living thing ceases to live.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}}\n```\n\nThis is cleaner: death is simply the dying event. One clause, no redundancy.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"the event where a living thing ceases to live.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "f2f1dfc0-f994-456f-bbbd-2e2e6de13f29",
+ "total_cost_usd": 0.017266,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5347,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1099,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5347,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1099,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5347,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5347
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1012,
+   "outputTokens": 1112,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5347,
+   "webSearchRequests": 0,
+   "costUSD": 0.017266,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "8ab2ad9b-b19d-4d7f-a5e0-5f0946b0b304"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 10307,
+ "duration_api_ms": 11285,
+ "ttft_ms": 10223,
+ "ttft_stream_ms": 2089,
+ "time_to_request_ms": 115,
+ "num_turns": 1,
+ "result": "I need to produce a formal definition record for \"begin\" in its everyday sense.\n\n**Route analysis:**\n\"Begin\" is a relational/eventive concept expressing the initiation of something. The dominant everyday sense is the verb: \"to start; to come into existence; to initiate.\" This is expressible in the prime lexicon using HAPPEN, BE-SPEC, and temporal operators.\n\n**Sense selection:**\nThe core everyday use is: something comes into a state of happening/existing where it was not before. This is a property/relation that holds between an undergoer and a temporal boundary.\n\n**Schema choice:**\nThis is best captured as an explication using **RelationalSchema** (or **WhenTrue** if treating it as \"when X begins, then...\"). The most direct reading: \"begin\" describes the moment when something transitions from not-happening to happening. I'll use **WhenTrue** with a time-anchored perspective: \"at some moment, something comes into being/happening that was not before.\"\n\nActually, **RelationalSchema** fits better: begin(agent, action) or begin(undergoer, event) \u2014 but the everyday sense is simpler: \"X begins\" = \"X starts to happen.\" This is best a **WhenTrue** frame: \"referent 1 begins\" = \"referent 1 is at the start of happening.\"\n\nLet me refine: **begin** (intransitive/passive sense, most common in everyday speech) = \"something comes into a state where it is happening, at a moment after which it was not happening.\"\n\n**Explication construction:**\n\n- Frame: WhenTrue (property of the thing that begins)\n- Referent 1: SomethingRef (the thing beginning)\n- Referent 2: TimeRef (the moment of beginning)\n- Core clause: HAPPEN, with time binding to the beginning moment\n- Contrast: before that moment, it was not happening (NOT HAPPEN)\n- Adjunct: temporal anchor at boundary\n\n```json\n{\n  \"kind\": \"explication\",\n  \"gloss\": \"something is not happening before this moment; at this moment, it happens.\",\n  \"record\": {\n    \"schema\": \"kot-ast/1\",\n    \"frame\": \"WhenTrue\",\n    \"referents\": [\n      {\"index\": 1, \"refKind\": \"SomethingRef\"},\n      {\"index\": 2, \"refKind\": \"TimeRef\"}\n    ],\n    \"clauses\": [\n      {\n        \"type\": \"op\",\n        \"op\": \"BEFORE\",\n        \"args\": [\n          {\"kind\": \"ref\", \"index\": 2},\n          {\"type\": \"op\", \"op\": \"NOT\", \"args\": [{\"type\": \"pred\", \"pred\": \"HAPPEN\", \"roles\": {\"undergoer\": {\"kind\": \"ref\", \"index\": 1}}}]}\n        ]\n      },\n      {\n        \"type\": \"pred\",\n        \"pred\": \"HAPPEN\",\n        \"roles\": {\n          \"undergoer\": {\"kind\": \"ref\", \"index\": 1},\n          \"time\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"WHEN~TIME\"}, \"det\": \"THIS\", \"bind\": 2}\n        }\n      }\n    ]\n  }\n}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "c519f863-3f3d-4cde-bb3e-76387da6ad32",
+ "total_cost_usd": 0.0078371,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1393,
+  "cache_read_input_tokens": 5151,
+  "output_tokens": 770,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1393,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 770,
+    "cache_read_input_tokens": 5151,
+    "cache_creation_input_tokens": 1393,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1393
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 616,
+   "outputTokens": 784,
+   "cacheReadInputTokens": 5151,
+   "cacheCreationInputTokens": 1393,
+   "webSearchRequests": 0,
+   "costUSD": 0.0078371,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "21913075-2c24-4fb6-bb8b-7f4422eecb45"
+}

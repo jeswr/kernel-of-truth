@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4457,
+ "duration_api_ms": 5725,
+ "ttft_ms": 4428,
+ "ttft_stream_ms": 983,
+ "time_to_request_ms": 88,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"molecule\",\"gloss\":\"a teacher at a university, having authority over students\",\"groundingNote\":\"a {urn:kernel-v0:teacher|teacher} at a kind of place where people learn; this person has authority over students.\",\"groundingRefs\":[\"urn:kernel-v0:teacher\"]}\n```\n\n**Corrections made:**\n\n1. **Removed molecule refs with [m] from grounding note**: The draft incorrectly included `{urn:molecule-v0:woman|woman} [m]` and `{urn:molecule-v0:man|man} [m]` in the note itself. Grounding notes must use only ALLOWED words, phrases, and kernel refs (without [m]). Gender distinction is not essential to the everyday sense of \"don\" and complicates the note unnecessarily.\n\n2. **Simplified scope**: Removed the redundant \"one kind of place\" phrasing; \"a kind of place where people learn\" is clearer and uses only allowed vocabulary.\n\n3. **Kept kernel ref only**: `urn:kernel-v0:teacher` is the single dominant anchor; it needs no [m] marker. The grounding note now respects the closed lexicon.\n\n4. **Updated groundingRefs list** to match the single ref used.\n\nThe record is now gate-legal: lowercase, no bare content words, no inappropriate [m] markers, and grounding notes exactly matching the declared refs.",
+ "stop_reason": "end_turn",
+ "session_id": "3a3d6262-1bb6-4663-875d-338e50a8516f",
+ "total_cost_usd": 0.0131,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5235,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 333,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5235,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 333,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5235,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5235
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 900,
+   "outputTokens": 346,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5235,
+   "webSearchRequests": 0,
+   "costUSD": 0.0131,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "57361d6d-1bda-4d56-891c-b12c5fac6593"
+}

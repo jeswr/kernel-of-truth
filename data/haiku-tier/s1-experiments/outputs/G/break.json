@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7199,
+ "duration_api_ms": 9339,
+ "ttft_ms": 7175,
+ "ttft_stream_ms": 1058,
+ "time_to_request_ms": 62,
+ "num_turns": 1,
+ "result": "I'll repair this draft step by step.\n\n**Analysis of the errors:**\n\n1. **ERR_REF_NOT_INTRODUCED**: Referent 2 (the thing being broken) is used in the first DO clause before it has an introducing occurrence. In InstanceSchema, referent 1 (the agent/someone) is frame-implicit, but referent 2 needs to be introduced with `\"bind\":2` on its first SP appearance.\n\n2. **Structural issues**:\n   - The BECAUSE operator nests the same DO clause twice unnecessarily\n   - The final NOT wraps a CAN with empty roles and a malformed complement structure\n   - The logic should be simpler: someone does something \u2192 the thing becomes many things \u2192 they cannot become one again\n\n3. **Simplification**: Remove the redundant first DO clause and the broken final NOT. State the core idea: doing it causes the thing to become many things; that cannot easily reverse.\n\n**Repaired record:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"when someone does something to a thing, the thing becomes many things; this cannot easily become one thing again\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"quant\":\"ONE\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"quant\":\"MANY\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CAN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"quant\":\"ONE\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "01cfb8b4-acae-462f-81a3-b8c0f6753f14",
+ "total_cost_usd": 0.016218,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5959,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 590,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5959,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 590,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5959,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5959
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1280,
+   "outputTokens": 604,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5959,
+   "webSearchRequests": 0,
+   "costUSD": 0.016218,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "3682ba82-76e7-4dcc-a1d1-cfb9e1e57e06"
+}

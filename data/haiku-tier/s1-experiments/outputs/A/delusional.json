@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6771,
+ "duration_api_ms": 7705,
+ "ttft_ms": 6709,
+ "ttft_stream_ms": 1060,
+ "time_to_request_ms": 188,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone believes something; other people know this thing is not true; this someone does not change this belief when they see or hear things that show it is not true.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2}}}}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"ref\",\"index\":2}},\"bind\":3},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"mods\":[{\"mod\":\"GOOD\"}],\"restrictedBy\":{\"type\":\"op\",\"op\":\"OR\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"ref\",\"index\":3}}}]}}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "2ade0909-2f41-4482-8a58-c6d6cb3cac82",
+ "total_cost_usd": 0.0066029999999999995,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1505,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 469,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1505,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 469,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1505,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1505
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 728,
+   "outputTokens": 482,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1505,
+   "webSearchRequests": 0,
+   "costUSD": 0.0066029999999999995,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "d853f687-cfb7-452f-a586-528a0c1a3182"
+}

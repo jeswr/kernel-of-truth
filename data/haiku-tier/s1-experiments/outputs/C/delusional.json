@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 19378,
+ "duration_api_ms": 20257,
+ "ttft_ms": 19300,
+ "ttft_stream_ms": 1271,
+ "time_to_request_ms": 387,
+ "num_turns": 1,
+ "result": "I need to check this draft against the gate rules systematically.\n\n## Gate Analysis\n\n**Frame & Referents:**\n- Frame is `WhenTrue` \u2713 (property concept)\n- Referent 1 (SomeoneRef, frame-implicit) \u2713\n- Referents 2, 3 (SomethingRef) both introduced with `bind` \u2713\n- Dense indices 1\u20133 \u2713\n\n**Clause Structure Issues:**\n\n1. **Clause 0 (BELIEVE):** \n   - `complement` is a clause wrapping `TRUE` with undergoer bound to referent 2 \u2713\n\n2. **Clause 1 (KNOW):**\n   - experiencer is an SP (people) \u2014 but KNOW's experiencer role should accept a ref or SP \u2713\n   - complement wraps NOT(TRUE(ref 2)) \u2713\n\n3. **Clause 2 (NOT(CHANGE)):**\n   - **CRITICAL ERROR**: The `time` adjunct uses a temporal anchor with an `OR` operator: `\"op\":\"OR\"` \u2014 but `OR` is NOT in the allowed operators list. Allowed operators are: `NOT`, `CAN`, `MAYBE`, `IF`, `BECAUSE`, `WHEN`, `LIKE`, `AFTER`, `BEFORE`.\n   - This is an automatic gate failure: **ERR_INVALID_OPERATOR**.\n\n4. **Logical Gap:**\n   - The draft attempts to encode \"sees or hears things that show it is not true\" but uses an undefined `OR` operator. The gate cannot parse it.\n   - The phrase \"or\" (disjunction) is not a primitive operator in profile-1 grammar.\n\n**Correct Approach:**\n\nThe concept requires expressing: the person does not change their belief even after encountering disconfirming evidence (seeing/hearing that contradicts the belief). In profile-1, we must express this as two separate clauses chained by necessity, or use nested WHEN/IF:\n- Referent 2 (the believed thing) \n- Referent 3 (a person/agent witnessing disconfirming evidence)\n- The fact that change does NOT happen after the person sees/hears disconfirming evidence\n\nA corrected structure would avoid `OR` and express the constraint more directly:\n\n```json\n{\n  \"kind\": \"explication\",\n  \"gloss\": \"someone believes something that is not true; when they see or hear that this thing is not true, they do not change their belief.\",\n  \"record\": {\n    \"schema\": \"kot-ast/1\",\n    \"frame\": \"WhenTrue\",\n    \"referents\": [\n      {\"index\": 1, \"refKind\": \"SomeoneRef\"},\n      {\"index\": 2, \"refKind\": \"SomethingRef\"},\n      {\"index\": 3, \"refKind\": \"SomethingRef\"}\n    ],\n    \"clauses\": [\n      {\n        \"type\": \"pred\",\n        \"pred\": \"BELIEVE\",\n        \"roles\": {\n          \"experiencer\": {\"kind\": \"ref\", \"index\": 1},\n          \"complement\": {\n            \"kind\": \"clause\",\n            \"clause\": {\n              \"type\": \"pred\",\n              \"pred\": \"TRUE\",\n              \"roles\": {\n                \"undergoer\": {\"kind\": \"ref\", \"index\": 2}\n              }\n            }\n          }\n        }\n      },\n      {\n        \"type\": \"pred\",\n        \"pred\": \"TRUE\",\n        \"roles\": {\n          \"undergoer\": {\n            \"kind\": \"op\",\n            \"op\": \"NOT\",\n            \"args\": [\n              {\n                \"type\": \"pred\",\n                \"pred\": \"TRUE\",\n                \"roles\": {\n                  \"undergoer\": {\"kind\": \"ref\", \"index\": 2}\n                }\n              }\n            ]\n          }\n        }\n      },\n      {\n        \"type\": \"op\",\n        \"op\": \"WHEN\",\n        \"args\": [\n          {\n            \"type\": \"pred\",\n            \"pred\": \"SEE\",\n            \"roles\": {\n              \"experiencer\": {\"kind\": \"ref\", \"index\": 1},\n              \"stimulus\": {\"kind\": \"ref\", \"index\": 3}\n            }\n          },\n          {\n            \"type\": \"op\",\n            \"op\": \"NOT\",\n            \"args\": [\n              {\n                \"type\": \"pred\",\n                \"pred\": \"CHANGE\",\n                \"roles\": {\n                  \"undergoer\": {\n                    \"kind\": \"sp\",\n                    \"head\": {\"kind\": \"kindFrame\", \"of\": {\"kind\": \"ref\", \"index\": 2}},\n                    \"bind\": 3\n                  }\n                }\n              }\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\nWait\u2014that still has issues. Let me reconsider the arity and structure more carefully. The CHANGE predicate has undergoer; the person changing is the undergoer, not the belief. Let me revise once more:\n\n```json\n{\n  \"kind\": \"explication\",\n  \"gloss\": \"someone believes something that is not true; after seeing that it is not true, they do not change this belief.\",\n  \"record\": {\n    \"schema\": \"kot-ast/1\",\n    \"frame\": \"WhenTrue\",\n    \"referents\": [\n      {\"index\": 1, \"refKind\": \"SomeoneRef\"},\n      {\"index\": 2, \"refKind\": \"SomethingRef\"}\n    ],\n    \"clauses\": [\n      {\n        \"type\": \"pred\",\n        \"pred\": \"BELIEVE\",\n        \"roles\": {\n          \"experiencer\": {\"kind\": \"ref\", \"index\": 1},\n          \"complement\": {\n            \"kind\": \"clause\",\n            \"clause\": {\n              \"type\": \"pred\",\n              \"pred\": \"TRUE\",\n              \"roles\": {\n                \"undergoer\": {\"kind\": \"ref\", \"index\": 2}\n              }\n            }\n          }\n        }\n      },\n      {\n        \"type\": \"pred\",\n        \"pred\": \"TRUE\",\n        \"roles\": {\n          \"undergoer\": {\n            \"kind\": \"op\",\n            \"op\": \"NOT\",\n            \"args\": [\n              {\n                \"type\": \"pred\",\n                \"pred\": \"TRUE\",\n                \"roles\": {\n                  \"undergoer\": {\"kind\": \"ref\", \"index\": 2}\n                }\n              }\n            ]\n          }\n        }\n      },\n      {\n        \"type\": \"op\",\n        \"op\": \"NOT\",\n        \"args\": [\n          {\n            \"type\": \"pred\",\n            \"pred\": \"CHANGE\",\n            \"roles\": {\n              \"undergoer\": {\"kind\": \"ref\", \"index\": 1}\n            }\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone believes something that is not true; after seeing that it is not true, they do not change this belief.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}},{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"CHANGE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "8ce8e237-51fe-4f66-b0b9-69f2bfffb7ba",
+ "total_cost_usd": 0.022017,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5544,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1929,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5544,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1929,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5544,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5544
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1209,
+   "outputTokens": 1944,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5544,
+   "webSearchRequests": 0,
+   "costUSD": 0.022017,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "e5ad0b35-d8f2-4928-910c-00e0ce8329d0"
+}

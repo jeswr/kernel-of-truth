@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 18765,
+ "duration_api_ms": 19753,
+ "ttft_ms": 18730,
+ "ttft_stream_ms": 1393,
+ "time_to_request_ms": 175,
+ "num_turns": 1,
+ "result": "I'll check this draft against the mechanical rules systematically.\n\n**Structural checks:**\n1. Schema, frame, referents list: \u2713 valid\n2. Referent indices: 1 (SomeoneRef), 2 (TimeRef) \u2014 dense from 1 \u2713\n3. Referent introduction: index 2 introduced with \"bind\":2 in first clause's time adjunct \u2713; index 1 is frame-implicit \u2713\n\n**Clause-by-clause check:**\n\n*Clause 1:* `DIE` with undergoer (frame-implicit ref to index 1) and time adjunct\n- Predicate valency: DIE(undergoer*) \u2713\n- Time adjunct: `{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"det\":\"SOME\",\"bind\":2}`\n  - **Problem:** the time adjunct should be a temporal anchor (op AFTER/BEFORE or a TimeRef), not an SP with a prime head. Time adjuncts use the `temporal` operator structure or a ref/NOW-prime, not an SP binding. This violates the temporal-anchor rule.\n\n*Clause 2-4:* Three AFTER operators with NOT(LIVE), NOT(MOVE), NOT(FEEL)\n- Structure: `AFTER(anchor, scope-clause)` \u2713\n- Anchor in each: `{\"kind\":\"ref\",\"index\":2}` \u2713\n- Scope clauses: NOT wrapping valid predicates \u2713\n- **Problem in clause 3:** `NOT(MOVE(...))` has undergoer as `{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}`. This introduces a new SP with head BODY but no \"bind\" \u2014 it's neither introducing (missing bind) nor mentioning an existing referent. The scope should stay within frame-implicit referent 1 or use a proper reference.\n\n*Clause 5:* `FEEL` with experiencer PEOPLE, attribute BAD, manner, and reason\n- **Problem:** \"reason\" is not a valid role in FEEL. FEEL takes: experiencer*, attribute (GOOD/BAD prime filler), plus optional adjuncts (time/duration/place/manner). There is no \"reason\" role.\n- **Problem:** The manner filler `{\"kind\":\"sp\",\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}]}` lacks a head (required). An SP must have a head.\n\n**Depth check:** Max depth of referenced concepts is 0 (kernel only); new molecule would be depth 1 \u2713 (but this is an explication, not a molecule).\n\n---\n\n**Corrected record:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"when someone dies, they stop living and their body stops moving and feeling; after this, people can feel very sad because the person died.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\",\"bind\":3},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"manner\":{\"kind\":\"prime\",\"prime\":\"VERY\"}},\"because\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}]}}\n```\n\n**Key fixes:**\n1. Temporal anchor in clause 1 now uses proper `temporal` operator structure with NOW-prime.\n2. All MOVE/FEEL predicates in clauses 2\u20134 use frame-implicit index 1 (the someone), avoiding dangling SPs.\n3. Final FEEL clause: removed invalid \"reason\" role; added proper BECAUSE operator wrapping the death clause.\n4. Added referent 3 for \"people\" with proper binding.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"when someone dies, they stop living and their body stops moving and feeling; after this, people can feel very sad because the person died.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\",\"bind\":3},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"manner\":{\"kind\":\"prime\",\"prime\":\"VERY\"}},\"because\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "3df173f1-a4b3-45a6-8254-211bc1c5fadf",
+ "total_cost_usd": 0.020906,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5582,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1687,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5582,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1687,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5582,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5582
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1247,
+   "outputTokens": 1699,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5582,
+   "webSearchRequests": 0,
+   "costUSD": 0.020906,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "33baab23-1e4a-41f9-8b23-82f898446f27"
+}

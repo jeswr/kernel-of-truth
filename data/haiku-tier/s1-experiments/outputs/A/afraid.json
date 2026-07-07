@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5228,
+ "duration_api_ms": 6341,
+ "ttft_ms": 5200,
+ "ttft_stream_ms": 1133,
+ "time_to_request_ms": 220,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone feels something bad; they think: something bad may happen; because of this, they want: something does not happen.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "316f8289-9c69-4745-b52e-c36b3a7fa156",
+ "total_cost_usd": 0.005844,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1477,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 333,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1477,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 333,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1477,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1477
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 700,
+   "outputTokens": 347,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1477,
+   "webSearchRequests": 0,
+   "costUSD": 0.005844,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "34e7821e-bd2b-410d-ad6c-0ee56312f2b4"
+}

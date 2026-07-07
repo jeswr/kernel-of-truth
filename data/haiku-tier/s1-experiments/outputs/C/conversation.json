@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6904,
+ "duration_api_ms": 8173,
+ "ttft_ms": 6878,
+ "ttft_stream_ms": 818,
+ "time_to_request_ms": 75,
+ "num_turns": 1,
+ "result": "I'll check this draft against the mechanical rules systematically.\n\n## Gate check\n\n**Explication structure (schema, frame, referents, clauses):** Present. Frame = \"InstanceSchema\" (correct for class concept).\n\n**Referents:**\n- Index 1: SomeoneRef \u2713\n- Index 2: SomeoneRef \u2713\n- Index 3: TimeRef \u2713\nDense from 1. \u2713\n\n**Introducing occurrences (bind):**\n- Index 1: introduced implicitly by frame \u2713\n- Index 2: introduced implicitly by frame \u2713\n- Index 3: introduced by `\"bind\":3` in the first clause of the WHEN scope \u2713\n\n**Clause 1:** `BE-SPEC` with undergoer=SP(PEOPLE, quant=TWO) and attribute=SP(det=SOME, no head). \n- **VIOLATION:** The attribute SP has `det:\"SOME\"` but no `head`. Every SP must have a `head`. This is malformed.\n\n**Clause 2 (within WHEN):** \n- First inner clause: `BE-SPEC` with undergoer=SP(WHEN~TIME, det=SOME, bind=3) and attribute=SP(WHEN~TIME).\n  - The attribute SP has no `head` specified (should be a primeHead). **VIOLATION.**\n- SAY clauses, HEAR clauses: structurally sound.\n\n**Clause 3:** `BE-SPEC` with undergoer=ref(3) and attribute=SP(WHEN~TIME, quant=SOME, mod=LONG).\n- The mod is `\"LONG\"` but the allowed mods are only `{\"GOOD\",\"BAD\",\"BIG\",\"SMALL\"}`. **VIOLATION.**\n\n## Corrected record\n\nThe draft has three violations. I'll reconstruct a clearer explication:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"two or more people say words to each other, each hears the other, over some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"time\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"time\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"time\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"time\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"SOME\"}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "c55788f0-e45e-40c9-b715-93a164049522",
+ "total_cost_usd": 0.017162999999999998,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5676,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 881,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5676,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 881,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5676,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5676
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1341,
+   "outputTokens": 894,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5676,
+   "webSearchRequests": 0,
+   "costUSD": 0.017162999999999998,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "ac75cda7-57fe-4b70-b231-4d3e667bc2e2"
+}

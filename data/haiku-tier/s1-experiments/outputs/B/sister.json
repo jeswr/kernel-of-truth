@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6385,
+ "duration_api_ms": 7439,
+ "ttft_ms": 6003,
+ "ttft_stream_ms": 1191,
+ "time_to_request_ms": 143,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this woman or girl: one of two or more people who have the same mother and father; the other people are the person's sisters or brothers.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WOMAN~GIRL\"}}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"ONE\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"TWO~MORE\"}}},\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"det\":\"THE-SAME\"}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"det\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"mods\":[{\"mod\":\"SAME\"}]}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"TWO~MORE\"}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "d0901e2d-ea0f-4fa6-8e42-3b03b62391fc",
+ "total_cost_usd": 0.0068073,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1567,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 472,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1567,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 472,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1567,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1567
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 790,
+   "outputTokens": 486,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1567,
+   "webSearchRequests": 0,
+   "costUSD": 0.0068073,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "1d33eead-db24-4825-a24a-3e82704f9cee"
+}

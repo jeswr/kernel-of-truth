@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5087,
+ "duration_api_ms": 6233,
+ "ttft_ms": 5043,
+ "ttft_stream_ms": 921,
+ "time_to_request_ms": 64,
+ "num_turns": 1,
+ "result": "I'll check this draft against the mechanical rules for molecule grounding notes.\n\n**Issues found:**\n\n1. **ERR_GROUNDING_LEXICON**: The tokens \"domesticated\" and \"kind\" are bare content words not in the ALLOWED list. \"Domesticated\" is a property-description word (outside scope); \"kind\" appears bare rather than as part of an allowed phrase or KIND-frame reference.\n\n2. **Structure violation**: The grounding note should be a single coherent description using only allowed words + refs, not a compound sentence list. The current draft reads like multiple clauses strung together with semicolons, which violates the closed-lexicon principle.\n\n3. **Allowed phrasing**: To express \"a domesticated animal of one kind,\" I must use only ALLOWED primitives. \"Domesticated\" has no primitive equivalent in the lexicon; I can only say what people DO with it (live with it, etc.) or what it IS (a kind of animal).\n\n**Corrected record:**\n\n```json\n{\"kind\":\"molecule\",\"gloss\":\"a domesticated animal that lives with people\",\"groundingNote\":\"a {urn:molecule-v0:animal|animal} [m] with which people live\",\"groundingRefs\":[\"urn:molecule-v0:animal\"]}\n```\n\nThis version:\n- Uses only ALLOWED words: \"a\", \"with\", \"which\", \"people\", \"live\"\n- References the catalog molecule {urn:molecule-v0:animal|animal} [m] correctly\n- Avoids bare content words like \"domesticated\", \"kind\", \"move\", \"hear\", \"see\", \"good\"\n- Stays within the closed lexicon by describing the primary everyday relationship (people live with dogs)",
+ "stop_reason": "end_turn",
+ "session_id": "8337405f-065e-49cf-b1d6-440f21cc3cfd",
+ "total_cost_usd": 0.013902,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5404,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 392,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5404,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 392,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5404,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5404
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1069,
+   "outputTokens": 405,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5404,
+   "webSearchRequests": 0,
+   "costUSD": 0.013902,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "a526fc86-f58f-4a81-86ca-da7be2c98ade"
+}

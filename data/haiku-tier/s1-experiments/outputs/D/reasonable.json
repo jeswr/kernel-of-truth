@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 15857,
+ "duration_api_ms": 18123,
+ "ttft_ms": 15806,
+ "ttft_stream_ms": 1060,
+ "time_to_request_ms": 58,
+ "num_turns": 1,
+ "result": "I need to analyse the concept \"reasonable\" and decide on the route and dominant everyday sense.\n\n## Analysis\n\nThe dominant everyday sense of \"reasonable\" is: **a property that holds of someone or something when it accords with good thinking; not extreme; fair; acceptable.**\n\nThis is fundamentally a property concept \u2014 it describes a quality that can be predicated of a person, decision, price, action, etc. The core sense clusters:\n- \"rational; makes sense\" (accords with good thinking)\n- \"fair; just\" (aligns with what is right)\n- \"not excessive\" (within proper bounds)\n- \"fairly priced\" (not extreme in cost)\n\nAll of these are **WhenTrue** frame candidates: \"this something is reasonable\" means it has a property that holds at a time.\n\n## Route decision\n\nThis is a **property concept** \u2192 **EXPLICATION** (WhenTrue frame).\n\n## Explication construction\n\n**Referent 1** (frame-implicit): the thing the property holds of (SomethingRef)\n\n**Core clauses:**\n1. Someone (or people in general) can think about this thing\n2. What they think about it is good (accords with reason/good thinking)\n3. It is not very big / not very much (not excessive, within bounds)\n\nActually, let me refine: \"reasonable\" means:\n- People can think: this thing is good (makes sense; is right)\n- This thing is not very extreme / not very much\n- Because of this, people can feel something good about it\n\nLet me construct the JSON:\n\n```json\n{\n  \"kind\": \"explication\",\n  \"gloss\": \"people can think this something is good; it is not very big; because of this, people can feel something good about it.\",\n  \"record\": {\n    \"schema\": \"kot-ast/1\",\n    \"frame\": \"WhenTrue\",\n    \"referents\": [\n      {\"index\": 1, \"refKind\": \"SomethingRef\"}\n    ],\n    \"clauses\": [\n      {\n        \"type\": \"pred\",\n        \"pred\": \"THINK\",\n        \"roles\": {\n          \"experiencer\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"PEOPLE\"}},\n          \"topic\": {\"kind\": \"ref\", \"index\": 1},\n          \"quote\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"SOMETHING~THING\"}, \"mods\": [{\"mod\": \"GOOD\"}]}\n        }\n      },\n      {\n        \"type\": \"pred\",\n        \"pred\": \"BE-SPEC\",\n        \"roles\": {\n          \"undergoer\": {\"kind\": \"ref\", \"index\": 1},\n          \"attribute\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"SOMETHING~THING\"}, \"mods\": [{\"mod\": \"BIG\", \"intensifier\": \"NOT\"}]}\n        }\n      }\n    ]\n  }\n}\n```\n\nWait \u2014 I need to check: \"NOT\" is an operator, not a modifier intensifier. Let me fix:\n\n```json\n{\n  \"kind\": \"explication\",\n  \"gloss\": \"people can think this something is good; it is not very much; because of this, people can feel something good.\",\n  \"record\": {\n    \"schema\": \"kot-ast/1\",\n    \"frame\": \"WhenTrue\",\n    \"referents\": [\n      {\"index\": 1, \"refKind\": \"SomethingRef\"}\n    ],\n    \"clauses\": [\n      {\n        \"type\": \"pred\",\n        \"pred\": \"THINK\",\n        \"roles\": {\n          \"experiencer\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"PEOPLE\"}},\n          \"topic\": {\"kind\": \"ref\", \"index\": 1},\n          \"quote\": {\"kind\": \"quote\", \"clauses\": [{\"type\": \"pred\", \"pred\": \"BE-SPEC\", \"roles\": {\"undergoer\": {\"kind\": \"ref\", \"index\": 1}, \"attribute\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"SOMETHING~THING\"}, \"mods\": [{\"mod\": \"GOOD\"}]}}}]}\n        }\n      },\n      {\n        \"type\": \"op\",\n        \"op\": \"NOT\",\n        \"args\": [\n          {\"type\": \"pred\", \"pred\": \"BE-SPEC\", \"roles\": {\"undergoer\": {\"kind\": \"ref\", \"index\": 1}, \"attribute\": {\"kind\": \"sp\", \"head\": {\"kind\": \"primeHead\", \"prime\": \"SOMETHING~THING\"}, \"mods\": [{\"mod\": \"BIG\", \"intensifier\": \"VERY\"}]}}}\n        ]\n      }\n    ]\n  }\n}\n```\n\n{\"kind\":\"explication\",\"gloss\":\"people can think this something is good; it is not very much; people feel something good about it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"topic\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}]}}}]}]}}",
+ "stop_reason": "end_turn",
+ "session_id": "6499058c-3c1f-47d1-9904-23e8923d922f",
+ "total_cost_usd": 0.0112711,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1416,
+  "cache_read_input_tokens": 5151,
+  "output_tokens": 1443,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1416,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1443,
+    "cache_read_input_tokens": 5151,
+    "cache_creation_input_tokens": 1416,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1416
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 639,
+   "outputTokens": 1457,
+   "cacheReadInputTokens": 5151,
+   "cacheCreationInputTokens": 1416,
+   "webSearchRequests": 0,
+   "costUSD": 0.0112711,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "a3120703-3835-4a62-973e-990e719dc960"
+}

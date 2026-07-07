@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6663,
+ "duration_api_ms": 7829,
+ "ttft_ms": 6626,
+ "ttft_stream_ms": 915,
+ "time_to_request_ms": 62,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone thinks a thing is true, without knowing it for certain, because of words or events.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"ClauseRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2,\"bind\":2}}}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":2}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":2}}}}]}]}}\n```\n\n**Corrections made:**\n\n1. **Removed erroneous bind on ref 2 in the TRUE clause**: The thing believed (ref 2) should be introduced exactly once via the bind on its first occurrence as the undergoer of TRUE. Subsequent mentions are bare refs.\n2. **Collapsed referents to 2 (not 3)**: Referent 2 is a ClauseRef (the clause \"X is true\"). We don't need a separate SomethingRef; the clause itself is the complement structure.\n3. **Removed malformed bind notation**: \"bind\":3 on a ref was incorrect grammar; bind only introduces new referents on their first occurrence, not on later mentions.\n4. **Kept WORDS as the trigger event**: \"words\" (or events more broadly in the HAPPEN undergoer) represents the ground for belief \u2014 what persuades without proof.",
+ "stop_reason": "end_turn",
+ "session_id": "96730fa8-956d-4932-b28c-ed10b3c99f17",
+ "total_cost_usd": 0.015627,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5769,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 516,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5769,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 516,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5769,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5769
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1434,
+   "outputTokens": 531,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5769,
+   "webSearchRequests": 0,
+   "costUSD": 0.015627,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "7491a598-4c55-499c-b302-2be156a75ea3"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 8006,
+ "duration_api_ms": 11378,
+ "ttft_ms": 7936,
+ "ttft_stream_ms": 1244,
+ "time_to_request_ms": 228,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone knows how to do something in a way that is not straight; they do this to make other people not know what they truly want; this someone feels something good about doing it this way.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER~ELSE~ANOTHER\"}}}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER~ELSE~ANOTHER\"}}}}},\"comitative\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\",\"bind\":3}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"mods\":[{\"mod\":\"GOOD\"}]},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}}}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "8bd74162-c929-4912-adce-57f9b6f955fd",
+ "total_cost_usd": 0.0073880000000000005,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1540,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 604,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1540,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 604,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1540,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1540
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 763,
+   "outputTokens": 618,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1540,
+   "webSearchRequests": 0,
+   "costUSD": 0.0073880000000000005,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "05eaaa02-4253-4d25-8be1-a203e5465032"
+}

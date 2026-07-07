@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5759,
+ "duration_api_ms": 6204,
+ "ttft_ms": 5582,
+ "ttft_stream_ms": 2116,
+ "time_to_request_ms": 1168,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone puts clothing onto their body; after this, the clothing is on the body.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2,\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"quant\":\"ONE\"}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"},\"det\":\"THE-SAME\"}}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "4cd550d4-f4e1-47f3-b498-81960ac571b5",
+ "total_cost_usd": 0.0056273,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1472,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 290,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1472,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 290,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1472,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1472
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 695,
+   "outputTokens": 307,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1472,
+   "webSearchRequests": 0,
+   "costUSD": 0.0056273,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "e4dd3d5f-2ec2-4fa5-a730-b4d9b9e46351"
+}

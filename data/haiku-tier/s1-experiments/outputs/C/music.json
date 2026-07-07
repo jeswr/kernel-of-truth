@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4003,
+ "duration_api_ms": 5526,
+ "ttft_ms": 3983,
+ "ttft_stream_ms": 920,
+ "time_to_request_ms": 105,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note violates gate rule 2(a): 'instrument' is a bare content word not in the ALLOWED list, and {urn:molecule-v0:instrument|instrument} [m] does not exist in the catalog. The concept 'music' is also fundamentally a high-order abstraction (organized sound, cultural form, expressive medium) that requires grounding in concepts like 'harmony', 'melody', 'rhythm', and 'instrument' \u2014 none of which are in the kernel or molecule catalog. To formalise music properly would require first building out a sub-ontology of musical primitives (melody, rhythm, harmony, instrument, voice-as-instrument, etc.), each of which has non-trivial depth. The catalog depth budget (max 4) and the closed ALLOWED lexicon cannot anchor this concept without that foundation. Music should be revisited once the necessary molecular dependencies are available.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "83d87c71-8f48-4496-b89f-fe60e5df695c",
+ "total_cost_usd": 0.012743,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5301,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 221,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5301,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 221,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5301,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5301
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 966,
+   "outputTokens": 235,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5301,
+   "webSearchRequests": 0,
+   "costUSD": 0.012743,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "e5f279c8-8a7c-473b-af2d-e199ffe7e140"
+}

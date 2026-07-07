@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6743,
+ "duration_api_ms": 7892,
+ "ttft_ms": 6654,
+ "ttft_stream_ms": 1211,
+ "time_to_request_ms": 204,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"two or more people say words to each other at the same time; each one hears what the other says; this happens for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"TWO\"},\"attribute\":{\"kind\":\"sp\",\"det\":\"SOME\"}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"det\":\"SOME\",\"bind\":3},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"}}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"SOME\",\"mods\":[{\"mod\":\"LONG\"}]}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "72aa46fa-9699-4f77-acb5-7394709a7cc9",
+ "total_cost_usd": 0.007176999999999999,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1548,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 558,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1548,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 558,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1548,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1548
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 771,
+   "outputTokens": 571,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1548,
+   "webSearchRequests": 0,
+   "costUSD": 0.007176999999999999,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "10382169-ab7f-44b7-8f89-78a501b74217"
+}

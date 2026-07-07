@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5697,
+ "duration_api_ms": 7511,
+ "ttft_ms": 5666,
+ "ttft_stream_ms": 1338,
+ "time_to_request_ms": 404,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft explication contains multiple structural errors that cannot be corrected without changing the meaning substantially. (1) The clause list uses 'cause' as a role in DO, but the allowed valency for DO is agent*, undergoer, instrument, comitative \u2014 'cause' is not a valid role; this would require BECAUSE(cause-clause, effect-clause) as an operator instead. (2) The third clause attempts to express causation via a non-existent role rather than through proper operator nesting. (3) The concept 'raj' in its dominant everyday sense (rule/reign as a state of political authority) is inherently relational and temporal \u2014 it denotes a period during which someone holds power over a territory or people \u2014 but the closed lexicon (ALLOWED words + kernel/molecule refs) cannot ground the necessary notions of 'authority', 'territory', 'period of time', or 'political power' without bareword violations. The kernel catalog lacks concepts for political authority, sovereignty, or governance structures. A corrected explication would require either (a) adding those kernel primitives to the catalog, or (b) accepting a lossy decomposition into DO + BE-SOMEWHERE that loses the essential sense of legitimate rule. The everyday sense of 'raj' is too tightly bound to social/political structure to be safely expressed in the current catalog.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "22750934-b832-4a9a-a454-0fa0e02382fb",
+ "total_cost_usd": 0.013120000000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5270,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 314,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5270,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 314,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5270,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5270
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 935,
+   "outputTokens": 329,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5270,
+   "webSearchRequests": 0,
+   "costUSD": 0.013120000000000001,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "9ba26a07-b941-4356-8010-ad723bf11177"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 10608,
+ "duration_api_ms": 11634,
+ "ttft_ms": 10535,
+ "ttft_stream_ms": 1037,
+ "time_to_request_ms": 76,
+ "num_turns": 1,
+ "result": "I'll repair this explication for \"find\" by checking it against the strict rules.\n\n**Issues found:**\n\n1. **Referent 1 (SomeoneRef) frame-implicit in InstanceSchema** \u2014 but \"find\" is a verb/action, not a class concept. Should use a different frame or make the agent explicit.\n\n2. **WANT with clause complement** \u2014 the complement here tries to express \"know where X is\" but uses a nested KNOW with a restrictedBy clause on WHERE~PLACE. This is overcomplicated and mixes intent with result.\n\n3. **DO clause with \"manner\" as a quote** \u2014 MOVE in the manner doesn't ground why searching leads to finding; it's vague.\n\n4. **Structural clarity** \u2014 the explication conflates \"wanting to know\" with \"the action of finding.\" The dominant everyday sense is: someone looks for something, then sees it (and thus knows where it is). That's simpler.\n\n**Repair strategy:**\n- Use **InstanceSchema** with referent 1 = an instance of \"finding\" (a SomethingRef naming the act).\n- Two main clauses: (1) someone does something (searches/looks); (2) because of this, they see the thing; (3) so they know where it is.\n- Drop the overcomplicated WANT; keep the causal chain SEE \u2192 KNOW.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone looks for something, then sees it, so they know where it is\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\",\"bind\":2},{\"index\":3,\"refKind\":\"SomethingRef\",\"bind\":3}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\"}}},{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3}}}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "3132d08a-2f4e-4c2b-b5fc-c3a066f645fd",
+ "total_cost_usd": 0.016412,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5932,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 645,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5932,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 645,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5932,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5932
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1253,
+   "outputTokens": 659,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5932,
+   "webSearchRequests": 0,
+   "costUSD": 0.016412,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "3ade3554-13af-4701-af54-8268e98606cf"
+}

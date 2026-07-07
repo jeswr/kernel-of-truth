@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4923,
+ "duration_api_ms": 5758,
+ "ttft_ms": 4872,
+ "ttft_stream_ms": 1020,
+ "time_to_request_ms": 77,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone is a woman or girl; this someone and another person have the same mother or father; they are of one kind of family relation.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WOMAN~GIRL\"}}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:familial-relation\"}},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}}}}}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PERSON\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "a9d37109-7645-44e5-8453-0ec42578f0af",
+ "total_cost_usd": 0.006514,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1567,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 416,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1567,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 416,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1567,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1567
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 790,
+   "outputTokens": 427,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1567,
+   "webSearchRequests": 0,
+   "costUSD": 0.006514,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "25f384b6-79c8-4754-9e2e-21b0692fb907"
+}

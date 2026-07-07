@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5115,
+ "duration_api_ms": 6017,
+ "ttft_ms": 5056,
+ "ttft_stream_ms": 962,
+ "time_to_request_ms": 103,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note violates ERR_GROUNDING_LEXICON: the word 'burning' is a bare content word not in the ALLOWED list, and 'solid' is similarly not allowed. Additionally, 'wax' appears as a bare word in the phrase 'made of {urn:molecule-v0:wax|wax} [m]' \u2014 the gloss 'wax' inside the reference brackets is descriptive text, not a controlled token. The concept candle is grounded in physical substance and chemical process (combustion) that cannot be expressed using only the permitted primitives (thing, people, do, see, happen, move, etc.) plus the available molecule/kernel catalog. The catalog lacks molecule entries for wax, tallow, paraffin, or wick as separate concepts, and lacks a kernel primitive or relational schema for 'burning' or 'combustion'. Restating candle without these material and processual anchors would produce a vacuous or self-referential definition. The everyday sense is fundamentally about a physical artifact whose identity rests on its material composition and flammability \u2014 concepts outside the reach of the current controlled lexicon and catalog depth.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "99cd478d-b863-4766-afe3-ed97358eb9d9",
+ "total_cost_usd": 0.013506,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5457,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 282,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5457,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 282,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5457,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5457
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1122,
+   "outputTokens": 294,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5457,
+   "webSearchRequests": 0,
+   "costUSD": 0.013506,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "0ff2f735-c903-488d-935a-ba70b6d39abf"
+}

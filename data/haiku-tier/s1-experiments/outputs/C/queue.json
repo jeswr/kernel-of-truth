@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5020,
+ "duration_api_ms": 6336,
+ "ttft_ms": 4979,
+ "ttft_stream_ms": 1667,
+ "time_to_request_ms": 440,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft violates multiple gate rules: (1) 'person' is not in the catalog molecules list (only urn:molecule-v0:child, urn:molecule-v0:woman, urn:molecule-v0:man, urn:molecule-v0:mother are available); (2) the grounding note uses bare content words 'front', 'back', and 'line' which are not in ALLOWED and have no {urn|gloss} refs; (3) 'one kind' is not a phrase or allowed construction; (4) 'when someone deals with it' attempts narrative but uses 'deals with' which is not ALLOWED. The everyday sense of queue as a social/organizational structure requires grounding in sequential waiting and first-come-first-served ordering, but the controlled lexicon (limited to primes like MOVE, DO, WANT, BE-SOMEWHERE and basic spatial relations like above/below/near/inside) cannot express 'queue' without either inventing missing content words or over-stretching kernel concepts beyond their semantic range. Queue is fundamentally a human social/institutional structure that lies outside the depth-4 molecule scaffold.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "49bcce5e-35b8-4810-9582-5d944c78e769",
+ "total_cost_usd": 0.013022,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5299,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 279,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5299,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 279,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5299,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5299
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 964,
+   "outputTokens": 292,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5299,
+   "webSearchRequests": 0,
+   "costUSD": 0.013022,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "da073580-e43b-4f6a-9b39-a4458caf654d"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 12470,
+ "duration_api_ms": 13803,
+ "ttft_ms": 12305,
+ "ttft_stream_ms": 967,
+ "time_to_request_ms": 66,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when someone dies, they stop living; after that, their body cannot move or feel; people can feel very bad because of this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},\"bind\":3}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"manner\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}]},\"reason\":{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}},\"restrictedBy\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}}]}}}}]}}\n```\n\nWait \u2014 that last clause has a logical error (an impossible restriction). Let me repair:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"when someone dies, they stop living; after that, their body cannot move or feel; people can feel very bad because of this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}],\"because\":{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}]}}\n```\n\nActually, the BECAUSE operator is correct. Let me output the proper repaired version:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"when someone dies, they stop living; after that, their body cannot move or feel; people feel very bad because of this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"bind\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}]}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "bb02b89b-8a06-4c25-bde9-a346ebac8ed8",
+ "total_cost_usd": 0.020944,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5926,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1555,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5926,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1555,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5926,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5926
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1247,
+   "outputTokens": 1569,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5926,
+   "webSearchRequests": 0,
+   "costUSD": 0.020944,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "ad9f41d4-2e17-4fd9-bef0-6eec93dfd8a0"
+}

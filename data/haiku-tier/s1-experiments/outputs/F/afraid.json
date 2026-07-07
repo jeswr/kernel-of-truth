@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 3696,
+ "duration_api_ms": 4784,
+ "ttft_ms": 3443,
+ "ttft_stream_ms": 1391,
+ "time_to_request_ms": 77,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone feels bad and thinks something bad may happen to them or someone they care about.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":2}}}]}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "a486a93d-6e65-4e37-89b8-d41a31ebadad",
+ "total_cost_usd": 0.013708,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5724,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 229,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5724,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 229,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5724
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1045,
+   "outputTokens": 243,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5724,
+   "webSearchRequests": 0,
+   "costUSD": 0.013708,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "b59fe362-20eb-44dd-8968-09ef9e6738c0"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5993,
+ "duration_api_ms": 6916,
+ "ttft_ms": 5795,
+ "ttft_stream_ms": 907,
+ "time_to_request_ms": 78,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone thinks: a thing is true; this someone does not know it with certainty; because of words or happenings, this someone accepts it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"ClauseRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2,\"bind\":3}}}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":3}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":3}}}}]},{\"type\":\"pred\",\"pred\":\"ACCEPT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":3}}}}]}]}}\n```\n\nWait\u2014I must halt and recheck. The predicate ACCEPT is not in my allowed list. Let me revise.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone thinks: a thing is true; this someone does not know it with certainty; because something is said or happens, this someone comes to think this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"ClauseRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2,\"bind\":3}}}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":3}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"ref\",\"index\":3}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "8a82e867-f4c1-4a18-8413-3f11cb78a0b2",
+ "total_cost_usd": 0.0078701,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1464,
+  "cache_read_input_tokens": 5151,
+  "output_tokens": 735,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1464,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 735,
+    "cache_read_input_tokens": 5151,
+    "cache_creation_input_tokens": 1464,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1464
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 687,
+   "outputTokens": 748,
+   "cacheReadInputTokens": 5151,
+   "cacheCreationInputTokens": 1464,
+   "webSearchRequests": 0,
+   "costUSD": 0.0078701,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "70835b66-847c-4655-9eca-f10a2775764d"
+}

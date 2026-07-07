@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 9417,
+ "duration_api_ms": 10603,
+ "ttft_ms": 9270,
+ "ttft_stream_ms": 1038,
+ "time_to_request_ms": 88,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"a thing that is two or more people saying things to each other, and hearing each other's words, for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"},{\"index\":4,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"conceptHead\",\"id\":\"urn:kernel-v0:conversation\"}}}}},{\"type\":\"pred\",\"pred\":\"WHEN\",\"roles\":{},\"args\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":3},\"time\":{\"kind\":\"ref\",\"index\":4}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]},{\"type\":\"pred\",\"pred\":\"WHEN\",\"roles\":{},\"args\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"time\":{\"kind\":\"ref\",\"index\":4}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":4},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"A-LONG-TIME\"}}}}]}}\n```\n\n**Corrections made:**\n\n1. **Removed self-referential `BE-SPEC`** \u2013 The first clause in the draft defined the thing as \"one thing,\" which violates the rule against self-reference. Removed it entirely.\n2. **Fixed WHEN operator syntax** \u2013 The draft incorrectly nested BE-SOMEWHERE predicates inside WHEN; WHEN takes exactly 2 args (time-clause, main-clause). Restructured to: SAY + HEAR (agent 2\u21923), then SAY + HEAR (agent 3\u21922), each within its own WHEN.\n3. **Simplified time/place handling** \u2013 Removed the redundant and malformed BE-SOMEWHERE clauses; time adjuncts on SAY and HEAR are sufficient.\n4. **Fixed final duration** \u2013 Changed `quant:\"FOR-SOME-TIME\"` (incorrect) to `head: primeHead \"A-LONG-TIME\"` (correct prime filler).\n5. **Removed undeclared referent 4 as a locus** \u2013 The draft used index 4 (TimeRef) in a place role; now index 4 is only used as a time adjunct and in the final BE-SPEC for duration.",
+ "stop_reason": "end_turn",
+ "session_id": "ceeef603-7340-4632-a9df-79927246dfee",
+ "total_cost_usd": 0.017363,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5921,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 774,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5921,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 774,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5921,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5921
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1586,
+   "outputTokens": 787,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5921,
+   "webSearchRequests": 0,
+   "costUSD": 0.017363,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "e7c5e2f7-0ed8-4bf4-ad0b-77fda056bd81"
+}

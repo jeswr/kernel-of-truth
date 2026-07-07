@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4550,
+ "duration_api_ms": 5782,
+ "ttft_ms": 4487,
+ "ttft_stream_ms": 1319,
+ "time_to_request_ms": 352,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does something; before this, it was not happening; this is the first time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"det\":\"SOME\",\"bind\":3}}},{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"kind\":\"ref\",\"index\":3},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "5c20cd03-3bde-4257-9cae-011f79434a03",
+ "total_cost_usd": 0.005182,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1393,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 251,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1393,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 251,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1393,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1393
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 616,
+   "outputTokens": 265,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1393,
+   "webSearchRequests": 0,
+   "costUSD": 0.005182,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "9fcf4308-418b-4b90-9b50-bb573d5cc04d"
+}

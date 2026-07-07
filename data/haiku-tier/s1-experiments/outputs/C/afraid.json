@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7109,
+ "duration_api_ms": 8248,
+ "ttft_ms": 7022,
+ "ttft_stream_ms": 858,
+ "time_to_request_ms": 66,
+ "num_turns": 1,
+ "result": "I'll check this draft against all the mechanical rules.\n\n**Checklist:**\n\n1. **Schema & frame**: WhenTrue \u2713 (property concept; referent 1 = someone who is afraid)\n2. **Referents**: Two referents [1:SomeoneRef, 2:SomethingRef], indices dense \u2713\n3. **Clause count**: 3 clauses \u2264 32 \u2713\n4. **Binding**: Referent 2 introduced with `\"bind\":2` in first HAPPEN clause \u2713; reused as `{\"kind\":\"ref\",\"index\":2}` in third clause \u2713\n5. **Predicate arity**:\n   - FEEL (experiencer*, attribute) \u2014 roles: experiencer (ref 1), attribute (prime BAD) \u2713\n   - THINK (experiencer*, topic, quote) \u2014 used with experiencer (ref 1), complement (clause) \u2713 [complement is a permissible adjunct]\n   - WANT (experiencer*, complement*(clause or SP)) \u2014 roles: experiencer (ref 1), complement (clause with NOT) \u2713\n6. **Operators**: MAYBE(clause) \u2713, NOT(clause) \u2713\n7. **SP structure in second clause**: `{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2}` \u2014 det is \"SOME\" \u2713, prime is \"SOMETHING~THING\" \u2713\n8. **Nesting depth**: pred \u2192 op(MAYBE) \u2192 pred(HAPPEN) \u2192 pred with SP binding = depth ~4, well under 12 \u2713\n9. **Self-reference**: None \u2713\n10. **Catalog refs**: None in explication \u2713\n11. **Quote/temporal anchors**: Not used, not needed \u2713\n\n**Semantic check** against Wiktionary sense:\n- \"afraid\" = experiencer feels bad + thinks bad thing might happen + wants to avoid it. This captures the dominant everyday sense: apprehension about a possible bad event.\n\n**No violations detected.**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this someone feels something bad; they think: something bad may happen; because of this, they want: something does not happen.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":2},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "9f7253e7-6363-47d6-a4ca-fa8a50215a2c",
+ "total_cost_usd": 0.016045,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5380,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 835,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5380,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 835,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5380,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5380
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1045,
+   "outputTokens": 848,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5380,
+   "webSearchRequests": 0,
+   "costUSD": 0.016045,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "7fb353c1-15f1-40d6-9efe-723495e39c4f"
+}

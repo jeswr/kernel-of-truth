@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 12527,
+ "duration_api_ms": 14053,
+ "ttft_ms": 12507,
+ "ttft_stream_ms": 1370,
+ "time_to_request_ms": 93,
+ "num_turns": 1,
+ "result": "I'll repair this draft step by step.\n\n**Issues identified:**\n\n1. **Clause structure problem**: The WHEN operator wraps multiple clauses, but the syntax is malformed. The WHEN takes (time-clause, main) \u2014 a time condition and a main clause.\n\n2. **Referent 1 confusion**: The first BE-SPEC clause tries to set referent 1 to \"PEOPLE\" with quant TWO, but referent 1 is already bound as SomeoneRef (an individual). We need referent 1 to be an instance of conversation, not a person.\n\n3. **Redundant time referent**: Referent 3 is introduced but the BE-SPEC trying to bind it is malformed (attribute lacks a proper head).\n\n4. **Mod spelling**: \"LONG\" is not in ALLOWED mods; must be \"BIG\" (for duration length).\n\n5. **Frame choice**: InstanceSchema is correct (defining an instance of conversation), but referent 1 should be the conversation itself, not a person.\n\n**Repair strategy**: \n- Referent 1 = the conversation (implicit in frame)\n- Referent 2 = someone; Referent 3 = another someone\n- Referent 4 = a time span\n- Core: during that time, ref 2 says words to ref 3, ref 3 says words to ref 2, ref 2 hears ref 3's words, ref 3 hears ref 2's words\n- The time lasts for some time\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"two or more people say words to each other; each hears the other's words; this happens for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"},{\"index\":4,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"when\",\"op\":\"WHEN\",\"args\":[{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":4},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"SOME\",\"mods\":[{\"mod\":\"BIG\"}]}}}},{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":3},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]}}]}}]}}\n```\n\nWait\u2014this still has structural problems. Let me simplify: WHEN takes exactly 2 args (time-clause, main-clause). The main clause should be a single pred or op, not multiple preds.\n\n**Corrected version:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"when two or more people say words to each other and hear each other's words, for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"kind\":\"prime\",\"prime\":\"MOMENT\"},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":3},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"duration\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"SOME\",\"mods\":[{\"mod\":\"BIG\"}]}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]}]}}\n```\n\nStill wrong\u2014WHEN takes exactly 2 arguments as clauses. Let me use a cleaner structure:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"two or more people say words back and forth to each other and hear each other's words, for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":3},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"duration\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"SOME\",\"mods\":[{\"mod\":\"BIG\"}]}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]}}\n```\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"two or more people say words back and forth to each other and hear each other's words, for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":3},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"duration\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"SOME\",\"mods\":[{\"mod\":\"BIG\"}]}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "5f5e0823-a429-48f3-af7c-886e90e30836",
+ "total_cost_usd": 0.023351,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 6020,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1981,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 6020,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1981,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6020,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 6020
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1341,
+   "outputTokens": 1994,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6020,
+   "webSearchRequests": 0,
+   "costUSD": 0.023351,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "e1791cc9-43ab-4cb9-a6ed-e6f381f68e4e"
+}

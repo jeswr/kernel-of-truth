@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 13224,
+ "duration_api_ms": 14164,
+ "ttft_ms": 13158,
+ "ttft_stream_ms": 1173,
+ "time_to_request_ms": 116,
+ "num_turns": 1,
+ "result": "I need to repair this draft definition record for \"raj\" (reign; rule).\n\nLet me analyze the draft against the gate rules:\n\n**Issues found:**\n\n1. **Frame choice**: InstanceSchema is for class concepts (a type of thing). But \"raj\" is fundamentally a **relation** or **state of authority** \u2014 it's about someone having power over people. This should use **WhenTrue** (a property that holds of a situation) or be reconceived entirely.\n\n2. **Semantic structure problem**: The draft tries to say \"someone makes words that people do\" \u2014 but that's garbled. The core of \"raj/reign\" is: **someone rules; people are under/subject to that someone's authority**.\n\n3. **Clause structure**: The third clause has a \"cause\" role, but CAUSE is not a valid role for DO. The DO predicate takes: agent, undergoer, instrument, comitative (plus time/duration/place/manner adjuncts). There is no \"cause\" role.\n\n4. **Missing clarity**: What does \"raj\" fundamentally mean in everyday language? **Rule; the state or fact that someone has power over people and they must obey.** This is a relational property or a state-of-affairs.\n\n**Repair strategy:**\n\nThe dominant everyday sense of \"raj\" is **\"to rule\" or \"rule/reign as a state\"**. The most tractable formalization: use **InstanceSchema** to define \"a raj\" as a situation/arrangement where someone exercises authority; people are subject to that authority.\n\nSimpler approach: **WhenTrue** \u2014 \"it is true that X holds a raj\" means \"X rules; people are under X's authority\".\n\nLet me use **InstanceSchema** (instance of raj) with cleaner clauses:\n- A raj is a situation where someone rules.\n- In this situation, people are under that someone's authority.\n- The someone makes things happen (decisions/orders) that people must do.\n\n**Repaired version:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone rules; people are under that someone's power; that someone makes things that people do.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"locus\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}}}}}]}}\n```\n\nThis says:\n- Clause 1: Someone (ref 1) does/makes some things (ref 2).\n- Clause 2: People do those things (ref 2).\n- Clause 3: People are in/under that someone (ref 1).\n\nAll three clauses are gate-legal. Frame is InstanceSchema (an instance of raj). Referents are dense. No broken roles.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone rules; people are under that someone's power; that someone makes things that people do.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"locus\":{\"kind\":\"sp\",\"det\":\"THE-SAME\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "dc7f8748-d953-4cf7-ada7-28e83aba3fcd",
+ "total_cost_usd": 0.017713,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5614,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1098,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5614,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1098,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5614,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5614
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 935,
+   "outputTokens": 1110,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5614,
+   "webSearchRequests": 0,
+   "costUSD": 0.017713,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "f319a94f-7264-4235-bb41-4cb3f7016232"
+}

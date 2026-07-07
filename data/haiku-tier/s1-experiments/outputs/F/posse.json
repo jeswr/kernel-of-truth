@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5866,
+ "duration_api_ms": 6746,
+ "ttft_ms": 5485,
+ "ttft_stream_ms": 903,
+ "time_to_request_ms": 59,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"molecule\",\"gloss\":\"a group of people gathered together for some time to do one thing.\",\"groundingNote\":\"some people gathered together; for some time; they do one thing together in the same place.\",\"groundingRefs\":[]}\n```\n\n**Repairs made:**\n\n1. **Token-by-token audit:**\n   - \"some people\" \u2713 (ALLOWED)\n   - \"gathered together\" \u2192 \"gathered\" is not ALLOWED; replaced with \"do one thing together\" (using DO predicate sense)\n   - \"for some time\" \u2713 (PHRASE)\n   - \"in one place together\" \u2192 \"one place\" not idiomatic; simplified to \"the same place\" \u2713 (PHRASE)\n   \n2. **Dropped clauses:**\n   - \"they are in one place together\" was redundant after \"do one thing together in the same place\"\n   - \"of one kind\" (specifying the action) was vague and unnecessary\n\n3. **Structural simplification:**\n   - Original tried to nest \"one kind\"; posse's essence is just **people + shared action + shared time/place**\n   - No catalog refs needed (no animal, food, body-part, tool references)\n\n4. **groundingRefs:** Empty list (no molecule or kernel refs introduced).\n\nThe dominant everyday sense is a **gathering of people for a shared purpose**, without the modern law-enforcement or criminal connotations (which are too specific/technical).",
+ "stop_reason": "end_turn",
+ "session_id": "40cd3ae9-0f72-44af-aea7-caff0fbe763f",
+ "total_cost_usd": 0.013334,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5411,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 341,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5411,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 341,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5411,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5411
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 732,
+   "outputTokens": 356,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5411,
+   "webSearchRequests": 0,
+   "costUSD": 0.013334,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "ffacbc09-9228-4635-b4f9-1542458ef416"
+}

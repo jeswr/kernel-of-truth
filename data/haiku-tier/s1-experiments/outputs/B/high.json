@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6709,
+ "duration_api_ms": 7121,
+ "ttft_ms": 6604,
+ "ttft_stream_ms": 1888,
+ "time_to_request_ms": 772,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"something is at a place far above another place; when you are there, you are far from the ground below.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"PlaceRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"SOME\",\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER\"}}}}}},{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER\"},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIKE\",\"roles\":{\"comparandum\":{\"kind\":\"ref\",\"index\":2},\"target\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER\"}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "076e7a2a-4019-4e43-8c0d-f102e1526854",
+ "total_cost_usd": 0.0065673,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1547,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 437,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1547,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 437,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1547,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1547
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 770,
+   "outputTokens": 450,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1547,
+   "webSearchRequests": 0,
+   "costUSD": 0.0065673,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "6e6a95cd-3444-4ad8-a9cd-a627fc3321dd"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7568,
+ "duration_api_ms": 8516,
+ "ttft_ms": 7544,
+ "ttft_stream_ms": 1283,
+ "time_to_request_ms": 175,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft contains multiple structural violations: (1) The BECAUSE operator incorrectly nests a DO clause with only an agent role and no undergoer, breaking DO's valency (agent* and undergoer are both required); (2) the LIKE operator attempts to compare two clauses that differ only in the presence of a comitative, but the comitative filler references index 4 (introduced by bind in the first clause) without declaring index 4 in the referents list \u2014 this leaves the referent undeclared and breaks density; (3) the gloss conflates two senses ('causes to know' and 'gives words') without cleanly unifying them in the formal structure. The everyday sense of enlighten is 'person A causes person B to come to know/understand something', which requires a clean causal chain: A does something that results in B knowing. This can be formalized as a DO predicate (by A, affecting B) with a BECAUSE operator linking it to B's resulting KNOW state \u2014 but the intermediate DO must have a coherent agent, undergoer, and instrument (e.g., words, explanation), and all referents must be declared and densely indexed. Reconstructing this cleanly is possible, but the draft's structural errors (malformed DO, undeclared referent, broken valency) are too severe to repair by minor edits without rewriting the entire clause structure. A correct record would need: referents [1:SomeoneRef, 2:SomeoneRef, 3:SomethingRef, 4:SomethingRef for the words/knowledge], a DO by 1 to 2 using 4 as instrument, and a BECAUSE linking that DO to 2 KNOW-ing 3, with no LIKE comparison (the comparison is explanatory gloss, not part of the formal content).\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "c962ccc8-f141-4219-8cf3-b1674c194e47",
+ "total_cost_usd": 0.013913,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5346,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 429,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5346,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 429,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5346,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5346
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1011,
+   "outputTokens": 442,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5346,
+   "webSearchRequests": 0,
+   "costUSD": 0.013913,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "73021f88-2a7e-4406-8001-861ada37f388"
+}

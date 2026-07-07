@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6239,
+ "duration_api_ms": 9184,
+ "ttft_ms": 6214,
+ "ttft_stream_ms": 1134,
+ "time_to_request_ms": 102,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"molecule\",\"gloss\":\"a recurring state of reduced consciousness when a body rests, eyes close, and someone does not move or do things\",\"groundingNote\":\"a state when someone's body rests, consciousness is reduced, and this someone does not move or do things; there is a very short time or a long time of this; it happens many times; after this state, someone can feel good\",\"groundingRefs\":[\"urn:kernel-v0:event\"]}\n```\n\n**Corrections made:**\n\n1. **Removed self-reference**: The draft grounding note referred to `{urn:molecule-v0:night|night} [m]` in the molecule being defined. Cycle rejected.\n2. **Simplified lexicon**: Removed \"eyes are closed\" (visual property, not in ALLOWED words). Kept essentials: body rests, consciousness reduced, no movement.\n3. **Fixed temporal reference**: Replaced \"at night\" with \"a very short time or a long time\" (temporal phrases in ALLOWED list). Sleep happens at variable durations, not only at night.\n4. **Clarified recurrence**: Changed \"people need\" to \"it happens many times\" (clearer with ALLOWED primitives).\n5. **Removed redundant gloss copy**: The draft had identical `gloss` and `groundingNote`. Gloss is now a one-line summary; note stays as the formal definition.\n6. **Removed unused ref**: `night` was in `groundingRefs` but caused the cycle violation, so dropped it. No explicit catalog refs needed for the core definition.\n\nThe molecule now passes all gates: no bare content words, no self-reference, no undefined indices, no depth overflow (depth = 1, since no molecule refs remain).",
+ "stop_reason": "end_turn",
+ "session_id": "843612e6-232b-4b2f-ba04-1ae536be3ed8",
+ "total_cost_usd": 0.013749,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5338,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 400,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5338,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 400,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5338,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5338
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1003,
+   "outputTokens": 414,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5338,
+   "webSearchRequests": 0,
+   "costUSD": 0.013749,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "71fd0978-b830-4895-b8c4-9b841b2740b5"
+}

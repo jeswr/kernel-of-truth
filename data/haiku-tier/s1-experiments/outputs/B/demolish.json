@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 9100,
+ "duration_api_ms": 8191,
+ "ttft_ms": 9031,
+ "ttft_stream_ms": 3916,
+ "time_to_request_ms": 2997,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does something to a thing so that it breaks into many parts; after this, the thing is not the way it was before; because of this doing, the thing cannot be used in the same way.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"quant\":\"MANY\",\"mods\":[{\"mod\":\"SMALL\"}]}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"det\":\"THE-SAME\"}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"manner\":{\"kind\":\"sp\",\"det\":\"THE-SAME\"}}}]}]}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "b1e93814-e1f1-401f-a673-2ffa4c1ca8f2",
+ "total_cost_usd": 0.0066973,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1477,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 505,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1477,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 505,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1477,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1477
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 700,
+   "outputTokens": 518,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1477,
+   "webSearchRequests": 0,
+   "costUSD": 0.0066973,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "809767c9-804d-488d-b056-6adaac7d21d4"
+}

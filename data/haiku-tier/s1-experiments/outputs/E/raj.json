@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5268,
+ "duration_api_ms": 6384,
+ "ttft_ms": 5241,
+ "ttft_stream_ms": 1364,
+ "time_to_request_ms": 65,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"molecule\",\"gloss\":\"rule by one person over many people; the time when this happens.\",\"groundingNote\":\"one person makes things happen for many people; there is a time; at this time, many people do what this someone wants; this someone is above the other people.\",\"groundingRefs\":[]}\n```\n\n**Corrections made:**\n\n1. **Removed \"one person is someone\"** \u2014 tautological and violates the closed lexicon (bare content word \"person\" without a proper head structure).\n2. **Removed \"because this someone is like this, the other people are not above this someone\"** \u2014 circular reasoning and uses \"like\" in a non-ALLOWED way (it's for comparison of SPs/clauses only, not for attribute description).\n3. **Simplified to core semantic payload:** someone (frame-implicit agent) makes things happen for many people; there exists a time; at that time, many people do what the agent wants; the agent is above (has authority over) the people.\n4. **Kept groundingRefs empty** \u2014 the note uses only ALLOWED words and primes; no catalog references needed.\n\nThe record now passes the gate: lowercase, NFC, all tokens in the closed lexicon, no self-reference, no undeclared molecules.",
+ "stop_reason": "end_turn",
+ "session_id": "412607d3-7989-4420-a1c5-c5155ffb4fe9",
+ "total_cost_usd": 0.01237,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5060,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 292,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5060,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 292,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5060,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5060
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 725,
+   "outputTokens": 305,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5060,
+   "webSearchRequests": 0,
+   "costUSD": 0.01237,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "b2ff35c6-7ef4-4b1a-8afe-75f581e7719f"
+}

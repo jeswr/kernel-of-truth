@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4258,
+ "duration_api_ms": 4954,
+ "ttft_ms": 4229,
+ "ttft_stream_ms": 1293,
+ "time_to_request_ms": 434,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note contains multiple violations of the closed lexicon rule. Bare content words 'thick', 'hard', 'material', 'top', 'bottom', 'left', 'right', 'foot', 'protect' appear without being in the ALLOWED list or declared as references. While 'shoe' is a concrete everyday object, grounding it requires spatial/material descriptors ('thick', 'hard', 'sole', 'upper', 'leather', 'synthetic') that are not available in the controlled vocabulary. The ALLOWED list lacks the granularity needed to describe footwear construction (materials, structural parts, fit). The concept cannot be legally formalized without either expanding the lexicon to include material and anatomical terms, or treating it as a molecule that must anchor to a kernel concept \u2014 but no kernel concept for shoe exists in the catalog. Honest assessment: this concept requires technical/material grounding the current catalog cannot provide.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "36ac3415-7022-40ff-b18a-f329d656d2b9",
+ "total_cost_usd": 0.012734,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5288,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 228,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5288,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 228,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5288,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5288
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 953,
+   "outputTokens": 241,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5288,
+   "webSearchRequests": 0,
+   "costUSD": 0.012734,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "5d50a3e9-4aed-498a-a1cf-9257b0387826"
+}

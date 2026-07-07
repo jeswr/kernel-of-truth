@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 8804,
+ "duration_api_ms": 9739,
+ "ttft_ms": 8733,
+ "ttft_stream_ms": 912,
+ "time_to_request_ms": 71,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"two or more people say things to each other at some time; each person hears what the other says; this happens for some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"},{\"index\":4,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"quant\":\"ONE\"}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PLACE\"},\"det\":\"SOME\",\"bind\":4},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"bind\":4}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"addressee\":{\"kind\":\"ref\",\"index\":3},\"time\":{\"kind\":\"ref\",\"index\":4}}}]},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PLACE\"},\"det\":\"SAME\"},\"time\":{\"kind\":\"ref\",\"index\":4}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"time\":{\"kind\":\"ref\",\"index\":4}}}]},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"locus\":{\"kind\":\"ref\",\"index\":4},\"time\":{\"kind\":\"ref\",\"index\":4}}},{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"addressee\":{\"kind\":\"ref\",\"index\":2},\"time\":{\"kind\":\"ref\",\"index\":4}}}]},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"locus\":{\"kind\":\"ref\",\"index\":4},\"time\":{\"kind\":\"ref\",\"index\":4}}},{\"type\":\"pred\",\"pred\":\"HEAR\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"stimulus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}},\"time\":{\"kind\":\"ref\",\"index\":4}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":4},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"quant\":\"FOR-SOME-TIME\"}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "ca2980be-f031-4035-95c6-26d4d328d03b",
+ "total_cost_usd": 0.0084621,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1548,
+  "cache_read_input_tokens": 5151,
+  "output_tokens": 803,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1548,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 803,
+    "cache_read_input_tokens": 5151,
+    "cache_creation_input_tokens": 1548,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1548
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 771,
+   "outputTokens": 816,
+   "cacheReadInputTokens": 5151,
+   "cacheCreationInputTokens": 1548,
+   "webSearchRequests": 0,
+   "costUSD": 0.0084621,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "74f3dad7-5da0-4e9c-b933-b79667240eb8"
+}

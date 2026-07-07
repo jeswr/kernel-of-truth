@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4579,
+ "duration_api_ms": 5574,
+ "ttft_ms": 4531,
+ "ttft_stream_ms": 1328,
+ "time_to_request_ms": 74,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone lives now; the body can move; this someone can feel something.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "c8b5e291-2357-4a76-a6a2-f0e7677d497c",
+ "total_cost_usd": 0.0058891,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1657,
+  "cache_read_input_tokens": 5151,
+  "output_tokens": 223,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1657,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 223,
+    "cache_read_input_tokens": 5151,
+    "cache_creation_input_tokens": 1657,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1657
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 880,
+   "outputTokens": 236,
+   "cacheReadInputTokens": 5151,
+   "cacheCreationInputTokens": 1657,
+   "webSearchRequests": 0,
+   "costUSD": 0.0058891,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "b9716df3-ab04-4726-bbf4-cf7ca828d147"
+}

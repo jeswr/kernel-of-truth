@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4189,
+ "duration_api_ms": 5753,
+ "ttft_ms": 4162,
+ "ttft_stream_ms": 1104,
+ "time_to_request_ms": 75,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"the state when someone lives and their body can move and feel.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]}]}}\n```\n\n**Changes made:**\n1. Removed `\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}` from the LIVE clause \u2014 the WhenTrue frame already establishes present evaluation; adding NOW as an adjunct is redundant and violates clarity.\n2. Simplified the gloss to omit \"now\" (implied by WhenTrue frame) and clarify that \"life\" is the state itself, not a present-moment assertion.\n3. Kept the three core semantic primitives: LIVE (the defining property), ability to MOVE (characteristic of animate matter), and capacity to FEEL (distinguishing organisms from mechanisms). This captures the everyday sense: the condition of being alive = being a living body that can act and sense.",
+ "stop_reason": "end_turn",
+ "session_id": "125ed63e-0599-4c86-a041-5ef6fa3d5b2c",
+ "total_cost_usd": 0.013915,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5450,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 366,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5450,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 366,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5450,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5450
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1115,
+   "outputTokens": 380,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5450,
+   "webSearchRequests": 0,
+   "costUSD": 0.013915,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "dc386dae-52dd-4f68-a634-b1e2bb60b86f"
+}

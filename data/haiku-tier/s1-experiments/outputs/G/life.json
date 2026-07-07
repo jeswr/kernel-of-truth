@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4201,
+ "duration_api_ms": 6203,
+ "ttft_ms": 4174,
+ "ttft_stream_ms": 909,
+ "time_to_request_ms": 81,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"the state of being alive: something can move, feel, and do things now; before it was not alive; after it will not be alive.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:alive\"}},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:alive\"}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:dead\"}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "7547b21b-67b1-4dc7-b44f-024063c81038",
+ "total_cost_usd": 0.015888,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 6089,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 447,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 6089,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 447,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6089,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 6089
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1410,
+   "outputTokens": 460,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6089,
+   "webSearchRequests": 0,
+   "costUSD": 0.015888,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "4b1039fa-5ec8-454f-839c-cd53ac296bec"
+}

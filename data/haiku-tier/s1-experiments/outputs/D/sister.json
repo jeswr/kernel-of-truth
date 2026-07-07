@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 15513,
+ "duration_api_ms": 16345,
+ "ttft_ms": 15466,
+ "ttft_stream_ms": 1071,
+ "time_to_request_ms": 76,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone is a woman or girl; this someone shares one parent or two parents with another someone; that other someone is also a person.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"conceptHead\",\"id\":\"urn:kernel-v0:woman\"}}}},{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"ONE\",\"bind\":3},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"det\":\"THE-SAME\"}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"}}}},{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"ONE\"},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"GOOD\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}}]}]}}\n```\n\nWait \u2014 let me reconsider. The definition is fundamentally relational: a sister *is a woman who shares parents with another person*. This is a RelationalSchema concept (two referents: the sister, the sibling).\n\nRe-reading the rules: \"RelationalSchema\" gives you referents 1,2 implicitly (subject and object). So referent 1 = the sister, referent 2 = the other sibling. Both frame-implicit.\n\nThe core facts:\n- Referent 1 (the sister) is a woman.\n- Referent 1 and referent 2 share one or two parents.\n\nBut \"share parents\" is tricky. I need to express: \"there exist parent(s), and both 1 and 2 have them.\" Using HAVE or possession is not allowed. I must use \"there is X, it is a part of Y\" style or IS-MINE, or kernel concepts like urn:kernel-v0:has-part.\n\nActually, kinship (parent, sister) is a relational concept. Let me check: is \"parent\" or \"father\"/\"mother\" in the kernel? The catalog shows urn:kernel-v0:mother but not general parent. However, I cannot use bare \"mother\" or \"father\" \u2014 they're not in ALLOWED or molecules without catalog entry.\n\nLet me reconsider the route: can I express \"sister\" as a molecule instead? The dominant sense is a kinship relation. Kinship is inherently relational, but the molecule route allows me to ground it. However, a molecule requires ONE anchor concept (a thing, not a relation). A molecule for \"sister\" would need to say \"a {woman} of one kind, related to another someone in this way...\" but the relational structure is the core meaning, not a property of the woman.\n\nThis is genuinely relational. I should use **RelationalSchema**.\n\nFor the parents-sharing: I'll use kernel concepts. The catalog includes urn:kernel-v0:has-part and urn:kernel-v0:part-of. I could reframe: \"both referent 1 and 2 have parent(s) in common\" \u2014 but HAVE is disallowed. \n\nLet me use a different approach: bind a third referent for \"parent\" (a SomeoneRef), and state:\n- Referent 1 is a woman.\n- There is someone (referent 3, a parent).\n- Referent 3 is a parent to referent 1.\n- Referent 3 is a parent to referent 2.\n\nBut \"parent\" is not a prime; it's a kernel concept. And I cannot express \"X is parent to Y\" with the available predicates \u2014 there's no predicate for kinship relations in the kt-ast schema.\n\n**This is the crux:** the encoder has no predicate for kinship relations (parent, sibling). The available predicates are DO, HAPPEN, MOVE, THINK, KNOW, WANT, DON'T-WANT, FEEL, SEE, HEAR, SAY, TRUE, BE-SOMEWHERE, THERE-IS, BE-SPEC, IS-MINE, LIVE, DIE. None of these can express \"X is the parent of Y\" or \"X and Y share a parent.\"\n\nGiven this structural limitation, and the fact that kinship relations are culture-bound and require predicates not in the profile-1 grammar, **cannot-formalise** is the honest answer.\n\n```json\n{\"kind\":\"cannot-formalise\",\"why\":\"sister is fundamentally a kinship relation: a woman who shares parents with another person. the profile-1 explication grammar has no predicate for kinship relations (parent, sibling, ancestor). the available predicates (DO, HAPPEN, MOVE, THINK, KNOW, WANT, FEEL, SEE, HEAR, SAY, BE-SPEC, LIVE, DIE, etc.) cannot express the core meaning. expressing it as a molecule would require grounding the relational structure in non-relational terms, which loses the essential content. kinship belongs to the anthropology sector, not the semantic-primitive tier.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "a864ed4e-e31d-41c3-a47e-72ced5988870",
+ "total_cost_usd": 0.0112541,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1567,
+  "cache_read_input_tokens": 5151,
+  "output_tokens": 1352,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1567,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1352,
+    "cache_read_input_tokens": 5151,
+    "cache_creation_input_tokens": 1567,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1567
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 790,
+   "outputTokens": 1363,
+   "cacheReadInputTokens": 5151,
+   "cacheCreationInputTokens": 1567,
+   "webSearchRequests": 0,
+   "costUSD": 0.0112541,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "07be52ee-2488-418d-b363-cf084eada5b9"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5591,
+ "duration_api_ms": 6608,
+ "ttft_ms": 5566,
+ "ttft_stream_ms": 816,
+ "time_to_request_ms": 85,
+ "num_turns": 1,
+ "result": "I'll repair this step by step, fixing the JSON syntax error and validating the structure against the gate rules.\n\n**Diagnosis of ERR_JSON:**\nPosition 1245 is in the second DO clause's \"topic\" role. The nested clause structure is malformed \u2014 \"topic\" is not a valid role for DO (valency: agent*, undergoer, instrument, comitative). This should be dropped.\n\n**Semantic repair:**\nThe dominant everyday sense of \"cunning\" is: *a disposition or skill to achieve one's wants through indirect, concealed means that others don't easily detect*. Simpler framing:\n\n1. Someone has skill (knows how to do something).\n2. They use it in a hidden/indirect way.\n3. Others don't easily see what they truly want.\n4. The cunning person feels good about this approach.\n\n**Corrected explication:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"the disposition to know how to do something in a way that hides what one truly wants from others.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\"},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"THIS\"},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER~ELSE~ANOTHER\"}}}}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\"},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\"}},\"comitative\":{\"kind\":\"clause\",\"clause\":{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"},\"quant\":\"SOME\",\"bind\":2},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"mods\":[{\"mod\":\"GOOD\"}]},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "d13111c3-3f38-428f-9ce3-4f4f250ceefb",
+ "total_cost_usd": 0.017289,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 6116,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 708,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 6116,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 708,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6116,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 6116
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1437,
+   "outputTokens": 724,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6116,
+   "webSearchRequests": 0,
+   "costUSD": 0.017289,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "b184c347-a425-4d02-a0c0-e47312c5e583"
+}

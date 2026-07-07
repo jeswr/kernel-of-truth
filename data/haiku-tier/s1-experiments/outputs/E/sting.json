@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5565,
+ "duration_api_ms": 6490,
+ "ttft_ms": 5505,
+ "ttft_stream_ms": 1032,
+ "time_to_request_ms": 91,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note violates ERR_GROUNDING_LEXICON: it contains bare content words 'pointed', 'part', 'puncture', 'touches', 'sharp', 'pain', 'bump', 'skin' that are not in the ALLOWED lexicon, and it references urn:molecule-v0:skin which does not exist in the catalog. The concept 'sting' has multiple senses (noun: the organ; noun: the wound; noun: the sensation; verb: to wound; verb: to cause pain). The noun senses require grounding in body-part anatomy and injury that the current allowed lexicon and molecule catalog cannot express without violating the closed lexicon rule. A legal formalization would need either: (a) skin and wound as catalog molecules, (b) expansion of ALLOWED to include body-part and injury predicates, or (c) downgrade to verb sense 'to cause harm', which maps to kernel {urn:kernel-v0:cause} + bad but loses the everyday sting-specific meaning (the venom, the localized puncture, the bump). The dominant everyday sense conflates instrument, action, and sensation in a way that cannot be separated into primitive clauses without content-word violations.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "8d793788-29d3-4417-bff2-2970270d84b3",
+ "total_cost_usd": 0.012914,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5233,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 297,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5233,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 297,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5233,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5233
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 898,
+   "outputTokens": 310,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5233,
+   "webSearchRequests": 0,
+   "costUSD": 0.012914,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "53f0fd35-cc78-47c4-b797-392580d21da7"
+}

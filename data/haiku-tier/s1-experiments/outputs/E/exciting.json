@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7784,
+ "duration_api_ms": 8962,
+ "ttft_ms": 7712,
+ "ttft_stream_ms": 1118,
+ "time_to_request_ms": 92,
+ "num_turns": 1,
+ "result": "I'll check this draft against the mechanical rules.\n\n**Analysis of the draft:**\n\n1. **Frame and referents**: WhenTrue frame with referent 1 (SomethingRef) \u2014 correct for a property concept.\n\n2. **Clause 1 (DO clause)**:\n   - `\"agent\":{\"kind\":\"ref\",\"index\":1}` \u2014 correct, refers to the thing being exciting\n   - `\"undergoer\":{\"kind\":\"sp\"...,\"quant\":\"MANY\"}` \u2014 introduces PEOPLE, correct\n   - `\"adjuncts\":{\"cause\":...}` \u2014 **PROBLEM**: \"cause\" is not a valid adjunct role. Valid adjuncts are: time, duration, place, manner. This adjunct is malformed.\n\n3. **Clause 2 (WANT clause)**:\n   - Uses PEOPLE without binding (should introduce it once with bind, then use ref)\n   - The nested structure is deep but within limits\n\n4. **Core semantic issue**: The draft tries to express two independent thoughts via adjunct, which is not valid. The \"cause\" relation needs to be expressed as a separate BECAUSE operator or integrated differently.\n\n**Corrected version:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this something causes people to feel something good and want to know what will happen next.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER\"},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}}}}}}}}]}}\n```\n\n**Key fixes**:\n- Replaced invalid \"cause\" adjunct with BECAUSE operator (valid gate)\n- Introduced referent 2 (SomeoneRef for \"people\") with proper bind and re-use\n- Kept the nested WANT \u2192 KNOW \u2192 HAPPEN structure\n- Preserved core meaning: thing causes people to feel good AND want to anticipate what happens\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this something causes people to feel something good and want to know what will happen next.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}}}]},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER\"},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}}}}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "b50c8acc-c2eb-40ec-a0f8-a3952bf1c66d",
+ "total_cost_usd": 0.016757,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5329,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1007,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5329,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1007,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5329,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5329
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 994,
+   "outputTokens": 1021,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5329,
+   "webSearchRequests": 0,
+   "costUSD": 0.016757,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "fe915a15-89ec-4057-b566-a4bfa0a7e691"
+}

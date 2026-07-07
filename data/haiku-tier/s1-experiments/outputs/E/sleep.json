@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 16306,
+ "duration_api_ms": 17691,
+ "ttft_ms": 16276,
+ "ttft_stream_ms": 1010,
+ "time_to_request_ms": 66,
+ "num_turns": 1,
+ "result": "I'll check this draft against all the gate rules systematically.\n\n## Rule-by-rule analysis\n\n**Molecule grounding notes (\u00a73.5):** Not applicable \u2014 this is an explication, not a molecule.\n\n**Explication structure (\u00a74):**\n\n1. **Schema & frame:** `\"kot-ast/1\"` \u2713, `\"InstanceSchema\"` \u2713 (sleep is a class concept; referent 1 is an arbitrary sleeper).\n\n2. **Referents:** `[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"}]`\n   - Index 1 (SomeoneRef): frame-implicit, OK.\n   - Index 2 (TimeRef): must have exactly one introducing occurrence with `\"bind\":2`.\n   - **VIOLATION FOUND:** Clause 1 has `\"bind\":2` on an SP with head `SOMETHING~THING`, but referent 2 is declared as `TimeRef`. The binding declares referent 2 as a TIME, but it's being introduced as a SOMETHING. This is a **type mismatch**.\n   - Later uses of index 2 in WHEN operators treat it as a time correctly, but the introduction is wrong.\n\n3. **Clause 1 issues:**\n   - `BE-SPEC` with `undergoer` (ref 1), `attribute` (SP binding ref 2), `time` (temporal BEFORE NOW).\n   - The attribute is described as \"a kind of thing that is good\" \u2014 but binding it to a TimeRef is contradictory.\n   - This clause doesn't establish sleep as a **state/activity** or a **time period**; it reads like \"someone is a good something.\"\n\n4. **Clause 2 issues:**\n   - `LIVE undergoer:ref-1 time:NOW` \u2014 states someone lives now. This is tangential and doesn't define sleep.\n\n5. **Clauses 3\u20134 (WHEN operators):**\n   - Clause 3: `WHEN(HAPPEN(ref-2), NOT(MOVE(BODY, manner:BIG)))` \u2014 \"when [time-2] happens, the body does not move much.\" Logically sound if ref-2 is a TimeRef.\n   - Clause 4: `WHEN(HAPPEN(ref-2), NOT(KNOW(...)))` \u2014 \"when [time-2] happens, [someone] does not know things around here.\" Logically sound.\n\n**Core problems:**\n\n1. **Referent 2 type mismatch:** Declared `TimeRef` but introduced as `SomethingRef` (via the SP head `SOMETHING~THING`). Should be introduced as a **time descriptor**.\n2. **Clause 1 doesn't fit:** `BE-SPEC` trying to bind a time to an attribute slot is incoherent. The clause should define sleep as a state/activity, not assert someone \"is\" something.\n3. **Missing core semantic:** The draft never states that sleep is a **state of reduced consciousness** or a **periodic need/activity**. It only describes symptoms (not moving, not knowing things).\n\n## Corrected record\n\nThe dominant sense is: sleep is a recurring state of reduced consciousness during which the body rests and doesn't respond to the environment. I'll reframe:\n\n- Referent 1: SomeoneRef (the sleeper)\n- Referent 2: TimeRef (a sleep period, introduced cleanly)\n- Core clauses: define sleep as a time-period when consciousness is reduced, movement ceases, and sensory awareness is blocked.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone enters a state of reduced consciousness at certain times in a rhythm; during each such time the body moves little and the person does not know things happening around them.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}]}]},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"OTHER~ELSE~ANOTHER\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"locus\":{\"kind\":\"prime\",\"prime\":\"HERE\"}}}}}}]}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "1b71c067-8c69-425b-8891-fb509801bccb",
+ "total_cost_usd": 0.019668,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5736,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1345,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5736,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1345,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5736,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5736
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1401,
+   "outputTokens": 1359,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5736,
+   "webSearchRequests": 0,
+   "costUSD": 0.019668,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "d78fd320-8976-45db-98a8-b6216c9aef1d"
+}

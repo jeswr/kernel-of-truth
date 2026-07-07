@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5127,
+ "duration_api_ms": 6445,
+ "ttft_ms": 4996,
+ "ttft_stream_ms": 2008,
+ "time_to_request_ms": 85,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone thinks something is true, not knowing it for certain, because of words or what they saw.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"quant\":\"SOME\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"}}}}}]},{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "e157255a-ff6f-4180-8593-e2558369d789",
+ "total_cost_usd": 0.014742000000000002,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5767,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 410,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5767,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 410,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5767,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5767
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1088,
+   "outputTokens": 424,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5767,
+   "webSearchRequests": 0,
+   "costUSD": 0.014742000000000002,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "79ad9e99-85d5-418c-9677-3632be6f3111"
+}

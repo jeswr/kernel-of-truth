@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6820,
+ "duration_api_ms": 8034,
+ "ttft_ms": 6792,
+ "ttft_stream_ms": 869,
+ "time_to_request_ms": 63,
+ "num_turns": 1,
+ "result": "I'll repair this molecule record step by step.\n\n**Analysis of the DRAFT:**\n\n1. **Grounding note word-by-word check:**\n   - \"someone does this: a piece of\" \u2713 (ALLOWED)\n   - \"{urn:molecule-v0:clothes|clothes} [m]\" \u2713 (molecule ref with [m])\n   - \"moves onto the body\" \u2014 \"onto\" is NOT in ALLOWED; \"body\" is NOT in the catalog\n   - \"after this, the clothing covers\" \u2014 \"after\" \u2713, \"this\" \u2713, but \"covers\" is NOT in ALLOWED\n   - \"because someone does this, the clothing is on the body\" \u2014 \"because\" \u2713, \"is on\" \u2713, but \"body\" again (not in catalog)\n\n2. **Content word problems:**\n   - \"body\" is not in the ALLOWED list and there is no {urn:molecule-v0:body} in the catalog (only `body` as a prime BODIES in SPs)\n   - \"onto\" is not ALLOWED (only \"to\", \"into\", \"on\", \"at\", \"with\", \"in\", \"out\", \"of\", \"from\", \"toward/about\")\n   - \"covers\" is not ALLOWED (only moves, touches, says, do/does/did, happen/happens/happened, is/are/was/were, be/being/been)\n\n3. **Repair strategy:**\n   - Use \"touches\" instead of \"covers\" (an article of clothing touching a part of someone is the observable content)\n   - Replace \"body\" with \"someone\" (the person wearing the clothing)\n   - Use \"on\" instead of \"onto\"\n   - Simplify to stay within ALLOWED vocabulary and the closed lexicon\n\n**Repaired note:**\n\n```json\n{\"kind\":\"molecule\",\"gloss\":\"to put on clothing; someone moves clothing onto their body.\",\"groundingNote\":\"someone moves {urn:molecule-v0:clothes|clothes} [m]; the clothes touch someone; after this, the clothes are on someone.\",\"groundingRefs\":[\"urn:molecule-v0:clothes\"]}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "fa7de7f7-7d79-410c-9900-37d0d417321b",
+ "total_cost_usd": 0.014396,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5495,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 502,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5495,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 502,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5495,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5495
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 816,
+   "outputTokens": 518,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5495,
+   "webSearchRequests": 0,
+   "costUSD": 0.014396,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "b08be9b6-c6e1-4e7a-ab80-12b3b7a8a292"
+}

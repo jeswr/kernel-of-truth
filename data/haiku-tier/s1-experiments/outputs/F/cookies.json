@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7766,
+ "duration_api_ms": 8720,
+ "ttft_ms": 7728,
+ "ttft_stream_ms": 1224,
+ "time_to_request_ms": 99,
+ "num_turns": 1,
+ "result": "I need to repair this molecule record for \"cookies\" by checking it against the gate rules.\n\n**Analysis of the draft:**\n\n1. **Grounding note check (word by word):**\n   - \"a kind of food made from flour, sugar, and fat; people do something to it with {urn:molecule-v0:fire|fire} [m]; it is good to eat; many people eat these things at many times\"\n   - Problem: \"flour\", \"sugar\", \"fat\" are NOT in ALLOWED and are NOT catalog concepts. These are content words that fail the lexicon gate (ERR_GROUNDING_LEXICON).\n   - \"fire\" is correctly a molecule ref with [m].\n   - \"good\", \"eat\", \"people\", \"many\", \"things\", \"time/times\" are ALLOWED.\n\n2. **Core issue:** The draft tries to name ingredients (flour, sugar, fat) which aren't in the catalog and can't be expressed with ALLOWED words alone. However, the repair rule says: *for EVERY everyday thing, a simpler, shorter, gate-legal note is better than abstaining*. \n\n3. **Repair strategy:** Drop the ingredient specifics. Express \"cookies\" as:\n   - A kind of food\n   - Made/created with heat/fire\n   - Sweet (uses \"good\" from ALLOWED)\n   - People eat it\n   - Soft or firm texture can be captured via form/state but \"crisp\", \"crunchy\", \"chewy\" aren't available\u2014drop these details.\n\n4. **Depth check:** fire is d1, so new molecule depth = 1 + 1 = d2. \u2713\n\n**Repaired note:**\n\"a kind of {urn:molecule-v0:food|food} [m]; people make it with {urn:molecule-v0:fire|fire} [m]; it is good; people eat it\"\n\n**Gate check:**\n- All tokens in ALLOWED, PHRASES, or catalog refs \u2713\n- [m] markers on molecule refs \u2713\n- Lowercase \u2713\n- No invented concepts \u2713\n- Refs in catalog \u2713\n- Depth = 1 + max(3, 1) = 2 \u2713\n\n```json\n{\"kind\":\"molecule\",\"gloss\":\"a sweet food made by baking with heat; eaten by people\",\"groundingNote\":\"a kind of {urn:molecule-v0:food|food} [m]; people make it with {urn:molecule-v0:fire|fire} [m]; it is good; people eat it\",\"groundingRefs\":[\"urn:molecule-v0:food\",\"urn:molecule-v0:fire\"]}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "1219c84c-aca4-401f-b2e6-2f840d7915e8",
+ "total_cost_usd": 0.015254,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5581,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 624,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5581,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 624,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5581,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5581
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 902,
+   "outputTokens": 638,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5581,
+   "webSearchRequests": 0,
+   "costUSD": 0.015254,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "012a8f14-ccde-45ca-a9d7-638614933de6"
+}

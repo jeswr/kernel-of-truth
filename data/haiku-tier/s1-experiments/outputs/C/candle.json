@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5166,
+ "duration_api_ms": 6197,
+ "ttft_ms": 5128,
+ "ttft_stream_ms": 1047,
+ "time_to_request_ms": 130,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note violates ERR_GROUNDING_LEXICON in multiple ways: 'thing', 'part', 'inside', 'burning', 'burns', 'makes', 'see', 'smaller' are not in the ALLOWED word list. The note also uses bare content words ('wax', 'fire', 'light') outside of proper {urn|gloss} [m] reference syntax in several positions. While 'candle' has a clear everyday sense (light-source made of wax with a wick), expressing it in the closed controlled lexicon without access to molecule references for 'wax', 'wick', or 'burning' as actions, and without ALLOWED words like 'burn', 'flame', or 'container', makes a gate-legal grounding note impossible. The concept would need either: (a) 'wax', 'wick', 'tallow', and 'burn' as catalog molecules, or (b) a richer ALLOWED word set that includes sensory and material predicates. Under current constraints, no compliant formalization exists.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "912c3e5f-13dc-4855-90df-e43b8acffc89",
+ "total_cost_usd": 0.01363,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5515,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 269,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5515,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 269,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5515,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5515
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1180,
+   "outputTokens": 284,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5515,
+   "webSearchRequests": 0,
+   "costUSD": 0.01363,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "c143e3c4-82ea-42cd-ac88-f9f8426fb61d"
+}

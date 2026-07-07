@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 11957,
+ "duration_api_ms": 13361,
+ "ttft_ms": 11910,
+ "ttft_stream_ms": 982,
+ "time_to_request_ms": 58,
+ "num_turns": 1,
+ "result": "I need to check this draft against all the mechanical rules.\n\n**Checking referents and binding:**\n- Referent 1 (SomeoneRef): the agent doing the enlightening \u2713\n- Referent 2 (SomeoneRef): the person being enlightened \u2713\n- Referent 3 (SomethingRef): the topic/thing understood \u2713\n- Referent 4 is introduced with `\"bind\":4` in the first clause's instrument role \u2713\n- All indices are dense from 1\u20134 \u2713\n\n**Checking clauses:**\n\nClause 1: `{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":...,\"undergoer\":...,\"instrument\":{...\"bind\":4}}}`\n- DO takes agent*, undergoer, instrument \u2014 all present \u2713\n- Instrument is an SP introducing referent 4 with `\"bind\":4` \u2713\n\nClause 2: `{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":...,\"topic\":...,\"time\":{...}}}`\n- KNOW takes experiencer*, topic, complement(clause) \u2713\n- experiencer = ref to index 2 \u2713\n- topic = ref to index 3 \u2713\n- time adjunct present \u2713\n- But wait: the time adjunct says `\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}`. This is a temporal anchor describing when the knowing happens *relative to NOW*. That's reasonable semantically (they know it afterwards), but let me verify the syntax: temporal adjuncts should be `{\"kind\":\"temporal\",\"op\":\"AFTER\"|\"BEFORE\",\"anchor\":SP-or-ref-or-NOW-prime}`. The anchor is a prime NOW \u2713\n\nClause 3: `{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[clause1-copy, clause2-copy]}`\n- BECAUSE takes (cause, effect) \u2713\n- First arg is a DO clause (the cause) \u2713\n- Second arg is a KNOW clause (the effect) \u2713\n\n**Checking the BECAUSE logic:**\nThe first arg refers back to the same DO action (agent 1, undergoer 2, instrument 4). The second arg refers to the KNOW (experiencer 2, topic 3). This correctly expresses: \"because agent 1 does something to 2 (using words), 2 knows 3.\"\n\n**Potential issue:** Clause 2 has a temporal adjunct `\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}` anchoring the KNOW to occur after NOW. But this is inside the BECAUSE's second argument (the effect). The semantics work: the enlightening (clause 1) is the cause; the resulting knowledge (clause 2) is the effect, happening after. This is sensible. \u2713\n\n**Checking nesting depth:**\n- Outermost: clauses list (3 items)\n- Clause 1: SP with primeHead (depth 3)\n- Clause 2: SP in instrument role (depth 3)\n- Clause 3 (BECAUSE op): nesting the DO and KNOW inside the op (depth 3)\n- Max nesting depth < 12 \u2713\n\n**Checking syntax detail:**\n- All required fields present in all objects \u2713\n- No extra commas or malformed JSON \u2713\n- All refs to indices (1, 2, 3, 4) are valid \u2713\n- No self-reference \u2713\n\n**Semantic check:**\nThe gloss says \"someone causes another someone to know something; because of this, that someone understands it.\" But the explication only encodes \"DO + KNOW + BECAUSE\". It doesn't explicitly encode \"understands\" as distinct from \"knows\". However, in everyday English, \"enlighten\" does mean to make someone understand/know, so conflating KNOW with understanding is appropriate for the kernel. The BECAUSE structure correctly grounds the causal link.\n\n**Minor note on the gloss:** The phrase \"because of this, that someone understands it\" is a bit redundant (the BECAUSE already captures causality), but the gloss is meant to be readable, not formal, so this is acceptable.\n\nAll rules pass. The record is **valid and semantically coherent**.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone causes another someone to know something; because of this, that someone understands it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"},{\"index\":4,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"instrument\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WORDS\"},\"bind\":4}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":3},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"instrument\":{\"kind\":\"ref\",\"index\":4}}},{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":3}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "7777c4b1-fbe7-4376-9730-12b7c32f4e8e",
+ "total_cost_usd": 0.018443,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5296,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1363,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5296,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1363,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5296,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5296
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 961,
+   "outputTokens": 1378,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5296,
+   "webSearchRequests": 0,
+   "costUSD": 0.018443,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "c54ae3a5-3867-493d-ac2a-55069289861c"
+}

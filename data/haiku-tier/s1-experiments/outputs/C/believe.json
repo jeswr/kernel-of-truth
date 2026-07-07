@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 11378,
+ "duration_api_ms": 12405,
+ "ttft_ms": 11350,
+ "ttft_stream_ms": 1073,
+ "time_to_request_ms": 65,
+ "num_turns": 1,
+ "result": "I'll check this draft against all the rules systematically.\n\n**FRAME & REFERENTS CHECK:**\n- Frame \"WhenTrue\" is correct for a property concept (someone believes something).\n- Referent 1 (SomeoneRef) and 2 (SomethingRef) are frame-implicit and correctly indexed.\n- All later mentions use `{\"kind\":\"ref\",\"index\":n}` correctly.\n- Indices are dense from 1\u20132. \u2713\n\n**CLAUSE STRUCTURE CHECK:**\n\n1. **First clause** \u2014 `THINK` with experiencer, topic, quote:\n   - Quote embeds a clause with `TRUE` predicate. \u2713\n\n2. **Second clause** \u2014 `NOT(KNOW...)`:\n   - `KNOW` takes experiencer, complement (clause).\n   - Complement wraps `TRUE` with undergoer=ref:2. \u2713\n\n3. **Third clause** \u2014 `BECAUSE(antecedent, consequent)`:\n   - Antecedent: `CAN(DO agent:SOMEONE, undergoer:WORDS)` \n     - **PROBLEM**: This introduces a NEW unnamed SOMEONE via SP with no \"bind\" index. The DO clause references this SOMEONE but it's never bound to a referent index. The antecedent should reference referent 1 (the believer) or a cause-agent should be explicitly bound.\n     - **PROBLEM**: The consequent in BECAUSE is `THINK` with experiencer=ref:1, topic=ref:2, but no quote \u2014 incomplete compared to first clause.\n\n**SEMANTIC COHERENCE CHECK:**\n\nThe draft tries to say:\n- Someone thinks X is true (with a quote that X is true).\n- NOT: that someone knows X.\n- BECAUSE: someone can do words, someone thinks X.\n\nThe \"because\" structure is malformed: it should anchor the cause (words heard, or evidence seen) more tightly to referent 1's belief. The loose SOMEONE in DO is unbound.\n\n**CORRECTION:**\n\nThe everyday sense of \"believe\" is: someone thinks something is true, without certainty; often because of words or what they saw. I'll fix:\n- Remove the unbound SOMEONE in the BECAUSE cause.\n- Bind a third referent for the evidence/cause (words or observation).\n- Tighten the because-chain.\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone thinks something is true, without knowing it for certain, because of words or what they saw.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}]}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2}}}}}}]},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"stimulus\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "ff675ee4-43b9-42e4-b21c-f4bb8ccc7d48",
+ "total_cost_usd": 0.016529000000000002,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5423,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 901,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5423,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 901,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5423,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5423
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1088,
+   "outputTokens": 919,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5423,
+   "webSearchRequests": 0,
+   "costUSD": 0.016529000000000002,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "a905cc96-1f13-45bb-8634-1739b2d16621"
+}

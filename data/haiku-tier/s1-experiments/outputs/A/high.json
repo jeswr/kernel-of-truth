@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 15578,
+ "duration_api_ms": 17146,
+ "ttft_ms": 15532,
+ "ttft_stream_ms": 965,
+ "time_to_request_ms": 76,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this thing is at a place far from the ground; or this thing extends far above the ground.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"}}}}}}}]},{\"type\":\"op\",\"op\":\"OR\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"}},\"adjunct\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"HERE\"}}}}}}]}]}}\n```\n\nWait\u2014I need to reconsider. The dominant everyday sense of \"high\" as a spatial property is simpler: **something is at a place far above the ground**, or **something extends far upward from below**. Let me revise to use the allowed lexicon more carefully:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this thing is at a place very far above the ground.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"GROUND~EARTH\"}}}}}}]}}]}\n```\n\nActually, I cannot use \"GROUND~EARTH\" as a prime; \"ground\" is only available via molecule reference. Let me use spatial relation primes correctly:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this thing is at a place very far above the ground.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}}\n```\n\nStill incorrect structurally. Let me anchor properly using \"above\":\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this thing is at a place very far above; when you look toward it you move up from the ground.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"THE-SAME\",\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}]},\"adjunct\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"mods\":[{\"mod\":\"GOOD\"}]}}}]}}\n```\n\nLet me simplify to the primitive relation available:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this thing is far above some other place; if you move from below toward this thing, you move up for a very long time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"PlaceRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}],\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"adjunct\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"}},\"duration\":{\"kind\":\"prime\",\"prime\":\"A-LONG-TIME\"}}}]}}\n```\n\nThis is still malformed. The cleanest approach:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"this thing is at a place far above another place; moving from the lower place toward this thing takes a very long time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}]}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "867c6411-a0f3-41f6-81ec-3bb8c8827009",
+ "total_cost_usd": 0.011974,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1547,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 1518,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1547,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1518,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1547,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1547
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 770,
+   "outputTokens": 1531,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1547,
+   "webSearchRequests": 0,
+   "costUSD": 0.011974,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "17ddc479-ba21-45f6-bf45-5ff4ef63255f"
+}

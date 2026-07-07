@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7093,
+ "duration_api_ms": 8494,
+ "ttft_ms": 7052,
+ "ttft_stream_ms": 882,
+ "time_to_request_ms": 57,
+ "num_turns": 1,
+ "result": "I'll repair this explication step by step.\n\n**Analysis of the DRAFT:**\n\n1. **Frame issue**: The concept describes an action (breaking), so InstanceSchema is correct (referent 1 = an instance of breaking).\n\n2. **Referent structure**: \n   - Referent 1 (frame-implicit): the breaking event\n   - Referent 2: the thing being broken (SomethingRef) \u2713\n   - Referent 3: unused \u2014 should be removed\n\n3. **Clause issues**:\n   - First clause: `DO` with agent/undergoer \u2014 but referent 1 is the event, not an agent. The frame-implicit referent for InstanceSchema is the *instance of the action*, so we need to decompose differently.\n   - The `BE-SPEC` clauses use \"NOW\" but should describe the result state, not impose temporal anchoring.\n   - The final `NOT` clause has malformed structure: `CAN` is an operator, not a predicate; it should wrap a clause.\n   - The attempted meaning \"cannot easily be reversed\" is not cleanly expressible and should be dropped (repair-first: simpler legal beats rich broken).\n\n4. **Repair strategy**: \n   - Describe: someone does something to a thing \u2192 the thing becomes many things\n   - Drop the \"cannot be reversed\" clause as it requires conditional/modal nesting that complicates the structure\n   - Use cleaner agent/undergoer structure\n\n**Repaired explication:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone does something to a thing and then the thing is many things instead of one.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":3}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"attribute\":{\"kind\":\"sp\",\"quant\":\"MANY\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "289e1fb8-a939-4db6-bd18-1f96c7cf45ab",
+ "total_cost_usd": 0.015758,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5884,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 541,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5884,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 541,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5884,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5884
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1205,
+   "outputTokens": 557,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5884,
+   "webSearchRequests": 0,
+   "costUSD": 0.015758,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "5bd92c4c-d22a-47be-80bd-05ae966573f4"
+}

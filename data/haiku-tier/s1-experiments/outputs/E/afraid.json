@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 11905,
+ "duration_api_ms": 12851,
+ "ttft_ms": 11817,
+ "ttft_stream_ms": 1455,
+ "time_to_request_ms": 153,
+ "num_turns": 1,
+ "result": "I need to check this draft against the mechanical rules for explications.\n\n**Analysis of the DRAFT:**\n\n1. **Frame & referents**: WhenTrue frame with referent 1 (SomeoneRef, frame-implicit). Referent 2 declared as ClauseRef. \u2713\n\n2. **Clause 1 (FEEL)**: \n   - `{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}`\n   - FEEL takes experiencer* and attribute (GOOD/BAD prime filler). Uses ref 1 (frame-implicit) and BAD prime. \u2713\n\n3. **Clause 2 (THINK)**:\n   - `{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{...}},\"bind\":2}}`\n   - **PROBLEM**: THINK takes (experiencer*, topic, quote). \"complement\" is not a valid role for THINK. The nested clause about \"maybe something bad happens\" should be a **quote** or the structure needs revision.\n   - Additionally, the nested clause structure is: `{\"type\":\"pred\",\"pred\":\"MAYBE\",...}` but MAYBE is an **operator**, not a predicate. It should be `{\"type\":\"op\",\"op\":\"MAYBE\",...}`.\n   - The \"bind\":2 is placed on the THINK clause, but referent 2 (ClauseRef) should be bound to the **introducing occurrence** \u2014 which is the BECAUSE operator's first argument (the antecedent).\n\n4. **Clause 3 (BECAUSE)**:\n   - `{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"kind\":\"ref\",\"index\":2},{...DON'T-WANT...}]}`\n   - BECAUSE takes (cause, effect). The first arg is ref to index 2 (ClauseRef), which should introduce it. But \"bind\":2 is on Clause 2, not here. **Error: bind location is wrong.**\n\n**Structural fix needed:**\n- Introduce ClauseRef 2 at the BECAUSE operator (where it logically anchors the causal reasoning).\n- Fix the THINK complement: use \"quote\" instead of \"complement\", or restructure to avoid the invalid role.\n- Fix the nested MAYBE: change from pred to op.\n\n**Corrected record:**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone feels something bad when they think something bad may happen, and so do not want to do something.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"ClauseRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BAD\"}]}}}]}]}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BAD\"}]}}}]}]}}},\"bind\":2},{\"type\":\"pred\",\"pred\":\"DON'T-WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}]}]}}\n```\n\nWait\u2014on closer inspection, I'm duplicating the THINK clause. Let me reconsider the intended logic more carefully and produce the cleanest structure:\n\nThe primary sense: **someone is afraid = someone feels bad (now) because they think something bad may happen (in future).**\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"someone feels something bad because they think something bad may happen.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BAD\"}]}}}]}]}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}]}}\n```\n\nThis removes the unnecessary ClauseRef and simplifies the causal structure.\n\n{\"kind\":\"explication\",\"gloss\":\"someone feels something bad because they think something bad may happen.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"op\",\"op\":\"MAYBE\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BAD\"}]}}}]}]}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}]}}",
+ "stop_reason": "end_turn",
+ "session_id": "14c9f55a-ab5e-47ba-a077-b60c056b31d1",
+ "total_cost_usd": 0.020026000000000002,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5392,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 1623,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5392,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1623,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5392,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5392
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1057,
+   "outputTokens": 1637,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5392,
+   "webSearchRequests": 0,
+   "costUSD": 0.020026000000000002,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "f9087ff0-2222-4ea7-b058-0d7e3bba2af0"
+}

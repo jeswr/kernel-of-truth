@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 8145,
+ "duration_api_ms": 9143,
+ "ttft_ms": 7928,
+ "ttft_stream_ms": 1234,
+ "time_to_request_ms": 329,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"something that makes someone feel very good and want to do something with it or know more about it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"GOOD\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"topic\":{\"kind\":\"ref\",\"index\":1}}}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":2},\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}}\n```\n\n**Repairs made:**\n\n1. **Dropped the SEE clause.** The property \"exciting\" applies to *things* whether or not someone is currently perceiving them; excitement can be anticipatory or imaginative. Grounding a property-concept in perception is too narrow.\n\n2. **Simplified MOVE clause.** The clause `MOVE body manner:MORE` is malformed (MOVE has only undergoer + optional adjuncts; \"manner\" is not a defined role). The emotional/physical manifestation of excitement is secondary; the core is the *desire* and *feeling*. Removing it makes the explication shorter and legally well-formed.\n\n3. **Kept FEEL + GOOD (VERY).** This is the core emotional signature.\n\n4. **Kept both WANT clauses.** These capture the motivational character: the person wants to engage with the thing (DO) or learn more (KNOW).\n\n5. **Referent structure:** Referent 1 is the exciting *something* (frame-implicit in WhenTrue as the subject the property holds of); referent 2 is *someone* who might experience it (explicitly introduced in the FEEL clause, then reused). Frame is WhenTrue (property concept).",
+ "stop_reason": "end_turn",
+ "session_id": "3b68854c-4665-4fa0-8d8f-6a0ef11d1d61",
+ "total_cost_usd": 0.015517999999999999,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5729,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 589,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5729,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 589,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5729,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5729
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1050,
+   "outputTokens": 602,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5729,
+   "webSearchRequests": 0,
+   "costUSD": 0.015517999999999999,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "63be594d-859c-465e-b2ce-390312803806"
+}

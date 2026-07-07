@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 3806,
+ "duration_api_ms": 5031,
+ "ttft_ms": 3779,
+ "ttft_stream_ms": 1675,
+ "time_to_request_ms": 161,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when someone dies, they stop living; their body cannot move or feel; people feel very bad because of this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":1},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"},\"bind\":3},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"ref\",\"index\":1}}}}]},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"ref\",\"index\":1}}}}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"comitative\":{\"kind\":\"ref\",\"index\":1}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "baa395ca-cd69-4c7b-93a3-58f5dc7b95b4",
+ "total_cost_usd": 0.015526,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5990,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 434,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5990,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 434,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5990,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5990
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1311,
+   "outputTokens": 447,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5990,
+   "webSearchRequests": 0,
+   "costUSD": 0.015526,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "540948d0-6d4b-4f0d-89f9-918c3afb68e6"
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5208,
+ "duration_api_ms": 6237,
+ "ttft_ms": 5173,
+ "ttft_stream_ms": 971,
+ "time_to_request_ms": 57,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note violates the molecule lexicon gate at multiple points: (1) 'liquid substance' contains bare content words 'liquid' and 'substance' which are not in ALLOWED or PHRASES; (2) 'plants need it to live' uses 'plants' (not in ALLOWED) and 'need' (not in ALLOWED); (3) 'it is not good or bad to touch' uses 'touch' as a bare verb outside the closed predicate set; (4) 'becomes hard' and 'becomes like air' use 'hard' and 'air' which are not in ALLOWED. The everyday sense of water as a drinkable liquid that people and animals depend on can be anchored only through kernel concepts (like LIVE, WANT, BE-SOMEWHERE) and allowed primes, but the grounding-note format forbids embedding explication structure. Water is a natural-kind molecule whose essence depends on scientific properties (H2O, phase transitions, solvent role) that cannot be expressed in the closed everyday lexicon without breaching the gate. The catalog depth and materiality constraints make this concept incompatible with the kernel's semantic primitives.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "4fcbbe68-14c4-4a14-8946-a0d320a36958",
+ "total_cost_usd": 0.013704000000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5523,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 281,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5523,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 281,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5523,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5523
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1188,
+   "outputTokens": 294,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5523,
+   "webSearchRequests": 0,
+   "costUSD": 0.013704000000000001,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "81194ff7-6a04-41d0-baa8-d9d8f6632359"
+}

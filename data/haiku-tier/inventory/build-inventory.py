@@ -12,7 +12,19 @@ concept candidates for the modelAuthored (claude-haiku) tier:
            standoff file, pinned by sha256) not already in band A.
   band C — frequency-ranked content lemmas from the pinned OpenSubtitles-2018
            en_50k list (hermitdave/FrequencyWords @ 072bbed) that are WordNet
-           lemmas, until the content-lemma pool reaches TOP_N (~10k).
+           lemmas — the FULL list depth (maintainer direction 2026-07-07:
+           subscription capacity, not dollars, is the budget; inventory goes
+           as deep as the filters support).
+  band D — every remaining single-word WordNet 3.1 lemma that survives the
+           same filters, ranked by SemCor tag mass (cntlist.rev), then sense
+           count, then alphabetically. No frequency-list evidence, so ranked
+           last. Wikipedia was considered as a further item source and
+           deliberately NOT used for items: its namespace is entity-dominated
+           (our 99-lemma probe: 49% usable summaries, mostly disambiguation
+           collisions), its concept articles overwhelmingly correspond to
+           WordNet lemmas already in bands B-D, and a full title screen costs
+           GBs on a 94%-full disk. Wikipedia participates as per-item
+           definitional TEXT (the fetcher), not as an item source.
 
 EXCLUSIONS (each recorded with a reason in inventory-excluded.jsonl):
   covered        — kernel-v0 labels/slugs, molecules-v0 slugs+corpusLemmas,
@@ -49,8 +61,8 @@ from collections import OrderedDict
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 CACHE = os.path.join(HERE, '..', 'cache')
-TOP_N = 10000          # band-C content-lemma pool size (directive: top ~10k)
-CUT_TARGET = 9000      # where the ~$70 / 8-10k cut nominally lands
+TOP_N = 50000          # band-C pool: full pinned frequency list depth
+CUT_TARGET = 9000      # historical ~$70-API-equivalent landmark (kept as a marker)
 
 # --- pins ------------------------------------------------------------------
 PINS = json.load(open(os.path.join(HERE, 'pins.json')))
@@ -269,6 +281,25 @@ for k, line in enumerate(open(FREQ, encoding='utf-8'), 1):
     if tok in seen: continue
     seen.add(tok); bandC_pool.append(tok)
 
+# --- band D: remaining WordNet lemmas, ranked by SemCor tag mass -------------
+tagmass = {}
+for line in open(os.path.join(DICT, 'cntlist.rev'), encoding='latin-1'):
+    parts = line.split()
+    if len(parts) != 3: continue
+    lemma = parts[0].split('%', 1)[0]
+    tagmass[lemma] = tagmass.get(lemma, 0) + int(parts[2])
+sense_count = {}
+for pos, fn in (('n','index.noun'), ('v','index.verb'), ('a','index.adj'), ('r','index.adv')):
+    for line in open(os.path.join(DICT, fn), encoding='latin-1'):
+        if line.startswith(' '): continue
+        parts = line.split()
+        sense_count[parts[0]] = sense_count.get(parts[0], 0) + int(parts[2])
+bandD_pool = sorted(
+    (l for l in wn_all
+     if re.fullmatch(r'[a-z]{2,}', l) and not regular_base(l)
+     and not (exc_base.get(l) and exc_base[l] != l and exc_base[l] in wn_all)),
+    key=lambda l: (-tagmass.get(l, 0), -sense_count.get(l, 0), l))
+
 # --- merge + exclude ---------------------------------------------------------
 items, excluded = [], []
 def consider(lemma, band, extra):
@@ -300,11 +331,18 @@ for lemma in bandC_pool:
     if lemma in inAB or lemma in bandA or lemma in bandB: continue
     pos = sorted(p for p in 'nvar' if lemma in wn_pos_lemmas[p])
     consider(lemma, 'C', {'sources': ['freq'], 'pos': pos})
+inABC = {it['lemma'] for it in items} | bandA.keys() | bandB.keys() | set(bandC_pool)
+for lemma in bandD_pool:
+    if lemma in inABC: continue
+    pos = sorted(p for p in 'nvar' if lemma in wn_pos_lemmas[p])
+    consider(lemma, 'D', {'sources': ['wordnet'], 'pos': pos,
+                          'tagMass': tagmass.get(lemma, 0)})
 
-# rank: band A by TinyStories count desc, then B and C by frequency rank
+# rank: band A by TinyStories count desc, B/C by frequency rank, D by tag mass
 BIG = 10**9
 items.sort(key=lambda it: (
-    {'A': 0, 'B': 1, 'C': 2}[it['band']],
+    {'A': 0, 'B': 1, 'C': 2, 'D': 3}[it['band']],
+    -(it.get('tagMass') or 0),
     -(it.get('tsCount') or 0),
     it['freqRank'] if it['freqRank'] is not None else BIG,
     it['lemma']))
@@ -323,7 +361,7 @@ bc = Counter(it['band'] for it in items)
 xc = Counter((e['band'], e['reason']) for e in excluded)
 cum, cut_band = 0, None
 band_cum = {}
-for b in 'ABC':
+for b in 'ABCD':
     cum += bc[b]; band_cum[b] = cum
     if cut_band is None and cum >= CUT_TARGET: cut_band = b
 n_at_cut = min(CUT_TARGET, len(items))
@@ -332,17 +370,22 @@ sizing = f"""# haiku-tier inventory — sizing (stage 0)
 Generated deterministically by `build-inventory.py` from the pinned sources in
 `pins.json` (sha256-verified at run time). {len(items)} ranked items;
 {len(excluded)} exclusions (audit trail: `inventory-excluded.jsonl`).
+Full-depth inventory per maintainer direction 2026-07-07 (subscription
+capacity is the budget; the session-governed runner processes in rank order,
+so depth costs nothing — priority does the work).
 
 | band | source | items | cumulative |
 |---|---|---|---|
 | A | M0b measured gaps (post-molecules-v0 top-500) | {bc['A']} | {band_cum['A']} |
 | B | WordNet core (~5k senses -> single-word, non-proper lemmas) | {bc['B']} | {band_cum['B']} |
-| C | OpenSubtitles-2018 frequency top-{TOP_N} content lemmas | {bc['C']} | {band_cum['C']} |
+| C | OpenSubtitles-2018 frequency list (full 50k) content lemmas | {bc['C']} | {band_cum['C']} |
+| D | remaining WordNet 3.1 single-word lemmas (SemCor-tag-mass ranked) | {bc['D']} | {band_cum['D']} |
 
-**The ~{CUT_TARGET} cut lands in band {cut_band}** — every measured-gap and
-core-WordNet concept is inside the budget; the cut point trims only the
-frequency tail. At the cut: rank {n_at_cut} = lemma
-`{items[n_at_cut-1]['lemma']}` (freq rank {items[n_at_cut-1].get('freqRank')}).
+Landmark: the historical ~$70-API-equivalent / ~{CUT_TARGET}-concept cut would
+land in band {cut_band} (rank {n_at_cut} = `{items[n_at_cut-1]['lemma']}`).
+At a governed 500 calls per 5h window, one window ≈ ranks N..N+500; band A+B
+(~{band_cum['B']}) ≈ {band_cum['B']//500 + 1} windows; the full inventory ≈
+{len(items)//500 + 1} windows.
 
 ## Exclusions by band and reason
 
@@ -351,7 +394,7 @@ frequency tail. At the cut: rank {n_at_cut} = lemma
 """ + '\n'.join(
     f"| {b} | {xc[(b,'covered')]} | {xc[(b,'prime')]} | {xc[(b,'function')]} | "
     f"{xc[(b,'entity')]} | {xc[(b,'sector')]} | {sum(v for k,v in xc.items() if k[0]==b)} |"
-    for b in 'ABC') + f"""
+    for b in 'ABCD') + f"""
 
 Core-list preprocessing: {core_total} entries -> {core_multiword} multiword
 dropped (v0 targets single-token lemmas; multiword lexemes are a filed

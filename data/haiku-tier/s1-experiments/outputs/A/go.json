@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4880,
+ "duration_api_ms": 6045,
+ "ttft_ms": 4851,
+ "ttft_stream_ms": 1171,
+ "time_to_request_ms": 69,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone moves to another place; because they move, they are in a different place after some time.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"PlaceRef\"},{\"index\":3,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"place\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHERE~PLACE\"},\"det\":\"OTHER~ELSE~ANOTHER\",\"bind\":2}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"BE-SOMEWHERE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"locus\":{\"kind\":\"ref\",\"index\":2},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "2bad2406-d747-4c38-b9eb-3a4bfd6309b4",
+ "total_cost_usd": 0.0143,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 6054,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 280,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 6054,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 280,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6054,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 6054
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 727,
+   "outputTokens": 293,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6054,
+   "webSearchRequests": 0,
+   "costUSD": 0.0143,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "aa19313a-111e-4324-b966-c9cc7043c902"
+}

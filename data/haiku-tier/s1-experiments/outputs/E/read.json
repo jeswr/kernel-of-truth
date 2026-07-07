@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5366,
+ "duration_api_ms": 6452,
+ "ttft_ms": 5335,
+ "ttft_stream_ms": 1087,
+ "time_to_request_ms": 59,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft contains multiple gate violations that cannot be repaired without semantic loss. (1) The MOVE clause lacks a required undergoer role filler \u2014 the 'manner' SP attempts to describe movement of unspecified body parts across words, but 'part of' a person is not a semantic primitive and 'manner' is an adjunct, not a role filler. (2) The WHEN operator nests two clauses (SEE and KNOW) but the second SEE is redundant with referent 2 already bound in clause 1, creating circular structure. (3) Most critically: 'read' in its dominant everyday sense requires the concept of *written symbols encoding language*, which is not in the kernel (only WORDS prime exists, but lacks the 'written' property and the decoding relation). The catalog has no molecule for writing, alphabet, letter, or script. Without these, the explication cannot distinguish reading from merely seeing and understanding arbitrary things. A minimal viable explication would need either a molecule for 'written-words' or kernel primitives for 'symbol', 'represent', 'language' \u2014 none present. The concept cannot be formalized within the current KOT depth-4 reach.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "df4de39c-f32b-449d-bc44-1bbd63f965d4",
+ "total_cost_usd": 0.013293000000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5381,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 284,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5381,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 284,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5381,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5381
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1046,
+   "outputTokens": 297,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5381,
+   "webSearchRequests": 0,
+   "costUSD": 0.013293000000000001,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "9ced9bf9-97d3-49e1-b444-8f74ab8bea02"
+}

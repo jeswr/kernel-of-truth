@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 8863,
+ "duration_api_ms": 9765,
+ "ttft_ms": 8792,
+ "ttft_stream_ms": 983,
+ "time_to_request_ms": 154,
+ "num_turns": 1,
+ "result": "I'll check this draft against the rules systematically.\n\n**Issues found:**\n\n1. **\"body\" is not in the catalog** \u2014 only `hand` is listed as `urn:molecule-v0:hand(d1)`. \"body\" cannot be used.\n\n2. **Grounding note contains uppercase letters** \u2014 \"Because\" at the start violates rule 1 (lowercase, NFC).\n\n3. **groundingRefs incomplete** \u2014 lists only `hand` but the note also references `body` (which is invalid anyway).\n\n4. **Concept ref in grounding note for a molecule concept** \u2014 The draft uses `{urn:molecule-v0:hand|hand} [m]` in the grounding note. Per rule 2(d), molecule refs need `[m]`, but the note should describe the sense in ALLOWED words + refs, not embed the definitional structure. This reads more like explication logic poured into the grounding note.\n\n5. **The structure is explication-like, not a grounding note** \u2014 A molecule grounding note should be a single coherent descriptive phrase in plain ALLOWED words + catalog refs, not a chain of nested conditional logic (\"because...while...\").\n\n**Correction:**\n\nThe dominant everyday sense is: someone uses their hands/body to lift and move something to a different place, keeping contact with it. This should be simpler:\n\n```json\n{\"kind\":\"molecule\",\"gloss\":\"lifting something and moving it to another place while touching it\",\"groundingNote\":\"someone lifts something and moves it to another place; someone's {urn:molecule-v0:hand|hand} [m] touches this something all the time while it moves.\",\"groundingRefs\":[\"urn:molecule-v0:hand\"]}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "a3d976f9-7016-4779-8b2c-4afe51a3738f",
+ "total_cost_usd": 0.013460999999999999,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5247,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 399,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5247,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 399,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5247,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5247
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 912,
+   "outputTokens": 411,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5247,
+   "webSearchRequests": 0,
+   "costUSD": 0.013460999999999999,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "0119d7cb-2a25-4d4b-9688-d17e1fa47ab1"
+}

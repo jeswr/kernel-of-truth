@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 4161,
+ "duration_api_ms": 5785,
+ "ttft_ms": 4132,
+ "ttft_stream_ms": 1123,
+ "time_to_request_ms": 170,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"cannot-formalise\",\"why\":\"The draft grounding note violates the closed lexicon gate at multiple points: (1) 'foot' is not in the ALLOWED words or PHRASES, and the reference {urn:molecule-v0:foot|foot} [m] is not in the catalog of referenceable molecules (only body parts listed are hand, mouth, eye, head); (2) 'protective covering' cannot be expressed using only ALLOWED primitives without a catalog molecule for 'foot'; (3) the concept of a paired object (one for left, one for right) requires spatial/side distinctions that exceed the expressive power of the available primes and their adjuncts. The everyday sense of 'shoe' is deeply tied to the human foot, which is not yet grounded in the kernel. A formalizable definition would need urn:molecule-v0:foot in the catalog first.\"}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "52a08e39-c3b6-44f1-8cbb-4a2c2c2b722f",
+ "total_cost_usd": 0.01284,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5350,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 211,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5350,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 211,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5350,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5350
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1015,
+   "outputTokens": 225,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5350,
+   "webSearchRequests": 0,
+   "costUSD": 0.01284,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "cbb9f6e0-f6ee-4d30-9f72-a4be5f73d6f3"
+}

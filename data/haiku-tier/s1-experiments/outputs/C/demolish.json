@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 9976,
+ "duration_api_ms": 12876,
+ "ttft_ms": 9739,
+ "ttft_stream_ms": 1485,
+ "time_to_request_ms": 452,
+ "num_turns": 1,
+ "result": "I'll check this draft against the mechanical rules.\n\n**VIOLATIONS FOUND:**\n\n1. **Frame mismatch & referent introduction**: The frame is `InstanceSchema` (for class concepts), which makes referent 1 frame-implicit. However, referent 1 is introduced explicitly as a `SomeoneRef` in the referents array. For `InstanceSchema`, only frame-implicit referent 1 should exist; if we need an explicit agent, we need `RelationalSchema` (which takes frame-implicit referents 1 & 2) \u2014 but here we have 1 = SOMEONE and 2 = SOMETHING, which matches a relational pattern poorly. The correct frame for \"someone demolishes something\" is **`InstanceSchema` with NO explicit referents array** \u2014 the frame handles referent 1 implicitly.\n\n2. **Arity violation in first DO clause**: The `DO` predicate has `agent` and `undergoer` roles. In an `InstanceSchema`, referent 1 is the arbitrary instance of the concept. If we're defining \"demolish\" as a **doing** (an event involving an agent), the frame should capture: \"an arbitrary instance of [an event where someone demolishes something]\". The first `DO` clause with `agent` (ref 1) and `undergoer` (ref 2) introduces referent 2 without a `bind` \u2014 **missing `\"bind\":2`** on the undergoer SP.\n\n3. **Semantic confusion**: The second clause uses `HAPPEN` with `undergoer` = \"many small sides\" (parts). This is attempting to say \"many small parts happen\" \u2014 but `HAPPEN` takes a `SomethingRef` undergoer, and \"parts\" isn't properly introduced. The restrictedBy clause also tries to say the thing IS sides, which is wrong.\n\n4. **BECAUSE structure**: The BECAUSE operator correctly links cause to effect, but the effect (\"NOT the same\") is too vague. The definition should center on breaking/damage to the thing itself.\n\n**CORRECTED RECORD:**\n\nThe dominant everyday sense is: someone intentionally breaks a building/structure into pieces so it no longer exists as a functional thing. This is better captured as an `InstanceSchema` defining the **event** of demolition:\n\n```json\n{\"kind\":\"explication\",\"gloss\":\"an event in which someone breaks a big thing into many small parts on purpose.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":3},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"quant\":\"MANY\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":2}},\"mods\":[{\"mod\":\"SMALL\"}]}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "d838d194-8919-4f33-b93e-bba2fedb310c",
+ "total_cost_usd": 0.015887,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5424,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 777,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5424,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 777,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5424,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5424
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1089,
+   "outputTokens": 790,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5424,
+   "webSearchRequests": 0,
+   "costUSD": 0.015887,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "aa9ae19d-d1d6-44e5-9228-122ae259714f"
+}

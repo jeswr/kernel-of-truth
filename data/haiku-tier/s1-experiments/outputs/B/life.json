@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6113,
+ "duration_api_ms": 6461,
+ "ttft_ms": 6046,
+ "ttft_stream_ms": 2198,
+ "time_to_request_ms": 1316,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"this someone or something lives; it can move, feel, think; it is not dead; before now, it was not alive; after some time, it will die.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:alive\"}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:dead\"}}}]},{\"type\":\"op\",\"op\":\"BEFORE\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:alive\"}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"prime\",\"prime\":\"NOW\"},{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"A-LONG-TIME\"}}}}]}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "3d32361d-bf8d-4371-8ffe-a49c09d3255b",
+ "total_cost_usd": 0.007332300000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1657,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 524,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1657,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 524,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1657,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1657
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 880,
+   "outputTokens": 537,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1657,
+   "webSearchRequests": 0,
+   "costUSD": 0.007332300000000001,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "31391353-73ea-44a7-bc8c-dda21ace9101"
+}

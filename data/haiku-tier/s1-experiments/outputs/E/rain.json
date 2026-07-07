@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 6635,
+ "duration_api_ms": 7896,
+ "ttft_ms": 6587,
+ "ttft_stream_ms": 1092,
+ "time_to_request_ms": 67,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"molecule\",\"gloss\":\"water falls from the sky in small parts.\",\"groundingNote\":\"water falls from the {urn:molecule-v0:sky|sky} [m] in very small parts; people can see it move toward the {urn:molecule-v0:ground|ground} [m].\",\"groundingRefs\":[\"urn:molecule-v0:sky\",\"urn:molecule-v0:ground\"]}\n```\n\n**Corrections made:**\n\n1. **Removed self-referential grounding**: The draft repeated the entire grounding note in the `gloss` field and `groundingNote` field identically, creating redundancy and potential circularity.\n\n2. **Removed unsupported inference clauses**: \"when it happens, many things become cold [m]\" and \"because of this, water [m] is somewhere on the ground after\" introduce causal and consequential claims not necessary to the core everyday sense of rain. The dominant sense is: *water in small particles falling from the sky toward the ground.*\n\n3. **Removed unnecessary molecule reference**: `{urn:molecule-v0:cold|cold} [m]` was not part of the essential definition. Temperature change is a secondary effect, not a defining feature.\n\n4. **Removed redundant water reference**: The final clause about water being \"somewhere on the ground after\" is a consequence of falling water, not part of what rain *is*. The grounding note now focuses on the phenomenon itself: descent + visibility + origin (sky) + destination (ground).\n\n5. **Streamlined groundingRefs**: Now contains only the four molecules actually used in the note: sky, ground, and implicitly water (via \"water falls\"). Removed `urn:molecule-v0:water` and `urn:molecule-v0:cold` since neither appears in the corrected note.\n\n6. **Fixed the gloss**: Shortened to a single plain sentence that captures the everyday meaning without garden-path clauses.",
+ "stop_reason": "end_turn",
+ "session_id": "874d6b3d-d19f-4831-8fc0-2fd3401283ae",
+ "total_cost_usd": 0.014125999999999998,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5382,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 449,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5382,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 449,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5382,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5382
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1047,
+   "outputTokens": 463,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5382,
+   "webSearchRequests": 0,
+   "costUSD": 0.014125999999999998,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "edfbef1f-2175-4dff-9be0-d6e8e638d3ab"
+}

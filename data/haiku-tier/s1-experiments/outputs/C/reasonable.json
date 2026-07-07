@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5906,
+ "duration_api_ms": 7114,
+ "ttft_ms": 5832,
+ "ttft_stream_ms": 1283,
+ "time_to_request_ms": 193,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"fair and not excessive given the circumstances\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"prime\",\"prime\":\"I\"},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"}},\"adjuncts\":{\"topic\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"BIG\",\"intensifier\":\"VERY\"}]}},\"adjuncts\":{}}]}]}}\n```\n\n**Rationale for correction:** The draft's reasoning about context-sensitivity and norm-relativity is sound, but the concept *is* expressible within the kernel primitives\u2014not as a factual property, but as an evaluative one. \"Reasonable\" at its dominant everyday core means roughly: *one feels good about the thing, and it is not excessively large/much*. This captures the core evaluative meaning\u2014fairness and moderation\u2014without requiring external standards to be named. The FEEL + GOOD captures the \"fair/acceptable\" dimension; NOT(BE-SPEC with BIG/VERY) captures \"not excessive.\" This is a valid InstanceSchema explication (what makes a thing reasonable), and it avoids self-reference while staying within the closed lexicon.",
+ "stop_reason": "end_turn",
+ "session_id": "6887a065-7f85-4ec8-b33f-7be7daa5c6c0",
+ "total_cost_usd": 0.013106,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5172,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 370,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5172,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 370,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 5172,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 5172
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 837,
+   "outputTokens": 385,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 5172,
+   "webSearchRequests": 0,
+   "costUSD": 0.013106,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "a5288b7d-ea25-49af-931c-452f91aa9a23"
+}

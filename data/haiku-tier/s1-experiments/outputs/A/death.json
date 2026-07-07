@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 5846,
+ "duration_api_ms": 7157,
+ "ttft_ms": 5784,
+ "ttft_stream_ms": 1557,
+ "time_to_request_ms": 126,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when this someone dies, they no longer live; after this, the body cannot move or feel; people can be very sad because of this.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"time\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WHEN~TIME\"},\"det\":\"SOME\",\"bind\":2}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"LIVE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}]}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1}}}]}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"manner\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}]},\"reason\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"DIE\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "54f6be7e-87dd-477b-9566-bbcfd6c23255",
+ "total_cost_usd": 0.006738,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1535,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 477,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1535,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 477,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1535,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1535
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 758,
+   "outputTokens": 491,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1535,
+   "webSearchRequests": 0,
+   "costUSD": 0.006738,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "5d70efbc-43ad-47c9-98f1-50d87818ee48"
+}

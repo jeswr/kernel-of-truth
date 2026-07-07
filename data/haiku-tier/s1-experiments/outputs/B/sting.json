@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7114,
+ "duration_api_ms": 9173,
+ "ttft_ms": 6467,
+ "ttft_stream_ms": 2134,
+ "time_to_request_ms": 153,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone or something does this to someone: uses a pointed part to make a small hole in the body; venom or sharp pain happens; after this, the place is bad.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomeoneRef\"},{\"index\":3,\"refKind\":\"PlaceRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"instrument\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"mods\":[{\"mod\":\"SMALL\"},{\"mod\":\"GOOD\",\"intensifier\":\"NOT\"}]}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"mods\":[{\"mod\":\"SMALL\"},{\"mod\":\"GOOD\",\"intensifier\":\"NOT\"}]},\"place\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}},\"bind\":3}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"MOMENT\"},\"mods\":[{\"mod\":\"BAD\"}]}}},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"mods\":[{\"mod\":\"BAD\"}]},\"place\":{\"kind\":\"ref\",\"index\":3}}}]}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "30388587-9899-4568-a4dd-58d72882e382",
+ "total_cost_usd": 0.0067713,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1500,
+  "cache_read_input_tokens": 4533,
+  "output_tokens": 505,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1500,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 505,
+    "cache_read_input_tokens": 4533,
+    "cache_creation_input_tokens": 1500,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1500
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 723,
+   "outputTokens": 519,
+   "cacheReadInputTokens": 4533,
+   "cacheCreationInputTokens": 1500,
+   "webSearchRequests": 0,
+   "costUSD": 0.0067713,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "d39a36de-5489-45f4-bfc1-4e8b7c54c603"
+}
