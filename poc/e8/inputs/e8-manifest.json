@@ -1,0 +1,137 @@
+{
+  "experiment": "E8 kernel<->SAE alignment (docs/poc-design.md E8; bead kernel-of-truth-u0x)",
+  "date": "2026-07-07T12:25:02.577018+00:00",
+  "designPin": "poc/e8/README.md (fixed before build; amendments would be listed there)",
+  "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "corpusPin": {
+    "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+    "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+    "conceptCount": 54
+  },
+  "itemSource": "poc/e2/inputs/items.json \u2014 the 51 E2 analysis items, reused byte-identically",
+  "itemCountAnalysis": 51,
+  "moleculeTier": {
+    "included": false,
+    "reason": "molecules-v0 records have no explications, hence no derived kernel vectors; molecule-vector derivation is a pinned encoder version change (docs/design-molecule-tier.md) => new pre-registration. Follow-up bead filed.",
+    "moleculeCount": 54
+  },
+  "e2InputSha256": {
+    "items.json": "0c6248efc5c2e1f12ea5f62857494322a5cf8eef88a67714e4b828deea2c6c4d",
+    "contexts.json": "13c7e7a86d5b1b52eafd1177cb5b3828afe41437cf959534780e572726aa0acd",
+    "kernel-rdm.json": "35049e82a1953cd2c367c6a87e5249ec69f3aeb3436a28bc525622f7ae2444c0",
+    "baseline-word2vec.json": "a9d064df422dab2f6700c023b6b3df0a0797a170a20984d562b153b7f8e1f23e",
+    "baseline-wordnet.json": "f580fc3b81dbccef4d413fc6338ef015d95eed5d1ee8dadb6a52ea7597fa5148",
+    "baseline-gloss.json": "a8dda2be1cc2b37f17bad2a48b850630aea8405ad461f6e4e6a765e53e352713"
+  },
+  "reanalysisRdms": {
+    "path": "poc/e2/results-incoming/20260707-112247-reanalysis/rdms-reanalysis.json",
+    "sha256": "35e31605a2aa579b2051b1c648b977a686a84dbbadcb85c072c9e5f7e2142b2d",
+    "use": "emb4 sentence-embedding RDMs as S1 covariates (committed extraction reused; no new GPU work)"
+  },
+  "families": {
+    "gpt2": {
+      "model_id": "openai-community/gpt2",
+      "model_revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+      "sae_repo": "jbloom/GPT2-Small-SAEs-Reformatted",
+      "sae_revision": "57d08a4fd333fbf18caf3fbea63ceeb88e2f50d9",
+      "sae_file": "blocks.6.hook_resid_pre/sae_weights.safetensors",
+      "sae_cfg_file": "blocks.6.hook_resid_pre/cfg.json",
+      "sae_file_bytes": 151096640,
+      "sae_arch": "sae_lens_standard",
+      "sae_keys": {
+        "W_enc": [
+          768,
+          24576
+        ],
+        "b_enc": [
+          24576
+        ],
+        "W_dec": [
+          24576,
+          768
+        ],
+        "b_dec": [
+          768
+        ]
+      },
+      "d_in": 768,
+      "d_sae": 24576,
+      "topk": null,
+      "hookpoint": "blocks.6.hook_resid_pre",
+      "hidden_state_index": 6,
+      "n_layers_expected": 12,
+      "basis": "subtract_hidden_mean",
+      "prepend_bos": true,
+      "fvu_gate": 0.5,
+      "training": {
+        "dataset": "Skylion007/openwebtext",
+        "tokens": 300000000,
+        "l1_coefficient": 8e-05
+      },
+      "model_bytes_approx": 548000000
+    },
+    "pythia-160m": {
+      "model_id": "EleutherAI/pythia-160m",
+      "model_revision": "50f5173d932e8e61f858120bcb800b97af589f46",
+      "sae_repo": "EleutherAI/sae-pythia-160m-32k",
+      "sae_revision": "2046768ae0c8cb69a2e8ed64f2eafb9f8c5fa294",
+      "sae_file": "layers.5/sae.safetensors",
+      "sae_cfg_file": "layers.5/cfg.json",
+      "sae_file_bytes": 201461072,
+      "sae_arch": "eleuther_topk",
+      "sae_keys": {
+        "encoder.weight": [
+          32768,
+          768
+        ],
+        "encoder.bias": [
+          32768
+        ],
+        "W_dec": [
+          32768,
+          768
+        ],
+        "b_dec": [
+          768
+        ]
+      },
+      "d_in": 768,
+      "d_sae": 32768,
+      "topk": 32,
+      "hookpoint": "layers.5",
+      "hidden_state_index": 6,
+      "n_layers_expected": 12,
+      "basis": "none",
+      "prepend_bos": false,
+      "fvu_gate": 0.75,
+      "training": {
+        "dataset": "EleutherAI/pile",
+        "tokens": 8200000000,
+        "k": 32
+      },
+      "model_bytes_approx": 375000000
+    }
+  },
+  "signature": {
+    "definition": "per-token SAE encode -> mean over word-span tokens -> mean over the 24 bank contexts; fp32",
+    "rejectedAlternative": "direct feature-max (single top feature) \u2014 brittle under feature splitting, discards the profile, near-degenerate under TopK k=32",
+    "spanRule": "E2 verbatim: tokens overlapping [charStart, charEnd), attention==1, nonzero offset width",
+    "inVocabRule": "E2 verbatim: ' '+word tokenizes to 1..4 tokens, no UNK; analysed set = intersection of both families"
+  },
+  "stats": {
+    "seed": 20260707,
+    "nPerm": 10000,
+    "alphaPrimary": 0.01,
+    "primaryKernelVariant": "jl512",
+    "x4DistortionRdmSpearman": {
+      "jl512": 0.9717634748044783,
+      "jl576": 0.9705671745304928
+    },
+    "nullsNote": "shuffled-kernel == Mantel concept-label permutation at the RDM level (P K P^T); one permutation scheme implements both pre-registered nulls"
+  },
+  "downloadPlanBytes": {
+    "models": 923000000,
+    "saes": 352557712,
+    "destination": "Modal volume kot-hf-cache (NOT the CPU box)"
+  }
+}
