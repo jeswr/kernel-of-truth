@@ -126,10 +126,15 @@ fixed BEFORE any model run.
     split; referent kinds; concept refs → referenced slug words; structural
     material contributes nothing; no stopword removal; Jaccard). Full spec in
     `harness/glossRdm.ts`.
-11. **X3 conditioning deferred.** The pre-registration conditions
-    interpretation on X3 polarity-stratified subsets; the runner does not
-    compute those strata (follow-up filed). Any positive verdict must carry
-    that caveat until done.
+11. **X3 conditioning deferred** (at the original run). The pre-registration
+    conditions interpretation on X3 polarity-stratified subsets; the runner
+    does not compute those strata. LANDED 2026-07-07 as a labelled post-hoc
+    analysis (bead kernel-of-truth-avt): `reanalysis/` + the verdict in
+    `results-incoming/20260707-112247-reanalysis/` report NOT-presence pair
+    strata and item-subset RSA alongside the sentence-embedding baseline
+    re-analysis (design-review change 1, bead kernel-of-truth-qha). The
+    original verdict stands as reported; quote the neither-NOT-stratum
+    caveat from that file with any external use.
 12. **Similarity convention.** All shipped matrices are similarity (not
     dissimilarity) matrices; Spearman-based statistics are invariant up to
     sign and the runner states the convention.
