@@ -1,0 +1,1919 @@
+{
+  "artifact": "e1-mapper-lexicon",
+  "date": "2026-07-07T05:16:30.043Z",
+  "provenance": {
+    "mapper": {
+      "version": "0.1.0",
+      "srcSha256": {
+        "lexicon.ts": "32bcbfd4226050fa74040ffb2137dffe6d3fd39f3fad6afe7a837ade77213926",
+        "lemmatize.ts": "05b6a486cb40942e2a0b7b3c6c0cddfeb54c44a50e699df3a4d1031a4b6e1f8f",
+        "tokenize.ts": "417efa5723a0a29495e80f9f56a7992e43255621bf2aec87e48aa1292fed7dbb",
+        "mapper.ts": "ab2ea8f6c8e99316f844e01cd6f71808db015c844efed3cdc53e82616d0f81ea",
+        "primes.ts": "2cfc6b725a24577edae01456d715ec5ee90ed341bf66fdd821ed960c8d42779f"
+      }
+    },
+    "kernelV0": {
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "conceptCount": 54
+    },
+    "note": "lexicon entries exported live from @jeswr/kernel-mapper buildLexicon(); lemmatizer/tokenizer tables transcribed from mapper/src and verified behaviourally against exported functions at generation time (fail-closed)"
+  },
+  "decisionStreamFormat": "per WORD token: 'norm|kind|target|phraseLen|phrasePos'; kind in {concept,prime,abstain,none}; target = conceptId | 'prime:'+name | sorted abstain candidate keys joined by ',' | ''; lines joined by \\n; stories separated by a '#<storyIndex>' line; sha-256 over the utf-8 bytes",
+  "entries": [
+    {
+      "phrase": [
+        "event"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:event"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "archived"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:archived"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "bookmark"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:bookmark"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "kind"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:kind"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "happy"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:happy"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "sad"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:sad"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "afraid"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:afraid"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "angry"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:angry"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "friend"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:friend"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "promise"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:promise"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "lie"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:lie"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "help"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:help"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "remember"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:remember"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "forget"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:forget"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "learn"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:learn"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "believe"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:believe"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "make"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:make"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "break"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:break"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "give"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:give"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "take"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:take"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "find"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:find"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "lose"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:lose"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "right"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:right"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "wrong"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:wrong"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "useful"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:useful"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "cause"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:cause"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "change"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:change"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "begin"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:begin"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "end"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:end"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "part",
+        "of"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:part-of"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "has",
+        "part"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:has-part"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "inside"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:inside"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "near"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:near"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "alive"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:alive"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "dead"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:dead"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "visible"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:visible"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "broken"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:broken"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "lost"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:lost"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "helpful"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:helpful"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "trustworthy"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:trustworthy"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "grieving"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:grieving"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "gift"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:gift"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "death"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:death"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "birth"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:birth"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "teacher"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:teacher"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "liar"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:liar"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "memory"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:memory"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "conversation"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:conversation"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "reminder"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:reminder"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "thief"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:thief"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "celebration"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:celebration"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "condolence"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:condolence"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "repair"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:repair"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "maker",
+        "of"
+      ],
+      "target": {
+        "kind": "concept",
+        "conceptId": "urn:kernel-v0:maker-of"
+      },
+      "source": "concept-label"
+    },
+    {
+      "phrase": [
+        "i"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "I"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "me"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "I"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "you"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "YOU"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "someone"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SOMEONE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "somebody"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SOMEONE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "something"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SOMETHING~THING"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "thing"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SOMETHING~THING"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "people"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "PEOPLE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "body"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BODY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "kind"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "KIND"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "kind",
+        "of"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "KIND"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "part"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "PART"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "this"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THIS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "these"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THIS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "the",
+        "same"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THE-SAME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "same"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THE-SAME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "other"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "OTHER~ELSE~ANOTHER"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "else"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "OTHER~ELSE~ANOTHER"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "another"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "OTHER~ELSE~ANOTHER"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "one"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "ONE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "two"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "TWO"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "some"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SOME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "all"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "ALL"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "much"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "MUCH~MANY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "many"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "MUCH~MANY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "little"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "LITTLE~FEW"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "few"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "LITTLE~FEW"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "good"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "GOOD"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "bad"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BAD"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "big"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BIG"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "small"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SMALL"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "little"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SMALL"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "think"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THINK"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "know"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "KNOW"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "want"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "WANT"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "do",
+        "not",
+        "want"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "DON'T-WANT"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "does",
+        "not",
+        "want"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "DON'T-WANT"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "did",
+        "not",
+        "want"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "DON'T-WANT"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "feel"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "FEEL"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "see"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SEE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "hear"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "HEAR"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "say"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SAY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "word"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "WORDS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "true"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "TRUE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "do"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "DO"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "happen"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "HAPPEN"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "move"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "MOVE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "is"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "are"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "am"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "was"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "were"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "be"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "been"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "being"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SOMEWHERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "there",
+        "is"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THERE-IS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "there",
+        "are"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THERE-IS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "there",
+        "was"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THERE-IS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "there",
+        "were"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "THERE-IS"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "is"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "are"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "am"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "was"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "were"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "be"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "been"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "being"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BE-SPEC"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "mine"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "IS-MINE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "live"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "LIVE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "die"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "DIE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "when"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "WHEN~TIME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "time"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "WHEN~TIME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "now"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "NOW"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "before"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BEFORE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "after"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "AFTER"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "a",
+        "long",
+        "time"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "A-LONG-TIME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "a",
+        "short",
+        "time"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "A-SHORT-TIME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "for",
+        "some",
+        "time"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "FOR-SOME-TIME"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "moment"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "MOMENT"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "where"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "WHERE~PLACE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "place"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "WHERE~PLACE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "here"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "HERE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "above"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "ABOVE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "below"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BELOW"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "far"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "FAR"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "near"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "NEAR"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "side"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "SIDE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "inside"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "INSIDE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "touch"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "TOUCH"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "not"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "NOT"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "maybe"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "MAYBE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "can"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "CAN"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "because"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "BECAUSE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "if"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "IF"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "very"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "VERY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "more"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "MORE"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "like"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "LIKE~AS~WAY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "as"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "LIKE~AS~WAY"
+      },
+      "source": "prime-exponent"
+    },
+    {
+      "phrase": [
+        "way"
+      ],
+      "target": {
+        "kind": "prime",
+        "prime": "LIKE~AS~WAY"
+      },
+      "source": "prime-exponent"
+    }
+  ],
+  "lemmatizer": {
+    "irregular": {
+      "is": "be",
+      "are": "be",
+      "am": "be",
+      "was": "be",
+      "were": "be",
+      "been": "be",
+      "being": "be",
+      "has": "have",
+      "had": "have",
+      "having": "have",
+      "does": "do",
+      "did": "do",
+      "done": "do",
+      "could": "can",
+      "might": "may",
+      "would": "will",
+      "should": "shall",
+      "said": "say",
+      "saw": "see",
+      "seen": "see",
+      "went": "go",
+      "gone": "go",
+      "got": "get",
+      "gotten": "get",
+      "came": "come",
+      "ran": "run",
+      "sat": "sit",
+      "stood": "stand",
+      "held": "hold",
+      "kept": "keep",
+      "slept": "sleep",
+      "left": "leave",
+      "met": "meet",
+      "fell": "fall",
+      "fallen": "fall",
+      "flew": "fly",
+      "flown": "fly",
+      "ate": "eat",
+      "eaten": "eat",
+      "drank": "drink",
+      "drunk": "drink",
+      "sang": "sing",
+      "sung": "sing",
+      "swam": "swim",
+      "swum": "swim",
+      "began": "begin",
+      "begun": "begin",
+      "brought": "bring",
+      "bought": "buy",
+      "caught": "catch",
+      "taught": "teach",
+      "fought": "fight",
+      "thought": "think",
+      "felt": "feel",
+      "heard": "hear",
+      "told": "tell",
+      "knew": "know",
+      "known": "know",
+      "took": "take",
+      "taken": "take",
+      "gave": "give",
+      "given": "give",
+      "found": "find",
+      "lost": "lose",
+      "made": "make",
+      "broke": "break",
+      "broken": "break",
+      "spoke": "speak",
+      "spoken": "speak",
+      "wore": "wear",
+      "worn": "wear",
+      "grew": "grow",
+      "grown": "grow",
+      "threw": "throw",
+      "thrown": "throw",
+      "blew": "blow",
+      "blown": "blow",
+      "drew": "draw",
+      "drawn": "draw",
+      "hid": "hide",
+      "hidden": "hide",
+      "bit": "bite",
+      "bitten": "bite",
+      "lit": "light",
+      "meant": "mean",
+      "paid": "pay",
+      "sent": "send",
+      "spent": "spend",
+      "built": "build",
+      "lent": "lend",
+      "bent": "bend",
+      "understood": "understand",
+      "became": "become",
+      "forgot": "forget",
+      "forgotten": "forget",
+      "woke": "wake",
+      "woken": "wake",
+      "rode": "ride",
+      "ridden": "ride",
+      "wrote": "write",
+      "written": "write",
+      "dug": "dig",
+      "hung": "hang",
+      "shone": "shine",
+      "sold": "sell",
+      "shook": "shake",
+      "shaken": "shake",
+      "stuck": "stick",
+      "swept": "sweep",
+      "wept": "weep",
+      "died": "die",
+      "dying": "die",
+      "lied": "lie",
+      "lying": "lie",
+      "tied": "tie",
+      "tying": "tie",
+      "children": "child",
+      "men": "man",
+      "women": "woman",
+      "feet": "foot",
+      "teeth": "tooth",
+      "mice": "mouse",
+      "geese": "goose",
+      "leaves": "leaf",
+      "wolves": "wolf",
+      "lives": "life",
+      "knives": "knife",
+      "shelves": "shelf",
+      "better": "good",
+      "best": "good",
+      "worse": "bad",
+      "worst": "bad",
+      "bigger": "big",
+      "biggest": "big",
+      "littler": "little",
+      "littlest": "little",
+      "sadder": "sad",
+      "saddest": "sad",
+      "happier": "happy",
+      "happiest": "happy",
+      "angrier": "angry",
+      "angriest": "angry"
+    },
+    "noStrip": [
+      "this",
+      "his",
+      "hers",
+      "its",
+      "is",
+      "was",
+      "has",
+      "does",
+      "yes",
+      "us",
+      "thus",
+      "gas",
+      "bus",
+      "plus",
+      "always",
+      "perhaps",
+      "news",
+      "once",
+      "during",
+      "thing",
+      "something",
+      "nothing",
+      "anything",
+      "everything",
+      "king",
+      "ring",
+      "sing",
+      "wing",
+      "spring",
+      "string",
+      "bring",
+      "morning",
+      "evening",
+      "ceiling",
+      "sibling",
+      "darling",
+      "duckling",
+      "young",
+      "red",
+      "bed",
+      "sad",
+      "bad",
+      "dad",
+      "mad",
+      "glad",
+      "need",
+      "seed",
+      "feed",
+      "speed",
+      "indeed",
+      "shed",
+      "sled",
+      "wed",
+      "bread",
+      "head",
+      "friend",
+      "end",
+      "and",
+      "said",
+      "kid",
+      "did",
+      "god",
+      "good",
+      "food",
+      "wood",
+      "hundred",
+      "old",
+      "cold",
+      "hold",
+      "bold",
+      "gold",
+      "told",
+      "world",
+      "word",
+      "bird",
+      "weird",
+      "hard",
+      "yard",
+      "card",
+      "board",
+      "toward",
+      "forward",
+      "backward",
+      "wizard",
+      "lizard",
+      "afraid",
+      "her",
+      "never",
+      "ever",
+      "over",
+      "under",
+      "after",
+      "other",
+      "mother",
+      "father",
+      "brother",
+      "sister",
+      "water",
+      "paper",
+      "super",
+      "later",
+      "butter",
+      "letter",
+      "better",
+      "dinner",
+      "summer",
+      "winter",
+      "silver",
+      "together",
+      "weather",
+      "flower",
+      "tower",
+      "power",
+      "river",
+      "tiger",
+      "monster",
+      "hamster",
+      "spider",
+      "ladder",
+      "corner",
+      "wonder",
+      "remember",
+      "number",
+      "answer",
+      "clever",
+      "either",
+      "neither",
+      "whether",
+      "per",
+      "nest",
+      "best",
+      "rest",
+      "test",
+      "chest",
+      "west",
+      "east",
+      "forest",
+      "interest",
+      "honest",
+      "fastest",
+      "must",
+      "just",
+      "first",
+      "last",
+      "most",
+      "lost",
+      "past",
+      "cost",
+      "against",
+      "burst",
+      "trust",
+      "dust"
+    ]
+  },
+  "tokenizer": {
+    "special": {
+      "won't": [
+        "will",
+        "not"
+      ],
+      "can't": [
+        "can",
+        "not"
+      ],
+      "cannot": [
+        "can",
+        "not"
+      ],
+      "shan't": [
+        "shall",
+        "not"
+      ],
+      "ain't": [
+        "is",
+        "not"
+      ],
+      "let's": [
+        "let",
+        "us"
+      ],
+      "o'clock": [
+        "oclock"
+      ]
+    },
+    "pronounSIs": [
+      "it",
+      "that",
+      "he",
+      "she",
+      "there",
+      "what",
+      "who",
+      "where",
+      "here",
+      "this"
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "experiment": "E1",
+  "mock": true,
+  "seeds": [
+    0,
+    1
+  ],
+  "preRegisteredCriteria": {
+    "primary": "kernel-frozen > shuffled-kernel-frozen, paired permutation across 5 paired seeds, p<0.05, single look: kernel at the 50%-token checkpoint vs shuffled at the 100%-token endpoint",
+    "kill": "\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance",
+    "circularityGuard": "every metric also evaluated on the untrained step-0 kernel-frozen model; trained success requires beating the step-0 baseline",
+    "pplRule": "if concept-token PPL saturates within 2% across all arms it is declared uninformative, pre-registered",
+    "secondary": "Kernel > random-frozen is secondary (Holm-corrected), demoted per BLOCKER 2"
+  },
+  "primary": {
+    "kernel50": [
+      0.02702702702702703,
+      0.02702702702702703
+    ],
+    "shuffled100": [
+      0.033783783783783786,
+      0.016891891891891893
+    ],
+    "diffs": [
+      -0.006756756756756757,
+      0.010135135135135136
+    ],
+    "meanDiff": 0.0016891891891891893,
+    "p": 0.5,
+    "n": 2,
+    "minAttainableP": 0.25,
+    "test": "exact one-sided sign-flip permutation",
+    "pass": false
+  },
+  "tost": {
+    "meanDiff": 0.0016891891891891893,
+    "sd": 0.011944371303826817,
+    "cohensD": 0.1414213562373095,
+    "sesoiD": 0.5,
+    "rawBound": 0.005972185651913408,
+    "pLower": 0.26549230424914533,
+    "pUpper": 0.3506118046650386,
+    "equivalent": false,
+    "test": "paired TOST, bounds +/- sesoi_d*sd, alpha=0.05 per side"
+  },
+  "circularityGuard": {
+    "step0Mean": 0.02027027027027027,
+    "kernel50Mean": 0.02702702702702703,
+    "kernel100Mean": 0.02702702702702703,
+    "beatsStep0At50pct": true,
+    "beatsStep0At100pct": true,
+    "probeStep0": [
+      0.07870370149612427,
+      0.06018518656492233
+    ],
+    "probe100": [
+      0.03703703731298447,
+      0.018518518656492233
+    ]
+  },
+  "pplSaturation": {
+    "conceptSlicePplByArm": {
+      "kernel-frozen": 1596.2379993286677,
+      "kernel-init": 948.8313585730276,
+      "random-frozen": 1618.3216019270344,
+      "shuffled-frozen": 1652.3959305629287,
+      "trainable": 954.4544529041482
+    },
+    "spread": 0.7415064496266337,
+    "saturated": false
+  },
+  "secondariesHolm": {
+    "kernel100_vs_random100_cloze": {
+      "p": 0.25,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.015202702702702704
+    },
+    "kernel100_vs_shuffled100_cloze": {
+      "p": 0.5,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.0016891891891891893
+    },
+    "kernel100_vs_trainable100_cloze": {
+      "p": 1.0,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": -0.0033783783783783786
+    },
+    "kernel100_vs_kernelInit100_cloze": {
+      "p": 1.0,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": 0.0
+    },
+    "kernel100_vs_shuffled100_probe": {
+      "p": 1.0,
+      "pAdj": 1.0,
+      "reject": false,
+      "meanDiff": -0.006944444961845875
+    }
+  },
+  "verdict": "MOCK RUN \u2014 machinery check only, not a result. (INCONCLUSIVE)",
+  "verdictReason": "primary p = 0.5000 >= 0.05 but TOST does NOT exclude d = 0.5 \u2014 neither a pass nor a pre-registered null (\"null\" requires the pre-registered smallest-effect-size-of-interest (Cohen's d = 0.5 on the primary endpoint) excluded by an equivalence bound (TOST), not mere non-significance)"
+}

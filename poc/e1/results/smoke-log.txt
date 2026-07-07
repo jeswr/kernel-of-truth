@@ -1,0 +1,57 @@
+# E1 mock smoke log (bead kernel-of-truth-bk0, 2026-07-07T05:42Z)
+# 5 arms x 2 seeds x 200 steps, d=64/2 layers, CPU niced, MOCK tables, M0a sample slice
+# corpus sha256: 94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4
+
+## trainer freeze assertions (from summary-*.json)
+"arm": "kernel-frozen",	  "seed": 1,	  "frozenRowsBitIdentical": true,
+"arm": "kernel-init",	  "seed": 1,	  "frozenRowsBitIdentical": null,
+"arm": "kernel-frozen",	  "seed": 0,	  "frozenRowsBitIdentical": true,
+"arm": "random-frozen",	  "seed": 1,	  "frozenRowsBitIdentical": true,
+"arm": "shuffled-frozen",	  "seed": 1,	  "frozenRowsBitIdentical": true,
+"arm": "kernel-init",	  "seed": 0,	  "frozenRowsBitIdentical": null,
+"arm": "trainable",	  "seed": 1,	  "frozenRowsBitIdentical": null,
+"arm": "random-frozen",	  "seed": 0,	  "frozenRowsBitIdentical": true,
+"arm": "shuffled-frozen",	  "seed": 0,	  "frozenRowsBitIdentical": true,
+"arm": "trainable",	  "seed": 0,	  "frozenRowsBitIdentical": null,
+
+## final 40 lines of run (grid tail, evals, verdict, independent checkpoint assertions)
+--- train: trainable seed=1 lr=0.001 ---
+[2s] ckpt step0 @step 0: val 8.3127 conceptSlice 8.321060109494338
+[21s] ckpt 50pct @step 100: val 5.4835 conceptSlice 6.979752782565444
+[38s] ckpt 100pct @step 200: val 5.1714 conceptSlice 6.817680572395894
+{"arm": "trainable", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[38s] done: final val 5.1714
+--- train: kernel-init seed=0 lr=0.001 ---
+[2s] ckpt step0 @step 0: val 8.3031 conceptSlice 8.311202179390156
+[20s] ckpt 50pct @step 100: val 5.5345 conceptSlice 6.95008955759332
+[36s] ckpt 100pct @step 200: val 5.2147 conceptSlice 6.763712756745441
+{"arm": "kernel-init", "seed": 0, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[36s] done: final val 5.2147
+--- train: kernel-init seed=1 lr=0.001 ---
+[2s] ckpt step0 @step 0: val 8.3125 conceptSlice 8.310484402215303
+[18s] ckpt 50pct @step 100: val 5.4762 conceptSlice 6.973515766770093
+[35s] ckpt 100pct @step 200: val 5.1636 conceptSlice 6.8392516890568515
+{"arm": "kernel-init", "seed": 1, "lr": 0.001, "steps": 200, "frozenRowsBitIdentical": null}
+[35s] done: final val 5.1636
+=== [4/5] evals (incl. step-0 circularity baselines) ===
+{"arm": "kernel-frozen", "seed": 0, "tag": "step0", "heldOutAccAttested": 0.02364864864864865, "probeTestAcc": 0.07870370149612427, "conceptSlicePpl": 4045.6267736456853}
+{"arm": "kernel-frozen", "seed": 0, "tag": "50pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.02777777798473835, "conceptSlicePpl": 1912.9002675956986}
+{"arm": "kernel-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.03703703731298447, "conceptSlicePpl": 1587.5951223590007}
+{"arm": "shuffled-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.033783783783783786, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 1601.5293516839376}
+{"arm": "random-frozen", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.02027027027027027, "probeTestAcc": 0.032407406717538834, "conceptSlicePpl": 1553.5948688026212}
+{"arm": "trainable", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.033783783783783786, "probeTestAcc": 0.046296294778585434, "conceptSlicePpl": 968.9248350289481}
+{"arm": "kernel-init", "seed": 0, "tag": "100pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.05092592537403107, "conceptSlicePpl": 940.3727381888575}
+{"arm": "kernel-frozen", "seed": 1, "tag": "step0", "heldOutAccAttested": 0.016891891891891893, "probeTestAcc": 0.06018518656492233, "conceptSlicePpl": 4039.7630031777985}
+{"arm": "kernel-frozen", "seed": 1, "tag": "50pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.046296294778585434, "conceptSlicePpl": 1600.8397058928826}
+{"arm": "kernel-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.018518518656492233, "conceptSlicePpl": 1604.8808762983344}
+{"arm": "shuffled-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.016891891891891893, "probeTestAcc": 0.02777777798473835, "conceptSlicePpl": 1703.2625094419195}
+{"arm": "random-frozen", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.0033783783783783786, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 1683.0483350514473}
+{"arm": "trainable", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.0416666679084301, "conceptSlicePpl": 939.9840707793481}
+{"arm": "kernel-init", "seed": 1, "tag": "100pct", "heldOutAccAttested": 0.02702702702702703, "probeTestAcc": 0.03703703731298447, "conceptSlicePpl": 957.2899789571977}
+=== [5/5] pre-registered statistics + verdict ===
+verdict: MOCK RUN — machinery check only, not a result. (INCONCLUSIVE)
+wrote /home/ec2-user/css/kernel/kernel-of-truth/poc/e1/results/verdict-e1-mock.json / .md
+=== done: /home/ec2-user/css/kernel/kernel-of-truth/poc/e1/results/verdict-e1-mock.{json,md} ===
+smoke assertions: 20 row-identity comparisons over 5 arms x 2 seeds
+SMOKE PASS: frozen rows bit-identical (step0 vs 50% vs 100%); trainable rows moved; losses improved; verdict emitted (mock-labelled)
+smoke work dir: /tmp/e1work-smoke (delete when done: rm -rf /tmp/e1work-smoke)

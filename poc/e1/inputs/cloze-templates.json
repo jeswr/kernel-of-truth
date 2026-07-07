@@ -1,0 +1,601 @@
+{
+  "artifact": "e1-cloze-templates",
+  "date": "2026-07-07T05:16:46.076Z",
+  "provenance": {
+    "mapper": {
+      "version": "0.1.0",
+      "srcSha256": {
+        "lexicon.ts": "32bcbfd4226050fa74040ffb2137dffe6d3fd39f3fad6afe7a837ade77213926",
+        "lemmatize.ts": "05b6a486cb40942e2a0b7b3c6c0cddfeb54c44a50e699df3a4d1031a4b6e1f8f",
+        "tokenize.ts": "417efa5723a0a29495e80f9f56a7992e43255621bf2aec87e48aa1292fed7dbb",
+        "mapper.ts": "ab2ea8f6c8e99316f844e01cd6f71808db015c844efed3cdc53e82616d0f81ea",
+        "primes.ts": "2cfc6b725a24577edae01456d715ec5ee90ed341bf66fdd821ed960c8d42779f"
+      }
+    },
+    "kernelV0": {
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "conceptCount": 54
+    }
+  },
+  "heldOutUnit": "template-type x concept (MAJOR 6): the PRIMARY endpoint is concept cloze accuracy computed ONLY over heldOut definitional types x all scoreable concepts; dev types are for tuning/monitoring and are descriptive",
+  "scoring": "candidate-restricted cloze: logits at the {c} slot position, argmax over the 54 concept-token ids; teacher-forced left context = frame text up to the slot with {gloss} filled from kernel-v0 gloss (verbatim, lowercased by the tokenizer)",
+  "glossNote": "glosses may contain other concepts' surface words (reference-bearing kernel entries); frames are machine-checked concept-leak-free, glosses are fixed data identical across arms and covered by the step-0 circularity baseline",
+  "definitional": {
+    "types": [
+      "people say : {gloss} they call this {c} .",
+      "the old man said : {gloss} the word for this is {c} .",
+      "listen : {gloss} we say it like this : {c} .",
+      "mom says : {gloss} there is a word for this . the word is {c} .",
+      "{gloss} this is what people call {c} .",
+      "think about this : {gloss} people have one word for it : {c} .",
+      "{gloss} when it is like this , people say the word {c} .",
+      "a book says : {gloss} the name for this is {c} .",
+      "i will tell you something . {gloss} people call it {c} .",
+      "here is a riddle : {gloss} the answer is {c} .",
+      "{gloss} because of this , the best word is {c} .",
+      "dad said : {gloss} so we say {c} .",
+      "someone says : {gloss} another word for all this is {c} .",
+      "you know it : {gloss} its name is {c} .",
+      "{gloss} all of this is called {c} .",
+      "the wise woman said : {gloss} this thing is {c} ."
+    ],
+    "split": {
+      "label": "perm/e1/templates/def-heldout (encoder DetStream)",
+      "dev": [
+        0,
+        1,
+        2,
+        8,
+        9,
+        10,
+        12,
+        13
+      ],
+      "heldOut": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        11,
+        14,
+        15
+      ]
+    }
+  },
+  "probe": {
+    "note": "probe stimuli; linear probe reads MID-LAYER hidden state at the pre-registered NON-concept position = final word token of the sentence (circularity guard: probes only on mid-layer states at non-concept positions)",
+    "types": {
+      "adjPerson": [
+        "the little girl was very {c} that day , and everyone could see it .",
+        "tom felt {c} when he came home , so he told his mom about it .",
+        "my sister was {c} all morning , but then things got better .",
+        "the old man seemed {c} , and the children saw it too .",
+        "she was so {c} that she could not say a word .",
+        "he looked {c} while he walked to the park with his dog .",
+        "the boy felt very {c} after the long trip , and he sat down .",
+        "grandma was {c} , so the kids stayed with her all day ."
+      ],
+      "adjThing": [
+        "the toy was {c} , so tom put it on the table .",
+        "her cup looked {c} after the fall , and she showed it to dad .",
+        "the big box in the room was {c} , and everyone knew it .",
+        "that book seemed {c} to the little girl , but she kept it .",
+        "the wall was very {c} , so the man looked at it for a long time .",
+        "his bike was {c} , and he wanted to ride it again .",
+        "the door was {c} that morning , so mom opened it slowly .",
+        "the picture on the wall was {c} , and the kids talked about it ."
+      ],
+      "verb": [
+        "tom wanted to {c} the ball , so he went to the garden .",
+        "she tried to {c} her toys before dinner , and mom smiled at her .",
+        "the boy could {c} the little bird , and he was glad about it .",
+        "we will {c} the cake together , said the girl to her brother .",
+        "dad had to {c} the old car , so he got up early .",
+        "they did not {c} the door , because it was late .",
+        "can you {c} the song with me , asked the small boy ?",
+        "every day the kids would {c} something new at school ."
+      ],
+      "noun": [
+        "tom saw the {c} in the garden , and he ran to it .",
+        "the {c} was big and bright , so the kids looked at it .",
+        "she put the {c} on the table next to the cup .",
+        "everyone talked about the {c} for a long time after dinner .",
+        "the little girl drew a picture of the {c} for her mom .",
+        "a {c} is something people think about , said the old man .",
+        "the children liked the {c} all afternoon .",
+        "dad told a story about a {c} before bed ."
+      ],
+      "prep": [
+        "the cat sat {c} the box , and the kids laughed .",
+        "her ball was {c} the house , so she went to get it .",
+        "tom put the toy {c} the bag before school .",
+        "the bird stayed {c} the tree all morning .",
+        "they played {c} the garden until it got dark .",
+        "the dog slept {c} the door every night .",
+        "mom kept the keys {c} the drawer , away from the baby .",
+        "the fish swam {c} the pond , and the boy watched it ."
+      ],
+      "rel": [
+        "the wheel is {c} the car , said the man to his son .",
+        "every window is {c} the house , and the kids know it .",
+        "the old woman is {c} the chair , said tom with a smile .",
+        "this door is {c} the barn , the farmer said .",
+        "a leg is {c} the table , and that is easy to see .",
+        "the roof is {c} the home , dad said to the twins .",
+        "the man is {c} the toy , because he worked on it all day .",
+        "each page is {c} the book , the girl said ."
+      ]
+    },
+    "split": {
+      "adjPerson": {
+        "train": [
+          0,
+          3,
+          4,
+          5
+        ],
+        "test": [
+          1,
+          2,
+          6,
+          7
+        ]
+      },
+      "adjThing": {
+        "train": [
+          0,
+          1,
+          2,
+          5
+        ],
+        "test": [
+          3,
+          4,
+          6,
+          7
+        ]
+      },
+      "verb": {
+        "train": [
+          1,
+          2,
+          3,
+          6
+        ],
+        "test": [
+          0,
+          4,
+          5,
+          7
+        ]
+      },
+      "noun": {
+        "train": [
+          1,
+          3,
+          4,
+          7
+        ],
+        "test": [
+          0,
+          2,
+          5,
+          6
+        ]
+      },
+      "prep": {
+        "train": [
+          0,
+          2,
+          4,
+          5
+        ],
+        "test": [
+          1,
+          3,
+          6,
+          7
+        ]
+      },
+      "rel": {
+        "train": [
+          1,
+          3,
+          4,
+          5
+        ],
+        "test": [
+          0,
+          2,
+          6,
+          7
+        ]
+      }
+    },
+    "splitLabel": "perm/e1/templates/probe-split/<bank> (encoder DetStream)"
+  },
+  "conceptBank": {
+    "afraid": "adjPerson",
+    "alive": "adjPerson",
+    "angry": "adjPerson",
+    "archived": "adjThing",
+    "begin": "verb",
+    "believe": "verb",
+    "birth": "noun",
+    "bookmark": "noun",
+    "break": "verb",
+    "broken": "adjThing",
+    "cause": "verb",
+    "celebration": "noun",
+    "change": "noun",
+    "condolence": "noun",
+    "conversation": "noun",
+    "dead": "adjPerson",
+    "death": "noun",
+    "end": "verb",
+    "event": "noun",
+    "find": "verb",
+    "forget": "verb",
+    "friend": "noun",
+    "gift": "noun",
+    "give": "verb",
+    "grieving": "adjPerson",
+    "happy": "adjPerson",
+    "has-part": "rel",
+    "help": "verb",
+    "helpful": "adjPerson",
+    "inside": "prep",
+    "kind": "noun",
+    "learn": "verb",
+    "liar": "noun",
+    "lie": "noun",
+    "lose": "verb",
+    "lost": "adjThing",
+    "make": "verb",
+    "maker-of": "rel",
+    "memory": "noun",
+    "near": "prep",
+    "part-of": "rel",
+    "promise": "noun",
+    "remember": "verb",
+    "reminder": "noun",
+    "repair": "verb",
+    "right": "adjThing",
+    "sad": "adjPerson",
+    "take": "verb",
+    "teacher": "noun",
+    "thief": "noun",
+    "trustworthy": "adjPerson",
+    "useful": "adjThing",
+    "visible": "adjThing",
+    "wrong": "adjThing"
+  },
+  "concepts": [
+    {
+      "id": "urn:kernel-v0:afraid",
+      "slug": "afraid",
+      "bank": "adjPerson",
+      "gloss": "this someone thinks like this: 'some very bad something can happen after now; I don't want it; maybe it will happen'; because of this, this someone feels something bad."
+    },
+    {
+      "id": "urn:kernel-v0:alive",
+      "slug": "alive",
+      "bank": "adjPerson",
+      "gloss": "this someone lives now; the body can move; this someone can feel something."
+    },
+    {
+      "id": "urn:kernel-v0:angry",
+      "slug": "angry",
+      "bank": "adjPerson",
+      "gloss": "this someone thinks like this: 'someone did some bad something before now; I don't want it; I want to do something (because of this)'; because of this, this someone feels something bad."
+    },
+    {
+      "id": "urn:kernel-v0:archived",
+      "slug": "archived",
+      "bank": "adjThing",
+      "gloss": "someone did something; because of this, there is this something [the bookmark]. When archived is true of it, this someone thinks like this: 'I saw this something before now; I don't want to see it now; if I want to see it at some time after now, I can see it at this time.'"
+    },
+    {
+      "id": "urn:kernel-v0:begin",
+      "slug": "begin",
+      "bank": "verb",
+      "gloss": "before this time X is not happening; at this time X happens; after this time X is happening."
+    },
+    {
+      "id": "urn:kernel-v0:believe",
+      "slug": "believe",
+      "bank": "verb",
+      "gloss": "X thinks like this about this something: 'it is true'; X does not know that it is true."
+    },
+    {
+      "id": "urn:kernel-v0:birth",
+      "slug": "birth",
+      "bank": "noun",
+      "gloss": "this something is a something of kind event; it happens at some time; before this time someone does not live; after this time this someone lives."
+    },
+    {
+      "id": "urn:kernel-v0:bookmark",
+      "slug": "bookmark",
+      "bank": "noun",
+      "gloss": "someone did something; because of this, there is this something. There is another something. This something is words; these words say something about that other something. Because there is this something, this someone can know where that other something is."
+    },
+    {
+      "id": "urn:kernel-v0:break",
+      "slug": "break",
+      "bank": "verb",
+      "gloss": "X did something to Y at some time; because of this, something bad happened at this time; after this time Y is not one something; there are many small somethings; people cannot do things with Y."
+    },
+    {
+      "id": "urn:kernel-v0:broken",
+      "slug": "broken",
+      "bank": "adjThing",
+      "gloss": "before now, some something of kind break happened; because of it, people cannot do things with this something."
+    },
+    {
+      "id": "urn:kernel-v0:cause",
+      "slug": "cause",
+      "bank": "verb",
+      "gloss": "X happens at some time; because X happens, Y happens after this time; if X does not happen, Y does not happen."
+    },
+    {
+      "id": "urn:kernel-v0:celebration",
+      "slug": "celebration",
+      "bank": "noun",
+      "gloss": "this something is a big something of kind event; because some very good something happened before now, it happens; when it happens, many people are happy; when it happens, many people feel something good."
+    },
+    {
+      "id": "urn:kernel-v0:change",
+      "slug": "change",
+      "bank": "noun",
+      "gloss": "this something [the change] happens at some time; before this time some something is (a thing of) one kind; after this time it is not of the same kind."
+    },
+    {
+      "id": "urn:kernel-v0:condolence",
+      "slug": "condolence",
+      "bank": "noun",
+      "gloss": "this something is words; someone says them to another someone who is grieving; this someone says them because this someone doesn't want the other someone to feel something bad for a long time."
+    },
+    {
+      "id": "urn:kernel-v0:conversation",
+      "slug": "conversation",
+      "bank": "noun",
+      "gloss": "this something is a something of kind event; when it happens, someone says many things to another someone; when it happens, that someone says many things to the first; the first hears many words."
+    },
+    {
+      "id": "urn:kernel-v0:dead",
+      "slug": "dead",
+      "bank": "adjPerson",
+      "gloss": "this someone died before now; this someone does not live now; this someone cannot do something."
+    },
+    {
+      "id": "urn:kernel-v0:death",
+      "slug": "death",
+      "bank": "noun",
+      "gloss": "this something is a something of kind event; it happens at some time; when it happens, someone dies; after this time this someone does not live."
+    },
+    {
+      "id": "urn:kernel-v0:end",
+      "slug": "end",
+      "bank": "verb",
+      "gloss": "before this time X is happening; after this time X is not happening; people can know: X happened before this time."
+    },
+    {
+      "id": "urn:kernel-v0:event",
+      "slug": "event",
+      "bank": "noun",
+      "gloss": "this something happens at some time; after this time, it is not happening; people can know: it happened (before)."
+    },
+    {
+      "id": "urn:kernel-v0:find",
+      "slug": "find",
+      "bank": "verb",
+      "gloss": "before now X did not know where Y is; because X did something, X sees Y now; X knows now: Y is at this place."
+    },
+    {
+      "id": "urn:kernel-v0:forget",
+      "slug": "forget",
+      "bank": "verb",
+      "gloss": "X knew this something before now; X does not know it now; X cannot think about it now."
+    },
+    {
+      "id": "urn:kernel-v0:friend",
+      "slug": "friend",
+      "bank": "noun",
+      "gloss": "X knows Y. X thinks like this about Y: 'when I do things with this someone, I feel something good; I want this someone to feel something good; I don't want this someone to feel something bad.'"
+    },
+    {
+      "id": "urn:kernel-v0:gift",
+      "slug": "gift",
+      "bank": "noun",
+      "gloss": "some something of kind give happened before now; because of it, someone can say of this something 'it is mine'; another someone [the giver] wants that someone to feel something good."
+    },
+    {
+      "id": "urn:kernel-v0:give",
+      "slug": "give",
+      "bank": "verb",
+      "gloss": "X does something with Y at some time; before this time X could say 'Y is mine'; after this time another someone can say 'Y is mine' and X cannot."
+    },
+    {
+      "id": "urn:kernel-v0:grieving",
+      "slug": "grieving",
+      "bank": "adjPerson",
+      "gloss": "before now, some something of kind death happened; because of it, this someone is sad; this someone thinks about it for some time."
+    },
+    {
+      "id": "urn:kernel-v0:happy",
+      "slug": "happy",
+      "bank": "adjPerson",
+      "gloss": "this someone thinks like this: 'some good something happened before now; I wanted it; I don't want another something now'; because of this, this someone feels something good."
+    },
+    {
+      "id": "urn:kernel-v0:has-part",
+      "slug": "has-part",
+      "bank": "rel",
+      "gloss": "Y is a part of X; X is one something."
+    },
+    {
+      "id": "urn:kernel-v0:help",
+      "slug": "help",
+      "bank": "verb",
+      "gloss": "Y wants to do something; because X does something, Y can do it."
+    },
+    {
+      "id": "urn:kernel-v0:helpful",
+      "slug": "helpful",
+      "bank": "adjPerson",
+      "gloss": "because this someone does many things, many somethings of kind help happen; this someone wants other people to feel something good."
+    },
+    {
+      "id": "urn:kernel-v0:inside",
+      "slug": "inside",
+      "bank": "prep",
+      "gloss": "X is where Y is, inside; if Y moves, X moves."
+    },
+    {
+      "id": "urn:kernel-v0:kind",
+      "slug": "kind",
+      "bank": "noun",
+      "gloss": "some something is of this kind; it cannot not be of this kind; people can know: it is one something; people can know: it is not two somethings; people can know: it is the same something people saw before."
+    },
+    {
+      "id": "urn:kernel-v0:learn",
+      "slug": "learn",
+      "bank": "verb",
+      "gloss": "before now X did not know this something; because X wanted to know it, X did many things; X knows it now."
+    },
+    {
+      "id": "urn:kernel-v0:liar",
+      "slug": "liar",
+      "bank": "noun",
+      "gloss": "this someone says many things of kind lie; because this someone says some thing of kind lie, other people can think: 'this someone is a bad someone'."
+    },
+    {
+      "id": "urn:kernel-v0:lie",
+      "slug": "lie",
+      "bank": "noun",
+      "gloss": "this something is words; someone says them to someone else; this someone knows they are not true; this someone says them because this someone wants the other someone to think they are true."
+    },
+    {
+      "id": "urn:kernel-v0:lose",
+      "slug": "lose",
+      "bank": "verb",
+      "gloss": "before now X knew where Y is; X does not know now at which place Y is; X wants to know where Y is."
+    },
+    {
+      "id": "urn:kernel-v0:lost",
+      "slug": "lost",
+      "bank": "adjThing",
+      "gloss": "before now, some something of kind lose happened; someone does not know now at which place this something is."
+    },
+    {
+      "id": "urn:kernel-v0:make",
+      "slug": "make",
+      "bank": "verb",
+      "gloss": "because X did something at some time, there is this something; before this time it was not."
+    },
+    {
+      "id": "urn:kernel-v0:maker-of",
+      "slug": "maker-of",
+      "bank": "rel",
+      "gloss": "some something of kind make happened before now; when it happened, X did something; because it happened, there is Y."
+    },
+    {
+      "id": "urn:kernel-v0:memory",
+      "slug": "memory",
+      "bank": "noun",
+      "gloss": "this something is at a part of someone; there is another something; because there is this something, this someone can think about that other something now; because there is this something, some something of kind remember can happen."
+    },
+    {
+      "id": "urn:kernel-v0:near",
+      "slug": "near",
+      "bank": "prep",
+      "gloss": "X is where Y is, near (not far); if someone is where Y is, this someone can see X."
+    },
+    {
+      "id": "urn:kernel-v0:part-of",
+      "slug": "part-of",
+      "bank": "rel",
+      "gloss": "X is a part of Y; if X is not there, Y is not the same something."
+    },
+    {
+      "id": "urn:kernel-v0:promise",
+      "slug": "promise",
+      "bank": "noun",
+      "gloss": "this something is words. Someone says them to someone else, saying: 'after now I will do something; I know you want it; (because I say this) you can know: after now I will do it.'"
+    },
+    {
+      "id": "urn:kernel-v0:remember",
+      "slug": "remember",
+      "bank": "verb",
+      "gloss": "X knew this something before now; because X knew it before, X can think about it now; X knows it now."
+    },
+    {
+      "id": "urn:kernel-v0:reminder",
+      "slug": "reminder",
+      "bank": "noun",
+      "gloss": "someone did something; because of this, there is this something. There is another something; this someone wants to think about it after now. If this someone sees this something, some something of kind remember can happen; because there is this something, no something of kind forget happens."
+    },
+    {
+      "id": "urn:kernel-v0:repair",
+      "slug": "repair",
+      "bank": "verb",
+      "gloss": "X does something to Y at some time; before this time Y is broken; after this time Y is not broken; after this time people can do things with Y."
+    },
+    {
+      "id": "urn:kernel-v0:right",
+      "slug": "right",
+      "bank": "adjThing",
+      "gloss": "people think like this about this something: 'if someone does it, it is a good something'; people can know: it is a good something."
+    },
+    {
+      "id": "urn:kernel-v0:sad",
+      "slug": "sad",
+      "bank": "adjPerson",
+      "gloss": "this someone thinks like this: 'some bad something happened before now; I don't want it; I cannot do something (about it)'; because of this, this someone feels something bad."
+    },
+    {
+      "id": "urn:kernel-v0:take",
+      "slug": "take",
+      "bank": "verb",
+      "gloss": "X does something with Y at some time; before this time X could not say 'Y is mine'; after this time X can say 'Y is mine'."
+    },
+    {
+      "id": "urn:kernel-v0:teacher",
+      "slug": "teacher",
+      "bank": "noun",
+      "gloss": "this someone wants many somethings of kind learn to happen; because this someone wants other people to know many things, this someone does many things; this someone says many things to other people."
+    },
+    {
+      "id": "urn:kernel-v0:thief",
+      "slug": "thief",
+      "bank": "noun",
+      "gloss": "because this someone does many things, many somethings of kind take happen; other people do not want somethings of this kind to happen; this someone does not want other people to see this someone."
+    },
+    {
+      "id": "urn:kernel-v0:trustworthy",
+      "slug": "trustworthy",
+      "bank": "adjPerson",
+      "gloss": "if this someone says some words of kind promise, this someone does something after; this someone does not say things of kind lie; other people can think: 'this someone is a good someone'."
+    },
+    {
+      "id": "urn:kernel-v0:useful",
+      "slug": "useful",
+      "bank": "adjThing",
+      "gloss": "if someone wants to do something, this someone can do it with this something; because there is this something, this someone can do many more-good things."
+    },
+    {
+      "id": "urn:kernel-v0:visible",
+      "slug": "visible",
+      "bank": "adjThing",
+      "gloss": "if someone wants to see this something, this someone can see it; people can see it."
+    },
+    {
+      "id": "urn:kernel-v0:wrong",
+      "slug": "wrong",
+      "bank": "adjThing",
+      "gloss": "people think like this about this something: 'if someone does it, something bad happens'; people don't want someone to do some something like it."
+    }
+  ]
+}

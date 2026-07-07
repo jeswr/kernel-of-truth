@@ -1,0 +1,24 @@
+{
+  "name": "@jeswr/kernel-e1-prep",
+  "version": "0.1.0",
+  "description": "E1 core-freezing-experiment prep (docs/poc-design.md Phase E, E1): mapper-lexicon artifact, kernel/control vector tables at d_model=512 (kot-enc-Bq/1), cloze template-type inventory + held-out split, and tests. The GPU-side pipeline/trainer/eval live in pipeline/, train/, eval/ (python).",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lexicon": "npm run build && nice -n 10 node dist/harness/lexiconArtifact.js",
+    "vectors": "npm run build && nice -n 10 node dist/harness/vectorTables.js",
+    "templates": "npm run build && nice -n 10 node dist/harness/templates.js",
+    "inputs": "npm run lexicon && npm run vectors && npm run templates",
+    "test": "npm run build && nice -n 10 node --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "@jeswr/kernel-encoder": "file:../../encoder",
+    "@jeswr/kernel-mapper": "file:../../mapper"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
