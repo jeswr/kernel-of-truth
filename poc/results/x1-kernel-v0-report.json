@@ -1,0 +1,492 @@
+{
+  "date": "2026-07-07T03:37:39.508Z",
+  "corpus": "kernel-v0 (authored; research-grade, NOT federation-endorsed)",
+  "conceptCount": 54,
+  "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "manifestPinnedEncoderHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "encoderHashMatchesManifest": true,
+  "corpusManifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+  "corpusContentHash": "f23f5211ff1755975dd1ce8128ff810b316051c00ee2c1d56bae488f8f928751",
+  "suite": "X1-corpus: adversarial single-edit margins + all-pairs distances on authored kernel-v0",
+  "fp16FloorRad": 0.0002125703060260065,
+  "fp16FloorWorstConcept": "urn:kernel-v0:helpful",
+  "fp16FloorN": 54,
+  "totalNeighbours": 2475,
+  "neighbourEncodeFailures": 0,
+  "unsaturatedConcepts": [],
+  "minAdversarialRad": 0.0023417296259389433,
+  "minAdversarialEdit": {
+    "concept": "urn:kernel-v0:archived",
+    "edit": "referent-index",
+    "detail": "ref 3 at clauses.1.roles.quote.clauses.2.args.0.roles.complement.clause.roles.time.restrictedBy.args.1.roles.undergoer"
+  },
+  "ratioToFloor": 11.016259371863768,
+  "verdict": "SUCCESS",
+  "criteria": "success > 5x floor; failure < 2x floor; else inconclusive (poc-design X1)",
+  "adversarialSummaryRad": {
+    "n": 2475,
+    "min": 0.0023417296259389433,
+    "p1": 0.010646718584638115,
+    "p5": 0.01881101444281376,
+    "p25": 0.056846103250882754,
+    "median": 0.10452908179108025,
+    "p75": 0.1663027018419797,
+    "p95": 0.3187323097141069,
+    "p99": 0.7275969896558062,
+    "max": 1.0468014341225946,
+    "mean": 0.1354252262235448
+  },
+  "byEdit": {
+    "operator-flip": {
+      "n": 290,
+      "min": 0.004062747001084546,
+      "p1": 0.01798894659788447,
+      "p5": 0.05144925051422346,
+      "p25": 0.14537921363063344,
+      "median": 0.23395451569125514,
+      "p75": 0.2891843619163733,
+      "p95": 0.35847141216468364,
+      "p99": 0.3694151816973695,
+      "max": 0.41326481860366077,
+      "mean": 0.21587722218836333
+    },
+    "clause-swap": {
+      "n": 82,
+      "min": 0.07931330700809877,
+      "p1": 0.09205910657224145,
+      "p5": 0.12770400703346838,
+      "p25": 0.4860412882567127,
+      "median": 0.642029425096881,
+      "p75": 0.7699049283032665,
+      "p95": 0.9264230493620474,
+      "p99": 1.0454983314869233,
+      "max": 1.0468014341225946,
+      "mean": 0.5961794348541558
+    },
+    "referent-index": {
+      "n": 357,
+      "min": 0.0023417296259389433,
+      "p1": 0.008096532820544212,
+      "p5": 0.024018633690672184,
+      "p25": 0.0721994532621163,
+      "median": 0.12279944974616726,
+      "p75": 0.22363664374028192,
+      "p95": 0.2834435663373636,
+      "p99": 0.3145479882996042,
+      "max": 0.318121788559697,
+      "mean": 0.1373548734656313
+    },
+    "filler-substitution": {
+      "n": 1746,
+      "min": 0.002344333160204263,
+      "p1": 0.010639400179581905,
+      "p5": 0.017993397121086458,
+      "p25": 0.047471162358468995,
+      "median": 0.0891338439908731,
+      "p75": 0.1427708550503496,
+      "p95": 0.2232369964767675,
+      "p99": 0.318056301064484,
+      "max": 0.3561734305537141,
+      "mean": 0.10002900170869244
+    }
+  },
+  "perConceptMin": [
+    {
+      "id": "archived",
+      "neighbours": 62,
+      "saturated": true,
+      "minAngle": 0.0023417296259389433
+    },
+    {
+      "id": "promise",
+      "neighbours": 63,
+      "saturated": true,
+      "minAngle": 0.008084991207067382
+    },
+    {
+      "id": "sad",
+      "neighbours": 44,
+      "saturated": true,
+      "minAngle": 0.010619409958227494
+    },
+    {
+      "id": "afraid",
+      "neighbours": 31,
+      "saturated": true,
+      "minAngle": 0.012840717999932732
+    },
+    {
+      "id": "kind",
+      "neighbours": 122,
+      "saturated": true,
+      "minAngle": 0.013197454290566724
+    },
+    {
+      "id": "give",
+      "neighbours": 60,
+      "saturated": true,
+      "minAngle": 0.013847950820207204
+    },
+    {
+      "id": "angry",
+      "neighbours": 51,
+      "saturated": true,
+      "minAngle": 0.014079157549745406
+    },
+    {
+      "id": "take",
+      "neighbours": 36,
+      "saturated": true,
+      "minAngle": 0.015725788205148996
+    },
+    {
+      "id": "bookmark",
+      "neighbours": 82,
+      "saturated": true,
+      "minAngle": 0.018851302918903093
+    },
+    {
+      "id": "find",
+      "neighbours": 50,
+      "saturated": true,
+      "minAngle": 0.0221505751919059
+    },
+    {
+      "id": "happy",
+      "neighbours": 39,
+      "saturated": true,
+      "minAngle": 0.022576574874616614
+    },
+    {
+      "id": "friend",
+      "neighbours": 32,
+      "saturated": true,
+      "minAngle": 0.0227401728333501
+    },
+    {
+      "id": "liar",
+      "neighbours": 41,
+      "saturated": true,
+      "minAngle": 0.022830242409208664
+    },
+    {
+      "id": "break",
+      "neighbours": 121,
+      "saturated": true,
+      "minAngle": 0.024264081070506205
+    },
+    {
+      "id": "gift",
+      "neighbours": 39,
+      "saturated": true,
+      "minAngle": 0.025805831083301416
+    },
+    {
+      "id": "lie",
+      "neighbours": 58,
+      "saturated": true,
+      "minAngle": 0.026359063499468583
+    },
+    {
+      "id": "broken",
+      "neighbours": 37,
+      "saturated": true,
+      "minAngle": 0.03333101018115259
+    },
+    {
+      "id": "wrong",
+      "neighbours": 79,
+      "saturated": true,
+      "minAngle": 0.0336562409630105
+    },
+    {
+      "id": "trustworthy",
+      "neighbours": 62,
+      "saturated": true,
+      "minAngle": 0.03692641939034457
+    },
+    {
+      "id": "lose",
+      "neighbours": 46,
+      "saturated": true,
+      "minAngle": 0.03797056288367486
+    },
+    {
+      "id": "right",
+      "neighbours": 61,
+      "saturated": true,
+      "minAngle": 0.03939775867280987
+    },
+    {
+      "id": "useful",
+      "neighbours": 64,
+      "saturated": true,
+      "minAngle": 0.04139446380904586
+    },
+    {
+      "id": "change",
+      "neighbours": 63,
+      "saturated": true,
+      "minAngle": 0.04454584568889059
+    },
+    {
+      "id": "repair",
+      "neighbours": 61,
+      "saturated": true,
+      "minAngle": 0.04499132678454397
+    },
+    {
+      "id": "reminder",
+      "neighbours": 76,
+      "saturated": true,
+      "minAngle": 0.04523887855467835
+    },
+    {
+      "id": "memory",
+      "neighbours": 47,
+      "saturated": true,
+      "minAngle": 0.04896359589170945
+    },
+    {
+      "id": "lost",
+      "neighbours": 32,
+      "saturated": true,
+      "minAngle": 0.052042159498092315
+    },
+    {
+      "id": "teacher",
+      "neighbours": 82,
+      "saturated": true,
+      "minAngle": 0.05647080843346963
+    },
+    {
+      "id": "birth",
+      "neighbours": 35,
+      "saturated": true,
+      "minAngle": 0.05894533448898428
+    },
+    {
+      "id": "end",
+      "neighbours": 24,
+      "saturated": true,
+      "minAngle": 0.05908800933060723
+    },
+    {
+      "id": "event",
+      "neighbours": 33,
+      "saturated": true,
+      "minAngle": 0.0592935431744979
+    },
+    {
+      "id": "condolence",
+      "neighbours": 55,
+      "saturated": true,
+      "minAngle": 0.06109454968154851
+    },
+    {
+      "id": "part-of",
+      "neighbours": 25,
+      "saturated": true,
+      "minAngle": 0.06412847017318224
+    },
+    {
+      "id": "conversation",
+      "neighbours": 83,
+      "saturated": true,
+      "minAngle": 0.06641057944208299
+    },
+    {
+      "id": "celebration",
+      "neighbours": 65,
+      "saturated": true,
+      "minAngle": 0.06724397114995556
+    },
+    {
+      "id": "learn",
+      "neighbours": 31,
+      "saturated": true,
+      "minAngle": 0.07109671516472554
+    },
+    {
+      "id": "make",
+      "neighbours": 42,
+      "saturated": true,
+      "minAngle": 0.07300469902118581
+    },
+    {
+      "id": "dead",
+      "neighbours": 26,
+      "saturated": true,
+      "minAngle": 0.0733243751712281
+    },
+    {
+      "id": "remember",
+      "neighbours": 16,
+      "saturated": true,
+      "minAngle": 0.07422566752190536
+    },
+    {
+      "id": "near",
+      "neighbours": 29,
+      "saturated": true,
+      "minAngle": 0.07702505383438644
+    },
+    {
+      "id": "visible",
+      "neighbours": 36,
+      "saturated": true,
+      "minAngle": 0.07955787456172925
+    },
+    {
+      "id": "help",
+      "neighbours": 43,
+      "saturated": true,
+      "minAngle": 0.08263423359218068
+    },
+    {
+      "id": "grieving",
+      "neighbours": 14,
+      "saturated": true,
+      "minAngle": 0.08312071225085739
+    },
+    {
+      "id": "death",
+      "neighbours": 37,
+      "saturated": true,
+      "minAngle": 0.08386960970981044
+    },
+    {
+      "id": "forget",
+      "neighbours": 15,
+      "saturated": true,
+      "minAngle": 0.08501332579328266
+    },
+    {
+      "id": "cause",
+      "neighbours": 32,
+      "saturated": true,
+      "minAngle": 0.08966884996539429
+    },
+    {
+      "id": "maker-of",
+      "neighbours": 33,
+      "saturated": true,
+      "minAngle": 0.09450721235661949
+    },
+    {
+      "id": "begin",
+      "neighbours": 12,
+      "saturated": true,
+      "minAngle": 0.09755825176420732
+    },
+    {
+      "id": "thief",
+      "neighbours": 56,
+      "saturated": true,
+      "minAngle": 0.10355027436193658
+    },
+    {
+      "id": "believe",
+      "neighbours": 8,
+      "saturated": true,
+      "minAngle": 0.10466235838175669
+    },
+    {
+      "id": "helpful",
+      "neighbours": 38,
+      "saturated": true,
+      "minAngle": 0.11763134007193014
+    },
+    {
+      "id": "inside",
+      "neighbours": 9,
+      "saturated": true,
+      "minAngle": 0.1810513900152548
+    },
+    {
+      "id": "alive",
+      "neighbours": 18,
+      "saturated": true,
+      "minAngle": 0.20933134440541432
+    },
+    {
+      "id": "has-part",
+      "neighbours": 19,
+      "saturated": true,
+      "minAngle": 0.22080594222449795
+    }
+  ],
+  "pairwise": {
+    "pairs": 1431,
+    "minPair": {
+      "a": "urn:kernel-v0:afraid",
+      "b": "urn:kernel-v0:sad",
+      "angle": 0.11555962285007455
+    },
+    "top10Nearest": [
+      {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.11555962285007455
+      },
+      {
+        "a": "urn:kernel-v0:happy",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.20509654217352286
+      },
+      {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:happy",
+        "angle": 0.22381918612072588
+      },
+      {
+        "a": "urn:kernel-v0:repair",
+        "b": "urn:kernel-v0:take",
+        "angle": 0.4884465700957303
+      },
+      {
+        "a": "urn:kernel-v0:birth",
+        "b": "urn:kernel-v0:death",
+        "angle": 0.5162487731834017
+      },
+      {
+        "a": "urn:kernel-v0:find",
+        "b": "urn:kernel-v0:learn",
+        "angle": 0.5780331531241414
+      },
+      {
+        "a": "urn:kernel-v0:condolence",
+        "b": "urn:kernel-v0:promise",
+        "angle": 0.5868377352854653
+      },
+      {
+        "a": "urn:kernel-v0:break",
+        "b": "urn:kernel-v0:repair",
+        "angle": 0.5885211010426558
+      },
+      {
+        "a": "urn:kernel-v0:believe",
+        "b": "urn:kernel-v0:forget",
+        "angle": 0.6038637384529437
+      },
+      {
+        "a": "urn:kernel-v0:find",
+        "b": "urn:kernel-v0:lose",
+        "angle": 0.6414341099751641
+      }
+    ],
+    "summaryRad": {
+      "n": 1431,
+      "min": 0.11555962285007455,
+      "p1": 0.6824125888228276,
+      "p5": 0.934155937481489,
+      "p25": 1.1619932856980157,
+      "median": 1.3084367588906753,
+      "p75": 1.4073353961028308,
+      "p95": 1.5664230019007102,
+      "p99": 1.5809381854783433,
+      "max": 1.5897480176460526,
+      "mean": 1.278946849661708
+    }
+  }
+}

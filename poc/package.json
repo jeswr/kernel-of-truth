@@ -14,7 +14,13 @@
     "x2": "npm run build && nice -n 10 node dist/x2.js",
     "x3": "npm run build && nice -n 10 node dist/x3.js",
     "x4": "npm run build && nice -n 10 node dist/x4.js",
-    "x:reduced": "npm run x0 && npm run x1 && npm run x2 && npm run x3 && npm run x4"
+    "x:reduced": "npm run x0 && npm run x1 && npm run x2 && npm run x3 && npm run x4",
+    "corpus:build": "tsc -p tsconfig.corpus.json",
+    "x1:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x1-corpus.js",
+    "x2:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x2-corpus.js",
+    "x3:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x3-corpus.js",
+    "x4:corpus": "npm run corpus:build && nice -n 10 node dist-corpus/src/x4-corpus.js",
+    "x:corpus": "npm run x1:corpus && npm run x2:corpus && npm run x3:corpus && npm run x4:corpus"
   },
   "dependencies": {
     "@jeswr/kernel-encoder": "file:../encoder"

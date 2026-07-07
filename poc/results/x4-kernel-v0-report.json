@@ -1,0 +1,101 @@
+{
+  "date": "2026-07-07T03:53:49.446Z",
+  "corpus": "kernel-v0 (authored; research-grade, NOT federation-endorsed)",
+  "conceptCount": 54,
+  "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "manifestPinnedEncoderHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "encoderHashMatchesManifest": true,
+  "corpusManifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+  "corpusContentHash": "f23f5211ff1755975dd1ce8128ff810b316051c00ee2c1d56bae488f8f928751",
+  "suite": "X4-corpus: fixed JL projection distortion on authored kernel-v0",
+  "D": 8192,
+  "adversarialPairs": 2475,
+  "jlDerivation": "Achlioptas sign matrix, ±1/sqrt(d), signs from SHA-256 stream label jl/<D>/<d> (det.ts DET_DOMAIN) — pinned labels reused from harness/x4.ts, no new projections",
+  "fullD": {
+    "rdmPairs": 1431,
+    "adversarialMarginsRad": {
+      "n": 2475,
+      "min": 0.0023417296259389433,
+      "p1": 0.010646718584638115,
+      "p5": 0.01881101444281376,
+      "p25": 0.056846103250882754,
+      "median": 0.10452908179108025,
+      "p75": 0.1663027018419797,
+      "p95": 0.3187323097141069,
+      "p99": 0.7275969896558062,
+      "max": 1.0468014341225946,
+      "mean": 0.1354252262235448
+    },
+    "minAdversarialRad": 0.0023417296259389433,
+    "minAdversarialEdit": {
+      "concept": "urn:kernel-v0:archived",
+      "edit": "referent-index",
+      "detail": "ref 3 at clauses.1.roles.quote.clauses.2.args.0.roles.complement.clause.roles.time.restrictedBy.args.1.roles.undergoer"
+    },
+    "fp16FloorRad": 0.0002125703060260065,
+    "minToFloorRatio": 11.016259371863768
+  },
+  "projections": {
+    "8192->512": {
+      "rdmSpearman": 0.9717634748044783,
+      "adversarialMarginsRad": {
+        "n": 2475,
+        "min": 0.0022521984621359007,
+        "p1": 0.010202344029758864,
+        "p5": 0.019209064581188942,
+        "p25": 0.056208274543684635,
+        "median": 0.10563049916350979,
+        "p75": 0.17044623600034187,
+        "p95": 0.3218347644049815,
+        "p99": 0.730236116154326,
+        "max": 1.0513742072887489,
+        "mean": 0.13674420377120344
+      },
+      "minAdversarialRad": 0.0022521984621359007,
+      "minAdversarialEdit": {
+        "concept": "urn:kernel-v0:archived",
+        "edit": "referent-index",
+        "detail": "ref 3 at clauses.1.roles.quote.clauses.2.args.0.roles.complement.clause.roles.time.restrictedBy.args.1.roles.undergoer"
+      },
+      "minAuthoredPair": {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.11071177365778341
+      },
+      "fp16FloorRad": 0.0002224765772362075,
+      "minToFloorRatio": 10.123305968271437,
+      "verdictX1Criteria": "SUCCESS"
+    },
+    "8192->576": {
+      "rdmSpearman": 0.9705671745304928,
+      "adversarialMarginsRad": {
+        "n": 2475,
+        "min": 0.0021992067903049924,
+        "p1": 0.010906500227906023,
+        "p5": 0.018697477737176088,
+        "p25": 0.05663627795265454,
+        "median": 0.10346664379936836,
+        "p75": 0.16320634205084333,
+        "p95": 0.31545073042032323,
+        "p99": 0.6928811160980187,
+        "max": 1.0911093956866744,
+        "mean": 0.13391153303106318
+      },
+      "minAdversarialRad": 0.0021992067903049924,
+      "minAdversarialEdit": {
+        "concept": "urn:kernel-v0:archived",
+        "edit": "referent-index",
+        "detail": "ref 3 at clauses.1.roles.quote.clauses.2.args.0.roles.complement.clause.roles.time.restrictedBy.args.1.roles.undergoer"
+      },
+      "minAuthoredPair": {
+        "a": "urn:kernel-v0:afraid",
+        "b": "urn:kernel-v0:sad",
+        "angle": 0.11698701082080097
+      },
+      "fp16FloorRad": 0.00022292774815280603,
+      "minToFloorRatio": 9.865110146797626,
+      "verdictX1Criteria": "SUCCESS"
+    }
+  },
+  "note": "E-series claims inherit these R^d numbers (poc-design rule 3). Neighbour suite = X1-corpus seed family x1c/<id>/<s>, deduped, saturation-sampled."
+}
