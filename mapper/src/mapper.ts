@@ -20,16 +20,38 @@
  * mapper NEVER resolves word-sense or surface/lemma collisions. Downstream
  * consumers (E1 augmentation) receive the annotated stream and do their own
  * stochastic substitution — the mapper only annotates.
+ *
+ * FLAG-GATED EXCEPTION (bead kernel-of-truth-30d, policy.ts): callers may
+ * pass an explicit `MapperPolicy` whose declared sense-priority tiers resolve
+ * EXACT ambiguous decision sets to a declared winner (`resolvedFrom` keeps
+ * the full candidate set for audit). No policy argument (every current
+ * caller, including E1's pipeline) = byte-identical v0.1.0 behaviour;
+ * adopting a policy for E1 is a pre-registration amendment.
  */
 
 import { lemmaCandidates } from './lemmatize.js';
 import type { Lexicon, Target } from './lexicon.js';
 import { targetKey } from './lexicon.js';
+import {
+  compilePriorityIndex,
+  decisionSetKey,
+  type MapperPolicy,
+  type PriorityIndex,
+} from './policy.js';
 import { tokenize, type Token } from './tokenize.js';
 
 export type Decision =
-  | { readonly kind: 'concept'; readonly conceptId: string }
-  | { readonly kind: 'prime'; readonly prime: string }
+  | {
+      readonly kind: 'concept';
+      readonly conceptId: string;
+      /** Present iff a policy tier resolved an abstention: the original candidate set. */
+      readonly resolvedFrom?: readonly Target[];
+    }
+  | {
+      readonly kind: 'prime';
+      readonly prime: string;
+      readonly resolvedFrom?: readonly Target[];
+    }
   | { readonly kind: 'abstain'; readonly candidates: readonly Target[] }
   | { readonly kind: 'none' };
 
@@ -52,14 +74,23 @@ export interface AnnotatedToken {
 }
 
 const NONE: Decision = { kind: 'none' };
+const EMPTY_INDEX: PriorityIndex = new Map();
 
-function decideFromTargets(targets: readonly Target[]): Decision {
+function decideFromTargets(targets: readonly Target[], tiers: PriorityIndex): Decision {
   if (targets.length === 0) return NONE;
   if (targets.length === 1) {
     const t = targets[0]!;
     return t.kind === 'prime'
       ? { kind: 'prime', prime: t.prime }
       : { kind: 'concept', conceptId: t.conceptId };
+  }
+  // Flag-gated sense-priority tier (policy.ts): resolves ONLY an exactly
+  // declared decision set; any other multi-target set abstains as always.
+  const winner = tiers.get(decisionSetKey(targets));
+  if (winner !== undefined) {
+    return winner.kind === 'prime'
+      ? { kind: 'prime', prime: winner.prime, resolvedFrom: targets }
+      : { kind: 'concept', conceptId: winner.conceptId, resolvedFrom: targets };
   }
   return { kind: 'abstain', candidates: targets };
 }
@@ -76,8 +107,16 @@ function uniqueTargets(targets: readonly Target[]): Target[] {
   return out;
 }
 
-/** Map pre-tokenized tokens (exposed for tests); use mapText for strings. */
-export function mapTokens(tokens: readonly Token[], lexicon: Lexicon): AnnotatedToken[] {
+/**
+ * Map pre-tokenized tokens (exposed for tests); use mapText for strings.
+ * `policy` is the flag gate (default: none = v0.1.0 behaviour, unchanged).
+ */
+export function mapTokens(
+  tokens: readonly Token[],
+  lexicon: Lexicon,
+  policy?: MapperPolicy,
+): AnnotatedToken[] {
+  const tiers = policy === undefined ? EMPTY_INDEX : compilePriorityIndex(policy);
   const out: AnnotatedToken[] = [];
   let i = 0;
   while (i < tokens.length) {
@@ -114,7 +153,7 @@ export function mapTokens(tokens: readonly Token[], lexicon: Lexicon): Annotated
         }
       }
       if (bestLen > 0) {
-        const decision = decideFromTargets(uniqueTargets(bestTargets));
+        const decision = decideFromTargets(uniqueTargets(bestTargets), tiers);
         for (let k = 0; k < bestLen; k += 1) {
           const t = tokens[i + k]!;
           out.push({
@@ -148,7 +187,7 @@ export function mapTokens(tokens: readonly Token[], lexicon: Lexicon): Annotated
     out.push({
       ...tok,
       lemma,
-      decision: decideFromTargets(uniqueTargets(targets)),
+      decision: decideFromTargets(uniqueTargets(targets), tiers),
       phraseLen: 1,
       phrasePos: 0,
     });
@@ -157,7 +196,11 @@ export function mapTokens(tokens: readonly Token[], lexicon: Lexicon): Annotated
   return out;
 }
 
-/** Annotate `text` against `lexicon`. Deterministic: same input, same output. */
-export function mapText(text: string, lexicon: Lexicon): AnnotatedToken[] {
-  return mapTokens(tokenize(text), lexicon);
+/**
+ * Annotate `text` against `lexicon`. Deterministic: same input, same output.
+ * No `policy` (the default everywhere, incl. E1's pipeline) = v0.1.0
+ * abstain-and-record behaviour, byte-identical.
+ */
+export function mapText(text: string, lexicon: Lexicon, policy?: MapperPolicy): AnnotatedToken[] {
+  return mapTokens(tokenize(text), lexicon, policy);
 }

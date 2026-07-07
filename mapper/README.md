@@ -28,6 +28,15 @@ annotation-only and does not exist in v0). Zero runtime dependencies.
 - **Output**: annotated token stream `{surface, norm, lemma, decision,
   phraseLen, phrasePos, start, end}` suitable for E1 corpus augmentation —
   stochastic substitution happens downstream; the mapper only annotates.
+- **Flag-gated ambiguity policies** (`src/policy.ts`, bead
+  kernel-of-truth-30d; DEFAULT OFF — no policy argument = v0.1.0 behaviour,
+  byte-identical): declared sense-priority tiers (exact-decision-set keyed,
+  fail-closed, content-addressed via `policyHash`; resolved tokens carry
+  `resolvedFrom` for audit) and evaluated-set exclusion lists (reporting
+  only; decisions untouched). Candidate declarations for the five
+  ambiguity-shadowed concepts (broken, lost, inside, near, kind) are
+  measured in `m0/results/m0a-shadowed-policy.md`; adopting one for E1 is a
+  pre-registration amendment — coordinator decision pending.
 
 ## Build & test
 
@@ -46,6 +55,11 @@ cd mapper && npm install && npm test   # tsc build + node:test (27 tests)
   precision/recall (caveat stamped; superseded by the human pass).
 - `m0/run-m0b-vocab.mjs` + `m0/classify-m0b.py` — frequency-weighted
   kernel-expressibility classes over the top-500 content lemmas.
+- `m0/run-shadowed-sample.mjs` + `m0/make-shadowed-judgments.py` — 50-item
+  per-concept samples of the five shadowed concepts' abstained occurrences
+  + AGENT-JUDGED sense judgments (pending human annotation);
+  `m0/run-m0a.mjs --policy=<name>` re-measures M0a under a candidate policy
+  into `m0/results/m0a-policy-<name>.json` (never overwrites the baseline).
 
 The corpus file is NOT committed (19.4 MB): fetch with
 `curl -L https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStories-valid.txt -o /tmp/TinyStories-valid.txt`.

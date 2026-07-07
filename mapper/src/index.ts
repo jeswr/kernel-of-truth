@@ -18,3 +18,16 @@ export {
   type AnnotatedToken,
   type Decision,
 } from './mapper.js';
+export {
+  compilePriorityIndex,
+  decisionSetKey,
+  policyHash,
+  SHADOWED_CONCEPTS,
+  SHADOWED_EXCLUDE_ALL5,
+  SHADOWED_HYBRID_RECOMMENDED,
+  SHADOWED_TIERS_ALL5,
+  SHADOWED_TIERS_MEASURED,
+  type MapperPolicy,
+  type PriorityIndex,
+  type PriorityRule,
+} from './policy.js';

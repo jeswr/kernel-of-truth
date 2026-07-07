@@ -2,7 +2,7 @@
 /**
  * M0a — mapper measurement over a TinyStories sample (poc-design.md Phase M).
  *
- * Usage: node mapper/m0/run-m0a.mjs <TinyStories-valid.txt> [outDir]
+ * Usage: node mapper/m0/run-m0a.mjs <TinyStories-valid.txt> [outDir] [--policy=<name>]
  *
  * Reads the plain-text split (stories separated by <|endoftext|>), runs the
  * v0 mapper over every story, and emits:
@@ -11,6 +11,17 @@
  *   - annotation-sample.jsonl     300-token stratified sample of mapper
  *                                 decisions, formatted for HUMAN annotation
  *                                 (judgment fields left empty)
+ *
+ * FLAG-GATED policy runs (bead kernel-of-truth-30d; NOT the default; the
+ * published M0a numbers come from the flagless invocation, unchanged):
+ * `--policy=` one of tiers-measured | tiers-all5 | exclude-shadowed |
+ * hybrid-recommended (declarations + evidence in ../src/policy.ts). A policy
+ * run writes results/m0a-policy-<name>.json ONLY (never overwrites the
+ * baseline report, never rewrites annotation-sample.jsonl), stamps the
+ * content-addressed policy hash, records per-rule tier resolutions
+ * (count + surface inventory), and — for exclusion policies — reports
+ * zero-hit concepts over the DECLARED evaluated set with the exclusions
+ * named.
  *
  * Token-mass definition (pinned): one unit = one contraction-expanded word
  * token ("didn't" = do + not = 2 units); punctuation/number spans excluded.
@@ -24,18 +35,49 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLexicon, loadManifestConcepts, mapText, targetKey } from '../dist/src/index.js';
+import {
+  buildLexicon,
+  loadManifestConcepts,
+  mapText,
+  policyHash,
+  SHADOWED_EXCLUDE_ALL5,
+  SHADOWED_HYBRID_RECOMMENDED,
+  SHADOWED_TIERS_ALL5,
+  SHADOWED_TIERS_MEASURED,
+  targetKey,
+} from '../dist/src/index.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..');
 const MANIFEST = join(REPO, 'data', 'kernel-v0', 'manifest.json');
 
-const corpusPath = process.argv[2];
+const POLICIES = {
+  'tiers-measured': SHADOWED_TIERS_MEASURED,
+  'tiers-all5': SHADOWED_TIERS_ALL5,
+  'exclude-shadowed': SHADOWED_EXCLUDE_ALL5,
+  'hybrid-recommended': SHADOWED_HYBRID_RECOMMENDED,
+};
+
+const positional = [];
+let policyName = null;
+for (const arg of process.argv.slice(2)) {
+  if (arg.startsWith('--policy=')) {
+    policyName = arg.slice('--policy='.length);
+    if (!(policyName in POLICIES)) {
+      console.error(`unknown --policy=${policyName}; one of: ${Object.keys(POLICIES).join(' | ')}`);
+      process.exit(1);
+    }
+  } else {
+    positional.push(arg);
+  }
+}
+const corpusPath = positional[0];
 if (!corpusPath) {
-  console.error('usage: run-m0a.mjs <TinyStories-valid.txt> [outDir]');
+  console.error('usage: run-m0a.mjs <TinyStories-valid.txt> [outDir] [--policy=<name>]');
   process.exit(1);
 }
-const outDir = process.argv[3] ?? HERE;
+const outDir = positional[1] ?? HERE;
+const policy = policyName === null ? undefined : POLICIES[policyName];
 mkdirSync(join(outDir, 'results'), { recursive: true });
 
 // --- deterministic PRNG (mulberry32) + per-stratum reservoir sampling -----
@@ -82,10 +124,11 @@ const conceptHits = new Map(); // conceptId -> expanded-token count
 const primeHits = new Map(); // prime name -> expanded-token count
 const abstainBySurface = new Map(); // norm -> { count, candidates }
 const unmappedByLemma = new Map(); // lemma -> count
+const tierResolutions = new Map(); // decision-set key -> { winner, count, bySurface }
 
 for (let s = 0; s < stories.length; s += 1) {
   const text = stories[s];
-  const anns = mapText(text, lexicon);
+  const anns = mapText(text, lexicon, policy);
   for (const t of anns) {
     if (!t.isWord) {
       counts.nonWordSpans += 1;
@@ -108,6 +151,18 @@ for (let s = 0; s < stories.length; s += 1) {
       abstainBySurface.set(t.norm, rec);
     } else {
       unmappedByLemma.set(t.lemma, (unmappedByLemma.get(t.lemma) ?? 0) + 1);
+    }
+    // policy audit: token mass resolved by each declared tier rule
+    if ((d.kind === 'concept' || d.kind === 'prime') && d.resolvedFrom !== undefined) {
+      const key = d.resolvedFrom.map(targetKey).sort().join('|');
+      const rec = tierResolutions.get(key) ?? {
+        winner: d.kind === 'concept' ? d.conceptId : `prime:${d.prime}`,
+        count: 0,
+        bySurface: new Map(),
+      };
+      rec.count += 1;
+      rec.bySurface.set(t.norm, (rec.bySurface.get(t.norm) ?? 0) + 1);
+      tierResolutions.set(key, rec);
     }
     // sample only phrase heads / single tokens so one decision = one item;
     // skip expansion continuations that repeat the same surface span
@@ -144,10 +199,26 @@ const allConceptIds = lexicon.entries
   .filter((e) => e.target.kind === 'concept')
   .map((e) => targetKey(e.target));
 const uniqueConceptIds = [...new Set(allConceptIds)];
-const zeroHitConcepts = uniqueConceptIds.filter((id) => !conceptHits.has(id)).sort();
+// (d) exclusion policies shrink the EVALUATED concept universe (declared,
+// never silent); decisions upstream are untouched.
+const excluded = new Set(policy?.excludeConcepts ?? []);
+const evaluatedConceptIds = uniqueConceptIds.filter((id) => !excluded.has(id));
+const zeroHitConcepts = evaluatedConceptIds.filter((id) => !conceptHits.has(id)).sort();
 
 const report = {
-  experiment: 'M0a',
+  experiment: policy === undefined ? 'M0a' : `M0a-policy-${policy.name}`,
+  ...(policy === undefined
+    ? {}
+    : {
+        policy: {
+          name: policy.name,
+          sha256: policyHash(policy),
+          declaration: policy,
+          note:
+            'FLAG-GATED policy run (bead kernel-of-truth-30d): NOT the published M0a; ' +
+            'candidate pre-registration amendment pending coordinator decision.',
+        },
+      }),
   date: new Date().toISOString().slice(0, 10),
   corpus: {
     source: 'roneneldan/TinyStories TinyStories-valid.txt (HuggingFace, plain HTTP)',
@@ -170,8 +241,29 @@ const report = {
   },
   decisions: counts.byDecision,
   conceptHitDistribution: Object.fromEntries(sortDesc(conceptHits)),
+  // flagless reports keep the exact v0 schema; policy runs declare their universe
+  ...(policy === undefined
+    ? {}
+    : {
+        evaluatedConceptCount: evaluatedConceptIds.length,
+        ...(excluded.size > 0 ? { excludedConcepts: [...excluded].sort() } : {}),
+      }),
   zeroHitConcepts,
   zeroHitConceptCount: zeroHitConcepts.length,
+  ...(tierResolutions.size > 0
+    ? {
+        tierResolutions: Object.fromEntries(
+          [...tierResolutions.entries()].map(([k, v]) => [
+            k,
+            {
+              winner: v.winner,
+              count: v.count,
+              bySurface: Object.fromEntries([...v.bySurface.entries()].sort((a, b) => b[1] - a[1])),
+            },
+          ]),
+        ),
+      }
+    : {}),
   primeHitDistribution: Object.fromEntries(sortDesc(primeHits)),
   abstentionBySurface: Object.fromEntries(
     sortDesc(new Map([...abstainBySurface.entries()].map(([k, v]) => [k, v.count])))
@@ -186,7 +278,17 @@ const report = {
   },
 };
 
-writeFileSync(join(outDir, 'results', 'm0a-report.json'), `${JSON.stringify(report, null, 2)}\n`);
+const reportName = policy === undefined ? 'm0a-report.json' : `m0a-policy-${policy.name}.json`;
+writeFileSync(join(outDir, 'results', reportName), `${JSON.stringify(report, null, 2)}\n`);
+
+// Policy runs never rewrite the baseline annotation sample: the 300-item
+// sample belongs to the published flagless measurement.
+if (policy !== undefined) {
+  console.log(JSON.stringify(report.headline, null, 2));
+  console.log(`policy=${policy.name} sha256=${policyHash(policy)}`);
+  console.log(`stories=${counts.stories} tokens=${total} -> results/${reportName}`);
+  process.exit(0);
+}
 
 // --- annotation sample (human-annotation format; judgment fields EMPTY) ----
 const lines = [];
