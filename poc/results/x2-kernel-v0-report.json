@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-07T03:44:22.235Z",
+  "date": "2026-07-07T04:22:36.874Z",
   "corpus": "kernel-v0 (authored; research-grade, NOT federation-endorsed)",
   "conceptCount": 54,
   "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
@@ -9,11 +9,11 @@
   "corpusContentHash": "f23f5211ff1755975dd1ce8128ff810b316051c00ee2c1d56bae488f8f928751",
   "suite": "X2-corpus: exact decode of all authored concepts (minimal + full-corpus cleanup lexicons)",
   "criterion": "54/54 exact under the MINIMAL lexicon (corpus instantiation of poc-design X2: 100% at depth <= 4); full-corpus condition is an interference measurement",
-  "pass": false,
+  "pass": true,
   "minimal": {
-    "exact": 51,
+    "exact": 54,
     "total": 54,
-    "pass": false,
+    "pass": true,
     "referenceBearingExact": 18,
     "referenceBearingTotal": 18,
     "minConfidence": 0,
@@ -25,11 +25,10 @@
         "clauseCount": 8,
         "maxDepth": 5,
         "conceptRefs": 0,
-        "exact": false,
-        "ok": false,
-        "minConfidence": 0.624069033346798,
-        "ms": 3346,
-        "failure": "decode failed: ERR_REF_NOT_INTRODUCED at $.clauses[0].args[0].roles.quote.clauses[1].roles.complement: ref 2 used before its introducing occurrence (or out of quote scope); lowest-confidence step: {\"path\":\"$.clauses[0].args[0].quote.clauses[2].args[0].time.anchor\",\"decision\":\"anchor\",\"value\":\"prime:NOW\",\"confidence\":0.624069033346798}"
+        "exact": true,
+        "ok": true,
+        "minConfidence": 0.5489749337708854,
+        "ms": 2449
       },
       {
         "id": "urn:kernel-v0:alive",
@@ -40,7 +39,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9762502686834365,
-        "ms": 1001
+        "ms": 1152
       },
       {
         "id": "urn:kernel-v0:angry",
@@ -48,11 +47,10 @@
         "clauseCount": 7,
         "maxDepth": 5,
         "conceptRefs": 0,
-        "exact": false,
+        "exact": true,
         "ok": true,
         "minConfidence": 0,
-        "ms": 7386,
-        "failure": "ok-but-wrong: decoded AST validates but differs from authored AST"
+        "ms": 4093
       },
       {
         "id": "urn:kernel-v0:archived",
@@ -63,7 +61,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0,
-        "ms": 6309
+        "ms": 5054
       },
       {
         "id": "urn:kernel-v0:begin",
@@ -74,7 +72,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9690160026748271,
-        "ms": 542
+        "ms": 423
       },
       {
         "id": "urn:kernel-v0:believe",
@@ -85,7 +83,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9743373768878716,
-        "ms": 665
+        "ms": 892
       },
       {
         "id": "urn:kernel-v0:birth",
@@ -96,7 +94,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9671101994443317,
-        "ms": 871
+        "ms": 1008
       },
       {
         "id": "urn:kernel-v0:bookmark",
@@ -107,7 +105,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9000956054824701,
-        "ms": 1711
+        "ms": 2867
       },
       {
         "id": "urn:kernel-v0:break",
@@ -118,7 +116,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9461446242011775,
-        "ms": 1530
+        "ms": 1940
       },
       {
         "id": "urn:kernel-v0:broken",
@@ -129,7 +127,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9509805393370263,
-        "ms": 930
+        "ms": 1174
       },
       {
         "id": "urn:kernel-v0:cause",
@@ -140,7 +138,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.89421665607691,
-        "ms": 898
+        "ms": 1113
       },
       {
         "id": "urn:kernel-v0:celebration",
@@ -151,7 +149,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.867382067663329,
-        "ms": 1966
+        "ms": 1912
       },
       {
         "id": "urn:kernel-v0:change",
@@ -162,7 +160,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9546042555717611,
-        "ms": 853
+        "ms": 1052
       },
       {
         "id": "urn:kernel-v0:condolence",
@@ -173,7 +171,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8707138111043727,
-        "ms": 1229
+        "ms": 1412
       },
       {
         "id": "urn:kernel-v0:conversation",
@@ -184,7 +182,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9179418018096316,
-        "ms": 1633
+        "ms": 1740
       },
       {
         "id": "urn:kernel-v0:dead",
@@ -195,7 +193,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9774632444207428,
-        "ms": 592
+        "ms": 848
       },
       {
         "id": "urn:kernel-v0:death",
@@ -206,7 +204,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9490178641589422,
-        "ms": 2221
+        "ms": 1199
       },
       {
         "id": "urn:kernel-v0:end",
@@ -217,7 +215,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9690678972099841,
-        "ms": 1440
+        "ms": 1016
       },
       {
         "id": "urn:kernel-v0:event",
@@ -228,7 +226,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9690571741708,
-        "ms": 1085
+        "ms": 978
       },
       {
         "id": "urn:kernel-v0:find",
@@ -239,7 +237,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8926828641506223,
-        "ms": 1856
+        "ms": 2015
       },
       {
         "id": "urn:kernel-v0:forget",
@@ -250,7 +248,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9745230755674129,
-        "ms": 668
+        "ms": 625
       },
       {
         "id": "urn:kernel-v0:friend",
@@ -261,7 +259,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8977964363241335,
-        "ms": 4678
+        "ms": 3393
       },
       {
         "id": "urn:kernel-v0:gift",
@@ -272,7 +270,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.94920023576968,
-        "ms": 2096
+        "ms": 2172
       },
       {
         "id": "urn:kernel-v0:give",
@@ -283,7 +281,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9511402541199695,
-        "ms": 2227
+        "ms": 2651
       },
       {
         "id": "urn:kernel-v0:grieving",
@@ -294,7 +292,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9554212668092241,
-        "ms": 799
+        "ms": 981
       },
       {
         "id": "urn:kernel-v0:happy",
@@ -305,7 +303,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.16419192872727661,
-        "ms": 1608
+        "ms": 2300
       },
       {
         "id": "urn:kernel-v0:has-part",
@@ -316,7 +314,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9693629709417867,
-        "ms": 414
+        "ms": 1097
       },
       {
         "id": "urn:kernel-v0:help",
@@ -327,7 +325,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.930233804088366,
-        "ms": 1232
+        "ms": 1325
       },
       {
         "id": "urn:kernel-v0:helpful",
@@ -338,7 +336,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9285373500305042,
-        "ms": 1819
+        "ms": 1132
       },
       {
         "id": "urn:kernel-v0:inside",
@@ -349,7 +347,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9607025388420254,
-        "ms": 1005
+        "ms": 559
       },
       {
         "id": "urn:kernel-v0:kind",
@@ -360,7 +358,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9525313085134712,
-        "ms": 7933
+        "ms": 4210
       },
       {
         "id": "urn:kernel-v0:learn",
@@ -371,7 +369,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8328934717580769,
-        "ms": 2229
+        "ms": 1277
       },
       {
         "id": "urn:kernel-v0:liar",
@@ -382,7 +380,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8939366894724233,
-        "ms": 1644
+        "ms": 1302
       },
       {
         "id": "urn:kernel-v0:lie",
@@ -393,7 +391,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.7822807074191257,
-        "ms": 1478
+        "ms": 1983
       },
       {
         "id": "urn:kernel-v0:lose",
@@ -404,7 +402,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9708380589230071,
-        "ms": 2355
+        "ms": 2340
       },
       {
         "id": "urn:kernel-v0:lost",
@@ -415,7 +413,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9491858215010495,
-        "ms": 788
+        "ms": 1017
       },
       {
         "id": "urn:kernel-v0:make",
@@ -426,7 +424,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8898480400115039,
-        "ms": 670
+        "ms": 861
       },
       {
         "id": "urn:kernel-v0:maker-of",
@@ -437,7 +435,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9437656035387745,
-        "ms": 1256
+        "ms": 1826
       },
       {
         "id": "urn:kernel-v0:memory",
@@ -448,7 +446,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9496371925118757,
-        "ms": 1827
+        "ms": 1701
       },
       {
         "id": "urn:kernel-v0:near",
@@ -459,7 +457,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9080043481237863,
-        "ms": 690
+        "ms": 1266
       },
       {
         "id": "urn:kernel-v0:part-of",
@@ -470,7 +468,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8943691837624028,
-        "ms": 636
+        "ms": 849
       },
       {
         "id": "urn:kernel-v0:promise",
@@ -481,7 +479,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.943721341512114,
-        "ms": 2639
+        "ms": 2706
       },
       {
         "id": "urn:kernel-v0:remember",
@@ -492,7 +490,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9012671946996146,
-        "ms": 712
+        "ms": 761
       },
       {
         "id": "urn:kernel-v0:reminder",
@@ -503,7 +501,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.24140170418818369,
-        "ms": 2466
+        "ms": 2500
       },
       {
         "id": "urn:kernel-v0:repair",
@@ -514,7 +512,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9665454757068532,
-        "ms": 1067
+        "ms": 1437
       },
       {
         "id": "urn:kernel-v0:right",
@@ -525,7 +523,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9396298163032488,
-        "ms": 2544
+        "ms": 2564
       },
       {
         "id": "urn:kernel-v0:sad",
@@ -533,11 +531,10 @@
         "clauseCount": 8,
         "maxDepth": 6,
         "conceptRefs": 0,
-        "exact": false,
+        "exact": true,
         "ok": true,
         "minConfidence": 0,
-        "ms": 1713,
-        "failure": "ok-but-wrong: decoded AST validates but differs from authored AST"
+        "ms": 2328
       },
       {
         "id": "urn:kernel-v0:take",
@@ -548,7 +545,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9623928726839985,
-        "ms": 1649
+        "ms": 1869
       },
       {
         "id": "urn:kernel-v0:teacher",
@@ -559,7 +556,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8194428539802878,
-        "ms": 1598
+        "ms": 2012
       },
       {
         "id": "urn:kernel-v0:thief",
@@ -570,7 +567,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9158569251919773,
-        "ms": 1988
+        "ms": 1885
       },
       {
         "id": "urn:kernel-v0:trustworthy",
@@ -581,7 +578,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.2102794632035069,
-        "ms": 1457
+        "ms": 1665
       },
       {
         "id": "urn:kernel-v0:useful",
@@ -592,7 +589,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.7712144762432656,
-        "ms": 1281
+        "ms": 1517
       },
       {
         "id": "urn:kernel-v0:visible",
@@ -603,7 +600,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.883617856873984,
-        "ms": 847
+        "ms": 1029
       },
       {
         "id": "urn:kernel-v0:wrong",
@@ -614,14 +611,14 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.927505332870506,
-        "ms": 2981
+        "ms": 2694
       }
     ]
   },
   "fullCorpus": {
-    "exact": 51,
+    "exact": 54,
     "total": 54,
-    "pass": false,
+    "pass": true,
     "referenceBearingExact": 18,
     "referenceBearingTotal": 18,
     "minConfidence": 0,
@@ -633,11 +630,10 @@
         "clauseCount": 8,
         "maxDepth": 5,
         "conceptRefs": 0,
-        "exact": false,
-        "ok": false,
-        "minConfidence": 0.624069033346798,
-        "ms": 1884,
-        "failure": "decode failed: ERR_REF_NOT_INTRODUCED at $.clauses[0].args[0].roles.quote.clauses[1].roles.complement: ref 2 used before its introducing occurrence (or out of quote scope); lowest-confidence step: {\"path\":\"$.clauses[0].args[0].quote.clauses[2].args[0].time.anchor\",\"decision\":\"anchor\",\"value\":\"prime:NOW\",\"confidence\":0.624069033346798}"
+        "exact": true,
+        "ok": true,
+        "minConfidence": 0.5489749337708854,
+        "ms": 2331
       },
       {
         "id": "urn:kernel-v0:alive",
@@ -648,7 +644,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9762502686834365,
-        "ms": 550
+        "ms": 639
       },
       {
         "id": "urn:kernel-v0:angry",
@@ -656,11 +652,10 @@
         "clauseCount": 7,
         "maxDepth": 5,
         "conceptRefs": 0,
-        "exact": false,
+        "exact": true,
         "ok": true,
         "minConfidence": 0,
-        "ms": 2950,
-        "failure": "ok-but-wrong: decoded AST validates but differs from authored AST"
+        "ms": 4127
       },
       {
         "id": "urn:kernel-v0:archived",
@@ -671,7 +666,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0,
-        "ms": 5854
+        "ms": 5628
       },
       {
         "id": "urn:kernel-v0:begin",
@@ -682,7 +677,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9690160026748271,
-        "ms": 473
+        "ms": 625
       },
       {
         "id": "urn:kernel-v0:believe",
@@ -693,7 +688,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9743373768878716,
-        "ms": 689
+        "ms": 837
       },
       {
         "id": "urn:kernel-v0:birth",
@@ -704,7 +699,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.3313455965690715,
-        "ms": 926
+        "ms": 1994
       },
       {
         "id": "urn:kernel-v0:bookmark",
@@ -715,7 +710,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9000956054824701,
-        "ms": 1903
+        "ms": 2293
       },
       {
         "id": "urn:kernel-v0:break",
@@ -726,7 +721,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9461446242011775,
-        "ms": 2097
+        "ms": 2418
       },
       {
         "id": "urn:kernel-v0:broken",
@@ -737,7 +732,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.1690905902941519,
-        "ms": 921
+        "ms": 1164
       },
       {
         "id": "urn:kernel-v0:cause",
@@ -748,7 +743,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.89421665607691,
-        "ms": 930
+        "ms": 1194
       },
       {
         "id": "urn:kernel-v0:celebration",
@@ -759,7 +754,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.02084106872057392,
-        "ms": 1461
+        "ms": 2059
       },
       {
         "id": "urn:kernel-v0:change",
@@ -770,7 +765,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9546042555717611,
-        "ms": 1011
+        "ms": 1439
       },
       {
         "id": "urn:kernel-v0:condolence",
@@ -781,7 +776,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.31784656118093424,
-        "ms": 1557
+        "ms": 1527
       },
       {
         "id": "urn:kernel-v0:conversation",
@@ -792,7 +787,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.33078899847878335,
-        "ms": 2213
+        "ms": 2064
       },
       {
         "id": "urn:kernel-v0:dead",
@@ -803,7 +798,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9774632444207428,
-        "ms": 575
+        "ms": 757
       },
       {
         "id": "urn:kernel-v0:death",
@@ -814,7 +809,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.3295561928498344,
-        "ms": 1116
+        "ms": 1315
       },
       {
         "id": "urn:kernel-v0:end",
@@ -825,7 +820,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9690678972099841,
-        "ms": 850
+        "ms": 1009
       },
       {
         "id": "urn:kernel-v0:event",
@@ -836,7 +831,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9690571741708,
-        "ms": 912
+        "ms": 1385
       },
       {
         "id": "urn:kernel-v0:find",
@@ -847,7 +842,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8926828641506223,
-        "ms": 1611
+        "ms": 2359
       },
       {
         "id": "urn:kernel-v0:forget",
@@ -858,7 +853,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9745230755674129,
-        "ms": 487
+        "ms": 598
       },
       {
         "id": "urn:kernel-v0:friend",
@@ -869,7 +864,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8977964363241335,
-        "ms": 2885
+        "ms": 3601
       },
       {
         "id": "urn:kernel-v0:gift",
@@ -880,7 +875,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.33440510531942946,
-        "ms": 2580
+        "ms": 2257
       },
       {
         "id": "urn:kernel-v0:give",
@@ -891,7 +886,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9511402541199695,
-        "ms": 2769
+        "ms": 2738
       },
       {
         "id": "urn:kernel-v0:grieving",
@@ -902,7 +897,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.006681544356574191,
-        "ms": 763
+        "ms": 971
       },
       {
         "id": "urn:kernel-v0:happy",
@@ -913,7 +908,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.16419192872727661,
-        "ms": 1644
+        "ms": 1729
       },
       {
         "id": "urn:kernel-v0:has-part",
@@ -924,7 +919,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9693629709417867,
-        "ms": 698
+        "ms": 532
       },
       {
         "id": "urn:kernel-v0:help",
@@ -935,7 +930,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.930233804088366,
-        "ms": 1261
+        "ms": 1413
       },
       {
         "id": "urn:kernel-v0:helpful",
@@ -946,7 +941,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.41454967598918585,
-        "ms": 1026
+        "ms": 1567
       },
       {
         "id": "urn:kernel-v0:inside",
@@ -957,7 +952,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9607025388420254,
-        "ms": 427
+        "ms": 581
       },
       {
         "id": "urn:kernel-v0:kind",
@@ -968,7 +963,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9525313085134712,
-        "ms": 4584
+        "ms": 4941
       },
       {
         "id": "urn:kernel-v0:learn",
@@ -979,7 +974,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8328934717580769,
-        "ms": 1087
+        "ms": 1389
       },
       {
         "id": "urn:kernel-v0:liar",
@@ -990,7 +985,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.19670127560479794,
-        "ms": 1194
+        "ms": 1455
       },
       {
         "id": "urn:kernel-v0:lie",
@@ -1001,7 +996,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.7822807074191257,
-        "ms": 1943
+        "ms": 2049
       },
       {
         "id": "urn:kernel-v0:lose",
@@ -1012,7 +1007,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9708380589230071,
-        "ms": 3007
+        "ms": 2924
       },
       {
         "id": "urn:kernel-v0:lost",
@@ -1023,7 +1018,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.1981065115081238,
-        "ms": 890
+        "ms": 1045
       },
       {
         "id": "urn:kernel-v0:make",
@@ -1034,7 +1029,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8898480400115039,
-        "ms": 735
+        "ms": 1044
       },
       {
         "id": "urn:kernel-v0:maker-of",
@@ -1045,7 +1040,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.2303006577577104,
-        "ms": 1320
+        "ms": 1533
       },
       {
         "id": "urn:kernel-v0:memory",
@@ -1056,7 +1051,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.22689300033214035,
-        "ms": 1812
+        "ms": 1855
       },
       {
         "id": "urn:kernel-v0:near",
@@ -1067,7 +1062,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9080043481237863,
-        "ms": 1001
+        "ms": 1007
       },
       {
         "id": "urn:kernel-v0:part-of",
@@ -1078,7 +1073,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.8943691837624028,
-        "ms": 709
+        "ms": 828
       },
       {
         "id": "urn:kernel-v0:promise",
@@ -1089,7 +1084,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.943721341512114,
-        "ms": 3229
+        "ms": 4015
       },
       {
         "id": "urn:kernel-v0:remember",
@@ -1100,7 +1095,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9012671946996146,
-        "ms": 886
+        "ms": 788
       },
       {
         "id": "urn:kernel-v0:reminder",
@@ -1111,7 +1106,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.17751759823201996,
-        "ms": 2475
+        "ms": 2528
       },
       {
         "id": "urn:kernel-v0:repair",
@@ -1122,7 +1117,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.21548342705583476,
-        "ms": 1300
+        "ms": 1789
       },
       {
         "id": "urn:kernel-v0:right",
@@ -1133,7 +1128,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9396298163032488,
-        "ms": 2585
+        "ms": 2626
       },
       {
         "id": "urn:kernel-v0:sad",
@@ -1141,11 +1136,10 @@
         "clauseCount": 8,
         "maxDepth": 6,
         "conceptRefs": 0,
-        "exact": false,
+        "exact": true,
         "ok": true,
         "minConfidence": 0,
-        "ms": 2238,
-        "failure": "ok-but-wrong: decoded AST validates but differs from authored AST"
+        "ms": 2311
       },
       {
         "id": "urn:kernel-v0:take",
@@ -1156,7 +1150,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.9623928726839985,
-        "ms": 2333
+        "ms": 3182
       },
       {
         "id": "urn:kernel-v0:teacher",
@@ -1167,7 +1161,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.16324273295213496,
-        "ms": 1944
+        "ms": 2000
       },
       {
         "id": "urn:kernel-v0:thief",
@@ -1178,7 +1172,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.11669389289635156,
-        "ms": 1997
+        "ms": 1781
       },
       {
         "id": "urn:kernel-v0:trustworthy",
@@ -1189,7 +1183,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.13927537130523154,
-        "ms": 1534
+        "ms": 2075
       },
       {
         "id": "urn:kernel-v0:useful",
@@ -1200,7 +1194,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.7712144762432656,
-        "ms": 1821
+        "ms": 1611
       },
       {
         "id": "urn:kernel-v0:visible",
@@ -1211,7 +1205,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.883617856873984,
-        "ms": 1629
+        "ms": 1132
       },
       {
         "id": "urn:kernel-v0:wrong",
@@ -1222,7 +1216,7 @@
         "exact": true,
         "ok": true,
         "minConfidence": 0.927505332870506,
-        "ms": 6547
+        "ms": 3312
       }
     ]
   },

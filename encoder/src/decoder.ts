@@ -21,6 +21,14 @@
  *    passes re-decode each top-level element against the residual of all the
  *    others; this is what makes depth > 2 recovery possible at D = 8192
  *    (X2 measures exactly where it stops).
+ *  - After convergence, a residual-completion phase recovers deep OPTIONAL
+ *    content whose in-decode presence signature is beneath the noise floor
+ *    (kernel-of-truth-0kn): the converged AST is re-encoded and subtracted
+ *    from v, leaving the missed content as nearly the only thing in the
+ *    global residual; every empty optional site is probed there, and a
+ *    candidate is accepted only if re-encoding the edited clause explains
+ *    the residual strictly better (an exact matched-filter competition a
+ *    phantom cannot win — its predicted contribution is absent from v).
  *
  * The decoder is fully deterministic. Thresholds are decoder heuristics
  * (DecodeOptions), NOT part of the encoder pin; the encoder content-hash is
@@ -811,6 +819,267 @@ class Dec {
     }
     return clauses;
   }
+
+  // ----- residual completion (kernel-of-truth-0kn) ---------------------------
+
+  /** Run `fn` with step recording suspended (candidate probing must not pollute the trace). */
+  quiet<T>(fn: () => T): T {
+    const saved = this.steps;
+    this.steps = [];
+    try {
+      return fn();
+    } finally {
+      this.steps = saved;
+    }
+  }
+
+  /**
+   * Best-effort decode of ONE structured candidate from a normalised residual
+   * estimate. Unlike decodeStructuredAt this never peels (the estimate is a
+   * probe of the global residual, not a working buffer) and never assumes
+   * presence: the residual at a truly-empty site is amplified white noise, on
+   * which every signature stays under the 5-sigma floor.
+   */
+  private decodeStructuredCandidate(
+    zn: Float64Array,
+    licensed: readonly StructKind[],
+    depth: number,
+    path: string,
+  ): Filler | null {
+    let bestKind: StructKind | null = null;
+    let bestSig = -Infinity;
+    for (const k of licensed) {
+      const s =
+        k === 'sp' ? this.spSignature(zn)
+        : k === 'clause' ? this.clauseSignature(zn)
+        : k === 'quote' ? this.quoteSignature(zn)
+        : k === 'temporal' ? this.temporalSignature(zn)
+        : this.conceptSignature(zn);
+      if (s > bestSig) {
+        bestSig = s;
+        bestKind = k;
+      }
+    }
+    if (bestKind === null || bestSig < this.thetaAbs) return null;
+    const kind = bestKind;
+    return this.quiet(() => {
+      if (kind === 'sp') return this.decodeSP(zn, depth + 1, path);
+      if (kind === 'clause') {
+        const c = this.decodeClause(zn, depth + 1, path);
+        return c === null ? null : ({ kind: 'clause', clause: c } as Filler);
+      }
+      if (kind === 'quote') return this.decodeQuote(zn, depth + 1, path);
+      if (kind === 'temporal') return this.decodeTemporal(zn, depth + 1, path);
+      const nn = this.conceptNN(zn, path);
+      return nn !== null && nn.score >= this.thetaAbs ? ({ kind: 'concept', id: nn.id } as Filler) : null;
+    });
+  }
+
+  /**
+   * Walk a DECODED clause alongside the matching estimate of the global
+   * residual, generating insertion candidates for every EMPTY optional site
+   * (unfilled optional roles/adjuncts; missing SP det/quant/mods/bind/
+   * restrictedBy; missing trailing quote clauses). Candidates are only
+   * GENERATED here; acceptance is decodeExplication's global matched-filter
+   * test. `z` is the unnormalised residual estimate at this clause node;
+   * `rebuild` lifts an edited node back to its top-level clause.
+   */
+  collectClauseCompletions(
+    c: Clause,
+    z: Float64Array,
+    path: string,
+    rebuild: (c2: Clause) => Clause,
+    out: { clause: Clause; sitePath: string; desc: string }[],
+    depth: number,
+  ): void {
+    if (depth > CAPS.maxDepth) return;
+    if (c.type === 'pred') {
+      const frame = FRAME_BY_PRED.get(c.pred);
+      if (frame === undefined) return;
+      for (const role of ROLES) {
+        const slot = frame.slots.find((sl) => sl.role === role);
+        const isAdjunct = (ADJUNCT_ROLES as readonly string[]).includes(role);
+        if (slot === undefined && !isAdjunct) continue;
+        const f = c.roles[role];
+        const rolePath = `${path}.roles.${role}`;
+        const zRole = this.unbind(z, role);
+        const put = (f2: Filler): Clause => rebuild({ ...c, roles: { ...c.roles, [role]: f2 } });
+        if (f !== undefined) {
+          this.collectFillerCompletions(f, zRole, rolePath, put, out, depth);
+          continue;
+        }
+        const sets = this.roleCandidateSets(role, slot?.kind ?? 'adjunct');
+        if (sets === null) continue;
+        const zn = normalisedCopy(zRole);
+        if (zn === null) continue;
+        if (sets.atomicCands.length > 0) {
+          const a = this.pickBest(zn, role, sets.atomicCands);
+          if (a.score >= this.thetaAbs) {
+            const f2: Filler = a.name.startsWith('ref:')
+              ? { kind: 'ref', index: Number(a.name.slice(4)) }
+              : { kind: 'prime', prime: a.name.slice(6) };
+            out.push({ clause: put(f2), sitePath: rolePath, desc: a.name });
+          }
+        }
+        if (sets.structured.length > 0) {
+          const fs = this.decodeStructuredCandidate(zn, sets.structured, depth, rolePath);
+          if (fs !== null) out.push({ clause: put(fs), sitePath: rolePath, desc: fs.kind });
+        }
+      }
+      return;
+    }
+    if (OPERATOR_CLASS[c.op] === undefined) return;
+    for (const [i, arg] of c.args.entries()) {
+      const slot: SlotName = i === 0 ? 'arg0' : 'arg1';
+      const argPath = `${path}.args[${i}]`;
+      const putArg = (a2: OpArg): Clause => rebuild({ ...c, args: c.args.map((a, j) => (j === i ? a2 : a)) });
+      if ('type' in arg) {
+        this.collectClauseCompletions(arg, this.unbind(z, slot), argPath, (c2) => putArg(c2), out, depth + 1);
+      } else {
+        this.collectFillerCompletions(arg, this.unbind(z, slot), argPath, (f2) => putArg(f2 as OpArg), out, depth);
+      }
+    }
+  }
+
+  collectFillerCompletions(
+    f: Filler,
+    z: Float64Array,
+    path: string,
+    rebuild: (f2: Filler) => Clause,
+    out: { clause: Clause; sitePath: string; desc: string }[],
+    depth: number,
+  ): void {
+    if (depth > CAPS.maxDepth) return;
+    switch (f.kind) {
+      case 'sp': {
+        const zn = normalisedCopy(z);
+        if (zn === null) return;
+        if (f.det === undefined) {
+          const det = this.pickBest(zn, 'det', DET_CANDIDATES);
+          if (det.score >= this.thetaAbs) {
+            const prime = det.name.slice(6);
+            const detVal = (prime === 'SOME' ? 'SOME' : prime) as NonNullable<SP['det']>;
+            out.push({ clause: rebuild({ ...f, det: detVal }), sitePath: `${path}.det`, desc: det.name });
+          }
+        }
+        if (f.quant === undefined) {
+          const q = this.pickBest(zn, 'quant', SP_QUANTIFIERS.map((x) => `prime:${x}`));
+          if (q.score >= this.thetaAbs) {
+            out.push({
+              clause: rebuild({ ...f, quant: q.name.slice(6) as NonNullable<SP['quant']> }),
+              sitePath: `${path}.quant`,
+              desc: q.name,
+            });
+          }
+        }
+        if (f.bind === undefined) {
+          const b = this.pickBest(zn, 'bind', REF_FILLERS);
+          if (b.score >= this.thetaAbs) {
+            out.push({
+              clause: rebuild({ ...f, bind: Number(b.name.slice(4)) }),
+              sitePath: `${path}.bind`,
+              desc: b.name,
+            });
+          }
+        }
+        const have = new Set(
+          (f.mods ?? []).map((m) => (m.intensifier === undefined ? `prime:${m.mod}` : `imod:${m.intensifier}+${m.mod}`)),
+        );
+        let bestMod: { name: string; score: number } | null = null;
+        for (const cand of [...SP_MODS.map((m) => `prime:${m}`), ...INTENSIFIED_MODS.map((m) => `imod:${m}`)]) {
+          if (have.has(cand)) continue;
+          const s = this.probe(zn, 'mod', cand);
+          if (s >= this.thetaAbs && (bestMod === null || s > bestMod.score)) bestMod = { name: cand, score: s };
+        }
+        if (bestMod !== null) {
+          let m: SPModifier;
+          if (bestMod.name.startsWith('prime:')) {
+            m = { mod: bestMod.name.slice(6) as SPModifier['mod'] };
+          } else {
+            const [intens, ...rest] = bestMod.name.slice(5).split('+');
+            m = { mod: rest.join('+') as SPModifier['mod'], intensifier: intens as 'VERY' | 'MORE' };
+          }
+          out.push({
+            clause: rebuild({ ...f, mods: [...(f.mods ?? []), m] }),
+            sitePath: `${path}.mods`,
+            desc: bestMod.name,
+          });
+        }
+        if (f.restrictedBy === undefined) {
+          const zr = normalisedCopy(this.unbind(z, 'restrictedBy'));
+          if (zr !== null && this.clauseSignature(zr) >= this.thetaAbs) {
+            const c2 = this.quiet(() => this.decodeClause(zr, depth + 1, `${path}.restrictedBy`));
+            if (c2 !== null) {
+              out.push({ clause: rebuild({ ...f, restrictedBy: c2 }), sitePath: `${path}.restrictedBy`, desc: 'clause' });
+            }
+          }
+        } else {
+          this.collectClauseCompletions(
+            f.restrictedBy,
+            this.unbind(z, 'restrictedBy'),
+            `${path}.restrictedBy`,
+            (c2) => rebuild({ ...f, restrictedBy: c2 }),
+            out,
+            depth + 1,
+          );
+        }
+        const h = f.head;
+        if ((h.kind === 'kindFrame' || h.kind === 'partFrame') && h.of.kind === 'sp') {
+          this.collectFillerCompletions(
+            h.of,
+            this.unbind(z, 'of'),
+            `${path}.head.of`,
+            (f2) => rebuild({ ...f, head: { ...h, of: f2 as SP } }),
+            out,
+            depth + 1,
+          );
+        }
+        return;
+      }
+      case 'quote': {
+        for (const [j, qc] of f.clauses.entries()) {
+          this.collectClauseCompletions(
+            qc,
+            applyPermutation(this.cb.clausePermInv(j), z),
+            `${path}.clauses[${j}]`,
+            (c2) => rebuild({ ...f, clauses: f.clauses.map((x, k) => (k === j ? c2 : x)) }),
+            out,
+            depth + 1,
+          );
+        }
+        const j = f.clauses.length;
+        if (j < CAPS.maxClauses) {
+          const zj = normalisedCopy(applyPermutation(this.cb.clausePermInv(j), z));
+          if (zj !== null && this.clauseSignature(zj) >= this.thetaAbs) {
+            const c2 = this.quiet(() => this.decodeClause(zj, depth + 1, `${path}.clauses[${j}]`));
+            if (c2 !== null) {
+              out.push({ clause: rebuild({ ...f, clauses: [...f.clauses, c2] }), sitePath: `${path}.clauses[${j}]`, desc: 'clause' });
+            }
+          }
+        }
+        return;
+      }
+      case 'temporal': {
+        if (f.anchor.kind === 'sp') {
+          this.collectFillerCompletions(
+            f.anchor,
+            this.unbind(z, 'arg0'),
+            `${path}.anchor`,
+            (f2) => rebuild({ ...f, anchor: f2 as SP }),
+            out,
+            depth + 1,
+          );
+        }
+        return;
+      }
+      case 'clause':
+        // Clause fillers are bound directly at the role tag: z IS the clause estimate.
+        this.collectClauseCompletions(f.clause, z, `${path}.clause`, (c2) => rebuild({ kind: 'clause', clause: c2 }), out, depth + 1);
+        return;
+      default:
+        return; // atomic fillers (prime/ref/concept) carry no optional sites
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -936,6 +1205,79 @@ export function decodeExplication(v: Float64Array, opts?: DecodeOptions): Decode
     const json = canonicalJson(prior as unknown as Record<string, unknown>);
     if (json === lastJson) break; // converged
     lastJson = json;
+  }
+
+  // --- residual completion (kernel-of-truth-0kn) ---
+  // Deep OPTIONAL content can be undetectable in-decode: under quote>op
+  // nesting the authored-corpus emotion trio's true SPs scored ~0.6x the
+  // 5-sigma presence floor while PURE-NOISE slots at the same depth scored
+  // higher — no local gate can separate them. But the encoder is
+  // deterministic: everything the converged decode DID recover re-encodes
+  // exactly, so after subtracting it from v the missed content is nearly the
+  // only thing left in the global residual (measured 6-30x above the noise
+  // floor at the missed sites for the corpus trio). Probe every empty
+  // optional site of the decoded AST against that residual; accept the best
+  // candidate edit only if the RE-ENCODED edited clause explains the
+  // restored residual strictly better than the original — a global
+  // matched-filter competition on exact reconstructions, which a phantom
+  // cannot win because its predicted contribution is absent from v.
+  if (prior !== null) {
+    const maxEdits = 16;
+    for (let editPass = 0; editPass < maxEdits; editPass++) {
+      const p = prior;
+      const clauseRecs = p.clauses.map((c, i) =>
+        c === null ? null : applyPermutation(cb.clausePerm(i), enc.encodeClause(c)),
+      );
+      const residual = Float64Array.from(v);
+      dec.peel(residual, cb.boundAtom('frame', `frame:${p.frame}`));
+      for (const r of p.referents) {
+        dec.peel(residual, applyPermutation(cb.refdeclPerm(r.index), cb.boundAtom('refdecl', `refkind:${r.refKind}`)));
+      }
+      const coeffs = clauseRecs.map((rec) => (rec === null ? 0 : dec.peel(residual, rec)));
+      let res2 = 0;
+      for (let k = 0; k < residual.length; k++) res2 += residual[k]! * residual[k]!;
+      if (res2 <= 1e-10) break; // decode already explains v (exact up to float noise)
+      const cands: { clauseIndex: number; clause: Clause; sitePath: string; desc: string }[] = [];
+      for (const [i, c] of p.clauses.entries()) {
+        if (c === null) continue;
+        const zi = applyPermutation(cb.clausePermInv(i), residual);
+        const local: { clause: Clause; sitePath: string; desc: string }[] = [];
+        dec.collectClauseCompletions(c, zi, `$.clauses[${i}]`, (c2) => c2, local, 1);
+        for (const cand of local) cands.push({ clauseIndex: i, ...cand });
+      }
+      if (cands.length === 0) break;
+      let best: { cand: (typeof cands)[number]; errOld: number; errNew: number } | null = null;
+      for (const cand of cands) {
+        const rec = clauseRecs[cand.clauseIndex]!;
+        // Restore clause i's own contribution: ri = residual + c0 * rec.
+        const ri = Float64Array.from(residual);
+        const c0 = coeffs[cand.clauseIndex]!;
+        for (let k = 0; k < ri.length; k++) ri[k] = ri[k]! + c0 * rec[k]!;
+        const errOf = (t: Float64Array): number => {
+          const n2 = dot(t, t);
+          const cf = n2 > 0 ? dot(ri, t) / n2 : 0;
+          let e = 0;
+          for (let k = 0; k < ri.length; k++) {
+            const d = ri[k]! - cf * t[k]!;
+            e += d * d;
+          }
+          return e;
+        };
+        const errOld = errOf(rec);
+        const errNew = errOf(applyPermutation(cb.clausePerm(cand.clauseIndex), enc.encodeClause(cand.clause)));
+        if (best === null || errOld - errNew > best.errOld - best.errNew) best = { cand, errOld, errNew };
+      }
+      // Accept only a decisive improvement (>=1% of the clause's residual
+      // error, above float noise); phantoms sit at <=~0 improvement.
+      if (best === null || !(best.errOld - best.errNew > Math.max(1e-10, 0.01 * best.errOld))) break;
+      p.clauses[best.cand.clauseIndex] = best.cand.clause;
+      dec.step(
+        best.cand.sitePath,
+        'residual-add',
+        best.cand.desc,
+        Math.max(0, Math.min(1, 1 - best.errNew / best.errOld)),
+      );
+    }
   }
 
   const clausesOut: Clause[] = [];
