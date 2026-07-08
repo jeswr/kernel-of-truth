@@ -1,0 +1,7 @@
+# f2_runner.py real-path floors (the Modal image pins exact versions in
+# poc/modal/requirements-image.txt; bitsandbytes is needed ONLY by the
+# int4-quantized arm and is imported lazily / fail-closed).
+# --mock and --dry-plan need NOTHING beyond the stdlib.
+numpy>=1.24
+torch>=2.2
+transformers>=4.44,<5

@@ -1,0 +1,85 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "kot-amend-1.json",
+    "title": "kot-amend/1 amendment record (P2 02-data-and-reporting.md section 1.4). Amendments never modify the frozen file; verdict-gen applies valid ones in seq order as an overlay. Validity logic (RT-5 design cutoff, ops path whitelist, pre-authorization pointer) is enforced by tools/registry/verdict-gen.py; this schema carries the field shapes.",
+    "type": "object",
+    "required": [
+        "schema_version",
+        "experiment",
+        "seq",
+        "date",
+        "author",
+        "kind",
+        "rationale",
+        "patch"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "schema_version": {
+            "const": "kot-amend/1"
+        },
+        "experiment": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+        },
+        "seq": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "author": {
+            "type": "string",
+            "minLength": 1
+        },
+        "kind": {
+            "enum": [
+                "ops",
+                "design",
+                "pre-authorized-fallback"
+            ]
+        },
+        "rationale": {
+            "type": "string",
+            "minLength": 1
+        },
+        "patch": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "required": [
+                    "op",
+                    "path"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "op": {
+                        "enum": [
+                            "add",
+                            "replace",
+                            "remove"
+                        ]
+                    },
+                    "path": {
+                        "type": "string",
+                        "pattern": "^/"
+                    },
+                    "value": {}
+                }
+            }
+        },
+        "pre_authorized_by": {
+            "type": "string",
+            "pattern": "^/"
+        },
+        "unblinding_state_at_write": {
+            "enum": [
+                "pre",
+                "post"
+            ]
+        }
+    }
+}

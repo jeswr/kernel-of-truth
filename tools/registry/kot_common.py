@@ -19,6 +19,7 @@ the hashed unit is the full line INCLUDING its terminating newline, i.e. the
 exact byte range the line occupies in the file. Genesis prev_sha256 = 64 zeros.
 """
 
+import copy
 import hashlib
 import json
 import os
@@ -408,6 +409,98 @@ def eval_expr(expr, doc):
                 raise KotError("ERR_P2_GRAMMAR", "comparison operand %r (%r) is not a number" % (side, v))
         return {"gt": a > b, "gte": a >= b, "lt": a < b, "lte": a <= b}[op]
     raise KotError("ERR_P2_GRAMMAR", "unknown op %r" % op)
+
+
+# ---------------------------------------------------------------- RFC-6902 patch (amendment overlay mechanics)
+
+_ARRAY_INDEX_RE = re.compile(r"^(0|[1-9][0-9]*)$")
+
+
+def _pointer_tokens(pointer, op_index):
+    if not isinstance(pointer, str) or not pointer.startswith("/"):
+        raise KotError("ERR_P2_BAD_AMENDMENT",
+                       "patch op %d: path %r is not a JSON pointer starting with '/'" % (op_index, pointer))
+    return [t.replace("~1", "/").replace("~0", "~") for t in pointer[1:].split("/")]
+
+
+def _patch_step(node, token, pointer, op_index):
+    if isinstance(node, dict):
+        if token not in node:
+            raise KotError("ERR_P2_BAD_AMENDMENT",
+                           "patch op %d: path %r: member %r does not exist" % (op_index, pointer, token))
+        return node[token]
+    if isinstance(node, list):
+        if not _ARRAY_INDEX_RE.match(token) or int(token) >= len(node):
+            raise KotError("ERR_P2_BAD_AMENDMENT",
+                           "patch op %d: path %r: bad array index %r" % (op_index, pointer, token))
+        return node[int(token)]
+    raise KotError("ERR_P2_BAD_AMENDMENT",
+                   "patch op %d: path %r traverses a non-container" % (op_index, pointer))
+
+
+def json_patch_apply(doc, patch):
+    """Minimal RFC-6902 JSON Patch — the P2 §1.4 amendment-overlay mechanics.
+
+    Supports add / replace / remove only (kot-amend/1 forbids the rest by
+    schema). Returns a NEW document (the input is never mutated), so the
+    overlay is a pure function of (frozen record, amendment list) and its
+    result is deterministic. Fails closed with ERR_P2_BAD_AMENDMENT on any
+    unsupported op, unresolvable path, or replace/remove of a nonexistent
+    member — never a silent no-op. Per RFC 6902 §4.1 an `add` on an existing
+    object member replaces it; POLICY restrictions (ops amendments may only
+    fill placeholders / add new pins) live in verdict-gen, not here.
+    """
+    out = copy.deepcopy(doc)
+    for i, op in enumerate(patch):
+        if not isinstance(op, dict) or "op" not in op or "path" not in op:
+            raise KotError("ERR_P2_BAD_AMENDMENT", "patch op %d is not an {op, path, ...} object" % i)
+        action = op["op"]
+        if action not in ("add", "replace", "remove"):
+            raise KotError("ERR_P2_BAD_AMENDMENT",
+                           "patch op %d: unsupported op %r (add/replace/remove only)" % (i, action))
+        if action in ("add", "replace") and "value" not in op:
+            raise KotError("ERR_P2_BAD_AMENDMENT", "patch op %d (%s): missing value" % (i, action))
+        tokens = _pointer_tokens(op["path"], i)
+        parent = out
+        for token in tokens[:-1]:
+            parent = _patch_step(parent, token, op["path"], i)
+        last = tokens[-1]
+        if isinstance(parent, dict):
+            if action == "replace" and last not in parent:
+                raise KotError("ERR_P2_BAD_AMENDMENT",
+                               "patch op %d: replace target %r does not exist" % (i, op["path"]))
+            if action == "remove":
+                if last not in parent:
+                    raise KotError("ERR_P2_BAD_AMENDMENT",
+                                   "patch op %d: remove target %r does not exist" % (i, op["path"]))
+                del parent[last]
+            else:
+                parent[last] = op["value"]
+        elif isinstance(parent, list):
+            if action == "add" and last == "-":
+                parent.append(op["value"])
+                continue
+            if not _ARRAY_INDEX_RE.match(last):
+                raise KotError("ERR_P2_BAD_AMENDMENT",
+                               "patch op %d: path %r: bad array index %r" % (i, op["path"], last))
+            idx = int(last)
+            if action == "add":
+                if idx > len(parent):
+                    raise KotError("ERR_P2_BAD_AMENDMENT",
+                                   "patch op %d: add index %d out of range" % (i, idx))
+                parent.insert(idx, op["value"])
+            else:
+                if idx >= len(parent):
+                    raise KotError("ERR_P2_BAD_AMENDMENT",
+                                   "patch op %d: %s index %d out of range" % (i, action, idx))
+                if action == "remove":
+                    del parent[idx]
+                else:
+                    parent[idx] = op["value"]
+        else:
+            raise KotError("ERR_P2_BAD_AMENDMENT",
+                           "patch op %d: path %r targets inside a non-container" % (i, op["path"]))
+    return out
 
 
 def collect_metric_pointers(expr, out=None):

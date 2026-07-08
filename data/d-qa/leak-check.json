@@ -1,0 +1,38 @@
+{
+ "artifact": "d-qa-leak-check",
+ "checks": {
+  "LC1-headword-not-in-shown-definition": {
+   "checked": 138,
+   "rule": "term-match items are dropped and substituted when the shown definition contains the headword (word-boundary, case-insensitive); control concepts violating it are excluded at selection",
+   "substituted": 0
+  },
+  "LC2-answer-text-not-in-question": {
+   "checked": 276
+  },
+  "LC3-false-claim-not-entailed": {
+   "accepted": 202,
+   "rejected_candidates": 0,
+   "rule": "false claims must not be a substring of the target gloss and must have token-Jaccard < 0.5 vs the target gloss"
+  },
+  "LC4-options-distinct-answer-present": {
+   "option_sets": 138
+  },
+  "LC5-no-duplicate-ids-or-questions": {
+   "items": 650
+  },
+  "LC6-true-claims-verbatim-from-record": {
+   "claims": 172
+  },
+  "LC7-answer-position-balance": {
+   "A": 71,
+   "B": 69,
+   "C": 75,
+   "D": 61,
+   "no": 202,
+   "yes": 172
+  }
+ },
+ "generated": "2026-07-08",
+ "note": "fail-closed: any violation aborts the build; this file exists only on PASS",
+ "result": "PASS"
+}

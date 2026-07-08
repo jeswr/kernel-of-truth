@@ -8,9 +8,21 @@ Implements P2 §3.1 (minimal spine — the F1-critical path):
   1. Load registry/experiments/<id>.json; recompute the frozen hash; require
      equality with registry/frozen-index.json (ERR_P2_FROZEN_DRIFT — no verdict
      of any kind is producible from a drifted record).
-  2. Amendment overlay is NOT implemented in the minimal spine; the presence of
-     any registry/amendments/<id>/ record aborts (ERR_P2_BAD_AMENDMENT) rather
-     than being silently skipped.
+  2. Amendment overlay (P2 §1.4 / §3.1 step 2): apply kot-amend/1 records from
+     registry/amendments/<id>/ in seq order as an overlay on the frozen record
+     BEFORE readout. kind "ops" / "pre-authorized-fallback" amendments may ONLY
+     fill a PINNED-AT-INPUTS placeholder or add a new runtime pin under /pins/;
+     a patch touching design scope (endpoints, thresholds, verdict_rules, kill
+     text, baselines, scale rungs, the pinned analysis script) aborts with
+     ERR_P2_DESIGN_AMEND. kind "design" amendments are REFUSED once the RT-5
+     cutoff has passed — the experiment is GNG-0-signed or its log contains a
+     phase:"final" run record — with ERR_P2_BAD_AMENDMENT (the only lawful path
+     is a new experiment id with `supersedes`). An invalid amendment always
+     aborts; it is never silently skipped. The frozen record file and its
+     frozen_sha256 anchor are untouched; the deterministic overlay result is
+     logged in the verdict object as inputs.amended_record_sha256 alongside
+     inputs.amendments_applied, so the amended record is independently
+     re-derivable and verifiable from (frozen record, amendment files).
   3. Select eligible run records from results-log/<id>.jsonl (chain-verified):
      event=="run", phase=="final", exit=="ok", not superseded,
      prereg_hash == frozen_sha256, config.seed in design.seeds (when seeds are
@@ -39,11 +51,43 @@ import glob
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kot_common as kc
+
+# P2 §1.4 design scope — JSON-pointer prefixes that an "ops" /
+# "pre-authorized-fallback" amendment may NEVER touch (endpoints and
+# verdict_rules carry the thresholds; design carries baselines, scale rungs,
+# seeds, IV levels; the kill/envelope text and the pinned analysis script are
+# the frozen contract). Touching any of these is a design change and fails
+# closed with ERR_P2_DESIGN_AMEND.
+DESIGN_SCOPE_PREFIXES = (
+    "/endpoints",
+    "/verdict_rules",
+    "/design",
+    "/kill_criterion_verbatim",
+    "/extrapolation_envelope_verbatim",
+    "/pins/analysis_script",
+    "/hypotheses",
+    "/analysis_plan_ref",
+    "/prereg_doc",
+    "/coverage_requirement",
+    "/efficiency_relevant",
+)
+
+# Freeze bookkeeping — no amendment of ANY kind may touch these.
+FREEZE_FIELD_PREFIXES = ("/status", "/frozen_sha256", "/frozen_at", "/frozen_by", "/id", "/schema_version")
+
+# An ops pin value is a bare hex digest: 40 hex (git/HF revision sha) or
+# 64 hex (sha256: corpus digest, staged-bytes manifest). Nothing else.
+PIN_VALUE_RE = re.compile(r"^([0-9a-f]{40}|[0-9a-f]{64})$")
+
+
+def _touches(path, prefixes):
+    return any(path == p or path.startswith(p + "/") for p in prefixes)
 
 
 def fail(code, msg):
@@ -57,6 +101,152 @@ def file_sha256(path):
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def gng0_signed(root, exp_id):
+    """True iff the experiment's frozen record is covered by the GNG-0 signoff."""
+    path = os.path.join(root, "registry", "gng0-signoff.json")
+    if not os.path.isfile(path):
+        return False
+    with open(path, "r", encoding="utf-8") as f:
+        signoff = json.load(f)
+    return exp_id in signoff.get("frozen_records", {})
+
+
+def load_amendments(root, exp_id):
+    """Load, schema-validate, and RT-14-lint registry/amendments/<id>/*.json.
+
+    Returns [(relpath, amendment)] sorted by seq. Any malformed record aborts
+    (ERR_P2_BAD_AMENDMENT) — an unreadable amendment is never skipped.
+    """
+    paths = sorted(glob.glob(os.path.join(root, "registry", "amendments", exp_id, "*.json")))
+    if not paths:
+        return []
+    schema_path = os.path.join(root, "registry", "schema", "kot-amend-1.json")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = json.load(f)
+    out, seen = [], set()
+    for path in paths:
+        rel = os.path.relpath(path, root)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                am = json.load(f)
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            raise kc.KotError("ERR_P2_BAD_AMENDMENT", "%s: unparseable (%s)" % (rel, e))
+        errs = kc.validate_schema(am, schema)
+        if errs:
+            raise kc.KotError("ERR_P2_BAD_AMENDMENT", "%s: %s" % (rel, "; ".join(errs[:5])))
+        if am["experiment"] != exp_id:
+            raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                              "%s: experiment %r != %r" % (rel, am["experiment"], exp_id))
+        prefix = os.path.basename(path).split("-", 1)[0]
+        if not prefix.isdigit() or int(prefix) != am["seq"]:
+            raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                              "%s: filename seq prefix does not match seq=%r (<seq>-<slug>.json)"
+                              % (rel, am["seq"]))
+        if am["seq"] in seen:
+            raise kc.KotError("ERR_P2_BAD_AMENDMENT", "%s: duplicate amendment seq %d" % (rel, am["seq"]))
+        seen.add(am["seq"])
+        kc.check_identity_fields(am)
+        kc.require_no_account_strings(kc.canonical_bytes(am), rel)
+        out.append((rel, am))
+    out.sort(key=lambda t: t[1]["seq"])
+    return out
+
+
+def apply_amendment_overlay(root, exp_id, record, log_records):
+    """P2 §3.1 step 2: apply valid amendments in seq order as an overlay.
+
+    Returns (effective_record, applied_seqs, effective_sha256-or-None). The
+    frozen record file is never touched; the overlay is a pure function of
+    (frozen record, amendment files) so effective_sha256 is re-derivable by
+    any verifier. Fails closed on the first invalid amendment.
+    """
+    amendments = load_amendments(root, exp_id)
+    if not amendments:
+        return record, [], None
+
+    signed = gng0_signed(root, exp_id)
+    has_final = any(r.get("event") == "run" and r.get("phase") == "final" for r in log_records)
+    effective = record
+    applied = []
+    for rel, am in amendments:
+        for j, op in enumerate(am["patch"]):
+            if _touches(op["path"], FREEZE_FIELD_PREFIXES):
+                raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                  "%s patch[%d]: freeze bookkeeping field %s may never be amended"
+                                  % (rel, j, op["path"]))
+        if am["kind"] == "design":
+            # RT-5 cutoff: design amendments die at first raw-data exposure
+            # (first phase:"final" run record) — and a GNG-0-signed record's
+            # design is immutable outright. The only lawful path afterwards is
+            # a new experiment id with `supersedes` and a fresh freeze.
+            if signed or has_final:
+                raise kc.KotError(
+                    "ERR_P2_BAD_AMENDMENT",
+                    "%s: design amendment after the RT-5 cutoff (GNG-0-signed=%s, final-phase run "
+                    "present=%s) — the frozen design is immutable; supersede with a new experiment id"
+                    % (rel, signed, has_final))
+        else:  # "ops" | "pre-authorized-fallback"
+            if am["kind"] == "pre-authorized-fallback":
+                ptr = am.get("pre_authorized_by")
+                if not ptr:
+                    raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                      "%s: pre-authorized-fallback must name the frozen-record field "
+                                      "that pre-authorized it (pre_authorized_by)" % rel)
+                if kc.resolve_pointer(record, ptr) is kc._MISSING:
+                    raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                      "%s: pre_authorized_by pointer %r is not present in the frozen record"
+                                      % (rel, ptr))
+            for j, op in enumerate(am["patch"]):
+                where = "%s patch[%d] (%s %s)" % (rel, j, op["op"], op["path"])
+                if _touches(op["path"], DESIGN_SCOPE_PREFIXES):
+                    raise kc.KotError(
+                        "ERR_P2_DESIGN_AMEND",
+                        "%s: ops-scope amendment touches design scope (endpoints / thresholds / "
+                        "verdict_rules / kill text / baselines / scale rungs / pinned analysis) — "
+                        "refused; a design change needs a new experiment id" % where)
+                if not op["path"].startswith("/pins/"):
+                    raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                      "%s: an ops amendment may only fill a PINNED-AT-INPUTS placeholder "
+                                      "or add a runtime pin under /pins/" % where)
+                if op["op"] == "remove":
+                    raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                      "%s: ops amendments may not remove pins" % where)
+                value = op.get("value")
+                if not isinstance(value, str) or not PIN_VALUE_RE.match(value):
+                    raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                      "%s: pin value must be a bare 40- or 64-char lowercase hex digest, "
+                                      "got %r" % (where, value))
+                current = kc.resolve_pointer(effective, op["path"])
+                if op["op"] == "replace":
+                    if not (isinstance(current, str) and current.startswith(kc.PINNED_AT_INPUTS_PREFIX)):
+                        raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                          "%s: replace target is not a PINNED-AT-INPUTS placeholder "
+                                          "(current=%r) — frozen pins are immutable" % (where, current))
+                else:  # add
+                    if current is not kc._MISSING:
+                        raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                                          "%s: add target already exists — an existing pin cannot be "
+                                          "overwritten" % where)
+        effective = kc.json_patch_apply(effective, am["patch"])
+        applied.append(am["seq"])
+
+    # Post-overlay integrity: the effective record must still be a valid
+    # kot-reg/1 record and RT-14-clean — an overlay cannot smuggle in what a
+    # freeze would have refused.
+    schema_path = os.path.join(root, "registry", "schema", "kot-reg-1.json")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        reg_schema = json.load(f)
+    errs = kc.validate_schema(effective, reg_schema)
+    if errs:
+        raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                          "amended effective record no longer validates against kot-reg/1: %s"
+                          % "; ".join(errs[:5]))
+    kc.check_identity_fields(effective)
+    hashed = {k: v for k, v in effective.items() if k not in ("status", "frozen_sha256")}
+    kc.require_no_account_strings(kc.canonical_bytes(hashed), "amended effective record")
+    return effective, applied, kc.frozen_hash(effective)
 
 
 def select_eligible(records, frozen_sha, design):
@@ -150,17 +340,17 @@ def run(root, exp_id, agent_id, computed_at):
         raise kc.KotError("ERR_P2_FROZEN_DRIFT",
                           "%s: frozen record bytes drifted from frozen-index — no verdict is producible" % exp_id)
 
-    # Step 2 — amendments (fail closed, never silently skipped).
-    amendments = sorted(glob.glob(os.path.join(root, "registry", "amendments", exp_id, "*.json")))
-    if amendments:
-        raise kc.KotError("ERR_P2_BAD_AMENDMENT",
-                          "amendment overlay is not implemented in the minimal spine; found: %s"
-                          % ", ".join(os.path.relpath(a, root) for a in amendments))
-
-    # Step 3 — chain-verified log + eligibility.
+    # Step 2 — amendment overlay (fail closed, never silently skipped). The
+    # chain-verified log is read first: it is the RT-5 cutoff witness. The
+    # overlay never touches the frozen file; `record` stays the frozen anchor
+    # (prereg_hash eligibility is checked against frozen_sha), `effective` is
+    # what readout runs against.
     log_path = os.path.join(root, "results-log", "%s.jsonl" % exp_id)
     records, raw_lines = kc.read_log(log_path)
-    eligible, excluded = select_eligible(records, frozen_sha, record["design"])
+    effective, amendments_applied, amended_sha = apply_amendment_overlay(root, exp_id, record, records)
+
+    # Step 3 — eligibility.
+    eligible, excluded = select_eligible(records, frozen_sha, effective["design"])
     tail_sha = kc.log_tail_sha256(raw_lines)
     runner_ids = {r["runner"] for r in eligible}
 
@@ -168,7 +358,10 @@ def run(root, exp_id, agent_id, computed_at):
     fired_index = None
     fired_rule = None
     analysis_output_sha = None
-    script_sha = record["pins"]["analysis_script"]["sha256"]
+    # Ops amendments cannot touch /pins/analysis_script, so this pin is
+    # byte-identical between `record` and `effective`; read it from the
+    # effective record for uniformity.
+    script_sha = effective["pins"]["analysis_script"]["sha256"]
     endpoint_results = []
     coverage = None
 
@@ -177,12 +370,12 @@ def run(root, exp_id, agent_id, computed_at):
         verdict = "INCOMPLETE-DATA"
     else:
         # Step 5 — pinned analysis script over eligible records only.
-        script_path = os.path.join(root, record["pins"]["analysis_script"]["path"])
+        script_path = os.path.join(root, effective["pins"]["analysis_script"]["path"])
         got = file_sha256(script_path)
         if got != script_sha:
             raise kc.KotError("ERR_P2_FROZEN_DRIFT",
                               "pinned analysis script %s sha256 %s != frozen pin %s"
-                              % (record["pins"]["analysis_script"]["path"], got, script_sha))
+                              % (effective["pins"]["analysis_script"]["path"], got, script_sha))
         stdin_payload = "".join(kc.canonical_dumps(r) + "\n" for r in eligible)
         proc = subprocess.run(
             ["nice", "-n", "10", sys.executable, script_path],
@@ -217,13 +410,13 @@ def run(root, exp_id, agent_id, computed_at):
             tail_sha = kc.log_tail_sha256(raw_lines)
 
         # G-7 (scoped): coverage is required only when the frozen record declares it.
-        if "coverage_requirement" in record:
+        if "coverage_requirement" in effective:
             coverage = eligible[-1].get("metrics", {}).get("coverage")
             if not coverage:
                 raise kc.KotError("ERR_P2_NO_COVERAGE",
                                   "coverage_requirement declared but eligible runs carry no metrics.coverage block")
 
-        for ep in record["endpoints"]:
+        for ep in effective["endpoints"]:
             v = kc.resolve_pointer(analysis, ep["metric"])
             endpoint_results.append({
                 "id": ep["id"], "role": ep["role"], "metric": ep["metric"],
@@ -232,7 +425,7 @@ def run(root, exp_id, agent_id, computed_at):
 
         # Step 7 — frozen verdict rules, first match wins; fail closed on gaps.
         try:
-            for i, rule in enumerate(record["verdict_rules"]):
+            for i, rule in enumerate(effective["verdict_rules"]):
                 if kc.eval_expr(rule["when"], analysis):
                     verdict = rule["verdict"]
                     fired_index = i
@@ -262,14 +455,15 @@ def run(root, exp_id, agent_id, computed_at):
     verdict_obj = {
         "schema_version": "kot-verdict/1",
         "experiment": exp_id,
-        "hypotheses": record["hypotheses"],
+        "hypotheses": effective["hypotheses"],
         "verdict": verdict,
         "fired_rule_index": fired_index,
         "fired_rule": fired_rule,
         "computed_at": computed_at or datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "inputs": {
             "frozen_sha256": frozen_sha,
-            "amendments_applied": [],
+            "amendments_applied": amendments_applied,
+            "amended_record_sha256": amended_sha,
             "log_tail_sha256": tail_sha,
             "eligible_runs": len(eligible),
             "excluded_runs": excluded,
@@ -280,8 +474,8 @@ def run(root, exp_id, agent_id, computed_at):
         "coverage": coverage,
         "rungs_measured": rungs,
         "scale_language_licensed": license_,
-        "kill_criterion_verbatim": record["kill_criterion_verbatim"],
-        "extrapolation_envelope_verbatim": record["extrapolation_envelope_verbatim"],
+        "kill_criterion_verbatim": effective["kill_criterion_verbatim"],
+        "extrapolation_envelope_verbatim": effective["extrapolation_envelope_verbatim"],
         "audit": audit_state,
     }
 

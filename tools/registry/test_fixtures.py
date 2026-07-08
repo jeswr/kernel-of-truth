@@ -65,7 +65,7 @@ class SpineFixture(unittest.TestCase):
         for d in ("registry/schema", "registry/experiments", "registry/verdicts",
                   "results-log", "reports/auto", "docs", "analysis", "data/mock-corpus"):
             os.makedirs(os.path.join(self.root, d), exist_ok=True)
-        for schema in ("kot-reg-1.json", "kot-log-1.json"):
+        for schema in ("kot-reg-1.json", "kot-log-1.json", "kot-amend-1.json"):
             shutil.copy(os.path.join(REPO, "registry", "schema", schema),
                         os.path.join(self.root, "registry", "schema", schema))
         self.write("docs/prereg.md", "mock prereg text\n")
@@ -149,6 +149,20 @@ class SpineFixture(unittest.TestCase):
         return run_cli(LOG_APPEND, "--experiment", exp_id, "--agent-id", "runner-1",
                        "--record", "-", "--root", self.root,
                        "--ts", "2026-07-08T00:00:0%dZ" % seed, stdin=json.dumps(body))
+
+    def write_amendment(self, exp_id, seq, kind, patch, slug="amend", **extra):
+        os.makedirs(self.path("registry/amendments/%s" % exp_id), exist_ok=True)
+        am = {"schema_version": "kot-amend/1", "experiment": exp_id, "seq": seq,
+              "date": "2026-07-08T00:30:00Z", "author": "runner-2", "kind": kind,
+              "rationale": "mock amendment", "patch": patch}
+        am.update(extra)
+        self.write("registry/amendments/%s/%d-%s.json" % (exp_id, seq, slug),
+                   json.dumps(am) + "\n")
+        return am
+
+    def run_verdict(self, exp_id="mock-f1"):
+        return run_cli(VERDICT_GEN, "--experiment", exp_id, "--agent-id", "coordinator-1",
+                       "--root", self.root, "--computed-at", "2026-07-08T01:00:00Z")
 
 
 class TestCanonicalHash(SpineFixture):
@@ -408,6 +422,81 @@ class TestCorpusPins(SpineFixture):
         p = run_cli(REGISTRY_CHECK, "--corpus-pins", "--root", self.root)
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("ERR_P2_CORPUS_PIN", p.stdout + p.stderr)
+
+
+class TestAmendmentOverlay(SpineFixture):
+    def test_ops_amendment_pins_placeholder_and_is_applied(self):
+        rec = self.base_record()
+        rec["pins"]["corpus_hashes"]["future-inputs"] = "PINNED-AT-INPUTS:mock.inputs (ops amendment)"
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for seed in (0, 1):
+            p = self.append_run("mock-f1", seed)
+            self.assertEqual(p.returncode, 0, p.stderr)
+        pinned_sha = "ab" * 32
+        self.write_amendment("mock-f1", 1, "ops",
+                             [{"op": "replace", "path": "/pins/corpus_hashes/future-inputs",
+                               "value": pinned_sha}], slug="pin-inputs")
+        p = self.run_verdict()
+        self.assertEqual(p.returncode, 0, p.stderr)
+        with open(self.path("registry/verdicts/mock-f1.json"), encoding="utf-8") as f:
+            verdict = json.load(f)
+        # the readout proceeds (same HAND-COMPUTED 3.3 ratio as the e2e fixture)
+        # and the overlay is logged: which amendments applied + the deterministic
+        # effective-record hash, re-derived here independently by patching the
+        # frozen record by hand.
+        self.assertEqual(verdict["verdict"], "PASS-PENDING-AUDIT")
+        self.assertEqual(verdict["inputs"]["amendments_applied"], [1])
+        with open(self.path("registry/experiments/mock-f1.json"), encoding="utf-8") as f:
+            frozen = json.load(f)
+        expected = json.loads(json.dumps(frozen))
+        expected["pins"]["corpus_hashes"]["future-inputs"] = pinned_sha
+        self.assertEqual(verdict["inputs"]["amended_record_sha256"], kc.frozen_hash(expected))
+        # the frozen file itself was never touched and the whole tree still lints
+        self.assertEqual(kc.frozen_hash(frozen), self.frozen_sha("mock-f1"))
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+
+    def test_design_amendment_refused_after_rt5_cutoff(self):
+        p = self.freeze(self.base_record())
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.write_amendment("mock-f1", 1, "design",
+                             [{"op": "replace", "path": "/design/seeds", "value": [0]}],
+                             slug="relax-seeds")
+        # cutoff witness 1: the record is GNG-0-signed (no final run needed)
+        self.write("registry/gng0-signoff.json",
+                   json.dumps({"gate": "GNG-0", "frozen_records":
+                               {"mock-f1": self.frozen_sha("mock-f1")}}) + "\n")
+        p = self.run_verdict()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_BAD_AMENDMENT", p.stderr)
+        # cutoff witness 2: a phase:"final" run record exists (RT-5 raw-data exposure)
+        os.remove(self.path("registry/gng0-signoff.json"))
+        p = self.append_run("mock-f1", 0)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_BAD_AMENDMENT", p.stderr)
+
+    def test_ops_amendment_touching_design_scope_refused(self):
+        p = self.freeze(self.base_record())
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.append_run("mock-f1", 0)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        # an "ops" amendment nudging a verdict-rule threshold is a design change
+        self.write_amendment("mock-f1", 1, "ops",
+                             [{"op": "replace", "path": "/verdict_rules/1/when/b/const",
+                               "value": 1.0}], slug="relax-threshold")
+        p = self.run_verdict()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_DESIGN_AMEND", p.stderr)
+        # and an ops amendment may not overwrite an already-real (non-placeholder) pin
+        self.write_amendment("mock-f1", 1, "ops",
+                             [{"op": "replace", "path": "/pins/corpus_hashes/mock-corpus",
+                               "value": "cd" * 32}], slug="relax-threshold")
+        p = self.run_verdict()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_BAD_AMENDMENT", p.stderr)
 
 
 class TestReportGen(SpineFixture):

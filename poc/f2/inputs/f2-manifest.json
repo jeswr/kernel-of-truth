@@ -1,0 +1,119 @@
+{
+  "spec": "F2 harness RunSpec — verifier-offload on definitional QA (HE1 primary; HE2 cascade, HC3 PRM, HS12 placement riders). Frozen design: registry/experiments/f2.json (frozen_sha256 28874f2baa8573ed0d4948bf01af3ae10158560384e236fa0772aaf0cfaa56ec) + ops amendments 1-2. This manifest pins the harness INPUTS only; it may not change any frozen design field or threshold.",
+  "schema": "kot-f2-runspec/1",
+  "experiment": "f2",
+  "prereg": {
+    "registry_record": "registry/experiments/f2.json",
+    "frozen_sha256": "28874f2baa8573ed0d4948bf01af3ae10158560384e236fa0772aaf0cfaa56ec",
+    "analysis_script": {
+      "path": "analysis/f2.py",
+      "sha256": "068f68b85bf5fef3e7cb6935e545ab22fd1ba9e0ad381d7acfc5ee643ab2ca53"
+    }
+  },
+  "pins": {
+    "dqaCorpusKotHash": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaControlItemsSha256": "7b1e732725558fccb9eb2d1ad2fa59c32efc953964b6c7645dbb4bc63ad595fb",
+    "dqaGlossCorpusSha256": "87a984b94b0b03f457aa2c6c8ee2b97000bd2dbf58ad781cb52a4c865856c815",
+    "dqaRagIndexSha256": "07a59d8c99752cb25b01e67cec439e97699f7cbd2457371209341d9cd3b51bd7",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "perItemRecordSha256": "every d-qa item carries record_path + record_sha256; the verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN) on mismatch"
+  },
+  "models": {
+    "R1": {
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+      "pinned_by": "registry/amendments/f2/2-pin-model-revisions-r1-r2.json"
+    },
+    "R2": {
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "pinned_by": "registry/amendments/f2/2-pin-model-revisions-r1-r2.json"
+    },
+    "R3": {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "revision": null,
+      "note": "PINNED-AT-INPUTS:f2.inputs — still unpinned; the runner FAILS CLOSED (ERR_UNPINNED_MODEL) if a real (non-mock) run requests R3 or any cascade arm before an ops amendment pins this revision"
+    },
+    "prm": {
+      "repo": null,
+      "revision": null,
+      "note": "PINNED-AT-INPUTS:f2.inputs — small open-weight process/outcome reward model for the HC3 arm (EF3), matched inference FLOPs; FAILS CLOSED (ERR_UNPINNED_MODEL) on the real path until pinned by ops amendment"
+    }
+  },
+  "design_constants_from_frozen_record": {
+    "note": "copied VERBATIM from registry/experiments/f2.json for runner convenience; the frozen record is authoritative and prereg-freeze lint compares these",
+    "seeds": [0, 1, 2, 3, 4],
+    "retry_sweep": [1, 2, 4],
+    "escalation_budgets": [0.1, 0.25, 0.5],
+    "per_arm_items": 500,
+    "rungs": ["R1", "R2", "R3"],
+    "iface_gate": {"n_min_per_rung": 300, "failure_wilson_lb_max": 0.10},
+    "budget": {"gpu_hours_cap": 24, "usd_cap": 60, "wall_clock_cap_hours": 72, "tier_cap_usd": 80}
+  },
+  "arm_plan": {
+    "self_consistency_n": 5,
+    "self_consistency_note": "N=5 votes = the FLOP envelope of the max retry budget k=4 (1 greedy + 4 resamples); fixed BEFORE any final run — never chosen after seeing results; realized FLOPs land on the F0 ledger and analysis/f2.py compares ledgers, not intentions",
+    "prm_best_of_n": 2,
+    "prm_note": "best-of-2 reranking ~ FLOP envelope of verify at k=1 (2 generations + 2 PRM forwards vs 2 generations + CPU verify); realized FLOPs on the ledger",
+    "rag_top_k": 3,
+    "resample_temperature": 1.0,
+    "retry_final_answer": "last attempt (accepted or budget-exhausted); pre-declared, no post-hoc pick",
+    "cascade_small": "R1",
+    "cascade_large": "R3",
+    "cascade_budget_rule": "escalate gate-flagged items in ascending small-model-confidence order up to ceil(budget * n_items); measured p_escalate goes on the ledger",
+    "logprob_gate_rule": "escalate the lowest-confidence fraction b of items (budget-quantile threshold on the small model's answer-margin; FrugalGPT-style)",
+    "shared_affordance": "P10 IF-C constrained decoding for EVERY arm: answers are produced by constrained selection over the pinned option set (A-D or yes/no) via sequence logprob; arms differ ONLY in verification instrument and context block, never in output affordances"
+  },
+  "prompt_frames": {
+    "qa_prefix": "Answer the following question about the meaning of a word.\n\n",
+    "context_prefix": "Definitions you may use:\n",
+    "context_suffix": "\n\n",
+    "option_line": "{key}. {text}",
+    "answer_cue": "\nAnswer: ",
+    "self_verify_frame": "Definition of \"{term}\": {gloss}\n\nQuestion: {question}\nProposed answer: {answer}\nIs the proposed answer correct according to the definition above? Answer yes or no.\nAnswer: "
+  },
+  "flop_accounting": {
+    "formula": "F0 section 3.3: FLOPs = 2*N_active*T_total + 2*L*T^2*d_attn per sequence; prefill and decode metered separately; T measured with the arm's own tokenizer",
+    "cpu_flops_per_s_pinned": 5.0e10,
+    "cpu_note": "CPU-side verifier work is metered as measured wall-clock seconds and converted at this pinned rate ONLY for the aggregate figure; wall-clock is reported separately (F0 section 3.3)",
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10},
+    "usd_note": "Modal list prices used for planning + $-per-query conversion; F0 section 3.5 AWS pins (T4 0.53, A10G 1.01) retained in dry-plan output for cross-reference; actual Modal billing is reconciled from the dashboard at run time"
+  },
+  "planning": {
+    "note": "dry-plan ESTIMATES only — never emitted as measurements",
+    "throughput_tok_per_s": {
+      "A10G": {"R1": 12000, "R2": 6000, "R3": 1800},
+      "T4": {"R1": 4000, "R2": 2000, "R3": 600}
+    },
+    "chars_per_token_estimate": 4.0,
+    "overhead_factor": 2.0,
+    "n_params": {"R1": 1.35e8, "R2": 3.6e8, "R3": 1.7e9}
+  },
+  "mock": {
+    "note": "SYNTHETIC mechanics-only stub LM (no torch needed); every number it produces is labelled MOCK and never a measurement; the verifier, extraction, gates, flop-meter and emitter code paths are the REAL ones",
+    "n_covered_items": 16,
+    "n_control_items": 6,
+    "n_external_items": 8,
+    "seeds": [0, 1],
+    "iface_n_labelled": 300,
+    "stub_skill": {"R1": 0.4, "R2": 0.75, "R3": 0.9},
+    "stub_skill_int4": 0.7,
+    "stub_context_bonus": 0.35,
+    "stub_self_check_skill": 0.75,
+    "stub_prm_skill": 0.7,
+    "stub_extraction_fail_rate": 0.02,
+    "stub_dims": {
+      "R1": {"n_active": 1000000, "layers": 2, "d_attn": 64},
+      "R2": {"n_active": 2000000, "layers": 2, "d_attn": 64},
+      "R3": {"n_active": 4000000, "layers": 2, "d_attn": 64}
+    }
+  },
+  "inputs_status": {
+    "d-qa": "BUILT + pinned (amendment 1)",
+    "d-xif": "NOT BUILT — >=300 labelled model outputs per rung (P10 held-out extraction set); real runs of the extraction-instrument arm fail closed (ERR_MISSING_DXIF) until it exists; mock synthesizes a clearly-labelled stand-in",
+    "d-ext": "NOT BUILT — M0b-filtered external public-benchmark slice (RT-7a; WiC -> OpenBookQA -> MMLU preference); real runs omit item_correct_external until it exists (analysis treats the secondary as unresolvable, which blocks a final verdict); mock synthesizes a stand-in"
+  }
+}
