@@ -1,0 +1,12 @@
+$ /usr/local/bin/python /root/kot/poc/f2/runner/xif_runner.py --inputs-dir /root/kot/poc/f2/inputs --dqa-dir /root/kot/data/d-qa --records-root /root/kot --out-dir /tmp/xif-results --device cpu --mock
+[xif    0.0s] mode=MOCK device=cpu items=16 covered / 6 control rungs=R1,R2
+[xif    0.0s] rung R1: model stub-R1
+[xif    0.0s]   covered slice done (16 outputs)
+[xif    0.0s]   control slice done (6 outputs)
+[xif    0.1s] rung R1 gate: 0/16 failures rate=0.0000 wilson_lb=0.0000 -> GATE-FAIL
+[xif    0.1s] rung R2: model stub-R2
+[xif    0.1s]   covered slice done (16 outputs)
+[xif    0.1s]   control slice done (6 outputs)
+[xif    0.1s] rung R2 gate: 0/16 failures rate=0.0000 wilson_lb=0.0000 -> GATE-FAIL
+[xif    0.1s] OUTCOME: MOCK-XIF-PILOT-COMPLETE (fork choice: IF-C; instrument precondition: False)
+[runner exit rc=0]

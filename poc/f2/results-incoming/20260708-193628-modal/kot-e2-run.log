@@ -1,0 +1,30 @@
+$ /usr/local/bin/python /root/kot/poc/f2/runner/f2_runner.py --inputs-dir /root/kot/poc/f2/inputs --dqa-dir /root/kot/data/d-qa --dxif-dir /root/kot/data/d-xif --dext-dir /root/kot/data/d-ext --records-root /root/kot --out-dir /tmp/f2-results --device cpu --gpu-class A10G --mock
+[f2     0.0s] mode=MOCK device=cpu items=500 covered / 150 control
+[f2     2.3s] cell model-alone R1 seed=0 done
+[f2     2.3s] cell model-alone R1 seed=1 done
+[f2     2.3s] cell model-alone R2 seed=0 done
+[f2     2.3s] cell model-alone R2 seed=1 done
+[f2     2.3s] cell model-alone R3 seed=0 done
+[f2     2.3s] cell model-alone R3 seed=1 done
+[f2     2.3s] cells kernel-verify-retry R1 k=1 done
+[f2     2.3s] cells kernel-verify-retry R1 k=2 done
+[f2     2.3s] cells kernel-verify-retry R1 k=4 done
+[f2     2.3s] cells kernel-verify-retry R2 k=1 done
+[f2     2.3s] cells kernel-verify-retry R2 k=2 done
+[f2     2.3s] cells kernel-verify-retry R2 k=4 done
+[f2     2.3s] cell kernel-as-text done
+[f2     2.4s] cell rag-over-text done
+[f2     2.4s] cells self-consistency-flop-matched done
+[f2     2.4s] cells prm-verifier done
+[f2     2.4s] cells gloss-self-verify-retry k=1 done
+[f2     2.4s] cells gloss-self-verify-retry k=2 done
+[f2     2.4s] cells gloss-self-verify-retry k=4 done
+[f2     2.4s] cell int4-quantized done
+[f2     2.4s] cells cascade-verifier-gated-135m-1p7b done
+[f2     2.4s] cells cascade-logprob-gated-135m-1p7b done
+[f2     2.4s] cells cascade-text-self-check-gated-135m-1p7b done
+[f2     2.4s] cells cascade-in-decode-gated-135m-1p7b done
+[f2     2.4s] cell extraction-instrument R1 done (300 labelled, 4 failures)
+[f2     2.4s] cell extraction-instrument R2 done (300 labelled, 9 failures)
+[f2     2.4s] OUTCOME: MOCK-HARNESS-COMPLETE (45 run-record bodies in /tmp/f2-results/run-records-f2-mock.jsonl)
+[runner exit rc=0]

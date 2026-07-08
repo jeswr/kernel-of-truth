@@ -8,3 +8,8 @@
 numpy==2.2.6
 torch==2.6.0
 transformers==4.51.3
+# F2 int4-quantized arm (HFLM int4 path): 4-bit loading needs both of these;
+# without them the real F2 run fails closed mid-run at the int4 arm
+# (ERR_INT4_DEP). Pinned 2026-07-08 (torch-2.6/CUDA-12.4-compatible).
+bitsandbytes==0.46.1
+accelerate==1.6.0

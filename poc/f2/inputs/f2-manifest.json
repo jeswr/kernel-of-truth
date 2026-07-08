@@ -19,6 +19,13 @@
     "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
     "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
     "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "dxifCorpusKotHash": "8c9aded603b236a79cb555d3ad3e8e072b772a7723bd06673ed53e216826adfa",
+    "dxifOutputsR1Sha256": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "dxifOutputsR2Sha256": "4355cc09aa0da7302ee6b5c4ac22b05726ef9f9b4eca68cc1cd588a9a9b49b43",
+    "dxifManifestSha256": "ad7bfa6bea2a19dd69e2d04265f6c20bec8e2e2cd9afe8a213ef893e08fb773f",
+    "dextCorpusKotHash": "0c5306bb4e27fc61c6e9f7ca5aaffbf4933a51894c594086647f6d64fca3991a",
+    "dextItemsSha256": "ba2c1c430ce53ff15740de57e30bf927c111b8f2be73844b31e6685a39b80eb6",
+    "dextManifestSha256": "12ee04bed471e9b96cceb81f2653011a41a699f5927563b2f4a8012b518bfeb0",
     "perItemRecordSha256": "every d-qa item carries record_path + record_sha256; the verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN) on mismatch"
   },
   "models": {
@@ -34,13 +41,14 @@
     },
     "R3": {
       "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-      "revision": null,
-      "note": "PINNED-AT-INPUTS:f2.inputs — still unpinned; the runner FAILS CLOSED (ERR_UNPINNED_MODEL) if a real (non-mock) run requests R3 or any cascade arm before an ops amendment pins this revision"
+      "revision": "31b70e2e869a7173562077fd711b654946d38674",
+      "pinned_by": "registry/amendments/f2/3-pin-model-revisions-r3-prm.json"
     },
     "prm": {
-      "repo": null,
-      "revision": null,
-      "note": "PINNED-AT-INPUTS:f2.inputs — small open-weight process/outcome reward model for the HC3 arm (EF3), matched inference FLOPs; FAILS CLOSED (ERR_UNPINNED_MODEL) on the real path until pinned by ops amendment"
+      "repo": "Skywork/Skywork-o1-Open-PRM-Qwen-2.5-1.5B",
+      "revision": "98d69606595eedbdbbbf0a7d28efdcd462ba6a67",
+      "pinned_by": "registry/amendments/f2/3-pin-model-revisions-r3-prm.json",
+      "note": "HC3/EF3 trained-PRM comparator (Qwen2.5-Math-1.5B-Instruct backbone + PRM head, Qwen2ForPrmModel; the small PRM of Liu et al. arXiv:2502.06703). Checkpoint ships trust_remote_code custom classes (pinned by this revision sha) and pytorch_model.bin only (no safetensors). The real-path PRM backend is still to build — the runner keeps its ERR_PRM_TODO fail-closed stub; mock uses StubPRM"
     }
   },
   "design_constants_from_frozen_record": {
@@ -113,7 +121,8 @@
   },
   "inputs_status": {
     "d-qa": "BUILT + pinned (amendment 1)",
-    "d-xif": "NOT BUILT — >=300 labelled model outputs per rung (P10 held-out extraction set); real runs of the extraction-instrument arm fail closed (ERR_MISSING_DXIF) until it exists; mock synthesizes a clearly-labelled stand-in",
-    "d-ext": "NOT BUILT — M0b-filtered external public-benchmark slice (RT-7a; WiC -> OpenBookQA -> MMLU preference); real runs omit item_correct_external until it exists (analysis treats the secondary as unresolvable, which blocks a final verdict); mock synthesizes a stand-in"
+    "d-xif": "BUILT + pinned (amendment 5) — 500 covered + 150 control real model outputs per rung (R1/R2), gate PASS at both rungs (0/500 failures, Wilson-LB 0.0000 <= 0.10); IF-1 fork decided: IF-C STANDS; real runs re-verify the labelled set mechanically (run_extraction_instrument_dxif) and fail closed on the pins above",
+    "d-ext": "BUILT + pinned (amendment 4) — 500 M0b-filtered OpenBookQA items (RT-7a; WiC unavailable, preference rank 2); real runs load items/external.jsonl for item_correct_external and fail closed on the pins above",
+    "if1_fork": "DECIDED 2026-07-08 pre-final-phase (P10 section 3): IF-C constrained decoding STANDS as the model<->record interface — format-tax h_degradation -0.021 (R1) / -0.708 (R2), both fail the >= 0.2 firing bar (the constraint HELPS); IF-A F1 0.824/0.919 < 0.95; record: data/d-xif/if1-fork.json (inside the pinned corpus bytes)"
   }
 }

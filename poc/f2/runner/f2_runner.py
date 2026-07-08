@@ -48,9 +48,18 @@ import json
 import math
 import os
 import re
-import resource
 import sys
 import time
+
+# F0 flop-meter — promoted to the shared poc/f0/ package (the `f0-harness`
+# depends_on gate; design-efficiency-track.md section 3). poc/ is resolved
+# relative to this file so the import works both in-repo and on the Modal
+# stage (/root/kot/poc/f2/runner -> /root/kot/poc/f0).
+_POC_DIR = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+if _POC_DIR not in sys.path:
+    sys.path.insert(0, _POC_DIR)
+from f0 import FlopMeter  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Constants — arm names MUST equal analysis/f2.py + registry IV levels
@@ -305,11 +314,60 @@ class StubPRM:
     def __init__(self, mock_spec):
         self.skill = mock_spec["stub_prm_skill"]
         self.n_active = 500000
+        self.weight_bytes = self.n_active * 2
         self.name = "stub-prm"
 
     def score(self, item, answer, gold, seed, idx):
         u = det_u("prm", item["id"], answer, seed, idx)
         return 0.5 + 0.5 * u if (answer == gold) == (u < self.skill) else 0.5 * u
+
+
+class HFPRM:
+    """HC3/EF3 trained-PRM comparator — the real backend for the prm-verifier
+    arm: Skywork-o1-Open-PRM-Qwen-2.5-1.5B at the PINNED revision (ops
+    amendment 3). The checkpoint's auto_map resolves AutoModel to its own
+    Qwen2ForRewardModel (trust_remote_code custom classes, themselves pinned
+    by the revision sha), whose forward returns the value-head reward logit
+    pooled at the last non-pad token. Readout: sigmoid(last-token reward
+    logit) over the chat-formatted (shared-affordance QA prompt, candidate
+    answer) pair — the outcome-reward reading of the PRM; our candidates are
+    single-step answers, so the last step IS the outcome step (Skywork
+    step_token convention degenerates to this for one-step responses).
+
+    Signature-compatible with StubPRM; `gold`, `seed` and `idx` are IGNORED
+    on purpose — a real reward model never sees the gold answer."""
+
+    def __init__(self, repo, revision, device, frames):
+        import torch
+        from transformers import AutoModel, AutoTokenizer
+        if not repo or not revision:
+            raise SystemExit("ERR_UNPINNED_MODEL: prm has no pinned repo/"
+                             "revision (ops amendment required)")
+        self.tok = AutoTokenizer.from_pretrained(
+            repo, revision=revision, trust_remote_code=True)
+        self.model = AutoModel.from_pretrained(
+            repo, revision=revision, trust_remote_code=True,
+            torch_dtype=torch.bfloat16)
+        self.model.to(device)
+        self.model.eval()
+        for p in self.model.parameters():
+            p.requires_grad_(False)
+        self.device = device
+        self.torch = torch
+        self.frames = frames
+        self.n_active = sum(p.numel() for p in self.model.parameters())
+        self.weight_bytes = int(self.n_active * 2)  # bf16
+        self.name = "%s@%s" % (repo, revision[:8])
+
+    def score(self, item, answer, gold, seed, idx):  # noqa: ARG002 (contract)
+        prompt = build_prompt(self.frames, item)
+        msgs = [{"role": "user", "content": prompt},
+                {"role": "assistant", "content": str(answer)}]
+        ids = self.tok.apply_chat_template(msgs, tokenize=True,
+                                           return_tensors="pt").to(self.device)
+        with self.torch.no_grad():
+            out = self.model(input_ids=ids)
+        return float(self.torch.sigmoid(out.logits.float()).item())
 
 
 class HFLM:
@@ -328,7 +386,11 @@ class HFLM:
         if int4:
             try:
                 from transformers import BitsAndBytesConfig
-                kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
+                # fp16 compute dtype: the practitioner-realistic int4 config
+                # (bnb's fp32 default would unfairly inflate this null arm's
+                # measured latency)
+                kwargs["quantization_config"] = BitsAndBytesConfig(
+                    load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
                 del kwargs["torch_dtype"]
             except Exception as e:  # noqa: BLE001
                 raise SystemExit("ERR_INT4_DEP: bitsandbytes unavailable: %s" % e)
@@ -390,86 +452,10 @@ class HFLM:
 
 
 # ---------------------------------------------------------------------------
-# F0 flop-meter (design-efficiency-track.md section 3 — the accounting
-# standard, pending its promotion into poc/f0/): formula FLOPs + measured
-# wall-clock + memory ledger + $/query. RAW numbers only.
+# F0 flop-meter: PROMOTED to poc/f0/flop_meter.py (imported above) — the
+# shared accounting standard (design-efficiency-track.md section 3): formula
+# FLOPs + measured wall-clock + memory ledger + $/query. RAW numbers only.
 # ---------------------------------------------------------------------------
-class FlopMeter:
-    def __init__(self, flop_cfg, gpu):
-        self.cpu_rate = flop_cfg["cpu_flops_per_s_pinned"]
-        self.usd_per_hour = flop_cfg["usd_per_hour"].get(gpu, 0.0)
-        self.reset()
-
-    def reset(self):
-        self.model_flops = 0.0
-        self.verifier_cpu_s = 0.0
-        self.latencies_ms = []
-        self.t_prefill = 0
-        self.t_decode = 0
-        self.wall_s = 0.0
-        self.n_queries = 0
-
-    def seq(self, lm, t_prefill, t_decode=0):
-        """F0 section 3.3: 2*N_active*T_total + 2*L*T^2*d_attn per sequence."""
-        t = t_prefill + t_decode
-        self.model_flops += 2.0 * lm.n_active * t + 2.0 * lm.layers * t * t * lm.d_attn
-        self.t_prefill += t_prefill
-        self.t_decode += t_decode
-
-    def verifier(self, cpu_s):
-        self.verifier_cpu_s += cpu_s
-
-    def query_done(self, latency_s):
-        self.latencies_ms.append(latency_s * 1000.0)
-        self.wall_s += latency_s
-        self.n_queries += 1
-
-    def _pct(self, p):
-        if not self.latencies_ms:
-            return None
-        s = sorted(self.latencies_ms)
-        return s[min(len(s) - 1, int(p * len(s)))]
-
-    def ledger(self, lm_list, store_bytes):
-        n = max(1, self.n_queries)
-        total = self.model_flops + self.verifier_cpu_s * self.cpu_rate
-        weights = sum(lm.weight_bytes for lm in lm_list)
-        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-        cuda_peak = 0
-        try:
-            import torch
-            if torch.cuda.is_available():
-                cuda_peak = torch.cuda.max_memory_allocated()
-        except Exception:  # noqa: BLE001
-            pass
-        return {
-            "params": {
-                "n_total": int(sum(lm.n_active for lm in lm_list)),
-                "n_active": int(sum(lm.n_active for lm in lm_list)),
-                "n_trained": 0,
-            },
-            "memory": {
-                "weights_bytes": int(weights),
-                "store_bytes": int(store_bytes),
-                "process_peak_rss_bytes": int(rss),
-                "cuda_peak_bytes": int(cuda_peak),
-                "peak_bytes_total": int(weights + store_bytes + max(rss, cuda_peak)),
-            },
-            "inference_compute": {
-                "flops_per_query": total / n,
-                "model_flops_per_query": self.model_flops / n,
-                "verifier_cpu_s_per_query": self.verifier_cpu_s / n,
-                "verifier_flops_per_query_at_pinned_rate":
-                    self.verifier_cpu_s * self.cpu_rate / n,
-                "tokens_prefill_per_query": self.t_prefill / n,
-                "tokens_decode_per_query": self.t_decode / n,
-                "latency_ms_p50": self._pct(0.50),
-                "latency_ms_p95": self._pct(0.95),
-                "usd_per_query": self.wall_s / 3600.0 * self.usd_per_hour / n,
-            },
-            "training_compute": {"flops": 0, "steps": 0, "tokens": 0,
-                                 "note": "inference-only experiment"},
-        }
 
 
 # ---------------------------------------------------------------------------
@@ -533,6 +519,11 @@ def verify_answer(verifier, item, ans):
     if rec is None:
         return False, False, False, 0.0
     if rec["kind"] == "term-for-definition":
+        if not item.get("kernel_checkable"):
+            # control item: no canonical record exists (record_path null) —
+            # the verifier abstains off-coverage (d-qa README contract);
+            # extraction itself succeeded
+            return True, False, False, 0.0
         entry = verifier._load(item)  # canonical definition shown in the question
         rec["definition"] = entry["text"]
     decidable, consistent = verifier.check(rec, item)
@@ -685,11 +676,46 @@ def run_cascade(small, large, frames, items, gate, budget, verifier,
     return correct, len(flagged_idx) / float(n)
 
 
+def run_extraction_instrument_dxif(dxif_dir, rung, covered, control, verifier):
+    """P10 gate measurement, REAL path: re-verifies the pinned d-xif labelled
+    set (>=300 real model outputs per rung, built pre-final-phase by
+    xif_runner.py) through the extraction machinery — the stored flags are
+    NOT trusted; every failure/error is recomputed here from the stored
+    constrained answers against the pinned records (fail closed on pins)."""
+    outputs = load_jsonl(os.path.join(dxif_dir, "outputs",
+                                      "%s.jsonl" % rung.lower()))
+    by_id = {it["id"]: it for it in covered + control}
+    n = fails = errs = 0
+    for o in outputs:
+        if o["slice"] != "covered":
+            continue
+        it = by_id.get(o["id"])
+        if it is None:
+            raise SystemExit("ERR_DXIF_ITEM: %s not in the pinned d-qa items"
+                             % o["id"])
+        ans = o["ifc_answer"]
+        ok_ext, decidable, _cons, _cpu = verify_answer(verifier, it, ans)
+        n += 1
+        if not (ok_ext and decidable):
+            fails += 1
+            continue
+        rec = extract_record(it, ans)
+        if rec["kind"] in ("definition", "term-for-definition"):
+            opt = {x["key"]: x["text"] for x in it["options"]}
+            good = (rec.get("text") or rec.get("term")) == opt.get(ans)
+        else:
+            good = rec["claim"] == it["claim"] and rec["verdict"] == ans
+        if not good:
+            errs += 1  # well-formed but wrong record vs the asserted content
+    return {"n_labelled": n, "n_extraction_failures": fails,
+            "n_extraction_errors": errs}
+
+
 def run_extraction_instrument(lm, frames, items, verifier, n_labelled, seed):
-    """P10 gate measurement: extraction failure/error rates over a labelled
-    set. REAL runs must consume d-xif (>=300 human-labelled model outputs per
-    rung — NOT BUILT YET -> ERR_MISSING_DXIF upstream); mock cycles the d-qa
-    items through the REAL extraction machinery as a labelled stand-in."""
+    """P10 gate measurement, MOCK path: cycles the d-qa items through the
+    REAL extraction machinery with the stub LM as a clearly-labelled
+    stand-in (real runs use run_extraction_instrument_dxif over the pinned
+    d-xif labelled set instead)."""
     n_fail = 0
     n_err = 0
     for i in range(n_labelled):
@@ -875,8 +901,9 @@ def dry_plan(man, covered, control, gpu):
     for name, ok in verdicts:
         lines.append("  %-42s %s" % (name, "OK" if ok else "OVER — DO NOT LAUNCH"))
     lines.append("")
-    lines.append("launch gates still open: d-xif (P10 labelled set), d-ext (RT-7a slice),")
-    lines.append("R3 + PRM model revisions (ops amendments), maintainer Tier-1 go.")
+    lines.append("launch gates: see f2-manifest inputs_status + README (d-xif/d-ext pins")
+    lines.append("verified fail-closed at real-run start); maintainer Tier-1 go required.")
+    lines.append("model revisions: ALL PINNED (amendments 2-3: R1/R2/R3 + PRM).")
     print("\n".join(lines))
     return all(ok for _n, ok in verdicts)
 
@@ -902,11 +929,32 @@ def run_cells(args, man, covered, control, gloss_docs, rag_index, log):
                     for it in control][:mk["n_external_items"]]
         iface_n = mk["iface_n_labelled"]
     else:
-        external = None  # requires d-ext (see inputs_status.d-ext)
+        # d-xif (P10 labelled extraction set) — fail closed on absence or pin
         if not os.path.isdir(args.dxif_dir or ""):
             raise SystemExit("ERR_MISSING_DXIF: d-xif labelled extraction set not "
                              "built; the P10 instrument gate cannot be measured "
                              "— refusing a final-phase run (P10 section 4)")
+        for key, rel in (("dxifOutputsR1Sha256", os.path.join("outputs", "r1.jsonl")),
+                         ("dxifOutputsR2Sha256", os.path.join("outputs", "r2.jsonl")),
+                         ("dxifManifestSha256", "manifest.json")):
+            pin = man["pins"].get(key)
+            path = os.path.join(args.dxif_dir, rel)
+            if not pin or sha256_file(path) != pin:
+                raise SystemExit("ERR_PIN: %s: %s sha != f2-manifest pin" % (key, path))
+        # d-ext (RT-7a external slice) — without it the frozen external-slice
+        # secondary is unresolvable; fail closed
+        if not os.path.isdir(args.dext_dir or ""):
+            raise SystemExit("ERR_MISSING_DEXT: d-ext external eval slice not "
+                             "built; the frozen external-slice secondary is "
+                             "unresolvable — refusing a final-phase run")
+        for key, rel in (("dextItemsSha256", os.path.join("items", "external.jsonl")),
+                         ("dextManifestSha256", "manifest.json")):
+            pin = man["pins"].get(key)
+            path = os.path.join(args.dext_dir, rel)
+            if not pin or sha256_file(path) != pin:
+                raise SystemExit("ERR_PIN: %s: %s sha != f2-manifest pin" % (key, path))
+        external = load_jsonl(os.path.join(args.dext_dir, "items", "external.jsonl"))
+        external.sort(key=lambda x: x["rank"])
         iface_n = dc["iface_gate"]["n_min_per_rung"]
 
     verifier = KernelVerifier(args.records_root)
@@ -1006,19 +1054,19 @@ def run_cells(args, man, covered, control, gloss_docs, rag_index, log):
                   cell_metrics(cov, meter, [lm1], 0))
     log("cells %s done" % ARM_SC)
 
-    prm = StubPRM(man["mock"]) if mock else None
-    if prm is None:
+    if mock:
+        prm = StubPRM(man["mock"])
+    else:
         spec = man["models"]["prm"]
         if not spec.get("repo") or not spec.get("revision"):
             raise SystemExit("ERR_UNPINNED_MODEL: prm arm requested but the PRM "
                              "is PINNED-AT-INPUTS (ops amendment required)")
-        raise SystemExit("ERR_PRM_TODO: real PRM backend not implemented until "
-                         "the model is pinned (see README 'still to build')")
+        prm = HFPRM(spec["repo"], spec["revision"], args.device, frames)
     for seed in seeds:
         meter = new_meter()
         cov = run_prm(lm1, prm, frames, covered, plan["prm_best_of_n"], seed, meter)
         emit.emit(ARM_PRM, "R1", 0, 0, seed,
-                  cell_metrics(cov, meter, [lm1], 0))
+                  cell_metrics(cov, meter, [lm1, prm], 0))
     log("cells %s done" % ARM_PRM)
 
     for k in ks:
@@ -1056,9 +1104,16 @@ def run_cells(args, man, covered, control, gloss_docs, rag_index, log):
 
     # ---- P10 extraction-instrument gate measurement -------------------------
     for rung in ("R1", "R2"):
-        lm = lm_for(rung)
-        stats = run_extraction_instrument(lm, frames, all_items, verifier,
-                                          iface_n, seeds[0])
+        if mock:
+            stats = run_extraction_instrument(lm_for(rung), frames, all_items,
+                                              verifier, iface_n, seeds[0])
+        else:
+            stats = run_extraction_instrument_dxif(args.dxif_dir, rung,
+                                                   covered, control, verifier)
+            if stats["n_labelled"] < iface_n:
+                raise SystemExit("ERR_DXIF_N: %s has %d labelled outputs < "
+                                 "the frozen n_min_per_rung %d"
+                                 % (rung, stats["n_labelled"], iface_n))
         emit.emit(ARM_IFACE, rung, 0, 0, seeds[0], stats)
         log("cell %s %s done (%d labelled, %d failures)"
             % (ARM_IFACE, rung, stats["n_labelled"], stats["n_extraction_failures"]))
@@ -1077,6 +1132,8 @@ def main():
                     help="root that item record_path fields resolve against")
     ap.add_argument("--dxif-dir", default=None,
                     help="d-xif labelled extraction set (REQUIRED for real runs)")
+    ap.add_argument("--dext-dir", default=None,
+                    help="d-ext external eval slice (REQUIRED for real runs)")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
     ap.add_argument("--gpu-class", default="A10G", choices=["T4", "A10G"])

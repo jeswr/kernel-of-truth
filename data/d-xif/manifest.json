@@ -1,0 +1,55 @@
+{
+  "constants": {
+    "boot_B": 10000,
+    "boot_seed": 20260708,
+    "gen_max_new_tokens": 24,
+    "if1_n": 200,
+    "ifa_f1_bar": 0.95,
+    "iface_fail_bound": 0.1,
+    "tax_h_bar": 0.2,
+    "z_one_sided": 1.645
+  },
+  "date_utc": "2026-07-08T18:59:55Z",
+  "files": {
+    "builder/build-dxif.py": "7d6c400fb692e3046f763a34d8f87dd4990c1207ea789e70f3a59e2877d5b85a",
+    "builder/modal_f2_xif.py": "2b1d975c425d894fae7984620dfeb7a610ff465a1cd264b11d04cdd764d0f649",
+    "builder/xif_runner.py": "24ae819f0a7e3d92bcb8a012c25ca93e52ac3817ede2f01737e62aaaf7584129",
+    "gate.json": "714c9722daf2c4995067fa722a2fe1ed4065f89572b1639af493d87133ab418b",
+    "if1-fork.json": "870f46becf4653f3f88caf0fea6542c627b692949f8200c455898b882f3dfd43",
+    "outputs/r1.jsonl": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "outputs/r2.jsonl": "4355cc09aa0da7302ee6b5c4ac22b05726ef9f9b4eca68cc1cd588a9a9b49b43",
+    "provenance-modal.json": "03d42ec0afd92833373e4b4033d6b0be40c821a114d7105108db323e9a395871",
+    "results-xif.json": "c6b0524419e88d9bba0dd6d246a914ffe0f8e91e35ce762ab05349c959a3e602",
+    "run-log.txt": "ab66d4e6fecc05ec9820cc8afcb5c3ff9983919bcdd455e28dff913ccc497e53"
+  },
+  "fork_choice": "IF-C",
+  "gate_pass": {
+    "R1": true,
+    "R2": true
+  },
+  "models": {
+    "R1": {
+      "loaded_as": "HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f7",
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+    },
+    "R2": {
+      "loaded_as": "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc151",
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"
+    }
+  },
+  "n_outputs": {
+    "R1": {
+      "covered": 500,
+      "total": 650
+    },
+    "R2": {
+      "covered": 500,
+      "total": 650
+    }
+  },
+  "source_run": "20260708-190006-modal-xif",
+  "spec": "kot-dxif/1",
+  "what": "P10 held-out labelled extraction set (d-xif) + IF-1 fork pilot record for F2 (and, per P10, the same interface governs E9): >=300 real model outputs per rung under the IF-C constrained surface AND unconstrained greedy free decode from identical prompts, extraction success/failure labelled mechanically"
+}

@@ -1,0 +1,71 @@
+{
+  "fork": {
+    "choice": "IF-C",
+    "if_c_stands": true,
+    "per_rung": {
+      "R1": {
+        "both": false,
+        "f1_condition_ge_0.95": false,
+        "ifa_f1": 0.8235294117647058,
+        "tax_condition_h_lb_ge_0.2": false,
+        "tax_degradation_h_lb": -0.11558763829456109
+      },
+      "R2": {
+        "both": false,
+        "f1_condition_ge_0.95": false,
+        "ifa_f1": 0.9191489361702128,
+        "tax_condition_h_lb_ge_0.2": false,
+        "tax_degradation_h_lb": -0.8769933399770118
+      }
+    },
+    "rule": "P10 section 3, applied per rung then conjunctively: IF-A replaces IF-C\n    only if AT EVERY MEASURED RUNG the constrained format is a degradation of\n    Cohen's h >= 0.2 (one-sided 95% bootstrap lower bound >= 0.2) AND IF-A F1\n    >= 0.95. The conjunction over rungs is the conservative reading (the\n    default only yields to consistent evidence); recorded here explicitly."
+  },
+  "if1": {
+    "R1": {
+      "acc_constrained_ifc": 0.36,
+      "acc_unconstrained_gold_ann": 0.35,
+      "format_tax_bootstrap": {
+        "B": 10000,
+        "h_degradation_point": -0.020898544807069763,
+        "h_lb_95_one_sided": -0.11558763829456109,
+        "h_ub_95_one_sided": 0.07431636668055308,
+        "n_items": 200,
+        "p_boot_h_le_0": 0.6798,
+        "seed": 20260708
+      },
+      "ifa_f1": 0.8235294117647058,
+      "ifa_f1_caveat": "F1 is parser-vs-mechanical-reference agreement (GOLD-ANN/1), not parser-vs-human gold; if the fork condition fires on it, human audit is required before adopting IF-A (see docstring)",
+      "ifa_f1_n_outputs": 500,
+      "ifa_n_gold_assertions": 450,
+      "ifa_n_parsed": 315,
+      "ifa_precision": 1.0,
+      "ifa_recall": 0.7,
+      "n_if1_slice": 200,
+      "n_unconstrained_no_assertion": 16
+    },
+    "R2": {
+      "acc_constrained_ifc": 0.415,
+      "acc_unconstrained_gold_ann": 0.115,
+      "format_tax_bootstrap": {
+        "B": 10000,
+        "h_degradation_point": -0.7080114825394752,
+        "h_lb_95_one_sided": -0.8769933399770118,
+        "h_ub_95_one_sided": -0.5449289191640867,
+        "n_items": 200,
+        "p_boot_h_le_0": 1.0,
+        "seed": 20260708
+      },
+      "ifa_f1": 0.9191489361702128,
+      "ifa_f1_caveat": "F1 is parser-vs-mechanical-reference agreement (GOLD-ANN/1), not parser-vs-human gold; if the fork condition fires on it, human audit is required before adopting IF-A (see docstring)",
+      "ifa_f1_n_outputs": 500,
+      "ifa_n_gold_assertions": 254,
+      "ifa_n_parsed": 216,
+      "ifa_precision": 1.0,
+      "ifa_recall": 0.8503937007874016,
+      "n_if1_slice": 200,
+      "n_unconstrained_no_assertion": 106
+    }
+  },
+  "recomputed_by": "build-dxif.py (fail-closed against the runner summary and the raw outputs)",
+  "spec": "kot-dxif/1"
+}

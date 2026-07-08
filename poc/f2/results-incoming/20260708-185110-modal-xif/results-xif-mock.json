@@ -1,0 +1,132 @@
+{
+  "constants": {
+    "boot_B": 10000,
+    "boot_seed": 20260708,
+    "gen_max_new_tokens": 24,
+    "if1_n": 200,
+    "ifa_f1_bar": 0.95,
+    "iface_fail_bound": 0.1,
+    "tax_h_bar": 0.2,
+    "z_one_sided": 1.645
+  },
+  "date": "2026-07-08T18:51:08Z",
+  "device": "cpu",
+  "gate": {
+    "R1": {
+      "control_descriptive": {
+        "n": 6,
+        "n_record_parse_failures": 0,
+        "note": "control items are NOT kernel-checkable by design (verifier abstains); descriptive only, outside the gate"
+      },
+      "failure_rate": 0.0,
+      "failure_wilson_lb_one_sided_95": 0.0,
+      "gate_pass": false,
+      "gate_rule": "P10 section 4 / f2.reg iface_gate: n>=300 per rung AND failure Wilson-LB (z=1.645) <= 0.10",
+      "n_extraction_errors": 0,
+      "n_extraction_failures": 0,
+      "n_labelled": 16,
+      "success_wilson_lb_one_sided_95": 0.8553393893144052
+    },
+    "R2": {
+      "control_descriptive": {
+        "n": 6,
+        "n_record_parse_failures": 0,
+        "note": "control items are NOT kernel-checkable by design (verifier abstains); descriptive only, outside the gate"
+      },
+      "failure_rate": 0.0,
+      "failure_wilson_lb_one_sided_95": 0.0,
+      "gate_pass": false,
+      "gate_rule": "P10 section 4 / f2.reg iface_gate: n>=300 per rung AND failure Wilson-LB (z=1.645) <= 0.10",
+      "n_extraction_errors": 0,
+      "n_extraction_failures": 0,
+      "n_labelled": 16,
+      "success_wilson_lb_one_sided_95": 0.8553393893144052
+    }
+  },
+  "if1": {
+    "R1": {
+      "acc_constrained_ifc": 0.4375,
+      "acc_unconstrained_gold_ann": 0.75,
+      "format_tax_bootstrap": {
+        "B": 10000,
+        "h_degradation_point": 0.6489266067663639,
+        "h_lb_95_one_sided": 0.0,
+        "h_ub_95_one_sided": 1.3181160716528186,
+        "n_items": 16,
+        "p_boot_h_le_0": 0.0527,
+        "seed": 20260708
+      },
+      "ifa_f1": 1.0,
+      "ifa_f1_caveat": "F1 is parser-vs-mechanical-reference agreement (GOLD-ANN/1), not parser-vs-human gold; if the fork condition fires on it, human audit is required before adopting IF-A (see docstring)",
+      "ifa_f1_n_outputs": 16,
+      "ifa_n_gold_assertions": 15,
+      "ifa_n_parsed": 15,
+      "ifa_precision": 1.0,
+      "ifa_recall": 1.0,
+      "n_if1_slice": 16,
+      "n_unconstrained_no_assertion": 1
+    },
+    "R2": {
+      "acc_constrained_ifc": 0.875,
+      "acc_unconstrained_gold_ann": 0.6875,
+      "format_tax_bootstrap": {
+        "B": 10000,
+        "h_degradation_point": -0.46366530448584187,
+        "h_lb_95_one_sided": -1.1863995522992574,
+        "h_ub_95_one_sided": 0.0,
+        "n_items": 16,
+        "p_boot_h_le_0": 0.9545,
+        "seed": 20260708
+      },
+      "ifa_f1": 1.0,
+      "ifa_f1_caveat": "F1 is parser-vs-mechanical-reference agreement (GOLD-ANN/1), not parser-vs-human gold; if the fork condition fires on it, human audit is required before adopting IF-A (see docstring)",
+      "ifa_f1_n_outputs": 16,
+      "ifa_n_gold_assertions": 14,
+      "ifa_n_parsed": 14,
+      "ifa_precision": 1.0,
+      "ifa_recall": 1.0,
+      "n_if1_slice": 16,
+      "n_unconstrained_no_assertion": 2
+    }
+  },
+  "if1_fork": {
+    "choice": "IF-C",
+    "if_c_stands": true,
+    "per_rung": {
+      "R1": {
+        "both": false,
+        "f1_condition_ge_0.95": true,
+        "ifa_f1": 1.0,
+        "tax_condition_h_lb_ge_0.2": false,
+        "tax_degradation_h_lb": 0.0
+      },
+      "R2": {
+        "both": false,
+        "f1_condition_ge_0.95": true,
+        "ifa_f1": 1.0,
+        "tax_condition_h_lb_ge_0.2": false,
+        "tax_degradation_h_lb": -1.1863995522992574
+      }
+    },
+    "rule": "P10 section 3, applied per rung then conjunctively: IF-A replaces IF-C\n    only if AT EVERY MEASURED RUNG the constrained format is a degradation of\n    Cohen's h >= 0.2 (one-sided 95% bootstrap lower bound >= 0.2) AND IF-A F1\n    >= 0.95. The conjunction over rungs is the conservative reading (the\n    default only yields to consistent evidence); recorded here explicitly."
+  },
+  "instrument_valid_precondition": false,
+  "mode": "MOCK",
+  "models": {
+    "note": "MOCK \u2014 synthetic stub LM, no models loaded"
+  },
+  "outcome": "MOCK-XIF-PILOT-COMPLETE",
+  "pins": {
+    "dqaControlItemsSha256": "7b1e732725558fccb9eb2d1ad2fa59c32efc953964b6c7645dbb4bc63ad595fb",
+    "dqaCorpusKotHash": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaGlossCorpusSha256": "87a984b94b0b03f457aa2c6c8ee2b97000bd2dbf58ad781cb52a4c865856c815",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "dqaRagIndexSha256": "07a59d8c99752cb25b01e67cec439e97699f7cbd2457371209341d9cd3b51bd7",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "perItemRecordSha256": "every d-qa item carries record_path + record_sha256; the verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN) on mismatch"
+  },
+  "spec": "kot-dxif/1",
+  "wallClockHours": 3.4129089779324e-05
+}
