@@ -79,6 +79,17 @@ lands, the next question is already queued, costed, and pre-registerable.
   rung is phrased as a falsifiable hypothesis with pre-declared kill criteria and two
   mandatory nulls (text-only, and the kernel's own content rendered as text at matched
   budget — Law 2). The ladder is climbed or cut by evidence, not preference.
+  **Cross-cutting the L1b/L2a/L2b rungs is the maintainer-mandated semantic-fixedness
+  sweep (L2c, N1-A §4.3):** the LCM scaling penalty the programme keeps citing was
+  measured at one confounded corner (a sentence-level, reconstruction-shaped,
+  comprehensively-fixed space — the kernel is definitional, content-addressed, and
+  explicitly partial), so L2c de-confounds it by sweeping the fraction φ of the
+  representation pinned to kernel vectors (φ ∈ {0…1}, including the mandatory φ=1
+  everything-fixed LCM-analog), crossed with model scale and in-kernel vs
+  out-of-kernel domains. Its deliverable is a dose–response surface over
+  (φ × scale × domain) with the full metric vector V — reframing the efficiency
+  thesis as "find the optimal fixed fraction φ\*" — and its φ=1 in-domain cell
+  doubles as the hard-scoping/confinement measurement.
 - **Pillar B — the research engine (how to test it).** N-B generalises the honesty
   machinery Programme 1 already built and exercised (registry schemas, prereg-freeze,
   pure-function verdicts, run≠audit with Codex/GPT-5.5 cross-vendor audit, the 14
@@ -212,7 +223,12 @@ functionality, disjointness — still exactly the `mother` example) and raises t
 interpretability lane (L2a); **both KILL** leaves L2a's interpretability claim, L3a's
 cost/exactness claim, and L1a's robustness endpoint as the surviving pitches — none of
 which the F2 outcome touches (N1-A §6.2). In every branch, L3a and the KB bootstrap were
-worth building.
+worth building. The L2c semantic-fixedness sweep reads the same branch (N1-A §6.2):
+HE1 PASS raises the in-network φ>0 region; HE1 KILL + HC2 PASS narrows its in-kernel
+domain to axiom-licensed content and leaves the φ=1 scoping endpoint carrying it;
+both-KILL demotes the expensive exponent leg but keeps L2c-lite justified as the
+de-confounding instrument for the LCM anchor — and either way its surface fixes the φ
+design points the L2 rungs must otherwise assume.
 
 ---
 

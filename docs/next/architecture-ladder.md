@@ -20,7 +20,11 @@ progressively more central to inference itself** — from normalising what enter
 model, to living inside the model's layers, to *replacing* neural computation with
 deterministic symbolic computation for the content it covers — each rung phrased as a
 pre-registerable experiment with kill criteria, so the ladder is climbed (or cut)
-by evidence, not preference.
+by evidence, not preference. One axis is deliberately orthogonal to depth and cuts
+across the rungs: the **semantic-fixedness sweep (§4.3, maintainer-mandated
+2026-07-08)** — not *where* the kernel touches the model but *how much* of the
+representation at that seam is semantically fixed to it, swept as a dose–response
+with the everything-fixed LCM-analog as its mandatory endpoint.
 
 ---
 
@@ -37,15 +41,21 @@ structure**, from 0 (text-only LLM) upward. Each rung strictly increases it.
 | **L1b** | Concept-dense I/O | Kernel-covered spans enter as dense concept tokens; kernel-covered answers leave as records | in at both edges | adapter + output head | Tier 3 | F2 read | **F3/HE3 (DRAFT)** + new output leg |
 | **L2a** | Kernel-labelled concept bottleneck | A mid-network layer whose units are pinned to kernel concepts | **in, at depth** | bottleneck head | Tier 2–3 | POST-F2-INFRA-OPEN | N0 fork N-A1, e8 machinery |
 | **L2b** | Kernel-addressed memory layer | In-FFN lookup keyed by kernel content-hashes | **in, at depth** | values (keys pinned) | Tier 3–4 | F2 verdict + maintainer | N0 fork N-B1 |
+| **L2c** | Semantic-fixedness sweep (cross-cutting axis) | φ = k/D of the representation pinned to kernel vectors; dose–response over φ ∈ {0…1} incl. the φ=1 LCM-analog | in, at input edge (lite) / trained I/O (full); axis inherited by L1b/L2a/L2b | adapter only (lite); small hosts from scratch (full) | Tier 2–3 (lite) / Tier 4 (full) | lite: POST-F2-INFRA-OPEN; full: F2 verdict + lite interest-region + maintainer | A2/E5 machinery, X4, F3 arms; subsumes the M2-output-rider corner |
 | **L3a** | Rules-engine oracle | kot-axiom engine + world-layer index answers covered queries alone | out (no LLM in loop) | **none** | **Tier 0–1** | none (r0-local-cpu arguable) | kot-axiom/1 design, mapper, P10 |
 | **L3b** | Routed hybrid inference | Deterministic router: engine answers covered slice, LLM the rest | out, in the serving path | none (router deterministic) | Tier 1–2 | L3a PASS + F2 read | HE2 cascade sibling; F2 harness reuse |
 | **L3c** | Engine-in-decode | Engine invoked mid-generation; answers constrained-decoded from records | interleaved | constrained-decode glue | Tier 3+ | L3b PASS | P10 interface |
 | **L4** | Kernel-native substrate (horizon) | LLM only as NL boundary; all covered inference symbolic | — | — | not costable | **not proposed** | recorded for honesty only |
 
 **Recommended order (cheapest-decisive-first, §5): L3a → L1a → L3b → L1b(=F3) →
-L2a → L2b → L3c.** The two seeds that are genuinely new relative to N0 are the L3
-rules-engine family (L3a/L3b/L3c) and L1b's output leg; L1a, L2a, L2b adopt N0's
-N-C3/N-A1/N-B1 with the pre-registration skeletons completed here.
+L2c-lite → L2a → L2b → L2c-full → L3c.** The two seeds that are genuinely new
+relative to N0 are the L3 rules-engine family (L3a/L3b/L3c) and L1b's output leg;
+L1a, L2a, L2b adopt N0's N-C3/N-A1/N-B1 with the pre-registration skeletons
+completed here. A third first-class seed was **mandated by the maintainer
+(2026-07-08)** after this document's first issue: **L2c, the semantic-fixedness
+sweep (§4.3)** — a dose–response axis over *how much of the network is semantically
+fixed to the kernel*, cutting across L1b/L2a/L2b, whose φ=1 endpoint is the
+everything-fixed LCM-analog control the ladder previously lacked.
 
 ---
 
@@ -192,6 +202,13 @@ L1b shows an exponent penalty, the ladder records it and retreats to L1a.
   avoids the fixed-space tax, and no one else can run that experiment (it needs a
   canonical concept space with a validated projection, which the programme uniquely
   has: X4).
+- **Cross-cut (mandatory once L2c freezes).** L1b's concept token is the *edge
+  instantiation* of the semantic-fixedness axis: as drafted it is implicitly φ=1 at
+  the token level (the whole soft token is kernel-determined through the shared
+  adapter). Under §4.3 the token's pinned fraction φ becomes a declared IV, and F3's
+  M2-output rider (next-concept prediction into frozen kernel space, "kill expected
+  per LCM/SONAR-LLM") is re-read as a single-cell probe of the φ=1 output corner —
+  its result feeds the L2c surface as a free data point either way.
 
 ---
 
@@ -207,6 +224,13 @@ one: instead of aligning post-hoc to unstable learned dictionaries (the 2025 SAE
 correction: absorption arXiv:2409.14507, seed non-identifiability arXiv:2501.16615,
 non-canonicity arXiv:2502.04878), pin the coordinate system by construction and let
 training fill in around it.
+
+**Inheritance rule (binding on this family once L2c freezes):** both L2 rungs — and
+L1b's edge seam — carry the semantic-fixedness fraction φ (§4.3) as a **declared
+independent variable**. "What fraction of the seam is pinned to the kernel" is swept
+or bracketed at pre-registered values, never silently fixed at a single design point;
+L2b's "pin a fraction of the key table" and L2a's "units pinned 1:1" are the depth
+instantiations of the same knob.
 
 ### 4.1 L2a — kernel-labelled concept-bottleneck layer (adopts N0 fork N-A1)
 
@@ -266,6 +290,219 @@ training fill in around it.
   signal; the kernel × memory-layer intersection is a verified empty cell. But the
   frozen-embedding record predicts the pinned-key penalty, so this rung buys the most
   centrality per dollar *only if* cheaper rungs have already shown kernel value.
+
+### 4.3 L2c — the semantic-fixedness sweep (cross-cutting axis over L1b/L2a/L2b; maintainer-mandated 2026-07-08)
+
+**Why this axis exists — the LCM verdict is confounded, and this ladder had inherited
+the confound.** The programme's standing caution against fixed semantic spaces (L3 §4
+row 11; P8 anchor row "LCM/CALM fixed-semantic-space penalty") rests on one lineage:
+LCM/SONAR → SONAR-LLM exponents (token α≈0.79 vs 0.49–0.57 concept-space) → CALM
+recovering the step-compression win by *dropping* fixedness. But the space that
+lineage fixed differs from the kernel on **three properties at once**, so the
+measured penalty cannot be attributed to fixedness per se:
+
+1. **Unit/content** — LCM fixed a space over **sentences** (SONAR: arbitrary
+   utterance embeddings); the kernel fixes **foundational definitions** (closed,
+   content-addressed concept identities over the ~65-prime basis; directives §5).
+2. **Objective shape** — SONAR was trained for **reconstruction**/translation
+   fidelity and then conscripted as a prediction target; the kernel is deterministic
+   and never reconstruction-optimised.
+3. **Coverage** — LCM was **comprehensive by construction** (every step of every
+   sequence routes through the fixed space); the kernel is **explicitly partial**
+   (m0b-measured coverage; uncovered content untouched).
+
+The published verdict is therefore a *single corner measurement* — everything-fixed ×
+sentence-unit × reconstruction-shaped — generalised into "any fixed semantic space
+pays the exponent". Rungs L1b/L2a/L2b (and the F3 M2-output rider's "kill expected")
+currently import that generalisation untested. **L2c de-confounds it directly: sweep
+how much of the representation is semantically fixed (φ), with definitional kernel
+content as the fixed material (isolates 1), a deterministic non-reconstruction space
+(isolates 2), and coverage measured as a recorded covariate κ and optionally swept
+(isolates 3).** The deliverable is a dose–response surface, not a verdict — it
+reframes the efficiency thesis (directives §2B) from "is the kernel worth anything at
+this seam?" (binary) to **"find the optimal fixed fraction φ\*"** per scale and
+domain — possibly 0 (clean kill), possibly interior, possibly 1 on constrained
+domains.
+
+**The primary knob — representation-subspace fraction φ = k/D.** At a declared
+kernel seam of representational width D, reserve k coordinates as the
+**kernel-pinned subspace**; φ = k/D. Mechanics, pre-registerable as written:
+
+- The pinned subspace is a **seeded random orthonormal basis block** (basis hash
+  recorded at freeze — never the first k coordinate axes, to avoid axis-privilege
+  artefacts). Pinned coordinates are **gradient-masked**: frozen under any training.
+- For **kernel-covered concepts** (identified by the deterministic mapper — exact
+  lexicon match, no similarity step): pinned block := A2-adapter output of the
+  X4-projected kernel vector, with the **adapter sized to k dims**
+  (W ∈ R^{k×512}; X4 validated 8192→512/576, and 576 is exactly R1's hidden width).
+  The free D−k coordinates are learned per the host's normal recipe.
+- For **uncovered content**: pinned block carries a fixed null code (fork FK-L2c-2);
+  free block as usual.
+- **Sweep φ ∈ {0, 0.25, 0.5, 0.75, 1.0}**, declared at freeze. φ=0 is the kernel-off
+  baseline (all capacity free/learned). φ=1 is the everything-semantically-fixed
+  endpoint (§ below).
+- **What "semantically fixed" means here, stated honestly:** zero per-concept
+  trainable parameters in the pinned block — its content is a deterministic function
+  of the *definition*, through at most **one shared trained affine bridge** (the A2
+  adapter), which is trained on a disjoint concept split and frozen for all eval
+  concepts (E5's nonce discipline, so no eval-concept information leaks into the
+  bridge). This matches the LCM situation structurally (SONAR too was one shared
+  fixed encoder that the LM could not specialise per item). Stricter
+  bridge-free/frozen-bridge variants are FK-L2c-2 options, including the pure-X4
+  A1-shape corner as a budgeted falsification arm.
+- **Per-seam instantiations (the cross-cutting part):** at the input edge (L1b) φ is
+  the pinned fraction of each concept token; at the bottleneck (L2a) φ is the
+  fraction of bottleneck units pinned to concept hashes vs free learned units — note
+  the CBM literature's "leakage" channel *is* the free fraction, so the sweep prices
+  the interpretability-vs-accuracy trade explicitly; at the memory layer (L2b) φ is
+  the pinned fraction of the key table, already a free variable in that design and
+  now a declared IV. L2c runs the sweep at the **cheapest instantiable seam** (input
+  edge, frozen host — L2c-lite below); L1b/L2a/L2b inherit the knob per §4's
+  inheritance rule rather than re-running the full grid each.
+
+**The complementary knob — coverage-masking ψ (cheaper; secondary).** ψ = the
+fraction of kernel-covered input spans (and, on the output leg, covered answers)
+actually routed through the kernel channel, the remainder passing as ordinary text;
+span-level sampling under a pinned seed. ψ is cheap — at a fixed adapter it is
+inference-only re-runs of existing L1b arms — but it is the *weaker* instrument:
+(i) it can never reach the LCM-analog endpoint (ψ=1 with small φ is still a
+mostly-learned representation); (ii) it confounds the fixedness dose with span/item
+selection heterogeneity (masking changes *which meaning* is kernelised, not just how
+much representation is pinned); (iii) it is really the coverage axis κ, which the
+design already measures. **Recommendation: φ is the primary knob; ψ runs as a
+Tier-1-scale pilot on the frozen F3 configuration (sizing signal, ~$10–20 inside
+existing caps) and, after a φ\* is located, as a declared secondary IV at φ\*.**
+
+**The mandatory φ=1 control — the LCM-analog endpoint (maintainer-required).** The
+sweep MUST include φ=1: *everything* semantically fixed — but with our definitional,
+content-addressed, partial-coverage kernel in place of SONAR's sentence space. Two
+pre-declared readings, both first-class:
+
+- **(a) De-confounding read:** φ=1 is the only cell that directly tests whether the
+  definitional-vs-sentence distinction changes the LCM outcome at the corner the
+  literature actually measured. If the penalty at φ=1 matches the published exponent
+  gap, fixedness itself is the poison and content does not rescue it (KILL-2 below —
+  a clean, publishable negative per directives §7). If it is materially smaller, the
+  transfer of LCM's verdict to definitional kernels was never licensed.
+- **(b) Scoping read:** on a **constrained, in-kernel domain**, φ=1 may be not
+  merely tolerable but *desirable*: the model's covered-content representation is
+  structurally confined to the sanctioned concept set — a hard scoping/safety
+  guarantee (the model cannot represent or emit covered-slot meaning outside the
+  versioned vocabulary) that no soft alignment provides. This is measured (DV:
+  out-of-sanctioned-set emission rate under P10 extraction), never assumed.
+
+And the interpretation discipline the maintainer's framing dictates: **at high φ on
+broad/out-of-kernel tasks, failure is expected-by-construction** — the pinned
+capacity cannot represent uncovered meaning; that cell measures the coverage
+ceiling and is *informative, not refuting*. Only in-domain cells can kill the axis.
+
+**The two crossed axes — without them the sweep is meaningless:**
+
+- **(a) Model scale.** L2c-lite: R1–R3 mandatory (≥3 rungs ⇒ trend fits licensed),
+  R4-family replication on the pre-declared extension predicate. L2c-full: ≥3
+  T-rungs (Pythia T1–T3 configs, from-scratch on controlled corpora) — scaling
+  *exponents* are properties of training, unmeasurable on frozen hosts. The
+  **φ×scale surface** is fitted per P8 §2 (per-φ WLS on log₁₀ params / log₁₀
+  training FLOPs; M-lin/M-pow forms, AICc, bootstrap envelopes; 3-rung fits capped
+  at direction + order-of-magnitude). The headline statistic is the **φ-gradient of
+  the scaling trend**: does the penalty grow with φ and worsen with scale (the LCM
+  prediction), or not? Every fit is classified against the P8 §2.4 LCM/CALM anchor
+  row (CONSISTENT / DIRECTIONALLY-CONSISTENT / ANCHOR-CONTRADICTING — the last
+  triggering mandatory replication before any claim, per P8's pre-declared rule).
+- **(b) Domain breadth.** Two pre-registered eval families, reported **per-domain,
+  always, in every cell**: an **IN-kernel set** (m0b-filtered covered slices plus a
+  constrained-domain suite over the litmus families and world-layer records —
+  shared build with L3a's corpus) and an **OUT-of-kernel set** (broad public
+  benchmark slices with per-item coverage κ measured and reported). N≥500 items per
+  cell per domain; powered on the covered slice (decidability lint).
+
+**L2c-lite — the frozen-host sweep (Tier 2–3; feasible with zero new pretraining).**
+
+- **Hypothesis (HL2c-lite).** On in-kernel tasks with frozen hosts, there exists
+  φ\* > 0 at which the φ-pinned configuration is accuracy-non-inferior to φ=0 while
+  strictly improving ≥1 component of V — because pinned dims need no per-concept
+  training or storage (new covered concepts arrive at zero marginal learned
+  parameters — E5's nonce-transfer PASS, +28.5 pp over shuffled at R1, is precisely
+  the existence proof that a fully-pinned token carries usable content at one rung)
+  and definition updates re-derive the pinned block deterministically (edge
+  edit-locality without retraining).
+- **Decisive test.** Per rung (R1–R3) × domain: arms {φ grid ×
+  {true-kernel, shuffled-kernel}; φ=0 all-free baseline at matched token width;
+  kernel-as-text null at matched token/FLOP budget; F3's trained-compressor and
+  matched-token-text baselines inherited where the task overlaps}. Adapter training
+  per E5 recipe (5 seeds R1, ≥3 at R2–R3). DVs: in-domain accuracy per φ (primary);
+  V components per φ (co-primary: per-concept trainable/stored params ∝ (1−φ)·D,
+  prefill FLOPs, KV bytes, latency, amortised adapter cost); out-domain accuracy
+  (expected coverage-ceiling decline — reported, cannot kill); φ=1 scoping rate;
+  shuffled-vs-true delta at every φ.
+- **Cost tier.** Tier 2–3, ~$120–300 (≈10 adapter-train arms × 3 rungs; E5-class
+  configs were 3–6 GPU-h; rides F3/E5 Modal machinery; inside the Tier-3 $400 cap).
+- **Gate.** POST-F2-INFRA-OPEN; no dependence on the F2 verdict itself.
+
+**L2c-full — the exponent leg (Tier 4; the arm that can actually contradict or
+confirm the anchor).**
+
+- **Hypothesis (HL2c-full).** Training small LMs whose covered-concept I/O rows
+  (tied input + softmax rows) live in the φ-pinned space, the scaling-exponent
+  penalty Δα(φ) = α(φ) − α(0) on in-kernel corpora is materially smaller than the
+  SONAR-LLM gap (≈0.2–0.3) — i.e. the definitional/partial-coverage kernel escapes
+  the sentence-space tax.
+- **Decisive test.** Reduced pre-declared grid φ ∈ {0, 0.5, 1.0} (the full grid is
+  unaffordable at T-rungs and unnecessary for an exponent comparison) × ≥3 T-rungs
+  × ≥2 seeds, from-scratch Pythia configs on controlled corpora with the covered
+  concept-token fraction κ of the corpus measured and reported; shuffled-kernel
+  rows at each φ>0; kernel-as-text control corpus at matched tokens. Per-φ scaling
+  fits per P8 §2.3; Δα(φ) with bootstrap CIs; anchor classification per P8 §2.4.
+  Softmax dot-products against pinned rows are model-space geometry (X3-compliant;
+  the cosine ban concerns kernel-space nearest-neighbour steps, of which there are
+  none — concept identity is always mapper-exact).
+- **Cost tier / gate.** Tier 4 (~$300–900; sized at gate via `--dry-plan`, F5-class
+  budget). **Double-gated: F2 verdict read + an L2c-lite interest region
+  (INT-1 or INT-3) + maintainer sign-off.**
+
+**Pre-declared interest/kill criteria (statistically framed; margins fixed at
+freeze, forms fixed here):**
+
+- **INT-1 (φ\* Pareto region — the efficiency-thesis reframe).** PASS iff ∃φ ∈
+  {0.25, 0.5, 0.75, 1.0} such that, in-domain at ≥2 rungs (IUT over the
+  conjunction): accuracy non-inferior to φ=0 (TOST, pre-declared margin) AND ≥1
+  pre-declared efficiency component of V strictly better (95% CI excluding 0) AND
+  no other V component beyond its pre-declared ceiling — **Holm-corrected across
+  the four non-zero φ values** (a region hunt is a multiplicity family).
+- **INT-2 (anchor divergence).** L2c-full: 90% CI on Δα(1) excludes the SONAR-LLM
+  anchor band from above (penalty materially smaller). Per P8 §2.4 this is
+  ANCHOR-CONTRADICTING ⇒ **mandatory independent replication before any claim**;
+  a replicated divergence is the "definitional ≠ sentence" headline.
+- **INT-3 (scoping guarantee).** At φ=1 in-domain: out-of-sanctioned-set emission
+  rate Wilson-UB below the pre-declared bound AND accuracy above the pre-declared
+  floor ⇒ the constrained-domain confinement use-case is real. Reported strictly as
+  a scoped capability with its coverage ceiling attached — never as general-task
+  competitiveness.
+- **KILL-1 (poison from the first dose).** φ=0.25 loses in-domain accuracy to BOTH
+  φ=0 and the kernel-as-text null beyond the pre-declared margin at every measured
+  rung, AND no φ passes INT-1 ⇒ no optimal fixed fraction exists; the axis dies;
+  L2a/L2b redesign toward φ→0 or die with it; the ladder retreats to the external
+  seams (L0/L1a/L3), which no φ outcome touches.
+- **KILL-2 (LCM transfers).** L2c-full: Δα(φ) is anchor-class CONSISTENT — penalty
+  within the published band, growing with φ, and (per the LCM finding) not
+  shrinking with scale ⇒ semantic fixedness itself is the cost and definitional
+  content does not rescue it. High-φ ambitions (L2b's high-φ variants, the L4
+  horizon) are dead; recorded as the de-confounding negative — publishable per
+  directives §7.
+- **KILL-3 (semantics-free effect).** At any φ, the shuffled-kernel arm recovers ≥
+  the pre-declared fraction of the true-kernel effect vs φ=0 (E9-defl discipline)
+  ⇒ the pinned subspace is acting as architecture/regulariser, not semantics;
+  kernel-specific claims die at that φ (the architectural finding is recorded
+  without kernel credit).
+
+**Why-now.** (i) The maintainer's mandate names a real inferential gap: every
+scaling caveat in this ladder currently leans on an anchor measured at one
+confounded corner; L2c is the cheapest instrument that can either license or
+retire that lean for the whole L1b/L2a/L2b family before their expensive rungs
+run. (ii) The machinery exists: A2/E5 adapters, X4 projections, m0b coverage
+filters, F3 arms, P8 surface-fit discipline — L2c-lite is recombination, not new
+infrastructure. (iii) Whatever the outcome, the surface is the programme's most
+reusable artefact: every later rung reads its design point off it.
 
 ---
 
@@ -398,7 +635,10 @@ and the novelty claim to defend in any write-up.
 For honesty about where the ladder points: the limit shape is "LLM as NL boundary
 only; all covered inference symbolic". Not proposed, not costable, and the LCM
 lesson plus Law 2 say the *incremental* rungs must earn their way there. Recorded so
-nobody later claims the programme hid its ambition.
+nobody later claims the programme hid its ambition. The L2c φ=1 arm (§4.3) is the
+cheapest measured probe of this limit shape the ladder will ever get: its in-domain
+cells put a number on what full semantic fixedness costs (or buys) before anyone
+argues about L4.
 
 ---
 
@@ -412,14 +652,18 @@ nobody later claims the programme hid its ambition.
 | 2 | **L1a** canonicaliser | 1–2 / ~$20–60 | Is deterministic semantic normalisation worth anything against the LLM-paraphrase null? | High — cheapest model-facing rung; also de-risks the parse side of L3 |
 | 3 | **L3b** routed hybrid | 1–2 / ~$30–80 | Does symbolic answering survive contact with a mixed workload and strong RAG? | High — the deployable efficiency claim; gated on 1 |
 | 4 | **L1b** dense I/O + output leg | 3 / F3 cap +$20 | Does canonical-at-the-edges compression beat trained text compression? | Medium-high — rides the existing F3 draft |
-| 5 | **L2a** kernel bottleneck | 2–3 / ~$60–150 | Does a canonical vocabulary beat ad-hoc CB-LLM vocabularies? | Medium — strongest interp-lane rung; the A6 pivot's architectural form |
-| 6 | **L2b** pinned memory keys | 3–4 / ~$150–400+ | Do pinned keys buy attribution/editability at acceptable accuracy cost? | Medium — most novel cell, most expensive, strongest gate |
-| 7 | **L3c** engine-in-decode | 3+ | deferred | — |
+| 5 | **L2c-lite** fixedness sweep, frozen host | 2–3 / ~$120–300 | Is there a φ\*>0 that Pareto-beats φ=0 in-domain — and is the LCM prior even licensed for definitional kernels? | High — one experiment de-confounds the anchor that gates the whole L1b/L2a/L2b family, and fixes their φ design points |
+| 6 | **L2a** kernel bottleneck | 2–3 / ~$60–150 | Does a canonical vocabulary beat ad-hoc CB-LLM vocabularies? | Medium — strongest interp-lane rung; the A6 pivot's architectural form; φ from L2c |
+| 7 | **L2b** pinned memory keys | 3–4 / ~$150–400+ | Do pinned keys buy attribution/editability at acceptable accuracy cost? | Medium — most novel cell, most expensive before Tier 4, strong gate; φ from L2c |
+| 8 | **L2c-full** exponent leg | 4 / ~$300–900 | Does the φ→1 penalty match or diverge from LCM's scaling exponent when the fixed space is definitional? | Medium-high — the only arm that can confirm/contradict the anchor itself; double-gated |
+| 9 | **L3c** engine-in-decode | 3+ | deferred | — |
 
 Rationale: rungs 1–3 are inference-only, mostly CPU, and each is *independently*
 decisive (a kill at any of them is a clean, publishable negative on that centrality
-level without blocking the others). Rungs 4–6 involve training and inherit
-POST-F2-INFRA-OPEN gating.
+level without blocking the others). Rungs 4–8 involve training and inherit
+POST-F2-INFRA-OPEN gating; L2c-lite sits at rank 5 because its surface *feeds
+design points into* ranks 6–8 (running L2a/L2b at an unswept φ would re-import the
+confound L2c exists to remove); L2c-full and L2b carry the strictest gates.
 
 ### 6.2 How the F2 verdict re-ranks the ladder
 
@@ -435,6 +679,16 @@ POST-F2-INFRA-OPEN gating.
   end-task wins) and L3a's *cost* claim (exactness at negligible cost can survive an
   accuracy-parity world — but only with the workload-mix honesty of §5.2). L1a
   survives on its robustness endpoint, which no F2 outcome touches.
+
+**How the branch reads onto L2c.** HE1 PASS raises the whole in-network φ>0 region
+(the efficiency thesis is live; the sweep asks *where else* — and *how much* —
+fixedness pays). HE1 KILL + HC2 PASS narrows L2c's IN-kernel domain definition to
+axiom-licensed content and leaves the φ=1 scoping endpoint (INT-3) plus the
+L2a-adjacent interpretability surface carrying the sweep. Both-KILL demotes
+L2c-full below the surviving pitches, but L2c-lite stays independently justified:
+it is the de-confounding instrument for a literature anchor every remaining plan
+cites, not an end-task bet — its value is the licensed/retired status of the LCM
+prior either way.
 
 ---
 
@@ -463,6 +717,47 @@ hash-derived discrete codes (pure content-address, X3-immune); *(c)* learned bas
 *Why uncertain:* geometry may help routing or may re-import similarity pathologies.
 *Decided by:* L2b's three-way arm. *Kill:* both pinned variants beaten beyond margin
 with no auditability win.
+
+**FK-L2c-1 — where the pinned subspace lives.** *(a)* input-embedding/soft-token
+subspace only (cheapest; frozen host; L2c-lite's default); *(b)* persistent
+residual-stream reservation enforced by projection at every layer (strongest
+fixedness; needs training or forward hooks); *(c)* bottleneck-layer units (L2a's
+home). *Why uncertain:* (a) may be too weak to constitute "semantic fixedness" —
+early layers re-encode what they are given (the detokenization record); (b) risks
+an accuracy tax unrelated to semantics; (c) couples the sweep to the CBM tax.
+*Decided by:* a φ=0.5 pilot cell run under (a) and (b) before the lite freeze.
+*Kill per option:* the option's shuffled-kernel arm recovers the effect (KILL-3
+applied per-locus).
+
+**FK-L2c-2 — pinned-content conditioning + bridge identity.** *(a)* raw X4
+projection into the pinned block; *(b)* whitened/scaled to host activation
+statistics (the frozen-embedding record says distribution match matters); *(c)*
+shared trained bridge frozen after training on a disjoint concept split (E5 nonce
+discipline; lite default); *(d)* no bridge at all — pure deterministic X4, the
+A1-shape corner (literature prior null; budgeted falsification arm only). Plus the
+uncovered-content null code: zeros vs a single learned no-concept code. *Why
+uncertain:* fixedness strength trades against the interface-locality law cell by
+cell. *Decided by:* lite pilot cells + `--dry-plan` sizing for full. *Kill:* (d)
+expected-fail per L3 §1; a surprise survival re-opens A1 discussion at the next
+rung only.
+
+**FK-L2c-3 — the LCM-config reference.** *(a)* published-anchor-only (SONAR-LLM
+exponents from the P8 anchor table as the comparison band — $0); *(b)* a small
+re-run sentence-space control at T1 (same corpus, SONAR-style fixed sentence
+target) to put the anchor on our own measurement footing. *Why uncertain:* (a) is
+free but compares across labs/corpora; (b) costs a Tier-4 slice and replication of
+a result we did not produce. *Decided by:* maintainer at the L2c-full gate, with
+(a) as the default and (b) priced in the dry-plan. *Kill:* n/a (reference-arm
+choice, not a hypothesis).
+
+**FK-L2c-4 — the ψ knob's role.** *(a)* pilot-only (size effects on the frozen F3
+configuration, then drop); *(b)* secondary IV at φ\* (declared at freeze); *(c)*
+promote to co-primary if the φ sweep is flat but coverage-routing is not. *Why
+uncertain:* ψ confounds dose with span selection (§4.3), but it is an order of
+magnitude cheaper per point. *Decided by:* the ψ pilot's effect size vs its
+selection-heterogeneity diagnostic (covered-span strata reported). *Kill per
+option:* (c) requires the diagnostic to show homogeneity — otherwise ψ results are
+not interpretable as dose–response and stay descriptive.
 
 **FK-L3-1 — router identity.** *(a)* deterministic mapper + closed query grammar;
 *(b)* tiny trained classifier; *(c)* LLM self-route ("answer or call the engine").
@@ -501,6 +796,14 @@ pre-declared bar.
 14. **Stage indictment:** multi-stage rungs (parse → engine → render) pre-declare
     per-stage instruments so a kill names the failed stage (L3a's gold-parse arm is
     the template).
+15. **Dose–response surface discipline** (L2c, and any rung sweeping a declared
+    knob): the knob grid is declared at freeze and never extended mid-run; region
+    claims ("∃φ\*>0 such that …") are conjunctions tested under IUT with Holm
+    across the grid; the verdict object is the **full surface** (per-cell metric
+    vector V, per-domain splits, per-φ shuffled-kernel deltas) — no single cell is
+    quotable in any report without the surface it came from; expected-by-construction
+    cells (high φ × out-of-kernel) are labelled as such in the pre-registration and
+    cannot enter kill statistics.
 
 ---
 
