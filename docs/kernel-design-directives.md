@@ -76,3 +76,35 @@ understood**. Facts about the world, provenance, and discovery history live in t
 layer** (stratum 4), never folded into the definitional content-hash. Axiomatic *laws* over
 concepts (e.g. the parents rule) live in the endorsed **axiom sidecar** (stratum 3), separate
 from concept definitions and out of the canonical vector.
+
+## 6. Honest statistics & literature-grounded extrapolation
+
+- Every experiment carries a **pre-registered statistical analysis plan**: the primary test
+  (with justification), **effect size + confidence interval** (never p-values alone), the
+  alpha, **multiple-comparison correction** (Holm/FDR) across the pre-declared family, and —
+  for any **null claim** — an **equivalence test** (e.g. TOST) with a pre-declared equivalence
+  margin. Power / sample size (seeds, corpus size, #concepts) is justified *before* running.
+- The per-hypothesis verdict is a **pure function of the pre-declared statistic vs threshold**.
+  Negative and inconclusive results are reported with the **same rigor and prominence** as
+  positives; no post-hoc test selection.
+- **Model-scale extrapolation must be explicit and literature-grounded.** Fit each result as a
+  **trend across the scale ladder** (≥3 rungs before any scale adjective), compare it against
+  **published scaling-law trends** in the related literature, and state, per finding, the
+  model-scale range to which it can **reasonably be extrapolated**, with the uncertainty and
+  the assumption that licenses the extrapolation. No toy-scale effect may be presented as
+  holding at frontier scale without a measured supporting trend or an explicit,
+  literature-referenced caveat.
+
+## 7. Write-up & reporting are part of the programme, not an afterthought
+
+- The programme includes an explicit **write-up phase** producing a scientific paper of a
+  standard that could **score well and be accepted at a top-tier venue** in the space — while
+  being **completely honest about results, including negative ones** (a rigorous negative
+  result is a publishable contribution; do not spin).
+- It also includes an **accessible explainer-back step**: after the write-up, the results and
+  conclusion are explained to the maintainer in the **clearest possible terms** (plain-language
+  what-we-found / what-it-means / what-scale-it-holds-at / go-no-go recommendation).
+- Both are **first-class nodes in the operational DAG**, each with an owning agent role and a
+  reporting skill, and both are **gated by the honesty system**: every paper claim must trace
+  to a registry entry + auto-report, and no claim may exceed what the pre-registered analysis
+  supports.
