@@ -1,0 +1,135 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:autobiographical",
+ "label": "autobiographical",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "words about someone's own life, told by that someone; the words say what happened to that someone, and what that someone did, saw, felt, or thought.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "LIKE",
+    "args": [
+     {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "partFrame",
+          "of": {
+           "kind": "ref",
+           "index": 1
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "kind": "ref",
+      "index": 2
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/autobiographical",
+    "revision": "89283238/d74c5320-7a28-11f1-a379-579c10719f64",
+    "fetched": "2026-07-07T17:25:25Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/autobiographical",
+    "revision": "1351021202",
+    "tid": "757d69c3-40a9-11f1-a668-1bf6e8cdd511",
+    "fetched": "2026-07-07T17:25:26Z"
+   }
+  ],
+  "date": "2026-07-07T17:25:39Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 406,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1464,
+    "costUSD": 0.005415
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 303,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5859,
+    "costUSD": 0.013234999999999999
+   }
+  ]
+ }
+}

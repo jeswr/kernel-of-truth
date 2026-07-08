@@ -1,0 +1,107 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:safety",
+ "label": "safety",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "the state where someone or something is protected from harm and does not fear.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "quant": "SOME",
+        "mods": [
+         {
+          "mod": "BAD"
+         }
+        ],
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/safety",
+    "revision": "91191061/c1adcad0-7a0a-11f1-b7b8-0e1f5e0b57a1",
+    "fetched": "2026-07-07T17:48:49Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/safety",
+    "revision": "1360733921",
+    "tid": "ed62ea25-6ed4-11f1-8bad-2bfa42e721be",
+    "fetched": "2026-07-07T17:49:04Z"
+   }
+  ],
+  "date": "2026-07-07T17:49:24Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 304,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1548,
+    "costUSD": 0.005072999999999999
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 570,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5806,
+    "costUSD": 0.014464000000000001
+   }
+  ]
+ }
+}

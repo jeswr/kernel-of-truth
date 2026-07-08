@@ -1,0 +1,125 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:poppycock",
+ "label": "poppycock",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone says words; these words are not true; people know: what this someone said is not true or is very bad.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "ClauseRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "TRUE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "op",
+       "op": "NOT",
+       "args": [
+        {
+         "type": "pred",
+         "pred": "TRUE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        }
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/poppycock",
+    "revision": "88588063/42756040-7a35-11f1-9c5a-8be211d88f93",
+    "fetched": "2026-07-07T18:54:19Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/poppycock",
+    "revision": "1348136929",
+    "tid": "127ac9de-352e-11f1-aa5c-4a3ba88a0e64",
+    "fetched": "2026-07-07T18:54:19Z"
+   }
+  ],
+  "date": "2026-07-07T18:54:27Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 279,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1446,
+    "costUSD": 0.004744
+   }
+  ]
+ }
+}

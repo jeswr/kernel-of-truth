@@ -1,0 +1,140 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:presence",
+ "label": "presence",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone is in a place now; people can see this someone; this someone is not far away.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "det": "SOME",
+      "bind": 2
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "SMALL",
+        "intensifier": "VERY"
+       }
+      ],
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "locus": {
+         "kind": "sp",
+         "det": "SOME",
+         "head": {
+          "kind": "primeHead",
+          "prime": "WHERE~PLACE"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/presence",
+    "revision": "91212070/9a645960-7a0c-11f1-b925-252003984e0b",
+    "fetched": "2026-07-07T14:03:17Z"
+   }
+  ],
+  "date": "2026-07-07T14:05:15Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 449,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3007,
+    "costUSD": 0.008716
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 357,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7428,
+    "costUSD": 0.016642999999999998
+   }
+  ]
+ }
+}

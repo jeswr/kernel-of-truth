@@ -1,0 +1,85 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:undetected",
+ "label": "undetected",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "people do not see this something.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "stimulus": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/undetected",
+    "revision": "90567872/cbfd25a0-7a30-11f1-99e3-de59ccdeb27d",
+    "fetched": "2026-07-07T18:22:22Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/undetected",
+    "revision": "1288415697",
+    "tid": "77de0aa0-275c-11f0-bfde-d3e9f443203e",
+    "fetched": "2026-07-07T18:22:23Z"
+   }
+  ],
+  "date": "2026-07-07T18:22:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 205,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1394,
+    "costUSD": 0.00427
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 131,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5581,
+    "costUSD": 0.011819
+   }
+  ]
+ }
+}

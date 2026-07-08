@@ -1,0 +1,106 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:headache",
+ "label": "headache",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels something bad in the head; this someone can feel this for some time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     },
+     "place": {
+      "kind": "sp",
+      "head": {
+       "kind": "partFrame",
+       "of": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "BODY"
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "duration": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHEN~TIME"
+        },
+        "quant": "SOME"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/headache",
+    "revision": "91017520/2d194b70-7a54-11f1-877d-1a55c5963b27",
+    "fetched": "2026-07-07T22:35:37Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/headache",
+    "revision": "1361849572",
+    "tid": "ef541d67-7483-11f1-95a5-3a2d6ee1c6e4",
+    "fetched": "2026-07-07T22:35:38Z"
+   }
+  ],
+  "date": "2026-07-07T22:36:50Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 227,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3004,
+    "costUSD": 0.007600000000000001
+   }
+  ]
+ }
+}

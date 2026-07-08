@@ -1,0 +1,133 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:heterogeneous",
+ "label": "heterogeneous",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "things of this kind are not all the same; some are one kind, some are another kind.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "quant": "ALL"
+       },
+       "attribute": {
+        "kind": "sp",
+        "det": "THE-SAME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "KIND"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "refHead",
+       "index": 1
+      }
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "sp",
+        "quant": "ONE",
+        "head": {
+         "kind": "primeHead",
+         "prime": "KIND"
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "det": "OTHER~ELSE~ANOTHER",
+      "quant": "SOME",
+      "head": {
+       "kind": "refHead",
+       "index": 1
+      }
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "sp",
+        "quant": "ONE",
+        "head": {
+         "kind": "primeHead",
+         "prime": "KIND"
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [],
+  "date": "2026-07-07T17:50:33Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 403,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1326,
+    "costUSD": 0.005124
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 355,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5684,
+    "costUSD": 0.013145
+   }
+  ]
+ }
+}

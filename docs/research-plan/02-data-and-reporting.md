@@ -1,6 +1,9 @@
 # P2 — Data tracking & reporting system (the honesty backbone)
 
-**Status:** design specification, 2026-07-08 (rev 3 — verifier pass: RT-14 pseudonymous
+**Status:** design specification, 2026-07-08 (rev 4 — auditor identity upgraded per
+maintainer decision: audits/red-team/paper.review run on the second-vendor Codex/GPT-5.5
+model via the `codex` CLI, making G-6's run-vs-audit separation cross-vendor — see §4
+identities, G-6, R-1, §7 item 2. rev 3 — verifier pass: RT-14 pseudonymous
 in-record identities + unhashed `registry/identity-map.json` sidecar, schema constraint 10 —
 the rule P9 §1.2 item 4 cites. rev 2 — P7 red-team pre-freeze fixes applied:
 RT-5 amendment cutoff, RT-6 supersession-lineage semantics, RT-9/RT-15 audit naming +
@@ -515,7 +518,7 @@ encoder pin: {{encoder_hash:8}} | corpus pins: {{…:8 each}} | log tail: {{log_
 ## OUTCOME: **{{verdict}}**
 Fired rule {{fired_rule_index}}: `{{verdict_rules[i].when — the JSON, verbatim}}`
 evaluated over analysis-output.json (sha256 {{…:8}}).
-{{if PASS-PENDING-AUDIT}} **Not citable as PASS until the role-separated re-derivation (audit) confirms.** {{endif}}
+{{if PASS-PENDING-AUDIT}} **Not citable as PASS until the independent cross-vendor re-derivation (Codex/GPT-5.5 audit) confirms.** {{endif}}
 {{if NULL}} TOST equivalence at pre-registered SESOI d={{…}}: bounds [{{…}}, {{…}}]. {{endif}}
 
 ## Endpoints
@@ -572,10 +575,13 @@ account operates `auditor-2`, etc.) lives only in the unhashed sidecar
 `registry/identity-map.json` (git-ignored, maintainer-held) — so no account name can ever
 sit inside a `frozen_sha256`/`prev_sha256` byte range, and the P9 anonymize-by-overlay
 never has to touch a chained byte. Identity is asserted at write time and cross-checked by
-G-6 at the pseudonym level; **account-level** separation (run and audit on different
-accounts — with a backup Fable account available, e.g. `auditor-2` bound to it) is declared
-in the identity-map and verified there by the auditor and the maintainer, not from record
-bytes.
+G-6 at the pseudonym level; **vendor-level** separation (run and audit on different
+vendors' models — maintainer decision 2026-07-08: the auditor pseudonyms `auditor-<n>` and
+`redteam-1` are bound to **Codex/GPT-5.5 invoked via the `codex` CLI**, an OpenAI model,
+not to any Anthropic account) is declared in the identity-map and verified there by the
+auditor and the maintainer, not from record bytes. This supersedes the earlier plan of a
+backup Fable (Anthropic) account: a second-vendor model is a genuinely independent auditor,
+materially stronger than same-vendor account separation.
 
 - **G-1 — Prereg-before-run gate.** `log-append` refuses `phase:"final"` records unless the
   experiment is FROZEN and the record's `prereg_hash` equals the frozen-index hash; run
@@ -612,11 +618,18 @@ bytes.
   PASS-PENDING-AUDIT → PASS. Schema rule: `audit.auditor` must differ from every `runner`
   value in the experiment's eligible log records (`ERR_P2_SELF_AUDIT`). The auditor re-runs
   from pinned artifacts (adversarial checklist defined in P4). *Mechanism:* verdict-gen step
-  8 + audit schema cross-check against the log. *Naming discipline (RT-9):* this property
-  is described as **role-separated re-derivation** in every document, dossier, pitch, and
-  paper — never as "independent audit"; the word "independent" is reserved for
-  maintainer-level audits (§7 item 2) and genuinely external replications, and
-  `registry-check --citations` flags "independent(ly) audited" applied to agent audits.
+  8 + audit schema cross-check against the log. *Naming discipline (RT-9, upgraded
+  2026-07-08):* the audit was originally hedged as "role-separated re-derivation on one
+  operator's accounts"; it is now performed by a **genuinely independent second-vendor
+  model** — Codex/GPT-5.5, invoked via the `codex` CLI — for the audit,
+  adversarial-verification (red-team), and paper.review roles, which materially upgrades
+  the independence claim. Documents, dossiers, pitches, and the paper describe it as
+  **independent cross-vendor re-derivation (Codex/GPT-5.5)** — naming the vendor split, so
+  the reader can price exactly what "independent" means here. The word "independent"
+  remains reserved for this cross-vendor audit, maintainer-level audits (§7 item 2), and
+  genuinely external replications — never for a same-vendor/same-operator agent audit —
+  and `registry-check --citations` still flags "independent(ly) audited" wherever the
+  identity-map shows the auditing pseudonym bound to the same vendor as any run identity.
 - **G-7 — Coverage disclosure in every verdict.** `verdict-gen` fails closed
   (`ERR_P2_NO_COVERAGE`) if the coverage block (M0b fraction + rung) is absent from eligible
   runs' metrics or the verdict object; the report template's coverage section is mandatory.
@@ -741,7 +754,7 @@ markdown only as *rendered output*. Tools are Python 3.9/Node stdlib-only per bo
 | `prereg` | author DRAFT record; `prereg-freeze` (validates schema + G-8/G-11 lints incl. the decidability and tier-sum lints, writes frozen-index, commits, then **externally timestamps the frozen_sha256** — §1.1 post-step: sparq issue / OSF) | cannot freeze with schema violations |
 | `run-experiment` | launches harness with `--prereg-hash`; all output lands via `log-append` | G-1, G-11, G-14 at the write path |
 | `flop-meter` / cost meters | populate `metric_vector` + `cost` blocks (F0 accounting) | G-9 field completeness |
-| `audit-result` | role-separated re-run (re-derivation) from pinned artifacts; writes `registry/audits/…` | G-6 identity separation |
+| `audit-result` | independent cross-vendor re-run (re-derivation) from pinned artifacts by the Codex/GPT-5.5 auditor (`codex` CLI); writes `registry/audits/…` | G-6 identity separation |
 | `report-gen` | runs `verdict-gen`; commits verdict object + report | G-3/G-4/G-7 fail-closed aborts |
 | `registry-check` | CI + pre-push hook: chain, append-only, frozen drift, citations, status table regen | blocks merge on any failure |
 
@@ -843,8 +856,11 @@ Estimated build cost: R0-tier, ~1–2 agent-days, ~$0 compute; stdlib only.
 
 - **R-1 Collusion/identity spoofing.** Agent identity strings are asserted, not
   cryptographically proven; a dishonest operator controlling both runner and auditor defeats
-  G-6. Mitigation: audits by the backup account where stakes are high (Tier ≥ 2 positives);
-  the maintainer is the ultimate auditor for any frontier-facing claim. Accepted residual.
+  G-6. Mitigation (upgraded 2026-07-08): all audits run on a second-vendor model —
+  Codex/GPT-5.5 via the `codex` CLI — so runner and auditor no longer even share a model
+  vendor, and cross-model collusion via shared weights/quirks is off the table; the
+  operator-level residual remains (one human still operates both CLIs), and the maintainer
+  is the ultimate auditor for any frontier-facing claim. Accepted residual.
 - **R-2 History rewrite.** A force-push can rewrite git history and re-chain the log.
   Mitigation: chain tail hashes are quoted inside audit records and verdict objects (circular
   witnesses); every freeze's `frozen_sha256` is externally timestamped (§1.1: sparq issue /
@@ -869,11 +885,14 @@ risk or authorises spend, and each needs the maintainer, not an agent:
 
 1. **Branch protection on `jeswr/kernel-of-truth` main** — forbid force-push and non-fast-
    forward updates (closes most of R-2; one GitHub settings change).
-2. **Audit-identity policy** — confirm that Tier ≥ 2 positives must be audited from the
-   *backup* Fable account (auditor pseudonyms bound to that account in
-   `registry/identity-map.json` — the account name itself never enters record bytes, §1.2
-   constraint 10 / RT-14), and that any frontier-facing claim
-   gets a maintainer-level audit (R-1's mitigation becomes policy rather than suggestion).
+2. **Audit-identity policy — RESOLVED (2026-07-08):** the maintainer adopted the `codex`
+   CLI (OpenAI Codex/GPT-5.5) as the role-separated auditor instead of a backup Fable
+   account: all audit/red-team/paper.review pseudonyms (`auditor-<n>`, `redteam-1`) are
+   bound to the Codex/GPT-5.5 identity in `registry/identity-map.json` (the vendor/account
+   binding itself never enters record bytes, §1.2 constraint 10 / RT-14) — cross-vendor
+   separation, stronger than the account-level split originally proposed. Still open within
+   this item: confirm that any frontier-facing claim additionally gets a maintainer-level
+   audit (R-1's mitigation becomes policy rather than suggestion).
 3. **Sign-off on this document itself** — P2's schemas are the honesty system; changing them
    later is a versioned amendment to P2 (`kot-reg/2`, …) requiring maintainer approval. The
    sign-off event is the freeze of the freeze machinery.

@@ -1,0 +1,108 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:read",
+ "label": "read",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone sees {urn:molecule-v0:words|words} [m] or {urn:molecule-v0:picture|pictures} [m]; because of this, someone knows what the words or pictures mean.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "stimulus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "THE-SAME"
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "WORDS"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/read",
+    "revision": "91483232/b7ec8bf0-79f4-11f1-bbae-5e8ab7a6eebc",
+    "fetched": "2026-07-07T11:12:19Z"
+   }
+  ],
+  "date": "2026-07-07T12:14:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 298,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2885,
+    "costUSD": 0.007717
+   }
+  ]
+ }
+}

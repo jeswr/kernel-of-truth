@@ -1,0 +1,150 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:denounce",
+ "label": "denounce",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone says to other people that another person did something bad, wanting them to feel bad about it, and feels bad about it themselves.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 3,
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMEONE"
+         },
+         "bind": 2
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         }
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "BAD"
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/denounce",
+    "revision": "91125140/30070110-7a4a-11f1-8039-f0401f2cda62",
+    "fetched": "2026-07-07T21:24:07Z"
+   }
+  ],
+  "date": "2026-07-07T21:26:37Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 431,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3033,
+    "costUSD": 0.008678
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 380,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7451,
+    "costUSD": 0.016804
+   }
+  ]
+ }
+}

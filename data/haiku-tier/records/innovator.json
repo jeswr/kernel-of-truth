@@ -1,0 +1,146 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:innovator",
+ "label": "innovator",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone who does something new that other people did not know before, and because of this other people feel something good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        },
+        "quant": "SOME",
+        "bind": 3
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 2
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "BEFORE",
+        "anchor": {
+         "kind": "prime",
+         "prime": "NOW"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 3
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 2
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 3
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/innovator",
+    "revision": "88582937/b3eb0dd0-7a29-11f1-aa74-1dbad133f1d9",
+    "fetched": "2026-07-07T17:31:35Z"
+   }
+  ],
+  "date": "2026-07-07T17:32:04Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 419,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1379,
+    "costUSD": 0.0053100000000000005
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 568,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5787,
+    "costUSD": 0.014415999999999998
+   }
+  ]
+ }
+}

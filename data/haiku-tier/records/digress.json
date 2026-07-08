@@ -1,0 +1,139 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:digress",
+ "label": "digress",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone says words about one topic, then says words about a different topic, then later says words about the first topic again.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 4,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "OTHER~ELSE~ANOTHER",
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "A-LONG-TIME"
+      },
+      "bind": 4
+     },
+     {
+      "type": "pred",
+      "pred": "SAY",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/digress",
+    "revision": "91077964/98817f10-7a4d-11f1-bbbe-404a13d24f4f",
+    "fetched": "2026-07-07T21:48:31Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/digress",
+    "revision": "1345239122",
+    "tid": "06cf9980-27f3-11f1-b0a3-a7408e0f77ac",
+    "fetched": "2026-07-07T21:48:32Z"
+   }
+  ],
+  "date": "2026-07-07T21:49:52Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 354,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3030,
+    "costUSD": 0.008287
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 327,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7375,
+    "costUSD": 0.016387
+   }
+  ]
+ }
+}

@@ -1,0 +1,166 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:historical",
+ "label": "historical",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something happened before now; people can know: it happened (in the past); this something is one kind of thing because it is about the past.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "BEFORE",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "time": {
+           "kind": "temporal",
+           "op": "BEFORE",
+           "anchor": {
+            "kind": "prime",
+            "prime": "NOW"
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "VERY"
+       }
+      ],
+      "det": "SOME"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "VERY"
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/historical",
+    "revision": "89731175/5cc9b3d0-7a24-11f1-b7b5-b9a737820fa3",
+    "fetched": "2026-07-07T16:53:21Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/historical",
+    "revision": "1360112219",
+    "tid": "82a46b00-6bbd-11f1-9364-8d0b240057d5",
+    "fetched": "2026-07-07T16:53:22Z"
+   }
+  ],
+  "date": "2026-07-07T16:55:43Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 423,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3163,
+    "costUSD": 0.008898
+   }
+  ]
+ }
+}

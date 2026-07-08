@@ -1,0 +1,166 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:gatekeeper",
+ "label": "gatekeeper",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone controls whether another someone can move to a place.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 2,
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "WANT",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "complement": {
+         "kind": "clause",
+         "clause": {
+          "type": "pred",
+          "pred": "MOVE",
+          "roles": {
+           "undergoer": {
+            "kind": "ref",
+            "index": 2
+           },
+           "place": {
+            "kind": "sp",
+            "det": "THE-SAME",
+            "head": {
+             "kind": "primeHead",
+             "prime": "WHERE~PLACE"
+            },
+            "bind": 3
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "IF",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "MOVE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "place": {
+           "kind": "ref",
+           "index": 3
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "quant": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WORDS"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/gatekeeper",
+    "revision": "1333240756",
+    "tid": "db11cdc0-f2ee-11f0-924f-c57e1908cf4e",
+    "fetched": "2026-07-07T18:50:00Z"
+   }
+  ],
+  "date": "2026-07-07T18:50:16Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 494,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1392,
+    "costUSD": 0.005711
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 491,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5884,
+    "costUSD": 0.014225000000000002
+   }
+  ]
+ }
+}

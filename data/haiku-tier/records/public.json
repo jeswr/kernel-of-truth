@@ -1,0 +1,98 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:public",
+ "label": "public",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something is known or seen by all people; it is not hidden.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "quant": "ALL"
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "quant": "ALL"
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/public",
+    "revision": "91127719/d06f9bc0-7a00-11f1-b170-fff74e072fb7",
+    "fetched": "2026-07-07T17:47:16Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/public",
+    "revision": "1360415554",
+    "tid": "d2b93427-6d5b-11f1-9dfe-fa5aa213de6b",
+    "fetched": "2026-07-07T17:47:17Z"
+   }
+  ],
+  "date": "2026-07-07T17:47:32Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 279,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1720,
+    "costUSD": 0.005292
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 184,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5953,
+    "costUSD": 0.012827999999999999
+   }
+  ]
+ }
+}

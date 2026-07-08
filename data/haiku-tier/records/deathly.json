@@ -1,0 +1,86 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:deathly",
+ "label": "deathly",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone or something appears as though not alive right now.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "concept",
+        "id": "urn:kernel-v0:alive"
+       },
+       "time": {
+        "kind": "prime",
+        "prime": "NOW"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/deathly",
+    "revision": "88664802/d87e5d90-79f3-11f1-b9db-28319140cd3f",
+    "fetched": "2026-07-07T18:41:33Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/deathly",
+    "revision": "1362838007",
+    "tid": "b4505c71-7947-11f1-aee1-923cde77b074",
+    "fetched": "2026-07-07T18:41:33Z"
+   }
+  ],
+  "date": "2026-07-07T18:41:47Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 235,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1505,
+    "costUSD": 0.004642
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 147,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5724,
+    "costUSD": 0.012185
+   }
+  ]
+ }
+}

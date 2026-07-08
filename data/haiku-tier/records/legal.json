@@ -1,0 +1,138 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:legal",
+ "label": "legal",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something is in accord with rules that people made and do enforce; if someone does this thing, then it is not the case that someone will do something bad to them because of a rule.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         }
+        },
+        "topic": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "WORDS"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          }
+         },
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "mods": [
+           {
+            "mod": "BAD"
+           }
+          ]
+         },
+         "comitative": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/legal",
+    "revision": "91283908/09618150-7a0b-11f1-9ac7-89d9791f4171",
+    "fetched": "2026-07-07T13:52:04Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/legal",
+    "revision": "1362128589",
+    "tid": "334c394f-75c0-11f1-b702-5f205fd690e3",
+    "fetched": "2026-07-07T13:52:05Z"
+   }
+  ],
+  "date": "2026-07-07T13:52:31Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 346,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3182,
+    "costUSD": 0.008551
+   }
+  ]
+ }
+}

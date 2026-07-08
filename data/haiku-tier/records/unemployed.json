@@ -1,0 +1,145 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unemployed",
+ "label": "unemployed",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone does not do work for money now; this someone can do work; this someone wants to do work for money.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ]
+       },
+       "time": {
+        "kind": "prime",
+        "prime": "NOW"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "mods": [
+          {
+           "mod": "GOOD"
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unemployed",
+    "revision": "91190627/f5a408b0-7a26-11f1-b090-07f1bfe5229b",
+    "fetched": "2026-07-07T17:11:57Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/unemployed",
+    "revision": "1360265486",
+    "tid": "e34baa8a-6c86-11f1-9075-3d9f34bf8531",
+    "fetched": "2026-07-07T17:11:57Z"
+   }
+  ],
+  "date": "2026-07-07T17:12:25Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 342,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3014,
+    "costUSD": 0.008195000000000001
+   }
+  ]
+ }
+}

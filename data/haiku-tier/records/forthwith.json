@@ -1,0 +1,87 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:forthwith",
+ "label": "forthwith",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this happens or someone does this without delay; at a time very close to now.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "ClauseRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "AFTER",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     },
+     "manner": {
+      "kind": "sp",
+      "det": "THIS",
+      "head": {
+       "kind": "primeHead",
+       "prime": "MOMENT"
+      },
+      "mods": [
+       {
+        "mod": "SMALL",
+        "intensifier": "VERY"
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/forthwith",
+    "revision": "90710218/290edf30-7a32-11f1-b7bc-cf3606351969",
+    "fetched": "2026-07-07T18:32:08Z"
+   }
+  ],
+  "date": "2026-07-07T18:32:27Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 264,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1382,
+    "costUSD": 0.004541
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 174,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5633,
+    "costUSD": 0.012138
+   }
+  ]
+ }
+}

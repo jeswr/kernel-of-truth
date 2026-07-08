@@ -1,0 +1,142 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:screech",
+ "label": "screech",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone or something makes a very high sound that is not good to hear; people hear this sound; it happens for a short time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "VERY"
+       }
+      ],
+      "quant": "ONE"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ],
+      "quant": "ONE"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HEAR",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "det": "SOME",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "duration": {
+      "kind": "prime",
+      "prime": "A-SHORT-TIME"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/screech",
+    "revision": "91349258/064047b0-7a59-11f1-9790-05c0fd903095",
+    "fetched": "2026-07-07T23:10:20Z"
+   }
+  ],
+  "date": "2026-07-07T23:11:22Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 390,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3029,
+    "costUSD": 0.008465
+   }
+  ]
+ }
+}

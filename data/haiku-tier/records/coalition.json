@@ -1,0 +1,163 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:coalition",
+ "label": "coalition",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "some people or groups do something together for some time because they want the same thing.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     },
+     "duration": {
+      "kind": "prime",
+      "prime": "FOR-SOME-TIME"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "quant": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        },
+        "bind": 2
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 2
+          },
+          "undergoer": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMETHING~THING"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 2
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/coalition",
+    "revision": "91468478/5028bdb0-7a47-11f1-aa67-b8108f50e7f2",
+    "fetched": "2026-07-07T21:03:33Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/coalition",
+    "revision": "1361277839",
+    "tid": "df4ceb59-71a8-11f1-993b-0310fa0e22ef",
+    "fetched": "2026-07-07T21:03:33Z"
+   }
+  ],
+  "date": "2026-07-07T21:05:34Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 558,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2992,
+    "costUSD": 0.009231
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 397,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7522,
+    "costUSD": 0.017031
+   }
+  ]
+ }
+}

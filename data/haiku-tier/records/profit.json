@@ -1,0 +1,137 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:profit",
+ "label": "profit",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "when someone does something, they get something; after they do this, they have more of this something than before; because of this, they feel something good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "quant": "MUCH~MANY",
+      "bind": 3
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "AFTER",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "LIKE",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 2
+     },
+     {
+      "kind": "ref",
+      "index": 3
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/profit",
+    "revision": "91127599/50cbce90-7a12-11f1-bd95-915a0349548a",
+    "fetched": "2026-07-07T14:44:10Z"
+   }
+  ],
+  "date": "2026-07-07T14:47:53Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 427,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3003,
+    "costUSD": 0.008598
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 349,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7402,
+    "costUSD": 0.016551
+   }
+  ]
+ }
+}

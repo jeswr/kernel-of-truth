@@ -1,0 +1,97 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:popular",
+ "label": "popular",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "many people like this one or this something; many people know about it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "quant": "MUCH~MANY"
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    },
+    "adjuncts": {
+     "topic": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "quant": "MUCH~MANY"
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/popular",
+    "revision": "91413718/8e3d6320-7a0c-11f1-a921-387f4965e48b",
+    "fetched": "2026-07-07T14:02:57Z"
+   }
+  ],
+  "date": "2026-07-07T14:03:44Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 206,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3023,
+    "costUSD": 0.007533
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 212,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7217,
+    "costUSD": 0.015496000000000001
+   }
+  ]
+ }
+}

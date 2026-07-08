@@ -1,0 +1,139 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:expressive",
+ "label": "expressive",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "words someone says can show what that someone feels or thinks.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "attribute": {
+          "kind": "prime",
+          "prime": "GOOD"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "stimulus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/expressive",
+    "revision": "91125521/93da5970-7a32-11f1-ac16-c55a6c873fff",
+    "fetched": "2026-07-07T18:35:07Z"
+   }
+  ],
+  "date": "2026-07-07T18:35:23Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 291,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1498,
+    "costUSD": 0.004908
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 305,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5743,
+    "costUSD": 0.013013
+   }
+  ]
+ }
+}

@@ -1,0 +1,181 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:real",
+ "label": "real",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this thing is not fake; it is in the world now; people can see it or touch it or know it happened.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "det": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "BAD"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "THERE-IS",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "stimulus": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "instrument": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "BODY"
+        },
+        "mods": [
+         {
+          "mod": "SMALL"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/real",
+    "revision": "91515726/f7aa98d0-79ff-11f1-856f-ecb03d65abee",
+    "fetched": "2026-07-07T12:32:50Z"
+   }
+  ],
+  "date": "2026-07-07T12:54:44Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 464,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3025,
+    "costUSD": 0.008827
+   }
+  ]
+ }
+}

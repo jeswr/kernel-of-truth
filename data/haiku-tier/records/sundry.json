@@ -1,0 +1,143 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:sundry",
+ "label": "sundry",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "more than two but not very many things of different kinds; not the same as other things of the same kind.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "quant": "SOME",
+      "mods": [
+       {
+        "mod": "BIG"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      },
+      "det": "OTHER~ELSE~ANOTHER"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "quant": "ONE"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "quant": "TWO"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/sundry",
+    "revision": "89695419/80067270-7a29-11f1-bd11-490cf57aa87f",
+    "fetched": "2026-07-07T17:30:08Z"
+   }
+  ],
+  "date": "2026-07-07T17:30:17Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 388,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1575,
+    "costUSD": 0.005547
+   }
+  ]
+ }
+}

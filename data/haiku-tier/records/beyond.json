@@ -1,0 +1,143 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:beyond",
+ "label": "beyond",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "Y is beyond X: Y is at a place farther away than X is from some reference place; to go from that place to Y, one must pass X.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "locus": {
+      "kind": "sp",
+      "det": "OTHER~ELSE~ANOTHER",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "mods": [
+       {
+        "mod": "BIG"
+       }
+      ],
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      }
+     },
+     "manner": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/beyond",
+    "revision": "91124412/e94e1690-7a4f-11f1-bf0b-ad4661f32bdf",
+    "fetched": "2026-07-07T22:05:06Z"
+   }
+  ],
+  "date": "2026-07-07T22:08:17Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 525,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2992,
+    "costUSD": 0.009066
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 1342,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7490,
+    "costUSD": 0.021692000000000003
+   }
+  ]
+ }
+}

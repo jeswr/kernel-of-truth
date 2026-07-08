@@ -1,0 +1,130 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:available",
+ "label": "available",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something can be used; someone can do something with it; it is not far away.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "instrument": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/available",
+    "revision": "90147147/09731810-7a0c-11f1-b9da-0e2be7b26145",
+    "fetched": "2026-07-07T13:59:14Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/available",
+    "revision": "1355724429",
+    "tid": "419d62c4-56b8-11f1-a2fa-455c49deb5c0",
+    "fetched": "2026-07-07T13:59:14Z"
+   }
+  ],
+  "date": "2026-07-07T13:59:57Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 295,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3070,
+    "costUSD": 0.008072
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 415,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7341,
+    "costUSD": 0.016759
+   }
+  ]
+ }
+}

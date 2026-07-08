@@ -1,0 +1,124 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:repel",
+ "label": "repel",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "to do something that causes another someone or something to move away and not come near.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "bind": 2,
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         },
+         "place": {
+          "kind": "prime",
+          "prime": "HERE"
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/repel",
+    "revision": "91480846/9af89fc0-7a30-11f1-82de-8f4b1199c5fb",
+    "fetched": "2026-07-07T18:21:00Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/repel",
+    "revision": "1322832643",
+    "tid": "01220a19-c42f-11f0-9dae-9ebf4a3dc02e",
+    "fetched": "2026-07-07T18:21:00Z"
+   }
+  ],
+  "date": "2026-07-07T18:21:14Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 250,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1473,
+    "costUSD": 0.004653
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 253,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5712,
+    "costUSD": 0.012691000000000001
+   }
+  ]
+ }
+}

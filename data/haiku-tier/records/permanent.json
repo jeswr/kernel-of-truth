@@ -1,0 +1,101 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:permanent",
+ "label": "permanent",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something continues to exist and does not end for a very long time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "det": "THE-SAME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    },
+    "duration": {
+     "kind": "prime",
+     "prime": "A-VERY-LONG-TIME"
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "BAD"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/permanent",
+    "revision": "91507597/fc074090-7a1d-11f1-ba29-425fcb9db922",
+    "fetched": "2026-07-07T16:07:42Z"
+   }
+  ],
+  "date": "2026-07-07T16:08:58Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 317,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3055,
+    "costUSD": 0.008152
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 223,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7342,
+    "costUSD": 0.015801
+   }
+  ]
+ }
+}

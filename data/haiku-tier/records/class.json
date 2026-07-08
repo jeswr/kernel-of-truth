@@ -1,0 +1,166 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:class",
+ "label": "class",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "a grouping of things that share some way; people can sort something into a grouping; people can know that something belongs to a certain grouping.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "quant": "SOME",
+      "bind": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "BE-SPEC",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "attribute": {
+           "kind": "sp",
+           "head": {
+            "kind": "kindFrame",
+            "of": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/class",
+    "revision": "91367494/6f47fa20-7962-11f1-8709-e58052931d19",
+    "fetched": "2026-07-07T12:36:25Z"
+   }
+  ],
+  "date": "2026-07-07T13:05:09Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 481,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3036,
+    "costUSD": 0.008934000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 588,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7508,
+    "costUSD": 0.017958
+   }
+  ]
+ }
+}

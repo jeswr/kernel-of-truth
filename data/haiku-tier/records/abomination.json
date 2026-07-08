@@ -1,0 +1,126 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:abomination",
+ "label": "abomination",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something that people feel very bad about and do not want to exist; it is shamefully wrong.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "det": "SOME"
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     },
+     "manner": {
+      "kind": "sp",
+      "mods": [
+       {
+        "mod": "BAD",
+        "intensifier": "VERY"
+       }
+      ],
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DON'T-WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "THERE-IS",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "concept",
+      "id": "urn:kernel-v0:wrong"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/abomination",
+    "revision": "91461854/8ef2df60-7a2b-11f1-aa0b-1e88c8e602ff",
+    "fetched": "2026-07-07T17:44:52Z"
+   }
+  ],
+  "date": "2026-07-07T17:45:06Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 317,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1453,
+    "costUSD": 0.004948
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 312,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5753,
+    "costUSD": 0.013068
+   }
+  ]
+ }
+}

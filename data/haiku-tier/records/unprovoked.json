@@ -1,0 +1,165 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unprovoked",
+ "label": "unprovoked",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something without being provoked by prior harm or threat.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "OTHER~ELSE~ANOTHER",
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMEONE"
+           }
+          },
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          }
+         }
+        }
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "BEFORE",
+        "anchor": {
+         "kind": "prime",
+         "prime": "NOW"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 1
+          },
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        }
+       }
+      },
+      "adjuncts": {
+       "place": {
+        "kind": "temporal",
+        "op": "BEFORE",
+        "anchor": {
+         "kind": "prime",
+         "prime": "NOW"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unprovoked",
+    "revision": "91380099/f8c27e60-7a34-11f1-936a-e9ed1b209c9c",
+    "fetched": "2026-07-07T18:52:15Z"
+   }
+  ],
+  "date": "2026-07-07T18:52:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 414,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1396,
+    "costUSD": 0.005319
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 627,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5799,
+    "costUSD": 0.014735
+   }
+  ]
+ }
+}

@@ -1,0 +1,153 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:stupor",
+ "label": "stupor",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone's consciousness is greatly reduced; they do not move; they do not respond to things around them; maybe they respond only to very intense bad things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "BAD",
+          "intensifier": "VERY"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/stupor",
+    "revision": "90534347/a8801390-7a34-11f1-9728-91ef96d91598",
+    "fetched": "2026-07-07T18:50:00Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/stupor",
+    "revision": "1341573050",
+    "tid": "19efca28-1755-11f1-bf98-b1ed473f40f2",
+    "fetched": "2026-07-07T18:50:01Z"
+   }
+  ],
+  "date": "2026-07-07T18:50:21Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 459,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1492,
+    "costUSD": 0.005736
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 348,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5906,
+    "costUSD": 0.013554
+   }
+  ]
+ }
+}

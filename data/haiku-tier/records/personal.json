@@ -1,0 +1,95 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:personal",
+ "label": "personal",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something has to do with one someone, not all people or things in general.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "THIS",
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "attribute": {
+         "kind": "sp",
+         "head": {
+          "kind": "kindFrame",
+          "of": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "ONE"
+           },
+           "quant": "ONE",
+           "mods": [
+            {
+             "mod": "GOOD"
+            }
+           ]
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/personal",
+    "revision": "91247255/cd0e4850-7a00-11f1-aa5d-da84e691bdfa",
+    "fetched": "2026-07-07T17:47:15Z"
+   }
+  ],
+  "date": "2026-07-07T17:47:26Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 226,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1473,
+    "costUSD": 0.004533
+   }
+  ]
+ }
+}

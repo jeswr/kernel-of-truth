@@ -1,0 +1,130 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:replied",
+ "label": "replied",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone said words to another someone in response to words that other someone said before.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "ClauseRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "bind": 2
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 2
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "BEFORE",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "LIKE",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 3
+     },
+     {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/replied",
+    "revision": "89507928/49065fb0-79fc-11f1-ab0c-c2e74b48731e",
+    "fetched": "2026-07-07T12:06:28Z"
+   }
+  ],
+  "date": "2026-07-07T12:06:44Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 278,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2751,
+    "costUSD": 0.007349
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 290,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7017,
+    "costUSD": 0.015486
+   }
+  ]
+ }
+}

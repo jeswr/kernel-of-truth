@@ -1,0 +1,97 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:possess",
+ "label": "possess",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone has something as theirs; they can do things with it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "det": "THE-SAME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "I"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/possess",
+    "revision": "91408670/a99fc9b0-7a5b-11f1-80e8-abebf1cd8b78",
+    "fetched": "2026-07-07T23:29:13Z"
+   }
+  ],
+  "date": "2026-07-07T23:30:41Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 205,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3010,
+    "costUSD": 0.007502
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 200,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7185,
+    "costUSD": 0.015372
+   }
+  ]
+ }
+}

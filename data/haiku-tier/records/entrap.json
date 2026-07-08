@@ -1,0 +1,186 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:entrap",
+ "label": "entrap",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone makes another person want to do something bad, causing that person to do it; without the first person's action, the second would not do it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "ClauseRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "WANT",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "complement": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "mods": [
+          {
+           "mod": "BAD"
+          }
+         ],
+         "bind": 3
+        }
+       }
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 2
+     },
+     "undergoer": {
+      "kind": "ref",
+      "index": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 2
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 3
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "op",
+      "op": "CAN",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 2
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 3
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/entrap",
+    "revision": "91385542/359856e0-7a29-11f1-8216-2dfe8251c461",
+    "fetched": "2026-07-07T17:28:03Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/entrap",
+    "revision": "1361395413",
+    "tid": "26db8367-7252-11f1-b4ef-0937afe2f2c5",
+    "fetched": "2026-07-07T17:28:04Z"
+   }
+  ],
+  "date": "2026-07-07T17:28:22Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 456,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1495,
+    "costUSD": 0.0057269999999999995
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 694,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5939,
+    "costUSD": 0.015349999999999999
+   }
+  ]
+ }
+}

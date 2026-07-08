@@ -1,6 +1,10 @@
 # P6 — Resource & infrastructure plan (provisioned up front)
 
-**Status:** resource plan for maintainer sign-off, 2026-07-08 (rev 2 — P7 red-team
+**Status:** resource plan for maintainer sign-off, 2026-07-08 (rev 3 — maintainer direction
+2026-07-08: Tier-0 + Tier-1 spend AUTHORIZED NOW; post-F2 infrastructure — Tiers 2–5 GPU
+providers (ARC / AIRR / credits, P11) — DEFERRED/OPEN, re-frozen at each tier's spend-gate;
+H-4/O-3 annotator sourcing DEFERRED, Amazon Mechanical Turk the leading paid option, decided
+near the annotation stage; budget caps unchanged. rev 2 — P7 red-team
 pre-freeze fixes applied: RT-8 canonical budget caps + worst-case-exposure arithmetic,
 RT-7 D-EXT externally-authored slice + D-IR-N natural-violation corpus sourcing, RT-11
 amortized kernel-authoring `authoring_cost` line, RT-4 g2 n=500 annotator re-budget).
@@ -30,6 +34,22 @@ or reasoner is provisioned anywhere.
    tiers (§4) are exactly P1 §5's decision tiers; a tier's funds are unlocked only by the
    gate that P3 already defines (GATE-T1, GNG-1, GNG-2, GATE-T4, GATE-T5). No experiment
    can spend ahead of its evidence.
+
+**Authorization & freeze status (2026-07-08, maintainer direction):**
+
+- **AUTHORIZED NOW:** Tier 0 (~$0: R0 on this box + ≤$20 API) and the Tier-1 F2 pivot
+  (cap $80, expected $10–60, Modal `jmwright-045`). Nothing further is needed from the
+  maintainer to reach GNG-1 beyond the standing GATE-H items (GNG-0 signature, H-1
+  ledger/spend-limit init).
+- **DEFERRED/OPEN — post-F2 infrastructure:** the Tier-2–5 GPU provider/infra fields
+  (Modal-paid vs ARC vs AIRR Gateway vs academic credits — P11 §§2–5) are left OPEN. This
+  plan is **frozen EXCEPT those fields**, which are **re-frozen at each tier's spend-gate**
+  — Tier-2/3 scope at GNG-1, Tier 4 at GATE-T4, Tier 5 at GATE-T5 — with the evidence and
+  the access-lead-time picture in hand at that point. (For Tiers 2–5 this scopes §1.1's
+  flat "no other providers" posture to the P11 free/academic routes only — ARC / AIRR /
+  research credits; the marketplace rejection stands.)
+- **Budget CAPS unchanged:** the GR-1 canonical cap table (§1.3) is untouched by the above;
+  a provider choice changes who bills, never the cap.
 
 ---
 
@@ -103,7 +123,8 @@ deleted at campaign close-out (P3 §3.5).
 
 ### 1.4 Provisioning steps (compute)
 
-Executed as P3 nodes I-MODAL / I-BUDGET during Phase P-0 (Jul 09–15):
+Executed as P3 nodes I-MODAL / I-BUDGET in the first days of Phase P-0 (from Jul 09;
+agent-side ≈ 2–3 days):
 
 1. **Modal (AUTO unless token dead):** `bash poc/modal/validate.sh` (recreates the pinned
    client venv) → confirm `~/.modal.toml` has a live token for `jmwright-045` (if not:
@@ -263,6 +284,8 @@ never leaves the wallet).
   ($10–60 incl. the arm-10 self-verify amendment, cap $80).
 - **Unlock:** GNG-0 (registry freeze signed) then GATE-T1 (machine-checked: M0b published ∧
   m0b.gate NICHE-SCOPE evaluated ∧ F0 tests green ∧ Modal ready ∧ ledger headroom).
+- **Authorization status:** Tier 0 + Tier 1 spend **AUTHORIZED 2026-07-08** (maintainer
+  direction; see the authorization block above). Provider fixed: Modal `jmwright-045`.
 - **What the money decides:** the pivot readout GNG-1. F2 PASS ⇒ H0-YES is reachable and
   Tier 2 is funded aggressively. F2 clean-kill at both rung pairs ⇒ M1+M5 (the
   best-supported efficiency mechanisms) are dead and the efficiency thesis shrinks to
@@ -274,10 +297,14 @@ never leaves the wallet).
 - **Contents:** Tier 2 (E9-full+E9-C, F4+G1, E8-R→E8-D; $95–360, cap $400) + Tier 3
   (F3 incl. M2-output rider, F6 toy/T1; $100–320, cap $400). Conditionally Tier 4
   (F5; $200–800, cap $900) if and only if F1 passed AND F3 settled the injection route
-  AND the maintainer approves GATE-T4 (~Sep 25 with the GNG-2 dossier).
+  AND the maintainer approves GATE-T4 (with the GNG-2 dossier, ≈ GNG-0 +2–3 wk under the
+  agentic timeline).
 - **Unlock:** Tier 2/3 open after GNG-0 regardless of F2 (the correctness track is not
   blocked by the efficiency pivot — GNG-1 is informational for it); Tier 4 is double-gated
   as above.
+- **Infra/provider field: DEFERRED/OPEN (2026-07-08)** — Tier-2/3 default remains Modal,
+  re-confirmed at the GNG-1 scope update; the Tier-4 provider (Modal-paid vs the ARC free
+  path, ~1–3 wk onboarding lead — P11 §4.1) is re-frozen at GATE-T4. Caps unchanged.
 - **What the money decides:** every input to the **global decision tree (P1 §6)** at GNG-2:
   TAKE-TO-FRONTIER-LAB / NARROW-AND-CONTINUE / PIVOT / KILL / STOP-AND-PUBLISH-UNDECIDED.
   A decisive H0-**NO** — every mechanism TOST-killed against its text null — costs
@@ -293,6 +320,10 @@ never leaves the wallet).
 - **Unlock:** GATE-T5 — explicit maintainer budget sign-off, never started without it;
   requires survivors from Tiers 0–3 (P1 hard ordering: {F2, E9, F4, F6} readouts ≺ any F7
   spend).
+- **Infra/provider field: DEFERRED/OPEN (2026-07-08)** — re-frozen at GATE-T5 with the
+  access picture in hand: AIRR Gateway ~1 mo submission→access ⇒ ~Oct 2026 (P11 N-7) is the
+  free path and the tier's true long pole; Modal H100 stays the paid fallback. Envelope
+  unchanged.
 - **What the money decides:** the ≥3-rung slopes that P1 §4b requires before ANY scale
   adjective or frontier pitch; GNG-3 final disposition. If GNG-2 routed to PIVOT or KILL,
   this tier is never funded — the $2–10k is contingent capacity, not a commitment.
@@ -311,14 +342,14 @@ billing — there is no sunk pre-purchase at any point.
 
 | # | Gate (P3 ref) | What @jeswr does | Effort | When |
 |---|---|---|---|---|
-| H-1 | **Budget caps (O-1, I-BUDGET)** | Confirm/adjust the canonical GR-1 cap table (RT-8 reconciliation: Tier 0 ≤$20 · T1 ≤$80 · T2 ≤$400 · T3 ≤$400 · cumulative Tiers 0–3 ≤$900 · T4 ≤$900 · T5 = approved envelope $2–10k; worst-case Tiers 0–3 ≈ $760) + set the Modal dashboard spend limit to match | one message + one dashboard visit | before GNG-0 (target Jul 15) |
+| H-1 | **Budget caps (O-1, I-BUDGET)** | Confirm/adjust the canonical GR-1 cap table (RT-8 reconciliation: Tier 0 ≤$20 · T1 ≤$80 · T2 ≤$400 · T3 ≤$400 · cumulative Tiers 0–3 ≤$900 · T4 ≤$900 · T5 = approved envelope $2–10k; worst-case Tiers 0–3 ≈ $760; Tier-0 + Tier-1 spend already AUTHORIZED 2026-07-08, caps unchanged) + set the Modal dashboard spend limit to match | one message + one dashboard visit | before GNG-0 (agentic timeline: within days of the Jul 09 start) |
 | H-2 | **Modal credential (CRED-GATE)** | Only if the `jmwright-045` token is dead: `modal token new` pairing; confirm a billing method is attached to the account | ~3 min | P-0, only on failure of I-MODAL |
-| H-3 | **Registry freeze signature (GNG-0)** | Sign the registry root sha (all 26 entries + caps) | ~30–60 min review | Jul 15 |
-| H-4 | **Annotator sourcing (O-3)** | Decide who annotates: G3 needs 2 independent annotators ~8–10 h each; G2 gold **~12 h (n = 500 subsumption judgments, blind adjudication — RT-4 decidability sizing, P3 g2.gold)**; G9 blinded review ~4 h; M0b slice ~2–4 h; D-IR-N natural-violation adjudication ~2 h (RT-7c) — ≈ 30–40 h total (P3 §2). Options: (a) maintainer + one colleague, $0; (b) paid platform (Prolific-class), ≈ $500–900 incl. platform fees at the re-budgeted hours — if (b), that line is added to Tier 0's cap | decision + either ~30–40 h of human time or ~$500–900 | P-1 (annotation starts ~Jul 13) |
+| H-3 | **Registry freeze signature (GNG-0)** | Sign the registry root sha (all 26 entries + caps) | ~30–60 min review | at P-0 exit (criteria-gated; agent-side ready ≈ 2–3 days from Jul 09, target ≈ Jul 12–14) |
+| H-4 | **Annotator sourcing (O-3) — DEFERRED (2026-07-08, maintainer direction)** | The decision is made **near the annotation stage**, once the blinded materials are build-complete (zero idle annotator time either way). **Amazon Mechanical Turk is the leading paid option** (≈ $500–900 incl. platform fees at the re-budgeted hours — if chosen, that line is added to Tier 0's cap); maintainer + one colleague at $0 remains open. Hours unchanged: G3 2 × ~8–10 h; G2 gold **~12 h (n = 500 subsumption judgments, blind adjudication — RT-4 decidability sizing, P3 g2.gold)**; G9 blinded review ~4 h; M0b slice ~2–4 h; D-IR-N adjudication ~2 h (RT-7c) — ≈ 30–40 h total (P3 §2) | decision (deferred) + either ~30–40 h of human time or ~$500–900 | at the annotation stage (P-1; only the annotation-dependent verdicts wait on it) |
 | H-5 | **Second-provider API key (O-7, new)** | Pick OpenAI or Google for the proposer-invariance arm; mint one key; set a $25 hard cap at the provider | ~10 min | before G4/G9 run (Jul) |
 | H-6 | **Auditor identity (O-5)** | Confirm the backup Fable account is used for Tier ≥2 positive audits (hard run-vs-audit separation) and that its credentials are live | ~5 min | before first Tier-2 audit (Aug) |
-| H-7 | **GATE-T4 approval (O-6)** | $200–800 for F5, decided on the GNG-2 dossier | one decision | ~Sep 25 |
-| H-8 | **GATE-T5 approval** | $2–10k envelope for F7/E7, on the GNG-2/M4 evidence | one decision | ~Oct 26 |
+| H-7 | **GATE-T4 approval (O-6)** | $200–800 for F5, decided on the GNG-2 dossier; the deferred Tier-4 infra/provider field (Modal-paid vs ARC) re-freezes here | one decision | with the GNG-2 dossier (≈ GNG-0 +2–3 wk, ~Aug under the agentic timeline) |
+| H-8 | **GATE-T5 approval** | $2–10k envelope for F7/E7, on the GNG-2/M4 evidence; the deferred Tier-5 infra/provider field re-freezes here | one decision | ~Oct 2026 (aligned to the AIRR Gateway access lead, P11 N-7; earlier only on Modal-paid) |
 | H-9 | **AWS quota (O-4, optional)** | Re-poke the vCPU quota escalation (bead `kernel-of-truth-wve`) if spot savings on F5/F6/F7 are wanted; otherwise skip — Modal suffices | ~10 min (console request) | any time; non-blocking |
 | H-10 | **Gated-model licenses (conditional)** | Only if E8-R selects Gemma Scope (accept Gemma license on HF) or R5 selects Llama-3.1 (accept Llama license). Defaults avoid both | ~5 min each, only if chosen | at D-SAE / GATE-T5 |
 
@@ -357,7 +388,9 @@ GOVERNANCE
 [ ] 20. Registry (I-REG) seeded: 26 entries, verbatim kill text, cost caps per entry
 [ ] 21. F0 harness (poc/f0/) tests green (flop-meter, byte ledger, latency, $/query)
 [ ] 22. Audit kit (I-AUDIT) ready; auditor identity confirmed             [H-6]
-[ ] 23. Annotator plan settled (who, hours, blinding materials)           [H-4]
+[ ] 23. Annotator plan settled (who, hours, blinding materials) — decision DEFERRED
+        to the annotation stage (O-3; MTurk leading paid option); must be green
+        before the first annotator hour, not before                       [H-4]
 [ ] 24. GNG-0 signed: registry root sha + caps                            [H-3]
 [ ] 25. This plan (P6) committed + pushed; beads mirror updated (work isn't done
         until pushed - box is ephemeral)

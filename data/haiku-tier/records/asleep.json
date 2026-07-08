@@ -1,0 +1,179 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:asleep",
+ "label": "asleep",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone is not awake now; the body does not move much; this someone does not know what happens near; after some time, this someone can wake up and know things again.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "GOOD"
+        },
+        "quant": "ONE"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "BODY"
+        },
+        "det": "THE-SAME"
+       },
+       "time": {
+        "kind": "prime",
+        "prime": "NOW"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "SOME",
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "place": {
+           "kind": "prime",
+           "prime": "HERE"
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "A-SHORT-TIME"
+      },
+      "bind": 2
+     },
+     {
+      "type": "op",
+      "op": "CAN",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 1
+         },
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "WORDS"
+          },
+          "det": "SOME"
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/asleep",
+    "revision": "90408429/f1623160-7a07-11f1-a537-06fda13abaa8",
+    "fetched": "2026-07-07T17:48:01Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/asleep",
+    "revision": "1362371278",
+    "tid": "c1bcdb37-76ea-11f1-b1bc-5585ce860eca",
+    "fetched": "2026-07-07T17:48:01Z"
+   }
+  ],
+  "date": "2026-07-07T17:48:10Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 463,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1502,
+    "costUSD": 0.005776
+   }
+  ]
+ }
+}

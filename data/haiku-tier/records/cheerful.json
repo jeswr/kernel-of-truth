@@ -1,0 +1,149 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:cheerful",
+ "label": "cheerful",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels good now; they want to do things; people can see their body move in a way.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        },
+        "bind": 2
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "partFrame",
+         "of": {
+          "kind": "ref",
+          "index": 1
+         }
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/cheerful",
+    "revision": "89428076/b4a3dde0-7a26-11f1-9b7e-646d02f07f03",
+    "fetched": "2026-07-07T17:10:08Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/cheerful",
+    "revision": "1360682157",
+    "tid": "94c02e43-6e95-11f1-98de-6c55ccf313eb",
+    "fetched": "2026-07-07T17:10:08Z"
+   }
+  ],
+  "date": "2026-07-07T17:12:45Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 344,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3011,
+    "costUSD": 0.008199
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 331,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7327,
+    "costUSD": 0.016311
+   }
+  ]
+ }
+}

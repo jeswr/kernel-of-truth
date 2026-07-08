@@ -1,6 +1,11 @@
 # P3 — Operational DAG, automation boundary, execution harness, guardrails, timeline
 
-**Status:** operational plan for maintainer sign-off, 2026-07-08 (rev 4 — verifier pass:
+**Status:** operational plan for maintainer sign-off, 2026-07-08 (rev 5 — agentic-pace
+re-base per maintainer direction 2026-07-08: §5 timeline recompressed — agent development
+is not the bottleneck; the long poles are human gates, GPU-run queues, and external
+compute-access lead time; O-3 annotator sourcing DEFERRED (Amazon Mechanical Turk the
+leading paid option, decided near the annotation stage); Tier-0 + Tier-1 spend AUTHORIZED
+now, post-F2 infra/provider fields deferred to each tier's spend-gate (P6). rev 4 — verifier pass:
 RT-7c `d-ir-n` natural-violation secondary corpus node added and wired into e9.inputs
 (planted D-IR stays the powered primary; P1 HC2, P6 H-4); RT-18 M0 milestone slipped
 Jul 15 → Jul 22; identity strings aligned to P2 §1.2 constraint 10 pseudonyms (RT-14).
@@ -449,27 +454,38 @@ is cited; P3 adds the operational triggers around it.
 
 ## 5. Phased timeline, waves, and milestones
 
-Start: 2026-07-09. Wall-clock estimates assume Modal parallel fan-out (validated: E1-class
-grid ≈ 5–6 h wall) and the ≤5-agent cap. Annotator-dependent nodes (g3/g2/g9/m0b) carry the
-largest scheduling variance — they are front-loaded and off the GPU critical path. The
+Start: 2026-07-09. **Pacing basis (re-based 2026-07-08, maintainer direction): this
+timeline is set at AGENTIC pace, not human development pace.** The earlier calendar
+over-estimated on human dev speed; agent execution of build/run/analysis nodes takes
+hours-to-days. **Agent development is not the bottleneck anywhere in this table.** The
+long poles that actually set the calendar are: (1) **human gates** — GNG-0 signature,
+annotator turnaround, spend approvals, paper sign-off; (2) **GPU-run wall-clock and
+queues** (Modal fan-out validated at ≈5–6 h wall for an E1-class grid); (3) **external
+compute-access lead time** for the frontier tier (ARC ~1–3 wk; AIRR Gateway ~1 mo
+submission→access ⇒ ~Oct 2026 — P11 §§4–5). Milestones are therefore **criteria-gated,
+not calendar-padded**: a phase exits when its gate conditions are green. Annotator-dependent
+nodes (g3/g2/g9/m0b/d-ir-n) carry the largest scheduling variance — they are front-loaded
+and off the GPU critical path; annotator sourcing itself is a DEFERRED decision (O-3:
+Amazon Mechanical Turk the leading paid option, decided near the annotation stage). The
 programme **ends at the paper and the explainer-back on every route**, including PIVOT/KILL.
 
-| Phase | Dates | Waves (≤5 concurrent runners) | Exit milestone / gate |
+| Phase | Agentic pace + waves (≤5 concurrent runners) | Long pole (what actually sets the date) | Exit milestone / gate |
 |---|---|---|---|
-| **P-0 Setup** | Jul 09 – Jul 22 | W0a: I-REG(+I-HYP,I-RETRO), I-F0, I-AUDIT, I-MODAL, I-BEADS · W0b: I-SKILLS, I-BUDGET, m0b chain (+m0b.gate), family-h0.reg, a-h0.reg, D-PI, D-AX | **M0 (Jul 22 — slipped from Jul 15 per P7 RT-18): GNG-0 signed; M0b published + audited; caps set; kill switches tested; f2 frozen as backbone acceptance test** |
-| **P-1 Tier-0 (R0)** | Jul 13 – Jul 31 | W1a: f1, g3 (materials→annotate), g8, g9.author, D-QA · W1b: g2 (gold + run), g9.review, D-GL, D-DOM, D-TS, D-XIF, D-EXT · W1c: g4 (after g2/g3), then g6, g7, g5 (cond.), D-AXN, D-CB, D-SAE, D-IR | **M1 (Jul 31): all Tier-0 verdicts + audits closed; structure forks HS2–HS8 resolved or explicitly deferred; F1 byte premise decided** |
-| **P-2 Tier-1** | Jul 20 – Aug 01 | W2: f2 chain (inputs → mock → run → log → readout → audit → close) — overlaps P-1 once GATE-T1 opens (target Jul 22) | **M2 = GNG-1 (Aug 01): F2 pivot readout; efficiency scope auto-updated; maintainer notified** |
-| **P-3 Tier-2** | Aug 03 – Aug 28 | W3a: e9 chain, f4 chain · W3b: g1 (rides f4), e8r chain · W3c: e8d (cond., by Sep 04) | **M3 (Aug 28 / Sep 04 with e8d): HC1, HC2, HE4, HS1, HC4 verdicts + audits** |
-| **P-4 Tier-3** | Aug 24 – Sep 18 | W4a: f3 chain (incl. M2-output rider), a-hs10 · W4b: f6 chain · W4c: a-extrap-2, a-h0.readout | **M4 (Sep 18): HE3, HE6, HS10 verdicts + audits; sign-level extrapolation envelopes computed — all Tier-0–3 evidence complete** |
-| **GNG-2** | **Sep 21 – Sep 25** | Route machine-computed + dossier auto-prepared by Sep 21 | **M5: maintainer ratifies TAKE / NARROW / PIVOT / KILL / STOP-AND-PUBLISH-UNDECIDED (P1 §6, first match from top). PIVOT/KILL/UNDECIDED ⇒ jump to P-7 (write-up pulls forward to Oct 01)** |
-| **P-5 Tier-4 (cond.)** | Sep 28 – Oct 23 | GATE-T4 → D-ST → f5 chain → a-hs9, a-hs11 | **M6 (Oct 23): HE5-full, HS9, HS11 verdicts** |
-| **P-6 Tier-5 (gated)** | Oct 26 – Dec 04 | GATE-T5 (+E7-PRE rider) → f7 chain (survivor slopes; HC5 slice; E7/HS13 slice iff open) → a-extrap-5 | **M7 (Dec 04): HE7/HC5(/HS13) verdicts + slope-level envelopes — the only tier licensing scale adjectives / frontier pitch. GNG-3 by Dec 08** |
-| **P-7 Write-up** | Dec 07 – 2027 Jan 12 (or Oct 01 – Nov 06 on an early PIVOT/KILL route) | Writer agent: r-final (by Dec 11) → paper.claims + paper.outline (Dec 16) → paper.draft (Jan 05) → paper.lint → paper.review (auditor) — xb.draft in parallel after paper.lint | **M8 (Jan 12): lint-clean, adversarially-CONFIRMED manuscript — every claim traced to a verdict object; negatives at full prominence** |
-| **P-8 Sign-off, explainer-back, submission** | Jan 12 – Jan 30 | paper.sign (maintainer) → xb.lint → **xb.deliver** (explainer + live Q&A) → paper.submit at the O-9 venue window → c-out | **M9 (Jan 30): explainer-back delivered and committed; submission executed; volumes cleaned; repo archived as the complete reproducible record** |
+| **P-0 Setup** | W0a: I-REG(+I-HYP,I-RETRO), I-F0, I-AUDIT, I-MODAL, I-BEADS · W0b: I-SKILLS, I-BUDGET, m0b chain (+m0b.gate), family-h0.reg, a-h0.reg, D-PI, D-AX — **agent build ≈ 2–3 days from Jul 09** | **GNG-0 signature** (maintainer review ~30–60 min, scheduled at maintainer convenience) | **M0 (criteria-gated, target ≈ Jul 12–14): GNG-0 signed; M0b published + audited; caps set; kill switches tested; f2 frozen as backbone acceptance test. Supersedes the RT-18 Jul-22 calendar slip — RT-18's quality bar survives as "every P-0 exit criterion green before signature", not as calendar padding** |
+| **P-1 Tier-0 (R0)** | W1a: f1, g3 (materials→annotate), g8, g9.author, D-QA · W1b: g2 (gold + run), g9.review, D-GL, D-DOM, D-TS, D-XIF, D-EXT · W1c: g4 (after g2/g3), then g6, g7, g5 (cond.), D-AXN, D-CB, D-SAE, D-IR — **every agent-executable Tier-0 verdict within ≈1 day of GNG-0** | **Human annotation turnaround** (g3 ~8–10 h ×2, g2.gold ~12 h, g9.review ~4 h, m0b spot-check ~2 h) — the only thing that stretches M1 | **M1: agent-side Tier-0 closed ≈ GNG-0 +1 day (incl. the F1 byte premise); annotation-dependent verdicts (HS2/HS3/HS-A + m0b.audit) close on annotator turnaround — days if self-annotated, ~1–2 wk via a platform (O-3)** |
+| **P-2 Tier-1** | W2: f2 chain (inputs → mock → run → log → readout → audit → close); GATE-T1 evaluates same-day once m0b closes | **The GPU run itself + the ≤$80 Tier-1 spend (AUTHORIZED 2026-07-08) — not dev time**; m0b.close's ~2 h human spot-check sits on GATE-T1 | **M2 = GNG-1 (≈ GNG-0 +3–5 days): F2 pivot readout; efficiency scope auto-updated; maintainer notified** |
+| **P-3/P-4 Tiers 2–3** | W3a: e9 chain, f4 chain · W3b: g1 (rides f4), e8r chain · W3c: e8d (cond.) · W4a: f3 chain (incl. M2-output rider), a-hs10 · W4b: f6 chain · W4c: a-extrap-2, family-h0, a-h0.readout — each campaign ≈ 1–3 days wall; analysis nodes same-day behind the last close | **≈1–2 weeks total, gated MAINLY by human annotator turnaround** (d-ir-n adjudication ~2 h blind; g2/g3-dependent interpretation) **and GPU-run queues — not agent speed** | **M3+M4 (≈ GNG-0 +2–3 wk): all Tier-0–3 verdicts + audits closed; sign-level extrapolation envelopes computed — all Tier-0–3 evidence complete** |
+| **GNG-2** | Route machine-computed + dossier auto-prepared same-day after the last Tier-3 close | **Maintainer ratification** | **M5 (≈ GNG-0 +2–3 wk, ~early-to-mid Aug 2026): maintainer ratifies TAKE / NARROW / PIVOT / KILL / STOP-AND-PUBLISH-UNDECIDED (P1 §6, first match from top). PIVOT/KILL/UNDECIDED ⇒ jump to P-7 (write-up pulls forward immediately)** |
+| **P-5 Tier-4 (cond.)** | GATE-T4 → D-ST → f5 chain → a-hs9, a-hs11 — build + run ≈ a few days–1 wk wall (100–350 A100-h) | **GATE-T4 spend approval** (with the GNG-2 dossier) **+ the deferred Tier-4 provider decision** (Modal-paid vs ARC free path, ~1–3 wk onboarding lead — P11; provider field re-frozen at GATE-T4) | **M6 (≈ 1–2 wk after GATE-T4 opens): HE5-full, HS9, HS11 verdicts** |
+| **P-6 Tier-5 (gated)** | GATE-T5 (+E7-PRE rider) → f7 chain (survivor slopes; HC5 slice; E7/HS13 slice iff open) → a-extrap-5 — grid ≈ days–2 wk wall once compute is in hand | **External compute-access lead time — the frontier tier's true long pole**: ARC ~1–3 wk; **AIRR Gateway ~1 mo submission→access ⇒ ~Oct 2026** (P11 N-7); GATE-T5 sign-off; provider field re-frozen at GATE-T5 (Modal-paid is faster but bills the $2–10k envelope) | **M7 (~Oct–Nov 2026 on the AIRR path; earlier only by paying Modal): HE7/HC5(/HS13) verdicts + slope-level envelopes — the only tier licensing scale adjectives / frontier pitch. GNG-3 within days of f7.close** |
+| **P-7 Write-up** | Writer agent: r-final → paper.claims + paper.outline → paper.draft ≈ 2–4 agent-days; paper.lint + paper.review (auditor) ≈ 1–2 days per iteration — xb.draft in parallel after paper.lint | **paper.review iterations + paper.sign (maintainer)** | **M8: lint-clean, adversarially-CONFIRMED manuscript — days after GNG-3 (or days after GNG-2 on an early PIVOT/KILL/UNDECIDED route, ~late Aug–Sep 2026); every claim traced to a verdict object; negatives at full prominence** |
+| **P-8 Sign-off, explainer-back, submission** | paper.sign (maintainer) → xb.lint → **xb.deliver** (explainer + live Q&A) → paper.submit at the O-9 venue window → c-out — ≈ 1 agent-day of work | **Maintainer sign-off, xb.deliver scheduling, and the O-9 venue window** — this calendar is entirely human/venue-set | **M9: explainer-back delivered and committed; submission executed at the chosen venue window; volumes cleaned; repo archived as the complete reproducible record** |
 
-**Slack & failure routing.** Each phase carries ~30% schedule slack inside its window
-(annotators are the main risk in P-1; a Modal outage reroutes to the AWS pull path at
-+wall-clock, same analysis). A decisive NO by GNG-2 costs ≈ $200–700 + ~30–40
+**Slack & failure routing.** Windows above are gate-relative, not calendar-padded: the
+variance lives almost entirely in the human gates and queues (annotator turnaround in P-1;
+maintainer availability at M0/GNG-2; ARC/AIRR access lead in P-5/P-6) — never in agent
+development time. A Modal outage reroutes to the AWS pull path at +wall-clock, same
+analysis. A decisive NO by GNG-2 costs ≈ $200–700 + ~30–40
 annotator-hours and routes to P-7 immediately: the negative-results paper (full statistics,
 raw logs, registry) + the explainer-back are produced with the SAME node chain, gates, and
 prominence rules — that outcome is a *success* of the plan, per the directives, and is
@@ -489,13 +505,13 @@ auditor (reviewer). The auditor identity never changes mid-campaign.
 
 | # | Decision | Blocks | Default if unstated |
 |---|---|---|---|
-| O-1 ● | Confirm/adjust the GR-1 canonical cap table and the Tiers-0–3 pre-approved envelope (≤$900; worst-case ≈ $760) + Modal account spend limit alignment | I-BUDGET → GNG-0 | table as written |
+| O-1 ● | Confirm/adjust the GR-1 canonical cap table and the Tiers-0–3 pre-approved envelope (≤$900; worst-case ≈ $760) + Modal account spend limit alignment. **Partially resolved 2026-07-08: Tier-0 (~$0) + Tier-1 F2 (~$80, Modal) spend AUTHORIZED NOW; caps unchanged; post-F2 infra/provider fields deferred to each tier's spend-gate (P6)** | I-BUDGET → GNG-0 | table as written |
 | O-2 ● | Sign GNG-0 (registry root sha) once I-REG lands | every X.run | — (hard block) |
-| O-3 ● | Annotator sourcing for ~30–40 h (g3 ×2 annotators, g2 gold at n = 500 judgments, g9 blinded review, m0b spot-check): self, colleagues, or paid recruits | M1 completeness (g2/g3/g9 verdicts) | maintainer self-annotates; g3's second annotator must be a second human |
+| O-3 | Annotator sourcing for ~30–40 h (g3 ×2 annotators, g2 gold at n = 500 judgments, g9 blinded review, m0b spot-check, d-ir-n adjudication) — **DEFERRED (2026-07-08, maintainer direction): the decision is made near the annotation stage, once the blinded materials are build-complete. Amazon Mechanical Turk is the leading paid option** (fees inside the H-4 ≈$500–900 envelope); self + one colleague at $0 remains open | M1 annotation-dependent verdicts only (g2/g3/g9); agent-side Tier-0 unaffected | decide at the annotation stage; MTurk leading paid option; g3's second annotator must be a second human |
 | O-4 | Modal-primary confirmation vs re-poking AWS quota (bead `kernel-of-truth-wve`) for spot savings on f5/f6/f7 training grids | none (transport swap is analysis-neutral) | Modal primary |
 | O-5 | Auditor identity: same account with role separation vs the backup Fable account for hard separation | I-AUDIT config | backup account for Tier ≥2 positives and for paper.review |
-| O-6 | GATE-T4 approval ($200–800) — decision due ~Sep 25 with the GNG-2 dossier | f5 | — |
-| O-7 | GATE-T5 approval ($2–10k) + E7-PRE inclusion rider — decision due ~Oct 23 | f7 | — |
+| O-6 | GATE-T4 approval ($200–800) — decision due with the GNG-2 dossier (≈ GNG-0 +2–3 wk under the agentic timeline); the deferred Tier-4 infra/provider field (Modal-paid vs ARC) re-freezes here | f5 | — |
+| O-7 | GATE-T5 approval ($2–10k) + E7-PRE inclusion rider — decision due when Tier-5 compute access lands (AIRR Gateway ~Oct 2026 — P11 N-7; earlier only on Modal-paid); the deferred Tier-5 infra/provider field re-freezes here | f7 | — |
 | O-8 | G1 external-artifact licences fine to use as baselines (Numberbatch CC-BY-SA attribution; KGE training data) | D-CB | yes, attributed in reports |
 | O-9 | Target venue + submission window for the paper (candidates by route: main-track ML venue for a mechanism PASS; interpretability venue on the A6 pivot; a rigorous negative-results/replication track on the KILL route) — decision due at paper.sign, provisional pick welcome at GNG-2 | paper.submit | nearest top-tier window ≥2 weeks after M8 |
 | O-10 | Authorship & agent-contribution disclosure policy for the paper | paper.sign | maintainer sole human author; agent roles disclosed in contributions section |

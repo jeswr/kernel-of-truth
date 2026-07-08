@@ -1,0 +1,118 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:last",
+ "label": "last",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "coming after all other things of the same kind; no more things of this kind happen after.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "quant": "ONE",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 1
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "quant": "SOME",
+          "head": {
+           "kind": "kindFrame",
+           "of": {
+            "kind": "ref",
+            "index": 1
+           }
+          }
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/last",
+    "revision": "91435918/ecb62f20-79ff-11f1-a2c1-570d7dd37a9c",
+    "fetched": "2026-07-07T12:32:32Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/last",
+    "revision": "1355821289",
+    "tid": "9672c3bf-571c-11f1-8ffb-87ff95e521db",
+    "fetched": "2026-07-07T12:32:32Z"
+   }
+  ],
+  "date": "2026-07-07T12:54:40Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 323,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3218,
+    "costUSD": 0.008508
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 417,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7528,
+    "costUSD": 0.017143
+   }
+  ]
+ }
+}

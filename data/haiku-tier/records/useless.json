@@ -1,0 +1,110 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:useless",
+ "label": "useless",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something that cannot do what people want it to do.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "bind": 2
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/useless",
+    "revision": "91427812/97c75cd0-7a0b-11f1-9ca2-570f3cf1988e",
+    "fetched": "2026-07-07T13:56:03Z"
+   }
+  ],
+  "date": "2026-07-07T13:56:42Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 372,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2976,
+    "costUSD": 0.008269
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 234,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7330,
+    "costUSD": 0.015832
+   }
+  ]
+ }
+}

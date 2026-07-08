@@ -1,0 +1,130 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:confront",
+ "label": "confront",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "X and Y meet face to face in the same place; X does something toward Y so that Y is aware of X; often there is tension or disagreement between them.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "locus": {
+      "kind": "ref",
+      "index": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/confront",
+    "revision": "90919906/0dd40260-7a26-11f1-bace-2eb2990ba62d",
+    "fetched": "2026-07-07T17:05:28Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/confront",
+    "revision": "1345218594",
+    "tid": "e9dc9a4f-27dd-11f1-bd10-4c6ac233804b",
+    "fetched": "2026-07-07T17:05:29Z"
+   }
+  ],
+  "date": "2026-07-07T17:08:40Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 470,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3063,
+    "costUSD": 0.008933
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 601,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7521,
+    "costUSD": 0.018049
+   }
+  ]
+ }
+}

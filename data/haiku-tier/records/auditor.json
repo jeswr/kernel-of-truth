@@ -1,0 +1,131 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:auditor",
+ "label": "auditor",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone who sees words or numbers showing what someone did, and can know if they are true.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "stimulus": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "TRUE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/auditor",
+    "revision": "91251097/d0be4670-7a4c-11f1-b07d-48750b908575",
+    "fetched": "2026-07-07T21:42:56Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/auditor",
+    "revision": "1353678316",
+    "tid": "163980ea-4d68-11f1-a5ff-7be55e6aa581",
+    "fetched": "2026-07-07T21:42:56Z"
+   }
+  ],
+  "date": "2026-07-07T21:45:17Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 352,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3119,
+    "costUSD": 0.008454999999999999
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 284,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7468,
+    "costUSD": 0.016358
+   }
+  ]
+ }
+}

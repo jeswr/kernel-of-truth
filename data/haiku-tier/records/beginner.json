@@ -1,0 +1,149 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:beginner",
+ "label": "beginner",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone who has recently started to do something and can learn to do it better.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "ClauseRef"
+   },
+   {
+    "index": 3,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     },
+     "time": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "det": "THIS",
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 3
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 1
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD",
+          "intensifier": "MORE"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/beginner",
+    "revision": "91124387/e9994ad0-7a17-11f1-ba11-93887042bc53",
+    "fetched": "2026-07-07T15:24:14Z"
+   }
+  ],
+  "date": "2026-07-07T15:24:31Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 362,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1400,
+    "costUSD": 0.005067
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 349,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5716,
+    "costUSD": 0.013179
+   }
+  ]
+ }
+}

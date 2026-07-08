@@ -1,0 +1,157 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:glide",
+ "label": "glide",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone or something moves smoothly without effort; the body is above the ground; it moves forward; no one makes it move by doing something to it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "manner": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "BODY"
+         }
+        },
+        "locus": {
+         "kind": "sp",
+         "det": "THE-SAME",
+         "head": {
+          "kind": "primeHead",
+          "prime": "WHERE~PLACE"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "manner": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "det": "OTHER~ELSE~ANOTHER"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/glide",
+    "revision": "90781830/8fd0e7b0-7a49-11f1-99bd-9f56c4ed451e",
+    "fetched": "2026-07-07T21:19:38Z"
+   }
+  ],
+  "date": "2026-07-07T21:22:19Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 423,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3040,
+    "costUSD": 0.008652
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 421,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7429,
+    "costUSD": 0.016965
+   }
+  ]
+ }
+}

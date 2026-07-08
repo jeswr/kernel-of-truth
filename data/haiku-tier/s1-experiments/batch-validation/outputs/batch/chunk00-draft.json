@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 14623,
+ "duration_api_ms": 13684,
+ "ttft_ms": 13013,
+ "ttft_stream_ms": 4554,
+ "time_to_request_ms": 3553,
+ "num_turns": 1,
+ "result": "<<<KOT:danaid>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Danaid has two senses: (1) a taxonomic zoological term (butterfly subfamily Danainae) requiring technical biology grounding; (2) a proper mythological referent (the fifty daughters of Danaus in Greek myth). The first is technical-biological and not expressible in the prime lexicon. The second is a mythological proper name denoting a specific group from ancient narrative tradition, not an everyday concept with stable modern semantic content independent of that narrative. Neither sense belongs to this tier.\"}\n<<<END:danaid>>>>\n\n<<<KOT:deixis>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Deixis is a technical linguistic concept denoting a system-level phenomenon: the use of context-dependent expressions (pronouns, particles, demonstratives) to refer to entities, times, or places relative to the utterance context. Its identity rests on formal properties of language structure and indexical reference that are not expressible in the prime lexicon. It requires apparatus from formal semantics and linguistic anthropology that the kernel does not support.\"}\n<<<END:deixis>>>>\n\n<<<KOT:despondently>>>>\n{\"kind\":\"explication\",\"gloss\":\"this someone feels something bad; because of this, the someone does things; in the manner of this feeling.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}}}}]}}\n<<<END:despondently>>>>\n\n<<<KOT:diminuendo>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a way of making {urn:molecule-v0:music|music} [m]: the sound becomes less loud at one moment, and remains like this for some time; people can hear this; it is like this because someone who makes the music does it like this.\",\"groundingNote\":\"a way of making {urn:molecule-v0:music|music} [m]: the sound becomes less loud at one moment, and remains like this for some time; people can hear this; it is like this because someone who makes the music does it like this.\",\"groundingRefs\":[\"urn:molecule-v0:music\"]}\n<<<END:diminuendo>>>>",
+ "stop_reason": "end_turn",
+ "session_id": "59e02085-5810-492e-92b3-01f0e09e54ed",
+ "total_cost_usd": 0.018441,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 6916,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 649,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 6916,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 649,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 6916,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 6916
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1304,
+   "outputTokens": 661,
+   "cacheReadInputTokens": 0,
+   "cacheCreationInputTokens": 6916,
+   "webSearchRequests": 0,
+   "costUSD": 0.018441,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "01eccc8a-ab73-46f8-b8e1-6c8528788e84"
+}

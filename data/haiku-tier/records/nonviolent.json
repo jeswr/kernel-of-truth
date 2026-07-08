@@ -1,0 +1,206 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:nonviolent",
+ "label": "nonviolent",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone does not do things that hurt people or bodies; this someone wants to make {urn:kernel-v0:change|change} happen in some way; because someone does this, other people can know this someone does not want to hurt.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "BODY"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "det": "SOME",
+         "bind": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "op",
+         "op": "NOT",
+         "args": [
+          {
+           "type": "pred",
+           "pred": "WANT",
+           "roles": {
+            "experiencer": {
+             "kind": "ref",
+             "index": 1
+            },
+            "complement": {
+             "kind": "clause",
+             "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+               "agent": {
+                "kind": "ref",
+                "index": 1
+               },
+               "undergoer": {
+                "kind": "sp",
+                "head": {
+                 "kind": "primeHead",
+                 "prime": "PEOPLE"
+                },
+                "mods": [
+                 {
+                  "mod": "BAD"
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          }
+         ]
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/nonviolent",
+    "revision": "85362927/aeb658f0-7a34-11f1-82ed-50e56f2edf2d",
+    "fetched": "2026-07-07T18:50:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/nonviolent",
+    "revision": "1360737802",
+    "tid": "682f00d6-6edb-11f1-895b-4c947c88b650",
+    "fetched": "2026-07-07T18:50:11Z"
+   }
+  ],
+  "date": "2026-07-07T18:50:24Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 537,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1497,
+    "costUSD": 0.006136000000000001
+   }
+  ]
+ }
+}

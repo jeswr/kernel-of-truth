@@ -69,6 +69,17 @@ gist §8 semantics).
   prompt hash, pipeline hash, source revisions, date. A modelAuthored record
   is an assertion by a pinned pipeline about pinned sources; anyone can re-run
   the pipeline at those pins and diff.
+- **Batched pipeline provenance** (`--batch-size N` in the volume runner;
+  framework string e.g. `"A-batch4+gate-loop-repair"`, prompt hashes are of
+  the `system-A-batch.txt`/`system-F-batch.txt` files): when one draft (or
+  repair) call covered several lemmas, each affected record additionally
+  carries `provenance.batch = {"size": N, "lemmas": [...]}` and its
+  `usage[]` entries carry `"sharedAcrossLemmas": k` — the entry holds the
+  FULL usage/cost of the shared call (honest, re-derivable); divide by
+  `sharedAcrossLemmas` for a per-lemma cost attribution. Each lemma's output
+  block is extracted by its own sentinels and gated independently, so
+  record legality remains independent of every other model output in the
+  batch, exactly as in single mode.
 - **Refs** may point only at kernel-v0 / molecules-v0 ids (the frozen catalog
   in the prompt). haiku-tier records never reference each other in v0 —
   grounding cycles are impossible by construction and each record's legality

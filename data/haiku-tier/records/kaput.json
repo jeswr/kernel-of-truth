@@ -1,0 +1,76 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:kaput",
+ "label": "kaput",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something is broken and cannot work as intended.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "concept",
+      "id": "urn:kernel-v0:broken"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/kaput",
+    "revision": "91259433/b7596a80-7a32-11f1-bde3-fa1b17655a1e",
+    "fetched": "2026-07-07T18:36:06Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/kaput",
+    "revision": "1322034098",
+    "tid": "b59df1fc-c0f6-11f0-8401-1ac7729feb53",
+    "fetched": "2026-07-07T18:36:07Z"
+   }
+  ],
+  "date": "2026-07-07T18:36:22Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 166,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1410,
+    "costUSD": 0.004107
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 291,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5530,
+    "costUSD": 0.012517
+   }
+  ]
+ }
+}

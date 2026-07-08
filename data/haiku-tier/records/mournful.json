@@ -1,0 +1,121 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:mournful",
+ "label": "mournful",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels bad; they are grieving; because someone died or something bad happened before.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "concept",
+      "id": "urn:kernel-v0:grieving"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DIE",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        },
+        "bind": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/mournful",
+    "revision": "90495206/6c5dca10-7a34-11f1-a4d1-cd95348c6c6d",
+    "fetched": "2026-07-07T18:48:20Z"
+   }
+  ],
+  "date": "2026-07-07T18:48:39Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 417,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1397,
+    "costUSD": 0.0053360000000000005
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 522,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5802,
+    "costUSD": 0.014216
+   }
+  ]
+ }
+}

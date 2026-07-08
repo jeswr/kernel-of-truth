@@ -1,0 +1,118 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:befall",
+ "label": "befall",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something happens to someone; this someone does not cause it; after it happens, this someone is in a new way.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ],
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/befall",
+    "revision": "91124379/ed9d9630-7a31-11f1-9ace-64544d9db54f",
+    "fetched": "2026-07-07T18:30:28Z"
+   }
+  ],
+  "date": "2026-07-07T18:30:36Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 291,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1408,
+    "costUSD": 0.004728
+   }
+  ]
+ }
+}

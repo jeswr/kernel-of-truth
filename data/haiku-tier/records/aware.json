@@ -1,0 +1,128 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:aware",
+ "label": "aware",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone knows or perceives something; because of knowing, someone can think and move.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/aware",
+    "revision": "91094035/df2cb720-7a09-11f1-ab6c-566cc8b6bf99",
+    "fetched": "2026-07-07T17:48:31Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/aware",
+    "revision": "1359419616",
+    "tid": "0128a5b7-6878-11f1-b454-19494ee58f29",
+    "fetched": "2026-07-07T17:48:31Z"
+   }
+  ],
+  "date": "2026-07-07T17:48:44Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 265,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1528,
+    "costUSD": 0.004838
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 266,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5780,
+    "costUSD": 0.012892
+   }
+  ]
+ }
+}

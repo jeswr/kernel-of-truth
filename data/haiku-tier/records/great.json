@@ -1,0 +1,90 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:great",
+ "label": "great",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something is big and more than usual; people feel something good about it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "quant": "MUCH~MANY",
+      "head": {
+       "kind": "primeHead",
+       "prime": "BIG"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/great",
+    "revision": "91484804/22d59c20-79fc-11f1-8bc5-5f5ed94574c9",
+    "fetched": "2026-07-07T12:05:24Z"
+   }
+  ],
+  "date": "2026-07-07T12:05:45Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 318,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2882,
+    "costUSD": 0.007811
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 402,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7188,
+    "costUSD": 0.016388
+   }
+  ]
+ }
+}

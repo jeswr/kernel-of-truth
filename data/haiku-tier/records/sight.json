@@ -1,0 +1,84 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:sight",
+ "label": "sight",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone sees something; the ability to perceive objects by light reaching the eye.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "stimulus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/sight",
+    "revision": "91196444/1f28d4e0-7a09-11f1-b03f-96868e7fce5e",
+    "fetched": "2026-07-07T13:38:22Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/sight",
+    "revision": "1355659682",
+    "tid": "3f0c1e0c-565a-11f1-a344-cdeebae0201c",
+    "fetched": "2026-07-07T13:38:22Z"
+   }
+  ],
+  "date": "2026-07-07T13:39:28Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 418,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3177,
+    "costUSD": 0.008901000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 148,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7582,
+    "costUSD": 0.015906
+   }
+  ]
+ }
+}

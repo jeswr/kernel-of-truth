@@ -1,0 +1,132 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:suspense",
+ "label": "suspense",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone wants to know what will happen; they do not know; this makes them feel something good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "KNOW",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "topic": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "det": "SOME",
+         "bind": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/suspense",
+    "revision": "91222599/6a69bde0-7a16-11f1-93b5-0507c7bbe76b",
+    "fetched": "2026-07-07T15:13:31Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/suspense",
+    "revision": "1335731564",
+    "tid": "caea09dd-fe27-11f0-bf02-71f7b9fead93",
+    "fetched": "2026-07-07T15:13:32Z"
+   }
+  ],
+  "date": "2026-07-07T15:18:25Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 361,
+    "cacheReadInputTokens": 6121,
+    "cacheCreationInputTokens": 0,
+    "costUSD": 0.0024191
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 521,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5886,
+    "costUSD": 0.014379
+   }
+  ]
+ }
+}

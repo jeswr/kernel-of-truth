@@ -1,0 +1,124 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:preferably",
+ "label": "preferably",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone chooses or does one thing instead of another because they want that one thing more.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "comitative": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "OTHER~ELSE~ANOTHER",
+        "bind": 3
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/preferably",
+    "revision": "90588143/f12d0f40-7a15-11f1-a326-432da5c0705f",
+    "fetched": "2026-07-07T15:10:08Z"
+   }
+  ],
+  "date": "2026-07-07T15:15:33Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 293,
+    "cacheReadInputTokens": 5923,
+    "cacheCreationInputTokens": 0,
+    "costUSD": 0.0020593
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 632,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5653,
+    "costUSD": 0.014468
+   }
+  ]
+ }
+}

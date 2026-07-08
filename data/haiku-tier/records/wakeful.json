@@ -1,0 +1,173 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:wakeful",
+ "label": "wakeful",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone is awake and can see, hear, and do things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ],
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "MOVE",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "manner": {
+           "kind": "prime",
+           "prime": "NOW"
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HEAR",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/wakeful",
+    "revision": "90905581/2842eb60-7a2c-11f1-9e08-6d526ee31fd0",
+    "fetched": "2026-07-07T17:49:09Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/wakeful",
+    "revision": "1362860911",
+    "tid": "939501f4-7961-11f1-96c6-c3e3984bf0a2",
+    "fetched": "2026-07-07T17:49:11Z"
+   }
+  ],
+  "date": "2026-07-07T17:49:25Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 534,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1433,
+    "costUSD": 0.005993
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 570,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5921,
+    "costUSD": 0.014694
+   }
+  ]
+ }
+}

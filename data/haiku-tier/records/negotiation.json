@@ -1,0 +1,249 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:negotiation",
+ "label": "negotiation",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "two or more people say to each other what they want; after this, they may come to agreement; because they do this, something bad may not happen, or something good may happen.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "bind": 2
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME",
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 2
+     },
+     "addressee": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 3
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "op",
+      "op": "BECAUSE",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+         "agent": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          }
+         },
+         "addressee": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          }
+         }
+        }
+       },
+       {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+         {
+          "type": "pred",
+          "pred": "HAPPEN",
+          "roles": {
+           "undergoer": {
+            "kind": "sp",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            },
+            "mods": [
+             {
+              "mod": "BAD"
+             }
+            ]
+           }
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/negotiation",
+    "revision": "91127062/f59f02d0-7a2a-11f1-a199-f464cbc805b7",
+    "fetched": "2026-07-07T17:40:35Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/negotiation",
+    "revision": "1361725496",
+    "tid": "ed3c7d95-73e7-11f1-becb-bb1917900e59",
+    "fetched": "2026-07-07T17:40:36Z"
+   }
+  ],
+  "date": "2026-07-07T17:45:29Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 713,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3036,
+    "costUSD": 0.010093999999999999
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 812,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7737,
+    "costUSD": 0.019536
+   }
+  ]
+ }
+}

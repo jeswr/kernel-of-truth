@@ -1,0 +1,119 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:confine",
+ "label": "confine",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "to keep someone or something within certain bounds; they cannot move beyond a limit.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         },
+         "place": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "WHERE~PLACE"
+          },
+          "det": "OTHER~ELSE~ANOTHER",
+          "bind": 3
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/confine",
+    "revision": "91215752/0ce8df40-7a4b-11f1-891c-150500724c0b",
+    "fetched": "2026-07-07T21:30:18Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/confine",
+    "revision": "1276703777",
+    "tid": "a45cf788-ef67-11ef-a4d6-4d2479eb1e52",
+    "fetched": "2026-07-07T21:30:18Z"
+   }
+  ],
+  "date": "2026-07-07T21:32:21Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 310,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3014,
+    "costUSD": 0.008035
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 254,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7313,
+    "costUSD": 0.015898
+   }
+  ]
+ }
+}

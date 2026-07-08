@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 14168,
+ "duration_api_ms": 13436,
+ "ttft_ms": 13744,
+ "ttft_stream_ms": 3427,
+ "time_to_request_ms": 2430,
+ "num_turns": 1,
+ "result": "<<<KOT:threateningly>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does something in a way such that another someone feels afraid because of it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"bind\":4}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":3},\"attribute\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:afraid\"},\"because\":{\"kind\":\"sp\",\"head\":{\"kind\":\"refHead\",\"index\":4}}}}]}}\n<<<END:threateningly>>>>\n\n<<<KOT:torridity>>>>\n{\"kind\":\"molecule\",\"gloss\":\"the property of being very hot and having much water in the air at some place.\",\"groundingNote\":\"the property of being very hot and having much {urn:molecule-v0:water|water} [m] in the air at some place; when someone is at this place, they feel something bad because of this.\",\"groundingRefs\":[\"urn:molecule-v0:water\"]}\n<<<END:torridity>>>>\n\n<<<KOT:trichopteran>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"trichopteran denotes a specific zoological order (Trichoptera, caddisflies) defined by technical taxonomic characters (venation patterns, larval morphology, etc.) that are not accessible to the prime lexicon. While 'insect' could be grounded as an {urn:molecule-v0:animal|animal} [m] of one kind, the order-diagnostic features lie beyond molecular or explication scope. This belongs to the natural-history taxonomy sector, not the everyday semantic tier.\"}\n<<<END:trichopteran>>>>\n\n<<<KOT:tyro>>>>\n{\"kind\":\"explication\",\"gloss\":\"this someone is a people of one kind; they do not know many things about one way of doing something; someone else can help them learn.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}}}}},{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"KNOW\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"quant\":\"MUCH~MANY\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"THING\"},\"det\":\"THE-SAME\"},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"ref\",\"index\":2}}}}}}}]}]},{\"type\":\"op\",\"op\":\"CAN\",\"args\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMEONE\"},\"det\":\"OTHER~ELSE~ANOTHER\"},\"undergoer\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:help\"},\"comitative\":{\"kind\":\"ref\",\"index\":1}}}]}]}}\n<<<END:tyro>>>>",
+ "stop_reason": "end_turn",
+ "session_id": "6030be7c-3a70-45c2-a873-86fd9708930c",
+ "total_cost_usd": 0.0096117,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1721,
+  "cache_read_input_tokens": 4837,
+  "output_tokens": 936,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1721,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 936,
+    "cache_read_input_tokens": 4837,
+    "cache_creation_input_tokens": 1721,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1721
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 946,
+   "outputTokens": 948,
+   "cacheReadInputTokens": 4837,
+   "cacheCreationInputTokens": 1721,
+   "webSearchRequests": 0,
+   "costUSD": 0.0096117,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "0604f302-2460-43f2-ba47-9db081bef7ac"
+}

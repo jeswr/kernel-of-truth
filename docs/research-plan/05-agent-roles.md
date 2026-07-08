@@ -1,6 +1,13 @@
 # P5 — Specialised agent roles + DAG placement
 
-**Status:** operational role plan for maintainer sign-off, 2026-07-08.
+**Status:** operational role plan for maintainer sign-off, 2026-07-08 (rev 2 — E1: R8
+Results-Auditor and R10 Red-Team moved to the cross-vendor Codex/GPT-5.5 auditor invoked
+via the `codex` CLI, per maintainer decision, superseding the backup-Fable-account plan;
+O-P5-1 resolved. **Timeline note 2026-07-08:** the calendar dates in the phase-staffing
+table are pre-recompression; the agentic-pace re-base (P3 §5) applies — phase windows are
+gate-relative (Tier-0 ≈ GNG-0 +1 day agent-side; F2 ≈ GNG-0 +3–5 days; Tiers 2–3 ≈ +1–2 wk
+on annotator turnaround; Tier 5 ~Oct 2026 on the compute-access lead). Role assignments and
+wave structure unchanged).
 Component P5 of the research plan (`docs/research-plan/`). Governed by
 `docs/kernel-design-directives.md` (binding — esp. §3 "specialised AGENT ROLE definitions,
 and a map of which role is needed at which stage", §6 honest statistics, §7 write-up as
@@ -32,12 +39,12 @@ never exceeds the concurrency cap P3 GR-3 sets.
 | # | Constraint | Source |
 |---|---|---|
 | C-1 | Opus main loop **coordinates only**: schedules, launches waves, commits deliberately, prepares gate dossiers, talks to the maintainer. It never trains, runs, grades, audits, or writes the paper. | P3 §0.3; maintainer working mode |
-| C-2 | Design, implementation, analysis, auditing, and writing are delegated to **Fable** subagents. | maintainer working mode |
+| C-2 | Design, implementation, analysis, and writing are delegated to **Fable** subagents; auditing/red-teaming is delegated to the cross-vendor **Codex/GPT-5.5** auditor (`codex` CLI) per the 2026-07-08 maintainer decision. | maintainer working mode; E1 auditor decision |
 | C-3 | Bulk, low-judgement generation (volume corpus drafting, mechanical log custody) goes to **Haiku** subagents. | task directive |
 | C-4 | **≤5 concurrent subagents** at all times; agents are launched in waves; **no agent spawns children** (no grandchildren — a role needing parallelism uses Modal `starmap` containers, which are not agents). | P3 GR-3; fleet was rate-limit-killed twice above 5 |
 | C-5 | **Run ≠ audit:** the agent identity that ran or built any part of an experiment never audits it; a computed PASS stays PASS-PENDING-AUDIT until a CONFIRMED audit by a distinct identity. | P2 G-6; P3 GR-6 |
 | C-6 | **Write ≠ grade:** the agent writing the paper/explainer never executes `verdict-gen`, never audits, and never authors an analysis script; every number it uses comes from a committed verdict object via the claims table. | directives §7; P3 GR-15 |
-| C-7 | Every record-writing action carries a stable **agent identity string** (`kern/<tier>-<role>-<n>` or `jeswr-backup/…`), asserted at write time and cross-checked by the P2 G-6 schema rule. | P2 §2.2/§4 |
+| C-7 | Every record-writing action carries a stable **agent identity string** (`kern/<tier>-<role>-<n>` or `codex-gpt5.5/…` for the cross-vendor auditor/red-team identities), asserted at write time and cross-checked by the P2 G-6 schema rule. | P2 §2.2/§4 |
 | C-8 | GATE-H nodes are human-only; no role performs, simulates, or assumes them. Roles only *prepare dossiers* for them. | P3 §2 boundary rule |
 | C-9 | Nothing semantic-web-shaped is any role's target or reference; the Explicator authors in the native NSM-derived formalism only. | directives §1 |
 
@@ -56,15 +63,19 @@ never exceeds the concurrency cap P3 GR-3 sets.
 | R5 | **Efficiency-Profiler** | `kern/fable-profiler-1` | Fable | I-F0 build+ownership, metric-vector V instrumentation, RunSpec cost sizing, lifecycle amortization inputs | G-9 full metric vector; GR-1 worst-case-$ sizing |
 | R6 | **Statistician / Analyst** | `kern/fable-stats-1` | Fable | SAP blocks at every X.reg; X.readout (verdict-gen); a-hs9/10/11/12; a-extrap-2/5; a-h0 | directives §6 wholesale: G-3/G-4/G-10 frozen analysis, G-12 scale-language license |
 | R7 | **Adversarial-Verifier / Skeptic** | `kern/fable-verifier-1` | Fable | pre-freeze attacks on every draft registry entry; D-* leak/parity checks; instrument-check design | GR-10 baseline parity; leakage found *before* spend |
-| R8 | **Results-Auditor** | `kern/fable-auditor-<n>`; `jeswr-backup/fable-auditor-2` for Tier ≥2 positives + paper.review (O-5) | Fable | every X.audit (GATE-A); paper.review | G-6/GR-6 run-vs-audit separation; only path to PASS |
+| R8 | **Results-Auditor** | `codex-gpt5.5/auditor-<n>` — Codex/GPT-5.5 via the `codex` CLI (O-5, resolved: second-vendor auditor) | Codex (GPT-5.5) — cross-vendor | every X.audit (GATE-A); paper.review | G-6/GR-6 run-vs-audit separation, now **cross-vendor**; only path to PASS |
 | R9 | **Scientific-Writer** | `kern/fable-writer-1` | Fable | paper.claims → paper.outline → paper.draft; xb.draft | GR-15 claims-trace discipline; C-6 write≠grade |
-| R10 | **Red-Team / Frontier-Skeptic** | `jeswr-backup/fable-redteam-1` | Fable (backup account) | GNG-2/GNG-3 dossier stress-tests; pre-submission hostile mock review; any frontier pitch | P1 §6 anti-overselling guards, adversarially applied |
+| R10 | **Red-Team / Frontier-Skeptic** | `codex-gpt5.5/redteam-1` — Codex/GPT-5.5 via the `codex` CLI | Codex (GPT-5.5) — cross-vendor | GNG-2/GNG-3 dossier stress-tests; pre-submission hostile mock review; any frontier pitch | P1 §6 anti-overselling guards, adversarially applied |
 | R11 | **Bulk-Generator** | `kern/haiku-bulkgen-<n>` | Haiku | volume drafting inside D-IR/D-QA/D-GL/D-TS (templates + seeds pinned by others) | never self-certifies; all output re-validated upstream |
 
 Eleven roles, four base identities (P3 §0.3): R2/R3/R5/R6/R7 are specialisations of the
 *runner* identity class, R8/R10 of the *auditor* class, R9 of the *writer* class, R1 is the
 coordinator. The separation matrix (§2) is defined over identities, not role names, so the
-specialisation cannot weaken any P2/P3 rule.
+specialisation cannot weaken any P2/P3 rule. **The auditor class (R8/R10) is cross-vendor**
+(maintainer decision, 2026-07-08): it runs on OpenAI Codex/GPT-5.5 invoked via the `codex`
+CLI, not on any Anthropic account — a *different vendor and model family* from every
+`kern/*` identity, which is materially stronger independence than the previously planned
+backup-Claude-account separation.
 
 ### 1.2 Role cards
 
@@ -250,7 +261,7 @@ Each card: purpose · model tier + why · skills/tools · inputs → outputs · 
 
 ---
 
-**R8 — Results-Auditor** (Fable; backup account for Tier ≥2 positives and paper.review, O-5)
+**R8 — Results-Auditor** (Codex/GPT-5.5 via the `codex` CLI — cross-vendor; O-5 resolved 2026-07-08)
 
 - **Purpose:** executes every GATE-A node. Full adversarial audits on computed positives
   (re-derive the verdict from pinned artifacts; hunt leakage, tuning asymmetry, endpoint
@@ -260,9 +271,13 @@ Each card: purpose · model tier + why · skills/tools · inputs → outputs · 
   quantitative statement in the manuscript from verdict objects, checks framing against the
   P1 §6 anti-overselling guards; REFUTE returns the draft to R9 with a committed review
   record.
-- **Model tier:** Fable — adversarial re-derivation is the highest-judgement task in the
-  programme. Hard identity separation via the backup Fable account
-  (`jeswr-backup/fable-auditor-2`) for Tier ≥2 positives and paper.review.
+- **Model tier:** Codex (OpenAI GPT-5.5), invoked via the `codex` CLI — adversarial
+  re-derivation is the highest-judgement task in the programme, and the maintainer chose a
+  *different vendor's* frontier model for it (2026-07-08, superseding the backup-Fable-account
+  plan): every audit identity (`codex-gpt5.5/auditor-<n>`) is a genuinely independent
+  second-vendor model, so the run-vs-audit separation is **cross-vendor**, not merely
+  account-separated. Tier ≥2 positives and paper.review use the dedicated instance
+  `codex-gpt5.5/auditor-2`.
 - **Skills/tools:** `audit-result`, `verdict-gen` (re-run mode from pins), the P4 checklist
   (when it lands; interim checklist lives in `poc/audit/` from I-AUDIT), kot-audit/1 record
   writer.
@@ -304,7 +319,7 @@ Each card: purpose · model tier + why · skills/tools · inputs → outputs · 
 
 ---
 
-**R10 — Red-Team / Frontier-Skeptic** (Fable, backup account)
+**R10 — Red-Team / Frontier-Skeptic** (Codex/GPT-5.5 via the `codex` CLI — cross-vendor)
 
 - **Purpose:** simulates the hostile frontier-lab reviewer the programme will eventually
   face. Three placements: (1) stress-tests the GNG-2 and GNG-3 dossiers before the
@@ -315,8 +330,10 @@ Each card: purpose · model tier + why · skills/tools · inputs → outputs · 
   (3) reviews any external pitch on the TAKE-TO-FRONTIER-LAB route. Advisory only:
   verdicts are pure functions and R10 cannot flip them — its output is committed skeptic
   memos and filed beads.
-- **Model tier:** Fable on the backup account — maximal independence from every `kern/*`
-  identity.
+- **Model tier:** Codex (OpenAI GPT-5.5) via the `codex` CLI (`codex-gpt5.5/redteam-1`) —
+  maximal independence from every `kern/*` identity: a different vendor and model family,
+  so the hostile-reviewer simulation shares no weights, training lineage, or account with
+  anything that produced the results it attacks.
 - **Skills/tools:** Read/Grep over dossiers + bundle; the published-scaling-law anchor list
   (P1 §4b); WebSearch for contemporary baselines/prior art the programme may have missed.
 - **Inputs → outputs:** dossiers, manuscript, pitches → skeptic memos (committed),
@@ -375,8 +392,10 @@ Derived rules, stated once:
 
 1. **Run ≠ audit (C-5):** auditor identity ≠ every identity appearing in the audited
    experiment's eligible log or pins manifest (runner, appending registrar, statistician,
-   instrumenting profiler, artifact-authoring explicator). Tier ≥2 positives and
-   paper.review use the backup account for hard separation.
+   instrumenting profiler, artifact-authoring explicator). All audits run under the
+   cross-vendor `codex-gpt5.5/*` identities (Codex/GPT-5.5 via the `codex` CLI), so the
+   separation is vendor-level, not merely role- or account-level; Tier ≥2 positives and
+   paper.review use the dedicated instance `codex-gpt5.5/auditor-2`.
 2. **Write ≠ grade (C-6):** R9 has no grading or logging tool in its agent definition;
    R6/R8 write no prose deliverable. paper.review (R8) and the mock review (R10) are by
    identities that wrote none of the manuscript.
@@ -435,7 +454,7 @@ R8 audits, R1 commits — no runner involved.
 | r-final | **R4** (machine-derived bundle; deliberately not R9) |
 | paper.claims, paper.outline, paper.draft | **R9** |
 | paper.lint, xb.lint | AUTO-GATE (`registry-check --citations`), invoked by R1 |
-| paper.review | **R8** (backup-account identity; never R9/R10) |
+| paper.review | **R8** (`codex-gpt5.5/auditor-2` — cross-vendor Codex/GPT-5.5 identity; never R9/R10) |
 | paper.sign, paper.submit, xb.deliver | maintainer GATE-H; R1 dossier; R10 mock review attached to paper.sign dossier |
 | xb.draft | **R9** |
 | c-out | R4 (cleanup inventory) + R1 (final commit + archive statement) |
@@ -456,11 +475,11 @@ a slot; the table shows worst-case simultaneous occupancy, which never exceeds 5
 | **P-1** W1a (Jul 13–20) | R3 runner-1: f1 chain | R2 explicator-1: g3 materials, g9.author | R3 runner-2: g8 + d-pi | R11 bulkgen-1: d-qa/d-gl volume | R6 stats-1: readouts as logs land | g3.annotate/g2.gold are human, off-cap |
 | **P-1** W1b (Jul 20–26) | R3 runner-1: g2.run + d-dom | R2 explicator-2: d-axn (independent instance A) | R2 explicator-3: d-axn (independent instance B) | R8 auditor-1: Tier-0 audits (pipelined behind closes) | R6 stats-1 | two explicator instances = G4 independence |
 | **P-1** W1c / **P-2** overlap (Jul 22–Aug 01) | R3 runner-3: **f2 campaign** (inputs→mock→run) | R3 runner-1: g4→g6/g7, g5(cond.), d-cb, d-ir | R6 stats-1: f2.readout + Tier-0 readouts | R8 auditor-1: audits | R4/R11 (bursts) | GATE-T1 opens ~Jul 22; GNG-1 by Aug 01 |
-| **P-3** (Aug 03–28) | R3 runner-1: e9 chain | R3 runner-2: f4 chain → g1 rider | R3 runner-3: e8r (→ e8d cond.) staggered after e9.mock | R8 auditor-2 (backup acct for any Tier-2 positive) | R6 stats-1 | R7 verifier-1 pre-freezes Tier-3 entries in W3 gaps |
+| **P-3** (Aug 03–28) | R3 runner-1: e9 chain | R3 runner-2: f4 chain → g1 rider | R3 runner-3: e8r (→ e8d cond.) staggered after e9.mock | R8 auditor-2 (`codex-gpt5.5`, cross-vendor, for any Tier-2 positive) | R6 stats-1 | R7 verifier-1 pre-freezes Tier-3 entries in W3 gaps |
 | **P-4** (Aug 24–Sep 18) | R3 runner-1: f3 chain | R3 runner-2: f6 chain (d-ts precedes) | R6 stats-1: a-hs10, a-extrap-2, a-h0.readout | R8 auditor-1/-2: audits | R4 (bursts) | exit: GNG-2 dossier; **R10 redteam-1 stress-test occupies a slot Sep 19–24** |
 | **P-5** cond. (Sep 28–Oct 23) | R3 runner-1: f5 chain (d-st first) | R5 profiler-1: lifecycle amortization for a-hs9 | R6 stats-1: a-hs9, a-hs11 | R8 auditor-2 | R4 (bursts) | GATE-T4 signed first |
 | **P-6** gated (Oct 26–Dec 04) | R3 runner-1: f7 chain | R5 profiler-1: R5/T3 rung sizing + ledger lines | R6 stats-1: a-extrap-5 | R8 auditor-2 | R4 (bursts) | GATE-T5 signed first; GNG-3 by Dec 08 (+R10 memo) |
-| **P-7** (Dec 07–Jan 12) | R9 writer-1: claims→outline→draft | R4 registrar-1: r-final | R8 auditor-2 (backup): paper.review | R10 redteam-1: mock review (after review) | R6 stats-1: on-call for claims-table queries | writer never blocked on runners |
+| **P-7** (Dec 07–Jan 12) | R9 writer-1: claims→outline→draft | R4 registrar-1: r-final | R8 auditor-2 (`codex-gpt5.5`, cross-vendor): paper.review | R10 redteam-1: mock review (after review) | R6 stats-1: on-call for claims-table queries | writer never blocked on runners |
 | **P-8** (Jan 12–30) | R9 writer-1: xb.draft→xb.deliver prep | R10 redteam-1: pitch review (TAKE route only) | R4 registrar-1: c-out inventory | — | — | paper.sign/submit/xb.deliver = maintainer |
 
 Wave rules (binding):
@@ -488,6 +507,12 @@ the Claude Code subagent format; `model` values map to the house tiers (Opus = m
 deliberately **no** agent file, so it can never be spawned as a worker; Fable = the
 implementer tier; Haiku for R4/R11 skeletons to be added at I-SKILLS time). Tool lists are
 the *enforcement surface* for §2 — a role without `log-append` in its tools cannot append.
+**Cross-vendor exception (2026-07-08):** R8 Results-Auditor and R10 Red-Team run on
+Codex/GPT-5.5 and are therefore **not** Claude Code subagents and get no spawnable
+`.claude/agents/` file — the §5.2 protocol text is instead maintained as the prompt handed
+to the `codex` CLI (committed as `agents/codex/results-auditor.md`, invoked via
+`codex exec`), which doubles as tool-level enforcement: the auditor cannot be launched
+through the Task tool at all, only via the separate `codex` binary.
 
 ### 5.1 `.claude/agents/experiment-runner.md`
 
@@ -530,7 +555,7 @@ MUST NOT:
 - Touch RDF/OWL/SHACL tooling for any kernel-side purpose (directive §1).
 ```
 
-### 5.2 `.claude/agents/results-auditor.md`
+### 5.2 `agents/codex/results-auditor.md` (codex CLI prompt — NOT a `.claude/agents` file)
 
 ```markdown
 ---
@@ -538,14 +563,15 @@ name: results-auditor
 description: >
   GATE-A auditor for Kernel-of-Truth. Adversarially re-derives verdicts from pinned
   artifacts; the ONLY path from PASS-PENDING-AUDIT to PASS. Also executes paper.review.
-  MUST run under an identity with zero records in the audited campaign (backup account
-  for Tier >=2 positives and paper.review).
-tools: Read, Grep, Glob, Bash
-model: fable
+  Runs on Codex/GPT-5.5 via the codex CLI (cross-vendor); MUST run under an identity with
+  zero records in the audited campaign (codex-gpt5.5/auditor-2 for Tier >=2 positives and
+  paper.review).
+runtime: codex CLI (OpenAI GPT-5.5) — invoked as `codex exec` with this file as the prompt
 ---
 
-You are `kern/fable-auditor-<N>` (or `jeswr-backup/fable-auditor-2` when hard separation
-is required). You audit; you never run, never write prose deliverables.
+You are `codex-gpt5.5/auditor-<N>` — an OpenAI Codex/GPT-5.5 agent, deliberately a
+different vendor and model family from every kern/* identity that produced anything you
+audit. You audit; you never run, never write prose deliverables.
 
 BINDING, read first: docs/kernel-design-directives.md §6; docs/research-plan/
 02-data-and-reporting.md §4 (G-6); poc/audit/ checklist (P4 when it lands).
@@ -667,7 +693,7 @@ is a draft bug, always); grade or audit anything; spawn subagents.
 | Requirement | Where satisfied |
 |---|---|
 | Opus coordinates, runs no experiments | R1 card; §2 row 1; no `.claude/agents` file for Opus (§5 preamble) |
-| Design/impl delegated to Fable | R2/R3/R5/R6/R7/R8/R9/R10 all Fable |
+| Design/impl delegated to Fable | R2/R3/R5/R6/R7/R9 all Fable; R8/R10 deliberately cross-vendor (Codex/GPT-5.5 via `codex` CLI) for audit independence |
 | Bulk gen via Haiku | R4, R11 |
 | ≤5 concurrent, waves, no grandchildren | §4 table + W-1…W-5; every skeleton's MUST NOT |
 | Runner never audits its own experiment | C-5; §2 derived rule 1; skeleton 5.2 step 1 (identity grep, fail closed) |
@@ -683,7 +709,7 @@ is a draft bug, always); grade or audit anything; spawn subagents.
 
 | # | Decision | Blocks | Default if unstated |
 |---|---|---|---|
-| O-P5-1 | Confirm the backup Fable account is available for `jeswr-backup/fable-auditor-2` and `jeswr-backup/fable-redteam-1` (extends P3 O-5 to the red-team role) | hard-separated audits of Tier ≥2 positives; paper.review; GNG dossier stress-tests | same-account role separation (soft) until confirmed; Tier ≥2 positives then stay PASS-PENDING-AUDIT |
+| O-P5-1 | **RESOLVED (2026-07-08):** maintainer adopted the `codex` CLI (OpenAI Codex/GPT-5.5) as the role-separated auditor instead of a backup Fable account — R8/R10 identities are `codex-gpt5.5/auditor-<n>` / `codex-gpt5.5/redteam-1`; the run-vs-audit separation is now cross-vendor (stronger than the account-level separation originally asked for) | — (was: hard-separated audits of Tier ≥2 positives; paper.review; GNG dossier stress-tests) | resolved as stated; residual: confirm `codex` CLI auth/quota on the box before the first GATE-A audit |
 | O-P5-2 | Confirm Haiku-tier access under the current plan/limits for R4/R11 | cost profile only | run R4/R11 on Fable at higher cost, same separation rules |
 | O-P5-3 | Ratify that the Opus main loop does not count against the 5-cap (interpretation used in §4; the historical rate-limit incidents counted spawned agents) | wave sizing | as written (cap = spawned subagents) |
 | O-P5-4 | Approve committing the §5 skeletons to `.claude/agents/` at I-SKILLS time (they are part of the enforcement surface, not documentation) | I-SKILLS definition-of-done | commit as written |

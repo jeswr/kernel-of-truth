@@ -1,0 +1,146 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:sing",
+ "label": "sing",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone makes sounds with their mouth in a way that is like music; these sounds are tuneful; people hear these sounds and feel something good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "det": "SOME",
+      "bind": 2
+     },
+     "manner": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HEAR",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/sing",
+    "revision": "91452574/1ad210d0-79fc-11f1-ab3d-b4ccc9337122",
+    "fetched": "2026-07-07T12:05:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/sing",
+    "revision": "1359275582",
+    "tid": "b3555f6e-67c9-11f1-b826-a083dfaa9a16",
+    "fetched": "2026-07-07T12:05:11Z"
+   }
+  ],
+  "date": "2026-07-07T12:05:20Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 364,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2927,
+    "costUSD": 0.008131
+   }
+  ]
+ }
+}

@@ -1,0 +1,167 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:isolation",
+ "label": "isolation",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone is in a place where no other people are; because of this, this someone cannot do things with other people.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "det": "THIS",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THERE-IS",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "locus": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    },
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT"
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          },
+          "restrictedBy": {
+           "type": "pred",
+           "pred": "BE-SOMEWHERE",
+           "roles": {
+            "undergoer": {
+             "kind": "ref",
+             "index": 1
+            },
+            "locus": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          }
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "comitative": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/isolation",
+    "revision": "89273916/1233f9c0-7a29-11f1-accb-b78bd2306c09",
+    "fetched": "2026-07-07T17:27:04Z"
+   }
+  ],
+  "date": "2026-07-07T17:29:33Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 304,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2988,
+    "costUSD": 0.007953
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 424,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7262,
+    "costUSD": 0.016646
+   }
+  ]
+ }
+}

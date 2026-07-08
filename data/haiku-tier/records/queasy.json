@@ -1,0 +1,127 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:queasy",
+ "label": "queasy",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels something bad in the body; the undergoer wants not to feel like this; maybe the undergoer will vomit.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     },
+     "place": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "BODY"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DON'T-WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "BAD"
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "THE-SAME"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/queasy",
+    "revision": "90947881/0abf4750-7a31-11f1-9e84-6495339f291e",
+    "fetched": "2026-07-07T18:24:07Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/queasy",
+    "revision": "1345259602",
+    "tid": "84070742-280b-11f1-8600-2c3205854199",
+    "fetched": "2026-07-07T18:24:08Z"
+   }
+  ],
+  "date": "2026-07-07T18:24:14Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 306,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1465,
+    "costUSD": 0.0049169999999999995
+   }
+  ]
+ }
+}

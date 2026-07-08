@@ -1,11 +1,19 @@
 # P9 — Publication & reporting plan (directives §7)
 
-**Status:** pre-registration draft for maintainer sign-off, 2026-07-08 (rev 2 — P7
+**Status:** pre-registration draft for maintainer sign-off, 2026-07-08 (rev 3 — RT-9
+relabelling upgraded: the auditor is now a second-vendor model, Codex/GPT-5.5 via the
+`codex` CLI, so audit language moves from "role-separated re-derivation" to "independent
+cross-vendor re-derivation" — see §2 item 4, §3.5, §5.3. rev 2 — P7
 red-team pre-freeze fixes applied: RT-14 anonymize-by-OVERLAY replaces the
 scrub-the-bytes plan; RT-15 external timestamping made load-bearing in §1.2; RT-9
 "role-separated re-derivation" relabelling + external replication offer on TAKE; the
 TAKE-route pitch stated honestly as a fund-the-next-rung pitch, direction-only to 7B;
-STOP-AND-PUBLISH-UNDECIDED added to the paper-type table per RT-1). Component P9 of the
+STOP-AND-PUBLISH-UNDECIDED added to the paper-type table per RT-1.
+**Timeline note 2026-07-08:** calendar dates herein (M8/M9 in Jan 2027, venue-window
+arithmetic) are pre-recompression; under the agentic-pace re-base (P3 §5) the write-up lands
+days after whichever GNG closes the evidence — ~late Aug–Sep 2026 on an early
+PIVOT/KILL/UNDECIDED route, ~Nov–Dec 2026 on the full Tier-5 route — so O-9 re-runs the
+"nearest window ≥2 weeks after M8" rule against the re-based M8). Component P9 of the
 operational research plan (`docs/research-plan/`). Governed by
 `docs/kernel-design-directives.md` §7 (binding): the write-up is a first-class programme
 phase producing (a) a top-tier-venue-grade, completely honest scientific paper — including
@@ -229,10 +237,14 @@ items are pre-declared here so reviewers' likely objections are pre-empted:
 
 **4. Pre-registered experimental design** `[R + W]`
 - The registry as method: freeze-before-run, hash-chained logs, verdict = pure function,
-  run-vs-audit separation — described in the manuscript by its honest name,
-  **"role-separated re-derivation"** (P2 G-6, P7 RT-9): all audit identities are agents
-  operated within the programme; the word "independent" is reserved for the maintainer-level
-  audit and the external replication offer (§5.3) (one figure: the P2 lifecycle).
+  run-vs-audit separation — described in the manuscript by its honest name, which since
+  2026-07-08 is **"independent cross-vendor re-derivation"** (P2 G-6, P7 RT-9 as upgraded):
+  the audit, adversarial-verification (red-team), and paper.review roles run on a genuinely
+  independent second-vendor model — Codex/GPT-5.5, invoked via the `codex` CLI — not on the
+  operator's Anthropic accounts, and the manuscript names the vendor split explicitly so
+  the reader can price the claim. The word "independent" remains reserved for exactly this
+  cross-vendor audit, the maintainer-level audit, and the external replication offer
+  (§5.3); it is never applied to a same-vendor agent audit (one figure: the P2 lifecycle).
 - The hypothesis table `[R]` — generated from `registry/hypotheses.json`: every hypothesis,
   its decisive experiment, verbatim kill criterion, rungs, and status.
 - Baselines discipline: kernel-as-text null mandatory everywhere; RAG-over-text,
@@ -300,8 +312,9 @@ measurable at these scales" is itself a finding the field can use).
 - B: full SAPs per experiment (P8 §1.9 instantiations, verbatim).
 - C: encoder/corpus/model pins; harness manifests; how to re-run every analysis
   (`verdict-gen` is deterministic — byte-identical reproduction is the claim, and the
-  auditors' **role-separated re-derivation** records are cited, named exactly that —
-  never "independent audits" (P7 RT-9)).
+  auditors' **independent cross-vendor re-derivation** records are cited, named exactly
+  that, with the vendor split stated: audits performed by Codex/GPT-5.5 via the `codex`
+  CLI, a different vendor/model from every run identity (P7 RT-9 as upgraded 2026-07-08)).
 - D: the amendment log, in full (every amendment: date, kind, rationale — nothing edited
   silently is the point).
 - E: agent-contribution disclosure (O-10): which roles (runner/analyst/auditor/writer)
@@ -395,8 +408,10 @@ paper.lint rule set.
 Writer (R9, `kern/fable-writer-1`) drafts; the Writer never grades, audits, or touches
 verdict tooling (P5 C-6, toolset exclusion). paper.lint (S8/S12s engines) must pass; then
 paper.review — adversarial re-derivation by an auditor identity that is not the Writer
-(R8, backup account `jeswr-backup/fable-auditor-2` per P4 §2.6) with a committed review
-record; R10 red-team produces a venue-style mock review (scores + weaknesses) as advisory
+(R8, `codex-gpt5.5/auditor-2`: the cross-vendor Codex/GPT-5.5 auditor invoked via the
+`codex` CLI, per the 2026-07-08 maintainer decision superseding the backup-account plan)
+with a committed review record; R10 red-team (`codex-gpt5.5/redteam-1`, same cross-vendor
+identity class) produces a venue-style mock review (scores + weaknesses) as advisory
 input to paper.sign. paper.sign and paper.submit are GATE-H (maintainer). The identical
 chain (xb.lint, then delivery gate) binds the explainer.
 
@@ -478,7 +493,7 @@ tier — P5 §R9). Reporting skills: S7 `report-gen` (evidence bundle), S8 `pape
 | paper.outline | AUTO (Writer) | S9 | — | §2 outline instantiated for the computed route (§1.1 mapping); provisional venue pick per §1.2 policy recorded on the coordination issue |
 | paper.draft | AUTO (Writer) | S9 | — | §2 section spec; R-1…R-13 authoring rules |
 | paper.lint | AUTO-GATE | S8 + S12s | fail-closed | §3.1–§3.4 rule set incl. the four new lint terms |
-| paper.review | GATE-A | S6 (paper.review mode) | CONFIRMED required | adversarial re-derivation; auditor ≠ Writer (backup account); + R10 venue-style mock review (advisory) |
+| paper.review | GATE-A | S6 (paper.review mode) | CONFIRMED required | adversarial re-derivation; auditor ≠ Writer (cross-vendor `codex-gpt5.5/auditor-2` via the `codex` CLI); + R10 venue-style mock review (advisory) |
 | paper.sign | **GATE-H** | — | maintainer | manuscript + authorship (O-10) + venue/timing (O-9) + preprint decision (§1.2 item 4) |
 | paper.submit | **GATE-H** | — | maintainer (GR-8) | submission per §1.2 policy; one-cycle-then-TMLR fallback rule |
 | xb.draft | AUTO (Writer) | S10 | — | §4 slots 1–8 |
@@ -521,8 +536,10 @@ claim absent from `paper/claims.json`.
 **Frontier-lab pitch deck, additional binding rules (P7 RT-9 + §6/§10):**
 
 1. **Honest audit labelling** — every "audited" claim in the deck is described as
-   role-separated re-derivation (agent identities within the programme), never as
-   independent audit; the deck's methods slide says so in one sentence.
+   independent cross-vendor re-derivation, naming the vendor split (audits by Codex/
+   GPT-5.5 via the `codex` CLI; runs by Anthropic-model agents — P7 RT-9 as upgraded
+   2026-07-08); the deck's methods slide says so in one sentence, and "independent" is
+   never used for any same-vendor agent audit.
 2. **Pre-committed external replication offer** — before any pitch exposure, the programme
    commits (recorded on the coordination issue) to one genuinely external replication of
    any headline positive: artifacts + harness public, one named outside person or lab

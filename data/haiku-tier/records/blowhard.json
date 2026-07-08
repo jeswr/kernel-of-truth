@@ -1,0 +1,155 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:blowhard",
+ "label": "blowhard",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone talks very much in a way of boasting; this someone wants people to know this someone is good; people feel bad when they hear this someone.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "attribute": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "GOOD"
+          }
+         }
+        }
+       }
+      ]
+     },
+     "manner": {
+      "kind": "sp",
+      "quant": "MUCH~MANY",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "KNOW",
+       "roles": {
+        "experiencer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         },
+         "bind": 2
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "AFTER",
+      "anchor": {
+       "kind": "sp",
+       "head": {
+        "kind": "primeHead",
+        "prime": "WHEN~TIME"
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/blowhard",
+    "revision": "91031444/52538030-7a37-11f1-ae78-a830e4373b2f",
+    "fetched": "2026-07-07T19:09:04Z"
+   }
+  ],
+  "date": "2026-07-07T19:09:24Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 478,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1399,
+    "costUSD": 0.005645000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 589,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5860,
+    "costUSD": 0.014667
+   }
+  ]
+ }
+}

@@ -1,0 +1,112 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:specify",
+ "label": "specify",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone says words that make clear in detail what a thing is or what it does.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         },
+         "attribute": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "det": "THE-SAME",
+          "mods": [
+           {
+            "mod": "GOOD"
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/specify",
+    "revision": "91214541/148b0f80-7a31-11f1-833e-973cbeafe22e",
+    "fetched": "2026-07-07T18:24:24Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/specify",
+    "revision": "1320148054",
+    "tid": "b5793b5e-b850-11f0-a3c9-f3a7d79f1d5d",
+    "fetched": "2026-07-07T18:24:24Z"
+   }
+  ],
+  "date": "2026-07-07T18:24:40Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 430,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1448,
+    "costUSD": 0.005503
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 234,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5866,
+    "costUSD": 0.012903999999999999
+   }
+  ]
+ }
+}

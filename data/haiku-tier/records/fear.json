@@ -1,0 +1,144 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:fear",
+ "label": "fear",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels something bad because they think something bad may happen to them or to someone they care about.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "THINK",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "SOME",
+        "bind": 2
+       },
+       "quote": {
+        "kind": "quote",
+        "clauses": [
+         {
+          "type": "pred",
+          "pred": "HAPPEN",
+          "roles": {
+           "undergoer": {
+            "kind": "sp",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            },
+            "det": "SOME",
+            "mods": [
+             {
+              "mod": "BAD"
+             }
+            ]
+           },
+           "time": {
+            "kind": "temporal",
+            "op": "AFTER",
+            "anchor": {
+             "kind": "prime",
+             "prime": "NOW"
+            }
+           }
+          }
+         }
+        ]
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/fear",
+    "revision": "91378152/adb0f480-7a00-11f1-a0eb-e2212995783e",
+    "fetched": "2026-07-07T17:47:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/fear",
+    "revision": "1361981225",
+    "tid": "23c2e8d0-7513-11f1-8542-a1caca0218e0",
+    "fetched": "2026-07-07T17:47:11Z"
+   }
+  ],
+  "date": "2026-07-07T17:47:19Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 346,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1677,
+    "costUSD": 0.005541000000000001
+   }
+  ]
+ }
+}

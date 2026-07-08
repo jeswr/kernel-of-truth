@@ -1,0 +1,137 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:biologist",
+ "label": "biologist",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone who knows about living things; this someone sees living things, thinks about them, and says words about what they know.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "concept",
+      "id": "urn:kernel-v0:alive"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "stimulus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "concept",
+         "id": "urn:kernel-v0:alive"
+        }
+       }
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/biologist",
+    "revision": "1355529636",
+    "tid": "6f0de2b0-55ce-11f1-bb4a-e85010c8873c",
+    "fetched": "2026-07-07T17:52:18Z"
+   }
+  ],
+  "date": "2026-07-07T17:52:33Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 460,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1388,
+    "costUSD": 0.005533
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 531,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5832,
+    "costUSD": 0.014321
+   }
+  ]
+ }
+}

@@ -1,0 +1,97 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:straight",
+ "label": "straight",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this thing has one direction all through it; it does not bend or turn.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "quant": "ONE",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "manner": {
+        "kind": "sp",
+        "det": "OTHER~ELSE~ANOTHER",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SIDE"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/straight",
+    "revision": "91365865/5e0dafe0-7a00-11f1-a55a-585cee4533e0",
+    "fetched": "2026-07-07T12:35:42Z"
+   }
+  ],
+  "date": "2026-07-07T13:02:33Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 384,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3091,
+    "costUSD": 0.008559
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 210,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7445,
+    "costUSD": 0.015942
+   }
+  ]
+ }
+}

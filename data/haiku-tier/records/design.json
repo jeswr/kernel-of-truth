@@ -1,0 +1,199 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:design",
+ "label": "design",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone thinks about something to be made; they want it to do something or be some way; they make a picture or words saying what it will be like; then someone can make this thing from this picture or words.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 3
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "SAY",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "instrument": {
+        "kind": "ref",
+        "index": 3
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/design",
+    "revision": "91491354/6dd4eb70-7a0d-11f1-a56e-38f6b26a359b",
+    "fetched": "2026-07-07T17:50:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/design",
+    "revision": "1361205857",
+    "tid": "8e5cdad1-714f-11f1-a1cf-f808eb06d50d",
+    "fetched": "2026-07-07T17:50:12Z"
+   }
+  ],
+  "date": "2026-07-07T17:50:28Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 503,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1650,
+    "costUSD": 0.006272
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 517,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6140,
+    "costUSD": 0.014866999999999998
+   }
+  ]
+ }
+}

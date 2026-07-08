@@ -1,0 +1,155 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:misread",
+ "label": "misread",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone reads words and wrongly thinks something about them because they do not correctly understand what the words say.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "det": "OTHER~ELSE~ANOTHER",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "attribute": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "mods": [
+           {
+            "mod": "GOOD"
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/misread",
+    "revision": "91126992/547ab4b0-7a31-11f1-a616-6e061f98fd2c",
+    "fetched": "2026-07-07T18:26:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/misread",
+    "revision": "1302790114",
+    "tid": "76b641c3-6aeb-11f0-b4af-169b4c92646e",
+    "fetched": "2026-07-07T18:26:12Z"
+   }
+  ],
+  "date": "2026-07-07T18:26:32Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 346,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1459,
+    "costUSD": 0.005105
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 1132,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5783,
+    "costUSD": 0.017228
+   }
+  ]
+ }
+}

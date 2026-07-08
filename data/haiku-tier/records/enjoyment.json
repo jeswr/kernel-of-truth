@@ -1,0 +1,103 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:enjoyment",
+ "label": "enjoyment",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels something good and wants this to continue.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "GOOD"
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/enjoyment",
+    "revision": "90383144/5004c650-7a18-11f1-8933-913b9c51c512",
+    "fetched": "2026-07-07T15:27:06Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/enjoyment",
+    "revision": "1360695864",
+    "tid": "5e89a6a1-6ea3-11f1-8bbf-1f96d8fc46c9",
+    "fetched": "2026-07-07T15:27:07Z"
+   }
+  ],
+  "date": "2026-07-07T15:27:22Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 292,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1483,
+    "costUSD": 0.004883
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 187,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5758,
+    "costUSD": 0.012453
+   }
+  ]
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:circumstance",
+ "label": "circumstance",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "when something happens, there is a way it happens — what is true about the time, the place, and the things near it at that moment.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   },
+   {
+    "index": 3,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "bind": 2
+     },
+     "place": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "quant": "SOME",
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SOMEWHERE",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "locus": {
+         "kind": "ref",
+         "index": 3
+        },
+        "time": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 3
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [],
+  "date": "2026-07-07T17:47:13Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 443,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2874,
+    "costUSD": 0.00842
+   }
+  ]
+ }
+}

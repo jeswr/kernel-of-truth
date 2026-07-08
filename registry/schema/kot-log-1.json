@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kot-log-1.json",
+  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py.",
+  "type": "object",
+  "required": ["schema_version", "seq", "prev_sha256", "ts", "experiment", "event", "runner", "prereg_hash"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "kot-log/1" },
+    "seq": { "type": "integer", "minimum": 0 },
+    "prev_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "ts": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+    "experiment": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "event": { "enum": ["run", "status", "unblind", "audit-ref", "note", "supersede"] },
+    "phase": { "enum": ["smoke", "mock", "exploratory", "final"] },
+    "runner": { "type": "string", "pattern": "^(runner|auditor|coordinator|writer|redteam)-[0-9]+$" },
+    "prereg_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "config": { "type": "object" },
+    "config_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "pins_observed": { "type": "object" },
+    "metrics": { "type": "object" },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "usd": { "type": "number", "minimum": 0 },
+        "gpu_hours": { "type": "number", "minimum": 0 },
+        "cumulative_usd": { "type": "number", "minimum": 0 }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "exit": { "enum": ["ok", "error", "budget-halt", "killed"] },
+    "error": { "type": ["string", "null"] },
+    "from": { "type": "string" },
+    "to": { "type": "string" },
+    "note": { "type": "string" },
+    "target_seq": { "type": "integer", "minimum": 0 },
+    "reason": { "type": "string" },
+    "audit_path": { "type": "string" },
+    "audit_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

@@ -1,0 +1,107 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:hurt",
+ "label": "hurt",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "one person does something to another causing them to feel bad in body or mind.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/hurt",
+    "revision": "91460817/caf25910-79f3-11f1-af94-5891e79078bb",
+    "fetched": "2026-07-07T11:05:41Z"
+   }
+  ],
+  "date": "2026-07-07T12:02:03Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 385,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2848,
+    "costUSD": 0.008078
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 220,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7203,
+    "costUSD": 0.015508000000000001
+   }
+  ]
+ }
+}

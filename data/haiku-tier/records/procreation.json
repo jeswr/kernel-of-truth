@@ -1,0 +1,109 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:procreation",
+ "label": "procreation",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something; after some time, a new someone of the same kind is there.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "bind": 2
+     },
+     {
+      "type": "pred",
+      "pred": "THERE-IS",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        },
+        "det": "THE-SAME",
+        "bind": 3
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/procreation",
+    "revision": "89542103/93146a00-7a35-11f1-919c-f471e3ae3cc7",
+    "fetched": "2026-07-07T18:56:34Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/procreation",
+    "revision": "1354048573",
+    "tid": "3070891a-4f2d-11f1-a674-fd6e19a7e2ca",
+    "fetched": "2026-07-07T18:56:35Z"
+   }
+  ],
+  "date": "2026-07-07T18:56:46Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 277,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1431,
+    "costUSD": 0.004704
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 220,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5662,
+    "costUSD": 0.012426000000000001
+   }
+  ]
+ }
+}

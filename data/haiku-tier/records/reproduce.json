@@ -1,0 +1,142 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:reproduce",
+ "label": "reproduce",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "to do something so that there becomes another thing of the same kind.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "THERE-IS",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "bind": 3
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 3
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/reproduce",
+    "revision": "91386610/7fb52d10-7a48-11f1-85f5-59e9659030ec",
+    "fetched": "2026-07-07T21:12:02Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/reproduce",
+    "revision": "1354048573",
+    "tid": "30708a79-4f2d-11f1-9bf1-d7152f36050b",
+    "fetched": "2026-07-07T21:12:03Z"
+   }
+  ],
+  "date": "2026-07-07T21:15:20Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 443,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3003,
+    "costUSD": 0.008678
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 318,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7427,
+    "costUSD": 0.016446
+   }
+  ]
+ }
+}

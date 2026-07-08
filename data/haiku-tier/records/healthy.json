@@ -1,0 +1,92 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:healthy",
+ "label": "healthy",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone lives and does not feel bad things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "LIVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/healthy",
+    "revision": "91139082/e3cabe60-7a0b-11f1-baed-29de9b1a2be2",
+    "fetched": "2026-07-07T13:58:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/healthy",
+    "revision": "1359030673",
+    "tid": "08cf2739-667b-11f1-8f50-23b617181baa",
+    "fetched": "2026-07-07T13:58:11Z"
+   }
+  ],
+  "date": "2026-07-07T13:59:13Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 212,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3029,
+    "costUSD": 0.007575
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 460,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7211,
+    "costUSD": 0.016724
+   }
+  ]
+ }
+}

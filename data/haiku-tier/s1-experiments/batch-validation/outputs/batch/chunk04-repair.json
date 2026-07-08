@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 23071,
+ "duration_api_ms": 16092,
+ "ttft_ms": 20519,
+ "ttft_stream_ms": 12017,
+ "time_to_request_ms": 10733,
+ "num_turns": 1,
+ "result": "<<<KOT:groenendael>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a dog [m] of one kind from a place, with long black hair [m]\",\"groundingNote\":\"a {urn:molecule-v0:dog|dog} [m] of one kind; it is from a place; it has long hair [m]; the color is black\",\"groundingRefs\":[\"urn:molecule-v0:dog\"]}\n<<<END:groenendael>>>>\n\n<<<KOT:haloperidol>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"haloperidol is a synthetic pharmaceutical compound identified by its chemical structure and mode of action on neural receptors. Its identity and effects depend on molecular pharmacology \u2014 the precise chemistry and neurotransmitter dynamics \u2014 which lie outside the scope of the prime lexicon and the current catalog. It belongs to medical-chemical science.\"}\n<<<END:haloperidol>>>>\n\n<<<KOT:hematocrit>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"hematocrit is a quantitative biomedical measurement \u2014 a percentage ratio determined by laboratory centrifugation of blood samples. Its meaning and use rest on cellular biology and blood physiology that cannot be grounded in the prime lexicon or available catalog concepts. It belongs to medical-laboratory science.\"}\n<<<END:hematocrit>>>>\n\n<<<KOT:holometabolous>>>>\n{\"kind\":\"explication\",\"gloss\":\"this something is a kind of animal; when it is born it is one kind; after time it becomes another kind; after more time another; after more time the final kind; each kind does different things\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"},{\"index\":2,\"refKind\":\"TimeRef\"},{\"index\":3,\"refKind\":\"TimeRef\"},{\"index\":4,\"refKind\":\"TimeRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"kindFrame\",\"of\":{\"kind\":\"concept\",\"id\":\"urn:kernel-v0:animal\"}}}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"adjuncts\":{\"time\":{\"kind\":\"temporal\",\"op\":\"WHEN\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"MOMENT\"}}}}},{\"type\":\"op\",\"op\":\"WHEN\",\"args\":[{\"kind\":\"prime\",\"prime\":\"MOMENT\"},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\",\"bind\":2}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":2},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\",\"bind\":3}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":3},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\",\"bind\":4}}}]},{\"type\":\"op\",\"op\":\"AFTER\",\"args\":[{\"kind\":\"ref\",\"index\":4},{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"quant\":\"ONE\"}}}]}]}}\n<<<END:holometabolous>>>>",
+ "stop_reason": "end_turn",
+ "session_id": "25ac845c-1b4b-4fc4-a934-ee10f46b52e2",
+ "total_cost_usd": 0.0148365,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 3483,
+  "cache_read_input_tokens": 4275,
+  "output_tokens": 932,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 3483,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 932,
+    "cache_read_input_tokens": 4275,
+    "cache_creation_input_tokens": 3483,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 3483
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 2708,
+   "outputTokens": 947,
+   "cacheReadInputTokens": 4275,
+   "cacheCreationInputTokens": 3483,
+   "webSearchRequests": 0,
+   "costUSD": 0.0148365,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "ff408f68-6b41-4208-9087-257b1cd9f9b2"
+}

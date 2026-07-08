@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 10960,
+ "duration_api_ms": 11619,
+ "ttft_ms": 10601,
+ "ttft_stream_ms": 2069,
+ "time_to_request_ms": 1236,
+ "num_turns": 1,
+ "result": "<<<KOT:uremic>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"uremic is a medical-technical adjective denoting a pathophysiological state (excess urea and protein metabolites in blood due to kidney dysfunction). Its identity conditions require knowledge of biochemistry, renal physiology, and laboratory thresholds (urea concentration, creatinine levels) that cannot be grounded in the prime lexicon or catalog concepts. It belongs to the medical-scientific sector, not the everyday perceptual-action tier.\"}\n<<<END:uremic>>>>\n\n<<<KOT:vernix>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a waxy white substance on the skin of a {urn:molecule-v0:child|child} [m] when born; it is there for a short time after birth; it does something for the body.\",\"groundingNote\":\"a waxy white substance on the skin of a {urn:molecule-v0:child|child} [m] when born; it is there for a short time after birth; it is on the body; it does something good for the body.\",\"groundingRefs\":[\"urn:molecule-v0:child\"]}\n<<<END:vernix>>>>\n\n<<<KOT:wagnerian>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Wagnerian is a proper-adjective derived from the name of a specific historical composer (Richard Wagner) and his aesthetic innovations (Gesamtkunstwerk, music-drama synthesis). Its sense is fundamentally culture-bound and historically anchored to 19th-century European opera and compositional ideology. It cannot be reduced to a stable everyday perceptual or action concept expressible in primes, and belongs to the specialized arts-history and music-theory sector.\"}\n<<<END:wagnerian>>>>\n\n<<<KOT:winsomely>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does something; they do it in a way such that other people feel something good when they see or hear it; the way is charming.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"GOOD\"},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"type\":\"pred\",\"pred\":\"SEE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"stimulus\":{\"kind\":\"ref\",\"index\":2}}}}}}]}}\n<<<END:winsomely>>>>",
+ "stop_reason": "end_turn",
+ "session_id": "19594e9e-0296-44f2-8acd-3f9226d8dd0d",
+ "total_cost_usd": 0.0090667,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1971,
+  "cache_read_input_tokens": 4837,
+  "output_tokens": 675,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1971,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 675,
+    "cache_read_input_tokens": 4837,
+    "cache_creation_input_tokens": 1971,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1971
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1196,
+   "outputTokens": 689,
+   "cacheReadInputTokens": 4837,
+   "cacheCreationInputTokens": 1971,
+   "webSearchRequests": 0,
+   "costUSD": 0.0090667,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "29fa3a99-069f-48c8-b876-1918fa70d52d"
+}

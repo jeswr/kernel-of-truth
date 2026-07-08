@@ -1,0 +1,160 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:thirst",
+ "label": "thirst",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels bad in the body because they did not drink for a long time; their body is dry; they want to drink.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     },
+     "place": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "BODY"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "op",
+      "op": "IF",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 1
+         },
+         "undergoer": {
+          "kind": "sp",
+          "det": "THE-SAME",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         },
+         "duration": {
+          "kind": "prime",
+          "prime": "A-LONG-TIME"
+         }
+        }
+       },
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "BODY"
+          }
+         },
+         "attribute": {
+          "kind": "sp",
+          "mods": [
+           {
+            "mod": "BAD"
+           }
+          ],
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "sp",
+        "det": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/thirst",
+    "revision": "91444625/a7b84830-7a5f-11f1-bca4-b23e2cf13a71",
+    "fetched": "2026-07-07T23:57:47Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/thirst",
+    "revision": "1353711811",
+    "tid": "4d208fb8-4d8a-11f1-ba63-6c0db488e7a0",
+    "fetched": "2026-07-07T23:57:48Z"
+   }
+  ],
+  "date": "2026-07-07T23:58:50Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 562,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3133,
+    "costUSD": 0.009533
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 389,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7716,
+    "costUSD": 0.017379
+   }
+  ]
+ }
+}

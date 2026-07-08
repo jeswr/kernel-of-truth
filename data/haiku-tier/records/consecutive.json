@@ -1,0 +1,169 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:consecutive",
+ "label": "consecutive",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "one after another with nothing between; when one is finished, the next begins.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "ONE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "det": "SOME",
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "OTHER~ELSE~ANOTHER",
+      "bind": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "ONE"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 3
+     },
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "OTHER~ELSE~ANOTHER"
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "BEFORE",
+        "anchor": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/consecutive",
+    "revision": "90454617/e479d730-7a18-11f1-bd8e-4a826f50f0cb",
+    "fetched": "2026-07-07T15:31:15Z"
+   }
+  ],
+  "date": "2026-07-07T15:31:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 460,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1428,
+    "costUSD": 0.005613
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 459,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5877,
+    "costUSD": 0.014051000000000001
+   }
+  ]
+ }
+}

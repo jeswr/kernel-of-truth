@@ -1,0 +1,120 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:brother",
+ "label": "brother",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "a male person who shares one or more parents with another person.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "sp",
+         "det": "THE-SAME",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/brother",
+    "revision": "91290040/d0758c00-79fc-11f1-ba59-87cc735c9591",
+    "fetched": "2026-07-07T12:10:16Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/brother",
+    "revision": "1362178989",
+    "tid": "8d6df088-7602-11f1-9dab-aa41ed67b74a",
+    "fetched": "2026-07-07T12:10:16Z"
+   }
+  ],
+  "date": "2026-07-07T12:10:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 1474,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2904,
+    "costUSD": 0.013635000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 252,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 8354,
+    "costUSD": 0.01797
+   }
+  ]
+ }
+}

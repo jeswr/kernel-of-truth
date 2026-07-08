@@ -1,0 +1,120 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:double",
+ "label": "double",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this thing has two parts of the same kind; together they make one thing.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "attribute": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "quant": "TWO",
+         "mods": [
+          {
+           "mod": "GOOD"
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "partFrame",
+       "of": {
+        "kind": "ref",
+        "index": 1
+       }
+      },
+      "quant": "TWO"
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/double",
+    "revision": "91415677/8c3a8080-7a07-11f1-9329-4ac0a792a188",
+    "fetched": "2026-07-07T17:47:53Z"
+   }
+  ],
+  "date": "2026-07-07T17:48:01Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 301,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1475,
+    "costUSD": 0.004912
+   }
+  ]
+ }
+}

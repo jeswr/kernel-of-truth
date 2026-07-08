@@ -1,0 +1,129 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:sibling",
+ "label": "sibling",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone and another someone share a parent; they are not the same someone.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "det": "SOME",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "det": "SOME"
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "partFrame",
+       "of": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        },
+        "det": "THE-SAME"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/sibling",
+    "revision": "90819270/9e7fb790-7a18-11f1-8aa5-67dc6452e90b",
+    "fetched": "2026-07-07T15:29:18Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/sibling",
+    "revision": "1361202870",
+    "tid": "ddecd5ce-714a-11f1-b340-298deb4a3517",
+    "fetched": "2026-07-07T15:29:18Z"
+   }
+  ],
+  "date": "2026-07-07T15:29:26Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 308,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1479,
+    "costUSD": 0.004955
+   }
+  ]
+ }
+}

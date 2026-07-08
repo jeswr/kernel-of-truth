@@ -1,0 +1,108 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:person",
+ "label": "person",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "a someone who can think, know, feel, and do things; people live together in ways.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "LIVE",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/person",
+    "revision": "91506348/066f1d50-7a00-11f1-96cb-977c3f044162",
+    "fetched": "2026-07-07T12:33:15Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/person",
+    "revision": "1358342513",
+    "tid": "55ff725c-62e6-11f1-bb0d-7d7aa20b63dd",
+    "fetched": "2026-07-07T12:33:15Z"
+   }
+  ],
+  "date": "2026-07-07T12:55:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 221,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3135,
+    "costUSD": 0.007832
+   }
+  ]
+ }
+}

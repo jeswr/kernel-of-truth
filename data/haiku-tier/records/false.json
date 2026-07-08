@@ -1,0 +1,108 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:false",
+ "label": "false",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "a thing is not true; if someone says words about it, these words are not true.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "TRUE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "THINK",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 1
+       },
+       "quote": {
+        "kind": "quote",
+        "clauses": [
+         {
+          "type": "op",
+          "op": "NOT",
+          "args": [
+           {
+            "type": "pred",
+            "pred": "TRUE",
+            "roles": {
+             "undergoer": {
+              "kind": "ref",
+              "index": 1
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/false",
+    "revision": "91342805/7acd7f00-7a0c-11f1-8c82-98053bd77df9",
+    "fetched": "2026-07-07T14:02:24Z"
+   }
+  ],
+  "date": "2026-07-07T14:02:54Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 236,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3037,
+    "costUSD": 0.007711000000000001
+   }
+  ]
+ }
+}

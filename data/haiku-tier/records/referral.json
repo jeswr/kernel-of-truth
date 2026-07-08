@@ -1,0 +1,105 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:referral",
+ "label": "referral",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone tells another person to go to a third person; the second person can then do something with the third.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "det": "SOME",
+      "bind": 2
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "det": "SOME",
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 2
+     },
+     "undergoer": {
+      "kind": "ref",
+      "index": 3
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/referral",
+    "revision": "91504464/a16cc7c0-7a4c-11f1-b3c6-ff6ca68ea536",
+    "fetched": "2026-07-07T21:41:36Z"
+   }
+  ],
+  "date": "2026-07-07T21:44:17Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 239,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2971,
+    "costUSD": 0.007594
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 239,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7198,
+    "costUSD": 0.015593000000000001
+   }
+  ]
+ }
+}

@@ -92,8 +92,22 @@ but A6 SAE replicates → interpretability instrument; or HC2 alone passes → a
 - Harness: Modal `jmwright-045` primary (per-second billed, validated), AWS fallback.
 - Model ladder (all open-weight, revision-pinned, ungated defaults): SmolLM2 135M/360M/1.7B ·
   Qwen2.5 0.5B/1.5B/3B/7B · Pythia 70M/160M/410M.
-- **Timeline**: M0 freeze Jul 22 → M2 pivot (F2) Aug 01 → M5 GNG-2 decision Sep 25 → … → M9
-  paper + explainer Jan 30 2027. Early pivot/kill pulls the write-up forward to ~Oct 2026.
+- **Timeline (re-based 2026-07-08 to AGENTIC pace — the earlier calendar over-estimated on
+  human dev speed)**: **agent development is not the bottleneck**; the long poles are human
+  gates, GPU-run queues, and external compute-access lead time. M0 = GNG-0 signature
+  (agent-side ready ≈ 2–3 days from Jul 09; criteria-gated, target ≈ Jul 12–14) → **Tier 0
+  completes within ~a day of GNG-0** (annotation-dependent verdicts on annotator turnaround)
+  → **M2 pivot (F2) within a few days of GNG-0**, gated by the GPU run + the authorized ≤$80
+  spend, not dev time → **Tiers 2–3 within ~1–2 weeks**, gated mainly by human annotator
+  turnaround → GNG-2 ≈ GNG-0 +2–3 wk (~early-to-mid Aug) → **frontier tier gated by external
+  compute-access lead time** (ARC ~1–3 wk; AIRR Gateway ~1 mo submission→access ⇒ ~Oct 2026).
+  Write-up = days of agent time behind whichever GNG closes the evidence; an early
+  pivot/kill pulls it to ~Aug–Sep 2026.
+- **Spend authorization & freeze scope (2026-07-08, maintainer direction)**: **Tier 0 (~$0)
+  + the Tier-1 F2 pivot (~$80, Modal) are AUTHORIZED NOW.** **Post-F2 infrastructure**
+  (Tiers 2–5 GPU providers: ARC / AIRR / research credits — P11) is **DEFERRED/OPEN**: the
+  plan is frozen EXCEPT these infra/provider fields, which are re-frozen at each tier's
+  spend-gate (GNG-1 scope update; GATE-T4; GATE-T5). Budget caps unchanged.
 
 ## 6. Skills (`04-skills.md`) + agent roles (`05-agent-roles.md`)
 
@@ -137,7 +151,9 @@ semantic-web creep, both value theses measured, forks testable.** No redesign ne
 slips Jul 15 → Jul 22 to protect quality.
 
 *Status update (pre-freeze): the red-team fixes above have been applied across the plan components
-and verified; M0 is now Jul 22.*
+and verified. M0 was slipped to Jul 22 (RT-18), then re-based to agentic pace (2026-07-08,
+maintainer direction): criteria-gated, target ≈ Jul 12–14 — RT-18's quality bar survives as
+"every P-0 exit criterion green before signature", not as calendar padding (P3 §5).*
 
 ## 9. Decisions needed from the maintainer
 
@@ -146,8 +162,12 @@ Consolidated from all components — grouped by when they bite:
 **Now (to start Tier 0 / reach GNG-0):**
 - Approve the direction + authorize applying the red-team fixes to the frozen text.
 - Budget caps (T0 $20 · T1 $80 · T2 $400 · T3 $400 · Tiers 0–3 cumulative $900, worst-case ~$760)
-  + set the Modal spend limit to match.
-- Annotators for ~30–40 human-hours (yourself + one colleague at $0, or a paid platform ≈$500–900).
+  + set the Modal spend limit to match. **Partially resolved 2026-07-08: Tier-0 (~$0) +
+  Tier-1 F2 (~$80 Modal) spend AUTHORIZED NOW; caps unchanged; post-F2 infra/provider fields
+  deferred to each tier's spend-gate (P6).**
+- Annotators for ~30–40 human-hours — **DEFERRED (2026-07-08, O-3)**: decision made near the
+  annotation stage; **Amazon Mechanical Turk is the leading paid option** (≈$500–900);
+  yourself + one colleague at $0 remains open.
 - Confirm the **backup Fable account** as the role-separated auditor identity performing
   re-derivations (Tier ≥2 positives + paper review).
 - Enable **branch protection** on `jeswr/kernel-of-truth` (closes the log-rewrite risk).
@@ -155,8 +175,10 @@ Consolidated from all components — grouped by when they bite:
   sign-consistency** PASS gate (C-4).
 
 **Later (gated, with the evidence in hand):**
-- GATE-T4 spend ≤$900 (~Sep 25, on the GNG-2 dossier).
-- GATE-T5 spend $2–10k (~Oct, the only frontier-relevant tier).
+- GATE-T4 spend ≤$900 (with the GNG-2 dossier, ≈ GNG-0 +2–3 wk, ~Aug under the agentic
+  timeline) + the deferred Tier-4 infra/provider re-freeze (Modal-paid vs ARC).
+- GATE-T5 spend $2–10k (~Oct 2026 — bound by the AIRR/ARC compute-access lead, the only
+  frontier-relevant tier) + the deferred Tier-5 infra/provider re-freeze.
 - Venue + authorship/AI-disclosure policy (provisional at GNG-2, final at submission).
 
 **Standing:** the 6 stopped EC2 instances still need manual termination (IAM denies me

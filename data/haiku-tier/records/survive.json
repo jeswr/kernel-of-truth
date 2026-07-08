@@ -1,0 +1,130 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:survive",
+ "label": "survive",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone is alive now; before now something bad happened that could have made them die, but they did not die.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "LIVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "prime",
+      "prime": "NOW"
+     },
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "SOME",
+        "mods": [
+         {
+          "mod": "BAD"
+         }
+        ],
+        "bind": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DIE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/survive",
+    "revision": "91128511/3e9a2da0-7a50-11f1-98ab-9ec81e116454",
+    "fetched": "2026-07-07T22:07:29Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/survive",
+    "revision": "1347219534",
+    "tid": "e60620da-30e5-11f1-beb8-79d31179b933",
+    "fetched": "2026-07-07T22:07:29Z"
+   }
+  ],
+  "date": "2026-07-07T22:10:16Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 370,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3069,
+    "costUSD": 0.008445000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 485,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7428,
+    "costUSD": 0.017283
+   }
+  ]
+ }
+}

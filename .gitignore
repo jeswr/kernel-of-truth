@@ -3,6 +3,8 @@
 .dolt/
 *.db
 .beads-credential-key
+# beads temp export files
+.beads/.~*
 # roborev snapshots
 /.roborev/
 
@@ -16,6 +18,8 @@ poc/results/*-checkpoint.json
 poc/results/*.log
 # Python
 __pycache__/
+# P2 RT-14: unhashed account<->pseudonym sidecar — maintainer-held, never committed
+registry/identity-map.json
 # physics-qudt source vocabularies (pinned by sha256 in data/physics-qudt/manifest.json;
 # re-fetch with data/physics-qudt/tools/fetch-source.mjs)
 data/physics-qudt/source/

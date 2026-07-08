@@ -1,0 +1,117 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:shallow",
+ "label": "shallow",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "distance from top to bottom is very small; or someone thinks about it in a way that is not deep.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "quant": "LITTLE~FEW",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      }
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 1
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "attribute": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "mods": [
+           {
+            "mod": "SMALL"
+           }
+          ]
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/shallow",
+    "revision": "91378509/bf949380-7a25-11f1-91e6-4fca84598cf7",
+    "fetched": "2026-07-07T17:03:17Z"
+   }
+  ],
+  "date": "2026-07-07T17:04:29Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 325,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3005,
+    "costUSD": 0.008092
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 276,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7300,
+    "costUSD": 0.015982
+   }
+  ]
+ }
+}

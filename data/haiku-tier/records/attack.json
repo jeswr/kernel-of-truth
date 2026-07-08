@@ -1,0 +1,135 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:attack",
+ "label": "attack",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something to hurt another someone's body or make them feel bad, wanting them to have something bad happen.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     },
+     "instrument": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "BODY"
+        }
+       }
+      },
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "BAD"
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/attack",
+    "revision": "91124293/cc9a8810-7975-11f1-809e-b6e7e9119c3d",
+    "fetched": "2026-07-07T12:36:55Z"
+   }
+  ],
+  "date": "2026-07-07T13:06:36Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 344,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3137,
+    "costUSD": 0.008451
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 322,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7470,
+    "costUSD": 0.016552
+   }
+  ]
+ }
+}

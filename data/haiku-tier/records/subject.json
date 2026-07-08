@@ -1,0 +1,88 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:subject",
+ "label": "subject",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone or something that does something; people say words about this someone or something.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SAY",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        }
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/subject",
+    "revision": "91373013/ffb85c50-7a0a-11f1-b305-cc18322d34a2",
+    "fetched": "2026-07-07T13:51:48Z"
+   }
+  ],
+  "date": "2026-07-07T13:52:29Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 163,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3081,
+    "costUSD": 0.007434
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 164,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7214,
+    "costUSD": 0.01525
+   }
+  ]
+ }
+}

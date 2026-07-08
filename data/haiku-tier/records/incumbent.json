@@ -1,0 +1,167 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:incumbent",
+ "label": "incumbent",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone holds an office or title now; before this time, someone else held it; after this time, someone else may hold it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME",
+      "bind": 2
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "quant": "ONE"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "prime",
+      "prime": "NOW"
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        },
+        "det": "OTHER~ELSE~ANOTHER"
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "op",
+      "op": "AFTER",
+      "args": [
+       {
+        "kind": "prime",
+        "prime": "NOW"
+       },
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMEONE"
+          },
+          "det": "OTHER~ELSE~ANOTHER"
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/incumbent",
+    "revision": "91418671/1a02df80-7a34-11f1-a76b-0e12ee538cb4",
+    "fetched": "2026-07-07T18:46:01Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/incumbent",
+    "revision": "1360669144",
+    "tid": "363f7f64-6e86-11f1-88cf-f95af45f13fe",
+    "fetched": "2026-07-07T18:46:02Z"
+   }
+  ],
+  "date": "2026-07-07T18:46:10Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 429,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1613,
+    "costUSD": 0.005828
+   }
+  ]
+ }
+}

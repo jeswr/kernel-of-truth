@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 12974,
+ "duration_api_ms": 14374,
+ "ttft_ms": 12437,
+ "ttft_stream_ms": 3863,
+ "time_to_request_ms": 2221,
+ "num_turns": 1,
+ "result": "<<<KOT:interleave>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone does this: they take things of one kind and things of another kind; they put them together in a way so that they are not all in one place; the way is: one of the first kind, then one of the second kind, then one of the first kind again, and so on.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"},{\"index\":3,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":2}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"bind\":3}}},{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY~WAYS\"},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"ONE\"}}},\"conjunction\":\"then\",\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":3},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"ONE\"}}}}}}}]}}\n<<<END:interleave>>>>\n\n<<<KOT:isogram>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a {urn:kernel-v0:kind|kind} [m] of {urn:molecule-v0:words|word} [m]; in this word, each {urn:molecule-v0:letter|letter} [m] appears one time only\",\"groundingNote\":\"a {urn:kernel-v0:kind|kind} of {urn:molecule-v0:words|word} [m]; in this word, each letter appears one time only\",\"groundingRefs\":[\"urn:kernel-v0:kind\",\"urn:molecule-v0:words\"]}\n<<<END:isogram>>>>\n\n<<<KOT:katabolic>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"katabolic is a technical biochemistry adjective that names a specific mode of chemical reaction within living bodies (the breaking down of complex molecules to release energy). Its identity conditions depend on molecular structure and enzymatic pathways that are not expressible in the prime lexicon and cannot be grounded in everyday percepts or actions. It requires domain-specific chemistry knowledge beyond the scope of this tier.\"}\n<<<END:katabolic>>>>\n\n<<<KOT:laetrile>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"laetrile is a proper name for a specific pharmaceutical compound (derived from apricot-kernel amygdalin) with a particular chemical structure and historical medical context. It is not a category of everyday things or actions that can be grounded in the prime lexicon or defined by common percepts and bodily experience. Its definition relies on biochemical identity and regulatory history, not semantic primitives.\"}\n<<<END:laetrile>>>>",
+ "stop_reason": "end_turn",
+ "session_id": "4acc736e-c61c-424b-8818-fbac9e05bd39",
+ "total_cost_usd": 0.010198700000000002,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 2050,
+  "cache_read_input_tokens": 4837,
+  "output_tokens": 856,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2050,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 856,
+    "cache_read_input_tokens": 4837,
+    "cache_creation_input_tokens": 2050,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 2050
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1275,
+   "outputTokens": 868,
+   "cacheReadInputTokens": 4837,
+   "cacheCreationInputTokens": 2050,
+   "webSearchRequests": 0,
+   "costUSD": 0.010198700000000002,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "c3391e5e-d5cc-429b-98a0-1d8c0275cd1f"
+}

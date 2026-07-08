@@ -1,0 +1,127 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:ghost",
+ "label": "ghost",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "a someone who has died; people believe they can see this someone appear as a very faint shadowy thing.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DIE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "PEOPLE"
+        },
+        "det": "SOME",
+        "bind": 2
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "SMALL",
+          "intensifier": "VERY"
+         }
+        ],
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "BE-SPEC",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          },
+          "attribute": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "BODY"
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/ghost",
+    "revision": "91347632/974f4e00-7a08-11f1-a700-8dc8a9b0258a",
+    "fetched": "2026-07-07T13:34:34Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/ghost",
+    "revision": "1362626960",
+    "tid": "158a0a77-783a-11f1-aa05-b2f8a9e227f1",
+    "fetched": "2026-07-07T13:34:34Z"
+   }
+  ],
+  "date": "2026-07-07T13:35:57Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 400,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3329,
+    "costUSD": 0.009115
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 285,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7717,
+    "costUSD": 0.016861
+   }
+  ]
+ }
+}

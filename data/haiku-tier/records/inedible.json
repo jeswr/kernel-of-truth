@@ -1,0 +1,102 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:inedible",
+ "label": "inedible",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something is not good to eat.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "det": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ],
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "sp",
+           "det": "SOME",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMEONE"
+           }
+          },
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/inedible",
+    "revision": "89232410/425babd0-7a37-11f1-8cd7-dba5bf184f45",
+    "fetched": "2026-07-07T19:08:38Z"
+   }
+  ],
+  "date": "2026-07-07T19:09:04Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 351,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1393,
+    "costUSD": 0.004998
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 212,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5734,
+    "costUSD": 0.012530000000000001
+   }
+  ]
+ }
+}

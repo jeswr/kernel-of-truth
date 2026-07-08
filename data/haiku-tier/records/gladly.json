@@ -1,0 +1,99 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:gladly",
+ "label": "gladly",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something with a feeling of good about it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "det": "THE-SAME",
+      "head": {
+       "kind": "refHead",
+       "index": 2
+      },
+      "bind": 2
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/gladly",
+    "revision": "89281267/0c4a7730-7a5d-11f1-bca5-0a94deac72c8",
+    "fetched": "2026-07-07T23:39:08Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/gladly",
+    "revision": "1297312971",
+    "tid": "5d9f3962-51b9-11f0-85e7-6195c5218137",
+    "fetched": "2026-07-07T23:39:08Z"
+   }
+  ],
+  "date": "2026-07-07T23:40:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 199,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2985,
+    "costUSD": 0.007422
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 185,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7173,
+    "costUSD": 0.015273
+   }
+  ]
+ }
+}

@@ -1,0 +1,132 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:participation",
+ "label": "participation",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "when someone does something together with other people, that someone becomes part of a larger group doing that thing together.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "comitative": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "quant": "SOME"
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "comitative": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "quant": "SOME",
+      "bind": 3
+     },
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "partFrame",
+       "of": {
+        "kind": "ref",
+        "index": 3
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/participation",
+    "revision": "91475431/39771ce0-7a17-11f1-b26c-282dcaa77202",
+    "fetched": "2026-07-07T15:19:19Z"
+   }
+  ],
+  "date": "2026-07-07T15:19:40Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 397,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1425,
+    "costUSD": 0.005292
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 710,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5811,
+    "costUSD": 0.015174
+   }
+  ]
+ }
+}

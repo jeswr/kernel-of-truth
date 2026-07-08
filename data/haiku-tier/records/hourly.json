@@ -1,0 +1,131 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:hourly",
+ "label": "hourly",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something happens again and again, with the same length of time between each happening.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "WHEN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHEN~TIME"
+        },
+        "bind": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "AFTER",
+        "anchor": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "MOMENT"
+      },
+      "det": "THE-SAME"
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "MOMENT"
+      },
+      "det": "THE-SAME"
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "AFTER",
+     "anchor": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/hourly",
+    "revision": "91040091/a15f7590-7a31-11f1-9d6c-f3ac110aa5bd",
+    "fetched": "2026-07-07T18:28:20Z"
+   }
+  ],
+  "date": "2026-07-07T18:28:40Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 384,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1407,
+    "costUSD": 0.005191
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 314,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5772,
+    "costUSD": 0.013116000000000001
+   }
+  ]
+ }
+}

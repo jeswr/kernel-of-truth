@@ -1,0 +1,161 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:apathy",
+ "label": "apathy",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does not want to do things; someone does not feel good or bad about things; someone does not think about things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 1
+          },
+          "undergoer": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMETHING~THING"
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "GOOD"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "THINK",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/apathy",
+    "revision": "89636145/d169a1a0-7a4c-11f1-a190-3c8d3b8f9385",
+    "fetched": "2026-07-07T21:42:57Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/apathy",
+    "revision": "1348047064",
+    "tid": "b6338d58-34cc-11f1-922d-f796876f82a1",
+    "fetched": "2026-07-07T21:42:58Z"
+   }
+  ],
+  "date": "2026-07-07T21:44:13Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 306,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3082,
+    "costUSD": 0.008151
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 359,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7358,
+    "costUSD": 0.016513
+   }
+  ]
+ }
+}

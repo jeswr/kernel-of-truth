@@ -1,0 +1,138 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:vanish",
+ "label": "vanish",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something is in some place; then it is not in that place; people cannot see it anymore; it happens in a short time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "PlaceRef"
+   },
+   {
+    "index": 3,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "det": "SOME",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "A-SHORT-TIME"
+      },
+      "bind": 3
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "locus": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "SEE",
+        "roles": {
+         "experiencer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          }
+         },
+         "stimulus": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/vanish",
+    "revision": "91520905/876cf570-7a60-11f1-bf87-e4fd3b6fe0b0",
+    "fetched": "2026-07-08T00:04:03Z"
+   }
+  ],
+  "date": "2026-07-08T00:04:36Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 352,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3001,
+    "costUSD": 0.008219
+   }
+  ]
+ }
+}

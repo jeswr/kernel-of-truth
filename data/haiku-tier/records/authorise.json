@@ -1,0 +1,119 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:authorise",
+ "label": "authorise",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone says to another: you can do this thing.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "det": "SOME",
+      "bind": 2,
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      }
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+         {
+          "type": "pred",
+          "pred": "DO",
+          "roles": {
+           "agent": {
+            "kind": "ref",
+            "index": 2
+           },
+           "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            }
+           }
+          }
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/authorise",
+    "revision": "85184788/a10c62d0-7a4d-11f1-a2af-d7270284be53",
+    "fetched": "2026-07-07T21:48:45Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/authorise",
+    "revision": "1341431660",
+    "tid": "b49cca59-16bd-11f1-a007-ea8685d1f90a",
+    "fetched": "2026-07-07T21:48:46Z"
+   }
+  ],
+  "date": "2026-07-07T21:49:28Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 303,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3033,
+    "costUSD": 0.008038
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 247,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7324,
+    "costUSD": 0.015885
+   }
+  ]
+ }
+}

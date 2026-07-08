@@ -1,0 +1,113 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:drive",
+ "label": "drive",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone operates a wheeled motorized vehicle by doing something to it; the vehicle moves because of this; someone can be in a different place after some time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SOMEWHERE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "locus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "det": "OTHER~ELSE~ANOTHER"
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "AFTER",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/drive",
+    "revision": "91377081/de806800-79fd-11f1-9cd5-eabb78ec9ce6",
+    "fetched": "2026-07-07T12:17:49Z"
+   }
+  ],
+  "date": "2026-07-07T12:18:06Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 443,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2928,
+    "costUSD": 0.008528
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 281,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7337,
+    "costUSD": 0.016080999999999998
+   }
+  ]
+ }
+}

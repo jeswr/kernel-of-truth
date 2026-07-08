@@ -3,7 +3,10 @@
 **Status:** operational specification for maintainer sign-off, 2026-07-08 (rev 2 — verifier
 pass: RT-5 `prereg amend` design-amendment cutoff aligned to the **first `phase:"final"` run
 record** (P2 §1.4/G-3), not the later `unblind` line; identity strings aligned to P2 §1.2
-constraint 10 pseudonyms (RT-14); M0 date Jul 22 per RT-18). Component P4 of the
+constraint 10 pseudonyms (RT-14); M0 date Jul 22 per RT-18 — **superseded 2026-07-08 by the
+agentic-pace re-base, P3 §5: calendar dates in this document are pre-recompression; read
+build-by dates as phase-relative — skills 1–8 land before GNG-0 (≈ days from Jul 09),
+S8–S10 before GNG-2 (≈ GNG-0 +2–3 wk)**). Component P4 of the
 research plan (`docs/research-plan/`). Governed by `docs/kernel-design-directives.md`
 (binding; esp. §3 "The SKILLS to develop", §6, §7). Implements the verbs defined by P2
 (`02-data-and-reporting.md` §5.3 — the tool/guardrail surface each skill drives), the stage

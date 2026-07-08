@@ -1,0 +1,163 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unkind",
+ "label": "unkind",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "when someone does something to someone else, that other person feels bad because of it; the first person does not want the other to feel good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "det": "SOME",
+      "bind": 2,
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    },
+    "adjuncts": {
+     "time": {
+      "kind": "temporal",
+      "op": "AFTER",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "DON'T-WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "FEEL",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "attribute": {
+         "kind": "prime",
+         "prime": "GOOD"
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unkind",
+    "revision": "88429199/baaf9930-7a18-11f1-9d0d-b95bd6b8cc2e",
+    "fetched": "2026-07-07T15:30:05Z"
+   }
+  ],
+  "date": "2026-07-07T15:30:24Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 379,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1443,
+    "costUSD": 0.005238
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 405,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5811,
+    "costUSD": 0.013649
+   }
+  ]
+ }
+}

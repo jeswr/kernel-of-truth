@@ -1,0 +1,121 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:easy",
+ "label": "easy",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "when something is easy, someone can do it without needing much skill or effort, and they feel good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "bind": 2
+     },
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "complement": {
+        "kind": "sp",
+        "quant": "MUCH~MANY",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/easy",
+    "revision": "91342397/0cb14990-7a00-11f1-a314-b067dffed935",
+    "fetched": "2026-07-07T12:33:25Z"
+   }
+  ],
+  "date": "2026-07-07T12:56:05Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 282,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3026,
+    "costUSD": 0.007919
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 282,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7295,
+    "costUSD": 0.016002000000000002
+   }
+  ]
+ }
+}

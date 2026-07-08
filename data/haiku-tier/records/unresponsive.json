@@ -1,0 +1,111 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unresponsive",
+ "label": "unresponsive",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone does not do things when other people do things to this someone; this someone does not feel; this someone does not say words.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "AFTER",
+        "anchor": {
+         "kind": "prime",
+         "prime": "NOW"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "SAY",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unresponsive",
+    "revision": "90610785/1085a1f0-7a33-11f1-8c0d-f935a3cff3d2",
+    "fetched": "2026-07-07T18:38:36Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/unresponsive",
+    "revision": "1360366921",
+    "tid": "d1aee545-6d10-11f1-9b71-8c192c049c33",
+    "fetched": "2026-07-07T18:38:36Z"
+   }
+  ],
+  "date": "2026-07-07T18:38:43Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 230,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1528,
+    "costUSD": 0.0046630000000000005
+   }
+  ]
+ }
+}

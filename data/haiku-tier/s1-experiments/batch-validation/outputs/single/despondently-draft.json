@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 9691,
+ "duration_api_ms": 8330,
+ "ttft_ms": 8979,
+ "ttft_stream_ms": 5611,
+ "time_to_request_ms": 4074,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"someone does something; at the time, this someone feels something bad; because this someone thinks something bad will happen, or something bad happened before.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"DO\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"undergoer\":{\"kind\":\"ref\",\"index\":2}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"time\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}},{\"type\":\"op\",\"op\":\"BECAUSE\",\"args\":[{\"type\":\"op\",\"op\":\"OR\",\"args\":[{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"mods\":[{\"mod\":\"BAD\"}]},\"time\":{\"kind\":\"temporal\",\"op\":\"AFTER\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}},{\"type\":\"pred\",\"pred\":\"HAPPEN\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"SOME\",\"mods\":[{\"mod\":\"BAD\"}]},\"time\":{\"kind\":\"temporal\",\"op\":\"BEFORE\",\"anchor\":{\"kind\":\"prime\",\"prime\":\"NOW\"}}}}]},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"}}}]}]}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "4cef6b88-b01c-4391-8530-beee9537e258",
+ "total_cost_usd": 0.006043,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1371,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 436,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1371,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 436,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1371,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1371
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 596,
+   "outputTokens": 450,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1371,
+   "webSearchRequests": 0,
+   "costUSD": 0.006043,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "db431c59-e5d7-4989-b95d-4ff79d625e83"
+}

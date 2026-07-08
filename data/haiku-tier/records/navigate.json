@@ -1,0 +1,161 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:navigate",
+ "label": "navigate",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone moves from one place to another; before moving, they know where they are and where they want to be; they move because they know where things are.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "PlaceRef"
+   },
+   {
+    "index": 3,
+    "refKind": "PlaceRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "prime",
+      "prime": "NOW"
+     },
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHERE~PLACE"
+        },
+        "det": "THE-SAME",
+        "bind": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "prime",
+      "prime": "NOW"
+     },
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHERE~PLACE"
+        },
+        "det": "OTHER~ELSE~ANOTHER",
+        "bind": 3
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHERE~PLACE"
+        }
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/navigate",
+    "revision": "91127144/87657b00-7a16-11f1-b219-43d7bdfe7499",
+    "fetched": "2026-07-07T15:14:20Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/navigate",
+    "revision": "1362652050",
+    "tid": "23ee1dc7-7866-11f1-9479-735620c633ec",
+    "fetched": "2026-07-07T15:18:28Z"
+   }
+  ],
+  "date": "2026-07-07T15:18:46Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 474,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1568,
+    "costUSD": 0.0059629999999999996
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 568,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6020,
+    "costUSD": 0.014882
+   }
+  ]
+ }
+}

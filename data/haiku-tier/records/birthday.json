@@ -1,0 +1,163 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:birthday",
+ "label": "birthday",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "the day when someone was born; this day comes again each time a period of one year happens; people can do things to feel good on this day.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "det": "THE-SAME",
+      "bind": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "det": "THE-SAME"
+     },
+     "time": {
+      "kind": "temporal",
+      "op": "BEFORE",
+      "anchor": {
+       "kind": "prime",
+       "prime": "NOW"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "WHEN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "MOMENT"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ],
+        "det": "THE-SAME"
+       }
+      }
+     },
+     {
+      "type": "op",
+      "op": "CAN",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "PEOPLE"
+          }
+         },
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         },
+         "comitative": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/birthday",
+    "revision": "91148937/82028d30-7a00-11f1-ab78-896dfa5b2f89",
+    "fetched": "2026-07-07T17:46:58Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/birthday",
+    "revision": "1359590633",
+    "tid": "b9fee8a3-6931-11f1-bbc8-d4d06d4cad60",
+    "fetched": "2026-07-07T17:47:01Z"
+   }
+  ],
+  "date": "2026-07-07T17:47:10Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 428,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1502,
+    "costUSD": 0.005601
+   }
+  ]
+ }
+}

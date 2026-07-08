@@ -1,0 +1,137 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:champion",
+ "label": "champion",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone wins a contest; people know this someone is very good; people see this someone as better than all other people in the contest.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "THIS",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "refHead",
+       "index": 1
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "VERY"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "stimulus": {
+      "kind": "sp",
+      "head": {
+       "kind": "refHead",
+       "index": 1
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "VERY"
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/champion",
+    "revision": "91490906/ef3eb0f0-7a0e-11f1-bfe6-b76e4ca74614",
+    "fetched": "2026-07-07T17:51:01Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/champion",
+    "revision": "1359968820",
+    "tid": "e9b31b9d-6b06-11f1-a017-d8e775867c24",
+    "fetched": "2026-07-07T17:51:02Z"
+   }
+  ],
+  "date": "2026-07-07T17:51:23Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 531,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1566,
+    "costUSD": 0.0062439999999999996
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 533,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6052,
+    "costUSD": 0.014771
+   }
+  ]
+ }
+}

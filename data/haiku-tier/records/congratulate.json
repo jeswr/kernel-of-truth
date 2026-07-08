@@ -1,0 +1,132 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:congratulate",
+ "label": "congratulate",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone expresses pleasure to another person about something good that happened to that person; the speaker feels good about it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "bind": 2
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME",
+      "bind": 3,
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ]
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 3
+         },
+         "time": {
+          "kind": "temporal",
+          "op": "BEFORE",
+          "anchor": {
+           "kind": "prime",
+           "prime": "NOW"
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/congratulate",
+    "revision": "91354482/5f1f7590-7a22-11f1-8a4d-148622d1c818",
+    "fetched": "2026-07-07T16:39:06Z"
+   }
+  ],
+  "date": "2026-07-07T16:42:13Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 390,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2942,
+    "costUSD": 0.008291
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 587,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7320,
+    "costUSD": 0.017577
+   }
+  ]
+ }
+}

@@ -1,0 +1,173 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:wantonly",
+ "label": "wantonly",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something deliberately that they know is bad, because they want to, not for any good reason.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "THIS",
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "SOME",
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ],
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/wantonly",
+    "revision": "84412168/f04329d0-7a28-11f1-888d-e79c3aa96c45",
+    "fetched": "2026-07-07T17:26:07Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/wantonly",
+    "revision": "1361881394",
+    "tid": "6f8a7754-74a4-11f1-8798-9d94e336b8b6",
+    "fetched": "2026-07-07T17:26:07Z"
+   }
+  ],
+  "date": "2026-07-07T17:26:24Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 914,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1454,
+    "costUSD": 0.007935000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 409,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6357,
+    "costUSD": 0.014761
+   }
+  ]
+ }
+}

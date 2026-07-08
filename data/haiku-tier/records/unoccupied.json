@@ -1,0 +1,105 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unoccupied",
+ "label": "unoccupied",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something is not being used now; no one is doing something with it; no one is in this place.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        },
+        "det": "SOME",
+        "bind": 2
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "prime",
+        "prime": "NOW"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SOMEWHERE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "locus": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "prime",
+        "prime": "NOW"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unoccupied",
+    "revision": "91365719/5c3e5e90-7a36-11f1-aa10-ea040b737a9a",
+    "fetched": "2026-07-07T19:02:12Z"
+   }
+  ],
+  "date": "2026-07-07T19:02:19Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 250,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1407,
+    "costUSD": 0.004521000000000001
+   }
+  ]
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:explore",
+ "label": "explore",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone moves to places they do not know; they want to see what is there; they want to know about these places.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "PlaceRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "place": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHERE~PLACE"
+      },
+      "det": "OTHER~ELSE~ANOTHER",
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "SEE",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "stimulus": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "det": "SOME",
+         "bind": 3
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "KNOW",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/explore",
+    "revision": "91190466/6f1e6090-79fb-11f1-8fe6-dd15d8f42ad5",
+    "fetched": "2026-07-07T12:00:23Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/explore",
+    "revision": "1358389301",
+    "tid": "87e6f692-632b-11f1-bd4c-3068065a3b7b",
+    "fetched": "2026-07-07T12:00:23Z"
+   }
+  ],
+  "date": "2026-07-07T12:00:40Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 346,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2892,
+    "costUSD": 0.007971
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 352,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7215,
+    "costUSD": 0.016192
+   }
+  ]
+ }
+}

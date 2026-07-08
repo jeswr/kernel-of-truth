@@ -1,0 +1,131 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:call",
+ "label": "call",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "to say words in a loud way to someone so they hear and know you want them to do or come to something.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "bind": 2,
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      }
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+         "experiencer": {
+          "kind": "prime",
+          "prime": "I"
+         },
+         "complement": {
+          "kind": "clause",
+          "clause": {
+           "type": "pred",
+           "pred": "DO",
+           "roles": {
+            "agent": {
+             "kind": "ref",
+             "index": 2
+            }
+           }
+          }
+         }
+        }
+       }
+      ]
+     },
+     "manner": {
+      "kind": "sp",
+      "mods": [
+       {
+        "mod": "BIG"
+       }
+      ],
+      "head": {
+       "kind": "primeHead",
+       "prime": "WORDS"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "HEAR",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/call",
+    "revision": "91452230/6f52de10-79fb-11f1-a01e-b7627302aad6",
+    "fetched": "2026-07-07T17:44:53Z"
+   }
+  ],
+  "date": "2026-07-07T17:45:09Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 405,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1460,
+    "costUSD": 0.005402
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 638,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5853,
+    "costUSD": 0.014898
+   }
+  ]
+ }
+}

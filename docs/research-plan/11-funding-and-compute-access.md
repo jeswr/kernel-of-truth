@@ -7,6 +7,14 @@ external figure below was **verified against live sources on 2026-07-08**; each 
 source URL. Prices for marketplaces are volatile — re-verify at I-BUDGET time and pin into
 `registry/budget.json` per F0 §3.5.
 
+> **Timeline note (2026-07-08, post-authorship):** gate dates in this document were written
+> against the pre-recompression calendar. Under the agentic-pace re-base (P3 §5), GNG-2 /
+> GATE-T4 land ≈ GNG-0 +2–3 wk (**~Aug 2026**, not ~Sep 25) and GATE-T5 stays **~Oct 2026**
+> — now bound by the AIRR/ARC access lead time itself, not by evidence readiness. This makes
+> the "start the free-path onboarding NOW" actions (§5 N-1…N-7) *more* urgent, not less.
+> Tier-0 + Tier-1 spend is AUTHORIZED (2026-07-08); the Tiers 2–5 provider fields are
+> DEFERRED/OPEN, re-frozen at each tier's spend-gate (P6 authorization block).
+
 **Governance note.** P6 §1.1 contains a standing "**No other providers**" decision (Modal
 primary, AWS fallback; Lambda/RunPod/etc. rejected for credential/image/provenance overhead).
 Nothing in this document overrides that. §2 below prices the rejected options so the

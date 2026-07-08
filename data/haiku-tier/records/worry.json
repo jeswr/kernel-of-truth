@@ -1,0 +1,144 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:worry",
+ "label": "worry",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone thinks about something bad that maybe will happen; because of this, someone feels something bad now.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ],
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "AFTER",
+        "anchor": {
+         "kind": "prime",
+         "prime": "NOW"
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "THINK",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "topic": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "BAD"
+       },
+       "time": {
+        "kind": "prime",
+        "prime": "NOW"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:e8c7f354b31e43b26c6e143b98c776c5fbacdfc753a33a4a6d416dccebbb64ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/worry",
+    "revision": "91425728/f5588f50-79fb-11f1-8f9e-88d55b7e612a",
+    "fetched": "2026-07-07T12:04:08Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/worry",
+    "revision": "1337850088",
+    "tid": "f9040d24-0786-11f1-9ecb-aa7b8ddf4eb5",
+    "fetched": "2026-07-07T12:04:08Z"
+   }
+  ],
+  "date": "2026-07-07T12:04:17Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 334,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2930,
+    "costUSD": 0.007987
+   }
+  ]
+ }
+}

@@ -1,0 +1,142 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:reform",
+ "label": "reform",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "to make something that is bad or broken become good and useful by changing it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "det": "THE-SAME",
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ],
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "restrictedBy": {
+       "type": "pred",
+       "pred": "HAPPEN",
+       "roles": {
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "time": {
+         "kind": "temporal",
+         "op": "BEFORE",
+         "anchor": {
+          "kind": "prime",
+          "prime": "NOW"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "det": "THE-SAME",
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ],
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/reform",
+    "revision": "91398440/e97ff8a0-7a26-11f1-a81d-61d8e20931fc",
+    "fetched": "2026-07-07T17:11:37Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/reform",
+    "revision": "1358982460",
+    "tid": "60967183-6634-11f1-b00c-99b24d8ee692",
+    "fetched": "2026-07-07T17:11:38Z"
+   }
+  ],
+  "date": "2026-07-07T17:14:42Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 306,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3086,
+    "costUSD": 0.008159
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 324,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7377,
+    "costUSD": 0.016376
+   }
+  ]
+ }
+}

@@ -1,0 +1,98 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:parley",
+ "label": "parley",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "two people say things to each other.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "refHead",
+       "index": 2
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 2
+     },
+     "addressee": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/parley",
+    "revision": "90366439/f676e0b0-7a34-11f1-a9ba-7ff53d6e2e6f",
+    "fetched": "2026-07-07T18:52:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/parley",
+    "revision": "1328607898",
+    "tid": "ef91a340-dde6-11f0-8f48-6636d974e229",
+    "fetched": "2026-07-07T18:52:12Z"
+   }
+  ],
+  "date": "2026-07-07T18:52:32Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 530,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1489,
+    "costUSD": 0.006085
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 455,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6007,
+    "costUSD": 0.014291
+   }
+  ]
+ }
+}

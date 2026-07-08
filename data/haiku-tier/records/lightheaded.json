@@ -1,0 +1,120 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:lightheaded",
+ "label": "lightheaded",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels something bad; thinks the world moves; may fall.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "WHERE~PLACE"
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/lightheaded",
+    "revision": "85289579/32a5c270-7a37-11f1-8618-9e23137279b0",
+    "fetched": "2026-07-07T19:08:11Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/lightheaded",
+    "revision": "1337902120",
+    "tid": "6d0adbcd-07b8-11f1-98e5-3022b2512382",
+    "fetched": "2026-07-07T19:08:12Z"
+   }
+  ],
+  "date": "2026-07-07T19:08:30Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 311,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1486,
+    "costUSD": 0.004984000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 426,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5783,
+    "costUSD": 0.013698
+   }
+  ]
+ }
+}

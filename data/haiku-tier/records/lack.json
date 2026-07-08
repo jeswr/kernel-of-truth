@@ -1,0 +1,124 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:lack",
+ "label": "lack",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone does not have something; because of this, this someone wants it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "THE-SAME",
+        "bind": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    },
+    "because": {
+     "type": "op",
+     "op": "NOT",
+     "args": [
+      {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/lack",
+    "revision": "91493818/b4cb9380-7a0d-11f1-9b62-dd44cc7f00ba",
+    "fetched": "2026-07-07T17:50:20Z"
+   }
+  ],
+  "date": "2026-07-07T17:50:28Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 298,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1475,
+    "costUSD": 0.004897
+   }
+  ]
+ }
+}

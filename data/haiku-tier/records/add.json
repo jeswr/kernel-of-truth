@@ -1,0 +1,135 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:add",
+ "label": "add",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone takes two or more things together so that after, there is one thing that is all of those things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "quant": "TWO",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "AFTER",
+    "args": [
+     {
+      "kind": "prime",
+      "prime": "NOW"
+     },
+     {
+      "type": "pred",
+      "pred": "THERE-IS",
+      "roles": {
+       "undergoer": {
+        "kind": "sp",
+        "quant": "ONE",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "bind": 3
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 3
+     },
+     "attribute": {
+      "kind": "sp",
+      "det": "THE-SAME",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/add",
+    "revision": "91456109/7da4a5c0-7a0a-11f1-8848-60529cf82b12",
+    "fetched": "2026-07-07T13:48:10Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/add",
+    "revision": "1359884587",
+    "tid": "2d6a3a97-6a8f-11f1-8d44-b78aa1fc702e",
+    "fetched": "2026-07-07T13:48:10Z"
+   }
+  ],
+  "date": "2026-07-07T13:50:06Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 402,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3188,
+    "costUSD": 0.008843
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 315,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7560,
+    "costUSD": 0.016697
+   }
+  ]
+ }
+}

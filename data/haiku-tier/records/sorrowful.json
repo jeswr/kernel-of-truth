@@ -1,0 +1,119 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:sorrowful",
+ "label": "sorrowful",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "feeling very bad; like sadness but more intense; can last a long time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     },
+     "manner": {
+      "kind": "prime",
+      "prime": "VERY"
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "LIKE",
+    "args": [
+     {
+      "kind": "concept",
+      "id": "urn:kernel-v0:sad"
+     },
+     {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "det": "THIS",
+        "quant": "MUCH~MANY",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHEN~TIME"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/sorrowful",
+    "revision": "91128336/e9fe0bd0-7a32-11f1-9af6-4ecc920633fb",
+    "fetched": "2026-07-07T18:37:31Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/sorrowful",
+    "revision": "1330436440",
+    "tid": "dd5effa7-e639-11f0-9598-bdf005c78682",
+    "fetched": "2026-07-07T18:37:32Z"
+   }
+  ],
+  "date": "2026-07-07T18:37:45Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 342,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1443,
+    "costUSD": 0.005053
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 254,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5768,
+    "costUSD": 0.012808
+   }
+  ]
+ }
+}

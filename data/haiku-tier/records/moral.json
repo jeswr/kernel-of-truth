@@ -1,0 +1,213 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:moral",
+ "label": "moral",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone who knows right from wrong, wants to do good, and feels good or bad after doing or not doing good things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME",
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "KNOW",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "det": "SOME",
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "AFTER",
+     "anchor": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "AFTER",
+     "anchor": {
+      "kind": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 1
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/moral",
+    "revision": "91314398/a545b8a0-79fe-11f1-ad4c-444c1c0df46f",
+    "fetched": "2026-07-07T17:45:58Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/moral",
+    "revision": "1338561654",
+    "tid": "5ae1b027-0abe-11f1-b098-50a039452c48",
+    "fetched": "2026-07-07T17:45:59Z"
+   }
+  ],
+  "date": "2026-07-07T17:46:21Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 801,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1549,
+    "costUSD": 0.00756
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 760,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6305,
+    "costUSD": 0.016412
+   }
+  ]
+ }
+}

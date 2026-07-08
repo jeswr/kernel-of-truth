@@ -1,0 +1,113 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:puppeteer",
+ "label": "puppeteer",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone uses a puppet so that it moves and people see it do things.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "MOVE",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 2
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/puppeteer",
+    "revision": "90581118/b7c512b0-7a34-11f1-a9e3-4af90311a99e",
+    "fetched": "2026-07-07T18:50:26Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/puppeteer",
+    "revision": "1359412892",
+    "tid": "b191a706-686e-11f1-986b-c9cb001bfaf4",
+    "fetched": "2026-07-07T18:50:27Z"
+   }
+  ],
+  "date": "2026-07-07T18:50:46Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 542,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1505,
+    "costUSD": 0.006177
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 449,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6043,
+    "costUSD": 0.014332999999999999
+   }
+  ]
+ }
+}

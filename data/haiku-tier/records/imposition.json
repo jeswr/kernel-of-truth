@@ -1,0 +1,141 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:imposition",
+ "label": "imposition",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something to another someone; this other someone does not want it; because of this, this other someone feels bad.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "refHead",
+       "index": 2
+      },
+      "bind": 2
+     },
+     "instrument": {
+      "kind": "sp",
+      "head": {
+       "kind": "refHead",
+       "index": 3
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DON'T-WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "instrument": {
+         "kind": "ref",
+         "index": 3
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/imposition",
+    "revision": "91126332/c3e03e90-7a33-11f1-9242-1f243f97ee0c",
+    "fetched": "2026-07-07T18:43:37Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/imposition",
+    "revision": "1316831882",
+    "tid": "f3a9cb0b-a930-11f0-96e3-1d8819998a63",
+    "fetched": "2026-07-07T18:43:38Z"
+   }
+  ],
+  "date": "2026-07-07T18:43:52Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 311,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1491,
+    "costUSD": 0.004994
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 322,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5791,
+    "costUSD": 0.013194
+   }
+  ]
+ }
+}

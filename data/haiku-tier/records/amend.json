@@ -1,0 +1,142 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:amend",
+ "label": "amend",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something to make something better",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "GOOD"
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "MORE"
+       }
+      ]
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "AFTER",
+     "anchor": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     },
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "attribute": {
+        "kind": "concept",
+        "id": "urn:kernel-v0:change"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/amend",
+    "revision": "91124059/3495c4e0-7a32-11f1-95d5-4880f194fb20",
+    "fetched": "2026-07-07T18:32:27Z"
+   }
+  ],
+  "date": "2026-07-07T18:32:44Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 374,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1443,
+    "costUSD": 0.005213000000000001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 333,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5806,
+    "costUSD": 0.013279000000000001
+   }
+  ]
+ }
+}

@@ -1,0 +1,136 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:analytical",
+ "label": "analytical",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone thinks about something by breaking it into parts to understand how the parts relate.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "partFrame",
+       "of": {
+        "kind": "sp",
+        "bind": 2,
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "KNOW",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "complement": {
+         "kind": "clause",
+         "clause": {
+          "type": "op",
+          "op": "LIKE",
+          "args": [
+           {
+            "kind": "sp",
+            "head": {
+             "kind": "partFrame",
+             "of": {
+              "kind": "ref",
+              "index": 2
+             }
+            }
+           },
+           {
+            "kind": "sp",
+            "head": {
+             "kind": "partFrame",
+             "of": {
+              "kind": "ref",
+              "index": 2
+             }
+            }
+           }
+          ]
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/analytical",
+    "revision": "90970264/77b9a820-7a34-11f1-9c0f-b8b89be5a6a7",
+    "fetched": "2026-07-07T18:48:39Z"
+   }
+  ],
+  "date": "2026-07-07T18:49:13Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 510,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1390,
+    "costUSD": 0.0057870000000000005
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 539,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5891,
+    "costUSD": 0.014479
+   }
+  ]
+ }
+}

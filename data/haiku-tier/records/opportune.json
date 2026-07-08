@@ -1,0 +1,121 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:opportune",
+ "label": "opportune",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "a time when someone can do something they want, and it feels good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "TimeRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "refHead",
+         "index": 2
+        },
+        "bind": 2
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "DO",
+         "roles": {
+          "agent": {
+           "kind": "ref",
+           "index": 2
+          },
+          "undergoer": {
+           "kind": "sp",
+           "head": {
+            "kind": "refHead",
+            "index": 3
+           },
+           "bind": 3
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/opportune",
+    "revision": "91354769/90eb6f80-7a35-11f1-8132-3827598e364f",
+    "fetched": "2026-07-07T18:56:30Z"
+   }
+  ],
+  "date": "2026-07-07T18:56:54Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 389,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1379,
+    "costUSD": 0.00516
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 694,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5748,
+    "costUSD": 0.014967999999999999
+   }
+  ]
+ }
+}

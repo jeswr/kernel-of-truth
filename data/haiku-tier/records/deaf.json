@@ -1,0 +1,85 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:deaf",
+ "label": "deaf",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone cannot hear sounds that people make.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HEAR",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "stimulus": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/deaf",
+    "revision": "90997663/057bfb00-7a11-11f1-b558-74aef35479f9",
+    "fetched": "2026-07-07T17:51:53Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/deaf",
+    "revision": "1360646326",
+    "tid": "de961c93-6e6f-11f1-9827-f7c5859770dd",
+    "fetched": "2026-07-07T17:51:54Z"
+   }
+  ],
+  "date": "2026-07-07T17:52:09Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 200,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1570,
+    "costUSD": 0.004597
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 134,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5759,
+    "costUSD": 0.012190000000000001
+   }
+  ]
+ }
+}

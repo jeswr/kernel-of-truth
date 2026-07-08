@@ -1,0 +1,163 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unrelated",
+ "label": "unrelated",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "two things: one is not a part of the other; one does not cause the other; people cannot say they are of the same kind.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "RelationalSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "partFrame",
+         "of": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "partFrame",
+         "of": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "kindFrame",
+         "of": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "kindFrame",
+         "of": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unrelated",
+    "revision": "91399065/2ff69910-7a18-11f1-a357-86cea96a3b8f",
+    "fetched": "2026-07-07T15:26:12Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/unrelated",
+    "revision": "1339153623",
+    "tid": "099c1f30-0d4f-11f1-893e-16481a316b8e",
+    "fetched": "2026-07-07T15:26:13Z"
+   }
+  ],
+  "date": "2026-07-07T15:26:21Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 389,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1454,
+    "costUSD": 0.0053100000000000005
+   }
+  ]
+ }
+}

@@ -1,0 +1,105 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:revival",
+ "label": "revival",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something was not happening or was bad; now it happens again or is good; because of this, people feel something good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "prime",
+      "prime": "NOW"
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "time": {
+      "kind": "prime",
+      "prime": "NOW"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/revival",
+    "revision": "91504510/f50bc880-79f3-11f1-b136-942c912615a0",
+    "fetched": "2026-07-07T11:06:52Z"
+   }
+  ],
+  "date": "2026-07-07T21:25:01Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 241,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 2992,
+    "costUSD": 0.007646
+   }
+  ]
+ }
+}

@@ -1,0 +1,127 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:idleness",
+ "label": "idleness",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does not do anything for some time; this someone does not move; this someone does not want to do something.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHEN~TIME"
+        },
+        "det": "SOME",
+        "bind": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "MOVE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "ref",
+        "index": 2
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "DON'T-WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/idleness",
+    "revision": "91501633/68f6bf60-7a36-11f1-b7ed-731de34f3951",
+    "fetched": "2026-07-07T19:02:33Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/idleness",
+    "revision": "1302083725",
+    "tid": "6a52828f-6797-11f0-b58d-6da283057cd6",
+    "fetched": "2026-07-07T19:02:33Z"
+   }
+  ],
+  "date": "2026-07-07T19:02:42Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 287,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1450,
+    "costUSD": 0.004791999999999999
+   }
+  ]
+ }
+}

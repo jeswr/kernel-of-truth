@@ -1,0 +1,95 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:needless",
+ "label": "needless",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something is needless when it happens but no one wants it to happen.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "quant": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 1
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/needless",
+    "revision": "89233895/52a5a560-7a17-11f1-92b9-7edea782a609",
+    "fetched": "2026-07-07T15:20:01Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/needless",
+    "revision": "1355660626",
+    "tid": "6c0d00f6-565b-11f1-82ab-9d5bdee241c9",
+    "fetched": "2026-07-07T15:20:02Z"
+   }
+  ],
+  "date": "2026-07-07T15:20:19Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 341,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1486,
+    "costUSD": 0.005134
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 669,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5816,
+    "costUSD": 0.014979
+   }
+  ]
+ }
+}

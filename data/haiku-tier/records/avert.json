@@ -1,0 +1,119 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:avert",
+ "label": "avert",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something so that something bad does not happen.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "bind": 2
+       }
+      }
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "mods": [
+           {
+            "mod": "BAD"
+           }
+          ],
+          "bind": 3
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/avert",
+    "revision": "90894854/a9846b90-7a31-11f1-8e91-2e7c90f331ad",
+    "fetched": "2026-07-07T18:28:34Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/avert",
+    "revision": "1348521059",
+    "tid": "7812b746-36e8-11f1-9620-0b0228183864",
+    "fetched": "2026-07-07T18:28:34Z"
+   }
+  ],
+  "date": "2026-07-07T18:28:45Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 262,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1474,
+    "costUSD": 0.0047150000000000004
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 242,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5725,
+    "costUSD": 0.012662
+   }
+  ]
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 7635,
+ "duration_api_ms": 6822,
+ "ttft_ms": 6865,
+ "ttft_stream_ms": 3345,
+ "time_to_request_ms": 2256,
+ "num_turns": 1,
+ "result": "```json\n{\"kind\":\"explication\",\"gloss\":\"when something has a high price, people feel something bad when they think about paying for it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"det\":\"THE-SAME\",\"bind\":1},\"attribute\":{\"kind\":\"sp\",\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}],\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}},{\"type\":\"pred\",\"pred\":\"FEEL\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"attribute\":{\"kind\":\"prime\",\"prime\":\"BAD\"},\"time\":{\"kind\":\"temporal\",\"op\":\"WHEN\",\"anchor\":{\"type\":\"pred\",\"pred\":\"THINK\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}}}}]}}\n```",
+ "stop_reason": "end_turn",
+ "session_id": "06d954e8-0868-4b35-a149-e27bdc2ebef8",
+ "total_cost_usd": 0.005344000000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1373,
+  "cache_read_input_tokens": 4550,
+  "output_tokens": 296,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1373,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 296,
+    "cache_read_input_tokens": 4550,
+    "cache_creation_input_tokens": 1373,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1373
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 598,
+   "outputTokens": 309,
+   "cacheReadInputTokens": 4550,
+   "cacheCreationInputTokens": 1373,
+   "webSearchRequests": 0,
+   "costUSD": 0.005344000000000001,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "ec88ba9f-9db1-4435-ae6f-81399e17faa4"
+}

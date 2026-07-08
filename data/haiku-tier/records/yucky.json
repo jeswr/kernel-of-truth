@@ -1,0 +1,180 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:yucky",
+ "label": "yucky",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something that causes people to feel very bad when they see it, touch it, or taste it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "bind": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "WHEN",
+     "anchor": {
+      "type": "pred",
+      "pred": "SEE",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "stimulus": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "WHEN",
+     "anchor": {
+      "type": "pred",
+      "pred": "TOUCH",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "BAD"
+     }
+    },
+    "time": {
+     "kind": "temporal",
+     "op": "WHEN",
+     "anchor": {
+      "type": "pred",
+      "pred": "KNOW",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "topic": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING"
+        },
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "FEEL",
+         "roles": {
+          "experiencer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "attribute": {
+           "kind": "prime",
+           "prime": "BAD"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/yucky",
+    "revision": "90814397/f97d9100-7a34-11f1-8c34-f330fb48c039",
+    "fetched": "2026-07-07T18:52:16Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/yucky",
+    "revision": "1358396841",
+    "tid": "8cfc758e-6334-11f1-93e7-3098f21ef6b0",
+    "fetched": "2026-07-07T18:52:17Z"
+   }
+  ],
+  "date": "2026-07-07T18:52:34Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 471,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1504,
+    "costUSD": 0.00582
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 440,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5958,
+    "costUSD": 0.014117999999999999
+   }
+  ]
+ }
+}

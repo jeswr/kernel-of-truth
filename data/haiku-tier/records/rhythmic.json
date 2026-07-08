@@ -1,0 +1,134 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:rhythmic",
+ "label": "rhythmic",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something moves or makes sound in a way: the same thing happens again and again at times that are the same distance apart.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "HAPPEN",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "WHEN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "HAPPEN",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "time": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHEN~TIME"
+        },
+        "det": "SOME",
+        "bind": 2
+       }
+      }
+     },
+     {
+      "type": "op",
+      "op": "AFTER",
+      "args": [
+       {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "MOMENT"
+        },
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "BE-SPEC",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          },
+          "attribute": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "THE-SAME"
+           }
+          }
+         }
+        }
+       },
+       {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/rhythmic",
+    "revision": "91053079/453c87a0-7a16-11f1-ace7-16c6ba72bea2",
+    "fetched": "2026-07-07T15:12:29Z"
+   }
+  ],
+  "date": "2026-07-07T15:17:31Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 369,
+    "cacheReadInputTokens": 5955,
+    "cacheCreationInputTokens": 0,
+    "costUSD": 0.0024425000000000002
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 321,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5760,
+    "costUSD": 0.013127000000000002
+   }
+  ]
+ }
+}

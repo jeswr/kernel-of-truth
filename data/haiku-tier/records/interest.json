@@ -1,0 +1,125 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:interest",
+ "label": "interest",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone thinks about something with attention and wants to know more about it; the thing makes someone feel something good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "refHead",
+       "index": 2
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "KNOW",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 1
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/interest",
+    "revision": "90979215/9fca21a0-7a07-11f1-ab53-c85714bd1b74",
+    "fetched": "2026-07-07T17:47:55Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/interest",
+    "revision": "1361354294",
+    "tid": "6b015f99-721f-11f1-9a8c-7f111cb84ea6",
+    "fetched": "2026-07-07T17:47:56Z"
+   }
+  ],
+  "date": "2026-07-07T17:48:14Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 274,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1653,
+    "costUSD": 0.005133
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 263,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5914,
+    "costUSD": 0.013145
+   }
+  ]
+ }
+}

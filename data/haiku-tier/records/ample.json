@@ -1,0 +1,109 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:ample",
+ "label": "ample",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something has a very big amount; there is much of it; it is more than enough for what someone wants.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "quant": "MUCH~MANY",
+      "mods": [
+       {
+        "mod": "BIG",
+        "intensifier": "VERY"
+       }
+      ],
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "CAN",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMEONE"
+        }
+       },
+       "complement": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/ample",
+    "revision": "91376960/ea5ffff0-7a48-11f1-b351-929a2010f987",
+    "fetched": "2026-07-07T21:15:01Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/ample",
+    "revision": "1351933219",
+    "tid": "5e041081-44fb-11f1-9ac5-8d0f2690b3f8",
+    "fetched": "2026-07-07T21:15:01Z"
+   }
+  ],
+  "date": "2026-07-07T21:20:42Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 231,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3124,
+    "costUSD": 0.00786
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 231,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7325,
+    "costUSD": 0.015807
+   }
+  ]
+ }
+}

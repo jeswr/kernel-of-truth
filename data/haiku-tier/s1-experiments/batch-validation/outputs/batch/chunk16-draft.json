@@ -1,0 +1,62 @@
+{
+ "type": "result",
+ "subtype": "success",
+ "is_error": false,
+ "api_error_status": null,
+ "duration_ms": 16825,
+ "duration_api_ms": 16057,
+ "ttft_ms": 16386,
+ "ttft_stream_ms": 4951,
+ "time_to_request_ms": 3340,
+ "num_turns": 1,
+ "result": "<<<KOT:subcontractor>>>>\n{\"kind\":\"molecule\",\"gloss\":\"a person or business that does work for another contractor; the other contractor is paid by the customer.\",\"groundingNote\":\"a person or business that does work for another {urn:kernel-v0:make|maker} [m]; the other {urn:kernel-v0:maker|maker} [m] is paid by a someone who wants the work done; this person or business is paid by the other {urn:kernel-v0:maker|maker} [m], not by the someone who wants the work done.\",\"groundingRefs\":[\"urn:kernel-v0:make\"]}\n<<<END:subcontractor>>>>\n\n<<<KOT:supinely>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone's head faces up and the body is in a way of one kind.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"InstanceSchema\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"partFrame\",\"of\":{\"kind\":\"ref\",\"index\":1}},\"restrictedBy\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}}}}},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SIDE\"},\"det\":\"THIS\"}}},{\"type\":\"pred\",\"pred\":\"MOVE\",\"roles\":{\"undergoer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"BODY\"}},\"manner\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"WAY~WAYS\"},\"det\":\"ONE\"}}}]}}\n<<<END:supinely>>>>\n\n<<<KOT:taconite>>>>\n{\"kind\":\"cannot-formalise\",\"why\":\"Taconite is a geological substance defined by its mineralogical composition (iron minerals interlayered with quartz and chert), its percentage iron content (20\u201330%), and its origin in specific rock formations. These identity conditions require technical mineralogy and stratigraphy beyond the prime lexicon. The substance is tied to a particular geological epoch and geographic formation (Biwabik Iron Formation, Mesabi Range). It belongs to the earth-science sector, not this tier.\"}\n<<<END:taconite>>>>\n\n<<<KOT:tendencious>>>>\n{\"kind\":\"explication\",\"gloss\":\"someone says words about something in a way that is not true because this someone wants people to believe something bad or good about it.\",\"record\":{\"schema\":\"kot-ast/1\",\"frame\":\"WhenTrue\",\"referents\":[{\"index\":1,\"refKind\":\"SomeoneRef\"},{\"index\":2,\"refKind\":\"SomethingRef\"}],\"clauses\":[{\"type\":\"pred\",\"pred\":\"SAY\",\"roles\":{\"agent\":{\"kind\":\"ref\",\"index\":1},\"topic\":{\"kind\":\"ref\",\"index\":2},\"quote\":{\"kind\":\"quote\",\"clauses\":[{\"type\":\"op\",\"op\":\"NOT\",\"args\":[{\"type\":\"pred\",\"pred\":\"TRUE\",\"roles\":{\"undergoer\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"}}}}}}}]}]}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"BAD\",\"intensifier\":\"VERY\"}]}}}}}}}}},{\"type\":\"pred\",\"pred\":\"WANT\",\"roles\":{\"experiencer\":{\"kind\":\"ref\",\"index\":1},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BELIEVE\",\"roles\":{\"experiencer\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"PEOPLE\"}},\"complement\":{\"kind\":\"clause\",\"clause\":{\"type\":\"pred\",\"pred\":\"BE-SPEC\",\"roles\":{\"undergoer\":{\"kind\":\"ref\",\"index\":2},\"attribute\":{\"kind\":\"sp\",\"head\":{\"kind\":\"primeHead\",\"prime\":\"SOMETHING~THING\"},\"mods\":[{\"mod\":\"GOOD\",\"intensifier\":\"VERY\"}]}}}}}}}}]}}\n<<<END:tendencious>>>>",
+ "stop_reason": "end_turn",
+ "session_id": "800d4df3-5b31-4142-82a1-77aa0707582a",
+ "total_cost_usd": 0.0111937,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1915,
+  "cache_read_input_tokens": 4837,
+  "output_tokens": 1136,
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1915,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "not_available",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1136,
+    "cache_read_input_tokens": 4837,
+    "cache_creation_input_tokens": 1915,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1915
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard"
+ },
+ "modelUsage": {
+  "claude-haiku-4-5-20251001": {
+   "inputTokens": 1140,
+   "outputTokens": 1148,
+   "cacheReadInputTokens": 4837,
+   "cacheCreationInputTokens": 1915,
+   "webSearchRequests": 0,
+   "costUSD": 0.0111937,
+   "contextWindow": 200000,
+   "maxOutputTokens": 32000
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "uuid": "0a9dc42c-a0de-4eb9-b5a6-47998e2cd91b"
+}

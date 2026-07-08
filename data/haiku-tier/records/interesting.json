@@ -1,0 +1,140 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:interesting",
+ "label": "interesting",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "when someone sees or hears something and feels something good, they think about it and want to know more.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "det": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "bind": 2
+     },
+     "stimulus": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "topic": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 2
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "KNOW",
+       "roles": {
+        "experiencer": {
+         "kind": "ref",
+         "index": 2
+        },
+        "topic": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:19e83c47c28da7ba8ed1ed72d2a023c13792c870cec7b275afc061f735d18213",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/interesting",
+    "revision": "91052926/a36c2bc0-7a00-11f1-b6e3-61ee07b4ae0f",
+    "fetched": "2026-07-07T12:37:38Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/interesting",
+    "revision": "1351928929",
+    "tid": "ef70839d-44f5-11f1-b432-3940fbc324a8",
+    "fetched": "2026-07-07T12:37:39Z"
+   }
+  ],
+  "date": "2026-07-07T13:08:05Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 406,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3045,
+    "costUSD": 0.008577
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 308,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7429,
+    "costUSD": 0.0164
+   }
+  ]
+ }
+}

@@ -1,0 +1,133 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:rerun",
+ "label": "rerun",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something again; before, they did the same thing at a different time.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "TimeRef"
+   },
+   {
+    "index": 4,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     },
+     "time": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "WHEN~TIME"
+      },
+      "det": "OTHER~ELSE~ANOTHER",
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BEFORE",
+    "args": [
+     {
+      "kind": "ref",
+      "index": 3
+     },
+     {
+      "type": "pred",
+      "pred": "DO",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "undergoer": {
+        "kind": "ref",
+        "index": 2
+       },
+       "time": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHEN~TIME"
+        },
+        "bind": 4
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/rerun",
+    "revision": "90532423/04b89610-7a34-11f1-853b-cb6fef8d07bb",
+    "fetched": "2026-07-07T18:45:26Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/rerun",
+    "revision": "1359381395",
+    "tid": "b001ba7b-6849-11f1-a57e-b7e48897abaa",
+    "fetched": "2026-07-07T18:45:26Z"
+   }
+  ],
+  "date": "2026-07-07T18:45:42Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 274,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1553,
+    "costUSD": 0.004933
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 302,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5816,
+    "costUSD": 0.013144
+   }
+  ]
+ }
+}

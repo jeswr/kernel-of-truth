@@ -1,0 +1,149 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:progress",
+ "label": "progress",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something changes toward a state that is good; because of this, after some time, it is more like a good thing than before.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 2,
+    "refKind": "TimeRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "GOOD",
+        "intensifier": "MORE"
+       }
+      ],
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "attribute": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "mods": [
+           {
+            "mod": "GOOD",
+            "intensifier": "MORE"
+           }
+          ]
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "pred",
+      "pred": "BE-SPEC",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD",
+          "intensifier": "MORE"
+         }
+        ]
+       },
+       "time": {
+        "kind": "temporal",
+        "op": "AFTER",
+        "anchor": {
+         "kind": "ref",
+         "index": 2
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/progress",
+    "revision": "91127604/09f068f0-7a0d-11f1-8eff-2893afd6efaa",
+    "fetched": "2026-07-07T17:49:59Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/progress",
+    "revision": "1361722040",
+    "tid": "03950ce8-73e5-11f1-b4b5-51302d576606",
+    "fetched": "2026-07-07T17:49:59Z"
+   }
+  ],
+  "date": "2026-07-07T17:50:10Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 371,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1592,
+    "costUSD": 0.005496000000000001
+   }
+  ]
+ }
+}

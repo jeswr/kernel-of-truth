@@ -1,0 +1,125 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:playful",
+ "label": "playful",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone who often wants to do things for fun and feels good doing them, not for serious reasons",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    },
+    "manner": {
+     "kind": "sp",
+     "det": "SOME",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WAY~WAYS"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     }
+    },
+    "time": {
+     "kind": "sp",
+     "quant": "MANY",
+     "head": {
+      "kind": "primeHead",
+      "prime": "WHEN~TIME"
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/playful",
+    "revision": "89742301/3944b7b0-7a16-11f1-a1f1-22b47d06e542",
+    "fetched": "2026-07-07T15:12:09Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/playful",
+    "revision": "1356244049",
+    "tid": "52e5aa0e-591a-11f1-adb3-740e72061f6e",
+    "fetched": "2026-07-07T15:12:09Z"
+   }
+  ],
+  "date": "2026-07-07T15:17:04Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 362,
+    "cacheReadInputTokens": 6046,
+    "cacheCreationInputTokens": 0,
+    "costUSD": 0.0024166
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 266,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5812,
+    "costUSD": 0.012956
+   }
+  ]
+ }
+}

@@ -1,0 +1,149 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:acknowledgement",
+ "label": "acknowledgement",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone says to another: I know what you did or said; or, something you gave is now mine.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMEONE"
+      },
+      "bind": 2
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+         "experiencer": {
+          "kind": "prime",
+          "prime": "I"
+         },
+         "topic": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SAY",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "addressee": {
+      "kind": "ref",
+      "index": 2
+     },
+     "quote": {
+      "kind": "quote",
+      "clauses": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "det": "SOME",
+          "bind": 3
+         },
+         "attribute": {
+          "kind": "sp",
+          "mods": [
+           {
+            "mod": "GOOD"
+           }
+          ],
+          "head": {
+           "kind": "primeHead",
+           "prime": "I"
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/acknowledgement",
+    "revision": "90195031/a755b270-7a36-11f1-a544-8ecd800e4c57",
+    "fetched": "2026-07-07T19:04:17Z"
+   }
+  ],
+  "date": "2026-07-07T19:04:35Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 383,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1364,
+    "costUSD": 0.0051
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 368,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5739,
+    "costUSD": 0.01332
+   }
+  ]
+ }
+}

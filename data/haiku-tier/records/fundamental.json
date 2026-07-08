@@ -1,0 +1,156 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:fundamental",
+ "label": "fundamental",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this something is a part of the base: other things are made of this or from this; if this is not there, many other things cannot be.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "partFrame",
+       "of": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "det": "THE-SAME",
+        "quant": "ONE"
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "quant": "MUCH~MANY"
+     },
+     "attribute": {
+      "kind": "sp",
+      "head": {
+       "kind": "kindFrame",
+       "of": {
+        "kind": "ref",
+        "index": 1
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "IF",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 1
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "quant": "MUCH~MANY"
+         },
+         "attribute": {
+          "kind": "sp",
+          "head": {
+           "kind": "kindFrame",
+           "of": {
+            "kind": "ref",
+            "index": 1
+           }
+          }
+         }
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/fundamental",
+    "revision": "91316919/1d93a360-7a60-11f1-8989-ea7e557f23a4",
+    "fetched": "2026-07-08T00:01:05Z"
+   }
+  ],
+  "date": "2026-07-08T00:04:16Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 400,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3022,
+    "costUSD": 0.008501
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 406,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7405,
+    "costUSD": 0.016842
+   }
+  ]
+ }
+}

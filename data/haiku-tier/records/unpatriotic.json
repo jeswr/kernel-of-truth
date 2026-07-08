@@ -1,0 +1,102 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:unpatriotic",
+ "label": "unpatriotic",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does not feel good about their people and place, or does things that are bad for their people and place.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "FEEL",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "attribute": {
+        "kind": "prime",
+        "prime": "GOOD"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "mods": [
+       {
+        "mod": "BAD"
+       }
+      ],
+      "bind": 2
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/unpatriotic",
+    "revision": "91379812/245a9f90-7a2a-11f1-a3f6-1dc9e86560ca",
+    "fetched": "2026-07-07T17:34:44Z"
+   }
+  ],
+  "date": "2026-07-07T17:35:12Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 549,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1369,
+    "costUSD": 0.00594
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 478,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5905,
+    "costUSD": 0.014202
+   }
+  ]
+ }
+}

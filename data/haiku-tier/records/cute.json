@@ -1,0 +1,183 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:cute",
+ "label": "cute",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "something or someone has features that make people feel good and want to care for it or touch it",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "BE-SPEC",
+    "roles": {
+     "undergoer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "sp",
+      "mods": [
+       {
+        "mod": "GOOD"
+       }
+      ],
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "PEOPLE"
+         }
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "MOVE",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "quant": "SOME",
+         "head": {
+          "kind": "partFrame",
+          "of": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "BODY"
+           }
+          }
+         }
+        }
+       },
+       "adjuncts": {
+        "manner": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         }
+        },
+        "undergoer": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/cute",
+    "revision": "91453770/fac26ab0-7a00-11f1-8f34-33ed6f92b1ab",
+    "fetched": "2026-07-07T17:47:27Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/cute",
+    "revision": "1360542666",
+    "tid": "823ee520-6dee-11f1-9d82-ca56200b378f",
+    "fetched": "2026-07-07T17:47:28Z"
+   }
+  ],
+  "date": "2026-07-07T17:47:44Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 521,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1602,
+    "costUSD": 0.006265999999999999
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 448,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 6114,
+    "costUSD": 0.014469999999999998
+   }
+  ]
+ }
+}

@@ -1,0 +1,154 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:picky",
+ "label": "picky",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone wants something to be in one particular way; if it is not that way, they do not want it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "BE-SPEC",
+       "roles": {
+        "undergoer": {
+         "kind": "sp",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         },
+         "bind": 2
+        },
+        "attribute": {
+         "kind": "sp",
+         "quant": "ONE",
+         "head": {
+          "kind": "primeHead",
+          "prime": "SOMETHING~THING"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "IF",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         },
+         "attribute": {
+          "kind": "sp",
+          "det": "THE-SAME",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          }
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "pred",
+      "pred": "DON'T-WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "clause",
+        "clause": {
+         "type": "pred",
+         "pred": "THERE-IS",
+         "roles": {
+          "undergoer": {
+           "kind": "ref",
+           "index": 2
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/picky",
+    "revision": "90567764/15ab19c0-7a16-11f1-b8b0-001759c99e6f",
+    "fetched": "2026-07-07T15:11:09Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/picky",
+    "revision": "1345001756",
+    "tid": "83794f48-26ef-11f1-9942-121abd1979d5",
+    "fetched": "2026-07-07T15:11:10Z"
+   }
+  ],
+  "date": "2026-07-07T15:16:22Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 359,
+    "cacheReadInputTokens": 6031,
+    "cacheCreationInputTokens": 0,
+    "costUSD": 0.0024001
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 665,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5835,
+    "costUSD": 0.014997
+   }
+  ]
+ }
+}

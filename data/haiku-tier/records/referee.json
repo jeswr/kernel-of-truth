@@ -1,0 +1,208 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:referee",
+ "label": "referee",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone whose job is to watch people do something and say when they do not follow rules.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "InstanceSchema",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   },
+   {
+    "index": 3,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     },
+     "undergoer": {
+      "kind": "sp",
+      "det": "THE-SAME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     },
+     "manner": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      }
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "SEE",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "stimulus": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      },
+      "bind": 3
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "IF",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+         "agent": {
+          "kind": "ref",
+          "index": 3
+         },
+         "undergoer": {
+          "kind": "ref",
+          "index": 2
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "pred",
+      "pred": "SAY",
+      "roles": {
+       "agent": {
+        "kind": "ref",
+        "index": 1
+       },
+       "addressee": {
+        "kind": "ref",
+        "index": 3
+       },
+       "quote": {
+        "kind": "quote",
+        "clauses": [
+         {
+          "type": "pred",
+          "pred": "BE-SPEC",
+          "roles": {
+           "undergoer": {
+            "kind": "ref",
+            "index": 3
+           },
+           "attribute": {
+            "kind": "sp",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            },
+            "mods": [
+             {
+              "mod": "BAD"
+             }
+            ]
+           }
+          }
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "pred",
+    "pred": "WANT",
+    "roles": {
+     "experiencer": {
+      "kind": "sp",
+      "quant": "SOME",
+      "head": {
+       "kind": "primeHead",
+       "prime": "PEOPLE"
+      }
+     },
+     "complement": {
+      "kind": "clause",
+      "clause": {
+       "type": "pred",
+       "pred": "DO",
+       "roles": {
+        "agent": {
+         "kind": "ref",
+         "index": 1
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/referee",
+    "revision": "91247461/c81dfe60-7a2a-11f1-8754-cc62bdf85b7e",
+    "fetched": "2026-07-07T17:39:19Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/referee",
+    "revision": "1353150899",
+    "tid": "f8111e50-4ae6-11f1-99ab-ad4fd23b0a2d",
+    "fetched": "2026-07-07T17:39:19Z"
+   }
+  ],
+  "date": "2026-07-07T17:44:30Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 509,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3103,
+    "costUSD": 0.009208
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 902,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7589,
+    "costUSD": 0.01969
+   }
+  ]
+ }
+}

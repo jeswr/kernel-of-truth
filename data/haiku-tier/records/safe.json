@@ -1,0 +1,104 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:safe",
+ "label": "safe",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "this someone or this something is not in a place where something bad can happen to it.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "op",
+    "op": "NOT",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "BE-SOMEWHERE",
+      "roles": {
+       "undergoer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "locus": {
+        "kind": "sp",
+        "det": "SOME",
+        "head": {
+         "kind": "primeHead",
+         "prime": "WHERE~PLACE"
+        },
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "HAPPEN",
+         "roles": {
+          "undergoer": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMETHING~THING"
+           },
+           "mods": [
+            {
+             "mod": "BAD"
+            }
+           ]
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:7ec8b0b275fae27a9960d18ebe1d139d6adab3f2f54471176804f4fe7bd2c541",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/safe",
+    "revision": "91474847/8bd0dfb0-79fb-11f1-aae6-4bd19351c64f",
+    "fetched": "2026-07-07T17:44:55Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/safe",
+    "revision": "1361127742",
+    "tid": "3766ec54-70d6-11f1-9669-e95b3bd18b0e",
+    "fetched": "2026-07-07T17:44:56Z"
+   }
+  ],
+  "date": "2026-07-07T17:45:05Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 208,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1634,
+    "costUSD": 0.004765
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 210,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 5833,
+    "costUSD": 0.012718
+   }
+  ]
+ }
+}

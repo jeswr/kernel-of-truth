@@ -1,0 +1,225 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:pride",
+ "label": "pride",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone feels something good about themselves or their doing or something of theirs; they think: I did something good, or I am good, or this is mine and good.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomethingRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "FEEL",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "attribute": {
+      "kind": "prime",
+      "prime": "GOOD"
+     }
+    }
+   },
+   {
+    "type": "pred",
+    "pred": "THINK",
+    "roles": {
+     "experiencer": {
+      "kind": "ref",
+      "index": 1
+     },
+     "topic": {
+      "kind": "sp",
+      "head": {
+       "kind": "primeHead",
+       "prime": "SOMETHING~THING"
+      },
+      "bind": 2
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "TRUE",
+      "roles": {
+       "undergoer": {
+        "kind": "quote",
+        "clauses": [
+         {
+          "type": "pred",
+          "pred": "DO",
+          "roles": {
+           "agent": {
+            "kind": "ref",
+            "index": 1
+           },
+           "undergoer": {
+            "kind": "ref",
+            "index": 2
+           }
+          }
+         },
+         {
+          "type": "pred",
+          "pred": "BE-SPEC",
+          "roles": {
+           "undergoer": {
+            "kind": "ref",
+            "index": 2
+           },
+           "attribute": {
+            "kind": "sp",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            },
+            "mods": [
+             {
+              "mod": "GOOD"
+             }
+            ]
+           }
+          }
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "TRUE",
+      "roles": {
+       "undergoer": {
+        "kind": "quote",
+        "clauses": [
+         {
+          "type": "pred",
+          "pred": "BE-SPEC",
+          "roles": {
+           "undergoer": {
+            "kind": "ref",
+            "index": 1
+           },
+           "attribute": {
+            "kind": "sp",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            },
+            "mods": [
+             {
+              "mod": "GOOD"
+             }
+            ]
+           }
+          }
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "op",
+    "op": "MAYBE",
+    "args": [
+     {
+      "type": "pred",
+      "pred": "TRUE",
+      "roles": {
+       "undergoer": {
+        "kind": "quote",
+        "clauses": [
+         {
+          "type": "pred",
+          "pred": "BE-SPEC",
+          "roles": {
+           "undergoer": {
+            "kind": "ref",
+            "index": 2
+           },
+           "attribute": {
+            "kind": "sp",
+            "head": {
+             "kind": "primeHead",
+             "prime": "SOMETHING~THING"
+            },
+            "quant": "ONE"
+           }
+          }
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/pride",
+    "revision": "91206693/200571e0-7a0c-11f1-8573-6c2de2e85367",
+    "fetched": "2026-07-07T13:59:52Z"
+   },
+   {
+    "source": "wikipedia",
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/pride",
+    "revision": "1360730014",
+    "tid": "f9e44265-6ece-11f1-971c-90ba3cb2e620",
+    "fetched": "2026-07-07T13:59:52Z"
+   }
+  ],
+  "date": "2026-07-07T14:03:07Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 598,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 3172,
+    "costUSD": 0.009791
+   },
+   {
+    "inputTokens": 2,
+    "outputTokens": 722,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 7742,
+    "costUSD": 0.019096
+   }
+  ]
+ }
+}

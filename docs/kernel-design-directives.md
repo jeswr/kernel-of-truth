@@ -108,3 +108,12 @@ from concept definitions and out of the canonical vector.
   reporting skill, and both are **gated by the honesty system**: every paper claim must trace
   to a registry entry + auto-report, and no claim may exceed what the pre-registered analysis
   supports.
+
+## 8. Auditor identity (maintainer decision, 2026-07-08)
+
+The role-separated auditor of §3 (run-vs-audit separation) is **Codex/GPT-5.5, invoked via
+the `codex` CLI** — chosen over a backup Claude account because a different vendor's model
+is stronger independence. The audit, adversarial-verification (red-team), and paper.review
+roles all run under this cross-vendor identity (P5 R8/R10; P2 G-6/RT-9 as upgraded); the
+run-vs-audit separation is therefore cross-vendor, and "independent" is reserved for this
+cross-vendor audit, maintainer-level audits, and external replication.

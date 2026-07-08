@@ -1,0 +1,140 @@
+{
+ "schema": "haiku-tier/1",
+ "id": "urn:haiku-tier:selfless",
+ "label": "selfless",
+ "semanticStatus": "ModelAuthored",
+ "candidateStatus": "Explicated",
+ "kind": "explication",
+ "gloss": "someone does something; the reason is: they want something good for another someone, not for themselves.",
+ "record": {
+  "schema": "kot-ast/1",
+  "frame": "WhenTrue",
+  "referents": [
+   {
+    "index": 1,
+    "refKind": "SomeoneRef"
+   },
+   {
+    "index": 2,
+    "refKind": "SomeoneRef"
+   }
+  ],
+  "clauses": [
+   {
+    "type": "pred",
+    "pred": "DO",
+    "roles": {
+     "agent": {
+      "kind": "ref",
+      "index": 1
+     }
+    }
+   },
+   {
+    "type": "op",
+    "op": "BECAUSE",
+    "args": [
+     {
+      "type": "op",
+      "op": "NOT",
+      "args": [
+       {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+         "experiencer": {
+          "kind": "ref",
+          "index": 1
+         },
+         "complement": {
+          "kind": "sp",
+          "head": {
+           "kind": "primeHead",
+           "prime": "SOMETHING~THING"
+          },
+          "mods": [
+           {
+            "mod": "GOOD"
+           }
+          ]
+         }
+        }
+       }
+      ]
+     },
+     {
+      "type": "pred",
+      "pred": "WANT",
+      "roles": {
+       "experiencer": {
+        "kind": "ref",
+        "index": 1
+       },
+       "complement": {
+        "kind": "sp",
+        "head": {
+         "kind": "primeHead",
+         "prime": "SOMETHING~THING"
+        },
+        "mods": [
+         {
+          "mod": "GOOD"
+         }
+        ],
+        "restrictedBy": {
+         "type": "pred",
+         "pred": "BE-SPEC",
+         "roles": {
+          "undergoer": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMETHING~THING"
+           }
+          },
+          "attribute": {
+           "kind": "sp",
+           "head": {
+            "kind": "primeHead",
+            "prime": "SOMEONE"
+           },
+           "det": "OTHER~ELSE~ANOTHER",
+           "bind": 2
+          }
+         }
+        }
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "gatesPassed": true,
+ "researchGrade": true,
+ "provenance": {
+  "model": "claude-haiku-4-5-20251001",
+  "framework": "A+gate-loop-repair",
+  "promptVersionHash": "sha256:54f0c3e8f5680575fabc032328e0a74936b75aa4ef66d2f0ac067adeb71a7b1a",
+  "repairPromptVersionHash": "sha256:21c7b7d6f12bc7b78987767f6bdbcc4bdf1832e0d648b98ca582783314666b6d",
+  "pipelineVersionHash": "sha256:4474c6e6894a7c145113a02adbc788954894aac9e210c790888f9dd186e998ed",
+  "sources": [
+   {
+    "source": "wiktionary",
+    "url": "https://en.wiktionary.org/api/rest_v1/page/definition/selfless",
+    "revision": "90562751/28d33490-7a18-11f1-bd4e-4efc48099616",
+    "fetched": "2026-07-07T15:26:00Z"
+   }
+  ],
+  "date": "2026-07-07T15:26:12Z",
+  "usage": [
+   {
+    "inputTokens": 2,
+    "outputTokens": 358,
+    "cacheReadInputTokens": 4550,
+    "cacheCreationInputTokens": 1378,
+    "costUSD": 0.0050030000000000005
+   }
+  ]
+ }
+}
