@@ -1,6 +1,11 @@
 # P9 — Publication & reporting plan (directives §7)
 
-**Status:** pre-registration draft for maintainer sign-off, 2026-07-08. Component P9 of the
+**Status:** pre-registration draft for maintainer sign-off, 2026-07-08 (rev 2 — P7
+red-team pre-freeze fixes applied: RT-14 anonymize-by-OVERLAY replaces the
+scrub-the-bytes plan; RT-15 external timestamping made load-bearing in §1.2; RT-9
+"role-separated re-derivation" relabelling + external replication offer on TAKE; the
+TAKE-route pitch stated honestly as a fund-the-next-rung pitch, direction-only to 7B;
+STOP-AND-PUBLISH-UNDECIDED added to the paper-type table per RT-1). Component P9 of the
 operational research plan (`docs/research-plan/`). Governed by
 `docs/kernel-design-directives.md` §7 (binding): the write-up is a first-class programme
 phase producing (a) a top-tier-venue-grade, completely honest scientific paper — including
@@ -50,9 +55,17 @@ headline, and claim scope are a pure function of that route. Pre-declared mappin
 |---|---|---|
 | **TAKE-TO-FRONTIER-LAB** | Main-track empirical paper on the surviving mechanism(s) | "A training-free, deterministic concept kernel [verifies / cuts cost of] LLM outputs on kernel-covered content: it beats [text-null + named strong baselines] at [measured rungs], with a measured scale trend" |
 | **NARROW-AND-CONTINUE** | Same as TAKE but claim scope explicitly bounded to measured rungs; the missing rung/test named in limitations; possibly staged as workshop→main-track after the missing evidence lands | "…at [rungs]; whether the effect persists at [next rung] is unresolved (pre-registered test pending)" |
-| **PIVOT (A6: E8-R + E8-D pass, mechanisms dead)** | Interpretability-instrument paper: kernel as external canonical label/coordinate space for SAE features + cross-version semantic-regression detection; the mechanism kills reported in the same paper (P1 §6 anti-overselling guard: "a pivot must publish the kills that forced it in the same document") | "Designed concept geometry predicts cross-model feature correspondence and detects semantic regressions; the same kernel does NOT improve task correctness or efficiency beyond its own text rendering (pre-registered nulls reported in full)" |
+| **PIVOT (A6: E8-R + E8-D pass, mechanisms dead)** | Interpretability-instrument paper: kernel as external canonical label/coordinate space for SAE features + cross-version semantic-regression detection; the mechanism kills reported in the same paper (P1 §6 anti-overselling guard: "a pivot must publish the kills that forced it in the same document"). **E8-D evidence-labelling rule (P1 HC4, quoted here as required):** any PIVOT-A6 route citing E8-D must label its evidence **"planted-drift"** unless the natural version-pair secondary agrees | "Designed concept geometry predicts cross-model feature correspondence and detects semantic regressions [on planted drift, unless the natural secondary agrees]; the same kernel does NOT improve task correctness or efficiency beyond its own text rendering (pre-registered nulls reported in full)" |
 | **PIVOT (A5-narrow: HC2 alone passes)** | Verification/assurance paper: deterministic axiom checking catches violation classes no text arm catches; no performance claims | "Structural verification catches what gloss text cannot: a measured constraint-violation delta, with everything else that failed" |
 | **KILL** | Rigorous negative-results paper — a pre-declared success mode of the programme (P3 §1.9), not a consolation | "Deterministic, training-free concept kernels do not measurably help LLMs beyond their own text rendering at 135M–1.7B: a pre-registered, TOST-bounded negative across 8 mechanisms" |
+| **STOP-AND-PUBLISH-UNDECIDED** (P1 §6 route 5; P7 RT-1) | "We could not power the answer at this spend" paper — a first-class outcome, not a failure to report: the pre-registered programme published with the blocking INCONCLUSIVE / INSTRUMENT-INVALID member(s) named, the pre-computed decidability bands quoted verbatim (P8 §3.2 pattern), the replication-buy cap shown as exhausted, and an explicit what-budget/n-would-decide statement; everything that did read out reported in full. Honest and publishable — TMLR-class | "At the pre-registered spend, [member(s)] remained undecidable (pre-computed decidable bands quoted); deciding them requires [stated n/budget]; all decided members are reported in full, and re-opening requires a fresh pre-registration and budget envelope" |
+
+**The TAKE-route ceiling, stated honestly (P7 §6/§10).** Even a full TAKE route licenses
+only **direction-only extrapolation to ~7B** (P8 §2.5; P1 §4b) — so any frontier-lab pitch
+built on it is **structurally a fund-the-next-rung pitch**, never a "this works at frontier"
+pitch. The GNG-3 dossier, the pitch deck (§5.3), and the paper's discussion each state this
+ceiling in one explicit sentence, so the audience prices the pitch correctly. The plan's
+honesty here is the pitch's credibility; pretending otherwise would be the actual risk.
 
 Binding rule: **claim scope ⊆ verdict-object scope.** The paper may claim exactly what the
 surviving verdict objects support — mechanism identity, measured rungs, M0b coverage slice,
@@ -69,14 +82,14 @@ Deadline dates drift year to year; the table records each venue's *cycle* and *n
 windows are verified by the Writer at GNG-2 (provisional pick) and fixed at paper.sign
 (open decision O-9). P3's timeline puts the normal-route write-up at Dec 2026 – Jan 2027
 (M8 = review-clean manuscript ≥2 weeks before any target window; M9 = Jan 30 submission);
-a PIVOT/KILL route at GNG-2 pulls the write-up forward to ~Oct 2026.
+a PIVOT/KILL/UNDECIDED route at GNG-2 pulls the write-up forward to ~Oct 2026.
 
 | Venue | Track/type | Cycle (typical; verify at GNG-2) | Norms that matter here | Negative-results fit | Route fit |
 |---|---|---|---|---|---|
 | **TMLR** (Transactions on Machine Learning Research) | Rolling journal | Submit any time; ~2-month review | Acceptance = (i) claims supported by accurate, convincing evidence, (ii) audience interest — **explicitly no novelty/impact/significance bar**; open review; Reproducibility + Survey certifications exist | **Best in class** — the acceptance criteria are exactly directives §6/§7: supported claims, honest evidence | **Default home on every route; primary on KILL and both PIVOTs; strong fallback on TAKE/NARROW** |
 | **NeurIPS** (main track) | Conference | Abstract ~mid-May, full ~late May; notify Sep | Paper checklist (claims-match-evidence, limitations, compute disclosure) maps 1:1 onto our registry artifacts; OpenReview; appendix + code encouraged | Moderate: rigorous negatives publishable when framing is a strong empirical study; reviewer variance real | TAKE/NARROW (mechanism paper); PIVOT-A6 (interpretability is in scope) |
 | **ICML** (main track) | Conference | Full paper ~late Jan; notify May | Similar checklist culture; double-blind | Moderate, as NeurIPS | TAKE/NARROW — **the natural window for the normal-route timeline (M9 Jan 30)**, if the 2027 deadline falls after M8; else NeurIPS May |
-| **ICLR** (main track) | Conference | Full paper ~late Sep; notify Jan | OpenReview public reviews; strong representation-learning + interpretability audience | Moderate | PIVOT/KILL pulled-forward route (~Oct 1 write-up) can hit ICLR if the window aligns; otherwise TMLR |
+| **ICLR** (main track) | Conference | Full paper ~late Sep; notify Jan | OpenReview public reviews; strong representation-learning + interpretability audience | Moderate | PIVOT/KILL/UNDECIDED pulled-forward route (~Oct 1 write-up) can hit ICLR if the window aligns; otherwise TMLR |
 | **ACL / EMNLP main + Findings** (via ARR) | Conference / Findings | ARR rolling cycles (~every 2 months); commit to nearest conference | Responsible-NLP checklist; Findings absorbs sound-but-lower-excitement papers — a respectable landing for bounded-scope results | Findings: good for honest bounded/negative NLP results | TAKE/NARROW when the surviving mechanism is verification-of-language-output (HC1/HC2 framing); A5-narrow pivot |
 | **COLM** (Conference on Language Modeling) | Conference | ~late Mar deadline | LM-centric; efficiency + verification + evaluation all in scope; younger venue, methodologically serious | Good — empirical-rigor culture | TAKE/NARROW efficiency-mechanism paper (HE series); fits the Mar window if ICML is missed |
 | **ICBINB** ("I Can't Believe It's Not Better" — workshop series + negative-results initiative) | Workshop / non-archival or PMLR proceedings depending on year | Aligned to NeurIPS/ICLR host cycles | Dedicated venue for well-executed negative and surprising-null results in ML | **Purpose-built** | Companion venue on KILL (visibility + community), never the archival substitute — the archival negative paper goes to TMLR |
@@ -88,21 +101,38 @@ Pre-declared venue policy (needs O-9 ratification, §6):
 1. **Primary target by route:** TAKE/NARROW → nearest of {ICML, NeurIPS, COLM, ACL/EMNLP}
    whose window is ≥2 weeks after M8, chosen by mechanism audience fit (efficiency → ICML/
    NeurIPS/COLM; verification-of-text → ACL/EMNLP); PIVOT-A6 → ICLR or NeurIPS; A5-narrow →
-   ACL/EMNLP or TMLR; KILL → **TMLR** (+ ICBINB companion).
+   ACL/EMNLP or TMLR; KILL → **TMLR** (+ ICBINB companion); STOP-AND-PUBLISH-UNDECIDED →
+   **TMLR**.
 2. **TMLR is the standing fallback on every route**: one conference rejection cycle maximum
    before the manuscript goes to TMLR — the programme's obligation is the honest public
    record, not venue prestige-chasing (directives §7 "could score well and be accepted at a
    top-tier venue" is a *quality bar on the manuscript*, met at paper.review; it is not a
    license to sit on results through multiple cycles).
-3. **The pre-registration is load-bearing at review time**: the frozen registry (freeze
-   dates in git history, `frozen-index.json`) is cited in the paper as the pre-registration
-   record; reviewers can verify that hypotheses/thresholds/analyses predate data. This is a
-   genuine differentiator at any of these venues and the cover letter / checklist answers
-   say so explicitly.
-4. **Double-blind compliance**: an anonymized snapshot of the repo (registry, logs, verdict
-   objects, code; identity strings and account names scrubbed by a scripted pass, mapping
-   file held privately) is deposited via an anonymous-repository service for review;
-   de-anonymized on acceptance. arXiv preprint timing follows the venue's policy and is a
+3. **The pre-registration is load-bearing at review time — and externally witnessed
+   (P7 RT-15)**: the frozen registry (freeze dates in git history, `frozen-index.json`) is
+   cited in the paper as the pre-registration record, and it does **not** rest on our git
+   history alone: every freeze's `frozen_sha256` is externally timestamped at freeze time —
+   published on the public coordination issue (sparq-org/sparq#1683) and, preferably, an
+   OSF registration mirroring `frozen-index.json` (the `prereg freeze` post-step, P2 §1.1)
+   — so reviewers can verify from a third-party surface that hypotheses/thresholds/analyses
+   predate data. This is a genuine differentiator at any of these venues and the cover
+   letter / checklist answers say so explicitly, citing the external timestamps.
+4. **Double-blind compliance — anonymize by OVERLAY, never by scrubbing chained bytes
+   (P7 RT-14).** A scripted scrub of identity strings inside the registry/log records would
+   rewrite byte-hashed content, invalidating every `frozen_sha256` and `prev_sha256` — and
+   with them the very pre-registration/reproducibility claim under review. Instead:
+   (a) the registry, hash-chained logs, and verdict objects ship **byte-intact**; the
+   in-record agent-identity strings (`runner-3` and kin) are already pseudonyms,
+   and the reproducibility statement says so; (b) only **repo-external identifiers**
+   (account names, profile ids, issue/repo URLs such as the coordination-issue link) are
+   renamed via an **overlay mapping file** applied at snapshot-render time — the mapping is
+   held privately and never enters the snapshot; (c) the anonymized snapshot is deposited
+   via an anonymous-repository service for review and de-anonymized on acceptance.
+   **Schema implication (cross-reference; the change lands in P2, decided before I-REG
+   freezes):** the P2 record schemas keep account-identifying material **out of hashed
+   record bytes** from the start — pseudonymous role identities inside hashed records,
+   account bindings in an unhashed sidecar — so the overlay never has to touch a hashed
+   byte. arXiv preprint timing follows the venue's policy and is a
    GATE-H (GR-8: external communication of results requires maintainer action) — decided at
    paper.sign.
 
@@ -199,7 +229,10 @@ items are pre-declared here so reviewers' likely objections are pre-empted:
 
 **4. Pre-registered experimental design** `[R + W]`
 - The registry as method: freeze-before-run, hash-chained logs, verdict = pure function,
-  run-vs-audit separation (one figure: the P2 lifecycle).
+  run-vs-audit separation — described in the manuscript by its honest name,
+  **"role-separated re-derivation"** (P2 G-6, P7 RT-9): all audit identities are agents
+  operated within the programme; the word "independent" is reserved for the maintainer-level
+  audit and the external replication offer (§5.3) (one figure: the P2 lifecycle).
 - The hypothesis table `[R]` — generated from `registry/hypotheses.json`: every hypothesis,
   its decisive experiment, verbatim kill criterion, rungs, and status.
 - Baselines discipline: kernel-as-text null mandatory everywhere; RAG-over-text,
@@ -255,7 +288,9 @@ why, incl. any tier the maintainer declined).
 
 **8. Discussion** `[W]` — scores the L3 Laws' predictions against outcomes (did
 verifier-side beat consumer-side as predicted?); what the outcome means for the
-external-structure-into-LLMs literature; on PIVOT/KILL routes, what the negative teaches
+external-structure-into-LLMs literature; on TAKE routes, the §1.1 ceiling sentence (the
+frontier pitch is structurally a fund-the-next-rung pitch, direction-only to ~7B) stated
+explicitly; on PIVOT/KILL routes, what the negative teaches
 (e.g. "the text rendering carries the value — structured canonical form adds nothing
 measurable at these scales" is itself a finding the field can use).
 
@@ -265,7 +300,8 @@ measurable at these scales" is itself a finding the field can use).
 - B: full SAPs per experiment (P8 §1.9 instantiations, verbatim).
 - C: encoder/corpus/model pins; harness manifests; how to re-run every analysis
   (`verdict-gen` is deterministic — byte-identical reproduction is the claim, and the
-  auditors' re-run records are cited).
+  auditors' **role-separated re-derivation** records are cited, named exactly that —
+  never "independent audits" (P7 RT-9)).
 - D: the amendment log, in full (every amendment: date, kind, rationale — nothing edited
   silently is the point).
 - E: agent-contribution disclosure (O-10): which roles (runner/analyst/auditor/writer)
@@ -457,15 +493,17 @@ including PIVOT and KILL.
 
 | Trigger (computed at) | Route | Paper produced | Primary venue (per §1.2 policy) | Explainer-back | Timing |
 |---|---|---|---|---|---|
-| GNG-3 = TAKE-TO-FRONTIER-LAB | TAKE | Mechanism paper, full scale analysis (a-extrap-5 slope level) | Nearest of ICML/NeurIPS/COLM/ACL by mechanism audience, window ≥2 weeks after M8 | Yes — includes the frontier-pitch recommendation and its scoping | Normal path: write-up P-7 (Dec 07–Jan 12), sign/submit/deliver P-8 (Jan 12–30) |
+| GNG-3 = TAKE-TO-FRONTIER-LAB | TAKE | Mechanism paper, full scale analysis (a-extrap-5 slope level) | Nearest of ICML/NeurIPS/COLM/ACL by mechanism audience, window ≥2 weeks after M8 | Yes — includes the frontier-pitch recommendation and its scoping, stated plainly as a **fund-the-next-rung** pitch (direction-only to ~7B; §1.1 ceiling note) | Normal path: write-up P-7 (Dec 07–Jan 12), sign/submit/deliver P-8 (Jan 12–30) |
 | GNG-3 = NARROW-AND-CONTINUE | NARROW | Same paper, claims bounded to measured rungs; missing rung named in limitations; venue may be Findings/COLM/TMLR if the bounded claim underfills a main track | As TAKE, or TMLR | Yes — recommendation = fund exactly the missing decisive test | Normal path |
 | GNG-2 = PIVOT (A6 alive) and Tiers 4–5 declined | PIVOT-A6 | Interpretability-instrument paper + mechanism kills in the same document (R-9) | ICLR or NeurIPS (whichever window fits the pulled-forward date); BlackboxNLP companion optional | Yes — recommendation = pivot scope | **Pulled forward** (~Oct 01 start per P3 §5); r-final triggers off GNG-2 instead of GNG-3 |
 | GNG-2 = PIVOT (A5-narrow: HC2 alone) | PIVOT-A5 | Assurance/verification paper, no performance claims | ACL/EMNLP (ARR) or TMLR | Yes | Pulled forward |
 | GNG-2 or GNG-3 = KILL | KILL | Rigorous negative-results paper (full statistics, registry, raw logs; the pre-registration is the methods contribution) | **TMLR** primary; ICBINB companion (maintainer's call, §6) | Yes — recommendation = stop; what the negative teaches; archive statement | Pulled forward on a GNG-2 KILL; else normal path |
+| GNG-2 or GNG-3 = STOP-AND-PUBLISH-UNDECIDED | UNDECIDED | "Could-not-power-the-answer" paper per §1.1: blocking members named, decidability bands quoted verbatim, replication-buy cap shown exhausted, what-budget/n-would-decide stated; spending stops (the §5 caps are terminal on this route) | **TMLR** | Yes — recommendation = stop and publish; re-opening requires a fresh pre-registration + fresh maintainer-approved envelope (P1 §6 route 5) | Pulled forward on a GNG-2 route; else normal path |
 | Any route, conference rejection | — | Same manuscript, revised per reviews (revisions re-enter at paper.draft; paper.lint/review re-run — a review-driven change to claims is impossible without re-tracing) | TMLR after at most one conference cycle (§1.2 policy 2) | (already delivered) | Rolling |
 
-Notes binding the table: (i) r-final's dependency is "GNG-3, or GNG-2 on a PIVOT/KILL route
-that declines Tiers 4–5" (P3 §1.9) — the trigger rows above instantiate exactly that; (ii)
+Notes binding the table: (i) r-final's dependency is "GNG-3, or GNG-2 on a
+PIVOT/KILL/UNDECIDED route that declines Tiers 4–5" (P3 §1.9) — the trigger rows above
+instantiate exactly that; (ii)
 a positive HS13 anywhere triggers immediate independent replication BEFORE any claim enters
 paper.claims (P1 HS13; the claims table refuses a row citing an unreplicated
 anchor-contradicting result per P8 §2.4's ANCHOR-CONTRADICTING consequence); (iii) the
@@ -479,6 +517,22 @@ summary, frontier-lab pitch deck (TAKE route), talk slides — is generated from
 claims table and passes the same `--paper` lint before any GATE-H exposure (GR-8 covers all
 external communication; GR-15's lint is the uniform pre-gate). No companion may contain a
 claim absent from `paper/claims.json`.
+
+**Frontier-lab pitch deck, additional binding rules (P7 RT-9 + §6/§10):**
+
+1. **Honest audit labelling** — every "audited" claim in the deck is described as
+   role-separated re-derivation (agent identities within the programme), never as
+   independent audit; the deck's methods slide says so in one sentence.
+2. **Pre-committed external replication offer** — before any pitch exposure, the programme
+   commits (recorded on the coordination issue) to one genuinely external replication of
+   any headline positive: artifacts + harness public, one named outside person or lab
+   invited to re-run the pinned analysis. The offer is cited in the deck.
+3. **The ceiling sentence** — the deck states, in one explicit sentence, that even the full
+   TAKE route licenses direction-only claims to ~7B, so what is being pitched is funding
+   the next rung of measurement, not a claim that the mechanism works at frontier scale
+   (§1.1 ceiling note; P8 §2.5). If m0b.gate fired below the GNG-0 threshold, the deck also
+   carries the NICHE-SCOPE banner and the coverage-growth cost line (P3 m0b.gate), priced
+   from the P6 §2.2 authoring-cost figure.
 
 ---
 
@@ -498,10 +552,14 @@ claim absent from `paper/claims.json`.
 4. **Companion outputs.** Yes/no on: ICBINB companion on KILL; BlackboxNLP companion on
    PIVOT-A6; a separate methods/tooling paper on the registry-honesty system (MLRC/TMLR) —
    each is extra Writer time, zero new claims (§5.3).
-5. **Double-blind anonymization approach.** §1.2 item 4 (scripted scrub + anonymous
-   snapshot service) — sign off the approach, since the repo IS the reproducibility claim
-   and anonymizing it needs care with the identity strings the honesty system itself
-   records.
+5. **Double-blind anonymization approach.** §1.2 item 4 (anonymize-by-OVERLAY: hashed
+   records ship byte-intact with their pseudonymous in-record identities; only repo-external
+   identifiers are renamed via a privately-held overlay mapping) — sign off the approach.
+   The repo IS the reproducibility claim: scrubbing identity strings out of hashed bytes
+   would break every `frozen_sha256`/`prev_sha256` chain reviewers are asked to verify
+   (P7 RT-14), so the overlay is the only approach compatible with the pre-registration
+   claim; the corresponding P2 schema rule (account-identifying material kept out of hashed
+   bytes) must land before I-REG freezes.
 6. **Explainer delivery format.** Written + live Q&A appended (default), or written-only.
    The directives make the explainer a first-class deliverable; the live Q&A is the
    recommended default because the Q&A record has repeatedly been where scope
@@ -513,9 +571,11 @@ claim absent from `paper/claims.json`.
 
 P9 turns directives §7 into an operational publication programme: the paper's type, venue,
 and claim scope are pure functions of the machine-computed go/no-go route (TAKE/NARROW →
-main-track mechanism paper at ICML/NeurIPS/COLM/ACL; PIVOT → interpretability or assurance
+main-track mechanism paper at ICML/NeurIPS/COLM/ACL, with any frontier pitch honestly framed
+as a fund-the-next-rung pitch, direction-only to ~7B; PIVOT → interpretability or assurance
 paper that publishes its own kills; KILL → a TMLR negative-results paper as a pre-declared
-success mode, with TMLR the standing fallback on every route); the manuscript follows a
+success mode; STOP-AND-PUBLISH-UNDECIDED → a TMLR "could-not-power-the-answer" paper with
+the decidability bands quoted; TMLR the standing fallback on every route); the manuscript follows a
 fixed outline whose results and envelope tables are generated from the registry, whose every
 claim anchors to a verdict object, and whose abstract must carry the measured-range +
 extrapolation-cap sentence; honesty is enforced by the executable lint chain (R-1…R-13,

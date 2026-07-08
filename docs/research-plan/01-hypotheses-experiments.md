@@ -53,7 +53,7 @@ the literature prior is a null).
 paired permutation tests; one named primary endpoint per experiment; Holm-corrected
 secondaries; a "null" verdict requires a TOST equivalence bound at the pre-registered smallest
 effect of interest (default Cohen's d = 0.5) — non-significance alone is INCONCLUSIVE, not
-null; encoder + corpus hash pinned per run; every positive gets independent adversarial audit
+null; encoder + corpus hash pinned per run; every positive gets a role-separated re-derivation
 before "PASS" is written (run-from-audit separation, directives §3); negative results are
 committed with full statistics at the same prominence as positives. **Proportion/rate
 endpoints** (catch rates, precision, violation rates, location rates) are tested one-sided
@@ -62,11 +62,18 @@ CI bound** — the CI bound, not the point estimate, must clear the threshold; *
 fork criteria** (G6/G7) are deterministic counts over pinned corpora and carry no test.
 **Slope claims** (HC5, HE7, HS13) fit weighted least squares on log-params rungs and report
 the 90% CI on the slope; "shrinking" means the CI excludes 0 from below. Where a kill
-criterion below names only a threshold, these defaults supply the test and alpha. Every efficiency-relevant
+criterion below names only a threshold, these defaults supply the test and alpha.
+**Decidability lint (freeze-time, binding; P7 RT-4).** Every Wilson-bound gate must be shown,
+at freeze, to be **powered for its threshold at its planned n**: the registry entry quotes the
+detectable alternative (per P8 §1.6) and n must make the gate decidable at the *expected*
+rate, not only the optimistic one; an entry failing this lint does not freeze. Every efficiency-relevant
 report carries the full metric vector **V = {accuracy/correctness (task + kernel-covered
 slice), params (N_total/N_active/N_trained), memory (total-system peak ledger per F0 §3.4),
 inference compute (FLOPs/query, p50/p95 latency, $/query), training compute (FLOPs/steps/
-tokens-to-target)}** under the F0 accounting standard (`design-efficiency-track.md` §3),
+tokens-to-target), authoring cost (amortized $/concept for any arm consuming authored kernel
+content — Fable-class explication authoring at the G9-measured rate, plus sidecar/molecule
+authoring, amortized over the same query volume Q as adapter/compressor training; P7 RT-11)}**
+under the F0 accounting standard (`design-efficiency-track.md` §3),
 including all kernel machinery (encoder, adapter, verifier, store, retrieval) — nothing waived.
 Every verdict restates the M0b kernel-expressibility coverage number and its rung.
 
@@ -77,6 +84,15 @@ Every verdict restates the M0b kernel-expressibility coverage number and its run
 **R0** = this box, CPU, no model. Slope discipline: ≥3 rungs before any scale adjective;
 2 rungs license a sign; 1 rung licenses nothing.
 
+**Rung-set discipline (binding on every multi-rung claim; P7 RT-12, P8 §1.9 field 12).** The
+rung set over which any conjunctive claim ("PASS at ≥2 rungs") is asserted is **declared at
+freeze** and tested under IUT with exactly that membership. A conditional extension rung
+("R3 iff sign") must pre-declare its extension trigger as a **machine predicate over frozen
+registry fields** — for E9/HC1 and F2/HE1 the trigger is `primary_reject@R1 AND
+primary_reject@R2` — and an extension rung may only **strengthen** an already-satisfied
+conjunction (reported as "PASS at R1–R2, replicated at R3"), never substitute into it: if R1
+passes and R2 fails, no R3 outcome can produce "PASS at ≥2 rungs".
+
 ---
 
 ## 1. H0 — the top hypothesis and the go/no-go gate
@@ -86,8 +102,9 @@ training-free concept definitions plus their machinery (encoder, verifier, axiom
 store, adapter) — measurably improves an LLM system on at least one value thesis (correctness
 or efficiency), on kernel-covered task slices, beyond BOTH (i) the kernel-as-text null (the
 same definitional content, hash-pinned, rendered as Minimal-English text) and (ii) the
-strongest industrial baseline for that thesis (RAG-over-text for knowledge; matched-compute
-sampling, quantization, distillation, and smaller-model-alone for efficiency), at two or more
+strongest industrial baseline for that thesis (RAG-over-text AND **gloss-text self-verify +
+retry at matched budget** for knowledge/correctness; matched-compute sampling, quantization,
+distillation, and smaller-model-alone for efficiency), at two or more
 model-scale rungs.*
 
 H0 is deliberately a **disjunction over mechanism-level hypotheses**, because the directives'
@@ -100,21 +117,33 @@ the cheapest experiments discriminate along that line first.
 
 **Decisive YES (pre-declared evidence pattern).** At least one of {HC1, HC2, HE1, HE2, HE3,
 HE4, HE5, HE6} reaches PASS under its own kill criterion, **including** beating its
-kernel-as-text arm, at ≥2 rungs of its ladder, with the positive surviving independent
-adversarial audit (re-run from pinned artifacts by a non-running agent; audit checklist in
-plan component P4). A YES licenses only the surviving mechanism at its measured rungs and
+kernel-as-text arm — and, for HC1/HE1/HE2, the **gloss-text self-verify + retry arm at
+matched budget** (P7 RT-2) — at ≥2 rungs of its ladder, with the positive surviving
+role-separated re-derivation (re-run from pinned artifacts by a non-running agent; audit
+checklist in plan component P4). A YES licenses only the surviving mechanism at its measured rungs and
 coverage — never the strong A1 claim, which has its own gated test (HS13).
 
-**Decisive NO (pre-declared evidence pattern).** ALL of the following, each as a TOST-bounded
-null or explicit kill: (a) F2 kills HE1 and HE2 at both (R1,R2) and (R2,R3) pairs; (b) E9-full
-kills HC1 AND the constraint arm HC2; (c) F4 kills HE4 (in-context text matches the adapter
-path); (d) F6 toy rung kills HE6 (or the text-scaffold arm matches it). Under this pattern the
+**Decisive NO (pre-declared evidence pattern, "H0-NO").** ALL of the following, each as a
+TOST-bounded null or explicit kill: (a) F2 kills HE1 and HE2 at both (R1,R2) and (R2,R3)
+pairs; (b) E9-full kills HC1 AND the constraint arm HC2; (c) F4 kills HE4 (in-context text
+matches the adapter path); (d) F6 toy rung kills HE6 (or the text-scaffold arm matches it),
+**OR F6 is INSTRUMENT-INVALID after its pre-registered instrument repair** (the repair — what
+changes vs E1, and the instrument's own pass bar — is pre-registered in f6.reg), in which case
+HE6 is scored **undetermined-not-supporting**: it never counts as support for the kernel, and
+clause (d) counts as met with the caveat rendered verbatim in the H0-NO verdict (P7 RT-19; the
+frozen-embedding literature prior justifies treating an unmeasurable HE6 as non-supporting
+rather than blocking). If any of (a)–(c) — or (d) absent its carve-out — is instead
+INCONCLUSIVE or INSTRUMENT-INVALID after its single replication buy (§6 cap), H0-NO is NOT
+established and the tree routes to STOP-AND-PUBLISH-UNDECIDED (§6 route 5). Under the full
+H0-NO pattern the
 kernel's measured value to LLMs is nil beyond its own text rendering, and the global tree (§6)
 routes to *pivot* (if HC4/E8-R lives) or *kill* (if it does not). Cost to reach a decisive NO:
-≈ **$180–650** (§5), plus the ~$0 R0 tier.
+≈ **$200–700** (§5), inside the Tiers 0–3 cumulative cap of $900 (worst-case all-tiers spend
+≈ $760), plus the ~$0 R0 tier.
 
 **What H0 cannot be resolved by:** any single-rung result; any result on a non-covered slice;
-any arm that was tuned harder than its baselines; any positive not audited independently.
+any arm that was tuned harder than its baselines; any positive lacking a role-separated
+re-derivation.
 
 ---
 
@@ -131,28 +160,48 @@ AlphaGeometry/Logic-LM template. Prior evidence against: nothing yet measures th
 ### HC1 — Decode-verify beats RAG-with-citations and its own text deflation on error-catching
 
 - **Statement.** On a factual/definitional-consistency task over kernel-covered content, the
-  kernel decode-verify loop catches model errors that (i) vanilla RAG-with-citations and
+  kernel decode-verify loop catches model errors that (i) vanilla RAG-with-citations,
   (ii) a hash-pinned definition-TEXT dictionary (the deflationary null — no encoder, no
-  structured records) do not catch, at a measured marginal cost.
-- **Decisive experiment: E9-full** (pre-registered in poc-design E9 rev 3; not yet run).
+  structured records), and (iii) **gloss-text self-verify + retry at matched budget** (the
+  same verify-and-retry topology with the text rendering as the verification instrument) do
+  not catch, at a measured marginal cost.
+- **Decisive experiment: E9-full** (pre-registered in poc-design E9 rev 3; amended pre-freeze
+  per P7 RT-2/RT-3 — this document is the amendment of record; not yet run).
   Arms: (1) model alone; (2) model + RAG-with-citations over gloss corpus; (3) model +
   hash-pinned gloss-file dictionary lookup (deflation); (4) model + kernel decode-verify
-  (decode concept-level output → check against canonical record; X2's 51/54 machinery, its
-  gap on the ledger); (5) arm 4 + repair/retry. Scoring by non-LLM rubric or leak-checked
-  judge (E5 discipline).
+  (model output → checkable record per the **P10 model↔record interface**
+  (`10-model-record-interface.md`) → check against canonical record; note X2's 51/54 was
+  measured on *encoder-produced* vectors, NOT model outputs — the interface and its
+  extraction-failure instrument gate are part of the system under test, its gap on the
+  ledger); (5) arm 4 + repair/retry; (6) **gloss-text self-verify + retry**: model generates
+  → model checks its own output against the pinned gloss text → retry k∈{1,2,4}, identical
+  retry budgets and FLOPs matching to arm 5 (the Law-2/self-refine/CoVe-lineage deflationary
+  control, P7 RT-2). All arms share the same output-format affordances per P10. Scoring by
+  non-LLM rubric or leak-checked judge (E5 discipline).
 - **IVs:** verification architecture (arms); model rung; retry budget. **DVs:** error-catch
   recall/precision by error class; end-task accuracy after repair; full vector V (verifier
   FLOPs counted per F0 §3.3 — NN cleanup ≈ |lexicon|·D MACs, on the ledger).
-- **Baselines:** arms 2 and 3 are both mandatory; arm 3 is the kernel-as-text null in its
-  strongest form.
+- **Baselines:** arms 2, 3, and 6 are all mandatory; arm 3 is the kernel-as-text null in its
+  strongest passive form; arm 6 is the strongest *active* text baseline — the arm Law 2
+  predicts will win — and HC1 cannot PASS without beating it.
+- **Ecological-validity secondary (pre-registered; P7 RT-7a).** One **externally-authored
+  eval slice** — the definitional/consistency subset of an established public benchmark,
+  filtered to kernel-covered concepts by the M0b machinery (the filter is ours; the items
+  are not) — is run under all arms as a Holm-corrected secondary, so no HC1 verdict rests
+  solely on self-authored corpora.
 - **Kill criterion.** HC1 is dead at a rung if arm 4/5's error-catch set is ≥90% covered by
   arm 3's at ≤ arm 3's cost, or if end-task accuracy after repair does not exceed arm 3's by
   the pre-registered smallest effect of interest (Cohen's h = 0.2 on the per-item
   caught/corrected rate; paired bootstrap over items, α=0.05; a null verdict requires TOST
-  with equivalence margin h = 0.2). Ships with the per-class breakdown: any HC1 PASS must
+  with equivalence margin h = 0.2), **or if arm 4/5 fails to beat arm 6 (gloss-text
+  self-verify + retry) at matched retry budget and FLOPs by the same smallest effect
+  (h = 0.2; same test; null requires TOST)** — beating only arms that lack the retry loop
+  attributes the win to verification-with-retry as such, not to the kernel, and is a FAIL.
+  Ships with the per-class breakdown: any HC1 PASS must
   name the error classes only structure catches.
-- **Scale rungs:** R1, R2; R3 if a sign exists. **Cost:** ~$20–80 (inference-only, Modal
-  harness reuse).
+- **Scale rungs:** R1, R2; R3 iff the pre-declared extension predicate fires
+  (`primary_reject@R1 AND primary_reject@R2`; rung-set discipline above). **Cost:** ~$25–100
+  (inference-only, Modal harness reuse; +20–30% vs the pre-RT-2 arm-set).
 
 ### HC2 — The axiom sidecar catches what no text arm can (the constraint-violation delta)
 
@@ -166,10 +215,18 @@ AlphaGeometry/Logic-LM template. Prior evidence against: nothing yet measures th
   rates over the litmus family (human/parent/sex, bookmark/maker, promise/parties) +
   molecule-tier axioms; the model asserts/summarises records; each verification arm flags.
 - **IVs:** verification arm; violation class; model rung. **DVs:** end-to-end catch rate
-  (through the decode step — the X2 gap is part of the system under test), false-positive
+  (through the model→record step — governed by the P10 interface and its extraction-failure
+  instrument gate; the X2 gap is part of the system under test, and X2's 51/54 was measured
+  on encoder-produced vectors, not model outputs), false-positive
   rate on clean records, cost per check.
-- **Baselines:** all E9-full arms; plus a text-diff checker over the gloss file (EF4's
+- **Baselines:** all E9-full arms (including arm 6, gloss-text self-verify + retry); plus a
+  text-diff checker over the gloss file (EF4's
   question folded in: can plain text verification match structural verification?).
+- **Natural-violation secondary (pre-registered; P7 RT-7c).** A **naturally-occurring
+  violation sub-corpus** — violations mined from actual model outputs, not planted — is
+  scored as a Holm-corrected secondary, with the planted corpus retained as the powered
+  primary; this keeps E9-C from being a pure calibration exercise ("our checker catches the
+  violations we seeded for it").
 - **Kill criterion.** Dead if end-to-end catch rate < 0.80 (one-sided exact binomial vs the
   0.80 threshold, α=0.05: the Wilson 95% lower bound over ≥300 planted violations must clear
   0.80), or < 3× the best text arm's catch rate (paired bootstrap on the per-record catch
@@ -215,8 +272,16 @@ AlphaGeometry/Logic-LM template. Prior evidence against: nothing yet measures th
   replication is the sole primary endpoint) then **E8-D** (downstream: cross-version semantic
   regression detection — did concept c's operational meaning move between model/kernel
   versions? — must beat a linear-probe baseline, AUC, pre-registered margin).
+- **E8-D ground-truth design (pre-registered now, even though e8d.reg is conditional; P7
+  RT-10).** *Planted-drift primary:* seeded fine-tunes of the base model on shifted-usage
+  corpora, with per-concept drift magnitudes pre-declared before instrument contact, giving
+  labelled drifted/undrifted concept sets for the AUC endpoint. *Natural version-pair
+  secondary:* existing public model version pairs (e.g. base vs instruct, v1 vs v2
+  checkpoints), scored by behavioural probes authored **blind to the instrument**. Any
+  PIVOT-A6 route citing E8-D must label its evidence "planted-drift" unless the natural
+  secondary agrees (this labelling rule is quoted in P9 §1.1's PIVOT-A6 paper-type row).
 - **IVs:** family pair; SAE site (controlled); seed-stability stratum. **DVs:** correspondence
-  ρ vs both nulls; E8-D AUC vs probe baseline.
+  ρ vs both nulls; E8-D AUC vs probe baseline (planted-drift primary; natural-pair secondary).
 - **Kill criterion.** E8-R dead if the site-matched third family fails both new pairs
   (permutation test vs shuffled-kernel null, p≥0.01 per pair, effect reported as Spearman ρ
   with bootstrap 95% CI); A6 then has one unreplicated pass and is shelved, not pitched.
@@ -255,18 +320,28 @@ M2-output and M3-at-scale least likely — the ordering below spends money accor
 - **Statement.** ∃ kernel-covered, correctness-sensitive task family and scales s<S such that
   model_s + kernel-verifier ≥ model_S alone on accuracy at strictly lower total inference
   FLOPs, $ and memory.
-- **Decisive experiment: F2** (design-efficiency-track §4.2, adopted verbatim): 9 arms at
+- **Decisive experiment: F2** (design-efficiency-track §4.2, adopted with one pre-freeze
+  amendment per P7 RT-2): 10 arms at
   (135M, 360M, 1.7B) incl. kernel-as-text (arm 5), RAG-over-text (arm 6), FLOP-matched
-  self-consistency-N (arm 7), int4-quantized 360M (arm 9); retry sweep k∈{1,2,4}.
+  self-consistency-N (arm 7), int4-quantized 360M (arm 9), and **arm 10: gloss-text
+  self-verify + retry at matched budget** (the model checks its own output against the
+  pinned gloss text and retries; identical retry sweep and FLOPs matching to the kernel
+  verifier arm); retry sweep k∈{1,2,4}. The kernel-verifier arm's model→record step follows
+  the P10 interface (`10-model-record-interface.md`), extraction-failure instrument gate
+  included.
 - **Primary endpoint:** kernel-covered-slice accuracy of 135M+verifier vs 360M alone,
   iso-accuracy discipline, paired bootstrap α=0.05, full V.
-- **Kill criterion (verbatim from the track):** dead at a rung if (a) <50% of the s→S gap
-  closed at best pre-registered retry budget, OR (b) the text null or matched-compute
-  sampling closes as much gap at ≤ the same FLOPs/query, OR (c) closing the gap costs ≥
+- **Kill criterion (track text + RT-2 amendment):** dead at a rung if (a) <50% of the s→S
+  gap closed at best pre-registered retry budget, OR (b) the text null, matched-compute
+  sampling, **or the gloss-text self-verify + retry arm** closes as much gap at ≤ the same
+  FLOPs/query — HE1 cannot PASS without the kernel-verifier arm beating arm 10 at matched
+  budget, OR (c) closing the gap costs ≥
   running model_S directly. Nulls require TOST.
+- **Ecological-validity secondary (P7 RT-7a):** the same externally-authored eval slice as
+  E9 (M0b-filtered public-benchmark subset) is run as a Holm-corrected secondary.
 - **Scale rungs:** (R1,R2) then (R2,R3); pre-registered question: does the closable gap
-  fraction grow or shrink with S? **Cost:** ~$10–40. **This is the single cheapest
-  kill-or-support of the efficiency thesis proper.**
+  fraction grow or shrink with S? **Cost:** ~$10–40 (arm-10 amendment included). **This is
+  the single cheapest kill-or-support of the efficiency thesis proper.**
 
 ### HE2 — Verifier-gated cascade beats logprob-gated cascade (M5)
 
@@ -275,11 +350,15 @@ M2-output and M3-at-scale least likely — the ordering below spends money accor
   FLOPs frontier on kernel-covered tasks.
 - **Decisive experiment: F2b** (arm 8 of F2); expected cost = c_small + p_escalate·c_large +
   c_verify with p measured, not assumed. EF5 (post-hoc retry vs in-decode gating) rides
-  along: one in-decode gating arm, latency measured batch-1 and throughput modes.
-- **Kill criterion.** Dead if not strictly dominant over the logprob gate — dominance means
-  the verifier-gated frontier point is above the logprob-gated one at every pre-registered
+  along: one in-decode gating arm, latency measured batch-1 and throughput modes. Per P7
+  RT-2, the comparison set also includes a **gloss-text self-check gate** (the model checks
+  its own draft against the pinned gloss text and escalates on failure — F2 arm 10's loop as
+  a cascade gate, matched escalation budget).
+- **Kill criterion.** Dead if not strictly dominant over BOTH the logprob gate AND the
+  gloss-text self-check gate — dominance means
+  the verifier-gated frontier point is above each competing gate's at every pre-registered
   escalation budget (per-budget paired bootstrap, Holm-corrected across budgets, α=0.05);
-  any budget where the logprob gate wins breaks dominance. EF5 has no kill —
+  any budget where either competing gate wins breaks dominance. EF5 has no kill —
   it only picks the surviving implementation. **Scale rungs:** (R1→R3) cascade; replication
   (R2→R3). **Cost:** inside F2.
 
@@ -317,6 +396,12 @@ M2-output and M3-at-scale least likely — the ordering below spends money accor
   d = 0.5), or if ToolkenGPT-style per-concept trained embeddings match the adapter arm at
   comparable all-in cost with their per-concept training FLOPs included on the ledger (then
   a trained identifier does the job and the kernel content is unnecessary).
+- **Authoring-cost accounting (P7 RT-11, binding).** The F4/HE4 ledger includes the
+  **amortized kernel-authoring cost line** from V: the ≥50 held-out D-DOM explications the
+  kernel arm consumes are costed at the G9-measured $/concept Fable-class authoring rate and
+  amortized over the same Q sweep as the adapter, while the in-context-text competitor's
+  near-zero authoring cost is carried as-is — the asymmetry is on the ledger, not waived.
+  The HE4 verdict must quote the **break-even Q including authoring cost**.
 - **Prior evidence:** E5 PASS + E9-defl PASS make this the programme's only injection cell
   with a measured kernel-content win — F4 adds the cost accounting and the missing text null.
 - **Scale rungs:** R1/R2/R3; pre-registered: does the text null overtake vector injection as
@@ -413,8 +498,11 @@ experiment. R0 forks are near-free and front-loaded.
   `promise ⊑ words` and cannot recover the partition-side axioms (confirming the
   read-out/residue split).
 - **Kill criterion.** Precision <0.9 ⇒ Π demoted to lint; all axioms live in the authored
-  sidecar (option b). Test: one-sided exact binomial vs the 0.9 threshold over ≥100 scored
-  derived subsumptions, α=0.05 — the Wilson 95% lower bound must clear 0.9; inter-annotator
+  sidecar (option b). Test: one-sided exact binomial vs the 0.9 threshold over **n = 500
+  gold subsumption judgments** (raised from the earlier ~50–100 plan per P7 RT-4: P8 §1.6
+  shows n=100 is undecidable unless true precision ≳0.96; n=500 makes the 0.9 gate decidable
+  at realistic precision — this sizing is the worked example for the freeze-time decidability
+  lint above), α=0.05 — the Wilson 95% lower bound must clear 0.9; inter-annotator
   agreement (Cohen's κ) reported, disagreements adjudicated blind before scoring. Additional
   kill for Π-as-normative if Π conflicts with any endorsed sidecar axiom on v0 (deterministic
   check, no test). **Rungs:** R0. **Cost:** ~$0 (agent + annotator time).
@@ -560,7 +648,7 @@ at larger scale, the envelope states it.
 | ID | Measured range | Reasonable extrapolation envelope | Literature anchor + licensing assumption |
 |---|---|---|---|
 | H0 | 135M–1.7B (+3B repl.) | Verdict valid 135M–7B-class only; nothing at frontier without Tier 5 | No published scaling law covers kernel-type interventions; disjunction inherits the tightest surviving member's envelope |
-| HC1 | 135M–360M (R3 if sign) | ≤3B, direction-only; bias stated: hosts' raw error rates fall with scale (loss scaling, Kaplan/Hoffmann), so absolute catch counts shrink; the *relative* catch on kernel-covered slices is the quantity extrapolated | Law 2 (L3): text arms improve with scale — verifier lift must be re-measured, never assumed, above 3B (that is HC5's job) |
+| HC1 | 135M–360M (R3 iff the frozen extension predicate fires; rung-set discipline) | ≤3B, direction-only; bias stated: hosts' raw error rates fall with scale (loss scaling, Kaplan/Hoffmann), so absolute catch counts shrink; the *relative* catch on kernel-covered slices is the quantity extrapolated | Law 2 (L3): text arms improve with scale — verifier lift must be re-measured, never assumed, above 3B (that is HC5's job) |
 | HC2 | 135M–360M | Checker soundness is model-free (deterministic) and extrapolates without limit; the END-TO-END rate is bottlenecked by decode fidelity, extrapolation ≤3B; larger hosts likely *improve* decode legibility (favourable direction, unmeasured) | AlphaGeometry/Logic-LM template (Law 3): deterministic-engine correctness is scale-invariant; only the neural translation step scales |
 | HC3 | 135M–1.7B | Relative kernel-vs-PRM verdict extrapolates to ~7B ONLY under the stated assumption that the PRM is held at its measured size; a frontier-scale PRM re-opens the fork | PRM literature (process supervision) improves with PRM scale; verdict is indexed to the PRM size class tested |
 | HC4 | 125M–160M families (+1 ≥1B pair if E8-R passes) | Open-weights families ≤7B; qualitative only above that | SAE feature-stability results (Templeton 2024, Paulo–Belrose seed-stability) span to mid-size production models; quantitative ρ does not transfer across SAE training regimes |
@@ -586,14 +674,21 @@ Pre-experiment gates that must exist before any Tier-1 GPU spend: **M0b** kernel
 expressibility coverage number (bounds every claim; unrun — required), the P2 registry
 (machine-readable pre-registration of every row below), and the F0 harness (`poc/f0/`).
 
-| Tier | Experiments (hypotheses) | Cost | Gates / what a kill does |
+| Tier | Experiments (hypotheses) | Cost (estimate / cap) | Gates / what a kill does |
 |---|---|---|---|
-| 0 (R0, this box, ~$0) | F1 (HE5 byte premise); G2+G3 (HS2, HS3); G6/G7 after G4; G8 (HS8); G9 (HS-A); M0b | ~$0 + annotator hours | F1-kill drops the byte story from every pitch. G3-kill (defeasible) auto-resolves HS2→sidecar-only and demotes Π to lint. G9-kill rewrites the why-now section. None of these blocks Tier 1. |
-| 1 (~$10–60) | **F2** (HE1, HE2, HC3, HS12) | $10–40 (+$10–20 PRM arm) | **The pivot experiment.** F2 clean-kill at both rung pairs guts M1+M5 — the best-supported efficiency mechanisms — and the efficiency thesis shrinks to M6+M4-verifiability; maintainer informed for ~$40. F2 PASS makes H0-YES reachable and funds Tier 2 aggressively. |
-| 2 (~$70–260) | E9-full + E9-C (HC1, HC2, HS11-part); F4+G1 (HE4, HS1); E8-R→E8-D (HC4) | E9 ~$20–90; F4+G1 ~$40–100; E8 ~$30–120 | E9-kill (incl. constraint arm) kills the correctness track's product story. F4-kill (text wins) kills M6 and, with F2-kill, most of H0's YES routes. G1-kill (Numberbatch parity) narrows every claim to governance. E8-R-kill shelves A6 — removes the pivot destination. |
-| 3 (~$100–340) | F3 (HE3, HS10); F6 toy/T1 (HE6); G4 (HS4) then G6/G7 | F3 $50–170; F6 $50–150; G4 ~$0 | F3-kill retires dense I/O for efficiency (HS10 → interface-side). F6-kill (or text-arm parity) kills M3-vector and removes HS13's precondition. |
-| 4 (~$200–800, double-gated) | F5 (HE5 full, HS9, HS11) | $200–800 | Runs only if F1 passed AND F3 settled the injection route. F5-kill retires M4-as-architecture. |
-| 5 (maintainer gate, $2–10k) | F7 ≡ E7 (HE7, HC5, HS13) | $2–10k | The only tier that licenses scale adjectives and any frontier pitch. Never started without explicit budget sign-off. |
+| 0 (R0, this box; **cap ≤ $20**) | F1 (HE5 byte premise); G2+G3 (HS2, HS3); G6/G7 after G4; G8 (HS8); G9 (HS-A); M0b | ~$0–20 + annotator hours | F1-kill drops the byte story from every pitch. G3-kill (defeasible) auto-resolves HS2→sidecar-only and demotes Π to lint. G9-kill rewrites the why-now section. None of these blocks Tier 1. |
+| 1 (**cap ≤ $80**) | **F2** (HE1, HE2, HC3, HS12) | $10–40 (+$10–20 PRM arm; arm-10 self-verify amendment inside) | **The pivot experiment.** F2 clean-kill at both rung pairs guts M1+M5 — the best-supported efficiency mechanisms — and the efficiency thesis shrinks to M6+M4-verifiability; maintainer informed for ~$60. F2 PASS makes H0-YES reachable and funds Tier 2 aggressively. |
+| 2 (**cap ≤ $400**) | E9-full + E9-C (HC1, HC2, HS11-part); F4+G1 (HE4, HS1); E8-R→E8-D (HC4) | E9 ~$25–100 (incl. E9-C, arm 6, RT-7 secondaries); F4+G1 ~$40–140 (F4 $20–60 + G1 $20–40 + second-family/authoring-cost-measurement margin ≤$40); E8 ~$30–120 | E9-kill (incl. constraint arm) kills the correctness track's product story. F4-kill (text wins) kills M6 and, with F2-kill, most of H0's YES routes. G1-kill (Numberbatch parity) narrows every claim to governance. E8-R-kill shelves A6 — removes the pivot destination. |
+| 3 (**cap ≤ $400**) | F3 (HE3, HS10); F6 toy/T1 (HE6); G4 (HS4) then G6/G7 | F3 $50–170; F6 $50–150; G4 ~$0 | F3-kill retires dense I/O for efficiency (HS10 → interface-side). F6-kill (or text-arm parity) kills M3-vector and removes HS13's precondition. |
+| 4 (double-gated; **cap ≤ $900**) | F5 (HE5 full, HS9, HS11) | $200–800 | Runs only if F1 passed AND F3 settled the injection route. F5-kill retires M4-as-architecture. |
+| 5 (maintainer-approved envelope, $2–10k) | F7 ≡ E7 (HE7, HC5, HS13) | $2–10k | The only tier that licenses scale adjectives and any frontier pitch. Never started without explicit budget sign-off. |
+
+**Canonical budget caps (P7 RT-8 reconciliation — this table is identical in P3 GR-1 and P6
+§4, and any divergence is a lint failure):** Tier 0 ≤ $20; Tier 1 ≤ $80; Tier 2 ≤ $400;
+Tier 3 ≤ $400; **cumulative Tiers 0–3 ≤ $900**; Tier 4 (F5) ≤ $900; Tier 5 =
+maintainer-approved envelope ($2–10k). Worst-case Tiers 0–3 from the estimates above
+($20 + $60 + $360 + $320) ≈ **$760 < $900**. Freeze-time lint: Σ(frozen worst-cases in a
+tier) ≤ tier cap.
 
 **Hard orderings:** F1 ≺ F5; F3 ≺ F5 (injection route); G2/G3 ≺ G4 ≺ G6/G7; F6(T0/T1 signal) ∧
 maintainer-signoff ≺ E7/HS13; {F2, E9, F4, F6} readouts ≺ any F7 spend; M0b ≺ first external
@@ -606,11 +701,28 @@ quotation of any result. Everything else parallelises within the ~5-concurrent-a
 Evaluated when Tiers 0–3 have read out (Tier 4 optional input); re-evaluated after any gated
 tier. Verdicts are mutually exclusive; the FIRST matching pattern from the top applies.
 "PASS"/"kill" below always means: against the pre-registered criterion, including the
-kernel-as-text arm, audit-confirmed.
+kernel-as-text arm AND the gloss-text self-verify + retry arm, audit-confirmed.
+
+**Exhaustiveness (P7 RT-1, binding).** The five routes below partition the outcome space:
+routes 1–2 cover every state with ≥1 audited mechanism PASS; routes 3–4 cover every state
+where H0-NO (§1) is established; route 5 is the **residual route** and fires whenever none of
+routes 1–4 match — by construction, every leaf of {mechanism results} × {H0 state} maps to
+exactly one route under first-match, and the tree can never evaluate to nothing. GNG-2's
+mechanical evaluation (P2 §5.2) must implement route 5 as the explicit `else` branch, and
+a-h0.reg freezes these five patterns verbatim.
+
+**Replication-buy cap (pre-declared).** An INCONCLUSIVE or INSTRUMENT-INVALID verdict on a
+decisive experiment buys **at most one** replication/instrument-repair re-run of that
+experiment (at most two such buys programme-wide), and NARROW-AND-CONTINUE is invocable **at
+most once per named gap**. After the buy is spent, the verdict stands and routes as-is: a
+repeated F6 instrument failure is scored **undetermined-not-supporting** for H0-NO per §1(d)
+— never as support for the kernel; a repeated instrument failure on any experiment *without*
+a pre-registered carve-out blocks H0-NO and routes to route 5.
 
 1. **TAKE-TO-FRONTIER-LAB** — pattern: (≥1 of HC1/HC2/HE1–HE6 PASS at ≥2 rungs) AND (its F7/
    HC5 slope measured at ≥3 rungs, flat-or-growing) AND (novelty search re-run per L1 §10.7)
-   AND (every load-bearing positive independently audited). The pitch is scoped to the
+   AND (every load-bearing positive confirmed by role-separated re-derivation). The pitch is
+   scoped to the
    surviving track only (verifier/instrument OR a named efficiency mechanism), carries its
    rungs, coverage bound (M0b), and comparison discipline, and never restates A1 unless HS13
    itself passed. Two-audience separation (research vs assurance) per architecture §4.
@@ -625,17 +737,32 @@ kernel-as-text arm, audit-confirmed.
    pivot to the assurance/verification product (A5-narrow) with no performance claims. In
    either pivot, the encoder/identity layer persists as standalone engineering value.
 4. **KILL** — pattern: H0-NO (F2, E9-full incl. E9-C, F4, F6 all TOST-killed or criterion-
-   killed at their decisive rungs) AND E8-R fails site-matched AND HC2 fails. Action: the
+   killed at their decisive rungs, F6's instrument carve-out per §1(d) included) AND E8-R
+   fails site-matched AND HC2 fails. Action: the
    programme terminates as a negative-results publication — full statistics, all raw logs,
    the registry, and the honest statement that the kernel's measured value to LLMs, at the
    tested scales and coverage, did not exceed its own text rendering. The kernel object
    (encoder, identity, KOTK/2, axiom sidecar) is archived as reusable engineering with its
    X-series quality card.
+5. **STOP-AND-PUBLISH-UNDECIDED** — pattern: **residual — fires iff none of routes 1–4
+   match** (the pattern is the `else` branch itself, so no leaf can escape it). Canonical
+   case: no audited mechanism PASS, and H0-NO is NOT established because ≥1 member of
+   {F2, E9-full+E9-C, F4, F6} is INCONCLUSIVE or INSTRUMENT-INVALID after its single
+   replication buy (and outside any pre-registered carve-out); the route also absorbs any
+   other non-matching leaf, with the blocking verdicts named. Action: publish with the
+   pre-computed decidability bands quoted verbatim (P8 §3.2; P9 R-7 bans spin), state
+   explicitly what budget/n would decide the open member(s), and stop spending — the caps
+   in §5 are terminal for this route. This is a first-class outcome in P9 §1.1's paper-type
+   table (a "we could not power the answer at this spend" paper — honest and publishable,
+   TMLR-class). Re-opening requires a fresh pre-registration and a fresh maintainer-approved
+   budget envelope; the undecided members may not be quietly re-run under the old IDs.
 
 **Anti-overselling guards bound to the tree:** no verdict may cite a mechanism's PASS without
 its kill-criterion text alongside; "narrow-and-continue" cannot be invoked twice for the same
-missing evidence; a pivot must publish the kills that forced it in the same document that
-announces the pivot.
+missing evidence (the replication-buy cap above is the general form); a pivot must publish
+the kills that forced it in the same document that
+announces the pivot; a route-5 publication must list every replication buy consumed and by
+which experiment.
 
 ---
 
@@ -668,26 +795,29 @@ announces the pivot.
 
 Each row becomes one entry in the machine-readable registry (component P2); the registry
 entry additionally pins: encoder hash, corpus hash, arm definitions, endpoint formula,
-analysis script hash, the verbatim kill text from §§1–4, and the extrapolation envelope
-from §4b (quoted verbatim in every generated verdict).
+analysis script hash, the verbatim kill text from §§1–4, the declared rung set + any
+extension predicate (rung-set discipline, P7 RT-12), and the extrapolation envelope
+from §4b (quoted verbatim in every generated verdict). For HC1, HC2, and HE1 the entry also
+pins the P10 model↔record interface choice and its extraction-failure gate thresholds
+(`10-model-record-interface.md`).
 
 | ID | One-line statement | Decisive exp. | Kill criterion (abbrev.) | Rungs | Cost | Depends on |
 |---|---|---|---|---|---|---|
 | H0 | Kernel principle helps LLMs beyond text-null + industrial baselines | disjunction gate | all of {F2,E9,F4,F6} TOST-killed ⇒ NO | ≥2 rungs | Σ tiers 0–3 | all below |
-| HC1 | Decode-verify catches errors RAG/gloss-text cannot | E9-full | ≥90% catch-overlap by gloss arm at ≤cost ⇒ dead | R1–R3 | $20–80 | Tier 0 |
+| HC1 | Decode-verify catches errors RAG/gloss-text/self-verify+retry cannot | E9-full | ≥90% catch-overlap by gloss arm at ≤cost; or fails to beat gloss self-verify+retry at matched budget ⇒ dead | R1–R3 | $25–100 | Tier 0, P10 |
 | HC2 | Axiom sidecar catches planted violations text cannot | E9-C | e2e catch <0.80 or <3× best text arm or FP>2% ⇒ dead | R1–R2 | +$10 | E9-full |
 | HC3 | Deterministic verifier ≥ trained PRM on covered slice | F2+PRM | PRM parity at matched FLOPs ⇒ dead | R1–R3 | +$10–20 | F2 |
 | HC4 | Kernel = canonical SAE label space; beats probe downstream | E8-R, E8-D | site-matched non-replication; probe parity ⇒ dead | 125M–1B fams | $30–120 | — |
 | HC5 | Verifier lift non-vanishing with scale | F7 slice | <10% rel. error-reduction extrapolated at R5 ⇒ toy-only | R1–R4 | in F7 | HC1/HC2 pass |
-| HE1 | s+verifier ≥ S at lower total cost (M1) | F2 | <50% gap closed; or text/matched-compute parity; or cost ≥ S ⇒ dead | (R1,R2),(R2,R3) | $10–40 | Tier 0 |
-| HE2 | Verifier-gated cascade dominates logprob cascade (M5) | F2b | not strictly dominant ⇒ dead | R1→R3 | in F2 | F2 |
+| HE1 | s+verifier ≥ S at lower total cost (M1) | F2 | <50% gap closed; or text/matched-compute/gloss-self-verify+retry parity; or cost ≥ S ⇒ dead | (R1,R2),(R2,R3) | $10–40 | Tier 0, P10 |
+| HE2 | Verifier-gated cascade dominates logprob + text-self-check cascades (M5) | F2b | not strictly dominant over both gates ⇒ dead | R1→R3 | in F2 | F2 |
 | HE3 | Dense concept input halves prompt FLOPs/KV at parity (M2-in) | F3 | loses to matched-token text at d≥16; or trained-compressor parity ⇒ dead | R1–R3 | $50–170 | F2 read |
 | HE4 | Adapter onboarding ≥90% LoRA at ≤10% FLOPs, beats text (M6) | F4 | text-null ≥ adapter at matched cost ⇒ dead | R1–R3 | $20–60 | Tier 0 |
 | HE5 | Kernel store outside accuracy-vs-bytes hull (M4) | F1→F5 | F1 <2× bytes; F5 inside {text-RAG,int4,distill} hull ⇒ dead | store 10³–10⁶; T1–T2 | $0 + $200–800 | F1, F3 |
 | HE6 | Kernel scaffolding ⇒ ≤0.8× tokens-to-target (M3) | F6 | TOST fail vs trainable; or text-data-arm parity ⇒ dead | T0–T2 | $50–150 | Tier 0 |
 | HE7 | Surviving Δ flat/growing over ≥3 rungs | F7 | Δ<10% extrapolated at 7B ⇒ toy-only | 3+ rungs | $2–10k gate | survivors |
 | HS1 | NSM pinning beats random codebook / Numberbatch | G1 (F4 ext.) | Numberbatch or random-codebook parity ⇒ claim narrows to governance | R1–R2, 2 fams | +$20–40 | F4 |
-| HS2 | Π read-out sound (native axiom form) | G2 | precision <0.9 ⇒ Π = lint, sidecar-only | R0 | ~$0 | G3 |
+| HS2 | Π read-out sound (native axiom form) | G2 | precision <0.9 over n=500 gold judgments ⇒ Π = lint, sidecar-only | R0 | ~$0 | G3 |
 | HS3 | Necessary-conditions pin survives instances | G3 | necessity fails >10% ⇒ defeasible; sufficiency >10% ⇒ no equivalence | R0 | ~$0 | — |
 | HS4 | NSM-native axiom syntax authorable at ≤2× effort | G4 | >2× effort or pin disputes ⇒ sidecar; mistranslation ⇒ NSM-native | R0 | ~$0 | G2 residue |
 | HS5 | Constraints out of the vector (confirm) | G5 | surprise reversal ⇒ new pre-registration | R0 | ~$0 | HS2 outcome |
@@ -701,5 +831,7 @@ from §4b (quoted verbatim in every generated verdict).
 | HS13 | A1 frozen vocabulary at scale (gated remnant) | E7 | shrinking or absent at T2 (TOST) ⇒ A1 closed | T0–T3 | $2–10k gate | F6 signal + sign-off |
 | HS-A | Fable authoring decisively beats DeepNSM-8B | G9 | not decisively better ⇒ why-now weakened, stated everywhere | authoring axis | $0–20 | — |
 
-*Total pre-gate budget (Tiers 0–3): ≈ $180–650. Tier 4 adds $200–800. Tier 5 (the only
-frontier-relevant tier) is a separate $2–10k maintainer decision.*
+*Budget (canonical caps, §5): Tiers 0–3 worst case ≈ $760 against a cumulative cap of $900
+(Tier 0 ≤ $20, Tier 1 ≤ $80, Tier 2 ≤ $400, Tier 3 ≤ $400). Tier 4 (F5) is capped at $900.
+Tier 5 (the only frontier-relevant tier) is a separate maintainer-approved envelope
+($2–10k).*

@@ -1,6 +1,9 @@
 # P4 — Skills to develop (reusable automation, honesty-enforcing by construction)
 
-**Status:** operational specification for maintainer sign-off, 2026-07-08. Component P4 of the
+**Status:** operational specification for maintainer sign-off, 2026-07-08 (rev 2 — verifier
+pass: RT-5 `prereg amend` design-amendment cutoff aligned to the **first `phase:"final"` run
+record** (P2 §1.4/G-3), not the later `unblind` line; identity strings aligned to P2 §1.2
+constraint 10 pseudonyms (RT-14); M0 date Jul 22 per RT-18). Component P4 of the
 research plan (`docs/research-plan/`). Governed by `docs/kernel-design-directives.md`
 (binding; esp. §3 "The SKILLS to develop", §6, §7). Implements the verbs defined by P2
 (`02-data-and-reporting.md` §5.3 — the tool/guardrail surface each skill drives), the stage
@@ -55,7 +58,10 @@ library after an experiment freezes that library's hash (see §2.5 — that IS p
 
 ### 0.3 Shared conventions (every SKILL.md includes this block by reference)
 
-1. **Identity**: every invocation asserts `--agent-id <account>/<role>-<n>`; skills refuse to
+1. **Identity**: every invocation asserts `--agent-id <role>-<n>` — a stable **pseudonym**
+   (P2 §1.2 constraint 10 / RT-14: account-identifying material never enters hashed record
+   bytes; the account↔pseudonym binding lives only in the unhashed
+   `registry/identity-map.json` sidecar); skills refuse to
    run without it and stamp it into every record they touch (P2 §4 identities; GR-6).
 2. **Fail closed**: any unverifiable precondition (missing verdict object, unreadable ledger,
    hash mismatch, absent human record) aborts with a named `ERR_*` code; no silent fallbacks
@@ -128,7 +134,7 @@ Format per skill: purpose · inputs · outputs · DAG usage · guardrail · spec
 - **Guardrail enforced.** G-1 (nothing runs unfrozen), and all freeze-time lints: G-8
   (mandatory baselines incl. kernel-as-text vs `registry/hypotheses.json`), G-10 (exactly one
   primary endpoint; secondaries form one Holm family), G-11 (budget block; Tier-5 requires
-  `budget.maintainer_signoff`), P2 §1.2 schema constraints 1–8 (exhaustive verdict rules,
+  `budget.maintainer_signoff`), P2 §1.2 schema constraints 1–10 (exhaustive verdict rules,
   TOST bound present for NULL, full-V DV list when `efficiency_relevant`, ≥5 seeds for
   trained arms, verbatim kill + envelope text non-empty), P8 §1.9 (no field TBD; SAP shows
   both rejection-branch and TOST-branch power ≥0.90), and the P2 §5.4 review rule (the
@@ -146,8 +152,12 @@ Format per skill: purpose · inputs · outputs · DAG usage · guardrail · spec
      any lint fails; canonicalise; compute `frozen_sha256`; write frozen-index; commit;
      announce. `ERR_P4_PREREG_LINT`, `ERR_P4_SELF_REVIEW`, `ERR_P2_NOT_FROZEN` downstream.
   4. `prereg amend <id> --kind ops|design|pre-authorized-fallback` — build an RFC-6902 patch
-     record; tooling stamps `unblinding_state_at_write` from the log (a design amendment
-     after the `unblind` line is refused with the "new experiment ID" message — G-3).
+     record; tooling stamps `unblinding_state_at_write` from the log. A `design` amendment
+     is refused with the "new experiment ID" message as soon as the log contains **any
+     `phase:"final"` run record** — the raw-data-exposure cutoff (P2 §1.4/G-3, RT-5),
+     deliberately EARLIER than the `unblind` line (which is only a second, later witness of
+     first analysis exposure). `ops` amendments (the whitelisted pointers) stay valid until
+     CLOSED; `pre-authorized-fallback` must name its authorizing frozen-record field.
 - **Tests.** Golden freeze of a mock experiment; a lint-failure battery (missing text-null
   arm, two primaries, TBD power field, drifted plan sha, self-review).
 
@@ -315,7 +325,9 @@ Format per skill: purpose · inputs · outputs · DAG usage · guardrail · spec
 - **Inputs.** EXP-ID with a computed verdict; `--agent-id` (MUST differ from every `runner`
   in the experiment's eligible log — schema-enforced, `ERR_P2_SELF_AUDIT`); audit depth
   (`full` for positives, `conformance` for kills/nulls — P3 §0.2); for Tier ≥2 positives and
-  paper.review: the backup-account identity (`jeswr-backup/fable-auditor-<n>`, O-5).
+  paper.review: an auditor pseudonym bound to the backup Fable account in the unhashed
+  `registry/identity-map.json` sidecar (`auditor-<n>`, O-5; the account name itself never
+  enters record bytes — P2 §1.2 constraint 10, RT-14).
 - **Outputs.** `registry/audits/<id>/<n>.json` (kot-audit/1): artifacts re-hashed, chain
   segment re-verified, re-run outputs + deltas, checklist item results, outcome
   CONFIRMED/REFUTED/BLOCKED; an `audit-ref` log line; on CONFIRMED, a re-run of S7 upgrades
@@ -420,7 +432,7 @@ Format per skill: purpose · inputs · outputs · DAG usage · guardrail · spec
   `{{claim:<id>}}` anchors on every quantitative sentence; limitations section = the
   envelope table verbatim; abstract states the headline honestly (a negative headline goes
   in the abstract when it is the finding).
-- **DAG usage.** paper.outline, paper.draft (Writer role `kern/fable-writer-1`); iterates
+- **DAG usage.** paper.outline, paper.draft (Writer role `writer-1`); iterates
   under paper.lint (S8/S12s) until clean; then paper.review (S6, auditor identity) →
   paper.sign (GATE-H).
 - **Guardrail enforced.** GR-15/directives §7 by construction: the skill's drafting rules
@@ -507,7 +519,8 @@ without a pinned analysis script, so `run-stats` mode A precedes the first real 
 | 13 | S8 `paper-claims` | First needed at paper.claims, but building it by GNG-2 lets the dossier reuse the trace machinery | GNG-2 dossier, paper.claims | by Sep 18 |
 | 14 | S9 `paper-draft` + S10 `explain-back` | Write-up phase (P-7); built before GNG-2 so a PIVOT/KILL route (write-up pulls forward to Oct 01) is not blocked on tooling | r-final/paper.outline; xb.draft | by Sep 25 |
 
-Items 1–8 are the GNG-0 package (P3 milestone M0, Jul 15): they make `I-REG`, `I-F0`,
+Items 1–8 are the GNG-0 package (P3 milestone M0, Jul 22 — slipped from Jul 15 per P7
+RT-18; the build targets above land ahead of it): they make `I-REG`, `I-F0`,
 `I-AUDIT`, `I-BUDGET`, `I-SKILLS` green. Items 9–11 complete the Tier-1 launch surface
 (GATE-T1). Items 12–14 are deliberately early relative to their DAG position so that the
 directives-§7 phases are never tool-blocked on any route, including early KILL.
@@ -539,8 +552,10 @@ description: Author, lint, and FREEZE a kernel-of-truth experiment registry reco
 
 ## When to use
 - An experiment's P1 section and P8 SAP block exist and its X.reg node is unblocked.
-- NEVER to "fix" a frozen record after data exists — that is `prereg amend` (pre-unblinding
-  design amendments only) or a NEW experiment id. If in doubt, stop and file a bead.
+- NEVER to "fix" a frozen record after data exists — that is `prereg amend` (design
+  amendments are valid only BEFORE the experiment's first phase:"final" run record —
+  the raw-data-exposure cutoff, P2 §1.4/G-3; ops amendments until CLOSED) or a NEW
+  experiment id. If in doubt, stop and file a bead.
 
 ## Inputs you must have before starting
 1. EXP-ID and the P1 anchor (hypotheses, arms, kill text — quoted verbatim, never retyped).
@@ -555,8 +570,9 @@ description: Author, lint, and FREEZE a kernel-of-truth experiment registry reco
    rungs, seeds, n_planned, budget block, endpoints (EXACTLY one primary),
    verdict_rules (generated from the SAP §1.8 canonical ordering; last rule is the
    INCONCLUSIVE catch-all), kill_criterion_verbatim, extrapolation_envelope_verbatim.
-2. `bin/prereg lint <id>` — must be fully green. It checks: schema constraints 1–8
-   (P2 §1.2), G-8 baselines vs registry/hypotheses.json, G-10 endpoint rules, G-11
+2. `bin/prereg lint <id>` — must be fully green. It checks: schema constraints 1–10
+   (P2 §1.2, incl. the RT-14 no-account-material-in-record-bytes scan), G-8 baselines
+   vs registry/hypotheses.json, G-10 endpoint rules, G-11
    budget (+ maintainer_signoff for Tier 5), every verdict-rule metric pointer against
    the analysis script's declared vocabulary, analysis_plan_ref sha, power fields
    (both branches ≥0.90), and runs the script's fixture tests. Fix and re-run; do not
@@ -572,9 +588,12 @@ description: Author, lint, and FREEZE a kernel-of-truth experiment registry reco
 
 ## Amendments
 `bin/prereg amend <id> --kind ops|design|pre-authorized-fallback --rationale "…"` —
-builds the RFC-6902 record under registry/amendments/<id>/. The tool stamps unblinding
-state from the log; if it refuses a design amendment (unblind line exists), the ONLY
-path is a new experiment id with `supersedes` linkage. Never argue with the refusal.
+builds the RFC-6902 record under registry/amendments/<id>/. The tool stamps the
+exposure state from the log; if it refuses a design amendment (a phase:"final" run
+record exists — the cutoff is FIRST RAW-DATA EXPOSURE, not the later `unblind` line;
+P2 §1.4/G-3, RT-5), the ONLY path is a new experiment id with `supersedes` linkage.
+Ops amendments (whitelisted pointers) remain valid until CLOSED. Never argue with the
+refusal.
 
 ## Hard refusals you must not work around
 ERR_P4_PREREG_LINT · ERR_P4_SELF_REVIEW · ERR_P2_MISSING_BASELINE · ERR_P2_NOT_FROZEN
@@ -598,7 +617,8 @@ description: Execute a FROZEN kernel-of-truth experiment exactly as pre-register
 - Experiment status == FROZEN (registry/status.json); GNG-0 signed (except m0b).
 - Tier gate open (gate-eval record exists for your tier, e.g. GATE-T1).
 - Budget headroom: worst_case_usd ≤ remaining tier cap (bin/ledger-check <tier>).
-- You have `--agent-id kern/fable-runner-<n>` and are bound to ONE campaign.
+- You have `--agent-id runner-<n>` (pseudonym — P2 §1.2 constraint 10) and are bound to
+  ONE campaign.
 
 ## Procedure
 1. INPUTS — `bin/run-experiment inputs <id>`: builds/collects every input, hashes each,
@@ -712,7 +732,7 @@ description: The P8 statistics executor. Mode A (freeze time) — instantiate an
 ## 6. Open decisions for the maintainer
 
 1. **O-P4-1 (folds into O-1/GNG-0 sign-off):** approve this skill set + build order as the
-   content of DAG node I-SKILLS (items 1–8 land before GNG-0 on Jul 15).
+   content of DAG node I-SKILLS (items 1–8 land before GNG-0 on Jul 22 — M0 per RT-18).
 2. **O-P4-2:** confirm skills' canonical home `tools/skills/` with `.claude/skills/`
    symlinks (vs `.claude/skills/` as primary) — affects only discovery, not normativity.
 3. **O-P4-3 (= O-5):** confirm the backup-account policy for `audit-result` on Tier ≥2

@@ -1,7 +1,10 @@
 # P6 — Resource & infrastructure plan (provisioned up front)
 
-**Status:** resource plan for maintainer sign-off, 2026-07-08. Component P6 of the
-operational research plan (`docs/research-plan/`). Governed by
+**Status:** resource plan for maintainer sign-off, 2026-07-08 (rev 2 — P7 red-team
+pre-freeze fixes applied: RT-8 canonical budget caps + worst-case-exposure arithmetic,
+RT-7 D-EXT externally-authored slice + D-IR-N natural-violation corpus sourcing, RT-11
+amortized kernel-authoring `authoring_cost` line, RT-4 g2 n=500 annotator re-budget).
+Component P6 of the operational research plan (`docs/research-plan/`). Governed by
 `docs/kernel-design-directives.md` (binding; esp. §3 "RESOURCES provisioned up front —
 compute, model access across the scale ladder, data, budget, with concrete access routes").
 Consumes P1 (`01-hypotheses-experiments.md` — experiments, rungs, costs, kill-tree), P2
@@ -74,10 +77,10 @@ A100-h worst case — matches the track's own sizing). Every campaign additional
 
 | Exp (hypotheses) | Rungs | GPU | Est. GPU-h | Est. $ | Tier / cap it draws on |
 |---|---|---|---|---|---|
-| M0b coverage; F1; G2/G3/G5/G6/G7 | R0 | none (CPU, this box) | — | ~$0 | Tier 0 (≤$15 total, API only) |
+| M0b coverage; F1; G2/G3/G5/G6/G7 | R0 | none (CPU, this box) | — | ~$0 | Tier 0 (≤$20 total, API only) |
 | G4 decode-legibility; G8 Lean location; G9 authoring | R0 + API | none | — | $0–20 API | Tier 0 |
 | **F2 + PRM arm** (HE1, HE2, HC3, HS12) | (R1,R2) T4; R3 A10G | T4 + A10G | 15–40 | **$10–60** | Tier 1 (cap $80) |
-| E9-full + E9-C (HC1, HC2, HS11-part) | R1, R2 | T4 | 25–80 | $20–100 | Tier 2 (cap $320) |
+| E9-full + E9-C (HC1, HC2, HS11-part; incl. arm 6 gloss-text self-verify + retry and the RT-7 secondaries) | R1, R2 | T4 | 25–80 | $25–100 | Tier 2 (cap $400) |
 | F4 + G1 (HE4, HS1) — incl. second-family adapter train | R1–R3, 2 families | A10G | 30–90 | $40–140 | Tier 2 |
 | E8-R → E8-D (HC4) — SAE fitting dominates if no public dict | 125M–160M fams (+1 ≥1B pair cond.) | A10G | 25–100 | $30–120 | Tier 2 |
 | F3 + M2-output rider (HE3, HS10) | R1–R3 hosts | A10G | 45–150 | $50–170 (rider ≤$20 inside) | Tier 3 (cap $400) |
@@ -85,8 +88,16 @@ A100-h worst case — matches the track's own sizing). Every campaign additional
 | F5 (HE5-full, HS9, HS11) — from-scratch controlled training | T1, T2 (T3 cond.) | A100-40GB | 100–350 | **$200–800** | Tier 4 (cap $900; GATE-T4) |
 | F7 ≡ E7 (HE7, HC5, HS13) — survivor slopes; R5/T3 rungs | R1–R4/R5; T0/T2/T3 | A100/H100 + A10G | sized at GATE-T5 via `--dry-plan` | **$2–10k** | Tier 5 (approved envelope; GATE-T5) |
 
-Cross-check: Tiers 0–3 sum to ≈ **$180–650**, matching P1 §5's pre-gate budget line; the
-GR-1 cumulative cap for Tiers 0–3 is $700. Storage rider: Modal Volume storage (HF cache
+**Canonical budget caps (P7 RT-8 reconciliation — this table is identical in P1 §5 and P3
+GR-1, and any divergence is a lint failure):** Tier 0 ≤ $20; Tier 1 ≤ $80; Tier 2 ≤ $400;
+Tier 3 ≤ $400; **cumulative Tiers 0–3 ≤ $900**; Tier 4 (F5) ≤ $900; Tier 5 =
+maintainer-approved envelope ($2–10k). Worst-case Tiers 0–3 from the estimates above
+($20 + $60 + $360 + $320) ≈ **$760 < $900**. Freeze-time lint (GR-1): Σ(frozen worst-cases
+in a tier) ≤ tier cap — `prereg-freeze` refuses a freeze that would break the sum, so a
+fully-utilised tier can never BUDGET-HALT mid-campaign by arithmetic.
+
+Cross-check: Tiers 0–3 estimated spend sums to ≈ **$200–700**, matching P1 §5's
+decisive-NO cost line. Storage rider: Modal Volume storage (HF cache
 ~20–60 GB + per-campaign work volumes) is a ledger line, estimated <$10/month, volumes
 deleted at campaign close-out (P3 §3.5).
 
@@ -102,7 +113,7 @@ Executed as P3 nodes I-MODAL / I-BUDGET during Phase P-0 (Jul 09–15):
    → one `--mock` ping end-to-end (staged-manifest assertion + provenance sidecar checked)
    → write transport-ready record.
 2. **Modal spend controls (GATE-H, one dashboard visit):** set the account-level spend
-   limit/alert to the Tiers-0–3 envelope (≤$700) so the platform-side cap agrees with the
+   limit/alert to the Tiers-0–3 envelope (≤$900) so the platform-side cap agrees with the
    GR-1 ledger; raised only at GATE-T4/GATE-T5 alongside the ledger cap.
 3. **Budget ledger (I-BUDGET):** initialise `registry/budget.json` with the GR-1 cap table
    (maintainer confirms values = open decision O-1); deploy the hourly cost-monitor
@@ -155,10 +166,24 @@ $ ledger. Metered API calls inside experiment pipelines are, and they are small:
 | G8 Lean location probe | top-5 concept-location over 1,000 Mathlib declarations | small frontier model via API | existing Anthropic route | $0–10 |
 | haiku-tier authoring (bulk kernel, feeds M0b/D-DOM if drawn on) | already-established pipeline | claude-haiku (existing) | existing | inside Tier-0 API cap |
 | Leak-checked judge fallback | E5-discipline scorers are non-LLM rubrics first; judge only where pre-registered | small model, leak-checked per E5 discipline | existing | inside campaign caps |
+| **Kernel-content authoring — the ledgered `authoring_cost` line (P7 RT-11)** | The D-DOM ≥50 held-out explications (and any sidecar/molecule authoring an arm consumes) that the V metric vector charges as **amortized $/concept** (P1 common rules; F4/HE4 and F5/HE5 ledgers) | Fable-class authoring through the validator loop (same route as G9); recorded model id + token counts per explication | In-session agent authoring or `ANTHROPIC_API_KEY`, as G9 | $5–25 (D-DOM, ≥50 concepts; charged to F4's Tier-2 cap) |
 
-Total API budget across the programme: **≤ $50–75**, inside the Tier-0/Tier-2 caps it is
-billed against. No fine-tuning APIs, no hosted-training services — all training is
-open-weight on our own metered GPUs (auditability requirement).
+**Authoring-cost accounting (P7 RT-11, binding — the resource-side of P1's V
+`authoring_cost` line).** Planning figure: **~$0.10–0.50/concept** for Fable-class
+explication authoring through the validator loop (bounded below by the haiku-tier bulk
+pipeline at ~cents/concept and above by G9's $0–10 for N≥50 explications including validator
+retries). The **G9-measured $/concept rate supersedes this planning figure** the moment
+g9.close lands: it is pinned into `f4.inputs`/`f5.inputs`, the D-DOM pack manifest carries a
+measured authoring-cost line, and every arm consuming authored kernel content charges it in
+V, amortized over the same query volume Q as adapter/compressor training — while the
+in-context-text competitor's near-zero authoring cost is carried as-is (the asymmetry is on
+the ledger, not waived; P1 HE4). HE4/HE5 verdicts must quote the **break-even Q including
+authoring cost**, and the M0b coverage-growth cost line any frontier pitch requires (P3
+m0b.gate, RT-7b) is priced from this same $/concept figure.
+
+Total API budget across the programme: **≤ $60–100** (incl. the authoring line), inside the
+Tier-0/Tier-2 caps it is billed against. No fine-tuning APIs, no hosted-training services —
+all training is open-weight on our own metered GPUs (auditability requirement).
 
 ### 2.3 Other model artifacts
 
@@ -202,7 +227,9 @@ hash-pinned packs referenced from registry entries. Anything an arm consumes is 
 | Pack | Contents | Source / method | Consumed by |
 |---|---|---|---|
 | **D-QA — kernel-covered definitional QA** | E5-style slot-filling + forced-choice usage items on kernel-covered concepts, plus a **non-covered control slice**; gloss corpus + RAG index for the text/RAG arms; leak-checked | Generated from `data/kernel-v0` + `data/lexical-wn31` records (glosses = the text arms' corpus); leak checks per E5 discipline; M0b coverage number computed first (D-QA depends on M0b.run) | F2, HC3, F7 slices |
+| **D-EXT — externally-authored eval slice (P7 RT-7a)** | Definitional/consistency subset of an established public benchmark, filtered to kernel-covered concepts by the M0b machinery (the filter is ours; **the items are not**); frozen item-id list + source bytes hash-pinned into the e9/f2 registry entries; pre-registered Holm-corrected secondary in E9 and F2 so no HC1/HE1 verdict rests solely on self-authored corpora | Pre-declared preference order, walked at D-EXT build and recorded (with the HF dataset **revision sha**) in the pack manifest: (1) **WiC** (SuperGLUE word-in-context, `pilehvar/wic` via HF; CC BY-NC 4.0 — research use, noted in the registry entry) definitional-usage items; (2) **OpenBookQA** core-fact slice (`allenai/openbookqa`, Apache-2.0); (3) **MMLU** (`cais/mmlu`, MIT) definitional subsets. Selection rule (pre-declared): first source whose M0b-filtered, leak-checked yield is ≥300 items; the filter script + item-id list are committed and sha-pinned before e9.reg/f2.reg freeze | E9 (HC1), F2 (HE1) — secondaries |
 | **D-IR — factual-correctness / violation corpus** | ≥300 seeded instance records with **planted** cardinality/disjointness/domain violations at known rates over the litmus family (human/parent/sex, bookmark/maker, promise/parties) + molecule-tier axioms; clean-record control set for the FP bound | Seeded generator (seed + rates in registry); axioms from D-AX | E9-C (HC2), HS11 |
+| **D-IR-N — natural-violation secondary corpus (P7 RT-7c; ships inside the E9-C pack)** | ≥100 **naturally-occurring** violation candidates mined from actual model outputs (never planted), plus a uniform random sample of unflagged outputs for miss-rate bounding; adjudicated ground-truth labels. Keeps E9-C from being a pure calibration exercise; scored as a Holm-corrected secondary with planted D-IR retained as the powered primary | Mining protocol pinned at e9.inputs: the revision-pinned ladder models themselves (SmolLM2-135M/360M) generate instance descriptions over the litmus + molecule-tier families under pinned prompts + seeds; candidates surfaced by broad lexical/structural heuristics (**not** by the axiom checker under test — that would re-import the circularity); ground truth by blind human adjudication (~2 h, added to H-4); model ids, prompts, seeds, heuristics, and adjudicated labels all hash-pinned in the pack manifest | E9-C (HC2) — secondary |
 | **D-GL — long-glossary sets** | QA/consistency items needing d∈{4,16,64} in-context definitions; matched-token compressed + truncated text variants | kernel-v0 concepts first, wn31-backed second; compression variants built with a pinned summarizer | F3 (HE3) |
 | **D-DOM — onboarding domain** | ≥50 held-out new concepts: validated explications, minted URNs, vectors under pinned encoder `40e8c8ba…`, JL-projected per X4 pins | Authored via the validator loop (haiku-tier pipeline reusable); disjoint from adapter training data | F4 (HE4), G1 |
 | **D-CB — G1 arm artifacts** | (a) random-atom-codebook encoder fork (own ALGORITHM_VERSION label + own goldens, never mutating mainline); (b) **ConceptNet Numberbatch** vectors (public download, ~2 GB, en subset) mapped through the same adapter protocol; (c) KGE/OWL2Vec\*-style embedding trained in-house over the same concept graph (comparison lens only) | Numberbatch: github.com/commonsense/conceptnet-numberbatch (version pinned + sha'd at download); KGE trained on A10G inside G1's cap | G1 (HS1) |
@@ -215,7 +242,8 @@ hash-pinned packs referenced from registry entries. Anything an arm consumes is 
 
 **External-download ledger:** the only third-party downloads in the whole plan are
 Numberbatch (~2 GB), TinyStories (~1 GB), mathlib4 (git, shallow), public SAE packs
-(1–20 GB), and HF model weights (all cached once in `kot-hf-cache`). Each is
+(1–20 GB), the D-EXT public benchmark (WiC / OpenBookQA / MMLU per the preference order,
+<100 MB), and HF model weights (all cached once in `kot-hf-cache`). Each is
 version/sha-pinned at fetch (existing `data/*/manifest.json` discipline) — no live-service
 dependency at run time.
 
@@ -229,21 +257,21 @@ by a machine-checked or human gate that already exists in P3, and a kill upstrea
 downstream spend automatically (e.g. F1-kill makes GATE-T4 unsatisfiable ⇒ the $200–800
 never leaves the wallet).
 
-### Tier CHEAPEST-DECISIVE (~$40 spend; caps $95) — "is the best-supported mechanism real?"
+### Tier CHEAPEST-DECISIVE (~$60 spend; caps $100) — "is the best-supported mechanism real?"
 
-- **Contents:** all of Tier 0 (R0: F1, G2–G9, M0b; ≤$15 API) + **Tier 1: F2 + PRM arm**
-  ($10–60, cap $80).
+- **Contents:** all of Tier 0 (R0: F1, G2–G9, M0b; ≤$20 API) + **Tier 1: F2 + PRM arm**
+  ($10–60 incl. the arm-10 self-verify amendment, cap $80).
 - **Unlock:** GNG-0 (registry freeze signed) then GATE-T1 (machine-checked: M0b published ∧
-  F0 tests green ∧ Modal ready ∧ ledger headroom).
+  m0b.gate NICHE-SCOPE evaluated ∧ F0 tests green ∧ Modal ready ∧ ledger headroom).
 - **What the money decides:** the pivot readout GNG-1. F2 PASS ⇒ H0-YES is reachable and
   Tier 2 is funded aggressively. F2 clean-kill at both rung pairs ⇒ M1+M5 (the
   best-supported efficiency mechanisms) are dead and the efficiency thesis shrinks to
-  M6+M4-verifiability — the maintainer learns this for ~$40. Structure forks HS2–HS8
-  resolve here for ~$0 either way.
+  M6+M4-verifiability — the maintainer learns this for ~$60 (P1 §5). Structure forks
+  HS2–HS8 resolve here for ~$0 either way.
 
-### Tier MID (~$200–800 spend; caps $720 cumulative Tiers 0–3, +$900 Tier 4) — "resolve H0 and the mechanism map"
+### Tier MID (~$200–800 spend; caps $900 cumulative Tiers 0–3, +$900 Tier 4) — "resolve H0 and the mechanism map"
 
-- **Contents:** Tier 2 (E9-full+E9-C, F4+G1, E8-R→E8-D; $90–360, cap $320) + Tier 3
+- **Contents:** Tier 2 (E9-full+E9-C, F4+G1, E8-R→E8-D; $95–360, cap $400) + Tier 3
   (F3 incl. M2-output rider, F6 toy/T1; $100–320, cap $400). Conditionally Tier 4
   (F5; $200–800, cap $900) if and only if F1 passed AND F3 settled the injection route
   AND the maintainer approves GATE-T4 (~Sep 25 with the GNG-2 dossier).
@@ -251,9 +279,11 @@ never leaves the wallet).
   blocked by the efficiency pivot — GNG-1 is informational for it); Tier 4 is double-gated
   as above.
 - **What the money decides:** every input to the **global decision tree (P1 §6)** at GNG-2:
-  TAKE-TO-FRONTIER-LAB / NARROW-AND-CONTINUE / PIVOT / KILL. A decisive H0-**NO** — every
-  mechanism TOST-killed against its text null — costs ≈ **$180–650 all-in**, and per the
-  directives that negative is written up at full prominence (P9), not buried.
+  TAKE-TO-FRONTIER-LAB / NARROW-AND-CONTINUE / PIVOT / KILL / STOP-AND-PUBLISH-UNDECIDED.
+  A decisive H0-**NO** — every mechanism TOST-killed against its text null — costs
+  ≈ **$200–700 all-in** (P1 §5; worst-case Tiers 0–3 ≈ $760, inside the $900 cumulative
+  cap), and per the directives that negative is written up at full prominence (P9), not
+  buried.
 
 ### Tier FRONTIER (~$2–10k, hard-gated) — "the only tier that licenses scale adjectives"
 
@@ -267,9 +297,11 @@ never leaves the wallet).
   adjective or frontier pitch; GNG-3 final disposition. If GNG-2 routed to PIVOT or KILL,
   this tier is never funded — the $2–10k is contingent capacity, not a commitment.
 
-**Worst-case total exposure by route:** kill-at-GNG-1 ≈ $55–95; kill-at-GNG-2 ≈ $180–650;
-full run to GNG-3 ≈ $2.4–11.7k. All spend on per-second billing — there is no sunk
-pre-purchase at any point.
+**Worst-case total exposure by route (arithmetic from the canonical caps, §1.3):**
+kill-at-GNG-1 ≈ $30–80 spend, ≤ $100 by cap (Tier 0 ≤ $20 + Tier 1 ≤ $80);
+kill-at-GNG-2 ≈ $200–700 spend, worst case ≈ $760, ≤ $900 by the cumulative Tiers-0–3 cap;
+full run to GNG-3 ≈ $2.4–11.6k (worst case ≈ $760 + $800 + $10k). All spend on per-second
+billing — there is no sunk pre-purchase at any point.
 
 ---
 
@@ -279,10 +311,10 @@ pre-purchase at any point.
 
 | # | Gate (P3 ref) | What @jeswr does | Effort | When |
 |---|---|---|---|---|
-| H-1 | **Budget caps (O-1, I-BUDGET)** | Confirm/adjust the GR-1 cap table (Tier 0 ≤$15 · T1 ≤$80 · T2 ≤$320 · T3 ≤$400 · cumulative ≤$700 · T4 ≤$900 · T5 = approved envelope) + set the Modal dashboard spend limit to match | one message + one dashboard visit | before GNG-0 (target Jul 15) |
+| H-1 | **Budget caps (O-1, I-BUDGET)** | Confirm/adjust the canonical GR-1 cap table (RT-8 reconciliation: Tier 0 ≤$20 · T1 ≤$80 · T2 ≤$400 · T3 ≤$400 · cumulative Tiers 0–3 ≤$900 · T4 ≤$900 · T5 = approved envelope $2–10k; worst-case Tiers 0–3 ≈ $760) + set the Modal dashboard spend limit to match | one message + one dashboard visit | before GNG-0 (target Jul 15) |
 | H-2 | **Modal credential (CRED-GATE)** | Only if the `jmwright-045` token is dead: `modal token new` pairing; confirm a billing method is attached to the account | ~3 min | P-0, only on failure of I-MODAL |
 | H-3 | **Registry freeze signature (GNG-0)** | Sign the registry root sha (all 26 entries + caps) | ~30–60 min review | Jul 15 |
-| H-4 | **Annotator sourcing (O-3)** | Decide who annotates: G3 needs 2 independent annotators ~8–10 h; G2 gold ~3 h; G9 blinded review ~4 h; M0b slice ~2–4 h (≈ 20 h total). Options: (a) maintainer + one colleague, $0; (b) paid platform (Prolific-class), ≈ $300–600 incl. platform fees — if (b), that line is added to Tier 0's cap | decision + either ~20 h of human time or ~$300–600 | P-1 (annotation starts ~Jul 13) |
+| H-4 | **Annotator sourcing (O-3)** | Decide who annotates: G3 needs 2 independent annotators ~8–10 h each; G2 gold **~12 h (n = 500 subsumption judgments, blind adjudication — RT-4 decidability sizing, P3 g2.gold)**; G9 blinded review ~4 h; M0b slice ~2–4 h; D-IR-N natural-violation adjudication ~2 h (RT-7c) — ≈ 30–40 h total (P3 §2). Options: (a) maintainer + one colleague, $0; (b) paid platform (Prolific-class), ≈ $500–900 incl. platform fees at the re-budgeted hours — if (b), that line is added to Tier 0's cap | decision + either ~30–40 h of human time or ~$500–900 | P-1 (annotation starts ~Jul 13) |
 | H-5 | **Second-provider API key (O-7, new)** | Pick OpenAI or Google for the proposer-invariance arm; mint one key; set a $25 hard cap at the provider | ~10 min | before G4/G9 run (Jul) |
 | H-6 | **Auditor identity (O-5)** | Confirm the backup Fable account is used for Tier ≥2 positive audits (hard run-vs-audit separation) and that its credentials are live | ~5 min | before first Tier-2 audit (Aug) |
 | H-7 | **GATE-T4 approval (O-6)** | $200–800 for F5, decided on the GNG-2 dossier | one decision | ~Sep 25 |
@@ -303,7 +335,7 @@ COMPUTE
 [ ] 3.  Pinned image rebuilt from requirements-image.txt; hydrated image id recorded
 [ ] 4.  Volume inventory: kot-hf-cache present; per-campaign volume naming confirmed
 [ ] 5.  --mock transport smoke green same-week (staged-manifest assertion observed)
-[ ] 6.  Modal dashboard spend limit set = Tiers-0-3 envelope (<=$700)   [H-1]
+[ ] 6.  Modal dashboard spend limit set = Tiers-0-3 envelope (<=$900)   [H-1]
 [ ] 7.  registry/budget.json initialised with confirmed GR-1 caps        [H-1]
 [ ] 8.  Hourly cost-monitor deployed; kill switch smoke-tested against a dummy breach
 [ ] 9.  Kill-switch inventory documented + tested (modal app stop; gpu/terminate.sh)

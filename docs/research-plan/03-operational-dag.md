@@ -1,6 +1,14 @@
 # P3 — Operational DAG, automation boundary, execution harness, guardrails, timeline
 
-**Status:** operational plan for maintainer sign-off, 2026-07-08 (rev 2 — reconciled with the
+**Status:** operational plan for maintainer sign-off, 2026-07-08 (rev 4 — verifier pass:
+RT-7c `d-ir-n` natural-violation secondary corpus node added and wired into e9.inputs
+(planted D-IR stays the powered primary; P1 HC2, P6 H-4); RT-18 M0 milestone slipped
+Jul 15 → Jul 22; identity strings aligned to P2 §1.2 constraint 10 pseudonyms (RT-14).
+rev 3 — P7 red-team
+pre-freeze fixes applied: RT-1 STOP-AND-PUBLISH-UNDECIDED route + replication-buy cap, RT-3
+extraction instrument gates + `10-model-record-interface.md`, RT-6 lineage semantics, RT-7
+NICHE-SCOPE coverage gate + external eval slice, RT-8 canonical budget caps, RT-13
+family-h0 Holm nodes, RT-4 g2 n=500. rev 2 — reconciled with the
 final P2 backbone; adds the directives-§6 analysis nodes, the directives-§7 WRITE-PAPER and
 EXPLAIN-BACK phases as first-class gated nodes, and the machine-parseable task list in §8).
 Component P3 of the research plan (`docs/research-plan/`). Governed by
@@ -39,7 +47,12 @@ the machine-parseable list (§8), and are mirrored 1:1 into beads (`bd`) issues 
 dependency edges (node `I-BEADS`); §8 is the source of truth, beads is the live tracker.
 Node *doneness* is derived, never asserted (P2 §5.2): an experiment node is done iff
 `registry/verdicts/<id>.json` exists with a terminal verdict AND the rendered report is
-committed.
+committed. **Lineage rule (P2 §1.4, RT-6):** where an experiment has been superseded
+(`f2-rev2`, `supersedes: f2`), every gate, tree expression, and dossier reads the **latest
+ID in the lineage**; the verdict object embeds the full lineage and dossiers render
+predecessor verdicts adjacently; a FAIL→PASS flip requires the full adversarial audit plus
+a red-team memo; a lineage is capped at 2 revisions — reaching the cap forces the
+STOP-AND-PUBLISH-UNDECIDED treatment for that mechanism.
 
 **Node types:**
 
@@ -59,8 +72,10 @@ tables in §1 list only deviations and cross-experiment edges.
 X.reg      AUTO       author DRAFT record; `prereg-freeze` X's P2 registry entry (hypotheses,
                       arms incl. mandatory baselines, one primary endpoint, verdict_rules,
                       analysis-script hash, verbatim kill text, budget block, rungs, seeds);
-                      frozen_sha256 into registry/frozen-index.json — any later change is an
-                      amendment record (pre-unblinding only) or a NEW experiment id (P2 §1.4)
+                      frozen_sha256 into registry/frozen-index.json, externally timestamped
+                      (P2 §1.1 post-step) — any later change is an amendment record (design
+                      scope: valid only before the first final-phase run record — P2 §1.4)
+                      or a NEW experiment id (P2 §1.4 lineage rules)
 X.inputs   AUTO       build + hash-pin all inputs (corpora, arm artifacts, eval sets);
                       manifest shas match the frozen pins block
 X.mock     AUTO       Modal transport smoke (--mock; ~pennies) — MANDATORY before any full
@@ -77,7 +92,8 @@ X.readout  AUTO       THE STATISTICAL-ANALYSIS NODE: `verdict-gen` verifies the 
                       any null, per P1 common rules), writes the `unblind` log line, then
                       evaluates the frozen verdict_rules — emitting PASS-PENDING-AUDIT /
                       FAIL / NULL / INCONCLUSIVE / INSTRUMENT-INVALID / INCOMPLETE-DATA
-X.audit    GATE-A     independent adversarial audit from pinned artifacts (P4 checklist);
+X.audit    GATE-A     role-separated adversarial re-derivation from pinned artifacts (P4
+                      checklist; named exactly that — never "independent audit" — P2 G-6);
                       REQUIRED to upgrade PASS-PENDING-AUDIT → PASS; kills/nulls get a
                       lighter conformance audit (same identity-separation rule)
 X.close    AUTO       re-run verdict-gen after the audit record; commit
@@ -95,9 +111,9 @@ logs) use the reduced chain `reg → readout → audit → close`.
 | Role | Identity | Executes |
 |---|---|---|
 | **Coordinator** | Opus main loop (Kern) | DAG scheduling, wave launch, deliberate commits, gate dossiers, maintainer comms. Never trains/grades an experiment itself; never spawns sub-sub-agents. |
-| **Runner agents** | Fable subagents (≤5 concurrent, waves) | `AUTO` build/run/log nodes. A runner is bound to one experiment campaign at a time; identity string `kern/fable-runner-<n>` in every record. |
-| **Auditor agent** | Fable subagent under a **distinct identity** from all runners of the audited campaign (`kern/fable-auditor-<n>`; the backup Fable account gives hard separation for Tier ≥2 positives, O-5) | `GATE-A` nodes. Only an audit record can upgrade PASS-PENDING-AUDIT → PASS (P2 G-6). |
-| **Writer agent** | Fable subagent, identity distinct from the auditor who reviews the paper (`kern/fable-writer-1`) | Owns the directives-§7 write-up nodes (r-final, paper.\*, xb.\*) — a first-class role, not an afterthought. |
+| **Runner agents** | Fable subagents (≤5 concurrent, waves) | `AUTO` build/run/log nodes. A runner is bound to one experiment campaign at a time; pseudonymous identity string `runner-<n>` in every record (P2 §1.2 constraint 10, RT-14 — account bindings live only in the unhashed `registry/identity-map.json`). |
+| **Auditor agent** | Fable subagent under a **distinct identity** from all runners of the audited campaign (`auditor-<n>`; for Tier ≥2 positives the pseudonym is bound to the backup Fable account in the identity-map for hard separation, O-5) | `GATE-A` nodes. Only an audit record can upgrade PASS-PENDING-AUDIT → PASS (P2 G-6). |
+| **Writer agent** | Fable subagent, identity distinct from the auditor who reviews the paper (`writer-1`) | Owns the directives-§7 write-up nodes (r-final, paper.\*, xb.\*) — a first-class role, not an afterthought. |
 | **Annotators** | Human (sourcing = open decision O-3) | Annotation slices inside G2/G3/G9/M0b (`GATE-H`). |
 | **Maintainer** | @jeswr | All budget/credential/sign-off `GATE-H` nodes; GNG decisions; the audience of xb.deliver. |
 
@@ -121,9 +137,10 @@ stage and dependency id is **§8** (that list, not these tables, is mirrored int
 | I-BUDGET | Initialise the budget ledger (`registry/budget.json`): per-tier hard caps (§4 GR-1 table), spend-to-date, worst-case-committed; deploy the cost-monitor loop (hourly); smoke-test the kill switches against a dummy ledger breach | GATE-H (cap values, O-1) then AUTO | — | ledger + monitor + tested kill switches |
 | I-SKILLS | Package the reusable skills mandated by directives §3: `prereg`, `run-experiment`, `flop-meter`, `decode-verify`, `audit-result`, `report-gen` (wraps verdict-gen), plus the write-up skills `paper-claims` (claims-trace generator) and `explain-back` | AUTO | I-REG, I-F0 | `tools/skills/` |
 | I-BEADS | Mirror the §8 task list into beads: one issue per node, `bd dep` edges, wave labels; re-synced on every verdict | AUTO | — | beads epic + tree |
-| m0b.\* | Kernel-expressibility coverage (P1 §5 required gate): template chain; `.run` = % content-word token mass with a plausible profile-1 explication, stratified by domain, per-rung statement; `.audit` = auditor re-derivation **+ human spot-check of n=100 coverage judgments (GATE-H, ~2 h)** | template (R0) | m0b.reg ← I-REG | published, audited coverage number — restated in **every** later verdict (P2 G-7) |
-| a-h0.reg | Freeze the H0 disjunction-gate record: verdict_rules = the P1 §1 YES/NO patterns encoded as P2 expressions over member verdict objects {hc1, hc2, he1…he6 experiment ids} | AUTO | I-REG, I-HYP | frozen h0 gate record |
-| **GNG-0** | **Pre-registration freeze:** maintainer signs the registry root (frozen-index sha over all initially-freezable entries + caps). Conditional/late entries (e8d, f7, g5, d-st-dependent) freeze later under the same tooling; each later freeze is announced on the coordination issue. After GNG-0, any change to a frozen entry is an amendment (pre-unblinding only) or a new pre-registration, reported as such | **GATE-H** | I-REG, I-HYP, I-RETRO, I-F0, I-AUDIT, I-BUDGET, I-SKILLS | signed freeze record in repo |
+| m0b.\* | Kernel-expressibility coverage (P1 §5 required gate): template chain; `.run` = % content-word token mass with a plausible profile-1 explication, stratified by domain, per-rung statement; `.audit` = auditor re-derivation **+ human spot-check of n=100 coverage judgments (GATE-H, ~2 h)**; **`m0b.gate`** (AUTO-GATE, RT-7) then evaluates the pre-declared **NICHE-SCOPE threshold** (maintainer sets X at GNG-0; default 20% of the target task family's content-word mass): coverage < X ⇒ every verdict template renders a NICHE-SCOPE banner and any frontier-pitch route must carry an explicit coverage-growth cost line — a gate with a consequence, not just disclosure | template (R0) + AUTO-GATE | m0b.reg ← I-REG | published, audited coverage number — restated in **every** later verdict (P2 G-7) — plus the evaluated NICHE-SCOPE gate record |
+| family-h0.reg | Freeze the F-H0 cross-experiment Holm-family record (P8 C-3; P2 §5.4 `family-<name>.json` machinery): the **8 pre-declared members fixed at freeze**; members not read out (pruned tiers) scored as non-rejections — the family is never data-dependently selected. **a-h0 cannot freeze without this record** (RT-13) | AUTO | I-REG, I-HYP | frozen family record |
+| a-h0.reg | Freeze the H0 disjunction-gate record: verdict_rules = the P1 §1 YES/NO patterns **plus the STOP-AND-PUBLISH-UNDECIDED pattern** (RT-1: no mechanism PASS ∧ H0-NO blocked because ≥1 member is INCONCLUSIVE / INSTRUMENT-INVALID after its single, pre-declared replication buy) encoded as P2 expressions over member verdict objects {hc1, hc2, he1…he6 experiment ids}; a repeated F6 instrument failure (after the pre-registered repair) is scored **undetermined-not-supporting** for H0-NO, never as support (RT-19); frozen rules linted against the family-h0 record (P8 C-3) at freeze | AUTO | I-REG, I-HYP, family-h0.reg | frozen h0 gate record |
+| **GNG-0** | **Pre-registration freeze:** maintainer signs the registry root (frozen-index sha over all initially-freezable entries + caps) and sets the M0b NICHE-SCOPE threshold (RT-7). Conditional/late entries (e8d, f7, g5, d-st-dependent) freeze later under the same tooling; each later freeze is announced **with its frozen_sha256** on the coordination issue (the external timestamp witness — P2 §1.1). After GNG-0, any change to a frozen entry is an amendment (design scope: valid only before the first final-phase run record — P2 §1.4) or a new pre-registration under the lineage rules, reported as such | **GATE-H** | I-REG, I-HYP, I-RETRO, I-F0, I-AUDIT, I-BUDGET, I-SKILLS | signed freeze record in repo |
 
 `m0b.run` needs only its own frozen entry (P2 G-1), so it proceeds in parallel with GNG-0;
 its audited verdict is itself part of the GNG-0/M0 milestone. Freezing `f2` is the
@@ -140,7 +157,10 @@ Every output is hash-pinned and referenced from the consuming experiment's froze
 | D-AX | Author the working ~20-axiom set in kot-axiom/1 v0 (litmus human/parents/sex, kinship, disjointness batch, molecule-tier axioms); mint URNs; sidecar hash pinned | AUTO (+coordinator review) | GNG-0 | axiom sidecar v0 + sha |
 | D-AXN | Author the SAME set in NSM-native AxiomSchema syntax, by two independent author-agents (G4 protocol) | AUTO | D-AX, g2.close (residue list) | dual-syntax corpus + effort logs |
 | D-IR | Build seeded instance-record corpus ≥300 with planted cardinality/disjointness/domain violations at known rates (E9-C); generator seed + rates in the frozen entry | AUTO | D-AX | corpus + violation manifest sha |
+| D-IR-N | Natural-violation **secondary** sub-corpus (P7 RT-7c; ships inside the E9-C pack): ≥100 naturally-occurring violation candidates mined from **revision-pinned SmolLM2 outputs** (135M/360M) generated under pinned prompts + seeds over the litmus + molecule-tier families; candidates surfaced by broad lexical/structural heuristics — **never by the axiom checker under test** (circularity guard); ground truth by **blind human adjudication** (GATE-H rider, ~2 h, inside the O-3 annotator hours); model ids, prompts, seeds, heuristics, and adjudicated labels all hash-pinned in the pack manifest. Pre-registered Holm-corrected SECONDARY in E9-C — planted D-IR stays the powered primary (P1 HC2, P6 H-4) | AUTO (+GATE-H adjudication rider) | D-AX | secondary sub-corpus + adjudicated labels + shas |
 | D-QA | Build F2 definitional-QA eval set: kernel-covered slice + non-covered control slice, leak-checked; gloss corpus + RAG index for arms 2/3/6 | AUTO | m0b.run | eval set + index shas |
+| D-XIF | Build the model↔verifier extraction interface + **held-out labelled extraction set** per `docs/research-plan/10-model-record-interface.md` (the S4-contract extension, RT-3): the extraction/decode path, identical output-format affordances for ALL arms, and extraction-failure accounting as **instrument events** (never hypothesis events) | AUTO | GNG-0 | interface impl + labelled set + shas |
+| D-EXT | Externally-authored eval slice (RT-7a): definitional/consistency subset of an established public benchmark, filtered to kernel-covered concepts by M0b machinery (the filter is ours, the items are not) — pre-registered secondary in E9 and F2 | AUTO | m0b.run | external slice + sha |
 | D-GL | Build F3 long-glossary task sets, d∈{4,16,64} in-context definitions; matched-token compressed/truncated text variants | AUTO | m0b.run | task sets + shas |
 | D-DOM | Author F4 onboarding domain: ≥50 held-out concepts (explications validated, URNs minted, vectors encoded under pinned encoder `40e8c8ba…`, JL-projected per X4 pins); E5 adapter reused as-is | AUTO | GNG-0 | domain pack + shas |
 | D-CB | Build G1 arm artifacts: (a) random-atom-codebook encoder fork (fresh orthonormal atom rows; own ALGORITHM_VERSION label + own X0-style goldens — a **fork label**, never mutating the pinned mainline), (b) Numberbatch vectors mapped through the same adapter protocol, (c) KGE/OWL2Vec\*-style embedding over the same concept graph (comparison lens only) | AUTO | D-DOM | 3 arm packs + shas |
@@ -157,7 +177,7 @@ Template stages apply (no `.mock`; `.run` is CPU on this box, `nice`d). Extra ed
 |---|---|---|---|---|
 | f1.\* | KOTK/2 byte/latency accounting vs best general-purpose-compressed gloss text; store scales 10³–10⁶ (HE5 byte premise) | all AUTO | f1.inputs ← I-F0 | f1 kill ⇒ D-ST/f5 branch **pruned** (GATE-T4 unsatisfiable); byte story dropped from every pitch |
 | g3.\* | Semantics-pin annotation study, ~20 concepts × ~10 instances, necessity + sufficiency (HS3) | g3.annotate (= the run stage) is **GATE-H** (2 independent annotators, ~8–10 h); materials build AUTO | — | necessity >10% ⇒ HS2 auto-resolves sidecar-only ⇒ **g5 pruned**, Π demoted to lint |
-| g2.\* | Π read-out soundness vs human gold; `promise ⊑ words` recovery; partition-residue check (HS2) | g2.gold = **GATE-H** (~50 gold subsumption pairs, ~3 h); g2.run ← D-PI | g2.readout ← g3.close (interpretation) | precision <0.9 ⇒ Π = lint; residue list still feeds D-AXN |
+| g2.\* | Π read-out soundness vs human gold; `promise ⊑ words` recovery; partition-residue check (HS2) | g2.gold = **GATE-H** (**n = 500 gold subsumption judgments**, decidability-powered for the 0.9 Wilson gate per the P2 freeze lint (RT-4); ~12 h, blind adjudication); g2.run ← D-PI | g2.readout ← g3.close (interpretation) | precision <0.9 ⇒ Π = lint; residue list still feeds D-AXN |
 | g4.\* | Dual-syntax axiom authoring effort/error + LLM decode-legibility probe (HS4) | AUTO (small LLM $) | g4.inputs ← D-AX, D-AXN | selects axiom authoring surface; g6/g7 unblock |
 | g5.\* | Encode-twice margins + RDM delta for axiom-in-vector (HS5) — **conditional**: runs only if HS2 lands Π-as-normative | AUTO | g5.reg ← g2.close(=Π-normative) | confirmation closes NF4; surprise ⇒ new pre-registration |
 | g6.\* / g7.\* | Grammar-capacity static counts: AND-under-operator share; apply-clause cap/growth at bulk projection (HS6/HS7) | AUTO (deterministic counts, no test — P1 common rules) | g6.run, g7.run ← g4.run | numeric bounds decide grammar fragment; no downstream block |
@@ -168,10 +188,10 @@ Template stages apply (no `.mock`; `.run` is CPU on this box, `nice`d). Extra ed
 
 | ID | Node | Type | Deps | Output |
 |---|---|---|---|---|
-| **GATE-T1** | Tier-1 launch gate (machine-checked): GNG-0 signed ∧ m0b.close published ∧ I-F0 tests green ∧ I-MODAL ready ∧ ledger worst-case(F2) ≤ Tier-1 cap | **AUTO-GATE** | GNG-0, m0b.close, I-F0, I-MODAL, I-BUDGET | gate record |
-| f2.reg | Freeze F2 entry (HE1 primary; HE2/HC3/HS12 riders; 9 arms + PRM arm + cascade arm 8 + in-decode gating arm; retry sweep k∈{1,2,4}; rung pairs (R1,R2),(R2,R3)) — the P2 backbone's acceptance test | AUTO | I-REG, I-HYP | frozen entry sha |
-| f2.inputs | Pin arm artifacts: PRM model choice (off-the-shelf small RM, matched inference FLOPs), int4-quantized 360M, cascade + logprob-gate impls, verifier loop (X2 machinery, gap on the ledger) | AUTO | f2.reg, D-QA | arm pack + shas |
-| f2.mock / f2.run / f2.log / f2.readout / f2.audit / f2.close | Template: SmolLM2 135M/360M/1.7B, all arms, full metric vector V under F0 | template | f2.mock ← GATE-T1 | HE1, HE2, HC3, HS12 verdicts |
+| **GATE-T1** | Tier-1 launch gate (machine-checked): GNG-0 signed ∧ m0b.close published ∧ m0b.gate evaluated ∧ I-F0 tests green ∧ I-MODAL ready ∧ ledger worst-case(F2) ≤ Tier-1 cap | **AUTO-GATE** | GNG-0, m0b.close, m0b.gate, I-F0, I-MODAL, I-BUDGET | gate record |
+| f2.reg | Freeze F2 entry (HE1 primary; HE2/HC3/HS12 riders; 9 arms + PRM arm + cascade arm 8 + in-decode gating arm + the **gloss-text self-verify + retry at matched budget** gate arm (RT-2: the text-self-check-gated cascade; HE1/HE2 PASS requires the kernel arm to BEAT this arm at matched FLOPs, not just RAG); retry sweep k∈{1,2,4}; rung pairs (R1,R2),(R2,R3)) — the P2 backbone's acceptance test | AUTO | I-REG, I-HYP | frozen entry sha |
+| f2.inputs | Pin arm artifacts: PRM model choice (off-the-shelf small RM, matched inference FLOPs), int4-quantized 360M, cascade + logprob-gate + text-self-check-gate impls, verifier loop over the D-XIF extraction interface (X2 machinery, gap on the ledger), D-EXT external eval slice (secondary) | AUTO | f2.reg, D-QA, D-XIF, D-EXT | arm pack + shas |
+| f2.mock / f2.iface / f2.run / f2.log / f2.readout / f2.audit / f2.close | Template + **`f2.iface` extraction-failure instrument gate** (RT-3, per `10-model-record-interface.md`): measured extraction-failure rate on the held-out labelled set must clear the frozen bound before any hypothesis read — failures are instrument events (`/gates/instrument_valid`), never hypothesis events, so the verifier arm can harvest neither free wins nor free losses. Then SmolLM2 135M/360M/1.7B, all arms, full metric vector V under F0 | template + AUTO-GATE | f2.mock ← GATE-T1; f2.iface ← f2.mock, D-XIF | HE1, HE2, HC3, HS12 verdicts |
 | a-hs12 | Latency analysis, batch-1 + throughput modes (implementation pick; no kill — recorded as HS12 selection in f2 commentary) | AUTO | f2.log | HS12 selection |
 | **GNG-1** | F2 pivot readout: the P1 Tier-1 gate text machine-evaluated over `registry/verdicts/f2.json`; maintainer notified with the dossier. F2 clean-kill at both rung pairs ⇒ efficiency thesis shrinks to M6+M4-verifiability (Tier-2/3 efficiency scope narrowed **automatically** in the registry); F2 PASS ⇒ Tier 2 funded aggressively | AUTO-GATE + maintainer notification (informational GATE-H, non-blocking for the Tier-2 correctness track) | f2.close | pivot record + scope update |
 
@@ -179,7 +199,7 @@ Template stages apply (no `.mock`; `.run` is CPU on this box, `nice`d). Extra ed
 
 | ID | Experiment | Type notes | Extra deps | Gate/kill effect |
 |---|---|---|---|---|
-| e9.\* | E9-full: 5 arms (model-alone / RAG-with-citations / hash-pinned gloss dictionary / decode-verify / +repair-retry) + **E9-C** constraint arm + text-diff-checker arm; rungs R1, R2 (R3 iff sign) (HC1, HC2, HS11-part) | template; scoring by non-LLM rubric or leak-checked judge (E5 discipline) | e9.inputs ← D-IR, D-QA; e9.mock ← GATE-T1 | e9 kill (incl. E9-C) kills the correctness product story; HC2 fail must name the failing stage (decode vs authoring vs checker) |
+| e9.\* | E9-full: 6 arms (model-alone / RAG-with-citations / hash-pinned gloss dictionary / **gloss-text self-verify + retry at matched budget** (RT-2) / decode-verify / +repair-retry) + **E9-C** constraint arm + text-diff-checker arm + D-EXT external-slice secondary + **D-IR-N natural-violation secondary** (RT-7c: Holm-corrected secondary; planted D-IR stays the powered primary — P1 HC2, P6 H-4); rungs R1, R2 (R3 iff sign) (HC1, HC2, HS11-part). **HC1 PASS requires the kernel arm to BEAT the gloss-text self-verify + retry arm at matched FLOPs**, not just the passive dictionary or RAG. `e9.iface` extraction-failure instrument gate (RT-3, per `10-model-record-interface.md`) precedes any hypothesis read; extraction failures are instrument events, and all arms share the same output-format affordances | template + `e9.iface` AUTO-GATE; scoring by non-LLM rubric or leak-checked judge (E5 discipline) | e9.inputs ← D-IR, D-IR-N, D-QA, D-XIF, D-EXT; e9.mock ← GATE-T1; e9.iface ← e9.mock | e9 kill (incl. E9-C) kills the correctness product story; HC2 fail must name the failing stage (decode vs authoring vs checker) |
 | f4.\* | Amortized concept-vocabulary onboarding: 5 arms incl. ToolkenGPT-protocol per-concept embeddings + in-context-text null; R1/R2/R3 (HE4) | template | f4.inputs ← D-DOM; f4.mock ← GATE-T1 | text-null win ⇒ M6 dead; with f2-kill ⇒ most H0-YES routes gone |
 | g1.\* | HS1 arms riding on F4: random-atom codebook / Numberbatch / KGE lens; **2 families** (add Qwen2.5-0.5B) | template minus mock (shares F4 harness) | g1.inputs ← D-CB; g1.run ← f4.run (protocol + adapters) | Numberbatch or random-codebook parity ⇒ every performance claim narrows to governance, propagated by report-gen to ALL later verdict texts |
 | e8r.\* | E8-R: site-matched residual-stream SAE, third family; sole primary = replication on the seed-stable subset (HC4 leg 1) | template | e8r.inputs ← D-SAE; e8r.mock ← GATE-T1 | fail both new pairs (p≥0.01 vs shuffled) ⇒ A6 shelved; **e8d pruned**; PIVOT route via A6 closes |
@@ -191,10 +211,11 @@ Template stages apply (no `.mock`; `.run` is CPU on this box, `nice`d). Extra ed
 |---|---|---|---|---|
 | f3.\* | Dense concept input: 7 arms (incl. matched-token text ×2, xRAG-style trained compressor at matched training budget, shuffled-kernel), d∈{4,16,64}, R1→R2→R3; **M2-output rider** (≤$20, expected-fail, loss-vs-compute slope) (HE3) | template | f3.inputs ← D-GL; f3.mock ← GATE-T1; f3.run reads f2 verdict (scope note only, non-blocking) | f3 kill ⇒ dense I/O retired for efficiency; **HS10 auto-resolves interface-side**; f5's injection-route input becomes "verifier-side only" |
 | a-hs10.\* | Frontier comparison F3 vs F2 on same task family/budget under F0 §3.2 (HS10) | analysis chain (reg → readout → audit → close) over f2/f3 logs | a-hs10.readout ← f2.log, f3.log | HS10 verdict |
-| f6.\* | Kernel scaffolding tokens-to-target at T0→T1: 5 paired seeds, arms incl. **explication-text-interleaved data arm**; E1 single-look rule. The pre-registered instrument check (trained arms must beat step-0 cloze before any between-arm read) is encoded as the first verdict_rule (INSTRUMENT-INVALID), not a separate node (HE6) | template | f6.inputs ← D-TS; f6.mock ← GATE-T1 | f6 kill/text-parity ⇒ M3-vector dead ⇒ **HS13/E7 precondition unsatisfiable** (E7 slice of f7 pruned) |
+| f6.\* | Kernel scaffolding tokens-to-target at T0→T1: 5 paired seeds, arms incl. **explication-text-interleaved data arm**; E1 single-look rule. The pre-registered instrument check (trained arms must beat step-0 cloze before any between-arm read) is encoded as the first verdict_rule (INSTRUMENT-INVALID), not a separate node; the **instrument repair vs E1** (what changes + the instrument's own pass bar) is pre-registered inside f6.reg — a second INSTRUMENT-INVALID after the repair scores HE6 **undetermined-not-supporting** in a-h0 (never as support) and buys no further replication (RT-1/RT-19) (HE6) | template | f6.inputs ← D-TS; f6.mock ← GATE-T1 | f6 kill/text-parity ⇒ M3-vector dead ⇒ **HS13/E7 precondition unsatisfiable** (E7 slice of f7 pruned) |
 | a-extrap-2.\* | **Directives-§6 extrapolation analysis, sign/direction level:** for every mechanism with ≥2 measured rungs after Tiers 0–3, fit the pre-registered trend, quote the P1 §4b envelope row verbatim, compare direction against the named literature anchors (Law 2, LCM/CALM penalty, RETRO range, Kaplan/Hoffmann discipline); emits the scale-language license per experiment (none / sign-only / slope) | analysis chain | a-extrap-2.readout ← all Tier-0–3 closes | envelope statements for the GNG-2 dossier; feeds paper.claims |
-| a-h0.readout | Evaluate the frozen H0 disjunction gate over member verdict objects (first evaluation; re-run at GNG-3) | AUTO | all Tier-0–3 closes | h0 verdict (YES-pattern / NO-pattern / open) |
-| **GNG-2** | **Global decision-tree evaluation** (P1 §6, first-match-from-top: TAKE-TO-FRONTIER-LAB / NARROW-AND-CONTINUE / PIVOT / KILL). The route is **computed** (P2 §5.2: the tree is verdict-object expressions), the dossier auto-prepared (every verdict + audit + kill text + M0b + envelopes + spend ledger); the maintainer ratifies or overrides — an override is itself a recorded decision | **GATE-H** over AUTO-computed route | f1, g2–g9, f2, e9, f4, g1, e8r (e8d if run), f3, f6, m0b closes; a-extrap-2.close; a-h0.readout | signed GNG-2 record; routes Tier 4/5; PIVOT/KILL ⇒ write-up phase pulls forward (§5) |
+| family-h0.\* | F-H0 cross-experiment Holm family (P8 C-3, RT-13): analysis chain; the pinned script consumes member experiments' `analysis-output.json` by sha; the 8 pre-declared members fixed at freeze, non-read-out members scored as non-rejections | analysis chain | family-h0.readout ← f1, f2, e9, f3, f4, f6 closes | family-wise Holm decisions feeding a-h0 |
+| a-h0.readout | Evaluate the frozen H0 disjunction gate over member verdict objects + the family-h0 Holm decisions (first evaluation; re-run at GNG-3) | AUTO | all Tier-0–3 closes; family-h0.close | h0 verdict (YES-pattern / NO-pattern / UNDECIDED / open) |
+| **GNG-2** | **Global decision-tree evaluation** (P1 §6, first-match-from-top: TAKE-TO-FRONTIER-LAB / NARROW-AND-CONTINUE / PIVOT / KILL / **STOP-AND-PUBLISH-UNDECIDED**). The route is **computed** (P2 §5.2: the tree is verdict-object expressions), the dossier auto-prepared (every verdict + audit + kill text + M0b + envelopes + spend ledger); the maintainer ratifies or overrides — an override is itself a recorded decision. The UNDECIDED route (RT-1) fires when no mechanism PASS exists and the H0-NO pattern is blocked by an INCONCLUSIVE or repeated INSTRUMENT-INVALID after its replication buy: publish with the pre-computed decidability bands + a what-budget/n-would-decide statement. **Replication-buy cap (pre-declared):** at most one replication buy per experiment/gap, at most two programme-wide; "narrow-and-continue" is never invocable twice for the same missing evidence (GR-9) | **GATE-H** over AUTO-computed route | f1, g2–g9, f2, e9, f4, g1, e8r (e8d if run), f3, f6, m0b closes; a-extrap-2.close; a-h0.readout | signed GNG-2 record; routes Tier 4/5; PIVOT/KILL/UNDECIDED ⇒ write-up phase pulls forward (§5) |
 
 ### 1.7 Tier 4 — F5, double-gated (~$200–800)
 
@@ -213,18 +234,20 @@ Template stages apply (no `.mock`; `.run` is CPU on this box, `nice`d). Extra ed
 | E7-PRE | HS13 precondition check: f6 toy/T1 vector-arm signal exists ∧ maintainer explicitly includes the E7 slice | AUTO-GATE + GATE-H rider | f6.close, GATE-T5 | E7 slice in/out |
 | f7.\* | Freeze + run the survivors-only slope grid: HE7 Δ(cost-at-iso-accuracy) across ≥3 rungs (R1–R4/R5 inference; T0/T2/T3 training), HC5 verifier-lift slice (surviving HC1/HC2 arms at R3, R4), HS13/E7 slice iff E7-PRE open; R5/T3 rungs each carry their own worst-case cost line in the ledger before launch | template; f7.reg ← GATE-T5; mock mandatory | — | HE7/HC5(/HS13) verdicts |
 | a-extrap-5.\* | **Directives-§6 extrapolation analysis, slope level:** WLS slope fits on log-params with 90% CIs per survivor; extrapolation statements at most one OOM past the top measured rung, direction-only unless the CI is tight; explicit comparison to published scaling-law discipline (Kaplan 2020 / Hoffmann 2022 as the cautionary anchors); the ONLY node that licenses scale adjectives (P2 G-12 "slope") | analysis chain | a-extrap-5.readout ← f7.close | per-finding extrapolation envelopes + uncertainty for GNG-3 and the paper |
-| **GNG-3** | Final disposition per P1 §6 re-evaluation (computed route + maintainer ratification): frontier pitch scoped to survivors / narrow / pivot / kill; a positive HS13 triggers **immediate independent replication before any claim**; a-h0 re-evaluated | **GATE-H** | f7.close (or GNG-2 route if Tier 5 declined), a-extrap-5.close (when Tier 5 ran) | disposition record |
+| **GNG-3** | Final disposition per P1 §6 re-evaluation (computed route + maintainer ratification): frontier pitch scoped to survivors / narrow / pivot / kill / **stop-and-publish-undecided** (same RT-1 pattern and replication-buy cap as GNG-2); a positive HS13 triggers **immediate independent replication before any claim**; a-h0 re-evaluated (with the family-h0 Holm decisions) | **GATE-H** | f7.close (or GNG-2 route if Tier 5 declined), a-extrap-5.close (when Tier 5 ran) | disposition record |
 
 ### 1.9 Write-up & explainer-back — first-class, honesty-gated (directives §7)
 
-Runs on EVERY route out of GNG-2/GNG-3, including PIVOT and KILL: a rigorous negative-results
-paper is a pre-declared success mode of the programme, with the same node chain and the same
-gates. Owning role: Writer agent (§0.3). Reporting skills: `report-gen`, `paper-claims`,
+Runs on EVERY route out of GNG-2/GNG-3, including PIVOT, KILL, and
+STOP-AND-PUBLISH-UNDECIDED: a rigorous negative-results paper is a pre-declared success mode
+of the programme, with the same node chain and the same gates; the UNDECIDED paper quotes
+the pre-computed decidability bands and states what budget/n would decide the question
+(honest and publishable — a first-class outcome in P9 §1.1's paper-type table). Owning role: Writer agent (§0.3). Reporting skills: `report-gen`, `paper-claims`,
 `explain-back` (I-SKILLS).
 
 | ID | Node | Type | Deps | Output |
 |---|---|---|---|---|
-| r-final | Auto-generate the evidence bundle from the registry + logs: `registry/status.json` table, every rendered verdict report, raw-log index, spend ledger, envelope table — the paper's reproducibility appendix, machine-derived, zero hand-written numbers | AUTO | GNG-3 (or GNG-2 on a PIVOT/KILL route that declines Tiers 4–5) | evidence bundle in-repo |
+| r-final | Auto-generate the evidence bundle from the registry + logs: `registry/status.json` table, every rendered verdict report, raw-log index, spend ledger, envelope table — the paper's reproducibility appendix, machine-derived, zero hand-written numbers | AUTO | GNG-3 (or GNG-2 on a PIVOT/KILL/UNDECIDED route that declines Tiers 4–5) | evidence bundle in-repo |
 | paper.claims | `paper-claims`: machine claims-trace table — every claim the paper intends to make, each row = {claim text, experiment id, verdict-object sha, envelope row, kill-criterion text, scale-language license}. **A claim with no verdict-object trace cannot enter the manuscript** | AUTO | r-final, a-extrap-2.close (and a-extrap-5.close when Tier 5 ran) | claims table (committed) |
 | paper.outline | Venue-format outline; results section enumerates **every** CLOSED experiment (positives and negatives at equal structural prominence — the results table is generated from `registry/status.json`, so omission is mechanical, visible, and forbidden) | AUTO | paper.claims | outline |
 | paper.draft | Full manuscript, top-tier-venue standard (contribution framing, related work incl. the L1–L3 prior-art positioning and the Hyperdimensional-Probe differentiation, methods = pointers to frozen preregs, limitations = envelope table verbatim, negative results in abstract when they are the headline) | AUTO (Writer) | paper.outline | manuscript draft |
@@ -246,7 +269,10 @@ g2.run, g3.annotate  ≺ g4.inputs ≺ g6.run, g7.run # fork chain
 g3.close             ≺ g2.readout                 # semantics pin interprets Π
 f6.close ∧ GATE-T5   ≺ E7-PRE ≺ f7 (E7 slice)     # A1-at-scale is double-gated
 f2/e9/f4/f6 .close   ≺ GATE-T5                    # readouts before any F7 spend
-m0b.close            ≺ GATE-T1                    # coverage before first GPU $
+m0b.close, m0b.gate  ≺ GATE-T1                    # coverage + NICHE-SCOPE gate before first GPU $
+family-h0.reg        ≺ a-h0.reg                   # P8 C-3 Holm family frozen before the H0 gate freezes (RT-13)
+family-h0.close      ≺ a-h0.readout               # cross-experiment Holm before any H0 read
+d-xif ≺ f2.iface, e9.iface ≺ f2.run, e9.run       # extraction instrument gate before any correctness read (RT-3)
 m0b.close            ≺ any external quotation     # (GR-9)
 GNG-0                ≺ every X.run (m0b excepted; its freeze is GNG-0 input)
 X.audit (CONFIRMED)  ≺ any PASS anywhere          # (GR-6 / P2 G-6)
@@ -266,8 +292,9 @@ via the wave schedule in §5.
 **Fully automatable (AUTO / AUTO-GATE / GATE-A):** the P2 backbone build; F0; skills; all
 data authoring and hash-pinning (D-\*); all registry freezes; all Modal mock + full runs;
 log appends; every statistical readout (verdict-gen + pinned analysis scripts); the
-extrapolation analyses (a-extrap-2/5); the H0 gate evaluation; machine gates GATE-T1,
-GNG-1's evaluation, E7-PRE's condition check; audits (role-separated but agent-executed);
+extrapolation analyses (a-extrap-2/5); the H0 gate evaluation and the family-h0 Holm analysis; machine gates GATE-T1,
+GNG-1's evaluation, E7-PRE's condition check, the m0b.gate NICHE-SCOPE evaluation, and the
+f2.iface/e9.iface extraction-instrument gates; audits (role-separated but agent-executed);
 the evidence bundle, claims table, manuscript draft, honesty lints, adversarial paper
 review, and the explainer draft. An agent fleet can therefore take the programme from GNG-0
 to (a) the GNG-2 dossier and (b) a lint-clean, adversarially-reviewed manuscript **without
@@ -280,7 +307,7 @@ any human action except the seven human-gate classes below** — that is the des
 | Budget-cap setting | I-BUDGET | maintainer | confirm/adjust the §4 GR-1 cap table (one message) |
 | Pre-registration freeze | **GNG-0** | maintainer | sign the registry root sha (one commit approval) |
 | Credential minting | CRED-GATE (inside I-MODAL, only if token invalid); any new AWS deploy key (Option A retired — should stay unneeded) | maintainer | `modal token new` pairing (~3 min); never stored in-repo |
-| Annotation hours | g3.annotate (~8–10 h ×2 annotators), g2.gold (~3 h), g9.review (~4 h), m0b spot-check (~2 h) | annotators (sourcing = O-3) | ~15–25 total human-hours, blinded materials prepared by agents |
+| Annotation hours | g3.annotate (~8–10 h ×2 annotators), g2.gold (n = 500 judgments, ~12 h), g9.review (~4 h), m0b spot-check (~2 h), d-ir-n natural-violation adjudication (~2 h, blind — RT-7c) | annotators (sourcing = O-3) | ~30–40 total human-hours, blinded materials prepared by agents |
 | Spend approvals | **GATE-T4** ($200–800), **GATE-T5** ($2–10k, the frontier-relevant tier), f7 R5/T3 rung riders | maintainer | explicit go, recorded in the registry (`budget.maintainer_signoff`) |
 | Programme decisions | **GNG-2**, **GNG-3**, E7-PRE inclusion rider | maintainer | ratify (or overrule, on the record) the machine-computed route against the auto-prepared dossier |
 | Write-up & external exposure | **paper.sign**, **paper.submit**, **xb.deliver**; any other external claim/pitch | maintainer | approve manuscript/authorship/venue; receive the explainer + Q&A; nothing leaves the repo without this class |
@@ -332,7 +359,7 @@ to launch** unless every field verifies (fail-closed, `ERR_*`):
   "seeds": [0,1,2,3,4],            // registered seeds only (P2 G-14), paired across arms
   "timeout_min_per_call": 47,      // estimate ×1.5 + 5 min container overhead
   "worst_case_usd": 41.0,          // Σ calls × sized timeout × rate — checked vs ledger
-  "tier": 1, "runner_agent_id": "kern/fable-runner-3"
+  "tier": 1, "runner_agent_id": "runner-3"   // pseudonym only (P2 §1.2 constraint 10, RT-14)
 }
 ```
 
@@ -402,15 +429,15 @@ is cited; P3 adds the operational triggers around it.
 
 | # | Rule | Enforcement |
 |---|---|---|
-| **GR-1** | **Per-tier hard budget caps** (default; maintainer confirms at I-BUDGET): Tier 0 ≤ $15 (API only) · Tier 1 ≤ $80 · Tier 2 ≤ $320 · Tier 3 ≤ $400 · Tiers 0–3 cumulative ≤ $700 · Tier 4 ≤ $900 · Tier 5 ≤ approved envelope (≤ $10k). | Pre-launch: harness refuses any RunSpec whose worst_case_usd exceeds remaining tier headroom (`ERR_BUDGET`). In-flight: hourly cost monitor polls Modal spend + ledger; breach ⇒ **kill switch**: `modal app stop` on every live app in the tier + `poc/gpu/terminate.sh` for any AWS boxes + BUDGET-HALT status event in the log (P2 G-11) + bead filed + maintainer notified. Every container additionally carries its sized hard timeout (a wedged run self-caps). Resumption only via a dated ops amendment raising the cap. |
+| **GR-1** | **Per-tier hard budget caps** (canonical table, RT-8 reconciliation — identical wherever a cap table appears, incl. P2 G-11 and P6 §4; maintainer confirms at I-BUDGET): Tier 0 ≤ $20 (API only) · Tier 1 ≤ $80 · Tier 2 ≤ $400 · Tier 3 ≤ $400 · cumulative Tiers 0–3 ≤ $900 · Tier 4 (F5) ≤ $900 · Tier 5 = maintainer-approved envelope ($2–10k). Worst-case Tiers 0–3 ≈ $760 < $900. **Freeze-time tier-sum lint:** Σ(frozen worst-cases in a tier) ≤ tier cap — `prereg-freeze` refuses a freeze that would break the sum, so a fully-utilised tier can never BUDGET-HALT mid-campaign by arithmetic. | Pre-launch: harness refuses any RunSpec whose worst_case_usd exceeds remaining tier headroom (`ERR_BUDGET`). In-flight: hourly cost monitor polls Modal spend + ledger; breach ⇒ **kill switch**: `modal app stop` on every live app in the tier + `poc/gpu/terminate.sh` for any AWS boxes + BUDGET-HALT status event in the log (P2 G-11) + bead filed + maintainer notified. Every container additionally carries its sized hard timeout (a wedged run self-caps). Resumption only via a dated ops amendment raising the cap. |
 | **GR-2** | **Hash-pin enforcement.** No run without in-container staged-manifest + encoder + corpus + prereg-hash assertions; all fail closed with named `ERR_*` codes. Any pin change = new pre-registration, reported as such. | §3.3 mechanisms; P2 G-1/G-14: `log-append` embeds and verifies the prereg hash, demotes drifted-pin runs to exploratory; verdict-gen step 3 excludes them visibly. |
 | **GR-3** | **≤5 concurrent agents, waves, no nested spawning.** Coordinators never spawn children-of-children; runner waves sized ≤5 (the fleet has been rate-limit-killed twice at higher concurrency). | Wave schedule in §5; coordinator launch discipline; beads wave labels; a runner that needs parallelism uses Modal `starmap` (containers, not agents). |
 | **GR-4** | **Fail-closed gates.** A gate that cannot evaluate (missing verdict object, unreadable ledger, absent human record) is CLOSED. No silent fallbacks anywhere in harness code (house rule). | AUTO-GATE scripts return CLOSED on any exception; scheduler treats CLOSED = blocked; the shared expression evaluator (P2 §3.1 grammar) is the only gate semantics. |
 | **GR-5** | **Negative-result honesty.** Every completed run appends to the chained log regardless of outcome; nulls require TOST to be called NULL (else INCONCLUSIVE); negative verdicts are rendered by the same template at the same prominence and the paper's results table enumerates every CLOSED experiment mechanically. | P2 G-5 + P2 §3.3 template; report-gen refuses to render a PASS without its verbatim kill-criterion text alongside (P1 §6 anti-overselling guard, mechanised); paper.lint re-checks at manuscript level (GR-15). |
-| **GR-6** | **Run-vs-audit separation.** The agent identity that ran or built any part of an experiment never audits it; a computed PASS is PASS-PENDING-AUDIT until a CONFIRMED audit record by a distinct identity lands; audits re-derive the verdict from pinned artifacts, adversarially (leakage, tuning asymmetry, endpoint drift, arm-favouring bugs — P4 checklist). Positives get full audits; kills/nulls get conformance audits. The paper gets the same treatment (paper.review). | P2 G-6 schema rule (`ERR_P2_SELF_AUDIT`: auditor ≠ every runner in the eligible log); agent ids in RunSpec + audit record; backup Fable account for hard identity separation (O-5). |
-| **GR-7** | **Single-look / no endpoint drift.** Analysis scripts hashed at X.reg; the primary endpoint is computed once by the pinned script at X.readout (which writes the `unblind` cutoff line); any additional analysis is `phase:"exploratory"` (quarantined, uncitable) and can never flip a verdict. | P2 G-3/G-4/G-13: frozen analysis_script sha, amendment validity vs the unblind line, exploration quarantine + citation scanner. |
+| **GR-6** | **Run-vs-audit separation.** The agent identity that ran or built any part of an experiment never audits it; a computed PASS is PASS-PENDING-AUDIT until a CONFIRMED audit record by a distinct identity lands; audits re-derive the verdict from pinned artifacts, adversarially (leakage, tuning asymmetry, endpoint drift, arm-favouring bugs — P4 checklist). Positives get full audits; kills/nulls get conformance audits. The paper gets the same treatment (paper.review). Externally the property is reported as **role-separated re-derivation**, never "independent audit" (P2 G-6 naming discipline, RT-9); "independent" is reserved for maintainer-level audits and genuinely external replications. | P2 G-6 schema rule (`ERR_P2_SELF_AUDIT`: auditor ≠ every runner in the eligible log); agent ids in RunSpec + audit record; backup Fable account for hard identity separation (O-5). |
+| **GR-7** | **Single-look / no endpoint drift.** Analysis scripts hashed at X.reg; the primary endpoint is computed once by the pinned script at X.readout (which writes the `unblind` line; note the **design-amendment cutoff is earlier** — the first `phase:"final"` run record, P2 §1.4/G-3, RT-5); any additional analysis is `phase:"exploratory"` (quarantined, uncitable) and can never flip a verdict. | P2 G-3/G-4/G-13: frozen analysis_script sha, amendment validity vs the first-final-run line, exploration quarantine + citation scanner. |
 | **GR-8** | **No auto-commit of results from containers; no auto-push of claims.** Coordinator reviews and commits; external communication of any result is GATE-H (paper.submit / xb.deliver / ad-hoc pitches all included). | Existing transport behaviour; §2 gate class 7; GR-9/GR-15 lints upstream of any exposure. |
-| **GR-9** | **Claim-discipline lints** (mechanised in report-gen + `registry-check --citations`): every quoted number carries rung + M0b coverage + comparison discipline; scale adjectives require the "slope" license (≥3 rungs; 2 = sign only; 1 = nothing) computed into the verdict object; no strong-A1 restatement unless HS13 passed; "narrow-and-continue" not invocable twice for the same missing evidence; m0b.close ≺ any external quotation. | P2 G-7/G-12 + the citations scanner over `docs/` and `reports/`; a-extrap-* nodes are the only source of extrapolation statements. |
+| **GR-9** | **Claim-discipline lints** (mechanised in report-gen + `registry-check --citations`): every quoted number carries rung + M0b coverage + comparison discipline — plus the **NICHE-SCOPE banner** whenever m0b.gate fired below the GNG-0 threshold (RT-7); scale adjectives require the "slope" license (≥3 rungs; 2 = sign only; 1 = nothing) computed into the verdict object; no strong-A1 restatement unless HS13 passed; **replication-buy cap** (RT-1): at most one replication buy per experiment/gap, at most two programme-wide, and "narrow-and-continue" never invocable twice for the same missing evidence; m0b.close ≺ any external quotation. | P2 G-7/G-12 + the citations scanner over `docs/` and `reports/`; a-extrap-* nodes are the only source of extrapolation statements. |
 | **GR-10** | **Baseline-parity guard.** No arm may receive more tuning budget than its baselines (LR-selection and retry budgets are per-arm-symmetric by pre-registration); the audit checklist includes a tuning-asymmetry check. | Frozen arm defs (P2 G-8 lint: mandatory baselines incl. kernel-as-text present at freeze); GR-6 audit item; full per-run config in every log line makes asymmetry detectable. |
 | **GR-11** | **Credential hygiene.** Modal token outside the repo (`~/.modal.toml`); provenance redaction (`redact_env`); rendered AWS user-data passes the credential-pattern refusal guard; no write deploy keys minted (Option A stays retired); annotator materials contain no credentials. | Existing validated mechanisms; CRED-GATE is the only mint path. |
 | **GR-12** | **Persistence.** Every artifact (registry, logs, RunSpecs, results, audits, gate records, manuscript, explainer, the §8 list's beads mirror) lives in `jeswr/kernel-of-truth`; work is not done until pushed AND `registry-check` is green. | CLAUDE.md session protocol + P2 §5.3 (registry-check before git push); runner definition-of-done. |
@@ -429,12 +456,12 @@ programme **ends at the paper and the explainer-back on every route**, including
 
 | Phase | Dates | Waves (≤5 concurrent runners) | Exit milestone / gate |
 |---|---|---|---|
-| **P-0 Setup** | Jul 09 – Jul 15 | W0a: I-REG(+I-HYP,I-RETRO), I-F0, I-AUDIT, I-MODAL, I-BEADS · W0b: I-SKILLS, I-BUDGET, m0b chain, a-h0.reg, D-PI, D-AX | **M0 (Jul 15): GNG-0 signed; M0b published + audited; caps set; kill switches tested; f2 frozen as backbone acceptance test** |
-| **P-1 Tier-0 (R0)** | Jul 13 – Jul 31 | W1a: f1, g3 (materials→annotate), g8, g9.author, D-QA · W1b: g2 (gold + run), g9.review, D-GL, D-DOM, D-TS · W1c: g4 (after g2/g3), then g6, g7, g5 (cond.), D-AXN, D-CB, D-SAE, D-IR | **M1 (Jul 31): all Tier-0 verdicts + audits closed; structure forks HS2–HS8 resolved or explicitly deferred; F1 byte premise decided** |
+| **P-0 Setup** | Jul 09 – Jul 22 | W0a: I-REG(+I-HYP,I-RETRO), I-F0, I-AUDIT, I-MODAL, I-BEADS · W0b: I-SKILLS, I-BUDGET, m0b chain (+m0b.gate), family-h0.reg, a-h0.reg, D-PI, D-AX | **M0 (Jul 22 — slipped from Jul 15 per P7 RT-18): GNG-0 signed; M0b published + audited; caps set; kill switches tested; f2 frozen as backbone acceptance test** |
+| **P-1 Tier-0 (R0)** | Jul 13 – Jul 31 | W1a: f1, g3 (materials→annotate), g8, g9.author, D-QA · W1b: g2 (gold + run), g9.review, D-GL, D-DOM, D-TS, D-XIF, D-EXT · W1c: g4 (after g2/g3), then g6, g7, g5 (cond.), D-AXN, D-CB, D-SAE, D-IR | **M1 (Jul 31): all Tier-0 verdicts + audits closed; structure forks HS2–HS8 resolved or explicitly deferred; F1 byte premise decided** |
 | **P-2 Tier-1** | Jul 20 – Aug 01 | W2: f2 chain (inputs → mock → run → log → readout → audit → close) — overlaps P-1 once GATE-T1 opens (target Jul 22) | **M2 = GNG-1 (Aug 01): F2 pivot readout; efficiency scope auto-updated; maintainer notified** |
 | **P-3 Tier-2** | Aug 03 – Aug 28 | W3a: e9 chain, f4 chain · W3b: g1 (rides f4), e8r chain · W3c: e8d (cond., by Sep 04) | **M3 (Aug 28 / Sep 04 with e8d): HC1, HC2, HE4, HS1, HC4 verdicts + audits** |
 | **P-4 Tier-3** | Aug 24 – Sep 18 | W4a: f3 chain (incl. M2-output rider), a-hs10 · W4b: f6 chain · W4c: a-extrap-2, a-h0.readout | **M4 (Sep 18): HE3, HE6, HS10 verdicts + audits; sign-level extrapolation envelopes computed — all Tier-0–3 evidence complete** |
-| **GNG-2** | **Sep 21 – Sep 25** | Route machine-computed + dossier auto-prepared by Sep 21 | **M5: maintainer ratifies TAKE / NARROW / PIVOT / KILL (P1 §6, first match from top). PIVOT/KILL ⇒ jump to P-7 (write-up pulls forward to Oct 01)** |
+| **GNG-2** | **Sep 21 – Sep 25** | Route machine-computed + dossier auto-prepared by Sep 21 | **M5: maintainer ratifies TAKE / NARROW / PIVOT / KILL / STOP-AND-PUBLISH-UNDECIDED (P1 §6, first match from top). PIVOT/KILL/UNDECIDED ⇒ jump to P-7 (write-up pulls forward to Oct 01)** |
 | **P-5 Tier-4 (cond.)** | Sep 28 – Oct 23 | GATE-T4 → D-ST → f5 chain → a-hs9, a-hs11 | **M6 (Oct 23): HE5-full, HS9, HS11 verdicts** |
 | **P-6 Tier-5 (gated)** | Oct 26 – Dec 04 | GATE-T5 (+E7-PRE rider) → f7 chain (survivor slopes; HC5 slice; E7/HS13 slice iff open) → a-extrap-5 | **M7 (Dec 04): HE7/HC5(/HS13) verdicts + slope-level envelopes — the only tier licensing scale adjectives / frontier pitch. GNG-3 by Dec 08** |
 | **P-7 Write-up** | Dec 07 – 2027 Jan 12 (or Oct 01 – Nov 06 on an early PIVOT/KILL route) | Writer agent: r-final (by Dec 11) → paper.claims + paper.outline (Dec 16) → paper.draft (Jan 05) → paper.lint → paper.review (auditor) — xb.draft in parallel after paper.lint | **M8 (Jan 12): lint-clean, adversarially-CONFIRMED manuscript — every claim traced to a verdict object; negatives at full prominence** |
@@ -442,11 +469,14 @@ programme **ends at the paper and the explainer-back on every route**, including
 
 **Slack & failure routing.** Each phase carries ~30% schedule slack inside its window
 (annotators are the main risk in P-1; a Modal outage reroutes to the AWS pull path at
-+wall-clock, same analysis). A decisive NO by GNG-2 costs ≈ $180–650 + ~25 annotator-hours
-and routes to P-7 immediately: the negative-results paper (full statistics, raw logs,
-registry) + the explainer-back are produced with the SAME node chain, gates, and prominence
-rules — that outcome is a *success* of the plan, per the directives, and is budgeted and
-scheduled as first-class.
++wall-clock, same analysis). A decisive NO by GNG-2 costs ≈ $200–700 + ~30–40
+annotator-hours and routes to P-7 immediately: the negative-results paper (full statistics,
+raw logs, registry) + the explainer-back are produced with the SAME node chain, gates, and
+prominence rules — that outcome is a *success* of the plan, per the directives, and is
+budgeted and scheduled as first-class. A STOP-AND-PUBLISH-UNDECIDED route (RT-1) is
+handled identically: it routes to P-7 with the decidability bands and a
+what-budget/n-would-decide statement in the paper, rather than buying further replications
+past the pre-declared cap.
 
 **Standing agent map by phase:** P-0/P-1 = coordinator + 4–5 R0/build runners; P-2–P-4 =
 coordinator + 2–3 campaign runners + 1 auditor (audits pipeline behind runs, never same
@@ -459,9 +489,9 @@ auditor (reviewer). The auditor identity never changes mid-campaign.
 
 | # | Decision | Blocks | Default if unstated |
 |---|---|---|---|
-| O-1 ● | Confirm/adjust the GR-1 cap table and the Tiers-0–3 pre-approved envelope (≤$700) + Modal account spend limit alignment | I-BUDGET → GNG-0 | table as written |
+| O-1 ● | Confirm/adjust the GR-1 canonical cap table and the Tiers-0–3 pre-approved envelope (≤$900; worst-case ≈ $760) + Modal account spend limit alignment | I-BUDGET → GNG-0 | table as written |
 | O-2 ● | Sign GNG-0 (registry root sha) once I-REG lands | every X.run | — (hard block) |
-| O-3 ● | Annotator sourcing for ~15–25 h (g3 ×2 annotators, g2 gold, g9 blinded review, m0b spot-check): self, colleagues, or paid recruits | M1 completeness (g2/g3/g9 verdicts) | maintainer self-annotates; g3's second annotator must be a second human |
+| O-3 ● | Annotator sourcing for ~30–40 h (g3 ×2 annotators, g2 gold at n = 500 judgments, g9 blinded review, m0b spot-check): self, colleagues, or paid recruits | M1 completeness (g2/g3/g9 verdicts) | maintainer self-annotates; g3's second annotator must be a second human |
 | O-4 | Modal-primary confirmation vs re-poking AWS quota (bead `kernel-of-truth-wve`) for spot savings on f5/f6/f7 training grids | none (transport swap is analysis-neutral) | Modal primary |
 | O-5 | Auditor identity: same account with role separation vs the backup Fable account for hard separation | I-AUDIT config | backup account for Tier ≥2 positives and for paper.review |
 | O-6 | GATE-T4 approval ($200–800) — decision due ~Sep 25 with the GNG-2 dossier | f5 | — |
@@ -532,7 +562,9 @@ m0b.log      ; AUTO      ; m0b.run                             ; append coverage
 m0b.readout  ; AUTO      ; m0b.log                             ; verdict-gen: pinned analysis + verdict rules
 m0b.audit    ; GATE-A    ; m0b.readout                         ; auditor re-derivation + human spot-check n=100 (GATE-H rider, ~2h)
 m0b.close    ; AUTO      ; m0b.audit                           ; publish coverage + rung; restated in every later verdict (P2 G-7)
-a-h0.reg     ; AUTO      ; i-reg i-hyp                         ; freeze H0 disjunction-gate record (P1 §1 YES/NO patterns as verdict-object expressions)
+m0b.gate     ; AUTO-GATE ; m0b.close gng-0                     ; NICHE-SCOPE coverage gate (RT-7): coverage < GNG-0-set threshold (default 20% of target-task content-word mass) => NICHE-SCOPE banner rendered in every verdict + frontier pitch requires explicit coverage-growth cost line
+family-h0.reg ; AUTO     ; i-reg i-hyp                         ; freeze F-H0 cross-experiment Holm-family record (P8 C-3): 8 pre-declared members fixed at freeze; non-read-out members scored as non-rejections (never data-dependently selected)
+a-h0.reg     ; AUTO      ; i-reg i-hyp family-h0.reg           ; freeze H0 disjunction-gate record (P1 §1 YES/NO patterns + STOP-AND-PUBLISH-UNDECIDED pattern as verdict-object expressions; repeated f6 INSTRUMENT-INVALID after the pre-registered repair scored undetermined-not-supporting for H0-NO, never support; rules linted against family-h0.reg at freeze)
 gng-0        ; GATE-H    ; i-reg i-hyp i-retro i-f0 i-audit i-budget i-skills ; maintainer signs registry root sha (pre-registration freeze)
 
 # --- data & artifact authoring ---
@@ -540,7 +572,10 @@ d-pi         ; AUTO      ; gng-0                               ; implement Pi pr
 d-ax         ; AUTO      ; gng-0                               ; author ~20-axiom set in kot-axiom/1 v0; mint URNs; pin sidecar hash
 d-axn        ; AUTO      ; d-ax g2.close                       ; author same set in NSM-native AxiomSchema syntax, 2 independent author-agents
 d-ir         ; AUTO      ; d-ax                                ; seeded instance-record corpus >=300 with planted violations at known rates (E9-C)
+d-ir-n       ; AUTO      ; d-ax                                ; natural-violation SECONDARY sub-corpus (RT-7c): >=100 candidates mined from revision-pinned SmolLM2 outputs under pinned prompts/seeds, surfaced by lexical/structural heuristics (never the axiom checker under test); blind human adjudication (GATE-H rider, ~2h, O-3 hours); model ids/prompts/seeds/heuristics/labels hash-pinned; pre-registered E9-C Holm secondary — planted d-ir stays the powered primary (P1 HC2, P6 H-4)
 d-qa         ; AUTO      ; m0b.run                             ; F2 definitional-QA eval set + gloss corpus + RAG index, leak-checked
+d-xif        ; AUTO      ; gng-0                               ; model<->verifier extraction interface + held-out labelled extraction set per docs/research-plan/10-model-record-interface.md (shared output-format affordances for ALL arms; extraction failures = instrument events)
+d-ext        ; AUTO      ; m0b.run                             ; externally-authored eval slice: definitional/consistency subset of a public benchmark filtered to kernel-covered concepts via M0b machinery (pre-registered secondary in e9 + f2)
 d-gl         ; AUTO      ; m0b.run                             ; F3 long-glossary task sets d in {4,16,64} + matched-token text variants
 d-dom        ; AUTO      ; gng-0                               ; F4 onboarding domain: >=50 held-out concepts authored, URNs minted, vectors encoded (pinned encoder, X4 JL)
 d-cb         ; AUTO      ; d-dom                               ; G1 arms: random-atom-codebook encoder fork (own goldens), Numberbatch pack, KGE lens pack
@@ -566,7 +601,7 @@ g3.audit     ; GATE-A    ; g3.readout                          ; audit
 g3.close     ; AUTO      ; g3.audit                            ; HS3 verdict; necessity-fail auto-resolves HS2 sidecar-only + prunes g5
 g2.reg       ; AUTO      ; i-reg                               ; freeze G2 (HS2 Pi read-out soundness)
 g2.inputs    ; AUTO      ; g2.reg d-pi                         ; derived-subsumption dump + scoring materials
-g2.gold      ; GATE-H    ; g2.inputs                           ; human gold set ~50 subsumption pairs (~3h), blind adjudication
+g2.gold      ; GATE-H    ; g2.inputs                           ; human gold set: n = 500 subsumption judgments (~12h), blind adjudication — decidability-powered for the 0.9 Wilson gate (P2 freeze lint, RT-4)
 g2.run       ; AUTO      ; g2.gold gng-0                       ; score Pi read-outs vs gold; promise/words recovery; partition-residue check
 g2.log       ; AUTO      ; g2.run                              ; log-append
 g2.readout   ; AUTO      ; g2.log g3.close                     ; verdict-gen: Wilson lower bound vs 0.9 precision; interpreted under HS3 outcome
@@ -613,25 +648,27 @@ g9.audit     ; GATE-A    ; g9.readout                          ; audit
 g9.close     ; AUTO      ; g9.audit                            ; HS-A verdict; fail rewrites why-now everywhere
 
 # --- tier 1: the pivot ---
-gate-t1      ; AUTO-GATE ; gng-0 m0b.close i-f0 i-modal i-budget ; tier-1 launch gate: freeze signed, coverage published, harness green, transport ready, headroom ok
-f2.reg       ; AUTO      ; i-reg i-hyp                         ; freeze F2 (HE1 primary; HE2/HC3/HS12 riders; 9 arms + PRM + cascade + in-decode gating; backbone acceptance test)
-f2.inputs    ; AUTO      ; f2.reg d-qa                         ; pin arm artifacts: PRM, int4-360M, cascade + logprob gate, verifier loop
+gate-t1      ; AUTO-GATE ; gng-0 m0b.close m0b.gate i-f0 i-modal i-budget ; tier-1 launch gate: freeze signed, coverage published + NICHE-SCOPE gate evaluated, harness green, transport ready, headroom ok
+f2.reg       ; AUTO      ; i-reg i-hyp                         ; freeze F2 (HE1 primary; HE2/HC3/HS12 riders; 9 arms + PRM + cascade + in-decode gating + gloss-text self-verify + retry at matched budget (RT-2; HE1/HE2 PASS requires the kernel arm to BEAT it, not just RAG); backbone acceptance test)
+f2.inputs    ; AUTO      ; f2.reg d-qa d-xif d-ext             ; pin arm artifacts: PRM, int4-360M, cascade + logprob gate + text-self-check gate, verifier loop over the d-xif extraction interface, external eval slice
 f2.mock      ; AUTO      ; f2.inputs gate-t1                   ; Modal --mock transport smoke
-f2.run       ; AUTO      ; f2.mock                             ; full grid: SmolLM2 135M/360M/1.7B x arms x retry {1,2,4}, full metric vector V
+f2.iface     ; AUTO-GATE ; f2.mock d-xif                       ; extraction-failure instrument gate (10-model-record-interface.md): failure rate on held-out labelled set <= frozen bound; failures scored as instrument events, never hypothesis events; all arms share output-format affordances
+f2.run       ; AUTO      ; f2.iface                            ; full grid: SmolLM2 135M/360M/1.7B x arms x retry {1,2,4}, full metric vector V
 f2.log       ; AUTO      ; f2.run                              ; log-append (one line per cell)
 f2.readout   ; AUTO      ; f2.log                              ; verdict-gen: pinned analysis (paired bootstrap, Holm family, TOST), frozen verdict rules
-f2.audit     ; GATE-A    ; f2.readout                          ; independent adversarial audit (full on any PASS)
+f2.audit     ; GATE-A    ; f2.readout                          ; role-separated adversarial audit (full on any PASS)
 f2.close     ; AUTO      ; f2.audit                            ; HE1/HE2/HC3/HS12 verdicts committed
 a-hs12       ; AUTO      ; f2.log                              ; latency analysis batch-1 + throughput; HS12 implementation selection (no kill)
 gng-1        ; AUTO-GATE ; f2.close                            ; pivot readout: P1 tier-1 gate text evaluated; maintainer notified; efficiency scope auto-updated (non-blocking for tier 2 correctness)
 
 # --- tier 2 ---
-e9.reg       ; AUTO      ; i-reg i-hyp                         ; freeze E9-full + E9-C (HC1, HC2, HS11-part): 5 arms + constraint arm + text-diff-checker arm
-e9.inputs    ; AUTO      ; e9.reg d-ir d-qa                    ; pin gloss dictionary, RAG index, instance-record corpus
+e9.reg       ; AUTO      ; i-reg i-hyp                         ; freeze E9-full + E9-C (HC1, HC2, HS11-part): 6 arms (incl. gloss-text self-verify + retry at matched budget, RT-2) + constraint arm + text-diff-checker arm + d-ext external-slice + d-ir-n natural-violation Holm secondaries (RT-7; planted d-ir = powered primary); HC1 PASS requires the kernel arm to BEAT the self-verify arm at matched FLOPs
+e9.inputs    ; AUTO      ; e9.reg d-ir d-ir-n d-qa d-xif d-ext ; pin gloss dictionary, RAG index, instance-record corpus + natural-violation secondary sub-corpus (d-ir-n), extraction interface + labelled set, external eval slice
 e9.mock      ; AUTO      ; e9.inputs gate-t1                   ; --mock smoke
-e9.run       ; AUTO      ; e9.mock                             ; full run R1, R2 (R3 iff sign); non-LLM rubric / leak-checked judge
+e9.iface     ; AUTO-GATE ; e9.mock d-xif                       ; extraction-failure instrument gate (10-model-record-interface.md): failure rate on held-out labelled set <= frozen bound; failures scored as instrument events, never hypothesis events; all arms share output-format affordances
+e9.run       ; AUTO      ; e9.iface                            ; full run R1, R2 (R3 iff sign); non-LLM rubric / leak-checked judge
 e9.log       ; AUTO      ; e9.run                              ; log-append
-e9.readout   ; AUTO      ; e9.log                              ; verdict-gen: catch rates (Wilson), 3x text-arm test, FP bound, per-class breakdown; fail names the failing stage
+e9.readout   ; AUTO      ; e9.log                              ; verdict-gen: catch rates (Wilson), kernel-vs-self-verify comparison at matched FLOPs (HC1), 3x text-arm test, FP bound, per-class breakdown; fail names the failing stage
 e9.audit     ; GATE-A    ; e9.readout                          ; audit
 e9.close     ; AUTO      ; e9.audit                            ; HC1 + HC2 verdicts
 f4.reg       ; AUTO      ; i-reg i-hyp                         ; freeze F4 (HE4): 5 arms incl. ToolkenGPT-protocol + in-context-text null; R1/R2/R3
@@ -678,7 +715,7 @@ a-hs10.reg   ; AUTO      ; i-reg i-hyp                         ; freeze A-HS10 (
 a-hs10.readout ; AUTO    ; a-hs10.reg f2.log f3.log            ; pinned comparison analysis over both logs
 a-hs10.audit ; GATE-A    ; a-hs10.readout                      ; audit
 a-hs10.close ; AUTO      ; a-hs10.audit                        ; HS10 verdict
-f6.reg       ; AUTO      ; i-reg i-hyp                         ; freeze F6 (HE6): T0->T1, 5 paired seeds, text-scaffold arm; INSTRUMENT-INVALID rule first in verdict_rules
+f6.reg       ; AUTO      ; i-reg i-hyp                         ; freeze F6 (HE6): T0->T1, 5 paired seeds, text-scaffold arm; INSTRUMENT-INVALID rule first in verdict_rules + pre-registered instrument repair vs E1 with its own pass bar (repeated failure after repair => HE6 undetermined-not-supporting in a-h0, RT-19)
 f6.inputs    ; AUTO      ; f6.reg d-ts                         ; pin shard sets + paired-seed schedule
 f6.mock      ; AUTO      ; f6.inputs gate-t1                   ; --mock smoke
 f6.run       ; AUTO      ; f6.mock                             ; full training grid; frozen-row bit-identity asserted in-container
@@ -690,8 +727,11 @@ a-extrap-2.reg ; AUTO    ; i-reg                               ; freeze sign-lev
 a-extrap-2.readout ; AUTO ; a-extrap-2.reg f1.close g2.close g3.close g4.close g6.close g7.close g8.close g9.close f2.close e9.close f4.close g1.close e8r.close f3.close f6.close ; fit per-mechanism trends, emit scale-language licenses + envelope statements
 a-extrap-2.audit ; GATE-A ; a-extrap-2.readout                 ; audit (statistics re-derived)
 a-extrap-2.close ; AUTO  ; a-extrap-2.audit                    ; envelope statements committed for GNG-2 dossier + paper.claims
-a-h0.readout ; AUTO      ; a-h0.reg f2.close e9.close f4.close f6.close a-extrap-2.close ; evaluate H0 disjunction gate over member verdict objects (re-run at gng-3)
-gng-2        ; GATE-H    ; a-h0.readout m0b.close f1.close g2.close g3.close g4.close g6.close g7.close g8.close g9.close f2.close e9.close f4.close g1.close e8r.close f3.close f6.close a-extrap-2.close ; global decision tree (computed route, auto dossier); maintainer ratifies TAKE/NARROW/PIVOT/KILL; PIVOT/KILL => jump to r-final
+family-h0.readout ; AUTO ; family-h0.reg f1.close f2.close e9.close f3.close f4.close f6.close ; pinned Holm analysis across the 8 pre-declared members (consumes member analysis-output.json by sha; non-read-out members = non-rejections)
+family-h0.audit ; GATE-A ; family-h0.readout                   ; audit (statistics re-derived)
+family-h0.close ; AUTO   ; family-h0.audit                     ; F-H0 family-wise Holm decisions committed (input to a-h0.readout)
+a-h0.readout ; AUTO      ; a-h0.reg family-h0.close f2.close e9.close f4.close f6.close a-extrap-2.close ; evaluate H0 disjunction gate over member verdict objects + family-h0 Holm decisions (re-run at gng-3); emits YES-pattern / NO-pattern / UNDECIDED / open
+gng-2        ; GATE-H    ; a-h0.readout m0b.close m0b.gate f1.close g2.close g3.close g4.close g6.close g7.close g8.close g9.close f2.close e9.close f4.close g1.close e8r.close f3.close f6.close a-extrap-2.close ; global decision tree (computed route, auto dossier); maintainer ratifies TAKE/NARROW/PIVOT/KILL/STOP-AND-PUBLISH-UNDECIDED; replication-buy cap: one per gap, two programme-wide (RT-1); PIVOT/KILL/UNDECIDED => jump to r-final
 
 # --- tier 4 (double-gated) ---
 gate-t4      ; GATE-H    ; f1.close f3.close gng-2             ; approve $200-800 over machine conditions: F1 byte PASS + F3 injection route settled
@@ -727,10 +767,10 @@ a-extrap-5.reg ; AUTO    ; i-reg                               ; freeze slope-le
 a-extrap-5.readout ; AUTO ; a-extrap-5.reg f7.close            ; per-survivor slope fits + <=1-OOM extrapolation statements + uncertainty + licensing assumptions
 a-extrap-5.audit ; GATE-A ; a-extrap-5.readout                 ; audit
 a-extrap-5.close ; AUTO  ; a-extrap-5.audit                    ; slope-level envelopes; the ONLY license for scale adjectives
-gng-3        ; GATE-H    ; f7.close a-extrap-5.close           ; final disposition (computed route + ratification); a-h0 re-evaluated; on tier-5-declined routes deps reduce to gng-2
+gng-3        ; GATE-H    ; f7.close a-extrap-5.close           ; final disposition (computed route + ratification, incl. STOP-AND-PUBLISH-UNDECIDED under the same RT-1 pattern + replication-buy cap); a-h0 re-evaluated with family-h0 decisions; on tier-5-declined routes deps reduce to gng-2
 
 # --- write-up & explainer-back (runs on EVERY route incl. PIVOT/KILL) ---
-r-final      ; AUTO      ; gng-3                               ; auto-generate evidence bundle: status table, all verdict reports, raw-log index, ledger, envelope table (on PIVOT/KILL routes dep = gng-2)
+r-final      ; AUTO      ; gng-3                               ; auto-generate evidence bundle: status table, all verdict reports, raw-log index, ledger, envelope table (on PIVOT/KILL/UNDECIDED routes dep = gng-2)
 paper.claims ; AUTO      ; r-final a-extrap-2.close            ; machine claims-trace table: claim -> verdict-object sha + envelope + kill text + scale license (a-extrap-5.close added when tier 5 ran)
 paper.outline ; AUTO     ; paper.claims                        ; venue-format outline; results section enumerates EVERY closed experiment from registry/status.json
 paper.draft  ; AUTO      ; paper.outline                       ; full manuscript (Writer agent), top-tier standard, honest incl. negatives; limitations = envelope table verbatim
@@ -744,9 +784,10 @@ xb.deliver   ; GATE-H    ; xb.lint paper.sign                  ; deliver explain
 c-out        ; AUTO      ; xb.deliver                          ; close-out: volume cleanup, credential revocation review, beads sync, archive statement
 ```
 
-Coverage check (every P1 §8 registry row has a deciding node above): H0→a-h0;
+Coverage check (every P1 §8 registry row has a deciding node above): H0→a-h0 (+family-h0,
+the P8 C-3 cross-experiment Holm family — a-h0 cannot freeze without it, RT-13);
 HC1/HC2→e9; HC3/HE1/HE2/HS12→f2(+a-hs12); HC4→e8r/e8d; HC5/HE7/HS13→f7; HE3→f3; HE4→f4;
 HE5→f1+f5; HE6→f6; HS1→g1; HS2→g2; HS3→g3; HS4→g4; HS5→g5; HS6→g6; HS7→g7; HS8→g8;
-HS9→a-hs9; HS10→a-hs10; HS11→a-hs11; HS-A→g9; M0b→m0b. Directives §6 → every X.readout +
-a-extrap-2/5; directives §7 → paper.\* + xb.\* (first-class, honesty-gated, owned by the
-Writer role).
+HS9→a-hs9; HS10→a-hs10; HS11→a-hs11; HS-A→g9; M0b→m0b (+m0b.gate, the NICHE-SCOPE
+consequence gate, RT-7). Directives §6 → every X.readout + a-extrap-2/5; directives §7 →
+paper.\* + xb.\* (first-class, honesty-gated, owned by the Writer role).

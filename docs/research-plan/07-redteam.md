@@ -587,3 +587,166 @@ affected registry entries before each freezes; GNG-0 should not be signed until 
 1–5, 8 (gate part), 11, and 13 are in the frozen text. With that done, this programme is
 executable as designed and would withstand a frontier-lab review of its *methods*; its
 *results* will be whatever they are — which is the point.
+
+---
+
+## Fixes applied (2026-07-08) — verification
+
+**Verifier:** independent skeptic pass (backup-account auditor stance), 2026-07-08. Method:
+every fix checked against the actual text of P0–P10 (`00`–`10`), not against changelog
+claims. Statuses: **CLOSED** = applied and consistent in every doc the fix touches;
+**PARTIAL** = substance applied somewhere but missing or contradicted at ≥1 designated
+location; **OPEN** = not applied.
+
+### Per-item closure table (17 items)
+
+| Item | Status | Evidence / residual gap |
+|---|---|---|
+| **RT-1** (tree non-exhaustive) | **CLOSED** | P1 §6 route 5 is the explicit residual `else` branch (cannot evaluate to nothing) + replication-buy cap (1/experiment, 2 programme-wide) in P1 §6, P3 GR-9/GNG-2/GNG-3, a-h0.reg; P9 §1.1 + §5 carry the UNDECIDED paper type; P2 §5.2/§1.4 wire it. P1↔P3 route texts and caps agree. |
+| **RT-2** (self-verify+retry arm) | **CLOSED** | E9 arm 6 + F2 arm 10 + HE2 text-self-check gate in P1 (H0 statement, HC1/HE1/HE2 kill texts all require beating it); P3 e9.reg/f2.reg/readouts; P6 budget lines updated. Consistent everywhere checked. |
+| **RT-3** (model↔record interface) | **CLOSED** | New `10-model-record-interface.md`: IF-A/B/C enumerated, IF-C default, IF-1 fork with machine predicate, ≥300-output labelled set, 10%-Wilson INSTRUMENT-INVALID gate, no-free-wins/losses exclusion accounting, shared-affordance rule; P1 HC1/HC2/HE1 + §8 pin it; P3 has `e9.iface`/`f2.iface` AUTO-GATE nodes with `d-xif ≺ iface ≺ run` ordering. |
+| **RT-4** (G2 n) | **CLOSED** | n = 500 consistent in P1 HS2, P2 §1.x, P3 g2.gold (~12 h, blind adjudication), P6 H-4 (re-budgeted 30–40 h), P8 §1.6/C-8; decidability lint operationalised in P8 §1.6 and named in P2's prereg-freeze row. (Soft spot: P4's S1 lint list doesn't name the decidability/tier-sum lints.) |
+| **RT-5** (amendment cutoff) | **PARTIAL** | P2 P-9/§1.4/G-3/G-10 and P3 GR-7/GNG-0 all move the design cutoff to the **first `phase:"final"` run record**. **Gap: P4 §2.1 `prereg amend` step 4 still refuses design amendments only "after the `unblind` line"** — the enforcement-tool spec contradicts P2 §1.4/G-3 (the old, later cutoff). One-line fix in P4 before I-SKILLS builds it. |
+| **RT-6** (supersession lineage) | **CLOSED** | P2 §1.4 lineage semantics (latest-ID-with-full-lineage, FAIL→PASS needs audit + R10 memo, 2-revision cap → route 5) + G-3 + threat table; P3 lineage rule for every gate/tree/dossier; R10 exists in P5. |
+| **RT-7** (ecological validity + coverage gate) | **PARTIAL** | (a) D-EXT external slice: CLOSED (P1 HC1/HE1 secondaries; P3 D-EXT node, e9/f2 inputs, P-1 wave). (b) M0b NICHE-SCOPE gate: CLOSED (P3 m0b.gate + GR-9 + GNG-0 threshold-setting; P6, P9). (c) Natural-violation secondary: pre-registered in P1 HC2 and budgeted in P6 H-4 ("D-IR-N adjudication"), **but P3 has no D-IR-N node** — the D-IR row is planted-only and e9.inputs doesn't consume it. Wiring gap in P3. |
+| **RT-8** (budget arithmetic) | **PARTIAL** | Canonical table (T0 $20 · T1 $80 · T2 $400 · T3 $400 · cum 0–3 $900 · T4 $900) identical in P1 §5, P2 G-11, P3 GR-1, P6 §4; worst-case $760 < $900 recomputed consistently; tier-sum lint added. **Gap: `00-overview.md` was never refreshed** — §9 still says "T0 $15 · cumulative ~$700", §2 still says decisive NO "$180–650" and stale tier ranges, §5/§9 still say 15–25 annotator-hours / $300–600 (vs 30–40 h / $500–900 in P3/P6). |
+| **RT-9** (audit-independence relabel) | **PARTIAL** (pair with RT-15) | P2 G-6 naming discipline ("role-separated re-derivation"; "independent" reserved for maintainer-level/external; citation lint flags misuse) + P9 relabelled throughout + external replication offer pre-committed on TAKE (P9). **Gap: P1 itself still says "independent adversarial audit" (§1) and "every load-bearing positive independently audited" (§6 route 1) — the exact decision-tree phrase this finding quoted — and 00-overview §3/§4/§9 likewise.** P2's own lint would flag the frozen P1 text. |
+| **RT-10** (E8-D ground truth) | **CLOSED** | P1 HC4: planted-drift primary (pre-declared magnitudes) + natural version-pair secondary scored blind to the instrument, pre-registered now; P9 PIVOT-A6 row quotes the "planted-drift unless the natural secondary agrees" labelling rule verbatim. |
+| **RT-11** (authoring cost in V) | **CLOSED** (minor residue) | Authoring cost is a V component in P1 common rules; HE4 carries the binding amortized-authoring accounting + break-even-Q quoting; P6 §2.2 prices it ($0.10–0.50/concept planning figure) and charges F4/HE4 **and F5/HE5** ledgers. Residue: P1's HE5 section doesn't restate the break-even-Q requirement, and the F0 spec itself (`design-efficiency-track.md` §3) was not amended — the change lives in P1/P6 only. |
+| **RT-12** (rung-set membership) | **PARTIAL** | P1 §0 defines the discipline (frozen rung set; extension trigger as machine predicate `primary_reject@R1 AND primary_reject@R2`; extension may only strengthen, never substitute) and P1 §8 pins it per registry entry. **Gap: the designated fix point — P8 §1.9 SAP field 12 — was not updated** (no rung-set/extension-predicate declaration, no freeze-time lint; RT-12 appears nowhere in P8; P8's rev-2 header lists only the RT-4/E8-R fixes). |
+| **RT-13** (F-H0 family selection) | **PARTIAL** | P3 family-h0.reg/readout ("8 pre-declared members fixed at freeze; non-read-out members scored as non-rejections — never data-dependently selected") + ordering ≺ a-h0; P2 §5.4 concurs. **Gap: P8 C-3 and the §1.4 F-H0 family row still say "Holm … over/across the family members actually read out"** — the precise data-dependent-selection language this finding flagged. P8 contradicts P3/P2 on the family definition. |
+| **RT-14** (anonymize by overlay) | **PARTIAL** | P9 §1.2 item 4: overlay approach fully specified (hashed records ship byte-intact; repo-external identifiers renamed via a privately-held mapping) + maintainer sign-off item. **Gap: the "corresponding P2 schema rule" P9 cites (account-identifying material kept out of hashed record bytes; account bindings in an unhashed sidecar) does not exist in P2** — worse, P2 §4's identity format `<account>/<role>-<n>` puts account-bearing strings (e.g. `jeswr-backup/fable-auditor-2`) *inside* hashed record bytes. Must land in the P2 schema before I-REG freezes it. |
+| **RT-15** (external timestamping) | **CLOSED** | Mandatory `prereg-freeze` post-step in P2 §1.1 (sparq issue + OSF) and referenced at P2 R-2; P4 S1 step 5 posts the frozen sha to sparq-org/sparq#1683; P3 GNG-0 announces every late freeze's `frozen_sha256`; P9 §1.2 makes it load-bearing at review time. |
+| **E8-R power gap** (P7 §6) | **CLOSED** | P8 C-8 + §1.6: detectable-ρ formula from the realized seed-stable subset, n ≳ 85 matched pairs to power ρ ≈ 0.39 at α = 0.01, required in the e8r SAP **before any D-SAE spend**; also in P8's sign-off list. |
+| **family-h0 DAG node** (P7 §4 DAG audit) | **CLOSED** | P3 has family-h0.reg/readout/audit/close as first-class nodes, hard orderings `family-h0.reg ≺ a-h0.reg` and `family-h0.close ≺ a-h0.readout`, and a-h0.reg is linted against the family record at freeze; P4 skill surfaces and P2 §5.4 updated to match. |
+
+### New inconsistencies introduced by the fix pass (all small, all pre-freeze)
+
+1. **P4 §2.1 vs P2 §1.4/G-3 (RT-5):** the `prereg amend` tool spec still enforces the old
+   `unblind`-line cutoff for design amendments; P2/P3 moved it to the first final-phase run
+   record. The tool as specced would *accept* amendments P2 declares invalid.
+2. **P8 C-3/§1.4 vs P3 family-h0.reg / P2 §5.4 (RT-13):** "members actually read out" vs
+   "8 pre-declared members, non-read-out = non-rejections". The frozen family record must
+   follow P3/P2; P8's two rows need the one-sentence update.
+3. **P9 §1.2/§5 vs P2 §4 (RT-14):** P9 cites a P2 schema rule that P2 does not contain, and
+   P2's example identities embed account names in hashed bytes. Blocking for I-REG.
+4. **P3 vs P1 HC2 / P6 H-4 (RT-7c):** the natural-violation sub-corpus (D-IR-N) is
+   pre-registered and budgeted but has no build node in P3's data table, and e9.inputs does
+   not consume it.
+5. **00-overview.md stale throughout (RT-8 and others):** old caps ($15/$700), old
+   decisive-NO cost ($180–650 vs $200–700), old annotator-hours (15–25 vs 30–40), old
+   platform cost ($300–600 vs $500–900), and M0 = Jul 15. The summary doc now contradicts
+   the canonical numbers in P1/P2/P3/P6 it purports to summarise.
+6. **P1 §1/§6 + 00-overview retain "independent(ly) audited" for agent audits (RT-9):**
+   P2's own `--citations` lint, as now written, would flag the frozen P1 decision-tree text.
+
+### Residual items from the §11 fix list NOT in this 17-item audit and still open
+
+- **RT-16 (row 15): OPEN** — G9's primary is still the Wilson-bound-vs-*published-point*
+  comparison (P1 HS-A; P6 §2 even re-affirms "compare against published point estimates
+  only"); the re-base onto scoring DeepNSM outputs through our validator was not applied.
+  G4's "effort" metric is still undefined (P1 HS4 kill criterion remains unmeasurable as
+  registered; P3 D-AXN logs "effort" with no metric).
+- **RT-17 (row 15): OPEN as specified** — the second-provider check covers G4/G9 only
+  (P6 §2.2); E9's judge fallback remains "non-LLM rubric **or** leak-checked judge" with
+  neither the hard non-LLM requirement nor a second-provider arm on verdict-touching judges.
+- **RT-22 (row 15): OPEN** — dense-retriever RAG is still "if … pre-registered" optional
+  (P6), not mandatory for the F2/E9 RAG arms.
+- **RT-18 (row 16): OPEN** — M0 is still Jul 15 in P3 §5 and 00-overview; the recommended
+  explicit slip to Jul 22 was not taken (GATE-T1 target Jul 22 remains).
+- **RT-23 (row 16): PARTIAL** — P6 now marks the AWS quota BLOCKED and non-critical, but
+  the contingency row still promises the "2–3 day reroute" with quota at 0 and H-9 optional.
+- **RT-20/RT-21 (row 17): OPEN** — P2 §3.3 still contains the circular commentary
+  exclusion verbatim ("excluded from --citations claim-scanning only when consistent with
+  the verdict"); P1 HC1's kill still has the un-loosened "at ≤ arm 3's cost" conjunct; no
+  HC2 "N× better" phrasing ban at floored text-arm denominators was added.
+
+### Readiness verdict
+
+**STILL-FIX (narrowly).** All three CRITICALs (RT-1, RT-2, RT-3) are genuinely closed, and
+closed consistently — the decision tree is exhaustive in both P1 and P3, the deflationary
+arm is in both arm-sets with the kill texts amended, and P10 is a real, buildable interface
+spec with its instrument gate wired into the DAG. The programme is executable. But the plan
+set is not yet freeze-consistent: three fixes are contradicted at their designated
+enforcement point (P4's stale amendment cutoff; P8's stale F-H0 family language + missing
+rung-set field; the RT-14 schema rule P9 relies on but P2 lacks), one is unwired in the DAG
+(D-IR-N), and the overview doc contradicts the canonical budget/schedule numbers. Every
+remaining edit is a sentence-to-paragraph patch in 00/02/03/04/08 — none is a redesign —
+but the RT-14 schema rule blocks **I-REG**, the RT-5 tool spec blocks **I-SKILLS**, and the
+RT-12/RT-13 P8 rows block **family-h0.reg / a-h0.reg / the first multi-rung freeze**, so
+GNG-0 should not be signed until they land. Fix-list rows 15–17 (RT-16/17/18/20/21/22/23)
+remain open as noted and should be either applied or explicitly waived by the maintainer at
+GNG-0.
+
+---
+
+## Second-pass verification (2026-07-08)
+
+**Verifier:** independent skeptic pass (backup-account auditor stance), second pass, after
+the second fix wave. Method identical to the first pass: every previously-PARTIAL item and
+the 04-vs-02 amendment-cutoff inconsistency re-checked against the actual text of
+00/01/02/03/04/06/08/09/10, plus re-confirmation of the three CRITICALs. Statuses:
+**CLOSED** = applied and consistent in every doc the fix touches; **OPEN** = residual gap
+at a designated location.
+
+### Previously-PARTIAL items
+
+| Item | Status | Evidence (verified in text) |
+|---|---|---|
+| **RT-5** (amendment cutoff) | **CLOSED** | P2 P-9/§1.4/G-3 and **P4 §2.1 step 4 now agree**: design amendments invalid after the **first `phase:"final"` run record** (P4 lines: "deliberately EARLIER than the `unblind` line", tooling refuses on a `phase:"final"` record existing, `unblinding_state_at_write` stamped from the log). The 04-vs-02 contradiction is gone; P4 header names the RT-5 alignment. |
+| **RT-7** (ecological validity) | **CLOSED** | (a) D-EXT slice in P1 HC1 + HE1 as Holm-corrected secondaries, P3 D-EXT node + e9.inputs/f2.inputs, P6 sourcing row with preference order + selection rule; (b) m0b.gate AUTO-GATE with NICHE-SCOPE default 20% and pitch-consequence (P3, GR-9); (c) **D-IR-N now a first-class P3 node** (data table + machine DAG `d-ir-n ; AUTO ; d-ax`), consumed by `e9.inputs ← D-IR, D-IR-N, …`, named in e9.reg, blind adjudication ~2 h inside the O-3 hours, circularity guard ("never surfaced by the axiom checker under test"); P1 HC2 natural-violation secondary concurs. |
+| **RT-8** (budget arithmetic) | **CLOSED** | Canonical table (T0 $20 · T1 $80 · T2 $400 · T3 $400 · cum 0–3 $900 · T4 $900; worst-case ≈ $760) now identical in **00 §2/§9**, 01 §5/§8, 02 G-11, 03 GR-1, 06 §4; tier-sum lint present in 01/03/06. 00-overview refreshed throughout: decisive NO $200–700, annotator-hours 30–40, platform $500–900, **M0 = Jul 22** (slip stated explicitly — RT-18 was also applied in this pass, P3 §5 W0 "slipped from Jul 15 per P7 RT-18"). |
+| **RT-9** (audit relabel) | **CLOSED** | No "independent(ly) audit(ed)" applied to agent audits anywhere in 00 or 01: 00 §3/§4/§9 and P1 §1/§6 route 1 all say **role-separated re-derivation**; remaining "independent" uses in 01 are benign (human annotators/authors, scheduling, HS13's genuinely external replication). P2 G-6 naming discipline + lint, P3 GR-6, P9 deck rules all concur. Cosmetic residue (non-blocking, one word): **P8 §1.8 order-rationale paragraph still says "requires independent audit"** in an internal cross-ref to P2 G-6 — the lint it cites would flag it; fix opportunistically. |
+| **RT-12** (rung-set discipline) | **CLOSED** | P8 §1.9 **field 12 exists**: member rung set declared at freeze, extension trigger as a machine predicate over frozen fields, extension may only strengthen (report "PASS at R1–R2, replicated at R3"), **freeze-time lint refuses** undeclared rung sets / non-machine-evaluable triggers; worked example fills it (`primary_reject@R1 AND primary_reject@R2`). Consistent with P1 §0 discipline and P1 §8 packet fields. |
+| **RT-13** (F-H0 family) | **CLOSED** | P8 C-3 and §1.4 F-H0 row now read "**8 fixed members… fixed at freeze… non-rejection, never dropped… never data-dependently selected**" — identical semantics to P3 family-h0.reg/readout (and machine DAG rows) and P2 §5.4. The "members actually read out" language is gone. `family-h0.reg ≺ a-h0.reg` and `family-h0.close ≺ a-h0.readout` orderings present; a-h0.reg linted against the family record. |
+| **RT-14** (overlay + pseudonyms) | **CLOSED** | **P2 now contains the schema rule P9 cites**: §1.2 constraint 10 — account-identifying material (account names, `<account>/…` prefixes, emails, profile ids) MUST NOT appear in hashed record bytes; identities are pseudonyms `<role>-<n>`; account↔pseudonym binding lives only in the **unhashed, git-ignored `registry/identity-map.json` sidecar** (repo layout §5.1); write-path fails closed (`ERR_P2_ACCOUNT_IN_RECORD`); §4 rewritten to match; maintainer sign-off item 2 covers backup-account audit binding. P9 §1.2 item 4 (overlay, hashed records ship byte-intact) + GNG sign-off item 5 concur. Nit (cosmetic): P9's prose example `kern/fable-runner-3` predates P2's `<role>-<n>` exemplars (`runner-3`); "kern" is not an account string, but align the example. |
+| **04-vs-02 cutoff inconsistency** | **CLOSED** | Same evidence as RT-5 — P4 was the offending doc and is now aligned. |
+
+### CRITICALs re-confirmed
+
+- **RT-1 — CLOSED (stands).** P1 §6: five routes with an explicit exhaustiveness clause
+  (route 5 = the `else` branch; "the tree can never evaluate to nothing"); replication-buy
+  cap (1 per experiment/gap, 2 programme-wide) in P1 §6, P3 GR-9/GNG-2/GNG-3, a-h0.reg
+  (incl. the RT-19 F6 undetermined-not-supporting carve-out); route 5 in the machine DAG.
+- **RT-2 — CLOSED (stands).** E9 arm 6 + F2 arm 10 (gloss-text self-verify + retry at
+  matched budget) in P1, with HC1/HE1/HE2 kill texts requiring the kernel arm to beat it;
+  P3 e9.reg/e9.\* and f2 rows carry it; P1 §8 rows HC1/HE1 name it; P6 budgets it.
+- **RT-3 — CLOSED (stands).** `10-model-record-interface.md` in place (IF-A/B/C, IF-C
+  default, IF-1 fork with the h ≥ 0.2 format-tax predicate, ≥300-output labelled set per
+  rung, Wilson-LB > 10% ⇒ INSTRUMENT-INVALID, no-free-wins/losses accounting,
+  shared-affordance rule); P3 has `f2.iface`/`e9.iface` AUTO-GATEs with
+  `d-xif ≺ iface ≺ run` hard ordering.
+
+### Deferred MINOR items (verified still open; ratify-or-defer at GNG-0, not blockers)
+
+- **RT-16** — G9 primary remains Wilson-bound vs DeepNSM's published point estimate
+  (P1 HS-A; P6 keeps the published-numbers route when HF artifacts are absent); G4's
+  "effort" metric still undefined (effort logs collected, no metric pinned).
+- **RT-17** — second-provider check still G4/G9 only; E9 judge remains "non-LLM rubric OR
+  leak-checked judge".
+- **RT-20** — P2 §3.3 commentary claim-scanning exclusion still circular as written.
+- **RT-21** — HC1 kill retains the "at ≤ arm 3's cost" conjunct; no HC2 "N×" phrasing ban
+  at floored denominators.
+- **RT-22** — dense-retriever RAG config still optional ("if … pre-registered"), BM25
+  primary.
+- **RT-23** — AWS quota correctly marked BLOCKED/non-critical, but the "2–3 days' notice"
+  reroute promise still stated (quota permitting).
+
+(RT-18 — previously listed open — was applied this pass: M0 = Jul 22 in P3 §5 and
+00-overview, GATE-T1 adjusted; it leaves the deferred list.)
+
+### Second-pass verdict
+
+**READY-TO-FREEZE.** All seven previously-PARTIAL items (RT-5, RT-7, RT-8, RT-9, RT-12,
+RT-13, RT-14) and the 04-vs-02 amendment-cutoff inconsistency are CLOSED and consistent at
+every designated enforcement point; the three CRITICALs remain closed. No blocker to
+signing GNG-0 remains in the plan text. Two cosmetic one-word/one-example nits (P8 §1.8
+"independent audit" cross-ref; P9's `kern/fable-runner-3` example vs P2 constraint 10) can
+be patched any time before their docs are next linted — neither touches a frozen surface.
+The deferred minors above go to the maintainer at GNG-0 as ratify-or-defer line items. The
+threshold choices the fix agents set on the maintainer's behalf (IF-C default + IF-1 fork
+trigger; the 10%-Wilson/≥300-output extraction gate; the 1-and-2 replication-buy cap; the
+D-EXT WiC→OpenBookQA→MMLU preference order; the E8-R ≥85-stable-pair floor; the M0b
+NICHE-SCOPE 20% default; the F-H0 8-member family; the ≥4/5 seed-sign gate; the canonical
+cap table; g2.gold n = 500; the first-final-phase-run amendment cutoff) are all
+pre-registration content and should be explicitly ratified in the GNG-0 signing record.

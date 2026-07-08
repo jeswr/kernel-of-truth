@@ -1,6 +1,11 @@
 # P2 — Data tracking & reporting system (the honesty backbone)
 
-**Status:** design specification, 2026-07-08. Component P2 of the operational research plan
+**Status:** design specification, 2026-07-08 (rev 3 — verifier pass: RT-14 pseudonymous
+in-record identities + unhashed `registry/identity-map.json` sidecar, schema constraint 10 —
+the rule P9 §1.2 item 4 cites. rev 2 — P7 red-team pre-freeze fixes applied:
+RT-5 amendment cutoff, RT-6 supersession-lineage semantics, RT-9/RT-15 audit naming +
+external freeze timestamping, RT-4 decidability lint, RT-8 canonical tier caps + tier-sum
+lint). Component P2 of the operational research plan
 (`docs/research-plan/`). Governed by `docs/kernel-design-directives.md` (binding; esp. §3
 "DATA TRACKING & REPORTING fixed UP FRONT" and the guardrails bullet). Consumes P1
 (`01-hypotheses-experiments.md`) as the registry's seed content; feeds P3 (the execution DAG
@@ -42,7 +47,7 @@ in any record.
 | P-6 | **Everything pinned.** Encoder hash, corpus hashes, analysis-script hash, seeds, model revision, harness manifest — in every record. A run with any unpinned or mismatched pin is EXPLORATORY and can never feed a verdict. | §3 "hash-pinning per run" |
 | P-7 | **The full metric vector or nothing.** Efficiency-relevant runs must log the complete V = {accuracy, params, memory, inference compute, training compute}; the verdict generator fails closed on a missing component. | §2 |
 | P-8 | **Coverage in every verdict.** Every verdict object and report restates the M0b kernel-expressibility coverage number and its rung. | P1 common rules |
-| P-9 | **Amendments are records, not edits.** Any change to a frozen declaration is a new, dated, signed amendment record with rationale, and is only valid if it precedes the experiment's unblinding event in the log. | §3; x1-grounding §9 practice |
+| P-9 | **Amendments are records, not edits.** Any change to a frozen declaration is a new, dated, signed amendment record with rationale. Design-scope amendments are valid only if they precede the experiment's **first final-phase run record** in the log (the raw-data-exposure cutoff — coordinator and runners lawfully see per-cell results before the formal `unblind` line); ops amendments are valid until CLOSED. | §3; x1-grounding §9 practice |
 | P-10 | **Exploration is allowed, labelled, and quarantined.** Untracked tinkering is inevitable and useful; the system gives it a namespace (`phase: "exploratory"`) rather than pretending it away — but nothing in that namespace can be quoted as evidence. | honesty |
 
 ---
@@ -69,6 +74,12 @@ DRAFT → FROZEN → RUNNING → READOUT → (AUDIT) → CLOSED(verdict)
   record with `status` and `frozen_sha256` fields excluded) is written into
   `registry/frozen-index.json` and committed. From this moment the file is immutable;
   `registry-check` (§4, G-2) fails CI if the bytes change while status ≥ FROZEN.
+  **External freeze-timestamping (mandatory `prereg-freeze` post-step, RT-15):** the
+  `frozen_sha256` (hash only, never content) is published to an external, third-party-
+  timestamped surface — the public coordination issue (sparq-org/sparq#1683) at minimum,
+  plus an OSF registration mirroring `frozen-index.json` when available — so
+  pre-registration precedence is verifiable by an outside reviewer without trusting this
+  repo's git history (closes part of R-2).
 - **RUNNING / READOUT / CLOSED** — status changes are *appended to the log* and mirrored into
   the index file `registry/status.json` by tooling; the frozen record file itself never
   changes.
@@ -159,7 +170,8 @@ repo's existing byte-determinism convention.
   "status": "FROZEN",                        // excluded from frozen_sha256
   "frozen_sha256": "…",                      // excluded from itself
   "frozen_at": "2026-07-09T00:00:00Z",
-  "frozen_by": "kern/fable-p2"               // agent identity string (see §4 identities)
+  "frozen_by": "coordinator-1"               // pseudonymous agent identity (see §4 identities; RT-14 —
+                                             //   never an account-bearing string inside hashed bytes)
 }
 ```
 
@@ -180,6 +192,26 @@ Schema-level hard constraints (enforced by `registry-check`, not convention):
 8. `extrapolation_envelope_verbatim` is non-empty for every experiment whose hypotheses have a
    P1 §4b row (i.e. all of them); `analysis_plan_ref` is present and its `sha256` verifies —
    an experiment cannot freeze against an unpinned or missing stats plan.
+9. **Decidability lint (Wilson-bound gates, RT-4).** Any endpoint or gate whose threshold is
+   tested via a Wilson bound must be **powered for its threshold at the planned n**: the
+   frozen record carries the P8 detectable-alternative number, and `prereg-freeze` fails if
+   the gate is undecidable at the *expected* (not merely optimistic) rate — e.g. G2's
+   0.9-precision gate requires **n = 500 gold subsumption judgments**; ~50 is undecidable at
+   any realistic precision.
+10. **Pseudonymous identities inside hashed bytes (RT-14).** Account-identifying material
+    (account names, `<account>/…` identity prefixes, emails, profile ids, account-bearing
+    repo/issue URLs) MUST NOT appear anywhere in the byte ranges covered by `frozen_sha256`,
+    `prev_sha256`, or any pinned record sha — i.e. in frozen experiment records, log lines,
+    amendment records, audit records, or verdict objects. Every `runner` / `author` /
+    `auditor` / `frozen_by` field is a stable **pseudonym** of the form `<role>-<n>`
+    (`runner-3`, `auditor-2`, `coordinator-1`); the real account↔pseudonym binding lives
+    ONLY in the separate **unhashed sidecar `registry/identity-map.json`** (git-ignored in
+    this repo; held privately by the maintainer — never committed publicly, never entering
+    any hash). `prereg-freeze`, `log-append`, and `registry-check` scan record bytes against
+    a fixed account-pattern list and fail closed (`ERR_P2_ACCOUNT_IN_RECORD`). This is the
+    schema rule P9 §1.2 item 4 relies on: hashed records ship **byte-intact** into an
+    anonymized review snapshot, and the anonymization overlay only ever touches
+    repo-external identifiers — never a chained byte.
 
 ### 1.3 Example record (F2, abbreviated but valid in shape)
 
@@ -202,7 +234,7 @@ an overlay — and only if valid.
   "experiment": "f2",
   "seq": 1,
   "date": "2026-07-10T12:00:00Z",
-  "author": "kern/fable-runner-3",
+  "author": "runner-3",             // pseudonym (§1.2 constraint 10, RT-14)
   "kind": "ops",                    // "ops" | "design" | "pre-authorized-fallback"
   "rationale": "string — mandatory, free text, as long as needed",
   "patch": [ /* RFC-6902 JSON Patch against the frozen record */ ],
@@ -213,17 +245,39 @@ an overlay — and only if valid.
 **Validity rules (mechanically checked, §4 G-3):**
 
 - `kind:"design"` (touches `endpoints`, `verdict_rules`, `design.*`, `pins.analysis_script`)
-  is valid **only if** the experiment's log contains no `phase:"final"` record and no
-  `event:"unblind"` record at the amendment's commit time. After unblinding, design
-  amendments are invalid — the only path is a **new experiment ID** (`f2-rev2`) with a fresh
-  freeze, whose registry record must link `supersedes: "f2"` and whose report must state why.
+  is valid **only if** the experiment's log contains no `phase:"final"` record (and a
+  fortiori no `event:"unblind"` record) at the amendment's commit time. The cutoff is
+  deliberately the **first final-phase run record, not the `unblind` line** (RT-5): raw
+  per-cell metrics land in `results-incoming/` and the chained log continuously during the
+  run, and the coordinator reviews them before committing — so design amendments must die
+  at first raw-data exposure, not at first formal analysis. After the first final-phase run
+  record, design amendments are invalid — the only path is a **new experiment ID**
+  (`f2-rev2`) with a fresh freeze, whose registry record must link `supersedes: "f2"` and
+  whose report must state why.
 - `kind:"ops"` (budget, schedule, worker count, checkpoint cadence — a whitelist of JSON
   pointers baked into the schema) is valid any time before CLOSED.
 - `kind:"pre-authorized-fallback"` must name the frozen-record field that pre-authorized it
   (e.g. x1-grounding's N_MS→300 rule); tooling verifies the pointer exists.
 
 This is exactly the x1-grounding §9 discipline (four real amendments, all pre-unblinding, one
-pre-authorized fallback), turned into a schema.
+pre-authorized fallback), turned into a schema — with the design cutoff pulled forward to
+first raw-data exposure.
+
+**Supersession-lineage semantics (RT-6; binding on every gate, decision-tree expression,
+Holm family, and GNG dossier):**
+
+- **Latest-ID-with-full-lineage.** A gate or tree expression over a superseded experiment
+  reads the **latest ID in the lineage** (`f2-rev2` over `f2`), but the latest verdict
+  object must embed the full lineage — every predecessor ID and its verdict — and every
+  rendered report and GNG dossier renders the predecessor verdicts adjacent to the current
+  one. A verdict object that omits a predecessor fails `registry-check`.
+- **FAIL→PASS flips are expensive.** A revision whose verdict flips FAIL→PASS is citable
+  only after the full adversarial audit **plus** a committed red-team (R10) memo alongside
+  the audit record; verdict-gen keeps it at PASS-PENDING-AUDIT until both exist.
+- **2-revision cap.** A lineage is capped at 2 revisions; reaching the cap forces the
+  **STOP-AND-PUBLISH-UNDECIDED** treatment for that mechanism (P1 §6 route) — no further
+  revision of that experiment can be frozen. This closes the `-revN`-until-PASS forking
+  path: each step is individually disclosed, and the chain terminates by rule.
 
 ---
 
@@ -256,7 +310,7 @@ attachments.
   "experiment": "f2",
   "event": "run",                       // "run" | "status" | "unblind" | "audit-ref" | "note" | "supersede"
   "phase": "final",                     // "smoke" | "mock" | "exploratory" | "final"
-  "runner": "kern/fable-runner-3",      // agent identity (G-3)
+  "runner": "runner-3",                 // pseudonymous agent identity (G-3; §1.2 constraint 10, RT-14)
   "prereg_hash": "…",                   // MUST equal frozen_sha256 of registry/experiments/f2.json
   "config": {                           // the complete resolved run configuration…
     "arm": "135M+verifier", "rung": "R1", "retry_budget": 4, "seed": 2, "…": "…"
@@ -297,8 +351,10 @@ attachments.
 
 - `status` — lifecycle transitions (`{"event":"status","from":"FROZEN","to":"RUNNING"}`).
 - `unblind` — the moment analysis output is first computed over final-phase data. Written by
-  the analysis tool automatically before it prints anything. This line is the amendment
-  cutoff (G-3): design amendments with commit time after this line are invalid.
+  the analysis tool automatically before it prints anything. Note (RT-5): the
+  **design-amendment cutoff is earlier** — the first `phase:"final"` run record (§1.4,
+  G-3), because raw per-cell outcomes are exposed from that moment; the `unblind` line is a
+  second, later witness marking first analysis exposure, used by audits to verify ordering.
 - `audit-ref` — pointer to an audit record (§4 G-6): `{"event":"audit-ref","audit_path":
   "registry/audits/f2/1.json","audit_sha256":"…"}`.
 - `note` — free-text observations (anomalies, box conditions like the load-average-17
@@ -459,7 +515,7 @@ encoder pin: {{encoder_hash:8}} | corpus pins: {{…:8 each}} | log tail: {{log_
 ## OUTCOME: **{{verdict}}**
 Fired rule {{fired_rule_index}}: `{{verdict_rules[i].when — the JSON, verbatim}}`
 evaluated over analysis-output.json (sha256 {{…:8}}).
-{{if PASS-PENDING-AUDIT}} **Not citable as PASS until independent audit confirms.** {{endif}}
+{{if PASS-PENDING-AUDIT}} **Not citable as PASS until the role-separated re-derivation (audit) confirms.** {{endif}}
 {{if NULL}} TOST equivalence at pre-registered SESOI d={{…}}: bounds [{{…}}, {{…}}]. {{endif}}
 
 ## Endpoints
@@ -508,10 +564,18 @@ Each rule names its **enforcement mechanism** — a check that fails closed, not
 checks live in `tools/registry/registry-check` (run in CI on every push and by the P4 skills
 before/after every stage) and in the write-path tools themselves.
 
-**Agent identities.** Every record carries a `runner`/`author`/`auditor` string of the form
-`<account>/<role>-<n>` (e.g. `kern/fable-runner-3`, `kern/fable-auditor-1`,
-`jeswr-backup/fable-auditor-2`). Identity is asserted at write time and cross-checked by G-6;
-with a backup Fable account available, run and audit can even sit on different accounts.
+**Agent identities (RT-14).** Every record carries a `runner`/`author`/`auditor` string
+that is a stable **pseudonym** of the form `<role>-<n>` (e.g. `runner-3`, `auditor-1`,
+`auditor-2`, `coordinator-1`, `writer-1`) — never an account-bearing string (§1.2
+constraint 10; `ERR_P2_ACCOUNT_IN_RECORD`). The real account↔pseudonym binding (which
+account operates `auditor-2`, etc.) lives only in the unhashed sidecar
+`registry/identity-map.json` (git-ignored, maintainer-held) — so no account name can ever
+sit inside a `frozen_sha256`/`prev_sha256` byte range, and the P9 anonymize-by-overlay
+never has to touch a chained byte. Identity is asserted at write time and cross-checked by
+G-6 at the pseudonym level; **account-level** separation (run and audit on different
+accounts — with a backup Fable account available, e.g. `auditor-2` bound to it) is declared
+in the identity-map and verified there by the auditor and the maintainer, not from record
+bytes.
 
 - **G-1 — Prereg-before-run gate.** `log-append` refuses `phase:"final"` records unless the
   experiment is FROZEN and the record's `prereg_hash` equals the frozen-index hash; run
@@ -522,10 +586,13 @@ with a backup Fable account available, run and audit can even sit on different a
   audit re-hash. *Mechanism:* `registry-check --chain --append-only`; any failure blocks merge
   and voids downstream verdicts (verdict-gen re-verifies the chain itself).
 - **G-3 — No post-hoc changes to thresholds/metrics/analysis.** Frozen records are immutable
-  (hash-pinned); design changes are amendment records valid only before the `unblind` log
-  line; after unblinding the sole path is a new experiment ID with `supersedes` linkage and a
-  fresh freeze. *Mechanism:* `verdict-gen` step 2 validity check (`ERR_P2_BAD_AMENDMENT`) +
-  amendment schema + unblind line ordering, all timestamped in the chain.
+  (hash-pinned); design changes are amendment records valid only before the **first
+  `phase:"final"` run record** (raw-data exposure; the later `unblind` line is a second
+  witness — RT-5); after that the sole path is a new experiment ID with `supersedes`
+  linkage, a fresh freeze, and §1.4's lineage semantics (latest-ID-with-full-lineage,
+  FAIL→PASS flips need full audit + red-team memo, 2-revision cap). *Mechanism:*
+  `verdict-gen` step 2 validity check (`ERR_P2_BAD_AMENDMENT`) + amendment schema +
+  final-run/unblind line ordering, all timestamped in the chain.
 - **G-4 — Frozen analysis plan.** The analysis is a pinned script (sha256 in the frozen
   record), executed on eligible records only, in a no-network sandbox; ALL derived statistics
   live in its output file; the verdict grammar (§3.1) is too weak to compute anything.
@@ -545,7 +612,11 @@ with a backup Fable account available, run and audit can even sit on different a
   PASS-PENDING-AUDIT → PASS. Schema rule: `audit.auditor` must differ from every `runner`
   value in the experiment's eligible log records (`ERR_P2_SELF_AUDIT`). The auditor re-runs
   from pinned artifacts (adversarial checklist defined in P4). *Mechanism:* verdict-gen step
-  8 + audit schema cross-check against the log.
+  8 + audit schema cross-check against the log. *Naming discipline (RT-9):* this property
+  is described as **role-separated re-derivation** in every document, dossier, pitch, and
+  paper — never as "independent audit"; the word "independent" is reserved for
+  maintainer-level audits (§7 item 2) and genuinely external replications, and
+  `registry-check --citations` flags "independent(ly) audited" applied to agent audits.
 - **G-7 — Coverage disclosure in every verdict.** `verdict-gen` fails closed
   (`ERR_P2_NO_COVERAGE`) if the coverage block (M0b fraction + rung) is absent from eligible
   runs' metrics or the verdict object; the report template's coverage section is mandatory.
@@ -562,15 +633,21 @@ with a backup Fable account available, run and audit can even sit on different a
   fail-closed rule.
 - **G-10 — Multiple-comparison correction, fixed at freeze.** Exactly one primary endpoint
   (schema); all secondaries form one pre-declared Holm family at α=0.05, applied by the
-  pinned analysis script; endpoints added post-freeze are possible only via pre-unblinding
-  design amendment, and anything else is `phase:"exploratory"` (quarantined, uncitable).
+  pinned analysis script; endpoints added post-freeze are possible only via a design
+  amendment preceding the first final-phase run record (G-3/RT-5), and anything else is
+  `phase:"exploratory"` (quarantined, uncitable).
   *Mechanism:* schema constraint + G-3 + G-4.
 - **G-11 — Budget/kill caps.** The frozen `budget` block; `log-append` tracks
   `cost.cumulative_usd` and refuses further `final` records past the cap, writing a
   BUDGET-HALT status event; resumption requires an ops amendment raising the cap (visible,
   dated, with rationale). Tier-5 experiments additionally require a maintainer sign-off field
-  (`budget.maintainer_signoff: {by, date}`) to freeze at all. *Mechanism:* write-path
-  accounting + freeze-time lint.
+  (`budget.maintainer_signoff: {by, date}`) to freeze at all. **Canonical tier caps**
+  (identical wherever a cap table appears — P3 GR-1, P6 §4; RT-8 reconciliation): Tier 0
+  ≤ $20 · Tier 1 ≤ $80 · Tier 2 ≤ $400 · Tier 3 ≤ $400 · cumulative Tiers 0–3 ≤ $900 ·
+  Tier 4 (F5) ≤ $900 · Tier 5 = maintainer-approved envelope ($2–10k). **Freeze-time
+  tier-sum lint:** Σ(frozen worst-case budgets in a tier) ≤ the tier cap — `prereg-freeze`
+  refuses a freeze that would break the sum (worst-case Tiers 0–3 ≈ $760 < $900).
+  *Mechanism:* write-path accounting + freeze-time lint.
 - **G-12 — Scale-language discipline.** `scale_language_licensed` is computed from
   `rungs_measured` count (1→"none", 2→"sign-only", ≥3→"slope"); `registry-check --citations`
   flags scale adjectives ("scales", "grows with size", "vanishes at scale") in prose about
@@ -590,7 +667,8 @@ with a backup Fable account available, run and audit can even sit on different a
 
 | Dishonesty pattern | Killed by |
 |---|---|
-| Move the goalposts after seeing data | G-3 (frozen record + unblind cutoff) |
+| Move the goalposts after seeing data | G-3 (frozen record + first-final-run cutoff, RT-5) |
+| Iterate `-revN` until a PASS lands | §1.4 lineage semantics (full-lineage rendering, audit + red-team memo on FAIL→PASS, 2-revision cap → STOP-AND-PUBLISH-UNDECIDED) |
 | Re-run until it passes, report the best | G-2/G-14 (every run logged, registered seeds only, supersede restricted to `exit != ok`) |
 | Bury the negative | G-5 (DAG won't close without a committed verdict report) |
 | Grade your own homework | G-6 (self-audit schema error) |
@@ -605,11 +683,15 @@ with a backup Fable account available, run and audit can even sit on different a
 
 ## 5. Storage layout and integration with P3 (DAG), P4 (skills), P8 (stats), P9 (paper)
 
-### 5.1 Repo layout (all committed; box is ephemeral, repo is the system of record)
+### 5.1 Repo layout (all committed — except the git-ignored identity-map sidecar; box is
+ephemeral, repo is the system of record)
 
 ```
 registry/
   schema/                       JSON Schemas (kot-reg/1, kot-log/1, kot-amend/1, kot-audit/1, kot-verdict/1)
+  identity-map.json             UNHASHED account<->pseudonym sidecar (RT-14, §1.2 constraint 10) —
+                                git-ignored, held privately by the maintainer; never committed
+                                publicly, never inside any hashed byte range
   experiments/<id>.json         frozen experiment records (§1.2)
   amendments/<id>/<n>-<slug>.json
   audits/<id>/<n>.json
@@ -643,17 +725,23 @@ markdown only as *rendered output*. Tools are Python 3.9/Node stdlib-only per bo
   in P3, evaluated by the same evaluator (one implementation, no second semantics).
 - Tier-5 nodes additionally require `budget.maintainer_signoff` (G-11).
 - The P1 global decision tree (§6) is itself encoded in P3 as verdict-object expressions over
-  {f2, e9-full, e9-c, f4, f6, e8-r, e8-d, …} — so "TAKE-TO-FRONTIER-LAB vs PIVOT vs KILL" is
-  also computed, not narrated.
+  {f2, e9-full, e9-c, f4, f6, e8-r, e8-d, …} — so "TAKE-TO-FRONTIER-LAB vs
+  NARROW-AND-CONTINUE vs PIVOT vs KILL vs **STOP-AND-PUBLISH-UNDECIDED**" is also computed,
+  not narrated. The UNDECIDED route (RT-1) fires when no mechanism PASS exists but the
+  H0-NO pattern is not met because ≥1 member is INCONCLUSIVE or INSTRUMENT-INVALID after
+  its single, pre-declared replication buy.
+- Gates over superseded lineages follow §1.4's **latest-ID-with-full-lineage** rule (RT-6):
+  the evaluator reads the latest ID, the dossier renders predecessor verdicts adjacently,
+  and the 2-revision cap routes the mechanism to STOP-AND-PUBLISH-UNDECIDED.
 
 ### 5.3 P4 (skills) integration — the verbs this system defines
 
 | P4 skill | P2 surface it drives | Hard gate it must respect |
 |---|---|---|
-| `prereg` | author DRAFT record; `prereg-freeze` (validates schema + G-8/G-11 lints, writes frozen-index, commits) | cannot freeze with schema violations |
+| `prereg` | author DRAFT record; `prereg-freeze` (validates schema + G-8/G-11 lints incl. the decidability and tier-sum lints, writes frozen-index, commits, then **externally timestamps the frozen_sha256** — §1.1 post-step: sparq issue / OSF) | cannot freeze with schema violations |
 | `run-experiment` | launches harness with `--prereg-hash`; all output lands via `log-append` | G-1, G-11, G-14 at the write path |
 | `flop-meter` / cost meters | populate `metric_vector` + `cost` blocks (F0 accounting) | G-9 field completeness |
-| `audit-result` | independent re-run from pinned artifacts; writes `registry/audits/…` | G-6 identity separation |
+| `audit-result` | role-separated re-run (re-derivation) from pinned artifacts; writes `registry/audits/…` | G-6 identity separation |
 | `report-gen` | runs `verdict-gen`; commits verdict object + report | G-3/G-4/G-7 fail-closed aborts |
 | `registry-check` | CI + pre-push hook: chain, append-only, frozen drift, citations, status table regen | blocks merge on any failure |
 
@@ -677,12 +765,17 @@ Division of labour, binding:
 - **Execution is verbatim**: verdict-gen step 5 runs the pinned script; every statistic the
   P8 plan names must appear as a named field in `analysis-output.json`; the endpoint table in
   the report renders all of them. A P8 plan change after freeze is a design amendment (G-3
-  rules apply: pre-unblinding only, else new experiment ID).
+  rules apply: valid only before the first final-phase run record, else new experiment ID
+  under §1.4's lineage semantics).
 - **P8's cross-experiment obligations flow through P2 objects**: Holm families never span
   experiments unless the P8 plan declares a named cross-experiment family, in which case the
   family is materialised as its own registry record (`family-<name>.json`) whose analysis
   script consumes member experiments' `analysis-output.json` files by pinned sha256 — same
-  freeze/unblind discipline, no informal cross-experiment corrections.
+  freeze/unblind discipline, no informal cross-experiment corrections. The first such
+  family is **`family-h0`** (P8 C-3's F-H0 Holm family, RT-13): a first-class P3 §8 node
+  chain whose record must freeze **before** `a-h0` can freeze; its family is the 8
+  pre-declared members, with non-read-out members scored as non-rejections (conservative),
+  never a data-dependently selected subset.
 - Until the P8 document lands, `analysis_plan_ref` may point at P1's "Common statistical
   rules" block + the per-hypothesis test text (P1 §§2–4) — those are already binding; P8
   refines, never relaxes, and any P8-vs-P1 conflict is resolved by amendment before freeze.
@@ -754,8 +847,10 @@ Estimated build cost: R0-tier, ~1–2 agent-days, ~$0 compute; stdlib only.
   the maintainer is the ultimate auditor for any frontier-facing claim. Accepted residual.
 - **R-2 History rewrite.** A force-push can rewrite git history and re-chain the log.
   Mitigation: chain tail hashes are quoted inside audit records and verdict objects (circular
-  witnesses), and the remote's branch protection should forbid force-push to main — an
-  explicit ask to the maintainer (open decision below).
+  witnesses); every freeze's `frozen_sha256` is externally timestamped (§1.1: sparq issue /
+  OSF), so a rewrite cannot forge pre-registration precedence; and the remote's branch
+  protection should forbid force-push to main — an explicit ask to the maintainer (open
+  decision below).
 - **R-3 Garbage-in metrics.** The backbone guarantees provenance and immutability, not that a
   FLOP meter is correct. That is F0's and the P4 audit checklist's job; P2 only guarantees
   the meter's output cannot be altered after the fact.
@@ -775,7 +870,9 @@ risk or authorises spend, and each needs the maintainer, not an agent:
 1. **Branch protection on `jeswr/kernel-of-truth` main** — forbid force-push and non-fast-
    forward updates (closes most of R-2; one GitHub settings change).
 2. **Audit-identity policy** — confirm that Tier ≥ 2 positives must be audited from the
-   *backup* Fable account (`jeswr-backup/*` identities), and that any frontier-facing claim
+   *backup* Fable account (auditor pseudonyms bound to that account in
+   `registry/identity-map.json` — the account name itself never enters record bytes, §1.2
+   constraint 10 / RT-14), and that any frontier-facing claim
    gets a maintainer-level audit (R-1's mitigation becomes policy rather than suggestion).
 3. **Sign-off on this document itself** — P2's schemas are the honesty system; changing them
    later is a versioned amendment to P2 (`kot-reg/2`, …) requiring maintainer approval. The

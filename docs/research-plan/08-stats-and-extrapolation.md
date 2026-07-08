@@ -1,6 +1,13 @@
 # P8 — Statistical analysis plan + scale-extrapolation methodology (directives §6)
 
-**Status:** pre-registration draft for maintainer sign-off, 2026-07-08. Component P8 of the
+**Status:** pre-registration draft for maintainer sign-off, 2026-07-08 (rev 3 — P7
+red-team pre-freeze fixes applied: RT-4 G2 power analysis at the registered n = 500 +
+freeze-time decidability lint for every Wilson-bound gate; the missing E8-R power analysis
+added as a pre-D-SAE-spend precondition; RT-13 F-H0 family fixed at freeze — the 8
+mechanism-primary members are pre-declared, and a member not read out is scored as a
+non-rejection, never dropped (C-3, §1.4), matching 03 family-h0.reg and 02 §5.4; RT-12
+rung-set / extension-predicate field added to the §1.9 SAP template (field 12) with its
+`prereg-freeze` freeze-time lint, matching P1 §0 and §8). Component P8 of the
 operational research plan (`docs/research-plan/`). Governed by
 `docs/kernel-design-directives.md` §6 (binding): pre-registered analysis plan per experiment,
 effect sizes + CIs (never p-values alone), Holm/FDR across pre-declared families, TOST for
@@ -49,11 +56,12 @@ are P1's and are quoted, not restated.
 |---|---|---|---|
 | C-1 | "verdict read from the **Wilson 95% CI bound**" for one-sided α=0.05 threshold tests | Defined as the **one-sided 95% Wilson score bound** (z = 1.645), which corresponds exactly to the one-sided α=0.05 score test. (A two-sided 95% interval's bound would be z = 1.96 — stricter than the declared test; the one-sided bound is the coherent reading.) All threshold verdicts use z = 1.645 bounds; the two-sided 95% interval is additionally *reported* for estimation. | Ambiguity resolved; test and CI now provably agree |
 | C-2 | "PASS at ≥2 rungs" (H0, HC/HE series) — no multiplicity rule stated for the rung conjunction | Conjunctive claims are tested as **intersection–union tests** (Berger 1982): every component (each rung, each mandatory-baseline comparison, the cost bound) tested one-sided at α=0.05; the joint claim's level is ≤0.05 with **no correction needed** — and requiring all components is strictly conservative. Where P1 explicitly demands Holm inside a conjunction (HE2 across budgets; HE4 across rungs), P1's stricter rule stands. | Tightening-consistent; principled basis stated |
-| C-3 | H0 is a disjunction over 8 mechanism primaries; P1 declares no cross-experiment correction | New pre-declared **cross-experiment family F-H0** = the primary endpoints of {HC1, HC2, HE1, HE2, HE3, HE4, HE5, HE6}. An H0-YES additionally requires the winning mechanism's primary p to survive **Holm at α=0.05 over the family members actually read out** (materialised as a `family-h0` registry record per P2 §5.4). Without this, 8 shots at α=0.05 give up to ~34% family-wise false-YES risk under the global null. | Pure tightening |
+| C-3 | H0 is a disjunction over 8 mechanism primaries; P1 declares no cross-experiment correction | New pre-declared **cross-experiment family F-H0** = the primary endpoints of {HC1, HC2, HE1, HE2, HE3, HE4, HE5, HE6} — the 8 mechanism-primary members are **fixed at freeze** (RT-13). An H0-YES additionally requires the winning mechanism's primary p to survive **Holm at α=0.05 over these 8 fixed members**; a member not read out (e.g. its tier pruned) is scored as a **non-rejection, never dropped from the family** — membership is never data-dependently selected (materialised as a `family-h0` registry record per P2 §5.4 / P3 family-h0.reg). Without this, 8 shots at α=0.05 give up to ~34% family-wise false-YES risk under the global null. | Pure tightening |
 | C-4 | "≥5 paired seeds… paired permutation tests" — level of analysis unstated | Primary endpoints are **item-level, seed-stratified** (permute/bootstrap within seed blocks); a new pre-declared robustness secondary requires the effect sign to agree in **≥4/5 seeds** for any PASS involving a trained condition (E5 achieved 5/5). Seed-level-only tests can never carry a verdict (5 seeds have power 0.8 only for d ≈ 1.4 — §1.6). | Tightening |
 | C-5 | TOST default "Cohen's d = 0.5"; proportion endpoints use h in several kill texts | Margin table fixed per endpoint type (§1.5); TOST operationalised as **two one-sided tests at α=0.05 each ⇔ the 90% CI lies inside the equivalence interval**. NULL requires TOST pass; non-significance without TOST pass is INCONCLUSIVE (P1 verbatim). | Ambiguity resolved |
 | C-6 | "WLS slope on log-params, 90% CI" — no functional-form or PI procedure stated | §2 fixes the candidate forms, selection rule, and prediction-interval procedure; with exactly 3 rungs the parametric PI is nearly vacuous (t₀.₉₅,df=1 = 6.31), so the bootstrap envelope is primary and 3-rung extrapolations are capped at direction + order-of-magnitude (§2.3). | Ambiguity resolved conservatively |
 | C-7 | Rounding unstated | Analysis scripts compute in IEEE-754 float64 end-to-end; **no rounding before any comparison**; display rounding only in rendered reports. Declared in every pinned script header (P2 §3.1 grammar note). | Ambiguity resolved |
+| C-8 | P1 (post-RT-4) mandates a freeze-time decidability lint for Wilson-bound gates; E8-R previously had no power analysis anywhere (P7 §6) | §1.6 operationalises the lint (formula + the worked G2 n = 500 case, with the pre-computed INCONCLUSIVE band) and adds the **E8-R stable-pair power floor**: detectable ρ derived from the realized seed-stable subset size, with n ≳ 85 matched pairs required to power the E8 prior ρ ≈ 0.39 at α = 0.01 — a pre-D-SAE-spend precondition in the e8r SAP | Pure tightening (2026-07-08, P7 RT-4/§6) |
 
 ---
 
@@ -120,7 +128,7 @@ created, split, or merged after freeze except by pre-unblinding design amendment
 | **F-secondary(exp)** | All within-experiment secondaries | **Holm, α=0.05** (P1-frozen) | Verdict-adjacent; strong FWER control |
 | **F-rungs(exp)** | The primary replicated across ladder rungs, when the claim is conjunctive ("at ≥2 rungs") | IUT: each rung α=0.05, no correction (C-2); where P1 says Holm (HE4), Holm | Conjunction is self-protecting |
 | **F-budgets(F2b)** | HE2 dominance across escalation budgets | Holm, α=0.05 (P1 verbatim) | Frozen in P1 |
-| **F-H0** | Primaries of {HC1, HC2, HE1–HE6} | **Holm at α=0.05 across members read out**, materialised as registry record `family-h0` (P2 §5.4 cross-experiment mechanism) | The programme-level disjunction (C-3) |
+| **F-H0** | Primaries of {HC1, HC2, HE1–HE6} — the 8 members **fixed at freeze**, never data-dependently selected (RT-13) | **Holm at α=0.05 over the 8 fixed members**; a member not read out is scored as a **non-rejection (not dropped from the family)**; materialised as registry record `family-h0` (P2 §5.4 cross-experiment mechanism; P3 family-h0.reg) | The programme-level disjunction (C-3) |
 | **F-explore(exp)** | Descriptive batteries: per-error-class breakdowns (HC1), per-violation-class rates (HC2), per-cell decode grids, ablation grids | **Benjamini–Hochberg FDR, q = 0.10**, flag-for-discussion only | Estimation/discussion; can never enter `verdict_rules` (P2 §2.4 keeps them out of the log's verdict path) |
 
 Rule: a statistic corrected under F-explore may never be quoted as evidence of a hypothesis;
@@ -156,11 +164,43 @@ script's fixture tests where n < 100):
   branch (at the kill-criterion effect) and the TOST branch (at the margin, under true zero),
   each ≥0.90; the SAP shows both numbers.**
 - Threshold rates via Wilson bound: reliable (power 0.90) clearance of threshold θ at n
-  requires true rate ≳ θ + 2.93·√(θ(1−θ)/n). Worked: HC2's catch ≥0.80 at n = 300 needs true
-  rate ≳ **0.86**; G2's precision ≥0.9 at n = 100 needs true precision ≳ **0.96** — if the
-  expected precision is marginal (~0.92), pre-register n ≈ 500 subsumption judgments instead.
+  requires true rate ≳ θ + 2.93·√(θ(1−θ)/n) (crude approximation; exact power by simulation
+  at the true-rate variance where it matters). Worked: HC2's catch ≥0.80 at n = 300 needs
+  true rate ≳ **0.86**. **G2 at n = 500 — the worked decidability case (P7 RT-4).** At the
+  originally-scheduled n ≈ 50–100 the 0.9 precision gate is undecidable at any realistic
+  precision (n = 100 needs true precision ≳ **0.96**; a perfect 50/50 gives LB ≈ 0.93 and a
+  single error drops it to the line). G2 is therefore **registered at n = 500 gold
+  subsumption judgments** (P1 HS2 / P3 g2.gold): at n = 500 the one-sided Wilson lower bound
+  clears 0.9 with power ≥0.90 when true precision ≳ **0.94** (critical p̂ ≈ 0.920), and the
+  FAIL branch (upper bound below 0.9) is decidable with power ≥0.90 when true precision
+  ≲ **0.86** (critical p̂ ≈ 0.876); the pre-computed not-well-decidable band ≈ (0.86, 0.94)
+  is quoted in the g2 SAP so an in-between INCONCLUSIVE cannot be spun either way.
   These detectable-alternative numbers are printed in the SAP so an underpowered gate is
   visible before spend.
+- **Decidability lint (freeze-time, binding; P7 RT-4 — mirrored verbatim in P1's common
+  rules): every Wilson-bound gate must be shown, at freeze, to be powered for its threshold
+  at its planned n.** The registry entry quotes the detectable alternative computed as above
+  (exact/simulated where n < 100 or the rate is extreme), and n must make the gate decidable
+  at the **expected** rate, not only the optimistic one; `prereg-freeze` refuses an entry
+  failing this lint (the same fail-closed pattern as P3 GR-1's tier-sum lint). G2's n = 500
+  sizing is the worked example; the same audit applies to every threshold gate in §1.1 row 2
+  (E9-C FP ≤2% at n = 300 clean records needs true FP ≲ 1.1% — fine; G8's 1% fragment gate at
+  n = 1000 — fine; G9's +10-point margin at N = 50 is tight and its SAP must print the
+  detectable alternative before freeze).
+- **E8-R correspondence power (added per P7 §6; required before any D-SAE spend).** E8-R's
+  primary is a permutation test (p < 0.01, one-sided, P1 verbatim) on Spearman ρ over the
+  **seed-stable matched concept–feature pairs** (~30% of features per Paulo–Belrose).
+  Planning approximation (Fisher z with the Spearman SE inflation, SE ≈ 1.03/√(n−3); exact
+  power by permutation simulation in the pinned script's fixtures): at α = 0.01 and power
+  0.90 the minimum detectable ρ ≈ tanh(3.61·1.03/√(n−3)). Worked: n = 54 pairs (the full
+  kernel-v0 concept set) detects only ρ ≳ **0.48** — **underpowered (power ≈ 0.70)** for the
+  E8 prior ρ ≈ 0.39; detecting ρ ≈ 0.39 at power 0.90 needs **n ≳ 85 stable matched pairs**.
+  The e8r SAP must therefore derive its detectable ρ from the **realized** stable-subset
+  size before D-SAE spend: if the stable subset yields < 85 matched pairs, the entry must
+  either widen the matched concept set (molecule-tier / wn31-aligned records) before freeze,
+  or pre-declare the larger detectable ρ together with the pre-computed not-decidable band —
+  a readout in that band is INCONCLUSIVE-by-design and is quoted as such (never as evidence
+  against A6, and never as support).
 - Seeds: 5 paired seeds give power 0.80 only for seed-level **d ≈ 1.4** (paired t, df = 4)
   and power 0.90 for d ≈ 1.6. Consequence (C-4): seeds are blocks, not the unit of test;
   the ≥4/5 sign-consistency gate is a robustness check, not a test.
@@ -238,8 +278,8 @@ Order rationale: kill clauses are evaluated **before** PASS so that an outcome s
 both (possible when a kill clause concerns a different quantity than the primary) resolves to
 the pre-registered kill — the anti-overselling direction. NULL after PASS/FAIL because TOST
 equivalence is only meaningful when neither directional criterion fired. The verdict
-vocabulary is P2 §3.1's closed set; PASS additionally requires independent audit before it is
-citable (P2 G-6 — outside the statistics, stated for completeness).
+vocabulary is P2 §3.1's closed set; PASS additionally requires a role-separated re-derivation
+before it is citable (P2 G-6 — outside the statistics, stated for completeness).
 
 ### 1.9 The SAP fill-in template (copied into each experiment's freeze packet)
 
@@ -262,8 +302,17 @@ SAP — <EXP-ID> (hypotheses: <IDs>)                      [every field mandatory
 10 INSTRUMENT-VALIDITY GATES: pre-analysis checks that trip INSTRUMENT-INVALID (never FAIL).
 11 STATISTIC→VERDICT MAP: the analysis-output field list (§1.8 vocabulary) and the ordered
    verdict_rules JSON, with P1 kill text quoted verbatim above it.
-12 SCALE PLAN: rungs; per-rung endpoint reuse; whether this experiment feeds a §2 slope fit
-   (and which one); the P1 §4b envelope row quoted verbatim.
+12 SCALE PLAN — RUNG SET + EXTENSION PREDICATE (P1 §0 rung-set discipline, RT-12): the member
+   rung set of every conjunctive claim, DECLARED AT FREEZE and tested under IUT with exactly
+   that membership; any conditional extension rung's trigger stated as a MACHINE PREDICATE
+   over frozen registry fields (e.g. `primary_reject@R1 AND primary_reject@R2` for E9/HC1 and
+   F2/HE1); extension rungs may only STRENGTHEN an already-satisfied conjunction ("PASS at
+   R1–R2, replicated at R3"), never substitute into it. Also: per-rung endpoint reuse;
+   whether this experiment feeds a §2 slope fit (and which one); the P1 §4b envelope row
+   quoted verbatim. Freeze-time lint (binding): `prereg-freeze` checks this field against the
+   registry entry's pinned rung set + extension predicate (P1 §8) and refuses to freeze if
+   the rung set is undeclared, the extension trigger is not machine-evaluable over frozen
+   fields, or the predicate could substitute rather than strengthen.
 13 SCRIPT: path; fixture tests (hand-computed expected outputs on mock data — P2 R-4);
    float64/no-prerounding declaration (C-7).
 ```
@@ -438,7 +487,10 @@ registry record.
 ]
 ```
 
-12. **Scale plan.** R1+R2 (R3 on sign) — 2–3 rungs; HC1 itself licenses at most a sign; the
+12. **Scale plan.** Rung set declared at freeze: {R1, R2}; extension predicate (machine form,
+    per the field-12 rung-set discipline): R3 runs iff `primary_reject@R1 AND
+    primary_reject@R2` — R3 may only strengthen a satisfied R1–R2 conjunction, never
+    substitute. 2–3 rungs; HC1 itself licenses at most a sign; the
     slope belongs to **HC5** (F7 slice): per-rung relative error-reduction Δ_r feeds §2's
     M-lin fit over R1–R4. Envelope row quoted: *"≤3B, direction-only; bias stated: hosts' raw
     error rates fall with scale (Kaplan/Hoffmann), so absolute catch counts shrink; the
@@ -537,8 +589,9 @@ registry record.
   sha256. A change to §1/§2 after any experiment freezes is a design amendment for that
   experiment (P2 G-3) — pre-unblinding only.
 - The `family-h0` cross-experiment record (C-3) is created per P2 §5.4 (its analysis script
-  consumes member `analysis-output.json` files by pinned sha256; Holm over member primary
-  p-values; output feeds the P3-encoded H0 decision tree).
+  consumes member `analysis-output.json` files by pinned sha256; Holm over the 8 fixed
+  members' primary p-values, non-read-out members scored as non-rejections (RT-13); output
+  feeds the P3-encoded H0 decision tree).
 - §1.8's field vocabulary is the normative namespace for every `verdict_rules` pointer;
   `registry-check` validates pointers against it at freeze (P2 §1.2 constraint 2).
 - §2's outputs (`slope`, `slope_ci_*`, `pi_at_target_*`, `anchor_class`) plus
@@ -554,14 +607,15 @@ experiments (F2 first — its freeze is the backbone's acceptance test per P2 §
 
 **Open decisions for the maintainer (@jeswr).**
 1. **Sign off C-3 (the F-H0 Holm family).** It tightens P1's H0 gate: a single mechanism's
-   PASS must survive Holm across the ~8 mechanism primaries before the *programme-level*
-   "kernel principle is useful" claim is made. Alternative (rejected here, but yours to
-   overrule): treat mechanism verdicts as independent and accept the ~34% family-wise risk
-   with disclosure.
+   PASS must survive Holm across the 8 mechanism primaries (fixed at freeze; non-read-out
+   members scored as non-rejections, RT-13) before the *programme-level* "kernel principle
+   is useful" claim is made. Alternative (rejected here, but yours to overrule): treat
+   mechanism verdicts as independent and accept the ~34% family-wise risk with disclosure.
 2. **Sign off C-4 (≥4/5 seed sign-consistency as a PASS requirement for trained conditions).**
    It can demote a statistically significant but one-seed-driven result to INCONCLUSIVE.
-3. **Confirm n upgrades where power demands them:** HC1 at 600 items/rung; G2 at ~500
-   subsumption judgments if expected precision is marginal (§1.6) — both are annotator/agent
-   time, not GPU spend.
+3. **Confirm n upgrades where power demands them:** HC1 at 600 items/rung; G2 at its
+   **registered n = 500 gold subsumption judgments** (§1.6, P7 RT-4 — no longer conditional;
+   ~12 annotator-hours per P3 g2.gold / P6 H-4); and the E8-R ≥85-stable-pair floor before
+   D-SAE spend (§1.6) — all annotator/agent time, not GPU spend.
 4. **Confirm the 1-OOM extrapolation cap and the ≥70B prohibition** (§2.3, §2.5) as the
    programme-wide rule for every external document, including the eventual paper.
