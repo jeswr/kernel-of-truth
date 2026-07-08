@@ -1,0 +1,262 @@
+{
+  "experiment": "E8 extension 1: third-family replication",
+  "bead": "kernel-of-truth-fnq",
+  "date": "2026-07-07T15:36:30.152786+00:00",
+  "mock": false,
+  "criterion_verbatim": "Align kernel geometry to SAE feature dictionaries across >=2 open model families (projected path, X4 distortion reported); criterion: kernel coordinates predict cross-model feature correspondence beyond shuffled-kernel and permutation nulls.",
+  "replication_rule_verbatim": "the extension REPLICATES iff BOTH new pairs pass P1 AND P2 (p<0.01) with gates passed; anything weaker is reported per-pair, verbatim, no cherry-picking",
+  "design_pin": "poc/e8/README.md \u00a7Extension 1 (fixed before any ext-1 code or download)",
+  "family_c": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M",
+    "model_revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "sae_repo": "EleutherAI/sae-SmolLM2-135M-64x",
+    "sae_revision": "57ea2cb986e2545844cdd4a5bb2eb39523243494",
+    "sae_file": "layers.15.mlp/sae.safetensors",
+    "sae_arch": "eleuther_topk",
+    "d_in": 576,
+    "d_sae": 36864,
+    "topk": 32,
+    "hookpoint": "layers.15.mlp",
+    "site": "mlp_output",
+    "module_path": "layers.15.mlp",
+    "block_index": 15,
+    "basis": "none",
+    "prepend_bos": false
+  },
+  "family_c_diagnostics": {
+    "fvu": 0.3273834674930802,
+    "mean_l0": 32.0,
+    "n_span_tokens": 1320
+  },
+  "family_c_attrition": {
+    "in_vocab_dropped": [],
+    "zero_signature_ids": []
+  },
+  "reused_signatures": {
+    "stamp": "poc/e8/results-incoming/20260707-131303-modal",
+    "extraction_json_sha256": "e5e438667c359dd58cae1327570280ceb3f9d24b10db5ef47f4b148acb12e0dd",
+    "families": {
+      "gpt2": {
+        "file": "signatures-gpt2.npz",
+        "sha256": "b40fe32e1e80fa210049b6d9ece3d9ae8703c448407b68d8fa1561f514bf528c"
+      },
+      "pythia-160m": {
+        "file": "signatures-pythia-160m.npz",
+        "sha256": "3bbd06e5717450e6bd7c05c3b065c58217ff69a9d17c9bf08a617e363c97498e"
+      }
+    }
+  },
+  "pins": {
+    "encoderContentHash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "corpusPin": {
+      "manifestSha256": "a9efbccdd9c7fe50f614d4687078584da603c5f07dce822cd323e0a5d7f4bdde",
+      "conceptsSha256": "594021f66c2411825f9f09ec70319246419b94ac22d6032cd6007801fee9cea4",
+      "conceptCount": 54
+    },
+    "manifest_sha256": "803c1dcb2e2207b476214ff3c84bf26d6a8c77bcc56f6377e2a21f8dca311d05",
+    "primary_kernel_variant": "jl512",
+    "x4_distortion_rdm_spearman": {
+      "jl512": 0.9717634748044783,
+      "jl576": 0.9705671745304928
+    }
+  },
+  "seed": 20260707,
+  "n_perm": 10000,
+  "n_perm_retrieval": 2000,
+  "outcome": "NOT REPLICATED (per-pair outcomes reported verbatim)",
+  "replicated": false,
+  "per_pair": {
+    "gpt2|smollm2-135m": {
+      "n_items": 51,
+      "battery": {
+        "n_items": 51,
+        "gate_G": {
+          "acc": 0.09803921568627451,
+          "acc_a2b": 0.11764705882352941,
+          "acc_b2a": 0.0784313725490196,
+          "mean_diag_rank_a2b": 7.372549019607843,
+          "chance_acc": 0.0196078431372549,
+          "p": 9.999000099990002e-05,
+          "n_perm": 10000
+        },
+        "P1_spearman_vs_Xsym": {
+          "rho": 0.00885560429340308,
+          "p": 0.3905609439056094
+        },
+        "P2_partial_orig3_vs_Xsym": {
+          "rho": 0.019819540873957847,
+          "p": 0.2957704229577042
+        },
+        "secondaries": {
+          "S1_partial_orig3+emb4_vs_Xsym": {
+            "rho": -0.06516715577947231,
+            "p": 0.9518048195180482
+          },
+          "S2_partial_orig3_vs_S_famA": {
+            "rho": 0.40386431369898435,
+            "p": 9.999000099990002e-05
+          },
+          "S3_partial_orig3_vs_S_famB": {
+            "rho": -0.014777158168176147,
+            "p": 0.5983401659834017
+          },
+          "S4_retrieval_famA": {
+            "acc": 0.09803921568627451,
+            "chance_acc": 0.0196078431372549,
+            "p": 0.0024987506246876563,
+            "n_perm": 2000
+          },
+          "S5_retrieval_famB": {
+            "acc": 0.0196078431372549,
+            "chance_acc": 0.0196078431372549,
+            "p": 0.5612193903048476,
+            "n_perm": 2000
+          }
+        },
+        "holm": {
+          "S2_partial_orig3_vs_S_famA": {
+            "p": 9.999000099990002e-05,
+            "p_holm": 0.0004999500049995,
+            "reject_at_0.05": true
+          },
+          "S4_retrieval_famA": {
+            "p": 0.0024987506246876563,
+            "p_holm": 0.009995002498750625,
+            "reject_at_0.05": true
+          },
+          "S5_retrieval_famB": {
+            "p": 0.5612193903048476,
+            "p_holm": 1.0,
+            "reject_at_0.05": false
+          },
+          "S3_partial_orig3_vs_S_famB": {
+            "p": 0.5983401659834017,
+            "p_holm": 1.0,
+            "reject_at_0.05": false
+          },
+          "S1_partial_orig3+emb4_vs_Xsym": {
+            "p": 0.9518048195180482,
+            "p_holm": 1.0,
+            "reject_at_0.05": false
+          }
+        },
+        "kernel_variant_sensitivity_P2form": {
+          "full": {
+            "rho": 0.034952304952628556,
+            "p": 0.1740825917408259
+          },
+          "jl576": {
+            "rho": 0.03607300567064932,
+            "p": 0.1745825417458254
+          }
+        },
+        "direction_asymmetry": {
+          "acc_a2b": 0.11764705882352941,
+          "acc_b2a": 0.0784313725490196
+        },
+        "outcome": "NULL (no kernel signal on the correspondence structure)",
+        "decision_flags": {
+          "gate_pass": true,
+          "P1_pass": false,
+          "P2_pass": false
+        }
+      }
+    },
+    "pythia-160m|smollm2-135m": {
+      "n_items": 51,
+      "battery": {
+        "n_items": 51,
+        "gate_G": {
+          "acc": 0.08823529411764705,
+          "acc_a2b": 0.11764705882352941,
+          "acc_b2a": 0.058823529411764705,
+          "mean_diag_rank_a2b": 10.313725490196079,
+          "chance_acc": 0.0196078431372549,
+          "p": 9.999000099990002e-05,
+          "n_perm": 10000
+        },
+        "P1_spearman_vs_Xsym": {
+          "rho": 0.06141054642555956,
+          "p": 0.08659134086591341
+        },
+        "P2_partial_orig3_vs_Xsym": {
+          "rho": 0.07395071245322767,
+          "p": 0.055694430556944306
+        },
+        "secondaries": {
+          "S1_partial_orig3+emb4_vs_Xsym": {
+            "rho": -0.01833047012880653,
+            "p": 0.640935906409359
+          },
+          "S2_partial_orig3_vs_S_famA": {
+            "rho": 0.17068185658203502,
+            "p": 0.00039996000399960006
+          },
+          "S3_partial_orig3_vs_S_famB": {
+            "rho": -0.014777158168176147,
+            "p": 0.5983401659834017
+          },
+          "S4_retrieval_famA": {
+            "acc": 0.058823529411764705,
+            "chance_acc": 0.0196078431372549,
+            "p": 0.03248375812093953,
+            "n_perm": 2000
+          },
+          "S5_retrieval_famB": {
+            "acc": 0.0196078431372549,
+            "chance_acc": 0.0196078431372549,
+            "p": 0.5612193903048476,
+            "n_perm": 2000
+          }
+        },
+        "holm": {
+          "S2_partial_orig3_vs_S_famA": {
+            "p": 0.00039996000399960006,
+            "p_holm": 0.001999800019998,
+            "reject_at_0.05": true
+          },
+          "S4_retrieval_famA": {
+            "p": 0.03248375812093953,
+            "p_holm": 0.12993503248375812,
+            "reject_at_0.05": false
+          },
+          "S5_retrieval_famB": {
+            "p": 0.5612193903048476,
+            "p_holm": 1.0,
+            "reject_at_0.05": false
+          },
+          "S3_partial_orig3_vs_S_famB": {
+            "p": 0.5983401659834017,
+            "p_holm": 1.0,
+            "reject_at_0.05": false
+          },
+          "S1_partial_orig3+emb4_vs_Xsym": {
+            "p": 0.640935906409359,
+            "p_holm": 1.0,
+            "reject_at_0.05": false
+          }
+        },
+        "kernel_variant_sensitivity_P2form": {
+          "full": {
+            "rho": 0.0865096124896434,
+            "p": 0.023797620237976203
+          },
+          "jl576": {
+            "rho": 0.09416895741714643,
+            "p": 0.0164983501649835
+          }
+        },
+        "direction_asymmetry": {
+          "acc_a2b": 0.11764705882352941,
+          "acc_b2a": 0.058823529411764705
+        },
+        "outcome": "NULL (no kernel signal on the correspondence structure)",
+        "decision_flags": {
+          "gate_pass": true,
+          "P1_pass": false,
+          "P2_pass": false
+        }
+      }
+    }
+  }
+}
