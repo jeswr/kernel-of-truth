@@ -35,6 +35,7 @@ PREREG_FREEZE = os.path.join(HERE, "prereg-freeze.py")
 LOG_APPEND = os.path.join(HERE, "log-append.py")
 REGISTRY_CHECK = os.path.join(HERE, "registry-check.py")
 VERDICT_GEN = os.path.join(HERE, "verdict-gen.py")
+REPORT_GEN = os.path.join(HERE, "report-gen.py")
 
 MOCK_ANALYSIS = """\
 import json, sys
@@ -62,7 +63,7 @@ class SpineFixture(unittest.TestCase):
         self.root = tempfile.mkdtemp(prefix="kot-fixture-")
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
         for d in ("registry/schema", "registry/experiments", "registry/verdicts",
-                  "results-log", "reports/auto", "docs", "analysis"):
+                  "results-log", "reports/auto", "docs", "analysis", "data/mock-corpus"):
             os.makedirs(os.path.join(self.root, d), exist_ok=True)
         for schema in ("kot-reg-1.json", "kot-log-1.json"):
             shutil.copy(os.path.join(REPO, "registry", "schema", schema),
@@ -70,6 +71,7 @@ class SpineFixture(unittest.TestCase):
         self.write("docs/prereg.md", "mock prereg text\n")
         self.write("docs/sap.md", "mock statistical analysis plan\n")
         self.write("analysis/mock_analysis.py", MOCK_ANALYSIS)
+        self.write("data/mock-corpus/records.jsonl", '{"id":"mock-1"}\n')
 
     def write(self, rel, text):
         with open(os.path.join(self.root, rel), "w", encoding="utf-8") as f:
@@ -100,7 +102,8 @@ class SpineFixture(unittest.TestCase):
                 "n_planned": {"per_arm_items": 1},
             },
             "pins": {
-                "corpus_hashes": {"mock-corpus": "0" * 64},
+                "corpus_hashes": {"_recipe": kc.CORPUS_RECIPE,
+                                  "mock-corpus": kc.corpus_hash(self.root, "mock-corpus")},
                 "analysis_script": {
                     "path": "analysis/mock_analysis.py",
                     "sha256": sha256_file(self.path("analysis/mock_analysis.py")),
@@ -372,6 +375,81 @@ class TestEndToEnd(SpineFixture):
         self.assertEqual(verdict["inputs"]["eligible_runs"], 0)
         self.assertEqual(verdict["inputs"]["excluded_runs"],
                          [{"seq": 0, "reason": "phase!=final ('exploratory')"}])
+
+
+class TestCorpusPins(SpineFixture):
+    def test_wrong_digest_refused_at_freeze(self):
+        rec = self.base_record()
+        rec["pins"]["corpus_hashes"]["mock-corpus"] = "0" * 64
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_CORPUS_PIN", p.stderr)
+
+    def test_legacy_recipe_refused_at_freeze(self):
+        rec = self.base_record()
+        rec["pins"]["corpus_hashes"]["_recipe"] = "sha256 over some ambiguous prose recipe"
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_CORPUS_PIN", p.stderr)
+
+    def test_pinned_at_inputs_placeholder_allowed(self):
+        rec = self.base_record()
+        rec["pins"]["corpus_hashes"]["future-inputs"] = "PINNED-AT-INPUTS:mock.inputs (ops amendment)"
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+
+    def test_registry_check_detects_post_freeze_corpus_drift(self):
+        p = self.freeze(self.base_record())
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = run_cli(REGISTRY_CHECK, "--corpus-pins", "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        # corpus bytes change after the freeze -> ERR_P2_CORPUS_PIN
+        self.write("data/mock-corpus/records.jsonl", '{"id":"mock-1","quietly":"grown"}\n')
+        p = run_cli(REGISTRY_CHECK, "--corpus-pins", "--root", self.root)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_CORPUS_PIN", p.stdout + p.stderr)
+
+
+class TestReportGen(SpineFixture):
+    def test_report_renders_kill_beside_verdict(self):
+        p = self.freeze(self.base_record())
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for seed in (0, 1):
+            p = self.append_run("mock-f1", seed)
+            self.assertEqual(p.returncode, 0, p.stderr)
+        p = run_cli(VERDICT_GEN, "--experiment", "mock-f1", "--agent-id", "coordinator-1",
+                    "--root", self.root, "--computed-at", "2026-07-08T01:00:00Z")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = run_cli(REPORT_GEN, "--experiment", "mock-f1", "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        with open(self.path("reports/auto/mock-f1/verdict-mock-f1.md"), encoding="utf-8") as f:
+            md = f.read()
+        # fixed template invariants (P2 section 3.3): outcome copied from the
+        # verdict object, kill criterion verbatim beside it, endpoints table,
+        # excluded-runs section, coverage disclosure, envelope verbatim.
+        self.assertIn("## OUTCOME: **PASS-PENDING-AUDIT**", md)
+        self.assertIn("byte claim dropped if <2x vs compressed gloss text", md)
+        self.assertIn("| primary | primary | `/ratio` | 3.3 |", md)
+        self.assertIn("## Eligible & excluded runs", md)
+        self.assertIn("2 eligible final run(s).", md)
+        self.assertIn("## Coverage disclosure (mandatory)", md)
+        self.assertIn("store-size axis extrapolates freely", md)
+        self.assertIn("Not citable as PASS until", md)
+
+    def test_report_refuses_drifted_record(self):
+        p = self.freeze(self.base_record())
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.append_run("mock-f1", 0)
+        p = run_cli(VERDICT_GEN, "--experiment", "mock-f1", "--agent-id", "coordinator-1",
+                    "--root", self.root, "--computed-at", "2026-07-08T01:00:00Z")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        with open(self.path("registry/experiments/mock-f1.json"), encoding="utf-8") as f:
+            frozen = json.load(f)
+        frozen["title"] = "quietly relaxed title"
+        self.write("registry/experiments/mock-f1.json", json.dumps(frozen) + "\n")
+        p = run_cli(REPORT_GEN, "--experiment", "mock-f1", "--root", self.root)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_FROZEN_DRIFT", p.stderr)
 
 
 if __name__ == "__main__":

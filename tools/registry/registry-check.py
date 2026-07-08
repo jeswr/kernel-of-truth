@@ -2,7 +2,7 @@
 """registry-check — the honesty lint (P2 §4 G-2/G-3, S12s). Pre-push-hook safe.
 
     python3 tools/registry/registry-check.py [--root <repo>]
-        [--chain] [--frozen-drift] [--account-lint] [--append-only]
+        [--chain] [--frozen-drift] [--corpus-pins] [--account-lint] [--append-only]
 
 With no selector flags, ALL checks run. Exit 0 only if every check passes;
 any violation prints a named ERR_* finding and exits 1.
@@ -16,6 +16,10 @@ Checks:
                   recomputed frozen hash (canonical bytes minus status +
                   frozen_sha256) equals the index entry AND the in-record
                   frozen_sha256, with status >= FROZEN.
+  --corpus-pins   every frozen record carrying the current kot-corpus-hash/1
+                  recipe has its non-placeholder corpus digests reproduced from
+                  data/<corpus>/; legacy-recipe records WARN (pending their own
+                  pre-sign-off pin correction).
   --account-lint  RT-14: no account-identifying material (fixed pattern list in
                   kot_common.ACCOUNT_PATTERNS) inside any hashed byte range:
                   frozen experiment records, log lines, amendments, verdicts,
@@ -117,6 +121,55 @@ def check_frozen_drift(root, f):
             f.ok("frozen-drift: %s (%s)" % (exp_id, want[:8]))
 
 
+def check_corpus_pins(root, f):
+    """kot-corpus-hash/1 verification (correction c-2026-07-08).
+
+    For every frozen record whose pins.corpus_hashes._recipe is the CURRENT
+    recipe string: recompute each non-placeholder digest and fail on mismatch.
+    Records still carrying the legacy GNG-0-seed recipe string are WARNED
+    (known-unreproducible pin-generation defect; slated for their own
+    pre-sign-off correction) rather than failed, so the lint stays usable as a
+    pre-push hook while the correction wave is in flight.
+    """
+    index_path = os.path.join(root, "registry", "frozen-index.json")
+    if not os.path.isfile(index_path):
+        f.ok("corpus-pins: no frozen-index.json yet")
+        return
+    with open(index_path, "r", encoding="utf-8") as fh:
+        index = json.load(fh)
+    for exp_id in sorted(index):
+        if exp_id.startswith("_"):
+            continue
+        rec_path = os.path.join(root, "registry", "experiments", "%s.json" % exp_id)
+        if not os.path.isfile(rec_path):
+            continue  # frozen-drift check owns the missing-record finding
+        with open(rec_path, "r", encoding="utf-8") as fh:
+            record = json.load(fh)
+        pins = record.get("pins", {}).get("corpus_hashes", {})
+        recipe = pins.get("_recipe")
+        if recipe != kc.CORPUS_RECIPE:
+            f.warn("corpus-pins: %s carries a legacy/unknown _recipe string — digests "
+                   "unverifiable (pending pre-sign-off pin correction)" % exp_id)
+            continue
+        for name, want in sorted(pins.items()):
+            if name == "_recipe":
+                continue
+            if isinstance(want, str) and want.startswith(kc.PINNED_AT_INPUTS_PREFIX):
+                f.warn("corpus-pins: %s/%s is a PINNED-AT-INPUTS placeholder (ops amendment "
+                       "required before any final-phase run)" % (exp_id, name))
+                continue
+            try:
+                got = kc.corpus_hash(root, name)
+            except kc.KotError as e:
+                f.err(e.code, "%s/%s: %s" % (exp_id, name, str(e).split(": ", 1)[1]))
+                continue
+            if got != want:
+                f.err("ERR_P2_CORPUS_PIN", "%s/%s: recomputed %s != pinned %s — corpus bytes "
+                      "or pin drifted" % (exp_id, name, got, want))
+            else:
+                f.ok("corpus-pins: %s/%s (%s)" % (exp_id, name, want[:8]))
+
+
 def _lint_json_file(path, root, f, hashed_subset=None):
     rel = os.path.relpath(path, root)
     try:
@@ -142,6 +195,7 @@ def check_account_lint(root, f):
         (os.path.join(root, "registry", "verdicts", "*.json"), None),
         (os.path.join(root, "registry", "amendments", "*", "*.json"), None),
         (os.path.join(root, "registry", "audits", "*", "*.json"), None),
+        (os.path.join(root, "registry", "corrections", "*", "*.json"), None),
     ]
     any_found = False
     for pattern, hashed_subset in groups:
@@ -194,6 +248,7 @@ def main():
     ap.add_argument("--root", default=None)
     ap.add_argument("--chain", action="store_true")
     ap.add_argument("--frozen-drift", action="store_true")
+    ap.add_argument("--corpus-pins", action="store_true")
     ap.add_argument("--account-lint", action="store_true")
     ap.add_argument("--append-only", action="store_true")
     # pre-push hooks pass "<remote> <url>" positionals; accept and ignore them.
@@ -201,13 +256,16 @@ def main():
     args = ap.parse_args()
 
     root = args.root or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    run_all = not (args.chain or args.frozen_drift or args.account_lint or args.append_only)
+    run_all = not (args.chain or args.frozen_drift or args.corpus_pins
+                   or args.account_lint or args.append_only)
 
     f = Findings()
     if run_all or args.chain:
         check_chain(root, f)
     if run_all or args.frozen_drift:
         check_frozen_drift(root, f)
+    if run_all or args.corpus_pins:
+        check_corpus_pins(root, f)
     if run_all or args.account_lint:
         check_account_lint(root, f)
     if run_all or args.append_only:

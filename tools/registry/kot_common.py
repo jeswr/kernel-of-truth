@@ -21,10 +21,60 @@ exact byte range the line occupies in the file. Genesis prev_sha256 = 64 zeros.
 
 import hashlib
 import json
+import os
 import re
 
 GENESIS = "0" * 64
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+# ------------------------------------------------------------ corpus-pin recipe
+# kot-corpus-hash/1 (pre-sign-off correction c-2026-07-08, replacing the
+# GNG-0-seed recipe string that did not reproduce the pinned digests — a
+# pin-GENERATION defect surfaced by the F1 exploratory run, seq 0).
+# The recipe is a single fixed string; prereg-freeze requires the exact string
+# in pins.corpus_hashes._recipe and recomputes every digest at freeze time;
+# registry-check --corpus-pins re-verifies frozen records that carry it.
+CORPUS_RECIPE = (
+    "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line "
+    "per regular file under data/<corpus>/ (recursive; symlinks and directories "
+    "excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly "
+    "two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, "
+    "lines sorted by the UTF-8 byte order of relpath; reference implementation "
+    "tools/registry/corpus-pin.py"
+)
+
+# Pre-declared placeholder pins: inputs that do not exist at freeze time and are
+# completed by ops amendment before any final-phase run (P2 P-9).
+PINNED_AT_INPUTS_PREFIX = "PINNED-AT-INPUTS:"
+
+
+def corpus_hash(root, corpus):
+    """kot-corpus-hash/1 digest for data/<corpus>/ under repo root.
+
+    Raises KotError(ERR_P2_CORPUS_PIN) when the corpus directory is missing or
+    empty — a pin over nothing is meaningless and fails closed.
+    """
+    base = os.path.join(root, "data", corpus)
+    if not os.path.isdir(base):
+        raise KotError("ERR_P2_CORPUS_PIN", "corpus directory data/%s/ does not exist" % corpus)
+    lines = []
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames.sort()
+        for name in filenames:
+            full = os.path.join(dirpath, name)
+            if os.path.islink(full) or not os.path.isfile(full):
+                continue
+            h = hashlib.sha256()
+            with open(full, "rb") as f:
+                for chunk in iter(lambda: f.read(1 << 20), b""):
+                    h.update(chunk)
+            rel = os.path.relpath(full, base).replace(os.sep, "/")
+            lines.append((rel.encode("utf-8"), h.hexdigest()))
+    if not lines:
+        raise KotError("ERR_P2_CORPUS_PIN", "corpus directory data/%s/ contains no regular files" % corpus)
+    lines.sort(key=lambda t: t[0])
+    payload = b"".join(digest.encode("ascii") + b"  " + rel + b"\n" for rel, digest in lines)
+    return hashlib.sha256(payload).hexdigest()
 
 # P2 §4 identities / §1.2 constraint 10 (RT-14): in-record identities are
 # stable pseudonyms <role>-<n>. Anything else in an identity field is refused.

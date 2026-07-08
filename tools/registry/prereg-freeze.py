@@ -28,6 +28,10 @@ Fail-closed refusals (all abort with exit 1 and a named code):
   ERR_P2_MISSING_BASELINE    arms_mandatory_baselines empty (G-8, minimal form)
   ERR_P2_PIN_MISMATCH        pinned analysis script / plan doc / prereg doc sha256
                              does not match the committed file bytes
+  ERR_P2_CORPUS_PIN          pins.corpus_hashes._recipe is not the current
+                             kot-corpus-hash/1 recipe, or a non-placeholder corpus
+                             digest does not reproduce from data/<corpus>/ at
+                             freeze time (correction c-2026-07-08)
   ERR_P2_SIGNOFF             budget.usd_cap > 900 without maintainer_signoff (G-11 Tier-5)
 
 External freeze-timestamping (P2 §1.1 RT-15: publish the hash to the
@@ -143,6 +147,33 @@ def check_record(record, root):
     if record["budget"]["usd_cap"] > 900 and "maintainer_signoff" not in record["budget"]:
         raise kc.KotError("ERR_P2_SIGNOFF", "usd_cap %s > 900 requires budget.maintainer_signoff"
                           % record["budget"]["usd_cap"])
+
+    # Corpus pins (kot-corpus-hash/1; correction c-2026-07-08 closing the F1
+    # pin-generation defect): the record must carry the exact current recipe
+    # string, and every non-placeholder digest must reproduce from data/<corpus>/
+    # at freeze time. PINNED-AT-INPUTS:* placeholders (pre-declared inputs
+    # completed by ops amendment before any final-phase run, P2 P-9) are exempt.
+    corpus_pins = record["pins"]["corpus_hashes"]
+    if corpus_pins.get("_recipe") != kc.CORPUS_RECIPE:
+        raise kc.KotError(
+            "ERR_P2_CORPUS_PIN",
+            "pins.corpus_hashes._recipe is not the current kot-corpus-hash/1 recipe string "
+            "(kot_common.CORPUS_RECIPE) — unverifiable corpus pins cannot be frozen",
+        )
+    for name, want in sorted(corpus_pins.items()):
+        if name == "_recipe":
+            continue
+        if isinstance(want, str) and want.startswith(kc.PINNED_AT_INPUTS_PREFIX):
+            continue
+        if not isinstance(want, str) or not kc.SHA256_RE.match(want):
+            raise kc.KotError("ERR_P2_CORPUS_PIN",
+                              "pins.corpus_hashes[%r] is neither a sha256 digest nor a "
+                              "PINNED-AT-INPUTS placeholder" % name)
+        got = kc.corpus_hash(root, name)
+        if got != want:
+            raise kc.KotError("ERR_P2_CORPUS_PIN",
+                              "pins.corpus_hashes[%r]: recomputed %s != pinned %s "
+                              "(kot-corpus-hash/1 over data/%s/)" % (name, got, want, name))
 
     # P-6 pins: the pinned analysis script and referenced docs must match their shas NOW.
     for what, path, want in (
