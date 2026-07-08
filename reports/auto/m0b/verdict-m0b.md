@@ -1,6 +1,6 @@
-# m0b verdict — PASS-PENDING-AUDIT
+# m0b verdict — PASS
 
-computed: 2026-07-08T16:52:39Z | report-gen/1 | analysis 31ae9a69
+computed: 2026-07-08T17:21:38Z | report-gen/1 | analysis 31ae9a69
 frozen prereg: 902fe30c (frozen 2026-07-08T16:45:06Z) | amendments applied: none
 encoder pin: 40e8c8ba | corpus pins: kernel-v0:8209cada, lexical-wn31:5e76def8, molecules-v0:69f0c8a3, task-family-tinystories:b6bcc9f6 | log tail: 26d1735c
 
@@ -13,12 +13,10 @@ prereg doc: docs/research-plan/01-hypotheses-experiments.md (sha256 71768a9c)
 
 > P3 §1.1 m0b.gate consequence (RT-7, verbatim): 'coverage < X ⇒ every verdict template renders a NICHE-SCOPE banner and any frontier-pitch route must carry an explicit coverage-growth cost line — a gate with a consequence, not just disclosure.' Pre-declared default X = 20% of the target task family's content-word mass (GNG-0 ratification default, P7 second-pass verification list). FAIL here binds the NICHE-SCOPE banner; it does not stop Tier-1 (P1 §5: none of Tier 0 blocks Tier 1, but GATE-T1 requires m0b.close + m0b.gate evaluated).
 
-## OUTCOME: **PASS-PENDING-AUDIT**
+## OUTCOME: **PASS**
 
 Fired rule 2 (declares `PASS`): `{"a":{"metric":"/analysis/coverage_fraction"},"b":{"const":0.2},"op":"gt"}`
 evaluated over analysis-output.json (sha256 63ce6485).
-
-**Not citable as PASS until the independent cross-vendor re-derivation (audit role, P5 R8/R10) confirms.**
 
 ## Endpoints (full pre-declared metric vector — all of them)
 
@@ -66,7 +64,7 @@ Excluded: none.
 
 ## Audit
 
-State: PENDING
+State: CONFIRMED (registry/audits/m0b/1-gate-a-codex.json)
 
 ## Deviations & amendments
 

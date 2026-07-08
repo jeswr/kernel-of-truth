@@ -1,6 +1,6 @@
-# f1 verdict — PASS-PENDING-AUDIT
+# f1 verdict — PASS
 
-computed: 2026-07-08T16:54:03Z | report-gen/1 | analysis 885fde8e
+computed: 2026-07-08T17:21:39Z | report-gen/1 | analysis 885fde8e
 frozen prereg: df1e2045 (frozen 2026-07-08T16:45:05Z) | amendments applied: none
 encoder pin: 40e8c8ba | corpus pins: lexical-wn31:5e76def8 | log tail: e0b5f7cc
 
@@ -13,12 +13,10 @@ prereg doc: docs/research-plan/01-hypotheses-experiments.md (sha256 71768a9c)
 
 > P1 §3 HE5 kill criterion (verbatim): 'F1: byte claim dropped if <2× vs compressed gloss text (M4 then proceeds, if at all, on verifiability alone — which is HC2's territory, not an efficiency claim).' Byte premise under test (P1 HE5 statement, verbatim): '(Byte premise) KOTK/2 beats the best general-purpose-compressed text store of the same records by ≥2× bytes at ≤2× retrieval latency.'
 
-## OUTCOME: **PASS-PENDING-AUDIT**
+## OUTCOME: **PASS**
 
 Fired rule 2 (declares `PASS`): `{"a":{"metric":"/analysis/byte_ratio"},"b":{"const":2.0},"op":"gte"}`
 evaluated over analysis-output.json (sha256 bdf4d6b2).
-
-**Not citable as PASS until the independent cross-vendor re-derivation (audit role, P5 R8/R10) confirms.**
 
 ## Endpoints (full pre-declared metric vector — all of them)
 
@@ -66,7 +64,7 @@ Rungs measured: S1e5. Scale language licensed: **none** (>=3 rungs for slope adj
 
 ## Audit
 
-State: PENDING
+State: CONFIRMED (registry/audits/f1/1-gate-a-codex.json)
 
 ## Deviations & amendments
 
