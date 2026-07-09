@@ -807,6 +807,35 @@ pre-declared bar.
 
 ---
 
+## 9. Cross-reference: the kernel-introduction SCHEDULE axis (N1-S, 2026-07-09)
+
+`docs/next/kernel-introduction-schedule.md` adds a **second cross-cutting axis**,
+orthogonal to L2c's φ (how much of the seam is pinned): the schedule σ — **when** the
+kernel is introduced (σ=U upfront, the only design point this ladder's drafts
+implicitly assume; σ=G gradual/annealed; σ=P periodic normalisation; σ=E end-of-run
+normalisation; σ=H post-hoc cut-out/re-projection). It exists because the LCM anchor's
+lineage never varied timing, so an upfront-φ failure could not be attributed to
+fixedness *per se* vs fixedness-imposed-too-early; σ de-confounds L2c the way L2c
+de-confounds the anchor. Per-mechanism literature backing (Concept Whitening, LEACE/
+INLP, ROME/MEMIT locality record, model stitching/Procrustes alignment, constraint-
+annealing curricula) is tabulated there with epistemic tags; the post-hoc
+pin-to-kernel-values step is NOVEL-EXTRAPOLATION and enters only as a
+falsification-shaped arm. Two consequences bind on this ladder now:
+
+1. **Metric discipline (MEASURED, S0 pilot, `poc/pilots/s0-alignment-null/`):** naive
+   orthogonal-Procrustes fit and post-map cosine are inflated under the null (fit R²
+   up to 0.81, mean cos up to 0.90 against *random* targets at n=16, k=512; still
+   0.44/0.72 at n=130, k=512). Any alignability endpoint in L2a/L2b/E8 or the N1-S
+   family must use rotation-invariant relational recovery (Gram-RSA: ≈0.00 under both
+   nulls in every measured cell) against per-cell shuffled+random null bands — never
+   raw fit/cosine. This is the X3 cosine ban recurring at the subspace level.
+2. **Grid note for L2c:** σ=U is L2c as drafted and remains the control of every σ
+   sweep; N1-S's S3 leg is an amendment *inside* L2c-full's grid and cap, not a new
+   Tier-4 spend. Cheap rungs S1/S2 (Tier 2–3, frozen hosts / fine-tuning) gate any
+   schedule arm reaching Tier 4.
+
+---
+
 *Cross-references:* `docs/next/arch-survey.md` (N0 — survey, forks N-A1/N-B1/N-C3,
 laws §1.4); `docs/kernel-design-directives.md` (binding); `docs/design-constraint-layer.md`
 §3 (`kot-axiom/1` grammar, litmus encoding, sidecar strata); `docs/research-plan/01-hypotheses-experiments.md`
@@ -814,4 +843,5 @@ laws §1.4); `docs/kernel-design-directives.md` (binding); `docs/design-constrai
 (scale rungs R1–R5/T1–T3); `docs/research-plan/08-stats-and-extrapolation.md` (SAP
 template, rung-set discipline); `docs/research-plan/10-model-record-interface.md`
 (P10); `mapper/README.md` (Phase M, `a1-hybrid`); `registry/status.json` (tier caps,
-freeze state); `reports/lit-llm-injection-priorart.md` (L3 laws).
+freeze state); `reports/lit-llm-injection-priorart.md` (L3 laws);
+`docs/next/kernel-introduction-schedule.md` (N1-S — schedule axis σ, §9).

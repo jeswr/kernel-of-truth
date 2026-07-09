@@ -118,6 +118,14 @@ this.
   SCOPED — but only as a cheap pre-declared falsification, never as a build-out.
 - *Kill sketch* — the observation that would kill it, in one sentence (sharpened into
   the frozen kill criterion at step 4).
+- *Assumptions* — **mandatory `assumptions[]` block** (docs/next/assumption-register.md):
+  every load-bearing premise enumerated as a marker line (`PREMISE: … [MEASURED: <verdict>]`
+  / `[LIT-BACKED: <paper>]`) or as a registered ASM-id for stipulations. The RULE applies:
+  a premise may cite only MEASURED or LIT-BACKED claims (plus registered STIPULATED
+  assumptions, cited by ASM-id so they are visible and fall with the stipulation); an
+  EXTRAPOLATION may motivate the candidate but may never premise it — an unresolved one
+  either becomes a fork (directives §4) or blocks the freeze. `claims-check` lints the
+  block at the step-6 gate (and, once the maintainer-gated wiring lands, at freeze).
 
 **Step 2 — Prior-art check.** Run the `lit-scan` skill (delta D5, §5): targeted search
 for (i) the mechanism under other names, (ii) published nulls/penalties (the LCM/CALM
@@ -196,6 +204,13 @@ scope for this engine, by design:
 7. **Budget caps with fail-closed halts; cheapest-decisive-first ordering.** (G-11; P1 §5)
 8. **2-revision lineage cap; one replication buy per experiment, two per generation;**
    then STOP-AND-PUBLISH-UNDECIDED. (RT-1/RT-6)
+9. **Epistemic-tag rule:** every load-bearing claim carries one of
+   MEASURED / LIT-BACKED / STIPULATED / EXTRAPOLATION; decisions and premises rest only
+   on MEASURED or LIT-BACKED (plus registered STIPULATED, cited by ASM-id); a
+   load-bearing EXTRAPOLATION is a lint violation, and a MEASURED number cited outside
+   its extrapolation envelope re-classifies as EXTRAPOLATION. (The m0b
+   "natural coverage" incident made structural — docs/next/assumption-register.md;
+   maintainer directive 2026-07-08.)
 
 ### 1.5 The one schema change: `kot-reg/2` (proposed, maintainer-gated)
 
@@ -246,7 +261,19 @@ Skeptic, committed by the Coordinator — three identities, same separation disc
       "blocking": ["<candidate-ids or gates it informs>"]}
   ],
   "ledger_updates": [                        // §2.6 known-results ledger entries
-    {"kind": "null-bound|pass|kill|instrument-fact", "statement": "…", "scope": "…"}
+    {"kind": "null-bound|pass|kill|instrument-fact|assumption-resolution",
+     "statement": "…", "scope": "…"}
+  ],
+  "assumptions_resolved": [                  // MANDATORY closure of the epistemic loop:
+    {"id": "ASM-0002", "outcome": "resolved-measured|resolved-lit|falsified|still-open",
+     "backing_ref": "…"}                     //   every EXTRAPOLATION or STIPULATED entry
+                                             //   the candidate relied on (its claim.md
+                                             //   assumptions[] block) is resolved by the
+                                             //   verdict, falsified, or explicitly
+                                             //   re-registered still-open with a reason;
+                                             //   an assessment that leaves a relied-on
+                                             //   EXTRAPOLATION untouched is incomplete
+                                             //   (claims-check lints the block)
   ],
   "tree_impact": "…"                         // which routes/gates changed state
 }
@@ -327,9 +354,12 @@ stubs re-scored immediately; a surprise verdict may pull the boundary forward.
 
 `registry/ledger.jsonl` — append-only, one line per assessed fact: passes (scoped),
 kills, TOST bounds, instrument facts (e.g. "X3: raw kernel-cosine banned", "X4: JL
-8192→512 preserves RDM ρ≈0.97"). Steps 1–2 of the candidate procedure lint new
-`claim.md`s against the ledger: proposing something a ledger null already bounds, or
-building on a retired mechanism, is flagged mechanically. This is the piece that makes
+8192→512 preserves RDM ρ≈0.97"), and **assumption resolutions** (an EXTRAPOLATION or
+STIPULATED entry upgraded, falsified, or lapsed — mirrored from
+`registry/assumptions.jsonl` via the assessment's `assumptions_resolved[]`). Steps 1–2
+of the candidate procedure lint new `claim.md`s against the ledger AND the assumption
+register: proposing something a ledger null already bounds, building on a retired
+mechanism, or premising on a falsified/open projection, is flagged mechanically. This is the piece that makes
 the engine *cumulative* — the current programme holds this knowledge in prose
 (arch-survey §1.3's one-screen ledger is exactly this table, hand-built); the engine
 makes it a machine surface.
@@ -445,6 +475,7 @@ contribution alongside whatever science it produces (a P9-route paper).
 | D4 | `dag-gen`: candidate record + stage template → DAG nodes + beads issues (replaces hand-assembling P3 §8 for new work) | ~1 agent-day | the biggest friction win |
 | D5 | `lit-scan` skill (step-2 search protocol + citation-tagged output format, per N0's [search]/[memory] convention) | ~0.5 agent-day | |
 | D6 | `kot-reg/2` (pins map + instrument_gates + candidate/generation fields) | ~0.5 agent-day | **maintainer-gated** (P2 §7 item 3) |
+| D7 | Assumption register + `claims-check` epistemic-tag lint (docs/next/assumption-register.md) | **landed 2026-07-09** (register, standalone lint, fixtures) | remaining: wiring into `prereg-freeze`/`registry-check` run-all is **maintainer-gated** (spec §6) |
 
 Total ≈ 3–3.5 agent-days, ~$0 compute, R0-tier. Nothing blocks the currently-running
 F2 pivot; D1–D3 can land before F2 closes so its verdict is the first to flow through

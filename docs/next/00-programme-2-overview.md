@@ -44,8 +44,10 @@ architectures**: a fixed, repeatable loop that
 The honest one-line status underneath the ambition (N0 §1.3): the kernel today has one
 supported in-network injection cell (A2/E5, one model rung, content-transfer only), one
 deployable external verifier seam under active paid test (F2, running now), two audited
-Tier-0 passes (coverage m0b; store-bytes f1 at 6.7×), **and zero demonstrated end-task
-wins over the kernel-as-text null**. Programme 2 is designed so that whichever way F2
+Tier-0 passes (the m0b coverage gate — corpus-scoped: 0.3542 at rung molecules-v0 on the
+pinned TinyStories task family, measured on an incomplete kernel instance and, per its
+verdict envelope, extrapolating to no other corpus or rung (ASM-0001); store-bytes f1 at
+6.7×), **and zero demonstrated end-task wins over the kernel-as-text null**. Programme 2 is designed so that whichever way F2
 lands, the next question is already queued, costed, and pre-registerable.
 
 ---

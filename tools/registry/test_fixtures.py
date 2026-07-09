@@ -36,6 +36,7 @@ LOG_APPEND = os.path.join(HERE, "log-append.py")
 REGISTRY_CHECK = os.path.join(HERE, "registry-check.py")
 VERDICT_GEN = os.path.join(HERE, "verdict-gen.py")
 REPORT_GEN = os.path.join(HERE, "report-gen.py")
+CLAIMS_CHECK = os.path.join(HERE, "claims-check.py")
 
 MOCK_ANALYSIS = """\
 import json, sys
@@ -602,6 +603,125 @@ class TestReportGen(SpineFixture):
         p = run_cli(REPORT_GEN, "--experiment", "mock-f1", "--root", self.root)
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("ERR_P2_FROZEN_DRIFT", p.stderr)
+
+
+class TestClaimsCheck(SpineFixture):
+    """Epistemic-tag lint (docs/next/assumption-register.md §3): the RULE —
+    decisions/premises rest only on MEASURED or LIT-BACKED (plus registered
+    STIPULATED cited by ASM-id); a load-bearing EXTRAPOLATION always fails."""
+
+    GOOD_MEASURED = {
+        "id": "ASM-0001", "claim": "coverage 0.3542 at rung molecules-v0 on the pinned corpus",
+        "tag": "MEASURED", "backing_ref": "registry/verdicts/m0b.json sha256 da475e98",
+        "load_bearing": True, "status": "resolved", "owner": "writer-1",
+    }
+    GOOD_STIPULATED = {
+        "id": "ASM-0003", "claim": "corpus X is an adequate Tier-0 proxy",
+        "tag": "STIPULATED", "backing_ref": "ratification default",
+        "rationale": "pre-declared gate corpus; revisit on new task families",
+        "load_bearing": True, "status": "open", "owner": "maintainer",
+    }
+    GOOD_EXTRAPOLATION = {
+        "id": "ASM-0002", "claim": "a similar coverage level would hold on other corpora",
+        "tag": "EXTRAPOLATION", "backing_ref": "", "load_bearing": False, "status": "open",
+        "owner": "writer-1", "resolution_path": "re-run the census on each new corpus",
+    }
+
+    def write_register(self, *entries):
+        self.write("registry/assumptions.jsonl",
+                   "".join(json.dumps(e) + "\n" for e in entries))
+
+    def run_claims(self, *paths):
+        return run_cli(CLAIMS_CHECK, "--root", self.root,
+                       *[self.path(p) for p in paths])
+
+    def test_valid_register_and_doc_pass(self):
+        self.write_register(self.GOOD_MEASURED, self.GOOD_STIPULATED, self.GOOD_EXTRAPOLATION)
+        self.write("docs/design.md",
+                   "PREMISE: coverage is 0.3542 on the pinned corpus "
+                   "[MEASURED: registry/verdicts/m0b.json]\n"
+                   "DECISION: gate on the pinned corpus [STIPULATED: ASM-0003]\n"
+                   "Background prose without markers needs no tag.\n"
+                   "An extrapolation OFF a premise line is fine: [EXTRAPOLATION: ASM-0002]\n")
+        p = self.run_claims("docs/design.md")
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("claims-check: PASS", p.stdout)
+
+    def test_loadbearing_extrapolation_refused(self):
+        bad = dict(self.GOOD_EXTRAPOLATION, load_bearing=True)
+        self.write_register(bad)
+        p = self.run_claims()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_LOADBEARING_EXTRAPOLATION", p.stdout + p.stderr)
+
+    def test_untagged_premise_refused(self):
+        self.write_register(self.GOOD_MEASURED)
+        self.write("docs/design.md", "DECISION: we will build the thing because it seems right\n")
+        p = self.run_claims("docs/design.md")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_UNTAGGED_PREMISE", p.stdout + p.stderr)
+
+    def test_extrapolation_premise_refused(self):
+        self.write_register(self.GOOD_MEASURED, self.GOOD_EXTRAPOLATION)
+        self.write("docs/design.md",
+                   "PREMISE: coverage will be similar elsewhere [EXTRAPOLATION: ASM-0002]\n")
+        p = self.run_claims("docs/design.md")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_EXTRAPOLATION_PREMISE", p.stdout + p.stderr)
+
+    def test_backing_requirements(self):
+        # MEASURED without a verdict/hash reference
+        bad = dict(self.GOOD_MEASURED, backing_ref="trust me")
+        self.write_register(bad)
+        p = self.run_claims()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_BACKING", p.stdout + p.stderr)
+        # STIPULATED without rationale
+        bad = {k: v for k, v in self.GOOD_STIPULATED.items() if k != "rationale"}
+        self.write_register(bad)
+        p = self.run_claims()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_BACKING", p.stdout + p.stderr)
+        # EXTRAPOLATION without resolution_path
+        bad = {k: v for k, v in self.GOOD_EXTRAPOLATION.items() if k != "resolution_path"}
+        self.write_register(bad)
+        p = self.run_claims()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_BACKING", p.stdout + p.stderr)
+
+    def test_unknown_asm_id_and_unregistered_stipulation(self):
+        self.write_register(self.GOOD_MEASURED)
+        self.write("docs/design.md", "See ASM-0099 for the assumption.\n")
+        p = self.run_claims("docs/design.md")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_UNKNOWN_ID", p.stdout + p.stderr)
+        self.write("docs/design.md", "DECISION: proceed on the proxy [STIPULATED: informal]\n")
+        p = self.run_claims("docs/design.md")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_UNREGISTERED_STIPULATION", p.stdout + p.stderr)
+
+    def test_account_string_in_register_refused(self):
+        bad = dict(self.GOOD_MEASURED, notes="asked by someone@example.com")
+        self.write_register(bad)
+        p = self.run_claims()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_ACCOUNT_IN_RECORD", p.stdout + p.stderr)
+
+    def test_non_pseudonym_owner_refused(self):
+        bad = dict(self.GOOD_MEASURED, owner="kern-agent")
+        self.write_register(bad)
+        p = self.run_claims()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_SCHEMA", p.stdout + p.stderr)
+
+    def test_record_assumptions_block(self):
+        self.write_register(self.GOOD_MEASURED)
+        rec = {"schema_version": "kot-assess/1", "experiment": "mock",
+               "assumptions": [dict(self.GOOD_EXTRAPOLATION, load_bearing=True)]}
+        self.write("registry/assess-mock.json", json.dumps(rec) + "\n")
+        p = self.run_claims("registry/assess-mock.json")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_LOADBEARING_EXTRAPOLATION", p.stdout + p.stderr)
 
 
 if __name__ == "__main__":

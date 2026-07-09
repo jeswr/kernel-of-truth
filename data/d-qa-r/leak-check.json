@@ -1,0 +1,45 @@
+{
+ "artifact": "d-qa-r-leak-check",
+ "checks": {
+  "LC1-headword-not-in-shown-definition": {
+   "checked": 216,
+   "rule": "term-match items are dropped and substituted with a def-match variant when the shown definition contains the headword (word-boundary, case-insensitive)",
+   "substituted": 0
+  },
+  "LC2-answer-text-not-in-question": {
+   "checked": 460
+  },
+  "LC3-false-claim-not-entailed": {
+   "accepted": 363,
+   "rejected_candidates": 0,
+   "rule": "false claims must not be a substring of the target gloss and must have token-Jaccard < 0.5 vs the target gloss"
+  },
+  "LC4-options-distinct-answer-present": {
+   "option_sets": 244
+  },
+  "LC5-no-duplicate-ids-or-questions": {
+   "items": 1000
+  },
+  "LC6-true-claims-verbatim-from-record": {
+   "claims": 177
+  },
+  "LC7-answer-position-balance": {
+   "A": 119,
+   "B": 132,
+   "C": 106,
+   "D": 103,
+   "no": 363,
+   "yes": 177
+  },
+  "LC8-prompt-surface-disjoint-from-d-qa": {
+   "candidate_retries": 191,
+   "claim_true_substituted_to_false": 39,
+   "dqa_reference_items": 650,
+   "rule": "no item may share its exact prompt surface (question + option texts, unsalted sha256) with any of the 650 d-qa items; candidate draws colliding intra- or cross-set are retried with the next seeded variant; claim-true items with no fresh admissible segment are substituted with a claim-false item"
+  }
+ },
+ "generated": "2026-07-09",
+ "generator_seed": "dqar/1|f2b-replicate|20260709",
+ "note": "fail-closed: any violation aborts the build; this file exists only on PASS. Freshness caveat (disclosed): the 108 covered concepts and the fixed question templates are SHARED with d-qa by construction (kernel coverage is fixed); disjointness is enforced at full-prompt granularity, which is the granularity at which deterministic decode would replay logged behaviour.",
+ "result": "PASS"
+}
