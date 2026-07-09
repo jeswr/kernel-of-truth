@@ -3,7 +3,8 @@
 $0) and verifies the FROZEN contracts end-to-end:
 
 1. every arm level of registry/experiments/f2b-replicate.json ran and
-   emitted a record (incl. the NEW shuffled-verify + gold-oracle arms);
+   emitted a record (incl. the load-bearing shuffled-verify arm; gold-oracle
+   was dropped in the advisor right-size);
 2. record bodies pass the kot-log/1 raw-metrics lint (no derived stats);
 3. piping the run-records into the PINNED analysis script
    (analysis/f2b_replicate.py, sha re-checked against the registry record)
@@ -15,14 +16,14 @@ $0) and verifies the FROZEN contracts end-to-end:
 6. the shuffled-verifier permutation is a recorded, seed-pinned DERANGEMENT
    whose sha matches the one emitted on every shuffled-arm record, and the
    mock accuracies order as the design predicts
-   (verify > shuffled ~ alone; gold-oracle >= verify);
+   (verify > shuffled ~ alone);
 7. the FIXED ext pipeline emitted item_correct_external on the arms that
    carry it (the F2 ext_vector defect stays closed);
 8. --dry-plan runs from the same inputs and every cap checks OK;
 9. SAFETY BOUNDS (correction 1, registry/corrections/f2b-replicate/): every
-   record from a normal run is exit:"ok"; every gold-oracle cell records
-   gold_attempts_cap + the per-item gold_reached_within_cap vector; a
-   too-small --cell-timeout-s and a too-small --max-gen-per-item BOTH
+   record from a normal run is exit:"ok" (the gold-oracle arm was dropped in
+   the advisor right-size); a too-small --cell-timeout-s and a
+   too-small --max-gen-per-item BOTH
    self-terminate with rc!=0, ERR_CELL_TIMEOUT, and a FLUSHED exit:"timeout"
    record on disk (bounded termination, partials preserved, nothing
    fabricated).
@@ -46,10 +47,11 @@ REG = os.path.join(ROOT, "registry", "experiments", "f2b-replicate.json")
 sys.path.insert(0, os.path.join(ROOT, "tools", "registry"))
 import kot_common as kc  # noqa: E402
 
+# gold-oracle-retry DROPPED in the advisor right-size (2026-07-09)
 EXPECTED_ARMS = {
     "model-alone", "kernel-verify-retry", "shuffled-kernel-verify-retry",
     "gloss-self-verify-retry", "prm-verifier", "kernel-as-text",
-    "gold-oracle-retry", "extraction-instrument",
+    "extraction-instrument",
 }
 EXT_ARMS = {"model-alone", "kernel-verify-retry",
             "shuffled-kernel-verify-retry", "kernel-as-text"}
@@ -172,13 +174,14 @@ def main():
             fail("mock verify (%.3f) does not dominate shuffled (%.3f) — "
                  "the structure control is not content-destroying"
                  % (a["acc_verify_bestk"], a["acc_shuffled_bestk"]))
-        if not (a["gold_oracle_acc_bestk"] >= a["acc_verify_bestk"] - 0.05):
-            fail("mock gold-oracle ceiling (%.3f) below verify (%.3f)"
-                 % (a["gold_oracle_acc_bestk"], a["acc_verify_bestk"]))
-        print("ok: mock arm ordering sane (verify %.3f > shuffled %.3f; "
-              "gold %.3f >= verify)" % (a["acc_verify_bestk"],
-                                        a["acc_shuffled_bestk"],
-                                        a["gold_oracle_acc_bestk"]))
+        # gold-oracle DROPPED (advisor right-size): its analysis field resolves
+        # to null and is never referenced by any verdict rule
+        if a.get("gold_oracle_acc_bestk") is not None:
+            fail("gold-oracle arm was dropped but gold_oracle_acc_bestk is "
+                 "non-null (%r)" % a["gold_oracle_acc_bestk"])
+        print("ok: mock arm ordering sane (verify %.3f > shuffled %.3f); "
+              "gold-oracle dropped (field null)"
+              % (a["acc_verify_bestk"], a["acc_shuffled_bestk"]))
 
         # gate flips: replace iface records with a high-failure set
         flipped = [r for r in lines if r["config"]["arm"] != "extraction-instrument"]
@@ -203,27 +206,13 @@ def main():
         print("ok: --dry-plan runs and all caps check OK")
 
         # ---- SAFETY BOUNDS (correction 1) --------------------------------
-        # normal run: every record exit:"ok"; gold cells carry the bounded-
-        # diagnostic fields (cap + per-item reached-gold-within-cap vector)
+        # normal run: every record exit:"ok" (gold-oracle arm + its bounded-
+        # diagnostic fields were dropped in the advisor right-size)
         if any(r.get("exit") != "ok" for r in lines):
             fail("a normal mock run emitted a non-ok record")
-        gold = [r for r in lines
-                if r["config"]["arm"] == "gold-oracle-retry"]
-        for r in gold:
-            m = r["metrics"]
-            cap = m.get("gold_attempts_cap")
-            if not isinstance(cap, int) or cap < 1 or cap > 8:
-                fail("gold-oracle cell without a sane gold_attempts_cap: %r"
-                     % cap)
-            if cap > r["config"]["retry_budget"] + 1:
-                fail("gold_attempts_cap %d exceeds k+1=%d"
-                     % (cap, r["config"]["retry_budget"] + 1))
-            if m.get("gold_reached_within_cap") != m["item_correct"]:
-                fail("gold_reached_within_cap != item_correct (construction "
-                     "invariant broken)")
-        print("ok: gold-oracle-retry is explicitly capped (caps %s) and "
-              "records gold_reached_within_cap"
-              % sorted({r["metrics"]["gold_attempts_cap"] for r in gold}))
+        if any(r["config"]["arm"] == "gold-oracle-retry" for r in lines):
+            fail("gold-oracle-retry was dropped but a gold cell was emitted")
+        print("ok: no gold-oracle cells emitted (arm dropped); all records exit:ok")
 
         # breach paths: both bounds must self-terminate with rc!=0 and a
         # flushed exit:"timeout" record (bounded time, partials preserved)

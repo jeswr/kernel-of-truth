@@ -9,26 +9,28 @@ plausibly an ORACLE-LEAKAGE artifact — the verifier accepts iff the answer
 string-equals the canonical record, and D-QA gold answers were DEFINED by
 that same equality. This run separates REAL from NOT-LEAKY on fresh items:
 
-  model-alone                     R1 (SmolLM2-135M) and R3 (SmolLM2-1.7B)
-  kernel-verify-retry             R1, k in {1,2,4} — the kernel arm (true records)
-  shuffled-kernel-verify-retry    R1, k in {1,2,4} — NEW, LOAD-BEARING: identical
-                                  retry topology, but the verifier checks each item
-                                  against a PERMUTED record->concept map (seed-pinned
-                                  derangement, recorded). If this recovers >=30% of
-                                  the true arm's lift-over-alone, the lift is
-                                  retry-against-any-oracle STRUCTURE, not kernel
-                                  CONTENT, and the kernel-specific claim dies.
-  gloss-self-verify-retry         R1, k in {1,2,4} (P7 RT-2 arm 10, active text baseline)
-  prm-verifier                    R1 (HC3 trained-PRM comparator)
+RIGHT-SIZED (advisor 2026-07-09): 250 fresh items (rank-prefix subset), 3
+paired seeds, a SINGLE pre-registered retry budget k=4 (retry_sweep=[4]; the
+analysis best-k select over a singleton is a no-op = fixed k=4), gold-oracle
+DROPPED, single A100-40GB. RETRIES RUN ONLY AT R1 (135M); R3 (1.7B) is used
+ONLY for the single-pass alone baseline — there is NO 1.7B retry ladder.
+
+  model-alone                     R1 (SmolLM2-135M) and R3 (SmolLM2-1.7B), single pass
+  kernel-verify-retry             R1, k=4 — the kernel arm (true records) [PRIMARY]
+  shuffled-kernel-verify-retry    R1, k=4 — LOAD-BEARING: identical retry topology,
+                                  but the verifier checks each item against a PERMUTED
+                                  record->concept map (seed-pinned derangement,
+                                  recorded). If this recovers >=30% of the true arm's
+                                  lift-over-alone, the lift is retry-against-any-oracle
+                                  STRUCTURE, not kernel CONTENT, and the claim dies.
+  gloss-self-verify-retry         R1, k=4 (P7 RT-2 arm 10, active text baseline)
+  prm-verifier                    R1 (HC3 trained-PRM comparator; best-of-N, N=4)
   kernel-as-text                  R1 (Law-2 passive text null)
-  gold-oracle-retry               R1, k in {1,2,4} — NEW diagnostic ceiling:
-                                  retry-until-true-gold. NON-DEPLOYABLE by
-                                  construction (uses the answer key); reported as a
-                                  ceiling, never as an arm anyone could ship.
   extraction-instrument           P10 gate re-verification over the pinned d-xif
                                   labelled set (R1)
 
-DROPPED vs F2 (advisor design): R2, all cascades, int4, RAG, self-consistency.
+DROPPED vs F2 (advisor design): R2, gold-oracle ceiling, the k-ladder, all
+cascades, int4, RAG, self-consistency.
 
 FIXED vs F2 (instrument defect, f2b-reanalysis.md section 3): ext_vector no
 longer bypasses the arm pipeline — the external D-EXT slice now runs through
@@ -122,7 +124,7 @@ SEED_BASE = 20260709  # published fixed base seed (matches the f2b SAP PRNG seed
 #       T4 is ~3x slower, hence the larger default.
 GOLD_ORACLE_MAX_ATTEMPTS = 8
 MAX_GEN_PER_ITEM_DEFAULT = 16
-CELL_TIMEOUT_S_DEFAULT = {"A10G": 3600.0, "T4": 9000.0}
+CELL_TIMEOUT_S_DEFAULT = {"A100": 3600.0, "A10G": 3600.0, "T4": 9000.0}
 
 
 class CellBudgetExceeded(Exception):
@@ -922,8 +924,10 @@ def dry_plan(man, covered_r, gpu):
             t += 70  # one gloss doc
         return t * len(keys)
 
-    tok_cov = sum(est_tokens(i) for i in covered_r)
-    tok_cov_ctx = sum(est_tokens(i, True) for i in covered_r)
+    # advisor right-size: the plan reflects the fixed per_arm_items subset (250)
+    covered_use = covered_r[:int(dc["per_arm_items"])]
+    tok_cov = sum(est_tokens(i) for i in covered_use)
+    tok_cov_ctx = sum(est_tokens(i, True) for i in covered_use)
     tok_ext = n_ext * 250 * 2  # yes/no + short prompts, planning placeholder
 
     cells = []  # (rung, tokens); retry worst case = k+1 attempts
@@ -934,7 +938,7 @@ def dry_plan(man, covered_r, gpu):
             cells.append(("R1", (tok_cov + tok_ext) * (k + 1)))    # verify
             cells.append(("R1", (tok_cov + tok_ext) * (k + 1)))    # shuffled (NOT cut)
             cells.append(("R1", tok_cov * (k + 1) * 2))            # self-verify (+check)
-            cells.append(("R1", tok_cov * (k + 1)))                # gold-oracle
+            # gold-oracle DROPPED (advisor right-size); not inventoried
         cells.append(("R1", tok_cov * man["arm_plan"]["prm_best_of_n"] * 1.5))  # PRM
     cells.append(("R1", tok_cov_ctx + tok_ext))                    # kernel-as-text
     # extraction-instrument: CPU-only re-verification of the pinned d-xif set
@@ -949,8 +953,9 @@ def dry_plan(man, covered_r, gpu):
         "f2b-replicate --dry-plan (ESTIMATES ONLY — planning constants from",
         "f2b-manifest.json; no GPU, no network, $0 spent by this command)",
         "",
-        "eval set: %d FRESH d-qa-r covered items; external slice %d (pinned d-ext)"
-        % (len(covered_r), n_ext),
+        "eval set: %d FRESH d-qa-r covered items (rank-prefix of %d on disk); "
+        "external slice %d (pinned d-ext)"
+        % (len(covered_use), len(covered_r), n_ext),
         "cells inventoried: %d  (arms x k x %d seeds; iface gate is CPU-only)"
         % (len(cells), len(seeds)),
         "",
@@ -983,7 +988,7 @@ def dry_plan(man, covered_r, gpu):
         lines.append("  %-42s %s" % (name, "OK" if ok else "OVER — DO NOT LAUNCH"))
     lines.append("")
     lines.append("advisor cost note honoured: the shuffled arm is the one cost NOT")
-    lines.append("to cut — it is inventoried at full item count and full k sweep.")
+    lines.append("to cut — it is inventoried at full item count at the fixed k=4.")
     print("\n".join(lines))
     return all(ok for _n, ok in verdicts)
 
@@ -1010,7 +1015,16 @@ def run_cells(args, man, covered_r, dqa_covered, gloss_docs, log):
                                         mk["n_covered_items"] + mk["n_external_items"]]]
         iface_n = mk["iface_n_labelled"]
     else:
-        items = covered_r
+        # advisor right-size: evaluate a fixed pre-registered subset of the
+        # pinned-order (by rank) fresh d-qa-r covered items. per_arm_items is a
+        # frozen design constant (250); the full corpus stays on disk and keeps
+        # its pinned kot-corpus-hash, so no corpus is re-pinned — the subset is
+        # a deterministic prefix of the rank-sorted covered set.
+        n_use = int(dc["per_arm_items"])
+        if len(covered_r) < n_use:
+            raise SystemExit("ERR_ITEMS_SHORT: d-qa-r has %d covered items < "
+                             "per_arm_items %d" % (len(covered_r), n_use))
+        items = covered_r[:n_use]
         # d-xif (P10 labelled extraction set) — fail closed on absence or pin
         if not os.path.isdir(args.dxif_dir or ""):
             raise SystemExit("ERR_MISSING_DXIF: d-xif labelled extraction set "
@@ -1038,6 +1052,10 @@ def run_cells(args, man, covered_r, dqa_covered, gloss_docs, log):
 
     verifier = KernelVerifier(args.records_root)
     verifier.index_labels(items)
+    # perm spans the FULL covered-concept set (not the per_arm_items subset):
+    # the derangement is over concept urns and must cover every urn any arm
+    # (incl. the external-slice pipeline) may query; index_labels(items) below
+    # restricts which items are actually SCORED to the right-sized subset.
     shuf = ShuffledKernelVerifier(args.records_root, covered_r,
                                   man["shuffle"]["perm_seed"])
     shuf.index_labels(items)
@@ -1058,7 +1076,7 @@ def run_cells(args, man, covered_r, dqa_covered, gloss_docs, log):
     # store = UNIQUE canonical record bytes (fixes F2's per-item double count)
     store_bytes_records = sum(
         os.path.getsize(os.path.join(args.records_root, p))
-        for p in sorted({it["record_path"] for it in covered_r
+        for p in sorted({it["record_path"] for it in items
                          if it.get("record_path")}))
 
     def make_lm(rung):
@@ -1164,20 +1182,12 @@ def run_cells(args, man, covered_r, dqa_covered, gloss_docs, log):
                     return m
                 run_cell(arm, "R1", k, seed, cell)
 
-    # ---- gold-oracle-retry (diagnostic ceiling; NON-DEPLOYABLE) --------------
-    for k in ks:
-        for seed in seeds:
-            def cell(guard, k=k, seed=seed):
-                meter = new_meter()
-                cov, reached, cap = run_gold_oracle_retry(
-                    lm1, frames, items, k, seed, meter, guard)
-                m = cell_metrics(cov, meter, [lm1], 0)
-                m["non_deployable_diagnostic"] = True  # uses the answer key
-                # correction 1: the bounded-diagnostic reading, recorded
-                m["gold_attempts_cap"] = cap
-                m["gold_reached_within_cap"] = reached
-                return m
-            run_cell(ARM_GOLD, "R1", k, seed, cell)
+    # ---- gold-oracle-retry: DROPPED (advisor right-size 2026-07-09) ----------
+    # The diagnostic retry ceiling is cut from the right-sized arm set (it reads
+    # the answer key, is NON-DEPLOYABLE, and never bore any PASS/kill). The
+    # pinned analysis handles its absence: gold fields resolve to null and are
+    # never referenced by any verdict rule. run_gold_oracle_retry() is retained
+    # in this module (unused) for provenance with the superseded design.
 
     # ---- kernel-as-text (greedy, deterministic -> one cell) -----------------
     def cell_text(guard):
@@ -1254,7 +1264,7 @@ def main():
                     help="d-ext external eval slice (REQUIRED for real runs)")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
-    ap.add_argument("--gpu-class", default="A10G", choices=["T4", "A10G"])
+    ap.add_argument("--gpu-class", default="A10G", choices=["T4", "A10G", "A100"])
     ap.add_argument("--mock", action="store_true",
                     help="stub-LM mechanics check on CPU; $0; labelled MOCK")
     ap.add_argument("--dry-plan", action="store_true",

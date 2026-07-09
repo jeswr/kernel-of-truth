@@ -51,24 +51,24 @@
     "note": "the shuffled-kernel-verify-retry arm is the LOAD-BEARING oracle-structure control (advisor design): identical retry topology and cost, record CONTENT decoupled from the item"
   },
   "design_constants_from_frozen_record": {
-    "note": "copied VERBATIM from registry/experiments/f2b-replicate.json for runner convenience; the frozen record is authoritative",
-    "seeds": [0, 1, 2, 3, 4],
-    "retry_sweep": [1, 2, 4],
-    "per_arm_items": 1000,
+    "note": "copied VERBATIM from registry/experiments/f2b-replicate.json for runner convenience; the frozen record is authoritative. RIGHT-SIZED 2026-07-09 (advisor): 250 items, 3 seeds, single fixed retry budget k=4.",
+    "seeds": [0, 1, 2],
+    "retry_sweep": [4],
+    "per_arm_items": 250,
     "rungs": ["R1", "R3"],
     "iface_gate": {"n_min_per_rung": 300, "failure_wilson_lb_max": 0.10},
     "separation_gate": {"min_gap": 0.10, "note": "acc(R3-alone) - acc(R1-alone) >= 0.10 (5-seed mean) with one-sided 95% lower CI > 0, else ratio secondaries are INSTRUMENT-INVALID (absolute primary still reads)"},
     "budget": {"gpu_hours_cap": 24, "usd_cap": 60, "wall_clock_cap_hours": 72, "tier_cap_usd": 80}
   },
   "arm_plan": {
-    "prm_best_of_n": 2,
-    "prm_note": "best-of-2 reranking ~ FLOP envelope of verify at k=1 (2 generations + 2 PRM forwards vs 2 generations + CPU verify); realized FLOPs on the F0 ledger; analysis compares ledgers, not intentions",
+    "prm_best_of_n": 4,
+    "prm_note": "best-of-4 reranking (advisor right-size N=4); realized FLOPs on the F0 ledger; the matched-FLOPs PRM secondary compares ledgers, not intentions",
     "resample_temperature": 1.0,
     "retry_final_answer": "last attempt (accepted or budget-exhausted); pre-declared, no post-hoc pick; identical rule for kernel-verify, shuffled-verify, gloss-self-verify and gold-oracle arms",
-    "gold_oracle_note": "gold-oracle-retry accepts iff the answer equals the true gold label — NON-DEPLOYABLE diagnostic ceiling (it reads the answer key); reported, never part of any PASS",
+    "gold_oracle_note": "gold-oracle-retry DROPPED in the advisor right-size (2026-07-09): the NON-DEPLOYABLE diagnostic ceiling is cut from the arm set; the runner no longer emits gold cells and the pinned analysis resolves its (unreferenced) gold fields to null",
     "ext_pipeline_fix": "the F2 ext_vector defect is closed: the external d-ext slice runs through each arm's OWN pipeline (verify arms via run_verify_retry with the arm's verifier, text arm with its context block); d-ext items are not kernel-checkable so the verifier ABSTAINS off-coverage there — the vector measures deployed off-coverage behaviour, not transfer (transfer = the gated f2b-TRANSFER experiment)",
     "shared_affordance": "P10 IF-C constrained decoding for EVERY arm: answers produced by constrained selection over the pinned option set (A-D or yes/no) via sequence logprob; arms differ ONLY in verification instrument and context block",
-    "dropped_arms_note": "R2, cascades (HE2 failed confirmatory in F2 and is not re-litigated), int4, RAG and self-consistency are DROPPED per the advisor design; their F2 confirmatory readings stand"
+    "dropped_arms_note": "R2, gold-oracle-retry, the k-ladder (single fixed k=4), cascades (HE2 failed confirmatory in F2 and is not re-litigated), int4, RAG and self-consistency are DROPPED per the advisor right-size; their F2 confirmatory readings stand"
   },
   "prompt_frames": {
     "qa_prefix": "Answer the following question about the meaning of a word.\n\n",
@@ -82,12 +82,13 @@
     "formula": "F0 section 3.3: FLOPs = 2*N_active*T_total + 2*L*T^2*d_attn per sequence; prefill and decode metered separately; T measured with the arm's own tokenizer",
     "cpu_flops_per_s_pinned": 5.0e10,
     "cpu_note": "CPU-side verifier work is metered as measured wall-clock seconds and converted at this pinned rate ONLY for the aggregate figure; wall-clock is reported separately (F0 section 3.3)",
-    "usd_per_hour": {"T4": 0.59, "A10G": 1.10},
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10, "A100": 2.10},
     "usd_note": "Modal list prices used for planning + $-per-query conversion; actual Modal billing reconciled from the dashboard at run time"
   },
   "planning": {
     "note": "dry-plan ESTIMATES only — never emitted as measurements",
     "throughput_tok_per_s": {
+      "A100": {"R1": 16000, "R3": 2600},
       "A10G": {"R1": 12000, "R3": 1800},
       "T4": {"R1": 4000, "R3": 600}
     },
@@ -112,7 +113,7 @@
     }
   },
   "inputs_status": {
-    "d-qa-r": "BUILT + pinned 2026-07-09 (data/d-qa-r/build-dqar.py, generator seed dqar/1|f2b-replicate|20260709): 1000 FRESH covered items over the 108 covered concepts; ID-disjoint (dqar: namespace) AND full-prompt-surface-disjoint from all 650 d-qa items (LC8, fail-closed); leak-check PASS (data/d-qa-r/leak-check.json)",
+    "d-qa-r": "BUILT + pinned 2026-07-09 (data/d-qa-r/build-dqar.py, generator seed dqar/1|f2b-replicate|20260709): 1000 FRESH covered items over the 108 covered concepts; ID-disjoint (dqar: namespace) AND full-prompt-surface-disjoint from all 650 d-qa items (LC8, fail-closed); leak-check PASS (data/d-qa-r/leak-check.json). RIGHT-SIZE (advisor 2026-07-09): the runner evaluates a fixed deterministic prefix of the rank-sorted covered set, per_arm_items=250; the full 1000-item corpus stays on disk and keeps its pinned kot-corpus-hash (no corpus re-pin), and every subset item remains fresh + disjoint by construction",
     "d-qa": "reused from F2 (amendment 1 pins) for two purposes ONLY: the pinned gloss corpus (text arms) and the original covered items the pinned d-xif labelled outputs reference (P10 gate re-verification); NO d-qa item is scored as an eval item in this experiment",
     "d-xif": "reused from F2 (amendment 5 pins): 500 covered real R1 outputs re-verified mechanically through THIS harness's extraction machinery (run_extraction_instrument_dxif); fail-closed pins",
     "d-ext": "reused from F2 (amendment 4 pins): 500 externally-authored OpenBookQA items; runs through the FIXED per-arm ext pipeline; descriptive raw vectors only (no endpoint) — items are not kernel-checkable, so this slice measures off-coverage abstention behaviour, not transfer"

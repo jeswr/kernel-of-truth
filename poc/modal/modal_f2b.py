@@ -14,9 +14,10 @@ a run is valid only if the printed value equals the frozen pin — ANY change
 to a staged byte after the freeze requires a correction record BEFORE any
 final-phase run.
 
-    .venv/bin/modal run poc/modal/modal_f2b.py --mock      # transport smoke, ~pennies
-    .venv/bin/modal run poc/modal/modal_f2b.py             # full pre-registered run (A10G)
-    .venv/bin/modal run poc/modal/modal_f2b.py --gpu t4    # T4 flavour
+    .venv/bin/modal run poc/modal/modal_f2b.py --gpu a100 --dry-plan  # cost plan, $0, local
+    .venv/bin/modal run poc/modal/modal_f2b.py --mock                 # transport smoke, ~pennies
+    .venv/bin/modal run poc/modal/modal_f2b.py --gpu a100             # RIGHT-SIZED run (single A100-40GB)
+    .venv/bin/modal run poc/modal/modal_f2b.py --gpu t4               # T4 flavour
 
 LAUNCH GATES (do NOT run the full path until ALL hold):
   1. registry/experiments/f2b-replicate.json FROZEN and the printed
@@ -66,7 +67,7 @@ REMOTE_DATA = "/root/kot/data"
 REMOTE_OUT = "/tmp/f2b-results"
 HF_CACHE_MOUNT = "/root/.cache/huggingface"
 TIMEOUT_S = 12 * 3600  # dry-plan worst case is far below; results ship at exit
-GPU_CHOICES = ("T4", "A10G")
+GPU_CHOICES = ("T4", "A10G", "A100")
 
 
 def _image_pins() -> list:
@@ -258,14 +259,33 @@ def run_f2b_a10g(mock: bool = False, local_manifest: dict = None) -> dict:  # no
     return _run_in_container("A10G", mock, local_manifest or {})
 
 
-GPU_FUNCTIONS = {"T4": run_f2b_t4, "A10G": run_f2b_a10g}
+@app.function(image=image, gpu="A100-40GB", volumes={HF_CACHE_MOUNT: hf_cache}, timeout=TIMEOUT_S)
+def run_f2b_a100(mock: bool = False, local_manifest: dict = None) -> dict:  # noqa: RUF013
+    return _run_in_container("A100", mock, local_manifest or {})
+
+
+GPU_FUNCTIONS = {"T4": run_f2b_t4, "A10G": run_f2b_a10g, "A100": run_f2b_a100}
 
 
 @app.local_entrypoint()
-def main(gpu: str = "A10G", mock: bool = False, out_root: str = "") -> None:
+def main(gpu: str = "A10G", mock: bool = False, dry_plan: bool = False,
+         out_root: str = "") -> None:
     gpu = gpu.upper()
     if gpu not in GPU_FUNCTIONS:
         raise SystemExit(f"ERR_GPU: --gpu must be one of {GPU_CHOICES}, got {gpu!r}")
+
+    # --dry-plan: the runner's stdlib cost plan vs the frozen caps. Runs LOCALLY
+    # (no container, no GPU, no network, $0) — a Modal launch is unnecessary to
+    # inventory cells. Honours --gpu <class> for the planning throughput/price
+    # table. Never emits a measurement.
+    if dry_plan:
+        import subprocess
+        cmd = [sys.executable, str(RUNNER), "--dry-plan", "--gpu-class", gpu,
+               "--out-dir", "/tmp/f2b-dry-plan",
+               "--dqar-dir", str(DQAR_DIR), "--dqa-dir", str(DQA_DIR),
+               "--inputs-dir", str(F2B_INPUTS)]
+        print(f"$ {' '.join(cmd)}")
+        raise SystemExit(subprocess.call(cmd))
 
     local_manifest = _manifest(str(RUNNER), str(RUNNER_REQS), str(F2B_INPUTS),
                                str(F0_DIR), str(DQA_DIR), str(DQAR_DIR),
