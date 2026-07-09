@@ -123,6 +123,21 @@ export {
 } from './synth.js';
 export type { SynthOptions, Mutation, EditType } from './synth.js';
 
+// Compositional roll-up substrate (idea B, docs/next/io-compression-ideas.md
+// §3.2–3.3): composite URN mint (docs/design-hash-input.md scheme), the
+// system-side invented-concept dictionary, and the canonical-form v0
+// record->text renderer + exact inverse parser. Additive modules — the
+// encoder content-hash pin is untouched.
+export {
+  KOT_AST_PROFILE_HEADER,
+  jcsCanonicalize,
+  compositeHashInput,
+  mintCompositeUrn,
+  CompositeDictionary,
+} from './rollup.js';
+export type { DictionaryEntry } from './rollup.js';
+export { renderExplication, parseRendered } from './render.js';
+
 export {
   DetStream,
   SeededRng,

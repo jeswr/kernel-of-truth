@@ -1,0 +1,33 @@
+{
+  "census": "A-E2 cross-lingual phrase-savings census (Tier 0, r0-local-cpu)",
+  "bead": "kernel-of-truth-5iu",
+  "design": "docs/next/io-compression-ideas.md §2.1 (value objective), §2.7 (A-E2)",
+  "status": "BLOCKED-ON-INPUTS (not run; nothing fetched — external download requires authorisation per the Tier-0 $0/no-fetch constraint)",
+  "date": "2026-07-09",
+  "what_a_e2_computes": "value(c) = Σ_ℓ w_ℓ · Σ_s f_ℓ(s)·(bpe_ℓ(s)−1)·m̂(s,ℓ) ranking, then the achievable prefill-token-savings curve vs number of concepts minted, per language and blended, under (i) membership and (ii) sampled mappability",
+  "required_inputs_missing_locally": [
+    {
+      "input": "pinned per-language frequency lists (the f_ℓ term)",
+      "candidates_named_in_design": "wordfreq-lineage aggregated lists (rspeer/wordfreq data), Leipzig Corpora Collection slices, OSCAR/CC-100 slices — exact sources pinned with hashes at candidate time, fail-closed on provenance (design §2.1)",
+      "local_search_result": "no wordfreq python package, no Leipzig/OSCAR/CC-100 files anywhere under /home/ec2-user or caches (searched 2026-07-09)",
+      "needs": "external download (+ source pinning decision: which lists, which languages)"
+    },
+    {
+      "input": "host tokenizers pinned per rung (the bpe_ℓ term)",
+      "candidates_named_in_design": "R1 SmolLM2 tokenizer (mandatory) + one R4-family tokenizer for the extension predicate (design §2.1)",
+      "local_search_result": "no ~/.cache/huggingface; the only tokenizer.json on the box is kb/cache/models/nomic-embed-text-v1.5 (kb embedding model, not a host rung); no transformers/tokenizers/sentencepiece/tiktoken runtime installed",
+      "needs": "external download of tokenizer.json files (e.g. HuggingFaceTB/SmolLM2-135M) + either a python tokenizers runtime or a JS BPE evaluator over tokenizer.json"
+    },
+    {
+      "input": "pilot-language surface data for the m̂ term beyond English",
+      "candidates_named_in_design": "per-language surface lexemes as mapper data (Wiktionary translation/sense links — fork A-F1); pilot languages named at freeze (design §2.1 scope-honesty)",
+      "local_search_result": "mapper is English-only (a1-hybrid, Phase M); no non-English lexeme tables in repo",
+      "needs": "external data + the A-F1 alignment fork decision + pilot-language stipulation at freeze"
+    }
+  ],
+  "what_is_available_locally": [
+    "English m̂ machinery: the pinned mapper + measured M0a abstention rates over TinyStories-valid (mapper/m0/results/)",
+    "the deterministic value-curve computation itself (pure counting once inputs exist)"
+  ],
+  "consequence": "the B-E0 census also cannot express span savings in host-BPE tokens for the same reason (word-token and character spans reported instead); the design's §1.5 accounting identity needs the pinned tokenizers for both ideas' consumption-side numbers"
+}

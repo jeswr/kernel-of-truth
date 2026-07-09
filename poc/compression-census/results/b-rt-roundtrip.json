@@ -1,0 +1,301 @@
+{
+  "census": "B-RT roll-up/expansion round-trip property suite (Tier 0)",
+  "bead": "kernel-of-truth-5iu",
+  "design": "docs/next/io-compression-ideas.md §3.3 (bar: 100% — any failure is a bug)",
+  "canonical_guard": "encoder/test/rollup-roundtrip.test.ts (in the encoder npm test suite)",
+  "date": "2026-07-09T21:43:49.861Z",
+  "encoder_content_hash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+  "properties": {
+    "P1": "URN determinism (mint twice + JSON round-trip)",
+    "P2": "dictionary exact-by-id expansion identity",
+    "P3": "render -> parse identity + URN stability + revalidation",
+    "P4": "validity-preserving single edits move the content address",
+    "P5": "encoded vectors byte-identical across the render->parse round trip (D=8192)"
+  },
+  "strata": {
+    "depths": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12
+    ],
+    "topClauses": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32
+    ],
+    "seedsPerCell": 25,
+    "cells": 36
+  },
+  "counts": {
+    "originals": 900,
+    "mutants": 886,
+    "null_mutations": 14,
+    "unique_composites_in_dictionary": 1780,
+    "encode_equivalence_checks": 36,
+    "items_checked": 1786,
+    "failures": 0
+  },
+  "pass_rate": 1,
+  "runtime_seconds": 9.982,
+  "per_stratum": [
+    {
+      "depth": 1,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 14,
+      "nullMutations": 11
+    },
+    {
+      "depth": 1,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 1,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 1,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 1,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 1,
+      "topClauses": 32,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 2,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 23,
+      "nullMutations": 2
+    },
+    {
+      "depth": 2,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 2,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 2,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 2,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 3,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 24,
+      "nullMutations": 1
+    },
+    {
+      "depth": 3,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 3,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 3,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 3,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 4,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 4,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 4,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 4,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 4,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 6,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 6,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 6,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 6,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 6,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 8,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 8,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 8,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 8,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 8,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 12,
+      "topClauses": 1,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 12,
+      "topClauses": 2,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 12,
+      "topClauses": 4,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 12,
+      "topClauses": 8,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    },
+    {
+      "depth": 12,
+      "topClauses": 16,
+      "originals": 25,
+      "mutants": 25,
+      "nullMutations": 0
+    }
+  ]
+}
