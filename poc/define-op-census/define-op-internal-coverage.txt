@@ -1,0 +1,33 @@
+=== MEASURED define-op internal coverage (DEFINE over logicalDefinition concepts) ===
+go.jsonl    pop= 9307  ANSWER=9307  ERR_DEFN_UNRESOLVED=0  ERR_NO_DEFINITION=0  ERR_TERM_UNLICENSED=0  
+so.jsonl    pop=  219  ANSWER=18  ERR_DEFN_UNRESOLVED=201  ERR_NO_DEFINITION=0  ERR_TERM_UNLICENSED=0  
+mondo.jsonl pop= 7685  ANSWER=103  ERR_DEFN_UNRESOLVED=7582  ERR_NO_DEFINITION=0  ERR_TERM_UNLICENSED=0  
+TOTAL       pop=17211  ANSWER=9428  ERR_DEFN_UNRESOLVED=7783  ERR_NO_DEFINITION=0  ERR_TERM_UNLICENSED=0
+checkable(ANSWER)=9428 / population=17211 = 0.5478
+--- engine index cross-check ---
+defn_licensed=72839  defn(resolved)=9428  defn_unresolved=7783
+=== so.jsonl unresolved-cause tally ===
+  rel_shorthand_not_in_alias_table 201
+  -- distinct unaliased differentia shorthands present (top 12):
+     has_quality                  163
+     has_origin                   29
+     transcribed_to               7
+     derives_from                 6
+     adjacent_to                  4
+     contains                     2
+     transcribed_from             1
+=== mondo.jsonl unresolved-cause tally ===
+  rel_shorthand_not_in_alias_table 7582
+  -- distinct unaliased differentia shorthands present (top 12):
+     disease_has_location         2539
+     has_material_basis_in_germline_mutation_in 2502
+     has_characteristic           1026
+     disease_arises_from_structure 388
+     disease_has_infectious_agent 338
+     disease_has_inflammation_site 251
+     disease_has_basis_in_disruption_of 170
+     MONDO:0100332                163
+     predisposes_towards          149
+     disease_has_feature          89
+     disease_arises_from_feature  84
+     realized_in_response_to      61
