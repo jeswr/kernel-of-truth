@@ -120,10 +120,33 @@ binds this verbatim.
 
 ### 3.1 d-qa-t (items; built pre-freeze, pinned directly)
 
-- Generator: `data/d-qa-t/build-dqat.py`, a seed-and-count change of the
-  committed `data/d-qa-r/build-dqar.py` (same templates, same 108 covered
+- Generator: `data/d-qa-t/build-dqat.py`, derived from the committed
+  `data/d-qa-r/build-dqar.py` (same four item templates, same 108 covered
   concepts, same canonical-record rendering contract, same fail-closed leak
-  machinery; NO LLM authors, selects, or edits any item text).
+  machinery; NO LLM authors, selects, or edits any item text) with a
+  RE-AUTHORED per-concept item plan sized to exactly n=360. This resolves the
+  20260709T164008Z boundary stop (bead kernel-of-truth-voc): the d-qa-r plan
+  structurally emits 9–10 items/concept ([972, 1080] over 108 concepts), so
+  no seed-and-count change can reach 360 — the COUNT stays (it carries the
+  stage-1 endorsement power at n_planned=360, the G-adj n≥300 floor, the
+  ~2 h/judge effort estimate, and the 250-item eval prefix + exclusion slack)
+  and the PLAN moves [STIPULATED design ruling; resolution (a)].
+- Per-concept plan (availability-aware): every concept draws **t1**
+  def-match, **t2** term-match (LC1-substituted to def-match where the gloss
+  contains the headword), and **t3** a TRUE-preferring claim (claim-true from
+  the concept's own gloss where a fresh admissible segment remains under
+  LC8-t, else substituted to claim-false, counts recorded); a 36-concept
+  fourth-item subset (**t4**, same TRUE-preferring claim) prioritises
+  concepts still holding a fresh segment after t3, then fills by seeded hash.
+  3·108 + 36 = 360. WHY availability-aware [MEASURED, reproducible from the
+  committed corpora]: d-qa + d-qa-r already consumed most claim-true prompt
+  surfaces — only 57 fresh gloss segments over 43 concepts remain (65
+  concepts have zero) — so a d-qa-r-style seeded-parity plan builds
+  28 yes / 116 no claims and ABORTS on LC7's yes/no ≤ 0.75 bound, while this
+  plan builds 56 yes / 88 no (no-share 0.611) and passes with margin. LC7
+  (yes/no balance and answer-position balance) remains the fail-closed
+  authority on the built counts; the claim-yes base rate is disclosed in
+  `data/d-qa-t/leak-check.json`.
 - **Generator seed, pre-committed verbatim here: `dqat/1|f2b-transfer|20260710`.**
   Single-draw rule: one build, one adjudication round. Any re-draw or
   re-adjudication requires a correction record under
@@ -324,9 +347,9 @@ and fewer cells:
   ≈ $1.10. Registry caps: usd_cap $15, gpu_hours_cap 4 h, wall-clock 24 h
   — an order of magnitude inside the <$100 auto-authorization envelope,
   and the design can FAIL for ~$0 at Stage 1.
-- Agent effort: builder seed-change + adjudication tooling + runner
-  adaptation of poc/f2b (drop arms, add dual scoring + engagement block)
-  ≈ 1–2 agent-days.
+- Agent effort: builder (authored and committed pre-freeze; §3.1 plan) +
+  adjudication tooling + runner adaptation of poc/f2b (drop arms, add dual
+  scoring + engagement block) ≈ 1–2 agent-days.
 
 ## 10. Decision table (design-time forecast; the assessment owns post-hoc meaning)
 

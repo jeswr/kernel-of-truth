@@ -18,7 +18,7 @@
       "§7",
       "§8"
     ],
-    "sha256": "4cb5dcaf3e0767b272e1a300cf4729e79e3e919d07cf996c8475cc5122ea812e"
+    "sha256": "c4942eaf6c9914eb1392956a77c3ab24d1890678e869ea7cbe3f4e7b5db96c79"
   },
   "analysis_plan_ref": {
     "path": "docs/research-plan/08-stats-and-extrapolation.md",
@@ -167,7 +167,7 @@
           "tag": "BINDING-NOTE"
         }
       ],
-      "fresh_items": "data/d-qa-t: 360 kernel-covered, kernel_checkable=true items over the 108 covered concepts, generator seed dqat/1|f2b-transfer|20260710 (pre-committed verbatim in prereg_doc §3.1), ID namespace dqat:, leak rule LC8-t fail-closed (full-prompt-surface disjointness from ALL 650 d-qa items AND all 1000 d-qa-r items); built by a seed-and-count change of the committed data/d-qa-r/build-dqar.py (same templates, same canonical-record rendering, NO LLM item authorship). EVAL SET = the first 250 externally-labelled items in pinned rank order (deterministic prefix; floor 200, below which the runner refuses)",
+      "fresh_items": "data/d-qa-t: 360 kernel-covered, kernel_checkable=true items over the 108 covered concepts, generator seed dqat/1|f2b-transfer|20260710 (pre-committed verbatim in prereg_doc §3.1), ID namespace dqat:, leak rule LC8-t fail-closed (full-prompt-surface disjointness from ALL 650 d-qa items AND all 1000 d-qa-r items; reference corpora byte-pinned inside the builder, DQAT_ERR_REFPIN on drift); built by data/d-qa-t/build-dqat.py — same four item templates, same canonical-record rendering and fail-closed leak machinery as the committed data/d-qa-r/build-dqar.py, with a RE-AUTHORED availability-aware per-concept plan sized to exactly 360 (per concept: def-match + term-match + TRUE-preferring claim; plus a 36-concept fourth-item claim subset prioritising concepts with fresh claim segments remaining — claim-true supply is bounded by prior d-qa/d-qa-r surface consumption at 57 fresh segments over 43 concepts, MEASURED; LC7 enforces yes/no <= 0.75 fail-closed; NO LLM item authorship; prereg_doc §3.1 records why no seed-and-count change of build-dqar.py can reach 360). EVAL SET = the first 250 externally-labelled items in pinned rank order (deterministic prefix; floor 200, below which the runner refuses)",
       "adjudication": "STAGE 1, before any GPU: two blind judges (judge-1 human, kernel-naive; judge-2 human if available else pre-declared cross-vendor Codex/GPT-5.5 fallback at temperature 0 with pinned prompt, E5 leak-checked-judge discipline) + blind tie-break judge-3 on discordant pairs; provenance-blind rendering, per-judge pinned shuffle seeds dadjt/1|judge-<n>|20260710, mandatory cannot-say escape; concordant escape => CONTENT-UNDECIDED (counts as NON-agreement in A, excluded from the eval set — evidence, not an instrument event); unresolved after tie-break => instrument event (capped 15%). Labels hash-pinned (d-adj-t ops amendment) BEFORE the stage-1 record is appended and never revisited; the stage-2 runner fail-closes on the pin",
       "per_arm_items": 250,
       "eval_floor": 200,
