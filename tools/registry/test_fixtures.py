@@ -589,6 +589,44 @@ class TestReportGen(SpineFixture):
         self.assertIn("store-size axis extrapolates freely", md)
         self.assertIn("Not citable as PASS until", md)
 
+    def test_report_full_scope_coverage_footer(self):
+        # assumption-register.md §6 item 4 (ENABLED 2026-07-09): the coverage
+        # footer states the FULL scope — source experiment + freeze time + its
+        # pinned census inputs (corpus/kernel-instance pins) + the
+        # no-extrapolation sentence — so it can never read as "natural coverage".
+        p = self.freeze(self.base_record(exp_id="mock-m0b"))
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.freeze(self.base_record(
+            coverage_requirement={"source": "mock-m0b", "rung_field": "coverage_rung"}))
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for seed in (0, 1):
+            p = self.append_run("mock-f1", seed)
+            self.assertEqual(p.returncode, 0, p.stderr)
+        self.write("registry/verdicts/mock-m0b.json", json.dumps({
+            "experiment": "mock-m0b", "verdict": "PASS",
+            "coverage": {"fraction": 0.3542, "rung": "molecules-v0"},
+            "audit": {"state": "CONFIRMED", "path": "registry/audits/mock-m0b/1.json"},
+        }) + "\n")
+        p = run_cli(VERDICT_GEN, "--experiment", "mock-f1", "--agent-id", "coordinator-1",
+                    "--root", self.root, "--computed-at", "2026-07-08T01:00:00Z")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = run_cli(REPORT_GEN, "--experiment", "mock-f1", "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        with open(self.path("reports/auto/mock-f1/verdict-mock-f1.md"), encoding="utf-8") as f:
+            md = f.read()
+        # fraction + rung still stated, but explicitly indexed, never "natural"
+        self.assertIn("**0.3542** at rung **molecules-v0**", md)
+        self.assertIn("corpus-indexed, rung-indexed, kernel-state-indexed", md)
+        self.assertIn('NOT a general ("natural") coverage property', md)
+        # full scope: the source experiment, its freeze time, its census pins
+        self.assertIn("census by experiment `mock-m0b` (frozen 2026-07-08T00:00:00Z)", md)
+        with open(self.path("registry/experiments/mock-m0b.json"), encoding="utf-8") as f:
+            src = json.load(f)
+        self.assertIn("mock-corpus:%s" % src["pins"]["corpus_hashes"]["mock-corpus"][:8], md)
+        # the no-extrapolation envelope sentence
+        self.assertIn("extrapolates to NO other corpus, rung, or kernel state", md)
+        self.assertIn("within exactly that scope", md)
+
     def test_report_refuses_drifted_record(self):
         p = self.freeze(self.base_record())
         self.assertEqual(p.returncode, 0, p.stderr)
@@ -714,6 +752,32 @@ class TestClaimsCheck(SpineFixture):
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("ERR_ASM_SCHEMA", p.stdout + p.stderr)
 
+    def test_wrapped_bullet_premise_joined(self):
+        # a markdown bullet wrapped with hanging indent is ONE logical line:
+        # the tag on the continuation line counts (the l3a-doc shape) ...
+        self.write_register(self.GOOD_MEASURED)
+        self.write("docs/design.md",
+                   "- PREMISE: coverage on the pinned corpus is 0.3542\n"
+                   "  at rung molecules-v0.\n"
+                   "  [MEASURED: registry/verdicts/m0b.json]\n")
+        p = self.run_claims("docs/design.md")
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        # ... but a wrapped bullet with no tag anywhere still fails ...
+        self.write("docs/design.md",
+                   "- PREMISE: the thing will work because it worked\n"
+                   "  somewhere else once.\n")
+        p = self.run_claims("docs/design.md")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_UNTAGGED_PREMISE", p.stdout + p.stderr)
+        # ... and an UNINDENTED next line is never joined (fail closed): a bare
+        # marker cannot borrow a tag from the ordinary prose below it.
+        self.write("docs/design.md",
+                   "PREMISE: the thing will work.\n"
+                   "[MEASURED: registry/verdicts/m0b.json] discussed later.\n")
+        p = self.run_claims("docs/design.md")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_UNTAGGED_PREMISE", p.stdout + p.stderr)
+
     def test_record_assumptions_block(self):
         self.write_register(self.GOOD_MEASURED)
         rec = {"schema_version": "kot-assess/1", "experiment": "mock",
@@ -722,6 +786,101 @@ class TestClaimsCheck(SpineFixture):
         p = self.run_claims("registry/assess-mock.json")
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("ERR_ASM_LOADBEARING_EXTRAPOLATION", p.stdout + p.stderr)
+
+
+class TestRegistryCheckClaims(SpineFixture):
+    """assumption-register.md §6 item 1 (ENABLED 2026-07-09): claims-check is
+    in registry-check's run-all set — the pre-push surface — over the register
+    + docs/**/*.md, fail-closed."""
+
+    def test_run_all_includes_claims_and_passes_clean(self):
+        self.write("registry/assumptions.jsonl",
+                   json.dumps(TestClaimsCheck.GOOD_MEASURED) + "\n")
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("claims: register + ", p.stdout)
+
+    def test_run_all_fails_on_loadbearing_extrapolation(self):
+        bad = dict(TestClaimsCheck.GOOD_EXTRAPOLATION, load_bearing=True)
+        self.write("registry/assumptions.jsonl", json.dumps(bad) + "\n")
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_LOADBEARING_EXTRAPOLATION", p.stdout + p.stderr)
+
+    def test_run_all_fails_on_untagged_premise_in_docs(self):
+        self.write("docs/untagged.md", "DECISION: ship it because it feels right\n")
+        p = run_cli(REGISTRY_CHECK, "--claims", "--root", self.root)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_ASM_UNTAGGED_PREMISE", p.stdout + p.stderr)
+
+
+class TestPreregPause(SpineFixture):
+    """assumption-register.md §6 item 2 (maintainer decision 2026-07-09):
+    PAUSE-and-reassess, NOT refuse — 'stop false conclusions, not
+    experiments'. A freeze citing an open EXTRAPOLATION succeeds, emits a
+    non-fatal PAUSE flag + kot-pause/1 line in registry/pause-flags.jsonl
+    (the backlog-reprioritisation signal for the research-engine
+    assess->next-step loop); the conclusion-side hard gates are untouched."""
+
+    def write_register(self):
+        self.write("registry/assumptions.jsonl",
+                   json.dumps(TestClaimsCheck.GOOD_MEASURED) + "\n"
+                   + json.dumps(TestClaimsCheck.GOOD_EXTRAPOLATION) + "\n")
+
+    def pause_lines(self):
+        path = self.path("registry/pause-flags.jsonl")
+        if not os.path.isfile(path):
+            return []
+        with open(path, encoding="utf-8") as f:
+            return [json.loads(l) for l in f if l.strip()]
+
+    def test_open_extrapolation_citation_pauses_but_freezes(self):
+        self.write_register()
+        rec = self.base_record(title="mock probe of the projection ASM-0002")
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)         # NOT blocked
+        self.assertIn("PAUSE (non-fatal)", p.stdout)
+        self.assertIn('"pause_flags": [\n    "ASM-0002"\n  ]', p.stdout)
+        flags = self.pause_lines()
+        self.assertEqual(len(flags), 1)
+        self.assertEqual(flags[0]["kind"], "PAUSE-REASSESS")
+        self.assertEqual(flags[0]["experiment"], "mock-f1")
+        self.assertEqual(flags[0]["asm_ids"], ["ASM-0002"])
+        self.assertEqual(flags[0]["signal"], "backlog-reprioritise")
+        self.assertEqual(flags[0]["frozen_sha256"], self.frozen_sha("mock-f1"))
+        # the record really froze, and the whole tree (incl. claims) still lints
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+
+    def test_prereg_doc_citation_also_pauses(self):
+        self.write_register()
+        self.write("docs/prereg.md",
+                   "mock prereg text, motivated by the open projection ASM-0002\n")
+        p = self.freeze(self.base_record())  # sha re-pinned by base_record
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("PAUSE (non-fatal)", p.stdout)
+        self.assertEqual(self.pause_lines()[0]["asm_ids"], ["ASM-0002"])
+
+    def test_resolved_or_measured_citation_does_not_pause(self):
+        self.write_register()
+        rec = self.base_record(title="mock experiment building on ASM-0001")
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertNotIn("PAUSE", p.stdout)
+        self.assertIn('"pause_flags": []', p.stdout)
+        self.assertEqual(self.pause_lines(), [])
+
+    def test_dry_run_prints_pause_but_writes_nothing(self):
+        self.write_register()
+        rec = self.base_record(title="mock probe of the projection ASM-0002")
+        self.write("registry/experiments/%s.json" % rec["id"], json.dumps(rec) + "\n")
+        p = run_cli(PREREG_FREEZE, "--experiment", rec["id"], "--agent-id", "coordinator-1",
+                    "--root", self.root, "--frozen-at", "2026-07-08T00:00:00Z", "--dry-run")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("PAUSE (non-fatal)", p.stdout)
+        self.assertIn("would be recorded", p.stdout)
+        self.assertEqual(self.pause_lines(), [])
+        self.assertFalse(os.path.isfile(self.path("registry/frozen-index.json")))
 
 
 if __name__ == "__main__":

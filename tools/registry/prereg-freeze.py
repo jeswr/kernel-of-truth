@@ -34,6 +34,19 @@ Fail-closed refusals (all abort with exit 1 and a named code):
                              freeze time (correction c-2026-07-08)
   ERR_P2_SIGNOFF             budget.usd_cap > 900 without maintainer_signoff (G-11 Tier-5)
 
+PAUSE-and-reassess (assumption-register.md §6 item 2, maintainer decision
+2026-07-09 — the governing philosophy: STOP FALSE CONCLUSIONS, NOT
+EXPERIMENTS): a record (or its pinned prereg doc) that cites an ASM-id whose
+current register entry is an OPEN EXTRAPOLATION is NOT refused. The freeze
+proceeds, and this tool emits a non-fatal PAUSE flag — a kot-pause/1 line
+appended to registry/pause-flags.jsonl plus the same flag on stdout and in
+the summary JSON — carrying a backlog-reprioritisation signal so the
+research-engine assess->next-step loop can decide: resolve the cited
+extrapolation first (run its resolution_path), or prioritise another
+candidate. The HARD block on extrapolations stays on the CONCLUSION side
+(claims-check ERR_ASM_EXTRAPOLATION_PREMISE / ERR_ASM_LOADBEARING_EXTRAPOLATION;
+verdict-gen's pure-function verdict), never on running the experiment.
+
 External freeze-timestamping (P2 §1.1 RT-15: publish the hash to the
 coordination issue) is a POST-step for the coordinator; this tool prints the
 line to post but never touches the network.
@@ -43,6 +56,7 @@ import argparse
 import datetime
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -50,6 +64,49 @@ import kot_common as kc
 
 FIVE_V = ("accuracy", "params", "memory", "inference_compute", "training_compute")
 CATCH_ALL = {"verdict": "INCONCLUSIVE", "when": {"const": True}}
+ASM_CITE_RE = re.compile(r"\bASM-\d{4}\b")
+
+
+def load_assumption_register(root):
+    """registry/assumptions.jsonl -> {id: current entry} (append-only,
+    last-line-wins). Malformed lines are skipped here — claims-check (in the
+    registry-check run-all set) owns register validity; this reader only needs
+    tag/status resolution for the pause scan."""
+    path = os.path.join(root, "registry", "assumptions.jsonl")
+    register = {}
+    if not os.path.isfile(path):
+        return register
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(entry, dict) and isinstance(entry.get("id"), str):
+                register[entry["id"]] = entry
+    return register
+
+
+def scan_open_extrapolations(record, root):
+    """PAUSE-and-reassess scan (assumption-register.md §6 item 2): every
+    ASM-id cited anywhere in the record's canonical bytes or in its pinned
+    prereg doc whose CURRENT register entry is an open EXTRAPOLATION.
+    Returns the sorted list of such ids. Non-fatal by design — the guiding
+    principle is 'stop false conclusions, not experiments'."""
+    register = load_assumption_register(root)
+    cited = set(ASM_CITE_RE.findall(kc.canonical_dumps(record)))
+    prereg_path = os.path.join(root, record.get("prereg_doc", {}).get("path", ""))
+    if os.path.isfile(prereg_path):
+        try:
+            with open(prereg_path, "r", encoding="utf-8") as f:
+                cited |= set(ASM_CITE_RE.findall(f.read()))
+        except (OSError, UnicodeDecodeError):
+            pass  # the P-6 pin check already guarantees the doc's bytes
+    return sorted(a for a in cited
+                  if register.get(a, {}).get("tag") == "EXTRAPOLATION"
+                  and register.get(a, {}).get("status") == "open")
 
 
 def fail(code, msg):
@@ -230,6 +287,10 @@ def main():
 
         check_record(record, root)
 
+        # PAUSE-and-reassess (§6 item 2): non-fatal by design — never blocks
+        # the freeze. Guard conclusions, not experiments.
+        pause_asm_ids = scan_open_extrapolations(record, root)
+
         record["status"] = "FROZEN"
         record["frozen_sha256"] = kc.frozen_hash(record)
 
@@ -237,6 +298,36 @@ def main():
             kc.write_canonical_json(rec_path, record)
             index[args.experiment] = record["frozen_sha256"]
             kc.write_canonical_json(index_path, index)
+            if pause_asm_ids:
+                pause_line = kc.canonical_dumps({
+                    "schema_version": "kot-pause/1",
+                    "kind": "PAUSE-REASSESS",
+                    "experiment": args.experiment,
+                    "frozen_sha256": record["frozen_sha256"],
+                    "asm_ids": pause_asm_ids,
+                    "reason": "freeze premise/motivation cites open EXTRAPOLATION register "
+                              "entr%s; the experiment is NOT blocked (guard conclusions, "
+                              "not experiments)" % ("y" if len(pause_asm_ids) == 1 else "ies"),
+                    "signal": "backlog-reprioritise",
+                    "options": ["resolve the cited extrapolation first (run its "
+                                "resolution_path, then re-tag)",
+                                "prioritise another candidate"],
+                    "emitted_by": args.agent_id,
+                    "date": record["frozen_at"],
+                    "tool": "prereg-freeze/1",
+                }) + "\n"
+                with open(os.path.join(root, "registry", "pause-flags.jsonl"),
+                          "a", encoding="utf-8") as f:
+                    f.write(pause_line)
+
+        if pause_asm_ids:
+            print("PAUSE (non-fatal): %s cites open EXTRAPOLATION(s) %s — "
+                  "backlog-reprioritisation signal %s registry/pause-flags.jsonl; "
+                  "the research-engine assess->next-step loop decides: resolve the "
+                  "premise first, or prioritise another candidate. Conclusions stay "
+                  "hard-gated (claims-check / verdict-gen)."
+                  % (args.experiment, ", ".join(pause_asm_ids),
+                     "recorded in" if not args.dry_run else "would be recorded in"))
 
         print(json.dumps({
             "experiment": args.experiment,
@@ -244,6 +335,7 @@ def main():
             "frozen_sha256": record["frozen_sha256"],
             "frozen_at": record["frozen_at"],
             "frozen_by": record["frozen_by"],
+            "pause_flags": pause_asm_ids,
             "external_timestamp_post": "prereg freeze %s frozen_sha256=%s (post hash-only to the coordination issue — RT-15)"
                                        % (args.experiment, record["frozen_sha256"]),
         }, indent=2, sort_keys=True))

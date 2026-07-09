@@ -76,7 +76,11 @@ Raw analysis-output document (ALL derived statistics live here and nowhere else,
 
 ## Coverage disclosure (mandatory)
 
-Kernel-expressibility coverage (M0b): **0.3542** at rung **molecules-v0**. Every claim above is bounded to this covered slice.
+Kernel-expressibility coverage (M0b): **0.3542** at rung **molecules-v0** — a corpus-indexed, rung-indexed, kernel-state-indexed measurement, NOT a general ("natural") coverage property of the kernel.
+
+Full measured scope: census by experiment `m0b` (frozen 2026-07-08T16:45:06Z) over exactly its pinned inputs — kernel-v0:8209cada, lexical-wn31:5e76def8, molecules-v0:69f0c8a3, task-family-tinystories:b6bcc9f6 (encoder pin 40e8c8ba) — i.e. that one pinned corpus against the incomplete kernel instance as pinned at that freeze; coverage is re-measured as the kernel grows (coverage-growth curve, P7 RT-11/§10).
+
+No-extrapolation envelope on this number (per the m0b verdict envelope and the assumption register, registry/assumptions.jsonl): it extrapolates to NO other corpus, rung, or kernel state. Every claim above is bounded to this covered slice, within exactly that scope.
 
 ## Scale
 

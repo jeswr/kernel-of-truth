@@ -2,12 +2,14 @@
 
 **Kernel of Truth programme — honesty-machinery extension, node N-G.**
 Author: Kern (Fable design agent, writer-1). Date: 2026-07-09.
-Status: **DESIGN + partial implementation.** The register file
+Status: **DESIGN + implementation; governance wirings RULED ON.** The register file
 (`registry/assumptions.jsonl`) and the standalone lint
-(`tools/registry/claims-check.py`) exist as of this document; wiring the lint into
-`prereg-freeze` / `registry-check --all` / `kb-check` changes the behaviour of the
-freeze machinery and is therefore **maintainer-gated** (P2 §7 item 3) — proposed in
-§6, not enacted. Binding constraints: `docs/kernel-design-directives.md` §§3, 4, 6;
+(`tools/registry/claims-check.py`) exist as of this document. The §6 wirings were
+maintainer-gated (P2 §7 item 3) and the maintainer decided them on 2026-07-09:
+items 1 (claims-check in the pre-push run-all set) and 4 (full-scope coverage
+footer) are **ENABLED**; item 2 is **reframed to PAUSE-and-reassess** (non-fatal;
+§6 states the governing philosophy); item 3 stays **deferred** pending the lit-KB
+(Pillar C). Binding constraints: `docs/kernel-design-directives.md` §§3, 4, 6;
 the maintainer's epistemic-discipline directive (2026-07-08): *every load-bearing
 claim carries a status tag; a claim is treated as established only when MEASURED or
 LIT-BACKED; an extrapolation is never stated as fact and never used as a premise for
@@ -97,8 +99,9 @@ a convention, and the lint enforces the convention:
 2. **Candidate records (structural).** The N-B candidate template's `claim.md`
    gains a mandatory **Assumptions** section (see research-engine.md §1.3 step 1 as
    amended): every premise enumerated as a marker line, each citing a tag or an
-   ASM-id. `prereg-freeze` integration (§6) would make an unregistered premise a
-   freeze refusal.
+   ASM-id. `prereg-freeze` integration (§6 item 2, as decided): a citation that
+   resolves to an open EXTRAPOLATION emits a non-fatal PAUSE flag — the
+   conclusion-side lints stay hard; the experiment is never blocked.
 3. **The Skeptic sweep (adversarial).** Step-6 pre-freeze attack memos gain a fixed
    checklist item: *sweep the draft for unmarked load-bearing claims* — the human/
    agent half of identification, mirroring how RT-2/RT-3 classes are caught.
@@ -113,7 +116,12 @@ a convention, and the lint enforces the convention:
 ## 3. The lint: `tools/registry/claims-check.py` (implemented)
 
 Standalone, stdlib-only, fail-closed with named `ERR_ASM_*` codes; same conventions
-as the rest of `tools/registry/`. It does **not** modify any existing tool.
+as the rest of `tools/registry/`. Since 2026-07-09 it is also invoked by
+`registry-check`'s run-all set (§6 item 1) — the standalone CLI remains the single
+implementation. Markdown hanging-indent continuations of a bullet are joined into
+one logical line before the marker checks, so a wrapped premise whose tag lands on
+the continuation line is read whole; unindented wrapped prose is never joined
+(fail closed).
 
 ```
 python3 tools/registry/claims-check.py [--root <repo>] [--register <path>] [paths…]
@@ -148,7 +156,7 @@ Enacted as edits to `docs/next/research-engine.md` (design-stage, so editable):
 1. **Candidate template** (§1.2/§1.3 step 1): `claim.md` gains a mandatory
    **Assumptions** heading — every load-bearing premise as a marker line with tag or
    ASM-id; `claims-check` runs over `candidates/<id>/` as part of the step-6 skeptic
-   gate and (once §6 is approved) at freeze.
+   gate; at freeze, `prereg-freeze` runs the §6-item-2 pause scan (non-fatal).
 2. **Assessment record** (§2.1): `kot-assess/1` gains `assumptions_resolved[]`;
    the assessment is incomplete while any EXTRAPOLATION the candidate relied on is
    unaddressed.
@@ -173,20 +181,52 @@ Enacted as edits to `docs/next/research-engine.md` (design-stage, so editable):
 
 ---
 
-## 6. Maintainer-gated proposals (not enacted here)
+## 6. Governance wirings — maintainer decision record (2026-07-09)
 
-1. Add `claims-check` to `registry-check`'s run-all set (changes the pre-push hook's
-   behaviour — fail-closed surface, so maintainer sign-off).
-2. `prereg-freeze` refusal on a DRAFT record whose `assumptions[]` block is missing,
-   or cites an open EXTRAPOLATION as a premise (touches the freeze machinery).
-3. `kb-check` (Pillar C, when built) enforcing the LIT-BACKED backing rule on
-   `kot-lit/1` records cited as backing.
-4. Report-gen footer wording: the current coverage disclosure line ("Kernel-
-   expressibility coverage (M0b): 0.3542 at rung molecules-v0") restates fraction +
-   rung but not the **corpus** or **kernel-instance** scope; adding "on corpus
-   task-family-tinystories; corpus-indexed, extrapolates to no other corpus" would
-   close the exact reading that produced the m0b incident. Touches generated-report
-   machinery → maintainer-gated; registered as ASM-0003's revisit surface.
+These four items were proposed maintainer-gated; the maintainer ruled on each on
+2026-07-09. The governing philosophy behind item 2 is binding programme-wide:
+
+> **Stop false CONCLUSIONS, not experiments.** The hard, fail-closed gates guard
+> what the programme *asserts* — verdicts, paper claims, premise/decision lines —
+> never whether an experiment may run. An open EXTRAPOLATION is a perfectly good
+> reason to *run* an experiment; it is never a licensed *premise* for concluding
+> anything, and no conclusion may exceed its MEASURED / LIT-BACKED backing.
+
+1. **ENABLED (2026-07-09).** `claims-check` is in `registry-check`'s run-all set,
+   and the repo pre-push hook (`.beads/hooks/pre-push`, via `core.hooksPath`) runs
+   `registry-check` run-all: every push lints `registry/assumptions.jsonl` +
+   `docs/**/*.md`, fail-closed (`registry-check.py --claims`; wrapped markdown
+   bullets are joined into logical lines so a hanging-indent tag counts, while
+   unindented prose is never joined — fail closed). Fixtures:
+   `TestRegistryCheckClaims`, `TestClaimsCheck.test_wrapped_bullet_premise_joined`.
+2. **REFRAMED to PAUSE-and-reassess (2026-07-09) — NOT a freeze refusal.**
+   `prereg-freeze` does not hard-block a DRAFT record whose record bytes or pinned
+   prereg doc cite an ASM-id that currently resolves to an **open EXTRAPOLATION**.
+   The freeze proceeds, and the tool emits a **non-fatal PAUSE flag**: a
+   `kot-pause/1` line appended to `registry/pause-flags.jsonl` (plus the same flag
+   on stdout and a `pause_flags` field in the freeze summary), carrying a
+   `backlog-reprioritise` signal so the research-engine assess→next-step loop
+   decides — resolve the cited extrapolation first (run its `resolution_path`), or
+   prioritise another candidate. The HARD block stays on the CONCLUSION side:
+   `claims-check` refuses an EXTRAPOLATION-tagged premise/decision line
+   (`ERR_ASM_EXTRAPOLATION_PREMISE`) and a load-bearing EXTRAPOLATION register
+   entry (`ERR_ASM_LOADBEARING_EXTRAPOLATION`), and `verdict-gen` remains a pure
+   function of the frozen SAP + chained log — so a false conclusion cannot ship,
+   while the experiment that would *test* the projection is never blocked.
+   Fixtures: `TestPreregPause`.
+3. **DEFERRED pending the lit-KB (Pillar C).** `kb-check` enforcing the LIT-BACKED
+   backing rule on `kot-lit/1` records cited as backing — enable when Pillar C
+   lands (tracked as follow-up work; N-C §0 remains the honesty boundary meanwhile).
+4. **ENABLED (2026-07-09).** `report-gen`'s coverage-disclosure footer now states
+   the FULL measured scope from machine inputs only — the census source experiment
+   + its freeze timestamp + its pinned census inputs (corpus and kernel-instance
+   pins + encoder pin, from the source's frozen record) + the no-extrapolation
+   sentence ("corpus-indexed, rung-indexed, kernel-state-indexed … extrapolates to
+   NO other corpus, rung, or kernel state; NOT a general ('natural') coverage
+   property") — matching the m0b verdict envelope + ASM-0001, so the footer can
+   never again read as "natural coverage". Affected auto-reports regenerated
+   (m0b, f2, g6, g7; footer-only diffs). Fixture:
+   `TestReportGen.test_report_full_scope_coverage_footer`.
 
 ---
 
@@ -237,10 +277,39 @@ retro-tagging sweep.
 
 This document creates no registry *experiment* entries, freezes nothing, and amends
 nothing frozen. `registry/assumptions.jsonl` is a new, additive register; the lint is
-a new, additive tool; every integration that would change fail-closed behaviour of
-existing machinery is listed in §6 and awaits maintainer sign-off. The census numbers
+a new, additive tool; every integration that changes fail-closed behaviour of
+existing machinery is recorded in §6 with its maintainer decision of 2026-07-09
+(items 1 + 4 enabled; item 2 enacted as a non-fatal pause, which blocks nothing;
+item 3 deferred pending Pillar C). The census numbers
 quoted in §7 restate `registry/verdicts/m0b.json` (audit CONFIRMED) verbatim-in-
 substance and add no new empirical claim.
+
+---
+
+## 9. Role-authoring note — the HONESTY-GUARD tail (convention, 2026-07-09)
+
+Every Fable role file under `.claude/agents/` ends with a canonical **HONESTY-GUARD**
+block distilled from this document (the four tags, the RULE, the marker convention +
+lint + register, the conclusions-not-experiments scope of the block, verdict-time
+resolution via `assumptions_resolved[]`, and the m0b worked caution). Authoring rules
+for any NEW role (and any future guard revision):
+
+1. **Append at the tail, never earlier.** File shape is: frontmatter → the shared
+   programme-context block VERBATIM (byte-identical to
+   `.claude/context/programme-context.md`, sha256 prefix `e1005387`) → the
+   role-specific body → the HONESTY-GUARD tail. The leading block and existing body
+   are never touched when the guard changes — tail-append preserves the prompt-cache
+   prefix across all roles.
+2. **Byte-identical across roles.** The guard is one canonical text (current sha256
+   `44731dd21791eda093874a1c7fe6df9ac33ae6be2df5a2c70d96d11d22d39cc7`; reference copy =
+   the tail block of `.claude/agents/analyst.md`, from the `# HONESTY-GUARD` heading and
+   its preceding `---` separator to EOF). Revising it means re-appending the same new
+   bytes to EVERY role file in one change.
+3. **Lint-clean by construction.** The guard (and any role prose) never writes a bare
+   marker-plus-colon; its one worked example line carries a valid `[MEASURED: …]`
+   backing ref, so `claims-check.py` over `.claude/agents/` passes.
+4. `architecture-advisor.md` predates the shared block (no `e1005387` prefix) but
+   carries the same guard tail as of 2026-07-09.
 
 ---
 

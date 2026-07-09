@@ -15,12 +15,22 @@ With no paths, validates registry/assumptions.jsonl (if present). Given paths:
                    the tag must not be EXTRAPOLATION, MEASURED/LIT-BACKED
                    need a non-empty backing ref, STIPULATED must cite a
                    registered ASM-id; every cited ASM-id must exist.
+                   Markdown hanging-indent continuations of a bullet are
+                   joined into one logical line first, so a wrapped premise
+                   whose tag lands on the continuation line is read whole
+                   (unindented wrapped prose is NOT joined — fail closed).
   *.json/*.jsonl — any top-level "assumptions" array is validated with the
                    same per-entry rules as the register.
 
 Exit 0 only if every check passes; violations print named ERR_ASM_* findings
-and exit 1. Standalone and additive: no existing tool's behaviour changes
-(registry-check / prereg-freeze wiring is maintainer-gated — spec §6).
+and exit 1.
+
+Wiring (assumption-register.md §6, maintainer decision 2026-07-09):
+  - item 1 ENABLED: registry-check's run-all set invokes this lint over the
+    register + docs/**/*.md on every push (fail-closed).
+  - item 2 is PAUSE-and-reassess and lives in prereg-freeze (non-fatal flag),
+    NOT here: this lint stays the CONCLUSION-side hard gate — stop false
+    conclusions, not experiments.
 """
 
 import argparse
@@ -133,6 +143,38 @@ def load_register(path, f):
     return register
 
 
+# A physical line that OPENS a new markdown block (bullet, numbered item,
+# heading, table row, blockquote) is never a continuation of the line above.
+BLOCK_OPEN_RE = re.compile(r"^\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|\||>)")
+
+
+def logical_lines(text):
+    """Join markdown hanging-indent continuations into logical lines.
+
+    A physical line continues the previous logical line iff it is non-blank,
+    starts with whitespace (the hanging indent of a wrapped bullet), does not
+    itself open a new block, and the previous physical line was non-blank.
+    Deliberately conservative: an UNINDENTED wrapped paragraph line is not
+    joined, so a bare marker line can never borrow a tag from ordinary prose
+    below it (fail closed). Returns [(first_physical_lineno_1based, text)].
+    """
+    out = []
+    prev_blank = True
+    for i, raw in enumerate(text.splitlines(), start=1):
+        stripped = raw.strip()
+        if not stripped:
+            prev_blank = True
+            continue
+        if (out and not prev_blank and raw[:1] in (" ", "\t")
+                and not BLOCK_OPEN_RE.match(raw)):
+            lineno, joined = out[-1]
+            out[-1] = (lineno, joined + " " + stripped)
+        else:
+            out.append((i, stripped))
+        prev_blank = False
+    return out
+
+
 def check_doc(path, register, register_available, f):
     rel = path
     try:
@@ -142,8 +184,8 @@ def check_doc(path, register, register_available, f):
         f.err("ERR_P2_IO", "%s: unreadable (%s)" % (rel, e))
         return
     n_markers = 0
-    for i, line in enumerate(text.splitlines()):
-        where = "%s line %d" % (rel, i + 1)
+    for lineno, line in logical_lines(text):
+        where = "%s line %d" % (rel, lineno)
         tags = TAG_RE.findall(line)
         # Every cited ASM-id must exist in the register (when one is available).
         if register_available:
@@ -173,7 +215,8 @@ def check_doc(path, register, register_available, f):
                 elif register_available and cited.group(0) not in register:
                     f.err("ERR_ASM_UNKNOWN_ID", "%s: cites %s, absent from the register"
                           % (where, cited.group(0)))
-    f.ok("doc: %s (%d marked premise line%s)" % (rel, n_markers, "" if n_markers == 1 else "s"))
+    f.ok("doc: %s (%d marked premise line%s)"
+         % (rel, n_markers, "" if n_markers == 1 else "s"))
 
 
 def check_record(path, register, register_available, f):

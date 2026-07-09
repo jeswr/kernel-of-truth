@@ -145,9 +145,40 @@ def render(root, exp_id):
     L.append("")
     cov = verdict.get("coverage")
     if cov:
-        L.append("Kernel-expressibility coverage (M0b): **%s** at rung **%s**. Every claim above "
-                 "is bounded to this covered slice." % (
+        # FULL scope, mechanised (assumption-register.md §6 item 4, ENABLED
+        # 2026-07-09): fraction + rung alone read as "natural coverage" — the
+        # exact promotion the m0b incident showed. State corpus + kernel
+        # instance + the no-extrapolation envelope, from machine inputs only:
+        # the source experiment's frozen record supplies the census pins.
+        src_id = (cov.get("source_experiment")
+                  or record.get("coverage_requirement", {}).get("source") or "self")
+        if src_id == "self":
+            src_id, src_record = exp_id, record
+        else:
+            src_record = load_json(os.path.join(root, "registry", "experiments",
+                                                "%s.json" % src_id), "coverage source record")
+        src_pins = {k: v for k, v in
+                    src_record.get("pins", {}).get("corpus_hashes", {}).items()
+                    if k != "_recipe"}
+        L.append("Kernel-expressibility coverage (M0b): **%s** at rung **%s** — a "
+                 "corpus-indexed, rung-indexed, kernel-state-indexed measurement, NOT a "
+                 "general (\"natural\") coverage property of the kernel." % (
                      cov.get("fraction", "?"), cov.get("rung", "?")))
+        L.append("")
+        L.append("Full measured scope: census by experiment `%s` (frozen %s) over exactly "
+                 "its pinned inputs — %s (encoder pin %s) — i.e. that one pinned corpus "
+                 "against the incomplete kernel instance as pinned at that freeze; coverage "
+                 "is re-measured as the kernel grows (coverage-growth curve, P7 RT-11/§10)." % (
+                     src_id, src_record.get("frozen_at", "n/a"),
+                     ", ".join("%s:%s" % (k, short(v) if isinstance(v, str)
+                                          and kc.SHA256_RE.match(v) else "(at-inputs)")
+                               for k, v in sorted(src_pins.items())) or "none",
+                     short(src_record.get("pins", {}).get("encoder_hash"))))
+        L.append("")
+        L.append("No-extrapolation envelope on this number (per the %s verdict envelope and "
+                 "the assumption register, registry/assumptions.jsonl): it extrapolates to NO "
+                 "other corpus, rung, or kernel state. Every claim above is bounded to this "
+                 "covered slice, within exactly that scope." % src_id)
     elif "coverage_requirement" in record:
         L.append("DECLARED but ABSENT — coverage_requirement is frozen on this record and no "
                  "coverage block was available (verdict cannot be complete).")

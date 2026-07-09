@@ -3,6 +3,7 @@
 
     python3 tools/registry/registry-check.py [--root <repo>]
         [--chain] [--frozen-drift] [--corpus-pins] [--account-lint] [--append-only]
+        [--claims]
 
 With no selector flags, ALL checks run. Exit 0 only if every check passes;
 any violation prints a named ERR_* finding and exits 1.
@@ -29,6 +30,12 @@ Checks:
                   append-only witness). SKIPs with a warning when git or HEAD
                   history is unavailable — the hash chain remains the primary,
                   git-independent witness.
+  --claims        the epistemic-tag lint (tools/registry/claims-check.py) over
+                  registry/assumptions.jsonl + every docs/**/*.md, fail-closed
+                  (assumption-register.md §6 item 1, ENABLED by maintainer
+                  decision 2026-07-09): a load-bearing EXTRAPOLATION, an
+                  untagged/extrapolation-tagged premise line, or an
+                  unregistered/unknown ASM citation blocks the push.
 
 Usable as a pre-push hook:
   ln -s ../../tools/registry/registry-check.py .git/hooks/pre-push
@@ -243,6 +250,27 @@ def check_append_only(root, f):
             f.ok("append-only: %s (+%d bytes)" % (rel, len(now) - len(p.stdout)))
 
 
+def check_claims(root, f):
+    """claims-check over the register + docs (assumption-register.md §6 item 1,
+    ENABLED 2026-07-09). Runs the standalone lint as a subprocess so its CLI
+    surface stays the single implementation; findings are replayed with their
+    own ERR_ASM_* codes. Fail-closed: any nonzero exit is a violation."""
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "claims-check.py")
+    docs = sorted(glob.glob(os.path.join(root, "docs", "**", "*.md"), recursive=True))
+    p = subprocess.run([sys.executable, script, "--root", root] + docs,
+                       capture_output=True, text=True)
+    if p.returncode == 0:
+        f.ok("claims: register + %d doc(s) pass claims-check" % len(docs))
+        return
+    failures = [l for l in (p.stdout + p.stderr).splitlines() if l.startswith("FAIL ")]
+    for line in failures:
+        code, _, msg = line[len("FAIL "):].partition(": ")
+        f.err(code or "ERR_ASM_CLAIMS", msg)
+    if not failures:
+        f.err("ERR_ASM_CLAIMS", "claims-check exited %d without named findings: %s"
+              % (p.returncode, (p.stderr or p.stdout).strip()[:400]))
+
+
 def main():
     ap = argparse.ArgumentParser(description="Verify registry + results-log integrity (fail-closed).")
     ap.add_argument("--root", default=None)
@@ -251,13 +279,14 @@ def main():
     ap.add_argument("--corpus-pins", action="store_true")
     ap.add_argument("--account-lint", action="store_true")
     ap.add_argument("--append-only", action="store_true")
+    ap.add_argument("--claims", action="store_true")
     # pre-push hooks pass "<remote> <url>" positionals; accept and ignore them.
     ap.add_argument("hook_args", nargs="*", help=argparse.SUPPRESS)
     args = ap.parse_args()
 
     root = args.root or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     run_all = not (args.chain or args.frozen_drift or args.corpus_pins
-                   or args.account_lint or args.append_only)
+                   or args.account_lint or args.append_only or args.claims)
 
     f = Findings()
     if run_all or args.chain:
@@ -270,6 +299,8 @@ def main():
         check_account_lint(root, f)
     if run_all or args.append_only:
         check_append_only(root, f)
+    if run_all or args.claims:
+        check_claims(root, f)
 
     if f.items:
         print("registry-check: %d violation(s)" % len(f.items))

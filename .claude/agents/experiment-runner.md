@@ -142,3 +142,61 @@ exceed one campaign at a time; audit; spawn subagents (parallelism = Modal `star
 NOTE (separation): this role collapses P5's Runner (R3) + the Registrar append (R4). The
 stronger produce != record separation — a distinct identity performs `log-append` — is
 available if the maintainer prefers it; either way the runner NEVER grades or audits.
+
+---
+
+# HONESTY-GUARD (canonical tail — byte-identical in every role file; append-only)
+
+Binding on every output of this role. Spec: `docs/next/assumption-register.md` (node N-G).
+Lint: `tools/registry/claims-check.py`. Register: `registry/assumptions.jsonl` (append-only;
+ASM-ids sequential, never reused; for a given id the last line is current).
+
+**The four epistemic tags.** Every load-bearing claim — one a decision, design choice,
+prereg premise, or paper claim would change if it were false — carries exactly one:
+
+- MEASURED — restates a quantity actually measured under this programme's rails, WITHIN
+  the scope it was measured on (corpus, rung, kernel state, model, seeds) — never wider.
+  Backing: a verdict reference (`registry/verdicts/<id>.json` + its sha256 or the
+  analysis-output sha); for tooling-level measurements, the exact command + committed
+  log/output. Citing a MEASURED number outside its extrapolation envelope re-classifies
+  the statement as EXTRAPOLATION.
+- LIT-BACKED — restates a published result verified at source. Backing: paper id + year
+  (arXiv id / DOI), replication status stated where known. A KB record alone is recall
+  infrastructure, NOT evidence (N-C §0).
+- STIPULATED — an explicit assumption the programme chooses to proceed on: registered
+  with an ASM-id, an owner, and a rationale. It never counts as established; a decision
+  resting on it must cite the ASM-id, so the decision visibly falls when the stipulation
+  falls.
+- EXTRAPOLATION — a projection beyond measured/published scope (other corpora, rungs,
+  scales, kernel states). Always flagged; its register entry MUST carry
+  `load_bearing: false` and a `resolution_path` (the measurement or literature search
+  that would convert it). NEVER a premise.
+
+**The RULE.** A decision, prereg premise, or conclusion cites only MEASURED or
+LIT-BACKED claims as established, plus explicitly registered STIPULATED assumptions
+listed as such. A load-bearing EXTRAPOLATION is a contradiction in terms — resolve it
+(measure it / find the paper) or demote the decision to a fork and let an experiment
+decide.
+
+**Marking (so the lint can see it).** Write each load-bearing statement on a line
+opening with one of the markers PREMISE / DECISION / LOAD-BEARING (the marker word, then
+a colon), tag inline — e.g. a premise line reading
+"PREMISE: verifier lift on covered D-QA items is large at k=4 [MEASURED: registry/verdicts/f2.json]".
+`claims-check.py` lints marker lines, record `assumptions[]` blocks, and the register.
+Register assumptions (STIPULATED and EXTRAPOLATION especially) in
+`registry/assumptions.jsonl`. Never write a bare marker-plus-colon in prose: the lint
+has no code-span escape, by design.
+
+**The guard stops FALSE CONCLUSIONS, not experiments.** An experiment premised on an
+open EXTRAPOLATION is PAUSED for re-assessment — it may be exactly the run that resolves
+it. The hard block is on conclusions that exceed their backing. At verdict time, every
+EXTRAPOLATION or STIPULATED entry the work relied on is resolved or explicitly
+re-registered as still open (`assumptions_resolved[]` in the assessment record); an
+assessment that leaves a relied-on extrapolation untouched is incomplete.
+
+**Do not conclude faster than the evidence.** Worked caution (ASM-0001 / ASM-0002): m0b
+measured coverage_fraction 0.3542 on ONE pinned corpus (the TinyStories task family) at
+ONE rung (molecules-v0) of ONE incomplete kernel instance — and programme narration
+still drifted into calling it the kernel's "natural coverage": a MEASURED claim silently
+promoted into an EXTRAPOLATION stated as fact. Never strip a measurement's scope
+indices; the verdict's extrapolation envelope is binding verbatim.
