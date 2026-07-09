@@ -1,0 +1,54 @@
+{
+ "artifact": "d-qa-t-leak-check",
+ "checks": {
+  "LC1-headword-not-in-shown-definition": {
+   "checked": 108,
+   "rule": "term-match items are dropped and substituted with a def-match variant when the shown definition contains the headword (word-boundary, case-insensitive)",
+   "substituted": 0
+  },
+  "LC2-answer-text-not-in-question": {
+   "checked": 216
+  },
+  "LC3-false-claim-not-entailed": {
+   "accepted": 88,
+   "rejected_candidates": 0,
+   "rule": "false claims must not be a substring of the target gloss and must have token-Jaccard < 0.5 vs the target gloss"
+  },
+  "LC4-options-distinct-answer-present": {
+   "option_sets": 108
+  },
+  "LC5-no-duplicate-ids-or-questions": {
+   "items": 360
+  },
+  "LC6-true-claims-verbatim-from-record": {
+   "claims": 56
+  },
+  "LC7-answer-position-balance": {
+   "A": 44,
+   "B": 49,
+   "C": 71,
+   "D": 52,
+   "no": 88,
+   "yes": 56
+  },
+  "LC8t-prompt-surface-disjoint-from-d-qa-and-d-qa-r": {
+   "candidate_retries": 344,
+   "claim_true_substituted_to_false": 88,
+   "reference_corpus_pins_verified": {
+    "d-qa": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+    "d-qa-r": "0d548bf18ac78f9d7b2abb6686c567f0930acd494c5ca03cee49806c4996ec5e"
+   },
+   "reference_items": {
+    "d-qa": 650,
+    "d-qa-r": 1000
+   },
+   "rule": "no item may share its exact prompt surface (question + option texts, unsalted sha256) with any of the 650 d-qa items or any of the 1000 d-qa-r items; candidate draws colliding intra- or cross-set are retried with the next seeded variant; TRUE-preferring claim slots with no fresh admissible segment are substituted with a claim-false item (the availability-aware plan; counts below)",
+   "t4_fresh_segment_prioritised": 13,
+   "t4_seeded_fill": 23
+  }
+ },
+ "generated": "2026-07-10",
+ "generator_seed": "dqat/1|f2b-transfer|20260710",
+ "note": "fail-closed: any violation aborts the build; this file exists only on PASS. Freshness caveat (disclosed): the 108 covered concepts and the fixed question templates are SHARED with d-qa and d-qa-r by construction (kernel coverage is fixed); disjointness is enforced at full-prompt granularity. Claim-true supply is bounded by fresh gloss segments remaining after d-qa + d-qa-r consumption; the availability-aware plan (build-dqat.py docstring) maximises claim-true within that bound and LC7 enforces the yes/no balance fail-closed.",
+ "result": "PASS"
+}
