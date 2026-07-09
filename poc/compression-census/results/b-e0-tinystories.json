@@ -2,13 +2,13 @@
   "census": "B-E0 roll-up engagement census (Tier 0)",
   "bead": "kernel-of-truth-5iu",
   "design": "docs/next/io-compression-ideas.md §3.7 B-E0; instrument conventions in poc/compression-census/parser.mjs header",
-  "date": "2026-07-09T21:47:46.868Z",
+  "date": "2026-07-09T21:57:09.090Z",
   "corpus": {
     "file": "/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/TinyStories-valid.txt",
     "sha256": "94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4",
     "source": "roneneldan/TinyStories TinyStories-valid.txt (m0a/m0b pinned corpus)",
-    "stories": 1000,
-    "limited": 1000
+    "stories": 21990,
+    "limited": null
   },
   "kernel_instance": {
     "lexicon": "kernel-v0 concepts + molecules-v0 labels+corpusLemmas synonyms (m0b molecules-v0-rung continuity)",
@@ -26,60 +26,74 @@
   "savings_definition": "one composite concept token replaces a fragment of t_span expanded word tokens; savings = t_span - 1, counted only for t_span >= 2; engagement fraction = engaged expanded word mass / total expanded word mass (m0a token-mass conventions)",
   "cells": {
     "default-v0.1.0/strict": {
-      "sentences": 15410,
-      "expandedWords": 156107,
-      "surfaceWords": 154637,
-      "fragments_total": 261,
-      "fragments_span_ge2": 261,
+      "sentences": 405523,
+      "expandedWords": 3786603,
+      "surfaceWords": 3753554,
+      "fragments_total": 7316,
+      "fragments_span_ge2": 7316,
       "fragments_span1_flat": 0,
-      "engagement_fraction_expandedWords": 0.005348895308986784,
-      "engagement_fraction_surfaceWords": 0.005289807743295589,
-      "engaged_expandedWords": 835,
-      "savings_words_total": 574,
-      "savings_fraction_expandedWords": 0.003676965158513071,
+      "engagement_fraction_expandedWords": 0.005923779176216783,
+      "engagement_fraction_surfaceWords": 0.005862177552261137,
+      "engaged_expandedWords": 22431,
+      "savings_words_total": 15115,
+      "savings_fraction_expandedWords": 0.00399170443798835,
       "span_distribution": {
         "histogram": [
           [
             2,
-            80
+            2611
           ],
           [
             3,
-            73
+            2198
           ],
           [
             4,
-            84
+            1946
           ],
           [
             5,
+            536
+          ],
+          [
+            6,
             24
+          ],
+          [
+            7,
+            1
           ]
         ],
-        "mean": 3.1992337164750957,
+        "mean": 3.0660196828868234,
         "p50": 3,
         "p90": 4,
-        "max": 5
+        "max": 7
       },
-      "full_sentence_fragments": 17,
+      "full_sentence_fragments": 737,
       "strata": {
         "simple-clause": {
-          "count": 107,
-          "words": 252,
-          "savings": 145,
-          "savings_fraction_expandedWords": 0.0009288500835965075
+          "count": 3420,
+          "words": 7895,
+          "savings": 4475,
+          "savings_fraction_expandedWords": 0.001181798039033931
         },
         "is-a": {
-          "count": 144,
-          "words": 541,
-          "savings": 397,
-          "savings_fraction_expandedWords": 0.0025431274702607826
+          "count": 3442,
+          "words": 12658,
+          "savings": 9216,
+          "savings_fraction_expandedWords": 0.0024338437380417226
         },
         "operator-complex": {
-          "count": 10,
-          "words": 42,
-          "savings": 32,
-          "savings_fraction_expandedWords": 0.00020498760465578096
+          "count": 453,
+          "words": 1871,
+          "savings": 1418,
+          "savings_fraction_expandedWords": 0.0003744781272290758
+        },
+        "clause-AND": {
+          "count": 1,
+          "words": 7,
+          "savings": 6,
+          "savings_fraction_expandedWords": 0.000001584533683620913
         }
       },
       "or_forfeit": {
@@ -89,247 +103,266 @@
           "words_fraction": 0
         },
         "np": {
-          "count": 1,
-          "words": 2,
-          "words_fraction": 0.00001281172529098631
+          "count": 83,
+          "words": 170,
+          "words_fraction": 0.000044895121035925866
         }
       },
       "dedupe": {
-        "unique_urns": 115,
-        "occurrences_span_ge2_plus_span1_unique_basis": 261,
-        "dedupe_ratio": 2.2695652173913046,
+        "unique_urns": 911,
+        "occurrences_span_ge2_plus_span1_unique_basis": 7316,
+        "dedupe_ratio": 8.03073545554336,
         "top_composites": [
           {
             "urn": "urn:kot:bciqkcolbgztsdrqpdquzv7xwtapvwtjxrymmhul7xzccvia3xgbkodi",
-            "count": 43,
+            "count": 1059,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqhqigd5juwzmsyrnc3azqcs3rrskpo32c4etj2ascpmhxa5pnwpry",
-            "count": 21,
+            "count": 388,
             "words": 4,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { there-is(undergoer=[q:two <urn:kernel-v0:friend>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
-            "count": 11,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqelgls24772dzfrpikap2hix3chiw2nkyd5qdoq5dhh6p4wvwl5xq",
+            "count": 252,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>]) }"
           },
           {
-            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
-            "count": 9,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
+            "count": 213,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
-            "count": 6,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
+            "urn": "urn:kot:bciqeodft53cxe2qkcaiqn3vwxpldvbpx3vexlivyf2v5lrwbdxp5p4q",
+            "count": 157,
+            "words": 4,
+            "stratum": "operator-complex",
+            "render": "instance refs[x1:something] { @not(know(experiencer=#I)) }"
           },
           {
             "urn": "urn:kot:bciqo476uuzlmpbefi4unegqhb7o2fpoa4dufpprqckevit5nc3n4jxi",
-            "count": 6,
+            "count": 145,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { do(agent=#I) }"
           },
           {
             "urn": "urn:kot:bciqohw42vmzzel3aainaz6eb55wnpe7m76tprf4ztb4fwrq7t3qzqfq",
-            "count": 5,
+            "count": 144,
             "words": 3,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=[q:all SOMEONE], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           },
           {
+            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
+            "count": 140,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
+            "count": 139,
+            "words": 5,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
+            "count": 138,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
+          },
+          {
             "urn": "urn:kot:bciqa4rogryafuv7pxj4faiua7q3zibvuparntbvf7cddpdkr3f3obfy",
-            "count": 5,
+            "count": 125,
             "words": 4,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:mother>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqklnayeicolijfbpialm7xihrwmt3iw5sar33m5sbetuy3pkeymaa",
-            "count": 5,
+            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
+            "count": 116,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqin6xininjmibryfzy2kwtpqgidmeiogufa7ha36flms6vtej2mgq",
+            "count": 103,
             "words": 2,
             "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:kernel-v0:end>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { do(agent=#YOU) }"
+          },
+          {
+            "urn": "urn:kot:bciqlwrwitsndvysbvilt3wamr4xcr3lxhlfui6jprh2i3omt3bo7coa",
+            "count": 103,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { know(experiencer=#I, topic=#YOU) }"
           },
           {
             "urn": "urn:kot:bciqdecfasnnx75mpjmmn3msmysxsrdz2nkfze3wto2xi4v7unydlmwq",
-            "count": 5,
+            "count": 98,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:man>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqemjo6qnps6k7ie4azneajk2icgzjhypqwguc3bkyjrygy4wznmmy",
-            "count": 4,
+            "count": 86,
             "words": 3,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           },
           {
+            "urn": "urn:kot:bciqhuks7dkobzk3ywwiivuyee3x4fy6xor7gvrfkmnh4omswet4zexq",
+            "count": 82,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:rabbit>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqiazcdsls2bnzv35hldoghpssvyodeeqortxuiz4f6mpulz5wjqbi",
+            "count": 80,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:right>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqiixuxgg3sokrjdl65m7y4jmdbc3difzy4zgfpxz4hgqslnyw5h4i",
+            "count": 74,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { do(agent=[WHERE~PLACE], undergoer=#YOU, time=before@#NOW) }"
+          },
+          {
             "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
-            "count": 4,
+            "count": 67,
             "words": 3,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqatwpqie45lxwuqog6wy6nfqvzx3bwawlv3mtijrzoiretxfdizva",
-            "count": 4,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:dog>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
-            "count": 4,
-            "words": 5,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqbdm6vfl3fvisaqah54ke572p2x5h3qczscpgfeb4ngjpchl3b2ba",
-            "count": 4,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:bird>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
-            "count": 3,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqciiccyjxzo4layqzbhp3dgcy5tvya2le2bxeyivafk64vtj4qjby",
-            "count": 3,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:woman>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqii753mwciamprychsnmyq2t6fuzxx7odrsqzqyfgz6cgvoynscgq",
-            "count": 3,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:wrong>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqjjqxn3bfdpatja4st5ow3rcyghwdzdgoibkhfzved435s6jyjpxa",
-            "count": 3,
-            "words": 5,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[m:big <urn:molecule-v0:house>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqdm3aufxwdsnooahewmhtzmnwzfrvylf2ocoity2dju3uapnkaovi",
-            "count": 3,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:man>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           }
         ]
       },
       "abstain_causes": {
-        "unmapped-word": 85925,
-        "pronoun-anaphor": 18688,
-        "open-class-verb": 12268,
-        "prime-not-substantive-head": 11097,
-        "definite-article": 8611,
-        "mapper-abstain": 6485,
-        "bare-plural": 4622,
-        "no-verb": 2685,
-        "little-ambiguous": 1946,
-        "that-demonstrative": 1420,
-        "unsupported-modifier": 1055,
-        "sentence-end": 197,
-        "say-complement-unsupported": 169,
-        "feel-attribute-unsupported": 32,
-        "punctuation-break": 21,
-        "think-complement-unsupported": 18,
-        "copula-no-complement": 6,
-        "elided-subject-unbindable": 6,
-        "bare-not": 5,
-        "bare-mod-predication": 4,
-        "copula-locative-unsupported": 3,
-        "kindpart-of-indexical": 3,
-        "unexpected-object": 3,
-        "live-sense-guard": 2,
-        "np-or": 1
+        "unmapped-word": 2068331,
+        "pronoun-anaphor": 461961,
+        "open-class-verb": 283160,
+        "prime-not-substantive-head": 280296,
+        "definite-article": 209912,
+        "mapper-abstain": 163520,
+        "bare-plural": 114414,
+        "no-verb": 74127,
+        "little-ambiguous": 36455,
+        "that-demonstrative": 31361,
+        "unsupported-modifier": 26628,
+        "sentence-end": 6567,
+        "say-complement-unsupported": 4605,
+        "feel-attribute-unsupported": 682,
+        "think-complement-unsupported": 507,
+        "punctuation-break": 463,
+        "bare-mod-predication": 190,
+        "copula-locative-unsupported": 180,
+        "copula-no-complement": 160,
+        "bare-not": 122,
+        "copula-indexical-attribute": 116,
+        "unexpected-object": 103,
+        "np-or": 96,
+        "elided-subject-unbindable": 64,
+        "live-sense-guard": 63,
+        "duplicate-modifier": 41,
+        "kindpart-of-indexical": 34,
+        "feel-no-attribute": 10,
+        "double-determiner": 2,
+        "modal-copula": 2
       },
       "parser_invalid_fragments": {},
       "encode_sample": {
         "n": 50,
-        "ms": 542,
+        "ms": 1020,
         "concept_vectors": "deterministic stubs (structural check)"
       }
     },
     "default-v0.1.0/permissive-det": {
-      "sentences": 15410,
-      "expandedWords": 156107,
-      "surfaceWords": 154637,
-      "fragments_total": 269,
-      "fragments_span_ge2": 269,
+      "sentences": 405523,
+      "expandedWords": 3786603,
+      "surfaceWords": 3753554,
+      "fragments_total": 7470,
+      "fragments_span_ge2": 7470,
       "fragments_span1_flat": 0,
-      "engagement_fraction_expandedWords": 0.005739652930361867,
-      "engagement_fraction_surfaceWords": 0.005684279958871421,
-      "engaged_expandedWords": 896,
-      "savings_words_total": 627,
-      "savings_fraction_expandedWords": 0.004016475878724208,
+      "engagement_fraction_expandedWords": 0.0063582054944761835,
+      "engagement_fraction_surfaceWords": 0.006298563974302754,
+      "engaged_expandedWords": 24076,
+      "savings_words_total": 16606,
+      "savings_fraction_expandedWords": 0.0043854610583681465,
       "span_distribution": {
         "histogram": [
           [
             2,
-            71
+            2297
           ],
           [
             3,
-            68
+            1997
           ],
           [
             4,
-            100
+            2455
           ],
           [
             5,
-            30
+            658
+          ],
+          [
+            6,
+            60
+          ],
+          [
+            7,
+            3
           ]
         ],
-        "mean": 3.3308550185873607,
+        "mean": 3.223025435073628,
         "p50": 3,
-        "p90": 5,
-        "max": 5
+        "p90": 4,
+        "max": 7
       },
-      "full_sentence_fragments": 20,
+      "full_sentence_fragments": 883,
       "strata": {
         "simple-clause": {
-          "count": 114,
-          "words": 295,
-          "savings": 181,
-          "savings_fraction_expandedWords": 0.001159461138834261
+          "count": 3529,
+          "words": 8761,
+          "savings": 5232,
+          "savings_fraction_expandedWords": 0.0013817133721174362
         },
         "is-a": {
-          "count": 145,
-          "words": 558,
-          "savings": 413,
-          "savings_fraction_expandedWords": 0.0026456212725886733
+          "count": 3472,
+          "words": 13314,
+          "savings": 9842,
+          "savings_fraction_expandedWords": 0.0025991634190328378
         },
         "operator-complex": {
-          "count": 10,
-          "words": 43,
-          "savings": 33,
-          "savings_fraction_expandedWords": 0.00021139346730127413
+          "count": 468,
+          "words": 1994,
+          "savings": 1526,
+          "savings_fraction_expandedWords": 0.0004029997335342522
+        },
+        "clause-AND": {
+          "count": 1,
+          "words": 7,
+          "savings": 6,
+          "savings_fraction_expandedWords": 0.000001584533683620913
         }
       },
       "or_forfeit": {
@@ -339,246 +372,264 @@
           "words_fraction": 0
         },
         "np": {
-          "count": 1,
-          "words": 2,
-          "words_fraction": 0.00001281172529098631
+          "count": 90,
+          "words": 191,
+          "words_fraction": 0.00005044098892859906
         }
       },
       "dedupe": {
-        "unique_urns": 126,
-        "occurrences_span_ge2_plus_span1_unique_basis": 269,
-        "dedupe_ratio": 2.134920634920635,
+        "unique_urns": 1102,
+        "occurrences_span_ge2_plus_span1_unique_basis": 7470,
+        "dedupe_ratio": 6.778584392014519,
         "top_composites": [
           {
             "urn": "urn:kot:bciqkcolbgztsdrqpdquzv7xwtapvwtjxrymmhul7xzccvia3xgbkodi",
-            "count": 42,
+            "count": 1042,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqhqigd5juwzmsyrnc3azqcs3rrskpo32c4etj2ascpmhxa5pnwpry",
-            "count": 21,
+            "count": 388,
             "words": 4,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { there-is(undergoer=[q:two <urn:kernel-v0:friend>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
-            "count": 11,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqelgls24772dzfrpikap2hix3chiw2nkyd5qdoq5dhh6p4wvwl5xq",
+            "count": 252,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>]) }"
           },
           {
-            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
-            "count": 9,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
+            "count": 205,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
-            "count": 6,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
+            "urn": "urn:kot:bciqeodft53cxe2qkcaiqn3vwxpldvbpx3vexlivyf2v5lrwbdxp5p4q",
+            "count": 157,
+            "words": 4,
+            "stratum": "operator-complex",
+            "render": "instance refs[x1:something] { @not(know(experiencer=#I)) }"
           },
           {
             "urn": "urn:kot:bciqo476uuzlmpbefi4unegqhb7o2fpoa4dufpprqckevit5nc3n4jxi",
-            "count": 6,
+            "count": 145,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { do(agent=#I) }"
           },
           {
             "urn": "urn:kot:bciqohw42vmzzel3aainaz6eb55wnpe7m76tprf4ztb4fwrq7t3qzqfq",
-            "count": 5,
+            "count": 144,
             "words": 3,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=[q:all SOMEONE], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqa4rogryafuv7pxj4faiua7q3zibvuparntbvf7cddpdkr3f3obfy",
-            "count": 5,
+            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
+            "count": 140,
             "words": 4,
             "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:mother>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqklnayeicolijfbpialm7xihrwmt3iw5sar33m5sbetuy3pkeymaa",
-            "count": 5,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:kernel-v0:end>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqemjo6qnps6k7ie4azneajk2icgzjhypqwguc3bkyjrygy4wznmmy",
-            "count": 4,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
-            "count": 4,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqatwpqie45lxwuqog6wy6nfqvzx3bwawlv3mtijrzoiretxfdizva",
-            "count": 4,
+            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
+            "count": 138,
             "words": 4,
             "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:dog>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
-            "count": 4,
+            "count": 138,
             "words": 5,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
           },
           {
-            "urn": "urn:kot:bciqbdm6vfl3fvisaqah54ke572p2x5h3qczscpgfeb4ngjpchl3b2ba",
-            "count": 4,
+            "urn": "urn:kot:bciqa4rogryafuv7pxj4faiua7q3zibvuparntbvf7cddpdkr3f3obfy",
+            "count": 125,
             "words": 4,
             "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:bird>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:mother>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
-            "count": 3,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqciiccyjxzo4layqzbhp3dgcy5tvya2le2bxeyivafk64vtj4qjby",
-            "count": 3,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:woman>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqii753mwciamprychsnmyq2t6fuzxx7odrsqzqyfgz6cgvoynscgq",
-            "count": 3,
+            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
+            "count": 116,
             "words": 3,
             "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:wrong>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
           },
           {
-            "urn": "urn:kot:bciqjjqxn3bfdpatja4st5ow3rcyghwdzdgoibkhfzved435s6jyjpxa",
-            "count": 3,
-            "words": 5,
+            "urn": "urn:kot:bciqin6xininjmibryfzy2kwtpqgidmeiogufa7ha36flms6vtej2mgq",
+            "count": 103,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { do(agent=#YOU) }"
+          },
+          {
+            "urn": "urn:kot:bciqlwrwitsndvysbvilt3wamr4xcr3lxhlfui6jprh2i3omt3bo7coa",
+            "count": 103,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { know(experiencer=#I, topic=#YOU) }"
+          },
+          {
+            "urn": "urn:kot:bciqemjo6qnps6k7ie4azneajk2icgzjhypqwguc3bkyjrygy4wznmmy",
+            "count": 82,
+            "words": 3,
             "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[m:big <urn:molecule-v0:house>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqhuks7dkobzk3ywwiivuyee3x4fy6xor7gvrfkmnh4omswet4zexq",
+            "count": 82,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:rabbit>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqmfzro2mfuk3vryilddg5k75mh5ghv3sj345t56jgvdi76rqajxei",
+            "count": 77,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[d:this <urn:molecule-v0:man>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqiazcdsls2bnzv35hldoghpssvyodeeqortxuiz4f6mpulz5wjqbi",
+            "count": 75,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:right>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqiixuxgg3sokrjdl65m7y4jmdbc3difzy4zgfpxz4hgqslnyw5h4i",
-            "count": 3,
+            "count": 74,
             "words": 3,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { do(agent=[WHERE~PLACE], undergoer=#YOU, time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqdecfasnnx75mpjmmn3msmysxsrdz2nkfze3wto2xi4v7unydlmwq",
-            "count": 3,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:man>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
+            "count": 67,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
           }
         ]
       },
       "abstain_causes": {
-        "unmapped-word": 92982,
-        "pronoun-anaphor": 18692,
-        "open-class-verb": 13541,
-        "prime-not-substantive-head": 11344,
-        "mapper-abstain": 6663,
-        "bare-plural": 4858,
-        "no-verb": 3148,
-        "little-ambiguous": 2253,
-        "unsupported-modifier": 1074,
-        "sentence-end": 225,
-        "say-complement-unsupported": 192,
-        "double-determiner": 117,
-        "feel-attribute-unsupported": 40,
-        "punctuation-break": 24,
-        "think-complement-unsupported": 20,
-        "bare-mod-predication": 7,
-        "copula-no-complement": 6,
-        "elided-subject-unbindable": 6,
-        "bare-not": 5,
-        "unexpected-object": 4,
-        "live-sense-guard": 3,
-        "copula-locative-unsupported": 3,
-        "kindpart-of-indexical": 3,
-        "np-or": 1
+        "unmapped-word": 2237853,
+        "pronoun-anaphor": 462106,
+        "open-class-verb": 312727,
+        "prime-not-substantive-head": 286751,
+        "mapper-abstain": 168247,
+        "bare-plural": 119938,
+        "no-verb": 86647,
+        "little-ambiguous": 42703,
+        "unsupported-modifier": 27257,
+        "sentence-end": 7554,
+        "say-complement-unsupported": 5276,
+        "double-determiner": 2139,
+        "feel-attribute-unsupported": 900,
+        "think-complement-unsupported": 561,
+        "punctuation-break": 521,
+        "bare-mod-predication": 249,
+        "copula-no-complement": 193,
+        "copula-locative-unsupported": 183,
+        "bare-not": 131,
+        "unexpected-object": 125,
+        "copula-indexical-attribute": 116,
+        "np-or": 113,
+        "live-sense-guard": 86,
+        "elided-subject-unbindable": 64,
+        "duplicate-modifier": 41,
+        "kindpart-of-indexical": 34,
+        "feel-no-attribute": 10,
+        "modal-copula": 2
       },
       "parser_invalid_fragments": {},
       "encode_sample": {
         "n": 50,
-        "ms": 205,
+        "ms": 208,
         "concept_vectors": "deterministic stubs (structural check)"
       }
     },
     "a1-hybrid/strict": {
-      "sentences": 15410,
-      "expandedWords": 156107,
-      "surfaceWords": 154637,
-      "fragments_total": 264,
-      "fragments_span_ge2": 264,
+      "sentences": 405523,
+      "expandedWords": 3786603,
+      "surfaceWords": 3753554,
+      "fragments_total": 7379,
+      "fragments_span_ge2": 7379,
       "fragments_span1_flat": 0,
-      "engagement_fraction_expandedWords": 0.005406548072796223,
-      "engagement_fraction_surfaceWords": 0.005348008561987105,
-      "engaged_expandedWords": 844,
-      "savings_words_total": 580,
-      "savings_fraction_expandedWords": 0.00371540033438603,
+      "engagement_fraction_expandedWords": 0.005978973766196245,
+      "engagement_fraction_surfaceWords": 0.005917591701091819,
+      "engaged_expandedWords": 22640,
+      "savings_words_total": 15261,
+      "savings_fraction_expandedWords": 0.004030261424289792,
       "span_distribution": {
         "histogram": [
           [
             2,
-            80
+            2611
           ],
           [
             3,
-            76
+            2244
           ],
           [
             4,
-            84
+            1960
           ],
           [
             5,
+            539
+          ],
+          [
+            6,
             24
+          ],
+          [
+            7,
+            1
           ]
         ],
-        "mean": 3.196969696969697,
+        "mean": 3.06816641821385,
         "p50": 3,
         "p90": 4,
-        "max": 5
+        "max": 7
       },
-      "full_sentence_fragments": 17,
+      "full_sentence_fragments": 737,
       "strata": {
         "simple-clause": {
-          "count": 107,
-          "words": 252,
-          "savings": 145,
-          "savings_fraction_expandedWords": 0.0009288500835965075
+          "count": 3423,
+          "words": 7907,
+          "savings": 4484,
+          "savings_fraction_expandedWords": 0.0011841748395593622
         },
         "is-a": {
-          "count": 147,
-          "words": 550,
-          "savings": 403,
-          "savings_fraction_expandedWords": 0.0025815626461337415
+          "count": 3501,
+          "words": 12851,
+          "savings": 9350,
+          "savings_fraction_expandedWords": 0.0024692316569759226
         },
         "operator-complex": {
-          "count": 10,
-          "words": 42,
-          "savings": 32,
-          "savings_fraction_expandedWords": 0.00020498760465578096
+          "count": 454,
+          "words": 1875,
+          "savings": 1421,
+          "savings_fraction_expandedWords": 0.00037527039407088625
+        },
+        "clause-AND": {
+          "count": 1,
+          "words": 7,
+          "savings": 6,
+          "savings_fraction_expandedWords": 0.000001584533683620913
         }
       },
       "or_forfeit": {
@@ -588,443 +639,470 @@
           "words_fraction": 0
         },
         "np": {
-          "count": 1,
-          "words": 2,
-          "words_fraction": 0.00001281172529098631
+          "count": 83,
+          "words": 170,
+          "words_fraction": 0.000044895121035925866
         }
       },
       "dedupe": {
-        "unique_urns": 117,
-        "occurrences_span_ge2_plus_span1_unique_basis": 264,
-        "dedupe_ratio": 2.2564102564102564,
+        "unique_urns": 948,
+        "occurrences_span_ge2_plus_span1_unique_basis": 7379,
+        "dedupe_ratio": 7.783755274261603,
         "top_composites": [
           {
             "urn": "urn:kot:bciqkcolbgztsdrqpdquzv7xwtapvwtjxrymmhul7xzccvia3xgbkodi",
-            "count": 43,
+            "count": 1059,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqhqigd5juwzmsyrnc3azqcs3rrskpo32c4etj2ascpmhxa5pnwpry",
-            "count": 21,
+            "count": 388,
             "words": 4,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { there-is(undergoer=[q:two <urn:kernel-v0:friend>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
-            "count": 11,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqelgls24772dzfrpikap2hix3chiw2nkyd5qdoq5dhh6p4wvwl5xq",
+            "count": 252,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>]) }"
           },
           {
-            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
-            "count": 9,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
+            "count": 213,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
-            "count": 6,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
+            "urn": "urn:kot:bciqeodft53cxe2qkcaiqn3vwxpldvbpx3vexlivyf2v5lrwbdxp5p4q",
+            "count": 157,
+            "words": 4,
+            "stratum": "operator-complex",
+            "render": "instance refs[x1:something] { @not(know(experiencer=#I)) }"
           },
           {
             "urn": "urn:kot:bciqo476uuzlmpbefi4unegqhb7o2fpoa4dufpprqckevit5nc3n4jxi",
-            "count": 6,
+            "count": 145,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { do(agent=#I) }"
           },
           {
             "urn": "urn:kot:bciqohw42vmzzel3aainaz6eb55wnpe7m76tprf4ztb4fwrq7t3qzqfq",
-            "count": 5,
+            "count": 144,
             "words": 3,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=[q:all SOMEONE], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           },
           {
+            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
+            "count": 140,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
+            "count": 139,
+            "words": 5,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
+            "count": 138,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
+          },
+          {
             "urn": "urn:kot:bciqa4rogryafuv7pxj4faiua7q3zibvuparntbvf7cddpdkr3f3obfy",
-            "count": 5,
+            "count": 125,
             "words": 4,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:mother>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqklnayeicolijfbpialm7xihrwmt3iw5sar33m5sbetuy3pkeymaa",
-            "count": 5,
+            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
+            "count": 116,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqin6xininjmibryfzy2kwtpqgidmeiogufa7ha36flms6vtej2mgq",
+            "count": 103,
             "words": 2,
             "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:kernel-v0:end>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { do(agent=#YOU) }"
+          },
+          {
+            "urn": "urn:kot:bciqlwrwitsndvysbvilt3wamr4xcr3lxhlfui6jprh2i3omt3bo7coa",
+            "count": 103,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { know(experiencer=#I, topic=#YOU) }"
           },
           {
             "urn": "urn:kot:bciqdecfasnnx75mpjmmn3msmysxsrdz2nkfze3wto2xi4v7unydlmwq",
-            "count": 5,
+            "count": 98,
             "words": 2,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:man>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqemjo6qnps6k7ie4azneajk2icgzjhypqwguc3bkyjrygy4wznmmy",
-            "count": 4,
+            "count": 86,
             "words": 3,
             "stratum": "is-a",
             "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
-            "count": 4,
+            "urn": "urn:kot:bciqhuks7dkobzk3ywwiivuyee3x4fy6xor7gvrfkmnh4omswet4zexq",
+            "count": 82,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:rabbit>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqiazcdsls2bnzv35hldoghpssvyodeeqortxuiz4f6mpulz5wjqbi",
+            "count": 80,
             "words": 3,
             "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqatwpqie45lxwuqog6wy6nfqvzx3bwawlv3mtijrzoiretxfdizva",
-            "count": 4,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:dog>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
-            "count": 4,
-            "words": 5,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqbdm6vfl3fvisaqah54ke572p2x5h3qczscpgfeb4ngjpchl3b2ba",
-            "count": 4,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:bird>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
-            "count": 3,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqciiccyjxzo4layqzbhp3dgcy5tvya2le2bxeyivafk64vtj4qjby",
-            "count": 3,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:woman>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqii753mwciamprychsnmyq2t6fuzxx7odrsqzqyfgz6cgvoynscgq",
-            "count": 3,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:wrong>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqjjqxn3bfdpatja4st5ow3rcyghwdzdgoibkhfzved435s6jyjpxa",
-            "count": 3,
-            "words": 5,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[m:big <urn:molecule-v0:house>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqdm3aufxwdsnooahewmhtzmnwzfrvylf2ocoity2dju3uapnkaovi",
-            "count": 3,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:man>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
-          }
-        ]
-      },
-      "abstain_causes": {
-        "unmapped-word": 85928,
-        "pronoun-anaphor": 18688,
-        "open-class-verb": 12438,
-        "prime-not-substantive-head": 11097,
-        "definite-article": 8612,
-        "mapper-abstain": 6201,
-        "bare-plural": 4622,
-        "no-verb": 2786,
-        "little-ambiguous": 1946,
-        "that-demonstrative": 1420,
-        "unsupported-modifier": 1055,
-        "sentence-end": 197,
-        "say-complement-unsupported": 169,
-        "feel-attribute-unsupported": 32,
-        "punctuation-break": 21,
-        "think-complement-unsupported": 18,
-        "copula-no-complement": 6,
-        "elided-subject-unbindable": 6,
-        "bare-not": 5,
-        "bare-mod-predication": 4,
-        "copula-locative-unsupported": 3,
-        "kindpart-of-indexical": 3,
-        "unexpected-object": 3,
-        "live-sense-guard": 2,
-        "np-or": 1
-      },
-      "parser_invalid_fragments": {},
-      "encode_sample": {
-        "n": 50,
-        "ms": 194,
-        "concept_vectors": "deterministic stubs (structural check)"
-      }
-    },
-    "a1-hybrid/permissive-det": {
-      "sentences": 15410,
-      "expandedWords": 156107,
-      "surfaceWords": 154637,
-      "fragments_total": 272,
-      "fragments_span_ge2": 272,
-      "fragments_span1_flat": 0,
-      "engagement_fraction_expandedWords": 0.0057973056941713055,
-      "engagement_fraction_surfaceWords": 0.005742480777562938,
-      "engaged_expandedWords": 905,
-      "savings_words_total": 633,
-      "savings_fraction_expandedWords": 0.0040549110545971675,
-      "span_distribution": {
-        "histogram": [
-          [
-            2,
-            71
-          ],
-          [
-            3,
-            71
-          ],
-          [
-            4,
-            100
-          ],
-          [
-            5,
-            30
-          ]
-        ],
-        "mean": 3.327205882352941,
-        "p50": 3,
-        "p90": 5,
-        "max": 5
-      },
-      "full_sentence_fragments": 20,
-      "strata": {
-        "simple-clause": {
-          "count": 114,
-          "words": 295,
-          "savings": 181,
-          "savings_fraction_expandedWords": 0.001159461138834261
-        },
-        "is-a": {
-          "count": 148,
-          "words": 567,
-          "savings": 419,
-          "savings_fraction_expandedWords": 0.002684056448461632
-        },
-        "operator-complex": {
-          "count": 10,
-          "words": 43,
-          "savings": 33,
-          "savings_fraction_expandedWords": 0.00021139346730127413
-        }
-      },
-      "or_forfeit": {
-        "clause": {
-          "count": 0,
-          "words": 0,
-          "words_fraction": 0
-        },
-        "np": {
-          "count": 1,
-          "words": 2,
-          "words_fraction": 0.00001281172529098631
-        }
-      },
-      "dedupe": {
-        "unique_urns": 128,
-        "occurrences_span_ge2_plus_span1_unique_basis": 272,
-        "dedupe_ratio": 2.125,
-        "top_composites": [
-          {
-            "urn": "urn:kot:bciqkcolbgztsdrqpdquzv7xwtapvwtjxrymmhul7xzccvia3xgbkodi",
-            "count": 42,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqhqigd5juwzmsyrnc3azqcs3rrskpo32c4etj2ascpmhxa5pnwpry",
-            "count": 21,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[q:two <urn:kernel-v0:friend>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
-            "count": 11,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
-            "count": 9,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
-            "count": 6,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqo476uuzlmpbefi4unegqhb7o2fpoa4dufpprqckevit5nc3n4jxi",
-            "count": 6,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { do(agent=#I) }"
-          },
-          {
-            "urn": "urn:kot:bciqohw42vmzzel3aainaz6eb55wnpe7m76tprf4ztb4fwrq7t3qzqfq",
-            "count": 5,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=[q:all SOMEONE], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqa4rogryafuv7pxj4faiua7q3zibvuparntbvf7cddpdkr3f3obfy",
-            "count": 5,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:mother>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqklnayeicolijfbpialm7xihrwmt3iw5sar33m5sbetuy3pkeymaa",
-            "count": 5,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:kernel-v0:end>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqemjo6qnps6k7ie4azneajk2icgzjhypqwguc3bkyjrygy4wznmmy",
-            "count": 4,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
-            "count": 4,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqatwpqie45lxwuqog6wy6nfqvzx3bwawlv3mtijrzoiretxfdizva",
-            "count": 4,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:dog>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
-            "count": 4,
-            "words": 5,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
-          },
-          {
-            "urn": "urn:kot:bciqbdm6vfl3fvisaqah54ke572p2x5h3qczscpgfeb4ngjpchl3b2ba",
-            "count": 4,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:bird>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
-            "count": 3,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqciiccyjxzo4layqzbhp3dgcy5tvya2le2bxeyivafk64vtj4qjby",
-            "count": 3,
-            "words": 4,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:woman>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqii753mwciamprychsnmyq2t6fuzxx7odrsqzqyfgz6cgvoynscgq",
-            "count": 3,
-            "words": 3,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:wrong>], time=before@#NOW) }"
-          },
-          {
-            "urn": "urn:kot:bciqjjqxn3bfdpatja4st5ow3rcyghwdzdgoibkhfzved435s6jyjpxa",
-            "count": 3,
-            "words": 5,
-            "stratum": "is-a",
-            "render": "instance refs[x1:something] { there-is(undergoer=[m:big <urn:molecule-v0:house>], time=before@#NOW) }"
+            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:right>], time=before@#NOW) }"
           },
           {
             "urn": "urn:kot:bciqiixuxgg3sokrjdl65m7y4jmdbc3difzy4zgfpxz4hgqslnyw5h4i",
-            "count": 3,
+            "count": 74,
             "words": 3,
             "stratum": "simple-clause",
             "render": "instance refs[x1:something] { do(agent=[WHERE~PLACE], undergoer=#YOU, time=before@#NOW) }"
           },
           {
-            "urn": "urn:kot:bciqdecfasnnx75mpjmmn3msmysxsrdz2nkfze3wto2xi4v7unydlmwq",
-            "count": 3,
-            "words": 2,
-            "stratum": "simple-clause",
-            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:man>], time=before@#NOW) }"
+            "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
+            "count": 67,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
           }
         ]
       },
       "abstain_causes": {
-        "unmapped-word": 92986,
-        "pronoun-anaphor": 18692,
-        "open-class-verb": 13716,
-        "prime-not-substantive-head": 11344,
-        "mapper-abstain": 6373,
-        "bare-plural": 4858,
-        "no-verb": 3250,
-        "little-ambiguous": 2253,
-        "unsupported-modifier": 1074,
-        "sentence-end": 225,
-        "say-complement-unsupported": 192,
-        "double-determiner": 117,
-        "feel-attribute-unsupported": 40,
-        "punctuation-break": 24,
-        "think-complement-unsupported": 20,
-        "bare-mod-predication": 7,
-        "copula-no-complement": 6,
-        "elided-subject-unbindable": 6,
-        "bare-not": 5,
-        "unexpected-object": 4,
-        "live-sense-guard": 3,
-        "copula-locative-unsupported": 3,
-        "kindpart-of-indexical": 3,
-        "np-or": 1
+        "unmapped-word": 2068450,
+        "pronoun-anaphor": 461962,
+        "open-class-verb": 287439,
+        "prime-not-substantive-head": 280290,
+        "definite-article": 209924,
+        "mapper-abstain": 157024,
+        "bare-plural": 114432,
+        "no-verb": 75973,
+        "little-ambiguous": 36456,
+        "that-demonstrative": 31361,
+        "unsupported-modifier": 26631,
+        "sentence-end": 6567,
+        "say-complement-unsupported": 4609,
+        "feel-attribute-unsupported": 682,
+        "think-complement-unsupported": 507,
+        "punctuation-break": 472,
+        "bare-mod-predication": 190,
+        "copula-locative-unsupported": 180,
+        "copula-no-complement": 160,
+        "bare-not": 122,
+        "copula-indexical-attribute": 116,
+        "unexpected-object": 104,
+        "np-or": 96,
+        "elided-subject-unbindable": 64,
+        "live-sense-guard": 63,
+        "duplicate-modifier": 41,
+        "kindpart-of-indexical": 34,
+        "feel-no-attribute": 10,
+        "double-determiner": 2,
+        "modal-copula": 2
       },
       "parser_invalid_fragments": {},
       "encode_sample": {
         "n": 50,
-        "ms": 192,
+        "ms": 186,
+        "concept_vectors": "deterministic stubs (structural check)"
+      }
+    },
+    "a1-hybrid/permissive-det": {
+      "sentences": 405523,
+      "expandedWords": 3786603,
+      "surfaceWords": 3753554,
+      "fragments_total": 7538,
+      "fragments_span_ge2": 7538,
+      "fragments_span1_flat": 0,
+      "engagement_fraction_expandedWords": 0.006426340442871882,
+      "engagement_fraction_surfaceWords": 0.006367032417809894,
+      "engaged_expandedWords": 24334,
+      "savings_words_total": 16796,
+      "savings_fraction_expandedWords": 0.004435637958349475,
+      "span_distribution": {
+        "histogram": [
+          [
+            2,
+            2297
+          ],
+          [
+            3,
+            2026
+          ],
+          [
+            4,
+            2484
+          ],
+          [
+            5,
+            666
+          ],
+          [
+            6,
+            61
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            9,
+            1
+          ]
+        ],
+        "mean": 3.2281772353409393,
+        "p50": 3,
+        "p90": 4,
+        "max": 9
+      },
+      "full_sentence_fragments": 886,
+      "strata": {
+        "simple-clause": {
+          "count": 3537,
+          "words": 8795,
+          "savings": 5258,
+          "savings_fraction_expandedWords": 0.00138857968474646
+        },
+        "is-a": {
+          "count": 3530,
+          "words": 13524,
+          "savings": 9994,
+          "savings_fraction_expandedWords": 0.0026393049390179006
+        },
+        "operator-complex": {
+          "count": 469,
+          "words": 1999,
+          "savings": 1530,
+          "savings_fraction_expandedWords": 0.0004040560893233328
+        },
+        "clause-AND": {
+          "count": 2,
+          "words": 16,
+          "savings": 14,
+          "savings_fraction_expandedWords": 0.0000036972452617821304
+        }
+      },
+      "or_forfeit": {
+        "clause": {
+          "count": 0,
+          "words": 0,
+          "words_fraction": 0
+        },
+        "np": {
+          "count": 90,
+          "words": 191,
+          "words_fraction": 0.00005044098892859906
+        }
+      },
+      "dedupe": {
+        "unique_urns": 1145,
+        "occurrences_span_ge2_plus_span1_unique_basis": 7538,
+        "dedupe_ratio": 6.583406113537118,
+        "top_composites": [
+          {
+            "urn": "urn:kot:bciqkcolbgztsdrqpdquzv7xwtapvwtjxrymmhul7xzccvia3xgbkodi",
+            "count": 1042,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqhqigd5juwzmsyrnc3azqcs3rrskpo32c4etj2ascpmhxa5pnwpry",
+            "count": 388,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[q:two <urn:kernel-v0:friend>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqelgls24772dzfrpikap2hix3chiw2nkyd5qdoq5dhh6p4wvwl5xq",
+            "count": 252,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:mother>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqautk7zv4uhjpi3a5kqjmxxldvl7vmj73vva54mqkxngkjsjapuhi",
+            "count": 205,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[<urn:molecule-v0:father>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqeodft53cxe2qkcaiqn3vwxpldvbpx3vexlivyf2v5lrwbdxp5p4q",
+            "count": 157,
+            "words": 4,
+            "stratum": "operator-complex",
+            "render": "instance refs[x1:something] { @not(know(experiencer=#I)) }"
+          },
+          {
+            "urn": "urn:kot:bciqo476uuzlmpbefi4unegqhb7o2fpoa4dufpprqckevit5nc3n4jxi",
+            "count": 145,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { do(agent=#I) }"
+          },
+          {
+            "urn": "urn:kot:bciqohw42vmzzel3aainaz6eb55wnpe7m76tprf4ztb4fwrq7t3qzqfq",
+            "count": 144,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=[q:all SOMEONE], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqdrrwxftkmluy2iill7dwhysnwqz6vr6z44ai3pb4j5bmoeiulp2y",
+            "count": 140,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqo5ibm6ggpxjeszr6t2korvtg6ipwfl3yivb524jsamnhz5n2odca",
+            "count": 138,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:man>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqmgwxbiykvghsmbrrlhhcklks6dfgylb45qr7cziw6ocwqgtrjmvy",
+            "count": 138,
+            "words": 5,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[m:good <urn:kernel-v0:friend>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqa4rogryafuv7pxj4faiua7q3zibvuparntbvf7cddpdkr3f3obfy",
+            "count": 125,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:mother>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqhmvsya4kj7llblvfzddth33cm5xzbdochnjndmhmwgf5ggzazgdq",
+            "count": 116,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#YOU, attribute=[<urn:kernel-v0:right>]) }"
+          },
+          {
+            "urn": "urn:kot:bciqin6xininjmibryfzy2kwtpqgidmeiogufa7ha36flms6vtej2mgq",
+            "count": 103,
+            "words": 2,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { do(agent=#YOU) }"
+          },
+          {
+            "urn": "urn:kot:bciqlwrwitsndvysbvilt3wamr4xcr3lxhlfui6jprh2i3omt3bo7coa",
+            "count": 103,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { know(experiencer=#I, topic=#YOU) }"
+          },
+          {
+            "urn": "urn:kot:bciqemjo6qnps6k7ie4azneajk2icgzjhypqwguc3bkyjrygy4wznmmy",
+            "count": 82,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:happy>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqhuks7dkobzk3ywwiivuyee3x4fy6xor7gvrfkmnh4omswet4zexq",
+            "count": 82,
+            "words": 4,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { there-is(undergoer=[<urn:molecule-v0:rabbit>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqmfzro2mfuk3vryilddg5k75mh5ghv3sj345t56jgvdi76rqajxei",
+            "count": 77,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { say(agent=[d:this <urn:molecule-v0:man>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqiazcdsls2bnzv35hldoghpssvyodeeqortxuiz4f6mpulz5wjqbi",
+            "count": 75,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=[<urn:molecule-v0:mother>], attribute=[<urn:kernel-v0:right>], time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqiixuxgg3sokrjdl65m7y4jmdbc3difzy4zgfpxz4hgqslnyw5h4i",
+            "count": 74,
+            "words": 3,
+            "stratum": "simple-clause",
+            "render": "instance refs[x1:something] { do(agent=[WHERE~PLACE], undergoer=#YOU, time=before@#NOW) }"
+          },
+          {
+            "urn": "urn:kot:bciqhmtvnmxtksqq263rbqvfluizoedr45aeioujug4byavotwgiec5q",
+            "count": 67,
+            "words": 3,
+            "stratum": "is-a",
+            "render": "instance refs[x1:something] { be-spec(undergoer=#I, attribute=[<urn:kernel-v0:happy>]) }"
+          }
+        ]
+      },
+      "abstain_causes": {
+        "unmapped-word": 2237985,
+        "pronoun-anaphor": 462107,
+        "open-class-verb": 317239,
+        "prime-not-substantive-head": 286739,
+        "mapper-abstain": 161457,
+        "bare-plural": 119969,
+        "no-verb": 88496,
+        "little-ambiguous": 42705,
+        "unsupported-modifier": 27260,
+        "sentence-end": 7554,
+        "say-complement-unsupported": 5280,
+        "double-determiner": 2139,
+        "feel-attribute-unsupported": 900,
+        "think-complement-unsupported": 561,
+        "punctuation-break": 530,
+        "bare-mod-predication": 249,
+        "copula-no-complement": 193,
+        "copula-locative-unsupported": 183,
+        "bare-not": 131,
+        "unexpected-object": 126,
+        "copula-indexical-attribute": 116,
+        "np-or": 113,
+        "live-sense-guard": 86,
+        "elided-subject-unbindable": 64,
+        "duplicate-modifier": 41,
+        "kindpart-of-indexical": 34,
+        "feel-no-attribute": 10,
+        "modal-copula": 2
+      },
+      "parser_invalid_fragments": {},
+      "encode_sample": {
+        "n": 50,
+        "ms": 195,
         "concept_vectors": "deterministic stubs (structural check)"
       }
     }
   },
   "instrument_bug_fragments_total": 0,
   "clean_run": true,
-  "runtime_seconds": 14.144
+  "runtime_seconds": 328.51
 }
