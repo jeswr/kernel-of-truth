@@ -130,6 +130,31 @@ export function makeSpecs(dataRoot: string, opts: SpecOptions = {}): CorpusSpec[
     idPayload: (raw) => raw["definition"]!,
   });
 
+  // ---- code-v0 (hand-authored structural code-construct definitions; substitute) ----
+  // A5 code world-layer vocabulary (data/code-v0/README.md profile decision):
+  // NOT kot-ast/1 NSM explications — the same corpus-specific-profile route as
+  // math-v0. Containment reuses kernel-v0 part-of/has-part (nothing minted).
+  specs.push({
+    name: "code-v0",
+    prefix: "urn:code-v0:",
+    profileHeader: "kot-code-construct/1\n",
+    refMode: "substitute",
+    kind: "hand-authored",
+    identityNote:
+      "Identity = the kot-code-construct/1 `definition` object (content-addressed structural " +
+      "definition: construct kind + language + definition text + intra-corpus refs). " +
+      "label/gloss/notes/status/references are annotation. Intra-corpus refs substituted " +
+      "to minted urn:kot: URNs in reverse topological order (DAG, no cycles).",
+    manifestPath: join(dataRoot, "code-v0", "manifest.json"),
+    outDir: join(dataRoot, "code-v0"),
+    load: (root) =>
+      globJson(join(root, "code-v0", "concepts")).map((p) => {
+        const r = readJson(p);
+        return { id: r["id"] as string, raw: r };
+      }),
+    idPayload: (raw) => raw["definition"]!,
+  });
+
   // ---- math-mm (bulk profile-M metamath; substitute; the df-cleq/df-clel 2-cycle) ----
   specs.push({
     name: "math-mm",

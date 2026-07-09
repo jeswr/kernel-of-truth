@@ -1,0 +1,18 @@
+{
+  "id": "urn:code-v0:code-imports",
+  "label": "imports (X imports Y; importing module -> imported module)",
+  "status": "research-grade",
+  "gloss": "Module X contains an import statement that resolves, within the pinned corpus, to module Y.",
+  "notes": "Corpus-internal edges only: imports of modules outside the pinned corpus assert NOTHING (closed-world over asserted records). Structural (non-NSM) definition.",
+  "references": [
+    "urn:code-v0:python-module"
+  ],
+  "definition": {
+    "schema": "kot-code-construct/1",
+    "construct": "relation",
+    "language": "python-3",
+    "definition": "imports(X, Y), forward direction = importer -> imported. Module X contains an ast.Import or ast.ImportFrom statement naming a module that resolves, within the pinned corpus, to module Y (match by module name against the corpus's file set). An import of a module outside the pinned corpus asserts nothing.",
+    "domain_ref": "urn:code-v0:python-module",
+    "range_ref": "urn:code-v0:python-module"
+  }
+}

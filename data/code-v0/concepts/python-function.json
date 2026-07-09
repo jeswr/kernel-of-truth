@@ -1,0 +1,14 @@
+{
+  "id": "urn:code-v0:python-function",
+  "label": "Python function (named callable, incl. methods and nested functions)",
+  "status": "research-grade",
+  "gloss": "A Python function: a named callable introduced by a def (or async def) statement; includes methods and nested functions; a lambda is not one.",
+  "notes": "Structural (non-NSM) definition; see data/code-v0/README.md for the profile decision.",
+  "references": [],
+  "definition": {
+    "schema": "kot-code-construct/1",
+    "construct": "class",
+    "language": "python-3",
+    "definition": "A Python function: a named callable introduced by an ast.FunctionDef or ast.AsyncFunctionDef node. Methods (functions whose immediate lexical parent is a class body) and nested functions (whose immediate lexical parent is another function body) are python-functions. An unnamed lambda expression is NOT a python-function."
+  }
+}

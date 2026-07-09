@@ -1,0 +1,27 @@
+{
+  "id": "urn:code-v0:code-defines",
+  "label": "defines (X defines Y; defining scope -> defined construct)",
+  "status": "research-grade",
+  "gloss": "Scope X directly introduces named construct Y as an immediate child of its body.",
+  "notes": "Direct (one-step) definition edge; each defined construct has exactly one direct definer by construction of the lexical tree. Structural (non-NSM) definition.",
+  "references": [
+    "urn:code-v0:python-module",
+    "urn:code-v0:python-class",
+    "urn:code-v0:python-function"
+  ],
+  "definition": {
+    "schema": "kot-code-construct/1",
+    "construct": "relation",
+    "language": "python-3",
+    "definition": "defines(X, Y), forward direction = defining scope -> defined construct. Scope X (a python-module body, a python-class body, or a python-function body) directly introduces named construct Y (a python-function or a python-class) as an immediate child statement of X's body. The edge is one lexical step only; every defined construct has exactly one direct definer.",
+    "scope_refs": [
+      "urn:code-v0:python-module",
+      "urn:code-v0:python-class",
+      "urn:code-v0:python-function"
+    ],
+    "defined_refs": [
+      "urn:code-v0:python-function",
+      "urn:code-v0:python-class"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "urn:code-v0:code-calls",
+  "label": "calls (X calls Y; caller function -> callee function)",
+  "status": "research-grade",
+  "gloss": "Function X's body contains a call expression that statically and unambiguously resolves to function Y.",
+  "notes": "Conservative static relation: only calls the pinned extractor can resolve exactly are asserted; unresolvable call expressions assert NOTHING (closed-world over asserted records, no completeness claim). Structural (non-NSM) definition.",
+  "references": [
+    "urn:code-v0:python-function"
+  ],
+  "definition": {
+    "schema": "kot-code-construct/1",
+    "construct": "relation",
+    "language": "python-3",
+    "definition": "calls(X, Y), forward direction = caller -> callee. The body of function X contains at least one ast.Call node whose callee expression statically resolves, by exact-name resolution only (a bare name bound by a same-module top-level function definition, or an attribute access through a same-corpus imported module's top-level function name, or a from-import-bound name of a same-corpus module's top-level function), to function Y. A call expression the resolver cannot resolve exactly asserts nothing. No dynamic dispatch, no method-receiver inference, no similarity of any kind.",
+    "domain_ref": "urn:code-v0:python-function",
+    "range_ref": "urn:code-v0:python-function"
+  }
+}
