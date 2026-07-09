@@ -186,8 +186,11 @@ function sha256(buf) {
   return createHash('sha256').update(buf).digest('hex');
 }
 
-/** Build one record from a [Term]/[Typedef] stanza, or null if to skip. */
-export function stanzaToRecord(stanza, ont, provenance) {
+/** Build one record from a [Term]/[Typedef] stanza, or null if to skip.
+ * `resolveRel` (kernel-of-truth-8es) resolves a differentia `property` shorthand
+ * to its canonical minted relation URN; when omitted (e.g. unit tests), the
+ * differentia carries only the bare `property` string (pre-8es shape). */
+export function stanzaToRecord(stanza, ont, provenance, resolveRel) {
   const m = tagMap(stanza);
   const idVals = m.get('id');
   if (!idVals || idVals.length === 0) return null; // e.g. a spurious stanza
@@ -242,8 +245,19 @@ export function stanzaToRecord(stanza, ont, provenance) {
     for (const v of iof) {
       const body = stripIdValue(v);
       const toks = body.split(/\s+/);
-      if (toks.length === 1) genus.push(toUrn(toks[0]));
-      else differentiae.push({ property: toks[0], filler: toUrn(toks[1]) });
+      if (toks.length === 1) { genus.push(toUrn(toks[0])); continue; }
+      // Differentia: keep the source `property` shorthand (provenance + the
+      // pre-8es alias-table read path) AND resolve it to the canonical minted
+      // relation URN at extraction time (kernel-of-truth-8es). This is what
+      // retires the define-op's pinned §3.3 shorthand alias table: SO/MONDO
+      // differentia relations are no longer bound to a GO+PO-only table.
+      // Fail-closed: resolveRel throws (ERR_OBO_REL_*) on any token that does
+      // not resolve to a minted relation record in the pinned shards.
+      const property = toks[0];
+      const filler = toUrn(toks[1]);
+      differentiae.push(resolveRel
+        ? { property, relation: resolveRel(property), filler }
+        : { property, filler });
     }
     logicalDefinition = {
       form: 'obo-genus-differentia',
@@ -402,8 +416,75 @@ function computeOwners(loaded) {
   return owner;
 }
 
+/**
+ * Build the differentia-relation resolver (kernel-of-truth-8es). Each OBO
+ * `intersection_of` differentia names its relation by a bare shorthand
+ * (`part_of`, `disease_has_location`, `has_quality`, ...) or a CURIE
+ * (`RO:0002104`, `BFO:0000050`). This resolves that token to the canonical
+ * minted relation record's stable `urn:onto-obo:` id AT EXTRACTION TIME, so the
+ * define-op no longer needs its pinned §3.3 GO+PO-only shorthand alias table.
+ *
+ * Resolution uses ONLY the sources' own Typedef/relation declarations (no
+ * hand-authored table):
+ *   - a CURIE token       -> its own emitted relation record `toUrn(token)`.
+ *   - a bare shorthand    -> the RO/BFO relation IRI declared by the shorthand's
+ *       Typedef `xref:` (unioned across every ontology that declares the
+ *       shorthand, in ONTOLOGIES order); when exactly one such xref is itself an
+ *       emitted relation record, that IRI is canonical. Absent any such xref the
+ *       shorthand's OWN emitted relation record is used (locally-defined
+ *       relations with no RO mapping, e.g. `predisposes_towards`).
+ * Fail-closed (matching the extractor's ERR_OBO_* discipline; the data must be
+ * trusted over any table — memo §3.3):
+ *   - >1 distinct xref-canonical relation -> ERR_OBO_REL_AMBIGUOUS (never guess).
+ *   - no minted relation record at all    -> ERR_OBO_REL_UNRESOLVED.
+ * `emittedRel` is exactly the set of relation records emitObology emits (Typedef,
+ * non-obsolete, ownable, owned by the processing ontology) — i.e. exactly the
+ * relations the mint will assign a urn:kot: URN.
+ * MEASURED (2026-07-09, over all 161 distinct differentia tokens): 0 ambiguous,
+ * 0 unresolved, and the 10 GO+PO shorthands resolve to EXACTLY the retired alias
+ * table's targets (GO/PO define answers unchanged).
+ */
+function buildRelationResolver(loaded, owner) {
+  const emittedRel = new Set();   // toUrn(id) of every emitted relation record
+  const xrefsById = new Map();    // Typedef id -> [xref tokens], unioned in load order
+  for (const { ont, stanzas } of loaded) {
+    for (const st of stanzas) {
+      if (st.type !== 'Typedef') continue;
+      const m = tagMap(st);
+      const idv = m.get('id');
+      if (!idv || idv.length === 0) continue;
+      if ((m.get('is_obsolete') || []).some((v) => v.trim() === 'true')) continue;
+      const oboId = idv[0].trim();
+      if (isOwnable(oboId) && owner.get(oboId) === ont.id) emittedRel.add(toUrn(oboId));
+      if (!xrefsById.has(oboId)) xrefsById.set(oboId, []);
+      const arr = xrefsById.get(oboId);
+      for (const x of (m.get('xref') || []).map(stripIdValue)) if (!arr.includes(x)) arr.push(x);
+    }
+  }
+  return function resolveRel(token) {
+    if (isCurie(token)) {
+      const u = toUrn(token);
+      if (emittedRel.has(u)) return u;
+      throw new Error(`ERR_OBO_REL_UNRESOLVED: differentia relation ${token} has no minted relation record`);
+    }
+    const cands = [];
+    for (const x of (xrefsById.get(token) || [])) {
+      if (!isCurie(x)) continue;
+      const xu = toUrn(x);
+      if (emittedRel.has(xu) && !cands.includes(xu)) cands.push(xu);
+    }
+    if (cands.length === 1) return cands[0];
+    if (cands.length > 1) {
+      throw new Error(`ERR_OBO_REL_AMBIGUOUS: shorthand ${token} maps to multiple minted relations [${cands.join(', ')}]`);
+    }
+    const u = toUrn(token);
+    if (emittedRel.has(u)) return u;
+    throw new Error(`ERR_OBO_REL_UNRESOLVED: differentia relation shorthand ${token} resolves to no minted relation record`);
+  };
+}
+
 /** Emit one shard for an ontology, keeping only records it canonically owns. */
-function emitOntology({ ont, provenance, stanzas, dataVersion }, owner) {
+function emitOntology({ ont, provenance, stanzas, dataVersion }, owner, resolveRel) {
   const lines = [];
   const stats = {
     records: 0, classes: 0, relations: 0,
@@ -413,16 +494,27 @@ function emitOntology({ ont, provenance, stanzas, dataVersion }, owner) {
   const emittedUrns = new Set();
   for (const st of stanzas) {
     if (st.type !== 'Term' && st.type !== 'Typedef') continue;
-    const r = stanzaToRecord(st, ont, provenance);
+    // Ownership pre-filter BEFORE building the record — and therefore before
+    // fail-closed differentia-relation resolution (kernel-of-truth-8es). A
+    // foreign-prefix import stub (NCBITaxon/PR/CHEBI/CLM/DHBA/MBA/raw IRIs/...)
+    // or a non-owned re-declaration is dropped here (foreign-stub policy), so its
+    // differentiae — which may name a foreign relation with NO minted record
+    // (e.g. a dropped CL import stub whose differentia is `STATO:0000101`) — never
+    // reach the resolver. Only records we actually emit get their relations
+    // resolved, so the resolver's fail-closed throw guards emitted data exactly.
+    const pm = tagMap(st);
+    const pid = pm.get('id');
+    if (!pid || pid.length === 0) continue;
+    const poboId = pid[0].trim();
+    const pObsolete = (pm.get('is_obsolete') || []).some((v) => v.trim() === 'true');
+    if (!pObsolete) {
+      if (!isOwnable(poboId)) { stats.foreignStubsSkipped++; continue; }
+      if (owner.get(poboId) !== ont.id) { stats.importedAliasesSkipped++; continue; }
+    }
+    const r = stanzaToRecord(st, ont, provenance, resolveRel);
     if (!r) continue;
     if (r.obsolete) { stats.obsoleteSkipped++; continue; }
     const rec = r.record;
-    // Foreign-prefix import stubs (NCBITaxon/PR/CHEBI/CLM/DHBA/MBA/raw IRIs/...)
-    // carry no definitional content: kept only as reference targets in owned
-    // records, never emitted as records (foreign-stub policy).
-    if (!isOwnable(rec.oboId)) { stats.foreignStubsSkipped++; continue; }
-    // Skip records owned by another ontology (OBO import stub of a foreign IRI).
-    if (owner.get(rec.oboId) !== ont.id) { stats.importedAliasesSkipped++; continue; }
     if (emittedUrns.has(rec.id)) {
       throw new Error(`ERR_OBO_DUP: duplicate id ${rec.oboId} in ${ont.file}`);
     }
@@ -456,10 +548,11 @@ function main() {
 
   const loaded = ONTOLOGIES.map(loadOntology);
   const owner = computeOwners(loaded);
+  const resolveRel = buildRelationResolver(loaded, owner);
 
   for (const ld of loaded) {
     const ont = ld.ont;
-    const res = emitOntology(ld, owner);
+    const res = emitOntology(ld, owner, resolveRel);
     results[ont.id] = res;
     shards[ont.out] = res.shard;
     sourceFiles[ont.file] = `sha256:${ont.sha256}`;

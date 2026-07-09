@@ -289,6 +289,85 @@ Mechanical checks on this run:
   "chunk/filter" (a mechanism the extractor lacks + a subset-curation decision);
   whole-file infeasible here.
 
+## Extraction 5 — differentia relations resolved to minted relation URNs (2026-07-09)
+
+Bead `kernel-of-truth-8es` (define-op §3.3 successor). Each OBO `intersection_of`
+differentia previously stored its relation as a **bare `property` shorthand**
+string (`part_of`, `disease_has_location`, `has_quality`, …) or a CURIE
+(`RO:0002104`). The extractor now **resolves that token to the canonical minted
+relation record's stable `urn:onto-obo:` id at extraction time**, and each
+differentia carries an added `relation` field alongside the retained `property`:
+
+```json
+"differentiae": [
+  { "property": "disease_has_location", "relation": "urn:onto-obo:RO_0004026",
+    "filler": "urn:onto-obo:UBERON_0000002" } ]
+```
+
+This **retires the define-op's pinned §3.3 GO+PO-only shorthand alias table**:
+SO/MONDO differentia relations are no longer bound to a 10-value table built from
+GO+PO. Resolution uses ONLY the sources' own Typedef/relation declarations
+(`buildRelationResolver` in `extract.mjs`): a CURIE token → its own emitted
+relation record; a bare shorthand → the RO/BFO IRI declared by the shorthand's
+Typedef `xref:` when exactly one such xref is itself an emitted relation record,
+else the shorthand's own emitted relation record (locally-defined relations with
+no RO mapping, e.g. `predisposes_towards`). Fail-closed: `ERR_OBO_REL_AMBIGUOUS`
+(never guess) / `ERR_OBO_REL_UNRESOLVED`. Relation resolution runs ONLY for
+records we emit — a dropped foreign import stub whose differentia names a foreign
+relation (e.g. a CL stub's `STATO:0000101`) is never resolved. `property` is kept
+for provenance and for the pre-8es alias-table read path (so the define-op census
+never regresses while the engine still reads the table).
+
+**`relation` is INSIDE identity** (it lives in `logicalDefinition`), so this is a
+new extraction + **re-mint** (generation bump). Only the six differentia-bearing
+shards change; the four with no genus-differentia are **byte-identical** to
+extraction 4.
+
+- **Versioning:** `EXTRACTOR_VERSION`/`EXTRACTION_DATE` left pinned (`0.1.0` /
+  `2026-07-07`) per the established pattern (extractions 2–4 held them constant
+  through extractor-logic changes; `manifest.extractor.contentHash` carries the
+  real code signal: `a053806d…`). This keeps `bfo/ro/pato/ogms.jsonl`
+  byte-identical (their `sha256` pins unchanged) — MEASURED: `bfo` `c8451264…`,
+  `ro` `0366c37b…`, `pato` `2a42efba…`, `ogms` `a599d6da…` unchanged; only
+  `go/po/cl/uberon/so/mondo` shards changed.
+
+Mechanical checks on this run [MEASURED 2026-07-09]:
+
+- **Deterministic re-extraction / re-mint:** all 10 shards byte-identical across
+  two `extract` runs; `minted-urns.jsonl` + `manifest.json` byte-identical across
+  three re-mints (identical `identityRoot`).
+- **Structural validation** (`validate.mjs`, now also gating that every
+  differentia `relation` resolves to an emitted relation record): all gates pass.
+  95,749 records / 95,749 unique ids; reference closure 235,377 internal, 839
+  dangling-known-prefix (unchanged from extraction 4), 24,632 external.
+- **Sample audit** (`sample-review.mjs`, two seeds `0x0b0`/`0x4d31`, 1,600 records,
+  now also checking each differentia `relation` is an emitted relation record):
+  **0 errors**.
+- **Parser unit tests:** 12/12 (was 11; +1 for the resolved-relation shape).
+- **Mint** (`tools/mint`, stable mode): **95,749 minted, 95,749 unique URNs, 0
+  duplicate-identity groups, 0 cyclic components**, 9,431 unresolved (foreign) ref
+  targets. `corpusIdentityRoot 1adab65e…` (generation bump from extraction 4's
+  `e8a95e2d…`). No downstream artifact pins onto-obo genus-differentia `urn:kot:`
+  URNs (verified repo-wide), so the URN churn is contained.
+
+**Resolution audit** [MEASURED, independent of `extract.mjs`]: over all 161
+distinct differentia relation tokens the resolver is 0-ambiguous / 0-unresolved,
+and the 10 GO+PO shorthands resolve to EXACTLY the retired alias table's targets
+(`part_of → BFO_0000050`, `regulates → RO_0002211`, …), so GO/PO define answers
+are unchanged. Weighted by occurrence: 79 tokens resolve via `xref` (23,397
+differentiae), 37 CURIE-self (3,454), 45 shorthand-self (670).
+
+**What this unlocks** (a STANDALONE check reading the resolved `relation` via the
+mint bridge — NOT the define-op census, which is Opus's to re-run and is gated on
+the engine reading `relation` instead of the alias table, bead `-46f`):
+resolvable genus-differentia definitions go **GO 9,307→9,307 (unchanged), SO
+18→219 (fully unlocked), MONDO 103→3,744**; `fail_on_relation = 0` for SO and
+MONDO (the relation-shorthand gap is fully closed). MONDO's residual 3,941
+unresolved fail ONLY on foreign **fillers** (`http`/`NCBITaxon`/`HP`/`CHEBI`/… —
+the separate Wave-A foreign-ontology ingestion gap, out of 8es scope), 0 on
+relation or genus. The OLD-column figures (9,307 / 18 / 103) match the define-op
+census RUN-LOG exactly, validating the method.
+
 ## The bridge (alignment-kernel-v0.json)
 
 kernel-v0 already targets gUFO (`gufo:Event`, `gufo:Kind`), which is

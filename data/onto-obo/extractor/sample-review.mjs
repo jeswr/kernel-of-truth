@@ -37,6 +37,9 @@ const records = [];
 for (const shard of Object.values(SHARD_OF)) {
   for (const l of readFileSync(join(ROOT, shard), 'utf8').trim().split('\n')) records.push(JSON.parse(l));
 }
+// kernel-of-truth-8es: the set of emitted relation record ids — every resolved
+// differentia `relation` URN must land in this set (checked per sampled record).
+const emittedRelIds = new Set(records.filter((r) => r.kind === 'relation').map((r) => r.id));
 
 // Independent raw-block extraction of a stanza by oboId from a source file.
 function rawStanza(text, oboId) {
@@ -125,6 +128,14 @@ for (const rec of sample) {
   if (!setEq(recGenus, p.genus)) problems.push('genus mismatch');
   const recDiff = new Set(rec.logicalDefinition ? rec.logicalDefinition.differentiae.map((d) => `${d.property}|${d.filler}`) : []);
   if (!setEq(recDiff, p.differentiae)) problems.push('differentia mismatch');
+  // 8es: every differentia's resolved `relation` URN must reference an emitted relation record.
+  if (rec.logicalDefinition) {
+    for (const d of rec.logicalDefinition.differentiae) {
+      if (typeof d.relation !== 'string' || !emittedRelIds.has(d.relation)) {
+        problems.push(`differentia relation ${d.relation} not an emitted relation record`);
+      }
+    }
+  }
   const recHasDef = !!rec.annotations.definition;
   const srcHasDef = p.hasDef || p.hasElucidation;
   if (recHasDef !== srcHasDef) problems.push(`definition presence: rec ${recHasDef} vs src ${srcHasDef}`);

@@ -106,6 +106,30 @@ test('stanzaToRecord builds genus-differentia logical definition', () => {
   assert.equal('definition' in record, false); // never inside identity
 });
 
+test('stanzaToRecord: resolveRel adds a resolved relation URN to each differentia (8es)', () => {
+  const text = [
+    '[Term]',
+    'id: GO:0000018',
+    'name: regulation of DNA recombination',
+    'intersection_of: GO:0065007 ! biological regulation',
+    'intersection_of: regulates GO:0006310 ! DNA recombination',
+  ].join('\n');
+  const st = parseObo(text).stanzas[0];
+  // stub resolver: shorthand -> canonical minted relation URN (as the real
+  // buildRelationResolver would via the RO/BFO xref).
+  const resolveRel = (tok) => ({ regulates: 'urn:onto-obo:RO_0002211' }[tok]
+    ?? (() => { throw new Error('ERR_OBO_REL_UNRESOLVED: ' + tok); })());
+  const { record } = stanzaToRecord(st, ONT, PROV, resolveRel);
+  assert.deepEqual(record.logicalDefinition.differentiae, [
+    { property: 'regulates', relation: 'urn:onto-obo:RO_0002211', filler: 'urn:onto-obo:GO_0006310' },
+  ]);
+  // without a resolver the pre-8es shape (no `relation`) is preserved
+  const { record: bare } = stanzaToRecord(st, ONT, PROV);
+  assert.deepEqual(bare.logicalDefinition.differentiae, [
+    { property: 'regulates', filler: 'urn:onto-obo:GO_0006310' },
+  ]);
+});
+
 test('stanzaToRecord: genus-only intersection is not genus-differentia', () => {
   const text = [
     '[Term]',

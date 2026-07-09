@@ -69,6 +69,11 @@ for (const [id, ont] of Object.entries(manifest.ontologies)) {
       for (const d of ld.differentiae) {
         gate(typeof d.property === 'string' && typeof d.filler === 'string',
           `${where}: bad differentia shape`);
+        // kernel-of-truth-8es: each differentia carries a resolved relation URN
+        // (source shorthand -> canonical minted relation). Format here; the
+        // resolves-to-an-emitted-relation-record gate is in reference-closure.
+        gate(typeof d.relation === 'string' && d.relation.startsWith('urn:onto-obo:'),
+          `${where}: differentia missing resolved relation URN`);
       }
       const isGd = ld.genus.length >= 1 && ld.differentiae.length >= 1;
       if (isGd) gd++;
@@ -113,7 +118,14 @@ for (const rec of records) {
   }
   if (rec.logicalDefinition) {
     for (const g of rec.logicalDefinition.genus) checkTarget(g, 'genus', where, true);
-    for (const d of rec.logicalDefinition.differentiae) checkTarget(d.filler, 'differentia', where, false);
+    for (const d of rec.logicalDefinition.differentiae) {
+      checkTarget(d.filler, 'differentia', where, false);
+      // kernel-of-truth-8es: the resolved relation MUST be an emitted relation
+      // record (fail-closed; this is the retired alias table verified at source).
+      const rel = byId.get(d.relation);
+      gate(rel && rel.kind === 'relation',
+        `${where}: differentia relation ${d.relation} is not an emitted relation record`);
+    }
   }
 }
 
