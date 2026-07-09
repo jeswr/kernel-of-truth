@@ -90,7 +90,8 @@ of `registry/`; for a given `id` the last line is current). Fields:
 | `candidate_ref` | filled when promoted to a research-engine candidate / experiment id |
 | `status` | idea / scoped / candidate / anchored / unsupported / open / retired / parked |
 | `assumption_refs[]` | ASM-ids registered when this idea premises a prereg |
-| `notes` | free text |
+| `premise_eligible` | optional bool (default true). FALSE = the cited mechanism evidence is too weak to premise a design decision — [claimed]/single-group-unreplicated, or a composition that is itself EXTRAPOLATION. Note: the *kernel-benefit* claim is EXTRAPOLATION for EVERY idea until a verdict exists; this flag is about the *motivator* evidence, not kernel benefit. |
+| `notes` | free text (carries X3-trap and Law-2 flags where they must be restated at freeze) |
 
 `epistemic` uses the N-G tags exactly, so an idea's status is honest by construction:
 `MEASURED` only with a verdict/poc ref, `LIT-BACKED` only with a paper, `STIPULATED` is the
@@ -153,22 +154,47 @@ ties break cheapest-decisive-first
 | # | idea | slots | tier | why now |
 |---|---|---|---|---|
 | 1 | **idea-l3a-oracle** (in progress) | seam.rules-engine + kernel.axiom/world | 0-1 | cheapest-decisive; builds the kot-axiom engine owed anyway; underpins idea B |
-| 2 | **idea-verifier-external / f2b-REPLICATE** (running) | seam.verifier | 1 | the programme's central efficiency claim, being re-tested clean (oracle-leakage controlled) |
-| 3 | **idea-structured-data-parser — math/Lean slice** (idea A) | encoder.structured-data-parser + model.output-head | 2 | precedent exists (Lean->kernel); cheap slice of the sub-programme |
-| 4 | **idea-l1a-canonicaliser** | seam.in-tokenisation + encoder.input-parse | 2 | cheapest model-facing rung; mapper ready; de-risks L3 parse |
-| 5 | **idea-l2c-phi-fixedness — LITE** | seam.in-layer (phi) | 3 | de-confounds the LCM anchor for the WHOLE L1b/L2a/L2b family; machinery exists |
-| 6 | **idea-polarity-similarity / structural-decode** | encoder.similarity-decode | 1 | ENABLER (CPU, cheap) that unblocks the whole similarity-based deferred family + idea B |
-| 7 | **idea-concept-toolkens** | seam.adapter + model.embedding | 2 | cheap unrun A2 variant |
+| 2 | **idea-verifier-external / f2b-REPLICATE** (running) | seam.verifier | 1 | the programme's central efficiency claim, re-tested clean (oracle-leakage controlled) |
+| 3 | **idea-constrained-record-emission (A2)** — NEW | model.output-head + seam.verifier | 1 | components all [established]; ~zero overhead; directly HARDENS the live F2/f2b extraction-failure gate and enables L1b-out / L3a query grammar / L3c |
+| 4 | **idea-backpatch-diagnostic (B5)** — NEW | model.inter-layer | 2 | cheap CEILING on the whole inter-layer / B1 / L2 family — run BEFORE B1; a low fraction-rescuable cheaply deprioritises an expensive family |
+| 5 | **idea-code-worldlayer-cpg (A5)** — NEW | kernel.world-layer + seam.rules-engine | 0-1 | L3a CODE vertical (CPU); answers structure queries LLMs measurably fail; fast-follow behind the L3a engine; **X3 exact-hash trap restated at freeze** |
+| 6 | **idea-l1a-canonicaliser** (+ **A1** code/tables, **A6** canonical-facts-as-text as arms) | seam.in-tokenisation + encoder.input-parse | 1-2 | cheapest model-facing rung; mapper ready; de-risks L3 parse |
+| 7 | **idea-l2c-phi-fixedness — LITE** | seam.in-layer (phi) | 3 | de-confounds the LCM anchor for the WHOLE L1b/L2a/L2b family; machinery exists |
+| 8 | **idea-polarity-similarity / structural-decode** | encoder.similarity-decode | 1 | ENABLER (CPU, cheap); unblocks the similarity-based deferred family, B3, and B1's decode step |
+| 9 | **idea-structured-data-parser — math/Lean slice** (idea A) | encoder.structured-data-parser + model.output-head | 2 | precedent exists (Lean->kernel); cheap slice of the sub-programme |
+| 10 | **idea-concept-toolkens** | seam.adapter + model.embedding | 2 | cheap unrun A2-style variant |
+| 11 | **idea-trie-concept-name-emission (A3)** — NEW | model.output-head | 2 | rescues the E4 emission null via a no-training path (GENRE shape) |
+
+**f2b re-rank (verifier-adjacent).** The running f2b-REPLICATE verdict re-ranks items 3 and
+the deferred B-family: a verifier-seam PASS raises A2 (gate-hardening on a live win) and the
+B1 inner-verifier loop; a KILL leaves A2 still valuable for the L1b/L3a/L3c output legs but
+demotes the verifier-adjacent urgency.
 
 This reconciles with `architecture-ladder.md` §6.1 (L3a -> L1a -> ... -> L2c-lite): the
 ladder ranking IS this NOW-list over the seam/model subset; N-H adds the encoder-side
-enablers (polarity/structural-decode) and idea A's math slice.
+enablers (polarity/structural-decode), idea A's math slice, and the Line-4 decoder-side
+and diagnostic entries (A2, A5, B5) — the three the report's evidence makes both feasible
+and decisive.
 
 ### 4.2 The DEFERRED full-permutation set (unlock when less resource-constrained)
 
 Flagged `readiness: blocked` or `cost_tier >= 3`, and the exhaustive sweep itself:
-- **idea-symbolic-inference-between-layers (idea B)** — blocked on {L3a engine, reliable
-  model-side decode, X3 mitigation}; naturally sequences AFTER the NOW-list items 1 and 6.
+- **idea-symbolic-inference-between-layers (idea B)** and its Line-4 family — blocked on
+  {L3a engine, reliable model-side decode, X3 mitigation}; sequences AFTER NOW items 1, 4, 8:
+  - **idea-inter-layer-loop-trainingfree (B1)** — the buildable training-free composition
+    (patchscope-decode -> mapper-exact concepts -> kot-axiom engine -> feedback); the empty
+    motivated cell (a new "L1.5 inner-verifier" rung); composition is EXTRAPOLATION,
+    `premise_eligible:false`; run **B5 first**.
+  - **idea-kernel-keyed-steering-dict (B2)** — B1's write channel; defer until B5/B1 show
+    inter-layer value is real.
+  - **idea-vsa-engine-internals (B3)** — L3a engine speed (NVSA shape); blocked on X3-safe
+    cleanup, **X3 exact-hash trap restated at freeze**, `premise_eligible:false`.
+  - **idea-trained-kernel-bridge-depth (B4)** — the 2502.01657 replication; motivator is
+    **[claimed] single-group unreplicated -> `premise_eligible:false`, may NOT premise a
+    prereg**; replication must add the engine-as-text null the original omitted; POST-F2.
+  - **idea-coconut-engine-loop (B6)** — horizon (L4-adjacent); gate strictly on B1.
+- **idea-record-paired-corpus-grounding (A4)** — IRCoder-shape training corpus for F6/N-C2;
+  Tier 3, POST-F2 + training budget.
 - **idea-structured-data-parser — general-code (idea A)** — needs its own benchmark build; a
   SUB-PROGRAMME (see §5).
 - **idea-l1b-dense-io, idea-l2a-bottleneck, idea-l2b-memory-layer, idea-l2c-full,
@@ -184,12 +210,36 @@ Flagged `readiness: blocked` or `cost_tier >= 3`, and the exhaustive sweep itsel
 
 ## 5. Seed contents + the two new maintainer ideas
 
-`registry/ideas.jsonl` seeds **30 ideas**: 5 MEASURED (construction-B, A2, verifier, A1,
-A6), 7 LIT-BACKED (binding alternatives, toolkens, bottleneck, memory-layer, regularisers,
-MoE), 18 STIPULATED (the ladder rungs, grammar/axiom/world forks, similarity enablers, the
-two new ideas). Coverage across the full slot grid is complete (all 4 architectures x their
-parts). The L0-L4 ladder rungs and L2c phi-sweep are seeded with `ladder_ref`; the
-gradual-introduction schedule axis is seeded as `idea-gradual-introduction`.
+`registry/ideas.jsonl` seeds **43 ideas** (30 base + 13 from Line-4): 5 MEASURED (seams
+E-series), 17 LIT-BACKED, 21 STIPULATED. Coverage across the full slot grid is complete
+(all 4 architectures x their parts). The L0-L4 ladder rungs and L2c phi-sweep are seeded
+with `ladder_ref`; the gradual-introduction schedule axis is `idea-gradual-introduction`.
+
+**Line-4 fold-in (`reports/lit-structured-parsing-and-inner-symbolic.md`, 13 entries
+A1-A6/B1-B6/X1).** The report's evidence RESHAPES the two maintainer threads:
+- **Thread A (structured-data parsing).** Deterministic parsing pays at the **DECODER**
+  (grammar/type-constrained emission — PICARD/XGrammar/type-constrained, measured big gains)
+  and in **external engines**, but input-side/encoder AST injection at LLM scale is PARITY
+  (arXiv:2602.06671) and deep static analysis does not transfer in (arXiv:2505.12118) —
+  captured as the non-adoption boundary `idea-ast-input-injection-boundary` (X1). For CODE,
+  the Law-3 engine seat is already held by COMPILERS, so the kernel's marginal value is
+  canonical concept **identity**, not syntax. Two high-readiness entries fall out and enter
+  the NOW-list: **A2** grammar/type-constrained P10-record emission (hardens the live F2
+  extraction gate) and **A5** code world-layer via deterministic CPG -> L3a.
+- **Thread B (symbolic inference between layers).** The literal decode->concepts->symbolic
+  ->re-encode cell is near-empty (one [claimed] single-group trained occupant, missing the
+  text-null). But a TRAINING-FREE version (**B1**) is composable from MATURE instruments
+  (patchscope decode; kot-axiom engine; function-vectors/back-patch write-back) — parts
+  LIT-BACKED, composition EXTRAPOLATION. **B5** (back-patch diagnostic = a ceiling on
+  inter-layer value) is the cheap pre-experiment BEFORE B1 and enters the NOW-list.
+
+**Discipline flags honoured (from the report + coordinator):** (i) every kernel-benefit is
+EXTRAPOLATION until a verdict — no idea asserts kernel benefit; (ii) no [claimed]/single-
+group item premises a prereg — B4's motivator (arXiv:2502.01657) and the B1/B3/B6
+compositions carry `premise_eligible:false`; the A2 two-stage-decouple arm's [claimed]
+follow-ups are carried as an ARM, not a premise; (iii) **A5 and B3 restate the X3
+exact-hash-cleanup trap in their notes** (concept identification/cleanup must be exact
+content-hash, never kernel-space nearest-neighbour) for restatement at freeze.
 
 **Idea A — deterministic structured-data -> concept parsing** (`idea-structured-data-parser`,
 source maintainer): a CODE-based (not LLM) deterministic parser mapping structured
