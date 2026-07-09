@@ -1,0 +1,24 @@
+$ /usr/local/bin/python /root/kot/poc/f2b/runner/f2b_runner.py --inputs-dir /root/kot/poc/f2b/inputs --dqa-dir /root/kot/data/d-qa --dqar-dir /root/kot/data/d-qa-r --dxif-dir /root/kot/data/d-xif --dext-dir /root/kot/data/d-ext --records-root /root/kot --out-dir /tmp/f2b-results --device cpu --gpu-class A10G --mock
+[f2b     0.0s] mode=MOCK device=cpu items=1000 fresh covered (d-qa-r)
+[f2b     0.0s] shuffled-verifier permutation: seed=20260709 sha=05af8f50b134
+[f2b     2.5s] cell model-alone R1 seed=0 done
+[f2b     2.5s] cell model-alone R1 seed=1 done
+[f2b     2.5s] cell model-alone R3 seed=0 done
+[f2b     2.5s] cell model-alone R3 seed=1 done
+[f2b     2.5s] cells kernel-verify-retry k=1 done
+[f2b     2.5s] cells kernel-verify-retry k=2 done
+[f2b     2.5s] cells kernel-verify-retry k=4 done
+[f2b     2.5s] cells shuffled-kernel-verify-retry k=1 done
+[f2b     2.5s] cells shuffled-kernel-verify-retry k=2 done
+[f2b     2.5s] cells shuffled-kernel-verify-retry k=4 done
+[f2b     2.5s] cells gold-oracle-retry k=1 done
+[f2b     2.5s] cells gold-oracle-retry k=2 done
+[f2b     2.5s] cells gold-oracle-retry k=4 done
+[f2b     2.5s] cell kernel-as-text done
+[f2b     2.5s] cells gloss-self-verify-retry k=1 done
+[f2b     2.5s] cells gloss-self-verify-retry k=2 done
+[f2b     2.5s] cells gloss-self-verify-retry k=4 done
+[f2b     2.5s] cells prm-verifier done
+[f2b     2.5s] cell extraction-instrument R1 done (300 labelled, 5 failures)
+[f2b     2.5s] OUTCOME: MOCK-HARNESS-COMPLETE (32 run-record bodies in /tmp/f2b-results/run-records-f2b-mock.jsonl)
+[runner exit rc=0]

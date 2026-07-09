@@ -1,0 +1,120 @@
+{
+  "spec": "f2b-replicate harness RunSpec — fresh-item replication + oracle-structure controls for the F2 verifier-offload signal (architecture-advisor frozen design). Frozen design record: registry/experiments/f2b-replicate.json. This manifest pins the harness INPUTS only; it may not change any frozen design field or threshold. PINNING DIRECTION NOTE (differs from F2): the frozen record pins THIS harness's staged-bytes manifest sha directly (pins.harness_manifest), so this file must NOT contain the record's frozen_sha256 (that would be circular); the record's hash lives in registry/frozen-index.json and in the record itself.",
+  "schema": "kot-f2b-runspec/1",
+  "experiment": "f2b-replicate",
+  "prereg": {
+    "registry_record": "registry/experiments/f2b-replicate.json",
+    "analysis_script": {
+      "path": "analysis/f2b_replicate.py",
+      "sha256": "PINNED-IN-REGISTRY-RECORD (the frozen record carries the authoritative sha; the smoke test cross-checks the committed file against it)"
+    }
+  },
+  "pins": {
+    "dqarCorpusKotHash": "0d548bf18ac78f9d7b2abb6686c567f0930acd494c5ca03cee49806c4996ec5e",
+    "dqarCoveredItemsSha256": "7e7a9b5e7527e93d85316a140ef9f3dd2fb3e14acbf316c62b9f98b74365170e",
+    "dqarManifestSha256": "626491a25e5a03ed835f09d0d6711db181b891e4fe3e4ad8255928b75c949655",
+    "dqaCorpusKotHash": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaGlossCorpusSha256": "87a984b94b0b03f457aa2c6c8ee2b97000bd2dbf58ad781cb52a4c865856c815",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "dxifCorpusKotHash": "8c9aded603b236a79cb555d3ad3e8e072b772a7723bd06673ed53e216826adfa",
+    "dxifOutputsR1Sha256": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "dxifManifestSha256": "ad7bfa6bea2a19dd69e2d04265f6c20bec8e2e2cd9afe8a213ef893e08fb773f",
+    "dextCorpusKotHash": "0c5306bb4e27fc61c6e9f7ca5aaffbf4933a51894c594086647f6d64fca3991a",
+    "dextItemsSha256": "ba2c1c430ce53ff15740de57e30bf927c111b8f2be73844b31e6685a39b80eb6",
+    "dextManifestSha256": "12ee04bed471e9b96cceb81f2653011a41a699f5927563b2f4a8012b518bfeb0",
+    "perItemRecordSha256": "every d-qa-r item carries record_path + record_sha256; the verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN) on mismatch — the shuffled verifier verifies the PERMUTED record's pin the same way"
+  },
+  "models": {
+    "R1": {
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+      "pinned_by": "registry/experiments/f2b-replicate.json pins.model_revisions (carried over from F2 amendment 2)"
+    },
+    "R3": {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "revision": "31b70e2e869a7173562077fd711b654946d38674",
+      "pinned_by": "registry/experiments/f2b-replicate.json pins.model_revisions (carried over from F2 amendment 3)"
+    },
+    "prm": {
+      "repo": "Skywork/Skywork-o1-Open-PRM-Qwen-2.5-1.5B",
+      "revision": "98d69606595eedbdbbbf0a7d28efdcd462ba6a67",
+      "pinned_by": "registry/experiments/f2b-replicate.json pins.model_revisions (carried over from F2 amendment 3)",
+      "note": "HC3/EF3 trained-PRM comparator; real HFPRM backend identical to the F2 one (Modal-smoked by poc/modal/modal_prm_smoke.py on 2026-07-08)"
+    }
+  },
+  "shuffle": {
+    "perm_seed": 20260709,
+    "algorithm": "Sattolo cyclic permutation over the sorted covered-concept urns via random.Random(perm_seed) — a derangement by construction (no concept maps to its own record); asserted fixed-point-free at build; the realized urn->record map + its sha256 are written to shuffle-map.json in the results directory and the sha is emitted on every shuffled-arm record",
+    "note": "the shuffled-kernel-verify-retry arm is the LOAD-BEARING oracle-structure control (advisor design): identical retry topology and cost, record CONTENT decoupled from the item"
+  },
+  "design_constants_from_frozen_record": {
+    "note": "copied VERBATIM from registry/experiments/f2b-replicate.json for runner convenience; the frozen record is authoritative",
+    "seeds": [0, 1, 2, 3, 4],
+    "retry_sweep": [1, 2, 4],
+    "per_arm_items": 1000,
+    "rungs": ["R1", "R3"],
+    "iface_gate": {"n_min_per_rung": 300, "failure_wilson_lb_max": 0.10},
+    "separation_gate": {"min_gap": 0.10, "note": "acc(R3-alone) - acc(R1-alone) >= 0.10 (5-seed mean) with one-sided 95% lower CI > 0, else ratio secondaries are INSTRUMENT-INVALID (absolute primary still reads)"},
+    "budget": {"gpu_hours_cap": 24, "usd_cap": 60, "wall_clock_cap_hours": 72, "tier_cap_usd": 80}
+  },
+  "arm_plan": {
+    "prm_best_of_n": 2,
+    "prm_note": "best-of-2 reranking ~ FLOP envelope of verify at k=1 (2 generations + 2 PRM forwards vs 2 generations + CPU verify); realized FLOPs on the F0 ledger; analysis compares ledgers, not intentions",
+    "resample_temperature": 1.0,
+    "retry_final_answer": "last attempt (accepted or budget-exhausted); pre-declared, no post-hoc pick; identical rule for kernel-verify, shuffled-verify, gloss-self-verify and gold-oracle arms",
+    "gold_oracle_note": "gold-oracle-retry accepts iff the answer equals the true gold label — NON-DEPLOYABLE diagnostic ceiling (it reads the answer key); reported, never part of any PASS",
+    "ext_pipeline_fix": "the F2 ext_vector defect is closed: the external d-ext slice runs through each arm's OWN pipeline (verify arms via run_verify_retry with the arm's verifier, text arm with its context block); d-ext items are not kernel-checkable so the verifier ABSTAINS off-coverage there — the vector measures deployed off-coverage behaviour, not transfer (transfer = the gated f2b-TRANSFER experiment)",
+    "shared_affordance": "P10 IF-C constrained decoding for EVERY arm: answers produced by constrained selection over the pinned option set (A-D or yes/no) via sequence logprob; arms differ ONLY in verification instrument and context block",
+    "dropped_arms_note": "R2, cascades (HE2 failed confirmatory in F2 and is not re-litigated), int4, RAG and self-consistency are DROPPED per the advisor design; their F2 confirmatory readings stand"
+  },
+  "prompt_frames": {
+    "qa_prefix": "Answer the following question about the meaning of a word.\n\n",
+    "context_prefix": "Definitions you may use:\n",
+    "context_suffix": "\n\n",
+    "option_line": "{key}. {text}",
+    "answer_cue": "\nAnswer: ",
+    "self_verify_frame": "Definition of \"{term}\": {gloss}\n\nQuestion: {question}\nProposed answer: {answer}\nIs the proposed answer correct according to the definition above? Answer yes or no.\nAnswer: "
+  },
+  "flop_accounting": {
+    "formula": "F0 section 3.3: FLOPs = 2*N_active*T_total + 2*L*T^2*d_attn per sequence; prefill and decode metered separately; T measured with the arm's own tokenizer",
+    "cpu_flops_per_s_pinned": 5.0e10,
+    "cpu_note": "CPU-side verifier work is metered as measured wall-clock seconds and converted at this pinned rate ONLY for the aggregate figure; wall-clock is reported separately (F0 section 3.3)",
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10},
+    "usd_note": "Modal list prices used for planning + $-per-query conversion; actual Modal billing reconciled from the dashboard at run time"
+  },
+  "planning": {
+    "note": "dry-plan ESTIMATES only — never emitted as measurements",
+    "throughput_tok_per_s": {
+      "A10G": {"R1": 12000, "R3": 1800},
+      "T4": {"R1": 4000, "R3": 600}
+    },
+    "chars_per_token_estimate": 4.0,
+    "overhead_factor": 2.0,
+    "n_params": {"R1": 1.35e8, "R3": 1.7e9}
+  },
+  "mock": {
+    "note": "SYNTHETIC mechanics-only stub LM (no torch needed); every number it produces is labelled MOCK and never a measurement; the verifiers (true AND shuffled), extraction, gold-oracle gate, flop-meter and emitter code paths are the REAL ones",
+    "n_covered_items": 16,
+    "n_external_items": 8,
+    "seeds": [0, 1],
+    "iface_n_labelled": 300,
+    "stub_skill": {"R1": 0.4, "R3": 0.9},
+    "stub_context_bonus": 0.35,
+    "stub_self_check_skill": 0.75,
+    "stub_prm_skill": 0.7,
+    "stub_extraction_fail_rate": 0.02,
+    "stub_dims": {
+      "R1": {"n_active": 1000000, "layers": 2, "d_attn": 64},
+      "R3": {"n_active": 4000000, "layers": 2, "d_attn": 64}
+    }
+  },
+  "inputs_status": {
+    "d-qa-r": "BUILT + pinned 2026-07-09 (data/d-qa-r/build-dqar.py, generator seed dqar/1|f2b-replicate|20260709): 1000 FRESH covered items over the 108 covered concepts; ID-disjoint (dqar: namespace) AND full-prompt-surface-disjoint from all 650 d-qa items (LC8, fail-closed); leak-check PASS (data/d-qa-r/leak-check.json)",
+    "d-qa": "reused from F2 (amendment 1 pins) for two purposes ONLY: the pinned gloss corpus (text arms) and the original covered items the pinned d-xif labelled outputs reference (P10 gate re-verification); NO d-qa item is scored as an eval item in this experiment",
+    "d-xif": "reused from F2 (amendment 5 pins): 500 covered real R1 outputs re-verified mechanically through THIS harness's extraction machinery (run_extraction_instrument_dxif); fail-closed pins",
+    "d-ext": "reused from F2 (amendment 4 pins): 500 externally-authored OpenBookQA items; runs through the FIXED per-arm ext pipeline; descriptive raw vectors only (no endpoint) — items are not kernel-checkable, so this slice measures off-coverage abstention behaviour, not transfer"
+  }
+}
