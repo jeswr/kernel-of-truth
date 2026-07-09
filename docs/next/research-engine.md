@@ -421,14 +421,27 @@ twice above 5).
 
 | Role | Model | Engine duties (added to P5 duties) |
 |---|---|---|
-| **Coordinator (Kern)** | Opus main loop | Owns the outer clock: wave launch, generation boundaries, backlog custody (commits scores, breaks ties), dossiers, all deliberate commits. Still never runs/grades/audits/writes. |
-| **Designer / Scoper** | Fable | Steps 1–5 of the candidate procedure (claim, prior-art, hypotheses, experiment draft, forks); composite-candidate design. Distinct identity per candidate where separation demands. |
-| **Runner** | Fable | X.inputs/mock/run — unchanged. |
+| **Coordinator (Kern)** | Opus main loop | Owns the outer clock: wave launch, generation boundaries, backlog custody (commits scores, breaks ties), dossiers, all deliberate commits. Coordinates + delegates; delegates RUNNING to the Opus Runner role (below) rather than running directly; still never grades/audits/interprets. |
+| **Designer / Scoper** | Fable | Steps 1–5 of the candidate procedure (claim, prior-art, hypotheses, experiment draft, forks); composite-candidate design; + the architecture of kernel/model/other-under-test, the model-definition (PyTorch) code, the deterministic kernel-generation software, and generation-agent prompts. Distinct identity per candidate where separation demands. |
+| **Runner (execution)** | **Opus** | X.inputs / mock / dry-plan / run + oversight / collection / monitoring; writes the reproducible run-script + provenance run-log + `registry/audit-status.jsonl` entry; computes the MECHANICAL `verdict-gen` (pure function, no discretion) and TRIGGERS the Codex audit. **Reassigned Fable→Opus 2026-07-09** (note below). Never designs the science; never interprets/concludes. Role: `.claude/agents/experiment-runner.md`. |
+| **KB / variant pipeline runner (execution)** | **Opus** | Runs the EXISTING pinned DATA pipelines forward on more inputs — lit-KB discover/triage/extract/embed, or a pinned mint pipeline to expand a kernel variant WITHIN the current encoder `ALGORITHM_VERSION`; dispatches the Haiku Bulk workers, budget-caps, maintains provenance + counts. Never edits prompts/schema/generation software, never curates, never bumps the encoder version, never interprets. Kernel-variant EXPANSION thus splits: existing-pinned-pipeline-within-version = this Opus role; new schema/prompts/software or a version bump = Fable Designer. Role: `.claude/agents/kb-pipeline-runner.md`. |
 | **Statistician** | Fable | SAP blocks, readouts, extrapolation analyses — unchanged; + drafts assessment records (§2.1) and backlog D/U/L scores (one of the two independent scorers). |
 | **Skeptic** | Fable | Pre-freeze attack memos (step 6); attacks assessment drafts; second independent backlog scorer. |
 | **Bulk / Registrar** | Haiku | Log custody, chain verification, status/ledger regeneration, beads mirror, volume corpus drafting — mechanical, high-volume, never self-certifying. |
 | **Auditor / Red-team** | **Codex/GPT-5.5** (`codex` CLI, cross-vendor) | X.audit (only path to PASS); paper.review; generation-boundary engine retro; the mandatory strongest-rival candidate proposal per generation. |
 | **Maintainer (@jeswr)** | human | Unchanged seven gate classes (P3 §2): budget caps, freezes/sign-offs, credentials, annotation, spend, programme decisions (now = generation dossiers), external exposure. Design goal preserved: the engine runs gate-to-gate with no other human action. |
+
+**Fable/Opus execution split (maintainer, 2026-07-09).** The honesty rail is now three-way
+across identities/vendors: **Fable designs** (architecture, model-definition code,
+deterministic kernel-generation software, generation-agent prompts, steps 1–6 + the
+interpretive assessment) → **Opus runs** (the Runner role: run-scripts, launch, oversight,
+collection, monitoring, provenance, the mechanical verdict) → **Codex/GPT-5.5 audits**
+(cross-vendor, the only path to PASS) → **Fable interprets** (the assessment record, the
+kill-chain read, extrapolation). Opus never designs the science and never writes/commits a
+conclusive analysis; an indicative read to the maintainer is in-chat + ephemeral only. This
+lets Opus carry operational load during a Fable outage without eroding the design/analysis
+bar. Governing docs: `docs/next/opus-execution-practices.md`; role at
+`.claude/agents/experiment-runner.md`.
 
 **Cadence summary.**
 Inner loop: event-driven — verdict → assessment (≤1 session) → stub re-scoring.
