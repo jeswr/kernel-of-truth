@@ -390,10 +390,13 @@ the Coordinator with both justifications on record; scores + justifications are
 committed with the stub. **L is derived, not vibed** (amendment 2026-07-09, bead
 kernel-of-truth-utq, `docs/next/resource-optimization-plan.md` §4.4): L = 3 if the
 stub's work product (instrument, corpus, harness, engine, measured design points) is
-consumed by ≥2 other pending records/candidates, 2 if exactly 1, 1 if 0 — read
-mechanically off `registry/components.jsonl` consumers and
-`registry/artifact-ledger.jsonl`; a Fable scorer may override a derived L only with a
-written justification committed with the stub. Ties break
+consumed by ≥2 other pending records/candidates, 2 if exactly 1, 1 if 0 — derived from
+STRUCTURED registry edges (non-CLOSED `registry/experiments/*.json` `depends_on` +
+corpus pins, `registry/ideas.jsonl` requires/dependencies), NOT the free-text
+`consumers` lists in `registry/components.jsonl`, which the resource-plan revision-1
+audit found gameable; `tools/registry/reuse-check.py lscore` is the derivation and
+flags free-text mismatches (ASM-0011). A Fable scorer may override a derived L only
+with a written justification committed with the stub. Ties break
 **cheapest-decisive-first** (the kill-tree economics, engine-fixed), then
 **producers-before-consumers** (topological order on the declared reuse graph — the
 same amendment). Two standing overrides, both pre-declared: (i) an
@@ -500,7 +503,7 @@ contribution alongside whatever science it produces (a P9-route paper).
 | D6 | `kot-reg/2` (pins map + instrument_gates + candidate/generation fields) | ~0.5 agent-day | **maintainer-gated** (P2 §7 item 3) |
 | D7 | Assumption register + `claims-check` epistemic-tag lint (docs/next/assumption-register.md) | **landed 2026-07-09** (register, standalone lint, fixtures) | remaining: wiring into `prereg-freeze`/`registry-check` run-all is **maintainer-gated** (spec §6) |
 | D8 | Artifact ledger + component registry + pre-spend reuse gate (`registry/artifact-ledger.jsonl`, `registry/components.jsonl`, `tools/registry/reuse-check.py`; policy in `docs/next/resource-optimization-plan.md`) | **landed 2026-07-09** (Fable, bead kernel-of-truth-utq) | standalone, D7-precedent; gate is binding via opus-execution-practices (5) + experiment-runner MUST |
-| D9 | Reuse wiring into the frozen machinery: `prereg-freeze`/`registry-check` refuse cell-collisions absent an RC-1 reuse block; first-class `reused_from` rows in `log-append`/`verdict-gen`; `kot-reg/2` `artifact_hashes` as the reuse-pin home | ~1 agent-day | **maintainer-gated** (P2 §7 item 3); strengthens the case for approving D6 |
+| D9 | Reuse wiring into the frozen machinery: `prereg-freeze`/`registry-check` refuse cell-collisions absent a reuse declaration (`ERR_P2_REUSE_COLLISION`); `kot-reg/2` (`registry/schema/kot-reg-2.json`) `reused_from`/`reuse_overrides`/`artifact_hashes`; `event:"reuse"` witness in `log-append`; verdict-gen step-3b consumption checks; `reuse-check` audit traversal + lscore | **landed 2026-07-09, revision-1 post-audit** (maintainer authorised implementing the Codex audit amendments) | permissive half inert behind `registry/reuse-ratification.json` (resource-optimization-plan §3.0) pending the Codex re-audit + maintainer ratification; delivers the `kot-reg/2` pins map ahead of D6's remaining fields (instrument_gates, candidate/generation — still maintainer-gated) |
 
 Total ≈ 3–3.5 agent-days, ~$0 compute, R0-tier. Nothing blocks the currently-running
 F2 pivot; D1–D3 can land before F2 closes so its verdict is the first to flow through

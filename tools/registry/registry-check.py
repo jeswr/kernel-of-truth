@@ -3,7 +3,7 @@
 
     python3 tools/registry/registry-check.py [--root <repo>]
         [--chain] [--frozen-drift] [--corpus-pins] [--account-lint] [--append-only]
-        [--claims] [--kb]
+        [--claims] [--reuse] [--kb]
 
 With no selector flags, ALL checks run. Exit 0 only if every check passes;
 any violation prints a named ERR_* finding and exits 1.
@@ -36,6 +36,12 @@ Checks:
                   decision 2026-07-09): a load-bearing EXTRAPOLATION, an
                   untagged/extrapolation-tagged premise line, or an
                   unregistered/unknown ASM citation blocks the push.
+  --reuse         D9 reuse integrity (resource-optimization-plan.md §3
+                  revision-1): the ratification file (when present) pins the
+                  current ruling bytes; every frozen kot-reg/2 reused_from
+                  block re-verifies (producer integrity, chain, row hashes,
+                  RC checks); every event:"reuse" log witness restates a
+                  frozen declaration's verified row set.
   --kb            the Pillar-C KB lint (tools/kb/kb-check), fail-closed
                   (assumption-register.md §6 item 3, ENABLED by maintainer
                   decision 2026-07-09 on Pillar-C landing): kot-lit/1 record
@@ -279,6 +285,88 @@ def check_claims(root, f):
               % (p.returncode, (p.stderr or p.stdout).strip()[:400]))
 
 
+def check_reuse(root, f):
+    """D9 reuse integrity (resource-optimization-plan.md §3 revision-1).
+
+    (a) registry/reuse-ratification.json, when present, must be shape-valid and
+        pin the CURRENT ruling bytes;
+    (b) every FROZEN kot-reg/2 record with reused_from re-verifies its blocks
+        (producer frozen-index integrity, chain, row hashes, RC checks) in
+        recheck mode — drift in a producer chain or record is a violation;
+    (c) every event:"reuse" line in any results-log must restate the verified
+        row set of a frozen reused_from declaration — a witness with no frozen
+        declaration, or one whose rows no longer re-derive, is a violation.
+    """
+    rat_path = os.path.join(root, "registry", "reuse-ratification.json")
+    if os.path.isfile(rat_path):
+        ok, detail = kc.reuse_ratified(root)
+        if ok:
+            f.ok("reuse: ratification valid (%s)" % detail)
+        else:
+            f.err("ERR_P2_REUSE_UNRATIFIED", "reuse-ratification.json present but invalid: %s" % detail)
+    else:
+        f.ok("reuse: no ratification file (consumption paths stay fail-closed)")
+
+    index_path = os.path.join(root, "registry", "frozen-index.json")
+    index = {}
+    if os.path.isfile(index_path):
+        with open(index_path, "r", encoding="utf-8") as fh:
+            index = json.load(fh)
+    frozen_blocks = {}  # (producer, producer_sha) -> [(consumer_record, block)]
+    for exp_id in sorted(index):
+        if exp_id.startswith("_"):
+            continue
+        rec_path = os.path.join(root, "registry", "experiments", "%s.json" % exp_id)
+        if not os.path.isfile(rec_path):
+            continue  # frozen-drift check owns that finding
+        with open(rec_path, "r", encoding="utf-8") as fh:
+            record = json.load(fh)
+        blocks = record.get("reused_from") or []
+        if not blocks:
+            continue
+        try:
+            kc.check_record_reuse(record, root, mode="recheck")
+            f.ok("reuse: %s (%d reused_from block(s) re-verify)" % (exp_id, len(blocks)))
+        except kc.KotError as e:
+            f.err(e.code, "%s: %s" % (exp_id, str(e).split(": ", 1)[1]))
+        for b in blocks:
+            frozen_blocks.setdefault(
+                (b.get("producer"), b.get("producer_frozen_sha256")), []).append((record, b))
+
+    for path in sorted(glob.glob(os.path.join(root, "results-log", "*.jsonl"))):
+        rel = os.path.relpath(path, root)
+        exp_id = os.path.splitext(os.path.basename(path))[0]
+        try:
+            records, _ = kc.read_log(path)
+        except kc.KotError:
+            continue  # chain check owns that finding
+        for rec in records:
+            if rec.get("event") != "reuse":
+                continue
+            wr = rec.get("reuse") or {}
+            key = (wr.get("producer"), wr.get("producer_frozen_sha256"))
+            candidates = [(r, b) for r, b in frozen_blocks.get(key, []) if r.get("id") == exp_id]
+            if not candidates:
+                f.err("ERR_P2_REUSE_UNDECLARED",
+                      "%s seq %s: reuse witness for producer %r has no frozen reused_from "
+                      "declaration in registry/experiments/%s.json"
+                      % (rel, rec.get("seq"), wr.get("producer"), exp_id))
+                continue
+            record, block = candidates[0]
+            try:
+                rows, _seqs = kc.verify_reuse_block(root, record, block, mode="recheck")
+                verified = {r_["seq"]: kc.sha256_hex(raw) for r_, raw in rows}
+                if dict(zip(wr.get("seqs", []), wr.get("row_hashes", []))) != verified:
+                    f.err("ERR_P2_REUSE_ROWS",
+                          "%s seq %s: reuse witness rows do not re-derive from producer %s's "
+                          "current chain" % (rel, rec.get("seq"), wr.get("producer")))
+                else:
+                    f.ok("reuse: %s seq %s witness re-derives (%d rows)"
+                         % (rel, rec.get("seq"), len(verified)))
+            except kc.KotError as e:
+                f.err(e.code, "%s seq %s: %s" % (rel, rec.get("seq"), str(e).split(": ", 1)[1]))
+
+
 def check_kb(root, f):
     """kb-check over the Pillar-C KB + the LIT-BACKED backing gate
     (assumption-register.md §6 item 3, ENABLED 2026-07-09 on Pillar-C
@@ -316,6 +404,7 @@ def main():
     ap.add_argument("--account-lint", action="store_true")
     ap.add_argument("--append-only", action="store_true")
     ap.add_argument("--claims", action="store_true")
+    ap.add_argument("--reuse", action="store_true")
     ap.add_argument("--kb", action="store_true")
     # pre-push hooks pass "<remote> <url>" positionals; accept and ignore them.
     ap.add_argument("hook_args", nargs="*", help=argparse.SUPPRESS)
@@ -323,7 +412,8 @@ def main():
 
     root = args.root or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     run_all = not (args.chain or args.frozen_drift or args.corpus_pins
-                   or args.account_lint or args.append_only or args.claims or args.kb)
+                   or args.account_lint or args.append_only or args.claims
+                   or args.reuse or args.kb)
 
     f = Findings()
     if run_all or args.chain:
@@ -338,6 +428,8 @@ def main():
         check_append_only(root, f)
     if run_all or args.claims:
         check_claims(root, f)
+    if run_all or args.reuse:
+        check_reuse(root, f)
     if run_all or args.kb:
         check_kb(root, f)
 

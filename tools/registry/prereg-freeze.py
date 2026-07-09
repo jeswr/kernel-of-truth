@@ -33,6 +33,19 @@ Fail-closed refusals (all abort with exit 1 and a named code):
                              digest does not reproduce from data/<corpus>/ at
                              freeze time (correction c-2026-07-08)
   ERR_P2_SIGNOFF             budget.usd_cap > 900 without maintainer_signoff (G-11 Tier-5)
+  ERR_P2_REUSE_COLLISION     a declared arm x rung cell is already logged at identical or
+                             unproven-different pins and the record carries neither a
+                             reused_from block nor a reuse_overrides entry for it (delta D9,
+                             resource-optimization-plan.md §3 revision-1)
+  ERR_P2_REUSE_*             a kot-reg/2 reused_from block fails the RC-1..RC-8 machine
+                             checks (kot_common.check_record_reuse): UNRATIFIED (no
+                             maintainer ratification of the ruling), BLOCK/ROWS/PRODUCER
+                             (shape, cell-completeness, row hashes, producer integrity),
+                             RC2/RC3 (pin identity / DV computability), RC4/RC7
+                             (fresh-arm + data-blind comparator basis), SURVIVOR (RC-8
+                             outcome-selected arms need pre-specified selection-adjusted
+                             inference), RC5 (overlap coverage per stratum / CPU
+                             bit-recompute waiver)
 
 PAUSE-and-reassess (assumption-register.md §6 item 2, maintainer decision
 2026-07-09 — the governing philosophy: STOP FALSE CONCLUSIONS, NOT
@@ -123,9 +136,16 @@ def file_sha256(path):
     return h.hexdigest()
 
 
+SCHEMA_FILES = {"kot-reg/1": "kot-reg-1.json", "kot-reg/2": "kot-reg-2.json"}
+
+
 def check_record(record, root):
     """All freeze-time lints. Raises kc.KotError on the first violation."""
-    schema_path = os.path.join(root, "registry", "schema", "kot-reg-1.json")
+    sv = record.get("schema_version")
+    if sv not in SCHEMA_FILES:
+        raise kc.KotError("ERR_P2_SCHEMA", "schema_version %r is not one of %s"
+                          % (sv, sorted(SCHEMA_FILES)))
+    schema_path = os.path.join(root, "registry", "schema", SCHEMA_FILES[sv])
     with open(schema_path, "r", encoding="utf-8") as f:
         schema = json.load(f)
     errs = kc.validate_schema(record, schema)
@@ -244,6 +264,44 @@ def check_record(record, root):
         got = file_sha256(full)
         if got != want:
             raise kc.KotError("ERR_P2_PIN_MISMATCH", "%s: %s sha256 %s != pinned %s" % (what, path, got, want))
+
+    # kot-reg/2: artifact_hashes values must be identity-proving pins or
+    # PINNED-AT-INPUTS placeholders (D6/D9 open pin map; the schema cannot
+    # value-check an open map under the minimal validator, so it is done here).
+    if sv == "kot-reg/2":
+        for name, val in sorted((record["pins"].get("artifact_hashes") or {}).items()):
+            if isinstance(val, str) and val.startswith(kc.PINNED_AT_INPUTS_PREFIX):
+                continue
+            if not kc.is_real_pin(val):
+                raise kc.KotError("ERR_P2_PIN_MISMATCH",
+                                  "pins.artifact_hashes[%r]=%r is neither an identity-proving "
+                                  "digest nor a PINNED-AT-INPUTS placeholder" % (name, val))
+
+    # D9 reuse machinery (resource-optimization-plan.md §3 revision-1):
+    #  (a) RC-1..RC-8 checks over every reused_from block, ratification-gated
+    #      (a record DECLARING consumption cannot freeze until the maintainer
+    #      ratifies the ruling — nothing reuse-permissive operates before that);
+    #  (b) COLLISION REFUSAL: a declared cell the live results-log inventory
+    #      already holds at identical or unproven-different pins must be covered
+    #      by a reused_from block (consume under RC) or a reuse_overrides entry
+    #      (deliberate fresh re-run, machine-recorded reason) — else the freeze
+    #      is refused. Provably-different pins do not collide. This is live
+    #      unconditionally (it is reuse-restrictive).
+    kc.check_record_reuse(record, root, mode="freeze")
+    collisions = kc.reuse_collisions(record, root)
+    if collisions:
+        detail = "; ".join(
+            "arm=%s rung=%s producers=%s (%s pins)" % (c["arm"], c["rung"],
+                                                       ",".join(c["producers"]), c["identity"])
+            for c in collisions[:8])
+        hint = ("declare a kot-reg/2 reused_from block (RC-1..RC-8) or a reuse_overrides "
+                "entry with a reason" if sv == "kot-reg/2" else
+                "kot-reg/1 has no reuse surface — upgrade the record to kot-reg/2 and declare "
+                "reused_from / reuse_overrides, or change the pins so the cells are provably "
+                "different")
+        raise kc.KotError("ERR_P2_REUSE_COLLISION",
+                          "%d declared cell(s) already logged at identical/unproven-different pins "
+                          "without a frozen reuse decision: %s — %s" % (len(collisions), detail, hint))
 
     # Constraint 10 (RT-14): no account-identifying material inside hashed bytes,
     # and every identity field is a pseudonym. Scanned over exactly the byte

@@ -66,7 +66,7 @@ class SpineFixture(unittest.TestCase):
         for d in ("registry/schema", "registry/experiments", "registry/verdicts",
                   "results-log", "reports/auto", "docs", "analysis", "data/mock-corpus"):
             os.makedirs(os.path.join(self.root, d), exist_ok=True)
-        for schema in ("kot-reg-1.json", "kot-log-1.json", "kot-amend-1.json"):
+        for schema in ("kot-reg-1.json", "kot-reg-2.json", "kot-log-1.json", "kot-amend-1.json"):
             shutil.copy(os.path.join(REPO, "registry", "schema", schema),
                         os.path.join(self.root, "registry", "schema", schema))
         self.write("docs/prereg.md", "mock prereg text\n")
@@ -936,6 +936,230 @@ class TestPreregPause(SpineFixture):
         self.assertIn("would be recorded", p.stdout)
         self.assertEqual(self.pause_lines(), [])
         self.assertFalse(os.path.isfile(self.path("registry/frozen-index.json")))
+
+
+REUSE_ANALYSIS = """\
+import json, sys
+recs = [json.loads(l) for l in sys.stdin if l.strip()]
+k = sum(r["metrics"]["kernel_pack_bytes"] for r in recs)
+g = sum(r["metrics"]["gloss_zstd_bytes"] for r in recs)
+n_reused = sum(1 for r in recs if "reuse_provenance" in r)
+print(json.dumps({"ratio": g / k, "n_runs": len(recs), "n_reused": n_reused,
+                  "gates": {"reuse_overlap_ok": True}}))
+"""
+
+
+class TestReuse(SpineFixture):
+    """Delta D9 — the reuse machinery (resource-optimization-plan.md §3
+    revision-1, post-Codex-audit): collision refusal, the kot-reg/2
+    reused_from wire format under RC-1..RC-8, the ratification interlock,
+    the in-chain reuse witness, and verdict-time consumption."""
+
+    def producer_with_verdict(self):
+        """Freeze mock-f1, log two final runs (with pins_observed + a per-item
+        field), and unblind it (verdict exists => Case-B territory)."""
+        rec = self.base_record()
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for seed in (0, 1):
+            body = {
+                "event": "run", "phase": "final",
+                "prereg_hash": self.frozen_sha("mock-f1"),
+                "config": {"arm": "kotk2-vs-gloss", "seed": seed},
+                "metrics": {"kernel_pack_bytes": 300, "gloss_zstd_bytes": 990,
+                            "item_correct": [1, 0, 1]},
+                "pins_observed": {"corpus_hashes": {
+                    "mock-corpus": kc.corpus_hash(self.root, "mock-corpus")}},
+                "exit": "ok",
+            }
+            p = run_cli(LOG_APPEND, "--experiment", "mock-f1", "--agent-id", "runner-1",
+                        "--record", "-", "--root", self.root,
+                        "--ts", "2026-07-08T00:00:0%dZ" % seed, stdin=json.dumps(body))
+            self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-f1")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        records, raws = kc.read_log(self.path("results-log/mock-f1.jsonl"))
+        rows = {r["seq"]: kc.sha256_hex(raw) for r, raw in zip(records, raws)
+                if r.get("event") == "run"}
+        return rows  # {seq: row_sha256}
+
+    def ratify(self):
+        self.write("docs/ruling.md", "mock reuse ruling text\n")
+        self.write("registry/reuse-ratification.json", json.dumps({
+            "schema_version": "kot-reuse-ratify/1", "by": "maintainer-1",
+            "date": "2026-07-09", "plan_path": "docs/ruling.md",
+            "plan_sha256": sha256_file(self.path("docs/ruling.md"))}) + "\n")
+
+    def consumer_record(self, producer_rows, **block_overrides):
+        """A kot-reg/2 consumer with one comparator block over mock-f1's two
+        rows plus one fresh arm (RC-4)."""
+        rows = producer_rows
+        block = {
+            "producer": "mock-f1",
+            "producer_frozen_sha256": self.frozen_sha("mock-f1"),
+            "producer_log_path": "results-log/mock-f1.jsonl",
+            "role": "comparator",
+            "cells": [{"arm": "kotk2-vs-gloss"}],
+            "selection_rule": "all-final-rows-matching-declared-cells",
+            "per_item_fields": ["item_correct"],
+            "rows": {"seqs": sorted(rows), "row_hashes": [rows[s] for s in sorted(rows)]},
+            "producer_unblinded": True,
+            "comparator_selection": {
+                "basis": "mandatory-baseline-law",
+                "ref": {"path": "docs/prereg.md",
+                        "sha256": sha256_file(self.path("docs/prereg.md"))},
+                "rule_verbatim": "the frozen mandatory-baseline law names this arm family",
+            },
+            "outcome_selected_arms": False,
+            "rc5": {"kind": "overlap-rerun", "cells": [{"arm": "kotk2-vs-gloss"}],
+                    "n_items": 50, "agreement_metric_pointer": "/gates/reuse_overlap_ok",
+                    "agreement_bound": 0.98},
+        }
+        block.update(block_overrides)
+        self.write("analysis/reuse_analysis.py", REUSE_ANALYSIS)
+        rec = self.base_record("mock-f2", schema_version="kot-reg/2", reused_from=[block])
+        rec["design"]["independent_vars"] = [
+            {"name": "arm", "levels": ["kotk2-vs-gloss", "fresh-arm"]}]
+        rec["pins"]["analysis_script"] = {
+            "path": "analysis/reuse_analysis.py",
+            "sha256": sha256_file(self.path("analysis/reuse_analysis.py")),
+            "output_fields": ["/ratio", "/n_runs", "/n_reused", "/gates/reuse_overlap_ok"],
+        }
+        rec["verdict_rules"] = [
+            {"verdict": "INSTRUMENT-INVALID",
+             "when": {"op": "not", "a": {"metric": "/gates/reuse_overlap_ok"}}},
+            {"verdict": "PASS", "when": {"op": "gte", "a": {"metric": "/ratio"}, "b": {"const": 2.0}}},
+            {"verdict": "INCONCLUSIVE", "when": {"const": True}},
+        ]
+        return rec
+
+    def append_witness(self, rows):
+        body = {"event": "reuse", "prereg_hash": self.frozen_sha("mock-f2"),
+                "reuse": {"producer": "mock-f1",
+                          "producer_frozen_sha256": self.frozen_sha("mock-f1"),
+                          "seqs": sorted(rows),
+                          "row_hashes": [rows[s] for s in sorted(rows)]}}
+        return run_cli(LOG_APPEND, "--experiment", "mock-f2", "--agent-id", "runner-1",
+                       "--record", "-", "--root", self.root,
+                       "--ts", "2026-07-08T00:10:00Z", stdin=json.dumps(body))
+
+    def append_fresh(self):
+        body = {"event": "run", "phase": "final",
+                "prereg_hash": self.frozen_sha("mock-f2"),
+                "config": {"arm": "fresh-arm", "seed": 0},
+                "metrics": {"kernel_pack_bytes": 300, "gloss_zstd_bytes": 990,
+                            "item_correct": [1, 1, 0]},
+                "exit": "ok"}
+        return run_cli(LOG_APPEND, "--experiment", "mock-f2", "--agent-id", "runner-1",
+                       "--record", "-", "--root", self.root,
+                       "--ts", "2026-07-08T00:11:00Z", stdin=json.dumps(body))
+
+    def test_collision_refused_without_reuse_decision(self):
+        self.producer_with_verdict()
+        # a second record declaring the SAME cell at indeterminate/identical
+        # pins must not freeze without a frozen reuse decision (kot-reg/1 has
+        # no reuse surface at all)
+        rec = self.base_record("mock-f2")
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_COLLISION", p.stderr)
+
+    def test_collision_covered_by_override(self):
+        self.producer_with_verdict()
+        rec = self.base_record("mock-f3", schema_version="kot-reg/2",
+                               reuse_overrides=[{"cells": [{"arm": "kotk2-vs-gloss"}],
+                                                 "reason": "deliberate fresh replication"}])
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+
+    def test_reuse_block_refused_without_ratification(self):
+        rows = self.producer_with_verdict()
+        rec = self.consumer_record(rows)
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_UNRATIFIED", p.stderr)
+
+    def test_rc7_comparator_basis_required(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        rec = self.consumer_record(rows)
+        del rec["reused_from"][0]["comparator_selection"]
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_RC7", p.stderr)
+
+    def test_rc8_survivor_needs_selection_adjustment(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        rec = self.consumer_record(rows, outcome_selected_arms=True)
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_SURVIVOR", p.stderr)
+
+    def test_rc1_cherry_pick_refused(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        first = sorted(rows)[:1]
+        rec = self.consumer_record(
+            rows, rows={"seqs": first, "row_hashes": [rows[s] for s in first]})
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_ROWS", p.stderr)
+
+    def test_rc4_fresh_arm_required(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        rec = self.consumer_record(rows)
+        rec["design"]["independent_vars"] = [{"name": "arm", "levels": ["kotk2-vs-gloss"]}]
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_RC4", p.stderr)
+
+    def test_rc5_missing_refused(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        rec = self.consumer_record(rows)
+        del rec["reused_from"][0]["rc5"]
+        p = self.freeze(rec)
+        self.assertNotEqual(p.returncode, 0)
+        # schema requires rc5 (kot-reg/2), so this fails at schema level
+        self.assertIn("ERR_P2_SCHEMA", p.stderr)
+
+    def test_end_to_end_consumption_with_witness(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        rec = self.consumer_record(rows)
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.append_fresh()
+        self.assertEqual(p.returncode, 0, p.stderr)
+        # verdict WITHOUT the witness fails closed (RC-6)
+        p = self.run_verdict("mock-f2")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_NO_WITNESS", p.stderr)
+        p = self.append_witness(rows)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.run_verdict("mock-f2")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        with open(self.path("registry/verdicts/mock-f2.json"), encoding="utf-8") as f:
+            verdict = json.load(f)
+        self.assertEqual([r["producer"] for r in verdict["inputs"]["reused"]], ["mock-f1"])
+        with open(self.path("reports/auto/mock-f2/analysis-output.json"), encoding="utf-8") as f:
+            analysis = json.load(f)
+        self.assertEqual(analysis["n_runs"], 3)     # 1 fresh + 2 reused
+        self.assertEqual(analysis["n_reused"], 2)   # provenance-marked
+
+    def test_witness_without_declaration_refused(self):
+        rows = self.producer_with_verdict()
+        self.ratify()
+        rec = self.base_record("mock-f2", schema_version="kot-reg/2",
+                               reuse_overrides=[{"cells": [{"arm": "kotk2-vs-gloss"}],
+                                                 "reason": "fresh replication"}])
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        p = self.append_witness(rows)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_REUSE_UNDECLARED", p.stderr)
 
 
 if __name__ == "__main__":

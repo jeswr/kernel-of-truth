@@ -28,6 +28,13 @@ Implements P2 §3.1 (minimal spine — the F1-critical path):
      prereg_hash == frozen_sha256, config.seed in design.seeds (when seeds are
      registered), config values within declared IV level sets. Exclusions are
      listed with the failed test named — never silent.
+  3b. D9 reused-row eligibility (resource-optimization-plan.md §3 revision-1):
+     rows of ANOTHER record's log enter the analysis only via a frozen
+     kot-reg/2 reused_from block that re-verifies at consumption time
+     (RC-1..RC-8, maintainer-ratified ruling, filled pins, producer chain +
+     row hashes intact) AND an in-chain event:"reuse" witness restating the
+     exact row set. A reuse witness without a frozen declaration refuses
+     (ERR_P2_REUSE_UNDECLARED); >=1 fresh eligible run row is still required.
   4. Completeness gate (minimal): an empty eligible set => INCOMPLETE-DATA.
   5. Run the pinned analysis script (sha256 re-verified at execution;
      ERR_P2_FROZEN_DRIFT on mismatch) with the eligible records as JSONL on
@@ -76,7 +83,14 @@ DESIGN_SCOPE_PREFIXES = (
     "/prereg_doc",
     "/coverage_requirement",
     "/efficiency_relevant",
+    # D9: the reuse declaration is design scope — which rows a record consumes,
+    # under which RC basis, may never move post-freeze by ops amendment.
+    "/reused_from",
+    "/reuse_overrides",
 )
+
+# kot-reg schema selection (D9: kot-reg/2 records carry the reuse surface).
+SCHEMA_FILES = {"kot-reg/1": "kot-reg-1.json", "kot-reg/2": "kot-reg-2.json"}
 
 # Freeze bookkeeping — no amendment of ANY kind may touch these.
 FREEZE_FIELD_PREFIXES = ("/status", "/frozen_sha256", "/frozen_at", "/frozen_by", "/id", "/schema_version")
@@ -232,17 +246,22 @@ def apply_amendment_overlay(root, exp_id, record, log_records):
         effective = kc.json_patch_apply(effective, am["patch"])
         applied.append(am["seq"])
 
-    # Post-overlay integrity: the effective record must still be a valid
-    # kot-reg/1 record and RT-14-clean — an overlay cannot smuggle in what a
-    # freeze would have refused.
-    schema_path = os.path.join(root, "registry", "schema", "kot-reg-1.json")
+    # Post-overlay integrity: the effective record must still validate against
+    # ITS OWN schema version (kot-reg/1 or /2) and be RT-14-clean — an overlay
+    # cannot smuggle in what a freeze would have refused.
+    sv = effective.get("schema_version")
+    if sv not in SCHEMA_FILES:
+        raise kc.KotError("ERR_P2_BAD_AMENDMENT",
+                          "amended effective record schema_version %r is not one of %s"
+                          % (sv, sorted(SCHEMA_FILES)))
+    schema_path = os.path.join(root, "registry", "schema", SCHEMA_FILES[sv])
     with open(schema_path, "r", encoding="utf-8") as f:
         reg_schema = json.load(f)
     errs = kc.validate_schema(effective, reg_schema)
     if errs:
         raise kc.KotError("ERR_P2_BAD_AMENDMENT",
-                          "amended effective record no longer validates against kot-reg/1: %s"
-                          % "; ".join(errs[:5]))
+                          "amended effective record no longer validates against %s: %s"
+                          % (sv, "; ".join(errs[:5])))
     kc.check_identity_fields(effective)
     hashed = {k: v for k, v in effective.items() if k not in ("status", "frozen_sha256")}
     kc.require_no_account_strings(kc.canonical_bytes(hashed), "amended effective record")
@@ -354,6 +373,58 @@ def run(root, exp_id, agent_id, computed_at):
     tail_sha = kc.log_tail_sha256(raw_lines)
     runner_ids = {r["runner"] for r in eligible}
 
+    # Step 3b — D9 reused-row eligibility (resource-optimization-plan.md §3
+    # revision-1). Reused producer rows enter the analysis ONLY when ALL hold:
+    #   - the frozen (effective) record is kot-reg/2 with a reused_from block
+    #     (an in-log reuse witness without a frozen declaration is refused);
+    #   - the ruling is maintainer-ratified (kc.check_record_reuse enforces);
+    #   - every RC-1..RC-8 machine check re-verifies at consumption time,
+    #     including RC-2 identity with placeholders now FILLED (no
+    #     indeterminate pins may license consumption);
+    #   - an in-chain RC-6 witness (event:"reuse") restates the exact verified
+    #     row set {seqs, row_hashes} for each block.
+    # Reused rows NEVER substitute for fresh evidence: the completeness gate
+    # below still requires >=1 fresh eligible run row.
+    reuse_witnesses = [r for r in records if r.get("event") == "reuse"]
+    reused_rows, reused_summary = [], []
+    if reuse_witnesses and not (effective.get("reused_from") or []):
+        raise kc.KotError("ERR_P2_REUSE_UNDECLARED",
+                          "log carries %d reuse witness line(s) but the frozen record declares no "
+                          "reused_from block" % len(reuse_witnesses))
+    if effective.get("reused_from") and eligible:
+        for res in kc.check_record_reuse(effective, root, mode="verdict"):
+            block, rows, seqs = res["block"], res["rows"], res["seqs"]
+            verified = {rec_p["seq"]: kc.sha256_hex(raw_p) for rec_p, raw_p in rows}
+            witness_ok = False
+            for w in reuse_witnesses:
+                wr = w.get("reuse") or {}
+                if (wr.get("producer") == block["producer"]
+                        and wr.get("producer_frozen_sha256") == block["producer_frozen_sha256"]
+                        and dict(zip(wr.get("seqs", []), wr.get("row_hashes", []))) == verified):
+                    witness_ok = True
+                    break
+            if not witness_ok:
+                raise kc.KotError("ERR_P2_REUSE_NO_WITNESS",
+                                  "no event:\"reuse\" line in the consumer log restates the verified "
+                                  "row set for producer %s (RC-6 in-chain witness; append it via "
+                                  "log-append before the verdict)" % block["producer"])
+            for rec_p, raw_p in rows:
+                aug = dict(rec_p)
+                aug["reuse_provenance"] = {
+                    "producer": block["producer"],
+                    "producer_frozen_sha256": block["producer_frozen_sha256"],
+                    "row_sha256": verified[rec_p["seq"]],
+                    "role": block["role"],
+                }
+                reused_rows.append(aug)
+            reused_summary.append({
+                "producer": block["producer"],
+                "producer_frozen_sha256": block["producer_frozen_sha256"],
+                "role": block["role"],
+                "seqs": seqs,
+                "rows_sha256": kc.canonical_sha256([verified[s] for s in seqs]),
+            })
+
     verdict = None
     fired_index = None
     fired_rule = None
@@ -376,7 +447,11 @@ def run(root, exp_id, agent_id, computed_at):
             raise kc.KotError("ERR_P2_FROZEN_DRIFT",
                               "pinned analysis script %s sha256 %s != frozen pin %s"
                               % (effective["pins"]["analysis_script"]["path"], got, script_sha))
-        stdin_payload = "".join(kc.canonical_dumps(r) + "\n" for r in eligible)
+        # Reused rows (verified above) follow the fresh eligible rows on stdin,
+        # each carrying reuse_provenance so the pinned analysis can distinguish
+        # fresh from reused (and apply the frozen selection-adjusted inference
+        # where RC-8 requires it).
+        stdin_payload = "".join(kc.canonical_dumps(r) + "\n" for r in eligible + reused_rows)
         proc = subprocess.run(
             ["nice", "-n", "10", sys.executable, script_path],
             input=stdin_payload.encode("utf-8"), capture_output=True, cwd=root,
@@ -477,8 +552,11 @@ def run(root, exp_id, agent_id, computed_at):
         else:
             audit_state = {"state": "CONFIRMED", "path": audit_path}
 
-    rungs = sorted({str(r["config"]["rung"]) for r in eligible
-                    if isinstance(r.get("config"), dict) and "rung" in r["config"]})
+    rungs_fresh = sorted({str(r["config"]["rung"]) for r in eligible
+                          if isinstance(r.get("config"), dict) and "rung" in r["config"]})
+    rungs_reused = sorted({str(r["config"]["rung"]) for r in reused_rows
+                           if isinstance(r.get("config"), dict) and "rung" in r["config"]})
+    rungs = sorted(set(rungs_fresh) | set(rungs_reused))
     license_ = "none" if len(rungs) < 2 else ("sign-only" if len(rungs) == 2 else "slope")
 
     verdict_obj = {
@@ -503,10 +581,19 @@ def run(root, exp_id, agent_id, computed_at):
         "coverage": coverage,
         "rungs_measured": rungs,
         "scale_language_licensed": license_,
+        # (fields below added only for reuse-consuming records, so pre-D9
+        # verdict objects keep their exact shape)
         "kill_criterion_verbatim": effective["kill_criterion_verbatim"],
         "extrapolation_envelope_verbatim": effective["extrapolation_envelope_verbatim"],
         "audit": audit_state,
     }
+    if reused_summary:
+        # Transparency for the auditor (RC-6): what was consumed, from where,
+        # and which rungs the record measured fresh vs inherited via reuse —
+        # any scale-language license that leans on reused rungs is visible.
+        verdict_obj["inputs"]["reused"] = reused_summary
+        verdict_obj["rungs_fresh"] = rungs_fresh
+        verdict_obj["rungs_reused_only"] = sorted(set(rungs_reused) - set(rungs_fresh))
 
     # RT-14 applies to verdict objects too (they are re-hashed by audits).
     kc.check_identity_fields(verdict_obj)

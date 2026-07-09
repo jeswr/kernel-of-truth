@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kot-reg-2.json",
+  "title": "kot-reg/2 experiment registry record — kot-reg/1 plus the D9 reuse surface (docs/next/resource-optimization-plan.md section 3 revision-1; docs/next/research-engine.md section 1.5/5.1). New over kot-reg/1: pins.artifact_hashes (open identity-pin map), reused_from (the RC-1..RC-8 machine wire format for consuming another record's logged final-phase rows), reuse_overrides (machine-recorded proceed-with-reason for deliberately re-running ledger-held cells). Cross-field RC logic (row-hash verification, cell completeness, RC-2 pin identity, RC-4/RC-7 comparator discipline, RC-8 survivor rule, RC-5 overlap/waiver, collision refusal, the ratification interlock) is enforced by tools/registry/kot_common.py check_record_reuse via prereg-freeze / log-append / verdict-gen / registry-check; this schema carries the field shapes only.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "hypotheses",
+    "prereg_doc",
+    "design",
+    "pins",
+    "analysis_plan_ref",
+    "endpoints",
+    "verdict_rules",
+    "kill_criterion_verbatim",
+    "extrapolation_envelope_verbatim",
+    "budget",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "kot-reg/2" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "hypotheses": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "prereg_doc": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "anchors": { "type": "array", "items": { "type": "string" } },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "design": {
+      "type": "object",
+      "required": ["independent_vars", "dependent_vars", "arms_mandatory_baselines", "scale_rungs", "seeds", "n_planned"],
+      "additionalProperties": false,
+      "properties": {
+        "independent_vars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "levels"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "levels": { "type": "array", "minItems": 1 }
+            }
+          }
+        },
+        "dependent_vars": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "unit", "better", "definition"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "unit": { "type": "string", "minLength": 1 },
+              "better": { "enum": ["higher", "lower", "n/a"] },
+              "definition": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "arms_mandatory_baselines": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "scale_rungs": { "type": "array", "minItems": 1 },
+        "seeds": { "type": "array", "items": { "type": "integer" } },
+        "n_planned": { "type": "object" }
+      }
+    },
+    "pins": {
+      "type": "object",
+      "required": ["corpus_hashes", "analysis_script"],
+      "additionalProperties": false,
+      "properties": {
+        "encoder_hash": { "type": "string", "minLength": 1 },
+        "corpus_hashes": { "type": "object" },
+        "model_revisions": { "type": "object" },
+        "harness_manifest": { "type": "string" },
+        "artifact_hashes": { "type": "object" },
+        "analysis_script": {
+          "type": "object",
+          "required": ["path", "sha256", "output_fields"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "output_fields": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "pattern": "^/" }
+            }
+          }
+        }
+      }
+    },
+    "reused_from": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["producer", "producer_frozen_sha256", "producer_log_path", "role", "cells", "selection_rule", "per_item_fields", "producer_unblinded", "outcome_selected_arms", "rc5"],
+        "additionalProperties": false,
+        "properties": {
+          "producer": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "producer_frozen_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "producer_log_path": { "type": "string", "minLength": 1 },
+          "role": { "enum": ["prospective", "comparator"] },
+          "cells": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "object" }
+          },
+          "selection_rule": { "const": "all-final-rows-matching-declared-cells" },
+          "per_item_fields": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "rows": {
+            "type": "object",
+            "required": ["seqs", "row_hashes"],
+            "additionalProperties": false,
+            "properties": {
+              "seqs": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 0 } },
+              "row_hashes": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+            }
+          },
+          "producer_unblinded": { "type": "boolean" },
+          "comparator_selection": {
+            "type": "object",
+            "required": ["basis", "ref", "rule_verbatim"],
+            "additionalProperties": false,
+            "properties": {
+              "basis": { "enum": ["mandatory-baseline-law", "exhaustive-declared-family", "prior-frozen-rule"] },
+              "ref": {
+                "type": "object",
+                "required": ["path", "sha256"],
+                "additionalProperties": false,
+                "properties": {
+                  "path": { "type": "string", "minLength": 1 },
+                  "anchor": { "type": "string" },
+                  "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+                }
+              },
+              "rule_verbatim": { "type": "string", "minLength": 1 }
+            }
+          },
+          "outcome_selected_arms": { "type": "boolean" },
+          "selection_adjusted_inference": {
+            "type": "object",
+            "required": ["method", "analysis_anchor"],
+            "additionalProperties": false,
+            "properties": {
+              "method": { "type": "string", "minLength": 1 },
+              "analysis_anchor": { "type": "string", "pattern": "^/" }
+            }
+          },
+          "rc5": {
+            "type": "object",
+            "required": ["kind"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "enum": ["overlap-rerun", "deterministic-cpu-recompute"] },
+              "cells": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+              "n_items": { "type": "integer", "minimum": 50 },
+              "agreement_metric_pointer": { "type": "string", "pattern": "^/" },
+              "agreement_bound": { "type": "number" },
+              "representativeness_justification": { "type": "object" },
+              "recompute_command": { "type": "string", "minLength": 1 },
+              "recompute_run_log": { "type": "string", "minLength": 1 },
+              "consumed_output_hashes": {
+                "type": "object",
+                "required": ["path", "sha256"],
+                "additionalProperties": false,
+                "properties": {
+                  "path": { "type": "string", "minLength": 1 },
+                  "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+                }
+              }
+            }
+          },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "reuse_overrides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["cells", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "cells": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "analysis_plan_ref": {
+      "type": "object",
+      "required": ["path", "anchor", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "anchor": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "metric", "test"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "role": { "enum": ["primary", "secondary"] },
+          "metric": { "type": "string", "pattern": "^/" },
+          "test": { "type": "string", "minLength": 1 },
+          "smallest_effect_of_interest": {
+            "type": "object",
+            "required": ["type", "value"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "minLength": 1 },
+              "value": { "type": "number" }
+            }
+          },
+          "wilson_gate": {
+            "type": "object",
+            "required": ["threshold", "n_planned", "expected_rate"],
+            "additionalProperties": false,
+            "properties": {
+              "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+              "n_planned": { "type": "integer", "minimum": 1 },
+              "expected_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "verdict_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["verdict", "when"],
+        "additionalProperties": false,
+        "properties": {
+          "verdict": { "enum": ["PASS", "FAIL", "NULL", "INCONCLUSIVE", "INSTRUMENT-INVALID", "CONSTRUCTION-ANOMALY"] },
+          "when": { "type": "object" }
+        }
+      }
+    },
+    "kill_criterion_verbatim": { "type": "string", "minLength": 1 },
+    "extrapolation_envelope_verbatim": { "type": "string", "minLength": 1 },
+    "coverage_requirement": {
+      "type": "object",
+      "required": ["source", "rung_field"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "rung_field": { "type": "string", "minLength": 1 }
+      }
+    },
+    "efficiency_relevant": { "type": "boolean" },
+    "budget": {
+      "type": "object",
+      "required": ["usd_cap"],
+      "additionalProperties": false,
+      "properties": {
+        "usd_cap": { "type": "number", "minimum": 0 },
+        "gpu_hours_cap": { "type": "number", "minimum": 0 },
+        "wall_clock_cap_hours": { "type": "number", "minimum": 0 },
+        "maintainer_signoff": {
+          "type": "object",
+          "required": ["by", "date"],
+          "additionalProperties": false,
+          "properties": {
+            "by": { "type": "string", "pattern": "^(runner|auditor|coordinator|writer|redteam|maintainer)-[0-9]+$" },
+            "date": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "depends_on": { "type": "array", "items": { "type": "string" } },
+    "runner_constraints": { "type": "object" },
+    "supersedes": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "retro": { "type": "boolean" },
+    "status": { "enum": ["DRAFT", "FROZEN", "RUNNING", "READOUT", "BUDGET-HALT", "CLOSED"] },
+    "frozen_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "frozen_at": { "type": "string", "minLength": 1 },
+    "frozen_by": { "type": "string", "pattern": "^(runner|auditor|coordinator|writer|redteam)-[0-9]+$" }
+  }
+}

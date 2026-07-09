@@ -543,3 +543,659 @@ def check_wilson_gate(gate, where):
             % (where, gate["expected_rate"], gate["n_planned"], lb, gate["threshold"]),
         )
     return lb
+
+
+# ================================================================ REUSE machinery
+# Delta D9 (docs/next/resource-optimization-plan.md §3, revision-1 post-audit;
+# docs/next/research-engine.md §5.1). One implementation, four call sites:
+# prereg-freeze (freeze-time RC checks + cell-collision refusal), log-append
+# (event:"reuse" witness lines), verdict-gen (consumption eligibility), and
+# registry-check / reuse-check audit (re-verification + producer-chain
+# traversal). The RC conditions are defined in the plan §3.3 (RC-1..RC-8);
+# every check here cites its RC number. Fail closed with named ERR_* codes.
+#
+# RATIFICATION INTERLOCK: nothing reuse-PERMISSIVE operates until the
+# maintainer commits registry/reuse-ratification.json pinning the sha256 of
+# the CURRENT ruling text (editing the ruling voids the ratification). The
+# reuse-RESTRICTIVE side (collision refusal, the binding pre-spend gate) is
+# live unconditionally.
+
+REUSE_RATIFICATION_RELPATH = os.path.join("registry", "reuse-ratification.json")
+REUSE_PLAN_RELPATH = os.path.join("docs", "next", "resource-optimization-plan.md")
+# RC-1: the ONLY lawful selection rule — cell-complete, never row/seed-picked.
+REUSE_SELECTION_RULE = "all-final-rows-matching-declared-cells"
+# RC-7: the closed set of DATA-BLIND comparator-selection bases (Case B).
+RC7_BASES = ("mandatory-baseline-law", "exhaustive-declared-family", "prior-frozen-rule")
+REUSE_ROLES = ("prospective", "comparator")
+RC5_KINDS = ("overlap-rerun", "deterministic-cpu-recompute")
+_MAINTAINER_RE = re.compile(r"^maintainer(-[0-9]+)?$")
+_HEX40_RE = re.compile(r"^[0-9a-f]{40}$")
+_REV_PIN_RE = re.compile(r"@([0-9a-f]{40}|[0-9a-f]{64})$")
+
+
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def reuse_ratified(root):
+    """(ok, detail). True iff registry/reuse-ratification.json exists, names the
+    maintainer, and pins the sha256 of the CURRENT ruling doc bytes."""
+    path = os.path.join(root, REUSE_RATIFICATION_RELPATH)
+    if not os.path.isfile(path):
+        return False, "%s does not exist — the reuse ruling is not ratified" % REUSE_RATIFICATION_RELPATH
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            r = json.load(f)
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        return False, "%s unparseable: %s" % (REUSE_RATIFICATION_RELPATH, e)
+    if r.get("schema_version") != "kot-reuse-ratify/1":
+        return False, "ratification schema_version %r != kot-reuse-ratify/1" % r.get("schema_version")
+    if not (isinstance(r.get("by"), str) and _MAINTAINER_RE.match(r["by"])):
+        return False, "ratification 'by'=%r is not maintainer[-N]" % r.get("by")
+    plan_path = os.path.join(root, r.get("plan_path", REUSE_PLAN_RELPATH))
+    if not os.path.isfile(plan_path):
+        return False, "ratified plan path %r missing" % r.get("plan_path")
+    got = _file_sha256(plan_path)
+    if got != r.get("plan_sha256"):
+        return False, ("ratification pins plan sha %r but current %s bytes hash %s — the ruling "
+                       "changed since ratification; re-ratify" % (r.get("plan_sha256"),
+                                                                  r.get("plan_path", REUSE_PLAN_RELPATH), got))
+    return True, "ratified by %s on %s" % (r["by"], r.get("date"))
+
+
+def require_reuse_ratified(root, what):
+    ok, detail = reuse_ratified(root)
+    if not ok:
+        raise KotError("ERR_P2_REUSE_UNRATIFIED",
+                       "%s requires maintainer ratification of the reuse ruling: %s" % (what, detail))
+
+
+def is_real_pin(value):
+    """A pin value that PROVES identity: bare 40/64-hex, or <name>@<40/64-hex>.
+    Placeholders (PINNED-AT-INPUTS:*, POST-F2-INFRA-OPEN, anything else) are
+    indeterminate — fail-closed for identity comparisons."""
+    if not isinstance(value, str):
+        return False
+    return bool(SHA256_RE.match(value) or _HEX40_RE.match(value) or _REV_PIN_RE.search(value))
+
+
+def derive_artifact_rows(root, include_all=False):
+    """The artifact inventory as a PURE FUNCTION of results-log/*.jsonl +
+    registry/verdicts/ — derived LIVE (never from the committed ledger file, so
+    staleness cannot weaken a gate). One row per logged run row (final-phase
+    unless include_all), carrying the identity axes RC-2 compares: pins, seed,
+    config_sha256, impl pins (config keys ending _sha256), and row_sha256 (the
+    exact line bytes incl. newline — the RC-1 row-hash pin a consumer freezes).
+    Chain integrity is enforced by read_log (fail closed)."""
+    import glob as _glob
+    results_dir = os.path.join(root, "results-log")
+    verdicts_dir = os.path.join(root, "registry", "verdicts")
+    if not os.path.isdir(results_dir):
+        return []  # nothing logged yet — an empty inventory, not an error
+    verdicts = {
+        os.path.splitext(os.path.basename(p))[0]
+        for p in _glob.glob(os.path.join(verdicts_dir, "*.json"))
+    }
+    rows = []
+    for path in sorted(_glob.glob(os.path.join(results_dir, "*.jsonl"))):
+        exp = os.path.splitext(os.path.basename(path))[0]
+        records, raw_lines = read_log(path)
+        for rec, raw in zip(records, raw_lines):
+            if rec.get("event") != "run" and not include_all:
+                continue
+            phase = rec.get("phase")
+            if phase != "final" and not include_all:
+                continue
+            metrics = rec.get("metrics") or {}
+            config = rec.get("config") or {}
+            per_item = sorted(k for k, v in metrics.items() if isinstance(v, list))
+            n_items = None
+            for k in ("item_correct", "record_caught"):
+                if isinstance(metrics.get(k), list):
+                    n_items = len(metrics[k])
+                    break
+            pins = rec.get("pins_observed") or {}
+            rows.append({
+                "schema_version": "kot-artifact/2",
+                "experiment": exp,
+                "log_path": os.path.relpath(path, root),
+                "seq": rec.get("seq"),
+                "phase": phase,
+                "event": rec.get("event"),
+                "exit": rec.get("exit"),
+                "config": config,
+                "config_sha256": rec.get("config_sha256") or canonical_sha256(config),
+                "impl_pins": {k: v for k, v in config.items()
+                              if isinstance(k, str) and k.endswith("_sha256")},
+                "seed": config.get("seed"),
+                "n_items": n_items,
+                "metrics_logged": sorted(metrics.keys()),
+                "per_item_fields": per_item,
+                "pins": {
+                    "encoder_hash": pins.get("encoder_hash"),
+                    "corpus_hashes": pins.get("corpus_hashes"),
+                    "model_revisions": pins.get("model_revisions"),
+                    "other_pins": sorted(
+                        k for k in pins
+                        if k not in ("encoder_hash", "corpus_hashes", "model_revisions")
+                    ),
+                },
+                "prereg_hash": rec.get("prereg_hash"),
+                "row_sha256": sha256_hex(raw),
+                "unblinded": exp in verdicts,
+                "ts": rec.get("ts"),
+            })
+    rows.sort(key=lambda r: (r["experiment"], r["seq"] if r["seq"] is not None else -1))
+    return rows
+
+
+def pin_axis_compare(record_pins, row_pins):
+    """RC-2 identity classification between a record's pins block and a logged
+    row's observed pins, per axis (corpus, model, encoder). Returns
+    {"corpus": s, "model": s, "encoder": s, "overall": s} with each state in
+    {"identical", "different", "indeterminate"}.
+
+    Fail-closed semantics: an axis is "different" ONLY when both sides carry
+    real (hash-proving) pins on shared names, none match, and the record side
+    has NO placeholder that could later resolve to the row's identity.
+    Anything unprovable is "indeterminate". overall = "different" iff ANY axis
+    is provably different (a proven mismatch on one identity axis means the
+    cell is a different experiment, not reuse — the audit's false-positive
+    fix); else "identical" iff at least one axis proves identity and none is
+    indeterminate-with-no-evidence... conservatively: "identical" iff >=1 axis
+    identical and no axis different; else "indeterminate"."""
+    rec_pins = record_pins or {}
+    r_pins = row_pins or {}
+
+    def axis(rec_map, row_map):
+        rec_map = rec_map if isinstance(rec_map, dict) else {}
+        row_map = row_map if isinstance(row_map, dict) else {}
+        shared = [n for n in rec_map if n in row_map and not n.startswith("_")]
+        rec_has_placeholder = any(
+            not is_real_pin(v) for k, v in rec_map.items() if not k.startswith("_"))
+        if not shared:
+            return "indeterminate" if (rec_map or row_map) else "indeterminate"
+        any_match, any_real_mismatch = False, False
+        for n in shared:
+            a, b = rec_map[n], row_map[n]
+            if is_real_pin(a) and is_real_pin(b):
+                if a == b:
+                    any_match = True
+                else:
+                    any_real_mismatch = True
+        if any_real_mismatch:
+            return "different" if not rec_has_placeholder else "indeterminate"
+        if any_match:
+            return "identical"
+        return "indeterminate"
+
+    corpus = axis(rec_pins.get("corpus_hashes"), r_pins.get("corpus_hashes"))
+    model = axis(rec_pins.get("model_revisions"), r_pins.get("model_revisions"))
+    enc_a, enc_b = rec_pins.get("encoder_hash"), r_pins.get("encoder_hash")
+    if is_real_pin(enc_a) and is_real_pin(enc_b):
+        encoder = "identical" if enc_a == enc_b else "different"
+    else:
+        encoder = "indeterminate"
+    # overall: "different" iff ANY axis provably differs (a proven mismatch on
+    # one identity axis means a different experiment, not reuse); "identical"
+    # only when BOTH the item-universe axis (corpus) and the checkpoint axis
+    # (model) prove identity — the shared encoder pin alone proves nothing
+    # (every record pins it); anything else is "indeterminate" (fail closed).
+    states = (corpus, model, encoder)
+    if "different" in states:
+        overall = "different"
+    elif corpus == "identical" and model == "identical":
+        overall = "identical"
+    else:
+        overall = "indeterminate"
+    return {"corpus": corpus, "model": model, "encoder": encoder, "overall": overall}
+
+
+def _cell_matches_config(cell, config):
+    """A declared cell matches a row config iff EVERY key the cell names equals
+    the config's value (the cell is a config selector; omitted keys are free)."""
+    return all(config.get(k) == v for k, v in cell.items())
+
+
+def record_grid_cells(record):
+    """The record's declared arm x rung grid (freeze-collision surface)."""
+    design = record.get("design") or {}
+    ivs = {iv.get("name"): iv.get("levels", []) for iv in design.get("independent_vars", [])}
+    arms = ivs.get("arm", [])
+    rungs = ivs.get("rung", design.get("scale_rungs", [])) or [None]
+    return [(a, r) for a in arms for r in rungs]
+
+
+def _covered(arm, rung, cell_lists):
+    for cells in cell_lists:
+        for c in cells:
+            if c.get("arm") != arm:
+                continue
+            if "rung" not in c or c.get("rung") == rung:
+                return True
+    return False
+
+
+def reuse_collisions(record, root):
+    """Freeze-time COLLISION surface (D9): every (arm, rung) cell of the record
+    that the live results-log inventory already holds at identical or
+    unproven-different pins, and that is NOT covered by a reused_from block or
+    a reuse_overrides entry. Derived LIVE from results-log (never the committed
+    ledger). Cells whose pin identity is PROVABLY different are not collisions
+    (the audit's false-positive fix). The record's own log rows never collide
+    with itself. Returns [{arm, rung, producers, identity}]."""
+    rows = derive_artifact_rows(root)
+    rec_id = record.get("id")
+    rec_pins = record.get("pins") or {}
+    declared = [b.get("cells", []) for b in record.get("reused_from", []) or []]
+    overridden = [o.get("cells", []) for o in record.get("reuse_overrides", []) or []]
+    out = []
+    for arm, rung in record_grid_cells(record):
+        # a logged row with NO rung in its config matches ANY rung cell
+        # (identity indeterminate on the rung axis — fail closed)
+        hits = [r for r in rows
+                if r["experiment"] != rec_id
+                and (r.get("config") or {}).get("arm") == arm
+                and (rung is None or "rung" not in (r.get("config") or {})
+                     or (r.get("config") or {}).get("rung") == rung)]
+        if not hits:
+            continue
+        classes = {}
+        for r in hits:
+            cls = pin_axis_compare(rec_pins, r.get("pins"))["overall"]
+            classes.setdefault(cls, set()).add(r["experiment"])
+        colliding = sorted(classes.get("identical", set()) | classes.get("indeterminate", set()))
+        if not colliding:
+            continue
+        if _covered(arm, rung, declared) or _covered(arm, rung, overridden):
+            continue
+        identity = "identical" if classes.get("identical") else "indeterminate"
+        out.append({"arm": arm, "rung": rung, "producers": colliding, "identity": identity})
+    return out
+
+
+def _producer_integrity(root, block):
+    """RC-6 link integrity: producer is frozen, index sha equals the declared
+    producer_frozen_sha256, the producer record's bytes have not drifted, and
+    its chained log verifies. Returns (producer_record, log_records, raw_lines)."""
+    producer = block.get("producer")
+    where = "reused_from[producer=%s]" % producer
+    index_path = os.path.join(root, "registry", "frozen-index.json")
+    if not os.path.isfile(index_path):
+        raise KotError("ERR_P2_REUSE_PRODUCER", "%s: no frozen-index.json" % where)
+    with open(index_path, "r", encoding="utf-8") as f:
+        index = json.load(f)
+    if producer not in index:
+        raise KotError("ERR_P2_REUSE_PRODUCER",
+                       "%s: producer is not FROZEN — only frozen producers' logs are consumable" % where)
+    if index[producer] != block.get("producer_frozen_sha256"):
+        raise KotError("ERR_P2_REUSE_PRODUCER",
+                       "%s: declared producer_frozen_sha256 %r != frozen-index %s"
+                       % (where, block.get("producer_frozen_sha256"), index[producer]))
+    prod_path = os.path.join(root, "registry", "experiments", "%s.json" % producer)
+    if not os.path.isfile(prod_path):
+        raise KotError("ERR_P2_REUSE_PRODUCER", "%s: producer record file missing" % where)
+    with open(prod_path, "r", encoding="utf-8") as f:
+        prod = json.load(f)
+    if frozen_hash(prod) != index[producer]:
+        raise KotError("ERR_P2_REUSE_PRODUCER",
+                       "%s: producer record bytes drifted from frozen-index" % where)
+    expected_log = "results-log/%s.jsonl" % producer
+    if block.get("producer_log_path") != expected_log:
+        raise KotError("ERR_P2_REUSE_BLOCK",
+                       "%s: producer_log_path %r != %s" % (where, block.get("producer_log_path"), expected_log))
+    log_records, raw_lines = read_log(os.path.join(root, expected_log))  # ERR_P2_CHAIN on tamper
+    return prod, log_records, raw_lines
+
+
+def _matching_final_rows(log_records, raw_lines, frozen_sha, cells):
+    out = []
+    for rec, raw in zip(log_records, raw_lines):
+        if rec.get("event") != "run" or rec.get("phase") != "final" or rec.get("exit") != "ok":
+            continue
+        if rec.get("prereg_hash") != frozen_sha:
+            continue
+        cfg = rec.get("config") or {}
+        if any(_cell_matches_config(c, cfg) for c in cells):
+            out.append((rec, raw))
+    return out
+
+
+def _rc2_pin_identity(where, consumer_pins, producer_pins, at_freeze):
+    """RC-2: exact-pin identity on every SHARED name. A real-vs-real mismatch
+    is a hard refusal at any time (not reuse — a different experiment). A
+    consumer-side placeholder on a shared name is tolerated at freeze (P-9
+    pre-declared inputs, completed by ops amendment) and REFUSED at
+    consumption time (verdict) — identity must be proven before rows flow.
+    At consumption time the check is AFFIRMATIVE: at least one shared corpus
+    name must prove identity real-vs-real (a row carrying no provable corpus
+    identity, or corpora under disjoint names, cannot be consumed)."""
+    c = consumer_pins or {}
+    p = producer_pins or {}
+
+    def check_map(axis, cmap, pmap):
+        cmap = cmap if isinstance(cmap, dict) else {}
+        pmap = pmap if isinstance(pmap, dict) else {}
+        proven = 0
+        for name in sorted(set(cmap) & set(pmap)):
+            if name.startswith("_"):
+                continue
+            a, b = cmap[name], pmap[name]
+            if is_real_pin(a) and is_real_pin(b):
+                if a != b:
+                    raise KotError("ERR_P2_REUSE_RC2",
+                                   "%s: %s pin %r differs (consumer %s != producer %s) — not reuse; "
+                                   "a fresh run or a different declared experiment is required"
+                                   % (where, axis, name, a, b))
+                proven += 1
+            elif not at_freeze:
+                raise KotError("ERR_P2_REUSE_RC2",
+                               "%s: %s pin %r is not identity-proving on both sides at consumption "
+                               "time (consumer %r / producer %r) — fill placeholders by ops "
+                               "amendment before the verdict" % (where, axis, name, a, b))
+        return proven
+
+    corpus_proven = check_map("corpus", c.get("corpus_hashes"), p.get("corpus_hashes"))
+    check_map("model", c.get("model_revisions"), p.get("model_revisions"))
+    if not at_freeze and corpus_proven == 0:
+        raise KotError("ERR_P2_REUSE_RC2",
+                       "%s: no shared corpus name proves identity real-vs-real at consumption "
+                       "time — RC-2 identity must be AFFIRMATIVELY established, not merely "
+                       "un-contradicted" % where)
+    ce, pe = c.get("encoder_hash"), p.get("encoder_hash")
+    if ce is not None and pe is not None:
+        if is_real_pin(ce) and is_real_pin(pe):
+            if ce != pe:
+                raise KotError("ERR_P2_REUSE_RC2", "%s: encoder_hash differs" % where)
+        elif not at_freeze:
+            raise KotError("ERR_P2_REUSE_RC2", "%s: encoder_hash not identity-proving at consumption" % where)
+
+
+def _stratum(cell):
+    return "%s|%s" % (cell.get("arm"), cell.get("rung", "-"))
+
+
+def _check_rc5(where, block, record, matched_rows, root, mode):
+    """RC-5 (tightened, revision-1): the batch-effect gate must cover EACH
+    material (arm x rung) stratum of the consumed cells for THIS producer, or
+    carry an explicit representativeness justification per uncovered stratum,
+    frozen in the record. The CPU waiver requires a committed recompute of the
+    EXACT consumed outputs with matching content hashes — citing
+    deterministic_repeat_identical alone licenses nothing."""
+    rc5 = block.get("rc5")
+    if not isinstance(rc5, dict):
+        raise KotError("ERR_P2_REUSE_RC5", "%s: rc5 block missing (overlap-rerun or "
+                                           "deterministic-cpu-recompute)" % where)
+    kind = rc5.get("kind")
+    if kind not in RC5_KINDS:
+        raise KotError("ERR_P2_REUSE_RC5", "%s: rc5.kind %r not in %s" % (where, kind, RC5_KINDS))
+    output_fields = set(((record.get("pins") or {}).get("analysis_script") or {}).get("output_fields", []))
+    if kind == "overlap-rerun":
+        cells = rc5.get("cells") or []
+        if not cells:
+            raise KotError("ERR_P2_REUSE_RC5", "%s: overlap-rerun declares no overlap cells" % where)
+        n = rc5.get("n_items")
+        if not isinstance(n, int) or n < 50:
+            raise KotError("ERR_P2_REUSE_RC5", "%s: overlap n_items %r < 50" % (where, n))
+        ptr = rc5.get("agreement_metric_pointer")
+        if not (isinstance(ptr, str) and ptr.startswith("/")):
+            raise KotError("ERR_P2_REUSE_RC5", "%s: agreement_metric_pointer %r is not a JSON pointer"
+                           % (where, ptr))
+        if ptr not in output_fields:
+            raise KotError("ERR_P2_REUSE_RC5",
+                           "%s: agreement_metric_pointer %s not in pins.analysis_script.output_fields"
+                           % (where, ptr))
+        if not isinstance(rc5.get("agreement_bound"), (int, float)) or isinstance(rc5.get("agreement_bound"), bool):
+            raise KotError("ERR_P2_REUSE_RC5", "%s: agreement_bound must be a number" % where)
+        # a miss must be able to fire INSTRUMENT-INVALID, never hypothesis evidence
+        fires = any(r.get("verdict") == "INSTRUMENT-INVALID" and ptr in canonical_dumps(r.get("when", {}))
+                    for r in record.get("verdict_rules", []))
+        if not fires:
+            raise KotError("ERR_P2_REUSE_RC5",
+                           "%s: no INSTRUMENT-INVALID verdict rule references %s — an RC-5 miss "
+                           "must score INSTRUMENT-INVALID for the reused arms" % (where, ptr))
+        consumed_strata = {_stratum(c) for c in block.get("cells", [])}
+        overlap_strata = {_stratum(c) for c in cells}
+        justified = rc5.get("representativeness_justification") or {}
+        for s in sorted(consumed_strata):
+            if s in overlap_strata:
+                continue
+            j = justified.get(s)
+            if not (isinstance(j, str) and j.strip()):
+                raise KotError("ERR_P2_REUSE_RC5",
+                               "%s: consumed stratum %r has no overlap cell and no representativeness "
+                               "justification (RC-5 tightened: per producer AND per arm/rung stratum)"
+                               % (where, s))
+    else:  # deterministic-cpu-recompute
+        for field in ("recompute_command", "recompute_run_log"):
+            if not (isinstance(rc5.get(field), str) and rc5[field].strip()):
+                raise KotError("ERR_P2_REUSE_RC5", "%s: waiver missing %s" % (where, field))
+        coh = rc5.get("consumed_output_hashes")
+        if not (isinstance(coh, dict) and isinstance(coh.get("path"), str)
+                and isinstance(coh.get("sha256"), str)):
+            raise KotError("ERR_P2_REUSE_RC5",
+                           "%s: waiver missing consumed_output_hashes {path, sha256}" % where)
+        full = os.path.join(root, coh["path"])
+        if not os.path.isfile(full):
+            raise KotError("ERR_P2_REUSE_RC5", "%s: %s does not exist" % (where, coh["path"]))
+        got = _file_sha256(full)
+        if got != coh["sha256"]:
+            raise KotError("ERR_P2_REUSE_RC5", "%s: %s sha256 %s != pinned %s"
+                           % (where, coh["path"], got, coh["sha256"]))
+        with open(full, "r", encoding="utf-8") as f:
+            try:
+                recomputed = json.load(f)
+            except json.JSONDecodeError as e:
+                raise KotError("ERR_P2_REUSE_RC5", "%s: %s unparseable: %s" % (where, coh["path"], e))
+        fields = block.get("per_item_fields", [])
+        for rec, _raw in matched_rows:
+            seq = str(rec.get("seq"))
+            metrics = rec.get("metrics") or {}
+            if metrics.get("deterministic_repeat_identical") is not True:
+                raise KotError("ERR_P2_REUSE_RC5",
+                               "%s: seq %s does not log deterministic_repeat_identical=true — the CPU "
+                               "waiver applies only to determinism-witnessing producers" % (where, seq))
+            want = canonical_sha256({f_: metrics.get(f_) for f_ in fields})
+            if recomputed.get(seq) != want:
+                raise KotError("ERR_P2_REUSE_RC5",
+                               "%s: recomputed consumed-output hash for seq %s (%r) != hash of the exact "
+                               "consumed fields in the log (%s) — bit-identity NOT proven; the waiver "
+                               "requires recomputing the exact consumed outputs" % (where, seq,
+                                                                                    recomputed.get(seq), want))
+
+
+def verify_reuse_block(root, record, block, mode):
+    """Verify ONE reused_from block. mode: 'freeze' | 'verdict' | 'append' |
+    'recheck'. Returns (matched_rows, seqs) where matched_rows = [(record, raw)].
+    Raises KotError (fail closed) on any RC violation this mode can check."""
+    if mode not in ("freeze", "verdict", "append", "recheck"):
+        raise KotError("ERR_P2_REUSE_BLOCK", "unknown reuse verification mode %r" % mode)
+    producer = block.get("producer")
+    where = "reused_from[producer=%s]" % producer
+    if producer == record.get("id"):
+        raise KotError("ERR_P2_REUSE_BLOCK", "%s: a record cannot reuse its own log" % where)
+    role = block.get("role")
+    if role not in REUSE_ROLES:
+        raise KotError("ERR_P2_REUSE_BLOCK", "%s: role %r not in %s" % (where, role, REUSE_ROLES))
+    if block.get("selection_rule") != REUSE_SELECTION_RULE:
+        raise KotError("ERR_P2_REUSE_BLOCK",
+                       "%s: selection_rule must be %r (RC-1: cell-complete, never row/seed-picked)"
+                       % (where, REUSE_SELECTION_RULE))
+    cells = block.get("cells") or []
+    if not cells or not all(isinstance(c, dict) and isinstance(c.get("arm"), str) for c in cells):
+        raise KotError("ERR_P2_REUSE_BLOCK", "%s: cells must be non-empty objects each naming an arm" % where)
+    fields = block.get("per_item_fields") or []
+    if not fields:
+        raise KotError("ERR_P2_REUSE_RC3", "%s: per_item_fields is empty — a consumer DV must be a "
+                                           "pure function of declared producer fields" % where)
+    if not isinstance(block.get("outcome_selected_arms"), bool):
+        raise KotError("ERR_P2_REUSE_SURVIVOR",
+                       "%s: outcome_selected_arms must be declared true/false (RC-8)" % where)
+
+    prod, log_records, raw_lines = _producer_integrity(root, block)
+    frozen_sha = block["producer_frozen_sha256"]
+    matched = _matching_final_rows(log_records, raw_lines, frozen_sha, cells)
+    matched_seqs = [rec["seq"] for rec, _ in matched]
+    unblinded_now = os.path.isfile(os.path.join(root, "registry", "verdicts", "%s.json" % producer))
+
+    if role == "prospective":
+        if "rows" in block:
+            raise KotError("ERR_P2_REUSE_BLOCK",
+                           "%s: prospective (Case A) blocks pin no rows — the row set is derived as "
+                           "all matching final rows once the producer lands" % where)
+        if block.get("producer_unblinded") is not False:
+            raise KotError("ERR_P2_REUSE_RC4",
+                           "%s: prospective block must declare producer_unblinded:false" % where)
+        if mode == "freeze":
+            has_final = any(r.get("event") == "run" and r.get("phase") == "final" for r in log_records)
+            if has_final or unblinded_now:
+                raise KotError("ERR_P2_REUSE_BLOCK",
+                               "%s: producer already has final-phase data (final rows=%s, unblinded=%s) — "
+                               "this is retrospective consumption; declare role:comparator under "
+                               "RC-4/RC-7 or run fresh" % (where, has_final, unblinded_now))
+        if mode == "verdict":
+            if not matched:
+                raise KotError("ERR_P2_REUSE_ROWS",
+                               "%s: prospective block has no matching producer rows at consumption time"
+                               % where)
+    else:  # comparator (Case B)
+        rows_pin = block.get("rows")
+        if not (isinstance(rows_pin, dict) and isinstance(rows_pin.get("seqs"), list)
+                and isinstance(rows_pin.get("row_hashes"), list)
+                and len(rows_pin["seqs"]) == len(rows_pin["row_hashes"])
+                and rows_pin["seqs"]):
+            raise KotError("ERR_P2_REUSE_BLOCK",
+                           "%s: comparator block must pin rows {seqs, row_hashes} of equal non-zero "
+                           "length (RC-1)" % where)
+        if block.get("producer_unblinded") is not True:
+            raise KotError("ERR_P2_REUSE_RC4",
+                           "%s: comparator blocks exist for already-unblinded producers; declare "
+                           "producer_unblinded:true (disclosure, RC-4) — for not-yet-run producers "
+                           "use role:prospective" % where)
+        if mode == "freeze" and not unblinded_now:
+            raise KotError("ERR_P2_REUSE_RC4",
+                           "%s: declared producer_unblinded:true but no verdict exists — the "
+                           "disclosure must be accurate at freeze" % where)
+        declared = sorted(rows_pin["seqs"])
+        if declared != sorted(matched_seqs):
+            raise KotError("ERR_P2_REUSE_ROWS",
+                           "%s: declared seqs %s != all matching final rows %s — RC-1 requires the "
+                           "COMPLETE cell (no subset, no superset)" % (where, declared, sorted(matched_seqs)))
+        by_seq = {rec["seq"]: raw for rec, raw in matched}
+        for seq, want in zip(rows_pin["seqs"], rows_pin["row_hashes"]):
+            got = sha256_hex(by_seq[seq])
+            if got != want:
+                raise KotError("ERR_P2_REUSE_ROWS",
+                               "%s: seq %d line-bytes sha %s != pinned %s" % (where, seq, got, want))
+        # RC-7: data-blind comparator/config selection basis (Case B, critical fix)
+        sel = block.get("comparator_selection")
+        if not isinstance(sel, dict):
+            raise KotError("ERR_P2_REUSE_RC7",
+                           "%s: comparator_selection missing — the comparator family AND its "
+                           "config-selection rule must be fixed by a data-blind rule (RC-7)" % where)
+        if sel.get("basis") not in RC7_BASES:
+            raise KotError("ERR_P2_REUSE_RC7",
+                           "%s: comparator_selection.basis %r not in %s — a basis selected after "
+                           "unblinding makes the primary exploratory unless freshly replicated"
+                           % (where, sel.get("basis"), RC7_BASES))
+        ref = sel.get("ref") or {}
+        if not (isinstance(ref.get("path"), str) and isinstance(ref.get("sha256"), str)):
+            raise KotError("ERR_P2_REUSE_RC7", "%s: comparator_selection.ref {path, sha256} required" % where)
+        full = os.path.join(root, ref["path"])
+        if not os.path.isfile(full):
+            raise KotError("ERR_P2_REUSE_RC7", "%s: comparator_selection.ref path %r missing"
+                           % (where, ref["path"]))
+        if _file_sha256(full) != ref["sha256"]:
+            raise KotError("ERR_P2_REUSE_RC7", "%s: comparator_selection.ref %s sha mismatch — the "
+                                               "data-blind rule's bytes must be pinned" % (where, ref["path"]))
+        if not (isinstance(sel.get("rule_verbatim"), str) and sel["rule_verbatim"].strip()):
+            raise KotError("ERR_P2_REUSE_RC7", "%s: comparator_selection.rule_verbatim required" % where)
+
+    # RC-8: survivor/slope rule (critical fix — f7 loophole)
+    if block.get("outcome_selected_arms") is True:
+        sai = block.get("selection_adjusted_inference")
+        if not (isinstance(sai, dict) and isinstance(sai.get("method"), str) and sai["method"].strip()
+                and isinstance(sai.get("analysis_anchor"), str) and sai["analysis_anchor"].startswith("/")):
+            raise KotError("ERR_P2_REUSE_SURVIVOR",
+                           "%s: outcome_selected_arms:true requires pre-specified "
+                           "selection_adjusted_inference {method, analysis_anchor} (RC-8) — otherwise "
+                           "rerun the lower rungs fresh, or keep the slope component exploratory "
+                           "(outside reused_from entirely)" % where)
+        anchors = set(((record.get("pins") or {}).get("analysis_script") or {}).get("output_fields", []))
+        if sai["analysis_anchor"] not in anchors:
+            raise KotError("ERR_P2_REUSE_SURVIVOR",
+                           "%s: selection_adjusted_inference.analysis_anchor %s not in "
+                           "pins.analysis_script.output_fields — the adjustment must live in the "
+                           "pinned analysis" % (where, sai["analysis_anchor"]))
+
+    # RC-2 pin identity (freeze: real-vs-real must match, placeholders deferred;
+    # verdict: identity must be proven) + RC-3 field computability over rows.
+    check_rows = matched if role == "comparator" or mode in ("verdict", "recheck") else []
+    at_freeze = mode in ("freeze", "append", "recheck")
+    if role == "prospective" and mode == "freeze":
+        _rc2_pin_identity(where, record.get("pins"), prod.get("pins"), at_freeze=True)
+    for rec, _raw in check_rows:
+        _rc2_pin_identity(where + "[seq=%s]" % rec.get("seq"), record.get("pins"),
+                          rec.get("pins_observed"), at_freeze=at_freeze)
+        metrics = rec.get("metrics") or {}
+        for f_ in fields:
+            if not isinstance(metrics.get(f_), list):
+                raise KotError("ERR_P2_REUSE_RC3",
+                               "%s: seq %s does not log per-item field %r as a list — the consumer DV "
+                               "is not computable from this row (RC-3)" % (where, rec.get("seq"), f_))
+
+    # RC-5 batch-effect gate / CPU waiver (skipped for prospective-at-freeze
+    # only when no rows exist yet to hash; shape checks still run).
+    if role == "comparator" or (mode in ("verdict", "recheck") and matched):
+        _check_rc5(where, block, record, matched, root, mode)
+    elif mode == "freeze":
+        _check_rc5(where, block, record, [], root, mode)
+
+    return matched, sorted(matched_seqs)
+
+
+def check_record_reuse(record, root, mode):
+    """Record-level RC checks over ALL reused_from blocks + the RATIFICATION
+    interlock. Returns [{'block': b, 'rows': [(rec, raw)], 'seqs': [...]}].
+    mode as in verify_reuse_block."""
+    blocks = record.get("reused_from") or []
+    if not blocks:
+        return []
+    if record.get("schema_version") != "kot-reg/2":
+        raise KotError("ERR_P2_REUSE_BLOCK",
+                       "reused_from requires schema kot-reg/2 (the machine-enforced wire format); "
+                       "kot-reg/1 has no lawful reuse surface")
+    if mode in ("freeze", "verdict", "append"):
+        require_reuse_ratified(root, "consuming logged rows (reused_from)")
+    results = []
+    for block in blocks:
+        rows, seqs = verify_reuse_block(root, record, block, mode)
+        results.append({"block": block, "rows": rows, "seqs": seqs})
+    # RC-4 record-level: when ANY block consumes already-unblinded rows, at
+    # least one declared arm must be fresh (no block covers it at any rung).
+    if any(b.get("producer_unblinded") for b in blocks):
+        arms = set()
+        for iv in (record.get("design") or {}).get("independent_vars", []):
+            if iv.get("name") == "arm":
+                arms = set(iv.get("levels", []))
+        reused_arms = {c.get("arm") for b in blocks for c in b.get("cells", [])}
+        unknown = reused_arms - arms
+        if unknown:
+            raise KotError("ERR_P2_REUSE_RC4",
+                           "reused cells name arms not in the design: %s" % sorted(unknown))
+        if arms and not (arms - reused_arms):
+            raise KotError("ERR_P2_REUSE_RC4",
+                           "every declared arm is covered by reused rows — RC-4 requires >=1 "
+                           "freshly-run arm in the primary contrast when consuming already-"
+                           "unblinded data")
+    # reuse_overrides shape (proceed-with-reason, machine-recorded)
+    for i, o in enumerate(record.get("reuse_overrides") or []):
+        if not (isinstance(o, dict) and o.get("cells") and isinstance(o.get("reason"), str)
+                and o["reason"].strip()):
+            raise KotError("ERR_P2_REUSE_BLOCK",
+                           "reuse_overrides[%d] must carry cells + a non-empty reason" % i)
+    return results

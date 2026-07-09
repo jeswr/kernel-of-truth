@@ -168,15 +168,22 @@ MUST:
 - Mock/dry-plan first: no full GPU run without a same-day green `--mock` AND a `--dry-plan`
   whose projected wall-clock + $ are within the frozen ledger caps.
 - Registered, paired seeds only; check `worst_case_usd` against the ledger BEFORE launch.
-- PRE-SPEND REUSE GATE (docs/next/resource-optimization-plan.md §3.6): BEFORE any launch,
-  run `python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json`
+- PRE-SPEND REUSE GATE (docs/next/resource-optimization-plan.md §3.6, revision-1 — BINDING):
+  BEFORE any paid launch, run
+  `python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json --gate`
   (plus `--arm/--rung/--corpus --gate` for ad-hoc cells) and record the full output in the
-  run-log. A non-empty result means logged data may already answer part of the spend: STOP
-  and obtain a recorded coordinator/Fable reuse decision (consume under RC-1..RC-6 / shrink
-  the run / proceed-with-reason) before launching. Proceeding past a non-empty check without
-  a recorded decision is a gate violation. After every final-phase append, re-run
-  `python3 tools/registry/reuse-check.py build` so the artifact ledger stays current (pure
-  function; producer rule R-1).
+  run-log. `--gate` is MANDATORY: exit 3 means declared cells are already logged at identical
+  or unproven-different pins with no frozen reuse decision — STOP, do not launch, the
+  run-script fails closed. The ONLY lawful responses are frozen-record surfaces, never a
+  chat or run-log note: a kot-reg/2 `reused_from` block (consume under RC-1..RC-8; you never
+  author one — that is Fable design work, queue it), a frozen `reuse_overrides` entry
+  (deliberate re-run with its machine-recorded reason), or shrinking the run so the colliding
+  cells leave the design. Proceeding past exit 3 without one of these is a gate violation.
+  When a frozen record declares `reused_from`, append the `event:"reuse"` witness line via
+  `log-append.py` before running `verdict-gen` (RC-6; verdict-gen refuses without it). After
+  every final-phase append, re-run `python3 tools/registry/reuse-check.py build` so the
+  artifact ledger stays current (pure function; producer rule R-1 — note the gate itself
+  derives from results-log live and never trusts the committed ledger).
 - Write the single reproducible run-script and the provenance run-log under
   `poc/<exp>/opus-runs/<UTC-ts>/`; append raw metric bodies via `log-append.py` as
   `phase:"final"` (hash-chained; keys matching the pinned analysis script; RAW numbers).

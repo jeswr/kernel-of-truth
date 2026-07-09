@@ -64,26 +64,36 @@ and is marked pending. Opus reports only the mechanical numbers and the
 pre-declared gate pass/fails (which are pure functions), never a narrative
 conclusion.
 
-## (5) Pre-spend reuse gate
+## (5) Pre-spend reuse gate (BINDING — revision-1, post-Codex-audit)
 
-Before ANY GPU/paid launch, the Runner queries the results/artifact ledger:
+Before ANY GPU/paid launch, the Runner runs the gate — `--gate` is MANDATORY
+on BOTH forms (without it the tool is discovery-only and licenses nothing):
 
 ```
-python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json
+python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json --gate
 python3 tools/registry/reuse-check.py check --arm <arm> --rung <rung> [--corpus <c>] --gate
 ```
 
-and records the full output in the run-log. A non-empty result → STOP: a
-coordinator/Fable reuse decision (consume under the RC-1..RC-6 conditions of
-`docs/next/resource-optimization-plan.md` §3.3–3.4 / shrink the run to
-uncovered cells / proceed-with-reason) must be recorded before spend.
-Launching past a non-empty check without a recorded decision is a gate
-violation. Whether logged data may serve as the new record's own arm output is
-governed by the RC conditions — the Opus agent never adjudicates that itself
-(it is a Fable/design call); Opus's duty is to RUN the check, RECORD it, and
-STOP on a hit. After every final-phase append, the Runner re-runs
-`reuse-check.py build` so `registry/artifact-ledger.jsonl` stays a current
-pure-function inventory of reusable logged cells.
+and records the full output in the run-log. Exit 3 = STOP, fail closed: a
+declared cell is already logged at identical or unproven-different pins with
+no frozen reuse decision (cells at PROVABLY different pins do not block; the
+predicate is the same one `prereg-freeze` refuses with
+`ERR_P2_REUSE_COLLISION`, derived live from `results-log/`). The only lawful
+responses are FROZEN-RECORD surfaces, never a run-log or chat note: a
+kot-reg/2 `reused_from` block satisfying RC-1..RC-8
+(`docs/next/resource-optimization-plan.md` §3.3, revision-1), a frozen
+`reuse_overrides` entry (deliberate re-run, machine-recorded reason), or
+shrinking the run. Whether logged data may serve as the new record's own arm
+output is governed by the RC conditions and adjudicated at FREEZE by the
+machinery — the Opus agent never adjudicates it (authoring a reuse block is
+Fable design work); Opus's duty is to RUN the gated check, RECORD it, STOP on
+exit 3, and — when a frozen record does declare `reused_from` — append the
+`event:"reuse"` witness via `log-append.py` before `verdict-gen` (which
+refuses consumption without the witness, without maintainer ratification of
+the ruling, or on any RC re-verification failure). After every final-phase
+append, the Runner re-runs `reuse-check.py build` so
+`registry/artifact-ledger.jsonl` stays a current pure-function inventory
+(the gates themselves never trust the committed ledger — they re-derive).
 
 ## Scope note
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kot-log-1.json",
-  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py.",
+  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok; reuse => a reuse block matching a frozen kot-reg/2 reused_from declaration, ratification-gated) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py. The reuse event (delta D9, resource-optimization-plan.md section 3 revision-1) is the RC-6 in-chain witness of consumed producer rows: {producer, producer_frozen_sha256, seqs, row_hashes}.",
   "type": "object",
   "required": ["schema_version", "seq", "prev_sha256", "ts", "experiment", "event", "runner", "prereg_hash"],
   "additionalProperties": false,
@@ -11,7 +11,7 @@
     "prev_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "ts": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
     "experiment": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-    "event": { "enum": ["run", "status", "unblind", "audit-ref", "note", "supersede"] },
+    "event": { "enum": ["run", "status", "unblind", "audit-ref", "note", "supersede", "reuse"] },
     "phase": { "enum": ["smoke", "mock", "exploratory", "final"] },
     "runner": { "type": "string", "pattern": "^(runner|auditor|coordinator|writer|redteam)-[0-9]+$" },
     "prereg_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
@@ -47,6 +47,17 @@
     "note": { "type": "string" },
     "target_seq": { "type": "integer", "minimum": 0 },
     "reason": { "type": "string" },
+    "reuse": {
+      "type": "object",
+      "required": ["producer", "producer_frozen_sha256", "seqs", "row_hashes"],
+      "additionalProperties": false,
+      "properties": {
+        "producer": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "producer_frozen_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "seqs": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 0 } },
+        "row_hashes": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+      }
+    },
     "audit_path": { "type": "string" },
     "audit_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
   }

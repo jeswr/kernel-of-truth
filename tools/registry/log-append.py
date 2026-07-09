@@ -24,6 +24,12 @@ Fail-closed refusals:
   ERR_P2_SUPERSEDE_OK     supersede targets a successful run (exit=="ok") —
                           you cannot re-roll results you don't like
   ERR_P2_ACCOUNT_IN_RECORD  account-identifying material in the line bytes (RT-14)
+  ERR_P2_REUSE_*          event:"reuse" witness fails the D9 checks: ruling not
+                          maintainer-ratified (ERR_P2_REUSE_UNRATIFIED), no
+                          matching frozen reused_from block
+                          (ERR_P2_REUSE_UNDECLARED), or the witnessed seqs /
+                          row_hashes do not equal the re-verified producer row
+                          set (ERR_P2_REUSE_ROWS / ERR_P2_REUSE_PRODUCER)
 
 Minimal-spine simplification (documented): P2's status machine (refuse
 phase:"final" unless status is RUNNING) is reduced to "the experiment is
@@ -105,6 +111,39 @@ def append_record(root, experiment, agent_id, body, ts=None):
         want = kc.canonical_sha256(record["config"])
         if record.setdefault("config_sha256", want) != want:
             raise kc.KotError("ERR_P2_SCHEMA", "config_sha256 does not match canonical hash of config")
+    elif event == "reuse":
+        # D9 (resource-optimization-plan.md §3 revision-1): the RC-6 in-chain
+        # witness that another record's logged rows are consumed. Lawful ONLY
+        # when (a) the reuse ruling is maintainer-ratified, (b) the FROZEN
+        # consumer record is kot-reg/2 and declares a reused_from block for
+        # this producer, and (c) the witnessed seqs/row_hashes equal the
+        # block's verified row set RIGHT NOW (producer chain re-verified).
+        witness = record.get("reuse")
+        if not isinstance(witness, dict):
+            raise kc.KotError("ERR_P2_SCHEMA", "reuse event requires a reuse block")
+        kc.require_reuse_ratified(root, "appending a reuse witness line")
+        rec_path = os.path.join(root, "registry", "experiments", "%s.json" % experiment)
+        with open(rec_path, "r", encoding="utf-8") as f:
+            frozen_record = json.load(f)
+        blocks = [b for b in frozen_record.get("reused_from") or []
+                  if b.get("producer") == witness.get("producer")
+                  and b.get("producer_frozen_sha256") == witness.get("producer_frozen_sha256")]
+        if not blocks:
+            raise kc.KotError("ERR_P2_REUSE_UNDECLARED",
+                              "no reused_from block in the frozen record matches producer %r @ %r — "
+                              "a reuse witness may only restate a frozen declaration"
+                              % (witness.get("producer"), witness.get("producer_frozen_sha256")))
+        block = blocks[0]
+        _rows, seqs = kc.verify_reuse_block(root, frozen_record, block, mode="append")
+        if sorted(witness.get("seqs", [])) != seqs:
+            raise kc.KotError("ERR_P2_REUSE_ROWS",
+                              "witness seqs %s != verified matching row set %s"
+                              % (sorted(witness.get("seqs", [])), seqs))
+        raws = {rec["seq"]: raw for rec, raw in _rows}
+        want = [kc.sha256_hex(raws[s]) for s in witness.get("seqs", [])]
+        if witness.get("row_hashes") != want:
+            raise kc.KotError("ERR_P2_REUSE_ROWS",
+                              "witness row_hashes do not match the producer log's exact line bytes")
     elif event == "supersede":
         if "target_seq" not in record or "reason" not in record:
             raise kc.KotError("ERR_P2_SCHEMA", "supersede requires target_seq and reason")

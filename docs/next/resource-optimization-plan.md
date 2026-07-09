@@ -7,8 +7,10 @@ Status: **AUTHORITATIVE for resource-usage policy** once committed; the mechanis
 §1/§3/§5 are enforced through the files they land in (role files, practices doc,
 `tools/registry/reuse-check.py`, `registry/artifact-ledger.jsonl`,
 `registry/components.jsonl`). Changes to the *frozen honesty machinery* itself
-(prereg-freeze / log-append / verdict-gen wiring) remain **maintainer-gated**
-(P2 §7 item 3); those are enumerated as delta D9 in §5.
+(prereg-freeze / log-append / verdict-gen wiring) are **maintainer-gated**
+(P2 §7 item 3); delta D9 (§5) was authorised by the maintainer's 2026-07-09 decision to
+implement the Codex audit amendments and LANDED with **revision-1 (post-audit)** — see
+the §3.0 changelog; its permissive half stays inert behind the ratification interlock.
 Binding constraints inherited: `docs/kernel-design-directives.md`,
 `docs/next/opus-execution-practices.md`, `docs/next/research-engine.md` (engine laws §1.4),
 the HONESTY-GUARD epistemic-tag discipline.
@@ -235,6 +237,39 @@ bespoke experiments have each built their own world.
 
 ## 3. Component (3) — CROSS-EXPERIMENT GPU-RESULT REUSE
 
+### 3.0 REVISION-1 (post-audit, 2026-07-09) — changelog: which amendment closed which loophole
+
+The cross-vendor Codex/GPT-5.5 design audit of this ruling
+(`registry/audits/resource-optimization-plan/1-design-audit-codex.json`, outcome
+CONFIRM_WITH_CONDITIONS; full structured verdict
+`poc/audits/resource-optimization-plan/codex-last-message.json`) found the §3.3 ruling
+NOT ratifiable as written: two CRITICAL loopholes and four more. The maintainer approved
+implementing the audit's six recommended amendments; this revision is that
+implementation (Fable-owned). The amended ruling is itself RE-AUDITED before the
+maintainer ratifies, and **nothing reuse-permissive operates until ratification** (the
+interlock below).
+
+| # | Amendment (landed in this revision) | Loophole closed (audit severity) |
+|---|---|---|
+| 1 | **NEW RC-7** — in Case B the comparator/baseline family AND its config-selection rule must be fixed by a DATA-BLIND basis (prior frozen mandatory-baseline law / exhaustive declared family / prior frozen rule), pinned by path+sha in the record; anything selected after unblinding makes the primary exploratory unless freshly replicated. Machine-checked at freeze (`ERR_P2_REUSE_RC7`). | **CRITICAL** — Case-B comparator laundering: picking the weakest known baseline family after reading the producer's logs. |
+| 2 | **NEW RC-8** — survivor/slope rule: already-seen lower-rung data from OUTCOME-SELECTED survivor arms may not enter a confirmatory slope/capstone primary without fresh lower-rung reruns, or pre-specified selection-adjusted inference frozen in the pinned analysis, or permanent exploratory labelling of the slope component. Every block declares `outcome_selected_arms`; `true` without a frozen adjustment refuses (`ERR_P2_REUSE_SURVIVOR`). §3.4-3 (f7) rewritten accordingly; ASM-0010 rewritten load-bearing. | **CRITICAL** — f7 default folded already-seen survivor R1–R3 cells into a future confirmatory slope fit. |
+| 3 | **RC-5 tightened** — the overlap gate must cover EACH reused producer and EACH material (arm × rung) stratum of the consumed cells, or carry an explicit per-stratum representativeness justification frozen in the record; the CPU waiver now requires a committed recompute of the EXACT consumed outputs with matching content hashes (`ERR_P2_REUSE_RC5`), never a bare `deterministic_repeat_identical` citation. | MAJOR — one convenient overlap cell passing for environment equality; paper-only CPU waiver. |
+| 4 | **Delta D9 LANDED** — `kot-reg/2` (`registry/schema/kot-reg-2.json`): `reused_from` (the RC-1..RC-8 machine wire format incl. producer frozen-sha, cell-complete row pins, per-item fields, disclosure and RC-5/RC-7/RC-8 blocks), `reuse_overrides` (machine-recorded proceed-with-reason), `pins.artifact_hashes`; `log-append` event `"reuse"` (the RC-6 in-chain witness); `verdict-gen` step 3b reused-row eligibility (re-verifies everything at consumption; refuses undeclared witnesses); `prereg-freeze`/`registry-check` COLLISION REFUSAL (`ERR_P2_REUSE_COLLISION`); `reuse-check audit` producer-chain traversal for chained reuse (A←B←C, every link independent). | MAJOR — kot-reg/1 had no lawful place for the declared wire format: a record could look frozen while its consumed row set lived outside the freeze machinery. |
+| 5 | **reuse-check.py is now the BINDING gate** — the runner/practices command is `check --record … --gate` (exit 3 fails run-scripts closed); matching is pin-identity-tiered (corpus/slice hash, model revision, encoder, config cell, config hash, seeds, impl pins, unblinded status) and derived LIVE from results-log (a stale ledger cannot weaken it); provably-different pins no longer block (false-positive fix); renamed-identical implementations are surfaced by impl-pin cross-match and exactly enforced at freeze/verdict via RC-2 config-cell + row-hash matching, which is arm-name-independent (false-negative fix). Runner role + practice (5) reconciled to the gated command. | MAJOR — a name-level discovery tool documented without `--gate` reported hits and exited 0. |
+| 6 | **ASM-0010 rewritten** (`load_bearing:true`; gate-t5 decision REQUIRING both the full-rerun and the reuse-adjusted evidential accounting, no stipulated default); **ASM-0011** validated against STRUCTURED registry edges — `reuse-check lscore` derives L from non-CLOSED records' `depends_on`/corpus pins + `ideas.jsonl` requires-edges and flags free-text mismatches. | f7 accounting mis-tagged non-load-bearing; free-text `consumers` gameable. |
+
+**The ratification interlock.** The permissive half of this machinery is hard-gated on
+`registry/reuse-ratification.json` (`kot-reuse-ratify/1`: maintainer identity, date, and
+the sha256 of THIS document's bytes — editing the ruling voids the ratification and
+every tool re-checks it). Until that file exists: `prereg-freeze` refuses any record
+declaring `reused_from` (`ERR_P2_REUSE_UNRATIFIED`), `log-append` refuses reuse
+witnesses, and `verdict-gen` refuses consumption. The reuse-RESTRICTIVE half — collision
+refusal and the exit-3 pre-spend gate — is live unconditionally. What is mechanical vs
+attested: row hashes, cell completeness, pin identity, basis pins and recompute-hash
+equality are machine-verified; that a waiver's recompute artifact really came from a
+fresh execution is attested by its committed run-log and re-verified by the Codex audit
+(RC-6 traversal), not provable by hashing alone.
+
 ### 3.1 What actually exists (MEASURED, from the logs)
 
 `registry/artifact-ledger.jsonl` (generated by `tools/registry/reuse-check.py build`;
@@ -254,7 +289,7 @@ starting with the next freezes.
 2. **Harness + arm implementations + instruments — always reusable as code.** Identity
    is the harness manifest / arm config hash.
 3. **Logged per-item metric fields — reusable AS DATA only under the RC conditions
-   (§3.4).** Not "decodes": only the fields in the ledger row's `per_item_fields`
+   (§3.3, adjudicated in §3.4).** Not "decodes": only the fields in the ledger row's `per_item_fields`
    exist. A consumer DV not computable from them requires a fresh run *no matter what
    the honesty ruling says* — which is why R-2 (superset logging + raw-output
    persistence) matters more than any single reuse.
@@ -282,15 +317,20 @@ can launder an estimand chosen after unblinding. Three cases:
   The producer's data has been analysed; any estimand chosen now is chosen knowing it.
   Reused rows may therefore serve only as **comparator/baseline/null arms**; the
   consumer's primary endpoint must contrast at least one freshly-run arm against them;
-  the already-seen status is disclosed at freeze. (Knowing a baseline's value is not in
-  itself corrupting — the programme publishes its verdicts internally — but a primary
-  computed *entirely* over already-seen data is exploratory by construction, P-10/G-13:
-  the f2b-reanalysis quarantine is the permanent precedent.)
+  the already-seen status is disclosed at freeze; and — revision-1, the audit's first
+  CRITICAL fix — the comparator FAMILY and its config-selection rule must themselves be
+  fixed by a data-blind basis (RC-7), because RC-1 stops row-level cherry-picking after
+  a config is named but not outcome-driven choice of the config itself. (Knowing a
+  baseline's value is not in itself corrupting — the programme publishes its verdicts
+  internally — but a primary computed *entirely* over already-seen data is exploratory
+  by construction, P-10/G-13: the f2b-reanalysis quarantine is the permanent precedent.)
 - **Case C — verdict citation.** Consuming another record's *verdict* as a premise is
   the epistemic-tag system (MEASURED with scope), not data reuse; it licenses no arm.
 
-**The six reuse conditions (RC-1…RC-6). ALL must hold; each maps to an existing
-guardrail rather than inventing a new value:**
+**The eight reuse conditions (RC-1…RC-8). ALL must hold; each maps to an existing
+guardrail rather than inventing a new value. RC-7/RC-8 added and RC-4/RC-5 tightened by
+revision-1 (§3.0); all eight are machine-checked by `kot_common.check_record_reuse`
+at freeze, witness-append, and verdict time:**
 
 - **RC-1 — Freeze-declared, cell-complete consumption.** The consumer's frozen record
   names: producer id, producer `frozen_sha256`, the exact cell set (arm × rung × seed
@@ -309,31 +349,75 @@ guardrail rather than inventing a new value:**
   instrument gates are re-evaluated over the reused rows (instrument failures score as
   instrument events in the consumer too — RT-3 carries across the reuse boundary).
 - **RC-4 — Already-seen discipline** (Case B only): comparator arms only; ≥1 fresh arm
-  in the primary contrast; `reused_arms_already_unblinded: true` disclosed in the
-  record so the auditor prices selection risk.
-- **RC-5 — Reuse-consistency instrument (the batch-effect gate).** When fresh arms
-  will be contrasted against reused rows, the freeze declares a small overlap re-run
-  (pre-declared cell + n ≥ 50 items) with a pre-declared agreement bound; a miss scores
-  **INSTRUMENT-INVALID for the reused arms** — never hypothesis evidence. This converts
-  "the old environment equals the new one" from a stipulation into a measurement.
-  Waivable ONLY for deterministic CPU producers where bit-identity is directly
-  checkable (the l3a/a5 engines log `deterministic_repeat_identical` [MEASURED:
-  results-log/l3a.jsonl, results-log/a5.jsonl]; GPU inference stacks get no waiver).
+  in the primary contrast (machine-checked: at least one declared arm level carries no
+  reused rows from any block); `producer_unblinded: true` disclosed per block, and the
+  disclosure must be ACCURATE at freeze (a declared-unblinded producer with no verdict,
+  or vice versa, refuses). RC-4 alone is NOT sufficient — the comparator family itself
+  must satisfy RC-7 (revision-1: the audit's critical comparator-laundering fix).
+- **RC-5 — Reuse-consistency instrument (the batch-effect gate; TIGHTENED, revision-1).**
+  When fresh rows will be contrasted against reused rows, the freeze declares an overlap
+  re-run (n ≥ 50 items) with a pre-declared agreement bound whose metric pointer is in
+  the pinned analysis output fields AND is referenced by an INSTRUMENT-INVALID verdict
+  rule; a miss scores **INSTRUMENT-INVALID for the reused arms** — never hypothesis
+  evidence. Coverage is per producer AND per material (arm × rung) stratum of the
+  consumed cells: every stratum is either in the overlap cells or carries an explicit
+  `representativeness_justification` frozen in the record — one convenient cell no
+  longer speaks for arms/rungs/backends it never touched. The waiver exists ONLY for
+  deterministic CPU producers and now requires a committed recompute of the EXACT
+  consumed outputs: a `consumed_output_hashes` artifact (path+sha pinned in the record,
+  produced by a recorded recompute run) whose per-row content hashes over the consumed
+  `per_item_fields` match the log bytes — citing `deterministic_repeat_identical`
+  [MEASURED: results-log/l3a.jsonl, results-log/a5.jsonl] is a necessary precondition,
+  not the waiver. GPU inference stacks get no waiver.
 - **RC-6 — Provenance + audit traversal; no verdict-as-data; per-link licensing.**
-  Consumed rows are referenced in the consumer's log with {producer id, frozen_sha,
-  seq range, row hashes}; `registry/audit-status.jsonl` notes the reuse; the consumer's
-  Codex audit re-verifies the producer chain for the consumed rows. Reuse consumes
-  logged rows, never a verdict; chained reuse (A←B←C) requires each link to satisfy
-  RC-1…RC-6 independently.
+  Consumed rows are witnessed in the consumer's hash-chained log by an `event:"reuse"`
+  line {producer id, producer frozen_sha, seqs, row hashes} that `log-append` verifies
+  against the frozen declaration and the producer's live chain, and without which
+  `verdict-gen` refuses consumption; `registry/audit-status.jsonl` notes the reuse; the
+  consumer's Codex audit re-verifies the producer chain for the consumed rows
+  (`reuse-check.py audit --experiment <id>` is the traversal). Reuse consumes logged
+  rows, never a verdict; chained reuse (A←B←C) requires each link to satisfy RC-1…RC-8
+  independently (the traversal walks the whole chain).
+- **RC-7 — Data-blind comparator/config selection (Case B; NEW, revision-1).** The
+  comparator/baseline FAMILY and the rule that selects its configs must be fixed by a
+  data-blind basis, one of exactly three: (i) a prior frozen **mandatory-baseline law**
+  (the G-8/Law-2 two-nulls family, `arms_mandatory_baselines` of a prior frozen record
+  or the P-level baseline laws), (ii) an **exhaustive declared family** (ALL cells of
+  the producer family — exhaustiveness leaves no choice to launder), or (iii) a **prior
+  frozen rule** whose text predates the producer's unblinding. The record pins the basis
+  {kind, path, sha256, rule verbatim}; the file's bytes are re-verified at freeze. A
+  comparator family or config selected after unblinding without such a basis makes the
+  primary EXPLORATORY unless the comparator cells are freshly replicated — the freeze
+  refuses the reuse block (`ERR_P2_REUSE_RC7`); there is no disclosure-only path.
+- **RC-8 — Survivor/slope rule (NEW, revision-1).** Every reuse block declares
+  `outcome_selected_arms`: were the reused arms selected INTO this record because of
+  producer outcomes/verdicts (survivors)? If true, already-seen lower-rung data may
+  enter a confirmatory slope/capstone primary ONLY with pre-specified
+  selection-adjusted inference frozen in the pinned analysis (`method` +
+  `analysis_anchor` among the declared output fields); otherwise the lawful options are
+  fresh lower-rung reruns (no reuse block for those cells) or permanent exploratory
+  labelling of the slope component (outside `reused_from` entirely, quarantined per the
+  f2b-reanalysis precedent). Declaring true without the frozen adjustment refuses
+  (`ERR_P2_REUSE_SURVIVOR`).
 
-DECISION: logged final-phase outputs may serve as a consuming record's arm data only under RC-1–RC-6 above, and a primary endpoint computed entirely over already-unblinded data is permanently exploratory [MEASURED: registry/verdicts/f2b-replicate.json — the confirmatory promotion required a fresh frozen run, while the same estimand over logged f2 data stayed quarantined per the poc/f2/f2b-reanalysis.md header; rails P-10/G-13 via docs/next/opus-execution-practices.md §4].
+DECISION: logged final-phase outputs may serve as a consuming record's arm data only under RC-1–RC-8 above, and a primary endpoint computed entirely over already-unblinded data is permanently exploratory [MEASURED: registry/verdicts/f2b-replicate.json — the confirmatory promotion required a fresh frozen run, while the same estimand over logged f2 data stayed quarantined per the poc/f2/f2b-reanalysis.md header; rails P-10/G-13 via docs/next/opus-execution-practices.md §4].
 
-Until delta D9 lands (maintainer-gated), the *wire format* for RC-1/RC-6 is: the
-consumer's frozen record pins the producer's log rows as input artifacts (path + sha +
-seq range) in its pins/`depends_on`, and its pinned analysis script reads both logs.
-This uses only existing freeze machinery. `kot-reg/2`'s open `artifact_hashes` map
-(research-engine §1.5, delta D6) is the natural home and is a second reason to approve
-D6.
+The *wire format* is first-class as of revision-1 (delta D9, landed; §3.0 amendment 4):
+the consumer record is `kot-reg/2` and carries `reused_from` blocks — producer id +
+frozen sha + log path, `role` (prospective/comparator), the declared cell set, the
+cell-complete selection rule constant, `per_item_fields`, comparator row pins
+{seqs, row_hashes over the exact producer line bytes}, `producer_unblinded` disclosure,
+the RC-7 `comparator_selection` basis, the RC-8 `outcome_selected_arms` declaration
+(+ frozen `selection_adjusted_inference` when true), and the RC-5 block (overlap-rerun
+with per-stratum coverage, or the CPU recompute waiver). Prospective (Case A) blocks pin
+no rows — the row set is DERIVED at consumption as all matching final rows, which is
+exactly RC-1's anti-cherry-pick rule with nothing to choose; the freeze verifies the
+producer has no final rows and no verdict yet (else it is Case B, refused as
+prospective). Everything is re-verified at three later points: witness append
+(`log-append` event `"reuse"`), consumption (`verdict-gen` step 3b, where RC-2 identity
+must be AFFIRMATIVELY proven — filled pins, at least one shared corpus name matching
+real-vs-real), and re-audit (`registry-check --reuse`, `reuse-check audit`). Interim
+prose formats are dead: an RC declaration outside `reused_from` licenses nothing.
 
 ### 3.4 The standing adjudications (applying RC-1…RC-6 to the named candidates)
 
@@ -347,18 +431,32 @@ D6.
 2. **f2 `model-alone` / `gloss-self-verify-retry` / `extraction-instrument` cells →
    e9-full.** Case B. Licensed as comparator arms iff e9-full's freeze pins the
    *identical* d-qa slice hash and item order (RC-2 — to be verified at freeze against
-   `pins_observed.corpus_hashes.d-qa = ad756a7e…`), declares the reuse (RC-1), keeps
-   its primary contrast on fresh arms (RC-4 — automatic: e9-full's primary is
-   error-catch, computable only from fresh runs), and carries an RC-5 overlap cell.
+   `pins_observed.corpus_hashes.d-qa = ad756a7e…`), declares the reuse in a
+   `reused_from` block (RC-1), keeps its primary contrast on fresh arms (RC-4 —
+   automatic: e9-full's primary is error-catch, computable only from fresh runs),
+   fixes the comparator family by a data-blind basis (RC-7 — satisfied here by the
+   prior frozen mandatory-baseline law: `model-alone` and the gloss/extraction
+   instrument arms are the Law-2/G-8 two-nulls family, named in
+   `arms_mandatory_baselines` before f2 ever ran, not picked off the f2 outcome
+   surface; the block pins that law's doc bytes), declares
+   `outcome_selected_arms:false` truthfully (RC-8 — these arms are baselines by law,
+   not survivors), and carries RC-5 overlap covering each consumed arm × rung stratum.
    If the slice differs at all: fresh runs, no exception.
-3. **f7 capstone (Tier-5, $10k cap).** DECISION: f7's default accounting is to consume each survivor's logged R1–R3 cells as Case-B comparator cells for the slope fit, pay GPU only for the added rungs (R4/T\*) plus one fresh full-arm overlap cell at R3 as the RC-5 instrument (~5% of matrix cost), and disclose both accountings (full re-run vs reuse) in the `--dry-plan` at gate-t5 for explicit maintainer ratification [STIPULATED: ASM-0010].
-   The slope estimand and margins are already fixed in the DRAFT before any
-   added-rung data exists, which is what keeps the mixed-rung fit honest.
+3. **f7 capstone (Tier-5, $10k cap) — REWRITTEN by revision-1 (§3.0 amendment 2;
+   the audit's second CRITICAL).** f7's survivor arms are OUTCOME-SELECTED by
+   construction (they survive f4/f6 verdicts), so RC-8 governs and the prior
+   "default reuse accounting" is VOID: already-seen R1–R3 survivor cells may not
+   simply enter the confirmatory slope fit as comparator cells.
+   DECISION: f7's lower-rung reuse is a gate-t5 maintainer decision with NO stipulated default; the dry-plan MUST present BOTH accountings — (a) full lower-rung re-run, and (b) reuse under RC-8 with pre-specified selection-adjusted inference frozen in the pinned analysis and its evidential discount stated — and whichever reuse the maintainer selects still passes every RC-1..RC-8 machine check at freeze; absent a frozen selection adjustment, lower-rung reuse is limited to a permanently-exploratory slope component (quarantined, f2b-reanalysis precedent) while the confirmatory primary rests on fresh rungs [STIPULATED: ASM-0010].
+   The RC-5 instrument (fresh full-arm overlap cell at R3, ~5% of matrix cost) is
+   required under EITHER accounting that mixes any logged rows into any analysis.
 4. **prm-verifier R1 decisions and f2's single-cell arms (kernel-as-text,
    rag-over-text, int4).** The five-seed prm-verifier cells are reusable Case-B
-   comparators on the identical slice. The single-seed single-cell rows are **not**
-   load-bearing reuse material (no seed variance); they may inform design, nothing
-   else.
+   comparators on the identical slice, subject to RC-7 (the PRM baseline belongs to
+   the prior frozen P1 baseline family — pin that law as the basis) and a truthful
+   RC-8 declaration (`outcome_selected_arms:false`; it was a pre-declared baseline,
+   not a survivor). The single-seed single-cell rows are **not** load-bearing reuse
+   material (no seed variance); they may inform design, nothing else.
 5. **Free re-analysis (the f2b-reanalysis pattern).** Always permitted, always
    exploratory, always quarantined — and now *scheduled* rather than incidental: §4's
    Wave R0 requires Fable to enumerate the open questions answerable from
@@ -380,23 +478,43 @@ D6.
 - **R-3 — Reuse declaration is a freeze-time section.** Absence of a reuse check at
   freeze is a skeptic-attack finding (step 6); post-D9 it becomes a hard lint.
 
-### 3.6 The PRE-SPEND GATE (enforced)
+### 3.6 The PRE-SPEND GATE (BINDING — revision-1, §3.0 amendment 5)
 
-Before ANY launch, the Opus Runner runs:
+Before ANY paid launch, the Opus Runner runs:
 
 ```
-python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json
+python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json --gate
 # and, for ad-hoc cells:
 python3 tools/registry/reuse-check.py check --arm <arm> --rung <rung> [--corpus <name>] --gate
 ```
 
-and records the output in the run-log. A non-empty result → STOP; the coordinator/Fable
-records a reuse decision (consume under RC / shrink the run / proceed-with-reason)
-before any spend. Proceeding past a non-empty check without a recorded decision is a
-gate violation (audit finding). Enforcement points, all edited with this plan:
+and records the full output in the run-log. `--gate` is MANDATORY for paid launches:
+the tool exits 3 (run-scripts fail closed) when any declared cell is already logged at
+IDENTICAL or UNPROVEN-DIFFERENT pins and is not covered by the record's own
+`reused_from` / `reuse_overrides` declaration — the SAME predicate `prereg-freeze`
+refuses with `ERR_P2_REUSE_COLLISION`, both derived LIVE from `results-log/` (a stale
+committed ledger can never weaken a gate). Cells logged only at PROVABLY different pins
+(real hashes on both sides, none matching, no unresolved placeholders) do not block.
+The matcher classifies identity per axis — corpus/slice hash, model revision, encoder —
+plus the config cell, canonical config hash, seeds and implementation pins
+(`*_sha256` config keys), and reports producer unblinded status per hit; renamed-
+identical arm implementations are surfaced heuristically by impl-pin cross-match here
+and enforced EXACTLY at freeze/verdict, where RC-2 matches declared config cells and
+row hashes without reference to arm names. `check --record` WITHOUT `--gate` prints a
+loud discovery-only warning and licenses nothing.
+
+There is no out-of-band "reuse decision". The three lawful responses to a gate hit are
+frozen-record surfaces, not chat or run-log prose: (i) consume under RC — a `kot-reg/2`
+`reused_from` block satisfying RC-1..RC-8 at freeze; (ii) deliberately re-run —
+a `reuse_overrides` entry with its machine-recorded reason; (iii) shrink the run so the
+colliding cells leave the design. Proceeding past exit 3 without one of these is a gate
+violation (audit finding). Enforcement points, all edited with this revision:
 `.claude/agents/experiment-runner.md` (MUST list), `docs/next/opus-execution-practices.md`
-practice (5). The `kb-pipeline-runner` role is exempt (no GPU spend; its budget caps
-already gate it).
+practice (5), `tools/registry/prereg-freeze.py` (collision refusal + RC checks),
+`tools/registry/log-append.py` (witness verification), `tools/registry/verdict-gen.py`
+(step 3b consumption checks), `tools/registry/registry-check.py --reuse` (standing
+re-verification, in the run-all/pre-push set). The `kb-pipeline-runner` role is exempt
+(no GPU spend; its budget caps already gate it).
 
 ---
 
@@ -490,22 +608,33 @@ resolve at the generation boundary.
 | Mechanism | File |
 |---|---|
 | This plan (taxonomy §1, component map §2, reuse ruling §3, ordering §4) | `docs/next/resource-optimization-plan.md` |
-| Artifact ledger (117 rows, 8 producers) | `registry/artifact-ledger.jsonl` |
+| Artifact ledger (117 rows, 8 producers; kot-artifact/2 with row/config/impl hashes) | `registry/artifact-ledger.jsonl` |
 | Component pool registry (25 components; 10 unbuilt) | `registry/components.jsonl` |
-| Ledger builder + pre-spend gate tool | `tools/registry/reuse-check.py` |
-| Pre-spend gate as a Runner MUST | `.claude/agents/experiment-runner.md` |
-| Practice (5): pre-spend reuse gate | `docs/next/opus-execution-practices.md` |
+| Ledger builder + BINDING pre-spend gate + chain audit + lscore | `tools/registry/reuse-check.py` |
+| Pre-spend gate as a Runner MUST (`--gate`, binding) | `.claude/agents/experiment-runner.md` |
+| Practice (5): pre-spend reuse gate (`--gate`, binding) | `docs/next/opus-execution-practices.md` |
 | §2.7 L-derivation + tie-break; §5.1 deltas D8/D9 | `docs/next/research-engine.md` |
 | Recon superseded-with-corrections notice | `docs/next/reuse-ordering-analysis.md` |
 | ideas.jsonl dangling-ref correction (append, last-line-wins) | `registry/ideas.jsonl` |
 
-**Maintainer-gated (P2 §7 item 3; the D7 precedent — standalone landed, wiring gated):**
+**Delta D9 — LANDED with revision-1 (§3.0 amendment 4), authorised by the maintainer's
+2026-07-09 decision to implement the Codex audit amendments; its PERMISSIVE half stays
+inert behind the ratification interlock (§3.0):**
 
-- **D9:** `prereg-freeze`/`registry-check` refuse a record whose declared cells collide
-  with the artifact ledger absent an RC-1 reuse block; first-class
-  `reused_from` support in `log-append`/`verdict-gen`; `kot-reg/2` `artifact_hashes`
-  as the reuse-pin home (strengthens the case for approving D6).
+| D9 piece | File |
+|---|---|
+| `kot-reg/2`: `reused_from` / `reuse_overrides` / `pins.artifact_hashes` | `registry/schema/kot-reg-2.json` |
+| Shared RC-1..RC-8 verification + collision surface + live inventory + ratification interlock | `tools/registry/kot_common.py` |
+| Freeze-time RC checks + `ERR_P2_REUSE_COLLISION` refusal | `tools/registry/prereg-freeze.py` |
+| `event:"reuse"` witness (RC-6) with append-time re-verification | `registry/schema/kot-log-1.json`, `tools/registry/log-append.py` |
+| Verdict-time consumption (step 3b): re-verify all RCs + witness, provenance-marked rows to the pinned analysis, `inputs.reused` + fresh/reused rung transparency | `tools/registry/verdict-gen.py` |
+| Standing re-verification (`--reuse`, in run-all/pre-push) | `tools/registry/registry-check.py` |
+| Producer-chain audit traversal (`audit`) + structured-edge L (`lscore`) | `tools/registry/reuse-check.py` |
+| Machine tests over every refusal path + end-to-end consumption | `tools/registry/test_fixtures.py` (TestReuse) |
 
-**For the maintainer to ratify with this plan:** the §3.3 ruling (RC-1…RC-6), the R-2
-producer rule, the f7 default reuse accounting (§3.4-3), and the §4.4 fold-into-L-score
-decision.
+**For the maintainer to ratify — AFTER the Codex re-audit of revision-1:** the §3.3
+ruling (RC-1…RC-8), the R-2 producer rule, the §3.4-3 f7 both-accountings gate-t5 rule,
+the §4.4 fold-into-L-score decision, and the D9 wiring above. Ratification is enacted by
+committing `registry/reuse-ratification.json` (`kot-reuse-ratify/1`) pinning THIS
+document's post-re-audit sha256; until then every reuse-permissive path fails closed
+with `ERR_P2_REUSE_UNRATIFIED`.
