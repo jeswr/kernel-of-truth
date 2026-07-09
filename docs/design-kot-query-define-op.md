@@ -31,23 +31,23 @@ checkability lever because it needs **zero new ingestion**: the substrate is
 already committed and minted.
 
 PREMISE: onto-obo already carries 9,303 GO genus-differentia logical definitions
-(9,307 `logicalDefinition` fields, 9,384 differentia-bearing across GO+PO), each a
-structured `{genus:[urn], differentiae:[{property, filler:urn}]}` object inside
-record identity, and every onto-obo record is minted to a `urn:kot:` URN via
-`data/onto-obo/minted-urns.jsonl`.
-[MEASURED: `data/onto-obo/README.md` counts; `grep -c logicalDefinition go.jsonl`
-= 9307; `data/onto-obo/minted-urns.jsonl` `{id → urn}` bridge, verified-in-repo 2026-07-09]
+  (9,307 `logicalDefinition` fields, 9,384 differentia-bearing across GO+PO), each a
+  structured `{genus:[urn], differentiae:[{property, filler:urn}]}` object inside
+  record identity, and every onto-obo record is minted to a `urn:kot:` URN via
+  `data/onto-obo/minted-urns.jsonl`.
+  [MEASURED: `data/onto-obo/README.md` counts; `grep -c logicalDefinition go.jsonl`
+  = 9307; `data/onto-obo/minted-urns.jsonl` `{id → urn}` bridge, verified-in-repo 2026-07-09]
 
 The governing fact from the ingestion plan is non-negotiable and shapes the whole
 design: **checkability is three legs coinciding, not vocabulary coverage.**
 
 PREMISE: an item is `kernel_checkable` only when (1) a canonical **record** backs
-the proposition, (2) a **licensing axiom** in the sidecar admits the answer, and
-(3) a **mapper parse** lands the item in the closed `kot-query/1` grammar; the four
-existing ops (`unique`/`lookup`/`count`/`instance`) never exceed the grammar or the
-engine's `subClassOf` refusal.
-[MEASURED: `docs/next/coverage-growth-ingestion-plan.md` §0; `tools/axiom/kot_axiom.py`
-`QUERY_OPS`, `ERR_AXIOM_UNIMPLEMENTED` on `subClassOf`, verified-in-repo]
+  the proposition, (2) a **licensing axiom** in the sidecar admits the answer, and
+  (3) a **mapper parse** lands the item in the closed `kot-query/1` grammar; the four
+  existing ops (`unique`/`lookup`/`count`/`instance`) never exceed the grammar or the
+  engine's `subClassOf` refusal.
+  [MEASURED: `docs/next/coverage-growth-ingestion-plan.md` §0; `tools/axiom/kot_axiom.py`
+  `QUERY_OPS`, `ERR_AXIOM_UNIMPLEMENTED` on `subClassOf`, verified-in-repo]
 
 This memo supplies leg 1 (the logicalDefinition record — already present), designs
 leg 2 (a new `definitional` endorsement), and designs leg 3 (the define-question
@@ -59,9 +59,9 @@ census MEASURES after Opus implements (§7).
 ## 1. The substrate, verified (leg 1 — the record already exists)
 
 DECISION: the `define`-op operates over the onto-obo `logicalDefinition` object
-verbatim, resolved to `urn:kot:` URNs through the existing mint bridge — it invents
-no new record and touches no extractor.
-[verified-in-repo 2026-07-09: `data/onto-obo/go.jsonl`, `data/onto-obo/minted-urns.jsonl`]
+  verbatim, resolved to `urn:kot:` URNs through the existing mint bridge — it invents
+  no new record and touches no extractor.
+  [MEASURED: verified-in-repo 2026-07-09 — `data/onto-obo/go.jsonl`, `data/onto-obo/minted-urns.jsonl`]
 
 The committed shape of one logical definition (GO:0000018 *regulation of DNA recombination*):
 
@@ -99,10 +99,10 @@ exact structural comparison** — no search, no similarity, so the X3 cosine ban
 trivially honoured (as with the four existing ops).
 
 DECISION: `define` has exactly two shapes — DEFINE (retrieve the endorsed
-definition of a concept) and DEFINE-MATCH (test a candidate definition for exact
-structural equality against a concept's endorsed definition). No third shape; each
-addition is a grammar-version change.
-[STIPULATED: ASM-DEF-1 — the closed two-shape design; see §8]
+  definition of a concept) and DEFINE-MATCH (test a candidate definition for exact
+  structural equality against a concept's endorsed definition). No third shape; each
+  addition is a grammar-version change.
+  [STIPULATED: ASM-0015 — the closed two-shape design; see §8]
 
 ### 2.1 DEFINE — retrieve
 
@@ -154,7 +154,7 @@ addition is a grammar-version change.
   **closed, complete object about its own definiendum** (the whole endorsed
   definition of X), not an open set of world facts under CWA — so "candidate ≠ X's
   definition" is a licensed negative, not an incompleteness.
-  [STIPULATED: ASM-DEF-2 — definitional-closure licenses `false`; contrast the
+  [STIPULATED: ASM-0016 — definitional-closure licenses `false`; contrast the
   world-layer CWA-absence rule in `docs/design-l3a-rules-engine-oracle.md` §4]
 
   This is exactly the property that makes def-match MMLU items checkable: the
@@ -186,10 +186,10 @@ missing leg is an explicit **endorsement**: a governance act admitting a pinned
 definitional substrate into the `define`-op's answerable set.
 
 DECISION: the licensing axiom is a **stratum-3, corpus-scoped `definitional`
-endorsement record** — one sidecar record admits a pinned onto-obo shard's
-logicalDefinitions (by shard name + `sourceVersion` sha) as a definitional-source,
-with an optional per-concept override for contested definitions.
-[STIPULATED: ASM-DEF-3 — corpus-scoped endorsement as the default granularity; see §8]
+  endorsement record** — one sidecar record admits a pinned onto-obo shard's
+  logicalDefinitions (by shard name + `sourceVersion` sha) as a definitional-source,
+  with an optional per-concept override for contested definitions.
+  [STIPULATED: ASM-0017 — corpus-scoped endorsement as the default granularity; see §8]
 
 Rationale: 9,303 per-concept endorsement records buy nothing over one shard-scoped
 record when the whole GO shard shares one provenance, one `semanticStatus`, one
@@ -211,12 +211,12 @@ wish to *dis*endorse a specific contested definition without dropping the shard.
 ```
 
 DECISION: `definitional` is a **new `kot-axiom/1` constraint kind**, added to
-`CONSTRAINT_KINDS` and `IMPLEMENTED_KINDS`; it is an *endorsement*, not an
-extension-constraint, and it is validated + consumed only by the `define`-op —
-it never enters the CWA store-validation pass over world-layer facts.
-[STIPULATED: ASM-DEF-4 — `definitional` as an endorsement-kind disjoint from the
-extension-constraint kinds `{functional, cardinality, disjointWith, inverseOf,
-domain, range}`; see §8]
+  `CONSTRAINT_KINDS` and `IMPLEMENTED_KINDS`; it is an *endorsement*, not an
+  extension-constraint, and it is validated + consumed only by the `define`-op —
+  it never enters the CWA store-validation pass over world-layer facts.
+  [STIPULATED: ASM-0018 — `definitional` as an endorsement-kind disjoint from the
+  extension-constraint kinds `{functional, cardinality, disjointWith, inverseOf,
+  domain, range}`; see §8]
 
 This keeps strata separation clean (directives §5): the **definition** is stratum 2
 (in identity, in the vector/hash — verifier-not-in-the-vector is untouched: the
@@ -291,10 +291,10 @@ def-MMLU biomedical subjects (college biology/chemistry, med-genetics, anatomy v
 the CL/UBERON unblock) are the natural yield; **WiC is general-vocabulary and mostly
 NOT biomedical**, so its `define`-checkable yield may be small or ~0.
 
-LOAD-BEARING: the WiC / def-MMLU κ_B yield of the `define`-op is a projection, not a
+The WiC / def-MMLU κ_B yield of the `define`-op is a projection, not a
 measured quantity, and is resolved only by the b-cov census after implementation —
 it is never a premise for building the op or for any downstream claim.
-[EXTRAPOLATION: ASM-DEF-5, `load_bearing:false`, resolution_path = b-cov census re-run §7]
+[EXTRAPOLATION: ASM-0019, `load_bearing:false`, resolution_path = b-cov census re-run §7]
 
 ---
 
@@ -333,10 +333,10 @@ whose first discipline is **ABSTAIN, never silently pick** on ambiguity
    `REL` resolves through the §3.3 alias table.
 
 DECISION: the mapper leg reuses the existing abstain-and-record discipline verbatim
-and adds only a closed template inventory + an annotation-label index; it resolves
-no word sense and no ambiguous label, so a mapper-parse is emitted only when TERM,
-GENUS, REL, FILLER each resolve to exactly one URN.
-[STIPULATED: ASM-DEF-6 — mapper-leg = closed templates + abstain-on-ambiguity; see §8]
+  and adds only a closed template inventory + an annotation-label index; it resolves
+  no word sense and no ambiguous label, so a mapper-parse is emitted only when TERM,
+  GENUS, REL, FILLER each resolve to exactly one URN.
+  [STIPULATED: ASM-0020 — mapper-leg = closed templates + abstain-on-ambiguity; see §8]
 
 ### 5.2 The mapper risk the census will price
 
@@ -362,7 +362,7 @@ semantics**. Six constraints, each fail-closed:
   answers "is X a kind of Y", and never classifies an instance; the engine's
   `subClassOf` refusal (`ERR_AXIOM_UNIMPLEMENTED`) is untouched and unreachable
   through `define`.
-  [verified-in-repo: `tools/axiom/kot_axiom.py` refuses `subClassOf`; the `define`
+  [MEASURED: `tools/axiom/kot_axiom.py` refuses `subClassOf`; the `define`
   index stores the genus as a *labelled component of the returned definition*, with
   no closure step anywhere in the design]
 
@@ -434,11 +434,11 @@ concludes). The census is the ONLY honest measure of whether the op moved κ_B.
 ### 7.2 Measure (Opus, the b-cov census — the delta is MEASURED here, never asserted)
 
 DECISION: the κ_B delta is established **only** by re-running the b-cov census
-(`docs/next/architecture-ladder.md` §10.1, Tier 0, ~$0, CPU-only, no model calls)
-over the Tier-A definitional benchmarks **before and after** the `define`-op lands,
-reporting κ_B^engine for gold-parse and mapper-parse **separately**, with the m0b
-envelope discipline (benchmark-indexed, restated verbatim, coverage-first).
-[MEASURED design constraint: architecture-ladder.md §10.1/§10.5]
+  (`docs/next/architecture-ladder.md` §10.1, Tier 0, ~$0, CPU-only, no model calls)
+  over the Tier-A definitional benchmarks **before and after** the `define`-op lands,
+  reporting κ_B^engine for gold-parse and mapper-parse **separately**, with the m0b
+  envelope discipline (benchmark-indexed, restated verbatim, coverage-first).
+  [MEASURED: design constraint — architecture-ladder.md §10.1/§10.5]
 
 - **Benchmarks**: the census Tier-A definitional set — WiC and the definitional-MMLU
   biomedical subjects (college biology/chemistry, medical genetics, anatomy,
@@ -452,7 +452,7 @@ envelope discipline (benchmark-indexed, restated verbatim, coverage-first).
 
 ### 7.3 Honesty guardrails (binding on every number the run emits)
 
-- LOAD-BEARING: no κ_B growth may be claimed until the census MEASURES it; the
+- No κ_B growth may be claimed until the census MEASURES it; the
   before/after delta is the deliverable, and any pre-census number is EXTRAPOLATION.
   [EXTRAPOLATION resolved by §7.2; the delta enters no conclusion until measured]
 - Coverage-first reporting (§10.5): every κ_B carries N_checkable/N_total + census
