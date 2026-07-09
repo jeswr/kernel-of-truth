@@ -1,0 +1,12 @@
+ok: analysis/a5_llm.py --selftest green (hand-computed fixture + flips)
+ok: real pack deterministic (sha 411826916688...), 1954 prompts, completeness lint = 0 violations -> FK-A5L-2 resolves to option (a)
+ok: pack stats: max_prompt_chars=32335, max_context_records=280, empty retrievals (rag)=25
+ok: X3 spot check: unknown entity retrieves nothing; pinned no-records line rendered
+ok: toy end-to-end: 30-query probe scored; every stub-intended outcome matches the scorer (all extractor paths exercised)
+ok: CPU arms emitted (mock); raw-metrics lint clean; fresh engine pass reproduces results-log/a5.jsonl exactly (covered 855/855, control 122/122)
+ok: 6 LLM cells scored over the real pack; stub-intended counts reproduced; raw-metrics lint clean
+ok: all 35 declared analysis output fields resolve
+ok: green mock verdictable: engine conj 1.0000 vs best-LLM (llm-rag-R3) 0.6018, effect 0.3982 (LB 0.3695), cost ratio 4.06e+05, fabrication 0.574
+ok: extraction instrument gate flips to INVALID when every rag cell fails (record-level validity needs >=1 rag + >=1 direct)
+
+A5-LLM MOCK SMOKE: ALL CHECKS PASSED ($0 spent, no GPU, no network, nothing log-appended)

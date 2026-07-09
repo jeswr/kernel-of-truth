@@ -1,0 +1,88 @@
+{
+  "cells": [
+    {
+      "arm": "llm-direct",
+      "deterministic_repeat_identical": true,
+      "gpu_wall_seconds": 24.439,
+      "n_rows": 977,
+      "raw_file": "a5-llm-raw-llm-direct-R1.jsonl",
+      "rung": "R1",
+      "truncation_count": 0,
+      "usd": 0.007467
+    },
+    {
+      "arm": "llm-rag",
+      "deterministic_repeat_identical": true,
+      "gpu_wall_seconds": 276.598,
+      "n_rows": 977,
+      "raw_file": "a5-llm-raw-llm-rag-R1.jsonl",
+      "rung": "R1",
+      "truncation_count": 194,
+      "usd": 0.084516
+    },
+    {
+      "arm": "llm-direct",
+      "deterministic_repeat_identical": true,
+      "gpu_wall_seconds": 68.856,
+      "n_rows": 977,
+      "raw_file": "a5-llm-raw-llm-direct-R2.jsonl",
+      "rung": "R2",
+      "truncation_count": 0,
+      "usd": 0.021039
+    },
+    {
+      "arm": "llm-rag",
+      "deterministic_repeat_identical": true,
+      "gpu_wall_seconds": 401.282,
+      "n_rows": 977,
+      "raw_file": "a5-llm-raw-llm-rag-R2.jsonl",
+      "rung": "R2",
+      "truncation_count": 194,
+      "usd": 0.122614
+    },
+    {
+      "arm": "llm-direct",
+      "deterministic_repeat_identical": true,
+      "gpu_wall_seconds": 105.818,
+      "n_rows": 977,
+      "raw_file": "a5-llm-raw-llm-direct-R3.jsonl",
+      "rung": "R3",
+      "truncation_count": 0,
+      "usd": 0.032333
+    },
+    {
+      "arm": "llm-rag",
+      "deterministic_repeat_identical": true,
+      "gpu_wall_seconds": 696.425,
+      "n_rows": 977,
+      "raw_file": "a5-llm-raw-llm-rag-R3.jsonl",
+      "rung": "R3",
+      "truncation_count": 194,
+      "usd": 0.212796
+    }
+  ],
+  "date": "2026-07-09T23:04:52Z",
+  "decode_pins": {
+    "chat_template": "as shipped with the pinned revision",
+    "context_window": 8192,
+    "do_sample": false,
+    "max_new_tokens": 512,
+    "temperature": 0.0
+  },
+  "device": "cuda",
+  "experiment": "a5-llm",
+  "gpu_class": "A10G",
+  "mode": "FULL",
+  "model_revisions": {
+    "R1": "HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "R2": "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+    "R3": "HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674"
+  },
+  "n_cells": 6,
+  "outcome": "HARNESS-COMPLETE",
+  "outcome_note": "raw a5-llm-raw/1 cells only \u2014 NO score/verdict; the verdict is computed by the pinned instrument --score + analysis/a5_llm.py + verdict-gen under run-vs-audit separation",
+  "pack_sha256": "4118269166883f7de7c84e03991870000f02781d1ff8e1587bc2e79ab43e2141",
+  "total_gpu_wall_seconds": 1573.418,
+  "total_usd_est": 0.480765,
+  "wall_clock_seconds": 1704.094
+}
