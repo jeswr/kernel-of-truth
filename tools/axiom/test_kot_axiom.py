@@ -1,11 +1,14 @@
 """Unit tests for the kot-query/1 `define`-op (DEFINE + DEFINE-MATCH), its
-stratum-3 `definitional` endorsement kind, and the pinned relation-shorthand
-alias table (docs/design-kot-query-define-op.md — the FROZEN memo).
+stratum-3 `definitional` endorsement kind, the resolved-`relation`-field
+resolution (bead 8es/o6pj) with the pinned relation-shorthand alias table as
+fallback, and the endorsement home data/axioms-definitional-v0/ (bead bmtq)
+(docs/design-kot-query-define-op.md — the FROZEN memo).
 
 Style: tools/kb/test_kb.py / tools/registry/test_fixtures.py (stdlib unittest,
-fail-closed paths pinned). Engine built directly from small in-memory fixtures
-(no onto-obo read; the live 45MB shard + a production endorsement record are the
-Opus/census step, not exercised here).
+fail-closed paths pinned). Most tests build the engine from small in-memory
+fixtures; TestEndorsementHome + TestRealCorporaSmoke read the real corpus
+(build_engine loads the endorsed GO/SO/MONDO shards, ~4s) — the census that
+MEASURES the checkable delta is the separate Opus step, not exercised here.
 
 Run: python3 -m unittest discover -s tools/axiom -p 'test_kot_axiom.py'
 """
@@ -282,16 +285,175 @@ class TestDeterminism(unittest.TestCase):
             self.assertTrue(iri.startswith("urn:onto-obo:"))
 
 
+# --- relation-field resolution fixture (bead 8es/o6pj) ---
+# A SEPARATE shard/bridge from SHARD_RECORDS above, so the exact-set assertions
+# in TestDefineAnswerPath.test_index_membership are untouched. Exercises the
+# resolved `relation` URN the onto-obo extractor now writes per differentia.
+RQUAL = kurn("relqual")   # resolved `has_quality` relation URN (OUTSIDE the alias table)
+RALT = kurn("relalt")     # a resolved relation URN that DIVERGES from the alias target
+RELX = kurn("relconx")    # subject: relation-only resolvable (property not in alias table)
+GOSTYLE = kurn("gostylx")  # subject: property in alias table AND relation == alias target
+DIVERGE = kurn("divergx")  # subject: property is a known alias but relation points elsewhere
+RELUNM = kurn("relunmx")   # subject: relation field present but unminted -> unresolved
+
+# has_quality is NOT one of the 10 pinned alias-table shorthands: without the
+# resolved `relation` field it could never resolve (this is the SO/MONDO unlock).
+HAS_QUALITY_IRI = "urn:onto-obo:RO_0000086"
+assert "has_quality" not in kot_axiom.PINNED_RELATION_ALIASES
+# an alias-table shorthand whose resolved `relation` we make DIVERGE, to prove
+# the relation field takes precedence over the shorthand alias lookup.
+ALT_REL_IRI = "urn:onto-obo:RO_9999999"
+
+MINT_BRIDGE_REL = {
+    "urn:onto-obo:R_TERMX": RELX,
+    "urn:onto-obo:R_GOSTYLE": GOSTYLE,
+    "urn:onto-obo:R_DIVERGE": DIVERGE,
+    "urn:onto-obo:R_UNMINTED": RELUNM,
+    "urn:onto-obo:R_GENUS": G,
+    "urn:onto-obo:R_FILLER": F,
+    HAS_QUALITY_IRI: RQUAL,
+    ALT_REL_IRI: RALT,
+    REGULATES_IRI: R,  # the alias-table target for `regulates`
+    # NOTE: urn:onto-obo:RO_NOTMINTED (the unmintable relation) is absent by design.
+}
+
+SHARD_RECORDS_REL = [
+    # relation field present, property OUTSIDE the alias table -> resolves ONLY
+    # because of the resolved `relation` URN.
+    {"id": "urn:onto-obo:R_TERMX", "schema": "kot-obo/1",
+     "logicalDefinition": _ld(["urn:onto-obo:R_GENUS"],
+                              [{"property": "has_quality", "relation": HAS_QUALITY_IRI,
+                                "filler": "urn:onto-obo:R_FILLER"}])},
+    # relation field present AND equal to the alias-table target for `regulates`:
+    # the GO case — resolves identically down either path (byte-unchanged).
+    {"id": "urn:onto-obo:R_GOSTYLE", "schema": "kot-obo/1",
+     "logicalDefinition": _ld(["urn:onto-obo:R_GENUS"],
+                              [{"property": "regulates", "relation": REGULATES_IRI,
+                                "filler": "urn:onto-obo:R_FILLER"}])},
+    # property is a known alias (`regulates`) but the resolved relation DIVERGES:
+    # precedence — the relation field wins, not the alias lookup.
+    {"id": "urn:onto-obo:R_DIVERGE", "schema": "kot-obo/1",
+     "logicalDefinition": _ld(["urn:onto-obo:R_GENUS"],
+                              [{"property": "regulates", "relation": ALT_REL_IRI,
+                                "filler": "urn:onto-obo:R_FILLER"}])},
+    # relation field present but its IRI is not minted -> fail-closed (memo §6 C4).
+    {"id": "urn:onto-obo:R_UNMINTED", "schema": "kot-obo/1",
+     "logicalDefinition": _ld(["urn:onto-obo:R_GENUS"],
+                              [{"property": "has_quality", "relation": "urn:onto-obo:RO_NOTMINTED",
+                                "filler": "urn:onto-obo:R_FILLER"}])},
+]
+
+ENDORSEMENT_REL = {
+    "schema": "kot-axiom/1", "subject": MARKER,
+    "constraints": [
+        {"kind": "definitional", "form": "obo-genus-differentia",
+         "source": {"corpus": "onto-obo", "shard": "so.jsonl",
+                    "sourceVersion": "sha256:" + "0" * 64}},
+    ],
+}
+
+
+def build_rel():
+    return kot_axiom.Engine(
+        [("axioms-definitional-v0/endorse-so.json", ENDORSEMENT_REL)], [],
+        obo_shards={"so.jsonl": SHARD_RECORDS_REL}, mint_bridge=MINT_BRIDGE_REL)
+
+
+class TestRelationFieldResolution(unittest.TestCase):
+    """The resolved `relation` URN field (bead 8es) is read at index build, the
+    §3.3 alias table is the fallback, and resolution still fails closed."""
+
+    def setUp(self):
+        self.eng = build_rel()
+
+    def test_relation_field_unlocks_outside_alias_table(self):
+        # has_quality is not in the alias table; the concept resolves anyway
+        # because the extractor wrote a resolved `relation` URN. This is the
+        # SO/MONDO unlock, in miniature.
+        r = self.eng.query({"op": "define", "subject": RELX})
+        self.assertEqual(r["status"], "answer")
+        self.assertEqual(r["value"]["differentiae"], [{"relation": RQUAL, "filler": F}])
+
+    def test_relation_field_equal_to_alias_target_is_byte_identical(self):
+        # GO case: property regulates, relation == the alias-table target -> the
+        # resolved relation URN is exactly what the alias path would have produced.
+        r = self.eng.query({"op": "define", "subject": GOSTYLE})
+        self.assertEqual(r["value"]["differentiae"], [{"relation": R, "filler": F}])
+
+    def test_relation_field_takes_precedence_over_shorthand(self):
+        # property regulates (a known alias -> would resolve to R) but the resolved
+        # relation diverges to RALT: the field wins.
+        r = self.eng.query({"op": "define", "subject": DIVERGE})
+        self.assertEqual(r["value"]["differentiae"], [{"relation": RALT, "filler": F}])
+        self.assertNotEqual(RALT, R)
+
+    def test_relation_field_unminted_fails_closed(self):
+        # relation present but unmintable -> ERR_DEFN_UNRESOLVED, never half-answered.
+        self.assertIn(RELUNM, self.eng.defn_licensed)
+        self.assertIn(RELUNM, self.eng.defn_unresolved)
+        self.assertEqual(self.eng.query({"op": "define", "subject": RELUNM})["code"],
+                         "ERR_DEFN_UNRESOLVED")
+
+    def test_alias_fallback_still_used_when_relation_absent(self):
+        # the original SHARD_RECORDS carry NO relation field: the alias-table
+        # fallback still resolves them (regression that the fallback survives).
+        eng = build()
+        r = eng.query({"op": "define", "subject": X})
+        self.assertEqual(r["value"]["differentiae"], [{"relation": R, "filler": F}])
+
+
+class TestEndorsementHome(unittest.TestCase):
+    """The endorsement corpus lives in its OWN home (data/axioms-definitional-v0/),
+    NOT l3a's frozen data/axioms-v0/; build_engine loads it from there."""
+
+    def test_loader_reads_new_home(self):
+        recs = kot_axiom.load_definitional_endorsements(_ROOT)
+        self.assertEqual(len(recs), 3)
+        shards = set()
+        for ref, rec in recs:
+            self.assertTrue(ref.startswith("axioms-definitional-v0/"))
+            self.assertEqual(rec["schema"], "kot-axiom/1")
+            cons = rec["constraints"]
+            self.assertEqual(len(cons), 1)
+            c = cons[0]
+            self.assertEqual(c["kind"], "definitional")
+            self.assertEqual(c["form"], "obo-genus-differentia")
+            self.assertTrue(c["source"]["sourceVersion"].startswith("sha256:"))
+            shards.add(c["source"]["shard"])
+        self.assertEqual(shards, {"go.jsonl", "so.jsonl", "mondo.jsonl"})
+
+    def test_l3a_store_corpus_carries_no_endorsements(self):
+        # scoping: load_corpora (l3a's axioms-v0 store path) must contain NO
+        # definitional endorsement — the two corpora are disjoint, so l3a's
+        # frozen pin is untouched.
+        axioms, _world = kot_axiom.load_corpora(_ROOT)
+        for _ref, rec in axioms:
+            for c in rec.get("constraints", []):
+                self.assertNotEqual(c.get("kind"), "definitional")
+
+
 class TestRealCorporaSmoke(unittest.TestCase):
-    def test_build_engine_unaffected(self):
-        # build_engine on the real repo still works (no endorsement present ->
-        # no onto-obo read), the four ops behave, and define integrates.
+    def test_build_engine_loads_endorsement_home(self):
+        # build_engine on the real repo loads the definitional endorsement corpus
+        # (data/axioms-definitional-v0/) and the referenced onto-obo shards, so the
+        # define-op is LIVE: the four ops still behave and define resolves real
+        # concepts. (~4s: reads the endorsed GO/SO/MONDO shards.)
         eng = kot_axiom.build_engine(_ROOT)
         self.assertEqual(eng.query({"op": "bogus"})["code"], "ERR_BAD_QUERY")
-        # no definitional endorsement in axioms-v0 -> every define is unlicensed.
+        # a made-up urn:kot: outside every endorsed shard is still unlicensed.
         self.assertEqual(eng.query({"op": "define", "subject": OTHER})["code"],
                          "ERR_TERM_UNLICENSED")
-        self.assertEqual(eng.defn_licensed, set())
+        # the endorsement home is now populated -> the define-op admits real
+        # concepts and resolves a non-empty set of them.
+        self.assertEqual(len(eng.definitional_endorsements), 3)
+        self.assertGreater(len(eng.defn_licensed), 0)
+        self.assertGreater(len(eng.defn), 0)
+        # a resolved subject answers with a well-formed genus-differentia record.
+        subj = sorted(eng.defn)[0]
+        r = eng.query({"op": "define", "subject": subj})
+        self.assertEqual(r["status"], "answer")
+        self.assertEqual(r["value"]["form"], "genus-differentia")
+        self.assertTrue(r["value"]["genus"])
 
 
 if __name__ == "__main__":

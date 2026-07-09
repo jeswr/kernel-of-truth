@@ -39,8 +39,17 @@ is an ENDORSEMENT, not an extension-constraint (memo §3, ASM-DEF-4): it is
 consumed ONLY by the define-op index and NEVER enters the CWA store-validation
 pass over world-layer facts. No subsumption / no transitive closure — that is
 the refused `subClassOf` op (memo §6 C1). No OWL/DL model theory, no cosine
-(memo §6 C2/C3). Fail-closed resolution through the pinned relation-shorthand
-alias table + the onto-obo mint bridge (ERR_DEFN_UNRESOLVED, memo §6 C4).
+(memo §6 C2/C3). Fail-closed relation resolution (ERR_DEFN_UNRESOLVED, memo §6
+C4): the resolved `relation` URN the onto-obo extractor now writes per
+differentia (bead 8es) is preferred, falling back to the pinned §3.3
+relation-shorthand alias table for shards without it, then through the onto-obo
+mint bridge in both cases.
+
+Endorsement home (bead bmtq): definitional endorsements live in their own corpus
+data/axioms-definitional-v0/ (loaded by build_engine via
+load_definitional_endorsements) — NOT data/axioms-v0/, which is l3a's FROZEN
+pinned test corpus; the l3a store path load_corpora reads only axioms-v0 and is
+untouched.
 """
 
 import json
@@ -399,7 +408,19 @@ class Engine(object):
         for d in (ld.get("differentiae") or []):
             if not isinstance(d, dict):
                 return None
-            iri = PINNED_RELATION_ALIASES.get(d.get("property"))
+            # Relation resolution (bead 8es / o6pj): prefer the resolved `relation`
+            # URN field the onto-obo extractor now writes at extraction time — a
+            # urn:onto-obo: IRI already resolved from the differentia property
+            # shorthand. Fall back to the pinned §3.3 alias table when the field is
+            # absent (older shards). GO/PO differentiae carry a `relation` equal to
+            # the alias-table target, so this is byte-identical for GO; SO/MONDO
+            # differentiae — whose shorthands lie OUTSIDE the 10-value GO/PO alias
+            # table — now resolve, realizing the MEASURED unlock. Either path then
+            # resolves the IRI through the mint bridge and STILL fails closed
+            # (memo §6 C4) if the IRI is not present + minted in the endorsed shard.
+            iri = d.get("relation")
+            if not isinstance(iri, str) or not iri:
+                iri = PINNED_RELATION_ALIASES.get(d.get("property"))
             rel_urn = self.mint_bridge.get(iri) if iri is not None else None
             fil_urn = self.mint_bridge.get(d.get("filler"))
             if rel_urn is None or fil_urn is None:
@@ -750,6 +771,30 @@ def load_corpora(root):
     return axioms, world
 
 
+def load_definitional_endorsements(root):
+    """Load the stratum-3 `definitional` endorsement corpus, data/axioms-definitional-v0/.
+
+    This is the define-op's endorsement HOME — deliberately NOT data/axioms-v0/:
+    that dir is l3a's FROZEN pinned test corpus (registry/experiments/l3a.json pins
+    its corpus-hash), so an endorsement placed there would change the digest and
+    break l3a's pin. Kept separate here, and read ONLY by build_engine (the l3a
+    store path load_corpora is untouched, so l3a's instrument is unaffected).
+
+    Returns a list of (ref, record) — the same shape load_corpora returns for the
+    axiom layer, so the two lists concatenate. Returns [] when the corpus dir is
+    absent (behaviour then folds back to the pre-endorsement four-op engine)."""
+    endorse_dir = os.path.join(root, "data", "axioms-definitional-v0")
+    out = []
+    if not os.path.isdir(endorse_dir):
+        return out
+    for name in sorted(os.listdir(endorse_dir)):
+        if not name.endswith(".json") or name == "manifest.json":
+            continue
+        with open(os.path.join(endorse_dir, name), "r", encoding="utf-8") as f:
+            out.append(("axioms-definitional-v0/%s" % name, json.load(f)))
+    return out
+
+
 def load_mint_bridge(root):
     """The onto-obo mint bridge {urn:onto-obo:<id>: urn:kot:<urn>}
     (data/onto-obo/minted-urns.jsonl). READ-ONLY — the define-op never mints."""
@@ -775,7 +820,15 @@ def load_obo_shard(root, shard):
 
 
 def build_engine(root):
+    # Store layer (stratum 3 extension constraints + stratum 4 world): l3a's
+    # axioms-v0 + world-v0, loaded EXACTLY as the frozen l3a instrument loads them.
     axioms, world = load_corpora(root)
+    # Definitional endorsements: read from their OWN home (axioms-definitional-v0),
+    # scoped to the endorsement corpus so l3a's frozen axioms-v0 is never a
+    # definitional source. Concatenated into the axiom layer; the define-op index
+    # is built only from the `definitional` records among them (they never enter
+    # the CWA store pass — ASM-DEF-4), so the store behaviour is unchanged.
+    axioms = axioms + load_definitional_endorsements(root)
     # Lazily load the define-op substrate ONLY when a `definitional` endorsement
     # references it — with no endorsement present, behaviour is byte-identical to
     # the four-op engine (no onto-obo read).
