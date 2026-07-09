@@ -13,10 +13,10 @@ import kot_axiom as K
 
 ROOT = "."
 SHARDS = ["go.jsonl", "so.jsonl", "mondo.jsonl"]
-SHA = {  # sha256 of current bytes == manifest (verified 2026-07-09)
-    "go.jsonl":    "sha256:6c65be58f05cd34a0efb35155ac58b3f1e668e6172d623d883b2d57c4e426d2d",
-    "so.jsonl":    "sha256:46c98b1bd36297361ea48f9ea5554222c6ee119e756538b2a614ff0c372e6ca6",
-    "mondo.jsonl": "sha256:232799bb92627fa90533686ea595d2fd1a6ff6dcbdfafe1e8fb41b8738fe3d6c",
+SHA = {  # sha256 of current bytes == manifest (verified 2026-07-09; updated post-8es (relation-reading engine))
+    "go.jsonl":    "sha256:9d661d25a5aa8439d9774a42d7268038965376cf46579202a604c58d6a2930f8",
+    "so.jsonl":    "sha256:10fae0e415b11498be94f93af445c3aea10cf30f770930a11eaf2bad2330c8bf",
+    "mondo.jsonl": "sha256:b9d20d63041d1a3eab0e1e31b96acb9789d76077e2c629f2e3a8901f399bab5e",
 }
 
 bridge = K.load_mint_bridge(ROOT)

@@ -33,3 +33,20 @@ has_characteristic(1026). => the SO/MONDO gate is the shorthand->relation-IRI al
    then Opus finalizes to data/axioms-v0/defn-onto-obo-{go,so,mondo}.json.
 2. Benchmark kappa_B census (N1-LB §10.1) needs a Fable instrument design + WiC/def-MMLU data
    (WiC 401-gated; def-MMLU unpinned) — NOT buildable by adapting m0b. Bead kernel-of-truth-hu10.
+
+## RE-RUN post-8es + relation-reading engine (2026-07-09) — AUTHORITATIVE MEASURED
+After bead 8es (extractor resolves differentia relations) + the engine reading the resolved
+`relation` field + the endorsements loaded from data/axioms-definitional-v0/, re-running
+`define_census.py` (shard shas updated to go 9d661d25 / so 10fae0e4 / mondo b9d20d63):
+
+| shard | population | checkable (answer) | ERR_DEFN_UNRESOLVED |
+|---|---|---|---|
+| go.jsonl | 9,307 | 9,307 | 0 |
+| so.jsonl | 219 | 219 | 0 |
+| mondo.jsonl | 7,685 | 3,744 | 3,941 |
+| **TOTAL** | **17,211** | **13,270** | **3,941** |
+
+Checkable fraction **0.7710** (was 0.5478 pre-8es). SO fully unlocked (18->219); MONDO 103->3,744;
+GO byte-unchanged. The 3,941 MONDO unresolved are ALL foreign fillers (HP/CHEBI/NCBITaxon) — the
+held Wave-A ingestion gap, not the engine. Fable interpretation still pending (what this coverage
+means for the linter Axis-A + benchmark N1-LB kappa_B).
