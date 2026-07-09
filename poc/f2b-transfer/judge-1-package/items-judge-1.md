@@ -4,7 +4,7 @@ Answer every item from your OWN everyday understanding of the words involved. Fo
 
 - **Multiple-choice items** ("Which option gives the meaning" / "a word whose definition is"): choose the single letter **A / B / C / D**, or write **NONE** if none of the four is a correct fit or you cannot say.
 - **Yes/no items** ("...is the following true of X?"): answer **yes**, **no**, or **cannot say**.
-- "NONE" / "cannot say" is a valid, expected answer — use it whenever the options do not fit or you genuinely cannot tell. It is not a mistake.
+- "NONE" / "cannot say" is a valid, expected answer — use NONE whenever no option is genuinely correct, and 'cannot say' whenever you genuinely cannot judge a statement — but never over odd wording or true extra detail alone; the full standards are in the CSV instructions / PROTOCOL.md §4.7. It is not a mistake.
 
 ---
 

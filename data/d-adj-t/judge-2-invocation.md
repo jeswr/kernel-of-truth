@@ -18,7 +18,7 @@
 | artifact | path | sha256 |
 |---|---|---|
 | blind item set (360, keyed by id) | `poc/f2b-transfer/opus-runs/20260709T171156Z/blind-items-by-id.jsonl` | `ce820483336e6e25c607fa72e2591022f192d9e0eddc9a6689e02b4796af42cc` |
-| pinned prompt template (AUTHORITATIVE bytes) | `data/d-adj-t/judge-2-prompt-template.txt` | `65ea3c137daa9d236b9de2bc13a94ce6b2c23f9eb845427828ee526c0452e70b` |
+| pinned prompt template (AUTHORITATIVE bytes) | `data/d-adj-t/judge-2-prompt-template.txt` | `f21bfce38eda617fe6733efca75e8a2b3e754711931703119ef7c6602749931d` |
 | output schema, MCQ items | `data/d-adj-t/judge-2-output-schema-mcq.json` | `1445fd021780dc54ec0c1cf94f5d70318f203ebe4ce8e2e4ad1a4d8a192deb38` |
 | output schema, claim items | `data/d-adj-t/judge-2-output-schema-claim.json` | `3af3eaed608b712178aa4d2a627ddda7c42048f0ebef0c79600b4bee91494727` |
 | calibration items (preflight only) | `data/d-adj-t/judge-2-calibration.jsonl` | `8bdb22dac8380ff834889f83b5f9bc0b9733e6446e895963cf0e084a8cffb9a1` |

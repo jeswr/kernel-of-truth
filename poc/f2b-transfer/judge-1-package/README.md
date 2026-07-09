@@ -25,6 +25,12 @@ Answer **each item from your own competence** with the everyday concepts — pic
 the option that genuinely best gives the meaning, or genuinely answer the yes/no
 question. You are NOT trying to guess an intended answer; there is no trick.
 
+How to judge them — the standards are spelled out inside `judge-1-adjudication.csv`
+itself (instruction lines 5–10) and are the authoritative §4.7 of `PROTOCOL.md`; in
+short: odd simplified grammar is never a reason to reject; true extra detail never
+makes an option wrong, false or misfitting content always does; yes/no statements are
+judged as typical-case claims about what the word means.
+
 ## The mandatory escape ("cannot say")
 
 Every item offers an escape, and using it is a normal, expected outcome:
@@ -33,18 +39,23 @@ Every item offers an escape, and using it is a normal, expected outcome:
   or if you cannot decide;
 - yes/no: answer **cannot say** if you cannot judge the statement.
 
-Do not force a choice. If the options do not describe the concept as you
-understand it, "NONE" / "cannot say" is the correct answer.
+Do not force a choice. If no option correctly gives the meaning, NONE is the correct
+answer; if a statement cannot be judged at all, "cannot say" is. But do not escape over
+style: odd wording, simplified grammar, or true extra detail is never by itself a reason
+for NONE, and "cannot say" is never a soft "no".
 
 ## How to record your answers
 
-Fill in `response-template.csv` — one row per item, keyed by the **position
-number** shown in `items-judge-1.md`:
+Everything you need is in the single self-contained file
+`judge-1-adjudication.csv`: its opening rows are the full instructions, and every
+one of the 360 items follows — the same items, in the same order, keyed by the
+**position number** shown in `items-judge-1.md`. For each item:
 
-- multiple-choice → write `A`, `B`, `C`, `D`, or `NONE` in the `answer` column;
+- multiple-choice → write `A`, `B`, `C`, `D`, or `NONE` in the `your_answer` column;
 - yes/no → write `yes`, `no`, or `cannot say`.
 
-`optional_note` is free-text and optional. Please answer every position.
+The `comment` column is free-text and optional. Please fill `your_answer` for every
+position.
 
 ## Practical guidance
 

@@ -1,7 +1,7 @@
 # judge-2 pinned prompt (f2b-transfer stage-1, design.md §4.1)
 
 > The AUTHORITATIVE prompt bytes are `data/d-adj-t/judge-2-prompt-template.txt`
-> (sha256 `65ea3c137daa9d236b9de2bc13a94ce6b2c23f9eb845427828ee526c0452e70b`).
+> (sha256 `f21bfce38eda617fe6733efca75e8a2b3e754711931703119ef7c6602749931d`).
 > This file is the human-readable record: an informative copy of the template,
 > the per-item assembly rule, and the design rationale mapping every operative
 > line to the frozen §4 and to judge-1's package — so the two judges verifiably
@@ -20,14 +20,15 @@ Below is ONE item about an everyday concept (things like bird, eat, sleep, water
 - a multiple-choice question -- "Which option gives the meaning of the word X?" or "A word whose definition is: ...  Which word is it?" -- with options written in a deliberately plain, simplified style; or
 - a yes/no question -- "According to the definition of X, is the following true of X? ...".
 
-Answer the item from your own competence with the everyday concepts -- pick the option that genuinely best gives the meaning, or genuinely answer the yes/no question. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+Answer the item from your own competence with the everyday concepts. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
 
-The item offers an escape answer, and using it is a normal, expected outcome:
+How the texts read: the definition texts use a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "a something of kind event" means "an event"; "somethings of kind take happen" means "acts of taking happen". Odd wording is never a trick and never by itself a reason to reject an option or a statement. The letters X and Y stand for the participants named with the word itself (in "break (X breaks Y)", X is the one who breaks, Y is what gets broken). A parenthesis after a word only tells you which sense of the word is meant; ignore unfamiliar technical notation inside it. Square brackets are clarifications; read them as part of the text.
 
-- multiple-choice: answer NONE if none of A-D correctly gives the meaning, or if you cannot decide;
-- yes/no: answer "cannot say" if you cannot judge the statement.
+For a multiple-choice item, pick the option that correctly gives the meaning: an option is correct when (a) everything it says fits the word as ordinarily understood, AND (b) as a whole it actually says what the word means -- you could tell this word is being defined and not something else. Read each sentence as saying what is NORMALLY or TYPICALLY the case ("birds fly" is a fair thing to say even though penguins don't); hedges like "at some times", "can", "many", "some" only claim what they say. True extra detail a dictionary might leave out does NOT make an option wrong; anything FALSE of the thing, or fitting some other thing instead, DOES -- as does an option that is only a pile of true facts and never says what the thing is. If more than one option seems right, pick the one that best and most exactly gives the meaning of the asked word itself, not of something closely related. Answer NONE only if no option is genuinely correct, or you cannot decide; NONE is a normal, expected answer.
 
-Do not force a choice. If the options do not describe the concept as you understand it, NONE / "cannot say" is the correct answer.
+For a yes/no item, the quoted statement is a FRAGMENT of a longer description; read "this someone", "this something", "it", or a stray quote mark charitably, as a piece of a description of the word's normal situation. Answer yes if the statement says something that belongs to what the word means, or follows from it (typically-true counts as true; hedges claim only what they say). Answer no if it does not fit what the word means: false of it, only rarely or accidentally true of it, or nothing to do with it -- if what the word means neither says nor implies the statement, the answer is no, including statements so generic they say nothing about this word in particular. Answer "cannot say" ONLY if you cannot understand the statement well enough to judge it at all, or you genuinely cannot decide -- never merely because it is oddly worded, partial, or only typically true, and never as a soft no.
+
+Judge each item only against its own word; statements may repeat under different words -- never reuse an earlier answer or look for a pattern.
 
 Rules of conduct:
 
@@ -65,6 +66,7 @@ Nothing else is ever added to the prompt.
 | "Do not run any commands ... do not search or look anything up" | judge-1 README "Do not look anything up"; E5 leak-checked-judge discipline; enforced mechanically by the invocation's empty workdir + zero-tool-use gate |
 | "Do not write out reasoning or explanation. Respond with the JSON object only." | the fixed minimal-reasoning contract (with `model_reasoning_effort="low"` pinned at invocation): no chain-of-thought surface on which to reverse-engineer an intended answer; also what makes the reply machine-parseable |
 | output contract `{"answer": "<token>"}` | judge-2's analogue of judge-1's `response-template.csv`; same answer tokens byte-for-byte (`A/B/C/D/NONE`, `yes/no/cannot say`), so agreement is computed over one label alphabet; enforced by `--output-schema` |
+| judging standards block | §4.7 S1–S7, near-verbatim from judge-1 CSV lines 5–10 — one protocol for both judges |
 
 ## What is deliberately ABSENT (blinding — do not "fix" by adding)
 
