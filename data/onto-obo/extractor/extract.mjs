@@ -28,13 +28,14 @@
  * Usage: nice -n 10 node data/onto-obo/extractor/extract.mjs
  */
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, openSync, writeSync, closeSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   parseObo, tagMap, toUrn, isCurie, curiePrefix, stripIdValue,
   parseDef, parseSynonym, parseQuoted, ID_TAGS, BOOL_TAGS,
 } from './parse-obo.mjs';
+import { streamStanzas, makeSubsetFilter } from './stream-obo.mjs';
 
 /**
  * Pull the literal of a property_value line with the given predicate, e.g.
@@ -379,7 +380,7 @@ const EXTRACTED_PREFIXES = new Set(ONTOLOGIES.map((o) => o.id));
  * (NCBITaxon, foaf, COB). This is what keeps CL+UBERON from injecting ~3,852
  * identity-less foreign stub records.
  */
-function isOwnable(oboId) {
+export function isOwnable(oboId) {
   const p = curiePrefix(oboId);
   if (p === '') return true; // bare in-set relation/term name
   return EXTRACTED_PREFIXES.has(p);
@@ -393,7 +394,7 @@ function isOwnable(oboId) {
  * RO, so RO owns it). This dedups OBO import stubs: the same IRI re-declared
  * across ontologies yields ONE canonical record.
  */
-function computeOwners(loaded) {
+export function computeOwners(loaded) {
   const declaredBy = new Map(); // oboId -> [ontId in fixed order]
   for (const { ont, stanzas } of loaded) {
     for (const st of stanzas) {
@@ -444,7 +445,7 @@ function computeOwners(loaded) {
  * 0 unresolved, and the 10 GO+PO shorthands resolve to EXACTLY the retired alias
  * table's targets (GO/PO define answers unchanged).
  */
-function buildRelationResolver(loaded, owner) {
+export function buildRelationResolver(loaded, owner) {
   const emittedRel = new Set();   // toUrn(id) of every emitted relation record
   const xrefsById = new Map();    // Typedef id -> [xref tokens], unioned in load order
   for (const { ont, stanzas } of loaded) {
@@ -483,8 +484,11 @@ function buildRelationResolver(loaded, owner) {
   };
 }
 
-/** Emit one shard for an ontology, keeping only records it canonically owns. */
-function emitOntology({ ont, provenance, stanzas, dataVersion }, owner, resolveRel) {
+/** Emit one shard for an ontology, keeping only records it canonically owns.
+ * `outPath` (optional) overrides the default `join(ROOT, ont.out)` target — used
+ * only by the chunk-ingest equivalence test to write into a scratch dir; the
+ * production main() never passes it, so the frozen shard path is unchanged. */
+export function emitOntology({ ont, provenance, stanzas, dataVersion }, owner, resolveRel, outPath) {
   const lines = [];
   const stats = {
     records: 0, classes: 0, relations: 0,
@@ -534,8 +538,157 @@ function emitOntology({ ont, provenance, stanzas, dataVersion }, owner, resolveR
     }
   }
   const outText = lines.join('\n') + '\n';
-  writeFileSync(join(ROOT, ont.out), outText);
+  writeFileSync(outPath || join(ROOT, ont.out), outText);
   const shard = { records: stats.records, bytes: Buffer.byteLength(outText), sha256: sha256(outText) };
+  return { stats, shard, dataVersion, emittedUrns, provenance };
+}
+
+/**
+ * PRE-SCAN pass for a STREAMED (large) source (kernel-of-truth-1mv0). Reads the
+ * file once, streaming, holding only LIGHTWEIGHT per-id metadata so ownership +
+ * relation-resolution have correct GLOBAL context without materialising millions
+ * of parsed class stanzas. Returns a `loaded`-shaped `declEntry` ({ont, stanzas})
+ * whose `stanzas` are MINIMAL: one `[['id',oboId]]` Term stub per kept, non-obsolete
+ * declared id (so computeOwners assigns prefix-ownership correctly — e.g. a CHEBI
+ * id another shard previously stubbed as FOREIGN now becomes ChEBI-owned), and the
+ * full-enough Typedef stubs (id + xref) the relation resolver reads. Obsolete ids
+ * are dropped here exactly because computeOwners/buildRelationResolver skip them.
+ *
+ * The subset filter (ont.subset; the plan's "chunk/filter") is applied HERE, so
+ * excluded ids never enter the owner map or resolver — the same predicate is
+ * re-applied at emit, keeping the two passes consistent (proven in the test).
+ *
+ * Fail-closed on source drift: the streamed raw bytes are hashed as they are read
+ * and compared to ont.sha256 (ERR_SOURCE_HASH), same discipline as loadOntology,
+ * without a whole-file readFileSync.
+ */
+export function prescanStreamed(ont) {
+  const path = ont.sourcePath || join(SRC, ont.file);
+  if (!existsSync(path)) {
+    throw new Error(`ERR_SOURCE_MISSING: ${ont.file} not in source/ (re-download per README)`);
+  }
+  const filter = makeSubsetFilter(ont.subset);
+  const hash = createHash('sha256');
+  const minimalStanzas = [];
+  let dataVersion = null;
+  streamStanzas(path, {
+    hash,
+    onHeader: (header) => {
+      dataVersion = (header.find(([t]) => t === 'data-version') || [])[1] || null;
+    },
+    onStanza: (st) => {
+      if (st.type !== 'Term' && st.type !== 'Typedef') return;
+      const m = tagMap(st);
+      const idv = m.get('id');
+      if (!idv || idv.length === 0) return;
+      const oboId = idv[0].trim();
+      if ((m.get('is_obsolete') || []).some((v) => v.trim() === 'true')) return; // skipped downstream
+      if (!filter({ oboId, type: st.type })) return; // subset gate (consistent with emit)
+      if (st.type === 'Typedef') {
+        const tags = [['id', oboId]];
+        for (const x of m.get('xref') || []) tags.push(['xref', x]);
+        minimalStanzas.push({ type: 'Typedef', tags });
+      } else {
+        minimalStanzas.push({ type: 'Term', tags: [['id', oboId]] });
+      }
+    },
+  });
+  const gotSha = hash.digest('hex');
+  if (ont.sha256 && gotSha !== ont.sha256) {
+    throw new Error(`ERR_SOURCE_HASH: ${ont.file} sha256 ${gotSha} != pin ${ont.sha256}`);
+  }
+  const provenance = {
+    source: ont.sourceName,
+    sourcePurl: ont.purl,
+    sourceVersion: `sha256:${ont.sha256 || gotSha}`,
+    license: ont.license,
+    extractor: EXTRACTOR_NAME,
+    extractorVersion: EXTRACTOR_VERSION,
+    extractionDate: EXTRACTION_DATE,
+  };
+  return { ont, provenance, dataVersion, filter, declEntry: { ont, stanzas: minimalStanzas } };
+}
+
+/**
+ * STREAMING emit for a streamed source. Mirrors emitOntology's per-stanza logic
+ * EXACTLY (same ownership pre-filter, obsolete skip, stanzaToRecord call, dup
+ * gate, stats) but (a) pulls stanzas one at a time off disk instead of an in-memory
+ * array and (b) writes each record's JSON line incrementally while feeding the
+ * SAME bytes to a running sha256 — so the shard + its sha256 are byte-identical to
+ * what the whole-file path would produce for the same input (the equivalence the
+ * test pins), at O(one-stanza) peak memory. The subset filter (sm.filter) gates
+ * membership, identically to the pre-scan. The mirror is deliberately duplicated
+ * (not factored out of emitOntology) to keep the frozen whole-file path untouched.
+ */
+export function emitOntologyStreaming(sm, owner, resolveRel, outPath) {
+  const { ont, provenance, dataVersion, filter } = sm;
+  const target = outPath || join(ROOT, ont.out);
+  const stats = {
+    records: 0, classes: 0, relations: 0,
+    withLogicalDef: 0, genusDifferentia: 0, obsoleteSkipped: 0,
+    importedAliasesSkipped: 0, foreignStubsSkipped: 0, subsetFilteredSkipped: 0,
+    axiomsByRel: {}, differentiaProps: {},
+  };
+  const emittedUrns = new Set();
+  const hash = createHash('sha256');
+  const fd = openSync(target, 'w');
+  let outBuf = '';
+  let bytes = 0;
+  let first = true;
+  const flush = () => { if (outBuf) { writeSync(fd, outBuf); outBuf = ''; } };
+  const emitBytes = (chunk) => {
+    hash.update(chunk);
+    bytes += Buffer.byteLength(chunk);
+    outBuf += chunk;
+    if (outBuf.length >= (1 << 20)) flush();
+  };
+  try {
+    streamStanzas(ont.sourcePath || join(SRC, ont.file), {
+      onStanza: (st) => {
+        if (st.type !== 'Term' && st.type !== 'Typedef') return;
+        const pm = tagMap(st);
+        const pid = pm.get('id');
+        if (!pid || pid.length === 0) return;
+        const poboId = pid[0].trim();
+        const pObsolete = (pm.get('is_obsolete') || []).some((v) => v.trim() === 'true');
+        if (!pObsolete) {
+          // Subset gate FIRST (matches the pre-scan, which already excluded these
+          // from the owner map). Then the identical ownership pre-filter.
+          if (filter && !filter({ oboId: poboId, type: st.type })) { stats.subsetFilteredSkipped++; return; }
+          if (!isOwnable(poboId)) { stats.foreignStubsSkipped++; return; }
+          if (owner.get(poboId) !== ont.id) { stats.importedAliasesSkipped++; return; }
+        }
+        const r = stanzaToRecord(st, ont, provenance, resolveRel);
+        if (!r) return;
+        if (r.obsolete) { stats.obsoleteSkipped++; return; }
+        const rec = r.record;
+        if (emittedUrns.has(rec.id)) {
+          throw new Error(`ERR_OBO_DUP: duplicate id ${rec.oboId} in ${ont.file}`);
+        }
+        emittedUrns.add(rec.id);
+        emitBytes(first ? JSON.stringify(rec) : '\n' + JSON.stringify(rec));
+        first = false;
+        stats.records++;
+        if (r.kind === 'relation') stats.relations++; else stats.classes++;
+        if (r.hasLogicalDef) stats.withLogicalDef++;
+        if (r.genusDifferentia) stats.genusDifferentia++;
+        for (const ax of rec.axioms) {
+          stats.axiomsByRel[ax.rel] = (stats.axiomsByRel[ax.rel] || 0) + 1;
+        }
+        if (rec.logicalDefinition) {
+          for (const d of rec.logicalDefinition.differentiae) {
+            stats.differentiaProps[d.property] = (stats.differentiaProps[d.property] || 0) + 1;
+          }
+        }
+      },
+    });
+    // Trailing newline to match `lines.join('\n') + '\n'` (also the 0-record case).
+    emitBytes('\n');
+    flush();
+  } finally {
+    closeSync(fd);
+  }
+  const shard = { records: stats.records, bytes, sha256: hash.digest('hex') };
   return { stats, shard, dataVersion, emittedUrns, provenance };
 }
 
@@ -546,13 +699,30 @@ function main() {
   let totalRecords = 0;
   const results = {};
 
-  const loaded = ONTOLOGIES.map(loadOntology);
-  const owner = computeOwners(loaded);
-  const resolveRel = buildRelationResolver(loaded, owner);
+  // A source flagged `streamed:true` (large — ChEBI/NCBITaxon) is chunk-ingested:
+  // pre-scanned for lightweight ownership/resolver metadata, then streamed to its
+  // shard, so it never materialises millions of parsed stanzas (kernel-of-truth-1mv0).
+  // Regular sources keep the EXACT whole-file path. When no source is streamed
+  // (the current committed config), this is behaviourally identical to before.
+  const loaded = ONTOLOGIES.filter((o) => !o.streamed).map(loadOntology);
+  const streamMeta = ONTOLOGIES.filter((o) => o.streamed).map(prescanStreamed);
+  const byIdLoaded = new Map(loaded.map((ld) => [ld.ont.id, ld]));
+  const byIdStream = new Map(streamMeta.map((sm) => [sm.ont.id, sm]));
 
-  for (const ld of loaded) {
-    const ont = ld.ont;
-    const res = emitOntology(ld, owner, resolveRel);
+  // Owner/resolver context preserves ONTOLOGIES order so first-declarer semantics
+  // stay position-faithful regardless of which ontologies stream. A streamed source's
+  // declEntry contributes its (subset-filtered, non-obsolete) declared ids, which is
+  // what lets prefix-ownership reassign a formerly-FOREIGN id (e.g. a CHEBI stub in
+  // MONDO) to the new owner instead of leaving it a label-only stub.
+  const ownerInput = ONTOLOGIES.map((o) =>
+    byIdLoaded.has(o.id) ? byIdLoaded.get(o.id) : byIdStream.get(o.id).declEntry);
+  const owner = computeOwners(ownerInput);
+  const resolveRel = buildRelationResolver(ownerInput, owner);
+
+  for (const ont of ONTOLOGIES) {
+    const res = byIdLoaded.has(ont.id)
+      ? emitOntology(byIdLoaded.get(ont.id), owner, resolveRel)
+      : emitOntologyStreaming(byIdStream.get(ont.id), owner, resolveRel);
     results[ont.id] = res;
     shards[ont.out] = res.shard;
     sourceFiles[ont.file] = `sha256:${ont.sha256}`;
@@ -573,6 +743,7 @@ function main() {
       shard: ont.out,
       counts: res.stats,
       topDifferentiaProperties: topDiff,
+      ...(ont.subset ? { subsetPolicy: ont.subset } : {}),
     };
   }
 
@@ -590,7 +761,7 @@ function main() {
     extractor: {
       name: EXTRACTOR_NAME,
       version: EXTRACTOR_VERSION,
-      files: ['parse-obo.mjs', 'extract.mjs'],
+      files: ['parse-obo.mjs', 'extract.mjs', 'stream-obo.mjs'],
       contentHash: extractorContentHash(),
       hashRule: 'sha256 over concatenated bytes of listed files, in listed order',
     },
@@ -620,7 +791,7 @@ function main() {
 export function extractorContentHash() {
   const here = dirname(fileURLToPath(import.meta.url));
   const h = createHash('sha256');
-  for (const f of ['parse-obo.mjs', 'extract.mjs']) h.update(readFileSync(join(here, f)));
+  for (const f of ['parse-obo.mjs', 'extract.mjs', 'stream-obo.mjs']) h.update(readFileSync(join(here, f)));
   return h.digest('hex');
 }
 
