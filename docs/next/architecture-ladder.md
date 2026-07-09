@@ -664,6 +664,10 @@ level without blocking the others). Rungs 4–8 involve training and inherit
 POST-F2-INFRA-OPEN gating; L2c-lite sits at rank 5 because its surface *feeds
 design points into* ranks 6–8 (running L2a/L2b at an unswept φ would re-import the
 confound L2c exists to remove); L2c-full and L2b carry the strictest gates.
+Unranked by design: the leaderboard-benchmark eval surface (§10) — a recurring,
+coverage-gated *measurement* over public benchmarks (b-cov census now; LB-1 after
+f2b-TRANSFER + the LB-GATE census yield), which prices passed mechanisms rather than
+deciding architecture.
 
 ### 6.2 How the F2 verdict re-ranks the ladder
 
@@ -836,6 +840,178 @@ falsification-shaped arm. Two consequences bind on this ladder now:
 
 ---
 
+## 10. N1-LB — the leaderboard-benchmark eval surface (maintainer-tasked 2026-07-09; coverage-gated, covered-slice-only)
+
+**The question, and the honest answer today.** The maintainer asks how good the
+**best** kernel support actually does against the benchmarks used on LLM leaderboards
+(MMLU / ARC / GSM8K / HellaSwag / TruthfulQA / …), and where that evaluation belongs
+in the plan. The current answer is already MEASURED, and it is this section's design
+constraint: in f2b-replicate the strongest supported configuration —
+kernel-verify-retry, the arm that beat 1.7B-alone by +15.1 pp at 0.103× cost on the
+covered self-authored slice — was **byte-identical to model-alone on all 500
+externally-authored OpenBookQA (d-ext) items at every seed**: every d-ext item is
+`kernel_checkable = false`, so the verifier abstains on 100% of them by construction
+(registry/assessments/f2b-replicate.json; results-log/f2b-replicate.jsonl). Sharper
+still, the d-ext build measured **lemma-touch coverage ≈49%** (2,903/5,957 OpenBookQA
+rows pass the R-C covered-lemma filter) coexisting with **item-checkability = 0**
+(data/d-ext/manifest.json): vocabulary coverage and *checkability* — a canonical
+record plus a decidable check actually backing the item — are different quantities,
+and checkability is the binding one. A naive "kernel on MMLU" run today therefore
+measures how little the kernel covers, not how good it is where it applies, and a
+~0-engagement score would read as misleadingly "bad". The value theses remain
+correctness + efficiency (directives §2), not broad-knowledge leaderboard-beating.
+
+**What this surface is.** Not a rung — rungs change *where* the kernel touches the
+model; this is a recurring **measurement surface** over public benchmarks, in two
+artefacts: (1) a Tier-0 census instrument tracking each benchmark's checkable slice
+as the kernel grows, and (2) a coverage-gated Tier-1–2 augmentation eval measuring
+value-add **on the checkable slice only, at matched compute**, with the blended
+benchmark score reported only as the arithmetic identity it is (§10.5).
+
+### 10.1 b-cov — the benchmark-checkability census (Tier 0, ~$0, now-eligible; m0b's sibling)
+
+Deterministic, CPU-only, no model calls, no annotators (the m0b / c-m0b-1 census
+pattern). Per benchmark B (pinned HF revision + per-file hashes — the d-ext sourcing
+discipline, fail-closed on provenance):
+
+- **N_total**, plus two per-item quantities at the current kernel/world-layer version:
+  - **lemma-touch** (cheap upper sieve): the d-ext R-C filter verbatim — ≥1 covered
+    content lemma in the supporting fact/stem AND in stem+gold-answer (M0b lemma
+    machinery, FUNCTION_STOPLIST honoured).
+  - **kernel_checkable, mode-indexed** (the real gate): κ_B^verify = the fraction of
+    items the F2-line verifier can actually decide (P10 extraction target expressible
+    + canonical record backing the decidable proposition — the same predicate the
+    runtime verifier uses, computed without any model); κ_B^engine = the fraction
+    whose stem+gold parse under the deterministic mapper + closed kot-axiom/1 query
+    grammar into a query the L3 engine answers from records (L3a machinery;
+    gold-parse and mapper-parse counted separately — §8 item 14 stage-indictment).
+- Output keyed by {benchmark revision pins, kernel kot-corpus-hashes, world-layer
+  hash, mapper hash, grammar version}; appended per kernel version to a trajectory
+  log. Envelope, m0b-verbatim pattern: benchmark-indexed — the number extrapolates to
+  NO other benchmark or kernel version and is restated verbatim in every LB verdict
+  (P2 G-7).
+- Cost tier 0 (this box). No gate to run; re-run at every kernel-version change (mint
+  waves, world-layer ingests, grammar growth) — this is the covered-slice-growth
+  instrument the maintainer's question ultimately needs.
+
+### 10.2 Benchmark triage (registered prior — STIPULATED; the census converts each cell to MEASURED before any GPU spend)
+
+"Tier" means "the item *type* is kernel-shaped", **not** "checkable today" — the
+measured warning is exactly d-ext: ≈49% lemma-touch, 0% checkable.
+
+| Tier | Benchmarks | Item type (why) | Expected checkability route |
+|---|---|---|---|
+| **A — census first** | WiC (lexical/definitional; the d-ext preference-walk rank-1 source, needs authenticated sourcing); OpenBookQA (core-science facts; lemma-touch ≈49% measured, checkable 0 today — the canonical growth target, corpus already pinned); ARC-Easy (grade-school science, many simple-declarative items); CommonsenseQA (ConceptNet-derived — relational/lexical by construction); TruthfulQA-mc (misconception items over common concepts); BoolQ (yes/no simple-factual); MMLU **per-subject**, definitional-heavy subjects only | definitional / lexical / entailment / simple-declarative-fact — the kernel-shaped types | definition growth (haiku-tier mint) for the lexical set; world-layer / structured-DB records + query-grammar growth for the factual set |
+| **B — census cheap; run only on Tier-A yield** | ARC-Challenge; remaining MMLU subjects; RTE/NLI-class entailment slices | mixed; minority kernel-shaped subsets | same |
+| **C — essentially none by construction (record why; spend nothing)** | GSM8K / MATH (multi-step arithmetic — no kernel arithmetic; would need the math-basis vocabulary extension, a separate idea); HellaSwag, WinoGrande (narrative/commonsense plausibility — no kernel-decidable proposition); HumanEval/MBPP (code — the structured-data-parser lane, separate); TriviaQA/NQ-class broad trivia (fact-coverage-bound; world-layer authoring cost dominates until structured-DB ingestion is real); BBH / multi-hop suites (composition beyond the v0 grammar) | no kernel-decidable proposition at v0 | revisit only when the named dependency exists |
+
+### 10.3 LB-1 — the covered-slice augmentation eval (Tier 1–2, gated by §10.4)
+
+Structurally: **f2b-TRANSFER scaled onto named public benchmarks** — same harness
+lineage, external-authorship discipline (items reproduced verbatim, deterministic
+selection, no LLM touching item text), eval restricted to the census-checkable slice.
+
+- **Arms (per benchmark × rung):** model-alone; kernel-verify-retry at the
+  pre-registered k (the only mechanism with a MEASURED PASS; enters only if
+  f2b-TRANSFER passes); shuffled-kernel-verify (content control — the H-STRUCT
+  discipline); kernel-as-text null at matched token budget (Law 2); gloss-text
+  self-verify-retry at matched budget (commodity-verification null). Later modes join
+  only after their own rung PASSes: L1a canonicalisation (robustness rider), L3b
+  routed-hybrid (the engine answers checkable items directly — the likely efficiency
+  winner on simple-factual slices), grounding-lint (generative variants; own design
+  pending). **No mechanism is discovered here** — the surface measures the
+  transfer/ecological validity and the deployed cost of already-passed mechanisms.
+- **Rungs:** R1 + R3 minimum (sign-only language); a third rung (R4-family) before
+  any trend adjective (P8 §2.3).
+- **DVs:** checkable-slice accuracy (primary, paired per item); full metric vector V
+  (F0 accounting, retries on the ledger; the efficiency headline is the cost_ratio
+  framing — small+kernel vs large-alone on the checkable slice); runtime
+  engagement/abstention rate; model-alone accuracy on checkable vs non-checkable
+  slices (selection-effect disclosure, mandatory); blended-benchmark delta
+  (descriptive only, §10.5).
+- **Kills (forms fixed here; margins at freeze):** kernel arm ≤ kernel-as-text OR
+  ≤ gloss-self-verify at matched budget on the checkable slice (Law-2 / commodity
+  kill); shuffled recovery ≥ the pre-declared fraction (content-specificity kill);
+  runtime engagement below a pre-declared floor on the census-checkable slice
+  (census predicate and runtime verifier disagree ⇒ INSTRUMENT-INVALID — fix the
+  census, never reinterpret).
+- **Cost:** Tier 1–2, ~$20–80 per wave (inference-only; F2/f2b Modal harness reuse).
+
+### 10.4 LB-GATE — the coverage milestone that makes a run informative rather than coverage-dominated
+
+All of, before any LB-1 freeze:
+
+1. **f2b-TRANSFER PASS.** The verifier lift must first survive externally-authored
+   kernel-covered items at all — the definitional-circularity confound is still open
+   (f2b-replicate assessment, does_not_license), and f2b-TRANSFER
+   (registry/experiments/f2b-transfer.json, gate now open) is exactly that test. A
+   FAIL kills verify-retry's seat here; LB-1 then waits for the next passed mode
+   (L3b or L1a), not for a re-run.
+2. **Census yield:** ≥500 checkable items each on ≥2 distinct external benchmarks at
+   the current kernel version, measured by b-cov (powering: f2b's advisor sizing
+   gave ~0.92 one-sided power at n=250×3 seeds for Δ≈0.10; 500 buys headroom for
+   smaller transfer effects — STIPULATED planning constant, re-sized at freeze via
+   `--dry-plan`).
+3. **Headline-eligibility thresholds per benchmark** (maintainer may reset at
+   freeze — the m0b-X pattern): κ_B ≥ 0.10 checkable ⇒ covered-slice headline
+   permitted with the mandatory coverage sentence; κ_B ≥ 0.20 ⇒ banner-free
+   (mirrors m0b's pre-declared X = 20% NICHE-SCOPE default); κ_B < 0.10 ⇒
+   descriptive-only, trajectory log only. Why 0.10: below it even an f2b-sized
+   covered lift moves the blended benchmark < 1.5 pp (the §10.5 identity), so a
+   headline either oversells the slice or drowns in the disclaimer; at ≥0.10 a real
+   covered win is simultaneously a visible blended effect.
+4. **Maintainer sign-off** on the benchmark list + thresholds (spend rule).
+
+Expected route to the gate, named: haiku-tier mint waves (definition growth — serves
+the lexical Tier-A set), world-layer population via structured-DB ingestion (fact
+checkability — the binding constraint per d-ext), query-grammar growth (FK-L3-3).
+Likeliest first pairs to clear §10.4(2) [STIPULATED]: {OpenBookQA, ARC-Easy} via
+science-fact world-layer ingestion, or {WiC, CommonsenseQA} via definition/molecule
+growth alone (no world layer needed; the mapper's in-context sense resolution is the
+risk the census will price). The gate is evaluated on census output, never estimated.
+
+### 10.5 Reporting discipline (binding on every LB number, internal or external)
+
+1. **Coverage-first:** every number carries, in the same sentence or table row,
+   κ_B + N_checkable/N_total + census hash + kernel version. The f2b envelope rule
+   applies verbatim: a covered-slice number quoted without its coverage re-classifies
+   as EXTRAPOLATION (engine law 9).
+2. **The blended-score identity, stated to pre-empt both misreads:** off-slice
+   outputs are byte-identical to model-alone by construction (MEASURED, d-ext), so
+   blended Δ_B = κ_B × Δ_covered exactly. Blended scores are derived,
+   descriptive-only, never a headline — and never quotable as evidence the kernel is
+   "bad" either: a ~0 blended delta at low κ_B is the coverage ceiling, expected by
+   construction (§8 item 15 expected-cell discipline).
+3. **Forbidden phrasing:** "beats/improves <benchmark> by X". The licensed template:
+   "on the κ_B = x checkable slice of <benchmark> (N = n of N_total), <mode> moved
+   accuracy a→b at c× compute; the remaining 1−κ_B is untouched by construction."
+4. **Selection-effect disclosure:** model-alone accuracy on checkable vs
+   non-checkable slices side by side in every report — the checkable slice is not a
+   random sample, and a covered-slice win must never be read as representative.
+5. **The deliverable is the trajectory:** the durable answer to "how good is the best
+   kernel support on leaderboard benchmarks" is the per-benchmark time series
+   (κ_B, Δ_covered, cost_ratio) across kernel versions — covered-slice value × growing
+   coverage — not any single run. The NICHE-SCOPE banner (m0b machinery) is mandatory
+   below the §10.4(3) thresholds.
+
+### 10.6 Placement in the roadmap
+
+- **b-cov census: now-eligible** (Tier 0, ~$0, no gate). First run establishes the
+  baseline trajectory point at the current kernel; re-runs keyed to kernel-version
+  changes, not calendar.
+- **LB-1: a coverage-gated recurring milestone tied to the efficiency track** (F0
+  accounting; the cost_ratio headline). It sits after f2b-TRANSFER in the correctness
+  lane and after the first coverage-growth wave that clears §10.4(2). It does **not**
+  enter §6.1's rung ranking because it decides no architecture — it *prices*
+  already-decided mechanisms on ecologically-valid ground, recurringly, and its
+  entry/exit is LB-GATE in / verdict + trajectory-point out.
+- Registry: `idea-leaderboard-benchmark-eval` (registry/ideas.jsonl) carries this
+  section as its scoped design; promotion to candidate/prereg follows research-engine
+  discipline when LB-GATE is within reach. Nothing in this section creates or
+  freezes a registry entry.
+
+---
+
 *Cross-references:* `docs/next/arch-survey.md` (N0 — survey, forks N-A1/N-B1/N-C3,
 laws §1.4); `docs/kernel-design-directives.md` (binding); `docs/design-constraint-layer.md`
 §3 (`kot-axiom/1` grammar, litmus encoding, sidecar strata); `docs/research-plan/01-hypotheses-experiments.md`
@@ -844,4 +1020,6 @@ laws §1.4); `docs/kernel-design-directives.md` (binding); `docs/design-constrai
 template, rung-set discipline); `docs/research-plan/10-model-record-interface.md`
 (P10); `mapper/README.md` (Phase M, `a1-hybrid`); `registry/status.json` (tier caps,
 freeze state); `reports/lit-llm-injection-priorart.md` (L3 laws);
-`docs/next/kernel-introduction-schedule.md` (N1-S — schedule axis σ, §9).
+`docs/next/kernel-introduction-schedule.md` (N1-S — schedule axis σ, §9);
+`registry/ideas.jsonl` (`idea-leaderboard-benchmark-eval` — N1-LB, §10) +
+`data/d-ext/manifest.json` (the lemma-touch-vs-checkability datum §10 rests on).
