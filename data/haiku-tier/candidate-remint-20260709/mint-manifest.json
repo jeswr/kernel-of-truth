@@ -1,0 +1,18 @@
+{
+  "corpus": "haiku-tier",
+  "snapshotNote": "live stream snapshot; see identityPayload",
+  "minting": {
+    "profileHeader": "kot-haiku/1\n",
+    "mintedCount": 2673,
+    "uniqueUrnCount": 2673,
+    "mintToolHash": "4b65ee17e108ffb6f43ed6f539e9d0861ba7474fc811c1b878fd48334f8e00ae",
+    "corpusIdentityRoot": "b219cbf49e6b00a3360f41f6d7ddf4453f012b9ba9f56e5b7404be93270a62a4",
+    "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
+    "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
+    "referenceMode": "stable",
+    "identityPayload": "Identity = {sourceId (lemma), schema, semanticStatus, candidateStatus, kind, and the definitional content: groundingNote/groundingRefs/moleculeDepth (molecule-kind) or the kot-ast/1 `record` (explication-kind)}. label/gloss/gatesPassed/researchGrade/provenance are annotation. STABLE ids: grounding refs are cross-corpus (kernel-v0/molecules-v0) and embedded in prose {urn:...|gloss} tokens — never rewritten (same rule as molecules-v0). LIVE-STREAM SNAPSHOT: records/ is being written concurrently by the volume runner; mintedCount reflects the snapshot at mint time, not a closed corpus.",
+    "duplicateIdentityGroups": 0,
+    "cyclicComponents": [],
+    "mintDate": "2026-07-07"
+  }
+}
