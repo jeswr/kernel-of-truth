@@ -3,7 +3,7 @@
 
     python3 tools/registry/registry-check.py [--root <repo>]
         [--chain] [--frozen-drift] [--corpus-pins] [--account-lint] [--append-only]
-        [--claims]
+        [--claims] [--kb]
 
 With no selector flags, ALL checks run. Exit 0 only if every check passes;
 any violation prints a named ERR_* finding and exits 1.
@@ -36,6 +36,14 @@ Checks:
                   decision 2026-07-09): a load-bearing EXTRAPOLATION, an
                   untagged/extrapolation-tagged premise line, or an
                   unregistered/unknown ASM citation blocks the push.
+  --kb            the Pillar-C KB lint (tools/kb/kb-check), fail-closed
+                  (assumption-register.md §6 item 3, ENABLED by maintainer
+                  decision 2026-07-09 on Pillar-C landing): kot-lit/1 record
+                  validity, generated-only internal records, shard/manifest
+                  pins, and THE LIT-BACKED BACKING GATE — a claim tagged
+                  LIT-BACKED (register entry or marker line) must resolve to
+                  a committed kot-lit/1 record or carry a paper id/year.
+                  Skips cleanly when the root has no KB.
 
 Usable as a pre-push hook:
   ln -s ../../tools/registry/registry-check.py .git/hooks/pre-push
@@ -271,6 +279,34 @@ def check_claims(root, f):
               % (p.returncode, (p.stderr or p.stdout).strip()[:400]))
 
 
+def check_kb(root, f):
+    """kb-check over the Pillar-C KB + the LIT-BACKED backing gate
+    (assumption-register.md §6 item 3, ENABLED 2026-07-09 on Pillar-C
+    landing). Runs the standalone lint as a subprocess so its CLI surface
+    stays the single implementation; findings are replayed with their own
+    ERR_KB_* codes. Fail-closed: any nonzero exit is a violation; a root
+    without a KB skips cleanly."""
+    script = os.path.join(root, "tools", "kb", "kb-check")
+    if not os.path.isfile(script):
+        if os.path.isdir(os.path.join(root, "kb")):
+            f.err("ERR_KB_TOOLING", "kb/ exists at this root but tools/kb/kb-check is missing")
+        else:
+            f.ok("kb: no KB at this root")
+        return
+    p = subprocess.run([sys.executable, script, "--root", root],
+                       capture_output=True, text=True)
+    if p.returncode == 0:
+        f.ok("kb: kb-check passes (records, internal sync, shard pins, LIT-BACKED backing gate)")
+        return
+    failures = [l for l in (p.stderr + p.stdout).splitlines() if l.startswith("ERR_")]
+    for line in failures:
+        code, _, msg = line.partition(": ")
+        f.err(code or "ERR_KB_CHECK", msg)
+    if not failures:
+        f.err("ERR_KB_CHECK", "kb-check exited %d without named findings: %s"
+              % (p.returncode, (p.stderr or p.stdout).strip()[:400]))
+
+
 def main():
     ap = argparse.ArgumentParser(description="Verify registry + results-log integrity (fail-closed).")
     ap.add_argument("--root", default=None)
@@ -280,13 +316,14 @@ def main():
     ap.add_argument("--account-lint", action="store_true")
     ap.add_argument("--append-only", action="store_true")
     ap.add_argument("--claims", action="store_true")
+    ap.add_argument("--kb", action="store_true")
     # pre-push hooks pass "<remote> <url>" positionals; accept and ignore them.
     ap.add_argument("hook_args", nargs="*", help=argparse.SUPPRESS)
     args = ap.parse_args()
 
     root = args.root or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     run_all = not (args.chain or args.frozen_drift or args.corpus_pins
-                   or args.account_lint or args.append_only or args.claims)
+                   or args.account_lint or args.append_only or args.claims or args.kb)
 
     f = Findings()
     if run_all or args.chain:
@@ -301,6 +338,8 @@ def main():
         check_append_only(root, f)
     if run_all or args.claims:
         check_claims(root, f)
+    if run_all or args.kb:
+        check_kb(root, f)
 
     if f.items:
         print("registry-check: %d violation(s)" % len(f.items))

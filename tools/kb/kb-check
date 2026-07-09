@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""kb-check — fail-closed lint for the Pillar-C literature KB (N-C §2.2/§2.4).
+
+Checks (exit 1 on any violation, named ERR_KB_* codes; same conventions as
+tools/registry/registry-check.py):
+
+  records   kb/records/*.json      schema kot-lit/1; canonical bytes;
+                                   record_sha256; id/filename agreement;
+                                   quantitative claims carry metric+value+dataset;
+                                   THE EVIDENCE RULE: evidence tag above
+                                   "claimed" requires evidence_ref citing a
+                                   lit-report anchor (N-C §0/§2.2) — KB records
+                                   are recall infrastructure, not evidence;
+                                   audit.by is a pseudonym or null (RT-14)
+  internal  kb/records/internal/*  schema kot-lit-internal/1 AND byte-equality
+                                   with tools/kb/kb-sync-internal regeneration
+                                   (generated-only law, N-C §2.4)
+  queue     kb/queue/candidates.jsonl  required fields, id grammar, unique ids
+  shards    kb/chunks/ + kb/embeddings/  row alignment; manifest sha256 pins
+  manifest  kb/manifest.json       embedder pin fields match kb_common.EMBEDDER
+  lit-backed  registry/assumptions.jsonl + docs/**/*.md   THE LIT-BACKED BACKING
+                                   GATE (assumption-register.md §6 item 3,
+                                   ENABLED 2026-07-09): a claim tagged
+                                   LIT-BACKED — a register entry, or a
+                                   PREMISE/DECISION/LOAD-BEARING marker line —
+                                   must resolve to a committed kot-lit/1 record
+                                   (a kot-lit:<id> / kb/records/... citation
+                                   whose record file exists) or carry a paper
+                                   id/year (arXiv/DOI/year). A citation that
+                                   CLAIMS KB backing but does not resolve is
+                                   ERR_KB_LIT_UNRESOLVED; a ref with neither a
+                                   resolving record nor a paper id/year is
+                                   ERR_KB_LIT_BACKING. Enforcement surface
+                                   mirrors claims-check (marker lines + the
+                                   register); off-marker prose tags are recall
+                                   annotations, not premises.
+
+Usage: tools/kb/kb-check [--root <repo>]
+"""
+
+import argparse
+import glob
+import hashlib
+import importlib.util
+import json
+import os
+import re
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kb_common as K  # noqa: E402
+
+
+def _fail(errors, code, msg):
+    errors.append("%s: %s" % (code, msg))
+
+
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def check_record_file(path, schema, errors):
+    with open(path, "rb") as f:
+        raw = f.read()
+    try:
+        rec = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as e:
+        _fail(errors, "ERR_KB_PARSE", "%s: %s" % (path, e))
+        return
+    # canonical-bytes law (N-C §2.1: canonical JSON, newline-terminated)
+    if raw != K.canonical_bytes(rec) + b"\n":
+        _fail(errors, "ERR_KB_CANONICAL", "%s: file bytes are not canonical JSON + newline" % path)
+    for v in K.validate_schema(rec, schema):
+        _fail(errors, "ERR_KB_SCHEMA", "%s: %s" % (path, v))
+    if not isinstance(rec, dict):
+        return
+    rid = rec.get("id", "")
+    expected = os.path.basename(K.record_path(rid)) if rid else None
+    if expected and os.path.basename(path) != expected:
+        _fail(errors, "ERR_KB_ID_PATH", "%s: id %r expects filename %s" % (path, rid, expected))
+    if rec.get("record_sha256") != K.record_hash(rec):
+        _fail(errors, "ERR_KB_HASH", "%s: record_sha256 does not match canonical bytes" % path)
+    for claim in rec.get("claims", []) or []:
+        if not isinstance(claim, dict):
+            continue
+        cid = "%s claim %s" % (path, claim.get("claim_id"))
+        if claim.get("type") == "quantitative":
+            for field in ("metric", "value", "dataset"):
+                if claim.get(field) is None:
+                    _fail(errors, "ERR_KB_CLAIM_FIELDS",
+                          "%s: quantitative claim missing %s (Law-2: a number without its "
+                          "anchors is a decoration)" % (cid, field))
+        ev = claim.get("evidence")
+        if ev == "established":
+            ref = claim.get("evidence_ref") or ""
+            if not K.EVIDENCE_REF_RE.search(ref):
+                _fail(errors, "ERR_KB_EVIDENCE_UPGRADE",
+                      "%s: evidence 'established' without a lit-report anchor in evidence_ref "
+                      "(N-C §0: only a lit-report verification pass may upgrade)" % cid)
+    audit_by = (rec.get("provenance") or {}).get("audit", {}).get("by")
+    if audit_by is not None:
+        try:
+            K.require_pseudonym(audit_by, "%s provenance.audit.by" % path)
+        except K.KotError as e:
+            _fail(errors, e.code, str(e))
+
+
+def check_internal(errors):
+    idir = os.path.join(K.RECORDS_DIR, "internal")
+    files = sorted(f for f in os.listdir(idir) if f.endswith(".json")) if os.path.isdir(idir) else []
+    if not files:
+        return
+    schema = K.load_schema("kot-lit-internal-1.json")
+    # generated-only law: regenerate to a temp dir and demand byte equality
+    tmp = os.path.join(K.CACHE_DIR, "kb-check-internal-regen")
+    gen = os.path.join(os.path.dirname(os.path.abspath(__file__)), "kb-sync-internal")
+    r = subprocess.run([sys.executable, gen, "--out", tmp], capture_output=True, text=True)
+    if r.returncode != 0:
+        _fail(errors, "ERR_KB_INTERNAL_GEN", "kb-sync-internal regeneration failed: %s" % r.stderr.strip())
+        return
+    regen = set(os.listdir(tmp))
+    for name in files:
+        path = os.path.join(idir, name)
+        with open(path, "rb") as f:
+            raw = f.read()
+        try:
+            rec = json.loads(raw.decode("utf-8"))
+            for v in K.validate_schema(rec, schema):
+                _fail(errors, "ERR_KB_SCHEMA", "%s: %s" % (path, v))
+        except (UnicodeDecodeError, json.JSONDecodeError) as e:
+            _fail(errors, "ERR_KB_PARSE", "%s: %s" % (path, e))
+        if name not in regen:
+            _fail(errors, "ERR_KB_INTERNAL_ORPHAN",
+                  "%s: no registry object regenerates it (hand-written? source deleted?)" % path)
+        else:
+            with open(os.path.join(tmp, name), "rb") as f:
+                if f.read() != raw:
+                    _fail(errors, "ERR_KB_INTERNAL_EDITED",
+                          "%s: bytes differ from kb-sync-internal output — internal records are "
+                          "GENERATED ONLY (N-C §2.4)" % path)
+        # RT-14 applies to internal records (they restate registry objects)
+        findings = K.account_lint(raw)
+        for desc, text in findings:
+            _fail(errors, "ERR_P2_ACCOUNT_IN_RECORD", "%s: %s (%r)" % (path, desc, text))
+    for name in sorted(regen - set(files)):
+        _fail(errors, "ERR_KB_INTERNAL_STALE",
+              "registry object regenerates kb/records/internal/%s but it is not committed — "
+              "run tools/kb/kb-sync-internal" % name)
+
+
+def check_queue(errors):
+    if not os.path.exists(K.QUEUE_PATH):
+        return
+    seen = set()
+    try:
+        rows = K.read_jsonl(K.QUEUE_PATH)
+    except K.KotError as e:
+        _fail(errors, e.code, str(e))
+        return
+    for i, row in enumerate(rows):
+        where = "%s line %d" % (K.QUEUE_PATH, i)
+        for field in ("schema_version", "id", "title", "source", "status", "queued_at"):
+            if field not in row:
+                _fail(errors, "ERR_KB_QUEUE_SCHEMA", "%s: missing %r" % (where, field))
+        if row.get("schema_version") != "kot-lit-queue/1":
+            _fail(errors, "ERR_KB_QUEUE_SCHEMA", "%s: bad schema_version" % where)
+        rid = row.get("id", "")
+        if not K.ID_RE.match(rid):
+            _fail(errors, "ERR_KB_QUEUE_ID", "%s: id %r not in canonical grammar" % (where, rid))
+        if row.get("status") not in ("queued", "triaged", "extracted", "skipped"):
+            _fail(errors, "ERR_KB_QUEUE_SCHEMA", "%s: bad status %r" % (where, row.get("status")))
+        if rid in seen:
+            _fail(errors, "ERR_KB_QUEUE_DUP", "%s: duplicate id %r" % (where, rid))
+        seen.add(rid)
+
+
+def check_shards_and_manifest(errors):
+    have_shards = os.path.isdir(K.EMBEDDINGS_DIR) and any(
+        f.endswith(".f16.npy") for f in os.listdir(K.EMBEDDINGS_DIR)
+    )
+    if not os.path.exists(K.MANIFEST_PATH):
+        if have_shards:
+            _fail(errors, "ERR_KB_MANIFEST", "embedding shards exist but kb/manifest.json is missing")
+        return
+    with open(K.MANIFEST_PATH, "r", encoding="utf-8") as f:
+        man = json.load(f)
+    emb = man.get("embedder", {})
+    for field in ("hf_repo", "hf_revision", "onnx_sha256", "dim_committed", "doc_prefix", "query_prefix"):
+        if emb.get(field) != K.EMBEDDER[field]:
+            _fail(errors, "ERR_KB_PIN_DRIFT",
+                  "manifest embedder.%s=%r != kb_common pin %r — embedder changes are a KB "
+                  "version change, never a silent swap (N-C §1.2)" % (field, emb.get(field), K.EMBEDDER[field]))
+    shards = man.get("shards", {})
+    on_disk = {}
+    for d, suffix in ((K.CHUNKS_DIR, ".jsonl"), (K.EMBEDDINGS_DIR, ".f16.npy")):
+        if os.path.isdir(d):
+            for name in sorted(os.listdir(d)):
+                if name.endswith(suffix):
+                    on_disk[os.path.join(os.path.basename(d), name)] = _file_sha256(os.path.join(d, name))
+    for rel, pin in sorted(shards.items()):
+        if rel not in on_disk:
+            _fail(errors, "ERR_KB_SHARD_MISSING", "manifest pins %s but file is absent" % rel)
+        elif on_disk[rel] != pin:
+            _fail(errors, "ERR_KB_SHARD_HASH", "%s sha256 %s != manifest pin %s" % (rel, on_disk[rel], pin))
+    for rel in sorted(set(on_disk) - set(shards)):
+        _fail(errors, "ERR_KB_SHARD_UNPINNED", "%s exists but is not pinned in kb/manifest.json" % rel)
+    # row alignment
+    try:
+        K.load_shards()
+    except K.KotError as e:
+        _fail(errors, e.code, str(e))
+
+
+# ---------------------------------------------------------------------------
+# The LIT-BACKED backing gate (assumption-register.md §6 item 3, ENABLED
+# 2026-07-09 on Pillar-C landing). The lint GRAMMAR (logical-line joining,
+# tag regex, paper-id/year shapes) is claims-check's — tools/registry is law,
+# nothing re-implemented — loaded by file path since the module name carries
+# a hyphen.
+
+# Canonical-id citations (N-C §2.1 grammar, matched case-insensitively so the
+# prose form arXiv:2412.09764 also resolves when the record is committed).
+CANON_ID_CITE_RE = re.compile(r"\b((?:arxiv|doi|url):[^\s,;()\[\]]+)", re.IGNORECASE)
+KB_RECORD_PATH_CITE_RE = re.compile(r"\bkb/records/([A-Za-z0-9._-]+\.json)\b")
+KOT_LIT_MENTION_RE = re.compile(r"\bkot-lit\b", re.IGNORECASE)
+
+
+def _load_claims_check():
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "..", "registry", "claims-check.py")
+    spec = importlib.util.spec_from_file_location("claims_check_mod", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _record_file(records_dir, rec_id):
+    safe = rec_id.replace(":", "_").replace("/", "_")
+    return os.path.join(records_dir, safe + ".json")
+
+
+def _check_lit_ref(ref, records_dir, where, errors, cc):
+    """One LIT-BACKED backing ref: resolve or name the violation."""
+    ref = (ref or "").strip()
+    ids = [m.group(1).lower().rstrip(".,;:") for m in CANON_ID_CITE_RE.finditer(ref)]
+    paths = KB_RECORD_PATH_CITE_RE.findall(ref)
+    resolved = [i for i in ids if os.path.isfile(_record_file(records_dir, i))]
+    resolved += [p for p in paths if os.path.isfile(os.path.join(records_dir, p))]
+    claims_kb_backing = bool(KOT_LIT_MENTION_RE.search(ref) or paths)
+    if claims_kb_backing and not resolved:
+        _fail(errors, "ERR_KB_LIT_UNRESOLVED",
+              "%s: LIT-BACKED ref %r cites the KB (kot-lit / kb/records) but no committed "
+              "kb/records file resolves it (§6 item 3: a KB citation must resolve)" % (where, ref))
+    elif not resolved and not cc.LIT_REF_RE.search(ref):
+        _fail(errors, "ERR_KB_LIT_BACKING",
+              "%s: LIT-BACKED ref %r resolves to no kot-lit/1 record and carries no paper "
+              "id/year (arXiv/DOI/year) — recall infrastructure is not evidence, but backing "
+              "must at least name the source (assumption-register.md §1)" % (where, ref))
+
+
+def check_lit_backed(root, errors):
+    """LIT-BACKED backing gate over the register + docs marker lines."""
+    records_dir = os.path.join(root, "kb", "records")
+    cc = _load_claims_check()
+    # 1. register entries (append-only: the last line for an id is current)
+    reg_path = os.path.join(root, "registry", "assumptions.jsonl")
+    current = {}
+    if os.path.isfile(reg_path):
+        with open(reg_path, "r", encoding="utf-8") as fh:
+            for i, line in enumerate(fh):
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue  # claims-check owns the parse finding
+                if isinstance(entry, dict) and isinstance(entry.get("id"), str):
+                    current[entry["id"]] = (i + 1, entry)
+    for eid in sorted(current):
+        lineno, entry = current[eid]
+        if entry.get("tag") == "LIT-BACKED":
+            where = "%s line %d (%s)" % (reg_path, lineno, eid)
+            _check_lit_ref(entry.get("backing_ref"), records_dir, where, errors, cc)
+    # 2. docs: [LIT-BACKED: ...] tags on PREMISE/DECISION/LOAD-BEARING marker
+    #    lines (same enforcement surface as claims-check; wrapped bullets are
+    #    joined into logical lines by the same code)
+    for path in sorted(glob.glob(os.path.join(root, "docs", "**", "*.md"), recursive=True)):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                text = fh.read()
+        except (OSError, UnicodeDecodeError):
+            continue  # claims-check owns the IO finding
+        for lineno, line in cc.logical_lines(text):
+            if not cc.MARKER_RE.search(line):
+                continue
+            for tag, ref in cc.TAG_RE.findall(line):
+                if tag == "LIT-BACKED":
+                    _check_lit_ref(ref, records_dir, "%s line %d" % (path, lineno), errors, cc)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--root", default=K.REPO_ROOT)
+    args = ap.parse_args()
+    root = os.path.abspath(args.root)
+    if root != K.REPO_ROOT:
+        K.set_root(root)
+    errors = []
+    if os.path.isdir(K.RECORDS_DIR):
+        schema = K.load_schema("kot-lit-1.json")
+        for name in sorted(os.listdir(K.RECORDS_DIR)):
+            if name.endswith(".json"):
+                check_record_file(os.path.join(K.RECORDS_DIR, name), schema, errors)
+    check_internal(errors)
+    check_queue(errors)
+    check_shards_and_manifest(errors)
+    check_lit_backed(root, errors)
+    if errors:
+        for e in errors:
+            print(e, file=sys.stderr)
+        print("kb-check: FAIL (%d violation(s))" % len(errors), file=sys.stderr)
+        return 1
+    print("kb-check: OK")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

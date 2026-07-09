@@ -23,11 +23,13 @@ if command -v bd >/dev/null 2>&1; then
 fi
 # --- END BEADS INTEGRATION v1.0.4 ---
 
-# --- kernel-of-truth honesty gate (docs/next/assumption-register.md §6 item 1,
-#     ENABLED 2026-07-09): registry-check run-all — chain, frozen-drift,
-#     corpus-pins, account-lint, append-only, and claims-check over
-#     registry/assumptions.jsonl + docs/**/*.md. Fail-closed: a violation
-#     blocks the push. ---
+# --- kernel-of-truth honesty gate (docs/next/assumption-register.md §6 items
+#     1 + 3, ENABLED 2026-07-09): registry-check run-all — chain, frozen-drift,
+#     corpus-pins, account-lint, append-only, claims-check over
+#     registry/assumptions.jsonl + docs/**/*.md, and kb-check (Pillar-C KB
+#     records + the LIT-BACKED backing gate: a LIT-BACKED claim must resolve
+#     to a committed kot-lit/1 record or carry a paper id/year). Fail-closed:
+#     a violation blocks the push. ---
 _kot_root=$(git rev-parse --show-toplevel 2>/dev/null)
 if [ -n "$_kot_root" ] && [ -f "$_kot_root/tools/registry/registry-check.py" ]; then
   python3 "$_kot_root/tools/registry/registry-check.py" "$@" || exit 1

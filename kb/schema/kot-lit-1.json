@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kot-lit-1.json",
+  "title": "kot-lit/1 structured literature record (N-C §2.2). Validated by tools/registry/kot_common.validate_schema (fail-closed keyword subset); extra constraints (enum cross-checks, evidence-upgrade rule, canonical bytes, record_sha256) live in tools/kb/kb-check.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "identity", "biblio", "architecture", "claims", "relation_to_kernel", "reproduction", "provenance", "record_sha256"],
+  "properties": {
+    "schema_version": {"const": "kot-lit/1"},
+    "id": {"type": "string", "pattern": "^(arxiv:[0-9]{4}\\.[0-9]{4,5}|doi:10\\..+|url:[a-z0-9][a-z0-9._-]*)$"},
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["doi", "arxiv", "openalex", "s2", "pdf_sha256"],
+      "properties": {
+        "doi": {"type": ["string", "null"]},
+        "arxiv": {"type": ["string", "null"]},
+        "openalex": {"type": ["string", "null"], "pattern": "^W[0-9]+$"},
+        "s2": {"type": ["string", "null"]},
+        "pdf_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "biblio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "authors", "year", "venue"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "authors": {"type": "array", "items": {"type": "string"}},
+        "year": {"type": ["integer", "null"], "minimum": 1900, "maximum": 2100},
+        "venue": {"type": ["string", "null"]},
+        "citation_count": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "as_of", "source"],
+          "properties": {
+            "value": {"type": "integer", "minimum": 0},
+            "as_of": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+            "source": {"type": "string", "enum": ["s2", "openalex", "crossref"]}
+          }
+        }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "seam_cell", "trained_components", "frozen_components", "mechanism_tags"],
+      "properties": {
+        "summary": {"type": "string", "minLength": 1},
+        "seam_cell": {"type": "string", "enum": ["text", "own-activations", "trained-bridge", "external-engine", "raw-foreign-coords", "none"]},
+        "trained_components": {"type": "array", "items": {"type": "string"}},
+        "frozen_components": {"type": "array", "items": {"type": "string"}},
+        "mechanism_tags": {"type": "array", "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}}
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "type", "statement", "evidence"],
+        "properties": {
+          "claim_id": {"type": "string", "pattern": "^c[0-9]+$"},
+          "type": {"type": "string", "enum": ["quantitative", "qualitative", "negative", "theoretical"]},
+          "statement": {"type": "string", "minLength": 1},
+          "metric": {"type": ["string", "null"]},
+          "value": {"type": ["number", "null"]},
+          "unit": {"type": ["string", "null"]},
+          "baseline": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["name", "value"],
+            "properties": {
+              "name": {"type": "string"},
+              "value": {"type": ["number", "null"]}
+            }
+          },
+          "dataset": {"type": ["string", "null"]},
+          "scale": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "properties": {
+              "params": {"type": ["number", "null"], "minimum": 0},
+              "rungs_measured": {"type": ["integer", "null"], "minimum": 0}
+            }
+          },
+          "compute_reported": {"type": "boolean"},
+          "evidence": {"type": "string", "enum": ["established", "claimed", "speculative"]},
+          "evidence_ref": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "relation_to_kernel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hypotheses", "ledger_refs", "seams", "note"],
+      "properties": {
+        "hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "direction"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "direction": {"type": "string", "enum": ["supports", "contradicts", "bounds", "informs"]}
+            }
+          }
+        },
+        "ledger_refs": {"type": "array", "items": {"type": "string"}},
+        "seams": {"type": "array", "items": {"type": "string"}},
+        "note": {"type": ["string", "null"]}
+      }
+    },
+    "reproduction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code_url", "weights_url"],
+      "properties": {
+        "code_url": {"type": ["string", "null"]},
+        "weights_url": {"type": ["string", "null"]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["extractor_model", "prompt_sha256", "extracted_at", "source_scope", "audit"],
+      "properties": {
+        "extractor_model": {"type": "string", "minLength": 1},
+        "prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "extracted_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}"},
+        "source_scope": {"type": "string", "enum": ["fulltext", "abstract-only"]},
+        "audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "by"],
+          "properties": {
+            "state": {"type": "string", "enum": ["UNAUDITED", "SPOT-CONFIRMED", "SPOT-REFUTED"]},
+            "by": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

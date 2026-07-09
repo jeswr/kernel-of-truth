@@ -120,7 +120,9 @@ this.
   the frozen kill criterion at step 4).
 - *Assumptions* — **mandatory `assumptions[]` block** (docs/next/assumption-register.md):
   every load-bearing premise enumerated as a marker line (`PREMISE: … [MEASURED: <verdict>]`
-  / `[LIT-BACKED: <paper>]`) or as a registered ASM-id for stipulations. The RULE applies:
+  / `[LIT-BACKED: <paper id/year, e.g. arXiv:2412.09764>]` — since §6 item 3 was ENABLED,
+  kb-check requires the ref to resolve to a committed kot-lit/1 record or carry a paper
+  id/year) or as a registered ASM-id for stipulations. The RULE applies:
   a premise may cite only MEASURED or LIT-BACKED claims (plus registered STIPULATED
   assumptions, cited by ASM-id so they are visible and fall with the stipulation); an
   EXTRAPOLATION may motivate the candidate but may never premise it — an unresolved one

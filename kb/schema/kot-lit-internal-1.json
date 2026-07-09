@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kot-lit-internal-1.json",
+  "title": "kot-lit-internal/1 internal-development record (N-C §2.4). GENERATED ONLY by tools/kb/kb-sync-internal from registry objects; kb-check requires the committed file to equal the generator's output byte-for-byte — hand-editing fails closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "kind", "title", "summary", "source", "record_sha256"],
+  "properties": {
+    "schema_version": {"const": "kot-lit-internal/1"},
+    "id": {"type": "string", "pattern": "^internal:[a-z0-9][a-z0-9._-]*$"},
+    "kind": {"type": "string", "enum": ["verdict", "design-doc", "ledger-fact"]},
+    "title": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "verdict": {"type": ["string", "null"], "enum": ["PASS", "FAIL", "NULL", "INCONCLUSIVE", "INSTRUMENT-INVALID", "CONSTRUCTION-ANOMALY", "PASS-PENDING-AUDIT", "INCOMPLETE-DATA", "BUDGET-HALT", null]},
+    "seams": {"type": "array", "items": {"type": "string"}},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

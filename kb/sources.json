@@ -1,0 +1,55 @@
+{
+  "schema_version": "kot-kb-sources/1",
+  "note": "Discovery watchlists for the Pillar-C lit-KB (N-C §4.1/§4.2). Edited via `kb watch`. Each watchlist maps to one live architecture thread; from_year bounds the sweep; queries run against OpenAlex search (+ optional arXiv query). Grey-lit URLs are page-snapshot sources (WebFetch/RSS side; not fetched by the API pipeline).",
+  "watchlists": [
+    {
+      "name": "verifier-prm",
+      "thread": "verifier / process-reward-model loop (F2 seam, arch-survey F2-verifier)",
+      "from_year": 2022,
+      "openalex_search": "process reward model OR step-level verifier OR self-verification large language model reasoning",
+      "arxiv_query": "all:\"process reward model\" OR all:\"verifier\" AND cat:cs.CL"
+    },
+    {
+      "name": "structured-parsing-code",
+      "thread": "deterministic structure-parsing at the model boundary; code as intermediate representation (lit line 4)",
+      "from_year": 2022,
+      "openalex_search": "constrained decoding structured output large language model OR program-aided reasoning code intermediate representation",
+      "arxiv_query": "all:\"constrained decoding\" OR all:\"program-aided\" AND cat:cs.CL"
+    },
+    {
+      "name": "neurosymbolic-in-network",
+      "thread": "neurosymbolic computation inside the network: VSA/HRR/TPR hybrids, symbolic inference between layers (lit lines 1+4)",
+      "from_year": 2021,
+      "openalex_search": "vector symbolic architecture transformer OR tensor product representation neural network OR neurosymbolic reasoning inside language model",
+      "arxiv_query": "all:\"vector symbolic\" OR all:\"tensor product representation\" AND (cat:cs.CL OR cat:cs.NE)"
+    },
+    {
+      "name": "lcm-latent-reasoning",
+      "thread": "large concept models / sentence-level latent reasoning / continuous chain-of-thought (LCM, CALM, Coconut class)",
+      "from_year": 2023,
+      "openalex_search": "large concept model sentence embedding reasoning OR continuous latent reasoning language model OR chain of continuous thought",
+      "arxiv_query": "all:\"large concept model\" OR all:\"latent reasoning\" AND cat:cs.CL"
+    },
+    {
+      "name": "sae-interp",
+      "thread": "sparse autoencoders / dictionary-feature interpretability and its 2025 corrections (A6 seam)",
+      "from_year": 2023,
+      "openalex_search": "sparse autoencoder interpretability language model features OR dictionary learning transformer residual stream",
+      "arxiv_query": "all:\"sparse autoencoder\" AND (cat:cs.CL OR cat:cs.LG)"
+    },
+    {
+      "name": "kv-injection-bridges",
+      "thread": "trained-bridge injection: knowledge into KV cache / soft prompts / adapters over frozen LMs (L3 core cell)",
+      "from_year": 2022,
+      "openalex_search": "knowledge injection frozen language model adapter OR key value cache augmentation knowledge OR soft prompt knowledge encoding",
+      "arxiv_query": "all:\"knowledge injection\" AND cat:cs.CL"
+    }
+  ],
+  "grey_lit": [
+    {"name": "transformer-circuits", "url": "https://transformer-circuits.pub/", "why": "Anthropic mech-interp threads; several load-bearing L3 sources were posts, not papers"},
+    {"name": "gdm-mech-interp-medium", "url": "https://medium.com/@deepmindsafetyresearch", "why": "the GDM SAE deprioritisation lived here (L3 §5)"},
+    {"name": "hf-blog", "url": "https://huggingface.co/blog", "why": "PWC successor signals; embedding/model releases"},
+    {"name": "nomic-blog", "url": "https://www.nomic.ai/blog", "why": "pinned embedder release notes"},
+    {"name": "alignment-forum", "url": "https://www.alignmentforum.org/", "why": "SAE-correction discourse"}
+  ]
+}

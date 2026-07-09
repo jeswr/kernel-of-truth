@@ -8,8 +8,9 @@ Status: **DESIGN + implementation; governance wirings RULED ON.** The register f
 maintainer-gated (P2 §7 item 3) and the maintainer decided them on 2026-07-09:
 items 1 (claims-check in the pre-push run-all set) and 4 (full-scope coverage
 footer) are **ENABLED**; item 2 is **reframed to PAUSE-and-reassess** (non-fatal;
-§6 states the governing philosophy); item 3 stays **deferred** pending the lit-KB
-(Pillar C). Binding constraints: `docs/kernel-design-directives.md` §§3, 4, 6;
+§6 states the governing philosophy); item 3 was deferred pending the lit-KB and
+is **ENABLED as of 2026-07-09**, when Pillar C landed (kb-check LIT-BACKED
+backing gate, in the same run-all/pre-push set). Binding constraints: `docs/kernel-design-directives.md` §§3, 4, 6;
 the maintainer's epistemic-discipline directive (2026-07-08): *every load-bearing
 claim carries a status tag; a claim is treated as established only when MEASURED or
 LIT-BACKED; an extrapolation is never stated as fact and never used as a premise for
@@ -37,7 +38,7 @@ premise, or paper claim would change if the claim were false.
 | Tag | Definition | How it is backed (mandatory) | May premise a decision? |
 |---|---|---|---|
 | **MEASURED** | The claim restates a quantity or outcome that was actually measured under this programme's rails, within the scope (corpus, rung, kernel state, model, seeds) it was measured on — never wider. | A verdict-object reference: `registry/verdicts/<id>.json` (+ its sha256 or the analysis-output sha), or for tooling-level measurements the exact command + committed output. The claim text must carry the measured scope. | **Yes** — within its measured scope only. Citing a MEASURED number outside its extrapolation envelope re-classifies the statement as EXTRAPOLATION. |
-| **LIT-BACKED** | The claim restates a published result, verified at source (not from a KB record alone — N-C §0: KB records are recall infrastructure, not evidence). | A `kot-lit/1` record id once Pillar C lands, or a paper id + year (arXiv:XXXX.XXXXX, DOI). Replication status stated where known ([established] / [claimed — unreplicated], the L3-report convention). | **Yes** — with the paper's own scope and the directives-§6 scale caveats. |
+| **LIT-BACKED** | The claim restates a published result, verified at source (not from a KB record alone — N-C §0: KB records are recall infrastructure, not evidence). | A `kot-lit/1` record id (Pillar C landed 2026-07-09; `kb-check` requires the cited record to exist — §6 item 3), or a paper id + year (arXiv:XXXX.XXXXX, DOI). Replication status stated where known ([established] / [claimed — unreplicated], the L3-report convention). | **Yes** — with the paper's own scope and the directives-§6 scale caveats. |
 | **STIPULATED** | An explicit assumption the programme chooses to proceed on — not evidenced, but named, owned, and revisitable (e.g. "TinyStories content-word mass is an adequate Tier-0 proxy for eval-relevant content"). | A register entry with an **owner** (pseudonym or `maintainer`) + a **rationale** + the condition under which it must be revisited. | **Only as a named, registered assumption** — the decision record must cite the ASM-id, so the stipulation is visible in the decision's premise list and falls when the stipulation falls. It never counts as *established*. |
 | **EXTRAPOLATION** | A projection beyond measured/published scope (other corpora, rungs, scales, kernel states). Directives §6 licenses extrapolation only as an explicit, literature-anchored *trend statement* with uncertainty attached. | A register entry flagged `load_bearing: false` with a **resolution_path**: the measurement or literature search that would convert it. | **NEVER.** A decision/premise citing an EXTRAPOLATION is a lint violation (`ERR_ASM_EXTRAPOLATION_PREMISE`). It may motivate *queueing* an experiment; it may not decide one. |
 
@@ -214,9 +215,25 @@ These four items were proposed maintainer-gated; the maintainer ruled on each on
    function of the frozen SAP + chained log — so a false conclusion cannot ship,
    while the experiment that would *test* the projection is never blocked.
    Fixtures: `TestPreregPause`.
-3. **DEFERRED pending the lit-KB (Pillar C).** `kb-check` enforcing the LIT-BACKED
-   backing rule on `kot-lit/1` records cited as backing — enable when Pillar C
-   lands (tracked as follow-up work; N-C §0 remains the honesty boundary meanwhile).
+3. **ENABLED (2026-07-09, on Pillar-C landing; was deferred pending the lit-KB).**
+   `kb-check` enforces the LIT-BACKED backing rule: a claim tagged LIT-BACKED —
+   a register entry in `registry/assumptions.jsonl` or a PREMISE/DECISION/
+   LOAD-BEARING marker line in `docs/**/*.md` — must **resolve to a committed
+   `kot-lit/1` record** (a `kot-lit:<id>` / `kot-lit/<id>` / `kb/records/…`
+   citation whose record file exists; a KB citation that resolves to nothing is
+   `ERR_KB_LIT_UNRESOLVED`) **or carry a paper id/year** (arXiv/DOI/year;
+   neither shape is `ERR_KB_LIT_BACKING`). The enforcement surface mirrors
+   claims-check — marker lines and the register, with wrapped bullets joined by
+   the same logical-line code (single implementation, loaded from
+   `tools/registry/claims-check.py`); off-marker prose tags are recall
+   annotations, not premises, and stay un-linted. `kb-check` joined
+   `registry-check`'s run-all set (the pre-push surface) exactly as claims-check
+   did under item 1, so every push now also validates KB record schemas/hashes,
+   the generated-only internal records, shard/manifest pins, and this backing
+   gate. N-C §0 remains the honesty boundary: resolving to a KB record satisfies
+   *backing shape*, never *verification* — evidence tags still only upgrade via
+   a lit-report pass. Fixtures: `TestLitBackedGate` (tools/kb/test_kb.py),
+   `TestRegistryCheckKb` (tools/registry/test_fixtures.py).
 4. **ENABLED (2026-07-09).** `report-gen`'s coverage-disclosure footer now states
    the FULL measured scope from machine inputs only — the census source experiment
    + its freeze timestamp + its pinned census inputs (corpus and kernel-instance
@@ -280,7 +297,7 @@ nothing frozen. `registry/assumptions.jsonl` is a new, additive register; the li
 a new, additive tool; every integration that changes fail-closed behaviour of
 existing machinery is recorded in §6 with its maintainer decision of 2026-07-09
 (items 1 + 4 enabled; item 2 enacted as a non-fatal pause, which blocks nothing;
-item 3 deferred pending Pillar C). The census numbers
+item 3 enabled 2026-07-09 on Pillar-C landing). The census numbers
 quoted in §7 restate `registry/verdicts/m0b.json` (audit CONFIRMED) verbatim-in-
 substance and add no new empirical claim.
 

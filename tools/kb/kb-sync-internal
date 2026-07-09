@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+"""kb-sync-internal — generate internal KB records from registry objects (N-C §2.4).
+
+Maps registry/verdicts/*.json into kb/records/internal/<exp>.json
+(kot-lit-internal/1), and docs/**/*.md into lightweight design-doc stub
+records internal_doc-<slug>.json (N-C §2.4: "Design docs get lightweight stub
+records … so structured queries can return 'we already designed this'").
+GENERATED ONLY: the mapping is a pure function of the source bytes, so
+kb-check can demand byte-equality; hand-editing fails closed.
+
+The rendered summary restates verdict-object fields VERBATIM-in-substance and
+adds no adjectives — the registry-check claim-language discipline applies (a
+summary of a FAIL cannot say "promising"; this generator says nothing beyond
+the fields).
+
+Usage: tools/kb/kb-sync-internal [--out <dir>]     (default kb/records/internal/)
+"""
+
+import argparse
+import glob
+import hashlib
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kb_common as K  # noqa: E402
+
+VERDICTS_DIR = os.path.join(K.REPO_ROOT, "registry", "verdicts")
+DOCS_GLOB = os.path.join(K.REPO_ROOT, "docs", "**", "*.md")
+
+
+def render_doc_stub(path):
+    """Deterministic stub record for a design doc: id, title, first-paragraph
+    one-line abstract (N-C §2.4). Pure function of the file bytes."""
+    with open(path, "rb") as f:
+        raw = f.read()
+    text = raw.decode("utf-8", errors="replace")
+    rel = os.path.relpath(path, K.REPO_ROOT).replace(os.sep, "/")
+    slug = re.sub(r"[^a-z0-9._-]+", "-", rel[len("docs/"):-len(".md")].lower()).strip("-")
+    title = os.path.basename(path)
+    for line in text.split("\n"):
+        m = re.match(r"^#\s+(.+)$", line.strip())
+        if m:
+            title = m.group(1).strip()
+            break
+    # first non-heading, non-blank paragraph, collapsed to one line
+    summary = ""
+    for para in re.split(r"\n\s*\n", text):
+        p = para.strip()
+        if not p or p.startswith("#") or p.startswith("```") or p.startswith("|"):
+            continue
+        summary = re.sub(r"\s+", " ", p)[:500]
+        break
+    if not summary:
+        summary = "(no leading paragraph)"
+    # RT-14: internal records may not carry account strings — redact
+    # deterministically with the SAME pattern list the lint scans with.
+    from kot_common import ACCOUNT_PATTERNS  # tools/registry is law
+    for field in ("title", "summary"):
+        val = (title if field == "title" else summary).encode("utf-8")
+        for pat, _desc in ACCOUNT_PATTERNS:
+            val = pat.sub(b"[account-redacted]", val)
+        if field == "title":
+            title = val.decode("utf-8")
+        else:
+            summary = val.decode("utf-8")
+    rec = {
+        "schema_version": "kot-lit-internal/1",
+        "id": "internal:doc-%s" % slug,
+        "kind": "design-doc",
+        "title": title,
+        "summary": summary,
+        "verdict": None,
+        "seams": [],
+        "source": {"path": rel, "sha256": hashlib.sha256(raw).hexdigest()},
+    }
+    rec["record_sha256"] = K.record_hash(rec)
+    return rec
+
+
+def render_verdict_record(path):
+    with open(path, "rb") as f:
+        raw = f.read()
+    v = json.loads(raw.decode("utf-8"))
+    exp = v.get("experiment") or os.path.splitext(os.path.basename(path))[0]
+    endpoints = []
+    for ep in v.get("endpoint_results", []) or []:
+        if isinstance(ep, dict):
+            endpoints.append("%s(%s)=%s" % (ep.get("id", "?"), ep.get("role", "?"), ep.get("value")))
+    coverage = v.get("coverage") or {}
+    hyps = [h for h in v.get("hypotheses", []) or [] if isinstance(h, str)]
+    parts = [
+        "Experiment %s: verdict %s." % (exp, v.get("verdict")),
+        ("Hypotheses: %s." % ", ".join(hyps)) if hyps else None,
+        ("Endpoints: %s." % "; ".join(endpoints)) if endpoints else None,
+        ("Coverage fraction %s on rung %s (measured scope only)." % (coverage.get("fraction"), coverage.get("rung")))
+        if coverage.get("fraction") is not None
+        else None,
+        ("Kill criterion (verbatim): %s" % v["kill_criterion_verbatim"]) if v.get("kill_criterion_verbatim") else None,
+        ("Extrapolation envelope (verbatim): %s" % v["extrapolation_envelope_verbatim"])
+        if v.get("extrapolation_envelope_verbatim")
+        else None,
+    ]
+    summary = " ".join(p for p in parts if p)
+    rel = os.path.relpath(path, K.REPO_ROOT).replace(os.sep, "/")
+    rec = {
+        "schema_version": "kot-lit-internal/1",
+        "id": "internal:%s" % exp.lower(),
+        "kind": "verdict",
+        "title": "Registry verdict: %s" % exp,
+        "summary": summary,
+        "verdict": v.get("verdict"),
+        "seams": hyps,  # verdict objects carry hypothesis ids (HE1…); the seam map lives in arch-survey
+        "source": {"path": rel, "sha256": hashlib.sha256(raw).hexdigest()},
+    }
+    rec["record_sha256"] = K.record_hash(rec)
+    return rec
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default=os.path.join(K.RECORDS_DIR, "internal"))
+    args = ap.parse_args()
+    os.makedirs(args.out, exist_ok=True)
+    schema = K.load_schema("kot-lit-internal-1.json")
+    written = []
+    if os.path.isdir(VERDICTS_DIR):
+        for name in sorted(os.listdir(VERDICTS_DIR)):
+            if not name.endswith(".json"):
+                continue
+            rec = render_verdict_record(os.path.join(VERDICTS_DIR, name))
+            errs = K.validate_schema(rec, schema)
+            if errs:
+                print("ERR_KB_INTERNAL_GEN: %s: %s" % (name, "; ".join(errs)), file=sys.stderr)
+                return 1
+            out_name = rec["id"].replace(":", "_") + ".json"
+            K.write_canonical_json(os.path.join(args.out, out_name), rec)
+            written.append(out_name)
+    for path in sorted(glob.glob(DOCS_GLOB, recursive=True)):
+        rec = render_doc_stub(path)
+        errs = K.validate_schema(rec, schema)
+        if errs:
+            print("ERR_KB_INTERNAL_GEN: %s: %s" % (path, "; ".join(errs)), file=sys.stderr)
+            return 1
+        out_name = rec["id"].replace(":", "_") + ".json"
+        K.write_canonical_json(os.path.join(args.out, out_name), rec)
+        written.append(out_name)
+    print("kb-sync-internal: wrote %d record(s) to %s" % (len(written), args.out))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

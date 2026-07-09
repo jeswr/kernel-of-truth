@@ -814,6 +814,61 @@ class TestRegistryCheckClaims(SpineFixture):
         self.assertIn("ERR_ASM_UNTAGGED_PREMISE", p.stdout + p.stderr)
 
 
+class TestRegistryCheckKb(SpineFixture):
+    """assumption-register.md §6 item 3 (ENABLED 2026-07-09 on Pillar-C
+    landing): kb-check is in registry-check's run-all set — the pre-push
+    surface — and enforces the LIT-BACKED backing gate: a claim tagged
+    LIT-BACKED must resolve to a committed kot-lit/1 record or carry a
+    paper id/year; a KB citation that resolves to nothing fails closed."""
+
+    def link_kb_tools(self):
+        # kb-check lives in tools/kb and imports kb_common, which resolves
+        # kot_common relative to its own location — symlink both tool dirs so
+        # the throwaway root carries the real, single implementation.
+        os.makedirs(self.path("tools"), exist_ok=True)
+        os.symlink(os.path.join(REPO, "tools", "kb"), self.path("tools/kb"))
+        os.symlink(HERE, self.path("tools/registry"))
+
+    def test_run_all_skips_cleanly_without_kb(self):
+        self.write("registry/assumptions.jsonl",
+                   json.dumps(TestClaimsCheck.GOOD_MEASURED) + "\n")
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("kb: no KB at this root", p.stdout)
+
+    def test_run_all_passes_on_paper_id_year_backing(self):
+        self.link_kb_tools()
+        lit = {"id": "ASM-0042", "claim": "published result X",
+               "tag": "LIT-BACKED", "backing_ref": "arXiv:2412.09764 (2024)",
+               "load_bearing": True, "status": "open", "owner": "writer-1"}
+        self.write("registry/assumptions.jsonl", json.dumps(lit) + "\n")
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("kb: kb-check passes", p.stdout)
+
+    def test_run_all_fails_on_unresolved_kb_citation(self):
+        self.link_kb_tools()
+        lit = {"id": "ASM-0042", "claim": "published result X",
+               "tag": "LIT-BACKED", "backing_ref": "kot-lit:arxiv:9999.00001",
+               "load_bearing": True, "status": "open", "owner": "writer-1"}
+        self.write("registry/assumptions.jsonl", json.dumps(lit) + "\n")
+        p = run_cli(REGISTRY_CHECK, "--root", self.root)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_KB_LIT_UNRESOLVED", p.stdout + p.stderr)
+
+    def test_run_all_fails_on_shapeless_lit_backing_via_kb_gate(self):
+        self.link_kb_tools()
+        # claims-check accepts nothing here either, but pin the kb-side code
+        # path explicitly with --kb (selector flag, like --claims).
+        lit = {"id": "ASM-0042", "claim": "published result X",
+               "tag": "LIT-BACKED", "backing_ref": "trust me",
+               "load_bearing": True, "status": "open", "owner": "writer-1"}
+        self.write("registry/assumptions.jsonl", json.dumps(lit) + "\n")
+        p = run_cli(REGISTRY_CHECK, "--kb", "--root", self.root)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_KB_LIT_BACKING", p.stdout + p.stderr)
+
+
 class TestPreregPause(SpineFixture):
     """assumption-register.md §6 item 2 (maintainer decision 2026-07-09):
     PAUSE-and-reassess, NOT refuse — 'stop false conclusions, not

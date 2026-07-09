@@ -1,0 +1,441 @@
+#!/usr/bin/env python3
+"""kb — query CLI for the Pillar-C literature + developments KB (N-C §3).
+
+Commands:
+  kb search "query" [--k 12] [--kind papers|internal|all]
+  kb get <id> [--field claims]
+  kb filter [--seam S] [--evidence a,b] [--mechanism TAG] [KEY=VALUE|KEY>=N ...] [--json]
+  kb related <id> [--direction citing|cited] [--limit 50]
+  kb novelty "one-line idea"
+  kb watch --list | --add NAME QUERY | --remove NAME
+  kb queue [--top N] [--source PREFIX]      (candidates awaiting extraction)
+  kb status
+  kb fetch-model
+
+Every recall surface prints the KB epistemics footer (N-C §0): KB records are
+recall infrastructure, NOT evidence.
+"""
+
+import argparse
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kb_common as K  # noqa: E402
+
+
+def _footer():
+    print("\n" + K.EPISTEMICS_FOOTER)
+
+
+def _load_records(include_internal=True):
+    out = []
+    if os.path.isdir(K.RECORDS_DIR):
+        for name in sorted(os.listdir(K.RECORDS_DIR)):
+            if name.endswith(".json"):
+                with open(os.path.join(K.RECORDS_DIR, name), "r", encoding="utf-8") as f:
+                    out.append(json.load(f))
+    idir = os.path.join(K.RECORDS_DIR, "internal")
+    if include_internal and os.path.isdir(idir):
+        for name in sorted(os.listdir(idir)):
+            if name.endswith(".json"):
+                with open(os.path.join(idir, name), "r", encoding="utf-8") as f:
+                    out.append(json.load(f))
+    return out
+
+
+# ------------------------------------------------------------------ search
+
+def cmd_search(args):
+    mat, metas = K.load_shards()
+    if mat is None:
+        print("kb search: no embedding shards — run tools/kb/embed_pipeline.py", file=sys.stderr)
+        return 1
+    emb = K.Embedder()
+    q = emb.embed([args.query], is_query=True)[0]
+    scores = mat @ q
+    order = scores.argsort()[::-1]
+    kind_filter = {
+        "papers": {"paper-abstract"},
+        "internal": {"internal-verdict", "ledger"},
+        "all": None,
+    }[args.kind]
+    shown = 0
+    for idx in order:
+        meta = metas[int(idx)]
+        if kind_filter and meta["kind"] not in kind_filter:
+            continue
+        snippet = re.sub(r"\s+", " ", meta["text"])[:180]
+        print("%.4f  [%s] %s  (span %d-%d, sha %s…)" % (
+            scores[int(idx)], meta["kind"], meta["source_id"],
+            meta["span"][0], meta["span"][1], meta["source_sha256"][:8]))
+        print("        %s" % snippet)
+        shown += 1
+        if shown >= args.k:
+            break
+    if shown == 0:
+        print("(no hits)")
+    _footer()
+    return 0
+
+
+# ------------------------------------------------------------------ get
+
+def cmd_get(args):
+    rid = args.id
+    for base in (K.record_path(rid), os.path.join(K.RECORDS_DIR, "internal", rid.replace(":", "_") + ".json")):
+        if os.path.exists(base):
+            with open(base, "r", encoding="utf-8") as f:
+                rec = json.load(f)
+            if args.field:
+                rec = rec.get(args.field)
+            print(json.dumps(rec, indent=2, ensure_ascii=False, sort_keys=True))
+            _footer()
+            return 0
+    for row in K.read_jsonl(K.QUEUE_PATH):
+        if row["id"] == rid:
+            print("(no structured record yet — QUEUED candidate awaiting extraction)")
+            print(json.dumps(row, indent=2, ensure_ascii=False, sort_keys=True))
+            _footer()
+            return 0
+    print("kb get: %s not found in records or queue" % rid, file=sys.stderr)
+    return 1
+
+
+# ------------------------------------------------------------------ filter
+
+def _dotted_get(obj, path):
+    """Resolve a dotted path; lists fan out (ANY-element semantics).
+    'claim.' prefix is sugar for 'claims.' (N-C §3 examples)."""
+    if path.startswith("claim."):
+        path = "claims." + path[len("claim."):]
+    nodes = [obj]
+    for part in path.split("."):
+        nxt = []
+        for n in nodes:
+            if isinstance(n, list):
+                n_items = n
+            else:
+                n_items = [n]
+            for item in n_items:
+                if isinstance(item, dict) and part in item:
+                    nxt.append(item[part])
+        nodes = nxt
+    flat = []
+    for n in nodes:
+        if isinstance(n, list):
+            flat.extend(n)
+        else:
+            flat.append(n)
+    return flat
+
+
+_PRED_RE = re.compile(r"^([A-Za-z0-9_.]+)\s*(>=|<=|!=|=|>|<)\s*(.+)$")
+
+
+def _match_pred(rec, key, op, val):
+    values = _dotted_get(rec, key)
+    for v in values:
+        if op in (">=", "<=", ">", "<"):
+            try:
+                fv, fval = float(v), float(val)
+            except (TypeError, ValueError):
+                continue
+            if {"gt": fv > fval, "gte": fv >= fval, "lt": fv < fval, "lte": fv <= fval}[
+                {">": "gt", ">=": "gte", "<": "lt", "<=": "lte"}[op]
+            ]:
+                return True
+        elif op == "=":
+            if str(v) == val or v == val:
+                return True
+        elif op == "!=":
+            if str(v) != val:
+                return True
+    return False
+
+
+def cmd_filter(args):
+    recs = _load_records()
+    preds = []
+    if args.seam:
+        preds.append(("architecture.seam_cell", "=", args.seam))
+    if args.mechanism:
+        preds.append(("architecture.mechanism_tags", "=", args.mechanism))
+    for expr in args.predicates:
+        m = _PRED_RE.match(expr)
+        if not m:
+            print("kb filter: bad predicate %r (KEY=VALUE or KEY>=N)" % expr, file=sys.stderr)
+            return 1
+        preds.append((m.group(1), m.group(2), m.group(3)))
+    evidence = set(args.evidence.split(",")) if args.evidence else None
+    hits = []
+    for rec in recs:
+        if not all(_match_pred(rec, k, op, v) for k, op, v in preds):
+            continue
+        if evidence is not None:
+            evs = set(_dotted_get(rec, "claims.evidence"))
+            if not (evs & evidence):
+                continue
+        hits.append(rec)
+    if args.as_json:
+        print(json.dumps(hits, indent=2, ensure_ascii=False, sort_keys=True))
+    else:
+        for rec in hits:
+            if rec.get("schema_version") == "kot-lit-internal/1":
+                print("%-28s INTERNAL %-6s %s" % (rec["id"], rec.get("verdict") or "-", rec["title"]))
+            else:
+                nb = " [no_baseline]" if any(
+                    c.get("type") == "quantitative" and c.get("baseline") is None
+                    for c in rec.get("claims", [])
+                ) else ""
+                print("%-28s %-15s %s%s" % (
+                    rec["id"], (rec.get("architecture") or {}).get("seam_cell", "-"),
+                    (rec.get("biblio") or {}).get("title", ""), nb))
+        print("(%d match(es) over %d records; structured records are Haiku-extracted next phase)" % (len(hits), len(recs)))
+    _footer()
+    return 0
+
+
+# ------------------------------------------------------------------ related
+
+def cmd_related(args):
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "ingest"))
+    import clients
+
+    rid = args.id
+    if rid.startswith("arxiv:"):
+        s2_id = "arXiv:" + rid.split(":", 1)[1]
+    elif rid.startswith("doi:"):
+        s2_id = "DOI:" + rid.split(":", 1)[1]
+    else:
+        s2_id = rid
+    direction = "citations" if args.direction == "citing" else "references"
+    os.makedirs(K.GRAPH_DIR, exist_ok=True)
+    cache = os.path.join(K.GRAPH_DIR, "%s_%s.json" % (rid.replace(":", "_").replace("/", "_"), direction))
+    if os.path.exists(cache) and not args.refresh:
+        with open(cache, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = clients.s2_neighbourhood(s2_id, direction=direction, limit=args.limit)
+        K.write_canonical_json(cache, data)
+    for item in data.get("data", []):
+        p = item.get("citingPaper") or item.get("citedPaper") or {}
+        ext = p.get("externalIds") or {}
+        pid = K.canonical_paper_id(arxiv=ext.get("ArXiv"), doi=ext.get("DOI")) or "s2:" + str(p.get("paperId"))
+        print("%-24s %s (%s, %s cites)" % (pid, p.get("title"), p.get("year"), p.get("citationCount")))
+    print("(cached at %s)" % os.path.relpath(cache, K.REPO_ROOT))
+    _footer()
+    return 0
+
+
+# ------------------------------------------------------------------ novelty
+
+def cmd_novelty(args):
+    """N-B §1.3 step 2 mechanised: nearest prior art + colliding internal verdicts."""
+    mat, metas = K.load_shards()
+    if mat is None:
+        print("kb novelty: no embedding shards — run tools/kb/embed_pipeline.py", file=sys.stderr)
+        return 1
+    emb = K.Embedder()
+    q = emb.embed([args.idea], is_query=True)[0]
+    scores = mat @ q
+    order = scores.argsort()[::-1]
+    papers, internal, own_docs = [], [], []
+    for idx in order:
+        meta = metas[int(idx)]
+        s = float(scores[int(idx)])
+        bucket = {
+            "paper-abstract": papers,
+            "internal-verdict": internal,
+            "lit-report": own_docs,
+            "design-doc": own_docs,
+            "note": own_docs,
+        }.get(meta["kind"])
+        if bucket is not None and len(bucket) < args.k:
+            bucket.append((s, meta))
+        if all(len(b) >= args.k for b in (papers, internal, own_docs)):
+            break
+    print("NOVELTY SHEET — %r\n" % args.idea)
+    print("Nearest external prior art (queued/known papers):")
+    for s, m in papers:
+        print("  %.4f  %s — %s" % (s, m["source_id"], re.sub(r"\s+", " ", m["text"])[:120]))
+    print("\nInternal verdicts / ledger facts that may already bound this:")
+    for s, m in internal:
+        print("  %.4f  %s — %s" % (s, m["source_id"], re.sub(r"\s+", " ", m["text"])[:120]))
+    print("\nOwn prior reasoning (reports/design docs):")
+    for s, m in own_docs:
+        print("  %.4f  %s (span %d-%d)" % (s, m["source_id"], m["span"][0], m["span"][1]))
+    print(
+        "\nThis sheet is DRAFT prior-art input (N-B delta D5). Verify every hit at "
+        "source before it premises anything; a high-similarity internal FAIL/NULL "
+        "verdict must be read in full from registry/verdicts/."
+    )
+    _footer()
+    return 0
+
+
+# ------------------------------------------------------------------ watch / queue / status
+
+def cmd_watch(args):
+    with open(K.SOURCES_PATH, "r", encoding="utf-8") as f:
+        sources = json.load(f)
+    if args.add:
+        name, query = args.add
+        if any(w["name"] == name for w in sources["watchlists"]):
+            print("kb watch: %s already exists" % name, file=sys.stderr)
+            return 1
+        sources["watchlists"].append(
+            {"name": name, "thread": "added via kb watch", "from_year": 2022, "openalex_search": query}
+        )
+    elif args.remove:
+        before = len(sources["watchlists"])
+        sources["watchlists"] = [w for w in sources["watchlists"] if w["name"] != args.remove]
+        if len(sources["watchlists"]) == before:
+            print("kb watch: %s not found" % args.remove, file=sys.stderr)
+            return 1
+    if args.add or args.remove:
+        with open(K.SOURCES_PATH, "w", encoding="utf-8") as f:
+            json.dump(sources, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+    for w in sources["watchlists"]:
+        print("%-26s %s" % (w["name"], w.get("openalex_search", "")[:90]))
+    return 0
+
+
+def cmd_queue(args):
+    rows = K.read_jsonl(K.QUEUE_PATH)
+    if args.source:
+        rows = [r for r in rows if (r.get("source") or "").startswith(args.source)]
+    rows.sort(key=lambda r: (-(r.get("prescore") or 0), r.get("queued_at", ""), r["id"]))
+    for row in rows[: args.top]:
+        cc = (row.get("citation_count") or {}).get("value")
+        print("%3d  %-22s %-6s %4s  %s" % (
+            row.get("prescore") or 0, row["id"], str(cc if cc is not None else "-"),
+            str(row.get("year") or "-"), (row.get("title") or "")[:90]))
+    print("(%d shown of %d queued candidates; prescore is a heuristic ordering signal ONLY — "
+          "Haiku triage next phase)" % (min(args.top, len(rows)), len(rows)))
+    _footer()
+    return 0
+
+
+def cmd_status(args):
+    rows = K.read_jsonl(K.QUEUE_PATH)
+    by_status, by_source = {}, {}
+    for r in rows:
+        by_status[r["status"]] = by_status.get(r["status"], 0) + 1
+        src = (r.get("source") or "?").split(":")[0]
+        by_source[src] = by_source.get(src, 0) + 1
+    n_records = len([f for f in os.listdir(K.RECORDS_DIR) if f.endswith(".json")]) if os.path.isdir(K.RECORDS_DIR) else 0
+    idir = os.path.join(K.RECORDS_DIR, "internal")
+    n_internal = len([f for f in os.listdir(idir) if f.endswith(".json")]) if os.path.isdir(idir) else 0
+    print("records:   %d structured (kot-lit/1), %d internal (generated)" % (n_records, n_internal))
+    print("queue:     %d candidates  by-status=%s  by-source=%s" % (len(rows), by_status, by_source))
+    try:
+        mat, metas = K.load_shards()
+        print("vectors:   %d chunks embedded @ %d dims" % (0 if mat is None else mat.shape[0], 0 if mat is None else mat.shape[1]))
+    except K.KotError as e:
+        print("vectors:   SHARD ERROR %s" % e)
+    if os.path.exists(K.MANIFEST_PATH):
+        man = K.load_manifest()
+        emb = man["embedder"]
+        print("embedder:  %s @ %s (dim %d)" % (emb["hf_repo"], emb["hf_revision"][:12], emb["dim_committed"]))
+        print("built_at:  %s" % man.get("built_at"))
+        # staleness lints (N-C §4.3), advisory
+        lints = []
+        for field in ("hf_repo", "hf_revision", "onnx_sha256", "dim_committed"):
+            if emb.get(field) != K.EMBEDDER[field]:
+                lints.append("embedder pin drift on %s" % field)
+        import datetime
+
+        last = max((r.get("queued_at", "") for r in rows), default="")
+        if last:
+            age = (datetime.date.today() - datetime.date.fromisoformat(last)).days
+            if age > 10:
+                lints.append("last ingest %d days ago (>10)" % age)
+        vdir = os.path.join(K.REPO_ROOT, "registry", "verdicts")
+        if os.path.isdir(vdir):
+            missing = []
+            for name in os.listdir(vdir):
+                if name.endswith(".json"):
+                    exp = os.path.splitext(name)[0]
+                    if not os.path.exists(os.path.join(idir, "internal_%s.json" % exp)):
+                        missing.append(exp)
+            if missing:
+                lints.append("verdicts without internal records: %s (run kb-sync-internal)" % ",".join(sorted(missing)))
+        print("lints:     %s" % ("; ".join(lints) if lints else "clean"))
+    else:
+        print("manifest:  MISSING (run tools/kb/embed_pipeline.py)")
+    _footer()
+    return 0
+
+
+def cmd_fetch_model(args):
+    onnx_path, tok_path = K.fetch_model()
+    print("model ready: %s" % os.path.relpath(onnx_path, K.REPO_ROOT))
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="kb", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("search")
+    p.add_argument("query")
+    p.add_argument("--k", type=int, default=12)
+    p.add_argument("--kind", choices=["papers", "internal", "all"], default="all")
+    p.set_defaults(fn=cmd_search)
+
+    p = sub.add_parser("get")
+    p.add_argument("id")
+    p.add_argument("--field")
+    p.set_defaults(fn=cmd_get)
+
+    p = sub.add_parser("filter")
+    p.add_argument("predicates", nargs="*", help="KEY=VALUE / KEY>=N dotted-path predicates")
+    p.add_argument("--seam")
+    p.add_argument("--mechanism")
+    p.add_argument("--evidence", help="comma list: established,claimed,speculative")
+    p.add_argument("--json", dest="as_json", action="store_true")
+    p.set_defaults(fn=cmd_filter)
+
+    p = sub.add_parser("related")
+    p.add_argument("id")
+    p.add_argument("--direction", choices=["citing", "cited"], default="citing")
+    p.add_argument("--limit", type=int, default=50)
+    p.add_argument("--refresh", action="store_true")
+    p.set_defaults(fn=cmd_related)
+
+    p = sub.add_parser("novelty")
+    p.add_argument("idea")
+    p.add_argument("--k", type=int, default=6)
+    p.set_defaults(fn=cmd_novelty)
+
+    p = sub.add_parser("watch")
+    p.add_argument("--list", action="store_true")
+    p.add_argument("--add", nargs=2, metavar=("NAME", "QUERY"))
+    p.add_argument("--remove")
+    p.set_defaults(fn=cmd_watch)
+
+    p = sub.add_parser("queue")
+    p.add_argument("--top", type=int, default=30)
+    p.add_argument("--source")
+    p.set_defaults(fn=cmd_queue)
+
+    p = sub.add_parser("status")
+    p.set_defaults(fn=cmd_status)
+
+    p = sub.add_parser("fetch-model")
+    p.set_defaults(fn=cmd_fetch_model)
+
+    args = ap.parse_args()
+    try:
+        return args.fn(args)
+    except K.KotError as e:
+        print("kb: %s" % e, file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

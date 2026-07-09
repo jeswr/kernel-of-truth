@@ -53,7 +53,13 @@ MARKER_RE = re.compile(r"\b(PREMISE|DECISION|LOAD-BEARING):")
 OWNER_OK = re.compile(r"^(?:maintainer|(?:runner|auditor|coordinator|writer|redteam)-[0-9]+)$")
 # Backing shapes (spec §1 backing column):
 MEASURED_REF_RE = re.compile(r"(registry/(?:verdicts|experiments|audits)/|results-log/|[0-9a-f]{8,64})")
-LIT_REF_RE = re.compile(r"(arXiv:\s*\d{4}\.\d{4,5}|doi:|10\.\d{4,}/|kot-lit/|\b(?:19|20)\d{2}\b)")
+# kot-lit[:/] = a Pillar-C KB record citation. This lint checks the backing
+# SHAPE only; whether a KB citation RESOLVES to a committed kb/records file is
+# kb-check's gate (assumption-register.md §6 item 3, ENABLED 2026-07-09).
+# Case-insensitive so the canonical lowercase id grammar (arxiv:NNNN.NNNNN,
+# kb_common.ID_RE) is accepted alongside the prose form arXiv:NNNN.NNNNN.
+LIT_REF_RE = re.compile(r"(arxiv:\s*\d{4}\.\d{4,5}|doi:|10\.\d{4,}/|kot-lit[:/]|\b(?:19|20)\d{2}\b)",
+                        re.IGNORECASE)
 
 REQUIRED_FIELDS = ("id", "claim", "tag", "backing_ref", "load_bearing", "status", "owner")
 
