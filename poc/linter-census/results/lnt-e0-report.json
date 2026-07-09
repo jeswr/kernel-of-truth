@@ -1,0 +1,809 @@
+{
+  "command": "node poc/linter-census/run-lnt-e0.mjs",
+  "corpusPins": {
+    "clean-human": {
+      "files": [
+        "bash.txt",
+        "grep.txt",
+        "tar.txt"
+      ],
+      "kind": "human-authored technical documentation (rendered man pages; prep-clean-human.sh)",
+      "note": "STIPULATED corpus choice for this Tier-0 feasibility run; OFF the covered domain — valid for the coverage-independent V/A false-alarm floor only"
+    },
+    "llm-programme-docs": {
+      "files": [
+        "README.md",
+        "docs/architecture.md",
+        "docs/kernel-design-directives.md",
+        "docs/explainer-vectorisation.md",
+        "docs/next/kernel-precision-linter.md",
+        "reports/nsm-and-knowledge-injection.md"
+      ],
+      "kind": "programme-generated design docs (LLM/agent-authored), markdown-stripped"
+    },
+    "llm-tinystories": {
+      "bytes": 19447282,
+      "kind": "LLM-generated stories (GPT-3.5/4-generated TinyStories; the m0b/m0a-pinned corpus)",
+      "path": "/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/TinyStories-valid.txt",
+      "sha256": "94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4",
+      "stories": 21990,
+      "storiesLinted": 21990
+    }
+  },
+  "design": "docs/next/kernel-precision-linter.md §5 LNT-E0 (i) census, (ii) false-alarm floor, (iii) half: V-rhetorical only",
+  "experiment": "LNT-E0 (exploratory feasibility census; NOT pre-registered; cannot flip any verdict)",
+  "gates": {
+    "G1_rung_monotonicity_per_slice": {
+      "clean-human": true,
+      "llm-programme-docs": true,
+      "llm-tinystories": true
+    },
+    "G2_m0a_crosscheck": {
+      "comparable": true,
+      "deltas_pp": {
+        "pctAbstained": 0,
+        "pctMappedToConcepts": 0,
+        "pctMappedToPrimes": 0,
+        "pctMappedTotal": 0,
+        "pctUnmapped": 0
+      },
+      "note": "full-corpus flagless pass; deltas must be ~0 (identical mapText + identical token counting)",
+      "pass": true,
+      "published_m0a": {
+        "pctAbstained": 4.7903,
+        "pctMappedToConcepts": 3.1106,
+        "pctMappedToPrimes": 13.9706,
+        "pctMappedTotal": 17.0812,
+        "pctUnmapped": 78.1285
+      },
+      "reproduced_flagless": {
+        "pctAbstained": 4.7903,
+        "pctMappedToConcepts": 3.1106,
+        "pctMappedToPrimes": 13.9706,
+        "pctMappedTotal": 17.0812,
+        "pctUnmapped": 78.1285
+      },
+      "skipped": false
+    }
+  },
+  "m0bAnchor": "token-mass coverage MEASURED 0.3542 @ molecules-v0 on TinyStories-valid, one incomplete kernel instance, corpus-indexed, extrapolates to no other corpus (registry/verdicts/m0b.json, envelope verbatim)",
+  "pins": {
+    "kernelManifestSha256": "da56bf1f912cdc24229a7cac5ca32fdb902fd0bac01fd90790438aac70a26c41",
+    "kotLintVersion": "0.1.0",
+    "mapperPolicy": "shadowed-hybrid-recommended",
+    "mapperPolicySha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+    "mapperVersion": "0.1.0",
+    "moleculesManifestSha256": "473205d25dfafd32c38170480ef486680f7bd508e7e3f939f18bafe6c4251946",
+    "patternCount": 75,
+    "patternLexiconSha256": "b414f547e66212bdbd5720168fa1b1f169bae0156a53f36e8463e7796b26b9fb",
+    "patternLexiconVersion": "0.1.0",
+    "wn31ManifestSha256": "b664263a9788382bed382e8f5cf364a8d1aed002eec2b318a8cad0b2b5a27662"
+  },
+  "propositionProxy": "clause via deterministic segmentation (tools/lint/lib/segment.mjs); conjunctive over all content tokens (pinned M0b FUNCTION_STOPLIST); NO frame/grammar conjunct exists at Stage 0, so every coverage fraction is an UPPER BOUND on true proposition-level conjunctive coverage (LNT-F1 arm (a))",
+  "runtimeSeconds": 15.6,
+  "schema": "kot-lnt-e0-report/0",
+  "slices": {
+    "clean-human": {
+      "aTopSurfaces": {
+        "kinds": 1
+      },
+      "chars": 479078,
+      "clauses": 5857,
+      "documents": 3,
+      "engagement": {
+        "classes": {
+          "A": 0,
+          "M": 27,
+          "U-mol": 4,
+          "U-out": 2401,
+          "U-wn31": 3306
+        },
+        "fractions": {
+          "A": 0,
+          "M": 0.004705,
+          "U-mol": 0.000697,
+          "U-out": 0.418438,
+          "U-wn31": 0.576159
+        },
+        "vFlaggedPropositionFraction": 0.000697,
+        "vFlaggedPropositions": 4,
+        "whollyVacuousClauses": 0
+      },
+      "exampleFlags": [
+        {
+          "class": "V",
+          "doc": "bash.txt",
+          "patternId": "wea-a-number-of",
+          "start": 3344,
+          "text": "a number of"
+        },
+        {
+          "class": "A",
+          "doc": "bash.txt",
+          "start": 97011,
+          "text": "kinds"
+        },
+        {
+          "class": "V",
+          "doc": "bash.txt",
+          "patternId": "wea-a-number-of",
+          "start": 108645,
+          "text": "a number of"
+        },
+        {
+          "class": "V",
+          "doc": "bash.txt",
+          "patternId": "wea-a-number-of",
+          "start": 180214,
+          "text": "a number of"
+        },
+        {
+          "class": "V",
+          "doc": "bash.txt",
+          "patternId": "wea-a-number-of",
+          "start": 183409,
+          "text": "a  number  of"
+        }
+      ],
+      "falseAlarm": {
+        "aPer1000Words": 0.015942,
+        "flagCounts": {
+          "A": 1,
+          "V": {
+            "filler": 0,
+            "hedge": 0,
+            "total": 4,
+            "weasel": 4
+          }
+        },
+        "sentencesWithWarn": 5,
+        "sentencesWithWarnFraction": 0.001355,
+        "vPer1000Words": 0.063769,
+        "warnPer1000Words": 0.079712
+      },
+      "gateG1RungMonotonicity": true,
+      "noContentClauses": 119,
+      "perDocument": {
+        "bash.txt": {
+          "flagCounts": {
+            "A": 1,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 4,
+              "weasel": 4
+            }
+          },
+          "propositions": 4486,
+          "sentencesWithWarnFraction": 0.001694,
+          "sha256": "52fca9f964ddcddd9804bcf948561688ca547a5355fbaf2695af8278d1296c98",
+          "warnPer1000Words": 0.094866
+        },
+        "grep.txt": {
+          "flagCounts": {
+            "A": 0,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 500,
+          "sentencesWithWarnFraction": 0,
+          "sha256": "e50a98bb763fbf6d14eb6e8cfb75989a7e02767a317b71eede034d96314094fa",
+          "warnPer1000Words": 0
+        },
+        "tar.txt": {
+          "flagCounts": {
+            "A": 0,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 752,
+          "sentencesWithWarnFraction": 0,
+          "sha256": "c3494dc72b253ce6347e857cafe6a3f8796f0e8c6de517ba00f59389fee3b95e",
+          "warnPer1000Words": 0
+        }
+      },
+      "propositionCoverage": {
+        "clause": {
+          "kernelV0Member": {
+            "covered": 27,
+            "fraction": 0.004705
+          },
+          "kernelV0Strict": {
+            "covered": 27,
+            "fraction": 0.004705
+          },
+          "moleculesV0": {
+            "covered": 31,
+            "fraction": 0.005403
+          },
+          "total": 5738,
+          "wn31Aligned": {
+            "covered": 3337,
+            "fraction": 0.581562
+          }
+        },
+        "sentence": {
+          "kernelV0Member": {
+            "covered": 7,
+            "fraction": 0.001912
+          },
+          "kernelV0Strict": {
+            "covered": 7,
+            "fraction": 0.001912
+          },
+          "moleculesV0": {
+            "covered": 7,
+            "fraction": 0.001912
+          },
+          "total": 3662,
+          "wn31Aligned": {
+            "covered": 1660,
+            "fraction": 0.453304
+          }
+        }
+      },
+      "propositions": 5738,
+      "sentences": 3691,
+      "tokens": {
+        "contentBandFractions": {
+          "kernel-v0": 0.05299,
+          "kernel-v0-member": 0.000028,
+          "molecules-v0": 0.004913,
+          "out": 0.111975,
+          "wn31-aligned": 0.830095
+        },
+        "contentBands": {
+          "kernel-v0": 1909,
+          "kernel-v0-member": 1,
+          "molecules-v0": 177,
+          "out": 4034,
+          "wn31-aligned": 29905
+        },
+        "contentTokens": 36026,
+        "decisionFractionsOfWordTokens": {
+          "abstain": 0.055543,
+          "concept": 0.012371,
+          "none": 0.842394,
+          "prime": 0.089692
+        },
+        "decisions": {
+          "abstain": 3484,
+          "concept": 776,
+          "none": 52840,
+          "prime": 5626
+        },
+        "expandedWordTokens": 62726
+      },
+      "vByPattern": {
+        "wea-a-number-of": 4
+      }
+    },
+    "llm-programme-docs": {
+      "aTopSurfaces": {
+        "kind": 4,
+        "kind's": 1,
+        "kinds": 2,
+        "little": 1,
+        "lost": 2
+      },
+      "chars": 136138,
+      "clauses": 1907,
+      "documents": 6,
+      "engagement": {
+        "classes": {
+          "A": 0,
+          "M": 6,
+          "U-mol": 1,
+          "U-out": 669,
+          "U-wn31": 1213
+        },
+        "fractions": {
+          "A": 0,
+          "M": 0.003176,
+          "U-mol": 0.000529,
+          "U-out": 0.354156,
+          "U-wn31": 0.642139
+        },
+        "vFlaggedPropositionFraction": 0,
+        "vFlaggedPropositions": 0,
+        "whollyVacuousClauses": 0
+      },
+      "exampleFlags": [
+        {
+          "class": "A",
+          "doc": "docs/architecture.md",
+          "start": 9178,
+          "text": "lost"
+        },
+        {
+          "class": "A",
+          "doc": "docs/architecture.md",
+          "start": 11946,
+          "text": "lost"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 3212,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 6231,
+          "text": "kinds"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 9490,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 9665,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 21380,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 24268,
+          "text": "kind's"
+        },
+        {
+          "class": "A",
+          "doc": "docs/explainer-vectorisation.md",
+          "start": 26612,
+          "text": "kinds"
+        },
+        {
+          "class": "A",
+          "doc": "reports/nsm-and-knowledge-injection.md",
+          "start": 19579,
+          "text": "little"
+        }
+      ],
+      "falseAlarm": {
+        "aPer1000Words": 0.619809,
+        "flagCounts": {
+          "A": 10,
+          "V": {
+            "filler": 0,
+            "hedge": 0,
+            "total": 0,
+            "weasel": 0
+          }
+        },
+        "sentencesWithWarn": 9,
+        "sentencesWithWarnFraction": 0.011704,
+        "vPer1000Words": 0,
+        "warnPer1000Words": 0.619809
+      },
+      "gateG1RungMonotonicity": true,
+      "noContentClauses": 18,
+      "perDocument": {
+        "README.md": {
+          "engagementFractions": {
+            "A": 0,
+            "M": 0.021277,
+            "U-mol": 0,
+            "U-out": 0.212766,
+            "U-wn31": 0.765957
+          },
+          "flagCounts": {
+            "A": 0,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 47,
+          "sha256": "6dc4442b2dbc29ed3cd6029c3df0e07efeda9c7e324ee994d7703cfeb6ee4c78",
+          "warnPer1000Words": 0
+        },
+        "docs/architecture.md": {
+          "engagementFractions": {
+            "A": 0,
+            "M": 0.003077,
+            "U-mol": 0,
+            "U-out": 0.313846,
+            "U-wn31": 0.683077
+          },
+          "flagCounts": {
+            "A": 2,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 325,
+          "sha256": "8381af6d2bdef785dbf5bbe62e989f23e8e96876bec0e05ba5e485dcedea3bc8",
+          "warnPer1000Words": 0.789578
+        },
+        "docs/explainer-vectorisation.md": {
+          "engagementFractions": {
+            "A": 0,
+            "M": 0.006211,
+            "U-mol": 0.00207,
+            "U-out": 0.331263,
+            "U-wn31": 0.660455
+          },
+          "flagCounts": {
+            "A": 7,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 483,
+          "sha256": "74eeb4b39e2bff06f22f6a387c63d4d1ccbb82070a7e0382138d658c04cab6cf",
+          "warnPer1000Words": 1.690005
+        },
+        "docs/kernel-design-directives.md": {
+          "engagementFractions": {
+            "A": 0,
+            "M": 0,
+            "U-mol": 0,
+            "U-out": 0.333333,
+            "U-wn31": 0.666667
+          },
+          "flagCounts": {
+            "A": 0,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 111,
+          "sha256": "151f7ff76fca3f0d89da191ed489ff4e1faa34a277aeedb44607ebed9e1aa7a3",
+          "warnPer1000Words": 0
+        },
+        "docs/next/kernel-precision-linter.md": {
+          "engagementFractions": {
+            "A": 0,
+            "M": 0.002212,
+            "U-mol": 0,
+            "U-out": 0.283186,
+            "U-wn31": 0.714602
+          },
+          "flagCounts": {
+            "A": 0,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 452,
+          "sha256": "6e41945ae0d1f48d4cd13c91f93de369ec25253c835c413517e72fc3179b8c8d",
+          "warnPer1000Words": 0
+        },
+        "reports/nsm-and-knowledge-injection.md": {
+          "engagementFractions": {
+            "A": 0,
+            "M": 0,
+            "U-mol": 0,
+            "U-out": 0.492569,
+            "U-wn31": 0.507431
+          },
+          "flagCounts": {
+            "A": 1,
+            "V": {
+              "filler": 0,
+              "hedge": 0,
+              "total": 0,
+              "weasel": 0
+            }
+          },
+          "propositions": 471,
+          "sha256": "58b0aab1c32e360a99f7e7c5c967d4d5a5f2333d96c4aee5593fccf6fabf950d",
+          "warnPer1000Words": 0.25
+        }
+      },
+      "propositionCoverage": {
+        "clause": {
+          "kernelV0Member": {
+            "covered": 6,
+            "fraction": 0.003176
+          },
+          "kernelV0Strict": {
+            "covered": 6,
+            "fraction": 0.003176
+          },
+          "moleculesV0": {
+            "covered": 7,
+            "fraction": 0.003706
+          },
+          "total": 1889,
+          "wn31Aligned": {
+            "covered": 1220,
+            "fraction": 0.645844
+          }
+        },
+        "sentence": {
+          "kernelV0Member": {
+            "covered": 0,
+            "fraction": 0
+          },
+          "kernelV0Strict": {
+            "covered": 0,
+            "fraction": 0
+          },
+          "moleculesV0": {
+            "covered": 0,
+            "fraction": 0
+          },
+          "total": 741,
+          "wn31Aligned": {
+            "covered": 323,
+            "fraction": 0.435897
+          }
+        }
+      },
+      "propositions": 1889,
+      "sentences": 769,
+      "tokens": {
+        "contentBandFractions": {
+          "kernel-v0": 0.037552,
+          "kernel-v0-member": 0.000896,
+          "molecules-v0": 0.012189,
+          "out": 0.098405,
+          "wn31-aligned": 0.850959
+        },
+        "contentBands": {
+          "kernel-v0": 419,
+          "kernel-v0-member": 10,
+          "molecules-v0": 136,
+          "out": 1098,
+          "wn31-aligned": 9495
+        },
+        "contentTokens": 11158,
+        "decisionFractionsOfWordTokens": {
+          "abstain": 0.030805,
+          "concept": 0.010847,
+          "none": 0.896864,
+          "prime": 0.061485
+        },
+        "decisions": {
+          "abstain": 497,
+          "concept": 175,
+          "none": 14470,
+          "prime": 992
+        },
+        "expandedWordTokens": 16134
+      },
+      "vByPattern": {}
+    },
+    "llm-tinystories": {
+      "aTopSurfaces": {
+        "kind": 2341,
+        "kinder": 7,
+        "kindest": 3,
+        "kinds": 174,
+        "little": 19383,
+        "littlest": 8,
+        "lost": 1058
+      },
+      "chars": 19089666,
+      "clauses": 448893,
+      "documents": 21990,
+      "engagement": {
+        "classes": {
+          "A": 415,
+          "M": 17154,
+          "U-mol": 12668,
+          "U-out": 47240,
+          "U-wn31": 365531
+        },
+        "fractions": {
+          "A": 0.000937,
+          "M": 0.038722,
+          "U-mol": 0.028595,
+          "U-out": 0.106635,
+          "U-wn31": 0.825112
+        },
+        "vFlaggedPropositionFraction": 0.000718,
+        "vFlaggedPropositions": 318,
+        "whollyVacuousClauses": 2
+      },
+      "exampleFlags": [
+        {
+          "class": "A",
+          "doc": "story-1",
+          "start": 444,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-1",
+          "start": 1146,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-4",
+          "start": 30,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "story-4",
+          "start": 118,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-4",
+          "start": 292,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "story-4",
+          "start": 460,
+          "text": "kind"
+        },
+        {
+          "class": "A",
+          "doc": "story-4",
+          "start": 477,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-5",
+          "start": 30,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-5",
+          "start": 396,
+          "text": "lost"
+        },
+        {
+          "class": "A",
+          "doc": "story-6",
+          "start": 30,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-7",
+          "start": 30,
+          "text": "little"
+        },
+        {
+          "class": "A",
+          "doc": "story-10",
+          "start": 30,
+          "text": "little"
+        }
+      ],
+      "falseAlarm": {
+        "aPer1000Words": 6.067179,
+        "flagCounts": {
+          "A": 22974,
+          "V": {
+            "filler": 312,
+            "hedge": 3,
+            "total": 318,
+            "weasel": 3
+          }
+        },
+        "sentencesWithWarn": 22978,
+        "sentencesWithWarnFraction": 0.056908,
+        "vPer1000Words": 0.08398,
+        "warnPer1000Words": 6.15116
+      },
+      "gateG1RungMonotonicity": true,
+      "noContentClauses": 5885,
+      "propositionCoverage": {
+        "clause": {
+          "kernelV0Member": {
+            "covered": 17569,
+            "fraction": 0.039658
+          },
+          "kernelV0Strict": {
+            "covered": 17154,
+            "fraction": 0.038722
+          },
+          "moleculesV0": {
+            "covered": 30237,
+            "fraction": 0.068254
+          },
+          "total": 443008,
+          "wn31Aligned": {
+            "covered": 395768,
+            "fraction": 0.893365
+          }
+        },
+        "sentence": {
+          "kernelV0Member": {
+            "covered": 13020,
+            "fraction": 0.032449
+          },
+          "kernelV0Strict": {
+            "covered": 12723,
+            "fraction": 0.031709
+          },
+          "moleculesV0": {
+            "covered": 22231,
+            "fraction": 0.055405
+          },
+          "total": 401243,
+          "wn31Aligned": {
+            "covered": 354271,
+            "fraction": 0.882934
+          }
+        }
+      },
+      "propositions": 443008,
+      "sentences": 403771,
+      "tokens": {
+        "contentBandFractions": {
+          "kernel-v0": 0.210323,
+          "kernel-v0-member": 0.013415,
+          "molecules-v0": 0.132955,
+          "out": 0.028799,
+          "wn31-aligned": 0.614508
+        },
+        "contentBands": {
+          "kernel-v0": 360202,
+          "kernel-v0-member": 22974,
+          "molecules-v0": 227700,
+          "out": 49322,
+          "wn31-aligned": 1052413
+        },
+        "contentTokens": 1712611,
+        "decisionFractionsOfWordTokens": {
+          "abstain": 0.04625,
+          "concept": 0.032759,
+          "none": 0.781285,
+          "prime": 0.139706
+        },
+        "decisions": {
+          "abstain": 175130,
+          "concept": 124045,
+          "none": 2958417,
+          "prime": 529011
+        },
+        "expandedWordTokens": 3786603
+      },
+      "vByPattern": {
+        "fill-each-and-every": 12,
+        "fill-end-of-day": 240,
+        "fill-important-remember": 11,
+        "fill-last-not-least": 1,
+        "fill-to-be-fair": 10,
+        "fill-to-be-honest": 38,
+        "hdg-in-many-ways": 3,
+        "wea-a-number-of": 3
+      }
+    }
+  }
+}
