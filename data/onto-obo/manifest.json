@@ -11,7 +11,7 @@
       "parse-obo.mjs",
       "extract.mjs"
     ],
-    "contentHash": "35b4b1a19a4932b17f64c959e782acfa9d44a4d8f9732f9a89f22fafad7f5bd8",
+    "contentHash": "8dc25da10fc083dedb79f3875128fdfd40d4743c8497abaedcfc42d17e963fd5",
     "hashRule": "sha256 over concatenated bytes of listed files, in listed order"
   },
   "extractionDate": "2026-07-07",
@@ -34,6 +34,7 @@
         "genusDifferentia": 0,
         "obsoleteSkipped": 0,
         "importedAliasesSkipped": 0,
+        "foreignStubsSkipped": 0,
         "axiomsByRel": {
           "is_a": 34,
           "disjoint_from": 19
@@ -53,22 +54,23 @@
       "note": "The relation vocabulary used across OBO. [Typedef] stanzas -> relation records (kind:\"relation\") with inverse_of/domain/range/transitive_over/holds_over_chain axioms and boolean characteristics; [Term] stanzas -> class records.",
       "shard": "ro.jsonl",
       "counts": {
-        "records": 721,
-        "classes": 33,
-        "relations": 688,
+        "records": 693,
+        "classes": 9,
+        "relations": 684,
         "withLogicalDef": 0,
         "genusDifferentia": 0,
         "obsoleteSkipped": 17,
-        "importedAliasesSkipped": 20,
+        "importedAliasesSkipped": 33,
+        "foreignStubsSkipped": 15,
         "axiomsByRel": {
-          "is_a": 755,
+          "is_a": 730,
           "relationship": 1,
-          "disjoint_from": 11,
           "inverse_of": 121,
           "domain": 147,
           "range": 135,
           "holds_over_chain": 101,
-          "transitive_over": 38
+          "transitive_over": 38,
+          "disjoint_from": 10
         },
         "differentiaProps": {}
       },
@@ -92,6 +94,7 @@
         "genusDifferentia": 9303,
         "obsoleteSkipped": 10084,
         "importedAliasesSkipped": 0,
+        "foreignStubsSkipped": 0,
         "axiomsByRel": {
           "is_a": 57827,
           "relationship": 16209,
@@ -159,6 +162,7 @@
         "genusDifferentia": 0,
         "obsoleteSkipped": 919,
         "importedAliasesSkipped": 18,
+        "foreignStubsSkipped": 0,
         "axiomsByRel": {
           "is_a": 2223,
           "relationship": 461,
@@ -186,6 +190,7 @@
         "genusDifferentia": 81,
         "obsoleteSkipped": 134,
         "importedAliasesSkipped": 2,
+        "foreignStubsSkipped": 0,
         "axiomsByRel": {
           "is_a": 1876,
           "relationship": 1008,
@@ -217,6 +222,324 @@
           1
         ]
       ]
+    },
+    "CL": {
+      "sourceName": "Cell Ontology (CL)",
+      "purl": "http://purl.obolibrary.org/obo/cl.obo",
+      "sourceVersion": "sha256:7e19b4aef8e7fe7720b0c4474c6a5b8713c904ea9ab7b7d5d96f2cb28b8fc51f",
+      "dataVersion": "releases/2026-06-08",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Cell Ontology, http://purl.obolibrary.org/obo/cl). License asserted in the source header (property_value: terms:license http://creativecommons.org/licenses/by/4.0/) and the OBO Foundry registry.",
+      "note": "Cell types; rich genus-differentia (cell is_a + differentiae over part_of/has_part/capable_of etc.). data-version releases/2026-06-08. CL owns CL:* by prefix-ownership (PREFIX_OWNER), so its 5,062 UBERON import stubs and its foreign-prefix stubs (PR/CLM/DHBA/MBA/NCBITaxon/STATO/CP/IAO/COB/CHEBI/SO/raw-IRI) are NOT emitted here: UBERON stubs defer to UBERON, foreign stubs survive only as reference targets. Imported GO/RO/PATO/BFO stubs defer to their prefix owners.",
+      "shard": "cl.jsonl",
+      "counts": {
+        "records": 3359,
+        "classes": 3335,
+        "relations": 24,
+        "withLogicalDef": 1731,
+        "genusDifferentia": 1723,
+        "obsoleteSkipped": 213,
+        "importedAliasesSkipped": 13172,
+        "foreignStubsSkipped": 2411,
+        "axiomsByRel": {
+          "is_a": 4897,
+          "relationship": 4247,
+          "disjoint_from": 39,
+          "union_of": 8,
+          "domain": 1,
+          "range": 1,
+          "inverse_of": 1,
+          "holds_over_chain": 1
+        },
+        "differentiaProps": {
+          "RO:0002202": 23,
+          "RO:0002215": 347,
+          "RO:0000053": 128,
+          "CL:4030046": 544,
+          "BFO:0000051": 155,
+          "RO:0002104": 593,
+          "BFO:0000050": 890,
+          "RO:0001025": 15,
+          "RO:0015016": 110,
+          "RO:0015015": 110,
+          "RO:0002100": 101,
+          "CL:4030045": 17,
+          "RO:0002162": 74,
+          "RO:0002203": 10,
+          "RO:0000056": 36,
+          "CL:4030044": 15,
+          "RO:0002103": 1,
+          "RO:0002292": 22,
+          "RO:0002353": 33,
+          "RO:0002220": 7,
+          "RO:0003000": 15,
+          "RO:0002130": 1,
+          "RO:0002120": 2,
+          "RO:0002216": 1,
+          "RO:0002491": 1,
+          "RO:0002488": 1,
+          "RO:0002492": 1,
+          "RO:0001000": 1,
+          "RO:0013007": 1,
+          "RO:0013001": 1,
+          "RO:0002134": 2,
+          "RO:0000086": 20,
+          "RO:0002131": 2
+        }
+      },
+      "topDifferentiaProperties": [
+        [
+          "BFO:0000050",
+          890
+        ],
+        [
+          "RO:0002104",
+          593
+        ],
+        [
+          "CL:4030046",
+          544
+        ],
+        [
+          "RO:0002215",
+          347
+        ],
+        [
+          "BFO:0000051",
+          155
+        ],
+        [
+          "RO:0000053",
+          128
+        ],
+        [
+          "RO:0015016",
+          110
+        ],
+        [
+          "RO:0015015",
+          110
+        ],
+        [
+          "RO:0002100",
+          101
+        ],
+        [
+          "RO:0002162",
+          74
+        ],
+        [
+          "RO:0000056",
+          36
+        ],
+        [
+          "RO:0002353",
+          33
+        ],
+        [
+          "RO:0002202",
+          23
+        ],
+        [
+          "RO:0002292",
+          22
+        ],
+        [
+          "RO:0000086",
+          20
+        ]
+      ]
+    },
+    "UBERON": {
+      "sourceName": "Uber-anatomy Ontology (UBERON)",
+      "purl": "http://purl.obolibrary.org/obo/uberon.obo",
+      "sourceVersion": "sha256:7f06d8e8442008a67132a1599b652e86fe0c52d75c8d6bc5b0cc36a0031e6b3f",
+      "dataVersion": "releases/2026-06-19",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 3.0 permits redistribution of derived records with attribution (UBERON, http://purl.obolibrary.org/obo/uberon). License asserted in the source header (property_value: dcterms-license http://creativecommons.org/licenses/by/3.0/) and the OBO Foundry registry.",
+      "note": "Multi-species anatomy; the target of GO part_of/occurs_in differentia and CL part_of differentia. data-version releases/2026-06-19. UBERON owns UBERON:* by prefix-ownership, so its 1,487 CL import stubs defer to CL and its foreign-prefix stubs survive only as reference targets. Loaded AFTER CL so the mutual-import dedup is symmetric (each owns its own id-space; array order is irrelevant to the outcome).",
+      "shard": "uberon.jsonl",
+      "counts": {
+        "records": 15153,
+        "classes": 14977,
+        "relations": 176,
+        "withLogicalDef": 5670,
+        "genusDifferentia": 5670,
+        "obsoleteSkipped": 1097,
+        "importedAliasesSkipped": 8756,
+        "foreignStubsSkipped": 1631,
+        "axiomsByRel": {
+          "is_a": 19744,
+          "relationship": 27939,
+          "disjoint_from": 591,
+          "union_of": 269,
+          "inverse_of": 21,
+          "domain": 26,
+          "range": 23,
+          "holds_over_chain": 27,
+          "transitive_over": 11
+        },
+        "differentiaProps": {
+          "continuous_with": 28,
+          "part_of": 3699,
+          "connects": 402,
+          "capable_of": 36,
+          "composed_primarily_of": 455,
+          "has_quality": 43,
+          "has_component": 3,
+          "has_potential_to_develop_into": 134,
+          "has_part": 87,
+          "location_of": 5,
+          "extends_fibers_into": 97,
+          "develops_from": 74,
+          "simultaneous_with": 1,
+          "proximalmost_part_of": 6,
+          "luminal_space_of": 87,
+          "subdivision_of": 18,
+          "has_member": 14,
+          "output_of": 10,
+          "bounding_layer_of": 33,
+          "existence_starts_and_ends_during": 12,
+          "adjacent_to": 117,
+          "produced_by": 40,
+          "attaches_to_part_of": 4,
+          "surrounds": 23,
+          "surrounded_by": 4,
+          "vessel_drains_blood_from": 71,
+          "connecting_branch_of": 35,
+          "vessel_supplies_blood_to": 87,
+          "attaches_to": 95,
+          "has_skeleton": 33,
+          "existence_ends_with": 4,
+          "existence_starts_with": 5,
+          "intersects_midsagittal_plane_of": 10,
+          "innervates": 81,
+          "has_muscle_insertion": 15,
+          "has_muscle_origin": 10,
+          "capable_of_part_of": 9,
+          "produces": 9,
+          "located_in": 51,
+          "in_right_side_of": 83,
+          "in_left_side_of": 84,
+          "conduit_for": 24,
+          "lumen_of": 2,
+          "tributary_of": 9,
+          "immediately_deep_to": 17,
+          "distalmost_part_of": 3,
+          "has_fused_element": 26,
+          "anastomoses_with": 4,
+          "skeleton_of": 71,
+          "innervated_by": 6,
+          "directly_develops_from": 1,
+          "channel_for": 2,
+          "immediate_transformation_of": 5,
+          "anterior_to": 4,
+          "overlaps": 52,
+          "connected_to": 32,
+          "deep_to": 3,
+          "immediately_superficial_to": 10,
+          "proximally_connected_to": 4,
+          "trunk_part_of": 1,
+          "in_deep_part_of": 4,
+          "in_superficial_part_of": 6,
+          "branching_part_of": 25,
+          "has_potential_to_developmentally_contribute_to": 11,
+          "in_anterior_side_of": 10,
+          "in_posterior_side_of": 12,
+          "layer_part_of": 1,
+          "distally_connected_to": 2,
+          "in_distal_side_of": 2,
+          "in_proximal_side_of": 2,
+          "transformation_of": 4,
+          "in_innermost_side_of": 4,
+          "in_outermost_side_of": 4,
+          "superficial_to": 4,
+          "site_of": 2,
+          "in_dorsal_side_of": 4,
+          "in_ventral_side_of": 4,
+          "participates_in": 3,
+          "developmentally_replaces": 1,
+          "filtered_through": 2,
+          "posterior_to": 2,
+          "dorsal_to": 4,
+          "ventral_to": 2,
+          "has_developmental_contribution_from": 2,
+          "input_of": 1,
+          "in_lateral_side_of": 13,
+          "synapsed_by": 1,
+          "in_central_side_of": 7,
+          "existence_ends_during": 1,
+          "existence_starts_during": 1,
+          "sexually_homologous_to": 1,
+          "ends": 1,
+          "starts": 2,
+          "in_taxon": 8
+        }
+      },
+      "topDifferentiaProperties": [
+        [
+          "part_of",
+          3699
+        ],
+        [
+          "composed_primarily_of",
+          455
+        ],
+        [
+          "connects",
+          402
+        ],
+        [
+          "has_potential_to_develop_into",
+          134
+        ],
+        [
+          "adjacent_to",
+          117
+        ],
+        [
+          "extends_fibers_into",
+          97
+        ],
+        [
+          "attaches_to",
+          95
+        ],
+        [
+          "has_part",
+          87
+        ],
+        [
+          "luminal_space_of",
+          87
+        ],
+        [
+          "vessel_supplies_blood_to",
+          87
+        ],
+        [
+          "in_left_side_of",
+          84
+        ],
+        [
+          "in_right_side_of",
+          83
+        ],
+        [
+          "innervates",
+          81
+        ],
+        [
+          "develops_from",
+          74
+        ],
+        [
+          "vessel_drains_blood_from",
+          71
+        ]
+      ]
     }
   },
   "sourceFiles": {
@@ -225,7 +548,9 @@
     "ro.obo": "sha256:e34a2ea60fc15114edd4494c912ac0558ae51d31a1e5d62c6c0db0dac9e90449",
     "go.obo": "sha256:f6a7004c2ee92896691359aa211c418aa1f9430a5906d7913af67afeda05e34c",
     "pato.obo": "sha256:9b65efdf7d8d96bafd54637041cc615404ac2c88608efbcf54efa0a369bb1f75",
-    "po.obo": "sha256:d90949737a9925bdb775ba7dd4a9521cb63ca4acd40211e4c7661655f379f4c9"
+    "po.obo": "sha256:d90949737a9925bdb775ba7dd4a9521cb63ca4acd40211e4c7661655f379f4c9",
+    "cl.obo": "sha256:7e19b4aef8e7fe7720b0c4474c6a5b8713c904ea9ab7b7d5d96f2cb28b8fc51f",
+    "uberon.obo": "sha256:7f06d8e8442008a67132a1599b652e86fe0c52d75c8d6bc5b0cc36a0031e6b3f"
   },
   "shards": {
     "bfo.jsonl": {
@@ -234,9 +559,9 @@
       "sha256": "c845126441764932fe7de16fd3031aeaf4c9c19875f26165b3452dff7396e42a"
     },
     "ro.jsonl": {
-      "records": 721,
-      "bytes": 606278,
-      "sha256": "4b62823ef440481161231f92b5152fe3f5452646722e0e30c1ce1ff41d713372"
+      "records": 693,
+      "bytes": 582798,
+      "sha256": "0366c37ba18eb883c77159d6c9607e40f11fe4523fb59d8645b13c9d6eff49b8"
     },
     "go.jsonl": {
       "records": 38256,
@@ -252,1143 +577,36 @@
       "records": 1670,
       "bytes": 2089779,
       "sha256": "9f8921e19183906bf36ce1a66f9e835140957c13413ef70ee8fb4e233b3f6b90"
+    },
+    "cl.jsonl": {
+      "records": 3359,
+      "bytes": 4233471,
+      "sha256": "28bdd829bc013eb91420fa87567bdd2a83358a846e0a4137fd451045eeabacda"
+    },
+    "uberon.jsonl": {
+      "records": 15153,
+      "bytes": 19754526,
+      "sha256": "6a4394ad2e94eb460cc590e9b5b64df2d4246186a83b3029cc535742695b3b95"
     }
   },
   "totals": {
-    "records": 42565,
-    "withLogicalDef": 9388,
-    "genusDifferentia": 9384,
-    "bytes": 49238139
+    "records": 61049,
+    "withLogicalDef": 16789,
+    "genusDifferentia": 16777,
+    "bytes": 73202656
   },
   "minting": {
     "profileHeader": "kot-obo/1\n",
-    "mintedCount": 42565,
-    "uniqueUrnCount": 42565,
-    "mintToolHash": "4b65ee17e108ffb6f43ed6f539e9d0861ba7474fc811c1b878fd48334f8e00ae",
-    "corpusIdentityRoot": "0c892f941ad8336fee70e559a320dd3e8e6efa420feedfe68394de435150852e",
+    "mintedCount": 61049,
+    "uniqueUrnCount": 61049,
+    "mintToolHash": "38573b0b3f3327ca444b4e27e0c4cc5768e178e2b106c8dfdce6812b3125c3d6",
+    "corpusIdentityRoot": "42bc07810cb2b62d0ed949cd25bc5e48648400df64ffe9906bbc27804d9cac03",
     "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
     "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
-    "referenceMode": "substitute",
-    "identityPayload": "Identity = {sourceId (OBO id), schema, semanticStatus, ontology, kind, oboId, axioms, logicalDefinition?, characteristics?, upgradeCandidate?}. label/definition(prose)/synonyms/xrefs/comment/namespace/subsets are annotation. Intra-corpus refs substituted; the 49 GO/RO SCCs (max size 11: e.g. cell-communication cluster) minted via the gist s6 component algorithm. 5 external/cross-ontology refs (NCBITaxon, foaf, COB, BFO_0000060) are unresolved in-corpus and kept as stable placeholder ids.",
+    "referenceMode": "stable",
+    "identityPayload": "Identity = {sourceId (OBO id), schema, semanticStatus, ontology, kind, oboId, axioms, logicalDefinition?, characteristics?, upgradeCandidate?}. label/definition(prose)/synonyms/xrefs/comment/namespace/subsets/provenance are annotation. STABLE ids: once anatomy (UBERON/CL) is included the axiom graph is NOT a DAG (662 SCCs, largest 1,142, from symmetric disjoint_from + lateral relationship/part_of/develops_from assertions), so no reverse-topo order exists — intra- and cross-ontology refs are kept as stable placeholder urn:onto-obo: ids (same rule as lexical-wn31). sourceId is the globally-unique OBO id after PREFIX_OWNER dedup (CL owns CL:*, UBERON owns UBERON:*, resolving CL<->UBERON mutual imports); foreign-prefix import stubs (NCBITaxon/PR/CHEBI/CLM/DHBA/MBA/COB/ENVO/OBI/...) are not emitted, only referenced. sourceId inside identity => 0 duplicate-identity groups.",
     "duplicateIdentityGroups": 0,
-    "cyclicComponents": [
-      [
-        "urn:onto-obo:BFO_0000050",
-        "urn:onto-obo:BFO_0000051",
-        "urn:onto-obo:RO_0002131"
-      ],
-      [
-        "urn:onto-obo:BFO_0000062",
-        "urn:onto-obo:RO_0002086"
-      ],
-      [
-        "urn:onto-obo:GO_0007154",
-        "urn:onto-obo:GO_0007267",
-        "urn:onto-obo:GO_0009987",
-        "urn:onto-obo:GO_0023052",
-        "urn:onto-obo:GO_0023061",
-        "urn:onto-obo:GO_0032940",
-        "urn:onto-obo:GO_0044848",
-        "urn:onto-obo:GO_0046879",
-        "urn:onto-obo:GO_0071840",
-        "urn:onto-obo:GO_0098743",
-        "urn:onto-obo:GO_0140352"
-      ],
-      [
-        "urn:onto-obo:GO_0000278",
-        "urn:onto-obo:GO_0140014",
-        "urn:onto-obo:GO_1903047"
-      ],
-      [
-        "urn:onto-obo:GO_0016887",
-        "urn:onto-obo:GO_0140657"
-      ],
-      [
-        "urn:onto-obo:GO_0000045",
-        "urn:onto-obo:GO_0016236",
-        "urn:onto-obo:GO_1905037"
-      ],
-      [
-        "urn:onto-obo:GO_0051321",
-        "urn:onto-obo:GO_0140013",
-        "urn:onto-obo:GO_1903046"
-      ],
-      [
-        "urn:onto-obo:GO_0031507",
-        "urn:onto-obo:GO_0033696"
-      ],
-      [
-        "urn:onto-obo:GO_0001677",
-        "urn:onto-obo:GO_0006412",
-        "urn:onto-obo:GO_0006413",
-        "urn:onto-obo:GO_0006414",
-        "urn:onto-obo:GO_0006415"
-      ],
-      [
-        "urn:onto-obo:GO_0097540",
-        "urn:onto-obo:GO_1990719",
-        "urn:onto-obo:GO_1990720"
-      ],
-      [
-        "urn:onto-obo:GO_0097545",
-        "urn:onto-obo:GO_0097649",
-        "urn:onto-obo:GO_0097650"
-      ],
-      [
-        "urn:onto-obo:GO_0006915",
-        "urn:onto-obo:GO_0097190",
-        "urn:onto-obo:GO_0097194"
-      ],
-      [
-        "urn:onto-obo:GO_0004930",
-        "urn:onto-obo:GO_0007186"
-      ],
-      [
-        "urn:onto-obo:GO_0004993",
-        "urn:onto-obo:GO_0098664"
-      ],
-      [
-        "urn:onto-obo:GO_0001639",
-        "urn:onto-obo:GO_0007206"
-      ],
-      [
-        "urn:onto-obo:GO_0001640",
-        "urn:onto-obo:GO_0007196"
-      ],
-      [
-        "urn:onto-obo:GO_0001704",
-        "urn:onto-obo:GO_0001705",
-        "urn:onto-obo:GO_0001706",
-        "urn:onto-obo:GO_0001707",
-        "urn:onto-obo:GO_0007369"
-      ],
-      [
-        "urn:onto-obo:GO_0006887",
-        "urn:onto-obo:GO_0099500",
-        "urn:onto-obo:GO_0140029"
-      ],
-      [
-        "urn:onto-obo:GO_0001845",
-        "urn:onto-obo:GO_0090382"
-      ],
-      [
-        "urn:onto-obo:GO_0002078",
-        "urn:onto-obo:GO_0007340",
-        "urn:onto-obo:GO_0060478"
-      ],
-      [
-        "urn:onto-obo:GO_0032420",
-        "urn:onto-obo:GO_0032421"
-      ],
-      [
-        "urn:onto-obo:GO_0004743",
-        "urn:onto-obo:GO_0006096"
-      ],
-      [
-        "urn:onto-obo:GO_0003872",
-        "urn:onto-obo:GO_0061615"
-      ],
-      [
-        "urn:onto-obo:GO_0004935",
-        "urn:onto-obo:GO_0071875"
-      ],
-      [
-        "urn:onto-obo:GO_0004949",
-        "urn:onto-obo:GO_0038171"
-      ],
-      [
-        "urn:onto-obo:GO_0004970",
-        "urn:onto-obo:GO_0035235"
-      ],
-      [
-        "urn:onto-obo:GO_0006098",
-        "urn:onto-obo:GO_0009051",
-        "urn:onto-obo:GO_0009052"
-      ],
-      [
-        "urn:onto-obo:GO_0007020",
-        "urn:onto-obo:GO_0046785"
-      ],
-      [
-        "urn:onto-obo:GO_0007213",
-        "urn:onto-obo:GO_0016907"
-      ],
-      [
-        "urn:onto-obo:GO_0035082",
-        "urn:onto-obo:GO_0035735",
-        "urn:onto-obo:GO_0060271",
-        "urn:onto-obo:GO_0097712",
-        "urn:onto-obo:GO_1905349"
-      ],
-      [
-        "urn:onto-obo:GO_0007595",
-        "urn:onto-obo:GO_0060156"
-      ],
-      [
-        "urn:onto-obo:GO_0009555",
-        "urn:onto-obo:GO_0009556"
-      ],
-      [
-        "urn:onto-obo:GO_0014069",
-        "urn:onto-obo:GO_0032279"
-      ],
-      [
-        "urn:onto-obo:GO_0030425",
-        "urn:onto-obo:GO_0097447"
-      ],
-      [
-        "urn:onto-obo:GO_0032797",
-        "urn:onto-obo:GO_0034719"
-      ],
-      [
-        "urn:onto-obo:GO_0038182",
-        "urn:onto-obo:GO_0038184"
-      ],
-      [
-        "urn:onto-obo:GO_0043773",
-        "urn:onto-obo:GO_0052618",
-        "urn:onto-obo:GO_0052619"
-      ],
-      [
-        "urn:onto-obo:GO_0045122",
-        "urn:onto-obo:GO_0140395",
-        "urn:onto-obo:GO_0140399"
-      ],
-      [
-        "urn:onto-obo:GO_0046211",
-        "urn:onto-obo:GO_0047500"
-      ],
-      [
-        "urn:onto-obo:GO_0061669",
-        "urn:onto-obo:GO_0098814"
-      ],
-      [
-        "urn:onto-obo:GO_0097591",
-        "urn:onto-obo:GO_0097592",
-        "urn:onto-obo:GO_0097593",
-        "urn:onto-obo:GO_0097594",
-        "urn:onto-obo:GO_0097595",
-        "urn:onto-obo:GO_0097597"
-      ],
-      [
-        "urn:onto-obo:GO_0120077",
-        "urn:onto-obo:GO_0120078"
-      ],
-      [
-        "urn:onto-obo:PATO_0000070",
-        "urn:onto-obo:PATO_0001555"
-      ],
-      [
-        "urn:onto-obo:PATO_0000460",
-        "urn:onto-obo:PATO_0000461"
-      ],
-      [
-        "urn:onto-obo:PATO_0002300",
-        "urn:onto-obo:PATO_0002301"
-      ],
-      [
-        "urn:onto-obo:PATO_0002302",
-        "urn:onto-obo:PATO_0002304"
-      ],
-      [
-        "urn:onto-obo:PATO_0002051",
-        "urn:onto-obo:PATO_0002052"
-      ],
-      [
-        "urn:onto-obo:PATO_0000299",
-        "urn:onto-obo:PATO_0000300"
-      ],
-      [
-        "urn:onto-obo:PATO_0002303",
-        "urn:onto-obo:PATO_0002305"
-      ],
-      [
-        "urn:onto-obo:PATO_0000303",
-        "urn:onto-obo:PATO_0000304"
-      ],
-      [
-        "urn:onto-obo:PATO_0000308",
-        "urn:onto-obo:PATO_0000309"
-      ],
-      [
-        "urn:onto-obo:PATO_0000327",
-        "urn:onto-obo:PATO_0000665"
-      ],
-      [
-        "urn:onto-obo:PATO_0000328",
-        "urn:onto-obo:PATO_0001229"
-      ],
-      [
-        "urn:onto-obo:PATO_0000330",
-        "urn:onto-obo:PATO_0000440"
-      ],
-      [
-        "urn:onto-obo:PATO_0000331",
-        "urn:onto-obo:PATO_0000336"
-      ],
-      [
-        "urn:onto-obo:PATO_0000344",
-        "urn:onto-obo:PATO_0000345"
-      ],
-      [
-        "urn:onto-obo:PATO_0000365",
-        "urn:onto-obo:PATO_0000370"
-      ],
-      [
-        "urn:onto-obo:PATO_0000374",
-        "urn:onto-obo:PATO_0000375"
-      ],
-      [
-        "urn:onto-obo:PATO_0000911",
-        "urn:onto-obo:PATO_0000912"
-      ],
-      [
-        "urn:onto-obo:PATO_0000380",
-        "urn:onto-obo:PATO_0000381"
-      ],
-      [
-        "urn:onto-obo:PATO_0000386",
-        "urn:onto-obo:PATO_0000387"
-      ],
-      [
-        "urn:onto-obo:PATO_0000389",
-        "urn:onto-obo:PATO_0001863"
-      ],
-      [
-        "urn:onto-obo:PATO_0001355",
-        "urn:onto-obo:PATO_0001857"
-      ],
-      [
-        "urn:onto-obo:PATO_0000404",
-        "urn:onto-obo:PATO_0000415"
-      ],
-      [
-        "urn:onto-obo:PATO_0002007",
-        "urn:onto-obo:PATO_0002008"
-      ],
-      [
-        "urn:onto-obo:PATO_0000422",
-        "urn:onto-obo:PATO_0000423"
-      ],
-      [
-        "urn:onto-obo:PATO_0000427",
-        "urn:onto-obo:PATO_0000428"
-      ],
-      [
-        "urn:onto-obo:PATO_0000438",
-        "urn:onto-obo:PATO_0001227"
-      ],
-      [
-        "urn:onto-obo:PATO_0000462",
-        "urn:onto-obo:PATO_0000467",
-        "urn:onto-obo:PATO_0001558",
-        "urn:onto-obo:PATO_0002000"
-      ],
-      [
-        "urn:onto-obo:PATO_0000463",
-        "urn:onto-obo:PATO_0000464"
-      ],
-      [
-        "urn:onto-obo:PATO_0000470",
-        "urn:onto-obo:PATO_0001997"
-      ],
-      [
-        "urn:onto-obo:PATO_0000487",
-        "urn:onto-obo:PATO_0000488"
-      ],
-      [
-        "urn:onto-obo:PATO_0000498",
-        "urn:onto-obo:PATO_0000499"
-      ],
-      [
-        "urn:onto-obo:PATO_0000504",
-        "urn:onto-obo:PATO_0000505"
-      ],
-      [
-        "urn:onto-obo:PATO_0000513",
-        "urn:onto-obo:PATO_0000516"
-      ],
-      [
-        "urn:onto-obo:PATO_0001043",
-        "urn:onto-obo:PATO_0001046"
-      ],
-      [
-        "urn:onto-obo:PATO_0000546",
-        "urn:onto-obo:PATO_0000547"
-      ],
-      [
-        "urn:onto-obo:PATO_0000586",
-        "urn:onto-obo:PATO_0000587"
-      ],
-      [
-        "urn:onto-obo:PATO_0000569",
-        "urn:onto-obo:PATO_0000570"
-      ],
-      [
-        "urn:onto-obo:PATO_0000573",
-        "urn:onto-obo:PATO_0000574"
-      ],
-      [
-        "urn:onto-obo:PATO_0002245",
-        "urn:onto-obo:PATO_0002246"
-      ],
-      [
-        "urn:onto-obo:PATO_0000582",
-        "urn:onto-obo:PATO_0000583"
-      ],
-      [
-        "urn:onto-obo:PATO_0000595",
-        "urn:onto-obo:PATO_0000596"
-      ],
-      [
-        "urn:onto-obo:PATO_0000584",
-        "urn:onto-obo:PATO_0000585"
-      ],
-      [
-        "urn:onto-obo:PATO_0000591",
-        "urn:onto-obo:PATO_0000592"
-      ],
-      [
-        "urn:onto-obo:PATO_0000599",
-        "urn:onto-obo:PATO_0000600"
-      ],
-      [
-        "urn:onto-obo:PATO_0000608",
-        "urn:onto-obo:PATO_0000610"
-      ],
-      [
-        "urn:onto-obo:PATO_0000613",
-        "urn:onto-obo:PATO_0000614"
-      ],
-      [
-        "urn:onto-obo:PATO_0000619",
-        "urn:onto-obo:PATO_0000633"
-      ],
-      [
-        "urn:onto-obo:PATO_0000639",
-        "urn:onto-obo:PATO_0002038"
-      ],
-      [
-        "urn:onto-obo:PATO_0000642",
-        "urn:onto-obo:PATO_0000651"
-      ],
-      [
-        "urn:onto-obo:PATO_0000644",
-        "urn:onto-obo:PATO_0000645"
-      ],
-      [
-        "urn:onto-obo:PATO_0000688",
-        "urn:onto-obo:PATO_0000695"
-      ],
-      [
-        "urn:onto-obo:PATO_0000689",
-        "urn:onto-obo:PATO_0000690"
-      ],
-      [
-        "urn:onto-obo:PATO_0000700",
-        "urn:onto-obo:PATO_0000701"
-      ],
-      [
-        "urn:onto-obo:PATO_0000706",
-        "urn:onto-obo:PATO_0000708"
-      ],
-      [
-        "urn:onto-obo:PATO_0000757",
-        "urn:onto-obo:PATO_0000758"
-      ],
-      [
-        "urn:onto-obo:PATO_0001706",
-        "urn:onto-obo:PATO_0001707"
-      ],
-      [
-        "urn:onto-obo:PATO_0000760",
-        "urn:onto-obo:PATO_0000761"
-      ],
-      [
-        "urn:onto-obo:PATO_0000769",
-        "urn:onto-obo:PATO_0000770"
-      ],
-      [
-        "urn:onto-obo:PATO_0000955",
-        "urn:onto-obo:PATO_0000956"
-      ],
-      [
-        "urn:onto-obo:PATO_0000888",
-        "urn:onto-obo:PATO_0000892"
-      ],
-      [
-        "urn:onto-obo:PATO_0000890",
-        "urn:onto-obo:PATO_0000891"
-      ],
-      [
-        "urn:onto-obo:PATO_0000937",
-        "urn:onto-obo:PATO_0000938"
-      ],
-      [
-        "urn:onto-obo:PATO_0000963",
-        "urn:onto-obo:PATO_0000964"
-      ],
-      [
-        "urn:onto-obo:PATO_0000982",
-        "urn:onto-obo:PATO_0000983"
-      ],
-      [
-        "urn:onto-obo:PATO_0000984",
-        "urn:onto-obo:PATO_0000985"
-      ],
-      [
-        "urn:onto-obo:PATO_0001152",
-        "urn:onto-obo:PATO_0001153"
-      ],
-      [
-        "urn:onto-obo:PATO_0001154",
-        "urn:onto-obo:PATO_0002364"
-      ],
-      [
-        "urn:onto-obo:PATO_0001162",
-        "urn:onto-obo:PATO_0001163"
-      ],
-      [
-        "urn:onto-obo:PATO_0001167",
-        "urn:onto-obo:PATO_0001168"
-      ],
-      [
-        "urn:onto-obo:PATO_0001171",
-        "urn:onto-obo:PATO_0001172"
-      ],
-      [
-        "urn:onto-obo:PATO_0001192",
-        "urn:onto-obo:PATO_0001194"
-      ],
-      [
-        "urn:onto-obo:PATO_0001206",
-        "urn:onto-obo:PATO_0001975"
-      ],
-      [
-        "urn:onto-obo:PATO_0001233",
-        "urn:onto-obo:PATO_0001234"
-      ],
-      [
-        "urn:onto-obo:PATO_0001305",
-        "urn:onto-obo:PATO_0001306"
-      ],
-      [
-        "urn:onto-obo:PATO_0001313",
-        "urn:onto-obo:PATO_0001314"
-      ],
-      [
-        "urn:onto-obo:PATO_0001307",
-        "urn:onto-obo:PATO_0001308"
-      ],
-      [
-        "urn:onto-obo:PATO_0001311",
-        "urn:onto-obo:PATO_0001312"
-      ],
-      [
-        "urn:onto-obo:PATO_0001318",
-        "urn:onto-obo:PATO_0001319"
-      ],
-      [
-        "urn:onto-obo:PATO_0001362",
-        "urn:onto-obo:PATO_0001716"
-      ],
-      [
-        "urn:onto-obo:PATO_0001411",
-        "urn:onto-obo:PATO_0001412"
-      ],
-      [
-        "urn:onto-obo:PATO_0001416",
-        "urn:onto-obo:PATO_0001417"
-      ],
-      [
-        "urn:onto-obo:PATO_0001455",
-        "urn:onto-obo:PATO_0001456"
-      ],
-      [
-        "urn:onto-obo:PATO_0001459",
-        "urn:onto-obo:PATO_0001460"
-      ],
-      [
-        "urn:onto-obo:PATO_0001472",
-        "urn:onto-obo:PATO_0001596"
-      ],
-      [
-        "urn:onto-obo:PATO_0001475",
-        "urn:onto-obo:PATO_0001476"
-      ],
-      [
-        "urn:onto-obo:PATO_0001485",
-        "urn:onto-obo:PATO_0002452"
-      ],
-      [
-        "urn:onto-obo:PATO_0001749",
-        "urn:onto-obo:PATO_0001752"
-      ],
-      [
-        "urn:onto-obo:PATO_0001493",
-        "urn:onto-obo:PATO_0001494"
-      ],
-      [
-        "urn:onto-obo:PATO_0001501",
-        "urn:onto-obo:PATO_0001701"
-      ],
-      [
-        "urn:onto-obo:PATO_0001510",
-        "urn:onto-obo:PATO_0001511"
-      ],
-      [
-        "urn:onto-obo:PATO_0001537",
-        "urn:onto-obo:PATO_0001538"
-      ],
-      [
-        "urn:onto-obo:PATO_0001544",
-        "urn:onto-obo:PATO_0001545"
-      ],
-      [
-        "urn:onto-obo:PATO_0001549",
-        "urn:onto-obo:PATO_0001550"
-      ],
-      [
-        "urn:onto-obo:PATO_0001551",
-        "urn:onto-obo:PATO_0001552"
-      ],
-      [
-        "urn:onto-obo:PATO_0001553",
-        "urn:onto-obo:PATO_0001554"
-      ],
-      [
-        "urn:onto-obo:PATO_0001562",
-        "urn:onto-obo:PATO_0001563"
-      ],
-      [
-        "urn:onto-obo:PATO_0001566",
-        "urn:onto-obo:PATO_0001567"
-      ],
-      [
-        "urn:onto-obo:PATO_0001575",
-        "urn:onto-obo:PATO_0001576"
-      ],
-      [
-        "urn:onto-obo:PATO_0001577",
-        "urn:onto-obo:PATO_0001578"
-      ],
-      [
-        "urn:onto-obo:PATO_0001690",
-        "urn:onto-obo:PATO_0001691"
-      ],
-      [
-        "urn:onto-obo:PATO_0001580",
-        "urn:onto-obo:PATO_0001581"
-      ],
-      [
-        "urn:onto-obo:PATO_0001583",
-        "urn:onto-obo:PATO_0001584"
-      ],
-      [
-        "urn:onto-obo:PATO_0001587",
-        "urn:onto-obo:PATO_0001588"
-      ],
-      [
-        "urn:onto-obo:PATO_0001592",
-        "urn:onto-obo:PATO_0001593"
-      ],
-      [
-        "urn:onto-obo:PATO_0001603",
-        "urn:onto-obo:PATO_0001604"
-      ],
-      [
-        "urn:onto-obo:PATO_0001614",
-        "urn:onto-obo:PATO_0001615"
-      ],
-      [
-        "urn:onto-obo:PATO_0001612",
-        "urn:onto-obo:PATO_0001613"
-      ],
-      [
-        "urn:onto-obo:PATO_0001618",
-        "urn:onto-obo:PATO_0001619"
-      ],
-      [
-        "urn:onto-obo:PATO_0001621",
-        "urn:onto-obo:PATO_0001622"
-      ],
-      [
-        "urn:onto-obo:PATO_0001624",
-        "urn:onto-obo:PATO_0001625"
-      ],
-      [
-        "urn:onto-obo:PATO_0001627",
-        "urn:onto-obo:PATO_0001628"
-      ],
-      [
-        "urn:onto-obo:PATO_0001635",
-        "urn:onto-obo:PATO_0001636"
-      ],
-      [
-        "urn:onto-obo:PATO_0001638",
-        "urn:onto-obo:PATO_0001639"
-      ],
-      [
-        "urn:onto-obo:PATO_0001650",
-        "urn:onto-obo:PATO_0001651"
-      ],
-      [
-        "urn:onto-obo:PATO_0001653",
-        "urn:onto-obo:PATO_0001654"
-      ],
-      [
-        "urn:onto-obo:PATO_0001656",
-        "urn:onto-obo:PATO_0001657"
-      ],
-      [
-        "urn:onto-obo:PATO_0001663",
-        "urn:onto-obo:PATO_0001664"
-      ],
-      [
-        "urn:onto-obo:PATO_0001669",
-        "urn:onto-obo:PATO_0001670"
-      ],
-      [
-        "urn:onto-obo:PATO_0001671",
-        "urn:onto-obo:PATO_0001672"
-      ],
-      [
-        "urn:onto-obo:PATO_0001677",
-        "urn:onto-obo:PATO_0001678"
-      ],
-      [
-        "urn:onto-obo:PATO_0001675",
-        "urn:onto-obo:PATO_0001676"
-      ],
-      [
-        "urn:onto-obo:PATO_0001685",
-        "urn:onto-obo:PATO_0001686"
-      ],
-      [
-        "urn:onto-obo:PATO_0001683",
-        "urn:onto-obo:PATO_0001684"
-      ],
-      [
-        "urn:onto-obo:PATO_0001688",
-        "urn:onto-obo:PATO_0001689"
-      ],
-      [
-        "urn:onto-obo:PATO_0001693",
-        "urn:onto-obo:PATO_0001694"
-      ],
-      [
-        "urn:onto-obo:PATO_0001695",
-        "urn:onto-obo:PATO_0001696"
-      ],
-      [
-        "urn:onto-obo:PATO_0001697",
-        "urn:onto-obo:PATO_0001698"
-      ],
-      [
-        "urn:onto-obo:PATO_0001699",
-        "urn:onto-obo:PATO_0001700"
-      ],
-      [
-        "urn:onto-obo:PATO_0001712",
-        "urn:onto-obo:PATO_0001713"
-      ],
-      [
-        "urn:onto-obo:PATO_0001714",
-        "urn:onto-obo:PATO_0001715"
-      ],
-      [
-        "urn:onto-obo:PATO_0001723",
-        "urn:onto-obo:PATO_0001724"
-      ],
-      [
-        "urn:onto-obo:PATO_0001725",
-        "urn:onto-obo:PATO_0001726"
-      ],
-      [
-        "urn:onto-obo:PATO_0001742",
-        "urn:onto-obo:PATO_0001743"
-      ],
-      [
-        "urn:onto-obo:PATO_0001760",
-        "urn:onto-obo:PATO_0001763"
-      ],
-      [
-        "urn:onto-obo:PATO_0001761",
-        "urn:onto-obo:PATO_0001762"
-      ],
-      [
-        "urn:onto-obo:PATO_0001764",
-        "urn:onto-obo:PATO_0001765"
-      ],
-      [
-        "urn:onto-obo:PATO_0001776",
-        "urn:onto-obo:PATO_0001777"
-      ],
-      [
-        "urn:onto-obo:PATO_0001778",
-        "urn:onto-obo:PATO_0001779"
-      ],
-      [
-        "urn:onto-obo:PATO_0001782",
-        "urn:onto-obo:PATO_0001783"
-      ],
-      [
-        "urn:onto-obo:PATO_0001788",
-        "urn:onto-obo:PATO_0001790"
-      ],
-      [
-        "urn:onto-obo:PATO_0001795",
-        "urn:onto-obo:PATO_0001796"
-      ],
-      [
-        "urn:onto-obo:PATO_0001807",
-        "urn:onto-obo:PATO_0001808"
-      ],
-      [
-        "urn:onto-obo:PATO_0001816",
-        "urn:onto-obo:PATO_0001817"
-      ],
-      [
-        "urn:onto-obo:PATO_0001818",
-        "urn:onto-obo:PATO_0002026"
-      ],
-      [
-        "urn:onto-obo:PATO_0001821",
-        "urn:onto-obo:PATO_0002112"
-      ],
-      [
-        "urn:onto-obo:PATO_0001823",
-        "urn:onto-obo:PATO_0001824"
-      ],
-      [
-        "urn:onto-obo:PATO_0001825",
-        "urn:onto-obo:PATO_0001826"
-      ],
-      [
-        "urn:onto-obo:PATO_0001830",
-        "urn:onto-obo:PATO_0001831"
-      ],
-      [
-        "urn:onto-obo:PATO_0001832",
-        "urn:onto-obo:PATO_0001833"
-      ],
-      [
-        "urn:onto-obo:PATO_0001834",
-        "urn:onto-obo:PATO_0001835"
-      ],
-      [
-        "urn:onto-obo:PATO_0001838",
-        "urn:onto-obo:PATO_0001839"
-      ],
-      [
-        "urn:onto-obo:PATO_0001843",
-        "urn:onto-obo:PATO_0001844"
-      ],
-      [
-        "urn:onto-obo:PATO_0001859",
-        "urn:onto-obo:PATO_0001860"
-      ],
-      [
-        "urn:onto-obo:PATO_0001861",
-        "urn:onto-obo:PATO_0001959"
-      ],
-      [
-        "urn:onto-obo:PATO_0001884",
-        "urn:onto-obo:PATO_0001886"
-      ],
-      [
-        "urn:onto-obo:PATO_0001885",
-        "urn:onto-obo:PATO_0001887"
-      ],
-      [
-        "urn:onto-obo:PATO_0001892",
-        "urn:onto-obo:PATO_0001893"
-      ],
-      [
-        "urn:onto-obo:PATO_0001896",
-        "urn:onto-obo:PATO_0001897"
-      ],
-      [
-        "urn:onto-obo:PATO_0001898",
-        "urn:onto-obo:PATO_0001899"
-      ],
-      [
-        "urn:onto-obo:PATO_0001900",
-        "urn:onto-obo:PATO_0001901"
-      ],
-      [
-        "urn:onto-obo:PATO_0001905",
-        "urn:onto-obo:PATO_0002050"
-      ],
-      [
-        "urn:onto-obo:PATO_0001926",
-        "urn:onto-obo:PATO_0001927"
-      ],
-      [
-        "urn:onto-obo:PATO_0001930",
-        "urn:onto-obo:PATO_0001931"
-      ],
-      [
-        "urn:onto-obo:PATO_0001957",
-        "urn:onto-obo:PATO_0001958"
-      ],
-      [
-        "urn:onto-obo:PATO_0002001",
-        "urn:onto-obo:PATO_0002002"
-      ],
-      [
-        "urn:onto-obo:PATO_0002017",
-        "urn:onto-obo:PATO_0002018"
-      ],
-      [
-        "urn:onto-obo:PATO_0002028",
-        "urn:onto-obo:PATO_0002029"
-      ],
-      [
-        "urn:onto-obo:PATO_0002039",
-        "urn:onto-obo:PATO_0002040"
-      ],
-      [
-        "urn:onto-obo:PATO_0002042",
-        "urn:onto-obo:PATO_0002043"
-      ],
-      [
-        "urn:onto-obo:PATO_0002055",
-        "urn:onto-obo:PATO_0002056"
-      ],
-      [
-        "urn:onto-obo:PATO_0002057",
-        "urn:onto-obo:PATO_0002058"
-      ],
-      [
-        "urn:onto-obo:PATO_0002068",
-        "urn:onto-obo:PATO_0002069"
-      ],
-      [
-        "urn:onto-obo:PATO_0002071",
-        "urn:onto-obo:PATO_0002072"
-      ],
-      [
-        "urn:onto-obo:PATO_0002074",
-        "urn:onto-obo:PATO_0002075"
-      ],
-      [
-        "urn:onto-obo:PATO_0002099",
-        "urn:onto-obo:PATO_0002100"
-      ],
-      [
-        "urn:onto-obo:PATO_0002139",
-        "urn:onto-obo:PATO_0002140"
-      ],
-      [
-        "urn:onto-obo:PATO_0002144",
-        "urn:onto-obo:PATO_0002145"
-      ],
-      [
-        "urn:onto-obo:PATO_0002147",
-        "urn:onto-obo:PATO_0002148"
-      ],
-      [
-        "urn:onto-obo:PATO_0002191",
-        "urn:onto-obo:PATO_0002192"
-      ],
-      [
-        "urn:onto-obo:PATO_0002195",
-        "urn:onto-obo:PATO_0002196"
-      ],
-      [
-        "urn:onto-obo:PATO_0002220",
-        "urn:onto-obo:PATO_0002263"
-      ],
-      [
-        "urn:onto-obo:PATO_0002221",
-        "urn:onto-obo:PATO_0002222"
-      ],
-      [
-        "urn:onto-obo:PATO_0002248",
-        "urn:onto-obo:PATO_0002249"
-      ],
-      [
-        "urn:onto-obo:PATO_0002250",
-        "urn:onto-obo:PATO_0002251"
-      ],
-      [
-        "urn:onto-obo:PATO_0002270",
-        "urn:onto-obo:PATO_0002271"
-      ],
-      [
-        "urn:onto-obo:PATO_0002282",
-        "urn:onto-obo:PATO_0002283"
-      ],
-      [
-        "urn:onto-obo:PATO_0002285",
-        "urn:onto-obo:PATO_0002286"
-      ],
-      [
-        "urn:onto-obo:PATO_0002287",
-        "urn:onto-obo:PATO_0002288"
-      ],
-      [
-        "urn:onto-obo:PATO_0002297",
-        "urn:onto-obo:PATO_0002298"
-      ],
-      [
-        "urn:onto-obo:PATO_0002321",
-        "urn:onto-obo:PATO_0002322"
-      ],
-      [
-        "urn:onto-obo:PATO_0002327",
-        "urn:onto-obo:PATO_0002328"
-      ],
-      [
-        "urn:onto-obo:PATO_0002331",
-        "urn:onto-obo:PATO_0002332"
-      ],
-      [
-        "urn:onto-obo:PATO_0002333",
-        "urn:onto-obo:PATO_0002334"
-      ],
-      [
-        "urn:onto-obo:PATO_0002354",
-        "urn:onto-obo:PATO_0002355"
-      ],
-      [
-        "urn:onto-obo:PATO_0002361",
-        "urn:onto-obo:PATO_0002362"
-      ],
-      [
-        "urn:onto-obo:PATO_0002376",
-        "urn:onto-obo:PATO_0002377"
-      ],
-      [
-        "urn:onto-obo:PATO_0002382",
-        "urn:onto-obo:PATO_0002383"
-      ],
-      [
-        "urn:onto-obo:PATO_0002393",
-        "urn:onto-obo:PATO_0002394"
-      ],
-      [
-        "urn:onto-obo:PATO_0002441",
-        "urn:onto-obo:PATO_0002442"
-      ],
-      [
-        "urn:onto-obo:PATO_0002471",
-        "urn:onto-obo:PATO_0002472"
-      ],
-      [
-        "urn:onto-obo:PATO_0002491",
-        "urn:onto-obo:PATO_0002526"
-      ],
-      [
-        "urn:onto-obo:PATO_0002494",
-        "urn:onto-obo:PATO_0002495"
-      ],
-      [
-        "urn:onto-obo:PATO_0002504",
-        "urn:onto-obo:PATO_0002527"
-      ],
-      [
-        "urn:onto-obo:PATO_0005012",
-        "urn:onto-obo:PATO_0005013"
-      ],
-      [
-        "urn:onto-obo:PATO_0015003",
-        "urn:onto-obo:PATO_0015004"
-      ],
-      [
-        "urn:onto-obo:PATO_0015010",
-        "urn:onto-obo:PATO_0015011"
-      ],
-      [
-        "urn:onto-obo:PATO_0015014",
-        "urn:onto-obo:PATO_0015015"
-      ],
-      [
-        "urn:onto-obo:PATO_0015022",
-        "urn:onto-obo:PATO_0015023"
-      ],
-      [
-        "urn:onto-obo:PATO_0025001",
-        "urn:onto-obo:PATO_0025002"
-      ],
-      [
-        "urn:onto-obo:PATO_0040030",
-        "urn:onto-obo:PATO_0040031"
-      ],
-      [
-        "urn:onto-obo:PATO_0045091",
-        "urn:onto-obo:PATO_0045093"
-      ],
-      [
-        "urn:onto-obo:PATO_0045092",
-        "urn:onto-obo:PATO_0045094"
-      ],
-      [
-        "urn:onto-obo:PO_0000019",
-        "urn:onto-obo:PO_0000225",
-        "urn:onto-obo:PO_0000229",
-        "urn:onto-obo:PO_0004010",
-        "urn:onto-obo:PO_0004703",
-        "urn:onto-obo:PO_0006001",
-        "urn:onto-obo:PO_0006005",
-        "urn:onto-obo:PO_0006079",
-        "urn:onto-obo:PO_0006210",
-        "urn:onto-obo:PO_0008028",
-        "urn:onto-obo:PO_0009002",
-        "urn:onto-obo:PO_0009007",
-        "urn:onto-obo:PO_0009013",
-        "urn:onto-obo:PO_0009026",
-        "urn:onto-obo:PO_0009027",
-        "urn:onto-obo:PO_0009030",
-        "urn:onto-obo:PO_0009046",
-        "urn:onto-obo:PO_0009062",
-        "urn:onto-obo:PO_0009073",
-        "urn:onto-obo:PO_0009074",
-        "urn:onto-obo:PO_0020144",
-        "urn:onto-obo:PO_0020148",
-        "urn:onto-obo:PO_0025127",
-        "urn:onto-obo:PO_0025128",
-        "urn:onto-obo:PO_0025269",
-        "urn:onto-obo:PO_0025395",
-        "urn:onto-obo:PO_0025430",
-        "urn:onto-obo:PO_0025477",
-        "urn:onto-obo:PO_0025606"
-      ],
-      [
-        "urn:onto-obo:PO_0009053",
-        "urn:onto-obo:PO_0025104"
-      ],
-      [
-        "urn:onto-obo:RO_0000052",
-        "urn:onto-obo:RO_0002314"
-      ],
-      [
-        "urn:onto-obo:RO_0002211",
-        "urn:onto-obo:RO_0002578"
-      ],
-      [
-        "urn:onto-obo:RO_0002215",
-        "urn:onto-obo:RO_0002216"
-      ],
-      [
-        "urn:onto-obo:RO_0002177",
-        "urn:onto-obo:RO_0002371"
-      ],
-      [
-        "urn:onto-obo:RO_0002507",
-        "urn:onto-obo:RO_0002509"
-      ],
-      [
-        "urn:onto-obo:RO_0002532",
-        "urn:onto-obo:RO_0002533"
-      ],
-      [
-        "urn:onto-obo:RO_0002524",
-        "urn:onto-obo:RO_0002525",
-        "urn:onto-obo:RO_0002526"
-      ]
-    ],
+    "cyclicComponents": [],
     "mintDate": "2026-07-07"
   }
 }

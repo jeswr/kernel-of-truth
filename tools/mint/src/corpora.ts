@@ -314,25 +314,37 @@ export function makeSpecs(dataRoot: string, opts: SpecOptions = {}): CorpusSpec[
     }),
   });
 
-  // ---- onto-obo (bulk logical-definition tier; substitute; SCCs up to size 11) ----
+  // ---- onto-obo (bulk logical-definition tier; STABLE — non-DAG axiom graph once anatomy is in) ----
+  // refMode changed substitute->stable when CL+UBERON were added (2026-07-09, Fable): the
+  // axiom graph is NOT a DAG at that scale (662 non-trivial SCCs, largest 1,142 UBERON/CL
+  // terms) held together by symmetric disjoint_from + lateral relationship/part_of/
+  // develops_from assertions that are NOT definitional. No reverse-topological order exists,
+  // and the gist s6 component algorithm's size cap (32) is far exceeded; minting a 1,142-term
+  // monster component would spuriously entangle those identities. Same situation and resolution
+  // as lexical-wn31 (non-DAG -> stable). sourceId (the globally-unique OBO id, after PREFIX_OWNER
+  // dedup) is inside identity, so 0 duplicate-identity groups by construction.
   specs.push({
     name: "onto-obo",
     prefix: "urn:onto-obo:",
     profileHeader: "kot-obo/1\n",
-    refMode: "substitute",
+    refMode: "stable",
     kind: "bulk-extracted",
     identityNote:
       "Identity = {sourceId (OBO id), schema, semanticStatus, ontology, kind, oboId, axioms, " +
       "logicalDefinition?, characteristics?, upgradeCandidate?}. label/definition(prose)/synonyms/" +
-      "xrefs/comment/namespace/subsets are annotation. Intra-corpus refs substituted; the 49 " +
-      "GO/RO SCCs (max size 11: e.g. cell-communication cluster) minted via the gist s6 component " +
-      "algorithm. 5 external/cross-ontology refs (NCBITaxon, foaf, COB, BFO_0000060) are unresolved " +
-      "in-corpus and kept as stable placeholder ids.",
+      "xrefs/comment/namespace/subsets/provenance are annotation. STABLE ids: once anatomy " +
+      "(UBERON/CL) is included the axiom graph is NOT a DAG (662 SCCs, largest 1,142, from symmetric " +
+      "disjoint_from + lateral relationship/part_of/develops_from assertions), so no reverse-topo " +
+      "order exists — intra- and cross-ontology refs are kept as stable placeholder urn:onto-obo: " +
+      "ids (same rule as lexical-wn31). sourceId is the globally-unique OBO id after PREFIX_OWNER " +
+      "dedup (CL owns CL:*, UBERON owns UBERON:*, resolving CL<->UBERON mutual imports); " +
+      "foreign-prefix import stubs (NCBITaxon/PR/CHEBI/CLM/DHBA/MBA/COB/ENVO/OBI/...) are not " +
+      "emitted, only referenced. sourceId inside identity => 0 duplicate-identity groups.",
     manifestPath: join(dataRoot, "onto-obo", "manifest.json"),
     outDir: join(dataRoot, "onto-obo"),
     load: (root) => {
       const out: RawRecord[] = [];
-      for (const f of ["bfo.jsonl", "ro.jsonl", "go.jsonl", "pato.jsonl", "po.jsonl"]) {
+      for (const f of ["bfo.jsonl", "ro.jsonl", "go.jsonl", "pato.jsonl", "po.jsonl", "cl.jsonl", "uberon.jsonl"]) {
         for (const r of readJsonl(join(root, "onto-obo", f))) out.push({ id: r["id"] as string, raw: r });
       }
       return out;

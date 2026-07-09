@@ -120,6 +120,30 @@ export const ONTOLOGIES = [
     licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Plant Ontology, Planteome project, http://purl.obolibrary.org/obo/po). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).',
     note: 'Plant anatomy + plant-structure-development-stage ontology. data-version releases/2026-01-09. [Term] stanzas -> class records, [Typedef] -> relation records. Obsolete terms (is_obsolete:true) are excluded and counted. 81 terms carry intersection_of genus-differentia logical definitions.',
   },
+  {
+    id: 'CL',
+    file: 'cl.obo',
+    out: 'cl.jsonl',
+    sha256: '7e19b4aef8e7fe7720b0c4474c6a5b8713c904ea9ab7b7d5d96f2cb28b8fc51f',
+    sourceName: 'Cell Ontology (CL)',
+    purl: 'http://purl.obolibrary.org/obo/cl.obo',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Cell Ontology, http://purl.obolibrary.org/obo/cl). License asserted in the source header (property_value: terms:license http://creativecommons.org/licenses/by/4.0/) and the OBO Foundry registry.',
+    note: 'Cell types; rich genus-differentia (cell is_a + differentiae over part_of/has_part/capable_of etc.). data-version releases/2026-06-08. CL owns CL:* by prefix-ownership (PREFIX_OWNER), so its 5,062 UBERON import stubs and its foreign-prefix stubs (PR/CLM/DHBA/MBA/NCBITaxon/STATO/CP/IAO/COB/CHEBI/SO/raw-IRI) are NOT emitted here: UBERON stubs defer to UBERON, foreign stubs survive only as reference targets. Imported GO/RO/PATO/BFO stubs defer to their prefix owners.',
+  },
+  {
+    id: 'UBERON',
+    file: 'uberon.obo',
+    out: 'uberon.jsonl',
+    sha256: '7f06d8e8442008a67132a1599b652e86fe0c52d75c8d6bc5b0cc36a0031e6b3f',
+    sourceName: 'Uber-anatomy Ontology (UBERON)',
+    purl: 'http://purl.obolibrary.org/obo/uberon.obo',
+    license: 'CC BY 3.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/3.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 3.0 permits redistribution of derived records with attribution (UBERON, http://purl.obolibrary.org/obo/uberon). License asserted in the source header (property_value: dcterms-license http://creativecommons.org/licenses/by/3.0/) and the OBO Foundry registry.',
+    note: 'Multi-species anatomy; the target of GO part_of/occurs_in differentia and CL part_of differentia. data-version releases/2026-06-19. UBERON owns UBERON:* by prefix-ownership, so its 1,487 CL import stubs defer to CL and its foreign-prefix stubs survive only as reference targets. Loaded AFTER CL so the mutual-import dedup is symmetric (each owns its own id-space; array order is irrelevant to the outcome).',
+  },
 ];
 
 function sha256(buf) {
@@ -272,15 +296,52 @@ function loadOntology(ont) {
   return { ont, provenance, stanzas, dataVersion };
 }
 
-/** Fixed prefix -> owning-ontology id map (bare relation names have no prefix). */
-const PREFIX_OWNER = { BFO: 'BFO', RO: 'RO', GO: 'GO' };
+/**
+ * Fixed CURIE-prefix -> owning-ontology id map (bare relation names have no
+ * prefix). An ontology listed here owns its OWN id-space regardless of import
+ * order: CL owns CL:*, UBERON owns UBERON:*. This is REQUIRED for ontologies
+ * with heavy MUTUAL imports — CL declares 5,062 UBERON stub ids and UBERON
+ * declares 1,487 CL stub ids, so no ONTOLOGIES array order makes plain
+ * first-declarer dedup correct for both. Prefix-ownership breaks the tie by
+ * id-space, not by order.
+ *
+ * PATO/PO are deliberately NOT listed: they shipped (commit caeb1a7) with a
+ * handful of their ids owned by RO under first-declarer dedup, and those shards
+ * + minted URNs are frozen; adding them here would silently re-own committed
+ * records. Their own-prefix ids that no earlier ontology stubs are still owned
+ * by PATO/PO via the first-declarer fallback below, unchanged.
+ */
+const PREFIX_OWNER = { BFO: 'BFO', RO: 'RO', GO: 'GO', CL: 'CL', UBERON: 'UBERON' };
+
+/** Prefixes of the ontologies actually extracted (foreign-stub gate). */
+const EXTRACTED_PREFIXES = new Set(ONTOLOGIES.map((o) => o.id));
+
+/**
+ * An OBO id is OWNABLE as a record iff it belongs to an extracted ontology:
+ * a bare relation name (declared in-set as a Typedef, e.g. GO/PO local
+ * relations) or a CURIE whose prefix names one of the extracted ontologies.
+ * A CURIE with a FOREIGN prefix (NCBITaxon, PR, CHEBI, COB, ENVO, OBI, DHBA,
+ * MBA, CLM, NBO, ...) or a raw http(s): IRI is an IMPORT STUB of an entity we
+ * do not extract: it carries no definitional content here, only a label. Per
+ * the foreign-stub policy it is NOT emitted as a record; it survives only as a
+ * reference target (a stable placeholder urn:onto-obo:<local> inside owned
+ * records' axioms/differentiae), exactly like the pre-existing external refs
+ * (NCBITaxon, foaf, COB). This is what keeps CL+UBERON from injecting ~3,852
+ * identity-less foreign stub records.
+ */
+function isOwnable(oboId) {
+  const p = curiePrefix(oboId);
+  if (p === '') return true; // bare in-set relation/term name
+  return EXTRACTED_PREFIXES.has(p);
+}
 
 /**
  * Canonical owner of an OBO id: the ontology whose id-space matches the
- * CURIE prefix IF it declares the id (e.g. BFO:0000002 class -> BFO); else the
- * first ontology (fixed order) that declares it (e.g. BFO:0000050 relation is
- * declared only in RO, so RO owns it). This dedups OBO import stubs: the same
- * IRI re-declared across ontologies yields ONE canonical record.
+ * CURIE prefix IF it declares the id (e.g. BFO:0000002 class -> BFO,
+ * CL:0000540 -> CL even when RO/UBERON also stub it); else the first ontology
+ * (fixed order) that declares it (e.g. BFO:0000050 relation is declared only in
+ * RO, so RO owns it). This dedups OBO import stubs: the same IRI re-declared
+ * across ontologies yields ONE canonical record.
  */
 function computeOwners(loaded) {
   const declaredBy = new Map(); // oboId -> [ontId in fixed order]
@@ -311,7 +372,7 @@ function emitOntology({ ont, provenance, stanzas, dataVersion }, owner) {
   const stats = {
     records: 0, classes: 0, relations: 0,
     withLogicalDef: 0, genusDifferentia: 0, obsoleteSkipped: 0,
-    importedAliasesSkipped: 0, axiomsByRel: {}, differentiaProps: {},
+    importedAliasesSkipped: 0, foreignStubsSkipped: 0, axiomsByRel: {}, differentiaProps: {},
   };
   const emittedUrns = new Set();
   for (const st of stanzas) {
@@ -320,6 +381,10 @@ function emitOntology({ ont, provenance, stanzas, dataVersion }, owner) {
     if (!r) continue;
     if (r.obsolete) { stats.obsoleteSkipped++; continue; }
     const rec = r.record;
+    // Foreign-prefix import stubs (NCBITaxon/PR/CHEBI/CLM/DHBA/MBA/raw IRIs/...)
+    // carry no definitional content: kept only as reference targets in owned
+    // records, never emitted as records (foreign-stub policy).
+    if (!isOwnable(rec.oboId)) { stats.foreignStubsSkipped++; continue; }
     // Skip records owned by another ontology (OBO import stub of a foreign IRI).
     if (owner.get(rec.oboId) !== ont.id) { stats.importedAliasesSkipped++; continue; }
     if (emittedUrns.has(rec.id)) {
