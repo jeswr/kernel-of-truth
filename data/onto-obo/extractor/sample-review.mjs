@@ -29,8 +29,8 @@ function mulberry32(a) {
   };
 }
 
-const FILE_OF = { BFO: 'bfo.obo', RO: 'ro.obo', GO: 'go.obo', PATO: 'pato.obo', PO: 'po.obo', CL: 'cl.obo', UBERON: 'uberon.obo' };
-const SHARD_OF = { BFO: 'bfo.jsonl', RO: 'ro.jsonl', GO: 'go.jsonl', PATO: 'pato.jsonl', PO: 'po.jsonl', CL: 'cl.jsonl', UBERON: 'uberon.jsonl' };
+const FILE_OF = { BFO: 'bfo.obo', RO: 'ro.obo', GO: 'go.obo', PATO: 'pato.obo', PO: 'po.obo', CL: 'cl.obo', UBERON: 'uberon.obo', OGMS: 'ogms.obo', SO: 'so.obo', MONDO: 'mondo.obo' };
+const SHARD_OF = { BFO: 'bfo.jsonl', RO: 'ro.jsonl', GO: 'go.jsonl', PATO: 'pato.jsonl', PO: 'po.jsonl', CL: 'cl.jsonl', UBERON: 'uberon.jsonl', OGMS: 'ogms.jsonl', SO: 'so.jsonl', MONDO: 'mondo.jsonl' };
 
 // Load emitted records.
 const records = [];

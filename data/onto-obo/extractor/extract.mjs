@@ -144,6 +144,42 @@ export const ONTOLOGIES = [
     licenseVerdict: 'REDISTRIBUTABLE: CC BY 3.0 permits redistribution of derived records with attribution (UBERON, http://purl.obolibrary.org/obo/uberon). License asserted in the source header (property_value: dcterms-license http://creativecommons.org/licenses/by/3.0/) and the OBO Foundry registry.',
     note: 'Multi-species anatomy; the target of GO part_of/occurs_in differentia and CL part_of differentia. data-version releases/2026-06-19. UBERON owns UBERON:* by prefix-ownership, so its 1,487 CL import stubs defer to CL and its foreign-prefix stubs survive only as reference targets. Loaded AFTER CL so the mutual-import dedup is symmetric (each owns its own id-space; array order is irrelevant to the outcome).',
   },
+  {
+    id: 'OGMS',
+    file: 'ogms.obo',
+    out: 'ogms.jsonl',
+    sha256: 'e099f77e76ccbeeae03e95574f79785066d2a1e5231652595cdf75fb17ff9cbd',
+    sourceName: 'Ontology for General Medical Science (OGMS)',
+    purl: 'http://purl.obolibrary.org/obo/ogms.obo',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Ontology for General Medical Science, http://purl.obolibrary.org/obo/ogms). Asserted in the source header (property_value: http://purl.org/dc/terms/license http://creativecommons.org/licenses/by/4.0/) and the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).',
+    note: 'Upper ontology of clinical medicine (disease, disorder, diagnosis, patient) built on BFO. data-version 2021-08-19. [Term] stanzas -> class records. OGMS owns OGMS:* by prefix-ownership (PREFIX_OWNER); imported BFO stubs defer to BFO; foreign-prefix import stubs are NOT emitted, surviving only as reference targets (foreign-stub policy). Obsolete terms (is_obsolete:true) excluded and counted.',
+  },
+  {
+    id: 'SO',
+    file: 'so.obo',
+    out: 'so.jsonl',
+    sha256: 'dde032d4c7cfb89a7013f2f8ab7420a8ef7dc469fbc2b0ffb38bef2a064a1d1f',
+    sourceName: 'Sequence Ontology (SO)',
+    purl: 'http://purl.obolibrary.org/obo/so.obo',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Sequence Ontology / Sequence types and features ontology, http://purl.obolibrary.org/obo/so). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).',
+    note: 'Sequence types and features ontology (genomics). data-version 2024-11-18. [Term] -> class records, [Typedef] -> relation records (SO-local relations owned by SO; RO-shared relations defer to their first declarer). Obsolete terms (is_obsolete:true) excluded and counted. SO owns SO:* by prefix-ownership; foreign-prefix import stubs are NOT emitted, only referenced (foreign-stub policy).',
+  },
+  {
+    id: 'MONDO',
+    file: 'mondo.obo',
+    out: 'mondo.jsonl',
+    sha256: '75c51066741e04c0ec4751210911d29e17e16431ed2ba5b8a46fc6a37ff5b00e',
+    sourceName: 'Mondo Disease Ontology (MONDO)',
+    purl: 'http://purl.obolibrary.org/obo/mondo.obo',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Mondo Disease Ontology, http://purl.obolibrary.org/obo/mondo). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).',
+    note: 'Disease backbone harmonising OMIM/Orphanet/DO/NCIt/etc. data-version releases/2026-07-06. [Term] -> class records, [Typedef] -> relation records. Obsolete terms (is_obsolete:true) excluded and counted. MONDO owns MONDO:* by prefix-ownership; imported BFO/RO/GO/PATO/PO/CL/UBERON stubs defer to their prefix owners; foreign-prefix import stubs (HP, CHEBI, NCBITaxon, DOID, OMIM, Orphanet, EFO, UMLS, raw IRIs, ...) are NOT emitted, only referenced (foreign-stub policy). HP references remain placeholder reference targets (HP held pending its custom-licence resolution).',
+  },
 ];
 
 function sha256(buf) {
@@ -311,7 +347,7 @@ function loadOntology(ont) {
  * records. Their own-prefix ids that no earlier ontology stubs are still owned
  * by PATO/PO via the first-declarer fallback below, unchanged.
  */
-const PREFIX_OWNER = { BFO: 'BFO', RO: 'RO', GO: 'GO', CL: 'CL', UBERON: 'UBERON' };
+const PREFIX_OWNER = { BFO: 'BFO', RO: 'RO', GO: 'GO', CL: 'CL', UBERON: 'UBERON', OGMS: 'OGMS', SO: 'SO', MONDO: 'MONDO' };
 
 /** Prefixes of the ontologies actually extracted (foreign-stub gate). */
 const EXTRACTED_PREFIXES = new Set(ONTOLOGIES.map((o) => o.id));

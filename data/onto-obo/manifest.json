@@ -11,7 +11,7 @@
       "parse-obo.mjs",
       "extract.mjs"
     ],
-    "contentHash": "8dc25da10fc083dedb79f3875128fdfd40d4743c8497abaedcfc42d17e963fd5",
+    "contentHash": "50bec7134ed783b282ce304101a39cd2ac0be31a278bf77ab4b26260085d50ac",
     "hashRule": "sha256 over concatenated bytes of listed files, in listed order"
   },
   "extractionDate": "2026-07-07",
@@ -60,8 +60,8 @@
         "withLogicalDef": 0,
         "genusDifferentia": 0,
         "obsoleteSkipped": 17,
-        "importedAliasesSkipped": 33,
-        "foreignStubsSkipped": 15,
+        "importedAliasesSkipped": 34,
+        "foreignStubsSkipped": 14,
         "axiomsByRel": {
           "is_a": 730,
           "relationship": 1,
@@ -240,8 +240,8 @@
         "withLogicalDef": 1731,
         "genusDifferentia": 1723,
         "obsoleteSkipped": 213,
-        "importedAliasesSkipped": 13172,
-        "foreignStubsSkipped": 2411,
+        "importedAliasesSkipped": 13173,
+        "foreignStubsSkipped": 2410,
         "axiomsByRel": {
           "is_a": 4897,
           "relationship": 4247,
@@ -540,6 +540,227 @@
           71
         ]
       ]
+    },
+    "OGMS": {
+      "sourceName": "Ontology for General Medical Science (OGMS)",
+      "purl": "http://purl.obolibrary.org/obo/ogms.obo",
+      "sourceVersion": "sha256:e099f77e76ccbeeae03e95574f79785066d2a1e5231652595cdf75fb17ff9cbd",
+      "dataVersion": "2021-08-19",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Ontology for General Medical Science, http://purl.obolibrary.org/obo/ogms). Asserted in the source header (property_value: http://purl.org/dc/terms/license http://creativecommons.org/licenses/by/4.0/) and the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).",
+      "note": "Upper ontology of clinical medicine (disease, disorder, diagnosis, patient) built on BFO. data-version 2021-08-19. [Term] stanzas -> class records. OGMS owns OGMS:* by prefix-ownership (PREFIX_OWNER); imported BFO stubs defer to BFO; foreign-prefix import stubs are NOT emitted, surviving only as reference targets (foreign-stub policy). Obsolete terms (is_obsolete:true) excluded and counted.",
+      "shard": "ogms.jsonl",
+      "counts": {
+        "records": 117,
+        "classes": 117,
+        "relations": 0,
+        "withLogicalDef": 0,
+        "genusDifferentia": 0,
+        "obsoleteSkipped": 1,
+        "importedAliasesSkipped": 35,
+        "foreignStubsSkipped": 33,
+        "axiomsByRel": {
+          "is_a": 117
+        },
+        "differentiaProps": {}
+      },
+      "topDifferentiaProperties": []
+    },
+    "SO": {
+      "sourceName": "Sequence Ontology (SO)",
+      "purl": "http://purl.obolibrary.org/obo/so.obo",
+      "sourceVersion": "sha256:dde032d4c7cfb89a7013f2f8ab7420a8ef7dc469fbc2b0ffb38bef2a064a1d1f",
+      "dataVersion": "2024-11-18",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Sequence Ontology / Sequence types and features ontology, http://purl.obolibrary.org/obo/so). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).",
+      "note": "Sequence types and features ontology (genomics). data-version 2024-11-18. [Term] -> class records, [Typedef] -> relation records (SO-local relations owned by SO; RO-shared relations defer to their first declarer). Obsolete terms (is_obsolete:true) excluded and counted. SO owns SO:* by prefix-ownership; foreign-prefix import stubs are NOT emitted, only referenced (foreign-stub policy).",
+      "shard": "so.jsonl",
+      "counts": {
+        "records": 2447,
+        "classes": 2404,
+        "relations": 43,
+        "withLogicalDef": 219,
+        "genusDifferentia": 219,
+        "obsoleteSkipped": 211,
+        "importedAliasesSkipped": 7,
+        "foreignStubsSkipped": 0,
+        "axiomsByRel": {
+          "is_a": 2517,
+          "relationship": 630,
+          "disjoint_from": 2
+        },
+        "differentiaProps": {
+          "has_quality": 163,
+          "has_origin": 29,
+          "part_of": 5,
+          "derives_from": 6,
+          "transcribed_to": 7,
+          "has_part": 16,
+          "adjacent_to": 4,
+          "contains": 2,
+          "transcribed_from": 1
+        }
+      },
+      "topDifferentiaProperties": [
+        [
+          "has_quality",
+          163
+        ],
+        [
+          "has_origin",
+          29
+        ],
+        [
+          "has_part",
+          16
+        ],
+        [
+          "transcribed_to",
+          7
+        ],
+        [
+          "derives_from",
+          6
+        ],
+        [
+          "part_of",
+          5
+        ],
+        [
+          "adjacent_to",
+          4
+        ],
+        [
+          "contains",
+          2
+        ],
+        [
+          "transcribed_from",
+          1
+        ]
+      ]
+    },
+    "MONDO": {
+      "sourceName": "Mondo Disease Ontology (MONDO)",
+      "purl": "http://purl.obolibrary.org/obo/mondo.obo",
+      "sourceVersion": "sha256:75c51066741e04c0ec4751210911d29e17e16431ed2ba5b8a46fc6a37ff5b00e",
+      "dataVersion": "releases/2026-07-06",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Mondo Disease Ontology, http://purl.obolibrary.org/obo/mondo). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).",
+      "note": "Disease backbone harmonising OMIM/Orphanet/DO/NCIt/etc. data-version releases/2026-07-06. [Term] -> class records, [Typedef] -> relation records. Obsolete terms (is_obsolete:true) excluded and counted. MONDO owns MONDO:* by prefix-ownership; imported BFO/RO/GO/PATO/PO/CL/UBERON stubs defer to their prefix owners; foreign-prefix import stubs (HP, CHEBI, NCBITaxon, DOID, OMIM, Orphanet, EFO, UMLS, raw IRIs, ...) are NOT emitted, only referenced (foreign-stub policy). HP references remain placeholder reference targets (HP held pending its custom-licence resolution).",
+      "shard": "mondo.jsonl",
+      "counts": {
+        "records": 32136,
+        "classes": 32095,
+        "relations": 41,
+        "withLogicalDef": 7685,
+        "genusDifferentia": 7582,
+        "obsoleteSkipped": 4609,
+        "importedAliasesSkipped": 10895,
+        "foreignStubsSkipped": 15768,
+        "axiomsByRel": {
+          "is_a": 46470,
+          "relationship": 19536,
+          "disjoint_from": 69,
+          "union_of": 22,
+          "inverse_of": 4,
+          "range": 11,
+          "transitive_over": 7,
+          "holds_over_chain": 3,
+          "domain": 3
+        },
+        "differentiaProps": {
+          "disease_has_basis_in_dysfunction_of": 54,
+          "has_characteristic": 1026,
+          "predisposes_towards": 149,
+          "disease_has_basis_in_disruption_of": 170,
+          "disease_has_feature": 89,
+          "disease_has_infectious_agent": 338,
+          "disease_has_location": 2539,
+          "disease_disrupts": 45,
+          "MONDO:0100332": 163,
+          "disease_arises_from_feature": 84,
+          "disease_has_inflammation_site": 251,
+          "transmitted_by": 12,
+          "disease_arises_from_structure": 388,
+          "disease_has_major_feature": 32,
+          "realized_in_response_to": 61,
+          "realized_in_response_to_stimulus": 49,
+          "has_material_basis_in_germline_mutation_in": 2502,
+          "realized_in": 14,
+          "MONDO:0100333": 4,
+          "in_taxon": 9,
+          "has_onset_during_or_after": 1,
+          "RO:0004004": 4,
+          "disease_responds_to": 5,
+          "RO:0004001": 3
+        }
+      },
+      "topDifferentiaProperties": [
+        [
+          "disease_has_location",
+          2539
+        ],
+        [
+          "has_material_basis_in_germline_mutation_in",
+          2502
+        ],
+        [
+          "has_characteristic",
+          1026
+        ],
+        [
+          "disease_arises_from_structure",
+          388
+        ],
+        [
+          "disease_has_infectious_agent",
+          338
+        ],
+        [
+          "disease_has_inflammation_site",
+          251
+        ],
+        [
+          "disease_has_basis_in_disruption_of",
+          170
+        ],
+        [
+          "MONDO:0100332",
+          163
+        ],
+        [
+          "predisposes_towards",
+          149
+        ],
+        [
+          "disease_has_feature",
+          89
+        ],
+        [
+          "disease_arises_from_feature",
+          84
+        ],
+        [
+          "realized_in_response_to",
+          61
+        ],
+        [
+          "disease_has_basis_in_dysfunction_of",
+          54
+        ],
+        [
+          "realized_in_response_to_stimulus",
+          49
+        ],
+        [
+          "disease_disrupts",
+          45
+        ]
+      ]
     }
   },
   "sourceFiles": {
@@ -550,7 +771,10 @@
     "pato.obo": "sha256:9b65efdf7d8d96bafd54637041cc615404ac2c88608efbcf54efa0a369bb1f75",
     "po.obo": "sha256:d90949737a9925bdb775ba7dd4a9521cb63ca4acd40211e4c7661655f379f4c9",
     "cl.obo": "sha256:7e19b4aef8e7fe7720b0c4474c6a5b8713c904ea9ab7b7d5d96f2cb28b8fc51f",
-    "uberon.obo": "sha256:7f06d8e8442008a67132a1599b652e86fe0c52d75c8d6bc5b0cc36a0031e6b3f"
+    "uberon.obo": "sha256:7f06d8e8442008a67132a1599b652e86fe0c52d75c8d6bc5b0cc36a0031e6b3f",
+    "ogms.obo": "sha256:e099f77e76ccbeeae03e95574f79785066d2a1e5231652595cdf75fb17ff9cbd",
+    "so.obo": "sha256:dde032d4c7cfb89a7013f2f8ab7420a8ef7dc469fbc2b0ffb38bef2a064a1d1f",
+    "mondo.obo": "sha256:75c51066741e04c0ec4751210911d29e17e16431ed2ba5b8a46fc6a37ff5b00e"
   },
   "shards": {
     "bfo.jsonl": {
@@ -587,20 +811,35 @@
       "records": 15153,
       "bytes": 19754526,
       "sha256": "6a4394ad2e94eb460cc590e9b5b64df2d4246186a83b3029cc535742695b3b95"
+    },
+    "ogms.jsonl": {
+      "records": 117,
+      "bytes": 82319,
+      "sha256": "a599d6da6e7be3913b9fef588891803e8d9b860d6ce9a23f60e6540edefd4110"
+    },
+    "so.jsonl": {
+      "records": 2447,
+      "bytes": 2218621,
+      "sha256": "46c98b1bd36297361ea48f9ea5554222c6ee119e756538b2a614ff0c372e6ca6"
+    },
+    "mondo.jsonl": {
+      "records": 32136,
+      "bytes": 41743289,
+      "sha256": "232799bb92627fa90533686ea595d2fd1a6ff6dcbdfafe1e8fb41b8738fe3d6c"
     }
   },
   "totals": {
-    "records": 61049,
-    "withLogicalDef": 16789,
-    "genusDifferentia": 16777,
-    "bytes": 73202656
+    "records": 95749,
+    "withLogicalDef": 24693,
+    "genusDifferentia": 24578,
+    "bytes": 117246885
   },
   "minting": {
     "profileHeader": "kot-obo/1\n",
-    "mintedCount": 61049,
-    "uniqueUrnCount": 61049,
-    "mintToolHash": "38573b0b3f3327ca444b4e27e0c4cc5768e178e2b106c8dfdce6812b3125c3d6",
-    "corpusIdentityRoot": "42bc07810cb2b62d0ed949cd25bc5e48648400df64ffe9906bbc27804d9cac03",
+    "mintedCount": 95749,
+    "uniqueUrnCount": 95749,
+    "mintToolHash": "8dab7b0806b3b8df99b3b343ef6ffbd01f2a093be9bdefd660640f1901938103",
+    "corpusIdentityRoot": "e8a95e2d8583499708235c01cd8e382e394e25af2ab0d93fb3d813830b15a381",
     "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
     "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
     "referenceMode": "stable",
