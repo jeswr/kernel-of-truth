@@ -168,6 +168,15 @@ MUST:
 - Mock/dry-plan first: no full GPU run without a same-day green `--mock` AND a `--dry-plan`
   whose projected wall-clock + $ are within the frozen ledger caps.
 - Registered, paired seeds only; check `worst_case_usd` against the ledger BEFORE launch.
+- PRE-SPEND REUSE GATE (docs/next/resource-optimization-plan.md §3.6): BEFORE any launch,
+  run `python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json`
+  (plus `--arm/--rung/--corpus --gate` for ad-hoc cells) and record the full output in the
+  run-log. A non-empty result means logged data may already answer part of the spend: STOP
+  and obtain a recorded coordinator/Fable reuse decision (consume under RC-1..RC-6 / shrink
+  the run / proceed-with-reason) before launching. Proceeding past a non-empty check without
+  a recorded decision is a gate violation. After every final-phase append, re-run
+  `python3 tools/registry/reuse-check.py build` so the artifact ledger stays current (pure
+  function; producer rule R-1).
 - Write the single reproducible run-script and the provenance run-log under
   `poc/<exp>/opus-runs/<UTC-ts>/`; append raw metric bodies via `log-append.py` as
   `phase:"final"` (hash-chained; keys matching the pinned analysis script; RAW numbers).

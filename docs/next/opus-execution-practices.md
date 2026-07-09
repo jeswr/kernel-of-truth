@@ -3,11 +3,14 @@
 Status: BINDING for every Opus-executed experiment. Authorised by Jesse
 (2026-07-09) while Fable is out of quota. Opus may EXECUTE routine experiment
 work — right-size / freeze / GPU-launch / mechanical-verdict / Codex-audit —
-under the four practices below. Design law is unchanged: `tools/registry` is
+under the five practices below. Design law is unchanged: `tools/registry` is
 law; the honesty discipline binds; run-vs-audit separation stands (the
 Codex / GPT-5.5 auditor is a different vendor, invoked via the `codex` CLI).
 
-These four practices are recorded here verbatim-in-substance.
+Practices (1)–(4) are recorded here verbatim-in-substance; practice (5) was
+added by the Fable resource-optimization plan (bead kernel-of-truth-utq,
+2026-07-09, `docs/next/resource-optimization-plan.md`), fulfilling the
+maintainer's directive that the reuse mechanisms be enforced, not advisory.
 
 ## (1) Provenance / audit-trail
 
@@ -60,6 +63,27 @@ EXTRAPOLATION -> MEASURED promotion, the kot-assess narrative — WAITS for Fabl
 and is marked pending. Opus reports only the mechanical numbers and the
 pre-declared gate pass/fails (which are pure functions), never a narrative
 conclusion.
+
+## (5) Pre-spend reuse gate
+
+Before ANY GPU/paid launch, the Runner queries the results/artifact ledger:
+
+```
+python3 tools/registry/reuse-check.py check --record registry/experiments/<id>.json
+python3 tools/registry/reuse-check.py check --arm <arm> --rung <rung> [--corpus <c>] --gate
+```
+
+and records the full output in the run-log. A non-empty result → STOP: a
+coordinator/Fable reuse decision (consume under the RC-1..RC-6 conditions of
+`docs/next/resource-optimization-plan.md` §3.3–3.4 / shrink the run to
+uncovered cells / proceed-with-reason) must be recorded before spend.
+Launching past a non-empty check without a recorded decision is a gate
+violation. Whether logged data may serve as the new record's own arm output is
+governed by the RC conditions — the Opus agent never adjudicates that itself
+(it is a Fable/design call); Opus's duty is to RUN the check, RECORD it, and
+STOP on a hit. After every final-phase append, the Runner re-runs
+`reuse-check.py build` so `registry/artifact-ledger.jsonl` stays a current
+pure-function inventory of reusable logged cells.
 
 ## Scope note
 

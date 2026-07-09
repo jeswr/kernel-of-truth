@@ -1,6 +1,15 @@
 # Reuse-maximising ordering of pending work — reconnaissance draft
 
-> **STATUS: SPECULATIVE / DRAFT / PENDING FABLE VALIDATION.**
+> **STATUS: SUPERSEDED (2026-07-09).** Fable validated this recon with corrections
+> and issued the authoritative plan: `docs/next/resource-optimization-plan.md`
+> (bead kernel-of-truth-utq). Material corrections there (§0.1): logs hold per-item
+> METRIC ARRAYS, not decodes; e9-full→e9-c is arm-implementation reuse (different
+> corpora), not decode reuse, unless designed in at freeze; f2's null arms are not
+> config-identical to e9-full's; the §5 honesty question is RULED (conditional yes,
+> RC-1..RC-6). Do NOT cite this draft's ordering or reuse calls — cite the plan.
+> Kept for the audit trail only.
+>
+> **Original status: SPECULATIVE / DRAFT / PENDING FABLE VALIDATION.**
 > This is an **Opus reconnaissance** pass, not a committed plan. Per
 > `docs/next/opus-execution-practices.md` §4, an Opus agent writes no conclusive
 > interpretation and makes no strategic decision: **the ordering and every "reuse

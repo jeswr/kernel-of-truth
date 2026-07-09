@@ -50,7 +50,10 @@ ASM_CITE_RE = re.compile(r"\bASM-\d{4}\b")
 # lint (not the regex) can name the missing-backing violation.
 TAG_RE = re.compile(r"\[(MEASURED|LIT-BACKED|STIPULATED|EXTRAPOLATION)(?::\s*([^\]]*?))?\s*\]")
 MARKER_RE = re.compile(r"\b(PREMISE|DECISION|LOAD-BEARING):")
-OWNER_OK = re.compile(r"^(?:maintainer|(?:runner|auditor|coordinator|writer|redteam)-[0-9]+)$")
+# Role set = the P5 roster as carried into the engine roles table (research-engine §3):
+# designer/statistician/skeptic are the Fable design-side pseudonyms (added 2026-07-09,
+# bead kernel-of-truth-utq — the register previously had only run-side owners).
+OWNER_OK = re.compile(r"^(?:maintainer|(?:runner|auditor|coordinator|writer|redteam|designer|statistician|skeptic)-[0-9]+)$")
 # Backing shapes (spec §1 backing column):
 MEASURED_REF_RE = re.compile(r"(registry/(?:verdicts|experiments|audits)/|results-log/|[0-9a-f]{8,64})")
 # kot-lit[:/] = a Pillar-C KB record citation. This lint checks the backing

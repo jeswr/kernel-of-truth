@@ -384,11 +384,19 @@ score = (D × U × L) / max(C, C_floor)
       prevents division-by-~0 favouring trivia
 ```
 
-Discipline (same separation pattern as verdicts): D/U/L are scored **independently by
+Discipline (same separation pattern as verdicts): D/U are scored **independently by
 two Fable agents** with a one-line justification each; disagreement >1 point goes to
 the Coordinator with both justifications on record; scores + justifications are
-committed with the stub. Ties break **cheapest-decisive-first** (the kill-tree
-economics, engine-fixed). Two standing overrides, both pre-declared: (i) an
+committed with the stub. **L is derived, not vibed** (amendment 2026-07-09, bead
+kernel-of-truth-utq, `docs/next/resource-optimization-plan.md` §4.4): L = 3 if the
+stub's work product (instrument, corpus, harness, engine, measured design points) is
+consumed by ≥2 other pending records/candidates, 2 if exactly 1, 1 if 0 — read
+mechanically off `registry/components.jsonl` consumers and
+`registry/artifact-ledger.jsonl`; a Fable scorer may override a derived L only with a
+written justification committed with the stub. Ties break
+**cheapest-decisive-first** (the kill-tree economics, engine-fixed), then
+**producers-before-consumers** (topological order on the declared reuse graph — the
+same amendment). Two standing overrides, both pre-declared: (i) an
 instrument-invalid stub blocking a live candidate outranks its score; (ii) the
 attack-your-winners rule (§2.3) guarantees one falsification slot per generation.
 The scoring rubric itself may only change at a generation boundary, by recorded
@@ -491,6 +499,8 @@ contribution alongside whatever science it produces (a P9-route paper).
 | D5 | `lit-scan` skill (step-2 search protocol + citation-tagged output format, per N0's [search]/[memory] convention) | ~0.5 agent-day | |
 | D6 | `kot-reg/2` (pins map + instrument_gates + candidate/generation fields) | ~0.5 agent-day | **maintainer-gated** (P2 §7 item 3) |
 | D7 | Assumption register + `claims-check` epistemic-tag lint (docs/next/assumption-register.md) | **landed 2026-07-09** (register, standalone lint, fixtures) | remaining: wiring into `prereg-freeze`/`registry-check` run-all is **maintainer-gated** (spec §6) |
+| D8 | Artifact ledger + component registry + pre-spend reuse gate (`registry/artifact-ledger.jsonl`, `registry/components.jsonl`, `tools/registry/reuse-check.py`; policy in `docs/next/resource-optimization-plan.md`) | **landed 2026-07-09** (Fable, bead kernel-of-truth-utq) | standalone, D7-precedent; gate is binding via opus-execution-practices (5) + experiment-runner MUST |
+| D9 | Reuse wiring into the frozen machinery: `prereg-freeze`/`registry-check` refuse cell-collisions absent an RC-1 reuse block; first-class `reused_from` rows in `log-append`/`verdict-gen`; `kot-reg/2` `artifact_hashes` as the reuse-pin home | ~1 agent-day | **maintainer-gated** (P2 §7 item 3); strengthens the case for approving D6 |
 
 Total ≈ 3–3.5 agent-days, ~$0 compute, R0-tier. Nothing blocks the currently-running
 F2 pivot; D1–D3 can land before F2 closes so its verdict is the first to flow through
