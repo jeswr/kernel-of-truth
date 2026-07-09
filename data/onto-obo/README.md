@@ -1,6 +1,6 @@
 # onto-obo — OBO Foundry logical-definition tier (AxiomsOnly, from BFO / RO / GO)
 
-**39,012 records** mechanically extracted from three OBO Foundry ontologies,
+**42,565 records** mechanically extracted from five OBO Foundry ontologies,
 one JSONL line per class/relation, sharded by ontology. This is the
 `AxiomsOnly` stratum of the bulk-kernel design (`docs/design-bulk-kernel.md`) —
 but a **tier richer than WordNet hypernymy**: where the source carries an OBO
@@ -12,7 +12,9 @@ structured axiom inside record identity, not just a taxonomy link.
 | `bfo.jsonl` | Basic Formal Ontology | 35 | 0 | 0 | 2019-08-26 | CC BY 4.0 |
 | `ro.jsonl` | Relation Ontology | 721 | 0 | 0 | releases/2025-12-17 | CC0 1.0 |
 | `go.jsonl` | Gene Ontology | 38,256 | 9,307 | **9,303** | releases/2026-06-15 | CC BY 4.0 |
-| **total** | | **39,012** | **9,307** | **9,303** | | |
+| `pato.jsonl` | Phenotype And Trait Ontology | 1,883 | 0 | 0 | releases/2025-05-14 | CC BY 3.0 |
+| `po.jsonl` | Plant Ontology | 1,670 | 81 | 81 | releases/2026-01-09 | CC BY 4.0 |
+| **total** | | **42,565** | **9,388** | **9,384** | | |
 
 **The headline:** 9,303 GO terms carry a machine-extractable genus-differentia
 definition ("X = *genus* that *rel* *filler*", e.g. *regulation of DNA
@@ -29,6 +31,10 @@ to profile-1 structured explications** (follow-up filed).
 - **RO — CC0 1.0.** Public-domain dedication; no restrictions on derived records.
 - **GO — CC BY 4.0.** Derived records may be redistributed with attribution to
   the Gene Ontology Consortium (`http://geneontology.org`).
+- **PATO — CC BY 3.0.** Derived records may be redistributed with attribution to
+  the Phenotype And Trait Ontology (`http://purl.obolibrary.org/obo/pato`).
+- **PO — CC BY 4.0.** Derived records may be redistributed with attribution to
+  the Plant Ontology / Planteome project (`http://purl.obolibrary.org/obo/po`).
 
 Authoritative SPDX from the OBO Foundry registry
 (`obofoundry.org/registry/ontologies.jsonld`), recorded in `manifest.json` and
@@ -119,6 +125,38 @@ committed (`source/` gitignored); re-download to regenerate (see below).
   (11 tests: id normalisation, escaping, genus-differentia assembly, Typedef
   axioms, obsolete handling).
 
+## Extraction 2 — PATO + PO added (2026-07-09)
+
+PATO (1,883 records) and PO (1,670 records, 81 genus-differentia) were appended
+to `ONTOLOGIES[]` (same generic OBO-1.4 extractor, no parser-logic change). BFO,
+RO and GO shards are byte-identical to extraction 1 (their sha256 pins and record
+sets are unchanged — the new ontologies add no BFO/RO/GO ownership overlap beyond
+the 5 PATO ids that RO already imported and owns). Mechanical checks on this run:
+
+- **Deterministic re-extraction:** two runs byte-identical (`pato.jsonl`,
+  `po.jsonl`, `manifest.json` sha256s match).
+- **Structural validation** (`validate.mjs`): all gates pass. 42,565 unique ids;
+  reference closure — 100,057 internal refs resolve; **1** dangling known-prefix
+  ref (the same `RO:0002089 → BFO:0000060` upstream gap); 10 cross-ontology
+  fillers (NCBITaxon:6, foaf:2, COB:2).
+- **Sample audit** (`sample-review.mjs 150 0x4d31`): 0 errors (GO-dominated draw).
+- **Mint** (`tools/mint`, `--corpus onto-obo`): 42,565 minted, 42,565 unique URNs,
+  0 duplicate-identity groups.
+
+**CL and UBERON deferred (owner-dedup decision needed).** CL and UBERON parse
+cleanly with the same extractor (0 throws), but they mutually re-declare each
+other's terms as import stubs (CL declares 5,062 UBERON ids; UBERON declares
+1,487 CL ids) and carry thousands of foreign-prefix `[Term]` stubs (PR, CHEBI,
+NCBITaxon, DHBA, MBA, CLM, plus raw `http:` IRIs). With the pinned first-declarer
+owner-dedup (`PREFIX_OWNER = {BFO, RO, GO}`), ingesting them as-is would mis-own
+5,062 UBERON terms (their genus-differentia definitions replaced by empty stubs)
+and emit 3,852 foreign-prefix stub records into onto-obo (incl. 731 CHEBI —
+explicitly out of scope — and 492 `http:` IRIs). Correct handling needs a
+`PREFIX_OWNER` ownership-logic update plus a foreign-prefix-stub emission policy —
+a design/curation decision, filed back to the maintainer (bead
+kernel-of-truth-4im). Both licences are permissive (CL CC BY 4.0, UBERON CC BY
+3.0), so the block is dedup logic, not licensing.
+
 ## The bridge (alignment-kernel-v0.json)
 
 kernel-v0 already targets gUFO (`gufo:Event`, `gufo:Kind`), which is
@@ -139,6 +177,8 @@ curl -sSLO http://purl.obolibrary.org/obo/bfo.obo
 curl -sSLo bfo-2020.owl http://purl.obolibrary.org/obo/bfo/2020/bfo-core.owl
 curl -sSLO http://purl.obolibrary.org/obo/ro.obo
 curl -sSLO http://purl.obolibrary.org/obo/go.obo
+curl -sSLO http://purl.obolibrary.org/obo/pato.obo
+curl -sSLO http://purl.obolibrary.org/obo/po.obo
 cd ../../..
 nice -n 10 node data/onto-obo/extractor/extract.mjs      # fails closed on sha mismatch
 node          data/onto-obo/validate.mjs

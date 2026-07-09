@@ -332,7 +332,7 @@ export function makeSpecs(dataRoot: string, opts: SpecOptions = {}): CorpusSpec[
     outDir: join(dataRoot, "onto-obo"),
     load: (root) => {
       const out: RawRecord[] = [];
-      for (const f of ["bfo.jsonl", "ro.jsonl", "go.jsonl"]) {
+      for (const f of ["bfo.jsonl", "ro.jsonl", "go.jsonl", "pato.jsonl", "po.jsonl"]) {
         for (const r of readJsonl(join(root, "onto-obo", f))) out.push({ id: r["id"] as string, raw: r });
       }
       return out;

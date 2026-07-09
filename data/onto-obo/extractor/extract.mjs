@@ -96,6 +96,30 @@ export const ONTOLOGIES = [
     licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Gene Ontology Consortium, http://geneontology.org).',
     note: 'Domain exemplar chosen for its heavy genus-differentia logical definitions (intersection_of). Obsolete terms (is_obsolete:true) are excluded from records and counted; they carry no definitional axioms.',
   },
+  {
+    id: 'PATO',
+    file: 'pato.obo',
+    out: 'pato.jsonl',
+    sha256: '9b65efdf7d8d96bafd54637041cc615404ac2c88608efbcf54efa0a369bb1f75',
+    sourceName: 'Phenotype And Trait Ontology (PATO)',
+    purl: 'http://purl.obolibrary.org/obo/pato.obo',
+    license: 'CC BY 3.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/3.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 3.0 permits redistribution of derived records with attribution (Phenotype And Trait Ontology, http://purl.obolibrary.org/obo/pato). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).',
+    note: 'Quality ontology. data-version releases/2025-05-14. [Term] stanzas -> class records, [Typedef] -> relation records. Obsolete terms (is_obsolete:true) are excluded and counted. This release carries no intersection_of logical definitions (0 genus-differentia): is_a taxonomy + relationship axioms only. 5 PATO ids that also appear as import stubs in RO are owned by RO under the existing first-declarer dedup (RO precedes PATO in ONTOLOGIES).',
+  },
+  {
+    id: 'PO',
+    file: 'po.obo',
+    out: 'po.jsonl',
+    sha256: 'd90949737a9925bdb775ba7dd4a9521cb63ca4acd40211e4c7661655f379f4c9',
+    sourceName: 'Plant Ontology (PO)',
+    purl: 'http://purl.obolibrary.org/obo/po.obo',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    licenseVerdict: 'REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (Plant Ontology, Planteome project, http://purl.obolibrary.org/obo/po). SPDX from the OBO Foundry registry (obofoundry.org/registry/ontologies.jsonld).',
+    note: 'Plant anatomy + plant-structure-development-stage ontology. data-version releases/2026-01-09. [Term] stanzas -> class records, [Typedef] -> relation records. Obsolete terms (is_obsolete:true) are excluded and counted. 81 terms carry intersection_of genus-differentia logical definitions.',
+  },
 ];
 
 function sha256(buf) {
