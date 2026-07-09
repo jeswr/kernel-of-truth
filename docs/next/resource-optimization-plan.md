@@ -237,6 +237,23 @@ bespoke experiments have each built their own world.
 
 ## 3. Component (3) — CROSS-EXPERIMENT GPU-RESULT REUSE
 
+> **⛔ REUSE-PERMISSION DEFERRED (maintainer decision, 2026-07-09). NOT LIVE.**
+> The permissive half of this ruling (confirmatory consumption of another record's
+> logged rows via `reused_from`) was REFUTED by the second cross-vendor Codex re-audit
+> (`registry/audits/resource-optimization-plan/2-design-reaudit-codex.json`: 4 criticals
+> remained, enforcement weaker than prose). The maintainer chose to **DEFER** the feature
+> rather than iterate a revision-2: at this programme's GPU scale (~$1/run) the ~$1/run
+> saving does not justify the integrity surface. **What stays live:** the RESTRICTIVE half
+> — the collision-refusal gate, the fail-closed ratification interlock (no
+> `registry/reuse-ratification.json` exists, so every `reused_from` consumption path refuses
+> `ERR_P2_REUSE_UNRATIFIED`), the `reuse_overrides` fresh-re-run path, and the
+> exploratory-reanalysis-quarantine rule (the actual F2→f2b lesson). Fresh-runs-only remains
+> the programme norm; RC-1…RC-8 and the tooling are retained as the un-ratified design of
+> record. **Revisit only if** GPU spend ever becomes material — a revision-2 would owe the 6
+> amendments in audit-2's `remaining_amendments` before any re-audit. Components (1) work
+> taxonomy, (2) architecture reuse/composition, and (4) proactive ordering are UNAFFECTED and
+> stand on their own.
+
 ### 3.0 REVISION-1 (post-audit, 2026-07-09) — changelog: which amendment closed which loophole
 
 The cross-vendor Codex/GPT-5.5 design audit of this ruling
