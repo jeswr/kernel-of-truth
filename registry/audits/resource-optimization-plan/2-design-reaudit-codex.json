@@ -1,0 +1,158 @@
+{
+  "audit_kind": "DESIGN RE-AUDIT (cross-vendor adversarial) — resource-optimization plan honesty ruling REVISION-1 (RC-1..RC-8 + D9); closure verification of the 6 amendments from audit-1",
+  "auditor": "auditor-4",
+  "auditor_binding": "cross-vendor auditor per directives §8: Codex/GPT-5.5 via codex CLI; design-vs-audit separation (Fable designer-1 authored revision-1, Codex audited). Read-only sandbox; the auditor read the revised plan + tooling + schema and traced refusal paths in kot_common.py.",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.142.5",
+    "model": "gpt-5.5",
+    "reasoning_effort": "high",
+    "sandbox": "read-only",
+    "session_id": "019f477e-f072-7032-a0b2-c63bdd44948c",
+    "usage": {
+      "input_tokens": 551191,
+      "cached_input_tokens": 456576,
+      "output_tokens": 12746,
+      "reasoning_output_tokens": 6753
+    }
+  },
+  "audits_revision_of": "registry/audits/resource-optimization-plan/1-design-audit-codex.json",
+  "deliverable": "docs/next/resource-optimization-plan.md REVISION-1 (commit 0843d54) + kot-reg/2 tooling",
+  "designer": "designer-1 (Fable)",
+  "reproducibility": {
+    "brief_path": "poc/audits/resource-optimization-plan/reaudit-brief.md",
+    "output_schema_path": "poc/audits/resource-optimization-plan/reaudit-output-schema.json",
+    "codex_events_path": "poc/audits/resource-optimization-plan/reaudit-codex-events.jsonl.gz",
+    "codex_last_message_path": "poc/audits/resource-optimization-plan/reaudit-codex-last-message.json"
+  },
+  "outcome": "REFUTE",
+  "preregistration_preserved_as_written": false,
+  "ratifiable": "NO — REFUTE; 4 criticals + 2 majors remain; 6 further amendments specified",
+  "verdict": {
+    "deliverable": "resource-optimization-plan REVISION-1 honesty ruling RC-1..RC-8",
+    "overall_verdict": "REFUTE",
+    "preregistration_preserved": false,
+    "summary": "Not ratifiable as-is. The interlock is fail-closed today because `registry/reuse-ratification.json` is absent, but ratifying this revision would still leave critical reuse-permissive gaps. RC-7 is mostly a labeled pinned-file check, not proof that the comparator rule predates unblinding or is substantively data-blind. RC-4/RC-2/Case-A mechanics still allow already-seen or non-identical data to reach a confirmatory analysis under plausible declarations.",
+    "amendment_closure": [
+      {
+        "amendment": "1 RC-7 comparator",
+        "status": "partial",
+        "enforcing_ref": "docs/next/resource-optimization-plan.md §3.3 RC-7; tools/registry/kot_common.py:1094-1116",
+        "note": "The code requires `comparator_selection`, basis enum, ref path+sha, and non-empty rule text, but it does not prove the ref is prior-frozen, that the rule text is actually the referenced law, or that `exhaustive-declared-family` is exhaustive. A post-unblinding file with a lawful-looking basis label can pass."
+      },
+      {
+        "amendment": "2 RC-8 f7 survivor",
+        "status": "closed",
+        "enforcing_ref": "docs/next/resource-optimization-plan.md §3.4-3; registry/assumptions.jsonl ASM-0010 last line; tools/registry/kot_common.py:1035-1037,1118-1133",
+        "note": "`outcome_selected_arms:true` refuses without `selection_adjusted_inference` anchored to pinned analysis output fields; ASM-0010 is rewritten `load_bearing:true`. The declaration remains attested, not auto-detected."
+      },
+      {
+        "amendment": "3 RC-5",
+        "status": "closed",
+        "enforcing_ref": "tools/registry/kot_common.py:922-1008",
+        "note": "Overlap coverage is per block/producer and per consumed arm-rung stratum, with frozen representativeness justifications for misses. The deterministic CPU waiver requires a pinned `consumed_output_hashes` artifact and recomputes per-row consumed-field hashes."
+      },
+      {
+        "amendment": "4 D9/kot-reg-2",
+        "status": "partial",
+        "enforcing_ref": "registry/schema/kot-reg-2.json:102-184; registry/schema/kot-log-1.json:50-59; tools/registry/prereg-freeze.py:280-304; tools/registry/log-append.py:114-147; tools/registry/verdict-gen.py:376-426; tools/registry/registry-check.py:288-365",
+        "note": "The wire fields, witness, freeze collision refusal, and verdict-time consumption checks landed. Gaps remain: `registry-check --reuse` does not perform collision refusal, recheck/audit uses freeze-like RC-2 semantics, and ratification may pin an arbitrary `plan_path` instead of this ruling document."
+      },
+      {
+        "amendment": "5 reuse-check --gate",
+        "status": "partial",
+        "enforcing_ref": "tools/registry/reuse-check.py:175-250,253-278,412-430",
+        "note": "Record mode derives live rows and exits 3 with `--gate` on uncovered identical/indeterminate cells. However the renamed-identical surfacing is only heuristic and does not compare declared new arm impl pins against old-arm logged rows unless a same-named logged row provides the impl value; ad-hoc mode is still broader discovery, not the RC gate."
+      },
+      {
+        "amendment": "6 ASM-0010/0011",
+        "status": "closed",
+        "enforcing_ref": "registry/assumptions.jsonl ASM-0010/ASM-0011 last-line-wins; docs/next/research-engine.md §2.7; tools/registry/reuse-check.py:343-395",
+        "note": "ASM-0010 is load-bearing and removes the f7 default. `reuse-check lscore` derives L from structured experiment/idea edges and, in this repo, reports 17 free-text mismatches."
+      }
+    ],
+    "new_loopholes": [
+      {
+        "severity": "critical",
+        "description": "RC-4 fresh-arm enforcement can be satisfied by an irrelevant fresh arm while the primary analysis computes only over already-unblinded reused rows.",
+        "exploit_path": "Declare one fresh arm level and log one eligible fresh row; declare comparator reuse for known rows; write the pinned analysis to ignore the fresh row and compute the primary from reused rows. `check_record_reuse` only checks that some declared arm is not covered by reuse blocks, and `verdict-gen` only requires fresh eligibility before passing fresh+reused stdin to the analysis.",
+        "file_ref": "tools/registry/kot_common.py:1180-1194; tools/registry/verdict-gen.py:439-455"
+      },
+      {
+        "severity": "critical",
+        "description": "Case-A prospective reuse ignores non-final producer data, so exploratory/mock/smoke producer outcomes can be seen before the consumer freeze while the block still passes as prospective.",
+        "exploit_path": "Run producer exploratory/non-final rows, inspect outcomes, freeze a consumer `role:prospective` block before final rows/verdict exist, then append matching final producer rows. Freeze checks only final rows and verdict existence.",
+        "file_ref": "tools/registry/kot_common.py:1045-1064"
+      },
+      {
+        "severity": "critical",
+        "description": "RC-7 data-blindness is not actually established by code.",
+        "exploit_path": "After unblinding, create or choose a file describing the desired comparator rule, set `basis` to one of the allowed enum values, pin its sha, and provide any non-empty `rule_verbatim`. The verifier byte-checks the file but does not prove priority, frozen status, mandatory-law membership, or exhaustiveness.",
+        "file_ref": "tools/registry/kot_common.py:1094-1116"
+      },
+      {
+        "severity": "critical",
+        "description": "Verdict-time RC-2 does not require model identity proof, despite the prose and matcher saying corpus plus model identity are required.",
+        "exploit_path": "Reuse rows with matching corpus pins but omitted/disjoint/indeterminate model revision pins. `_rc2_pin_identity` only requires at least one shared corpus proof at consumption; model proof is checked only for shared names and can be absent.",
+        "file_ref": "tools/registry/kot_common.py:880-908"
+      },
+      {
+        "severity": "major",
+        "description": "Ratification sha binding can be pointed away from the ruling document.",
+        "exploit_path": "Commit `registry/reuse-ratification.json` with `plan_path` set to another stable file and matching `plan_sha256`; tools will treat reuse as ratified while later edits to `docs/next/resource-optimization-plan.md` do not void it.",
+        "file_ref": "tools/registry/kot_common.py:584-607"
+      },
+      {
+        "severity": "major",
+        "description": "Audit/recheck can say a reuse chain verifies when verdict-time RC-2 identity would fail.",
+        "exploit_path": "Run `registry-check --reuse` or `reuse-check audit` on a block with placeholder/indeterminate pins. They call `mode=\"recheck\"`, and `_rc2_pin_identity` is invoked with `at_freeze=True`, so consumption-only identity refusals are skipped.",
+        "file_ref": "tools/registry/kot_common.py:1135-1143; tools/registry/reuse-check.py:304-316; tools/registry/registry-check.py:327-329"
+      }
+    ],
+    "judgment_calls": [
+      {
+        "id": "a",
+        "safe": false,
+        "note": "Zero final rows plus no verdict is insufficient. Non-final producer rows can leak outcomes before consumer freeze; later final rows then flow as Case A."
+      },
+      {
+        "id": "b",
+        "safe": true,
+        "note": "For actual verdict consumption, placeholders fail closed because `mode=\"verdict\"` requires real-vs-real corpus identity. Caveat: append/recheck/audit do not enforce the same consumption semantics."
+      },
+      {
+        "id": "c",
+        "safe": false,
+        "note": "A single fresh eligible row/arm is not enough unless the primary endpoint is proven to depend on it. Current code does not check analysis dependence on fresh rows."
+      },
+      {
+        "id": "d",
+        "safe": false,
+        "note": "The pre-spend matcher requires corpus and model for `overall=identical`, and shared encoder alone is correctly insufficient. Verdict-time RC-2 is weaker because absent/disjoint model pins can still pass."
+      },
+      {
+        "id": "e",
+        "safe": true,
+        "note": "The limited kot-reg/2 scope is acceptable for reuse-specific wiring; the remaining gaps are enforcement logic and ratification binding, not missing D6 fields."
+      }
+    ],
+    "code_vs_policy": {
+      "gate_binds_as_prose": "weaker_than_prose",
+      "note": "The tooling enforces many field/row/hash gates, but it is weaker than the prose on RC-7 data-blind priority/substance, RC-4 primary fresh contrast, RC-2 model identity, registry-check collision refusal, and audit/recheck identity semantics."
+    },
+    "interlock_fail_closed": {
+      "consumption_fail_closed": true,
+      "sig_voids_on_doc_edit": false,
+      "note": "Today `registry/reuse-ratification.json` is absent; `registry-check --reuse` reports no ratification and `check_record_reuse`/`log-append`/`verdict-gen` require ratification before reuse consumption or witness append. But `reuse_ratified` accepts a ratification `plan_path` other than `docs/next/resource-optimization-plan.md`, so editing the ruling doc is not guaranteed to void a ratification."
+    },
+    "remaining_amendments": [
+      "Bind ratification to exactly `docs/next/resource-optimization-plan.md` and reject any alternate or absolute `plan_path`; add a schema/test for this.",
+      "Strengthen RC-7 to prove priority/frozen status and lawful substance: require a frozen-index/prior log reference or approved immutable law id, verify `rule_verbatim` against the pinned source, and machine-check exhaustiveness where claimed.",
+      "For Case A, refuse prospective reuse if the producer has any prior run/output rows for matching cells, not only final rows, or require a frozen no-prior-outcome attestation plus audit-visible quarantine of exploratory data.",
+      "Strengthen RC-4 so the frozen primary endpoint/analysis must declare and verify dependence on at least one fresh arm in the primary contrast; dummy fresh rows must not satisfy the gate.",
+      "Strengthen verdict-time RC-2 to require all identity-bearing axes applicable to the record type, including model/config/impl/decode/harness pins, not only a shared corpus proof; make recheck/audit use verdict-strength identity semantics once rows exist.",
+      "Implement `registry-check --reuse` collision checking or remove the claim; add tests for RC-2 placeholder verdict refusal, missing model pin refusal, Case-A non-final leakage, RC-7 post-unblind ref laundering, CPU-waiver recompute mismatch, ratification wrong-plan-path, and dummy-fresh RC-4 bypass."
+    ],
+    "reasoning": "Read `docs/next/resource-optimization-plan.md`, `docs/next/research-engine.md`, `registry/schema/kot-reg-2.json`, `registry/schema/kot-log-1.json`, `registry/assumptions.jsonl`, `tools/registry/kot_common.py`, `prereg-freeze.py`, `log-append.py`, `verdict-gen.py`, `registry-check.py`, `reuse-check.py`, and `test_fixtures.py`. Refusal paths traced: RC-1 selection rule/complete rows at `kot_common.py:1024-1093`; RC-2 at `868-916` and verdict invocation at `1135-1143`; RC-3 per-item fields at `1031-1034,1144-1149`; RC-4 disclosure/fresh arm at `1050-1082,1178-1194`; RC-5 at `922-1008`; RC-6 witness at `log-append.py:114-147` and `verdict-gen.py:388-426`; RC-7 at `1094-1116`; RC-8 at `1035-1037,1118-1133`. Read-only checks run: `test -f registry/reuse-ratification.json` returned absent; `python3 tools/registry/registry-check.py --reuse` passed with 'no ratification file'; `python3 tools/registry/reuse-check.py lscore` reported 17 free-text/structured mismatches. The 10 TestReuse cases cover several headline refusals, but do not exercise RC-2 consumption placeholders/model absence, Case-A non-final leakage, RC-7 semantic/priority laundering, CPU waiver hash mismatch, wrong ratification plan_path, or dummy-fresh primary bypass."
+  },
+  "note": "Opus ran the re-audit mechanically and recorded it verbatim; NO Opus interpretation. Iteration 2 still not ratifiable. GOOD closures: RC-8/RC-5/ASM. STILL OPEN: RC-7 cosmetic-in-code (critical), RC-4 all-reused-primary (critical), Case-A non-final leakage (critical), verdict-time RC-2 no model-proof (critical). Interlock IS fail-closed today (no ratification file) so nothing reuse-permissive is live; fresh-run status quo unaffected. Maintainer decision pending: iterate (revision-2) vs defer/scope-down the reuse feature."
+}

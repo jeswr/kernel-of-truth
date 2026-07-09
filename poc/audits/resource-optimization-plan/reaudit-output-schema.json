@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["deliverable", "overall_verdict", "preregistration_preserved", "summary", "amendment_closure", "new_loopholes", "judgment_calls", "code_vs_policy", "interlock_fail_closed", "remaining_amendments", "reasoning"],
+  "properties": {
+    "deliverable": { "type": "string", "description": "must be 'resource-optimization-plan REVISION-1 honesty ruling RC-1..RC-8'" },
+    "overall_verdict": { "type": "string", "enum": ["CONFIRM", "CONFIRM_WITH_CONDITIONS", "REFUTE"] },
+    "preregistration_preserved": { "type": "boolean", "description": "true iff the REVISED ruling keeps confirmatory claims free of already-seen-data influence" },
+    "summary": { "type": "string", "description": "3-5 sentence bottom line for the maintainer: is it ratifiable?" },
+    "amendment_closure": {
+      "type": "array",
+      "description": "one entry per amendment 1..6 (1=RC-7 comparator, 2=RC-8 f7 survivor, 3=RC-5, 4=D9/kot-reg-2, 5=reuse-check --gate, 6=ASM-0010/0011)",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["amendment", "status", "enforcing_ref", "note"],
+        "properties": {
+          "amendment": { "type": "string", "description": "e.g. '1 RC-7 comparator', '2 RC-8 f7 survivor'" },
+          "status": { "type": "string", "enum": ["closed", "partial", "not_closed"] },
+          "enforcing_ref": { "type": "string", "description": "the code/prose that enforces closure (file:symbol or doc §)" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "new_loopholes": {
+      "type": "array",
+      "description": "loopholes INTRODUCED by revision-1 (empty if none)",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "description", "exploit_path", "file_ref"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "description": { "type": "string" },
+          "exploit_path": { "type": "string" },
+          "file_ref": { "type": "string" }
+        }
+      }
+    },
+    "judgment_calls": {
+      "type": "array",
+      "description": "assessment of the designer's flagged judgment calls (a)-(e)",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "safe", "note"],
+        "properties": {
+          "id": { "type": "string", "description": "a|b|c|d|e" },
+          "safe": { "type": "boolean" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "code_vs_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_binds_as_prose", "note"],
+      "properties": {
+        "gate_binds_as_prose": { "type": "string", "enum": ["matches", "weaker_than_prose", "stronger_than_prose", "diverges"] },
+        "note": { "type": "string" }
+      }
+    },
+    "interlock_fail_closed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["consumption_fail_closed", "sig_voids_on_doc_edit", "note"],
+      "properties": {
+        "consumption_fail_closed": { "type": "boolean", "description": "true iff all consumption paths refuse today (no ratification file)" },
+        "sig_voids_on_doc_edit": { "type": "boolean", "description": "true iff editing the ruling doc voids a ratification signature (sha binding)" },
+        "note": { "type": "string" }
+      }
+    },
+    "remaining_amendments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "concrete edits still required before ratification (empty iff overall_verdict == CONFIRM)"
+    },
+    "reasoning": { "type": "string", "description": "audit trail: files read, refusal paths traced, why the verdict" }
+  }
+}
