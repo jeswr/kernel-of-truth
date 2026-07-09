@@ -410,11 +410,40 @@ def run(root, exp_id, agent_id, computed_at):
             tail_sha = kc.log_tail_sha256(raw_lines)
 
         # G-7 (scoped): coverage is required only when the frozen record declares it.
+        # coverage_requirement.source names WHERE the coverage block comes from
+        # (P2 §2 G-7: "absent from eligible runs' metrics or the verdict object"):
+        #   - "self" / this experiment's id: the experiment measures its own
+        #     coverage and every eligible run carries metrics.coverage (m0b).
+        #   - any other experiment id: the published coverage from that
+        #     experiment's verdict object is RESTATED here (P3 m0b.close:
+        #     "publish coverage + rung; restated in every later verdict").
+        #     Fail closed unless that verdict exists, carries a coverage
+        #     block, and is itself audit-CONFIRMED (G-6 — an unaudited
+        #     coverage number must not silently license downstream verdicts).
         if "coverage_requirement" in effective:
-            coverage = eligible[-1].get("metrics", {}).get("coverage")
-            if not coverage:
-                raise kc.KotError("ERR_P2_NO_COVERAGE",
-                                  "coverage_requirement declared but eligible runs carry no metrics.coverage block")
+            cov_source = effective["coverage_requirement"].get("source", "self")
+            if cov_source in ("self", exp_id):
+                coverage = eligible[-1].get("metrics", {}).get("coverage")
+                if not coverage:
+                    raise kc.KotError("ERR_P2_NO_COVERAGE",
+                                      "coverage_requirement declared but eligible runs carry no metrics.coverage block")
+            else:
+                src_path = os.path.join(root, "registry", "verdicts", "%s.json" % cov_source)
+                if not os.path.exists(src_path):
+                    raise kc.KotError("ERR_P2_NO_COVERAGE",
+                                      "coverage_requirement.source=%r but registry/verdicts/%s.json does not exist"
+                                      % (cov_source, cov_source))
+                with open(src_path, encoding="utf-8") as f:
+                    src_verdict = json.load(f)
+                coverage = src_verdict.get("coverage")
+                if not coverage:
+                    raise kc.KotError("ERR_P2_NO_COVERAGE",
+                                      "coverage_requirement.source=%r but that verdict object carries no coverage block"
+                                      % cov_source)
+                if src_verdict.get("audit", {}).get("state") != "CONFIRMED":
+                    raise kc.KotError("ERR_P2_NO_COVERAGE",
+                                      "coverage_requirement.source=%r but that verdict's audit state is %r, not CONFIRMED"
+                                      % (cov_source, src_verdict.get("audit", {}).get("state")))
 
         for ep in effective["endpoints"]:
             v = kc.resolve_pointer(analysis, ep["metric"])

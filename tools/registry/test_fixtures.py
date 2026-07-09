@@ -391,6 +391,69 @@ class TestEndToEnd(SpineFixture):
                          [{"seq": 0, "reason": "phase!=final ('exploratory')"}])
 
 
+class TestCoverageSource(SpineFixture):
+    """G-7 coverage_requirement.source: cross-experiment restatement path.
+
+    When source names ANOTHER experiment (e.g. f2's {"source": "m0b"}), the
+    coverage block is restated from that experiment's verdict object (P3
+    m0b.close: "publish coverage + rung; restated in every later verdict") —
+    and only from an audit-CONFIRMED verdict. Missing verdict, missing
+    coverage block, or unconfirmed audit each fail closed (ERR_P2_NO_COVERAGE).
+    """
+
+    COV = {"fraction": 0.3542, "rung": "molecules-v0"}
+
+    def freeze_with_cov_source(self):
+        rec = self.base_record(
+            coverage_requirement={"source": "mock-m0b", "rung_field": "coverage_rung"})
+        p = self.freeze(rec)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for seed in (0, 1):
+            p = self.append_run("mock-f1", seed)
+            self.assertEqual(p.returncode, 0, p.stderr)
+
+    def write_source_verdict(self, coverage=COV, audit_state="CONFIRMED"):
+        os.makedirs(self.path("registry/verdicts"), exist_ok=True)
+        self.write("registry/verdicts/mock-m0b.json", json.dumps({
+            "experiment": "mock-m0b", "verdict": "PASS",
+            "coverage": coverage,
+            "audit": {"state": audit_state, "path": "registry/audits/mock-m0b/1.json"},
+        }) + "\n")
+
+    def run_verdict_gen(self):
+        return run_cli(VERDICT_GEN, "--experiment", "mock-f1", "--agent-id", "coordinator-1",
+                       "--root", self.root, "--computed-at", "2026-07-08T01:00:00Z")
+
+    def test_coverage_restated_from_source_verdict(self):
+        self.freeze_with_cov_source()
+        self.write_source_verdict()
+        p = self.run_verdict_gen()
+        self.assertEqual(p.returncode, 0, p.stderr)
+        with open(self.path("registry/verdicts/mock-f1.json"), encoding="utf-8") as f:
+            verdict = json.load(f)
+        self.assertEqual(verdict["coverage"], self.COV)
+
+    def test_missing_source_verdict_fails_closed(self):
+        self.freeze_with_cov_source()
+        p = self.run_verdict_gen()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_NO_COVERAGE", p.stderr)
+
+    def test_source_verdict_without_coverage_fails_closed(self):
+        self.freeze_with_cov_source()
+        self.write_source_verdict(coverage=None)
+        p = self.run_verdict_gen()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_NO_COVERAGE", p.stderr)
+
+    def test_unconfirmed_source_audit_fails_closed(self):
+        self.freeze_with_cov_source()
+        self.write_source_verdict(audit_state="PENDING")
+        p = self.run_verdict_gen()
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("ERR_P2_NO_COVERAGE", p.stderr)
+
+
 class TestCorpusPins(SpineFixture):
     def test_wrong_digest_refused_at_freeze(self):
         rec = self.base_record()

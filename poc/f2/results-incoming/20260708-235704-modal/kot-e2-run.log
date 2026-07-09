@@ -1,0 +1,40 @@
+$ /usr/local/bin/python /root/kot/poc/f2/runner/f2_runner.py --inputs-dir /root/kot/poc/f2/inputs --dqa-dir /root/kot/data/d-qa --dxif-dir /root/kot/data/d-xif --dext-dir /root/kot/data/d-ext --records-root /root/kot --out-dir /tmp/f2-results --device cuda --gpu-class A10G
+[f2     0.0s] mode=FULL device=cuda items=500 covered / 150 control
+[f2    97.7s] cell model-alone R1 seed=0 done
+[f2   190.0s] cell model-alone R1 seed=1 done
+[f2   282.4s] cell model-alone R1 seed=2 done
+[f2   374.8s] cell model-alone R1 seed=3 done
+[f2   467.5s] cell model-alone R1 seed=4 done
+[f2   569.7s] cell model-alone R2 seed=0 done
+[f2   670.8s] cell model-alone R2 seed=1 done
+[f2   771.8s] cell model-alone R2 seed=2 done
+[f2   872.7s] cell model-alone R2 seed=3 done
+[f2   972.6s] cell model-alone R2 seed=4 done
+[f2  1050.0s] cell model-alone R3 seed=0 done
+[f2  1123.2s] cell model-alone R3 seed=1 done
+[f2  1196.2s] cell model-alone R3 seed=2 done
+[f2  1268.9s] cell model-alone R3 seed=3 done
+[f2  1342.6s] cell model-alone R3 seed=4 done
+[f2  1931.2s] cells kernel-verify-retry R1 k=1 done
+[f2  2611.2s] cells kernel-verify-retry R1 k=2 done
+[f2  3421.5s] cells kernel-verify-retry R1 k=4 done
+[f2  4044.4s] cells kernel-verify-retry R2 k=1 done
+[f2  4769.1s] cells kernel-verify-retry R2 k=2 done
+[f2  5611.7s] cells kernel-verify-retry R2 k=4 done
+[f2  5693.2s] cell kernel-as-text done
+[f2  5730.2s] cell rag-over-text done
+[f2  6591.3s] cells self-consistency-flop-matched done
+We detected that you are passing `past_key_values` as a tuple and this is deprecated and will be removed in v4.43. Please use an appropriate `Cache` class (https://huggingface.co/docs/transformers/v4.41.3/en/internal/generation_utils#transformers.Cache)
+[f2  7338.6s] cells prm-verifier done
+[f2  7923.3s] cells gloss-self-verify-retry k=1 done
+[f2  8785.1s] cells gloss-self-verify-retry k=2 done
+[f2 10195.9s] cells gloss-self-verify-retry k=4 done
+[f2 10266.1s] cell int4-quantized done
+[f2 10396.0s] cells cascade-verifier-gated-135m-1p7b done
+[f2 10531.4s] cells cascade-logprob-gated-135m-1p7b done
+[f2 10740.9s] cells cascade-text-self-check-gated-135m-1p7b done
+[f2 10873.8s] cells cascade-in-decode-gated-135m-1p7b done
+[f2 10873.8s] cell extraction-instrument R1 done (500 labelled, 0 failures)
+[f2 10873.8s] cell extraction-instrument R2 done (500 labelled, 0 failures)
+[f2 10873.9s] OUTCOME: HARNESS-COMPLETE (87 run-record bodies in /tmp/f2-results/run-records-f2.jsonl)
+[runner exit rc=0]
