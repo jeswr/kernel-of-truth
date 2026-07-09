@@ -1,0 +1,51 @@
+{
+  "schema": "a5-llm-harness-manifest/1",
+  "experiment": "a5-llm",
+  "note": "Planning constants + budget caps + pins for the a5-llm Modal runner (poc/a5-llm/runner/a5_llm_runner.py). pack_sha256 is the frozen prompt-pack digest; the runner fails closed (ERR_PACK_PIN) if the staged pack does not match. planning.* are dry-plan ESTIMATES only (STIPULATED, a5/f2b convention) and are never emitted as measurements. usd_per_hour + budget mirror registry/experiments/a5-llm.json and analysis/a5_llm.py.",
+  "pack_file": "a5-llm-pack.jsonl",
+  "pack_sha256": "4118269166883f7de7c84e03991870000f02781d1ff8e1587bc2e79ab43e2141",
+  "model_revisions": {
+    "R1": "HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "R2": "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+    "R3": "HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674"
+  },
+  "decode_pins": {
+    "do_sample": false,
+    "temperature": 0.0,
+    "max_new_tokens": 512,
+    "context_window": 8192,
+    "chat_template": "as shipped with the pinned revision"
+  },
+  "cells": [
+    ["llm-direct", "R1"], ["llm-direct", "R2"], ["llm-direct", "R3"],
+    ["llm-rag", "R1"], ["llm-rag", "R2"], ["llm-rag", "R3"]
+  ],
+  "budget": {
+    "usd_cap": 25,
+    "gpu_hours_cap": 4,
+    "wall_clock_cap_hours": 24,
+    "tier_cap_usd": 25
+  },
+  "flop_accounting": {
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10, "A100": 2.10}
+  },
+  "batching": {
+    "default_batch_size": 16,
+    "token_budget": 16000
+  },
+  "planning": {
+    "chars_per_token_estimate": 3.8,
+    "avg_decode_tokens_estimate": 90,
+    "overhead_factor": 1.6,
+    "prefill_tok_per_s": {
+      "T4":   {"R1": 4000, "R2": 2500, "R3": 1000},
+      "A10G": {"R1": 8000, "R2": 5000, "R3": 2000},
+      "A100": {"R1": 14000, "R2": 9000, "R3": 4000}
+    },
+    "decode_tok_per_s": {
+      "T4":   {"R1": 90,  "R2": 55,  "R3": 22},
+      "A10G": {"R1": 180, "R2": 110, "R3": 45},
+      "A100": {"R1": 300, "R2": 190, "R3": 80}
+    }
+  }
+}

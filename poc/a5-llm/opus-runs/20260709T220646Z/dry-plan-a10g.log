@@ -1,0 +1,29 @@
+a5-llm --dry-plan (ESTIMATES ONLY — planning constants from
+a5-llm-manifest.json; no GPU, no network, $0 spent by this command)
+
+pack: 1954 prompts (977 queries x 2 arms), avg_decode est 90 tok, cap 512
+prompt tokens/cell (est): llm-direct 286837, llm-rag 1850949
+
+GPU-hours estimate on A10G (prefill {'R1': 8000, 'R2': 5000, 'R3': 2000}, decode {'R1': 180, 'R2': 110, 'R3': 45} tok/s):
+  llm-direct  R1  0.146 h
+  llm-direct  R2  0.238 h
+  llm-direct  R3  0.583 h
+  llm-rag     R1  0.200 h
+  llm-rag     R2  0.325 h
+  llm-rag     R3  0.800 h
+  total point estimate            2.291 h
+  with 1.6x overhead             3.666 h
+
+cost at Modal list $1.10/h (A10G):
+  point estimate  $2.52
+  worst case      $4.03
+  hard ceiling    $4.40  (gpu_hours_cap 4 h x $1.10/h)
+
+caps: usd_cap $25, gpu_hours_cap 4 h, wall_clock_cap 24 h, tier_cap $25
+
+  worst case vs usd_cap ($25)              OK
+  hard ceiling vs tier_cap ($25)           OK
+  worst case vs gpu_hours_cap (4 h)        OK
+
+NOTE: max_new_tokens=512 + the per-cell CellGuard + the whole-run
+GPU-hours guard bound the worst case even if decode over-runs.

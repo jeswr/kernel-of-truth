@@ -1,0 +1,9 @@
+# a5_llm_runner.py real-path floors. The Modal image pins EXACT versions in
+# poc/modal/requirements-image.txt (shared with the E/F-series containers:
+# numpy==2.2.6, torch==2.6.0, transformers==4.51.3). Free-form greedy
+# generation over the pinned SmolLM2-Instruct revisions needs only torch +
+# transformers; no bitsandbytes/accelerate (no quantized or sharded arm here).
+# --mock and --dry-plan need NOTHING beyond the stdlib.
+numpy>=1.24
+torch>=2.2
+transformers>=4.44,<5
