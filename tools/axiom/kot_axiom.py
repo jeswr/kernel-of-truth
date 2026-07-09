@@ -28,6 +28,19 @@ inverseOf, domain, range. `subClassOf` is IN the kot-axiom/1 grammar
 (design-constraint-layer.md §3.3) but NOT implemented by this v0 engine: a
 record carrying it is refused at load (ERR_AXIOM_UNIMPLEMENTED) — fail-closed,
 never partially honoured.
+
+define-op (docs/design-kot-query-define-op.md, the FROZEN memo): a fifth
+kot-query/1 op — DEFINE (retrieve a concept's endorsed genus-differentia
+definition, at one level, verbatim) and DEFINE-MATCH (exact structural
+set-equality of a candidate against it). It is licensed by a new stratum-3
+`definitional` constraint kind: a corpus-scoped endorsement admitting a pinned
+onto-obo shard's logicalDefinitions as a definitional-source. The endorsement
+is an ENDORSEMENT, not an extension-constraint (memo §3, ASM-DEF-4): it is
+consumed ONLY by the define-op index and NEVER enters the CWA store-validation
+pass over world-layer facts. No subsumption / no transitive closure — that is
+the refused `subClassOf` op (memo §6 C1). No OWL/DL model theory, no cosine
+(memo §6 C2/C3). Fail-closed resolution through the pinned relation-shorthand
+alias table + the onto-obo mint bridge (ERR_DEFN_UNRESOLVED, memo §6 C4).
 """
 
 import json
@@ -44,12 +57,39 @@ MAX_CONSTRAINTS_PER_RECORD = 32
 MAX_CARD_BOUND = 64
 
 CONSTRAINT_KINDS = ("subClassOf", "disjointWith", "domain", "range",
-                    "inverseOf", "functional", "cardinality")
+                    "inverseOf", "functional", "cardinality", "definitional")
 IMPLEMENTED_KINDS = ("disjointWith", "domain", "range", "inverseOf",
-                     "functional", "cardinality")
+                     "functional", "cardinality", "definitional")
+# `definitional` is a stratum-3 ENDORSEMENT kind (memo §3, ASM-DEF-4): disjoint
+# from the extension-constraint kinds below; consumed only by the define-op,
+# never by the CWA store pass. Extension kinds that drive store validation:
+EXTENSION_KINDS = ("disjointWith", "domain", "range", "inverseOf",
+                   "functional", "cardinality")
 DIRECTIONS = ("forward", "inverse")
 
-QUERY_OPS = ("unique", "lookup", "count", "instance")
+QUERY_OPS = ("unique", "lookup", "count", "instance", "define")
+DEFINITION_FORM = "obo-genus-differentia"
+
+# design-kot-query-define-op.md §3.3 — the pinned relation-shorthand alias table.
+# An OBO differentia `property` is stored as a bare shorthand string, NOT a URN;
+# it is resolved shorthand -> relation IRI (here) -> minted urn:kot: URN (via the
+# onto-obo mint bridge) at index-build time. Closed 10-value inventory over the
+# whole GO+PO differentia corpus (memo §1/§3.3, MEASURED histogram). LIT-BACKED
+# against the OBO Relation Ontology; resolution fails closed (ERR_DEFN_UNRESOLVED)
+# if the IRI is not present + minted in the endorsed shard's mint bridge — the
+# table is never trusted over the data.
+PINNED_RELATION_ALIASES = {
+    "part_of": "urn:onto-obo:BFO_0000050",
+    "regulates": "urn:onto-obo:RO_0002211",
+    "positively_regulates": "urn:onto-obo:RO_0002213",
+    "negatively_regulates": "urn:onto-obo:RO_0002212",
+    "occurs_in": "urn:onto-obo:BFO_0000066",
+    "has_part": "urn:onto-obo:BFO_0000051",
+    "happens_during": "urn:onto-obo:RO_0002092",
+    "participates_in": "urn:onto-obo:RO_0000056",
+    "has_participant": "urn:onto-obo:RO_0000057",
+    "develops_from": "urn:onto-obo:RO_0002202",
+}
 
 # Refusal codes (closed set — the eval set's expected.code values come from here)
 REFUSAL_CODES = (
@@ -65,6 +105,13 @@ REFUSAL_CODES = (
     "ERR_UNLICENSED_COUNT",   # no exact-cardinality axiom licenses a total count
     "ERR_COUNT_MISMATCH",     # asserted count != axiom-licensed exact total
     "ERR_NO_RECORD",          # licensed and well-formed, but no asserted record
+    "ERR_NO_DEFINITION",      # define: subject licensed but carries no
+                              # logicalDefinition (memo §2.1)
+    "ERR_DEFN_UNRESOLVED",    # define: a differentia shorthand / genus / filler
+                              # fails to resolve to a licensed urn:kot: URN under
+                              # the pinned tables — a partially-resolvable
+                              # definition is refused, never half-answered
+                              # (memo §2.1/§6 C4, fail-closed)
 )
 
 
@@ -129,6 +176,27 @@ def validate_axiom_record(rec, ref):
                          "(depth-1 rule, §3.3 caps)" % where)
             extra = set(c) - {"kind", "path", "direction", "min", "max", "qualifier"}
             _require(not extra, "ERR_AXIOM_GRAMMAR", "%s: unexpected fields %s" % (where, sorted(extra)))
+        elif kind == "definitional":
+            # stratum-3 corpus-scoped endorsement (memo §3.1): admits a pinned
+            # onto-obo shard's logicalDefinitions as a definitional-source.
+            _require(c.get("form") == DEFINITION_FORM, "ERR_AXIOM_GRAMMAR",
+                     "%s: definitional.form must be %r" % (where, DEFINITION_FORM))
+            src = c.get("source")
+            _require(isinstance(src, dict), "ERR_AXIOM_GRAMMAR",
+                     "%s: definitional.source must be an object" % where)
+            _require(isinstance(src.get("corpus"), str) and src["corpus"],
+                     "ERR_AXIOM_GRAMMAR", "%s: source.corpus required" % where)
+            _require(isinstance(src.get("shard"), str) and src["shard"],
+                     "ERR_AXIOM_GRAMMAR", "%s: source.shard required" % where)
+            _require(isinstance(src.get("sourceVersion"), str)
+                     and src["sourceVersion"].startswith("sha256:"),
+                     "ERR_AXIOM_GRAMMAR", "%s: source.sourceVersion must be a "
+                     "sha256: pin" % where)
+            src_extra = set(src) - {"corpus", "shard", "sourceVersion"}
+            _require(not src_extra, "ERR_AXIOM_GRAMMAR",
+                     "%s: unexpected source fields %s" % (where, sorted(src_extra)))
+            extra = set(c) - {"kind", "form", "source"}
+            _require(not extra, "ERR_AXIOM_GRAMMAR", "%s: unexpected fields %s" % (where, sorted(extra)))
 
 
 def validate_world_record(rec, ref):
@@ -163,8 +231,13 @@ class Engine(object):
     provenance (world-record ids) and license (axiom constraint refs);
     everything else is a named refusal (fail-closed ABSTAIN)."""
 
-    def __init__(self, axiom_records, world_records):
+    def __init__(self, axiom_records, world_records, obo_shards=None,
+                 mint_bridge=None):
         # axiom_records: list of (ref, record); world_records: list of record.
+        # obo_shards: {shard_name: [onto-obo records]} — the endorsed
+        #   definitional substrate (memo §2.3/§3); optional, define-op only.
+        # mint_bridge: {urn:onto-obo:<id>: urn:kot:<urn>} — the mint bridge
+        #   (data/onto-obo/minted-urns.jsonl); optional, define-op only.
         self.axioms = {}            # ref -> record
         self.functional = {}        # rel -> [axiom refs] (forward direction)
         self.inverse_of = {}        # rel -> (partner rel, axiom ref)
@@ -174,6 +247,17 @@ class Engine(object):
         self.cardinality = []       # (subject concept, constraint dict, axiom ref)
         self.licensed_rels = set()  # relations admitted to the axiom layer
         self.licensed_classes = set()
+
+        # define-op (memo §2.3): the stratum-3 `definitional` endorsements and
+        # the definitional index they license. DISJOINT from the store pass
+        # above — no definitional data touches licensed_rels/classes or any CWA
+        # index (ASM-DEF-4).
+        self.obo_shards = obo_shards or {}
+        self.mint_bridge = mint_bridge or {}
+        self.definitional_endorsements = []  # (license_ref, source_shard, subject)
+        self.defn_licensed = set()  # urn:kot: subjects admitted by an endorsement
+        self.defn = {}              # subj -> {genus, differentiae, provenance, license}
+        self.defn_unresolved = set()  # subj with a logicalDefinition that fails to resolve
 
         for ref, rec in sorted(axiom_records):
             validate_axiom_record(rec, ref)
@@ -211,6 +295,12 @@ class Engine(object):
                     self.licensed_classes.add(subj)
                     if "qualifier" in c:
                         self.licensed_classes.add(c["qualifier"])
+                elif kind == "definitional":
+                    # ENDORSEMENT (memo §3): collected for the define-op index
+                    # only. Deliberately NOT added to licensed_rels/classes or
+                    # any store index — it never enters the CWA pass (ASM-DEF-4).
+                    self.definitional_endorsements.append(
+                        (cref, c["source"]["shard"], subj))
 
         # inverseOf canonicalisation: assertions under either name are stored
         # under the lexicographically-smaller URN (deterministic; documented in
@@ -253,6 +343,69 @@ class Engine(object):
                 idx[k].sort()
 
         self._validate_store()
+        self._build_definitional_index()
+
+    # ---------------------------------------------------- definitional index
+
+    def _build_definitional_index(self):
+        """Build defn[urn:kot:X] -> resolved genus-differentia tuple from the
+        endorsed onto-obo shard(s) via the mint bridge + the pinned relation
+        alias table (memo §2.3/§3.3). Licensing = shard membership: every minted
+        concept in an endorsed shard is admitted (defn_licensed). Fail-closed
+        (memo §6 C4): a licensed concept whose logicalDefinition has any
+        unresolvable genus / differentia-shorthand / filler is recorded in
+        defn_unresolved (query -> ERR_DEFN_UNRESOLVED), NEVER half-answered; a
+        licensed concept with no logicalDefinition is admitted but absent from
+        defn/defn_unresolved (query -> ERR_NO_DEFINITION). Consumed here and
+        NOWHERE in the CWA store pass (ASM-DEF-4)."""
+        for lic_ref, shard, _subj in sorted(self.definitional_endorsements):
+            records = self.obo_shards.get(shard, [])
+            for rec in sorted(records, key=lambda r: r.get("id", "")):
+                rid = rec.get("id")
+                subj_urn = self.mint_bridge.get(rid)
+                if subj_urn is None:
+                    continue  # unminted concept: not admittable to the define-op
+                if subj_urn in self.defn or subj_urn in self.defn_unresolved:
+                    self.defn_licensed.add(subj_urn)
+                    continue  # first endorsement wins (deterministic, sorted)
+                self.defn_licensed.add(subj_urn)
+                ld = rec.get("logicalDefinition")
+                if not isinstance(ld, dict):
+                    continue  # admitted, no definition -> ERR_NO_DEFINITION
+                tup = self._resolve_logical_definition(ld)
+                if tup is None:
+                    self.defn_unresolved.add(subj_urn)
+                    continue
+                genus, diffs = tup
+                self.defn[subj_urn] = {
+                    "genus": genus, "differentiae": diffs,
+                    "provenance": rid, "license": lic_ref}
+
+    def _resolve_logical_definition(self, ld):
+        """Resolve one onto-obo logicalDefinition to
+        (sorted genus urn:kot: list, sorted (relation-urn, filler-urn) list).
+        Returns None (fail-closed, memo §6 C4) if the genus is empty or any
+        component fails to resolve to a minted urn:kot: URN under the mint
+        bridge + pinned alias table. Retrieval only — no closure, no OWL/DL."""
+        genus_urns = []
+        for g in (ld.get("genus") or []):
+            gu = self.mint_bridge.get(g)
+            if gu is None:
+                return None
+            genus_urns.append(gu)
+        if not genus_urns:
+            return None
+        diffs = []
+        for d in (ld.get("differentiae") or []):
+            if not isinstance(d, dict):
+                return None
+            iri = PINNED_RELATION_ALIASES.get(d.get("property"))
+            rel_urn = self.mint_bridge.get(iri) if iri is not None else None
+            fil_urn = self.mint_bridge.get(d.get("filler"))
+            if rel_urn is None or fil_urn is None:
+                return None
+            diffs.append((rel_urn, fil_urn))
+        return sorted(set(genus_urns)), sorted(set(diffs))
 
     # ---------------------------------------------------------- store validation
 
@@ -369,7 +522,9 @@ class Engine(object):
         if not isinstance(q, dict) or q.get("op") not in QUERY_OPS:
             return self._refuse("ERR_BAD_QUERY", "unknown or missing op")
         op = q["op"]
-        if op == "instance":
+        if op == "define":
+            wanted = {"op", "subject", "candidate"}
+        elif op == "instance":
             wanted = {"op", "entity", "concept"}
         elif op == "count":
             wanted = {"op", "rel", "direction", "subject", "qualifier"}
@@ -377,6 +532,9 @@ class Engine(object):
             wanted = {"op", "rel", "direction", "subject"}
         if set(q) - wanted:
             return self._refuse("ERR_BAD_QUERY", "unexpected fields %s" % sorted(set(q) - wanted))
+
+        if op == "define":
+            return self._query_define(q)
 
         if op == "instance":
             e, c = q.get("entity", ""), q.get("concept", "")
@@ -462,6 +620,83 @@ class Engine(object):
                                 "asserted count %d != licensed exact %d" % (len(qedges), exact))
         return self._answer(exact, [r for (_o, r) in qedges], [cref])
 
+    # ------------------------------------------------------- define-op answering
+
+    def _canonicalise_candidate(self, cand):
+        """Validate + canonicalise a DEFINE-MATCH candidate (memo §2.2). Returns
+        {genus: sorted urn set, differentiae: sorted (rel,filler) set} or None on
+        a malformed candidate (-> ERR_BAD_QUERY). Every genus/relation/filler
+        must be a urn:kot: concept URN; equality is set-equality (no ordering
+        dependence, no partial credit)."""
+        if not isinstance(cand, dict) or (set(cand) - {"genus", "differentiae"}):
+            return None
+        genus, diffs = cand.get("genus"), cand.get("differentiae")
+        if not isinstance(genus, list) or not isinstance(diffs, list):
+            return None
+        gset = []
+        for g in genus:
+            if not isinstance(g, str) or CONCEPT_URN_RE.match(g) is None:
+                return None
+            gset.append(g)
+        dset = []
+        for d in diffs:
+            if not isinstance(d, dict) or (set(d) - {"relation", "filler"}):
+                return None
+            r, f = d.get("relation"), d.get("filler")
+            if not isinstance(r, str) or CONCEPT_URN_RE.match(r) is None:
+                return None
+            if not isinstance(f, str) or CONCEPT_URN_RE.match(f) is None:
+                return None
+            dset.append((r, f))
+        return {"genus": sorted(set(gset)), "differentiae": sorted(set(dset))}
+
+    def _query_define(self, q):
+        """DEFINE / DEFINE-MATCH (memo §2). Deterministic index lookup + exact
+        structural set-equality — no search, no similarity (X3 ban), no
+        subsumption / transitive closure (memo §6 C1). Pre-registered validation
+        order: shape -> term licensing -> definition presence -> resolution."""
+        subj = q.get("subject", "")
+        if CONCEPT_URN_RE.match(subj) is None:
+            return self._refuse("ERR_BAD_QUERY", "subject is not a urn:kot: concept URN")
+        has_candidate = "candidate" in q
+        cand_canon = None
+        if has_candidate:
+            cand_canon = self._canonicalise_candidate(q.get("candidate"))
+            if cand_canon is None:
+                return self._refuse("ERR_BAD_QUERY", "malformed candidate")
+
+        # term licensing: subject must be admitted by a definitional endorsement
+        if subj not in self.defn_licensed:
+            return self._refuse("ERR_TERM_UNLICENSED",
+                                "subject not in a definitional endorsement's admitted set")
+        # a licensed subject whose definition failed to resolve is refused, never
+        # half-answered (fail-closed, memo §6 C4)
+        if subj in self.defn_unresolved:
+            return self._refuse("ERR_DEFN_UNRESOLVED",
+                                "subject's logicalDefinition has an unresolvable "
+                                "genus/differentia/filler")
+        if subj not in self.defn:
+            return self._refuse("ERR_NO_DEFINITION",
+                                "subject is licensed but carries no logicalDefinition")
+
+        entry = self.defn[subj]
+        prov, lic = [entry["provenance"]], [entry["license"]]
+        if not has_candidate:
+            # DEFINE: return the endorsed definition at one level, verbatim.
+            value = {
+                "form": "genus-differentia",
+                "genus": list(entry["genus"]),
+                "differentiae": [{"relation": r, "filler": f}
+                                 for (r, f) in entry["differentiae"]],
+            }
+            return self._answer(value, prov, lic)
+        # DEFINE-MATCH: a definitive true/false is licensed because a
+        # logicalDefinition is a CLOSED, complete object about its definiendum
+        # (memo §2.2, ASM-DEF-2) — unlike the CWA world-layer absence rule.
+        equal = (cand_canon["genus"] == entry["genus"]
+                 and cand_canon["differentiae"] == entry["differentiae"])
+        return self._answer(bool(equal), prov, lic)
+
     def _layer_license(self, rel):
         refs = []
         refs.extend(self.functional.get(rel, []))
@@ -515,6 +750,45 @@ def load_corpora(root):
     return axioms, world
 
 
+def load_mint_bridge(root):
+    """The onto-obo mint bridge {urn:onto-obo:<id>: urn:kot:<urn>}
+    (data/onto-obo/minted-urns.jsonl). READ-ONLY — the define-op never mints."""
+    bridge = {}
+    path = os.path.join(root, "data", "onto-obo", "minted-urns.jsonl")
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                r = json.loads(line)
+                bridge[r["id"]] = r["urn"]
+    return bridge
+
+
+def load_obo_shard(root, shard):
+    """Load one onto-obo shard (jsonl) as a list of records. READ-ONLY."""
+    recs = []
+    path = os.path.join(root, "data", "onto-obo", shard)
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                recs.append(json.loads(line))
+    return recs
+
+
 def build_engine(root):
     axioms, world = load_corpora(root)
-    return Engine(axioms, world)
+    # Lazily load the define-op substrate ONLY when a `definitional` endorsement
+    # references it — with no endorsement present, behaviour is byte-identical to
+    # the four-op engine (no onto-obo read).
+    needed_shards = set()
+    for _ref, rec in axioms:
+        cs = rec.get("constraints") if isinstance(rec, dict) else None
+        for c in (cs if isinstance(cs, list) else []):
+            if isinstance(c, dict) and c.get("kind") == "definitional":
+                src = c.get("source")
+                if isinstance(src, dict) and src.get("shard"):
+                    needed_shards.add(src["shard"])
+    obo_shards, mint_bridge = None, None
+    if needed_shards:
+        mint_bridge = load_mint_bridge(root)
+        obo_shards = {s: load_obo_shard(root, s) for s in sorted(needed_shards)}
+    return Engine(axioms, world, obo_shards=obo_shards, mint_bridge=mint_bridge)

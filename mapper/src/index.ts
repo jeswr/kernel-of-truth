@@ -19,6 +19,16 @@ export {
   type Decision,
 } from './mapper.js';
 export {
+  parseDefineQuestion,
+  PINNED_RELATION_IRI,
+  REL_SURFACE_TO_SHORTHAND,
+  type DefineCandidate,
+  type DefineDifferentia,
+  type DefineIndex,
+  type DefineParse,
+  type DefineQuery,
+} from './defineTemplates.js';
+export {
   A1_POLICY_SHA256,
   A1_PRESET_NAME,
   compilePriorityIndex,
