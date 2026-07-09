@@ -1,0 +1,159 @@
+{
+  "audit_kind": "DESIGN audit (cross-vendor adversarial) — resource-optimization plan honesty ruling RC-1..RC-6 + R-2; design-vs-audit separation (P2 G-6; directives §8)",
+  "auditor": "auditor-3",
+  "auditor_binding": "cross-vendor auditor identity per docs/kernel-design-directives.md §8: Codex/GPT-5.5 via the codex CLI; vendor tag only, no account credential (RT-14). This is DESIGN-vs-AUDIT separation, not run-vs-audit: the plan was DESIGNED by Fable (designer-1), this adversarial audit by Codex/GPT-5.5. Read-only sandbox; the auditor read the actual plan/tooling/schema files (incl. reuse-check.py and prereg-freeze.py) rather than a paraphrase.",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.142.5",
+    "model": "gpt-5.5",
+    "reasoning_effort": "high",
+    "sandbox": "read-only",
+    "session_id": "019f4751-6e3c-7f50-b95e-454c65d2f708",
+    "input_tokens": 711254,
+    "cached_input_tokens": 590080,
+    "output_tokens": 8247,
+    "reasoning_output_tokens": 3532
+  },
+  "deliverable": "docs/next/resource-optimization-plan.md — honesty ruling on logged-result reuse (RC-1..RC-6 + R-2), the wired pre-spend gate (tools/registry/reuse-check.py + experiment-runner MUST + opus-execution-practices practice 5), L-score fold (research-engine §2.7), ASM-0010/ASM-0011",
+  "designer": "designer-1 (Fable)",
+  "requested_by": "maintainer (ratification-path decision 2026-07-09: Codex-audit-first)",
+  "reproducibility": {
+    "brief_path": "poc/audits/resource-optimization-plan/audit-brief.md",
+    "output_schema_path": "poc/audits/resource-optimization-plan/output-schema.json",
+    "codex_events_path": "poc/audits/resource-optimization-plan/codex-events.jsonl",
+    "codex_last_message_path": "poc/audits/resource-optimization-plan/codex-last-message.json"
+  },
+  "outcome": "CONFIRM_WITH_CONDITIONS",
+  "preregistration_preserved_as_written": false,
+  "ratifiable": "only after the recommended_amendments land (CONFIRM_WITH_CONDITIONS)",
+  "verdict": {
+    "deliverable": "resource-optimization-plan honesty ruling RC-1..RC-6 + R-2",
+    "overall_verdict": "CONFIRM_WITH_CONDITIONS",
+    "preregistration_preserved": false,
+    "summary": "Do not ratify as written. The ruling has the right spine, but Case B still permits outcome-aware comparator choice, and the f7 default uses already-seen survivor data inside a future confirmatory slope claim. The pre-spend tool is only a name-level discovery gate, not an RC enforcer. Ratification is safe only after the amendments below make comparator selection data-blind, constrain f7/survivor reuse, and wire first-class reuse blocks into freeze/log/verdict tooling.",
+    "loopholes": [
+      {
+        "severity": "critical",
+        "description": "Case-B comparator laundering: RC-4 permits already-unblinded rows as comparator arms but does not require the comparator set/config to be selected by a data-blind rule.",
+        "exploit_path": "After reading f2/f2b logs, choose the weakest known baseline arm/config/seed family as the comparator in a new record, declare all rows matching that config under RC-1, run one fresh arm, and claim a confirmatory win against a baseline whose value and variance were already known. RC-1 prevents row-level cherry-picking after the config is named, but not outcome-driven choice of the config itself.",
+        "condition_that_fails": "RC-4 / none (gap)",
+        "file_ref": "docs/next/resource-optimization-plan.md §3.3 Case B, RC-1, RC-4; docs/research-plan/02-data-and-reporting.md G-10/G-13"
+      },
+      {
+        "severity": "critical",
+        "description": "f7 default reuse turns already-seen lower-rung survivor data into part of a future confirmatory slope fit.",
+        "exploit_path": "Let prior verdicts identify survivor arms with favorable R1-R3 behavior, then freeze f7 to reuse those logged R1-R3 cells and run only R4/T*. The primary slope/capstone claim is then partly determined by already-seen selected lower-rung values, not merely by a fresh arm contrasted to a neutral comparator.",
+        "condition_that_fails": "RC-4, RC-6, ASM-0010",
+        "file_ref": "docs/next/resource-optimization-plan.md §3.4 item 3; registry/assumptions.jsonl ASM-0010"
+      },
+      {
+        "severity": "major",
+        "description": "RC-5 overlap re-run is under-specified and can miss arm-specific or backend-specific batch effects.",
+        "exploit_path": "Declare one convenient overlap cell with n>=50 that is known or expected to be stable, pass it, then contrast fresh arms against reused rows from other arms/rungs/producers affected differently by backend, prompt, batching, model-serving, or extraction drift. The miss is treated as environment equality even though the consumed rows were not checked representatively.",
+        "condition_that_fails": "RC-5",
+        "file_ref": "docs/next/resource-optimization-plan.md §3.3 RC-5"
+      },
+      {
+        "severity": "major",
+        "description": "The current kot-reg/1 schema has no lawful place for the RC-1/RC-6 reuse declaration that the prose says is the interim wire format.",
+        "exploit_path": "A consumer record cannot add arbitrary producer row hashes or artifact_hashes under pins because kot-reg/1 pins has additionalProperties:false. Putting them in prose/n_planned/depends_on would not be machine-enforced, so a record can appear frozen while the actual consumed row set, hashes, and selection rule remain outside the freeze machinery.",
+        "condition_that_fails": "RC-1, RC-6 / D9 not landed",
+        "file_ref": "docs/next/resource-optimization-plan.md §3.3 after RC-6; registry/schema/kot-reg-1.json pins; tools/registry/prereg-freeze.py check_record"
+      },
+      {
+        "severity": "major",
+        "description": "reuse-check.py is a discovery tool, not the binding RC gate described by the ruling.",
+        "exploit_path": "Run the documented record check, get name-level hits only, then rely on a recorded coordinator decision. The tool does not verify exact pins, row hashes, DV computability, instrument gates, RC-4 disclosure, RC-5 overlap, or per-link provenance; it also misses renamed identical arm implementations and flags false positives across different corpora.",
+        "condition_that_fails": "RC-1..RC-6 / code-policy gap",
+        "file_ref": "tools/registry/reuse-check.py check/_match; .claude/agents/experiment-runner.md PRE-SPEND REUSE GATE; docs/next/opus-execution-practices.md practice (5)"
+      },
+      {
+        "severity": "minor",
+        "description": "CPU waiver relies on producer-side repeat claims unless tightened to full consumed-output bit recomputation.",
+        "exploit_path": "Claim RC-5 waiver from deterministic_repeat_identical in l3a/a5, but do not recompute and hash the exact consumed outputs under the consumer environment. A stale executable, dependency, or input artifact can pass the paper waiver without proving identity for the rows actually consumed.",
+        "condition_that_fails": "RC-5, RC-6",
+        "file_ref": "docs/next/resource-optimization-plan.md §3.3 RC-5; registry/artifact-ledger.jsonl l3a/a5 rows"
+      }
+    ],
+    "per_condition": [
+      {
+        "id": "RC-1",
+        "load_bearing": true,
+        "assessment": "needs_tightening",
+        "note": "Necessary for freeze declaration and no row/seed cherry-picking. Insufficient because the declared config itself can be chosen after seeing outcomes, and current schema/tooling cannot freeze row hashes in a first-class field."
+      },
+      {
+        "id": "RC-2",
+        "load_bearing": true,
+        "assessment": "sound",
+        "note": "Exact pin identity is the correct reuse/replication boundary. It must include arm implementation/config hash, not just arm name; the prose says this, the tool does not."
+      },
+      {
+        "id": "RC-3",
+        "load_bearing": true,
+        "assessment": "needs_tightening",
+        "note": "DV computability from logged per-item fields is necessary. It also needs machine checks against the consumer analysis script and instrument-gate fields; current ledger lacks enough enforcement."
+      },
+      {
+        "id": "RC-4",
+        "load_bearing": true,
+        "assessment": "unsound",
+        "note": "Comparator-only plus one fresh arm is not enough. It must also require data-blind comparator family selection, fixed margins/power not conditioned on known comparator values, and special handling for survivor/slope designs such as f7."
+      },
+      {
+        "id": "RC-5",
+        "load_bearing": true,
+        "assessment": "needs_tightening",
+        "note": "Batch-effect measurement is necessary when mixing fresh and reused rows. The overlap cell must be representative or per producer/arm family, and CPU waiver must require full bit-recompute hashes for consumed outputs."
+      },
+      {
+        "id": "RC-6",
+        "load_bearing": true,
+        "assessment": "needs_tightening",
+        "note": "Provenance, no verdict-as-data, and per-link licensing are necessary. It must explicitly ban verdict/outcome-based arm inclusion and require machine-readable reused_from rows consumed by verdict-gen/audit."
+      },
+      {
+        "id": "R-2",
+        "load_bearing": true,
+        "assessment": "needs_tightening",
+        "note": "Superset logging/raw outputs are essential for future DV computability and audit. Add a hard freeze lint for declared prospective consumers and a default refusal when raw-output persistence is waived without a concrete licence/size rationale."
+      },
+      {
+        "id": "ASM-0010",
+        "load_bearing": true,
+        "assessment": "unsound",
+        "note": "It is marked load_bearing:false, but f7 reuse accounting is evidentially load-bearing. As written it permits survivor-biased already-seen lower-rung data inside a confirmatory slope fit."
+      },
+      {
+        "id": "ASM-0011",
+        "load_bearing": false,
+        "assessment": "needs_tightening",
+        "note": "Folding L into one score is directionally good, but registry/components.jsonl consumers are free text and can be gamed. Derived L needs validation against actual pending records/edges, and overrides need audit visibility."
+      }
+    ],
+    "necessity_sufficiency": {
+      "each_necessary": false,
+      "jointly_sufficient": false,
+      "note": "RC-1..RC-6 are mostly individually load-bearing for reuse honesty, but R-2 is a producer/computability rule rather than a pure no-peeking condition, and the ASM entries are not conditions. Joint sufficiency fails because RC-4 does not stop outcome-aware comparator/config selection, f7 uses selected already-seen survivor data inside a primary slope, and the interim wire format is not enforceable under kot-reg/1."
+    },
+    "code_vs_policy": {
+      "gate_matches_ruling": "diverges",
+      "note": "reuse-check.py check --gate exits 3 on any match, but matching is arm/rung/name-level plus optional simple filters. It does not enforce RC-1 row hashes/selection, RC-2 exact pins, RC-3 DV/instrument transfer, RC-4 comparator-only disclosure, RC-5 overlap, or RC-6 audit traversal. The documented --record invocation in the runner/practices omits --gate, so it reports hits but exits 0; with --gate it is also stronger than prose in false-positive cases because it blocks same-name cells even when corpus/pins differ."
+    },
+    "collateral_integrity": {
+      "lscore_fold_ok": false,
+      "f7_accounting_ok": false,
+      "gate_binding_early_ok": false,
+      "note": "L-score folding avoids a second prioritisation surface, but the inputs are not yet mechanically trustworthy. f7 accounting is the main integrity failure: it should be load-bearing and selection-adjusted or freshly rerun at lower rungs. A stop-only pre-spend gate before ratification is conservative, but allowing 'consume under RC' decisions before the RC amendments and D9 wiring land is unsafe."
+    },
+    "recommended_amendments": [
+      "Add RC-7 or strengthen RC-4: in Case B, comparator/baseline family and config-selection rule must be fixed by a data-blind rule, a prior frozen mandatory-baseline law, or an exhaustive declared family. If selected after unblinding, the primary is exploratory unless freshly replicated.",
+      "Add an explicit f7/survivor rule: already-seen lower-rung data from outcome-selected survivor arms may not enter a confirmatory slope/capstone primary without fresh lower-rung reruns, pre-specified selection-adjusted inference, or permanent exploratory labeling of the slope component.",
+      "Tighten RC-5: overlap must cover each reused producer and each material arm/rung/backend family or justify representativeness at freeze; CPU waiver requires recomputing the exact consumed outputs and matching content hashes, not just citing deterministic_repeat_identical.",
+      "Land D9 before ratification for any actual consumption: add kot-reg/2 reused_from/artifact_hashes, log-append support for reused rows, verdict-gen eligibility rules, registry-check/prereg-freeze collision refusal, and audit traversal over producer chains.",
+      "Change the runner/practices command to use --record ... --gate for paid launches, and extend reuse-check to compare corpus/slice hash, item order, model revision, arm config hash, seeds, decode params, metric fields, row hashes, unblinded status, and renamed identical implementations.",
+      "Mark ASM-0010 load_bearing:true and rewrite it as a gate-t5 decision requiring both full-rerun and reuse-adjusted evidential accounting. Validate ASM-0011's derived L against structured registry edges rather than free-text consumers."
+    ],
+    "reasoning": "I read the target plan, the RC ruling and f7/L-score sections, the runner/practices wiring, research-engine §2.7, ASM-0010/0011, the f2b quarantine and f2b-replicate assessment, P2 honesty guardrails G-1/G-13, kot-reg/1 schema, prereg-freeze, and reuse-check.py. I traced reuse-check behavior: record-mode matches only arm/rung names; with --gate it exits 3 on hits, but the documented runner command omits --gate and exits 0. I also checked that kot-reg/1 pins cannot carry arbitrary producer row hashes/artifact hashes, so the stated interim RC-1/RC-6 wire format is not machine-enforced. The decisive adversarial paths are outcome-aware Case-B comparator selection and f7 survivor/slope reuse; both let already-seen data influence a later confirmatory claim while satisfying the current letter of RC-1..RC-6."
+  },
+  "note": "Opus (coordinator) ran the audit mechanically and recorded it verbatim; Opus provides NO interpretation of this design ruling — the maintainer ratifies, Fable owns any redesign. The audit found 2 CRITICAL loopholes (RC-4 Case-B comparator laundering; f7/ASM-0010 survivor-data in a confirmatory slope) => do NOT ratify as-written."
+}

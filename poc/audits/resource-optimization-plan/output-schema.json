@@ -1,0 +1,77 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["deliverable", "overall_verdict", "preregistration_preserved", "summary", "loopholes", "per_condition", "necessity_sufficiency", "code_vs_policy", "collateral_integrity", "recommended_amendments", "reasoning"],
+  "properties": {
+    "deliverable": { "type": "string", "description": "must be 'resource-optimization-plan honesty ruling RC-1..RC-6 + R-2'" },
+    "overall_verdict": { "type": "string", "enum": ["CONFIRM", "CONFIRM_WITH_CONDITIONS", "REFUTE"] },
+    "preregistration_preserved": { "type": "boolean", "description": "true iff the ruling keeps confirmatory claims free of already-seen-data influence" },
+    "summary": { "type": "string", "description": "3-5 sentence bottom line for the maintainer" },
+    "loopholes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "description", "exploit_path", "condition_that_fails", "file_ref"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "description": { "type": "string" },
+          "exploit_path": { "type": "string", "description": "concrete steps by which already-seen data becomes a confirmatory claim, or the discipline is otherwise defeated" },
+          "condition_that_fails": { "type": "string", "description": "which RC-x / R-2 / gate step fails to stop it, or 'none (gap)'" },
+          "file_ref": { "type": "string" }
+        }
+      }
+    },
+    "per_condition": {
+      "type": "array",
+      "description": "one entry per RC-1..RC-6, R-2, ASM-0010, ASM-0011",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "load_bearing", "assessment", "note"],
+        "properties": {
+          "id": { "type": "string" },
+          "load_bearing": { "type": "boolean", "description": "would dropping it admit a bad reuse?" },
+          "assessment": { "type": "string", "enum": ["sound", "needs_tightening", "unsound", "redundant"] },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "necessity_sufficiency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["each_necessary", "jointly_sufficient", "note"],
+      "properties": {
+        "each_necessary": { "type": "boolean" },
+        "jointly_sufficient": { "type": "boolean" },
+        "note": { "type": "string" }
+      }
+    },
+    "code_vs_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_matches_ruling", "note"],
+      "properties": {
+        "gate_matches_ruling": { "type": "string", "enum": ["matches", "weaker_than_prose", "stronger_than_prose", "diverges"] },
+        "note": { "type": "string", "description": "cite reuse-check.py behaviour vs the prose ruling" }
+      }
+    },
+    "collateral_integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lscore_fold_ok", "f7_accounting_ok", "gate_binding_early_ok", "note"],
+      "properties": {
+        "lscore_fold_ok": { "type": "boolean" },
+        "f7_accounting_ok": { "type": "boolean" },
+        "gate_binding_early_ok": { "type": "boolean" },
+        "note": { "type": "string" }
+      }
+    },
+    "recommended_amendments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "concrete edits required before ratification (empty iff overall_verdict == CONFIRM)"
+    },
+    "reasoning": { "type": "string", "description": "the audit trail: what you read, what you recomputed/traced, why the verdict" }
+  }
+}
