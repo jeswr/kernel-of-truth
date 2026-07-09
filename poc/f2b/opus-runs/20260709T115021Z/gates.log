@@ -1,0 +1,19 @@
+===== test_fixtures =====
+test_fixtures RC=0
+Ran 49 tests in 7.971s
+
+OK
+===== registry-check =====
+registry-check RC=1
+FAIL ERR_KB_CHECK: kb-check exited 1 without named findings: Traceback (most recent call last):
+  File "/home/ec2-user/css/kernel/kernel-of-truth/tools/kb/kb-check", line 333, in <module>
+    sys.exit(main())
+  File "/home/ec2-user/css/kernel/kernel-of-truth/tools/kb/kb-check", line 321, in main
+    check_shards_and_manifest(errors)
+  File "/home/ec2-user/css/kernel/kernel-of-truth/tools/kb/kb-check", line 214, in check_shards_and_manifest
+    K.load_shards
+registry-check: 1 violation(s)
+===== claims-check =====
+claims-check RC=0
+  ok register: /home/ec2-user/css/kernel/kernel-of-truth/registry/assumptions.jsonl (9 current entries)
+claims-check: PASS

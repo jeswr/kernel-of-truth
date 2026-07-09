@@ -1,0 +1,27 @@
+$ /usr/local/bin/python /root/kot/poc/f2b/runner/f2b_runner.py --inputs-dir /root/kot/poc/f2b/inputs --dqa-dir /root/kot/data/d-qa --dqar-dir /root/kot/data/d-qa-r --dxif-dir /root/kot/data/d-xif --dext-dir /root/kot/data/d-ext --records-root /root/kot --out-dir /tmp/f2b-results --device cuda --gpu-class A100
+[f2b     0.0s] mode=FULL device=cuda items=1000 fresh covered (d-qa-r)
+[f2b     0.1s] shuffled-verifier permutation: seed=20260709 sha=05af8f50b134
+[f2b    83.1s] cell model-alone R1 k=0 seed=0 done (75.5s)
+[f2b   157.7s] cell model-alone R1 k=0 seed=1 done (74.7s)
+[f2b   232.5s] cell model-alone R1 k=0 seed=2 done (74.8s)
+[f2b   294.2s] cell model-alone R3 k=0 seed=0 done (56.9s)
+[f2b   351.0s] cell model-alone R3 k=0 seed=1 done (56.9s)
+[f2b   407.9s] cell model-alone R3 k=0 seed=2 done (56.9s)
+[f2b   524.6s] cell kernel-verify-retry R1 k=4 seed=0 done (116.7s)
+[f2b   637.3s] cell kernel-verify-retry R1 k=4 seed=1 done (112.7s)
+[f2b   750.8s] cell kernel-verify-retry R1 k=4 seed=2 done (113.5s)
+[f2b   877.3s] cell shuffled-kernel-verify-retry R1 k=4 seed=0 done (126.5s)
+[f2b  1002.3s] cell shuffled-kernel-verify-retry R1 k=4 seed=1 done (124.9s)
+[f2b  1127.3s] cell shuffled-kernel-verify-retry R1 k=4 seed=2 done (125.0s)
+[f2b  1201.5s] cell kernel-as-text R1 k=0 seed=0 done (74.2s)
+[f2b  1370.0s] cell gloss-self-verify-retry R1 k=4 seed=0 done (168.5s)
+[f2b  1538.0s] cell gloss-self-verify-retry R1 k=4 seed=1 done (168.0s)
+[f2b  1706.2s] cell gloss-self-verify-retry R1 k=4 seed=2 done (168.3s)
+We detected that you are passing `past_key_values` as a tuple and this is deprecated and will be removed in v4.43. Please use an appropriate `Cache` class (https://huggingface.co/docs/transformers/v4.41.3/en/internal/generation_utils#transformers.Cache)
+[f2b  1963.2s] cell prm-verifier R1 k=0 seed=0 done (106.8s)
+[f2b  2069.0s] cell prm-verifier R1 k=0 seed=1 done (105.8s)
+[f2b  2174.7s] cell prm-verifier R1 k=0 seed=2 done (105.7s)
+[f2b  2174.8s] cell extraction-instrument R1 k=0 seed=0 done (0.1s)
+[f2b  2174.8s] iface gate: 500 labelled, 0 extraction failures
+[f2b  2174.9s] OUTCOME: HARNESS-COMPLETE (20 run-record bodies in /tmp/f2b-results/run-records-f2b.jsonl)
+[runner exit rc=0]

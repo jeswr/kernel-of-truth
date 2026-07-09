@@ -1,0 +1,69 @@
+== f2b-replicate launcher ==
+repo root: /home/ec2-user/css/kernel/kernel-of-truth
+gate 1 OK: FROZEN, sha 21d401777d2b11bca98b0528a58ebb23e774e4d7e4bee5434a746be76a66771d
+           harness_manifest pin cffd61049bd6f6a08adf1dbe6ee3a2aa7dd3d032c630de10060edfbca5431d9c
+           models SmolLM2-1.7B@31b70e2e869a, SmolLM2-135M@12fd25f77366, small-process-reward-model@98d69606595e
+gate: registry-check PASS
+== LAUNCH: single A100-40GB (the Modal wrapper reprints + in-container
+   asserts the harness-manifest sha; ERR_STAGING_MISMATCH on any drift) ==
+✓ Initialized. View run at 
+https://modal.com/apps/jmwright-045/main/ap-I4Fuaz9RZtGLDcymmH4H6L
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_f2b.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/requirements-image.txt
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/d-ext
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/d-xif
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/d-qa-r
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/kernel-v0
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/d-qa
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/molecules-v0
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/poc/f2b/inputs
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f0/flop_meter.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f0/__init__.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f2b/runner/requirements.txt
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f2b/runner/f2b_runner.py
+├── 🔨 Created mount PythonPackage:modal_common
+├── 🔨 Created function run_f2b_t4.
+├── 🔨 Created function run_f2b_a10g.
+└── 🔨 Created function run_f2b_a100.
+kot-f2b via Modal: gpu=A100 mock=False (158 staged files, runner b62c3a72882b…)
+pins.harness_manifest (staged-bytes manifest sha, canonical JSON): cffd61049bd6f6a08adf1dbe6ee3a2aa7dd3d032c630de10060edfbca5431d9c
+REMINDER: the printed sha MUST equal the FROZEN record's pins.harness_manifest and the maintainer Tier-1 go must hold before any final-phase run.
+[f2b     0.0s] mode=FULL device=cuda items=1000 fresh covered (d-qa-r)
+[f2b     0.1s] shuffled-verifier permutation: seed=20260709 sha=05af8f50b134
+[f2b    83.1s] cell model-alone R1 k=0 seed=0 done (75.5s)
+[f2b   157.7s] cell model-alone R1 k=0 seed=1 done (74.7s)
+[f2b   232.5s] cell model-alone R1 k=0 seed=2 done (74.8s)
+[f2b   294.2s] cell model-alone R3 k=0 seed=0 done (56.9s)
+[f2b   351.0s] cell model-alone R3 k=0 seed=1 done (56.9s)
+[f2b   407.9s] cell model-alone R3 k=0 seed=2 done (56.9s)
+[f2b   524.6s] cell kernel-verify-retry R1 k=4 seed=0 done (116.7s)
+[f2b   637.3s] cell kernel-verify-retry R1 k=4 seed=1 done (112.7s)
+[f2b   750.8s] cell kernel-verify-retry R1 k=4 seed=2 done (113.5s)
+[f2b   877.3s] cell shuffled-kernel-verify-retry R1 k=4 seed=0 done (126.5s)
+[f2b  1002.3s] cell shuffled-kernel-verify-retry R1 k=4 seed=1 done (124.9s)
+[f2b  1127.3s] cell shuffled-kernel-verify-retry R1 k=4 seed=2 done (125.0s)
+[f2b  1201.5s] cell kernel-as-text R1 k=0 seed=0 done (74.2s)
+[f2b  1370.0s] cell gloss-self-verify-retry R1 k=4 seed=0 done (168.5s)
+[f2b  1538.0s] cell gloss-self-verify-retry R1 k=4 seed=1 done (168.0s)
+[f2b  1706.2s] cell gloss-self-verify-retry R1 k=4 seed=2 done (168.3s)
+We detected that you are passing `past_key_values` as a tuple and this is deprecated and will be removed in v4.43. Please use an appropriate `Cache` class (https://huggingface.co/docs/transformers/v4.41.3/en/internal/generation_utils#transformers.Cache)
+[f2b  1963.2s] cell prm-verifier R1 k=0 seed=0 done (106.8s)
+[f2b  2069.0s] cell prm-verifier R1 k=0 seed=1 done (105.8s)
+[f2b  2174.7s] cell prm-verifier R1 k=0 seed=2 done (105.7s)
+[f2b  2174.8s] cell extraction-instrument R1 k=0 seed=0 done (0.1s)
+[f2b  2174.8s] iface gate: 500 labelled, 0 extraction failures
+[f2b  2174.9s] OUTCOME: HARNESS-COMPLETE (20 run-record bodies in /tmp/f2b-results/run-records-f2b.jsonl)
+
+wrote 6 files to /home/ec2-user/css/kernel/kernel-of-truth/poc/f2b/results-incoming/20260709-114229-modal
+OUTCOME: HARNESS-COMPLETE
+done — review and commit deliberately (results are NOT auto-committed)
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/jmwright-045/main/ap-I4Fuaz9RZtGLDcymmH4H6L
