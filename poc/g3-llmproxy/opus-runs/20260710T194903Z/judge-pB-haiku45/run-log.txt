@@ -1,0 +1,319 @@
+[19:50:27] judge=judge-pB-haiku45 workdir=/tmp/judgepb-workdir.SzpLzB
+[19:50:27] claude --version = '2.1.201 (Claude Code)'
+[19:50:27] banner='2.1.201 (Claude Code)'
+[19:50:27] === PREFLIGHT judge-pB-haiku45 ===
+[19:50:30]   preflight cal:g3lp-a1 expected={'q1': 'yes'} got={'q1': 'yes'} pass=True
+[19:50:34]   preflight cal:g3lp-a2 expected={'q1': 'no'} got={'q1': 'no'} pass=True
+[19:50:36]   preflight cal:g3lp-b1 expected={'q2': 'yes', 'q2_failing_conditions': []} got={'q2': 'yes', 'q2_failing_conditions': []} pass=True
+[19:50:40]   preflight cal:g3lp-b2 expected={'q2': 'no', 'q2_failing_conditions': ['c2']} got={'q2': 'no', 'q2_failing_conditions': ['c2']} pass=True
+[19:50:40] preflight PASS
+[19:50:40] === PASS A (200) ===
+[19:50:44]   A:g3-reminder-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:50:47]   A:g3-find-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:50:51]   A:g3-give-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:50:54]       invalid attempt 1: ['parse_fail:\'```json\\n{"q1": "yes"}\\n```\'']
+[19:50:57]   A:g3-afraid-02 -> labelled=True fields={'q1': 'yes'} att=2
+[19:51:01]   A:g3-birth-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:05]   A:g3-afraid-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:08]   A:g3-angry-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:11]   A:g3-friend-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:15]   A:g3-reminder-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:18]       invalid attempt 1: ['parse_fail:\'```json\\n{"q1": "yes"}\\n```\'']
+[19:51:22]   A:g3-bookmark-07 -> labelled=True fields={'q1': 'yes'} att=2
+[19:51:25]   A:g3-useful-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:29]   A:g3-reminder-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:36]   A:g3-believe-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:39]   A:g3-death-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:43]       invalid attempt 1: ['tool_use_detected']
+[19:51:46]   A:g3-birth-05 -> labelled=True fields={'q1': 'no'} att=2
+[19:51:50]   A:g3-death-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:51:55]   A:g3-bookmark-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:06]   A:g3-archived-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:11]   A:g3-find-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:13]   A:g3-lost-06 -> labelled=True fields={'q1': 'cannot-say'} att=1
+[19:52:17]   A:g3-angry-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:20]   A:g3-bookmark-01 -> labelled=True fields={'q1': 'no'} att=1
+[19:52:22]   A:g3-find-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:27]   A:g3-birth-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:31]   A:g3-friend-10 -> labelled=True fields={'q1': 'no'} att=1
+[19:52:35]   A:g3-death-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:41]   A:g3-lost-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:44]   A:g3-useful-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:47]   A:g3-lie-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:50]   A:g3-birth-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:53]   A:g3-reminder-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:52:57]   A:g3-find-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:02]   A:g3-birth-04 -> labelled=True fields={'q1': 'no'} att=1
+[19:53:04]   A:g3-repair-05 -> labelled=True fields={'q1': 'no'} att=1
+[19:53:09]   A:g3-end-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:12]   A:g3-useful-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:16]   A:g3-promise-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:21]   A:g3-find-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:24]   A:g3-make-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:28]   A:g3-birth-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:31]   A:g3-end-04 -> labelled=True fields={'q1': 'no'} att=1
+[19:53:35]   A:g3-promise-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:38]   A:g3-friend-02 -> labelled=True fields={'q1': 'no'} att=1
+[19:53:40]   A:g3-bookmark-04 -> labelled=True fields={'q1': 'no'} att=1
+[19:53:44]       invalid attempt 1: ['tool_use_detected']
+[19:53:48]   A:g3-archived-06 -> labelled=True fields={'q1': 'yes'} att=2
+[19:53:52]   A:g3-afraid-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:55]   A:g3-lost-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:53:58]   A:g3-broken-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:03]   A:g3-birth-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:06]   A:g3-lie-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:10]   A:g3-believe-05 -> labelled=True fields={'q1': 'cannot-say'} att=1
+[19:54:13]   A:g3-end-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:16]   A:g3-end-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:20]   A:g3-begin-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:24]   A:g3-bookmark-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:26]   A:g3-afraid-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:30]   A:g3-repair-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:35]   A:g3-promise-09 -> labelled=True fields={'q1': 'no'} att=1
+[19:54:39]   A:g3-afraid-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:42]   A:g3-archived-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:44]   A:g3-friend-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:47]   A:g3-death-10 -> labelled=True fields={'q1': 'no'} att=1
+[19:54:50]   A:g3-death-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:54:53]   A:g3-lie-10 -> labelled=True fields={'q1': 'no'} att=1
+[19:54:58]   A:g3-reminder-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:02]   A:g3-repair-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:05]   A:g3-give-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:08]   A:g3-birth-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:12]   A:g3-broken-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:15]   A:g3-find-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:18]   A:g3-archived-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:22]   A:g3-end-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:26]   A:g3-broken-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:29]   A:g3-lie-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:33]   A:g3-make-10 -> labelled=True fields={'q1': 'no'} att=1
+[19:55:36]   A:g3-find-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:40]   A:g3-angry-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:47]   A:g3-end-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:50]   A:g3-end-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:53]   A:g3-bookmark-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:56]   A:g3-death-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:55:59]   A:g3-friend-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:02]   A:g3-useful-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:07]   A:g3-bookmark-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:13]   A:g3-useful-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:16]   A:g3-give-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:19]   A:g3-bookmark-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:22]   A:g3-reminder-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:25]   A:g3-make-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:29]       invalid attempt 1: ['parse_fail:\'```json\\n{"q1": "yes"}\\n```\'']
+[19:56:32]   A:g3-useful-01 -> labelled=True fields={'q1': 'yes'} att=2
+[19:56:36]   A:g3-end-02 -> labelled=True fields={'q1': 'no'} att=1
+[19:56:43]   A:g3-death-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:56:49]   A:g3-reminder-08 -> labelled=True fields={'q1': 'no'} att=1
+[19:56:55]   A:g3-death-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:00]   A:g3-repair-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:04]   A:g3-bookmark-06 -> labelled=True fields={'q1': 'no'} att=1
+[19:57:08]   A:g3-promise-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:11]   A:g3-afraid-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:13]   A:g3-give-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:16]   A:g3-make-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:20]   A:g3-lost-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:24]   A:g3-afraid-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:27]   A:g3-angry-01 -> labelled=True fields={'q1': 'no'} att=1
+[19:57:30]   A:g3-promise-01 -> labelled=True fields={'q1': 'no'} att=1
+[19:57:34]   A:g3-repair-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:38]   A:g3-give-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:42]   A:g3-believe-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:45]   A:g3-believe-01 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:49]   A:g3-archived-02 -> labelled=True fields={'q1': 'no'} att=1
+[19:57:53]   A:g3-broken-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:57:57]   A:g3-give-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:04]       invalid attempt 1: ['tool_use_detected']
+[19:58:07]   A:g3-angry-09 -> labelled=True fields={'q1': 'yes'} att=2
+[19:58:11]   A:g3-angry-07 -> labelled=True fields={'q1': 'cannot-say'} att=1
+[19:58:14]   A:g3-begin-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:17]   A:g3-angry-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:22]   A:g3-angry-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:25]   A:g3-make-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:28]   A:g3-begin-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:33]   A:g3-reminder-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:41]   A:g3-make-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:44]   A:g3-death-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:49]   A:g3-repair-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:58:53]   A:g3-birth-06 -> labelled=True fields={'q1': 'no'} att=1
+[19:58:56]   A:g3-find-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:00]   A:g3-broken-07 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:07]   A:g3-make-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:10]   A:g3-believe-09 -> labelled=True fields={'q1': 'no'} att=1
+[19:59:13]   A:g3-find-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:16]   A:g3-friend-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:19]   A:g3-reminder-09 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:22]   A:g3-useful-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:25]   A:g3-angry-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:27]   A:g3-begin-04 -> labelled=True fields={'q1': 'no'} att=1
+[19:59:30]   A:g3-useful-05 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:33]   A:g3-give-06 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:36]   A:g3-broken-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:40]   A:g3-make-03 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:43]   A:g3-lie-08 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:46]   A:g3-believe-10 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:48]   A:g3-repair-02 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:51]   A:g3-give-04 -> labelled=True fields={'q1': 'yes'} att=1
+[19:59:56]   A:g3-birth-01 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:00]   A:g3-lost-03 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:03]   A:g3-afraid-01 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:06]   A:g3-promise-10 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:09]   A:g3-promise-02 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:13]   A:g3-make-05 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:17]   A:g3-give-10 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:20]   A:g3-angry-05 -> labelled=True fields={'q1': 'no'} att=1
+[20:00:23]   A:g3-begin-06 -> labelled=True fields={'q1': 'cannot-say'} att=1
+[20:00:28]   A:g3-lie-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:31]   A:g3-begin-03 -> labelled=True fields={'q1': 'no'} att=1
+[20:00:35]   A:g3-death-06 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:38]   A:g3-lost-10 -> labelled=True fields={'q1': 'no'} att=1
+[20:00:42]   A:g3-broken-02 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:45]   A:g3-friend-06 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:48]   A:g3-believe-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:51]   A:g3-broken-09 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:54]   A:g3-believe-07 -> labelled=True fields={'q1': 'yes'} att=1
+[20:00:58]   A:g3-believe-06 -> labelled=True fields={'q1': 'no'} att=1
+[20:01:01]   A:g3-begin-02 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:04]   A:g3-archived-01 -> labelled=True fields={'q1': 'no'} att=1
+[20:01:07]       invalid attempt 1: ['parse_fail:\'```json\\n{"q1": "yes"}\\n```\'']
+[20:01:11]   A:g3-promise-08 -> labelled=True fields={'q1': 'no'} att=2
+[20:01:15]   A:g3-afraid-06 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:18]   A:g3-end-05 -> labelled=True fields={'q1': 'no'} att=1
+[20:01:21]   A:g3-believe-03 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:24]   A:g3-archived-09 -> labelled=True fields={'q1': 'cannot-say'} att=1
+[20:01:27]   A:g3-repair-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:30]   A:g3-afraid-10 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:33]   A:g3-lie-07 -> labelled=True fields={'q1': 'no'} att=1
+[20:01:36]   A:g3-lost-05 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:40]   A:g3-make-02 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:43]   A:g3-promise-05 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:46]   A:g3-archived-10 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:50]   A:g3-broken-08 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:53]   A:g3-useful-10 -> labelled=True fields={'q1': 'yes'} att=1
+[20:01:57]   A:g3-give-09 -> labelled=True fields={'q1': 'no'} att=1
+[20:02:01]   A:g3-bookmark-10 -> labelled=True fields={'q1': 'no'} att=1
+[20:02:04]   A:g3-lost-08 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:08]   A:g3-reminder-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:11]   A:g3-begin-07 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:14]   A:g3-friend-08 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:19]   A:g3-begin-05 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:23]   A:g3-end-03 -> labelled=True fields={'q1': 'no'} att=1
+[20:02:27]   A:g3-repair-10 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:30]   A:g3-archived-04 -> labelled=True fields={'q1': 'no'} att=1
+[20:02:33]   A:g3-friend-09 -> labelled=True fields={'q1': 'cannot-say'} att=1
+[20:02:36]   A:g3-friend-05 -> labelled=True fields={'q1': 'no'} att=1
+[20:02:39]   A:g3-archived-07 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:42]   A:g3-repair-08 -> labelled=True fields={'q1': 'no'} att=1
+[20:02:45]   A:g3-broken-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:50]   A:g3-begin-01 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:53]   A:g3-lie-05 -> labelled=True fields={'q1': 'yes'} att=1
+[20:02:57]   A:g3-promise-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:03:00]   A:g3-lost-09 -> labelled=True fields={'q1': 'no'} att=1
+[20:03:02]   A:g3-useful-07 -> labelled=True fields={'q1': 'yes'} att=1
+[20:03:05]   A:g3-lost-04 -> labelled=True fields={'q1': 'yes'} att=1
+[20:03:09]   A:g3-lie-09 -> labelled=True fields={'q1': 'yes'} att=1
+[20:03:11]   A:g3-find-09 -> labelled=True fields={'q1': 'yes'} att=1
+[20:03:14]   A:g3-lie-01 -> labelled=True fields={'q1': 'yes'} att=1
+[20:03:14] === PASS B (200) ===
+[20:03:17]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:20]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:24]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:24]   B:g3-archived-06 -> labelled=False fields=None att=3
+[20:03:26]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:29]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:33]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:33]   B:g3-believe-04 -> labelled=False fields=None att=3
+[20:03:36]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:39]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:42]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:42]   B:g3-find-05 -> labelled=False fields=None att=3
+[20:03:45]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3", "c4"]}\\n```\'']
+[20:03:48]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3", "c4"]}\\n```\'']
+[20:03:51]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3", "c4"]}\\n```\'']
+[20:03:51]   B:g3-repair-08 -> labelled=False fields=None att=3
+[20:03:54]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:03:57]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:00]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:00]   B:g3-find-06 -> labelled=False fields=None att=3
+[20:04:04]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:08]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:11]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:11]   B:g3-birth-02 -> labelled=False fields=None att=3
+[20:04:14]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2", "c4"]}\\n```\'']
+[20:04:17]   B:g3-lie-06 -> labelled=True fields={'q2': 'no', 'q2_failing_conditions': ['c2', 'c4']} att=2
+[20:04:20]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1", "c2", "c3"]}\\n```\'']
+[20:04:23]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1", "c2", "c3"]}\\n```\'']
+[20:04:27]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1", "c2", "c3"]}\\n```\'']
+[20:04:27]   B:g3-archived-09 -> labelled=False fields=None att=3
+[20:04:30]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:33]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:37]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:37]   B:g3-broken-05 -> labelled=False fields=None att=3
+[20:04:40]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:43]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:47]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:04:47]   B:g3-begin-10 -> labelled=False fields=None att=3
+[20:04:50]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1", "c3"]}\\n```\'']
+[20:04:53]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1", "c3"]}\\n```\'']
+[20:04:56]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1", "c3"]}\\n```\'']
+[20:04:56]   B:g3-afraid-09 -> labelled=False fields=None att=3
+[20:04:59]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:02]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:06]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:06]   B:g3-find-02 -> labelled=False fields=None att=3
+[20:05:10]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:13]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:16]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:16]   B:g3-afraid-04 -> labelled=False fields=None att=3
+[20:05:19]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:22]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:25]   B:g3-friend-01 -> labelled=True fields={'q2': 'yes', 'q2_failing_conditions': []} att=3
+[20:05:28]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:33]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:38]       invalid attempt 3: ['tool_use_detected']
+[20:05:38]   B:g3-believe-01 -> labelled=False fields=None att=3
+[20:05:43]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:47]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:50]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:50]   B:g3-angry-10 -> labelled=False fields=None att=3
+[20:05:53]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:56]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:59]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:05:59]   B:g3-believe-10 -> labelled=False fields=None att=3
+[20:06:03]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:06]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:09]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:09]   B:g3-believe-06 -> labelled=False fields=None att=3
+[20:06:12]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:16]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:20]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:20]   B:g3-afraid-10 -> labelled=False fields=None att=3
+[20:06:23]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3"]}\\n```\'']
+[20:06:27]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3"]}\\n```\'']
+[20:06:30]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3"]}\\n```\'']
+[20:06:30]   B:g3-lie-09 -> labelled=False fields=None att=3
+[20:06:33]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:35]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:39]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "yes", "q2_failing_conditions": []}\\n```\'']
+[20:06:39]   B:g3-angry-07 -> labelled=False fields=None att=3
+[20:06:43]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2"]}\\n```\'']
+[20:06:46]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2"]}\\n```\'']
+[20:06:49]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2"]}\\n```\'']
+[20:06:49]   B:g3-repair-01 -> labelled=False fields=None att=3
+[20:06:52]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3", "c4"]}\\n```\'']
+[20:06:55]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3", "c4"]}\\n```\'']
+[20:06:58]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3", "c4"]}\\n```\'']
+[20:06:58]   B:g3-repair-03 -> labelled=False fields=None att=3
+[20:07:01]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2"]}\\n```\'']
+[20:07:04]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2"]}\\n```\'']
+[20:07:08]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c2"]}\\n```\'']
+[20:07:08]   B:g3-believe-02 -> labelled=False fields=None att=3
+[20:07:14]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3"]}\\n```\'']
+[20:07:18]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3"]}\\n```\'']
+[20:07:21]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c3"]}\\n```\'']
+[20:07:21]   B:g3-birth-07 -> labelled=False fields=None att=3
+[20:07:24]       invalid attempt 1: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1"]}\\n```\'']
+[20:07:27]       invalid attempt 2: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1"]}\\n```\'']
+[20:07:30]       invalid attempt 3: ['parse_fail:\'```json\\n{"q2": "no", "q2_failing_conditions": ["c1"]}\\n```\'']
+[20:07:30]   B:g3-useful-05 -> labelled=False fields=None att=3

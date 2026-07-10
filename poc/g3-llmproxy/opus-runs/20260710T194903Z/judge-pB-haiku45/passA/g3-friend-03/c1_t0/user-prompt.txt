@@ -1,0 +1,30 @@
+You are an independent judge in a blind annotation task.
+
+Below is ONE numbered situation: a short description of a situation, then a claim about it.
+
+Instruction (apply it exactly): "For each numbered situation, read the description, then the claim beneath it. Judge whether the claim is true of the situation as you would ordinarily use the underlined word. There are no trick questions and no expected answers; 'cannot-say' is allowed but use it sparingly. Judge each situation on its own."
+
+In this rendering nothing is typographically underlined: the underlined word of the claim is the word given under "underlined word" below (the claim may use an inflected form of it).
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"q1": "<token>"}
+
+where <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+situation: Pen pals since a school exchange at eleven, Lotte and Sacha have met dozens of times since, across two countries. Lotte saves things up all week to tell her, delights in every visit, wishes her nothing but good, and would drop everything if trouble came her way.
+
+claim: Lotte is a friend of Sacha.
+
+underlined word: friend
+
+--- END ITEM ---
+
+Respond now with the JSON object only.
