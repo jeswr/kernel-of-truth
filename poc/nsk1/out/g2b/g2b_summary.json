@@ -1,0 +1,69 @@
+{
+ "form1b_PASS": false,
+ "form2_PASS": false,
+ "freeze_candidate": null,
+ "gate": {
+  "form1b": {
+   "pass": false,
+   "per_rung": {
+    "R1": {
+     "clause_i_text_only_in_window": false,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    },
+    "R2": {
+     "clause_i_text_only_in_window": false,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    }
+   }
+  },
+  "form2": {
+   "pass": false,
+   "per_rung": {
+    "R1": {
+     "clause_i_text_only_in_window": true,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    },
+    "R2": {
+     "clause_i_text_only_in_window": true,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    }
+   }
+  }
+ },
+ "phase": "exploratory",
+ "rung3_required": true,
+ "rungs": {
+  "R1": {
+   "form1b": {
+    "acc_external_text": 0.0,
+    "acc_text_only": 0.0,
+    "delta": 0.0
+   },
+   "form2": {
+    "acc_external_text": 0.01,
+    "acc_text_only": 0.23,
+    "delta": -0.22
+   },
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100
+  },
+  "R2": {
+   "form1b": {
+    "acc_external_text": 0.0,
+    "acc_text_only": 0.01,
+    "delta": -0.01
+   },
+   "form2": {
+    "acc_external_text": 0.06,
+    "acc_text_only": 0.37,
+    "delta": -0.31
+   },
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100
+  }
+ }
+}

@@ -1,0 +1,80 @@
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/jmwright-045/main/ap-rnqAapPR4zfqChgbQXVeke
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+└── 🔨 Created function gen_l4.
+=== G2c rung-3 CUSTOM-split G2 plan (design §5.2.1 amendment) ===
+custom split        : first 100 covered nsk1-eval items (nsk1-c0001..nsk1-c0115)
+applicable form     : 2 (entity, native question); form 1b N/A (no relation-word construct in nsk1-eval)
+arms                : text-only, external-text
+rungs               : R1=HuggingFaceTB/SmolLM2-135M-Instruct, R2=HuggingFaceTB/SmolLM2-360M-Instruct
+generations total   : 400 (200/rung), greedy, max_new_tokens=16
+gpu                 : A10G
+worst-case wall/$   : << 1 GPU-h total; ~$1-3 bound (standing G2 go-ahead)
+phase               : exploratory (quarantined, uncitable)
+G2_BUILD=v2 module import ok (root=/root)
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 50/200
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 100/200
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 150/200
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 200/200
+[R1 form 2] HuggingFaceTB/SmolLM2-135M-Instruct : text-only=0.0000 external-text=0.0100 delta=+0.0100
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 50/200
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 100/200
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 150/200
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 200/200
+[R2 form 2] HuggingFaceTB/SmolLM2-360M-Instruct : text-only=0.0000 external-text=0.0000 delta=+0.0000
+
+=== G2c RESULT (phase:exploratory) ===
+{
+ "form1b_applicable": false,
+ "form1b_status": "N/A \u2014 nsk1-eval has no closed relation-answer vocab / no relation-word gold",
+ "form2_PASS": false,
+ "gate": {
+  "form2": {
+   "pass": false,
+   "per_rung": {
+    "R1": {
+     "clause_i_text_only_in_window": false,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    },
+    "R2": {
+     "clause_i_text_only_in_window": false,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    }
+   }
+  }
+ },
+ "ladder_exhausted": true,
+ "phase": "exploratory",
+ "rung3_freeze_candidate": null,
+ "rungs": {
+  "R1": {
+   "form2": {
+    "acc_external_text": 0.01,
+    "acc_text_only": 0.0,
+    "delta": 0.01
+   },
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100
+  },
+  "R2": {
+   "form2": {
+    "acc_external_text": 0.0,
+    "acc_text_only": 0.0,
+    "delta": 0.0
+   },
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100
+  }
+ }
+}
+form2_PASS = False | freeze_candidate = None | LADDER_EXHAUSTED = True
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/jmwright-045/main/ap-rnqAapPR4zfqChgbQXVeke

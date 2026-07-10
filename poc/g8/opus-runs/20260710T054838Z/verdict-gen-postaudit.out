@@ -1,0 +1,95 @@
+{
+  "audit": {
+    "path": null,
+    "state": "N/A"
+  },
+  "computed_at": "2026-07-10T06:12:37Z",
+  "coverage": {
+    "fraction": 0.3542,
+    "rung": "molecules-v0"
+  },
+  "endpoint_results": [
+    {
+      "id": "primary",
+      "metric": "/analysis/fragment_wilson_lb",
+      "role": "primary",
+      "value": 0.0
+    },
+    {
+      "id": "sec-location",
+      "metric": "/analysis/location_wilson_lb",
+      "role": "secondary",
+      "value": 0.0638193834750099
+    },
+    {
+      "id": "sec-roundtrip",
+      "metric": "/analysis/roundtrip_holds",
+      "role": "secondary",
+      "value": true
+    },
+    {
+      "id": "sec-fver",
+      "metric": "/analysis/f_verification_rate",
+      "role": "secondary",
+      "value": 0.050359712230215826
+    }
+  ],
+  "experiment": "g8",
+  "extrapolation_envelope_verbatim": "P1 \u00a74b row HS2\u2013HS8 (verbatim): Measured range: R0 \u2014 no host model. Reasonable extrapolation envelope: Model-scale-free (properties of the kernel formalism); the relevant axis is KERNEL size: verdicts on 54\u201310\u00b3 records re-checked at 10\u2074\u201310\u2075 during bulk authoring (G6/G7 re-run as regression). Literature anchor + licensing assumption: Formal-fragment properties don't vary with observer scale; only corpus composition shifts them.",
+  "fired_rule": {
+    "a": {
+      "a": {
+        "metric": "/analysis/fragment_wilson_ub"
+      },
+      "b": {
+        "const": 0.01
+      },
+      "op": "lte"
+    },
+    "b": {
+      "a": {
+        "a": {
+          "metric": "/analysis/location_wilson_ub"
+        },
+        "b": {
+          "const": 0.8
+        },
+        "op": "lte"
+      },
+      "b": {
+        "a": {
+          "metric": "/analysis/f_verification_rate"
+        },
+        "b": {
+          "const": 0.01
+        },
+        "op": "lt"
+      },
+      "op": "or"
+    },
+    "op": "or"
+  },
+  "fired_rule_index": 1,
+  "hypotheses": [
+    "HS8"
+  ],
+  "inputs": {
+    "amended_record_sha256": "a2b46a0e9dbddc1dd8c47cffada119e56a51a8484507d75e53180589af8b3bd2",
+    "amendments_applied": [
+      1
+    ],
+    "analysis_output_sha256": "6670c0164b6241d1f05fab66327fecb327c12d45a16a76c5aa6a9d5793b85645",
+    "analysis_script_sha256": "e5769612fc072faf38e7155abf13f3d7e76515036a5fe29dde2a4cbd9dc03674",
+    "eligible_runs": 1,
+    "excluded_runs": [],
+    "frozen_sha256": "a3c4510113513525c8e5aaff4f7a0f27c2ee6edaed9463c3b0e25d8da3b2b41c",
+    "log_tail_sha256": "43e1b5f666748022584d475f5f4b965bc9f4f941103897f6545b3a22818e1d84"
+  },
+  "kill_criterion_verbatim": "P1 \u00a74 HS8 kill criterion (verbatim): 'As NF3: below either bound \u21d2 Metamath-only identity stands, Lean stays annotation-only; near-zero F-verification of LLM candidates kills the bridge programme. Tests: fragment rate vs the 1% gate by exact binomial over the 1,000-declaration sample (Wilson lower bound must clear 1%); top-5 location rate vs the 80% gate likewise (\u03b1=0.05, one-sided).'",
+  "rungs_measured": [
+    "R0"
+  ],
+  "scale_language_licensed": "none",
+  "schema_version": "kot-verdict/1",
+  "verdict": "FAIL"
+}

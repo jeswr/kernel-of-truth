@@ -1,0 +1,114 @@
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/jmwright-045/main/ap-x3e67rtzMR8gatV1MPWxsz
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+└── 🔨 Created function gen_l4.
+=== G2b combined re-run plan (design §5.2.1) ===
+headroom items      : 100
+forms               : 1b (reversed-order relation), 2 (entity question)
+arms                : text-only, external-text
+rungs               : R1=HuggingFaceTB/SmolLM2-135M-Instruct, R2=HuggingFaceTB/SmolLM2-360M-Instruct
+generations total   : 800 (400/rung), greedy, max_new_tokens=16
+gpu                 : A10G
+worst-case wall/$   : << 1 GPU-h total; ~$2-5 bound (standing G2 go-ahead)
+phase               : exploratory (quarantined, uncitable)
+G2_BUILD=v2 module import ok (root=/root)
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 50/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 100/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 150/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 200/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 250/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 300/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 350/400
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 400/400
+[R1 form 1b] HuggingFaceTB/SmolLM2-135M-Instruct : text-only=0.0000 external-text=0.0000 delta=+0.0000
+[R1 form 2] HuggingFaceTB/SmolLM2-135M-Instruct : text-only=0.2300 external-text=0.0100 delta=-0.2200
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 50/400
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 100/400
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 150/400
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 200/400
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 250/400
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 300/400
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 350/400
+[R2 form 1b] HuggingFaceTB/SmolLM2-360M-Instruct : text-only=0.0100 external-text=0.0000 delta=-0.0100
+[R2 form 2] HuggingFaceTB/SmolLM2-360M-Instruct : text-only=0.3700 external-text=0.0600 delta=-0.3100
+
+=== G2b RESULT (phase:exploratory) ===
+{
+ "form1b_PASS": false,
+ "form2_PASS": false,
+ "freeze_candidate": null,
+ "gate": {
+  "form1b": {
+   "pass": false,
+   "per_rung": {
+    "R1": {
+     "clause_i_text_only_in_window": false,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    },
+    "R2": {
+     "clause_i_text_only_in_window": false,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    }
+   }
+  },
+  "form2": {
+   "pass": false,
+   "per_rung": {
+    "R1": {
+     "clause_i_text_only_in_window": true,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    },
+    "R2": {
+     "clause_i_text_only_in_window": true,
+     "clause_ii_external_ge_text_plus_2pp": false,
+     "pass": false
+    }
+   }
+  }
+ },
+ "phase": "exploratory",
+ "rung3_required": true,
+ "rungs": {
+  "R1": {
+   "form1b": {
+    "acc_external_text": 0.0,
+    "acc_text_only": 0.0,
+    "delta": 0.0
+   },
+   "form2": {
+    "acc_external_text": 0.01,
+    "acc_text_only": 0.23,
+    "delta": -0.22
+   },
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100
+  },
+  "R2": {
+   "form1b": {
+    "acc_external_text": 0.0,
+    "acc_text_only": 0.01,
+    "delta": -0.01
+   },
+   "form2": {
+    "acc_external_text": 0.06,
+    "acc_text_only": 0.37,
+    "delta": -0.31
+   },
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100
+  }
+ }
+}
+freeze_candidate = None (None => rung 3 fires with its own G2 check)
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 400/400
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/jmwright-045/main/ap-x3e67rtzMR8gatV1MPWxsz

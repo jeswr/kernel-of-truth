@@ -579,7 +579,193 @@ passed G2.
   `nsk1-eval` returns to primary, CLUTRR demoted to a reported stratum. This rung
   has already passed its analog of G2's shape by construction and freezes directly;
   the record discloses that the third-party surface failed headroom at both rungs of
-  the ladder.
+  the ladder. (AMENDED 2026-07-10 — see §5.2.1: rung 3 no longer freezes directly;
+  it must first pass its own measured two-clause G2 check on the custom calibration
+  split. The rung-1 outcome showed shape-by-construction does not predict measured
+  headroom.)
+
+### 5.2.1 LADDER RESOLUTION — rung-1 G2 adjudication (2026-07-10, designer)
+
+**Outcome (recorded).** The rung-1 G2 headroom calibration was run by the runner role
+(Modal A10G, `poc/modal/modal_nsk1_g2.py`, greedy, max_new_tokens=16, chat template,
+400 generations) on the discarded 100-item headroom slice, after all S1–S10 build
+gates landed green.
+
+- PREMISE: rung-1 G2 FAILED at both rungs and on both clauses —
+  acc(text-only) = 0.000 and acc(external-text) = 0.000 at R1 (SmolLM2-135M-Instruct)
+  and R2 (SmolLM2-360M-Instruct), n = 100 per arm per rung
+  [MEASURED: poc/nsk1/out/g2/g2_summary.json sha256
+  3971708481bdc895ed01cf9e893d53d5afccf33b9334dc72f8ff3d7638095b24; scope: these two
+  Instruct checkpoints, zero-shot, greedy, the as-built S8 prompt, this one 100-item
+  discarded CLUTRR slice; phase:exploratory — quarantined from verdicts, licensed
+  only to decide this pre-freeze gate as §5.2 pre-declares].
+
+**Diagnosis (from the 400 logged generations).** Row-level facts, all
+[MEASURED: poc/nsk1/out/g2/g2_rows.jsonl sha256
+e0d75e1c626eb861f60f592a72cbd30d80e09ae87e1affd118f030111e3b7c48; same scope and
+quarantine as above]:
+
+1. *Not a scoring artifact.* The models never emit the gold word: grandparent-word
+   first-match is 0/100 in ALL four rung×arm cells; ANY grand-token
+   (grandmother/-father/-son/-daughter) appears in ≤3/100 generations per cell. The
+   closed-vocab first-match scorer is not what zeroed the accuracy.
+2. *Not format collapse.* The models engage with the task shape: 59–90% of
+   generations per cell contain some closed-vocabulary relation word; R2 obeys the
+   short-answer instruction in 72/100 cases. They produce relation words — just
+   never the right one (R1 mode: story-surface echoes and hallucinated in-laws,
+   e.g. h0001 text-only "Joe is related to Gabrielle through a mother-in-law
+   relationship"; R2 mode: bare "aunt", 26/100 text-only). Gold-gender agreement of
+   the produced relation word is ≈ chance (43/86 at R1 text-only) — no partial
+   compositional signal in the relation channel.
+3. *The external channel is DELIVERED but not COMPOSED.* The appended hop-1 feedback
+   visibly moves behaviour: at R1 the first relation word equals the fed hop-1
+   relation (mother/father) in 46/100 external generations vs 20/100 text-only, and
+   bridge-entity mentions rise 44→76/100 (e.g. h0002 external: "Joe's family
+   relationship is with his mother, Lisa." — a verbatim paraphrase of the feedback
+   "Note: the mother of Joe is Lisa."). The models read the fed fact and parrot it;
+   they do not compose it with the second story edge. Clause (ii) therefore cannot
+   pass at these rungs on this task form for ANY delivery mechanism — the vacuousness
+   check did exactly its job.
+4. *A real S8 template-direction confound, documented and disposed.* Under the
+   build-determined convention C1/Q1 (manifest `orientation_S3`), the released gold
+   is the TOP entity's relation to the BASE ("Gabrielle is Joe's grandmother"), while
+   the S8 fallback stem "How is [A] related to [B]?" instantiated in released query
+   order (A=base, B=top) naturally reads as A's relation to B — whose correct answer
+   is grandson/granddaughter, the inverse of gold. This is a genuine instrument bug
+   (the question asks the inverse of what the gold scores). It is NOT, however, the
+   measured cause of the failure: per fact 1, the models produce the
+   direction-corrected reading's answer (grandson/granddaughter) in ≤3/100
+   generations per cell too, so under EITHER reading the text-only accuracy of these
+   generations is ≤0.03 < the 0.05 floor. Whether a prompt whose question is
+   direction-corrected would elicit different generations is a counterfactual this
+   run cannot measure — that residual is tagged EXTRAPOLATION, is deliberately NOT a
+   premise of any decision below, and is resolved by the rung-1b rider in the re-run
+   (proposed ASM, coordinator registration pending).
+5. *Positive pre-signal for the entity form (rung 2).* Despite being asked a
+   relation question, R2 answered with a bare in-lexicon NAME in 35/100 text-only
+   generations, and 12 of those named the chain-top — the correct grandparent entity
+   (vs 4 bridge, 19 question-echo; e.g. h0002 text-only at R2: "Gabrielle", which IS
+   Joe's grandmother). Under feedback the name answers shift toward the fed bridge
+   (4→12) — the same deliver-then-parrot pattern. The entity channel carries signal
+   at R2 that the relation-word channel does not.
+
+Adjudication: the failure is primarily (c) genuine incapacity of these hosts, at
+these sizes, zero-shot, to compose two in-context parent edges into the grandparent
+RELATION WORD — with (a) the S8 direction confound real but evidentially non-causal,
+and (b) the entity-question form holding the only measured positive signal. This is
+the flagship's first feasibility datum: on the native CLUTRR relation surface there
+is no headroom at R1–R2 for ANY grounding mechanism to be measured against.
+
+**AMENDMENTS to the ladder (pre-declared here, BEFORE the re-run; the record is
+DRAFT and G2 is a pre-freeze gate, so this is a lawful pre-freeze amendment — the
+decision rule is fixed now, not after the data):**
+
+- DECISION: one combined G2 re-run (spec below) measures TWO forms on the same
+  discarded 100-item slice — rung 1b (the rung-1 relation task with the S8 direction
+  bug fixed) and rung 2 (the pre-declared entity-question form); the freeze
+  candidate is the FIRST form in the order [1b, 2] that passes both G2 clauses at
+  both rungs; if neither passes, rung 3 fires
+  [MEASURED: poc/nsk1/out/g2/g2_summary.json sha256
+  3971708481bdc895ed01cf9e893d53d5afccf33b9334dc72f8ff3d7638095b24 — the basis for
+  amending rather than proceeding: the
+  pre-declared rung-1 form failed its gate, and diagnosis fact 4 shows the rung-1
+  G2 tested a direction-inverted instantiation of the intended construct, so the
+  corrected form inherits rung 1's ladder priority (third-party gold retained)
+  rather than being skipped]. Rung 1b is a bug-fix re-test of the SAME ladder rung,
+  not a new design; rung 2 is unchanged from the pre-declaration.
+- DECISION: rung 3 no longer "freezes directly": before any rung-3 freeze, the same
+  two-clause G2 check (text-only ∈ [0.05, 0.85] AND external ≥ text-only + 2pp, both
+  rungs) must be run and passed on the 100-item CUSTOM calibration split
+  (`nsk1-eval`, already excluded from final analysis), ~$2–5, phase:exploratory
+  [MEASURED: poc/nsk1/out/g2/g2_summary.json sha256
+  3971708481bdc895ed01cf9e893d53d5afccf33b9334dc72f8ff3d7638095b24 — the lesson
+  forcing this: rung 1 was
+  believed adequate "by construction" and measured 0.000; shape-by-construction is
+  not measured headroom]. If rung 3 ALSO fails its G2, the record does NOT freeze:
+  the ladder is exhausted, the no-headroom result is written up as the feasibility
+  finding, and host scale vs task family becomes a registered fork for the
+  maintainer (no silent host upgrade inside this record).
+- DECISION: the record's hosts are reconciled to the Instruct variants —
+  R1 = HuggingFaceTB/SmolLM2-135M-Instruct, R2 = HuggingFaceTB/SmolLM2-360M-Instruct
+  (revisions pinned at freeze) [MEASURED: the G2 calibration and the verified Modal
+  transport path ran these checkpoints — poc/nsk1/out/g2/g2_summary.json sha256
+  3971708481bdc895ed01cf9e893d53d5afccf33b9334dc72f8ff3d7638095b24 `model` fields;
+  the task is chat-shaped and base variants were never exercised on this surface].
+  All G2 evidence and the eventual campaign then share one host family.
+
+**Combined G2 re-run — exact spec (runner role; maintainer sign-off required per the
+standing §5.2 G2 spend gate before launch):**
+
+- Harness: extend `poc/modal/modal_nsk1_g2.py` (same Modal app, A10G or L4, fp32,
+  chat template, greedy, max_new_tokens=16, seed-free greedy decode as run 1).
+- Items: the SAME 100 discarded headroom items (`data/nsk1-clutrr/headroom.jsonl`);
+  all rows `phase:"exploratory"`; outputs to `poc/nsk1/out/g2b/g2b_rows.jsonl` +
+  `g2b_summary.json` (per-form × per-rung accuracies, gate clauses, and PASS fields).
+- Form 1b (direction-corrected relation question): question = the S8 stem
+  instantiated in REVERSED released query order — `"How is %s related to %s?" %
+  (top_surface, base_surface)` (under Q1 the released query is (base, top); the
+  reversal makes the natural reading ask for top's relation to base, which is what
+  the released gold scores). Instruction, closed 24-word vocabulary, first-match
+  scorer, and gold (`gold_surface`, the released target verbatim) all UNCHANGED from
+  run 1.
+- Form 2 (entity question, the pre-declared rung 2): question =
+  `"Who is the %s of %s?" % (gold_surface, base_surface)` (gold_surface ∈
+  {grandmother, grandfather}, released target verbatim — the programme-authored
+  template is DISCLOSED as such); instruction = `"Answer with exactly one word: the
+  name of the person. Answer:"`; gold = the chain-top surface, derived mechanically
+  as the item-lexicon entry that is neither `hop1.subject` nor `hop1_bridge` (all
+  100 headroom items verified 3-name with pairwise-distinct surfaces); scorer =
+  first per-item-lexicon surface occurring in the generation EXCLUDING the queried
+  base surface (a mechanical anti-question-echo rule, identical across arms;
+  diagnosis fact 5 measured 19/35 bare-name answers echoing the base) — correct iff
+  it equals the chain-top surface; no non-base lexicon name in the generation =
+  incorrect.
+- Both forms, two arms each: text-only and external-text; the feedback sentence is
+  byte-identical to run 1 (`"Note: the %s of %s is %s."` — hop-1 relation surface,
+  base, bridge). Gold-not-in-feedback is asserted per form at render time: form 1b
+  by relation-word token distinctness (S9.4, unchanged); form 2 by the gold NAME not
+  appearing among the feedback tokens (holds by S4(f) pairwise-distinct names;
+  assert anyway, ABORT on violation).
+- Volume and cost: 2 rungs × 2 forms × 2 arms × 100 items = 800 short generations,
+  ≪ 1 GPU-h, ~$2–5 — within the standing G2 envelope (run 1's 400 generations
+  completed in minutes); the doubling vs the original G2 cost line is disclosed here.
+- Gate application (pre-declared): a FORM passes iff at BOTH rungs
+  (i) acc(text-only) ∈ [0.05, 0.85] AND (ii) acc(external-text) ≥ acc(text-only) +
+  0.02. Freeze candidate = first passing form in the order [1b, 2]; neither passes →
+  rung 3 fires (with its own G2 check per the amendment above).
+- Post-G2 mechanics for whichever form freezes (runner role, before G4): rebuild
+  `data/nsk1-clutrr/items.jsonl` per the corresponding S8 revision — S8-1b: covered
+  AND control questions instantiated in reversed released query order; S8-2: covered
+  questions in the entity template with `gold_entity` = top URN and `gold_surface` =
+  top surface, controls given the same stem instantiated with released `query[0]`
+  and `gold_entity` null (their role — the false-fire gate — is unchanged and
+  unscored) — then re-pin the corpus digest, re-run S9 (with the per-form S9.4
+  extension above) + the S10 mock, REDO the §4.6 power computation with planning
+  values anchored to the winning form's G2 point estimates (exploratory numbers used
+  as planning inputs only, never as evidence), update the record's DV
+  definition/envelope to NAME the frozen form, re-run the §7 skeptic memo, and only
+  then `prereg-freeze.py`.
+
+**Feasibility note (what this outcome already means, within its scope).** At R1–R2,
+zero-shot, on the native CLUTRR grandparent relation task, there is no measurable
+headroom for the flagship's question — not because feedback fails to arrive (fact 3
+shows it arrives and is echoed) but because these hosts cannot execute the 2-hop
+compose step in the relation-word output space. That is itself programme evidence:
+if the ladder exhausts, the honest finding is "at 135M–360M the direct
+internal-vs-external grounding contrast is unmeasurable on this task family because
+the hosts lack the composition capability the grounding is meant to assist", and the
+flagship's direct test moves to either an easier covered task form or a host with
+measured headroom — by registered fork, not by silent redesign. No claim beyond
+these two checkpoints, this slice, zero-shot greedy decoding is licensed; published
+CLUTRR baselines are all TRAINED models and say nothing about zero-shot tiny-instruct
+capability (context only, per the §4.7 envelope).
+
+**ASM registration pending (coordinator).** Four proposed register entries are
+reported in the adjudication handoff (entity-form construct validity; the
+two-candidate ≈0.5 guess-floor disclosure for form 2; the 1b counterfactual as a
+flagged non-load-bearing extrapolation resolved by the rider; Instruct-host
+reconciliation). Freeze-time premises resting on them must cite the assigned ASM ids
+once registered.
 
 ### 5.3 The demoted custom corpus (calibration + named secondary stratum)
 
