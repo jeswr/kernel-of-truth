@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""blinding-sweep — post-pass §7.3 audit sweep (blinding-audit-clarification.md §5).
+"""blinding-sweep — post-pass §7.3 audit sweep (blinding-audit-clarification.md
+§5, amended §9/A1: vendor base62 id-literal exclusions are enumerated alongside
+hex-run exclusions, each with kind + the full surrounding run/literal so the
+auditor can verify every one is a machine identifier by inspection; ASM-0660).
 usage: blinding-sweep.py <run_dir>   -> writes <run_dir>/blinding-sweep.json"""
 import importlib.util, json, os, sys
 
@@ -18,7 +21,20 @@ def hex_embedded_occurrences(data, token):
         while j1 < len(data) and data[j1] in HEX:
             j1 += 1
         if (j0, j1) != (i, i + len(token)):
-            out.append({"offset": i, "hex_run": data[j0:j1].decode()})
+            out.append({"kind": "hex_run", "offset": i, "hex_run": data[j0:j1].decode()})
+        i = data.find(token, i + 1)
+    return out
+
+def vendor_id_occurrences(raw, data, token, spans):
+    """Token occurrences wholly inside a vendor-id base62 tail (ASM-0660);
+    spans from the SAME rdj._vendor_id_tail_spans the abort predicate uses."""
+    out, i = [], data.find(token)
+    while i >= 0:
+        for s, e in spans:
+            if s <= i and i + len(token) <= e:
+                out.append({"kind": "vendor_id", "offset": i,
+                            "id_literal": raw[s - 4:e].decode()})
+                break
         i = data.find(token, i + 1)
     return out
 
@@ -32,11 +48,16 @@ def main(run_dir):
             rel = os.path.relpath(path, run_dir)
             if rdj.blinding_scan([path]):
                 hits.append(rel)
-            data = open(path, "rb").read().lower()
+            raw = open(path, "rb").read()
+            data = raw.lower()
+            # ASM-0660: the vendor-id exclusion never applies to user-prompt.txt
+            spans = ([] if name == "user-prompt.txt"
+                     else rdj._vendor_id_tail_spans(raw))
             for t in rdj.BLIND_TOKENS:
-                if not all(c in HEX for c in t):
-                    continue
-                for occ in hex_embedded_occurrences(data, t):
+                occs = vendor_id_occurrences(raw, data, t, spans)
+                if all(c in HEX for c in t):
+                    occs += hex_embedded_occurrences(data, t)
+                for occ in occs:
                     occ.update({"file": rel, "token": t.decode()})
                     exclusions.append(occ)
     out = {"run_dir": os.path.basename(run_dir.rstrip("/")),

@@ -1,65 +1,342 @@
 {
-  "schema_version": "kot-reg/1",
+  "schema_version": "kot-reg/2",
   "id": "a5-nl",
   "status": "DRAFT",
-  "title": "A5-nl — NL-boundary leg, code vertical: deterministic mapper-a1-hybrid front-end parse of blind held-out NL phrasings of the frozen a5 eval vs the measured gold-parse ceiling, byte-identical engine + kot_code desugaring (HA5 NL analog of HL3a clause 2)",
-  "hypotheses": ["HA5"],
-  "depends_on": ["a5"],
-  "analysis_plan_ref": {"anchor": "1.6", "path": "docs/research-plan/08-stats-and-extrapolation.md", "sha256": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86"},
-  "prereg_doc": {"anchors": ["section 0", "section 6", "section 10"], "path": "docs/design-nl-boundary-l3a-parse-a5-nl.md", "sha256": "PINNED-AT-FREEZE"},
-  "budget": {"usd_cap": 12, "wall_clock_cap_hours": 2},
+  "title": "A5-nl — NL-boundary leg, code vertical: deterministic mapper-a1-hybrid front-end parse of blind held-out NL phrasings of the frozen a5 eval vs the measured gold-parse ceiling, engine re-verified behaviourally parent-perfect in-run by gate G2 + byte-identical kot_code desugaring (HA5 NL analog of HL3a clause 2)",
+  "hypotheses": [
+    "HA5"
+  ],
+  "depends_on": [
+    "a5"
+  ],
+  "analysis_plan_ref": {
+    "anchor": "1.6",
+    "path": "docs/research-plan/08-stats-and-extrapolation.md",
+    "sha256": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86"
+  },
+  "prereg_doc": {
+    "anchors": [
+      "section 0",
+      "section 6",
+      "section 10",
+      "section 14"
+    ],
+    "path": "docs/design-nl-boundary-l3a-parse-a5-nl.md",
+    "sha256": "3c244c35e0e890aee570f9e4c0c51585d887b9c39f69066a0503ca2cafe91166"
+  },
+  "budget": {
+    "usd_cap": 12,
+    "wall_clock_cap_hours": 2
+  },
   "efficiency_relevant": false,
   "design": {
-    "scale_rungs": ["R0"],
-    "seeds": [0],
-    "independent_vars": [{"name": "arm", "levels": ["mapper-parse", "gold-replication", "deranged-lexicon", "abstain-all", "answer-all"]}],
+    "scale_rungs": [
+      "R0"
+    ],
+    "seeds": [
+      0
+    ],
+    "independent_vars": [
+      {
+        "name": "arm",
+        "levels": [
+          "mapper-parse",
+          "gold-replication",
+          "deranged-lexicon",
+          "abstain-all",
+          "answer-all"
+        ]
+      }
+    ],
     "dependent_vars": [
-      {"name": "n_covered_exact", "unit": "count", "better": "higher", "definition": "covered NL phrasings whose front-end parse the engine answers with status=answer, value equal to the pre-authored expected value, provenance ids all present in the code world store, non-empty axiom license (scored exactly as the frozen parent a5)"},
-      {"name": "n_covered_refused", "unit": "count", "better": "n/a", "definition": "covered phrasings refused at any stage (ERR_PARSE with stage tag, or engine ERR_*) — the SAFE half of the fail-closed split; reported by stage"},
-      {"name": "n_covered_answered_wrong", "unit": "count", "better": "lower", "definition": "covered phrasings answered with a value != expected (mis-parse converted into a confident wrong answer) — the DANGEROUS half, gated (S2)"},
-      {"name": "n_control_refused_acceptable", "unit": "count", "better": "higher", "definition": "included control phrasings (malformed stratum excluded, FK-NLB-5) refused with the pre-authored expected engine ERR_* code OR ERR_PARSE (FK-NLB-6); strict engine-code match reported descriptively"},
-      {"name": "n_control_answered", "unit": "count", "better": "lower", "definition": "included control phrasings answered at all (fail-closed breach on the control slice)"},
-      {"name": "dev_abstention_rate", "unit": "fraction", "better": "lower", "definition": "front-end parse-failure rate on the 60-item DEV phrasing set (instrument gate G4, bound 0.20)"},
-      {"name": "frontend_total_ns", "unit": "ns", "better": "lower", "definition": "wall-clock for one full mapper-parse pass on the pinned r0 box (descriptive)"}
+      {
+        "name": "n_covered_exact",
+        "unit": "count",
+        "better": "higher",
+        "definition": "covered NL phrasings whose front-end parse the engine answers with status=answer, value equal to the pre-authored expected value, provenance ids all present in the code world store, non-empty axiom license (scored exactly as the frozen parent a5)"
+      },
+      {
+        "name": "n_covered_refused",
+        "unit": "count",
+        "better": "n/a",
+        "definition": "covered phrasings refused at any stage (ERR_PARSE with stage tag, or engine ERR_*) — the SAFE half of the fail-closed split; reported by stage"
+      },
+      {
+        "name": "n_covered_answered_wrong",
+        "unit": "count",
+        "better": "lower",
+        "definition": "covered phrasings answered with a value != expected (mis-parse converted into a confident wrong answer) — the DANGEROUS half, gated (S2)"
+      },
+      {
+        "name": "n_control_refused_acceptable",
+        "unit": "count",
+        "better": "higher",
+        "definition": "included control phrasings (malformed stratum excluded, FK-NLB-5) refused with the pre-authored expected engine ERR_* code OR ERR_PARSE (FK-NLB-6); strict engine-code match reported descriptively"
+      },
+      {
+        "name": "n_control_answered",
+        "unit": "count",
+        "better": "lower",
+        "definition": "included control phrasings answered at all (fail-closed breach on the control slice)"
+      },
+      {
+        "name": "dev_abstention_rate",
+        "unit": "fraction",
+        "better": "lower",
+        "definition": "front-end parse-failure rate on the 60-item DEV phrasing set (instrument gate G4, bound 0.20)"
+      },
+      {
+        "name": "frontend_total_ns",
+        "unit": "ns",
+        "better": "lower",
+        "definition": "wall-clock for one full mapper-parse pass on the pinned r0 box (descriptive)"
+      }
     ],
     "n_planned": {
       "scope": "HA5 NL-PARSE LEG ONLY, code vertical. Frozen parent eval reused byte-identically: 855 covered + 106 control (parent's 122 minus the 16-item malformed stratum, excluded by FK-NLB-5). One blind held-out NL phrasing per included query (K=1, FK-NLB-4) + 60 DEV phrasings over FRESH minted identities disjoint from every scored item (ASM-0145), authored under the design doc section-5 blind protocol, + a 60-item no-keyword synonym PROBE (descriptive only, never gated, FK-NLB-8/ASM-0144). REGISTERED HONESTY NOTE: on this vertical the mapper's lexicon leg is thin — the seven relational ops are carried by frame keywords + identifier gazetteer and the mapper's concept mapping decides only the instance-of concept slot; a5-nl therefore stresses frame+entity-linking, l3a-parse stresses lexicon mapping; each licenses only its vertical. No model, no GPU, no LLM arm, no cost claim, no head-to-head engine-vs-LLM claim.",
       "n_covered": 855,
       "n_control": 106,
       "n_dev": 60,
-      "covered_strata": {"callees-of": 73, "callers-of": 74, "contained-in": 201, "contains": 41, "imported-by": 2, "imports-of": 9, "instance-false-disjoint": 38, "instance-true": 216, "where-defined": 201},
-      "control_strata": {"conflict": 5, "no-record-callees": 15, "no-record-callers": 15, "no-record-contains": 10, "no-record-imported-by": 10, "no-record-imports": 6, "out-of-scope-concept": 6, "unknown-entity": 24, "unlicensed-unique": 15},
-      "excluded_strata": {"malformed": 16},
-      "assumption_ids": ["ASM-0140", "ASM-0141", "ASM-0142", "ASM-0143", "ASM-0144", "ASM-0145", "ASM-0146", "ASM-0147", "ASM-0026", "ASM-0007", "ASM-0008", "ASM-0009", "ASM-0420", "ASM-0421", "ASM-0422", "ASM-0423", "ASM-0424", "ASM-0425", "ASM-0480"],
+      "covered_strata": {
+        "callees-of": 73,
+        "callers-of": 74,
+        "contained-in": 201,
+        "contains": 41,
+        "imported-by": 2,
+        "imports-of": 9,
+        "instance-false-disjoint": 38,
+        "instance-true": 216,
+        "where-defined": 201
+      },
+      "control_strata": {
+        "conflict": 5,
+        "no-record-callees": 15,
+        "no-record-callers": 15,
+        "no-record-contains": 10,
+        "no-record-imported-by": 10,
+        "no-record-imports": 6,
+        "out-of-scope-concept": 6,
+        "unknown-entity": 24,
+        "unlicensed-unique": 15
+      },
+      "excluded_strata": {
+        "malformed": 16
+      },
+      "assumption_ids": [
+        "ASM-0140",
+        "ASM-0141",
+        "ASM-0142",
+        "ASM-0143",
+        "ASM-0144",
+        "ASM-0145",
+        "ASM-0146",
+        "ASM-0147",
+        "ASM-0026",
+        "ASM-0007",
+        "ASM-0008",
+        "ASM-0009",
+        "ASM-0420",
+        "ASM-0421",
+        "ASM-0422",
+        "ASM-0423",
+        "ASM-0424",
+        "ASM-0425",
+        "ASM-0480",
+        "ASM-0620",
+        "ASM-0621"
+      ],
       "seed_note": "front-end and engine are RNG-free; seed 0 pins the deranged arm's fixed-point-free permutation (op->op derangement + concept targets on this vertical, because the op keywords carry the relational semantics)",
-      "successors": "on PASS: the NL leg may be included in any a5-llm re-freeze; on FAIL: parser-stage successor per FK-NLB-3, never more GPU (kill routing). MANDATORY FK-NLB-11 REUSE CAVEAT (ASM-0423, design doc 14.4): any successor with a MODEL-BASED arm (e.g. an a5-llm re-freeze) MUST exclude or re-phrase the 28 waived_forced_substring qids listed in data/nlb-phrasings-a5/lint-receipt.json — those items carry the answer surface inside the mandatory verbatim entity identifier (nested-definition + self-recursion semantics), which a deterministic surface-blind pipeline cannot exploit but an LLM can read the answer off the question. The lint exemption is lawful ONLY for this record's non-model arms."
+      "successors": "on PASS: the NL leg may be included in any a5-llm re-freeze; on FAIL: parser-stage successor per FK-NLB-3, never more GPU (kill routing). MANDATORY FK-NLB-11 REUSE CAVEAT (ASM-0423, design doc 14.4): any successor with a MODEL-BASED arm (e.g. an a5-llm re-freeze) MUST exclude or re-phrase the 28 waived_forced_substring qids listed in data/nlb-phrasings-a5/lint-receipt.json — those items carry the answer surface inside the mandatory verbatim entity identifier (nested-definition + self-recursion semantics), which a deterministic surface-blind pipeline cannot exploit but an LLM can read the answer off the question. The lint exemption is lawful ONLY for this record's non-model arms, and the guard is FAIL-CLOSED in the pinned nlb_lint.py (design doc 14.8 item 11, ASM-0621): the DEFAULT --arms-profile model blocks green on a nonempty waived list, so a model-arm successor re-running the pinned lint is refused unless it re-phrases or excludes the waived qids; the deterministic-r0 attestation is unlawful for any record with a model arm."
     },
     "arms_mandatory_baselines": [
-      "gold-replication (measured-ceiling arm: parent's gold queries on the byte-identical engine+desugar; must reproduce the parent-perfect 855/855 + 122/122 — instrument gate G2)",
+      "gold-replication (measured-ceiling arm: parent's gold queries on the engine that ACTUALLY RUNS — NOT byte-identical to the parent-frozen pin, design doc 10.9 — plus the byte-identical kot_code desugar layer; must reproduce the parent-perfect 855/855 + 122/122 in-run — instrument gate G2, which IS this record's engine-continuity claim, ASM-0147)",
       "deranged-lexicon (scramble control, R0 analog of shuffled-kernel: seed-pinned fixed-point-free derangement of op->relation bindings + concept-URN targets; retained exactness must collapse < 0.10 — instrument gate G5)",
       "abstain-all + answer-all (trivial-policy brackets as in the frozen parent). Kernel-as-text null NOT instantiable at R0 (no model) — same registered adaptation as the frozen parents."
     ]
   },
   "endpoints": [
-    {"id": "primary", "role": "primary", "metric": "/analysis/retained_covered_exact_wilson_lb", "test": "mapper-parse covered-exact rate over the 855 frozen covered queries (one blind NL phrasing each), one-sided Wilson 95% LB (z=1.645, kot_common formula) vs floor 0.90. Retained-fraction form is identical to absolute rate because the gold ceiling is MEASURED at 855/855 (registry/verdicts/a5.json) — non-inferiority margin 0.10 vs measured ceiling 1.0; F2 degenerate-denominator lesson discharged by construction. Floor = ceiling minus the pre-declared 10% maximum NL-boundary loss (ASM-0141, the HA5 analog of HL3a clause 2's 'pre-declared fraction'). Planning value 0.95 (LB 0.9363; corrected from the draft's 0.9351 at freeze-candidate recomputation).", "wilson_gate": {"expected_rate": 0.95, "n_planned": 855, "threshold": 0.9}},
-    {"id": "sec-refusal-retention", "role": "secondary", "metric": "/analysis/holm_s1_pass", "test": "Holm family member 1 of 2 (family alpha 0.05, one-sided): included-control acceptable-refusal rate (expected engine code OR ERR_PARSE; FK-NLB-6) vs gate 0.90 over n=106. GATE LEVEL 0.90 NOT 0.95 (FK-NLB-7): at n=106 a 0.95 gate is undecidable under the Holm-worst-case bound (only a perfect 106/106 passes — fails the P8 section-1.6 lint); 0.90 passes from 102/106. Planning value 0.99 (Holm-worst z=1.96 LB 0.9476; corrected from the draft's 0.9640 at freeze-candidate recomputation). Strict engine-code rate and refused-any reported descriptively.", "wilson_gate": {"expected_rate": 0.99, "n_planned": 106, "threshold": 0.9}},
-    {"id": "sec-fail-closed-dangerous", "role": "secondary", "metric": "/analysis/holm_s2_pass", "test": "Holm family member 2 of 2: covered mis-parse->wrong-answer rate one-sided Wilson UB vs gate 0.02 over n=855. Planning value 4/855 (UB 0.0120 at z=1.96; corrected from the draft's 0.0132 at freeze-candidate recomputation). Independent kill leg: unadjusted Wilson LB >= 0.02 is a FAIL rule (fires from 24/855; the draft's 25 was an off-by-one, corrected).", "wilson_gate": {"expected_rate": 0.005, "n_planned": 855, "threshold": 0.02}},
-    {"id": "sec-stage-breakdown", "role": "secondary", "metric": "/analysis/parse_stage_breakdown", "test": "descriptive, no threshold: ERR_PARSE distribution over {gazetteer-miss, mapper-abstain, frame-miss, frame-ambiguous} + label-verbatim vs paraphrase exactness stratification — the stage-indictment instrument a FAIL must cite. The 60-item no-keyword synonym probe (/analysis/synonym_probe) is reported alongside, descriptive ONLY, never gated, carved out of the envelope (FK-NLB-8/ASM-0144)."},
-    {"id": "sec-cost", "role": "secondary", "metric": "/analysis/frontend_mean_us_per_query", "test": "descriptive: mean front-end+engine microseconds per phrasing on the pinned r0 box; no cost-ratio claim is tested in this record."}
+    {
+      "id": "primary",
+      "role": "primary",
+      "metric": "/analysis/retained_covered_exact_wilson_lb",
+      "test": "mapper-parse covered-exact rate over the 855 frozen covered queries (one blind NL phrasing each), one-sided Wilson 95% LB (z=1.645, kot_common formula) vs floor 0.90. Retained-fraction form is identical to absolute rate because the gold ceiling is MEASURED at 855/855 (registry/verdicts/a5.json) — non-inferiority margin 0.10 vs measured ceiling 1.0; F2 degenerate-denominator lesson discharged by construction. Floor = ceiling minus the pre-declared 10% maximum NL-boundary loss (ASM-0141, the HA5 analog of HL3a clause 2's 'pre-declared fraction'). Planning value 0.95 (LB 0.9363; corrected from the draft's 0.9351 at freeze-candidate recomputation).",
+      "wilson_gate": {
+        "expected_rate": 0.95,
+        "n_planned": 855,
+        "threshold": 0.9
+      }
+    },
+    {
+      "id": "sec-refusal-retention",
+      "role": "secondary",
+      "metric": "/analysis/holm_s1_pass",
+      "test": "Holm family member 1 of 2 (family alpha 0.05, one-sided): included-control acceptable-refusal rate (expected engine code OR ERR_PARSE; FK-NLB-6) vs gate 0.90 over n=106. GATE LEVEL 0.90 NOT 0.95 (FK-NLB-7): at n=106 a 0.95 gate is undecidable under the Holm-worst-case bound (only a perfect 106/106 passes — fails the P8 section-1.6 lint); 0.90 passes from 102/106. Planning value 0.99 (Holm-worst z=1.96 LB 0.9476; corrected from the draft's 0.9640 at freeze-candidate recomputation). Strict engine-code rate and refused-any reported descriptively.",
+      "wilson_gate": {
+        "expected_rate": 0.99,
+        "n_planned": 106,
+        "threshold": 0.9
+      }
+    },
+    {
+      "id": "sec-fail-closed-dangerous",
+      "role": "secondary",
+      "metric": "/analysis/holm_s2_pass",
+      "test": "Holm family member 2 of 2: covered mis-parse->wrong-answer rate one-sided Wilson UB vs gate 0.02 over n=855. Planning value 4/855 (UB 0.0120 at z=1.96; corrected from the draft's 0.0132 at freeze-candidate recomputation). Independent kill leg: unadjusted Wilson LB >= 0.02 is a FAIL rule (fires from 24/855; the draft's 25 was an off-by-one, corrected). WILSON_GATE DECLARATION NOTE (design doc 14.8 item 7): the gate block is declared in complement form (expected_rate 0.995, threshold 0.98) because the RT-4 constraint-9 checker powers LB-exceeds-threshold gates only; by the Wilson complement identity LB(1-p,n,z) == 1-UB(p,n,z) this is the IDENTICAL gate — the tested quantity remains the wrong-answer rate UB < 0.02 with unchanged boundaries.",
+      "wilson_gate": {
+        "expected_rate": 0.995,
+        "n_planned": 855,
+        "threshold": 0.98
+      }
+    },
+    {
+      "id": "sec-stage-breakdown",
+      "role": "secondary",
+      "metric": "/analysis/parse_stage_breakdown",
+      "test": "descriptive, no threshold: ERR_PARSE distribution over {gazetteer-miss, mapper-abstain, frame-miss, frame-ambiguous} + label-verbatim vs paraphrase exactness stratification — the stage-indictment instrument a FAIL must cite. The 60-item no-keyword synonym probe (/analysis/synonym_probe) is reported alongside, descriptive ONLY, never gated, carved out of the envelope (FK-NLB-8/ASM-0144)."
+    },
+    {
+      "id": "sec-cost",
+      "role": "secondary",
+      "metric": "/analysis/frontend_mean_us_per_query",
+      "test": "descriptive: mean front-end+engine microseconds per phrasing on the pinned r0 box; no cost-ratio claim is tested in this record."
+    }
   ],
   "kill_criterion_verbatim": "HA5 NL analog of HL3a clause 2 (architecture-ladder.md section 5.1; the a5 frozen record routes the NL-parse kill to this successor verbatim): mapper-parse losing more than the pre-declared fraction of gold-parse accuracy means the NL boundary eats the rung on the code vertical — fix the parser stage, not the narrative, and spend nothing on GPU for this leg. THIS RECORD instantiates the fraction at 10% absolute: FAIL iff the mapper-parse covered-exact one-sided Wilson 95% UB <= 0.90, OR the covered wrong-answer one-sided Wilson 95% LB >= 0.02 (fail-closed demonstrably broken). The LLM-comparison kill belongs to a5-llm and cannot be decided here.",
-  "extrapolation_envelope_verbatim": "Measured range: R0 — no host model; ONE deterministic front-end build (mapper a1-hybrid policy sha e13dc838…, one identifier gazetteer, one frozen frame rule set), ONE blind agent-authored held-out phrasing set (K=1 per query, design-doc section-5 protocol), the parents' frozen eval/stores/engine+desugar byte-identical, ONE 15-file Python snapshot corpus. A PASS licenses only: the closed kot-query-code/1 grammar is reachable from THESE held-out NL phrasings by a deterministic training-free front-end with <=10% covered-exactness loss and an intact fail-closed contract, on the code vertical. It licenses NO natural-user-distribution robustness claim, NO other codebase or programming language, NO other phrasing distribution, NO extraction-soundness claim w.r.t. runtime semantics (ASM-0009 unchanged), NO LLM-comparative accuracy or cost claim, NO statement about kernel usefulness to any model, and NO cross-vertical conjunction (l3a-parse licenses the family/world vertical separately). A FAIL indicts the named front-end stage and routes investment to the parser, not GPU.",
+  "extrapolation_envelope_verbatim": "Measured range: R0 — no host model; ONE deterministic front-end build (mapper a1-hybrid policy sha e13dc838…, one identifier gazetteer, one frozen frame rule set), ONE blind agent-authored held-out phrasing set (K=1 per query, design-doc section-5 protocol), the parents' frozen eval/stores byte-identical, the kot_code desugar layer byte-identical to the parent pin, and the ENGINE behaviourally parent-perfect on the parent eval, re-verified IN-RUN by gate G2 (the engine sha differs from the parent-frozen pin — design doc 10.9 / 14.8 item 8, ASM-0147; no engine byte-identity is claimed), ONE 15-file Python snapshot corpus. A PASS licenses only: the closed kot-query-code/1 grammar is reachable from THESE held-out NL phrasings by a deterministic training-free front-end with <=10% covered-exactness loss and an intact fail-closed contract, on the code vertical. It licenses NO natural-user-distribution robustness claim, NO other codebase or programming language, NO other phrasing distribution, NO extraction-soundness claim w.r.t. runtime semantics (ASM-0009 unchanged), NO LLM-comparative accuracy or cost claim, NO statement about kernel usefulness to any model, and NO cross-vertical conjunction (l3a-parse licenses the family/world vertical separately). A FAIL indicts the named front-end stage and routes investment to the parser, not GPU.",
   "verdict_rules": [
-    {"verdict": "INSTRUMENT-INVALID", "when": {"op": "not", "a": {"metric": "/gates/instrument_valid"}}},
-    {"verdict": "FAIL", "when": {"op": "or", "a": {"op": "lte", "a": {"metric": "/analysis/retained_covered_exact_wilson_ub"}, "b": {"const": 0.9}}, "b": {"op": "gte", "a": {"metric": "/analysis/covered_wrong_answer_wilson_lb"}, "b": {"const": 0.02}}}},
-    {"verdict": "PASS", "when": {"op": "and", "a": {"op": "gt", "a": {"metric": "/analysis/retained_covered_exact_wilson_lb"}, "b": {"const": 0.9}}, "b": {"op": "and", "a": {"op": "and", "a": {"metric": "/analysis/holm_s1_pass"}, "b": {"metric": "/analysis/holm_s2_pass"}}, "b": {"metric": "/analysis/gold_replication_identical"}}}},
-    {"verdict": "INCONCLUSIVE", "when": {"const": true}}
+    {
+      "verdict": "INSTRUMENT-INVALID",
+      "when": {
+        "op": "not",
+        "a": {
+          "metric": "/gates/instrument_valid"
+        }
+      }
+    },
+    {
+      "verdict": "FAIL",
+      "when": {
+        "op": "or",
+        "a": {
+          "op": "lte",
+          "a": {
+            "metric": "/analysis/retained_covered_exact_wilson_ub"
+          },
+          "b": {
+            "const": 0.9
+          }
+        },
+        "b": {
+          "op": "gte",
+          "a": {
+            "metric": "/analysis/covered_wrong_answer_wilson_lb"
+          },
+          "b": {
+            "const": 0.02
+          }
+        }
+      }
+    },
+    {
+      "verdict": "PASS",
+      "when": {
+        "op": "and",
+        "a": {
+          "op": "gt",
+          "a": {
+            "metric": "/analysis/retained_covered_exact_wilson_lb"
+          },
+          "b": {
+            "const": 0.9
+          }
+        },
+        "b": {
+          "op": "and",
+          "a": {
+            "op": "and",
+            "a": {
+              "metric": "/analysis/holm_s1_pass"
+            },
+            "b": {
+              "metric": "/analysis/holm_s2_pass"
+            }
+          },
+          "b": {
+            "metric": "/analysis/gold_replication_identical"
+          }
+        }
+      }
+    },
+    {
+      "verdict": "INCONCLUSIVE",
+      "when": {
+        "const": true
+      }
+    }
   ],
   "pins": {
     "encoder_hash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
-    "analysis_script": {"path": "analysis/a5_nl.py", "sha256": "18c33ed37b3a4f879ebe2f872093d1d84bcd6526d9d0edfb3698161a8980e7cb", "sha_note": "re-pinned 2026-07-10 at the EVAL input-pin step (EVAL-BUILD-SPEC step 6): EXPECTED_PHRASINGS_SHA256 set to the eval.jsonl sha256 746b202d…. a5-nl is NOT re-scoped — FK-NLB-10 is l3a-only; the ASM-0480 additive by_family keys are ignored by a5's reads and fixtures. The --selftest fixture gained a phrasings_file pin so the G3 sha-equality sub-check is exercised now that EXPECTED_PHRASINGS_SHA256 is set. Supersedes the freeze-candidate pin 0e8e09b9…", "output_fields": ["/gates/instrument_valid", "/analysis/retained_covered_exact_rate", "/analysis/retained_covered_exact_wilson_lb", "/analysis/retained_covered_exact_wilson_ub", "/analysis/control_refusal_acceptable_rate", "/analysis/control_refusal_acceptable_wilson_lb", "/analysis/control_refusal_strict_engine_code_rate", "/analysis/covered_wrong_answer_rate", "/analysis/covered_wrong_answer_wilson_ub", "/analysis/covered_wrong_answer_wilson_lb", "/analysis/holm_s1_pass", "/analysis/holm_s2_pass", "/analysis/gold_replication_identical", "/analysis/deranged_retained_exact_rate", "/analysis/dev_abstention_rate", "/analysis/parse_ok_rate", "/analysis/parse_stage_breakdown", "/analysis/label_verbatim_vs_paraphrase", "/analysis/synonym_probe", "/analysis/n_covered", "/analysis/n_control", "/analysis/n_dev", "/analysis/frontend_mean_us_per_query"]},
-    "corpus_hashes": {"_recipe": "kot-corpus-hash/1 (reference implementation tools/registry/corpus-pin.py)", "a5-eval": "3676d689277660f80f7cfac9823ecb7b9b40a73777ad538623405c5c1e903843", "code-axioms-v0": "dc930b4fdeb95994828d8b7b0a184e5d96714a3b7f51269f7d46cba5b14e39e3", "code-corpus-v0": "1063ad50ff694d8548296f42c17f296027768a87dba98f534e9f2ea7f7c5fea3", "code-v0": "01009b1fc0c6e34b0c49b294e0cb159695831070fbe6808957694f46d03abd83", "code-world-v0": "b8a8a50a3111425685cb2041061f72e4d0d89da17cb073fdffe11b338f26aef9", "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809", "nlb-phrasings-a5": "30a8bd80f6a6281ce00e1753bb69b9068d43b9cf6dfb63f67a4974a6c582ecfb"},
-    "harness_manifest": "engine tools/axiom/kot_axiom.py sha256 d26408815238cd9f73b50bb2c4b1f659c8a783ff6a5f16e27357eb2071bb3d08 — NOT byte-identical to the parent-frozen pin d2064989…: the define-op line extended the engine post-freeze (additive define surface); behavioural identity on the parent eval is NOT assumed but re-verified IN-RUN by gate G2 parent-perfect gold replication (ASM-0147; G2 measured green on 2026-07-10 mock receipts). Code query layer tools/axiom/kot_code.py sha256 9fbe2a50dcd80e100a8a32ffb5d455e9ce993424fbf0bd293b8143aef96bb99a (byte-identical to the frozen parent pin — NOT modified). Front-end pinned 2026-07-10 AFTER DEV-only frame finalisation and BEFORE any EVAL phrasing exists (design doc 5.3; any later edit mints a new record id): nlb_frontend.py sha256 590377760ed5067688ddc0dd859c1a1cfa955e640b3a07c0f75e91d3bc908ea0, nlb_map.mjs 6256fc019cd4be8e64708565475976c90237bf25cd46908379c25ee7fa3d7084, nlb_instrument.py 3d92e1ab7ef71ae577f63f8955f4381bc90a7c257e44102089220b96e25853d2 (14.7 score_nl by_family enrichment, ASM-0480; supersedes the pre-EVAL pin 426722aa…), nlb_lint.py c141004caed2d855ac74deb62ab3c0648f97c77be3f82ccd3116d3cf8b65e112 (14.4 masked forced-substring rule + waived_forced_substring receipt, ASM-0423; supersedes b68668af…), gen_author_packets.py 7fbd9228ab2dc310dec6f75036556fa12ed9e2bd4176c0b8e0931b72e9f31cdc, gen_mock_phrasings.py 68c1e6b3ba2d7a209149a4f546853ab31e77dfc40e86802d98c6ba49265d96ad, nlb_devtune.py e7fb49314d677d5b3c9ef974b267fd68eff061609d4761069878ac23121e4a9c; mapper package kernel-mapper with a1-hybrid policy sha e13dc838… verified at import; SHARED HARNESS byte-identical with l3a-parse (FK-NLB-1)"
+    "analysis_script": {
+      "path": "analysis/a5_nl.py",
+      "sha256": "4a3c755112338c581ec145094cb38a8a983f130d7f115fab3909a1566f7dd96f",
+      "output_fields": [
+        "/gates/instrument_valid",
+        "/analysis/retained_covered_exact_rate",
+        "/analysis/retained_covered_exact_wilson_lb",
+        "/analysis/retained_covered_exact_wilson_ub",
+        "/analysis/control_refusal_acceptable_rate",
+        "/analysis/control_refusal_acceptable_wilson_lb",
+        "/analysis/control_refusal_strict_engine_code_rate",
+        "/analysis/covered_wrong_answer_rate",
+        "/analysis/covered_wrong_answer_wilson_ub",
+        "/analysis/covered_wrong_answer_wilson_lb",
+        "/analysis/holm_s1_pass",
+        "/analysis/holm_s2_pass",
+        "/analysis/gold_replication_identical",
+        "/analysis/deranged_retained_exact_rate",
+        "/analysis/dev_abstention_rate",
+        "/analysis/parse_ok_rate",
+        "/analysis/parse_stage_breakdown",
+        "/analysis/label_verbatim_vs_paraphrase",
+        "/analysis/synonym_probe",
+        "/analysis/n_covered",
+        "/analysis/n_control",
+        "/analysis/n_dev",
+        "/analysis/frontend_mean_us_per_query"
+      ]
+    },
+    "corpus_hashes": {
+      "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+      "a5-eval": "3676d689277660f80f7cfac9823ecb7b9b40a73777ad538623405c5c1e903843",
+      "code-axioms-v0": "dc930b4fdeb95994828d8b7b0a184e5d96714a3b7f51269f7d46cba5b14e39e3",
+      "code-corpus-v0": "1063ad50ff694d8548296f42c17f296027768a87dba98f534e9f2ea7f7c5fea3",
+      "code-v0": "01009b1fc0c6e34b0c49b294e0cb159695831070fbe6808957694f46d03abd83",
+      "code-world-v0": "b8a8a50a3111425685cb2041061f72e4d0d89da17cb073fdffe11b338f26aef9",
+      "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+      "nlb-phrasings-a5": "30a8bd80f6a6281ce00e1753bb69b9068d43b9cf6dfb63f67a4974a6c582ecfb"
+    },
+    "harness_manifest": "engine tools/axiom/kot_axiom.py sha256 d26408815238cd9f73b50bb2c4b1f659c8a783ff6a5f16e27357eb2071bb3d08 — NOT byte-identical to the parent-frozen pin d2064989…: the define-op line extended the engine post-freeze (additive define surface); behavioural identity on the parent eval is NOT assumed but re-verified IN-RUN by gate G2 parent-perfect gold replication (ASM-0147; G2 measured green on 2026-07-10 mock receipts). Code query layer tools/axiom/kot_code.py sha256 9fbe2a50dcd80e100a8a32ffb5d455e9ce993424fbf0bd293b8143aef96bb99a (byte-identical to the frozen parent pin — NOT modified). Front-end pinned 2026-07-10 AFTER DEV-only frame finalisation and BEFORE any EVAL phrasing exists (design doc 5.3; any later edit mints a new record id): nlb_frontend.py sha256 590377760ed5067688ddc0dd859c1a1cfa955e640b3a07c0f75e91d3bc908ea0, nlb_map.mjs 6256fc019cd4be8e64708565475976c90237bf25cd46908379c25ee7fa3d7084, nlb_instrument.py 3d92e1ab7ef71ae577f63f8955f4381bc90a7c257e44102089220b96e25853d2 (14.7 score_nl by_family enrichment, ASM-0480; supersedes the pre-EVAL pin 426722aa…), nlb_lint.py 63927281f67007c8406f4ec0369350996be99791522fe8dd6b5947ab54aeeb30 (14.4 masked forced-substring rule + waived_forced_substring receipt, ASM-0423, PLUS the 14.8 item-11 fail-closed --arms-profile guard: DEFAULT model profile blocks green on a nonempty waived list, deterministic-r0 is the pinned attestation for this non-model record and the committed receipts regenerate byte-identically under it, ASM-0621; supersedes c141004c… and b68668af…), gen_author_packets.py 7fbd9228ab2dc310dec6f75036556fa12ed9e2bd4176c0b8e0931b72e9f31cdc, gen_mock_phrasings.py 68c1e6b3ba2d7a209149a4f546853ab31e77dfc40e86802d98c6ba49265d96ad, nlb_devtune.py e7fb49314d677d5b3c9ef974b267fd68eff061609d4761069878ac23121e4a9c; mapper package kernel-mapper with a1-hybrid policy sha e13dc838… verified at import; SHARED HARNESS byte-identical with l3a-parse (FK-NLB-1); ANALYSIS PIN PROVENANCE (kot-reg/1 keeps pins.analysis_script to path/sha256/output_fields, so the provenance note lives here): analysis/a5_nl.py sha256 4a3c755112338c581ec145094cb38a8a983f130d7f115fab3909a1566f7dd96f re-pinned 2026-07-10 at the independent-skeptic round-2 remediation (design doc 14.8, ASM-0620/0621): a5-nl stays NOT re-scoped (FK-NLB-10 is l3a-only) and keeps EXPECTED_PHRASINGS_SHA256 = eval.jsonl sha256 746b202d…; adds the round-2 fail-closed gates: G0 one-row-per-arm with explicit supersedes semantics, G7 executable harness-pin enforcement of THIS manifest + the corpus pins on every arm body, hardened G1 counts-integrity consuming the ASM-0480 by_family buckets as invariants (run-level covered partition over 855 + control partition over 106, family-key set equality, per-family bucket partition + exact==ok, twins, control-zero, non-negative-integer buckets — closing the reproduced exact=855/refused=855 conflict), and G5 deranged-arm existence. Supersedes 18c33ed3… (round-1 phrasing-pin) and 0e8e09b9… (freeze-candidate pin)."
   },
-  "runner_constraints": {"provider": "local", "infra": "r0-local-cpu", "hardware": "shared 2-core box, nice -n 10, foreground gates", "concurrency_cap": 5, "foreground_gates": true}
+  "runner_constraints": {
+    "provider": "local",
+    "infra": "r0-local-cpu",
+    "hardware": "shared 2-core box, nice -n 10, foreground gates",
+    "concurrency_cap": 5,
+    "foreground_gates": true
+  },
+  "reuse_overrides": [
+    {
+      "cells": [
+        {
+          "arm": "abstain-all",
+          "rung": "R0"
+        },
+        {
+          "arm": "answer-all",
+          "rung": "R0"
+        }
+      ],
+      "reason": "DELIBERATE FRESH RE-RUN of the trivial-policy cells (abstain-all / answer-all, R0) that the parents' results logs already hold at mechanically indeterminate pins (producers a5, a5-llm, l3a): reuse-permission is DEFERRED programme-wide (resource-optimization-plan.md section 3 interlock, ERR_P2_REUSE_UNRATIFIED), and the logged rows could not serve as this record's arm outputs even in principle - in this record the trivial policies run over the held-out NL PHRASINGS through the pinned front-end (answer-all parses each phrasing, then fabricates deterministically where the pipeline would refuse; abstain-all refuses each PHRASING), whereas every logged parent row ran over gold STRUCTURED queries with no NL front-end in the loop; the cells are $0 deterministic CPU work re-executed fresh under this record's G0/G6/G7 gates (design doc 14.8 item 7)"
+    }
+  ]
 }

@@ -2,7 +2,20 @@
 """nlb_lint — mechanical lints on the NLB phrasing corpora (instrument gate
 G3, design doc docs/design-nl-boundary-l3a-parse-a5-nl.md sections 5.4 / 6.3).
 
-    python3 tools/experiments/nlb/nlb_lint.py --vertical l3a [--receipt]
+    python3 tools/experiments/nlb/nlb_lint.py --vertical l3a \
+        --arms-profile deterministic-r0 [--receipt]
+
+ARMS PROFILE (FK-NLB-11 / ASM-0423, fail-closed — design doc section 14.8):
+the EVAL-NO-ANSWER forced-substring exemption is lawful ONLY for records
+whose every arm is deterministic and surface-blind (the l3a-parse / a5-nl
+R0 arms). The DEFAULT profile is `model`: under it a NONEMPTY
+waived_forced_substring list is itself a blocking finding (green=False),
+because a model-based arm can read the answer off the question surface.
+A record with no model arm must EXPLICITLY attest that by passing
+`--arms-profile deterministic-r0` (the pinned invocation for l3a-parse /
+a5-nl); under that profile waived qids stay exempt-and-disclosed. Reusing
+this lint for any successor with a model arm therefore fails closed instead
+of relying on prose.
 
 Checks (each a named finding; ALL must pass for green):
 
@@ -270,8 +283,25 @@ def main():
     ap.add_argument("--vertical", required=True, choices=("l3a", "a5"))
     ap.add_argument("--root", default=_ROOT)
     ap.add_argument("--receipt", action="store_true")
+    ap.add_argument("--arms-profile", choices=("model", "deterministic-r0"),
+                    default="model",
+                    help="FK-NLB-11/ASM-0423 fail-closed guard (design doc "
+                         "14.8): under the DEFAULT 'model' profile a "
+                         "nonempty waived_forced_substring list BLOCKS "
+                         "green (a model arm can read the answer off the "
+                         "question); pass 'deterministic-r0' only for a "
+                         "record whose every arm is deterministic and "
+                         "surface-blind (the pinned l3a-parse / a5-nl "
+                         "invocation)")
     args = ap.parse_args()
     findings, checked, waived = run(args.root, args.vertical)
+    if args.arms_profile == "model" and waived:
+        findings.append(
+            "EVAL-NO-ANSWER: %d waived_forced_substring qid(s) are direct "
+            "answer leaks under a model-based arm (FK-NLB-11/ASM-0423: the "
+            "forced-substring exemption is lawful ONLY for deterministic "
+            "surface-blind arms) — exclude or re-phrase them, or attest "
+            "--arms-profile deterministic-r0" % len(waived))
     green = not findings
     out = {"schema": "nlb-lint-receipt/1", "vertical": args.vertical,
            "green": green, "checked": checked, "findings": findings,

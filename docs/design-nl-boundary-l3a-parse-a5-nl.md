@@ -14,6 +14,14 @@ and hit two freeze-blocking findings; adjudicated in §14 +
 `registry/assessments/l3a-parse-recoverability.json` (l3a re-scoped to the
 shape-recoverable covered set n=527, FK-NLB-10; a5 forced-substring lint
 exemption, FK-NLB-11; ASM-0420..0425).
+**2026-07-10 skeptic round 2:** the §11 item-6 independent re-attack
+returned 8 freeze-blocking + 3 should-fix defects
+(`poc/nlb-skeptic/skeptic-output.txt`); remediated in §14.8 (fail-closed
+scorer hardening + supersede semantics + harness-pin gate, ASM-0621;
+post-outcome-registration framing honestly downgraded, ASM-0620; l3a
+envelope restricted to the 7-family slice; byte-identical-engine claim
+replaced by the G2 behavioural claim). The independent re-attack gate
+re-runs on this revision before any freeze.
 **Consolidates/advances:** the pre-declared successors `l3a-parse` (frozen in
 `registry/experiments/l3a.json` → `design.n_planned.successors`) and `a5-nl`
 (frozen in `registry/experiments/a5.json` → same field), both
@@ -275,7 +283,8 @@ script exports booleans, §6.3).
 
 `/analysis/retained_covered_exact_wilson_lb` — one-sided Wilson 95% LB of the
 **mapper-parse arm's covered-exact rate** over the SAME covered queries the
-parent froze (l3a-parse n=600; a5-nl n=855), scored EXACTLY as the parent
+parent froze (l3a-parse n=527 — the FK-NLB-10 shape-recoverable in-scope
+slice of the 600 executed, §14.2; a5-nl n=855), scored EXACTLY as the parent
 (status=answer ∧ value=expected ∧ provenance⊆world-ids ∧ license≠∅), tested
 against **floor 0.90**.
 
@@ -297,8 +306,10 @@ against **floor 0.90**.
   investment, not GPU (kill text verbatim). The 10% number itself is a
   programme POLICY choice, registered as ASM-0141 (STIPULATED), with
   FK-NLB-2 re-opening on an INCONCLUSIVE landing.
-- Planning value 0.95 → LB 0.9332 (n=600) / 0.9351 (n=855): clears the floor;
-  passes the P8 §1.6 decidability lint (§7).
+- Planning value 0.95 → LB 0.9320 (l3a-parse, n=527 — FK-NLB-10 re-scope,
+  §14.2) / 0.9363 (a5-nl, n=855; the draft's 0.9351 was corrected at the
+  freeze-candidate recomputation, §7): clears the floor; passes the P8 §1.6
+  decidability lint (§7).
 
 ### 6.2 Gated secondaries (one Holm family per record; m = 2)
 
@@ -372,17 +383,17 @@ worst-case on secondaries:
 
 | Quantity | l3a-parse | a5-nl |
 |---|---|---|
-| primary n | 600 | 855 |
-| PASS needs (LB > 0.90) | ≥ 553/600 (0.9217) | ≥ 784/855 (0.9170) |
-| FAIL fires (UB ≤ 0.90) | ≤ 527/600 (0.8783) | ≤ 755/855 (0.8830) |
-| INCONCLUSIVE band | 528–552 (~4.2 pp) | 756–783 (~3.3 pp) |
-| planning value 0.95 → LB | 0.9332 ✓ | 0.9363 ✓ |
+| primary n | 527 (FK-NLB-10 in-scope; 600 executed) | 855 |
+| PASS needs (LB > 0.90) | ≥ 486/527 (0.9222) | ≥ 784/855 (0.9170) |
+| FAIL fires (UB ≤ 0.90) | ≤ 462/527 (0.8767) | ≤ 755/855 (0.8830) |
+| INCONCLUSIVE band | 463–485 (~4.4 pp) | 756–783 (~3.3 pp) |
+| planning value 0.95 → LB | 0.9320 ✓ | 0.9363 ✓ |
 | S1 n (FK-NLB-5) | 270, gate 0.95 | 106, gate 0.90 |
 | S1 passes from (z=1.96) | ≥ 264/270 | ≥ 102/106 |
 | S1 planning 0.99 → LB (z=1.96) | 0.9695 ✓ | 0.9476 ✓ |
-| S2 gate UB < 0.02 passes up to (z=1.96) | ≤ 5/600 wrong | ≤ 9/855 wrong |
-| S2 kill fires (LB ≥ 0.02, z=1.645) | ≥ 18/600 wrong | ≥ 24/855 wrong |
-| S2 planning value | 3/600 → UB 0.0146 ✓ | 4/855 → UB 0.0120 ✓ |
+| S2 gate UB < 0.02 passes up to (z=1.96) | ≤ 4/527 wrong | ≤ 9/855 wrong |
+| S2 kill fires (LB ≥ 0.02, z=1.645) | ≥ 16/527 wrong | ≥ 24/855 wrong |
+| S2 planning value | 3/527 → UB 0.0166 ✓ | 4/855 → UB 0.0120 ✓ |
 
 Every gate is passable at its planning value and failable well inside the
 support — no vacuous gates. (FK-NLB-7 records why a5's S1 sits at 0.90.)
@@ -390,18 +401,29 @@ FREEZE-CANDIDATE correction (2026-07-10): four informative planning-value
 restatements in the draft table (a5 primary LB, a5 S1 LB, both S2 planning
 UBs) and the a5 S2 kill count (draft said ≥25) were recomputed and corrected
 above; the pinned analysis scripts' `--selftest` fixtures sit ON these
-recomputed boundaries. No decision boundary of the l3a column changed.
+recomputed boundaries. No decision boundary of the l3a column changed AT
+THAT CORRECTION. FK-NLB-10 re-base (2026-07-10, §14.8 item 9): the l3a
+column now shows the LIVE n=527 boundaries of §14.2 — the superseded
+600-item numbers (553/527/0.9332/≤5/≥18/0.0146) survive only in document
+history, so this section and §14.2 no longer disagree on the binding l3a
+endpoint.
 
 ## 8. Extrapolation envelope (verbatim into both records)
 
 Measured range: R0 — no host model; ONE deterministic front-end build
 (mapper a1-hybrid pin + one gazetteer + one frozen frame rule set), ONE
 blind-authored phrasing set per vertical (K=1 per query, agent-authored under
-the §5 protocol), the parents' frozen evals/stores/engine byte-identical.
-A PASS licenses: "the closed grammar is reachable from THESE held-out NL
-phrasings by a deterministic training-free front-end with ≤10% exactness
-loss and an intact fail-closed contract, per vertical" — the gate the
-successors l3a-cost / a5-llm need to include an NL leg honestly. A PASS does
+the §5 protocol), the parents' frozen evals/stores byte-identical and the
+engine behaviourally parent-perfect on the parent evals, re-verified in-run
+by G2 (the engine sha differs from the parent pin — §10.9/§14.8 item 8;
+kot_code alone is byte-identical). A PASS licenses: "the closed grammar —
+for l3a-parse, the 7-family shape-recoverable slice of it ONLY (n=527,
+FK-NLB-10/§14.2; the two dropped families ride along as a measured
+partial-negative) — is reachable from THESE held-out NL phrasings by a
+deterministic training-free front-end with ≤10% exactness loss and an
+intact fail-closed contract, per vertical" — the gate the successors
+l3a-cost / a5-llm need to include an NL leg honestly, inherited on l3a-cost
+ONLY at the same 7-family slice with the exclusion restated. A PASS does
 NOT license: any natural-user-distribution robustness claim, any other
 phrasing distribution/corpus/domain/language, any paraphrase-set-size
 scaling, any LLM-comparative accuracy or cost claim, any statement about
@@ -636,8 +658,9 @@ edited or re-rolled outside the spec's own remedies.
   52/60 = 0.8667 < 0.95 with rel-label matching ignored entirely; all 8
   genuine shape failures fall in unique-maker (3/4 sampled), made-lookup
   (4/4 sampled) and out-of-scope-rel (1 control) — zero shape misses in the
-  other 13 sampled families (27/27 sampled in-scope covered items
-  shape+entity-correct)
+  other 13 sampled families (28/28 sampled in-scope covered items
+  shape+entity-correct; the earlier revision's 27/27 was an off-by-one
+  against the committed artifact — corrected §14.8 item 10)
   [MEASURED: data/nlb-phrasings-l3a/audit-recoverability.json sha256
   d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5].
 - Adjudication: NOT a scorer artifact, NOT an authoring defect. English
@@ -712,16 +735,24 @@ support. S1 unchanged (n=270, gate 0.95, passes from 264/270, planning 0.99
   [STIPULATED: ASM-0421]
 - DECISION: no judge re-roll. l3a audit r1 = mechanical re-score of the
   COMMITTED judge transcript restricted to in-scope covered sampled items
-  (27/27 shape+entity-correct) + a FRESH judge identity on NEW in-scope
-  items only, topping the covered-only sample to 60 (same pinned
-  prompt-audit.md, same deterministic sample rule over the 7 in-scope
-  families, skipping already-judged qids). Artifact:
-  `audit-recoverability-r1.json`; the original artifact stays committed as
-  the driving evidence. The a5 audit (not yet run) uses the split gate from
-  the start — genuinely pre-data on that vertical. [STIPULATED: ASM-0422]
+  (28/28 shape+entity-correct — 4 per in-scope family; the earlier
+  revision's 27/27, echoed in the ASM-0422 register rationale, was an
+  off-by-one against the committed artifact, corrected §14.8 item 10) + a
+  FRESH judge identity on NEW in-scope items only (32 items), topping the
+  covered-only sample to 60 (same pinned prompt-audit.md, same
+  deterministic sample rule over the 7 in-scope families, skipping
+  already-judged qids). Artifact: `audit-recoverability-r1.json`; the
+  original artifact stays committed as the driving evidence. The a5 audit
+  (not yet run at that point) uses the split gate from the start —
+  genuinely pre-data on that vertical. [STIPULATED: ASM-0422]
 - Sizing honesty (non-gating): in-sample natural-synonym phrasing on
-  in-scope covered items is 9/27 = 0.333 [MEASURED: audit sha256
-  d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5];
+  in-scope covered items is 9/28 = 0.3214 (denominator corrected §14.8
+  item 10; ASM-0425's register line says 9/27 = 0.333 — superseded by the
+  artifact's 28-item in-scope sample, direction and consequence unchanged)
+  [MEASURED: audit sha256
+  d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5 +
+  audit-recoverability-r1.json sha256
+  57e9d8d12826ae6ba28da4289fcc703109b2fb9994ef99eb589655874ea6da6d];
   against the single-label lexicon this makes the 0.95 planning value
   implausible and an INCONCLUSIVE/FAIL primary landing live
   (ASM-0425, EXTRAPOLATION, load-bearing for nothing). The re-scope does
@@ -769,11 +800,21 @@ support. S1 unchanged (n=270, gate 0.95, passes from 264/270, planning 0.99
   phrasing byte stay untouched from the pre-EVAL pin through freeze.
   Scorer-side artifacts (nlb_lint.py, analysis/l3a_parse.py, analysis/
   a5_nl.py, record JSONs) MAY change in this pre-freeze design iteration in
-  response to instrument-side findings, because no scored outcome exists
-  and the front-end cannot have adapted to the phrasings. Both records
-  re-pin the new shas; the independent skeptic re-attack (§11 item 6) is
-  EXPLICITLY tasked to attack ASM-0420..0425 as potential forking-paths
-  moves; the maintainer holds a veto at freeze. [STIPULATED: ASM-0424]
+  response to instrument-side findings, because the front-end cannot have
+  adapted to the phrasings. Both records re-pin the new shas; the
+  independent skeptic re-attack (§11 item 6) is EXPLICITLY tasked to attack
+  ASM-0420..0425 as potential forking-paths moves; the maintainer holds a
+  veto at freeze. [STIPULATED: ASM-0424]
+- ROUND-2 QUALIFICATION of the clause "no scored outcome exists" that this
+  section previously relied on: it held only until the 0847ce0
+  mapper-parse diagnostic (§14.7 disclosure). Scorer-side edits ratified
+  AFTER that commit — the ASM-0480 enrichment ratification and the §14.8
+  round-2 hardening — are POST-OUTCOME-DISCLOSED edits; their lawfulness
+  rests on the disclosed-deviation terms of ASM-0620 (pre-diagnostic
+  commit chronology of the carve-out and schema requirement, byte-frozen
+  front-end/phrasings, deterministic outcomes, skeptic gate + maintainer
+  veto), NOT on outcome-blindness, which this design no longer claims for
+  them. [STIPULATED: ASM-0620]
 
 ### 14.6 Coordinator change-list (exact; nothing else changes)
 
@@ -876,12 +917,22 @@ acceptable-refusal.
   on a mapper-parse diagnostic pass the dropped families all abstained
   (unique-maker 43/43 refused, 0 wrong; in-scope wrong = total wrong = 8)
   [MEASURED: commit 0847ce079189b4d1244911fe026b0799e1db4da7 message;
-  non-verdict]. The ratified edit is OUTCOME-INVARIANT: its schema is
-  forced by the step-2 requirement registered BEFORE that diagnostic ran,
-  and the same edit would be ratified whatever the diagnostic had shown.
-  The pre-freeze peek at scored outcomes is itself a protocol deviation to
+  non-verdict]. The enrichment's SCHEMA was forced by the step-2
+  requirement registered before that diagnostic ran, and the family
+  carve-out itself was declared (924bf6b) before the diagnostic (0847ce0)
+  [MEASURED: commit chronology, independently confirmed by the round-2
+  skeptic]. ROUND-2 CORRECTION (§14.8 item 1): this bullet previously
+  claimed the edit was "OUTCOME-INVARIANT … the same edit would be
+  ratified whatever the diagnostic had shown" — that counterfactual is an
+  after-the-fact stipulation with no enforcement mechanism; it is
+  WITHDRAWN as a premise and relied on nowhere. What stands is the honest
+  framing: ratifying scorer details and freezing AFTER the diagnostic is
+  post-outcome registration with respect to the disclosed quantities — a
+  registered protocol deviation the records carry under the disclosed
+  terms of ASM-0620, not a blind-constraint claim. [STIPULATED: ASM-0620]
+  The pre-freeze peek at scored outcomes remains a protocol deviation to
   disclose: the independent skeptic re-attack scope (§14.5) extends to
-  ASM-0480 and to this diagnostic disclosure.
+  ASM-0480, ASM-0620 and this diagnostic disclosure.
 
 Exact step-2 spec for `analysis/l3a_parse.py` (mechanical; implements
 §14.6 item 2 using the buckets):
@@ -939,4 +990,154 @@ with
 annotated "(14.7 score_nl by_family enrichment, ASM-0480; supersedes the
 pre-EVAL pin)", alongside the already-owed nlb_lint.py re-pin
 `c141004caed2d855ac74deb62ab3c0648f97c77be3f82ccd3116d3cf8b65e112`
-and the analysis-script re-pins.
+and the analysis-script re-pins. (The nlb_lint.py pin was superseded again
+by the §14.8 item-11 arms-profile guard.)
+
+### 14.8 Independent-skeptic round-2 remediation (2026-07-10)
+
+Author: Kern (Fable designer role). The §11 item-6 independent re-attack
+(non-designer identity, cross-vendor) returned 8 freeze-blocking + 3
+should-fix defects against the freeze-candidate
+(`poc/nlb-skeptic/skeptic-output.txt`, committed verbatim); its findings 3,
+5 and part of 6 were empirically REPRODUCED against the pinned scorers. All
+11 are remediated below; the independent re-attack gate re-runs on this
+revision before any freeze. The ASM-0424 boundary holds: front-end
+artifacts, the mapper policy pin and every committed phrasing/eval byte are
+untouched; every edit here is scorer-side or record-side. The round-2
+skeptic CONFIRMED all Wilson bound arithmetic — nothing in this section
+moves an endpoint, a threshold, or a decision boundary.
+
+1. **Post-outcome registration framing (finding 1).** DECISION: the
+   "would-ratify-under-every-outcome" counterfactual in the previous §14.7
+   revision is WITHDRAWN — it is an after-the-fact stipulation with no
+   enforcement mechanism, and this design does not claim an enforceable
+   blind constraint over the post-diagnostic edits. The honest framing now
+   carried by §14.5, §14.7 and both records: scorer-side edits and pins
+   ratified after the 0847ce0 diagnostic are POST-OUTCOME-DISCLOSED (the
+   diagnostic disclosed that the dropped families abstained and that 8
+   in-scope items answered wrong), a registered protocol deviation whose
+   residual risk — the designer knew those disclosed quantities while
+   finalising scorer details — is NOT claimed to be zero. The deviation's
+   disclosed terms: (i) the FK-NLB-10 carve-out and the enrichment schema
+   requirement pre-date the diagnostic in the commit record [MEASURED:
+   924bf6b / 0847ce0 chronology, independently confirmed by the round-2
+   skeptic]; (ii) front-end, phrasing and eval bytes were pinned before
+   the diagnostic and are now G7-enforced at analysis time; (iii) the
+   pipeline is deterministic, so no selection-among-stochastic-outcomes
+   channel exists; (iv) the independent skeptic gate and the maintainer
+   veto remain the final control. [STIPULATED: ASM-0620]
+2. **Envelope restricted to the 7-family slice (finding 2).** DECISION:
+   the l3a-parse record's PASS-licenses text and successor inheritance are
+   restricted VERBATIM to the 7-family shape-recoverable slice (n=527): a
+   PASS licenses reachability of that slice ONLY, the 73 excluded items
+   ride along as a measured partial-negative (never silence), and any
+   l3a-cost NL leg inherits ONLY the slice and must restate the exclusion
+   — executing the §14.2 envelope edit that the record text had failed to
+   carry, so the excluded families can no longer game a
+   whole-closed-grammar claim. [STIPULATED: ASM-0420]
+3. **Fail-closed one-row-per-arm (finding 3, REPRODUCED).** DECISION: both
+   pinned scorers open with gate G0: duplicate/retry rows for the same arm
+   are never resolved by log order; a re-run row must EXPLICITLY supersede
+   every row it replaces via a top-level `supersedes: [<sha256 of the
+   replaced body's sorted-keys JSON>]`; more than one non-superseded row
+   per arm, or a dangling supersede target, is INSTRUMENT-INVALID in both
+   log orders (selftested on the skeptic's good+bad-row reproduction in
+   both orders). [STIPULATED: ASM-0621]
+4. **Harness pins enforced (finding 4).** DECISION: new gate G7 in both
+   pinned scorers compares the instrument-emitted `pins_observed` —
+   engine (+ kot_code on a5), nlb_instrument.py, nlb_frontend.py,
+   nlb_map.mjs, the parents' corpus digests, the phrasing corpus files
+   (eval/dev/dev-entities/probe/manifest), the lint receipt and the
+   kot-corpus-hash/1 recipe string — against frozen constants byte-copied
+   from the records, on EVERY arm body; any drift or a missing pins block
+   fails closed to INSTRUMENT-INVALID. The lint-receipt sha pin
+   transitively enforces receipt content: l3a waived_forced_substring
+   EMPTY, a5 exactly the 28 disclosed qids (ASM-0423).
+   [STIPULATED: ASM-0621]
+5. **Deranged arm must exist (finding 5, REPRODUCED).** DECISION: G5 now
+   requires the deranged-lexicon arm to EXIST with well-formed integer
+   counts over the full planned covered set before its collapse is tested;
+   a missing arm, empty metrics, or absent n_covered_exact is a broken
+   instrument, never "perfect collapse" (selftested on the skeptic's
+   empty-metrics reproduction). [STIPULATED: ASM-0621]
+6. **Full counts integrity in BOTH scorers (finding 6, partly
+   REPRODUCED).** DECISION: both scorers gate, fail-closed in G1: the
+   run-level covered outcome partition (exact + wrong + refused_parse +
+   refused_engine == 600 l3a / 855 a5); the run-level control partition
+   (answered + acceptable + other == 270/106, refused_any == acceptable +
+   other, acceptable == strict + parse on the mapper arm, which never
+   emits ABSTAIN); family-key set equality (unexpected families rejected);
+   the per-family bucket partition + exact == ok; covered bucket sums ==
+   run-level twins; zero covered buckets on control families; and
+   non-negative-integer buckets everywhere. The skeptic's reproduced a5
+   conflict (n_covered_exact=855 AND n_covered_refused_parse=855 both
+   green) is now a selftest fixture asserting INSTRUMENT-INVALID.
+   [STIPULATED: ASM-0621]
+7. **Mechanical freezability (finding 7).** Record-side repairs: both
+   records now carry the exact kot-corpus-hash/1 recipe string in
+   `pins.corpus_hashes._recipe`; `prereg_doc.sha256` is pinned to this
+   document revision (placeholder replaced); the schema-rejected
+   `pins.analysis_script.sha_note` is removed with its provenance prose
+   folded into `harness_manifest`. One further mechanical repair surfaced
+   by the dry-run itself: the RT-4 constraint-9 checker only powers
+   LB-exceeds-threshold gates, so the S2 endpoint's `wilson_gate` is
+   declared in COMPLEMENT form — {expected_rate 0.995, threshold 0.98} —
+   which is the IDENTICAL gate by the Wilson complement identity
+   LB(1−p, n, z) ≡ 1 − UB(p, n, z) (verified numerically at both n: the
+   4/527 and 9/855 pass boundaries are bit-equal under both forms); the
+   tested quantity, the 0.02 bound and every decision boundary are
+   unchanged, and the endpoint metric stays
+   `/analysis/holm_s2_pass` computed from the UB as registered. Second
+   dry-run-surfaced repair: the D9 collision refusal fires on the
+   trivial-policy cells (abstain-all / answer-all at R0 are already logged
+   by the parents at mechanically indeterminate pins), so both records are
+   upgraded to kot-reg/2 with a `reuse_overrides` DELIBERATE-FRESH-RE-RUN
+   entry (the a5-llm precedent): reuse-permission is deferred
+   programme-wide (the ratification interlock), and the logged parent rows
+   could not serve as these records' arm outputs even in principle — here
+   the trivial policies run over the NL PHRASINGS through the front-end
+   (answer-all parses, then fabricates), not over the parents' gold
+   structured queries, and they are $0 deterministic CPU cells.
+   `prereg-freeze.py --dry-run` passes on both records at this revision.
+8. **Honest engine claim (finding 8).** DECISION: record titles, envelopes
+   and baseline-arm texts no longer assert a byte-identical parent engine;
+   the carried claim is "behaviourally parent-perfect on the parents'
+   frozen evals, re-verified IN-RUN by gate G2" — the engine sha differs
+   from the parent pin (§10.9) and only kot_code is byte-identical; the
+   already-honest harness_manifest text is now the record's ONLY engine
+   identity claim. [STIPULATED: ASM-0147]
+9. **Denominator sync + anchors (finding 9).** §6.1 and the §7 table now
+   carry the live l3a n=527 boundaries (§14.2) and the corrected a5
+   planning LB 0.9363 (the superseded 0.9351 removed from §6); both
+   records' `prereg_doc.anchors` gain "section 14" so the binding
+   amendment is inside the pinned anchor set.
+10. **r1 audit provenance (finding 10).** Correction: the original-audit
+    sample contains 28 (not 27) in-scope covered items; r1 = 28
+    mechanically re-scored + 32 fresh-judge items (4 per in-scope family
+    in the rescored subset), and the in-sample natural-synonym rate is
+    9/28 = 0.3214 (not 9/27 = 0.333); the 60/60 r1 gate result is
+    unchanged [MEASURED: data/nlb-phrasings-l3a/audit-recoverability-r1.json
+    sha256 57e9d8d12826ae6ba28da4289fcc703109b2fb9994ef99eb589655874ea6da6d].
+    The 27/33 and 9/27 counts inside the ASM-0422 / ASM-0425 register
+    rationales are superseded by the artifact's 28/32 and 9/28; the
+    register lines are append-only history and stand there uncorrected —
+    §14.1/§14.3 as amended are the authoritative restatement.
+11. **Model-arm lint guard fail-closed (finding 11).** DECISION:
+    nlb_lint.py now DEFAULTS to `--arms-profile model`, under which a
+    nonempty `waived_forced_substring` list is itself a blocking finding
+    (green=False) — reusing this lint for any successor with a model-based
+    arm fails closed instead of relying on the prose caveat; the explicit
+    attestation `--arms-profile deterministic-r0` (lawful ONLY for records
+    whose every arm is deterministic and surface-blind, i.e. THIS pair) is
+    the pinned invocation, and the committed receipts regenerate
+    byte-identically under it (verified 2026-07-10, both verticals), so
+    all corpus digests are unchanged. [STIPULATED: ASM-0621]
+
+Gate-list amendment: the §6.3 instrument-gate set G1–G6 is extended by G0
+(one-row-per-arm) and G7 (harness-pin enforcement); both fold into
+`/gates/instrument_valid`, so the records' verdict rules and output-field
+lists are unchanged. Re-pins executed in this change (both DRAFT records):
+analysis/l3a_parse.py and analysis/a5_nl.py at their round-2 shas,
+nlb_lint.py at the arms-profile-guard sha, and prereg_doc.sha256 at this
+document revision. G6 determinism, G2 gold replication, every Wilson
+threshold and every planned n are byte-unchanged from §14.2/§7.

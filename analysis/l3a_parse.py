@@ -6,7 +6,8 @@ Eligible run records on stdin (one JSON per line, kot-log/1 bodies from
 tools/experiments/nlb/nlb_instrument.py); analysis-output JSON on stdout.
 Derived statistics live HERE and nowhere else (P2 G-4). Self-contained by
 design: no shared helper import, so the pinned sha is the complete analysis
-artifact (byte-twin of analysis/a5_nl.py with per-record constants).
+artifact (structural twin of analysis/a5_nl.py with per-record constants and
+the FK-NLB-10 in-scope split).
 
 SHAPE-RECOVERABLE RE-SCOPE (FK-NLB-10, ASM-0420; design doc 14.2/14.6/14.7):
 the recoverability audit measured that unmarked English cannot faithfully
@@ -19,6 +20,29 @@ covered phrasings; the 2 dropped families (unique-maker 43, made-lookup 30)
 are reported DESCRIPTIVELY in /analysis/shape_ambiguous_stratum, never
 gated, carved out of the envelope. Full-run descriptives (parse_ok_rate over
 870, label strata, stage breakdown, dev, probe, cost) stay full-run.
+
+SKEPTIC-ROUND-2 HARDENING (design doc 14.8, ASM-0621; all fail-closed):
+  G0 one-row-per-arm: duplicate/retry rows for the same arm are NEVER
+     resolved by log order. A re-run row must carry a top-level
+     `supersedes: [<sha256 of the replaced body's sorted-keys JSON>]`;
+     any arm with >1 non-superseded row, or any dangling supersede target,
+     invalidates the instrument in BOTH log orders.
+  G7 harness-pin enforcement: the pins_observed emitted by the instrument
+     (engine, nlb_instrument/nlb_frontend/nlb_map, corpus digests, phrasing
+     corpus files, lint receipt) must equal the frozen manifest constants
+     below on EVERY arm body; a missing pin block or any drift fails closed.
+     The pinned lint-receipt sha transitively enforces the receipt content,
+     incl. waived_forced_substring == [] for l3a (ASM-0423).
+  G5 existence: a missing/empty deranged arm or absent n_covered_exact is a
+     BROKEN instrument, never "perfect collapse".
+  G1 full counts integrity: run-level covered partition
+     (exact+wrong+refused_parse+refused_engine == 600), control partition
+     (answered+acceptable+other == 270; refused_any == acceptable+other;
+     acceptable == strict+parse on the mapper arm, which never emits
+     ABSTAIN), family-key set equality (no unexpected families), per-family
+     bucket partition + exact == ok, bucket sums == run-level twins,
+     zero covered buckets on control families, all buckets non-negative
+     integers, in-scope n_scored == 527.
 
 Endpoints (design doc section 6 + 14.2, verdict rules in the record):
   primary   retained covered exactness == absolute covered-exact rate over
@@ -36,19 +60,19 @@ Endpoints (design doc section 6 + 14.2, verdict rules in the record):
             paraphrase strata, dev abstention, synonym probe (never gated),
             front-end cost, audit-r1 reference.
 
-Instrument gates G1-G6 (any failure => instrument_valid False):
+Instrument gates G0-G7 (any failure => instrument_valid False):
+  G0 one-row-per-arm (fail-closed supersede semantics above);
   G1 arm presence + counts + per-family strata match the frozen manifest
-     (600 covered / 270 control / 60 dev) PLUS the 14.7 counts-integrity
-     extension: in-scope n_scored == 527; every covered family's bucket
-     partition exact+wrong+refused_parse+refused_engine == n and exact == ok;
-     covered-family bucket sums equal the run-level twins;
+     (600 covered / 270 control / 60 dev) PLUS the 14.7 + 14.8 counts-
+     integrity extensions above;
   G2 gold-replication parent-perfect (600/600 covered exact, 300/300
      strict-code control, zero wrong/answered);
-  G3 phrasing-corpus lint receipt present + green (+ pinned corpus sha match
-     once EXPECTED_PHRASINGS_SHA256 is set at freeze);
+  G3 phrasing-corpus lint receipt present + green + pinned corpus sha match;
   G4 dev abstention <= 0.20 (12/60);
-  G5 deranged-lexicon retained exactness < 0.10;
-  G6 mapper-parse doubled pass byte-identical.
+  G5 deranged-lexicon arm EXISTS with integer counts over the full covered
+     set and retained exactness < 0.10;
+  G6 mapper-parse doubled pass byte-identical;
+  G7 observed harness pins equal the frozen manifest on every arm.
 
 Fixtures (--selftest) sit ON the pre-computed decision boundaries of the
 design doc section 14.2 power table (n=527; independently recomputed
@@ -58,8 +82,12 @@ design doc section 14.2 power table (n=527; independently recomputed
 5 -> 0.0220; S2 kill 16/527 -> LB(z=1.645) 0.0203 >= 0.02 vs 15 -> 0.0187.
 The gated numerators are BUCKET SUMS over the 7 in-scope families, so the
 boundary fixtures place the varied counts in in-scope families; an isolation
-fixture proves a wrong answer in a shape-ambiguous family moves no gate.
+fixture proves a wrong answer in a shape-ambiguous family moves no gate;
+round-2 fixtures prove duplicate arms invalidate in both log orders, an
+explicit supersede is honoured, an empty deranged arm fails G5, harness-pin
+drift fails G7, and every counts-integrity breach fails G1.
 """
+import hashlib
 import json
 import sys
 
@@ -90,6 +118,9 @@ PLANNED_CONTROL_STRATA = {
     "conflict": 20, "instance-no-record": 20, "no-record": 60,
     "out-of-scope-rel": 60, "unknown-entity": 40, "unlicensed-count": 30,
     "unlicensed-unique": 40}
+EXPECTED_FAMILIES = frozenset(PLANNED_COVERED_STRATA) | \
+    frozenset(PLANNED_CONTROL_STRATA)
+BUCKET_KEYS = ("exact", "wrong", "refused_parse", "refused_engine")
 GOLD_PERFECT = {"n_covered": 600, "n_covered_exact": 600,
                 "n_control": 300, "n_control_refused_correct_code": 300,
                 "n_covered_answered_wrong": 0, "n_control_answered": 0}
@@ -99,9 +130,59 @@ AUDIT_R1_REF = {
                "9994ef99eb589655874ea6da6d")}
 # EVAL corpus pinned 2026-07-10 (EVAL-BUILD-SPEC step 6): sha256 of
 # data/nlb-phrasings-l3a/eval.jsonl, checked against the run's observed
-# phrasings_file in G3. None would disable ONLY the sha-equality sub-check.
+# phrasings_file in G3 (and again in G7). None would disable ONLY the
+# G3 sha-equality sub-check.
 EXPECTED_PHRASINGS_SHA256 = \
     "832828d892260ee53aff51d648998e3656a2d5dc16b26c55713b638964858d8a"
+
+# ---- G7 frozen harness manifest (design doc 14.8, ASM-0621): the analysis
+# REFUSES any run whose observed pins drift from the record's harness
+# manifest / corpus pins. Values byte-copied from
+# registry/experiments/l3a-parse.json (pins + harness_manifest) and the
+# committed corpus files at the 2026-07-10 input pin.
+CORPUS_RECIPE = (
+    "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one "
+    "line per regular file under data/<corpus>/ (recursive; symlinks and "
+    "directories excluded), each line '<sha256-of-file-bytes-hex>  "
+    "<relpath>\\n' with exactly two spaces, relpath POSIX-style "
+    "('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 "
+    "byte order of relpath; reference implementation "
+    "tools/registry/corpus-pin.py"
+)
+EXPECTED_HARNESS_PINS = {
+    "engine":
+        "d26408815238cd9f73b50bb2c4b1f659c8a783ff6a5f16e27357eb2071bb3d08",
+    "nlb_instrument.py":
+        "3d92e1ab7ef71ae577f63f8955f4381bc90a7c257e44102089220b96e25853d2",
+    "nlb_frontend.py":
+        "590377760ed5067688ddc0dd859c1a1cfa955e640b3a07c0f75e91d3bc908ea0",
+    "nlb_map.mjs":
+        "6256fc019cd4be8e64708565475976c90237bf25cd46908379c25ee7fa3d7084",
+    "corpus_axioms-v0":
+        "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+    "corpus_world-v0":
+        "dfa5145167b1365681b640f91c766f0a46da28af6941f35a56d00aff35408f9a",
+    "corpus_l3a-eval":
+        "53eb788b1681960b55436a4566df5d9fabe5efb3c57399e90fcfa2d13afb98e7",
+    "corpus_kernel-v0":
+        "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "corpus_molecules-v0":
+        "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "corpus_file_eval.jsonl": EXPECTED_PHRASINGS_SHA256,
+    "corpus_file_dev.jsonl":
+        "3022a6762148808f9083d412231aa6b790d6c7d1d5e44e58dc3c3134a5851230",
+    "corpus_file_dev-entities.jsonl":
+        "eda2721d17c712253d51d23fc10b27f9191322273043ca6667597d6e59518cd9",
+    "corpus_file_probe.jsonl":
+        "11c4bfee8587346bbec8bba0600fc26195b7f37d006f173328218f86c5a8aac2",
+    "corpus_file_manifest.json":
+        "63002038da1667985fa507a3ecc5d62d95f14b2f47a7458d8db22a3d2445e436",
+    # lint receipt: green, findings [], waived_forced_substring [] — the sha
+    # pin transitively enforces the EMPTY l3a waived list (ASM-0423).
+    "phrasings_lint":
+        "9716a8551349b0fd7d99d01e012fbce93d9f134ec80de8b55449dc2b48c56aed",
+    "phrasings_file": EXPECTED_PHRASINGS_SHA256,
+}
 
 ARMS = ("mapper-parse", "gold-replication", "deranged-lexicon",
         "abstain-all", "answer-all")
@@ -125,13 +206,65 @@ def score_z(p_hat, p0, n, direction):
     return z if direction == "gt" else -z
 
 
-def analyze(records):
-    by_arm = {}
-    for r in records:
-        if r.get("experiment") not in (None, EXPERIMENT):
+def _count(v):
+    """A well-formed counter: non-negative int (bool excluded)."""
+    return isinstance(v, int) and not isinstance(v, bool) and v >= 0
+
+
+def _body_sha(r):
+    """Identity of one run-record body for the G0 supersede mechanism:
+    sha256 over its sorted-keys JSON bytes."""
+    return hashlib.sha256(
+        json.dumps(r, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _one_row_per_arm(records):
+    """G0 (fail-closed; design doc 14.8, ASM-0621): duplicate/retry rows are
+    never resolved by log order. Returns (by_arm, ok, detail)."""
+    eligible = [r for r in records
+                if r.get("experiment") in (None, EXPERIMENT)]
+    shas = [_body_sha(r) for r in eligible]
+    sha_set = set(shas)
+    superseded, dangling = set(), []
+    for r in eligible:
+        for s in (r.get("supersedes") or []):
+            if s not in sha_set:
+                dangling.append(s)
+            superseded.add(s)
+    by_arm, dup = {}, []
+    for r, s in zip(eligible, shas):
+        if s in superseded:
             continue
-        by_arm[r.get("config", {}).get("arm") or r.get("arm")] = r
+        arm = r.get("config", {}).get("arm") or r.get("arm")
+        if arm in by_arm:
+            dup.append(arm)
+        by_arm[arm] = r
+    ok = not dup and not dangling
+    detail = {"duplicate_arms": sorted(set(dup)),
+              "dangling_supersedes": sorted(set(dangling))}
+    return by_arm, ok, detail
+
+
+def _pins_ok(body):
+    """G7: observed harness pins on one arm body equal the frozen manifest
+    (fail-closed on a missing pins block or any missing/drifted key)."""
+    po = body.get("pins_observed")
+    if not isinstance(po, dict) or po.get("_recipe") != CORPUS_RECIPE:
+        return False
+    for key, want in EXPECTED_HARNESS_PINS.items():
+        v = po.get(key)
+        if not isinstance(v, dict) or v.get("observed") != want:
+            return False
+    return True
+
+
+def analyze(records):
     out = {"gates": {"instrument_valid": False}, "analysis": {}}
+    by_arm, g0, g0_detail = _one_row_per_arm(records)
+    out["gates"]["g0_one_row_per_arm"] = bool(g0)
+    if not g0:
+        out["gates"]["g0_detail"] = g0_detail
+        return out
     mp = by_arm.get("mapper-parse")
     gold = by_arm.get("gold-replication")
     der = by_arm.get("deranged-lexicon")
@@ -144,6 +277,11 @@ def analyze(records):
     n_rparse = m.get("n_covered_refused_parse", 0)
     n_rengine = m.get("n_covered_refused_engine", 0)
     n_ctl_acc = m.get("n_control_refused_acceptable", 0)
+    n_ctl_ans = m.get("n_control_answered", 0)
+    n_ctl_other = m.get("n_control_refused_other", 0)
+    n_ctl_any = m.get("n_control_refused_any", 0)
+    n_ctl_strict = m.get("n_control_refused_strict_engine_code", 0)
+    n_ctl_parse = m.get("n_control_refused_parse", 0)
     dev_n = m.get("dev_n", 0)
     dev_ref = m.get("dev_parse_refused", 0)
     fam = m.get("by_family", {})
@@ -151,37 +289,66 @@ def analyze(records):
     def buck(k, key):
         return fam.get(k, {}).get(key, 0)
 
-    # ---- gated numerators: bucket sums over the 7 in-scope families only
-    # (FK-NLB-10, ASM-0420; NOT the run-level totals — the two dropped
-    # families' outcomes never enter a gate).
-    n_scored = sum(buck(k, "n") for k in IN_SCOPE_FAMILIES)
-    exact_in = sum(buck(k, "exact") for k in IN_SCOPE_FAMILIES)
-    wrong_in = sum(buck(k, "wrong") for k in IN_SCOPE_FAMILIES)
-
-    # ---- instrument gates
-    strata_ok = all(fam.get(k, {}).get("n") == v for k, v in
-                    list(PLANNED_COVERED_STRATA.items()) +
-                    list(PLANNED_CONTROL_STRATA.items()))
-    # 14.7 G1 counts-integrity extension (any failure => instrument-invalid):
-    # (i) in-scope n_scored == 527
-    scored_ok = (n_scored == N_SCORED)
-    # (ii) per covered family the bucket partition holds and exact == ok
-    partition_ok = all(
-        (buck(k, "exact") + buck(k, "wrong") + buck(k, "refused_parse") +
-         buck(k, "refused_engine")) == fam.get(k, {}).get("n") and
-        buck(k, "exact") == fam.get(k, {}).get("ok")
-        for k in PLANNED_COVERED_STRATA)
-    # (iii) covered-family bucket sums equal the run-level twins
-    twins_ok = (
-        sum(buck(k, "exact") for k in PLANNED_COVERED_STRATA) == n_exact and
-        sum(buck(k, "wrong") for k in PLANNED_COVERED_STRATA) == n_wrong and
-        sum(buck(k, "refused_parse") for k in PLANNED_COVERED_STRATA)
-        == n_rparse and
-        sum(buck(k, "refused_engine") for k in PLANNED_COVERED_STRATA)
-        == n_rengine)
+    # ---- G1 counts integrity (14.7 + 14.8 extensions; any failure =>
+    # instrument-invalid). Well-formedness first, so nothing below can
+    # arithmetic over a malformed bucket.
+    fam_keys_ok = isinstance(fam, dict) and set(fam) == EXPECTED_FAMILIES
+    buckets_wellformed = fam_keys_ok and all(
+        isinstance(fam[k], dict) and
+        all(_count(fam[k].get(b)) for b in ("n", "ok") + BUCKET_KEYS)
+        for k in EXPECTED_FAMILIES)
+    if buckets_wellformed:
+        strata_ok = all(fam[k]["n"] == v for k, v in
+                        list(PLANNED_COVERED_STRATA.items()) +
+                        list(PLANNED_CONTROL_STRATA.items()))
+        # (i) in-scope n_scored == 527 (gated numerators are bucket sums over
+        # the 7 in-scope families only — FK-NLB-10, ASM-0420; the two dropped
+        # families' outcomes never enter a gate)
+        n_scored = sum(buck(k, "n") for k in IN_SCOPE_FAMILIES)
+        exact_in = sum(buck(k, "exact") for k in IN_SCOPE_FAMILIES)
+        wrong_in = sum(buck(k, "wrong") for k in IN_SCOPE_FAMILIES)
+        scored_ok = (n_scored == N_SCORED)
+        # (ii) per covered family the bucket partition holds and exact == ok
+        partition_ok = all(
+            sum(buck(k, b) for b in BUCKET_KEYS) == buck(k, "n") and
+            buck(k, "exact") == buck(k, "ok")
+            for k in PLANNED_COVERED_STRATA)
+        # (iii) covered-family bucket sums equal the run-level twins
+        twins_ok = (
+            sum(buck(k, "exact") for k in PLANNED_COVERED_STRATA) == n_exact
+            and sum(buck(k, "wrong") for k in PLANNED_COVERED_STRATA)
+            == n_wrong and
+            sum(buck(k, "refused_parse") for k in PLANNED_COVERED_STRATA)
+            == n_rparse and
+            sum(buck(k, "refused_engine") for k in PLANNED_COVERED_STRATA)
+            == n_rengine)
+        # (iv) control families hold zero covered buckets; ok <= n
+        control_zero_ok = all(
+            all(buck(k, b) == 0 for b in BUCKET_KEYS) and
+            buck(k, "ok") <= buck(k, "n")
+            for k in PLANNED_CONTROL_STRATA)
+    else:
+        strata_ok = scored_ok = partition_ok = twins_ok = False
+        control_zero_ok = False
+        n_scored = exact_in = wrong_in = 0
+    # (v) run-level covered outcome partition over 600
+    run_counts = (n_exact, n_wrong, n_rparse, n_rengine)
+    run_partition_ok = (all(_count(x) for x in run_counts) and
+                        sum(run_counts) == nc)
+    # (vi) run-level control outcome partition over 270 (mapper arm: the
+    # acceptable set is strict-engine-code + ERR_PARSE — FK-NLB-6; the
+    # ABSTAIN branch exists only on the abstain-all arm, never here)
+    ctl_counts = (n_ctl_acc, n_ctl_ans, n_ctl_other, n_ctl_any,
+                  n_ctl_strict, n_ctl_parse)
+    ctl_partition_ok = (all(_count(x) for x in ctl_counts) and
+                        n_ctl_ans + n_ctl_acc + n_ctl_other == ng and
+                        n_ctl_any == n_ctl_acc + n_ctl_other and
+                        n_ctl_acc == n_ctl_strict + n_ctl_parse)
     g1 = (all(a in by_arm for a in ARMS) and nc == PLANNED_COVERED and
-          ng == PLANNED_CONTROL and dev_n == PLANNED_DEV and strata_ok and
-          scored_ok and partition_ok and twins_ok)
+          ng == PLANNED_CONTROL and dev_n == PLANNED_DEV and fam_keys_ok and
+          buckets_wellformed and strata_ok and scored_ok and partition_ok and
+          twins_ok and control_zero_ok and run_partition_ok and
+          ctl_partition_ok)
     gm = gold["metrics"] if gold else {}
     g2 = all(gm.get(k) == v for k, v in GOLD_PERFECT.items())
     lint = (mp.get("pins_observed", {}) or {}).get("phrasings_lint", {})
@@ -190,14 +357,25 @@ def analyze(records):
         pf = (mp.get("pins_observed", {}) or {}).get("phrasings_file", {})
         g3 = g3 and pf.get("observed") == EXPECTED_PHRASINGS_SHA256
     g4 = dev_n > 0 and (dev_ref / float(dev_n)) <= DEV_MAX_ABSTENTION
+    # G5 (14.8 hardening): the deranged arm must EXIST, cover the full
+    # planned covered set, and report an explicit integer exact count —
+    # a missing arm or missing metric is a broken instrument, NEVER
+    # "perfect collapse".
     dm = der["metrics"] if der else {}
-    der_rate = (dm.get("n_covered_exact", 0) / float(nc)) if nc else 1.0
-    g5 = der_rate < DERANGED_MAX
+    if der is not None and dm.get("n_covered") == PLANNED_COVERED and \
+            _count(dm.get("n_covered")) and _count(dm.get("n_covered_exact")):
+        der_rate = dm["n_covered_exact"] / float(dm["n_covered"])
+        g5 = der_rate < DERANGED_MAX
+    else:
+        der_rate = None
+        g5 = False
     g6 = m.get("deterministic_repeat_identical") is True
+    g7 = all(a in by_arm and _pins_ok(by_arm[a]) for a in ARMS)
     out["gates"].update({"g1_counts": g1, "g2_gold_replication": g2,
                          "g3_phrasing_lints": g3, "g4_dev_abstention": g4,
-                         "g5_deranged_collapse": g5, "g6_determinism": g6})
-    out["gates"]["instrument_valid"] = all((g1, g2, g3, g4, g5, g6))
+                         "g5_deranged_collapse": g5, "g6_determinism": g6,
+                         "g7_harness_pins": g7})
+    out["gates"]["instrument_valid"] = all((g0, g1, g2, g3, g4, g5, g6, g7))
 
     # ---- primary (retained == absolute over the 527 in-scope slice;
     # measured gold ceiling 600/600)
@@ -298,11 +476,21 @@ def _fam(n, exact=None, wrong=0, rparse=0, rengine=0):
             "refused_parse": rparse, "refused_engine": rengine}
 
 
-def _rec(arm, covered=None, control_accept=270, control_strict=230,
-         control_parse=40, **kw):
+def _pins():
+    """Fixture pins_observed matching the frozen manifest (G7)."""
+    po = {"_recipe": CORPUS_RECIPE}
+    for k, v in EXPECTED_HARNESS_PINS.items():
+        po[k] = {"observed": v}
+    po["phrasings_lint"]["green"] = True
+    return po
+
+
+def _rec(arm, covered=None, control_accept=270, control_parse=40, **kw):
     # Covered families default to all-exact; `covered` overrides named
     # families with explicit buckets (run-level covered twins are DERIVED
-    # from by_family so G1 twins-integrity holds by construction).
+    # from by_family so G1 twins-integrity holds by construction). Control
+    # counters keep the score_nl identities: acceptable = strict + parse,
+    # other = n_control - acceptable (answered 0), any = acceptable + other.
     cov = {k: _fam(v) for k, v in PLANNED_COVERED_STRATA.items()}
     for k, b in (covered or {}).items():
         assert b["n"] == PLANNED_COVERED_STRATA[k], (k, b)
@@ -315,13 +503,17 @@ def _rec(arm, covered=None, control_accept=270, control_strict=230,
     cw = sum(cov[k]["wrong"] for k in cov)
     cp = sum(cov[k]["refused_parse"] for k in cov)
     cg = sum(cov[k]["refused_engine"] for k in cov)
+    ctl_other = PLANNED_CONTROL - control_accept
     m = {"n_covered": 600, "n_covered_exact": ce,
          "n_covered_refused_parse": cp, "n_covered_refused_engine": cg,
          "n_covered_answered_wrong": cw, "n_control": 270,
          "n_control_refused_acceptable": control_accept,
-         "n_control_refused_strict_engine_code": control_strict,
-         "n_control_refused_parse": control_parse, "n_control_refused_other": 0,
-         "n_control_answered": 0, "n_control_refused_any": control_accept,
+         "n_control_refused_strict_engine_code":
+             control_accept - control_parse,
+         "n_control_refused_parse": control_parse,
+         "n_control_refused_other": ctl_other,
+         "n_control_answered": 0,
+         "n_control_refused_any": control_accept + ctl_other,
          "by_family": fam, "parse_stage_breakdown": {},
          "label_strata": {"verbatim": {"n": 300, "exact": 300},
                           "paraphrase": {"n": 300, "exact": 300}},
@@ -330,9 +522,7 @@ def _rec(arm, covered=None, control_accept=270, control_strict=230,
          "frontend_total_ns": 600000000}
     m.update(kw)
     body = {"experiment": EXPERIMENT, "config": {"arm": arm}, "metrics": m,
-            "pins_observed": {"phrasings_lint": {"green": True},
-                              "phrasings_file":
-                              {"observed": EXPECTED_PHRASINGS_SHA256}}}
+            "pins_observed": _pins()}
     if arm == "gold-replication":
         body["metrics"] = dict(GOLD_PERFECT)
         body["metrics"]["deterministic_repeat_identical"] = True
@@ -427,6 +617,69 @@ def selftest():
         "refused_parse": 0, "refused_engine": 0}}))
     assert broken["gates"]["instrument_valid"] is False, broken["gates"]
     assert broken["gates"]["g1_counts"] is False, broken["gates"]
+    # G1 (14.8): mutually inconsistent RUN-LEVEL counters => invalid
+    recs = _suite()
+    recs[0]["metrics"]["n_covered_exact"] = 600
+    recs[0]["metrics"]["n_covered_refused_parse"] = 600
+    assert analyze(recs)["gates"]["g1_counts"] is False
+    # G1 (14.8): an unexpected family => invalid
+    recs = _suite()
+    recs[0]["metrics"]["by_family"]["mystery-family"] = _fam(1)
+    assert analyze(recs)["gates"]["g1_counts"] is False
+    # G1 (14.8): nonzero covered bucket on a CONTROL family => invalid
+    recs = _suite()
+    recs[0]["metrics"]["by_family"]["no-record"]["exact"] = 1
+    assert analyze(recs)["gates"]["g1_counts"] is False
+    # G1 (14.8): negative / non-integer buckets => invalid
+    recs = _suite()
+    recs[0]["metrics"]["by_family"]["children-lookup"]["wrong"] = -1
+    assert analyze(recs)["gates"]["g1_counts"] is False
+    recs = _suite()
+    recs[0]["metrics"]["by_family"]["children-lookup"]["exact"] = 99.0
+    assert analyze(recs)["gates"]["g1_counts"] is False
+    # G1 (14.8): broken control partition (acceptable != strict + parse)
+    recs = _suite()
+    recs[0]["metrics"]["n_control_refused_strict_engine_code"] = 220
+    assert analyze(recs)["gates"]["g1_counts"] is False
+    # G0 (14.8): duplicate mapper-parse rows are INVALID in BOTH log orders
+    stale = _rec("mapper-parse", covered={"unique-father": _fam(122, exact=0,
+                                                                rparse=122)})
+    good = _suite()
+    for order in ([stale] + good, good + [stale]):
+        o = analyze(order)
+        assert o["gates"]["g0_one_row_per_arm"] is False, o["gates"]
+        assert o["gates"]["instrument_valid"] is False, o["gates"]
+    # G0: an EXPLICIT supersede is honoured (order-independent) and the
+    # surviving row feeds the analysis
+    recs = _suite()
+    recs[0]["supersedes"] = [_body_sha(stale)]
+    for order in ([stale] + recs, recs + [stale]):
+        o = analyze(order)
+        assert o["gates"]["instrument_valid"] is True, o["gates"]
+        assert o["analysis"]["retained_covered_exact_rate"] == 1.0, o
+    # G0: a dangling supersede target fails closed
+    recs = _suite()
+    recs[0]["supersedes"] = ["0" * 64]
+    assert analyze(recs)["gates"]["g0_one_row_per_arm"] is False
+    # G5 (14.8): an EMPTY deranged arm is a broken instrument, not collapse
+    recs = _suite()
+    recs[2]["metrics"] = {}
+    o = analyze(recs)
+    assert o["gates"]["g5_deranged_collapse"] is False, o["gates"]
+    assert o["gates"]["instrument_valid"] is False, o["gates"]
+    assert o["analysis"]["deranged_retained_exact_rate"] is None, o
+    recs = _suite()
+    del recs[2]["metrics"]["n_covered_exact"]
+    assert analyze(recs)["gates"]["g5_deranged_collapse"] is False
+    # G7 (14.8): harness-pin drift / missing pins block => invalid
+    recs = _suite()
+    recs[0]["pins_observed"]["engine"] = {"observed": "f" * 64}
+    o = analyze(recs)
+    assert o["gates"]["g7_harness_pins"] is False, o["gates"]
+    assert o["gates"]["instrument_valid"] is False, o["gates"]
+    recs = _suite()
+    recs[3].pop("pins_observed")
+    assert analyze(recs)["gates"]["g7_harness_pins"] is False
     # gates: broken determinism / deranged leak / missing lint / dev gate
     bad = analyze(_suite(deterministic_repeat_identical=False))
     assert bad["gates"]["instrument_valid"] is False

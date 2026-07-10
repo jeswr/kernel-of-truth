@@ -16,7 +16,7 @@ Invocation:  run-dts-judges.py <p1|p2|p3> <preflight|main> <run_dir>
 Determinism: stdlib only; seeded-sort idiom byte-identical to run-judge1p.py.
 RT-14: pseudonymous judge ids only; no names/emails in any recorded bytes.
 """
-import json, os, sys, hashlib, subprocess, time
+import json, os, re, sys, hashlib, subprocess, time
 
 REPO = "/home/ec2-user/css/kernel/kernel-of-truth"
 
@@ -169,16 +169,56 @@ def _hex_embedded(data, i, n):
             or (i + n < len(data) and data[i + n] in _HEX_BYTES))
 
 
+# §7.3 matching amendment A1 per blinding-audit-clarification.md §9
+# + registry/corrections/truthstyle-2x2/4-blinding-audit-amendment-a1.json
+# (ASM-0660): Anthropic vendor identifiers are BASE62 ("req_"/"msg_" + 24
+# mixed-case alphanumerics), so ANY pinned token can occur inside one by
+# arithmetic coincidence (observed: 'nsm' inside request_id
+# req_011Cctc1sK9P4SujinnsMiWU, run 20260710T151231Z judge-p3 pos-102). On the
+# two HARNESS-CAPTURED surfaces only (events.jsonl, stderr.log — NEVER
+# user-prompt.txt), a token match is additionally excluded iff it lies wholly
+# inside the base62 TAIL of a maximal vendor-id literal: lowercase-exact
+# prefix "req_"/"msg_", tail of 20-48 chars in [0-9A-Za-z], and the bytes
+# adjacent to the whole literal (if any) outside [0-9A-Za-z_]. Matching in the
+# ORIGINAL (pre-lowercase) bytes; everything outside qualifying tails is
+# scanned byte-identically to ASM-0360.
+_VENDOR_ID_RE = re.compile(rb"(?:req|msg)_[0-9A-Za-z]{20,48}")
+_WORD_BYTES = frozenset(b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                        b"abcdefghijklmnopqrstuvwxyz_")
+
+
+def _vendor_id_tail_spans(raw):
+    """Byte spans [s, e) of the base62 TAILS (prefix excluded) of maximal
+    Anthropic-format vendor-id literals in the ORIGINAL bytes (ASM-0660)."""
+    spans = []
+    for m in _VENDOR_ID_RE.finditer(raw):
+        s, e = m.span()
+        if s > 0 and raw[s - 1] in _WORD_BYTES:
+            continue                      # embedded in a longer word: no exclusion
+        if e < len(raw) and raw[e] in _WORD_BYTES:
+            continue                      # run continues (>48 chars): fail closed
+        spans.append((s + 4, e))          # tail only; skip the 4-byte req_/msg_
+    return spans
+
+
 def blinding_scan(paths):
     for p in paths:
         if not os.path.exists(p):
             continue
-        data = open(p, "rb").read().lower()
+        raw = open(p, "rb").read()
+        data = raw.lower()
+        # ASM-0660 exclusion NEVER applies to user-prompt.txt (item bytes):
+        # item contamination fires byte-identically to the original scan.
+        id_spans = ([] if os.path.basename(p) == "user-prompt.txt"
+                    else _vendor_id_tail_spans(raw))
         for t in BLIND_TOKENS:
             pure_hex = all(c in _HEX_BYTES for c in t)
             i = data.find(t)
             while i >= 0:
-                if not (pure_hex and _hex_embedded(data, i, len(t))):
+                excluded = ((pure_hex and _hex_embedded(data, i, len(t)))
+                            or any(s <= i and i + len(t) <= e
+                                   for s, e in id_spans))
+                if not excluded:
                     return (os.path.basename(p), t.decode())
                 i = data.find(t, i + 1)
     return None

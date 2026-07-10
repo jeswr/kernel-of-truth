@@ -87,15 +87,24 @@
       "data/instance-descriptions/conditions.jsonl": "fec2bc669b40077d057f59d6480eee3501ef396f62af64171479676a4ed3590a",
       "data/instance-descriptions/annotation-protocol.md": "57610024480122a5db9596e2d27dd3cb717167a88673e2c9eeb4fa9a98414284",
       "analysis/g3.py (Wilson + kappa closed forms, read-only reference)": "eac8fd81070c5c7ca9a924607df236d680e921c8335b7a506566e435e26c7961",
-      "poc/g3-llmproxy/judge-invocation.md": "PINNED-AT-INPUTS:staged with prompt templates + output schemas + probe manifest + calibration items, pinned by ops amendment BEFORE any judge call",
-      "poc/g3-llmproxy/build-probe-b.py": "PINNED-AT-INPUTS:seed-pinned concept-level Sattolo probe builder, staged + pinned with the invocation spec"
+      "poc/g3-llmproxy/judge-invocation.md": "dd402cdd4b370823f220f1fe533334648655b0cafb9decaf5b89822939d72ce8",
+      "poc/g3-llmproxy/prompt-template-pass-a.txt": "3cd7b450948770916ae937186f15ebbdb15d052c2a7c60f866642dacde8ea54e",
+      "poc/g3-llmproxy/prompt-template-pass-b.txt": "dbb0693720cb0d1c9bf3f0861ef6a6cce5bbfaff83f87c4baa5343ea011f3380",
+      "poc/g3-llmproxy/output-schema-pass-a.json": "fa1e46a3d5a4e0e1e49992c9f5f5f08b902ae66470dfb59aebb16aa0f26624d7",
+      "poc/g3-llmproxy/output-schema-pass-b.json": "5576ee23c66bc797b7f443533279da3aaa963164c63bd7ffc0644ec47da55137",
+      "poc/g3-llmproxy/judge-pB-system-prompt-pass-a.txt": "d82a0450f697562244cca2f172956424f6a902bd4bdb5ab80a752b9c5c4526d9",
+      "poc/g3-llmproxy/judge-pB-system-prompt-pass-b.txt": "1022042b2bc06e0c4cbff1da28e9550d9275cae63478704ad0bb1f4caf6d9737",
+      "poc/g3-llmproxy/probe-b.jsonl": "5691473c878df8623054664c02717274127b2a53eeb9068459064f08fa35b287",
+      "poc/g3-llmproxy/probe-b-manifest.json": "7269a629f9fdbaa4eb4f2214e89da10e4e051dd24d07a0eada27d059509df7bc",
+      "poc/g3-llmproxy/calibration-items.jsonl": "90ffc7dae4d60918d08ebc6c1a7fc355ee0f21aad4986219fcd9f6d944a045cc",
+      "poc/g3-llmproxy/build-probe-b.py": "b0a368947b0535d26297fdd867fa40281aa6ba0bccf7c1a955b1d5de51cce6d6"
     },
     "model_revisions": {
       "_note": "no host models: zero GPU cells in this record",
       "judge-pA": "gpt-5.6-sol via npx-pinned codex-cli 0.144.1, reasoning effort low (truthstyle-2x2 section-4.1 form; re-verify version banner at preflight)",
       "judge-pB": "claude-haiku-4-5-20251001 via headless claude -p sub-process (truthstyle-2x2 section-4.3 form: format-only system prompt, tools disabled, no setting sources, no session persistence, thinking disabled, subscription auth asserted per call; the in-session Agent-tool sub-agent form is FORBIDDEN)"
     },
-    "analysis_script": {"path": "analysis/g3_llmproxy.py", "sha256": "PINNED-AT-FREEZE", "output_fields": ["/gates/adjudication_valid", "/gates/probe_valid", "/analysis/n_instances", "/analysis/n_dual_decisive", "/analysis/necessity_rate_concordant", "/analysis/necessity_concordant_wilson_lb", "/analysis/necessity_concordant_wilson_ub", "/analysis/necessity_rate_union", "/analysis/necessity_union_wilson_lb", "/analysis/necessity_union_wilson_ub", "/analysis/sufficiency_rate_concordant", "/analysis/sufficiency_concordant_wilson_lb", "/analysis/sufficiency_concordant_wilson_ub", "/analysis/sufficiency_rate_union", "/analysis/sufficiency_union_wilson_lb", "/analysis/sufficiency_union_wilson_ub", "/analysis/sufficiency_equivalence_survives_proxy", "/analysis/kappa_pair", "/analysis/proxy_fail", "/analysis/proxy_pass", "/analysis/per_judge_necessity_rates", "/analysis/per_judge_sufficiency_rates", "/analysis/escape_rates", "/analysis/probe_false_satisfaction_rates", "/analysis/failing_cid_histogram"]}
+    "analysis_script": {"path": "analysis/g3_llmproxy.py", "sha256": "5a591fe5a5171360a7933144ad958364a229afcf6099492b04b0c122175ac36b", "output_fields": ["/gates/adjudication_valid", "/gates/probe_valid", "/analysis/n_instances", "/analysis/n_dual_decisive", "/analysis/necessity_rate_concordant", "/analysis/necessity_concordant_wilson_lb", "/analysis/necessity_concordant_wilson_ub", "/analysis/necessity_rate_union", "/analysis/necessity_union_wilson_lb", "/analysis/necessity_union_wilson_ub", "/analysis/sufficiency_rate_concordant", "/analysis/sufficiency_concordant_wilson_lb", "/analysis/sufficiency_concordant_wilson_ub", "/analysis/sufficiency_rate_union", "/analysis/sufficiency_union_wilson_lb", "/analysis/sufficiency_union_wilson_ub", "/analysis/sufficiency_equivalence_survives_proxy", "/analysis/kappa_pair", "/analysis/proxy_fail", "/analysis/proxy_pass", "/analysis/per_judge_necessity_rates", "/analysis/per_judge_sufficiency_rates", "/analysis/escape_rates", "/analysis/probe_false_satisfaction_rates", "/analysis/failing_cid_histogram"]}
   },
   "runner_constraints": {
     "tier": 0,

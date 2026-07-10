@@ -84,14 +84,28 @@
       "mapper/m0/make-agent-judgments.py (the stated judging criteria carried onto the blind sheets)": "e31c58cb77fa425d40db556b1650a827e7d82583b1f8513834ac0324377d71e3",
       "mapper/m0/compute-pr.py (the published estimator, reimplemented verbatim in the pinned analysis)": "5858b116e07bb697a8751b24824074b9a2318f946b6a51d49c8bf9d73f2c800d",
       "mapper/m0/results/m0a-report.json (stratum populations + the agent-judged provisionals being replaced)": "c424be2d58e1265999536816f6e94731ca7755c1f1397988ff4cf6e848ca35a2",
-      "poc/m0a-llmproxy/judge-invocation.md": "PINNED-AT-INPUTS:staged with per-stratum templates + schemas + inventory rendering + probe manifest + calibration items, pinned by ops amendment BEFORE any judge call",
-      "poc/m0a-llmproxy/build-deranged-probe.py": "PINNED-AT-INPUTS:seed-pinned per-stratum Sattolo probe builder, staged + pinned with the invocation spec"
+      "poc/m0a-llmproxy/judge-invocation.md": "55a47a5b14db0d30b3b4dfcd2cb605d1845fa8755c87ec52ca59e4bb342669e4",
+      "poc/m0a-llmproxy/prompt-template-concept.txt": "831b93006b6d02ba0e452f85f84dd7da88bf319a2ed7498431b49f63824381d2",
+      "poc/m0a-llmproxy/prompt-template-prime.txt": "831b93006b6d02ba0e452f85f84dd7da88bf319a2ed7498431b49f63824381d2",
+      "poc/m0a-llmproxy/prompt-template-abstain.txt": "ca18cdb61929e56dfa4dbfb7d2ef5f60ddc963f4fbddb873b1bc7bfd9ed5efa3",
+      "poc/m0a-llmproxy/prompt-template-none.txt": "82a4db341975a03a9b0833de99734a7a4179b77d57df5aa8e94e2ddfb428d320",
+      "poc/m0a-llmproxy/output-schema-concept.json": "c37b7c69ce4a41d93e3d5824988ff5c1079979b9d3fad11eb3f3786d69eb4e68",
+      "poc/m0a-llmproxy/output-schema-prime.json": "c37b7c69ce4a41d93e3d5824988ff5c1079979b9d3fad11eb3f3786d69eb4e68",
+      "poc/m0a-llmproxy/output-schema-abstain.json": "a28c14501374a801c23934fa978703e7675e93c1bd8c5177438e39d7541339da",
+      "poc/m0a-llmproxy/output-schema-none.json": "a0bbecfe8aaf9026dd263f12db062bed4b1c3478e864e06a89637aef03f00f5f",
+      "poc/m0a-llmproxy/prime-glosses.json": "fdb004ccb495fd913c89bfe7262d3389d0d86276ff52f6657509735540cb2013",
+      "poc/m0a-llmproxy/build-none-inventory.py": "272d71d1a066746cf73ddc8df388476f2dc684a67bdf5fe5ffacce30d2eca359",
+      "poc/m0a-llmproxy/none-inventory.txt": "4d3374b5d73daebd033cbe87711b679ed9951846cd6ff242816aec3324786c31",
+      "poc/m0a-llmproxy/deranged-probe.jsonl": "b44b850dd32277be0f252fb363e8ab805185d912c4a14e79b99d49827b1b532c",
+      "poc/m0a-llmproxy/deranged-probe-manifest.json": "2fa6b73922508a265064b82940bfc2c7630251869b58a860b46342a60b722abc",
+      "poc/m0a-llmproxy/calibration-items.jsonl": "a7b4fa015796d6bafd3b06f3815c5abdb5f93c93759039f7bbcaa344764c6c0b",
+      "poc/m0a-llmproxy/build-deranged-probe.py": "81f783340721be8372e6a5ff02083ea34861bcee2efe79deb72da9208e0aa36e"
     },
     "model_revisions": {
       "_note": "no host models: zero GPU cells in this record",
       "judge-m1p": "gpt-5.6-sol via npx-pinned codex-cli 0.144.1, reasoning effort low (truthstyle-2x2 section-4.1 form; re-verify version banner at preflight)"
     },
-    "analysis_script": {"path": "analysis/m0a_llmproxy.py", "sha256": "PINNED-AT-FREEZE", "output_fields": ["/gates/adjudication_valid", "/gates/probe_valid", "/analysis/n_items", "/analysis/n_labelled", "/analysis/n_labelled_by_stratum", "/analysis/precision_strict_proxy", "/analysis/precision_lenient_proxy", "/analysis/precision_by_stratum_strict", "/analysis/recall_strict_proxy", "/analysis/recall_lenient_proxy", "/analysis/recall_lower_bound95", "/analysis/abstain_miss_rate", "/analysis/none_miss_rate", "/analysis/none_miss_upper95", "/analysis/probe_false_endorse_rate", "/analysis/agent_agreement_by_stratum", "/analysis/retest_agreement"]}
+    "analysis_script": {"path": "analysis/m0a_llmproxy.py", "sha256": "7cffe1a520d1c9a1e99a67cb550680e86325816b7a3574cdbf3b61cc52df72b4", "output_fields": ["/gates/adjudication_valid", "/gates/probe_valid", "/analysis/n_items", "/analysis/n_labelled", "/analysis/n_labelled_by_stratum", "/analysis/precision_strict_proxy", "/analysis/precision_lenient_proxy", "/analysis/precision_by_stratum_strict", "/analysis/recall_strict_proxy", "/analysis/recall_lenient_proxy", "/analysis/recall_lower_bound95", "/analysis/abstain_miss_rate", "/analysis/none_miss_rate", "/analysis/none_miss_upper95", "/analysis/probe_false_endorse_rate", "/analysis/agent_agreement_by_stratum", "/analysis/retest_agreement"]}
   },
   "runner_constraints": {
     "tier": 0,
