@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["experiment", "outcome", "matches_verdict_object", "recomputed_primary", "recomputed_cost_ratio_min", "recomputed_gates", "checks", "scale_language_assessment", "truncation_assessment", "failing_step", "reasoning"],
+  "properties": {
+    "experiment": { "type": "string" },
+    "outcome": { "type": "string", "enum": ["CONFIRM", "REFUTE"] },
+    "matches_verdict_object": { "type": "boolean" },
+    "recomputed_primary": { "type": "number", "description": "recomputed effect_size (engine - best-LLM); verdict object says 0.6602" },
+    "recomputed_cost_ratio_min": { "type": "number", "description": "verdict object says 22836" },
+    "recomputed_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["separation_valid", "covered_superiority", "refusal_superiority", "rag_lift_r3", "scale_trend_rag", "fabrication_material", "instrument_valid"],
+      "properties": {
+        "separation_valid": { "type": "boolean" },
+        "covered_superiority": { "type": "boolean" },
+        "refusal_superiority": { "type": "boolean" },
+        "rag_lift_r3": { "type": "boolean" },
+        "scale_trend_rag": { "type": "boolean" },
+        "fabrication_material": { "type": "boolean" },
+        "instrument_valid": { "type": "boolean" }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frozen_hash", "analysis_script_sha", "log_chain", "pins", "verdict_rule", "independence"],
+      "properties": {
+        "frozen_hash": { "type": "string", "enum": ["ok", "fail"] },
+        "analysis_script_sha": { "type": "string", "enum": ["ok", "fail"] },
+        "log_chain": { "type": "string", "enum": ["ok", "fail"] },
+        "pins": { "type": "string", "enum": ["ok", "fail"] },
+        "verdict_rule": { "type": "string", "enum": ["ok", "fail"] },
+        "independence": { "type": "string", "enum": ["ok", "fail"] }
+      }
+    },
+    "scale_language_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["licensed_value", "should_be", "is_defect", "note"],
+      "properties": {
+        "licensed_value": { "type": "string", "description": "the verdict's scale_language_licensed (expect 'slope')" },
+        "should_be": { "type": "string", "description": "'sign' or 'slope' — what the failed separation gate + sign-only envelope imply" },
+        "is_defect": { "type": "boolean", "description": "true iff licensing 'slope' with separation_valid=false is a verdict-gen defect" },
+        "note": { "type": "string" }
+      }
+    },
+    "truncation_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n_truncated_per_rag_cell", "affects_recompute", "note"],
+      "properties": {
+        "n_truncated_per_rag_cell": { "type": "integer" },
+        "affects_recompute": { "type": "boolean", "description": "does the truncation change the mechanical recompute (not the interpretation)?" },
+        "note": { "type": "string" }
+      }
+    },
+    "failing_step": { "type": ["string", "null"], "description": "the step that fails on REFUTE, else null" },
+    "reasoning": { "type": "string", "description": "the recompute trail: what was recomputed, hashes, verdict-rule evaluation" }
+  }
+}
