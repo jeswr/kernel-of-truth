@@ -1,0 +1,53 @@
+{
+  "kind": "amendment-value-law-reissue",
+  "experiment": "truthstyle-2x2",
+  "seq": 3,
+  "author": "writer-1",
+  "author_session_note": "Fable experiment-designer role, session 2026-07-10 (same identity mapping as corrections seq 1-2 of this record); pseudonym writer-1 per the RT-14 closed record-role list",
+  "authorized_by": "coordinator escalation 2026-07-10: the scoped verdict driver tools/registry/verdict-gen-dts.py (and the generic spine identically - the driver imports verdict-gen.apply_amendment_overlay, correction seq 2) aborts at the amendment-overlay step with ERR_P2_BAD_AMENDMENT because ops amendments seq 2 and seq 3 fill /pins/model_revisions/* with prose model-id strings while the spine guard PIN_VALUE_RE requires every post-freeze ops pin value to be a bare 40- or 64-char lowercase hex digest; ruling delegated to Fable per docs/next/opus-execution-practices.md (Opus never designs or concludes); precedent corrections seq 1-2 of this record",
+  "date": "2026-07-10",
+  "unblinding_state_at_write": "pre",
+  "what_happened": "Amendments seq 2 (judge-p2 gpt-5.5) and seq 3 (judge-p3 claude-haiku-4-5-20251001) resolved the two frozen PINNED-AT-INPUTS model_revisions placeholders with prose model-id + operationalization strings - the only non-hex ops-amendment pin values in the whole registry (hub-served models carry a 40-hex revision sha; API-served judges have none, so the writer pinned prose). The overlay guard is deliberately stricter than the record schema: prose INSIDE the frozen record (the judge-p1-gpt56sol model_revisions value) was reviewed under frozen_sha256 + the GNG-0 signoff, but a post-freeze fill bypasses freeze review, so the spine requires post-freeze ops values to be commitments to committed bytes (hex digests), never free text. The guard fired correctly and fail-closed; no judge adjudication may run against a questionable amendment state; boundary stop to Fable per the frozen stage discipline.",
+  "options_rejected": [
+    "WIDENING PIN_VALUE_RE or path-scoping an exemption for /pins/model_revisions/* in shared tools/registry/verdict-gen.py: rejected on the same ratified grounds as correction seq 2 options_rejected item 4 - every already-CONFIRMED audit (f2b-transfer-llmproxy, g8, a5, ...) certifies verdicts computed under the current spine semantics, and mutating the shared spine mid-programme enlarges the re-audit surface for ALL records to serve one; additionally it would permanently open a free-text channel through the post-freeze ops path for EVERY record - a prose pin value can carry design content (normalization rules, thresholds, judge instructions) that DESIGN_SCOPE_PREFIXES cannot see, whereas a digest of a committed file cannot smuggle uncommitted content.",
+    "ADDING superseding amendments seq 4/5 while leaving the prose-valued seq 2/3 files in place: mechanically impossible - load_amendments applies ALL registry/amendments/truthstyle-2x2/*.json in seq order and fails closed on the FIRST invalid record (an invalid amendment is never silently skipped); the amendment layer has no supersede mechanism.",
+    "DELETING seq 2/3 and issuing fresh seq 4/5: refused - it destroys in-place provenance and renumbers records that other ratified documents already cite (correction seq 1: 'amendments 1-3'; correction seq 2 names 4-pin-d-ts-labels.json as seq 4), and the post-adjudication labels pin is already spoken for as seq 4.",
+    "LEAVING the prose only in the amendment rationale and not filling the placeholder: unlawful - the frozen adjudication_protocol requires the model-revision placeholders resolved BEFORE any adjudication call, and the fill IS the pin."
+  ],
+  "ruling": "Amendments seq 2 and seq 3 are RE-ISSUED IN PLACE (same filenames, seq numbers, author, kind ops, patch op and path; date refreshed; rationale extended) with the pin value now a 64-hex digest, per the f2 amendment-6 / truthstyle amendment-1 staged-manifest convention EXTENDED to model_revisions (ASM-0440): poc/truthstyle-2x2/model-revisions-manifest.json commits {judge-p2-gpt55, judge-p3-haiku45} to the exact prose model-id + operationalization strings BYTE-IDENTICAL to the superseded amendments' value strings; pin value = sha256 over the canonical JSON (sort_keys, compact separators, UTF-8) of that dict; the committed file is those canonical bytes + one trailing newline. Both amendments intentionally carry the IDENTICAL digest - both commit to the same manifest (precedent: f2 amendment seq 1 fills two corpus pins with one digest). The manifest is NOT one of the 8 amendment-1 staged harness files, so no staged byte changed and the amendment-1 one-shot pin discipline is intact; from this correction on that discipline EXTENDS to the manifest bytes. The frozen record, frozen-index, the shared verdict spine, the scoped driver, and the pinned analysis are all byte-untouched.",
+  "lawfulness_basis": "Nothing ever consumed the superseded amendment bytes: results-log/truthstyle-2x2.jsonl does not exist; no overlay ever succeeded (the guard aborts before any effective record is derived); no unblind line, no verdict object, and no amended_record_sha256 anywhere in the registry references them; unblinding state is pre and data/d-ts-labels was never created. Re-issue-in-place of an UNCONSUMED registry record under a correction record is the amendment-layer analogue of the pre-run correction mechanism that amendment seq 1's one-shot pin discipline names for staged bytes. Scope rule (ASM-0441): an amendment that HAS entered any successful overlay - witnessed by a verdict, an unblind line, or a recorded amended_record_sha256 - may never be re-issued; the only lawful path then is a new experiment id with supersedes.",
+  "reissued_files": [
+    {
+      "path": "registry/amendments/truthstyle-2x2/2-pin-model-revisions-judge-p2-gpt55.json",
+      "sha256_superseded": "ae3f58f23b9e7286265038b40aed4c877d15480c5b8bb71bb16983711865d2fa",
+      "sha256_reissued": "6e9a4fea709c64e8dba07e82e8ed7727b158b23043e097828bc4fe4cae49d15f",
+      "changed": "patch[0].value prose -> 64-hex manifest digest; date refreshed to the re-issue timestamp; rationale: two command spellings restated in the scope-free form amendment seq 1 already uses (byte-exact spellings preserved in the manifest value) and one RE-ISSUE + VALUE RECIPE paragraph appended; author, kind, seq, experiment, patch op/path, unblinding_state_at_write byte-identical"
+    },
+    {
+      "path": "registry/amendments/truthstyle-2x2/3-pin-model-revisions-judge-p3-haiku45.json",
+      "sha256_superseded": "7c39c893b3e4111fe08977756ba6807573a90eb1a8c8e24822988369c8d99f53",
+      "sha256_reissued": "64a6f9e0247739b83905cf7fe46d0fad010b00f471117190d4a59aed692e46ee",
+      "changed": "patch[0].value prose -> 64-hex manifest digest; date refreshed to the re-issue timestamp; rationale: original text byte-identical with one RE-ISSUE + VALUE RECIPE paragraph appended; author, kind, seq, experiment, patch op/path, unblinding_state_at_write byte-identical"
+    }
+  ],
+  "manifest": {
+    "path": "poc/truthstyle-2x2/model-revisions-manifest.json",
+    "sha256": "80bcd310362b871f4ae39e0c0faea851f1a2d0fa7fe03a0f5ee433a5b8373fe9",
+    "pin_value": "6107d2f99e64488c4496f5c82479492b50d4c8361e419683e1940d7bfd551686",
+    "pin_value_recipe": "sha256 over the canonical JSON (sort_keys, compact separators, UTF-8) of the manifest dict; the committed file is those canonical bytes plus one trailing newline",
+    "values_provenance": "each manifest value is byte-identical to the corresponding superseded amendment's patch[0].value string; the superseded files are preserved in git history at the pre-reissue commit and identified above by sha256"
+  },
+  "changes": [
+    "poc/truthstyle-2x2/model-revisions-manifest.json: NEW committed pin target (canonical JSON dict + one trailing newline); carries the two judge model-revision prose values byte-verbatim; one-shot pin discipline applies to its bytes from this correction on.",
+    "registry/amendments/truthstyle-2x2/2-pin-model-revisions-judge-p2-gpt55.json: re-issued per reissued_files[0].",
+    "registry/amendments/truthstyle-2x2/3-pin-model-revisions-judge-p3-haiku45.json: re-issued per reissued_files[1].",
+    "registry/assumptions.jsonl: ASM-0440 (post-freeze ops pin values are hex commitments; manifest convention extended to model_revisions) and ASM-0441 (re-issue lawfulness scope rule) appended from the reserved 0440-0459 block.",
+    "NO other byte changed: the frozen record registry/experiments/truthstyle-2x2.json (frozen_sha256 18893369a1206614ade399bfbdf33f7952f3a6b3460f1edc4193b8f13db71d74), registry/frozen-index.json, all 8 amendment-1 staged harness files, amendment seq 1, tools/registry/verdict-gen.py, tools/registry/verdict-gen-dts.py, and the pinned analysis are byte-identical before and after this correction."
+  ],
+  "post_correction_state": "verdict-gen.apply_amendment_overlay now applies seq [1, 2, 3] and yields the deterministic amended_record_sha256 df89cd589c427eb6b19109bc66c6eaedeae0d9336c646344f9f22a269112971a; tools/registry/verdict-gen-dts.py proceeds past the overlay to its next lawful gate and fail-closes with ERR_P2_CORPUS_PIN until the post-adjudication ops amendment seq 4 (4-pin-d-ts-labels.json) lands, exactly as correction seq 2 step 2 prescribes. The judge campaign may launch against this amendment state.",
+  "asm_refs": ["ASM-0440", "ASM-0441"],
+  "frozen_objects_untouched": true,
+  "staged_bytes_untouched": true,
+  "shared_spine_untouched": true,
+  "consumer_note": "Auditor re-derivation, one line each: (i) sha256 of the canonical JSON (sort_keys, compact separators, UTF-8) of the committed manifest dict equals the patch value of BOTH re-issued amendments; (ii) sha256 of the committed manifest file bytes equals manifest.sha256 above; (iii) each manifest value reproduces the corresponding superseded amendment's patch[0].value byte-for-byte (originals preserved in git history at the pre-reissue commit, identified by sha256 in reissued_files); (iv) re-running verdict-gen-dts.py before amendment seq 4 lands must abort with ERR_P2_CORPUS_PIN and nothing else; (v) the amended effective record is re-derivable from (frozen record, amendment files) alone and its sha256 must equal the value in post_correction_state."
+}
