@@ -1,0 +1,69 @@
+{
+  "kind": "posthoc-erratum",
+  "experiment": "a5-llm",
+  "author": "writer-2",
+  "author_session_note": "Fable experiment-designer role acting as interpretive assessor, session 2026-07-10 (same session as registry/assessments/a5-llm.json); pseudonym per RT-14 closed role list",
+  "authorized_by": "coordinator directive 2026-07-10: rule the a5-llm pin defect flagged by the Codex GATE-A audit (poc/a5-llm/opus-runs/20260709T223054Z/audit-last-message.json, result=REJECT, failing_step=pins ONLY) and write the interpretive assessment; ruling delegated to Fable per docs/next/opus-execution-practices.md practice 4 (Opus never concludes)",
+  "date": "2026-07-10",
+
+  "ruling_path": {
+    "question": "Is the pin defect correctable by reset-correct-refreeze, or only by a post-hoc correction record?",
+    "governing_rule": "docs/next/opus-execution-practices.md 'Scope note': a reset-correct-refreeze is lawful ONLY for a record that is NOT GNG-0-signed AND has NO final-phase run in its results-log (P-9 cutoff not crossed). The conditions are conjunctive.",
+    "status_facts": [
+      "MEASURED: registry/experiments/a5-llm.json status=FROZEN, frozen_at=2026-07-09T22:33:25Z, frozen_by=coordinator-1, frozen_sha256=11c3dc4e797bcaf12f199217bb3279e794882113a7feca530b36b2c3916631ad; listed in registry/frozen-index.json; the Codex audit independently recomputed and reproduced this frozen hash",
+      "MEASURED: results-log/a5-llm.jsonl contains 10 chained events — seq 0..8 event=run phase=final exit=ok (first at 2026-07-09T23:06:23Z, runner-6) and seq 9 event=unblind (2026-07-09T23:06:52Z); log chain byte-valid per the Codex audit",
+      "MEASURED: a5-llm is NOT GNG-0-signed — registry/gng0-signoff.json (signed 2026-07-08) covers 9 frozen records (f1,f2,g2,g3,g6,g7,g8,g9,m0b); a5-llm was frozen 2026-07-09, after the gate"
+    ],
+    "gpt56_unfrozen_claim": "REFUTED against the files: the GPT-5.6 external review (poc/gpt56-review/SYNTHESIS.md, file mtime 2026-07-10T01:44Z; lens-a 01:25Z) calls a5-llm 'design-complete, unfrozen, sign-off pending'. That premise was STALE at synthesis time: freeze (22:33:25Z), all nine final-phase runs (23:06:23Z), unblinding (23:06:52Z), verdict-gen (23:06:52Z) and the Codex audit all precede the synthesis timestamp. The review packet evidently described the pre-freeze state.",
+    "ruling": "Reset-correct-refreeze is UNLAWFUL for a5-llm: the record has final-phase runs (seq 0..8) and is unblinded (seq 9) — the P-9 cutoff is crossed; the second conjunct of the scope-note condition fails regardless of the GNG-0 conjunct. The lawful instrument is THIS post-hoc correction record. The frozen record and the results-log are NOT edited (append-never-edit); this record supplies the binding erratum reading."
+  },
+
+  "defect": {
+    "statement": "pins.artifact_hashes['kot_axiom.py'] = d2064989c208c37df5a3d15a4fae6118c82516055fd6552f45a2a92fe2b7a659 does not match the executed engine tools/axiom/kot_axiom.py = b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf recorded in pins_observed.engine of every run event. d2064989 is the hash of the corpus mirror data/code-corpus-v0/src/kot_axiom.py AND of the engine version the a5 parent executed (results-log/a5.jsonl seq 0 config.engine_sha256 = d2064989, run 2026-07-09T02:32:06Z).",
+    "class": "freeze-time stale-hash bookkeeping error (clerical): the freeze recorded a historical engine identity instead of hashing the live file at the design-named path",
+    "timeline_measured": [
+      "2026-07-09T02:32:06Z — a5 final run executes engine d2064989 (results-log/a5.jsonl seq 0); the code-corpus-v0 snapshot mirror data/code-corpus-v0/src/kot_axiom.py carries the same pre-define-op bytes",
+      "2026-07-09T19:56:54Z — git fa210a6 'define-op: implement kot-query/1 define + define-match engine + mapper' modifies tools/axiom/kot_axiom.py",
+      "2026-07-09T22:25:52Z — git 9910052 'define-op production' final pre-freeze change; file mtime 22:21:02Z; tools/axiom/kot_axiom.py is now b6226940",
+      "2026-07-09T22:33:25Z — a5-llm freeze records d2064989 under pins.artifact_hashes['kot_axiom.py'] although the live tools/axiom/kot_axiom.py was already b6226940 (stale by ~8 minutes against the last commit, ~20 hours against the a5 identity it duplicates)",
+      "2026-07-09T23:06:23Z..23:06:29Z — all nine final-phase runs execute and uniformly observe engine b6226940 (config.engine_sha256 on the three R0 cells; pins_observed.engine on all nine events)"
+    ]
+  },
+
+  "adjudication_correct_pin": {
+    "decision": "DECISION: the correct referent of pins.artifact_hashes['kot_axiom.py'] is the EXECUTED engine tools/axiom/kot_axiom.py = b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf; the frozen value d2064989 is an erratum (stale identity), not a binding instruction to run the pre-define-op bytes. [Basis: the three MEASURED evidence items below; no STIPULATED premise is load-bearing.]",
+    "evidence": [
+      "MEASURED: the design/run context names tools/axiom/kot_axiom.py as the engine (docs/design-a5-llm.md; run configs; Codex audit reasoning restates this), and the sibling entries in the same pin block pin executed tool files — kot_code.py=9fbe2a50 matches tools/axiom/kot_code.py (which has NO corpus mirror under data/code-corpus-v0/src/), a5_llm_instrument.py=94c5403f matches tools/experiments/a5_llm_instrument.py. The kot_axiom.py entry is the single deviation from the block's own convention.",
+      "MEASURED: the frozen record's reuse_overrides defines the engine cell as an ENGINE-REGRESSION instrument gate — '/analysis/engine_matches_a5: per-query outcomes must reproduce results-log/a5.jsonl exactly, plus a byte-identical repeat'. A regression gate is non-vacuous only if the CURRENT engine runs; pinning the a5-era bytes (d2064989, the very bytes that produced results-log/a5.jsonl) would reduce engine_matches_a5 to a tautology. Design intent therefore requires the live engine.",
+      "MEASURED: all nine final-phase run events observed engine b6226940 uniformly (no mid-run drift), logged before unblinding, runner-6 independent of the auditor."
+    ]
+  },
+
+  "no_rerun_ruling": {
+    "decision": "DECISION: NO re-run is required — neither against d2064989 nor a repeat with b6226940. The defect is outcome-inert on this record, and that inertness is MEASURED, not assumed.",
+    "justification": [
+      "MEASURED (load-bearing): /analysis/engine_matches_a5 = 1 — the executed b6226940 engine reproduced, per-query and exactly (855/855 covered, 122/122 controls, plus byte-identical deterministic repeat), the a5 outcomes that the d2064989 engine itself produced (results-log/a5.jsonl seq 0). On the pinned 977-query slice the two engine versions are therefore OUTCOME-IDENTICAL: a d2064989 re-run would necessarily emit the same per-query vector and the same analysis output. Zero information gain.",
+      "MEASURED (corroborating mechanism): the d2064989->b6226940 delta is the define-op addition (git fa210a6 + 9910052): a fifth kot-query/1 op ('define'/'define-match') plus a stratum-3 'definitional' endorsement kind that per the code comment 'is consumed ONLY by the define-op index and NEVER enters the CWA store-validation pass'; EXTENSION_KINDS driving store validation are unchanged. The a5-eval slice contains no define-family queries (strata: callees-of, callers-of, contained-in, contains, imported-by, imports-of, instance-*, where-defined + control families).",
+      "MEASURED: the engine plays no role in LLM-cell scoring — LLM outputs are scored against the pinned a5-eval gold (corpus hash 3676d689, reproduced by the audit) via the pinned lenient extractor (a5_llm_instrument.py=94c5403f, pin ok); the six GPU cells are untouched by the engine version.",
+      "MEASURED: the Codex audit recomputed every endpoint from the chained log seq 0..8 at production bootstrap_B=10000 and reproduced reports/auto/a5-llm/analysis-output.json exactly (11/12 checks ok; pins the sole failure)."
+    ]
+  },
+
+  "corrective_action": {
+    "record_mutation": "NONE. registry/experiments/a5-llm.json, results-log/a5-llm.jsonl, registry/verdicts/a5-llm.json and registry/frozen-index.json stand byte-identical as issued (append-never-edit). This erratum record is the binding correction: readers and auditors read pins.artifact_hashes['kot_axiom.py'] as tools/axiom/kot_axiom.py = b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf, with d2064989 documented here as the stale value and as the hash of the corpus mirror data/code-corpus-v0/src/kot_axiom.py (that mirror is separately and correctly pinned inside corpus_hashes['code-corpus-v0'] = 1063ad50, which the audit reproduced).",
+    "verdict_impact": "registry/verdicts/a5-llm.json PASS-PENDING-AUDIT stands; the Codex GATE-A REJECT stands as issued against the record-as-frozen (it was correct to reject — the pin, read literally, did not describe the executed engine). Path to CONFIRMED: a targeted Codex GATE-A re-audit with this erratum record in scope. Until then every positive result remains MEASURED-UNAUDITED per programme law.",
+    "process_fix_forward": "prereg-freeze practice: artifact pins MUST be computed by hashing the live file at the design-named path at freeze time — never copied from a producer record, a results-log, or a corpus mirror — and, where a producer log exists, cross-checked against its pins_observed with a fail-closed mismatch error. Proposed tooling lint (successor records inherit): freeze-time check that every artifact_hashes entry matches sha256(bytes at its design-named path); track as a bd issue. The a5-llm freeze would have failed this lint by 8 minutes.",
+    "gpt56_item5_disposition": "GPT-5.6 item 5 pre-freeze repairs (extractor sensitivity/specificity gate, all-in cost ledger, calibrated-abstention secondary) CANNOT be adopted into a5-llm: the record is frozen, run, and unblinded — amendment is unlawful at this point for the same reason reset-refreeze is. Their scientific merit and the ASM-0012 reconciliation are adjudicated in the interpretive assessment (registry/assessments/a5-llm.json): no contradiction — ASM-0012's conservativity claim holds for the direction that realized (engine-superiority PASS); the anti-conservativity GPT-5.6 identifies applies only to the differentiator-KILL direction, which did not fire and is 0.41 absolute out of reach even under the worst-case leniency+truncation repair bound. The repairs are adopted as successor-design requirements (a5-llm-frontier, a5-nl, l3a-cost), not as an amendment."
+  },
+
+  "refs": {
+    "audit": "poc/a5-llm/opus-runs/20260709T223054Z/audit-last-message.json",
+    "frozen_record": "registry/experiments/a5-llm.json (frozen_sha256 11c3dc4e797bcaf12f199217bb3279e794882113a7feca530b36b2c3916631ad)",
+    "results_log": "results-log/a5-llm.jsonl (tail sha256 of seq 9 line per audit: 48f42584ba44738f81752dd2c049ba3bb7778a9312f2e87b04652a9c9c8aa045)",
+    "verdict": "registry/verdicts/a5-llm.json (sha256 f893cf4752389e15c72d881ac779f30677aa25e5db48796acadace7ae0e7945e)",
+    "analysis_output": "reports/auto/a5-llm/analysis-output.json (sha256 f80a491e674c50e375a76dc31652bb189391b0b0c0163182cf520af63a997559)",
+    "governing_rule": "docs/next/opus-execution-practices.md 'Scope note'",
+    "gpt56_review": "poc/gpt56-review/SYNTHESIS.md item 5 + G5; lens-a.raw.md; lens-d.raw.md",
+    "assessment": "registry/assessments/a5-llm.json (written with this ruling, same session)"
+  }
+}
