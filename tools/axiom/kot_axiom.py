@@ -40,10 +40,10 @@ consumed ONLY by the define-op index and NEVER enters the CWA store-validation
 pass over world-layer facts. No subsumption / no transitive closure — that is
 the refused `subClassOf` op (memo §6 C1). No OWL/DL model theory, no cosine
 (memo §6 C2/C3). Fail-closed relation resolution (ERR_DEFN_UNRESOLVED, memo §6
-C4): the resolved `relation` URN the onto-obo extractor now writes per
-differentia (bead 8es) is preferred, falling back to the pinned §3.3
-relation-shorthand alias table for shards without it, then through the onto-obo
-mint bridge in both cases.
+C4): the resolved `relation` URN the onto-obo extractor writes per differentia
+(bead 8es) is the SOLE resolution path — the pinned §3.3 relation-shorthand alias
+fallback is RETIRED (bead o6pj); a differentia without a resolved `relation`
+fails closed, and its IRI is then resolved through the onto-obo mint bridge.
 
 Endorsement home (bead bmtq): definitional endorsements live in their own corpus
 data/axioms-definitional-v0/ (loaded by build_engine via
@@ -79,14 +79,21 @@ DIRECTIONS = ("forward", "inverse")
 QUERY_OPS = ("unique", "lookup", "count", "instance", "define")
 DEFINITION_FORM = "obo-genus-differentia"
 
-# design-kot-query-define-op.md §3.3 — the pinned relation-shorthand alias table.
-# An OBO differentia `property` is stored as a bare shorthand string, NOT a URN;
-# it is resolved shorthand -> relation IRI (here) -> minted urn:kot: URN (via the
-# onto-obo mint bridge) at index-build time. Closed 10-value inventory over the
-# whole GO+PO differentia corpus (memo §1/§3.3, MEASURED histogram). LIT-BACKED
-# against the OBO Relation Ontology; resolution fails closed (ERR_DEFN_UNRESOLVED)
-# if the IRI is not present + minted in the endorsed shard's mint bridge — the
-# table is never trusted over the data.
+# design-kot-query-define-op.md §3.3 (SUPERSEDED) — the pinned relation-shorthand
+# alias table. RETIRED as the engine's define-index resolution path (bead o6pj,
+# 2026-07-10): the onto-obo extractor now resolves every differentia `property`
+# shorthand to a minted relation `urn:onto-obo:` IRI at EXTRACTION time (bead 8es,
+# commit 6bf9d72, source-driven from the sources' own Typedef xref: declarations),
+# so `_resolve_logical_definition` reads the resolved `relation` field ONLY and NO
+# LONGER consults this table — no silent aliasing (verified 2026-07-10: all 17,617
+# endorsed go/mondo/so differentiae carry a resolved `relation`).
+# The table is retained here solely for its OTHER, non-retired consumer: the mapper
+# leg's NL surface-shorthand -> IRI resolution (memo §5.1 step 2 —
+# poc/b-cov-define-lane/build_define_index.py `relationUrns`, mirrored byte-for-byte
+# by mapper/src/defineTemplates.ts `PINNED_RELATION_IRI`), which maps a relation
+# shorthand appearing in a user's define-QUESTION, NOT an onto-obo record. Closed
+# 10-value inventory over the GO+PO differentia corpus (memo §1/§3.3, MEASURED
+# histogram); LIT-BACKED against the OBO Relation Ontology.
 PINNED_RELATION_ALIASES = {
     "part_of": "urn:onto-obo:BFO_0000050",
     "regulates": "urn:onto-obo:RO_0002211",
@@ -116,11 +123,11 @@ REFUSAL_CODES = (
     "ERR_NO_RECORD",          # licensed and well-formed, but no asserted record
     "ERR_NO_DEFINITION",      # define: subject licensed but carries no
                               # logicalDefinition (memo §2.1)
-    "ERR_DEFN_UNRESOLVED",    # define: a differentia shorthand / genus / filler
+    "ERR_DEFN_UNRESOLVED",    # define: a differentia `relation` / genus / filler
                               # fails to resolve to a licensed urn:kot: URN under
-                              # the pinned tables — a partially-resolvable
-                              # definition is refused, never half-answered
-                              # (memo §2.1/§6 C4, fail-closed)
+                              # the mint bridge (alias fallback retired, bead o6pj)
+                              # — a partially-resolvable definition is refused,
+                              # never half-answered (memo §2.1/§6 C4, fail-closed)
 )
 
 
@@ -358,8 +365,9 @@ class Engine(object):
 
     def _build_definitional_index(self):
         """Build defn[urn:kot:X] -> resolved genus-differentia tuple from the
-        endorsed onto-obo shard(s) via the mint bridge + the pinned relation
-        alias table (memo §2.3/§3.3). Licensing = shard membership: every minted
+        endorsed onto-obo shard(s) via the mint bridge over each differentia's
+        extractor-resolved `relation` field (memo §2.3/§3.3; the §3.3 alias table
+        is RETIRED as a resolution path, bead o6pj). Licensing = shard membership: every minted
         concept in an endorsed shard is admitted (defn_licensed). Fail-closed
         (memo §6 C4): a licensed concept whose logicalDefinition has any
         unresolvable genus / differentia-shorthand / filler is recorded in
@@ -394,8 +402,9 @@ class Engine(object):
         """Resolve one onto-obo logicalDefinition to
         (sorted genus urn:kot: list, sorted (relation-urn, filler-urn) list).
         Returns None (fail-closed, memo §6 C4) if the genus is empty or any
-        component fails to resolve to a minted urn:kot: URN under the mint
-        bridge + pinned alias table. Retrieval only — no closure, no OWL/DL."""
+        component fails to resolve to a minted urn:kot: URN under the mint bridge
+        (each differentia's resolved `relation` field + its filler; the §3.3 alias
+        fallback is RETIRED, bead o6pj). Retrieval only — no closure, no OWL/DL."""
         genus_urns = []
         for g in (ld.get("genus") or []):
             gu = self.mint_bridge.get(g)
@@ -408,20 +417,20 @@ class Engine(object):
         for d in (ld.get("differentiae") or []):
             if not isinstance(d, dict):
                 return None
-            # Relation resolution (bead 8es / o6pj): prefer the resolved `relation`
-            # URN field the onto-obo extractor now writes at extraction time — a
-            # urn:onto-obo: IRI already resolved from the differentia property
-            # shorthand. Fall back to the pinned §3.3 alias table when the field is
-            # absent (older shards). GO/PO differentiae carry a `relation` equal to
-            # the alias-table target, so this is byte-identical for GO; SO/MONDO
-            # differentiae — whose shorthands lie OUTSIDE the 10-value GO/PO alias
-            # table — now resolve, realizing the MEASURED unlock. Either path then
-            # resolves the IRI through the mint bridge and STILL fails closed
-            # (memo §6 C4) if the IRI is not present + minted in the endorsed shard.
+            # Relation resolution (bead o6pj — ALIAS TABLE RETIRED; §3.3 SUPERSEDED).
+            # The onto-obo extractor resolves every differentia `property` shorthand
+            # to a canonical minted relation `urn:onto-obo:` IRI at EXTRACTION time
+            # (bead 8es, commit 6bf9d72), source-driven from the sources' own Typedef
+            # `xref:` declarations. Every endorsed shard's differentia therefore
+            # carries a resolved `relation` field (go/mondo/so verified 2026-07-10 —
+            # 17,617/17,617 differentiae). The engine reads that field ONLY: the
+            # former PINNED_RELATION_ALIASES silent fallback is RETIRED (no silent
+            # aliasing). A differentia lacking a resolved `relation` fails closed
+            # (ERR_DEFN_UNRESOLVED, memo §6 C4) — never re-derived from a shorthand.
             iri = d.get("relation")
             if not isinstance(iri, str) or not iri:
-                iri = PINNED_RELATION_ALIASES.get(d.get("property"))
-            rel_urn = self.mint_bridge.get(iri) if iri is not None else None
+                return None  # fail-closed: no resolved `relation` field (bead o6pj)
+            rel_urn = self.mint_bridge.get(iri)
             fil_urn = self.mint_bridge.get(d.get("filler"))
             if rel_urn is None or fil_urn is None:
                 return None

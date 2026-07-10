@@ -1,7 +1,9 @@
 """Unit tests for the kot-query/1 `define`-op (DEFINE + DEFINE-MATCH), its
 stratum-3 `definitional` endorsement kind, the resolved-`relation`-field
-resolution (bead 8es/o6pj) with the pinned relation-shorthand alias table as
-fallback, and the endorsement home data/axioms-definitional-v0/ (bead bmtq)
+resolution (bead 8es/o6pj) — the ONLY resolution path now that the pinned
+relation-shorthand alias fallback is RETIRED (bead o6pj); a differentia without a
+resolved `relation` field fails closed with no silent aliasing — and the
+endorsement home data/axioms-definitional-v0/ (bead bmtq)
 (docs/design-kot-query-define-op.md — the FROZEN memo).
 
 Style: tools/kb/test_kb.py / tools/registry/test_fixtures.py (stdlib unittest,
@@ -45,7 +47,9 @@ BADREL = kurn("badreln")  # admitted, definition has an unknown differentia shor
 MARKER = kurn("corpusmk")  # the endorsement's corpus-marker subject
 OTHER = kurn("otherxx")  # a valid urn:kot: URN outside the admitted set
 
-# `regulates` resolves shorthand -> RO_0002211 (pinned) -> R (mint bridge).
+# The resolved `regulates` relation IRI RO_0002211 -> R (mint bridge). Sourced
+# from the retained mapper-leg table for convenience; the engine no longer uses
+# that table to resolve (alias fallback retired, bead o6pj).
 REGULATES_IRI = kot_axiom.PINNED_RELATION_ALIASES["regulates"]
 
 MINT_BRIDGE = {
@@ -66,18 +70,27 @@ def _ld(genus, diffs):
             "genus": genus, "differentiae": diffs}
 
 
+# Post-8es shard records: every RESOLVABLE differentia carries a resolved
+# `relation` urn:onto-obo: IRI (the extractor writes it at extraction time). The
+# engine reads that field ONLY; the alias-table fallback is retired (bead o6pj).
 SHARD_RECORDS = [
     {"id": "urn:onto-obo:GO_TERMX", "schema": "kot-obo/1",
      "logicalDefinition": _ld(["urn:onto-obo:GO_GENUS"],
-                              [{"property": "regulates", "filler": "urn:onto-obo:GO_FILLER"}])},
+                              [{"property": "regulates", "relation": REGULATES_IRI,
+                                "filler": "urn:onto-obo:GO_FILLER"}])},
     {"id": "urn:onto-obo:GO_NODEF", "schema": "kot-obo/1",
      "axioms": [{"rel": "is_a", "target": "urn:onto-obo:GO_GENUS"}]},  # no logicalDefinition
     {"id": "urn:onto-obo:GO_UNRES", "schema": "kot-obo/1",
      "logicalDefinition": _ld(["urn:onto-obo:GO_GENUS"],
-                              [{"property": "regulates", "filler": "urn:onto-obo:GO_MISSINGFILLER"}])},
+                              [{"property": "regulates", "relation": REGULATES_IRI,
+                                "filler": "urn:onto-obo:GO_MISSINGFILLER"}])},
+    # BADREL: a differentia whose `property` (`regulates`) IS a former alias-table
+    # key and whose genus+filler both mint — but it carries NO resolved `relation`
+    # field. Pre-retirement the fallback resolved it; post-retirement (bead o6pj)
+    # it fails closed (ERR_DEFN_UNRESOLVED), never re-derived from the shorthand.
     {"id": "urn:onto-obo:GO_BADREL", "schema": "kot-obo/1",
      "logicalDefinition": _ld(["urn:onto-obo:GO_GENUS"],
-                              [{"property": "totally_unknown_rel", "filler": "urn:onto-obo:GO_FILLER"}])},
+                              [{"property": "regulates", "filler": "urn:onto-obo:GO_FILLER"}])},
 ]
 
 ENDORSEMENT_REF = "axioms-v0/endorse-go.json"
@@ -159,7 +172,9 @@ class TestDefineRefusals(unittest.TestCase):
         self.assertEqual(self._code({"op": "define", "subject": UNRES}),
                          "ERR_DEFN_UNRESOLVED")
 
-    def test_defn_unresolved_unknown_shorthand(self):
+    def test_defn_unresolved_missing_relation_field(self):
+        # BADREL's differentia has a `property` but NO resolved `relation` field
+        # -> fail-closed (alias fallback retired, bead o6pj); never re-derived.
         self.assertEqual(self._code({"op": "define", "subject": BADREL}),
                          "ERR_DEFN_UNRESOLVED")
 
@@ -279,6 +294,8 @@ class TestDeterminism(unittest.TestCase):
         self.assertEqual(a, b)
 
     def test_alias_table_targets_are_pinned_iris(self):
+        # The alias table is RETIRED from the engine (bead o6pj) but retained as
+        # the mapper leg's NL surface-shorthand -> IRI table (memo §5.1): still a
         # closed 10-value inventory (memo §3.3), each a urn:onto-obo: IRI.
         self.assertEqual(len(kot_axiom.PINNED_RELATION_ALIASES), 10)
         for iri in kot_axiom.PINNED_RELATION_ALIASES.values():
@@ -360,8 +377,9 @@ def build_rel():
 
 
 class TestRelationFieldResolution(unittest.TestCase):
-    """The resolved `relation` URN field (bead 8es) is read at index build, the
-    §3.3 alias table is the fallback, and resolution still fails closed."""
+    """The resolved `relation` URN field (bead 8es) is the SOLE resolution path
+    read at index build (the §3.3 alias fallback is retired, bead o6pj), and
+    resolution still fails closed."""
 
     def setUp(self):
         self.eng = build_rel()
@@ -374,15 +392,16 @@ class TestRelationFieldResolution(unittest.TestCase):
         self.assertEqual(r["status"], "answer")
         self.assertEqual(r["value"]["differentiae"], [{"relation": RQUAL, "filler": F}])
 
-    def test_relation_field_equal_to_alias_target_is_byte_identical(self):
-        # GO case: property regulates, relation == the alias-table target -> the
-        # resolved relation URN is exactly what the alias path would have produced.
+    def test_relation_field_go_case_resolves_to_target(self):
+        # GO case: property regulates, relation == RO_0002211 -> resolves to R via
+        # the resolved `relation` field (the only path; the alias table is gone).
         r = self.eng.query({"op": "define", "subject": GOSTYLE})
         self.assertEqual(r["value"]["differentiae"], [{"relation": R, "filler": F}])
 
-    def test_relation_field_takes_precedence_over_shorthand(self):
-        # property regulates (a known alias -> would resolve to R) but the resolved
-        # relation diverges to RALT: the field wins.
+    def test_relation_field_is_sole_path_property_ignored(self):
+        # property regulates (a former alias key that WOULD have resolved to R) but
+        # the resolved relation is RALT: the `relation` field is the only source of
+        # truth and the shorthand `property` is never consulted (bead o6pj).
         r = self.eng.query({"op": "define", "subject": DIVERGE})
         self.assertEqual(r["value"]["differentiae"], [{"relation": RALT, "filler": F}])
         self.assertNotEqual(RALT, R)
@@ -394,12 +413,18 @@ class TestRelationFieldResolution(unittest.TestCase):
         self.assertEqual(self.eng.query({"op": "define", "subject": RELUNM})["code"],
                          "ERR_DEFN_UNRESOLVED")
 
-    def test_alias_fallback_still_used_when_relation_absent(self):
-        # the original SHARD_RECORDS carry NO relation field: the alias-table
-        # fallback still resolves them (regression that the fallback survives).
+    def test_no_silent_alias_fallback_when_relation_absent(self):
+        # RETIREMENT REGRESSION (bead o6pj): BADREL's differentia has property
+        # `regulates` (a former alias-table key) with a MINTED genus+filler but NO
+        # resolved `relation` field. Pre-retirement the §3.3 fallback resolved it
+        # (regulates -> RO_0002211 -> R); post-retirement it fails closed -> no
+        # silent aliasing. X, which carries a `relation`, still resolves.
         eng = build()
-        r = eng.query({"op": "define", "subject": X})
-        self.assertEqual(r["value"]["differentiae"], [{"relation": R, "filler": F}])
+        self.assertIn(BADREL, eng.defn_unresolved)
+        self.assertNotIn(BADREL, eng.defn)
+        self.assertEqual(eng.query({"op": "define", "subject": BADREL})["code"],
+                         "ERR_DEFN_UNRESOLVED")
+        self.assertIn(X, eng.defn)
 
 
 class TestEndorsementHome(unittest.TestCase):
