@@ -1,0 +1,47 @@
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/<workspace-scrubbed>/main/ap-JSxKAW4800K8PA04FjMvSH
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+├── 🔨 Created function gen_l4.
+├── 🔨 Created function bprime_a10g.
+└── 🔨 Created function bprime2_a10g.
+[bp2] byte-equality vs _build_specs_g2b f2_to: 100/100 OK
+=== B″ Stage-0 KEYED internal-channel probe — PLAN (spec docs/next/nsk1-bprime2-spec.md) ===
+host                : R3 = HuggingFaceTB/SmolLM2-1.7B-Instruct  commit-pin 31b70e2e869a7173562077fd711b654946d38674
+items (covered)     : 958 (858 items.jsonl covered + 100 headroom.jsonl)
+input pins OK       : items=0e1f5c6bad6f… headroom=8b8e99e48cce…
+grid (L=24)          : LH=[12, 16, 20] LT=[8, 12, 16]  pivot=(16, 12)  |cells|=9
+cell sweep order    : [(16, 12), (12, 8), (12, 12), (12, 16), (16, 8), (16, 16), (20, 8), (20, 12), (20, 16)]
+seeds               : 20260712 (σ₂ / C100 / 300-cap / coin)
+α ladder            : [0.125, 0.25, 0.5, 1.0]  (α*=largest with name-collapse≤0.10 at pivot; else 0.125)
+floor / z           : 0.70  |  PASS-LB z=2.5427  KILL-UB z=1.6449  CTRL z=2.7730
+planning |Swept|    : 200 (=B′ measured |F|; actual = text-only failures, cap 300)
+gens   @|Swept|=200  : 3814  (text-only 958 + calib 256 + keyed 800 + breakage 1800)
+forwards@|Swept|=200 : 22800  (donor 600 + disc 14400 + disc-c100 7200 + baseline 600)
+worst  @|Swept|=300  : gens=4214 forwards=30400
+GPU-h estimate      : 0.3–1.5  |  $ estimate : $0.4–$2.0  (A10G fp32; spec §7 planning band)
+HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard 19800s)
+decision rule       : §5 — INSTRUMENT-INVALID → PASS-KEYED → CHANNEL-ROLE-ONLY → KILL → INCONCLUSIVE (ties=failure)
+phase               : exploratory (quarantined, uncitable, flips no verdict)
+within caps (plan)  : True
+
+DRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.
+
+--- sample form-2 text-only prompt (item clutrr-c0001) ---
+Story:
+[Michael] and his daughter [Jennifer] like to read poems together. [Jason] is the proud father of the lovely [Michael]
+Question: Who is the grandfather of Jennifer?
+Answer with exactly one word: the name of the person. Answer:
+
+--- donors (item clutrr-c0001) ---
+D_top   : Note: the father of Jennifer is Jason.
+D_bridge: Note: the father of Jennifer is Michael.
+[top=Jason bridge=Michael base=Jennifer]
+
+coin-bit sample (item clutrr-c0001, pivot (16, 12)): b=1
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/<workspace-scrubbed>/main/ap-JSxKAW4800K8PA04FjMvSH

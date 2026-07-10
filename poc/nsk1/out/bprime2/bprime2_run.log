@@ -1,0 +1,382 @@
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/<workspace-scrubbed>/main/ap-pkSo7vzRADwchBd1kwRppt
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+├── 🔨 Created function gen_l4.
+├── 🔨 Created function bprime_a10g.
+└── 🔨 Created function bprime2_a10g.
+[bp2] byte-equality vs _build_specs_g2b f2_to: 100/100 OK
+=== B″ Stage-0 KEYED internal-channel probe — PLAN (spec docs/next/nsk1-bprime2-spec.md) ===
+host                : R3 = HuggingFaceTB/SmolLM2-1.7B-Instruct  commit-pin 31b70e2e869a7173562077fd711b654946d38674
+items (covered)     : 958 (858 items.jsonl covered + 100 headroom.jsonl)
+input pins OK       : items=0e1f5c6bad6f… headroom=8b8e99e48cce…
+grid (L=24)          : LH=[12, 16, 20] LT=[8, 12, 16]  pivot=(16, 12)  |cells|=9
+cell sweep order    : [(16, 12), (12, 8), (12, 12), (12, 16), (16, 8), (16, 16), (20, 8), (20, 12), (20, 16)]
+seeds               : 20260712 (σ₂ / C100 / 300-cap / coin)
+α ladder            : [0.125, 0.25, 0.5, 1.0]  (α*=largest with name-collapse≤0.10 at pivot; else 0.125)
+floor / z           : 0.70  |  PASS-LB z=2.5427  KILL-UB z=1.6449  CTRL z=2.7730
+planning |Swept|    : 200 (=B′ measured |F|; actual = text-only failures, cap 300)
+gens   @|Swept|=200  : 3814  (text-only 958 + calib 256 + keyed 800 + breakage 1800)
+forwards@|Swept|=200 : 22800  (donor 600 + disc 14400 + disc-c100 7200 + baseline 600)
+worst  @|Swept|=300  : gens=4214 forwards=30400
+GPU-h estimate      : 0.3–1.5  |  $ estimate : $0.4–$2.0  (A10G fp32; spec §7 planning band)
+HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard 19800s)
+decision rule       : §5 — INSTRUMENT-INVALID → PASS-KEYED → CHANNEL-ROLE-ONLY → KILL → INCONCLUSIVE (ties=failure)
+phase               : exploratory (quarantined, uncitable, flips no verdict)
+within caps (plan)  : True
+G2_BUILD=v2 module import ok (root=/root)
+[bp2] model=HuggingFaceTB/SmolLM2-1.7B-Instruct L=24 d=2048 commit=31b70e2e869a7173562077fd711b654946d38674
+[bp2] LH=[12, 16, 20] LT=[8, 12, 16] pivot=(16, 12) cells=[(16, 12), (12, 8), (12, 12), (12, 16), (16, 8), (16, 16), (20, 8), (20, 12), (20, 16)]
+[bp2] step1 160/958 acc_running=0.719 t=19s
+[bp2] step1 320/958 acc_running=0.766 t=24s
+[bp2] step1 480/958 acc_running=0.756 t=29s
+[bp2] step1 640/958 acc_running=0.786 t=33s
+[bp2] step1 800/958 acc_running=0.792 t=38s
+[bp2] step1 958/958 acc_running=0.791 t=43s
+[bp2] STEP1 acc_text=0.7912 headroom_ok=True repro_agree=958/958
+[bp2] |F|=200 |Swept|=200 |C100|=100 |C_cal|=32 (σ₂ fixed-point-free)
+[bp2] donors harvested for 300 items (no gen) t=56s
+[bp2] α table={'0.125': 0.0, '0.25': 0.0, '0.5': 0.0, '1': 0.016} α*=1 t=65s
+[bp2] disc cell (16,12) done t=106s
+[bp2] disc cell (12,8) done t=148s
+[bp2] disc cell (12,12) done t=190s
+[bp2] disc cell (12,16) done t=233s
+[bp2] disc cell (16,8) done t=275s
+[bp2] disc cell (16,16) done t=317s
+[bp2] disc cell (20,8) done t=359s
+[bp2] disc cell (20,12) done t=402s
+[bp2] disc cell (20,16) done t=444s
+[bp2] baselines done t=460s
+[bp2] disc-c100 cell (16,12) done t=480s
+[bp2] disc-c100 cell (12,8) done t=500s
+[bp2] disc-c100 cell (12,12) done t=521s
+[bp2] disc-c100 cell (12,16) done t=541s
+[bp2] disc-c100 cell (16,8) done t=561s
+[bp2] disc-c100 cell (16,16) done t=582s
+[bp2] disc-c100 cell (20,8) done t=602s
+[bp2] disc-c100 cell (20,12) done t=622s
+[bp2] disc-c100 cell (20,16) done t=643s
+[bp2] keyed-gen done t=677s
+[bp2] breakage done t=740s
+
+=== B″ RESULT (phase:exploratory) ===
+aborted=False partial=False n_rows=14914 elapsed=740s (GPU) / 753s (wall)
+{
+ "aborted": false,
+ "all9_kill": false,
+ "alpha_star": 1.0,
+ "cell_reports": [
+  {
+   "cell": [
+    16,
+    12
+   ],
+   "completed": true,
+   "keyacc_coin": 0.455,
+   "keyacc_real": 0.46,
+   "keyacc_role": 0.58,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 61,
+    "c": 60,
+    "n_discordant": 121,
+    "p_one_sided": 0.5
+   },
+   "paired_real_gt_role": {
+    "b": 34,
+    "c": 58,
+    "n_discordant": 92,
+    "p_one_sided": 0.9956095345965125
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.3608337316855037,
+   "wilson_lb_real_z2_5427": 0.3730479897677993,
+   "wilson_ub95_real_z1_6449": 0.5181178047017281
+  },
+  {
+   "cell": [
+    12,
+    8
+   ],
+   "completed": true,
+   "keyacc_coin": 0.455,
+   "keyacc_real": 0.45,
+   "keyacc_role": 0.55,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 51,
+    "c": 52,
+    "n_discordant": 103,
+    "p_one_sided": 0.5780511723735693
+   },
+   "paired_real_gt_role": {
+    "b": 38,
+    "c": 58,
+    "n_discordant": 96,
+    "p_one_sided": 0.9842259398731333
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.3608337316855037,
+   "wilson_lb_real_z2_5427": 0.36351602502014846,
+   "wilson_ub95_real_z1_6449": 0.5081482742439305
+  },
+  {
+   "cell": [
+    12,
+    12
+   ],
+   "completed": true,
+   "keyacc_coin": 0.43,
+   "keyacc_real": 0.42,
+   "keyacc_role": 0.58,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 49,
+    "c": 51,
+    "n_discordant": 100,
+    "p_one_sided": 0.6178232827986667
+   },
+   "paired_real_gt_role": {
+    "b": 34,
+    "c": 66,
+    "n_discordant": 100,
+    "p_one_sided": 0.999563140081544
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.3372956421307516,
+   "wilson_lb_real_z2_5427": 0.3351298262458345,
+   "wilson_ub95_real_z1_6449": 0.4781001869961434
+  },
+  {
+   "cell": [
+    12,
+    16
+   ],
+   "completed": true,
+   "keyacc_coin": 0.51,
+   "keyacc_real": 0.81,
+   "keyacc_role": 0.595,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 77,
+    "c": 17,
+    "n_discordant": 94,
+    "p_one_sided": 1.3523211583732057e-10
+   },
+   "paired_real_gt_role": {
+    "b": 62,
+    "c": 19,
+    "n_discordant": 81,
+    "p_one_sided": 8.865341463454483e-07
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.41343998231403767,
+   "wilson_lb_real_z2_5427": 0.7301961252258355,
+   "wilson_ub95_real_z1_6449": 0.8513743912847108
+  },
+  {
+   "cell": [
+    16,
+    8
+   ],
+   "completed": true,
+   "keyacc_coin": 0.465,
+   "keyacc_real": 0.495,
+   "keyacc_role": 0.5,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 50,
+    "c": 44,
+    "n_discordant": 94,
+    "p_one_sided": 0.303147968846983
+   },
+   "paired_real_gt_role": {
+    "b": 47,
+    "c": 48,
+    "n_discordant": 95,
+    "p_one_sided": 0.5812219646354626
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.37031478995105244,
+   "wilson_lb_real_z2_5427": 0.4066815797929332,
+   "wilson_ub95_real_z1_6449": 0.5528304526802648
+  },
+  {
+   "cell": [
+    16,
+    16
+   ],
+   "completed": true,
+   "keyacc_coin": 0.505,
+   "keyacc_real": 0.85,
+   "keyacc_role": 0.58,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 84,
+    "c": 15,
+    "n_discordant": 99,
+    "p_one_sided": 4.1114256865785026e-13
+   },
+   "paired_real_gt_role": {
+    "b": 65,
+    "c": 11,
+    "n_discordant": 76,
+    "p_one_sided": 9.05985685804825e-11
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.4086112044669391,
+   "wilson_lb_real_z2_5427": 0.7749096559902615,
+   "wilson_ub95_real_z1_6449": 0.8868454960424751
+  },
+  {
+   "cell": [
+    20,
+    8
+   ],
+   "completed": true,
+   "keyacc_coin": 0.465,
+   "keyacc_real": 0.495,
+   "keyacc_role": 0.51,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 55,
+    "c": 49,
+    "n_discordant": 104,
+    "p_one_sided": 0.3120717579223396
+   },
+   "paired_real_gt_role": {
+    "b": 48,
+    "c": 51,
+    "n_discordant": 99,
+    "p_one_sided": 0.6560573282101546
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.37031478995105244,
+   "wilson_lb_real_z2_5427": 0.4066815797929332,
+   "wilson_ub95_real_z1_6449": 0.5528304526802648
+  },
+  {
+   "cell": [
+    20,
+    12
+   ],
+   "completed": true,
+   "keyacc_coin": 0.52,
+   "keyacc_real": 0.5,
+   "keyacc_role": 0.525,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 51,
+    "c": 55,
+    "n_discordant": 106,
+    "p_one_sided": 0.6862845114606833
+   },
+   "paired_real_gt_role": {
+    "b": 45,
+    "c": 50,
+    "n_discordant": 95,
+    "p_one_sided": 0.7308029868539152
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.42312535533128,
+   "wilson_lb_real_z2_5427": 0.4115207226081871,
+   "wilson_ub95_real_z1_6449": 0.5577665630095489
+  },
+  {
+   "cell": [
+    20,
+    16
+   ],
+   "completed": true,
+   "keyacc_coin": 0.505,
+   "keyacc_real": 0.605,
+   "keyacc_role": 0.59,
+   "n": 200,
+   "paired_real_gt_coin": {
+    "b": 62,
+    "c": 42,
+    "n_discordant": 104,
+    "p_one_sided": 0.030963189939313726
+   },
+   "paired_real_gt_role": {
+    "b": 43,
+    "c": 40,
+    "n_discordant": 83,
+    "p_one_sided": 0.4132023622245966
+   },
+   "ties": {
+    "coin": 0,
+    "real": 0,
+    "role": 0
+   },
+   "wilson_lb_coin_z2_7730": 0.4086112044669391,
+   "wilson_lb_real_z2_5427": 0.5151432191372255,
+   "wilson_ub95_real_z1_6449": 0.6600943058942764
+  }
+ ],
+ "floor": 0.7,
+ "gate_label": "PASS-KEYED",
+ "headroom_ok": true,
+ "instrument_invalid_triggers": {
+  "aborted": false,
+  "coin_lb_gt_0.5_any_cell": false,
+  "not_headroom_ok": false
+ },
+ "n_completed_cells": 9,
+ "n_swept": 200,
+ "partial": false,
+ "pass_cell": [
+  12,
+  16
+ ],
+ "role_only_cell": [
+  12,
+  16
+ ],
+ "z": {
+  "ctrl": 2.773,
+  "kill": 1.6449,
+  "pass": 2.5427
+ }
+}
+MECHANICAL VERDICT (spec §5): PASS-KEYED
+sha256 bprime2_rows.jsonl    = dadabaaea914485e387b9c1f558f5f938a7b9905159b35000957aea2a340eeba
+sha256 bprime2_summary.json  = 0ee800f7f7d1aec0aa245986aa9a27a15017ebc33d5780a9cb4104da366f76f1
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/<workspace-scrubbed>/main/ap-pkSo7vzRADwchBd1kwRppt

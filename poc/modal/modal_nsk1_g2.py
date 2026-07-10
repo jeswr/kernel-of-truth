@@ -1709,3 +1709,991 @@ def bprime(dry_plan: bool = False, gpu: str = "A10G"):
     print("MECHANICAL VERDICT (ASM-0041 §5): %s" % gate["gate_label"])
     print("sha256 bprime_rows.jsonl    = %s" % sha_rows)
     print("sha256 bprime_summary.json  = %s" % sha_sum)
+
+
+# =====================================================================
+# B″ — nsk1 Stage-0 KEYED internal-channel probe at R3, phase:"exploratory"
+# ---------------------------------------------------------------------
+# EXECUTES docs/next/nsk1-bprime2-spec.md (Fable, runner-ready; ASM-0200..0204;
+# ZERO design decisions left to the runner). Control-unpassable REDESIGN of B′.
+# This entrypoint is APPENDED; the g2/g2b/g2c/g2d/bprime code and every shared
+# helper above are byte-untouched. It reuses the verified plumbing:
+#   * form-2 (entity) TEXT-ONLY prompts + D_bridge donor = _build_specs_bprime
+#     (byte-identical to _build_specs_g2b f2 branch) — extended only with D_top.
+#   * _score_entity scorer byte-verbatim; _bp_wilson / _bp_binom_sf_ge /
+#     _bp_sattolo byte-verbatim; the hooksmoke-verified residual read/write path
+#     (hidden_states[k] = input of decoder module k; pre-hook on layers[ℓt]).
+# NEW mechanism (spec §2 DECISION): ADDITIVE NORM-MATCHED CONTRASTIVE injection
+#   h_p ← h_p + s·α·‖h_p‖·Δ̂v  (NOT B′'s replacement transplant), where
+#   Δ̂v = unit(v_top − v_bridge), v_* harvested at the donor answer-slot name.
+# Read-out (spec §2/§3 Step 6): source-keyed counterfactual-pair discrimination,
+#   paired teacher-forced logprob margin m(v)=lp(top|v)−lp(bridge|v); success bit
+#   = m(+)>m(−); ties/non-finite = failure. COIN control (null anchor, ≤0.5 by
+#   construction) + ROLE control (mechanism separator) both from the deranged arm.
+# Host R3 = SmolLM2-1.7B-Instruct, commit-pinned; A10G fp32; all 958 covered
+# CLUTRR entity-form items; greedy 16-tok gens; every row phase:"exploratory".
+#
+#   .venv/bin/modal run poc/modal/modal_nsk1_g2.py::bprime2 --dry-plan   # $0
+#   .venv/bin/modal run poc/modal/modal_nsk1_g2.py::bprime2              # A10G
+# =====================================================================
+
+BPRIME2_MODEL = "HuggingFaceTB/SmolLM2-1.7B-Instruct"          # R3 (ASM-0040)
+BPRIME2_PIN = "31b70e2e869a7173562077fd711b654946d38674"        # commit pin (spec §2, ABORT otherwise)
+BPRIME2_SEED = 20260712        # σ₂ derangement / C100 / 300-cap / coin (spec §2)
+BPRIME2_ALPHA_LADDER = [0.125, 0.25, 0.5, 1.0]  # α calibration ladder (spec §3 Step 5)
+BPRIME2_FLOOR = 0.70           # keyed-accuracy floor (spec §2/§5)
+BPRIME2_Z_PASS = 2.5427        # PASS-side one-sided Wilson LB, 1−0.05/9 (spec §4)
+BPRIME2_Z_KILL = 1.6449        # KILL-side one-sided Wilson UB, 95% (spec §4)
+BPRIME2_Z_CTRL = 2.7730        # control-validity two-sided per side, 1−0.05/18 (spec §4)
+BPRIME2_SWEEP_CAP = 300        # Swept cap (spec §3 Step 3)
+BPRIME2_C100 = 100             # correct subsample size (spec §3 Step 3)
+BPRIME2_CCAL = 32              # calibration subsample (first 32 of C100) (spec §3 Step 5)
+BPRIME2_BATCH = 16             # GPU mini-batch (memory-safe; OOM auto-halves)
+BPRIME2_WALL_CAP_S = 19800     # soft in-container wall guard (5.5 h) < Modal timeout
+
+
+def _bprime2_grid(L: int):
+    """9-cell grid (spec §2 DECISION / §3 Step 2). lay(f)=min(L−1,max(1,round(f·L))).
+    ℓh∈{lay(1/2),lay(2/3),lay(5/6)} × ℓt∈{lay(1/3),lay(1/2),lay(2/3)}.
+    Pivot=(lay(2/3),lay(1/2)). At L=24: ℓh∈{12,16,20}, ℓt∈{8,12,16}, pivot=(16,12).
+    Cell order: pivot first, then row-major (ℓh asc, ℓt asc)."""
+    def lay(f):
+        return min(L - 1, max(1, int(round(f * L))))
+    LH = sorted({lay(1 / 2), lay(2 / 3), lay(5 / 6)})
+    LT = sorted({lay(1 / 3), lay(1 / 2), lay(2 / 3)})
+    pivot = (lay(2 / 3), lay(1 / 2))
+    rowmajor = [(h, t) for h in LH for t in LT]
+    assert len(rowmajor) <= 9, "ABORT: |cells|=%d > 9" % len(rowmajor)
+    assert pivot in rowmajor, "ABORT: pivot %s not in grid" % (pivot,)
+    ordered = [pivot] + [c for c in rowmajor if c != pivot]
+    return LH, LT, pivot, ordered
+
+
+def _build_specs_bprime2():
+    """Reuse _build_specs_bprime for the 958 form-2 TEXT-ONLY prompts + the
+    D_bridge donor (byte-identical to g2b f2 + the run-1/g2b feedback renderer),
+    then add the D_top donor (spec §3 Step 0). ABORTs on any build-gate breach.
+    Both donors = 'Note: the <rs> of <base> is <NAME>.' differing ONLY in the
+    answer-slot name (top vs bridge). B′'s gold-not-in-feedback assert is WAIVED
+    for D_top ONLY — donor text never enters the model as prompt text; only its
+    harvested activations are injected (Law 1 holds). Pure/local (torch-free)."""
+    base = _build_specs_bprime()  # authoritative prompt + feedback(=D_bridge) + names
+    lex = json.loads((_ROOT / "data/nsk1-clutrr/lexicon.json").read_text())
+    rel_surface = {v: k for k, v in lex["relations"].items()}
+
+    def _rows(path, sf):
+        for line in (_ROOT / path).read_text().splitlines():
+            if not line.strip():
+                continue
+            it = json.loads(line)
+            if sf is not None and it.get("stratum") != sf:
+                continue
+            yield it
+
+    src = list(_rows("data/nsk1-clutrr/items.jsonl", "covered")) + \
+        list(_rows("data/nsk1-clutrr/headroom.jsonl", None))
+    assert len(src) == len(base) == 958, \
+        "ABORT: src=%d base=%d (expected 958)" % (len(src), len(base))
+
+    out = []
+    for it, bs in zip(src, base):
+        assert it["item_id"] == bs["item_id"], \
+            "ABORT: order mismatch %s vs %s" % (it["item_id"], bs["item_id"])
+        item_lex = it["lexicon"]
+        surfaces = list(item_lex.values())
+        assert len(item_lex) == 3 and len({s.lower() for s in surfaces}) == 3, \
+            "ABORT: item %s not 3-name pairwise-distinct" % it["item_id"]
+        subj_urn = it["hop1"]["subject"]
+        bridge_urn = it["hop1_bridge"]
+        base_surface = item_lex[subj_urn]
+        top_urns = [u for u in item_lex if u not in (subj_urn, bridge_urn)]
+        assert len(top_urns) == 1, "ABORT: item %s no unique chain-top" % it["item_id"]
+        top_surface = item_lex[top_urns[0]]
+        bridge_surface = item_lex[bridge_urn]
+        rs = rel_surface[it["hop1"]["rel"]]
+        prefix = "Note: the %s of %s is " % (rs, base_surface)
+        d_bridge = prefix + bridge_surface + "."
+        d_top = prefix + top_surface + "."
+        # reuse fidelity: reused feedback must BE the D_bridge donor, byte-for-byte
+        assert d_bridge == bs["feedback"], \
+            "ABORT: D_bridge != reused feedback (%s)" % it["item_id"]
+        assert (bs["bridge_surface"] == bridge_surface and bs["gold_top"] == top_surface
+                and bs["base"] == base_surface), "ABORT: name field drift (%s)" % it["item_id"]
+        # donors differ ONLY in the name slot (identical prefix + '.' suffix)
+        assert d_top == prefix + top_surface + "." and d_bridge == prefix + bridge_surface + ".", \
+            "ABORT: donor template drift (%s)" % it["item_id"]
+        assert d_top[:len(prefix)] == d_bridge[:len(prefix)] and d_top[-1] == d_bridge[-1] == ".", \
+            "ABORT: donors differ outside name slot (%s)" % it["item_id"]
+        out.append({
+            "item_id": bs["item_id"], "prompt": bs["prompt"],
+            "d_top": d_top, "d_bridge": d_bridge,
+            "top_surface": top_surface, "bridge_surface": bridge_surface,
+            "gold_top": top_surface, "base": base_surface, "surfaces": surfaces,
+        })
+    assert len(out) == 958, "ABORT: built %d != 958" % len(out)
+    return out
+
+
+def _bprime2_coin_bit(item_id, lh, lt, seed=BPRIME2_SEED):
+    """Deterministic, auditable, content-independent per-(item,cell) coin bit
+    (spec §2 DECISION seeds)."""
+    import hashlib
+    key = "%d|%s|%d|%d" % (seed, item_id, lh, lt)
+    return int(hashlib.sha256(key.encode()).hexdigest(), 16) & 1
+
+
+class _B2Abort(Exception):
+    """Raised in-body for a spec ABORT that maps to INSTRUMENT-INVALID."""
+
+
+# ----------------------------------------------------- GPU body (torch, remote)
+def _bprime2_body(model_id, specs, bprime_text_correct, batch_size, wall_cap_s):
+    import traceback
+    try:
+        return _bprime2_body_impl(model_id, specs, bprime_text_correct,
+                                  batch_size, wall_cap_s)
+    except Exception as e:  # noqa: BLE001
+        tb = traceback.format_exc()
+        print("BPRIME2 ERROR:", repr(e))
+        print(tb)
+        return {"aborted": True, "abort_reason": "EXCEPTION: %s" % repr(e),
+                "traceback": tb, "rows": [], "summary": {}, "swept_item_ids": [],
+                "c100_item_ids": [], "per_cell": {}, "per_cell_c100": {},
+                "cells": [], "completed_cells": [], "secondaries": {}}
+
+
+def _bprime2_body_impl(model_id, specs, bprime_text_correct, batch_size, wall_cap_s):
+    import re
+    import time
+    import math
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    t0 = time.time()
+    n = len(specs)
+    tok = AutoTokenizer.from_pretrained(model_id, revision=BPRIME2_PIN)
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    tok.padding_side = "left"
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id, revision=BPRIME2_PIN, torch_dtype=torch.float32)
+    model.to("cuda").eval()
+    L = int(model.config.num_hidden_layers)
+    d_model = int(model.config.hidden_size)
+    commit = getattr(model.config, "_commit_hash", None)
+    # spec §2: resolved commit MUST equal the pin (ABORT otherwise)
+    if commit is not None and commit != BPRIME2_PIN:
+        return {"aborted": True,
+                "abort_reason": "COMMIT_PIN_MISMATCH got=%s want=%s" % (commit, BPRIME2_PIN),
+                "rows": [], "summary": {"model_commit": commit}, "swept_item_ids": [],
+                "c100_item_ids": [], "per_cell": {}, "per_cell_c100": {}, "cells": [],
+                "completed_cells": [], "secondaries": {}}
+    assert L >= 12, "ABORT: L=%d < 12" % L
+    layers = model.model.layers
+    LH, LT, pivot, cells = _bprime2_grid(L)
+    assert len(cells) <= 9, "ABORT: |cells|=%d > 9" % len(cells)
+    print("[bp2] model=%s L=%d d=%d commit=%s" % (model_id, L, d_model, commit))
+    print("[bp2] LH=%s LT=%s pivot=%s cells=%s" % (LH, LT, pivot, cells))
+
+    # ---- additive norm-matched pre-hook (edits INPUT of module ℓt at pos w) ----
+    hook_state = {"vec": None, "wpos": None}  # vec=[bs,d]=s·α·Δ̂v ; wpos=[bs] long
+
+    def add_pre_hook(module, args, kwargs):
+        st = hook_state
+        if st["vec"] is None:
+            return None
+        hs = None
+        where = None
+        if len(args) > 0 and torch.is_tensor(args[0]) and args[0].dim() == 3:
+            hs, where = args[0], "arg"
+        elif torch.is_tensor(kwargs.get("hidden_states")):
+            hs, where = kwargs["hidden_states"], "kw"
+        if hs is None or hs.shape[1] <= 1:
+            return None  # decode step (seq==1): prefill-only (spec §3 Step 5/6)
+        hs = hs.clone()
+        u = st["vec"].to(hs.dtype)          # [bs, d]
+        wpos = st["wpos"]                    # [bs] long
+        bs = hs.shape[0]
+        rows = torch.arange(bs, device=hs.device)
+        cur = hs[rows, wpos, :]              # [bs, d]
+        nrm = cur.norm(dim=-1, keepdim=True)  # [bs, 1] = ‖h_p‖
+        hs[rows, wpos, :] = cur + nrm * u   # h ← h + ‖h‖·(s·α·Δ̂v)
+        if where == "arg":
+            return ((hs,) + tuple(args[1:]), kwargs)
+        nk = dict(kwargs)
+        nk["hidden_states"] = hs
+        return (args, nk)
+
+    def _chat_ids(prompt):
+        msgs = [{"role": "user", "content": prompt}]
+        try:
+            return list(tok.apply_chat_template(msgs, add_generation_prompt=True))
+        except Exception:  # noqa: BLE001
+            return list(tok(prompt).input_ids)
+
+    def _pad_batch(id_lists):
+        maxlen = max(len(x) for x in id_lists)
+        ii, am = [], []
+        for x in id_lists:
+            pad = maxlen - len(x)
+            ii.append([tok.pad_token_id] * pad + x)
+            am.append([0] * pad + [1] * len(x))
+        return (torch.tensor(ii, device="cuda"),
+                torch.tensor(am, device="cuda"), maxlen)
+
+    def _mini(items):
+        for a in range(0, len(items), batch_size):
+            yield items[a:a + batch_size]
+
+    def _gen_plain(id_lists):
+        try:
+            ii, am, maxlen = _pad_batch(id_lists)
+            with torch.no_grad():
+                out = model.generate(input_ids=ii, attention_mask=am,
+                                     max_new_tokens=MAX_NEW_TOKENS, do_sample=False,
+                                     num_beams=1, pad_token_id=tok.pad_token_id)
+            return [tok.decode(out[r][maxlen:], skip_special_tokens=True)
+                    for r in range(len(id_lists))]
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(id_lists) == 1:
+                raise
+            h = len(id_lists) // 2
+            return _gen_plain(id_lists[:h]) + _gen_plain(id_lists[h:])
+
+    def _gen_add(id_lists, lt, vecs_signed):
+        """Greedy 16-tok gen with the additive hook at layer lt, final prompt pos
+        (prefill only). vecs_signed[r]=s·α·Δ̂v (unit dir). OOM->halve."""
+        try:
+            ii, am, maxlen = _pad_batch(id_lists)
+            handle = None
+            if lt is not None and vecs_signed is not None:
+                hook_state["vec"] = torch.stack(vecs_signed).to("cuda")
+                hook_state["wpos"] = torch.full((len(id_lists),), maxlen - 1,
+                                                device="cuda", dtype=torch.long)
+                handle = layers[lt].register_forward_pre_hook(add_pre_hook, with_kwargs=True)
+            try:
+                with torch.no_grad():
+                    out = model.generate(input_ids=ii, attention_mask=am,
+                                         max_new_tokens=MAX_NEW_TOKENS, do_sample=False,
+                                         num_beams=1, pad_token_id=tok.pad_token_id)
+            finally:
+                if handle is not None:
+                    handle.remove()
+                hook_state["vec"] = None
+                hook_state["wpos"] = None
+            return [tok.decode(out[r][maxlen:], skip_special_tokens=True)
+                    for r in range(len(id_lists))]
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(id_lists) == 1:
+                raise
+            h = len(id_lists) // 2
+            v1 = vecs_signed[:h] if vecs_signed is not None else None
+            v2 = vecs_signed[h:] if vecs_signed is not None else None
+            return _gen_add(id_lists[:h], lt, v1) + _gen_add(id_lists[h:], lt, v2)
+
+    prompt_ids = [None] * n
+    cand_ids = [None] * n  # per item: {'top': ids, 'bridge': ids}
+
+    def _tf_lp(mb, cand_key, lt, vec_for):
+        """Teacher-forced Σ logprob of candidate cand_key for each item idx in mb,
+        under additive injection at layer lt (vec_for(i)=s·α·Δ̂v_i) at the last
+        prompt-token position w=maxlen−len(cand)−1. lt/vec_for None => unhooked
+        baseline. Returns list of lp. ASSERTs write-index; OOM->halve."""
+        try:
+            id_lists = [prompt_ids[i] + cand_ids[i][cand_key] for i in mb]
+            clens = [len(cand_ids[i][cand_key]) for i in mb]
+            ii, am, maxlen = _pad_batch(id_lists)
+            wrows = [maxlen - clens[r] - 1 for r in range(len(mb))]
+            for r, i in enumerate(mb):
+                if int(ii[r, wrows[r]].item()) != prompt_ids[i][-1]:
+                    raise _B2Abort("WRITE_INDEX_MISMATCH item=%s" % specs[i]["item_id"])
+            handle = None
+            if lt is not None and vec_for is not None:
+                u = torch.stack([vec_for(i) for i in mb]).to("cuda")
+                hook_state["vec"] = u
+                hook_state["wpos"] = torch.tensor(wrows, device="cuda", dtype=torch.long)
+                handle = layers[lt].register_forward_pre_hook(add_pre_hook, with_kwargs=True)
+            try:
+                with torch.no_grad():
+                    out = model(input_ids=ii, attention_mask=am)
+            finally:
+                if handle is not None:
+                    handle.remove()
+                hook_state["vec"] = None
+                hook_state["wpos"] = None
+            logits = out.logits
+            lps = []
+            for r, i in enumerate(mb):
+                w = wrows[r]
+                cid = cand_ids[i][cand_key]
+                lp = 0.0
+                for j, tid in enumerate(cid):
+                    lr = torch.log_softmax(logits[r, w + j, :].float(), dim=-1)
+                    lp += float(lr[tid].item())
+                lps.append(lp)
+            del out, logits
+            return lps
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(mb) == 1:
+                raise
+            h = len(mb) // 2
+            return _tf_lp(mb[:h], cand_key, lt, vec_for) + _tf_lp(mb[h:], cand_key, lt, vec_for)
+
+    def _has_any(g, surfaces):
+        t = g.lower()
+        return any(re.search(r"(?<![a-z])%s(?![a-z])" % re.escape(x.lower()), t)
+                   for x in surfaces)
+
+    def _emit_cat(g, s):
+        t = g.lower()
+        pos = {}
+        for role, name in (("top", s["top_surface"]), ("bridge", s["bridge_surface"]),
+                           ("base", s["base"])):
+            m = re.search(r"(?<![a-z])%s(?![a-z])" % re.escape(name.lower()), t)
+            if m:
+                pos[role] = m.start()
+        if not pos:
+            return "none"
+        first = min(pos, key=pos.get)
+        return {"top": "top", "bridge": "bridge", "base": "other"}[first]
+
+    def _row(**kw):
+        base = {"phase": "exploratory", "gate": "BPRIME2", "host": "R3",
+                "model": model_id, "surface": "clutrr", "form": "2"}
+        base.update(kw)
+        return base
+
+    rows = []
+
+    # =============== STEP 1: text-only pass (958 batched gens) ===================
+    for i, s in enumerate(specs):
+        prompt_ids[i] = _chat_ids(s["prompt"])
+    text_only = [False] * n
+    text_gen = [None] * n
+    order = list(range(n))
+    done = 0
+    for mb in _mini(order):
+        gens = _gen_plain([prompt_ids[i] for i in mb])
+        for i, g in zip(mb, gens):
+            s = specs[i]
+            ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+            text_only[i] = ok
+            text_gen[i] = g
+        done += len(mb)
+        if done % 160 == 0 or done == n:
+            print("[bp2] step1 %d/%d acc_running=%.3f t=%.0fs"
+                  % (done, n, sum(text_only[:done]) / max(1, done), time.time() - t0))
+    acc_text = sum(text_only) / n
+    headroom_ok = (0.05 <= acc_text <= 0.85) and (n >= 900)
+    # repro gate vs B′ text-only correctness vector (spec §3 Step 1)
+    repro_agree = 0
+    repro_disagree = []
+    for i, s in enumerate(specs):
+        ref = bprime_text_correct.get(s["item_id"])
+        if ref is not None and bool(text_only[i]) == bool(ref):
+            repro_agree += 1
+        elif ref is not None:
+            repro_disagree.append(s["item_id"])
+    print("[bp2] STEP1 acc_text=%.4f headroom_ok=%s repro_agree=%d/958"
+          % (acc_text, headroom_ok, repro_agree))
+    for i, s in enumerate(specs):
+        rows.append(_row(item_id=s["item_id"], probe="text-only", cell=None,
+                         arm=None, sign=None, alpha=None, coin=None,
+                         lp_top=None, lp_bridge=None, gen=text_gen[i],
+                         correct=bool(text_only[i]), emitted=None, gold=s["gold_top"]))
+
+    summary = {
+        "model": model_id, "model_commit": commit, "L": L, "d_model": d_model,
+        "grid": {"LH": LH, "LT": LT, "pivot": list(pivot),
+                 "cells_sweep_order": [list(c) for c in cells]},
+        "alpha_ladder": BPRIME2_ALPHA_LADDER, "seed": BPRIME2_SEED,
+        "coin_bit_recipe": "int(sha256('%d|item_id|lh|lt').hexdigest(),16)&1" % BPRIME2_SEED,
+        "z": {"pass": BPRIME2_Z_PASS, "kill": BPRIME2_Z_KILL, "ctrl": BPRIME2_Z_CTRL},
+        "floor": BPRIME2_FLOOR, "n_items": n, "n_scored": n,
+        "acc_text_only": acc_text, "headroom_ok": bool(headroom_ok),
+        "repro_agree": repro_agree, "repro_disagreements": repro_disagree,
+        "batch_size": batch_size,
+    }
+
+    def _early(reason):
+        summary.update({"aborted": True, "abort_reason": reason,
+                        "elapsed_s": time.time() - t0})
+        return {"aborted": True, "abort_reason": reason, "rows": rows,
+                "summary": summary, "swept_item_ids": [], "c100_item_ids": [],
+                "per_cell": {}, "per_cell_c100": {}, "cells": [list(c) for c in cells],
+                "completed_cells": [], "secondaries": {}}
+
+    if repro_agree < 910:
+        return _early("REPRO_DRIFT repro_agree=%d<910" % repro_agree)
+    if not headroom_ok:
+        return _early("HEADROOM acc_text=%.4f n=%d" % (acc_text, n))
+
+    # =============== STEP 3: sets, derangement, coins ===========================
+    F = [i for i in range(n) if not text_only[i]]
+    correct_idx = [i for i in range(n) if text_only[i]]
+    if len(F) <= BPRIME2_SWEEP_CAP:
+        swept = list(F)
+    else:
+        swept = sorted(_bp_random.Random(BPRIME2_SEED).sample(F, BPRIME2_SWEEP_CAP))
+    if len(correct_idx) < BPRIME2_C100:
+        return _early("C100_SHORT only %d correct (<%d)" % (len(correct_idx), BPRIME2_C100))
+    c100 = sorted(_bp_random.Random(BPRIME2_SEED).sample(correct_idx, BPRIME2_C100))
+    assert not (set(swept) & set(c100)), "ABORT: Swept∩C100 nonempty"
+    c_cal = c100[:BPRIME2_CCAL]  # first 32 of C100 in ascending covered-set order
+    m = len(swept)
+    perm = _bp_sattolo(m, BPRIME2_SEED)
+    assert all(perm[k] != k for k in range(m)), "ABORT: derangement has fixed point"
+    sigma = {swept[k]: swept[perm[k]] for k in range(m)}
+    print("[bp2] |F|=%d |Swept|=%d |C100|=%d |C_cal|=%d (σ₂ fixed-point-free)"
+          % (len(F), m, len(c100), len(c_cal)))
+    summary.update({"n_failures": len(F), "n_swept": m, "n_c100": len(c100),
+                    "n_ccal": len(c_cal), "swept_is_full_F": len(F) <= BPRIME2_SWEEP_CAP,
+                    "runner_operational_instantiations": [
+                        "disc-c100 deranged arm: spec pins σ₂ over Swept only; the "
+                        "reported-only (never gate-bearing) C100 deranged arm uses the "
+                        "SAME pinned Sattolo operator (seed 20260712) over C100 order. "
+                        "DISCLOSED for designer confirmation; affects no §5 gate/verdict."]})
+
+    need = sorted(set(swept) | set(c100))
+    for i in need:
+        s = specs[i]
+        for key, name in (("top", s["top_surface"]), ("bridge", s["bridge_surface"])):
+            cid = tok(" " + name, add_special_tokens=False).input_ids
+            assert len(cid) >= 1, "ABORT: empty cand ids (%s)" % s["item_id"]
+            if cand_ids[i] is None:
+                cand_ids[i] = {}
+            cand_ids[i][key] = list(cid)
+
+    aborted = False
+    abort_reason = None
+    partial = False
+    partial_reason = None
+    completed_cells = []
+    per_cell = {}
+    per_cell_c100 = {}
+    baseline_margins = []
+    secondaries = {}
+    dhat = {}
+
+    try:
+        # ============ STEP 4: donor harvest (Δ̂v at ℓh∈LH) ======================
+        def _last_name_tok(text, name, offsets):
+            cstart = text.rfind(name)
+            if cstart < 0:
+                return None
+            cend = cstart + len(name)
+            found = None
+            for ti, (a, b) in enumerate(offsets):
+                if a == b:
+                    continue
+                if a < cend and b > cstart:
+                    found = ti
+            return found
+
+        for i in need:
+            s = specs[i]
+            hv = {}
+            for key, name, text in (("top", s["top_surface"], s["d_top"]),
+                                    ("bridge", s["bridge_surface"], s["d_bridge"])):
+                enc = tok(text, return_offsets_mapping=True)
+                ti = _last_name_tok(text, name, enc["offset_mapping"])
+                if ti is None:
+                    raise _B2Abort("NAME_LOCATION donor=%s item=%s" % (key, s["item_id"]))
+                idt = torch.tensor([enc["input_ids"]], device="cuda")
+                with torch.no_grad():
+                    fwd = model(idt, output_hidden_states=True)
+                hv[key] = {lh: fwd.hidden_states[lh][0, ti, :].detach().float().clone()
+                           for lh in LH}
+                del fwd
+            dv = {}
+            for lh in LH:
+                d = hv["top"][lh] - hv["bridge"][lh]
+                nrm = float(d.norm())
+                if not (nrm > 0):
+                    raise _B2Abort("DELTA_ZERO item=%s lh=%d" % (s["item_id"], lh))
+                dv[lh] = d / d.norm()
+            dhat[i] = dv
+        print("[bp2] donors harvested for %d items (no gen) t=%.0fs"
+              % (len(need), time.time() - t0))
+
+        # ============ STEP 5: α calibration (pivot cell, mechanical) ============
+        plh, plt = pivot
+        alpha_table = {}
+        for a in BPRIME2_ALPHA_LADDER:
+            nogen = 0
+            total = 0
+            for sgn in (1, -1):
+                for mb in _mini(c_cal):
+                    idl = [prompt_ids[i] for i in mb]
+                    vecs = [a * sgn * dhat[i][plh] for i in mb]
+                    gens = _gen_add(idl, plt, vecs)
+                    for i, g in zip(mb, gens):
+                        has = _has_any(g, specs[i]["surfaces"])
+                        if not has:
+                            nogen += 1
+                        total += 1
+                        rows.append(_row(item_id=specs[i]["item_id"], probe="calib",
+                                         cell=[plh, plt], arm="real", sign=sgn,
+                                         alpha=a, coin=None, lp_top=None, lp_bridge=None,
+                                         gen=g, correct=None,
+                                         emitted=("none" if not has else _emit_cat(g, specs[i])),
+                                         gold=specs[i]["gold_top"]))
+            alpha_table[a] = {"collapse": (nogen / total if total else 1.0),
+                              "n": total}
+        qualifying = [a for a in BPRIME2_ALPHA_LADDER if alpha_table[a]["collapse"] <= 0.10]
+        alpha_star = max(qualifying) if qualifying else 0.125
+        summary.update({"alpha_table": {("%g" % a): alpha_table[a] for a in BPRIME2_ALPHA_LADDER},
+                        "alpha_star": alpha_star})
+        print("[bp2] α table=%s α*=%g t=%.0fs"
+              % ({("%g" % a): round(alpha_table[a]["collapse"], 3) for a in BPRIME2_ALPHA_LADDER},
+                 alpha_star, time.time() - t0))
+
+        # ============ STEP 6: GATE-BEARING margin sweep (Swept, pivot first) =====
+        # drg_map: item_idx -> deranged donor item_idx. For the gate-bearing Swept
+        # sweep this is σ₂ (spec §3, Sattolo over Swept, seed 20260712). For the
+        # REPORTED-ONLY / never-gate-bearing disc-c100 arm the spec pins σ₂ over
+        # Swept only, so we apply the SAME pinned Sattolo operator over the C100
+        # order (DISCLOSED runner operational instantiation; touches no gate/verdict).
+        def _run_disc(cell_items, cells_list, store, probe, gate_bearing, drg_map):
+            for (lh, lt) in cells_list:
+                if gate_bearing and (time.time() - t0 > wall_cap_s):
+                    return "WALL_CAP during %s at cell %d_%d" % (probe, lh, lt)
+                key = "%d_%d" % (lh, lt)
+                acc = {"real": [], "coin": [], "role": [],
+                       "real_ties": 0, "coin_ties": 0, "role_ties": 0,
+                       "mdiff_real": [], "mdiff_role": [], "mdiff_coin": []}
+                for mb in _mini(cell_items):
+                    def _mgn(vecfn):
+                        r = {}
+                        for sgn in (1, -1):
+                            vf = (lambda i, sgn=sgn, vecfn=vecfn:
+                                  alpha_star * sgn * vecfn(i))
+                            lpt = _tf_lp(mb, "top", lt, vf)
+                            lpb = _tf_lp(mb, "bridge", lt, vf)
+                            r[sgn] = (lpt, lpb)
+                        return r
+                    real = _mgn(lambda i: dhat[i][lh])
+                    drg = _mgn(lambda i: dhat[drg_map[i]][lh])
+                    for r_idx, i in enumerate(mb):
+                        s = specs[i]
+                        rp_t, rp_b = real[1][0][r_idx], real[1][1][r_idx]
+                        rm_t, rm_b = real[-1][0][r_idx], real[-1][1][r_idx]
+                        dp_t, dp_b = drg[1][0][r_idx], drg[1][1][r_idx]
+                        dm_t, dm_b = drg[-1][0][r_idx], drg[-1][1][r_idx]
+                        vals = [rp_t, rp_b, rm_t, rm_b, dp_t, dp_b, dm_t, dm_b]
+                        if not all(math.isfinite(v) for v in vals):
+                            raise _B2Abort("NAN_MARGINS item=%s cell=%s" % (s["item_id"], key))
+                        mr_p = rp_t - rp_b
+                        mr_m = rm_t - rm_b
+                        md_p = dp_t - dp_b
+                        md_m = dm_t - dm_b
+                        b = _bprime2_coin_bit(s["item_id"], lh, lt)
+                        real_bit = 1 if mr_p > mr_m else 0
+                        role_bit = 1 if md_p > md_m else 0
+                        coin_bit = (1 if md_p > md_m else 0) if b == 1 else (1 if md_m > md_p else 0)
+                        acc["real"].append(real_bit)
+                        acc["role"].append(role_bit)
+                        acc["coin"].append(coin_bit)
+                        if mr_p == mr_m:
+                            acc["real_ties"] += 1
+                        if md_p == md_m:
+                            acc["role_ties"] += 1
+                            acc["coin_ties"] += 1
+                        acc["mdiff_real"].append(mr_p - mr_m)
+                        acc["mdiff_role"].append(md_p - md_m)
+                        acc["mdiff_coin"].append((md_p - md_m) if b == 1 else (md_m - md_p))
+                        rows.append(_row(item_id=s["item_id"], probe=probe, cell=[lh, lt],
+                                         arm="real", sign=1, alpha=alpha_star, coin=None,
+                                         lp_top=rp_t, lp_bridge=rp_b, gen=None, correct=None,
+                                         emitted=None, gold=s["gold_top"]))
+                        rows.append(_row(item_id=s["item_id"], probe=probe, cell=[lh, lt],
+                                         arm="real", sign=-1, alpha=alpha_star, coin=None,
+                                         lp_top=rm_t, lp_bridge=rm_b, gen=None, correct=None,
+                                         emitted=None, gold=s["gold_top"]))
+                        rows.append(_row(item_id=s["item_id"], probe=probe, cell=[lh, lt],
+                                         arm="drg", sign=1, alpha=alpha_star, coin=b,
+                                         lp_top=dp_t, lp_bridge=dp_b, gen=None, correct=None,
+                                         emitted=None, gold=s["gold_top"]))
+                        rows.append(_row(item_id=s["item_id"], probe=probe, cell=[lh, lt],
+                                         arm="drg", sign=-1, alpha=alpha_star, coin=b,
+                                         lp_top=dm_t, lp_bridge=dm_b, gen=None, correct=None,
+                                         emitted=None, gold=s["gold_top"]))
+                store[key] = acc
+                if gate_bearing:
+                    completed_cells.append([lh, lt])
+                print("[bp2] %s cell (%d,%d) done t=%.0fs" % (probe, lh, lt, time.time() - t0))
+            return None
+
+        stop = _run_disc(swept, cells, per_cell, "disc", True, sigma)
+        if stop:
+            partial, partial_reason = True, stop
+
+        # ============ STEP 6 baselines: unhooked margins (Swept ∪ C100) =========
+        if not partial:
+            for mb in _mini(need):
+                lpt = _tf_lp(mb, "top", None, None)
+                lpb = _tf_lp(mb, "bridge", None, None)
+                for r_idx, i in enumerate(mb):
+                    s = specs[i]
+                    if not (math.isfinite(lpt[r_idx]) and math.isfinite(lpb[r_idx])):
+                        raise _B2Abort("NAN_BASELINE item=%s" % s["item_id"])
+                    baseline_margins.append(lpt[r_idx] - lpb[r_idx])
+                    rows.append(_row(item_id=s["item_id"], probe="baseline", cell=None,
+                                     arm=None, sign=None, alpha=None, coin=None,
+                                     lp_top=lpt[r_idx], lp_bridge=lpb[r_idx], gen=None,
+                                     correct=None, emitted=None, gold=s["gold_top"]))
+            print("[bp2] baselines done t=%.0fs" % (time.time() - t0))
+
+        # ============ STEP 6 disc-c100 (reported-only, never gate-bearing) ======
+        # σ over C100 order via the SAME pinned Sattolo operator (seed 20260712);
+        # disclosed instantiation — the spec pins σ₂ over Swept only and §5 uses
+        # Swept only, so this affects nothing gate-bearing.
+        if not partial:
+            cperm = _bp_sattolo(len(c100), BPRIME2_SEED)
+            assert all(cperm[k] != k for k in range(len(c100))), "ABORT: C100 derangement fixed point"
+            sigma_c100 = {c100[k]: c100[cperm[k]] for k in range(len(c100))}
+            _run_disc(c100, cells, per_cell_c100, "disc-c100", False, sigma_c100)
+
+        # ============ STEP 7a keyed-gen secondaries (pivot, Swept) ==============
+        keyed = {"real": {"top": 0, "bridge": 0, "other": 0, "none": 0},
+                 "drg": {"top": 0, "bridge": 0, "other": 0, "none": 0},
+                 "rescue_real_plus": 0, "rescue_drg_plus": 0, "n": len(swept)}
+        if not partial:
+            for arm, vecfn in (("real", lambda i: dhat[i][plh]),
+                               ("drg", lambda i: dhat[sigma[i]][plh])):
+                for sgn in (1, -1):
+                    for mb in _mini(swept):
+                        idl = [prompt_ids[i] for i in mb]
+                        vecs = [alpha_star * sgn * vecfn(i) for i in mb]
+                        gens = _gen_add(idl, plt, vecs)
+                        for i, g in zip(mb, gens):
+                            s = specs[i]
+                            cat = _emit_cat(g, s)
+                            ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                            if sgn == 1:
+                                keyed[arm][cat] += 1
+                                if ok:
+                                    keyed["rescue_%s_plus" % arm] += 1
+                            rows.append(_row(item_id=s["item_id"], probe="keyed-gen",
+                                             cell=[plh, plt], arm=arm, sign=sgn,
+                                             alpha=alpha_star, coin=None, lp_top=None,
+                                             lp_bridge=None, gen=g, correct=ok,
+                                             emitted=cat, gold=s["gold_top"]))
+            print("[bp2] keyed-gen done t=%.0fs" % (time.time() - t0))
+        secondaries["keyed_emission"] = keyed
+
+        # ============ STEP 7b breakage secondaries (C100, all cells) ============
+        breakage_cell = {}
+        collapse_cell = {}
+        if not partial:
+            for (lh, lt) in cells:
+                bcnt = 0
+                ccnt = 0
+                for sgn in (1, -1):
+                    for mb in _mini(c100):
+                        idl = [prompt_ids[i] for i in mb]
+                        vecs = [alpha_star * sgn * dhat[i][lh] for i in mb]
+                        gens = _gen_add(idl, lt, vecs)
+                        for i, g in zip(mb, gens):
+                            s = specs[i]
+                            ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                            if not ok:
+                                bcnt += 1
+                            if not _has_any(g, s["surfaces"]):
+                                ccnt += 1
+                            rows.append(_row(item_id=s["item_id"], probe="breakage",
+                                             cell=[lh, lt], arm="real", sign=sgn,
+                                             alpha=alpha_star, coin=None, lp_top=None,
+                                             lp_bridge=None, gen=g, correct=ok,
+                                             emitted=None, gold=s["gold_top"]))
+                breakage_cell["%d_%d" % (lh, lt)] = bcnt
+                collapse_cell["%d_%d" % (lh, lt)] = ccnt
+            print("[bp2] breakage done t=%.0fs" % (time.time() - t0))
+        secondaries["breakage_c100"] = breakage_cell
+        secondaries["collapse_c100"] = collapse_cell
+
+    except _B2Abort as e:
+        aborted = True
+        abort_reason = str(e)
+        print("[bp2] ABORT:", abort_reason)
+
+    # effect-size summaries (mechanical; reported)
+    def _mm(a):
+        if not a:
+            return {"mean": None, "median": None, "n": 0}
+        srt = sorted(a)
+        med = srt[len(srt) // 2] if len(srt) % 2 else 0.5 * (srt[len(srt) // 2 - 1] + srt[len(srt) // 2])
+        return {"mean": sum(a) / len(a), "median": med, "n": len(a)}
+
+    per_cell_metrics = {}
+    for key, acc in per_cell.items():
+        per_cell_metrics[key] = {
+            "n": len(acc["real"]),
+            "keyacc_real": (sum(acc["real"]) / len(acc["real"]) if acc["real"] else None),
+            "keyacc_coin": (sum(acc["coin"]) / len(acc["coin"]) if acc["coin"] else None),
+            "keyacc_role": (sum(acc["role"]) / len(acc["role"]) if acc["role"] else None),
+            "ties": {"real": acc["real_ties"], "coin": acc["coin_ties"], "role": acc["role_ties"]},
+            "mdiff_real": _mm(acc["mdiff_real"]),
+            "mdiff_role": _mm(acc["mdiff_role"]),
+            "mdiff_coin": _mm(acc["mdiff_coin"]),
+        }
+    summary.update({"baseline_margin": _mm(baseline_margins),
+                    "per_cell_metrics": per_cell_metrics,
+                    "aborted": bool(aborted), "abort_reason": abort_reason,
+                    "partial": bool(partial), "partial_reason": partial_reason,
+                    "elapsed_s": time.time() - t0})
+
+    return {
+        "aborted": bool(aborted), "abort_reason": abort_reason,
+        "partial": bool(partial), "partial_reason": partial_reason,
+        "rows": [json.loads(json.dumps(r, default=str)) for r in rows],
+        "summary": json.loads(json.dumps(summary, default=str)),
+        "swept_item_ids": [specs[i]["item_id"] for i in swept],
+        "c100_item_ids": [specs[i]["item_id"] for i in c100],
+        "per_cell": {k: {"real": v["real"], "coin": v["coin"], "role": v["role"],
+                         "real_ties": v["real_ties"], "coin_ties": v["coin_ties"],
+                         "role_ties": v["role_ties"]}
+                     for k, v in per_cell.items()},
+        "per_cell_c100": {k: {"real": v["real"], "coin": v["coin"], "role": v["role"]}
+                          for k, v in per_cell_c100.items()},
+        "cells": [list(c) for c in cells],
+        "completed_cells": completed_cells,
+        "secondaries": secondaries,
+        "elapsed_s": time.time() - t0,
+    }
+
+
+@app.function(image=image, gpu="A10G", volumes={HF_CACHE_MOUNT: hf_cache}, timeout=21600)
+def bprime2_a10g(model_id, specs, bprime_text_correct, batch_size, wall_cap_s):
+    r = _bprime2_body(model_id, specs, bprime_text_correct, batch_size, wall_cap_s)
+    try:
+        hf_cache.commit()
+    except Exception:  # noqa: BLE001
+        pass
+    return r
+
+
+def _bprime2_gate(res):
+    """Mechanical §5 decision rule from returned per-cell success arrays. Computes
+    Wilson bounds (PASS z=2.5427 LB / KILL z=1.6449 UB / control z=2.7730 LB) +
+    paired exact-binomial sign tests, applies the ordered gate. Runner reports
+    these numbers; interpretation is designer work."""
+    aborted = bool(res.get("aborted", False))
+    summary = res.get("summary", {})
+    headroom_ok = bool(summary.get("headroom_ok", False))
+    per_cell = res.get("per_cell", {})
+    cells = res.get("cells", [])
+    completed = [tuple(c) for c in res.get("completed_cells", [])]
+    FLOOR = BPRIME2_FLOOR
+
+    def _paired(real, ctrl):
+        b = sum(1 for x, y in zip(real, ctrl) if x and not y)
+        c = sum(1 for x, y in zip(real, ctrl) if (not x) and y)
+        p = _bp_binom_sf_ge(b, b + c, 0.5)
+        return {"b": b, "c": c, "n_discordant": b + c, "p_one_sided": p}
+
+    cell_reports = []
+    any_coin_invalid = False
+    pass_cell = None
+    role_cell = None
+    for c in cells:
+        key = "%d_%d" % (c[0], c[1])
+        pc = per_cell.get(key)
+        if pc is None:
+            continue
+        rb, cb, ro = pc["real"], pc["coin"], pc["role"]
+        nn = len(rb)
+        kr, kc, kro = sum(rb), sum(cb), sum(ro)
+        lb_real = _bp_wilson(kr, nn, BPRIME2_Z_PASS)[0]
+        ub_real = _bp_wilson(kr, nn, BPRIME2_Z_KILL)[1]
+        lb_coin = _bp_wilson(kc, nn, BPRIME2_Z_CTRL)[0]
+        pr_coin = _paired(rb, cb)
+        pr_role = _paired(rb, ro)
+        is_done = tuple(c) in completed
+        rep = {"cell": list(c), "n": nn, "completed": is_done,
+               "keyacc_real": (kr / nn if nn else None),
+               "keyacc_coin": (kc / nn if nn else None),
+               "keyacc_role": (kro / nn if nn else None),
+               "wilson_lb_real_z2_5427": lb_real, "wilson_ub95_real_z1_6449": ub_real,
+               "wilson_lb_coin_z2_7730": lb_coin,
+               "paired_real_gt_coin": pr_coin, "paired_real_gt_role": pr_role,
+               "ties": {"real": pc["real_ties"], "coin": pc["coin_ties"], "role": pc["role_ties"]}}
+        cell_reports.append(rep)
+        if is_done and lb_coin > 0.5:
+            any_coin_invalid = True
+        if is_done and lb_real >= FLOOR and pr_coin["p_one_sided"] < 0.05 and pr_role["p_one_sided"] < 0.05 and pass_cell is None:
+            pass_cell = list(c)
+        if is_done and lb_real >= FLOOR and pr_coin["p_one_sided"] < 0.05 and role_cell is None:
+            role_cell = list(c)
+
+    all9_done = len(completed) == 9
+    done_reports = [r for r in cell_reports if r["completed"]]
+    all_kill = all9_done and len(done_reports) == 9 and all(r["wilson_ub95_real_z1_6449"] < FLOOR for r in done_reports)
+
+    if aborted or (not headroom_ok) or any_coin_invalid:
+        label = "INSTRUMENT-INVALID"
+    elif pass_cell is not None:
+        label = "PASS-KEYED"
+    elif role_cell is not None:
+        label = "CHANNEL-ROLE-ONLY"
+    elif all_kill:
+        label = "KILL-NO-USABLE-CHANNEL"
+    else:
+        label = "INCONCLUSIVE"
+
+    return {
+        "gate_label": label,
+        "floor": FLOOR, "z": {"pass": BPRIME2_Z_PASS, "kill": BPRIME2_Z_KILL, "ctrl": BPRIME2_Z_CTRL},
+        "headroom_ok": headroom_ok, "aborted": aborted,
+        "partial": bool(res.get("partial", False)),
+        "n_completed_cells": len(completed),
+        "instrument_invalid_triggers": {
+            "aborted": aborted, "not_headroom_ok": (not headroom_ok),
+            "coin_lb_gt_0.5_any_cell": any_coin_invalid},
+        "pass_cell": pass_cell, "role_only_cell": role_cell,
+        "all9_kill": all_kill,
+        "cell_reports": cell_reports,
+        "alpha_star": summary.get("alpha_star"),
+        "n_swept": summary.get("n_swept"),
+    }
+
+
+@app.local_entrypoint()
+def bprime2(dry_plan: bool = False, gpu: str = "A10G"):
+    import hashlib
+    import time
+
+    def _sha_file(p):
+        return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+    # ---- input pins (spec §2 DECISION), ABORT on drift ----
+    items_sha = _sha_file(_ROOT / "data/nsk1-clutrr/items.jsonl")
+    head_sha = _sha_file(_ROOT / "data/nsk1-clutrr/headroom.jsonl")
+    ITEMS_PIN = "0e1f5c6bad6f97b575e3c354803713c3efef2a25cf76a9745e79b3d584f5839e"
+    HEAD_PIN = "8b8e99e48cce5fd40a8b7e858b4b75730c9a2d66e9237034f0d3b3b4468c4d8d"
+    assert items_sha == ITEMS_PIN, "ABORT: items.jsonl sha mismatch %s" % items_sha
+    assert head_sha == HEAD_PIN, "ABORT: headroom.jsonl sha mismatch %s" % head_sha
+
+    specs = _build_specs_bprime2()
+    n = len(specs)
+    # byte-equality ASSERT: headroom-100 form-2 prompts == _build_specs_g2b f2_to
+    g2b_specs, _vocab = _build_specs_g2b()
+    g2b_f2 = {s["item_id"]: s["f2_to"] for s in g2b_specs}
+    mine = {s["item_id"]: s["prompt"] for s in specs}
+    mism = [iid for iid in g2b_f2 if g2b_f2[iid] != mine.get(iid)]
+    assert not mism, "ABORT: form-2 prompt not byte-equal to g2b for %s" % mism[:5]
+    print("[bp2] byte-equality vs _build_specs_g2b f2_to: 100/100 OK")
+
+    # ---- B′ text-only correctness vector for the repro gate (spec §3 Step 1) ----
+    bp_rows = _ROOT / "poc/nsk1/out/bprime/bprime_rows.jsonl"
+    bprime_text_correct = {}
+    for l in bp_rows.read_text().splitlines():
+        if not l.strip():
+            continue
+        r = json.loads(l)
+        if r.get("probe") == "text-only":
+            bprime_text_correct[r["item_id"]] = bool(r["correct"])
+    assert len(bprime_text_correct) >= 900, \
+        "ABORT: B′ text-only reference incomplete (%d)" % len(bprime_text_correct)
+
+    L_expected = 24
+    LH, LT, pivot, cells = _bprime2_grid(L_expected)
+    swept_plan = 200   # B′ measured |F| (spec §3 planning value)
+    swept_worst = 300
+
+    def _counts(nsw):
+        gens = n + (len(BPRIME2_ALPHA_LADDER) * BPRIME2_CCAL * 2) + (nsw * 2 * 2) + (BPRIME2_C100 * len(cells) * 2)
+        fwd_donor = 2 * (nsw + BPRIME2_C100)
+        fwd_disc = nsw * len(cells) * 4 * 2
+        fwd_c100 = BPRIME2_C100 * len(cells) * 4 * 2
+        fwd_base = (nsw + BPRIME2_C100) * 2
+        fwd = fwd_donor + fwd_disc + fwd_c100 + fwd_base
+        return gens, fwd, (fwd_donor, fwd_disc, fwd_c100, fwd_base)
+
+    gens_p, fwd_p, brk_p = _counts(swept_plan)
+    gens_w, fwd_w, brk_w = _counts(swept_worst)
+    # GPU-h / $ planning band = spec §7 (STIPULATED-grade planning, not a measurement)
+    gpuh_lo, gpuh_hi = 0.3, 1.5
+    usd_lo, usd_hi = 0.4, 2.0
+
+    print("=== B″ Stage-0 KEYED internal-channel probe — PLAN (spec docs/next/nsk1-bprime2-spec.md) ===")
+    print("host                : R3 = %s  commit-pin %s" % (BPRIME2_MODEL, BPRIME2_PIN))
+    print("items (covered)     : %d (858 items.jsonl covered + 100 headroom.jsonl)" % n)
+    print("input pins OK       : items=%s… headroom=%s…" % (items_sha[:12], head_sha[:12]))
+    print("grid (L=%d)          : LH=%s LT=%s  pivot=%s  |cells|=%d" % (L_expected, LH, LT, pivot, len(cells)))
+    print("cell sweep order    : %s" % cells)
+    print("seeds               : %d (σ₂ / C100 / 300-cap / coin)" % BPRIME2_SEED)
+    print("α ladder            : %s  (α*=largest with name-collapse≤0.10 at pivot; else 0.125)" % BPRIME2_ALPHA_LADDER)
+    print("floor / z           : %.2f  |  PASS-LB z=%.4f  KILL-UB z=%.4f  CTRL z=%.4f" % (BPRIME2_FLOOR, BPRIME2_Z_PASS, BPRIME2_Z_KILL, BPRIME2_Z_CTRL))
+    print("planning |Swept|    : %d (=B′ measured |F|; actual = text-only failures, cap %d)" % (swept_plan, BPRIME2_SWEEP_CAP))
+    print("gens   @|Swept|=%d  : %d  (text-only %d + calib %d + keyed %d + breakage %d)"
+          % (swept_plan, gens_p, n, len(BPRIME2_ALPHA_LADDER) * BPRIME2_CCAL * 2, swept_plan * 4, BPRIME2_C100 * len(cells) * 2))
+    print("forwards@|Swept|=%d : %d  (donor %d + disc %d + disc-c100 %d + baseline %d)"
+          % (swept_plan, fwd_p, brk_p[0], brk_p[1], brk_p[2], brk_p[3]))
+    print("worst  @|Swept|=%d  : gens=%d forwards=%d" % (swept_worst, gens_w, fwd_w))
+    print("GPU-h estimate      : %.1f–%.1f  |  $ estimate : $%.1f–$%.1f  (A10G fp32; spec §7 planning band)" % (gpuh_lo, gpuh_hi, usd_lo, usd_hi))
+    print("HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard %ds)" % BPRIME2_WALL_CAP_S)
+    print("decision rule       : §5 — INSTRUMENT-INVALID → PASS-KEYED → CHANNEL-ROLE-ONLY → KILL → INCONCLUSIVE (ties=failure)")
+    print("phase               : exploratory (quarantined, uncitable, flips no verdict)")
+
+    caps_ok = (gpuh_hi <= 10 and usd_hi <= 25 and gens_w + fwd_w <= 120000)
+    print("within caps (plan)  : %s" % caps_ok)
+
+    if dry_plan:
+        s0 = specs[0]
+        print("\nDRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.")
+        print("\n--- sample form-2 text-only prompt (item %s) ---\n%s" % (s0["item_id"], s0["prompt"]))
+        print("\n--- donors (item %s) ---\nD_top   : %s\nD_bridge: %s\n[top=%s bridge=%s base=%s]"
+              % (s0["item_id"], s0["d_top"], s0["d_bridge"], s0["top_surface"], s0["bridge_surface"], s0["base"]))
+        print("\ncoin-bit sample (item %s, pivot %s): b=%d"
+              % (s0["item_id"], pivot, _bprime2_coin_bit(s0["item_id"], pivot[0], pivot[1])))
+        return
+
+    if not caps_ok:
+        raise SystemExit("ABORT: plan exceeds caps — not launching")
+
+    t_launch = time.time()
+    res = bprime2_a10g.remote(BPRIME2_MODEL, specs, bprime_text_correct,
+                              BPRIME2_BATCH, BPRIME2_WALL_CAP_S)
+    wall_s = time.time() - t_launch
+
+    outdir = _ROOT / "poc/nsk1/out/bprime2"
+    outdir.mkdir(parents=True, exist_ok=True)
+    rows = res.get("rows", [])
+    with open(outdir / "bprime2_rows.jsonl", "w") as f:
+        for r in rows:
+            f.write(json.dumps(r, sort_keys=True) + "\n")
+
+    gate = _bprime2_gate(res)
+    summary = dict(res.get("summary", {}))
+    elapsed = res.get("summary", {}).get("elapsed_s", res.get("elapsed_s", 0.0)) or 0.0
+    summary.update({
+        "spec_ref": "docs/next/nsk1-bprime2-spec.md",
+        "gate": "BPRIME2", "phase": "exploratory",
+        "input_pins": {"items_jsonl_sha256": items_sha, "headroom_jsonl_sha256": head_sha},
+        "verdict": gate, "secondaries": res.get("secondaries", {}),
+        "swept_item_ids": res.get("swept_item_ids", []),
+        "c100_item_ids": res.get("c100_item_ids", []),
+        "wall_clock_s_local": round(wall_s, 1),
+        "gpu_h_estimate": round(elapsed / 3600.0, 3),
+        "usd_estimate": round(elapsed / 3600.0 * 1.10, 3),
+        "n_rows": len(rows),
+        "aborted": bool(res.get("aborted", False)), "abort_reason": res.get("abort_reason"),
+        "partial": bool(res.get("partial", False)), "partial_reason": res.get("partial_reason"),
+        "hard_caps": {"usd": 25, "gpu_h": 10, "wall_h": 12},
+    })
+    with open(outdir / "bprime2_summary.json", "w") as f:
+        json.dump(summary, f, indent=1, sort_keys=True)
+
+    sha_rows = _sha_file(outdir / "bprime2_rows.jsonl")
+    sha_sum = _sha_file(outdir / "bprime2_summary.json")
+    print("\n=== B″ RESULT (phase:exploratory) ===")
+    print("aborted=%s partial=%s n_rows=%d elapsed=%.0fs (GPU) / %.0fs (wall)"
+          % (res.get("aborted"), res.get("partial"), len(rows), elapsed, wall_s))
+    print(json.dumps(gate, indent=1, sort_keys=True))
+    print("MECHANICAL VERDICT (spec §5): %s" % gate["gate_label"])
+    print("sha256 bprime2_rows.jsonl    = %s" % sha_rows)
+    print("sha256 bprime2_summary.json  = %s" % sha_sum)
