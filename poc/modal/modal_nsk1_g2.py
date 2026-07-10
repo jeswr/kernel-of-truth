@@ -39,7 +39,11 @@ from pathlib import Path
 import modal
 
 _HERE = Path(__file__).resolve().parent
-_ROOT = _HERE.parents[1]
+# Resolve the repo root ONLY where enough ancestors exist. In a Modal container
+# the module lives at /root/modal_nsk1_g2.py (no parents[1]); the container only
+# runs the GPU function (no repo files), so guard against the import-time crash.
+_ROOT = _HERE.parents[1] if len(_HERE.parents) > 1 else _HERE
+print("G2_BUILD=v2 module import ok (root=%s)" % _ROOT, flush=True)
 sys.path.insert(0, str(_HERE))
 
 HF_CACHE_MOUNT = "/root/.cache/huggingface"
