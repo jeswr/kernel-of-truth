@@ -1,0 +1,147 @@
+You are an INDEPENDENT SKEPTIC performing ROUND 2 of an adversarial pre-freeze
+review of two DRAFT experiment records in this repository. This is an AUDIT,
+not a blinded judge task: you have full read access to the repository and
+should read whatever files you need to verify claims. You are not the
+designer, not the runner, and have no stake in the outcome.
+
+BACKGROUND: this is the "NL-boundary" leg of two experiments, l3a-parse and
+a5-nl, testing whether a deterministic (non-LLM) front-end parser can recover
+a closed query grammar from blind, held-out natural-language phrasings of two
+frozen evals (family/world vertical and code vertical), compared against a
+measured gold-parse ceiling. A run is scored PASS/FAIL by pre-registered
+Wilson-bound gates.
+
+ROUND 1 (your own prior report, committed verbatim at
+poc/nlb-skeptic/skeptic-output.txt) found 8 FREEZE-BLOCKING defects and 3
+SHOULD-FIX defects against the then-current freeze-candidate. The designer
+(Fable) claims to have remediated all 11 in docs/design-nl-boundary-l3a-parse-a5-nl.md
+section 14.8 ("Independent-skeptic round-2 remediation") and re-pinned both
+scorers, the lint tool, and both registry records. Your job THIS ROUND is to
+verify, finding by finding, whether each of the 11 round-1 defects is now
+ACTUALLY resolved (not just narrated as resolved), and independently hunt for
+ANY NEW freeze-blocking defect the remediation may have introduced or left
+open. Do not trust the change-list's prose — re-derive and re-attempt to
+break each gate yourself, the same way you did in round 1 (you successfully
+reproduced findings 3, 5, and part of 6 by constructing adversarial fixtures;
+do the same kind of construction again here).
+
+READ THESE FILES YOURSELF (paths relative to repo root, your working directory):
+
+1. poc/nlb-skeptic/skeptic-output.txt — YOUR OWN round-1 report (11 findings,
+   numbered 1-11, with severities). Use this as the checklist.
+2. docs/design-nl-boundary-l3a-parse-a5-nl.md — section 14 in full, especially
+   14.8 (the round-2 remediation change-list, one paragraph per round-1
+   finding), and 14.6/14.7 (what the change-list amends). Skim 0, 5, 6, 10 for
+   base-design context if needed.
+3. registry/experiments/l3a-parse.json and registry/experiments/a5-nl.json —
+   both now schema_version kot-reg/2, with new assumption_ids ASM-0620 and
+   ASM-0621 among others.
+4. analysis/l3a_parse.py and analysis/a5_nl.py — both re-pinned, now carrying
+   new gates G0 (one-row-per-arm / supersede mechanism) and G7 (harness-pin
+   enforcement), plus a hardened G1 counts-integrity and a hardened G5
+   (deranged-arm existence).
+5. tools/experiments/nlb/nlb_lint.py — now has an --arms-profile flag
+   (choices: model / deterministic-r0) with a fail-closed default.
+
+You MAY read any other file (nlb_instrument.py, nlb_frontend.py,
+tools/registry/verdict-gen.py, tools/registry/prereg-freeze.py, registry
+assessments, data/nlb-phrasings-*/) if needed to verify a specific claim.
+
+YOUR TASK: for EACH of the 11 round-1 findings, state whether it is now
+RESOLVED, PARTIALLY RESOLVED, or NOT RESOLVED, with your reasoning grounded
+in the actual current code/text (cite file/line), not the change-list's
+self-description. Then hunt independently for NEW defects. In particular,
+try hard to BREAK these specific mechanisms:
+
+(a) G0 (one-row-per-arm / supersede-or-INSTRUMENT-INVALID, addressing your
+    round-1 finding 3). Construct adversarial fixtures: can duplicate/retry
+    rows for the same arm still select a verdict by LOG ORDER in EITHER
+    order (the exact bug you reproduced in round 1)? Is the `supersedes:
+    [sha256 of replaced body]` mechanism sound — does it correctly detect
+    a dangling supersede target, a supersede cycle, more than one
+    non-superseded row surviving, or a row that supersedes itself? Can you
+    find any construction where two rows for the same arm both survive as
+    "non-superseded" and the code silently picks one?
+
+(b) G7 (harness-pin enforcement vs frozen constants, addressing finding 4).
+    Can a modified instrument/front-end/mapper/engine body still pass by
+    omitting, truncating, or malforming the `pins_observed` block in a way
+    the check doesn't catch? Does G7 actually get invoked on EVERY arm body,
+    or could one arm skip it? Does it compare against truly frozen
+    byte-copied constants, or could the "frozen" constants themselves be
+    derived from the same run being scored (a self-referential pin)?
+
+(c) G5 (non-empty deranged arm required, addressing finding 5). Reproduce
+    your round-1 fixture (empty/missing deranged metrics, missing
+    n_covered_exact) against the CURRENT code. Does it now fail closed?
+    Try variants: deranged arm present but with a zero-length metrics dict
+    for only SOME required fields, non-integer counts, or a deranged arm
+    whose name doesn't match the expected one.
+
+(d) Counts-integrity in BOTH scorers (finding 6). Reproduce your round-1
+    fixture (n_covered_exact=855 AND n_covered_refused_parse=855
+    simultaneously green) against the CURRENT a5_nl.py. Check: does the
+    run-level covered partition (exact+wrong+refused_parse+refused_engine
+    == 600 l3a / 855 a5) actually get enforced now? Does the control
+    partition get checked? Family-key set equality (unexpected families
+    rejected)? Non-negative-integer buckets? Try to construct an
+    inconsistent/duplicated/dropped classification that STILL yields a
+    valid PASS despite these new checks.
+
+(e) Finding 2 (envelope restricted to the 7-family n=527 slice). Is the
+    l3a-parse record's PASS-licenses text now genuinely restricted to the
+    7-family slice with no leak of a broader-grammar claim? Does the
+    successor-inheritance text (l3a-cost) also correctly restrict itself
+    and restate the exclusion, or could a successor still smuggle in a
+    whole-closed-grammar claim?
+
+(f) Finding 1 (post-outcome registration framing). Is the framing now
+    honestly disclosed (a registered protocol deviation, ASM-0620) rather
+    than an unenforceable "would-ratify-under-every-outcome" blind-constraint
+    claim? Does the disclosure actually match the commit chronology you
+    verified in round 1 (924bf6b before 0847ce0)?
+
+(g) Findings 7/8 (mechanical freezability + honest engine claim). Actually
+    run `tools/registry/prereg-freeze.py --dry-run` (or the equivalent
+    mechanism) against both records if you can, or otherwise verify from the
+    code that it would pass — do not just trust the design doc's claim that
+    it passes. Is the byte-identical-engine claim now fully removed from
+    both records (titles, envelopes, baseline-arm text), with only kot_code
+    (on a5-nl) retaining a byte-identity claim?
+
+(h) Wilson arithmetic + n=527/855 thresholds. Re-verify they are UNCHANGED
+    from round 1 (you already confirmed them sound then). Specifically
+    check the new "complement form" S2 gate the change-list describes
+    (finding 7: {expected_rate 0.995, threshold 0.98} as the Wilson
+    complement of the original LB gate) — is LB(1-p, n, z) really bit-
+    identical to 1-UB(p, n, z) at n=527 and n=855 as claimed, and does the
+    complement-form gate decide EXACTLY the same runs pass/fail as the
+    original form?
+
+Also independently check findings 9, 10, 11 (denominator sync + anchors;
+r1 audit provenance 28/32 vs 27/33; model-arm lint guard fail-closed via
+--arms-profile) for genuine resolution, not just narration.
+
+OUTPUT FORMAT:
+
+First, a finding-by-finding verification table/list for round-1 items 1-11:
+for each, state RESOLVED / PARTIALLY RESOLVED / NOT RESOLVED, one to three
+sentences of grounded reasoning, and file/line citations.
+
+Then, for ANY still-open or newly-found issue (whether a round-1 leftover or
+brand new), report in the same format as before:
+  - a short title
+  - SEVERITY: exactly one of "freeze-blocking", "should-fix", or "nit"
+  - the concrete mechanism (cite file/section/line/field)
+  - why it matters
+
+At the end, give an OVERALL VERDICT line. If and ONLY IF you find zero
+defects that should block freezing, write the EXACT sentence: "no
+freeze-blocking defect remains." Otherwise state clearly: "defects remain"
+and list which ones (by title) are freeze-blocking versus should-fix versus
+nit.
+
+Be adversarial and specific. Do not pad the review with praise. If a
+mechanism is now genuinely sound, say so briefly (grounded in what you
+checked) and move on — spend your effort on concrete attempts to break what
+remains or what changed.

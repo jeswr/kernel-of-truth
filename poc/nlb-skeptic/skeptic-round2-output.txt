@@ -1,0 +1,83 @@
+## Round-1 finding verification
+
+1. **RESOLVED — post-outcome registration framing.** The unenforceable outcome-invariance claim is explicitly withdrawn and replaced by ASM-0620’s disclosure that final scorer ratification occurred after outcome information was known ([design §14.7](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:924), [ASM-0620](/home/ec2-user/css/kernel/kernel-of-truth/registry/assumptions.jsonl:165)). Git confirms `924bf6b` is an ancestor of `0847ce0` and predates it by about 36 minutes, matching the disclosed chronology.
+
+2. **RESOLVED — l3a envelope scope.** The PASS envelope now licenses only the seven-family, n=527 slice and expressly rejects any whole-grammar claim ([l3a record](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:210)). The `l3a-cost` successor must inherit the same exclusion or remeasure the two quarantined families under a new record ([successor field](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:154)).
+
+3. **PARTIALLY RESOLVED — duplicate-arm selection.** Two mapper rows are now invalid in either order, dangling targets fail, and two non-superseded survivors cannot be silently selected because G0 returns before analysis ([l3 scorer](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:221), [a5 scorer](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:210)). However, the registered `supersedes` field cannot occur in a valid `kot-log/1` row, and the raw scorer also accepts a mapping instead of a list and allows one arm to supersede another; this remains freeze-blocking below.
+
+4. **RESOLVED — harness-pin enforcement.** Missing `pins_observed` on each of the five arms, truncated hashes, malformed pin objects, and drifted engine hashes all made G7 and `instrument_valid` false in both scorers. G7 is evaluated over every declared arm ([l3](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:373), [a5](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:355)); the hard-coded constants are covered by the separately frozen analysis-script hashes and match the current pinned files, so they are not derived from the scored run.
+
+5. **RESOLVED — deranged-arm existence.** Empty metrics, missing `n_covered_exact`, a floating-point exact count, and a misnamed deranged arm all failed closed in both scorers ([l3](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:360), [a5](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:342)). A minimal metrics object containing exactly integer `n_covered` and `n_covered_exact` passes G5; those are sufficient to compute the registered collapse rate.
+
+6. **PARTIALLY RESOLVED — counts integrity.** The original `exact=855` plus `refused_parse=855` attack now fails, as do broken covered partitions, unexpected families, negative/floating family buckets, and duplicated run-level control outcomes ([l3 G1](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:292), [a5 G1](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:281)). Nevertheless, both scorers accept contradictory control-family classifications and non-integral/impossible total and DEV counts while returning `instrument_valid=True`; this remains freeze-blocking below.
+
+7. **RESOLVED — mechanical freezability, with one new nit.** Both `prereg-freeze.py --dry-run` invocations returned `DRY-RUN-OK`; the exact corpus recipe, current prereg hash, schema-valid pins, and kot-reg/2 reuse overrides are present ([l3 pins](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:282), [a5 pins](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:277)). Recomputed boundaries remain 486/462/4/16 at n=527 and 784/755/9/24 at n=855. The complement form makes exactly the same pass/fail decisions at every integer count, but the claimed bit identity is false at 4/527, as detailed below.
+
+8. **RESOLVED — engine claim in the records.** Both titles, envelopes, and gold-baseline descriptions now say the engine differs from the parent pin and is only behaviorally reverified through G2 ([l3 title and baseline](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:5), [a5 baseline](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:152)). Only a5’s `kot_code` layer retains a byte-identity claim ([a5 envelope](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:205)); stale comments remain in the pinned instrument, reported below.
+
+9. **RESOLVED — denominator synchronization and anchors.** Section 6 now identifies n=527 as l3a’s gated slice, and section 7 carries the correct 486/462/4/16 boundaries and a5 planning LB 0.9363 ([§6](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:282), [§7](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:384)). Both records include section 14 in their pinned anchor list ([l3](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:17), [a5](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:17)).
+
+10. **PARTIALLY RESOLVED — r1 audit provenance.** The committed artifact and design now consistently say 28 mechanically rescored plus 32 fresh, and 9/28 ([artifact](/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/audit-recoverability-r1.json:4), [design](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:736)). But the still-cited ASM-0422 rationale and ASM-0425 claim retain 27/33 and 9/27 ([assumption register](/home/ec2-user/css/kernel/kernel-of-truth/registry/assumptions.jsonl:113)), so the authoritative registry remains internally inconsistent.
+
+11. **RESOLVED — model-arm lint guard.** `--arms-profile` defaults to `model`, and a nonempty waiver list becomes a blocking finding ([lint](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_lint.py:281)). I reproduced the intended behavior: a5 exits nonzero/RED by default with all 28 waived qids, while explicit `deterministic-r0` is GREEN; l3a remains GREEN with an empty waiver list under either profile.
+
+## Still-open and new defects
+
+### G0’s registered supersede path cannot exist in `kot-log/1`
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: Both scorers consume a top-level `supersedes` list ([l3](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:228), [a5](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:217)), but `kot-log/1` has `additionalProperties:false` and defines no such property ([schema](/home/ec2-user/css/kernel/kernel-of-truth/registry/schema/kot-log-1.json:6)). The official `event:"supersede"` mechanism cannot substitute for it: `log-append.py` permits superseding only a row whose exit is not `ok` ([log append](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:147)), while only `exit:"ok"` rows reach the scorer ([verdict selector](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:281)).
+
+The raw G0 implementation also fails to type-check the field or constrain targets to the same arm. I constructed a dictionary-valued `supersedes` and a case where `answer-all` superseded a stale mapper row; both produced `g0_one_row_per_arm=True` and `instrument_valid=True`. Self/cycles are not explicitly detected, although because the row hash includes its own `supersedes` field, constructing one requires a SHA fixed point or collision.
+
+Why it matters: The order-dependent verdict selection is fixed, but the promised successful-retry recovery path exists only in unit-test dictionaries and cannot enter the real hash-chained log. Freezing would pin an unexecutable protocol; successful duplicate rows can only poison the experiment permanently.
+
+### The pinned NLB instrument emits an unloggable run body
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: `one_arm_body` emits a top-level `"arm"` in addition to `config.arm` ([instrument](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:431)); `kot-log/1` rejects that undeclared property. It also omits `event`, `exit`, and `prereg_hash`; `log-append.py` stamps several envelope fields but does not add those and then requires them for a run ([log append](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:84), [required fields](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:99)).
+
+Why it matters: The frozen instrument’s advertised raw output cannot be appended without an undocumented transformation that deletes and adds fields outside the pinned harness. The successful prereg dry-run validates the registry record, not this run-to-log integration.
+
+### G1 still admits contradictory and non-integral count records
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: For control families, G1 checks only that covered buckets are zero and `ok <= n`; it never requires the sum of per-family `ok` values to equal run-level `n_control_refused_acceptable` ([l3](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:325), [a5](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:309)). Setting every control-family `ok` to zero while leaving run-level acceptable refusal at 270/106 yielded `g1_counts=True`, `instrument_valid=True`, S1 PASS, and a reported acceptable-refusal rate of 1.0 in both scorers.
+
+Additionally, `n_covered`, `n_control`, and `dev_n` are compared by numeric equality without `_count`, and `dev_parse_refused` is divided without any type or range check ([l3](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:334), [a5](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:316)). Replacing each total with `600.0`/`855.0`, `270.0`/`106.0`, or `60.0` still produced a valid instrument; `dev_parse_refused=-1` and `0.5` also passed G4 and the whole instrument.
+
+Why it matters: A dropped control-family classification or impossible/non-integral count can still support a nominal PASS. This contradicts the claimed fail-closed “full counts integrity” and leaves round-1 finding 6 materially open.
+
+### The cited audit assumptions still contain 27/33 and 9/27
+
+SEVERITY: should-fix
+
+Concrete mechanism: ASM-0422’s rationale still says 27 existing plus 33 fresh, and ASM-0425’s live claim still says 9/27, even though both records cite those assumptions ([assumptions](/home/ec2-user/css/kernel/kernel-of-truth/registry/assumptions.jsonl:113)). No corrected successor assumption is cited.
+
+Why it matters: Calling these lines append-only history does not make the still-open, still-cited registered statements true. The artifact is unambiguous, so the registry should carry a mechanical superseding correction.
+
+### The pinned instrument still documents a byte-identical engine
+
+SEVERITY: should-fix
+
+Concrete mechanism: The record fields are repaired, but the pinned `nlb_instrument.py` docstring still says both mapper and gold-replication run on a “byte-identical engine” ([instrument](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:14)). The actual engine hash differs from the parent, as the records now correctly state.
+
+Why it matters: This is runner-facing documentation inside a pinned experiment artifact and directly contradicts the registered engine-continuity claim, even though it does not alter scoring.
+
+### The n=527 Wilson complement is not bit-identical
+
+SEVERITY: nit
+
+Concrete mechanism: Section 14.8 says the original and complement forms are “bit-equal” at 4/527 and 9/855 ([design](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:1083)). At 4/527, `LB(523/527)` and `1-UB(4/527)` differ by one binary64 ULP (`−1.1102230246251565e−16`); 9/855 happens to be bit-equal.
+
+Why it matters: The mathematical identity and every integer-count gate decision are unchanged—I found zero pass/fail mismatches across all k at n=527 and n=855—but the stronger implementation-level factual claim is false.
+
+OVERALL VERDICT: defects remain.
+
+- Freeze-blocking: “G0’s registered supersede path cannot exist in `kot-log/1`”; “The pinned NLB instrument emits an unloggable run body”; “G1 still admits contradictory and non-integral count records.”
+- Should-fix: “The cited audit assumptions still contain 27/33 and 9/27”; “The pinned instrument still documents a byte-identical engine.”
+- Nit: “The n=527 Wilson complement is not bit-identical.”
