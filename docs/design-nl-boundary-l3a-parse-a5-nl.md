@@ -1,7 +1,13 @@
 # Design + pre-registration spec — the NL-boundary leg: l3a-parse / a5-nl
 
-**Line id:** `nl-boundary-l3a-parse-a5-nl`. **Status: DRAFT — NOT FROZEN.** No
-prereg-freeze has run; no final phase may run against this document. Author:
+**Line id:** `nl-boundary-l3a-parse-a5-nl`. **Status: DRAFT →
+FREEZE-CANDIDATE (2026-07-10) — NOT FROZEN.** No prereg-freeze has run; no
+final phase may run against this document. Freeze-candidate pass completed
+§11 items 1–5 (DEV corpora committed, frame layer finalised on DEV only and
+sha-pinned in both records, analysis scripts pinned, mocks + analysis
+end-to-end green); still owed before freeze: the blind EVAL/PROBE input build
+(Opus, `tools/experiments/nlb/EVAL-BUILD-SPEC.md`), the independent
+non-designer skeptic re-attack (item 6), then prereg-freeze (item 7). Author:
 Kern (Fable designer role), 2026-07-10.
 **Consolidates/advances:** the pre-declared successors `l3a-parse` (frozen in
 `registry/experiments/l3a.json` → `design.n_planned.successors`) and `a5-nl`
@@ -28,7 +34,7 @@ degenerate-denominator lesson; power on the covered slice; coverage restated).
 ## 0. What this experiment is — and is not
 
 The parents banked, per vertical, an audited instrument-adequacy PASS on
-*gold-parsed* closed-grammar queries against a byte-identical engine:
+*gold-parsed* closed-grammar queries against the engine:
 
 - PREMISE: l3a engine covered exactness 600/600 (one-sided Wilson 95% LB
   0.9955) and strict-code refusal 300/300 (LB 0.9911), audit CONFIRMED
@@ -43,8 +49,8 @@ The parents banked, per vertical, an audited instrument-adequacy PASS on
 This record pair tests the NEXT pre-declared stage and nothing else: **can a
 deterministic NL front-end (mapper `a1-hybrid` + entity gazetteer + closed
 frame layer) replace the gold parse on the SAME frozen eval queries against
-the byte-identical engine, at a pre-declared maximum loss, without breaking
-the fail-closed contract?** HL3a clause 2 verbatim (frozen in l3a):
+the same engine (G2-verified parent-identical behaviour — §10.9), at a
+pre-declared maximum loss, without breaking the fail-closed contract?** HL3a clause 2 verbatim (frozen in l3a):
 *"mapper-parse loses > a pre-declared fraction of gold-parse accuracy (the NL
 boundary eats the rung; L3 waits for a better parser, not more GPU)"* — this
 record instantiates that clause (and its HA5 analog) with the pre-declared
@@ -53,7 +59,7 @@ fraction set in §6.
 It is NOT: an LLM experiment (no model anywhere — R0), a cost-ratio or
 engine-vs-LLM claim (successors `l3a-cost` / `a5-llm`), a natural-user-
 distribution NL-robustness claim (phrasings are agent-authored under a blind
-protocol — §5, ASM-NLB-1), or a real-world coverage claim.
+protocol — §5, ASM-0140), or a real-world coverage claim.
 
 ## 1. Hypotheses
 
@@ -81,6 +87,8 @@ envelope.
 | **FK-NLB-5** malformed stratum | render as gibberish NL vs exclude | **exclude.** Malformedness is a property of the structured query; it has no faithful NL rendering, and the parents already banked shape-validation. Control n becomes 270 (l3a) / 106 (a5). Registered scope cut. | never for this pair |
 | **FK-NLB-6** control refusal scoring | strict engine code (parents') vs pipeline-acceptable set | **pipeline-acceptable**: refused with {the pre-authored expected engine code} ∪ {ERR_PARSE}. Under an NL front-end the refusal may legitimately fire EARLIER (e.g. unknown-entity → gazetteer miss → ERR_PARSE, never reaching the engine's ERR_UNKNOWN_ENTITY). Strict engine-code match is reported descriptively. The dangerous direction (control ANSWERED) is what the gate must exclude. | never |
 | **FK-NLB-7** refusal-gate level per record | 0.95 both / 0.95 + 0.90 | **l3a-parse 0.95; a5-nl 0.90.** At a5's frozen control n=106 (after FK-NLB-5) a 0.95 gate is UNDECIDABLE under the Holm-worst-case bound (even 105/106 observed fails; only a perfect 106/106 passes — a gate that only a perfect score can pass fails the P8 §1.6 lint). 0.90 at n=106 passes from 102/106 (§7). Registered asymmetry, driven by n, not by preference. | a5 control set ever grows |
+| **FK-NLB-8** paraphrase discipline (FREEZE-CANDIDATE fork, amends the draft §5 quota) | forced ≥50% no-label quota / syntactic-diversity quotas + descriptive no-label probe | **quotas + probe.** The mapper lexicon is single-label-per-concept with a rule lemmatizer and no synonym table [MEASURED: mapper/src/lexicon.ts + mapper/src/lemmatize.ts; probe runs 2026-07-10 — "who gave birth to X" maps give+birth not mother, "makers of"/"parts of" map nothing], so no-label phrasings are unmappable BY CONSTRUCTION and a forced 50% no-label stratum would predetermine FAIL arithmetically and break the §7 planning-value decidability the design binds itself to. Replaced by: free natural use of the relation's name + mechanically linted syntactic-diversity quotas (≥ min(6, n) distinct masked templates per covered family; no template > 50%; canonical scaffold ≤ 50%) + a 60-item/vertical no-label synonym PROBE, descriptive only, never gated, carved out of the envelope. Label-verbatim vs paraphrase stratification stays a reported endpoint. [STIPULATED: ASM-0144] | a parser-investment successor adds a synonym/alias layer (new record id) |
+| **FK-NLB-9** DEV-set basis (FREEZE-CANDIDATE fork, amends the draft §5.3) | DEV sampled from scored eval queries, disjoint author identities / DEV over FRESH identities disjoint from every scored item | **fresh-disjoint.** DEV = 60 designer-authored phrasings per vertical over freshly minted entities (`data/nlb-phrasings-*/dev-entities.jsonl`) absent from both world stores and every eval item (linted, DEV-FRESH); DEV items are never scored; the dev-pass gazetteer augmentation never enters a scored arm. Item-level disjointness replaces author-identity separation for DEV: with the front-end pinned before any EVAL phrasing exists, designer-DEV has no channel into the blind EVAL distribution and its only failure mode LOWERS the primary (conservative). EVAL/PROBE authoring keeps the full fresh-identity blind protocol. [STIPULATED: ASM-0145] | never for this pair; the skeptic re-attack (§11 item 6) attacks it against the built corpus |
 
 ## 3. The pipeline under test (one shared harness)
 
@@ -99,11 +107,34 @@ NL phrasing (held-out, blind-authored)
                               direction; exactly one mapped concept URN fills
                               the rel/concept slot; 0 or ≥2 → ERR_PARSE/frame-miss)
   → kot-query/1 (l3a-parse) or kot-query-code/1 (a5-nl)
-  → byte-identical engine    (tools/axiom/kot_axiom.py sha d2064989…;
-                              + tools/axiom/kot_code.py sha 9fbe2a50… for a5-nl
-                              — the SAME pins as the frozen parents; the engine
-                              is NOT modified by this experiment)
+  → engine                   (tools/axiom/kot_axiom.py sha d2640881…;
+                              + tools/axiom/kot_code.py sha 9fbe2a50… for a5-nl.
+                              kot_code is byte-identical to the frozen parent
+                              pin; kot_axiom is NOT — the define-op line
+                              extended it post-parent-freeze, so behavioural
+                              identity on the parent evals is re-verified
+                              IN-RUN by gate G2 instead of asserted
+                              [STIPULATED: ASM-0147]. The engine is NOT
+                              modified by this experiment.)
 ```
+
+**Frame-layer closed knowledge (finalised on DEV, pinned):** the frame layer
+carries (i) a per-relation surface-orientation table `ROLE_DIR` — which
+engine direction realises the role reading "the R of E" for the five
+relations with world edges (mother/father forward; maker-of, part-of
+inverse; has-part forward); every other relation defaults to a direction the
+engine refuses fail-closed; (ii) a label-variant matcher over the mapped
+concept's OWN label (inflections + the closed two-irregular table
+made→make, children→child); (iii) the closed a5 op-keyword cascade; and
+(iv) a fail-closed op default: inverse-possessive shapes parse as `lookup`
+(the set-valued, non-guessing op) unless the phrasing carries an explicit
+exactly-one marker — a `unique` guess on a set-valued family would fabricate
+a scalar answer (an S2 wrong answer), which is exactly what the front-end
+must never do. The frame layer performs **NO concept aliasing** ("made" maps
+to the distinct `make` concept and dies at the engine as a safe refusal, not
+a rescue): the mapper stays the sole concept-binding component, so stage
+indictment and the G5 derangement stay clean. All of this is grammar-like
+closed knowledge, none of it answer knowledge. [STIPULATED: ASM-0146]
 
 Fail-closed contract of the front-end: every non-parse is a **refusal** with
 code `ERR_PARSE` and a stage tag (`gazetteer-miss` | `mapper-abstain` |
@@ -136,8 +167,12 @@ of the blindness protocol, §5/§10).
 - NEW input corpora (built pre-freeze, hash-pinned at freeze):
   `data/nlb-phrasings-l3a/` and `data/nlb-phrasings-a5/` — one held-out
   phrasing per included eval query (`{qid, text}`), plus a DEV file of 60
-  phrasings per vertical over a stratified query sample, plus the authoring
-  transcripts + manifest (§5).
+  phrasings per vertical over FRESH identities disjoint from every scored
+  item (FK-NLB-9), plus a 60-item no-label synonym PROBE (FK-NLB-8,
+  descriptive only), plus the pinned prompts, author packets, authoring
+  transcripts, lint receipts, recoverability-audit record and manifest (§5).
+  DEV portion + prompts committed at freeze-candidate; EVAL/PROBE portion
+  built by the Opus runner per `tools/experiments/nlb/EVAL-BUILD-SPEC.md`.
 
 Coverage restatement (mandatory): as in the parents, coverage of the covered
 slice is **by construction** (queries authored against the stores); no m0b
@@ -151,36 +186,56 @@ natural-corpus coverage claim.
 Authoring identities and blindness:
 
 1. **Phrasing authors** are FRESH agent identities (not the designer, not the
-   front-end author, not the runner) invoked with a PINNED prompt whose
-   context contains ONLY, per query: the family name, a one-line op semantics
-   gloss (fixed table in the prompt), the relation/concept LABEL (e.g.
-   "mother", "python function"), the entity LABEL(s) (URN slug rendered
-   human-readable, e.g. "Elvis Presley", "check_doc in claims-check.py"),
-   and — for controls — the instruction to phrase the QUESTION faithfully
-   (never the expected refusal). Authors get NO repo access, NO mapper
-   lexicon, NO front-end code, NO expected answers, NO other line's output.
-   The prompt file is committed and hash-pinned; transcripts are committed.
+   front-end author, not the runner) invoked with a PINNED prompt
+   (`data/nlb-phrasings-*/prompt-eval.md`) whose context contains ONLY, per
+   query, the AUTHOR PACKET line (`tools/experiments/nlb/gen_author_packets.py`,
+   deterministic): a semantic SHAPE id (op + which side of the relation the
+   entity sits on — rendered via the same closed orientation semantics the
+   eval was authored under), the relation/concept LABEL (e.g. "mother",
+   "maker of", "python function"), and the entity LABEL — the URN slug
+   verbatim (the entity's canonical and ONLY name; hyphens may be written as
+   spaces; a5 identifiers are used verbatim, e.g.
+   `code-fn-claims-check--check-doc`, because the identifier IS the name).
+   FREEZE-CANDIDATE strengthening over the draft: packets carry NO family
+   name and NO covered/control class — controls are phrased faithfully as
+   questions without the author knowing they are controls. Authors get NO
+   repo access, NO mapper lexicon, NO front-end code, NO expected answers,
+   NO other line's output. One fresh identity per 100-packet batch;
+   transcripts committed.
 2. **Blind-to-lexicon** (the memo's required attack, §10.1): authors cannot
    tune phrasings to mappable surface forms because they never see which
    forms map. Since relation LABELS are themselves lexicon surface forms
-   (unavoidable — the label is the concept's name), the prompt additionally
-   imposes a **paraphrase quota**: within each covered family, at most 50% of
-   phrasings may contain the relation label verbatim; the rest must
-   paraphrase ("who gave birth to X", "X's male parent", "which routines
-   invoke f"). Exactness is reported stratified by label-verbatim vs
-   paraphrase (descriptive) so the quota's effect is visible, not assumed.
-3. **DEV/EVAL split + ordering**: DEV = 60 phrasings per vertical over a
-   stratified sample of queries, authored FIRST, by a batch of author
-   identities disjoint from the EVAL batch. The front-end author may iterate
-   the frame layer against DEV only. Then the front-end sha is pinned (commit
-   + record), THEN the EVAL phrasings (one per included query, fresh
+   (unavoidable — the label is the concept's name), authors use the
+   relation's name NATURALLY and freely; what the lint forces instead is
+   SYNTACTIC diversity (FK-NLB-8): per covered family ≥ min(6, n) distinct
+   masked templates, no single template > 50%, canonical
+   "wh… the <label> of <entity>" scaffold ≤ 50%. The systematic no-label
+   question is measured by the separate synonym PROBE (item 7 below),
+   descriptive only. Exactness is reported stratified by label-verbatim vs
+   paraphrase so residual label-use inflation is visible, not deniable.
+   The draft's forced ≥50% no-label quota is registered-replaced: it would
+   have predetermined FAIL against a lexicon that is single-label by
+   construction [STIPULATED: ASM-0144].
+3. **DEV/EVAL split + ordering** (FK-NLB-9): DEV = 60 phrasings per vertical
+   over FRESH minted identities disjoint from every scored item and both
+   world stores (`dev-entities.jsonl`; linted DEV-FRESH), authored FIRST —
+   at freeze-candidate, by the designer under the ASM-0145 allowance
+   (disclosed in the corpus manifests; admissible because DEV items are
+   never scored and the only designer-DEV failure mode lowers the primary).
+   The front-end author may iterate the frame layer against DEV only; the
+   dev-pass gazetteer (world ∪ dev entities) never enters a scored arm. Then
+   the front-end sha is pinned (commit + record — DONE 2026-07-10, sha
+   5903777…), THEN the EVAL phrasings (one per included query, fresh
    identities) are authored, hashed, and the record freezes. Any front-end
    edit after EVAL phrasings exist = a new record id.
-4. **Mechanical lints on the phrasing corpus** (part of the instrument gate):
-   exactly one phrasing per included qid; no `urn:` substring; no grammar
-   keyword leakage (`op`, `direction`, `unique(`, JSON braces); no expected
-   answer value string on covered items (e.g. the phrasing for q0001 must not
-   contain "gladys"); UTF-8, single line, ≤ 200 chars.
+4. **Mechanical lints on the phrasing corpus**
+   (`tools/experiments/nlb/nlb_lint.py`, receipt embedded in run bodies and
+   gated as G3): exactly one phrasing per included qid; no `urn:` substring;
+   no grammar keyword leakage (`op`, `direction`, `unique(`, JSON braces,
+   the scaffold token `inverse`); no expected answer value string on covered
+   items (e.g. the phrasing for q0001 must not contain "gladys"); UTF-8,
+   single line, ≤ 200 chars; the FK-NLB-8 diversity/scaffold quotas;
+   DEV-FRESH disjointness; no phrasing byte-identical to a mock template.
 5. **Recoverability audit** (pre-freeze, instrument-side): a 60-item random
    sample per vertical is given to an independent judge identity (no lexicon
    access) who must recover (op, relation/concept label, entity label) from
@@ -190,9 +245,19 @@ Authoring identities and blindness:
 6. Mock phrasings (`--mock`) are template-generated scaffold English,
    quarantined under `poc/nlb-mock/`, never under `data/`, and never shown to
    any authoring identity. They exercise mechanics only (§9).
+7. **Synonym-boundary PROBE** (FK-NLB-8): 60 covered qids per vertical
+   (deterministic largest-remainder stratified sample), each phrased a
+   second time by a further fresh identity under
+   `data/nlb-phrasings-*/prompt-probe.md`, which FORBIDS the relation/
+   concept label (l3a) or the op's keyword family (a5). Reported as
+   `/analysis/synonym_probe` (parse + exactness rates), **descriptive only,
+   never gated, carved out of the envelope** — it bounds the known
+   single-label-lexicon synonym penalty without letting it decide the
+   verdict in either direction. Probe items never enter the primary's
+   denominator (the gated K=1 eval phrasings are a disjoint authoring pass).
 
-Cost of the protocol: ~1,831 eval + ~120 dev phrasings + audits ≈ **$8–12 of
-agent API spend, the only spend in this experiment**.
+Cost of the protocol: ~1,831 eval + 120 dev + 120 probe phrasings + audits ≈
+**$8–12 of agent API spend, the only spend in this experiment**.
 
 ## 6. Endpoints (EXACTLY ONE primary per record) and verdict rules
 
@@ -225,7 +290,7 @@ against **floor 0.90**.
   answer. Below it, the exactness premium the engine leg banked stops being
   the pipeline's property, and the pre-declared programme response is parser
   investment, not GPU (kill text verbatim). The 10% number itself is a
-  programme POLICY choice, registered as ASM-NLB-2 (STIPULATED), with
+  programme POLICY choice, registered as ASM-0141 (STIPULATED), with
   FK-NLB-2 re-opening on an INCONCLUSIVE landing.
 - Planning value 0.95 → LB 0.9332 (n=600) / 0.9351 (n=855): clears the floor;
   passes the P8 §1.6 decidability lint (§7).
@@ -250,7 +315,7 @@ against **floor 0.90**.
 - **G1** arm presence + per-stratum counts match the manifest (600/270,
   855/106 + dev 60).
 - **G2 gold-replication:** the gold-parse arm re-runs the parent's FULL eval
-  (incl. malformed) on the byte-identical engine and must reproduce the
+  (incl. malformed) on the engine that actually runs (§10.9) and must reproduce the
   parent-perfect outcome (l3a 600/600 covered + 300/300 strict-code control;
   a5 855/855 + 122/122) — the ceiling is re-verified in-run, not assumed.
 - **G3 phrasing-corpus lints + blindness artifacts** (§5.4): manifest hash
@@ -306,16 +371,21 @@ worst-case on secondaries:
 | PASS needs (LB > 0.90) | ≥ 553/600 (0.9217) | ≥ 784/855 (0.9170) |
 | FAIL fires (UB ≤ 0.90) | ≤ 527/600 (0.8783) | ≤ 755/855 (0.8830) |
 | INCONCLUSIVE band | 528–552 (~4.2 pp) | 756–783 (~3.3 pp) |
-| planning value 0.95 → LB | 0.9332 ✓ | 0.9351 ✓ |
+| planning value 0.95 → LB | 0.9332 ✓ | 0.9363 ✓ |
 | S1 n (FK-NLB-5) | 270, gate 0.95 | 106, gate 0.90 |
 | S1 passes from (z=1.96) | ≥ 264/270 | ≥ 102/106 |
-| S1 planning 0.99 → LB (z=1.96) | 0.9695 ✓ | 0.9640 ✓ |
+| S1 planning 0.99 → LB (z=1.96) | 0.9695 ✓ | 0.9476 ✓ |
 | S2 gate UB < 0.02 passes up to (z=1.96) | ≤ 5/600 wrong | ≤ 9/855 wrong |
-| S2 kill fires (LB ≥ 0.02, z=1.645) | ≥ 18/600 wrong | ≥ 25/855 wrong |
-| S2 planning value | 3/600 → UB 0.0141 ✓ | 4/855 → UB 0.0132 ✓ |
+| S2 kill fires (LB ≥ 0.02, z=1.645) | ≥ 18/600 wrong | ≥ 24/855 wrong |
+| S2 planning value | 3/600 → UB 0.0146 ✓ | 4/855 → UB 0.0120 ✓ |
 
 Every gate is passable at its planning value and failable well inside the
 support — no vacuous gates. (FK-NLB-7 records why a5's S1 sits at 0.90.)
+FREEZE-CANDIDATE correction (2026-07-10): four informative planning-value
+restatements in the draft table (a5 primary LB, a5 S1 LB, both S2 planning
+UBs) and the a5 S2 kill count (draft said ≥25) were recomputed and corrected
+above; the pinned analysis scripts' `--selftest` fixtures sit ON these
+recomputed boundaries. No decision boundary of the l3a column changed.
 
 ## 8. Extrapolation envelope (verbatim into both records)
 
@@ -341,16 +411,28 @@ exactly the parent kill's routing: parser investment, not GPU.
 Shared harness (this line's files; nothing owned by another line touched):
 
 - `tools/experiments/nlb/nlb_map.mjs` — mapper bridge (builds the pinned
-  lexicon, applies a1-hybrid policy — pin verified at import; `--derange N`
+  lexicon, applies a1-hybrid policy — pin verified at import; `--derange`
   applies the seed-pinned derangement).
-- `tools/experiments/nlb/nlb_frontend.py` — gazetteer + frame layer (DRAFT
-  rules; finalised on DEV only; sha pinned at freeze).
-- `tools/experiments/nlb/nlb_instrument.py` — arms, scoring, kot-log/1 body
-  (RAW OUTPUT ONLY; knows no thresholds).
+- `tools/experiments/nlb/nlb_frontend.py` — gazetteer + frame layer
+  (**finalised on DEV only 2026-07-10; sha 5903777… pinned in both
+  records**; any later edit mints a new record id).
+- `tools/experiments/nlb/nlb_instrument.py` — arms, scoring, dev/probe
+  passes, kot-log/1 body (RAW OUTPUT ONLY; counts, no derived stats, knows
+  no thresholds).
+- `tools/experiments/nlb/nlb_lint.py` — the G3 corpus lints (receipt
+  committed next to the corpus and embedded in run-body pins).
+- `tools/experiments/nlb/nlb_devtune.py` — DEV frame-finalisation runner
+  (receipt committed with the corpus).
+- `tools/experiments/nlb/gen_author_packets.py` — deterministic author
+  packets for the blind EVAL/PROBE build.
 - `tools/experiments/nlb/gen_mock_phrasings.py` — scaffold-English mock
   phrasings (quarantined, `--mock` only).
-- `analysis/l3a_parse.py`, `analysis/a5_nl.py` (+ shared helper) — pinned at
-  freeze; output fields listed in the records.
+- `analysis/l3a_parse.py`, `analysis/a5_nl.py` — pinned (shas in the
+  records); **deviation from the draft's "+ shared helper": the two scripts
+  are deliberately SELF-CONTAINED byte-twins** (per-record constants; no
+  shared import), so each record's analysis pin is a complete artifact with
+  no unpinned import surface. Both carry `--selftest` fixtures on the §7
+  decision boundaries.
 
 `--mock` (green required before freeze; $0): template phrasings → full
 5-arm pipeline → mechanics asserted (G2 parent-perfect replication, G5
@@ -371,15 +453,19 @@ tuned (consciously or not) to what the mapper can parse → primary inflated;
 or tuned to defeat it → kill manufactured. Defences, in order of strength:
 (i) author identities never see lexicon/front-end/mapper code (§5.1) and the
 pinned prompt is itself audited for smuggled surface-form lists (G3);
-(ii) the paraphrase quota FORCES ≥50% of covered phrasings off the one
-surface form the authors do legitimately see (the label), and the
-label-verbatim vs paraphrase stratification makes any residual inflation
-VISIBLE in the report rather than deniable; (iii) the recoverability audit
+(ii) the FK-NLB-8 diversity quotas force the phrasings off any single
+syntactic template (the channel a surface-form-tuned author would exploit),
+the label-verbatim vs paraphrase stratification makes any residual
+label-use inflation VISIBLE in the report rather than deniable, and the
+never-gated synonym probe bounds the no-label penalty separately — the
+draft's forced no-label quota was replaced because it measured a
+by-construction zero and would have manufactured the kill
+[STIPULATED: ASM-0144]; (iii) the recoverability audit
 (§5.5) blocks the symmetric attack (unanswerable phrasings manufacturing a
 FAIL); (iv) transcripts are committed, so the auditor can re-derive
 blindness. RESIDUAL RISK, registered: agent authors share training
 distribution with the mapper's label vocabulary — a human-authored phrasing
-set would be stricter; scoped out by ASM-NLB-1 and carved out of the envelope
+set would be stricter; scoped out by ASM-0140 and carved out of the envelope
 (§8). The designer (this identity) has READ the lexicon docs and therefore
 MUST NOT author any dev/eval phrasing — enforced by identity separation in
 the build plan (§11).
@@ -423,48 +509,95 @@ phrasings on two self-authored verticals; §8's carve-outs are verbatim in
 both records, and the per-vertical licensing split blocks a silent
 conjunction claim.
 
+**10.8 Designer-authored DEV (freeze-candidate attack).** Threat: the
+designer (who has read the lexicon and the mapper) authors the DEV set and
+tunes the frame on it — could that inflate the primary? Channel analysis:
+inflation requires the DEV distribution to predict the EVAL distribution's
+*idiosyncrasies*; EVAL phrasings do not exist at tuning time and are later
+authored blind by fresh identities from packets the designer's phrasings
+never touch, and DEV items are over fresh entities never scored anywhere
+(linted). What designer-DEV *can* do is fit the frame to unrepresentative
+syntax — which shows up as EVAL misses, i.e. LOWERS the primary
+(conservative). The symmetric attack (designer authors deliberately easy DEV
+so G4 passes while the artifact is broken) is bounded by G4's role: it is an
+instrument gate, not evidence for the primary; a broken front-end still
+fails on EVAL where it counts. Residual risk registered as ASM-0145; the
+non-designer skeptic re-attacks this against the BUILT corpus before freeze.
+
+**10.9 Engine drift since the parents froze.** The define-op line extended
+`kot_axiom.py` after the parents' freeze, so the "byte-identical engine"
+premise of the draft is FALSE at head. Repair: the records pin the engine
+that actually runs (sha d2640881…) and make behavioural identity on the
+parent surface an EXECUTABLE in-run gate — G2 must reproduce the
+parent-perfect 600/600+300/300 and 855/855+122/122 on the byte-identical
+parent evals/stores, and G2 failure is INSTRUMENT-INVALID while G2 success
+is a PASS conjunct. Measured green on the 2026-07-10 mock receipts
+[STIPULATED: ASM-0147]. A byte-identity claim that is not re-verified would
+have been weaker than this gate.
+
 Skeptic conclusion: with G2–G6 + the §5 ordering protocol in place, the
-remaining unmitigated risks are ASM-NLB-1 (agent-authored proxy) and the
-inherited parent stipulations — all registered, none load-bearing for the
-verdict function itself. CLEAR TO PROCEED TO FREEZE once §11 items 1–6 are
-green. (This memo attacks the DESIGN; the pre-freeze skeptic pass must be
-re-run by a non-designer identity against the BUILT inputs.)
+remaining unmitigated risks are ASM-0140 (agent-authored proxy), ASM-0145
+(designer-DEV, conservative direction), ASM-0147 (engine continuity via G2)
+and the inherited parent stipulations — all registered, none load-bearing
+for the verdict function itself. CLEAR TO PROCEED TO FREEZE once §11 items
+1–6 are green. (This memo attacks the DESIGN; the pre-freeze skeptic pass
+must be re-run by a non-designer identity against the BUILT inputs.)
 
 ## 11. Build plan to freeze (this record STOPS before item 7)
 
-1. Harness skeleton + mock green (`--mock`, both verticals) — **DONE in this
-   draft** (`poc/nlb-mock/` receipts).
-2. DEV phrasing authoring (60/vertical, fresh identities, pinned prompt).
-3. Frame-layer finalisation against DEV only; commit; record front-end sha.
-4. EVAL phrasing authoring (1,831 total, fresh identities); lints; manifest;
-   recoverability audit; corpus-pin `data/nlb-phrasings-*`.
-5. Analysis scripts finalised; output-field list matches records; second
-   mock pass green end-to-end including analysis.
-6. Independent skeptic re-attack on the BUILT inputs (non-designer identity).
+1. Harness skeleton + mock green (`--mock`, both verticals) — **DONE
+   (draft)** (`poc/nlb-mock/` receipts).
+2. DEV phrasing authoring — **DONE (freeze-candidate, 2026-07-10)**:
+   60/vertical over fresh disjoint identities (FK-NLB-9), committed with
+   dev-entities, dev-tune receipts and lint receipts.
+3. Frame-layer finalisation against DEV only; front-end sha pinned in both
+   records — **DONE (2026-07-10)**: dev abstention 7/60 (l3a) and 4/60 (a5),
+   zero wrong-slot parses among expect-parse DEV items, mocks re-greened
+   (600/600 + 855/855 scaffold exactness, zero wrong answers).
+4. EVAL + PROBE phrasing authoring (1,831 + 120, fresh identities); lints;
+   manifest; recoverability audit; corpus-pin `data/nlb-phrasings-*` —
+   **SPECIFIED for the Opus runner** (`tools/experiments/nlb/
+   EVAL-BUILD-SPEC.md`; pinned prompts + deterministic packet generator
+   committed). NOT design work; the designer must not author any phrasing.
+5. Analysis scripts finalised; output-field list matches records; mock pass
+   green end-to-end including analysis — **DONE (2026-07-10)**: selftests on
+   the §7 boundaries pass; mock bodies → analysis produce every output
+   field with all gates green.
+6. Independent skeptic re-attack on the BUILT inputs (non-designer
+   identity) — **OWED; routed by the coordinator; blocks freeze.**
 7. `prereg-freeze.py` on `l3a-parse` then `a5-nl` (or batch), external
-   timestamp, frozen_sha into the index. **NOT EXECUTED — draft stops here.**
+   timestamp, frozen_sha into the index. **NOT EXECUTED — the
+   freeze-candidate stops here by design.**
 8. Handoff to Opus runner (foreground gates; run ≠ design ≠ grade ≠ audit;
    Codex cross-vendor audit on any computed PASS).
 
-## 12. Assumptions to register at freeze (`registry/assumptions.jsonl`)
+## 12. Registered assumptions (`registry/assumptions.jsonl`)
 
-- **Registered NOW (this draft):** ASM-0026 (STIPULATED, owner designer-1) —
-  the FK-NLB-1 record-topology methodology stipulation cited by the §13
-  DECISION line; it does not wait for freeze because the §13 decision line
-  rests on it today.
-- **ASM-NLB-1 (STIPULATED):** agent-authored phrasings under the §5 blind
-  protocol are an adequate held-out proxy for NL phrasings of these queries;
-  natural-user-distribution claims are excluded from the envelope regardless.
-- **ASM-NLB-2 (STIPULATED):** the 0.10 maximum NL-boundary loss (floor 0.90)
-  is the programme's reachability policy instantiating HL3a clause 2's
-  "pre-declared fraction"; an INCONCLUSIVE landing re-opens FK-NLB-2.
-- **ASM-NLB-3 (MEASURED-backed premise, restated):** entity labels given to
-  authors are the entities' only names; the mapper lexicon contains no entity
-  names (lexicon = concept labels + prime exponents — mapper/README.md,
-  mapper/src/lexicon.ts), so providing them is not lexicon leakage.
-- **ASM-NLB-4 (STIPULATED):** ERR_PARSE counts as a refusal (fail-closed) for
-  S1; conservative-direction note: this eases S1 but the dangerous direction
-  is separately gated by S2 and the S2 kill leg.
+All registered 2026-07-10 (freeze-candidate pass; reserved block
+ASM-0140…0159), owner designer-1, plus the draft-time ASM-0026:
+
+- **ASM-0026** — FK-NLB-1 record topology (two records, one shared harness);
+  cited by the §13 DECISION line.
+- **ASM-0140** (draft name ASM-NLB-1) — agent-authored blind phrasings as an
+  adequate held-out proxy; natural-user-distribution claims excluded from
+  the envelope regardless.
+- **ASM-0141** (draft name ASM-NLB-2) — the 0.10 maximum NL-boundary loss
+  (floor 0.90) as the programme's reachability policy instantiating HL3a
+  clause 2's "pre-declared fraction"; INCONCLUSIVE re-opens FK-NLB-2.
+- **ASM-0142** (draft name ASM-NLB-3) — entity labels given to authors are
+  the entities' only names; the mapper lexicon contains no entity surface
+  forms, so providing them is not lexicon leakage (choice STIPULATED, backed
+  by the inspectable lexicon content).
+- **ASM-0143** (draft name ASM-NLB-4) — ERR_PARSE is an acceptable control
+  refusal for S1 (FK-NLB-6); the dangerous direction is separately gated.
+- **ASM-0144** — FK-NLB-8: paraphrase quota replaced by syntactic-diversity
+  quotas + the never-gated synonym probe.
+- **ASM-0145** — FK-NLB-9: designer-authored DEV over fresh identities
+  disjoint from every scored item.
+- **ASM-0146** — the frame layer's closed knowledge (orientation table,
+  label-variant matcher, op defaults; NO concept aliasing).
+- **ASM-0147** — engine continuity via the executable G2 gate (kot_axiom
+  extended post-parent-freeze by the define-op line).
 - Inherited, still open, relied on: ASM-0004/0005/0006 (l3a),
   ASM-0007/0008/0009 (a5) — restated at verdict time per the honesty guard.
 

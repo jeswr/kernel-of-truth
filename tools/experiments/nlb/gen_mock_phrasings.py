@@ -48,11 +48,22 @@ def _phrase_l3a(q, urn2slug):
     r = _rel_word(q.get("rel", ""), urn2slug)
     e = _ent(q.get("subject", ""))
     inv = "inverse " if q.get("direction") == "inverse" else ""
+    # of-final relation words in FORWARD direction take the entity-first
+    # scaffold ('what things is E the maker of'): the role scaffold
+    # 'the maker of of E' is not well-formed English and, orientation-wise,
+    # 'the maker of E' realises the INVERSE direction (ROLE_DIR table).
+    of_final_fwd = r.endswith(" of") and not inv
     if op == "unique":
+        if of_final_fwd:
+            return "what is the one thing %s is the %s" % (e, r)
         return "who is the %s%s of %s" % (inv, r, e)
     if op == "lookup":
+        if of_final_fwd:
+            return "what things is %s the %s" % (e, r)
         return "list the %s%s of %s" % (inv, r, e)
     if op == "count":
+        if of_final_fwd:
+            return "how many things is %s the %s" % (e, r)
         return "how many %s%s for %s" % (inv, r, e)
     return None
 

@@ -1,0 +1,107 @@
+{
+  "blinding": {
+    "annotator_visible_files": "NONE of these files is handed to annotators; sheets are generated per annotation-protocol.md",
+    "asm": "ASM-0182",
+    "never_annotator_visible": [
+      "design-intent.jsonl",
+      "manifest.json",
+      "README.md"
+    ]
+  },
+  "composition_rationale": {
+    "asm": "ASM-0181",
+    "decidability": "with the pinned analysis (analysis/g3.py, z=1.645 Wilson at n=200): PASS (ub<=0.10) needs <=13 confirmed violations; FAIL (lb>0.10) needs >=27; each 60-instance stress lane makes both branches reachable (a 20-instance lane could never trip FAIL on its own)"
+  },
+  "concept_selection": {
+    "asm": "ASM-0180",
+    "rule": "non-knownWeak kernel-v0 concepts (knownWeak per data/kernel-v0/manifest.json), frame-stratified quotas InstanceSchema 6 / WhenTrue 6 / RelationalSchema 8 (proportional to the corpus's 17/16/21), ranked ascending by sha256('kot-g3-mat/1|seed=0|' + slug) hex; 'promise' force-included in InstanceSchema if unranked (not triggered - it ranks 4th of 9)",
+    "seed_source": "the frozen g3 record's design.seeds = [0]",
+    "selected": {
+      "InstanceSchema": [
+        "lie",
+        "birth",
+        "bookmark",
+        "promise",
+        "reminder",
+        "death"
+      ],
+      "RelationalSchema": [
+        "end",
+        "give",
+        "begin",
+        "make",
+        "find",
+        "repair",
+        "believe",
+        "friend"
+      ],
+      "WhenTrue": [
+        "lost",
+        "angry",
+        "afraid",
+        "broken",
+        "archived",
+        "useful"
+      ]
+    }
+  },
+  "corpus": "instance-descriptions",
+  "counts": {
+    "concepts": 20,
+    "instances_per_concept": 10,
+    "instances_total": 200,
+    "matches_frozen_n_planned": {
+      "concepts": 20,
+      "instances_per_concept": 10,
+      "n_instance_judgments": 200
+    },
+    "per_concept_strata": {
+      "control": 4,
+      "necessity-stress": 3,
+      "sufficiency-stress": 3
+    },
+    "strata": {
+      "control": 80,
+      "necessity-stress": 60,
+      "sufficiency-stress": 60
+    }
+  },
+  "files": [
+    "README.md",
+    "annotation-protocol.md",
+    "conditions.jsonl",
+    "design-intent.jsonl",
+    "instances.jsonl",
+    "manifest.json"
+  ],
+  "for_experiment": {
+    "corpus_pin_placeholder": "PINNED-AT-INPUTS:g3.materials (ops amendment computes the kot-corpus-hash/1 digest of this directory before any final-phase run)",
+    "frozen_sha256": "ef9608c60fc0355074b2d50132bbc79cbe49c5e9b578c724d81d31ce95bef7aa",
+    "id": "g3"
+  },
+  "generated": "2026-07-10",
+  "gold": {
+    "human_pass_decides": [
+      "Q1 per instance: is the target claim true of the described situation under ordinary usage (instance-of-C)?",
+      "Q2 per instance: does the described situation satisfy EVERY condition in the concept's condition set (bindings as given)?",
+      "necessity violation := Q1 yes AND Q2 no; sufficiency violation := Q1 no AND Q2 yes (P1 HS3 / F7 verbatim definitions)"
+    ],
+    "present": false
+  },
+  "ordering": {
+    "concept_block_order": "sorted by sha256('kot-g3-mat/1|seed=0|block|' + slug)",
+    "condition_set_ids": "K-01..K-20 in block order (opaque, for concept-word-free pass-B sheets)",
+    "instance_ids": "g3-<slug>-<NN> assigned AFTER the shuffle, so id order carries no stratum signal",
+    "within_block_order": "sorted by sha256('kot-g3-mat/1|seed=0|order|' + slug + '|' + authoring_key)"
+  },
+  "schema": "kot-g3-materials/1",
+  "scrub_rule": "instance text contains neither the concept word nor a close derivative (per-concept banned-lemma regexes in the generator); the target claim and bindings are exempt - they state the judgment",
+  "source_kernel": {
+    "corpus": "kernel-v0",
+    "corpus_digest_pinned_in_g3": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "encoder_content_hash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "stimulus_source_field": "gloss (the human-readable mirror of the kot-ast/1 explication)"
+  },
+  "status": "CANDIDATE-MATERIALS-NO-GOLD",
+  "title": "G3 candidate materials: necessity-vs-sufficiency violation set (~20 concepts x 10 instances)"
+}

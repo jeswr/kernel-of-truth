@@ -147,15 +147,51 @@ def run_nl_arm(oracle, included, phrasing_by_qid, vertical, arm):
     return out
 
 
-def score_nl(included, outcomes, arm, world_ids):
+def build_labelmap(root, vertical, ev):
+    """qid -> the item's relation/concept label string for the descriptive
+    label-verbatim vs paraphrase stratification (raw counts only; the rule is
+    pre-declared in the design doc section 6 endnote): l3a items use the
+    rel/concept sourceId; a5 instance items use the concept sourceId; a5
+    relational-op items use the op's head keyword STEM (the op is carried by
+    frame keywords on that vertical — registered honesty note)."""
+    urn2label = nlb_frontend._load_labels(root)
+    a5_head = {"callers-of": "call", "callees-of": "call",
+               "imports-of": "import", "imported-by": "import",
+               "contains": "contain", "contained-in": "contain",
+               "where-defined": "defined"}
+    out = {}
+    for rec in ev:
+        q = rec.get("query") or {}
+        if vertical == "l3a":
+            out[rec["qid"]] = urn2label.get(q.get("rel") or q.get("concept"))
+        elif q.get("op") == "instance-of":
+            out[rec["qid"]] = urn2label.get(q.get("concept"))
+        else:
+            out[rec["qid"]] = a5_head.get(q.get("op"))
+    return out
+
+
+def label_verbatim(text, label):
+    """True iff the item's label surface form (spaced or raw sourceId; stem
+    substring for the a5 op-head keywords) occurs in the phrasing."""
+    if not label:
+        return False
+    low = text.lower()
+    return (label.replace("-", " ") in low) or (label in low)
+
+
+def score_nl(included, outcomes, arm, world_ids, labelmap=None, texts=None):
     require_prov = arm in ("mapper-parse", "deranged-lexicon")
     m = {"n_covered": 0, "n_covered_exact": 0,
          "n_covered_refused_parse": 0, "n_covered_refused_engine": 0,
          "n_covered_answered_wrong": 0,
          "n_control": 0, "n_control_refused_acceptable": 0,
          "n_control_refused_strict_engine_code": 0,
+         "n_control_refused_parse": 0,
          "n_control_refused_other": 0, "n_control_answered": 0,
-         "parse_stage_breakdown": {}, "by_family": {}}
+         "parse_stage_breakdown": {}, "by_family": {},
+         "label_strata": {"verbatim": {"n": 0, "exact": 0},
+                          "paraphrase": {"n": 0, "exact": 0}}}
     for rec in included:
         r = outcomes[rec["qid"]]
         fam = m["by_family"].setdefault(rec["family"], {"n": 0, "ok": 0})
@@ -168,6 +204,13 @@ def score_nl(included, outcomes, arm, world_ids):
                 m["parse_stage_breakdown"].get(st, 0) + 1
         if rec["class"] == "covered":
             m["n_covered"] += 1
+            stratum = None
+            if labelmap is not None and texts is not None:
+                verb = label_verbatim(texts.get(rec["qid"], ""),
+                                      labelmap.get(rec["qid"]))
+                stratum = m["label_strata"]["verbatim" if verb
+                                            else "paraphrase"]
+                stratum["n"] += 1
             if r["status"] != "answer":
                 if is_parse_refusal:
                     m["n_covered_refused_parse"] += 1
@@ -182,6 +225,8 @@ def score_nl(included, outcomes, arm, world_ids):
                 if exact:
                     m["n_covered_exact"] += 1
                     fam["ok"] += 1
+                    if stratum is not None:
+                        stratum["exact"] += 1
                 else:
                     m["n_covered_answered_wrong"] += 1
         else:
@@ -190,6 +235,8 @@ def score_nl(included, outcomes, arm, world_ids):
                 m["n_control_answered"] += 1
             elif is_parse_refusal or r.get("code") == "ABSTAIN":
                 m["n_control_refused_acceptable"] += 1
+                if is_parse_refusal:
+                    m["n_control_refused_parse"] += 1
                 fam["ok"] += 1
             elif r.get("code") == exp.get("code"):
                 m["n_control_refused_acceptable"] += 1
@@ -251,8 +298,71 @@ def run_once(root, vertical, arm, phrasing_by_qid):
         return metrics, results, t1 - t0
     outcomes = run_nl_arm(oracle, included, phrasing_by_qid, vertical, arm)
     t1 = time.perf_counter_ns()
-    metrics = score_nl(included, outcomes, arm, oracle.engine.world_ids)
+    metrics = score_nl(included, outcomes, arm, oracle.engine.world_ids,
+                       labelmap=build_labelmap(root, vertical, ev),
+                       texts=phrasing_by_qid)
     return metrics, outcomes, t1 - t0
+
+
+def corpus_dir(root, vertical):
+    return os.path.join(root, "data", "nlb-phrasings-%s" % vertical)
+
+
+def run_dev_pass(root, vertical, oracle):
+    """G4 instrument quantity: front-end parse-failure rate on the committed
+    DEV corpus (fresh identities disjoint from every scored item; gazetteer =
+    world entities + the DEV-only entity list — never used by scored arms)."""
+    base = corpus_dir(root, vertical)
+    dev_path = os.path.join(base, "dev.jsonl")
+    ent_path = os.path.join(base, "dev-entities.jsonl")
+    if not (os.path.isfile(dev_path) and os.path.isfile(ent_path)):
+        return None
+    with open(dev_path, "r", encoding="utf-8") as f:
+        dev = [json.loads(l) for l in f if l.strip()]
+    with open(ent_path, "r", encoding="utf-8") as f:
+        dev_ents = [json.loads(l)["urn"] for l in f if l.strip()]
+    gaz = sorted(set(oracle.engine.entities) | set(dev_ents))
+    parses = nlb_frontend.parse_all(
+        [{"qid": r["qid"], "text": r["text"]} for r in dev],
+        vertical, gaz, root=root)
+    stage = {}
+    refused = 0
+    for r in dev:
+        p = parses[r["qid"]]
+        if p["status"] == "refuse":
+            refused += 1
+            st = p.get("stage", "unknown")
+            stage[st] = stage.get(st, 0) + 1
+    return {"dev_n": len(dev), "dev_parse_refused": refused,
+            "dev_stage_breakdown": stage}
+
+
+def run_probe_pass(root, vertical, oracle, included):
+    """Synonym-boundary probe (descriptive ONLY, never gated, carved out of
+    the envelope): second no-label phrasings over a covered-qid sample."""
+    probe_path = os.path.join(corpus_dir(root, vertical), "probe.jsonl")
+    if not os.path.isfile(probe_path):
+        return None
+    with open(probe_path, "r", encoding="utf-8") as f:
+        probe = [json.loads(l) for l in f if l.strip()]
+    by_qid = {r["qid"]: r for r in included}
+    parses = nlb_frontend.parse_all(
+        [{"qid": r["qid"], "text": r["text"]} for r in probe],
+        vertical, oracle.engine.entities, root=root)
+    n_ok = n_exact = 0
+    for r in probe:
+        p = parses[r["qid"]]
+        rec = by_qid.get(r["qid"])
+        if p["status"] != "parse" or rec is None:
+            continue
+        n_ok += 1
+        res = oracle.query(p["query"])
+        if res["status"] == "answer" and \
+                res["value"] == rec["expected"]["value"] and \
+                bool(res.get("provenance")) and bool(res.get("license")):
+            n_exact += 1
+    return {"probe_n": len(probe), "probe_parse_ok": n_ok,
+            "probe_exact": n_exact}
 
 
 def one_arm_body(root, vertical, arm, phrasing_by_qid, phase, phrasings_path):
@@ -262,6 +372,16 @@ def one_arm_body(root, vertical, arm, phrasing_by_qid, phase, phrasings_path):
                      json.dumps(out2, sort_keys=True, default=str))
     metrics["frontend_total_ns"] = elapsed
     metrics["deterministic_repeat_identical"] = bool(deterministic)
+    if arm == "mapper-parse":
+        oracle = build_oracle(root, vertical)
+        included = [r for r in load_eval(root, vertical)
+                    if r["family"] != "malformed"]
+        dev = run_dev_pass(root, vertical, oracle)
+        if dev is not None:
+            metrics.update(dev)
+        probe = run_probe_pass(root, vertical, oracle, included)
+        if probe is not None:
+            metrics.update(probe)
     exp_id = "l3a-parse" if vertical == "l3a" else "a5-nl"
     corpora = (("axioms-v0", "world-v0", "l3a-eval", "kernel-v0",
                 "molecules-v0") if vertical == "l3a" else
@@ -280,6 +400,18 @@ def one_arm_body(root, vertical, arm, phrasing_by_qid, phase, phrasings_path):
         pins[name] = {"observed": file_sha256(os.path.join(_HERE, name))}
     if phrasings_path and os.path.isfile(phrasings_path):
         pins["phrasings_file"] = {"observed": file_sha256(phrasings_path)}
+    base = corpus_dir(root, vertical)
+    for name in ("dev.jsonl", "dev-entities.jsonl", "probe.jsonl",
+                 "eval.jsonl", "manifest.json"):
+        p = os.path.join(base, name)
+        if os.path.isfile(p):
+            pins["corpus_file_%s" % name] = {"observed": file_sha256(p)}
+    lint_path = os.path.join(base, "lint-receipt.json")
+    if os.path.isfile(lint_path):
+        with open(lint_path, "r", encoding="utf-8") as f:
+            lint = json.load(f)
+        pins["phrasings_lint"] = {"observed": file_sha256(lint_path),
+                                  "green": bool(lint.get("green"))}
     return {
         "experiment": exp_id, "phase": phase, "arm": arm,
         "config": {"vertical": vertical, "arm": arm,
@@ -336,10 +468,12 @@ def run_mock(root, vertical):
         ab["n_control_refused_acceptable"] == n_ctl)
     checks["answer_all_bracket"] = (
         aa["n_control_answered"] == n_ctl)
-    # dev-gate MECHANICS only (real dev set is blind-authored pre-freeze):
-    dev_n = min(60, len(phr))
-    dev_stage = sum(mp["parse_stage_breakdown"].values())
-    checks["dev_gate_computable"] = dev_n == 60 and isinstance(dev_stage, int)
+    # dev gate G4 runs against the REAL committed DEV corpus (fresh disjoint
+    # identities, ASM-0145) even under --mock: parse-only, $0
+    checks["dev_gate_computable"] = (
+        mp.get("dev_n") == 60 and
+        isinstance(mp.get("dev_parse_refused"), int) and
+        mp["dev_parse_refused"] <= 0.20 * mp["dev_n"])
 
     green = all(checks.values())
     receipt = {

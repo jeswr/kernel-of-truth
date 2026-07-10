@@ -1,0 +1,23 @@
+{
+  "schema": "nlb-phrasings-manifest/1",
+  "vertical": "a5",
+  "status": "DEV-COMPLETE; EVAL/PROBE PENDING-OPUS-BUILD (tools/experiments/nlb/EVAL-BUILD-SPEC.md)",
+  "protocol_ref": "docs/design-nl-boundary-l3a-parse-a5-nl.md section 5",
+  "dev": {
+    "files": {
+      "dev.jsonl": "09bc68f012245eb96ca745ffeeef45a9a062bb08a2b79ffebd24ceba11fba1a3",
+      "dev-entities.jsonl": "f95517ff2b47f299ecbffce9f7ef6b029b7fb6ddb213a719735e539a738737d1",
+      "dev-tune-receipt.json": "79821bb7752cee90b01165e78fbbf373500308f5dececbc0def74c498cfda952"
+    },
+    "n": 60,
+    "authorship_disclosure": "authored 2026-07-10 by the DESIGNER identity (Kern, Fable designer role) under the ASM-0145 allowance: every DEV item is over FRESH minted identities (dev-entities.jsonl) disjoint from every scored eval item and from both world stores (mechanically linted, DEV-FRESH); DEV items are never scored in any arm; the DEV set exists solely to finalise the frame layer BEFORE any EVAL phrasing exists. Designer authorship of DEV cannot inflate the primary: the EVAL phrasings are authored later, by fresh identities, blind, against a front-end already pinned.",
+    "ordering_attestation": "dev.jsonl + dev-entities.jsonl were committed to disk BEFORE the frame-layer finalisation edits to tools/experiments/nlb/nlb_frontend.py began, and were not edited during tuning (dev-tune-receipt.json pins both). Front-end sha pinned in the registry records BEFORE any EVAL phrasing is authored (design doc 5.3)."
+  },
+  "prompts": {
+    "prompt-eval.md": "91665348aeee186b2a813d0342ac834462755a9eac117b9ac01ac15d7541e670",
+    "prompt-probe.md": "8843321b5f354f61302bb0587be9660ff8c34f491d6131283a9cde8ca738ef52",
+    "prompt-audit.md": "76ded60f7eac527b2dfd0d0ea4de060f948b23a43413a3d05f3351baa6af82d2"
+  },
+  "eval": {"status": "PENDING-OPUS-BUILD", "n_planned": 961, "files_expected": ["eval.jsonl", "packets/", "transcripts/", "audit-recoverability.json"]},
+  "probe": {"status": "PENDING-OPUS-BUILD", "n_planned": 60, "note": "synonym-boundary probe; descriptive only, never gated (FK-NLB-8)"}
+}
