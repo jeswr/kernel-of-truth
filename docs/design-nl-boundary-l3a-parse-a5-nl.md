@@ -9,6 +9,11 @@ end-to-end green); still owed before freeze: the blind EVAL/PROBE input build
 (Opus, `tools/experiments/nlb/EVAL-BUILD-SPEC.md`), the independent
 non-designer skeptic re-attack (item 6), then prereg-freeze (item 7). Author:
 Kern (Fable designer role), 2026-07-10.
+**2026-07-10 post-build amendment:** the blind EVAL build landed (b4a21fc)
+and hit two freeze-blocking findings; adjudicated in §14 +
+`registry/assessments/l3a-parse-recoverability.json` (l3a re-scoped to the
+shape-recoverable covered set n=527, FK-NLB-10; a5 forced-substring lint
+exemption, FK-NLB-11; ASM-0420..0425).
 **Consolidates/advances:** the pre-declared successors `l3a-parse` (frozen in
 `registry/experiments/l3a.json` → `design.n_planned.successors`) and `a5-nl`
 (frozen in `registry/experiments/a5.json` → same field), both
@@ -613,3 +618,188 @@ language; no LLM-comparative claim; no kernel-usefulness-to-model claim.
   methodology stipulation, backed by (not constituted by) the frozen
   parents' per-vertical successor pre-declarations
   (registry/experiments/l3a.json + a5.json `design.n_planned.successors`).
+
+---
+
+## 14. Post-build adjudication (2026-07-10) — the two freeze-blocking findings
+
+Author: Kern (Fable designer role). The blind EVAL build (Opus runner,
+EVAL-BUILD-SPEC) surfaced two freeze blockers; adjudicated in
+`registry/assessments/l3a-parse-recoverability.json` (the interpretive
+record) and amended here. Both records remain DRAFT; nothing frozen is
+touched; the corpora at commit b4a21fc are byte-untouched; no phrasing is
+edited or re-rolled outside the spec's own remedies.
+
+### 14.1 Finding 1 — l3a recoverability 0.7167 < 0.95: GENUINE FINDING
+
+- PREMISE: strict blind recovery 43/60 = 0.7167; shape+entity-only ceiling
+  52/60 = 0.8667 < 0.95 with rel-label matching ignored entirely; all 8
+  genuine shape failures fall in unique-maker (3/4 sampled), made-lookup
+  (4/4 sampled) and out-of-scope-rel (1 control) — zero shape misses in the
+  other 13 sampled families (27/27 sampled in-scope covered items
+  shape+entity-correct)
+  [MEASURED: data/nlb-phrasings-l3a/audit-recoverability.json sha256
+  d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5].
+- Adjudication: NOT a scorer artifact, NOT an authoring defect. English
+  unmarked wh-questions are number-neutral and, for agentive noun relations
+  (maker of), orientation-flexible; the grammar's unique-vs-lookup and
+  role-vs-flip distinctions on NON-functional relations are not injectively
+  recoverable from faithful natural phrasings. Functional relations
+  (mother/father) recover cleanly via world-knowledge defaults. The finding
+  is a MEASURED instrument-level partial-negative on NL-boundary
+  reachability; the irreducibility reading is designer interpretation with
+  stated bounds (one judge, agent authors, K=1, English) — see the
+  assessment record for the full epistemic-status statement.
+- Registered hazard the gate preempted: by the pinned S2 definition, a
+  faithful unmarked unique-maker phrasing fail-closed-parsed to `lookup`
+  answers a singleton list against scalar gold and scores as a DANGEROUS
+  wrong answer; 43 such items sit above the S2 kill trigger (18/600) — an
+  un-re-scoped run could have manufactured the fail-closed kill from
+  information the phrasings never carried.
+
+### 14.2 FK-NLB-10 — l3a shape-recoverable scope cut (re-scope, new fork)
+
+- DECISION: l3a-parse scores its primary and S2 over the shape-recoverable
+  covered set only: DROP unique-maker (43) and made-lookup (30) from the
+  gated denominators → n_scored = 527 over 7 families (children-lookup 100,
+  count-maker 43, instance-false-disjoint 40, instance-true 50, part-lookup
+  50, unique-father 122, unique-mother 122). The run still executes all 600
+  covered phrasings; the two dropped strata are reported as a DESCRIPTIVE
+  quarantined shape-ambiguous stratum (`/analysis/shape_ambiguous_stratum`),
+  never gated, carved out of the envelope. Corpus, packets, phrasings,
+  front-end, instrument, G2 arm: byte-identical; the scope lives in the
+  pinned analysis script alone. Controls unchanged (270, S1 gate 0.95).
+  Precedent: FK-NLB-5 (malformed excluded as having no faithful NL
+  rendering); here the absence of a shape-faithful rendering is MEASURED
+  rather than a priori. [STIPULATED: ASM-0420]
+- Re-opens when: a successor adds marked-English phrasings or answer-shape
+  equivalence scoring (new record id); the quarantined stratum's descriptive
+  results inform it.
+- Envelope edit (verbatim into the record at freeze): the PASS claim covers
+  the 7-family shape-recoverable slice ONLY, and the record carries the
+  measured partial-negative for the dropped shapes as a registered finding,
+  not silence.
+
+Updated §7 decidability (l3a column; a5 unchanged; kot_common Wilson):
+
+| Quantity | l3a-parse (n=527) |
+|---|---|
+| PASS needs (LB > 0.90, z=1.645) | ≥ 486/527 (0.9222) |
+| FAIL fires (UB ≤ 0.90) | ≤ 462/527 (0.8767) |
+| INCONCLUSIVE band | 463–485 (~4.4 pp) |
+| planning value 0.95 → LB | 0.9320 ✓ |
+| S2 gate UB < 0.02 passes up to (z=1.96) | ≤ 4/527 wrong |
+| S2 kill fires (LB ≥ 0.02, z=1.645) | ≥ 16/527 wrong |
+| S2 planning value | 3/527 → UB 0.0166 ✓ |
+
+Every gate remains passable at its planning value and failable inside the
+support. S1 unchanged (n=270, gate 0.95, passes from 264/270, planning 0.99
+→ LB 0.9695 at z=1.96).
+
+### 14.3 Recoverability-audit gate: split + extension (amends §5.5)
+
+- DECISION: the audit gate is the SHAPE+ENTITY recovery rate over a 60-item
+  COVERED-only in-scope sample, gate ≥ 0.95 (≥ 57/60). Rel/concept-label
+  recovery and control-item recovery become DESCRIPTIVE. Rationale: the
+  gate's registered purpose is answerability (a FAIL must not be
+  manufacturable by unanswerable phrasings); shape+entity carries that.
+  Gating on label recovery under stem-overlap would force label-verbatim
+  authoring through the back door — re-imposing what FK-NLB-8
+  registered-removed — and double-counts the synonym penalty that the
+  experiment itself measures (label-verbatim stratification + probe).
+  Controls are insensitive to shape recovery in the dangerous direction
+  (any parse of an out-of-scope/unknown item still refuses).
+  [STIPULATED: ASM-0421]
+- DECISION: no judge re-roll. l3a audit r1 = mechanical re-score of the
+  COMMITTED judge transcript restricted to in-scope covered sampled items
+  (27/27 shape+entity-correct) + a FRESH judge identity on NEW in-scope
+  items only, topping the covered-only sample to 60 (same pinned
+  prompt-audit.md, same deterministic sample rule over the 7 in-scope
+  families, skipping already-judged qids). Artifact:
+  `audit-recoverability-r1.json`; the original artifact stays committed as
+  the driving evidence. The a5 audit (not yet run) uses the split gate from
+  the start — genuinely pre-data on that vertical. [STIPULATED: ASM-0422]
+- Sizing honesty (non-gating): in-sample natural-synonym phrasing on
+  in-scope covered items is 9/27 = 0.333 [MEASURED: audit sha256
+  d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5];
+  against the single-label lexicon this makes the 0.95 planning value
+  implausible and an INCONCLUSIVE/FAIL primary landing live
+  (ASM-0425, EXTRAPOLATION, load-bearing for nothing). The re-scope does
+  NOT remove synonym-phrased items; a FAIL routes to parser investment per
+  the frozen kill text.
+
+### 14.4 Finding 2 — a5 lint RED, 28 structural leaks: FK-NLB-11 (new fork)
+
+- PREMISE: all 28 EVAL-NO-ANSWER items verified structural — every leaked
+  answer surface occurs only inside the mandatory verbatim entity
+  identifier and is a substring of (or equal to) it: nested-function name
+  prefixes (where-defined 9, contained-in 9) and self-recursive call edges
+  (callers-of 5, callees-of 5); recomputed 28/28 on 2026-07-10
+  [MEASURED: data/nlb-phrasings-a5/lint-receipt.json sha256
+  da8c693da230f8dd6fdc75917ccbd40a476fcb28bddc5076ef477e64fda9acc8 +
+  eval.jsonl sha256
+  074b686cb5b0d8227c21f966f7c935e18fab002eb5d245033558e2321a5f1ba8].
+- DECISION (remedy): EXEMPT forced-substring leaks in the lint, disclosed —
+  EVAL-NO-ANSWER masks all occurrences of the item's entity surfaces
+  (longest-first, the existing mask_template discipline) and flags only
+  answer surfaces that SURVIVE masking; every exempted qid is listed in a
+  new receipt field `waived_forced_substring` (never silent). The 28 items
+  STAY in the a5-nl scored set: they are NL-faithful and answerable, they
+  are the only items covering nested-definition and self-recursion
+  semantics, and no arm in this record can exploit the leak (the
+  deterministic pipeline extracts nothing from surfaces; answer-all's
+  fabrication policy is surface-blind). Alternatives rejected: dropping the
+  28 deletes a real semantic slice to satisfy a guard aimed at
+  surface-reading arms this record does not have; accepting a RED receipt
+  kills gate G3 permanently. MANDATORY REUSE CAVEAT: any successor with a
+  model-based arm (a5-llm re-freeze) MUST exclude or re-phrase the waived
+  qids — an LLM can read the answer off the question; the caveat is written
+  into the a5-nl record's successors field. l3a re-lints under the new rule
+  and must stay green with an EMPTY waived list. [STIPULATED: ASM-0423]
+- EVAL-DIVERSITY (instance-true 111/216): no new decision — EVAL-BUILD-SPEC
+  step 4's fresh-identity re-authoring remedy applies as written; the
+  coordinator executes it, then re-lints, THEN runs the a5 recoverability
+  audit (step 5) under the §14.3 split gate.
+
+### 14.5 Blindness invariant for the post-data edits
+
+- DECISION: the blindness ordering this design binds itself to (§5.3/§10.2)
+  is carried by the FRONT-END artifacts and the phrasing corpora:
+  nlb_frontend.py, nlb_map.mjs, the mapper policy pin, and every committed
+  phrasing byte stay untouched from the pre-EVAL pin through freeze.
+  Scorer-side artifacts (nlb_lint.py, analysis/l3a_parse.py, analysis/
+  a5_nl.py, record JSONs) MAY change in this pre-freeze design iteration in
+  response to instrument-side findings, because no scored outcome exists
+  and the front-end cannot have adapted to the phrasings. Both records
+  re-pin the new shas; the independent skeptic re-attack (§11 item 6) is
+  EXPLICITLY tasked to attack ASM-0420..0425 as potential forking-paths
+  moves; the maintainer holds a veto at freeze. [STIPULATED: ASM-0424]
+
+### 14.6 Coordinator change-list (exact; nothing else changes)
+
+1. `tools/experiments/nlb/nlb_lint.py`: EVAL-NO-ANSWER → masked
+   forced-substring rule + `waived_forced_substring` receipt field (14.4).
+   Re-run BOTH verticals: l3a green + empty waived list; a5 green after
+   step 3 below.
+2. `analysis/l3a_parse.py`: gated denominators restricted to the 7
+   in-scope families (n=527); new descriptive output fields
+   `/analysis/shape_ambiguous_stratum` (per-family exactness/refusal/wrong
+   over unique-maker + made-lookup) and `/analysis/audit_r1_ref`; selftest
+   fixtures moved to the 14.2 boundaries (486/462/4/16). `analysis/a5_nl.py`
+   unchanged except EXPECTED_PHRASINGS_SHA256 at step 6 as already spec'd.
+3. a5 instance-true re-authoring per EVAL-BUILD-SPEC step 4 (fresh
+   identity, same packets, appended transcripts); never hand-edit text.
+4. l3a audit r1 per 14.3 (mechanical re-score + fresh-judge extension to
+   60 covered-only in-scope; gate ≥ 57/60). a5 audit per step 5 under the
+   split gate.
+5. Record edits (both DRAFT): re-pin nlb_lint.py + analysis shas in
+   harness_manifest/pins; l3a-parse n_planned gains
+   `n_covered_run: 600, n_covered_scored: 527`,
+   `shape_ambiguous_strata: {unique-maker: 43, made-lookup: 30}`, endpoint
+   texts and wilson_gate n updated to 527 per 14.2; a5-nl successors field
+   gains the FK-NLB-11 reuse caveat; both records cite ASM-0420..0425.
+6. Then corpus pins (spec step 6), smoke (step 7), skeptic re-attack
+   (§11 item 6, scope extended per 14.5), prereg-freeze (item 7).
+
+Deferred: `ERR_KB_INTERNAL`-only kb-sync (coordinator heals; not run here
+per the standing instruction).
