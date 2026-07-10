@@ -1,0 +1,39 @@
+{
+  "schema": "f2b-errors-taxonomy/1",
+  "title": "Pre-frozen F2-line failure-cause taxonomy (CLOSED set, deterministic assignment)",
+  "design_doc": "docs/design-truthstyle-2x2-f2-taxonomy.md section 5",
+  "declared_before": "f2b-transfer Stage-2 unblinding (R-2 superset-logging rule, docs/next/resource-optimization-plan.md section 3.5): this file's sha256 is pinned in registry/experiments/f2b-errors.json; a taxonomy not hash-pinned before Stage-2 outputs are inspected is retrospective storytelling and can never carry confirmatory standing.",
+  "scope": "f2b-transfer Stage-2 kernel-verify-retry arm (R1 = SmolLM2-135M, fixed k=4, seeds 0/1/2), per (item, seed) cell. Failure universe: cells whose FINAL answer is wrong against the blind-adjudicated external gold (item_correct_ext_final == 0). The taxonomy is adapted from the generic GPT-5.6 lens-B proposal (mapper/canonical-set/axiom/ambiguity/retry-instability/extraction) to the ACTUAL Stage-2 pipeline mechanics, which have no mapper or axiom stage: the verifier is string-equality against canonical records with abstention off-coverage.",
+  "required_logged_fields": {
+    "per_cell": ["item_id", "concept_label", "template_type", "seed", "arm",
+                 "final_attempt_index", "item_correct_ext_final", "item_correct_mem_final",
+                 "item_correct_ext_attempt0"],
+    "per_attempt": ["attempt_index", "extraction_ok", "extracted_answer",
+                    "verifier_decision (accept|reject|abstain)"],
+    "arms_needed": ["kernel-verify-retry (taxonomy universe)",
+                    "model-alone R1 (lift reference for the bootstrap re-analysis)"],
+    "note": "These fields are the R-2 superset-logging declaration this consumer record makes toward the Stage-2 harness staging (an ops-level logging addition to the PINNED-AT-INPUTS harness manifest; it changes no arm, endpoint, or analysis of the FROZEN f2b-transfer record). FALLBACK if per-attempt structured logging is ruled out of ops scope: R-2 raw per-attempt decoded outputs + verifier decisions persisted as content-addressed artifacts are sufficient — assignment is a pure function of them. If NEITHER exists when Stage-2 runs, /gates/fields_available fails and this record reads INSTRUMENT-INVALID; it can never fall back to inspecting unblinded outputs and retro-fitting."
+  },
+  "assignment_procedure": {
+    "type": "ordered deterministic decision tree; first matching category wins; total by construction",
+    "tree": [
+      {"category": "X-EXTRACT", "rule": "extraction_ok == false at the final attempt"},
+      {"category": "X-NONENGAGE", "rule": "every attempt's verifier_decision == 'abstain' (item undecidable for the verifier; final answer is attempt-0 behaviour)"},
+      {"category": "X-GOLDCONFLICT", "rule": "the final attempt's verifier_decision == 'accept' (an accepted answer string-equals canonical record content, hence mem-correct) while item_correct_ext_final == 0 — the kernel-content-vs-external-gold conflict cell; the H-CIRC-diagnostic mass"},
+      {"category": "X-EXHAUST-STABLE", "rule": "no attempt accepted; >= 2 attempts extracted; all extracted answers byte-identical (the model cannot move off its answer under retry)"},
+      {"category": "X-EXHAUST-WANDER", "rule": "no attempt accepted; extracted answers differ across attempts (retry instability: the model wanders without finding an acceptable surface)"},
+      {"category": "X-OTHER", "rule": "fail-closed residual; MUST be <= 2% of failure cells (/gates/assignment_total) — a larger residual means the tree does not describe the pipeline and the instrument is invalid"}
+    ]
+  },
+  "orthogonal_flags": {
+    "harmful_flip": "item_correct_ext_attempt0 == 1 AND item_correct_ext_final == 0 (retry destroyed a right answer) — accounted ACROSS all categories, reported as rate and count",
+    "benign_flip": "item_correct_ext_attempt0 == 0 AND item_correct_ext_final == 1 — computed over ALL verify cells (the lift's mechanism), reported as rate and count"
+  },
+  "cluster_keys": ["concept_label", "template_type", "seed"],
+  "declared_exploratory_reanalysis": {
+    "name": "item-cluster bootstrap re-analysis (G6)",
+    "estimand": "the Stage-2 primary effect_size (acc_ext verify k=4 minus acc_ext alone, seed-averaged per-item means, 250 eval items) re-computed under a CONCEPT-cluster percentile bootstrap (resample the covered concepts with replacement, B=10000, seed 20260710) instead of the frozen SAP's item-level BCa; plus a leave-one-seed-out jackknife range",
+    "standing": "pre-declared BEFORE Stage-2 unblinding => citable as a confirmatory-standing SENSITIVITY analysis. It can NEVER flip the frozen f2b-transfer verdict (the verdict is a pure function of the frozen SAP); its consumer rule is: any claim citing a Stage-2 PASS must co-cite /analysis/cluster_robust from this record.",
+    "retrospective_twin": "the SAME procedure applied to results-log/f2b-replicate.jsonl logged item arrays is phase:'exploratory' (post-unblinding for that record) — run it for pricing information, quarantined, uncitable as confirmation."
+  }
+}
