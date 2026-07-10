@@ -1,0 +1,32 @@
+[15:54:24] A-E2 census start; fail-closed provenance check
+[15:54:24]   wordfreq en: large_en.msgpack.gz sha OK
+[15:54:24]   wordfreq es: large_es.msgpack.gz sha OK
+[15:54:24]   wordfreq fi: large_fi.msgpack.gz sha OK
+[15:54:24]   wordfreq ja: large_ja.msgpack.gz sha OK
+[15:54:24]   tokenizer smollm2-135m-instruct: sha OK
+[15:54:24]   tokenizer qwen2.5-0.5b-instruct: sha OK
+[15:54:24]   kernel-v0 manifest sha da56bf1f912cdc24…
+[15:54:25]   freq en: 321180 surfaces, raw Σfreq=0.9866 (list running-text coverage)
+[15:54:26]   freq es: 342072 surfaces, raw Σfreq=0.9871 (list running-text coverage)
+[15:54:27]   freq fi: 734205 surfaces, raw Σfreq=0.9864 (list running-text coverage)
+[15:54:28]   freq ja: 214960 surfaces, raw Σfreq=0.9902 (list running-text coverage)
+[15:54:47]   bpe en/smollm2-135m-instruct: tokenized 321180 surfaces (primary lead=' ')
+[15:55:34]   bpe en/qwen2.5-0.5b-instruct: tokenized 321180 surfaces (primary lead=' ')
+[15:55:59]   bpe es/smollm2-135m-instruct: tokenized 342072 surfaces (primary lead=' ')
+[15:56:18]   bpe es/qwen2.5-0.5b-instruct: tokenized 342072 surfaces (primary lead=' ')
+[15:57:16]   bpe fi/smollm2-135m-instruct: tokenized 734205 surfaces (primary lead=' ')
+[15:58:40]   bpe fi/qwen2.5-0.5b-instruct: tokenized 734205 surfaces (primary lead=' ')
+[15:59:07]   bpe ja/smollm2-135m-instruct: tokenized 214960 surfaces (primary lead='')
+[15:59:27]   bpe ja/qwen2.5-0.5b-instruct: tokenized 214960 surfaces (primary lead='')
+[15:59:27] English m̂: running isolated-surface a1-hybrid mapper (compute-mhat.mjs)
+[15:59:32]   mhat: mhat done: {"concept":244,"prime":876,"abstain":164,"none":319896,"error":0} n= 321180
+[16:00:21]   blended smollm2-135m-instruct/uniform/all: computed upper+lower brackets (membership+mhat)
+[16:00:33]   blended smollm2-135m-instruct/usage-share/all: computed upper+lower brackets (membership+mhat)
+[16:00:44]   blended smollm2-135m-instruct/uniform/wordlike: computed upper+lower brackets (membership+mhat)
+[16:00:51]   blended smollm2-135m-instruct/usage-share/wordlike: computed upper+lower brackets (membership+mhat)
+[16:00:59]   blended qwen2.5-0.5b-instruct/uniform/all: computed upper+lower brackets (membership+mhat)
+[16:01:07]   blended qwen2.5-0.5b-instruct/usage-share/all: computed upper+lower brackets (membership+mhat)
+[16:01:16]   blended qwen2.5-0.5b-instruct/uniform/wordlike: computed upper+lower brackets (membership+mhat)
+[16:01:23]   blended qwen2.5-0.5b-instruct/usage-share/wordlike: computed upper+lower brackets (membership+mhat)
+[16:01:23] wrote results/summary.json
+[16:01:23] wrote results/per-concept-detail.jsonl (top 1000 per lang×tokenizer, membership rank)

@@ -1,0 +1,11 @@
+# A-E2 inputs are re-fetchable by the sha256 pins in results/summary.json
+# (manifest block) — kept out of git to avoid binary bloat. Re-fetch with
+# the URLs + revisions recorded in the manifest; fail-closed sha check is in
+# run-a-e2.py. wordfreq data files live inside the pip package (pinned by
+# version 3.1.1 + data-file sha256).
+inputs/tokenizers/*.json
+
+# Large generated intermediates (reproducible from run-a-e2.py).
+results/en-surfaces.txt
+results/en-mhat.jsonl
+results/en-mhat.meta.json

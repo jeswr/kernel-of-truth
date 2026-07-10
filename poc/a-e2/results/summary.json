@@ -1,0 +1,1815 @@
+{
+ "schema": "kot-ae2-summary/1",
+ "census": "A-E2 cross-lingual phrase-coverage savings census",
+ "epistemic_tag": "MEASURED-exploratory",
+ "note": "NO verdict / NO freeze / NO interpretation (Fable's lane). Census informs but does not gate the feasibility verdict.",
+ "bracketing_convention": "ASM-0462: per-language + pooled = LOWER bracket; cross-language sum = UPPER bracket; K-A2 fires only off upper, go rests only on lower.",
+ "concept_budget_grid": [
+  10,
+  30,
+  100,
+  300,
+  1000,
+  3000,
+  5000,
+  10000,
+  25000,
+  50000,
+  100000,
+  200000
+ ],
+ "k_a2_reference_anchor_concepts": 10000,
+ "manifest": {
+  "schema": "kot-ae2-manifest/1",
+  "census": "A-E2 cross-lingual phrase-coverage savings census",
+  "bead": "kernel-of-truth-5iu",
+  "date": "2026-07-10",
+  "epistemic_tag": "MEASURED-exploratory",
+  "spec": [
+   "docs/next/io-compression-signoff.md §3 (N-IOC-S)",
+   "docs/next/io-compression-ideas.md §2.1, §2.7 (N-IOC)",
+   "ASM-0461 (input pins)",
+   "ASM-0462 (bracketing convention)"
+  ],
+  "languages": [
+   "en",
+   "es",
+   "fi",
+   "ja"
+  ],
+  "frequency_lists": {
+   "en": {
+    "source": "wordfreq (rspeer/wordfreq lineage)",
+    "package_version": "3.1.1",
+    "wordlist": "large (best)",
+    "data_file": "large_en.msgpack.gz",
+    "sha256": "dffae8066b78dce0a6667cf5f58e567054f902674667090a7ac8a8a44628b05c",
+    "upstream": "https://github.com/rspeer/wordfreq (data), https://pypi.org/project/wordfreq/3.1.1/",
+    "n_surfaces": 321180,
+    "list_running_text_coverage_raw_sum_freq": 0.9865575605944439,
+    "renormalised_within_list": true
+   },
+   "es": {
+    "source": "wordfreq (rspeer/wordfreq lineage)",
+    "package_version": "3.1.1",
+    "wordlist": "large (best)",
+    "data_file": "large_es.msgpack.gz",
+    "sha256": "14f326b4f68d517f9b8b99c1e26ef56a508d2dc8d0ee7a9e6e8732ddab1aa65e",
+    "upstream": "https://github.com/rspeer/wordfreq (data), https://pypi.org/project/wordfreq/3.1.1/",
+    "n_surfaces": 342072,
+    "list_running_text_coverage_raw_sum_freq": 0.987149688902562,
+    "renormalised_within_list": true
+   },
+   "fi": {
+    "source": "wordfreq (rspeer/wordfreq lineage)",
+    "package_version": "3.1.1",
+    "wordlist": "large (best)",
+    "data_file": "large_fi.msgpack.gz",
+    "sha256": "98fb498142d5cb4ff47df65d6c4784dff4fa2fc6d191a0b26cf6341101922151",
+    "upstream": "https://github.com/rspeer/wordfreq (data), https://pypi.org/project/wordfreq/3.1.1/",
+    "n_surfaces": 734205,
+    "list_running_text_coverage_raw_sum_freq": 0.9864213107947887,
+    "renormalised_within_list": true
+   },
+   "ja": {
+    "source": "wordfreq (rspeer/wordfreq lineage)",
+    "package_version": "3.1.1",
+    "wordlist": "large (best)",
+    "data_file": "large_ja.msgpack.gz",
+    "sha256": "e6ab743b939c1802fc03791f1d58dee2861e822ceecdcdee3f0e05b863ef26d8",
+    "upstream": "https://github.com/rspeer/wordfreq (data), https://pypi.org/project/wordfreq/3.1.1/",
+    "n_surfaces": 214960,
+    "list_running_text_coverage_raw_sum_freq": 0.9902253115938969,
+    "renormalised_within_list": true
+   }
+  },
+  "tokenizers": {
+   "smollm2-135m-instruct": {
+    "hf_repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "url": "https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct/resolve/12fd25f77366fa6b3b4b768ec3050bf629380bac/tokenizer.json",
+    "role": "R1 mandatory host tokenizer",
+    "sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c",
+    "file": "poc/a-e2/inputs/tokenizers/smollm2-135m-instruct.tokenizer.json"
+   },
+   "qwen2.5-0.5b-instruct": {
+    "hf_repo": "Qwen/Qwen2.5-0.5B-Instruct",
+    "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+    "url": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/7ae557604adf67be50417f59c2c2f167def9a775/tokenizer.json",
+    "role": "R4-family tokenizer (extension predicate); shared across Qwen2.5 family",
+    "sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+    "file": "poc/a-e2/inputs/tokenizers/qwen2.5-0.5b-instruct.tokenizer.json"
+   }
+  },
+  "mapper_mhat": {
+   "operationalisation": "isolated-surface a1-hybrid mapper decision; m̂=0 iff abstain else 1",
+   "mapper_pkg": "kernel-mapper@0.1.0 (mapper/ package)",
+   "policy_preset": "a1-hybrid",
+   "policy_sha256": "e13dc838ac7df709588604f7eb445082ac6776bbc83ae0415456318db504d696",
+   "kernel_manifest": "data/kernel-v0/manifest.json",
+   "kernel_manifest_sha256": "da56bf1f912cdc24229a7cac5ca32fdb902fd0bac01fd90790438aac70a26c41",
+   "en_decision_kind_counts": {
+    "none": 319896,
+    "prime": 876,
+    "abstain": 164,
+    "concept": 244
+   },
+   "DISCLOSED": "English m̂ is itself an UPPER bound (only intrinsic-surface collisions discounted); non-English m̂=1 upper bound, K-A4 unpriced there. Sub-method FLAGGED for Fable ratification (see RUN-LOG)."
+  },
+  "weight_arms": {
+   "uniform": {
+    "weights": {
+     "en": 0.25,
+     "es": 0.25,
+     "fi": 0.25,
+     "ja": 0.25
+    },
+    "tag": "PRIMARY (ASM-0461)"
+   },
+   "usage-share": {
+    "weights": {
+     "en": 0.8319999999999999,
+     "es": 0.08799999999999998,
+     "fi": 0.007999999999999998,
+     "ja": 0.07199999999999998
+    },
+    "raw_input": {
+     "en": 0.52,
+     "es": 0.055,
+     "ja": 0.045,
+     "fi": 0.005
+    },
+    "tag": "STIPULATED-exploratory sensitivity arm; illustrative web-content share, English-dominant; NOT a pinned measurement; FLAGGED for maintainer ratification"
+   }
+  },
+  "surface_filter_note": "DISCLOSED sensitivity dimension. filt='all' = every wordfreq surface (raw; numeric/digit-bearing tokens like '0000','00,000' float to the top of the English value ranking and inflate savings). filt='wordlike' restricts mint candidates to surfaces with ≥1 alphabetic char and NO digit (denominator stays over ALL surfaces). Neither is adjudicated as canonical — reported so Fable can judge the numeric artifact.",
+  "tokenization_convention": "primary bpe = space-prefixed for {en,es,fi} (running-text realism), bare for ja (no inter-word spaces); alt variant recorded per-surface for audit; add_special_tokens=False",
+  "denominator_convention": "frac_prefill_saved = cum_tokens_saved_per_word / mean_bpe_per_word (weighted avg BPE tokens per LISTED word); unlisted tail (~1%) excluded from num & denom"
+ },
+ "headline_blended_@10k": {
+  "smollm2-135m-instruct | uniform | membership | all": {
+   "lower_bracket_@10k_pct": 35.3042,
+   "upper_bracket_@10k_pct": 43.6448
+  },
+  "smollm2-135m-instruct | uniform | mhat | all": {
+   "lower_bracket_@10k_pct": 35.2372,
+   "upper_bracket_@10k_pct": 43.5649
+  },
+  "smollm2-135m-instruct | usage-share | membership | all": {
+   "lower_bracket_@10k_pct": 18.1204,
+   "upper_bracket_@10k_pct": 21.9077
+  },
+  "smollm2-135m-instruct | usage-share | mhat | all": {
+   "lower_bracket_@10k_pct": 17.6809,
+   "upper_bracket_@10k_pct": 21.4626
+  },
+  "smollm2-135m-instruct | uniform | membership | wordlike": {
+   "lower_bracket_@10k_pct": 33.4481,
+   "upper_bracket_@10k_pct": 41.6864
+  },
+  "smollm2-135m-instruct | uniform | mhat | wordlike": {
+   "lower_bracket_@10k_pct": 33.381,
+   "upper_bracket_@10k_pct": 41.6073
+  },
+  "smollm2-135m-instruct | usage-share | membership | wordlike": {
+   "lower_bracket_@10k_pct": 14.452,
+   "upper_bracket_@10k_pct": 18.154
+  },
+  "smollm2-135m-instruct | usage-share | mhat | wordlike": {
+   "lower_bracket_@10k_pct": 14.0149,
+   "upper_bracket_@10k_pct": 17.7131
+  },
+  "qwen2.5-0.5b-instruct | uniform | membership | all": {
+   "lower_bracket_@10k_pct": 21.1112,
+   "upper_bracket_@10k_pct": 26.7414
+  },
+  "qwen2.5-0.5b-instruct | uniform | mhat | all": {
+   "lower_bracket_@10k_pct": 21.0098,
+   "upper_bracket_@10k_pct": 26.6305
+  },
+  "qwen2.5-0.5b-instruct | usage-share | membership | all": {
+   "lower_bracket_@10k_pct": 9.5701,
+   "upper_bracket_@10k_pct": 11.88
+  },
+  "qwen2.5-0.5b-instruct | usage-share | mhat | all": {
+   "lower_bracket_@10k_pct": 9.0642,
+   "upper_bracket_@10k_pct": 11.3719
+  },
+  "qwen2.5-0.5b-instruct | uniform | membership | wordlike": {
+   "lower_bracket_@10k_pct": 18.4657,
+   "upper_bracket_@10k_pct": 24.0097
+  },
+  "qwen2.5-0.5b-instruct | uniform | mhat | wordlike": {
+   "lower_bracket_@10k_pct": 18.3645,
+   "upper_bracket_@10k_pct": 23.8999
+  },
+  "qwen2.5-0.5b-instruct | usage-share | membership | wordlike": {
+   "lower_bracket_@10k_pct": 5.2917,
+   "upper_bracket_@10k_pct": 7.5594
+  },
+  "qwen2.5-0.5b-instruct | usage-share | mhat | wordlike": {
+   "lower_bracket_@10k_pct": 4.7898,
+   "upper_bracket_@10k_pct": 7.0562
+  }
+ },
+ "headline_per_language_@10k": {
+  "smollm2-135m-instruct | en | membership | all": {
+   "mean_bpe_per_word": 1.1649,
+   "frac_prefill_saved_@10k_pct": 10.6452,
+   "frac_prefill_saved_all_pct": 14.159,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | es | membership | all": {
+   "mean_bpe_per_word": 1.8461,
+   "frac_prefill_saved_@10k_pct": 37.0153,
+   "frac_prefill_saved_all_pct": 45.831,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | fi | membership | all": {
+   "mean_bpe_per_word": 3.1502,
+   "frac_prefill_saved_@10k_pct": 46.2503,
+   "frac_prefill_saved_all_pct": 68.2559,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | ja | membership | all": {
+   "mean_bpe_per_word": 3.0607,
+   "frac_prefill_saved_@10k_pct": 57.5219,
+   "frac_prefill_saved_all_pct": 67.3273,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | en | mhat | all": {
+   "mean_bpe_per_word": 1.1649,
+   "frac_prefill_saved_@10k_pct": 10.0128,
+   "frac_prefill_saved_all_pct": 13.5211
+  },
+  "smollm2-135m-instruct | en | membership | wordlike": {
+   "mean_bpe_per_word": 1.1649,
+   "frac_prefill_saved_@10k_pct": 5.9022,
+   "frac_prefill_saved_all_pct": 9.2647,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | es | membership | wordlike": {
+   "mean_bpe_per_word": 1.8461,
+   "frac_prefill_saved_@10k_pct": 34.8674,
+   "frac_prefill_saved_all_pct": 43.5708,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | fi | membership | wordlike": {
+   "mean_bpe_per_word": 3.1502,
+   "frac_prefill_saved_@10k_pct": 44.2999,
+   "frac_prefill_saved_all_pct": 66.1996,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | ja | membership | wordlike": {
+   "mean_bpe_per_word": 3.0607,
+   "frac_prefill_saved_@10k_pct": 56.7296,
+   "frac_prefill_saved_all_pct": 66.4903,
+   "disclosed_upper_bound": true
+  },
+  "smollm2-135m-instruct | en | mhat | wordlike": {
+   "mean_bpe_per_word": 1.1649,
+   "frac_prefill_saved_@10k_pct": 5.2757,
+   "frac_prefill_saved_all_pct": 8.6348
+  },
+  "qwen2.5-0.5b-instruct | en | membership | all": {
+   "mean_bpe_per_word": 1.145,
+   "frac_prefill_saved_@10k_pct": 9.3234,
+   "frac_prefill_saved_all_pct": 12.66,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | es | membership | all": {
+   "mean_bpe_per_word": 1.4074,
+   "frac_prefill_saved_@10k_pct": 20.3545,
+   "frac_prefill_saved_all_pct": 28.9458,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | fi | membership | all": {
+   "mean_bpe_per_word": 2.6822,
+   "frac_prefill_saved_@10k_pct": 41.0426,
+   "frac_prefill_saved_all_pct": 62.7174,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | ja | membership | all": {
+   "mean_bpe_per_word": 1.3447,
+   "frac_prefill_saved_@10k_pct": 19.7308,
+   "frac_prefill_saved_all_pct": 25.6336,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | en | mhat | all": {
+   "mean_bpe_per_word": 1.145,
+   "frac_prefill_saved_@10k_pct": 8.6861,
+   "frac_prefill_saved_all_pct": 12.0178
+  },
+  "qwen2.5-0.5b-instruct | en | membership | wordlike": {
+   "mean_bpe_per_word": 1.145,
+   "frac_prefill_saved_@10k_pct": 4.4981,
+   "frac_prefill_saved_all_pct": 7.6949,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | es | membership | wordlike": {
+   "mean_bpe_per_word": 1.4074,
+   "frac_prefill_saved_@10k_pct": 17.5222,
+   "frac_prefill_saved_all_pct": 25.9905,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | fi | membership | wordlike": {
+   "mean_bpe_per_word": 2.6822,
+   "frac_prefill_saved_@10k_pct": 38.7434,
+   "frac_prefill_saved_all_pct": 60.3066,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | ja | membership | wordlike": {
+   "mean_bpe_per_word": 1.3447,
+   "frac_prefill_saved_@10k_pct": 18.0241,
+   "frac_prefill_saved_all_pct": 23.9078,
+   "disclosed_upper_bound": true
+  },
+  "qwen2.5-0.5b-instruct | en | mhat | wordlike": {
+   "mean_bpe_per_word": 1.145,
+   "frac_prefill_saved_@10k_pct": 3.867,
+   "frac_prefill_saved_all_pct": 7.0608
+  }
+ },
+ "results": {
+  "per_language": {
+   "smollm2-135m-instruct": {
+    "en:membership:all": {
+     "mean_bpe_per_word": 1.1649439413116573,
+     "candidate_pool_size": 300709,
+     "n_surfaces": 321180,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.047120095413394264,
+      "30": 0.059919837336126054,
+      "100": 0.07166561498177436,
+      "300": 0.08211800780358883,
+      "1000": 0.09448172307673125,
+      "3000": 0.10716741030113999,
+      "5000": 0.1139383984638347,
+      "10000": 0.12401098764531637,
+      "25000": 0.13845315523369353,
+      "50000": 0.14873238385592852,
+      "100000": 0.15699041272517783,
+      "200000": 0.16279710187364305,
+      "all": 0.16494394131270676,
+      "_pool_size": 300709
+     },
+     "frac_prefill_saved": {
+      "10": 0.04044838016869709,
+      "30": 0.05143581181139059,
+      "100": 0.0615185095525568,
+      "300": 0.0704909523037897,
+      "1000": 0.08110409413379194,
+      "3000": 0.0919936200367512,
+      "5000": 0.09780590672504538,
+      "10000": 0.10645232207971089,
+      "25000": 0.11884962900257977,
+      "50000": 0.12767342580318905,
+      "100000": 0.13476220370605643,
+      "200000": 0.13974672608738858,
+      "all": 0.1415895953988908
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "es:membership:all": {
+     "mean_bpe_per_word": 1.8460748375628717,
+     "candidate_pool_size": 327360,
+     "n_surfaces": 342072,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.055554351128440725,
+      "30": 0.08934360362689642,
+      "100": 0.15644540896573117,
+      "300": 0.2535614529901027,
+      "1000": 0.395130776618136,
+      "3000": 0.5382612234649583,
+      "5000": 0.603803589319351,
+      "10000": 0.6833309823012751,
+      "25000": 0.7646121495090844,
+      "50000": 0.8054937808299937,
+      "100000": 0.8297310454425993,
+      "200000": 0.8419652174625436,
+      "all": 0.8460748375637054,
+      "_pool_size": 327360
+     },
+     "frac_prefill_saved": {
+      "10": 0.03009322807399389,
+      "30": 0.04839652315766622,
+      "100": 0.08474488995920954,
+      "300": 0.13735166518213657,
+      "1000": 0.2140383307210746,
+      "3000": 0.29157064086066703,
+      "5000": 0.32707427512336007,
+      "10000": 0.3701534566190104,
+      "25000": 0.41418263981025855,
+      "50000": 0.43632780450730835,
+      "100000": 0.44945688471545575,
+      "200000": 0.45608401150956523,
+      "all": 0.4583101510016062
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "fi:membership:all": {
+     "mean_bpe_per_word": 3.1501910834821407,
+     "candidate_pool_size": 720580,
+     "n_surfaces": 734205,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.11692432693956238,
+      "30": 0.2060339341757236,
+      "100": 0.36069438292055706,
+      "300": 0.5443123205286141,
+      "1000": 0.8140295084970296,
+      "3000": 1.1050272665997167,
+      "5000": 1.2526992647794377,
+      "10000": 1.4569716389565457,
+      "25000": 1.7120530016557365,
+      "50000": 1.8725694025445425,
+      "100000": 1.9924928617129942,
+      "200000": 2.0762548678022634,
+      "all": 2.150191083483295,
+      "_pool_size": 720580
+     },
+     "frac_prefill_saved": {
+      "10": 0.03711658240436552,
+      "30": 0.06540363067372375,
+      "100": 0.1144992076232578,
+      "300": 0.17278708056240993,
+      "1000": 0.25840639089017486,
+      "3000": 0.35078102798076866,
+      "5000": 0.39765818376793066,
+      "10000": 0.46250262296661904,
+      "25000": 0.543475921391815,
+      "50000": 0.5944304180032952,
+      "100000": 0.6324990481245802,
+      "200000": 0.6590885482118832,
+      "all": 0.6825589389664987
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "ja:membership:all": {
+     "mean_bpe_per_word": 3.060655232504738,
+     "candidate_pool_size": 208906,
+     "n_surfaces": 214960,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.21764426189908348,
+      "30": 0.3741202371862658,
+      "100": 0.6041997401512393,
+      "300": 0.8140821658529073,
+      "1000": 1.111655421183514,
+      "3000": 1.4325341609406244,
+      "5000": 1.581400715446352,
+      "10000": 1.7605467799147116,
+      "25000": 1.935514748460919,
+      "50000": 2.0121736820558267,
+      "100000": 2.0480035412538036,
+      "200000": 2.060526815477611,
+      "all": 2.060655232505621,
+      "_pool_size": 208906
+     },
+     "frac_prefill_saved": {
+      "10": 0.07111034904802743,
+      "30": 0.12223534137822453,
+      "100": 0.19740862470706394,
+      "300": 0.2659829690084661,
+      "1000": 0.3632083121867249,
+      "3000": 0.46804819625772953,
+      "5000": 0.5166869821375427,
+      "10000": 0.575218914308731,
+      "25000": 0.6323857479618697,
+      "50000": 0.6574323238652173,
+      "100000": 0.6691389214647956,
+      "200000": 0.6732306185925243,
+      "all": 0.6732725759572893
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "en:mhat:all": {
+     "mean_bpe_per_word": 1.1649439413116573,
+     "candidate_pool_size": 300561,
+     "n_surfaces": 321180,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.04554846929034195,
+      "30": 0.056098500987664945,
+      "100": 0.06570354219399106,
+      "300": 0.07529895378946241,
+      "1000": 0.08730388572522975,
+      "3000": 0.09987058296622663,
+      "5000": 0.10660506544242072,
+      "10000": 0.11664308126751058,
+      "25000": 0.13105583378138524,
+      "50000": 0.1413204343934526,
+      "100000": 0.1495696031883409,
+      "200000": 0.15537084104692847,
+      "all": 0.15751323587293392,
+      "_pool_size": 300561
+     },
+     "frac_prefill_saved": {
+      "10": 0.039099279952524664,
+      "30": 0.048155536930387724,
+      "100": 0.056400604238529106,
+      "300": 0.06463740538852049,
+      "1000": 0.07494256386872211,
+      "3000": 0.08572994753187721,
+      "5000": 0.09151089735905213,
+      "10000": 0.1001276345848689,
+      "25000": 0.11249969130173268,
+      "50000": 0.12131093126621546,
+      "100000": 0.1283921035890658,
+      "200000": 0.13337194652644846,
+      "all": 0.13521100053585705
+     },
+     "mhat_mode": "mhat",
+     "disclosed_upper_bound": false
+    },
+    "en:membership:wordlike": {
+     "mean_bpe_per_word": 1.1649439413116573,
+     "candidate_pool_size": 293167,
+     "n_surfaces": 321180,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.009258111942108615,
+      "30": 0.014266801146407996,
+      "100": 0.021628077215636577,
+      "300": 0.029992205438322084,
+      "1000": 0.04098310376902649,
+      "3000": 0.05276171020484229,
+      "5000": 0.05915262773448953,
+      "10000": 0.06875693868482165,
+      "25000": 0.08265581994164385,
+      "50000": 0.09255225894558214,
+      "100000": 0.10047292886933751,
+      "200000": 0.10601274744626357,
+      "all": 0.10792899093801565,
+      "_pool_size": 293167
+     },
+     "frac_prefill_saved": {
+      "10": 0.007947259618076156,
+      "30": 0.012246770544464509,
+      "100": 0.01856576651343811,
+      "300": 0.025745621205216666,
+      "1000": 0.03518032268821619,
+      "3000": 0.04529120100443267,
+      "5000": 0.050777231106835234,
+      "10000": 0.05902167155563334,
+      "25000": 0.07095261583881739,
+      "50000": 0.07944782204830717,
+      "100000": 0.08624700752227699,
+      "200000": 0.09100244542831781,
+      "all": 0.09264736877938869
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "es:membership:wordlike": {
+     "mean_bpe_per_word": 1.8460748375628717,
+     "candidate_pool_size": 323791,
+     "n_surfaces": 342072,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.03245160328415279,
+      "30": 0.06359523287556791,
+      "100": 0.1286889715896877,
+      "300": 0.22222270152818058,
+      "1000": 0.3592643439659104,
+      "3000": 0.49994540945664767,
+      "5000": 0.5648504837263946,
+      "10000": 0.6436773754854094,
+      "25000": 0.72425230818751,
+      "50000": 0.7646323767113126,
+      "100000": 0.7884475135125456,
+      "200000": 0.8004149534015259,
+      "all": 0.8043497676276933,
+      "_pool_size": 323791
+     },
+     "frac_prefill_saved": {
+      "10": 0.017578704082763158,
+      "30": 0.034448892093412786,
+      "100": 0.06970950958823463,
+      "300": 0.12037578163491562,
+      "1000": 0.19460984823356325,
+      "3000": 0.2708153533562374,
+      "5000": 0.30597377323667546,
+      "10000": 0.3486735003306645,
+      "25000": 0.3923201234591575,
+      "50000": 0.41419359668037914,
+      "100000": 0.42709401453812595,
+      "200000": 0.4335766552444904,
+      "all": 0.43570810416850153
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "fi:membership:wordlike": {
+     "mean_bpe_per_word": 3.1501910834821407,
+     "candidate_pool_size": 717566,
+     "n_surfaces": 734205,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.09050137691956861,
+      "30": 0.1728897978270354,
+      "100": 0.3206597363539415,
+      "300": 0.4968422494881946,
+      "1000": 0.7587390207731622,
+      "3000": 1.0457140509966594,
+      "5000": 1.1923279480136808,
+      "10000": 1.3955328088672774,
+      "25000": 1.649557682905096,
+      "50000": 1.809354675322324,
+      "100000": 1.9287006333231453,
+      "200000": 2.012040361960995,
+      "all": 2.085413391470851,
+      "_pool_size": 717566
+     },
+     "frac_prefill_saved": {
+      "10": 0.028728853114373842,
+      "30": 0.05488232086414499,
+      "100": 0.10179056693903547,
+      "300": 0.1577181308439861,
+      "1000": 0.2408549198020304,
+      "3000": 0.3319525778864036,
+      "5000": 0.3784938489177971,
+      "10000": 0.4429994155544022,
+      "25000": 0.5236373410979619,
+      "50000": 0.5743634679209076,
+      "100000": 0.6122487754587919,
+      "200000": 0.6387042273438653,
+      "all": 0.6619958396827433
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "ja:membership:wordlike": {
+     "mean_bpe_per_word": 3.060655232504738,
+     "candidate_pool_size": 207135,
+     "n_surfaces": 214960,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.21764426189908348,
+      "30": 0.36833724276306873,
+      "100": 0.5882264448689748,
+      "300": 0.7944534820933424,
+      "1000": 1.0902897288590119,
+      "3000": 1.409415331664289,
+      "5000": 1.5577254138497527,
+      "10000": 1.7362972275990995,
+      "25000": 1.91069854165764,
+      "50000": 1.9870551929442337,
+      "100000": 2.022639176777775,
+      "200000": 2.034944104181676,
+      "all": 2.0350394966784973,
+      "_pool_size": 207135
+     },
+     "frac_prefill_saved": {
+      "10": 0.07111034904802743,
+      "30": 0.12034587850707833,
+      "100": 0.19218971108601146,
+      "300": 0.25956973972634884,
+      "1000": 0.3562275545706451,
+      "3000": 0.46049464072138263,
+      "5000": 0.5089516118334447,
+      "10000": 0.5672959205464551,
+      "25000": 0.6242776126385161,
+      "50000": 0.6492254246219343,
+      "100000": 0.6608516879970551,
+      "200000": 0.6648720452307677,
+      "all": 0.6649032125755272
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "en:mhat:wordlike": {
+     "mean_bpe_per_word": 1.1649439413116573,
+     "candidate_pool_size": 293064,
+     "n_surfaces": 321180,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.005447370099320451,
+      "30": 0.009047606916993401,
+      "100": 0.015351542718502935,
+      "300": 0.023114486967070632,
+      "1000": 0.03382444506221989,
+      "3000": 0.045505596741195316,
+      "5000": 0.05187365786345135,
+      "10000": 0.0614585344902968,
+      "25000": 0.0753397052795994,
+      "50000": 0.08522628656160655,
+      "100000": 0.0931410555729858,
+      "200000": 0.0986772243548221,
+      "all": 0.10059049388258923,
+      "_pool_size": 293064
+     },
+     "frac_prefill_saved": {
+      "10": 0.00467607917097456,
+      "30": 0.00776655991429625,
+      "100": 0.013177923996255145,
+      "300": 0.01984171610957099,
+      "1000": 0.029035255571298636,
+      "3000": 0.03906247771026538,
+      "5000": 0.04452888763475151,
+      "10000": 0.05275664545806226,
+      "25000": 0.06467238689165712,
+      "50000": 0.07315913113007552,
+      "100000": 0.07995325119946504,
+      "200000": 0.08470555608342616,
+      "all": 0.08634792655286944
+     },
+     "mhat_mode": "mhat",
+     "disclosed_upper_bound": false
+    }
+   },
+   "qwen2.5-0.5b-instruct": {
+    "en:membership:all": {
+     "mean_bpe_per_word": 1.1449504374791386,
+     "candidate_pool_size": 297423,
+     "n_surfaces": 321180,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.047120095413394264,
+      "30": 0.059720582699125654,
+      "100": 0.06864453531387997,
+      "300": 0.07509602812214859,
+      "1000": 0.0837997653355882,
+      "3000": 0.09313783027894518,
+      "5000": 0.09826716215726805,
+      "10000": 0.1067483469443709,
+      "25000": 0.12033555299879528,
+      "50000": 0.13015564845395627,
+      "100000": 0.1378028158926541,
+      "200000": 0.14306710959018443,
+      "all": 0.14495043748036496,
+      "_pool_size": 297423
+     },
+     "frac_prefill_saved": {
+      "10": 0.04115470318273302,
+      "30": 0.05215997194657064,
+      "100": 0.05995415440428678,
+      "300": 0.06558888984530116,
+      "1000": 0.07319073611613433,
+      "3000": 0.08134660438578345,
+      "5000": 0.08582656413811669,
+      "10000": 0.093234033063825,
+      "25000": 0.10510110224835635,
+      "50000": 0.113677976088225,
+      "100000": 0.12035701405211693,
+      "200000": 0.12495484949128303,
+      "all": 0.12659974854414255
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "es:membership:all": {
+     "mean_bpe_per_word": 1.4073765460417094,
+     "candidate_pool_size": 322928,
+     "n_surfaces": 342072,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.034495767556038996,
+      "30": 0.041505949230505296,
+      "100": 0.0554369933648309,
+      "300": 0.07995893196860789,
+      "1000": 0.12885320928732139,
+      "3000": 0.19790763700932082,
+      "5000": 0.23519634472513096,
+      "10000": 0.2864644782425067,
+      "25000": 0.3441185633062101,
+      "50000": 0.37509590096860324,
+      "100000": 0.3941307580338395,
+      "200000": 0.4040387176213418,
+      "all": 0.40737654604274964,
+      "_pool_size": 322928
+     },
+     "frac_prefill_saved": {
+      "10": 0.024510688097694553,
+      "30": 0.02949171587891107,
+      "100": 0.0393903063972106,
+      "300": 0.05681417115660687,
+      "1000": 0.09155560368667864,
+      "3000": 0.14062166771639206,
+      "5000": 0.167116856811795,
+      "10000": 0.20354501362709007,
+      "25000": 0.2445106565645522,
+      "50000": 0.26652135281319855,
+      "100000": 0.28004641625039484,
+      "200000": 0.28708643664534084,
+      "all": 0.28945810358180896
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "fi:membership:all": {
+     "mean_bpe_per_word": 2.6822143142463006,
+     "candidate_pool_size": 716945,
+     "n_surfaces": 734205,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.07713407105843806,
+      "30": 0.13499281006373973,
+      "100": 0.23515845562719698,
+      "300": 0.37372880866895053,
+      "1000": 0.5807718734674358,
+      "3000": 0.8138145254115362,
+      "5000": 0.9332852784688531,
+      "10000": 1.1008502161349583,
+      "25000": 1.3116750495756386,
+      "50000": 1.4461722220401576,
+      "100000": 1.5473248744835908,
+      "200000": 1.6187527287690602,
+      "all": 1.682214314244697,
+      "_pool_size": 716945
+     },
+     "frac_prefill_saved": {
+      "10": 0.028757609206970715,
+      "30": 0.05032886796060238,
+      "100": 0.08767325354211163,
+      "300": 0.1393359235628298,
+      "1000": 0.21652702037369898,
+      "3000": 0.3034114466875542,
+      "5000": 0.34795328378936985,
+      "10000": 0.4104258970984934,
+      "25000": 0.4890269366652821,
+      "50000": 0.5391710179007565,
+      "100000": 0.5768833855912022,
+      "200000": 0.6035135671938012,
+      "all": 0.627173714385831
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "ja:membership:all": {
+     "mean_bpe_per_word": 1.3446940623792727,
+     "candidate_pool_size": 198725,
+     "n_surfaces": 214960,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.03318357557597923,
+      "30": 0.04387268175866045,
+      "100": 0.06271633118168249,
+      "300": 0.09072980981474472,
+      "1000": 0.13635508495453647,
+      "3000": 0.19513129320967182,
+      "5000": 0.2254175179100563,
+      "10000": 0.26531897159360907,
+      "25000": 0.3084602401211873,
+      "50000": 0.3294426249195351,
+      "100000": 0.3403375127187788,
+      "200000": 0.34469406237987604,
+      "all": 0.34469406237987604,
+      "_pool_size": 198725
+     },
+     "frac_prefill_saved": {
+      "10": 0.024677416599330353,
+      "30": 0.032626515566695574,
+      "100": 0.04663985135080731,
+      "300": 0.0674724551502885,
+      "1000": 0.1014023105845152,
+      "3000": 0.1451120360153972,
+      "5000": 0.16763479829100114,
+      "10000": 0.1973080561716465,
+      "25000": 0.229390646356692,
+      "50000": 0.2449944817460013,
+      "100000": 0.2530966130069712,
+      "200000": 0.2563364203229854,
+      "all": 0.2563364203229854
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "en:mhat:all": {
+     "mean_bpe_per_word": 1.1449504374791386,
+     "candidate_pool_size": 297276,
+     "n_surfaces": 321180,
+     "surface_filter": "all",
+     "cum_tokens_saved_per_word": {
+      "10": 0.04554846929034195,
+      "30": 0.055647597995113596,
+      "100": 0.06225433423198945,
+      "300": 0.0681841138579189,
+      "1000": 0.07664853213385316,
+      "3000": 0.08589123157999952,
+      "5000": 0.09099450149613125,
+      "10000": 0.09945183843352672,
+      "25000": 0.11301442861493129,
+      "50000": 0.12282070567822147,
+      "100000": 0.13045937471462976,
+      "200000": 0.1357187486025302,
+      "all": 0.1375981139961206,
+      "_pool_size": 297276
+     },
+     "frac_prefill_saved": {
+      "10": 0.03978204453166285,
+      "30": 0.04860262608190629,
+      "100": 0.05437295117250326,
+      "300": 0.059552022188874204,
+      "1000": 0.06694484723951181,
+      "3000": 0.07501742325991687,
+      "5000": 0.0794746204879189,
+      "10000": 0.08686126069569607,
+      "25000": 0.09870683037054209,
+      "50000": 0.10727163522347605,
+      "100000": 0.11394325068067129,
+      "200000": 0.11853678915686953,
+      "all": 0.12017822736421085
+     },
+     "mhat_mode": "mhat",
+     "disclosed_upper_bound": false
+    },
+    "en:membership:wordlike": {
+     "mean_bpe_per_word": 1.1449504374791386,
+     "candidate_pool_size": 289897,
+     "n_surfaces": 321180,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.009102740990205957,
+      "30": 0.013046465764858023,
+      "100": 0.01730864787820151,
+      "300": 0.02238979367326263,
+      "1000": 0.030004061303021887,
+      "3000": 0.038504370115324774,
+      "5000": 0.043350189264832396,
+      "10000": 0.05150050282468487,
+      "25000": 0.06462437292414448,
+      "50000": 0.07407944316890926,
+      "100000": 0.08140657664676998,
+      "200000": 0.08642502689635512,
+      "all": 0.08810283762898699,
+      "_pool_size": 289897
+     },
+     "frac_prefill_saved": {
+      "10": 0.007950336269793173,
+      "30": 0.011394786479651206,
+      "100": 0.015117377409200633,
+      "300": 0.01955525142429633,
+      "1000": 0.026205554686788417,
+      "3000": 0.033629726540915304,
+      "5000": 0.03786206620461006,
+      "10000": 0.044980552117238025,
+      "25000": 0.05644294356219411,
+      "50000": 0.0647010042915146,
+      "100000": 0.07110052451353663,
+      "200000": 0.07548364022344838,
+      "all": 0.07694904053922619
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "es:membership:wordlike": {
+     "mean_bpe_per_word": 1.4073765460417094,
+     "candidate_pool_size": 319375,
+     "n_surfaces": 342072,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.0037150773398628902,
+      "30": 0.008431634626097669,
+      "100": 0.02023548199336909,
+      "300": 0.043204944117366154,
+      "1000": 0.09080034845247457,
+      "3000": 0.15891262140364476,
+      "5000": 0.19580136118818062,
+      "10000": 0.24660395699941126,
+      "25000": 0.3036638650199723,
+      "50000": 0.3342207147130914,
+      "100000": 0.3529064162070738,
+      "200000": 0.3625915999207812,
+      "all": 0.3657841916071294,
+      "_pool_size": 319375
+     },
+     "frac_prefill_saved": {
+      "10": 0.0026397180984091724,
+      "30": 0.005991029657138955,
+      "100": 0.014378157750519588,
+      "300": 0.03069892292782725,
+      "1000": 0.06451745178492095,
+      "3000": 0.11291407537704923,
+      "5000": 0.13912507050005776,
+      "10000": 0.175222443270774,
+      "25000": 0.21576589852519315,
+      "50000": 0.2374778204547302,
+      "100000": 0.2507547942301825,
+      "200000": 0.2576365230332859,
+      "all": 0.25990499318459503
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "fi:membership:wordlike": {
+     "mean_bpe_per_word": 2.6822143142463006,
+     "candidate_pool_size": 713945,
+     "n_surfaces": 734205,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.04491532873333625,
+      "30": 0.09728232810171258,
+      "100": 0.19207731244367243,
+      "300": 0.3238691028130453,
+      "1000": 0.5242739763177382,
+      "3000": 0.7539852564216292,
+      "5000": 0.8725571710503399,
+      "10000": 1.0391812684269095,
+      "25000": 1.2490365327332518,
+      "50000": 1.3828931655864156,
+      "100000": 1.4835299184040311,
+      "200000": 1.554585085854291,
+      "all": 1.6175524520421658,
+      "_pool_size": 713945
+     },
+     "frac_prefill_saved": {
+      "10": 0.016745615178762257,
+      "30": 0.03626940904200223,
+      "100": 0.07161147094901175,
+      "300": 0.12074691462678745,
+      "1000": 0.19546311923439966,
+      "3000": 0.28110552255907195,
+      "5000": 0.3253122490681836,
+      "10000": 0.38743409238680404,
+      "25000": 0.46567365109459186,
+      "50000": 0.5155789223259765,
+      "100000": 0.5530989490751791,
+      "200000": 0.5795901832293098,
+      "all": 0.6030660724800048
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "ja:membership:wordlike": {
+     "mean_bpe_per_word": 1.3446940623792727,
+     "candidate_pool_size": 197750,
+     "n_surfaces": 214960,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.014378486481925407,
+      "30": 0.023096190751410735,
+      "100": 0.04138017108803046,
+      "300": 0.06878927042642403,
+      "1000": 0.11393719596755864,
+      "3000": 0.172396280633486,
+      "5000": 0.2025751868270563,
+      "10000": 0.24236848859122334,
+      "25000": 0.28540571728790437,
+      "50000": 0.3063314134977757,
+      "100000": 0.3171800563225501,
+      "200000": 0.32148675660164344,
+      "all": 0.32148675660164344,
+      "_pool_size": 197750
+     },
+     "frac_prefill_saved": {
+      "10": 0.010692756727492663,
+      "30": 0.017175795891107626,
+      "100": 0.0307729261589906,
+      "300": 0.05115607508871556,
+      "1000": 0.08473094301164728,
+      "3000": 0.12820483517897874,
+      "5000": 0.1506477885896396,
+      "10000": 0.18024061782676556,
+      "25000": 0.21224583737873703,
+      "50000": 0.22780751552941306,
+      "100000": 0.235875256087127,
+      "200000": 0.2390779922332755,
+      "all": 0.2390779922332755
+     },
+     "mhat_mode": "membership",
+     "disclosed_upper_bound": true
+    },
+    "en:mhat:wordlike": {
+     "mean_bpe_per_word": 1.1449504374791386,
+     "candidate_pool_size": 289795,
+     "n_surfaces": 321180,
+     "surface_filter": "wordlike",
+     "cum_tokens_saved_per_word": {
+      "10": 0.004891817255679354,
+      "30": 0.007295778382211559,
+      "100": 0.01063748469243894,
+      "300": 0.015445576444416385,
+      "1000": 0.022875994850208255,
+      "3000": 0.03130764657377029,
+      "5000": 0.036138951627937045,
+      "10000": 0.044275620514972816,
+      "25000": 0.05738442442630741,
+      "50000": 0.06683085690987539,
+      "100000": 0.07415226855026193,
+      "200000": 0.07916749188733199,
+      "all": 0.08084272252901732,
+      "_pool_size": 289795
+     },
+     "frac_prefill_saved": {
+      "10": 0.00427251442119169,
+      "30": 0.0063721346735975985,
+      "100": 0.0092907818052454,
+      "300": 0.013490170350450482,
+      "1000": 0.01997989965449929,
+      "3000": 0.02734410639005562,
+      "5000": 0.03156376943922999,
+      "10000": 0.0386703380911888,
+      "25000": 0.050119570723648005,
+      "50000": 0.05837008723016718,
+      "100000": 0.06476460999790046,
+      "200000": 0.06914490732161012,
+      "all": 0.07060805418530643
+     },
+     "mhat_mode": "mhat",
+     "disclosed_upper_bound": false
+    }
+   }
+  },
+  "blended": {
+   "smollm2-135m-instruct": {
+    "uniform:membership:all": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 2.3054662737153517,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.04741373148302947,
+      "30": 0.0790965390213154,
+      "100": 0.12936701358644537,
+      "300": 0.18370187914798083,
+      "1000": 0.26190986362631336,
+      "3000": 0.34515686670368445,
+      "5000": 0.38515440547792523,
+      "10000": 0.4364475458506301,
+      "25000": 0.4934612475946032,
+      "50000": 0.5247278288621522,
+      "100000": 0.5451411194396927,
+      "200000": 0.5575384100425655,
+      "all": 0.5662482633556467
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.02501374267990795,
+      "30": 0.049360493326860905,
+      "100": 0.08607509641681155,
+      "300": 0.12933050928739118,
+      "1000": 0.18862814739463432,
+      "3000": 0.2613665885806804,
+      "5000": 0.29938212572191425,
+      "10000": 0.3530418626610643,
+      "25000": 0.4227635212941553,
+      "50000": 0.46942066019341805,
+      "100000": 0.5069669258789984,
+      "200000": 0.5338526102301193,
+      "all": 0.5662482633554594
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1557555
+    },
+    "uniform:mhat:all": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 2.3054662737153517,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.04724330759297191,
+      "30": 0.07868216120195322,
+      "100": 0.12872049873001948,
+      "300": 0.18296243501775536,
+      "1000": 0.2611315137721715,
+      "3000": 0.34436561382155556,
+      "5000": 0.384359193994567,
+      "10000": 0.43564858530392764,
+      "25000": 0.4926590973379885,
+      "50000": 0.5239240923743341,
+      "100000": 0.5443364221837144,
+      "200000": 0.5567331216599744,
+      "all": 0.5654424930083974
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.02501374267990795,
+      "30": 0.049360493326860905,
+      "100": 0.08607509641681155,
+      "300": 0.12921749588090387,
+      "1000": 0.1883085593504876,
+      "3000": 0.26087598986906374,
+      "5000": 0.29880608969573713,
+      "10000": 0.3523715938613778,
+      "25000": 0.42201509613706034,
+      "50000": 0.4686437223961153,
+      "100000": 0.5061758410675802,
+      "200000": 0.5330534169513798,
+      "all": 0.5654424930082097
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1557407
+    },
+    "usage-share:membership:all": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 1.3772566502850294,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.04407202081248653,
+      "30": 0.06266113895023152,
+      "100": 0.0869706630084415,
+      "300": 0.11152896217968097,
+      "1000": 0.1451666458056665,
+      "3000": 0.18044055238691828,
+      "5000": 0.1973589373891446,
+      "10000": 0.2190771120012262,
+      "25000": 0.24362371395645432,
+      "50000": 0.25738547447651483,
+      "100000": 0.2664924893804769,
+      "200000": 0.2719232450065678,
+      "all": 0.2739189171516973
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.031703390231067066,
+      "30": 0.045924669772361856,
+      "100": 0.06617858321201552,
+      "300": 0.08630274353994925,
+      "1000": 0.11269594320690993,
+      "3000": 0.1435481175438023,
+      "5000": 0.15935566882386987,
+      "10000": 0.1812042819253489,
+      "25000": 0.20971739161822767,
+      "50000": 0.22959946936781955,
+      "100000": 0.24676021718034588,
+      "200000": 0.2597506872485389,
+      "all": 0.27391891715166555
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1557555
+    },
+    "usage-share:mhat:all": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 1.3772566502850294,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.043122602318766495,
+      "30": 0.06035267172209242,
+      "100": 0.08336897805131378,
+      "300": 0.10740957532569188,
+      "1000": 0.14083051813097833,
+      "3000": 0.1760325429273949,
+      "5000": 0.19292887486408525,
+      "10000": 0.21462616373020799,
+      "25000": 0.23915499605478596,
+      "50000": 0.2529079198017897,
+      "100000": 0.2620095823396066,
+      "200000": 0.26743704484442093,
+      "all": 0.2694300320011979
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.03139357107540079,
+      "30": 0.044704255502855415,
+      "100": 0.06373915672280177,
+      "300": 0.08282045536196425,
+      "1000": 0.10867526957846557,
+      "3000": 0.13927587309529257,
+      "5000": 0.15501652472176045,
+      "10000": 0.17680889364424512,
+      "25000": 0.205274273718054,
+      "50000": 0.2251366201008405,
+      "100000": 0.24228504569082612,
+      "200000": 0.25526878968023253,
+      "all": 0.2694300320011702
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1557407
+    },
+    "uniform:membership:wordlike": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 2.3054662737153517,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.037937591847863765,
+      "30": 0.06713274031269964,
+      "100": 0.11485781012112703,
+      "300": 0.1673751049999758,
+      "1000": 0.243906864200437,
+      "3000": 0.3261635766064785,
+      "5000": 0.3658757137104948,
+      "10000": 0.4168640845525601,
+      "25000": 0.47356628054831923,
+      "50000": 0.5046261744293484,
+      "100000": 0.5248678225817774,
+      "200000": 0.537137782437372,
+      "all": 0.5457390229574479
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.02445136890016394,
+      "30": 0.043452890196666316,
+      "100": 0.07605372804624937,
+      "300": 0.1164666870792271,
+      "1000": 0.1735707441926112,
+      "3000": 0.24428314175236404,
+      "5000": 0.2815471974402008,
+      "10000": 0.3344811484214967,
+      "25000": 0.40358056040395035,
+      "50000": 0.449902578636445,
+      "100000": 0.48716687020249183,
+      "200000": 0.513805741984262,
+      "all": 0.5457390229573672
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1541659
+    },
+    "uniform:mhat:wordlike": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 2.3054662737153517,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.037524362874810195,
+      "30": 0.06656678167247589,
+      "100": 0.11417719568656638,
+      "300": 0.166629299417211,
+      "1000": 0.2431305940389058,
+      "3000": 0.3253767386524414,
+      "5000": 0.3650863972548579,
+      "10000": 0.4160726606790324,
+      "25000": 0.4727729361882808,
+      "50000": 0.5038317611183082,
+      "100000": 0.5240727693879895,
+      "200000": 0.5363423334673443,
+      "all": 0.5449432514969095
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.02445136890016394,
+      "30": 0.043452890196666316,
+      "100": 0.07605372804624937,
+      "300": 0.11634047202477762,
+      "1000": 0.1732457105575375,
+      "3000": 0.24378788937366921,
+      "5000": 0.2809684252090462,
+      "10000": 0.3338101129849031,
+      "25000": 0.40283380406582264,
+      "50000": 0.44912918703974275,
+      "100000": 0.48638056384182127,
+      "200000": 0.5130142695464457,
+      "all": 0.5449432514968248
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1541556
+    },
+    "usage-share:membership:wordlike": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 1.3772566502850294,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.019569982175328286,
+      "30": 0.032942123676824635,
+      "100": 0.05390191555752243,
+      "300": 0.07673551719203402,
+      "1000": 0.10911835293571633,
+      "3000": 0.14357277212601832,
+      "5000": 0.16018559952398995,
+      "10000": 0.18153990749278048,
+      "25000": 0.20567742527575758,
+      "50000": 0.2191559139143872,
+      "100000": 0.228015950213772,
+      "200000": 0.23325457902483876,
+      "all": 0.23509478123578176
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.012274458046179921,
+      "30": 0.02190110280845473,
+      "100": 0.036696211311120774,
+      "300": 0.0537029232913222,
+      "1000": 0.07830633137683797,
+      "3000": 0.10792319571012818,
+      "5000": 0.1232430403231785,
+      "10000": 0.14452028426941924,
+      "25000": 0.1723619512670962,
+      "50000": 0.1918416048255596,
+      "100000": 0.20866626219379517,
+      "200000": 0.22137273035718558,
+      "all": 0.2350947812357296
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1541659
+    },
+    "usage-share:mhat:wordlike": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 1.3772566502850294,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.017267915082355024,
+      "30": 0.0297892112563442,
+      "100": 0.05011026445129291,
+      "300": 0.07258069117111994,
+      "1000": 0.10479381106994971,
+      "3000": 0.13918935789417933,
+      "5000": 0.15578837774876714,
+      "10000": 0.1771309454532158,
+      "25000": 0.20125776435231152,
+      "50000": 0.21473029794643653,
+      "100000": 0.22358676950783596,
+      "200000": 0.22882319347965646,
+      "all": 0.23066159912055925
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.011697401310441785,
+      "30": 0.020109956420847366,
+      "100": 0.033963506799259184,
+      "300": 0.050145615159504414,
+      "1000": 0.07426762796308392,
+      "3000": 0.10366376465477402,
+      "5000": 0.11892187253677176,
+      "10000": 0.14014888166501624,
+      "25000": 0.16795783367051678,
+      "50000": 0.1874258835881838,
+      "100000": 0.20424233859537338,
+      "200000": 0.21694429343682659,
+      "all": 0.2306615991205151
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1541556
+    }
+   },
+   "qwen2.5-0.5b-instruct": {
+    "uniform:membership:all": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 1.6448088400366052,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.029172616436019864,
+      "30": 0.04257212402655218,
+      "100": 0.0641345524806092,
+      "300": 0.09416194202857404,
+      "1000": 0.14132036356033165,
+      "3000": 0.1975900260057793,
+      "5000": 0.2267993500126283,
+      "10000": 0.26741435996846447,
+      "25000": 0.31684371996010163,
+      "50000": 0.3466765165749431,
+      "100000": 0.3677624873834906,
+      "200000": 0.3815872941053427,
+      "all": 0.3920266138784685
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.01854625901098025,
+      "30": 0.030663249638708694,
+      "100": 0.04860291437922664,
+      "300": 0.07255005821572107,
+      "1000": 0.10821862979319093,
+      "3000": 0.15113772515238513,
+      "5000": 0.17489958691081767,
+      "10000": 0.21111164337506347,
+      "25000": 0.26302609613254996,
+      "50000": 0.300968885867156,
+      "100000": 0.3333574353782238,
+      "200000": 0.35841833070951495,
+      "all": 0.3920266138789087
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1536021
+    },
+    "uniform:mhat:all": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 1.6448088400366052,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.028933739722082498,
+      "30": 0.04195305745102213,
+      "100": 0.06316328443317026,
+      "300": 0.09311137704862234,
+      "1000": 0.14023342369418043,
+      "3000": 0.1964885912185635,
+      "5000": 0.22569395398056188,
+      "10000": 0.26630533922191346,
+      "25000": 0.31573095776463267,
+      "50000": 0.34556165407584993,
+      "100000": 0.3666463331837933,
+      "200000": 0.3804703921273154,
+      "all": 0.39090910962732395
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.01854625901098025,
+      "30": 0.030663249638708694,
+      "100": 0.0484085438354661,
+      "300": 0.07210901503886324,
+      "1000": 0.10753594830475685,
+      "3000": 0.15025687760742235,
+      "5000": 0.17395362711634202,
+      "10000": 0.2100984572816139,
+      "25000": 0.26195841664146907,
+      "50000": 0.29987923550658024,
+      "100000": 0.3322544211191481,
+      "200000": 0.357307641320147,
+      "all": 0.390909109627757
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1535874
+    },
+    "usage-share:membership:all": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 1.1947235870395918,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.037871385004566806,
+      "30": 0.04819426395335942,
+      "100": 0.05724131759782999,
+      "300": 0.06615643906615118,
+      "1000": 0.07995508694832036,
+      "3000": 0.09664705494716648,
+      "5000": 0.10559086816099904,
+      "10000": 0.11880008728928959,
+      "25000": 0.1365204078337742,
+      "50000": 0.14780589207836956,
+      "100000": 0.1558673081048962,
+      "200000": 0.16100396672325898,
+      "all": 0.16298630842573406
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.0330662338000186,
+      "30": 0.04345482750625482,
+      "100": 0.05161021584881125,
+      "300": 0.05738049997010876,
+      "1000": 0.06629520696454738,
+      "3000": 0.0779842040264017,
+      "5000": 0.08483961256056448,
+      "10000": 0.0957010507174392,
+      "25000": 0.11295280041076033,
+      "50000": 0.12739355440663144,
+      "100000": 0.14064471187361666,
+      "200000": 0.1510841262300819,
+      "all": 0.16298630842574363
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1536021
+    },
+    "usage-share:mhat:all": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "all",
+     "weighted_mean_bpe_denominator": 1.1947235870395918,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.03677691181548413,
+      "30": 0.045357856176281075,
+      "100": 0.0527912110143423,
+      "300": 0.06134301382685477,
+      "1000": 0.07497500110387276,
+      "3000": 0.09160055700996371,
+      "5000": 0.10052622079343576,
+      "10000": 0.11371883238909551,
+      "25000": 0.13142201055305408,
+      "50000": 0.14269787173323417,
+      "100000": 0.1507533695115722,
+      "200000": 0.1558866019971822,
+      "all": 0.15786618423529353
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.032112980553635824,
+      "30": 0.04101352433634534,
+      "100": 0.04734441388051578,
+      "300": 0.052641946689486366,
+      "1000": 0.06137638658748345,
+      "3000": 0.07298038103979256,
+      "5000": 0.07981020881885312,
+      "10000": 0.09064166072274192,
+      "25000": 0.10786747264756018,
+      "50000": 0.12229460825806167,
+      "100000": 0.13553649987369182,
+      "200000": 0.14597013029259015,
+      "all": 0.15786618423525975
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1535874
+    },
+    "uniform:membership:wordlike": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 1.6448088400366052,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.010960488506330874,
+      "30": 0.021561262286400706,
+      "100": 0.041190442136309645,
+      "300": 0.06965142390344578,
+      "1000": 0.11536531838312308,
+      "3000": 0.17080989918394934,
+      "5000": 0.1997624095182331,
+      "10000": 0.24009693077875752,
+      "25000": 0.2892023744113218,
+      "50000": 0.31880980420185356,
+      "100000": 0.3397086204149238,
+      "200000": 0.3533979774241312,
+      "all": 0.36370886689584403
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.006826831124694201,
+      "30": 0.014888985232734582,
+      "100": 0.030175780697576,
+      "300": 0.051422213860022534,
+      "1000": 0.0843631771475163,
+      "3000": 0.1256683214160721,
+      "5000": 0.14894533784448385,
+      "10000": 0.18465674486344738,
+      "25000": 0.23605942799536747,
+      "50000": 0.2736828141295415,
+      "100000": 0.3057724208024039,
+      "200000": 0.3305856709715794,
+      "all": 0.3637088668962364
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1520967
+    },
+    "uniform:mhat:wordlike": {
+     "weights": {
+      "en": 0.25,
+      "es": 0.25,
+      "fi": 0.25,
+      "ja": 0.25
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 1.6448088400366052,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.010320456115935754,
+      "30": 0.02068719606626195,
+      "100": 0.040176469718454975,
+      "300": 0.06859594908779916,
+      "1000": 0.11428189970866863,
+      "3000": 0.1697160450888141,
+      "5000": 0.19866634937717517,
+      "10000": 0.23899879673821586,
+      "25000": 0.2881019504104276,
+      "50000": 0.3177080673187285,
+      "100000": 0.33860601385057276,
+      "200000": 0.352294880390548,
+      "all": 0.3626053777056036
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.006826831124694201,
+      "30": 0.014874950984524772,
+      "100": 0.029944873561710685,
+      "300": 0.050951439922704254,
+      "1000": 0.0836659156744004,
+      "3000": 0.12478349989407149,
+      "5000": 0.14799634459108277,
+      "10000": 0.18364452932197944,
+      "25000": 0.23499576331929353,
+      "50000": 0.27259875415092694,
+      "100000": 0.3046779357867168,
+      "200000": 0.3294866473531193,
+      "all": 0.36260537770598694
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1520865
+    },
+    "usage-share:membership:wordlike": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 1.1947235870395918,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.007780026331744787,
+      "30": 0.011749854003601037,
+      "100": 0.017324097801780333,
+      "300": 0.02508875193965373,
+      "1000": 0.0379598093484658,
+      "3000": 0.053957552672238895,
+      "5000": 0.06266198213961462,
+      "10000": 0.07559367612039658,
+      "25000": 0.09293480392093524,
+      "50000": 0.10392740886239908,
+      "100000": 0.11173399541693922,
+      "200000": 0.11667754101880752,
+      "all": 0.11850275444148274
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.0063391068746015975,
+      "30": 0.009193907424150166,
+      "100": 0.012701431810471425,
+      "300": 0.01700989380516308,
+      "1000": 0.024927547708501585,
+      "3000": 0.03590076111539185,
+      "5000": 0.04244292147285719,
+      "10000": 0.052916842994591776,
+      "25000": 0.06973379091116062,
+      "50000": 0.08385807326105449,
+      "100000": 0.09681175362619848,
+      "200000": 0.10699379642457918,
+      "all": 0.11850275444147364
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1520967
+    },
+    "usage-share:mhat:wordlike": {
+     "weights": {
+      "en": 0.8319999999999999,
+      "es": 0.08799999999999998,
+      "fi": 0.007999999999999998,
+      "ja": 0.07199999999999998
+     },
+     "surface_filter": "wordlike",
+     "weighted_mean_bpe_denominator": 1.1947235870395918,
+     "upper_bracket_frac_prefill_saved": {
+      "10": 0.0048475584495232295,
+      "30": 0.007745101812998056,
+      "100": 0.012678330504000747,
+      "300": 0.020252831064670105,
+      "1000": 0.03299585672120055,
+      "3000": 0.04894578756478823,
+      "5000": 0.057640109483058366,
+      "10000": 0.07056230137657374,
+      "25000": 0.08789293715313631,
+      "50000": 0.09887952679751078,
+      "100000": 0.10668212869080361,
+      "200000": 0.111623427085668,
+      "all": 0.11344684374489868
+     },
+     "lower_bracket_frac_prefill_saved": {
+      "10": 0.0034066389923800393,
+      "30": 0.0053529938530692085,
+      "100": 0.00814010114588682,
+      "300": 0.012239563298307849,
+      "1000": 0.020018724143766937,
+      "3000": 0.030921149921237404,
+      "5000": 0.03744342569503705,
+      "10000": 0.047898335965206415,
+      "25000": 0.06470030843365265,
+      "50000": 0.07881608028893677,
+      "100000": 0.09176377893171633,
+      "200000": 0.10194193765419982,
+      "all": 0.11344684374479638
+     },
+     "upper_bracket_desc": "cross-language sum; aligned upper bound (ASM-0462); K-A2 may fire only off this",
+     "lower_bracket_desc": "pooled unaligned; a go may rest only on this (ASM-0462)",
+     "pooled_pool_size": 1520865
+    }
+   }
+  }
+ }
+}
