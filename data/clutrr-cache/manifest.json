@@ -1,0 +1,84 @@
+{
+  "dataset": "CLUTRR (Compositional Language Understanding with Text-based Relational Reasoning)",
+  "purpose": "Source for the nsk1 flagship 'CLUTRR-derived covered slice' eval (k=2 up-edge grandparent items).",
+  "epistemic_status": "MEASURED — every count/column below is read directly from the fetched artifacts by the command in `verification.command`; no interpretation of any experimental outcome is recorded here (provenance only).",
+  "license": {
+    "spdx": "CC-BY-NC-4.0",
+    "name": "Creative Commons Attribution-NonCommercial 4.0 International",
+    "note": "Non-commercial use only. Attribution: Sinha et al., EMNLP 2019 (arXiv:1908.06177). Raw data + generator clone are gitignored (see .gitignore); this manifest + fetch.sh are the committed, sha-pinned re-fetch record — mirroring data/physics-qudt/ (source gitignored, manifest committed)."
+  },
+  "citation": "Koustuv Sinha, Shagun Sodhani, Jin Dong, Joelle Pineau, William L. Hamilton. CLUTRR: A Diagnostic Benchmark for Inductive Reasoning from Text. EMNLP 2019. arXiv:1908.06177.",
+  "fetched_utc": "2026-07-10",
+  "generator_repo": {
+    "url": "https://github.com/facebookresearch/clutrr",
+    "head_commit": "d045fae289d3746503677ceed7631c999202501e",
+    "head_date": "2021-08-04",
+    "local_path_gitignored": "data/clutrr-cache/clutrr/",
+    "note": "Generator only (produces CSVs from a MongoDB backend; running it end-to-end requires pymongo + a MongoDB instance). The relation vocabulary lives in clutrr/store/relations_store.yaml; the composition rules in clutrr/store/rules_store.yaml."
+  },
+  "released_data": {
+    "source": "Google Drive file id 1SEq_e1IVCDDzsBIBhoUQ5pOVH5kxRoZF (linked from the generator README; the pre-generated datasets used in the EMNLP-2019 paper).",
+    "archive": "clutrr-emnlp-release.zip",
+    "archive_sha256": "b4029f68e555ba89dd5836d5f1d9049ca97fc54ed71ed880a5f5351f6c40228e",
+    "archive_bytes": 13089906,
+    "local_path_gitignored": "data/clutrr-cache/clutrr-emnlp-release.zip",
+    "bundles": {
+      "data_089907f8.zip": {"sha256_prefix": "6b1ca22a4a487101", "bytes": 2005853, "kind": "Systematic Generalization, CLEAN (task 1, no noise)", "train": "k=2,3", "test": "k=2,3,4,5,6,7,8,9,10", "files": ["1.2,1.3_train.csv", "1.2_test.csv", "1.3_test.csv", "1.4_test.csv", "1.5_test.csv", "1.6_test.csv", "1.7_test.csv", "1.8_test.csv", "1.9_test.csv", "1.10_test.csv", "config.json"]},
+      "data_db9b8f04.zip": {"sha256_prefix": "52571c7feb2dc628", "bytes": 3115620, "kind": "Systematic Generalization, CLEAN (task 1)", "train": "k=2,3,4", "test": "k=2..10"},
+      "data_7c5b0e70.zip": {"sha256_prefix": "b6af690adf4b372c", "bytes": 1745730, "kind": "Robust Reasoning", "train": "1.2,1.3", "test": "1.2,1.3,2.3,3.3,4.3"},
+      "data_06b8f2a1.zip": {"sha256_prefix": "9350c52ffa32d91d", "bytes": 2190315, "kind": "Robust Reasoning (task 2 = supporting facts)", "train": "2.2,2.3", "test": "2.2,2.3,1.3,3.3,4.3"},
+      "data_523348e6.zip": {"sha256_prefix": "5c2d34392f9f7e97", "bytes": 1994951, "kind": "Robust Reasoning (task 3 = irrelevant facts)", "train": "3.2,3.3", "test": "3.2,3.3,1.3,2.3,4.3"},
+      "data_d83ecc3e.zip": {"sha256_prefix": "4166679e629a0441", "bytes": 2035835, "kind": "Robust Reasoning (task 4 = disconnected facts)", "train": "4.2,4.3", "test": "4.2,4.3,1.3,2.3,3.3"}
+    }
+  },
+  "task_naming": "task_id.relation_length, e.g. '1.2' = Task 1 (basic family relations, free of noise), relation length k=2. Task 1 is the clean, noise-free task.",
+  "released_csv_columns": ["(index)", "id", "story", "query", "text_query", "target", "text_target", "clean_story", "proof_state", "f_comb", "task_name", "story_edges", "edge_types", "query_edge", "genders", "syn_story", "node_mapping", "task_split"],
+  "structured_columns_explained": {
+    "story_edges": "list of directed node-index edges forming the reasoning chain, e.g. [(0, 1), (1, 2)].",
+    "edge_types": "surface relation per story edge, in story order, e.g. ['father', 'father']. f_comb is these hyphen-joined.",
+    "f_comb": "hyphen-joined edge_types, e.g. 'father-father'. In the generator: relation_comb = '-'.join(edge rel for edge in story) (clutrr/relations/puzzle.py). For k=2 up-edge grandparent items f_comb in {father-father, father-mother, mother-father, mother-mother}.",
+    "genders": "entity:gender map, e.g. 'Jennifer:female,Michael:male,Jason:male'.",
+    "proof_state": "resolution chain: target triple -> list of atomic supporting triples, e.g. [{('Jennifer','grandfather','Jason'): [('Jennifer','father','Michael'),('Michael','father','Jason')]}].",
+    "target": "gold answer relation (the query-edge relation), e.g. 'grandfather'.",
+    "query_edge": "node-index pair being queried, e.g. (0, 2); 'query' is the entity-name pair, e.g. ('Jennifer','Jason').",
+    "clean_story": "natural-language story with no noise (task 1). NOTE: surface phrasing of an up-edge may render via the child relation ('Michael and his daughter Jennifer') even where edge_types/f_comb is the canonical up-edge ('father'); the canonical up-edge in edge_types/proof_state is what defines the slice."
+  },
+  "relation_vocabulary": {
+    "source": "clutrr/store/relations_store.yaml (rel field per relation-key x gender)",
+    "up_edge_parent": {"male": "father", "female": "mother", "internal_key": "inv-child"},
+    "grandparent_target": {"male": "grandfather", "female": "grandmother", "internal_key": "inv-grand"},
+    "full_set": ["son", "daughter", "father", "mother", "husband", "wife", "brother", "sister", "grandson", "granddaughter", "grandfather", "grandmother", "son-in-law", "daughter-in-law", "father-in-law", "mother-in-law", "brother-in-law", "sister-in-law", "nephew", "niece", "uncle", "aunt", "no-relation"],
+    "composition_rule_for_slice": "rules_store.yaml compositional.family: (inv-child, inv-child) -> inv-grand, i.e. parent-of-parent = grandparent. This is exactly the k=2 up-edge grandparent case."
+  },
+  "k2_up_edge_grandparent_slice": {
+    "definition": "k=2 items whose f_comb is up-edges only over {mother,father} (f_comb in {father-father, father-mother, mother-father, mother-mother}) with target in {grandmother, grandfather}.",
+    "found_in_release": "data_089907f8 (clean, Task 1, systematic-generalization bundle)",
+    "found_in_split": "data_089907f8/'1.2,1.3_train.csv' — the k=2 (task_name == task_1.2) rows.",
+    "counts_measured": {
+      "father-father -> grandfather": 83,
+      "father-mother -> grandmother": 83,
+      "mother-father -> grandfather": 83,
+      "mother-mother -> grandmother": 83,
+      "total_up_edge_grandparent_k2": 332
+    },
+    "NOT_in": "data_089907f8/'1.2_test.csv' (38 rows) — this bundle is a holdout/inductive split ('Generalization - holdout - clean'), so its k=2 TEST patterns are only {grandson-brother, husband-daughter}; the up-up grandparent patterns live in the TRAIN csv. A covered slice of clean k=2 up-edge grandparent items should therefore be drawn from '1.2,1.3_train.csv' (or generated fresh), not from '1.2_test.csv'.",
+    "example_row": {
+      "id": "65754df8-a294-4a72-a2fe-2207d5bdae27",
+      "f_comb": "father-father",
+      "target": "grandfather",
+      "query": "('Jennifer', 'Jason')",
+      "query_edge": "(0, 2)",
+      "story_edges": "[(0, 1), (1, 2)]",
+      "edge_types": "['father', 'father']",
+      "genders": "Jennifer:female,Michael:male,Jason:male",
+      "proof_state": "[{('Jennifer', 'grandfather', 'Jason'): [('Jennifer', 'father', 'Michael'), ('Michael', 'father', 'Jason')]}]",
+      "clean_story": "[Michael] and his daughter [Jennifer] like to read poems together. [Jason] is the proud father of the lovely [Michael]",
+      "task_name": "task_1.2",
+      "task_split": "train"
+    }
+  },
+  "verification": {
+    "command": "python3 (see data/clutrr-cache/fetch.sh --verify) reads clutrr-emnlp-release.zip -> data_089907f8.zip -> the two k=2 csvs and tabulates f_comb/target for rows with 2 atomic relations.",
+    "verified_utc": "2026-07-10"
+  }
+}
