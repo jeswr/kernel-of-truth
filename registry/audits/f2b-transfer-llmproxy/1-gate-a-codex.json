@@ -1,0 +1,57 @@
+{
+  "audit_kind": "GATE-A cross-vendor audit (P2 G-6; directives sec.8) — f2b-transfer-llmproxy mechanical verdict recompute. The verdict is PASS-PENDING-AUDIT (endorsement kill-(d) analog did NOT fire and both instrument gates hold); a PASS mandatorily fires this Gate-A audit. This record certifies the PASS is the correct pure function of frozen record + two ops-amendment overlay + hash-chained log + pinned analysis, recomputed independently from the raw judge labels — NOT any science judgement, and it does NOT validate judge quality (single-judge-family design; envelope binds verbatim).",
+  "auditor": "auditor-6",
+  "auditor_binding": "cross-vendor auditor identity per docs/kernel-design-directives.md sec.8: Codex/GPT-5.5 via the codex CLI; vendor tag only, no account credential (RT-14). Run-vs-audit separation is cross-vendor: Opus runner-7 ran the stand-in judge-1p campaign and computed the mechanical verdict, this audit is by Codex/GPT-5.5. DISCLOSED family overlap: judge-1p is GPT-5.6-Sol and diagnostic judge-2 + this auditor are GPT-5.5 — irrelevant to a mechanical byte-recompute, which certifies the verdict as a pure function and explicitly does not validate judge quality (stage_discipline note in the frozen record).",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.142.5",
+    "model": "gpt-5.5",
+    "reasoning_effort": "high",
+    "sandbox": "read-only",
+    "session_id": "019f4b53-8e59-7e80-b4b4-5cdfc4a25a08"
+  },
+  "checks": {
+    "frozen_hash": "ok",
+    "pins": "ok",
+    "amendment": "ok",
+    "analysis_script_sha": "ok",
+    "log_chain": "ok",
+    "endpoint_recompute": "ok",
+    "raw_data_recompute": "ok",
+    "instrument_gate": "ok",
+    "verdict_rule": "ok",
+    "scope": "ok",
+    "independence": "ok"
+  },
+  "codex_raw_excerpt": "{\"checks\":{\"frozen_hash\":\"ok\",\"pins\":\"ok\",\"amendment\":\"ok\",\"analysis_script_sha\":\"ok\",\"log_chain\":\"ok\",\"endpoint_recompute\":\"ok\",\"raw_data_recompute\":\"ok\",\"instrument_gate\":\"ok\",\"verdict_rule\":\"ok\",\"scope\":\"ok\",\"independence\":\"ok\"},\"recomputed\":{\"frozen_sha256\":\"c9d81ee5c163db8febbf256878a4684e5e4b4984c5452dd303b5a0b0daa74d87\",\"amended_record_sha256\":\"62a515058a979272f43f3bcaf40aad85615ba250ea7b9f3d9b9daf3045804325\",\"log_tail_sha256\":\"67d9ae31edbbe67764302660eaeefe3ec41dc203041f79ed34d1e660a0a023f4\",\"analysis_output_sha256\":\"73f4bce9a2c01598999d146b4fd8cbaa2ea5fb8717b3e2167ae3bf14cd14cd19\",\"A_1p\":0.95,\"A_1p_wilson_lb\":0.9275206595861619,\"judge_pair_agreement_raw\":0.9638888888888889,\"a_j2\":0.9583333333333334,\"a_panel_concordant\":0.9711815561959655,\"probe_false_endorse_rate\":0.016666666666666666,\"adjudication_valid\":true,\"probe_valid\":true,\"n_agree_j1p_from_raw\":342,\"n_labelled_j1p_from_raw\":360,\"fired_rule_index\":2},\"matches_verdict_object\":true,\"reasoning\":\"Recomputed the frozen and amended canonical hashes, pinned file and corpus digests, raw-byte log chain, committed analysis-output hash, and raw label/probe counts from on-disk bytes only. The pinned analysis JSON content matches the committed analysis output, and the independently recomputed endpoints are A_1p=0.95, Wilson LB=0.9275206595861619, judge agreement=0.9638888888888889, a_j2=0.9583333333333334, a_panel=0.9711815561959655, with both instrument gates true; applying the registered rules top-down fires rule 2 PASS while the committed object is PASS-PENDING-AUDIT pending this audit.\",\"result\":\"CONFIRM\",\"verdict\":\"PASS\"}",
+  "experiment": "f2b-transfer-llmproxy",
+  "fired_rule_index": 2,
+  "independence": "auditor-6 does not appear as a runner in any record of results-log/f2b-transfer-llmproxy.jsonl (runner-7 ran the single phase:final adjudication-instrument record seq 0 and the verdict-gen unblind seq 1). run-vs-audit + cross-vendor separation per directives sec.8.",
+  "matches_verdict_object": true,
+  "outcome": "CONFIRMED",
+  "recomputed_amended_record_sha256": "62a515058a979272f43f3bcaf40aad85615ba250ea7b9f3d9b9daf3045804325",
+  "recomputed_cells": {
+    "A_1p": 0.95,
+    "A_1p_wilson_lb": 0.9275206595861619,
+    "judge_pair_agreement_raw": 0.9638888888888889,
+    "a_j2": 0.9583333333333334,
+    "a_panel_concordant": 0.9711815561959655,
+    "probe_false_endorse_rate": 0.016666666666666666,
+    "adjudication_valid": true,
+    "probe_valid": true,
+    "n_agree_j1p_from_raw": 342,
+    "n_labelled_j1p_from_raw": 360
+  },
+  "recomputed_endpoint": {
+    "metric": "/analysis/external_endorsement_proxy",
+    "value": 0.95
+  },
+  "recomputed_frozen_sha256": "c9d81ee5c163db8febbf256878a4684e5e4b4984c5452dd303b5a0b0daa74d87",
+  "reproduces_analysis_output": true,
+  "result": "CONFIRM",
+  "schema_version": "kot-audit/1",
+  "smoke_test": "codex exec returned the exact requested token KOT-AUDIT-SMOKE-OK before the audit was attempted (session 019f4b50-1dc6-7161-9a0b-14316d44f165).",
+  "ts": "2026-07-10T09:25:04Z",
+  "vendor": "openai/gpt-5.5",
+  "verdict": "PASS",
+  "verdict_object_audited_sha256": "0f4f7571811d93e42740355ef5725945c3fc0b3a06350332cddab5a1b5a8d955"
+}
