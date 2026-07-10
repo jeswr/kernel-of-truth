@@ -1,0 +1,65 @@
+{
+  "schema_version": "kot-reg/1",
+  "id": "l3a-parse",
+  "status": "DRAFT",
+  "title": "L3a-parse — NL-boundary leg, family/world vertical: deterministic mapper-a1-hybrid parse of blind held-out NL phrasings of the frozen l3a eval vs the measured gold-parse ceiling, byte-identical engine (HL3a clause 2)",
+  "hypotheses": ["HL3a"],
+  "depends_on": ["l3a"],
+  "analysis_plan_ref": {"anchor": "1.6", "path": "docs/research-plan/08-stats-and-extrapolation.md", "sha256": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86"},
+  "prereg_doc": {"anchors": ["section 0", "section 6", "section 10"], "path": "docs/design-nl-boundary-l3a-parse-a5-nl.md", "sha256": "PINNED-AT-FREEZE"},
+  "budget": {"usd_cap": 12, "wall_clock_cap_hours": 2},
+  "efficiency_relevant": false,
+  "design": {
+    "scale_rungs": ["R0"],
+    "seeds": [0],
+    "independent_vars": [{"name": "arm", "levels": ["mapper-parse", "gold-replication", "deranged-lexicon", "abstain-all", "answer-all"]}],
+    "dependent_vars": [
+      {"name": "n_covered_exact", "unit": "count", "better": "higher", "definition": "covered NL phrasings whose front-end parse the engine answers with status=answer, value equal to the pre-authored expected value, provenance ids all present in the world store, non-empty axiom license (scored exactly as the frozen parent l3a)"},
+      {"name": "n_covered_refused", "unit": "count", "better": "n/a", "definition": "covered phrasings refused at any stage (ERR_PARSE with stage tag, or engine ERR_*) — the SAFE half of the fail-closed split; reported by stage"},
+      {"name": "n_covered_answered_wrong", "unit": "count", "better": "lower", "definition": "covered phrasings answered with a value != expected (mis-parse converted into a confident wrong answer) — the DANGEROUS half, gated (S2)"},
+      {"name": "n_control_refused_acceptable", "unit": "count", "better": "higher", "definition": "included control phrasings (malformed stratum excluded, FK-NLB-5) refused with the pre-authored expected engine ERR_* code OR ERR_PARSE (FK-NLB-6); strict engine-code match reported descriptively"},
+      {"name": "n_control_answered", "unit": "count", "better": "lower", "definition": "included control phrasings answered at all (fail-closed breach on the control slice)"},
+      {"name": "dev_abstention_rate", "unit": "fraction", "better": "lower", "definition": "front-end parse-failure rate on the 60-item DEV phrasing set (instrument gate G4, bound 0.20)"},
+      {"name": "frontend_total_ns", "unit": "ns", "better": "lower", "definition": "wall-clock for one full mapper-parse pass on the pinned r0 box (descriptive)"}
+    ],
+    "n_planned": {
+      "scope": "HL3a CLAUSE-2 NL-PARSE LEG ONLY, family/world vertical. Frozen parent eval reused byte-identically: 600 covered + 270 control (parent's 300 minus the 30-item malformed stratum, excluded by FK-NLB-5 as having no faithful NL rendering). One blind held-out NL phrasing per included query (K=1, FK-NLB-4) + 60 DEV phrasings, authored under the design doc section-5 blind protocol. No model, no GPU, no LLM/RAG arm, no cost claim.",
+      "n_covered": 600,
+      "n_control": 270,
+      "n_dev": 60,
+      "covered_strata": {"children-lookup": 100, "count-maker": 43, "instance-false-disjoint": 40, "instance-true": 50, "made-lookup": 30, "part-lookup": 50, "unique-father": 122, "unique-maker": 43, "unique-mother": 122},
+      "control_strata": {"conflict": 20, "instance-no-record": 20, "no-record": 60, "out-of-scope-rel": 60, "unknown-entity": 40, "unlicensed-count": 30, "unlicensed-unique": 40},
+      "excluded_strata": {"malformed": 30},
+      "assumption_ids": ["ASM-NLB-1-TBD", "ASM-NLB-2-TBD", "ASM-NLB-3-TBD", "ASM-NLB-4-TBD", "ASM-0004", "ASM-0005", "ASM-0006"],
+      "seed_note": "front-end and engine are RNG-free; seed 0 pins the deranged-lexicon arm's fixed-point-free permutation only",
+      "successors": "on PASS: the NL leg may be included in l3a-cost; on FAIL: parser-stage successor (deterministic-frontend v1 or LLM-assisted parse under FK-NLB-3), never more GPU (kill text)"
+    },
+    "arms_mandatory_baselines": [
+      "gold-replication (measured-ceiling arm: parent's gold queries on the byte-identical engine; must reproduce the parent-perfect 600/600 + 300/300 — instrument gate G2)",
+      "deranged-lexicon (scramble control, R0 analog of shuffled-kernel: seed-pinned fixed-point-free permutation of the front-end's concept-URN targets; retained exactness must collapse < 0.10 — instrument gate G5, else the eval is answerable without correct concept binding)",
+      "abstain-all + answer-all (trivial-policy brackets as in the frozen parent). Kernel-as-text null NOT instantiable at R0 (no model consumes anything) — same registered adaptation as the frozen parents."
+    ]
+  },
+  "endpoints": [
+    {"id": "primary", "role": "primary", "metric": "/analysis/retained_covered_exact_wilson_lb", "test": "mapper-parse covered-exact rate over the 600 frozen covered queries (one blind NL phrasing each), one-sided Wilson 95% LB (z=1.645, kot_common formula) vs floor 0.90. Retained-fraction form is identical to absolute rate because the gold ceiling is MEASURED at 600/600 (registry/verdicts/l3a.json) — non-inferiority margin 0.10 vs measured ceiling 1.0; F2 degenerate-denominator lesson discharged by construction. Floor = ceiling minus the pre-declared 10% maximum NL-boundary loss instantiating the HL3a clause-2 'pre-declared fraction' (ASM-NLB-2). Planning value 0.95 (LB 0.9332).", "wilson_gate": {"expected_rate": 0.95, "n_planned": 600, "threshold": 0.9}},
+    {"id": "sec-refusal-retention", "role": "secondary", "metric": "/analysis/holm_s1_pass", "test": "Holm family member 1 of 2 (family alpha 0.05, one-sided): included-control acceptable-refusal rate (expected engine code OR ERR_PARSE; FK-NLB-6) vs gate 0.95 over n=270. Planning value 0.99 (Holm-worst z=1.96 LB 0.9695). Strict engine-code rate and refused-any reported descriptively.", "wilson_gate": {"expected_rate": 0.99, "n_planned": 270, "threshold": 0.95}},
+    {"id": "sec-fail-closed-dangerous", "role": "secondary", "metric": "/analysis/holm_s2_pass", "test": "Holm family member 2 of 2: covered mis-parse->wrong-answer rate one-sided Wilson UB vs gate 0.02 over n=600 (the dangerous half of the fail-closed split; the safe half — mis-parse->refusal — is the primary's complement, reported by stage). Planning value 3/600 (UB 0.0141 at z=1.96). Independent kill leg: unadjusted Wilson LB >= 0.02 is a FAIL rule.", "wilson_gate": {"expected_rate": 0.005, "n_planned": 600, "threshold": 0.02}},
+    {"id": "sec-stage-breakdown", "role": "secondary", "metric": "/analysis/parse_stage_breakdown", "test": "descriptive, no threshold: ERR_PARSE distribution over {gazetteer-miss, mapper-abstain, frame-miss, frame-ambiguous} + label-verbatim vs paraphrase exactness stratification — the stage-indictment instrument (architecture-ladder section 8 item 14) a FAIL must cite."},
+    {"id": "sec-cost", "role": "secondary", "metric": "/analysis/frontend_mean_us_per_query", "test": "descriptive: mean front-end+engine microseconds per phrasing on the pinned r0 box; no cost-ratio claim is tested in this record (successor l3a-cost)."}
+  ],
+  "kill_criterion_verbatim": "HL3a clause 2 (architecture-ladder.md section 5.1, frozen verbatim in registry/experiments/l3a.json): 'mapper-parse loses > a pre-declared fraction of gold-parse accuracy (the NL boundary eats the rung; L3 waits for a better parser, not more GPU)'. THIS RECORD instantiates the pre-declared fraction at 10% absolute: FAIL iff the mapper-parse covered-exact one-sided Wilson 95% UB <= 0.90, OR the covered wrong-answer one-sided Wilson 95% LB >= 0.02 (fail-closed demonstrably broken — a mis-parse that answers wrongly with provenance attached is worse than any refusal). Either FAIL routes investment to the parser stage named by the stage-breakdown, never to GPU. Clause 3 (LLM/RAG cost differentiator) belongs to l3a-cost and cannot be decided here.",
+  "extrapolation_envelope_verbatim": "Measured range: R0 — no host model; ONE deterministic front-end build (mapper a1-hybrid policy sha e13dc838…, one entity gazetteer, one frozen frame rule set), ONE blind agent-authored held-out phrasing set (K=1 per query, design-doc section-5 protocol), the parents' frozen eval/stores/engine byte-identical. A PASS licenses only: the closed kot-query/1 grammar is reachable from THESE held-out NL phrasings by a deterministic training-free front-end with <=10% covered-exactness loss and an intact fail-closed contract, on the family/world vertical — the gate needed for an honest NL leg in l3a-cost. It licenses NO natural-user-distribution robustness claim, NO other phrasing distribution/corpus/domain/language, NO paraphrase-set-size scaling, NO LLM-comparative accuracy or cost claim, NO statement about kernel usefulness to any model, and NO cross-vertical conjunction (a5-nl licenses the code vertical separately). A FAIL indicts the named front-end stage and licenses exactly the kill's routing: parser investment, not GPU.",
+  "verdict_rules": [
+    {"verdict": "INSTRUMENT-INVALID", "when": {"op": "not", "a": {"metric": "/gates/instrument_valid"}}},
+    {"verdict": "FAIL", "when": {"op": "or", "a": {"op": "lte", "a": {"metric": "/analysis/retained_covered_exact_wilson_ub"}, "b": {"const": 0.9}}, "b": {"op": "gte", "a": {"metric": "/analysis/covered_wrong_answer_wilson_lb"}, "b": {"const": 0.02}}}},
+    {"verdict": "PASS", "when": {"op": "and", "a": {"op": "gt", "a": {"metric": "/analysis/retained_covered_exact_wilson_lb"}, "b": {"const": 0.9}}, "b": {"op": "and", "a": {"op": "and", "a": {"metric": "/analysis/holm_s1_pass"}, "b": {"metric": "/analysis/holm_s2_pass"}}, "b": {"metric": "/analysis/gold_replication_identical"}}}},
+    {"verdict": "INCONCLUSIVE", "when": {"const": true}}
+  ],
+  "pins": {
+    "encoder_hash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c",
+    "analysis_script": {"path": "analysis/l3a_parse.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "output_fields": ["/gates/instrument_valid", "/analysis/retained_covered_exact_rate", "/analysis/retained_covered_exact_wilson_lb", "/analysis/retained_covered_exact_wilson_ub", "/analysis/control_refusal_acceptable_rate", "/analysis/control_refusal_acceptable_wilson_lb", "/analysis/control_refusal_strict_engine_code_rate", "/analysis/covered_wrong_answer_rate", "/analysis/covered_wrong_answer_wilson_ub", "/analysis/covered_wrong_answer_wilson_lb", "/analysis/holm_s1_pass", "/analysis/holm_s2_pass", "/analysis/gold_replication_identical", "/analysis/deranged_retained_exact_rate", "/analysis/dev_abstention_rate", "/analysis/parse_ok_rate", "/analysis/parse_stage_breakdown", "/analysis/label_verbatim_vs_paraphrase", "/analysis/n_covered", "/analysis/n_control", "/analysis/frontend_mean_us_per_query"]},
+    "corpus_hashes": {"_recipe": "kot-corpus-hash/1 (reference implementation tools/registry/corpus-pin.py)", "axioms-v0": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718", "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809", "l3a-eval": "53eb788b1681960b55436a4566df5d9fabe5efb3c57399e90fcfa2d13afb98e7", "molecules-v0": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4", "world-v0": "dfa5145167b1365681b640f91c766f0a46da28af6941f35a56d00aff35408f9a", "nlb-phrasings-l3a": "PINNED-AT-INPUTS: blind eval+dev phrasings, prompt file, transcripts, manifest, recoverability-audit record (design doc section 5)"},
+    "harness_manifest": "engine tools/axiom/kot_axiom.py sha256 d2064989c208c37df5a3d15a4fae6118c82516055fd6552f45a2a92fe2b7a659 (byte-identical to the frozen parent pin — NOT modified); front-end tools/experiments/nlb/nlb_frontend.py + mapper bridge tools/experiments/nlb/nlb_map.mjs + instrument tools/experiments/nlb/nlb_instrument.py: shas PINNED-AT-FREEZE after DEV-only frame finalisation (design doc section 5.3 ordering: front-end pinned BEFORE eval phrasings are authored); mapper package @jeswr/kernel-mapper with a1-hybrid policy sha e13dc838… verified at import"
+  },
+  "runner_constraints": {"provider": "local", "infra": "r0-local-cpu", "hardware": "shared 2-core box, nice -n 10, foreground gates", "concurrency_cap": 5, "foreground_gates": true}
+}
