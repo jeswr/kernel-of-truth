@@ -1,0 +1,354 @@
+{
+ "schema_version": "kot-reg/1",
+ "id": "nsk1",
+ "status": "DRAFT",
+ "title": "nsk1 - kernel-powered neurosymbolic internals, first decisive experiment: training-free kernel-keyed steering write-back (patchscope-read -> exact-match -> kot-axiom hop-1 -> B2 steering) vs the SAME engine feedback as external text at matched budget, on covered 2-hop composition at R1-R2; Stage-0 = B5 back-patch diagnostic with a rescuable-fraction family-kill floor (flagship line neurosym-kernel-internals; consolidates B1/B2/B5 for this record)",
+ "hypotheses": [
+  "HNSK0",
+  "HNSK1"
+ ],
+ "depends_on": [
+  "l3a"
+ ],
+ "efficiency_relevant": false,
+ "prereg_doc": {
+  "path": "docs/design-neurosym-kernel-internals.md",
+  "anchors": [
+   "section 2",
+   "section 3",
+   "section 4",
+   "section 7",
+   "section 8"
+  ],
+  "sha256": "baa326513f7c5c51545c8b8f0a4d1da4f82a99860e4dddd23f8f9226a144e0b6"
+ },
+ "analysis_plan_ref": {
+  "path": "docs/research-plan/08-stats-and-extrapolation.md",
+  "anchor": "1.6",
+  "sha256": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86"
+ },
+ "coverage_requirement": {
+  "source": "m0b",
+  "rung_field": "coverage_rung"
+ },
+ "design": {
+  "independent_vars": [
+   {
+    "name": "arm",
+    "levels": [
+     "internal",
+     "external-text",
+     "text-only",
+     "kernel-as-text",
+     "shuffled",
+     "random-dir",
+     "noop-hook"
+    ]
+   },
+   {
+    "name": "rung",
+    "levels": [
+     "R1",
+     "R2"
+    ]
+   },
+   {
+    "name": "stage",
+    "levels": [
+     0,
+     1
+    ]
+   }
+  ],
+  "dependent_vars": [
+   {
+    "name": "exact_correct",
+    "unit": "boolean per item",
+    "better": "higher",
+    "definition": "generated answer exact-matches the generator graph-traversal gold surface form (gold is INDEPENDENT of the engine accept test: the engine resolves hop-1 only and never sees or scores the 2-hop gold - the f2b oracle-leakage lesson)"
+   },
+   {
+    "name": "rescued",
+    "unit": "boolean per swept Stage-0 failure",
+    "better": "higher",
+    "definition": "some (source-layer, target-layer) back-patch in the pinned grid yields the exact gold answer on a text-only failure item"
+   },
+   {
+    "name": "fired",
+    "unit": "boolean per item",
+    "better": "n/a",
+    "definition": "the loop resolved a licensed hop-1 and applied a write (must be ~0 on uncovered controls - false-fire gate)"
+   },
+   {
+    "name": "abstained",
+    "unit": "boolean per item",
+    "better": "n/a",
+    "definition": "the exact-match mapper abstained on the patchscope readout (out-of-lexicon); X3: matching is exact only, no kernel-space cosine/kNN anywhere"
+   },
+   {
+    "name": "extra_tokens",
+    "unit": "tokens",
+    "better": "lower",
+    "definition": "per-arm extra token budget actually consumed (internal: patchscope side-decode <=8; external-text: feedback sentence <=24); FLOP ledger reported alongside on the V vector as descriptive secondaries"
+   }
+  ],
+  "arms_mandatory_baselines": [
+   "external-text: the SAME engine hop-1 feedback rendered as text via an external F2-topology loop at matched extra-token budget - the PRIMARY comparator (kernel-outside vs kernel-inside)",
+   "text-only null (no feedback, no hook)",
+   "kernel-as-text null (static kernel/world records as text at matched budget, no engine resolution - Law 2)",
+   "shuffled-kernel (seed-pinned DERANGEMENT of the entity->steering-vector map; plumbing identical, kernel keying destroyed)",
+   "random-direction steering at matched norm",
+   "noop-hook (hook installed, zero vector - prices the plumbing)"
+  ],
+  "scale_rungs": [
+   "R1",
+   "R2"
+  ],
+  "seeds": [
+   1,
+   2,
+   3
+  ],
+  "n_planned": {
+   "assumption_ids": [
+    "ASM-0023",
+    "ASM-0024",
+    "ASM-0025"
+   ],
+   "n_covered": 1000,
+   "n_control_uncovered": 100,
+   "n_calibration_split": 100,
+   "calibration_note": "10% covered calibration split (seed-pinned, excluded from final analysis) mechanically selects L* (FK-NSK-2 rule) and alpha (FK-NSK-5 rule) and runs the skeptic-memo item-2 external-arm sanity check (external-text > text-only by >=2pp on calibration) BEFORE freeze-eligibility",
+   "stage0_sweep_cap": 300,
+   "stage0_patch_grid": "pinned (source-layer, target-layer) grid, source > target, stride pruned to <=40 cells per model; grid literal fixed at freeze from the model's layer count",
+   "stage0_floor": "Wilson-LB(rescued/swept) >= 0.15 at each rung, else FAIL (family cheap kill; Stage-1 does not run)",
+   "write_channel": "FK-NSK-1 option (a): kernel-keyed cached steering vectors - per-(model, entity) vectors extracted ONCE, training-free, by contrastive activation arithmetic over the model's OWN activations on 16 pinned carrier prompts; injection h <- h + alpha*v at L*; addressing is EXACT record identity. Law 1: no raw kernel/encoder coordinates ever enter the model. Option (b) kernel-gated activation modulation is the registered fallback (variant V2), out of this record",
+   "loop_cadence": "k=1 (single pre-answer intervention; FK-NSK-4)",
+   "rung_conjunction": "PASS requires the primary and specificity bounds to clear at BOTH rungs (IUT); the analysis fields are the per-rung minima",
+   "mock_note": "the committed analysis (mock stage) computes single-pseudo-rung fields over the mock rows; the freeze revision computes per-rung fields and their IUT minima - analysis_script re-pins at freeze",
+   "coverage_restatement": "m0b coverage 0.3542 @ molecules-v0 is corpus-indexed on the pinned TinyStories task family on ONE incomplete kernel instance (ASM-0001) and does NOT describe nsk1-eval; nsk1-eval covered-stratum coverage is BY CONSTRUCTION and verified by a run-time gate (every covered item's hop-1 resolves licensed)",
+   "power": "paired binary, n=1000 covered per rung; planning values acc(external-text) 0.45-0.60, target delta +0.05 absolute, discordant rate 0.25-0.35 => McNemar-style power ~0.8-0.9 at one-sided alpha=0.05; TOST +/-0.02 decidable inside the headroom window enforced by the headroom gate",
+   "successors": "staged variants V2-V7 of idea-neurosym-kernel-internals (gated activation modulation; VSA engine internals; kernel-keyed embedding injection; engine-in-decode; latent loop; trained-bridge latent) register separately under their own gates"
+  }
+ },
+ "pins": {
+  "corpus_hashes": {
+   "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+   "nsk1-eval": "5c7c4dfe28cf0c2e131fcb232a8a9cd36132e8fcef9f4e0c2557ab1f7a7b53aa"
+  },
+  "model_revisions": {
+   "R1": "HuggingFaceTB/SmolLM2-135M (revision pinned at freeze)",
+   "R2": "HuggingFaceTB/SmolLM2-360M (revision pinned at freeze)"
+  },
+  "harness_manifest": "runner poc/nsk1/nsk1_runner.py sha256 17d40b6ee3f7d6f5d2b57e0ee3b4c6d5af73203d5836cc3758719c2f0b80386b (mock-green 2026-07-10, $0); generator poc/nsk1/gen_nsk1_corpus.py sha256 b7beac286c0fcfead23c9fcd9f0257142263e43c2f8cacbd4e2e4467f102c099 (output pinned via nsk1-eval digest); engine tools/axiom/kot_axiom.py sha256 b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf (the l3a artifact as currently extended - define-op added post-l3a-freeze; l3a envelope regression re-run applies at nsk1 freeze); real-mode HF harness is runner-role work against the FROZEN record and re-pins here",
+  "analysis_script": {
+   "path": "analysis/nsk1.py",
+   "sha256": "aba06bbee99dd7b85295cefcaa129acba9dd5a66cb4c2e4baeb03013a63631c0",
+   "output_fields": [
+    "/gates/instrument_valid",
+    "/gates/stage0_rescuable_wilson_lb",
+    "/gates/stage0_n_swept",
+    "/gates/extraction_failure_wilson_ub",
+    "/gates/mapper_abstention_rate_covered",
+    "/gates/headroom_ok",
+    "/analysis/acc_internal",
+    "/analysis/acc_external_text",
+    "/analysis/acc_text_only",
+    "/analysis/acc_kernel_as_text",
+    "/analysis/acc_shuffled",
+    "/analysis/acc_random_dir",
+    "/analysis/acc_noop_hook",
+    "/analysis/n_covered_paired",
+    "/analysis/delta_primary",
+    "/analysis/delta_primary_bca_lb",
+    "/analysis/delta_primary_bca_ub",
+    "/analysis/delta_primary_bca_lb90",
+    "/analysis/delta_primary_bca_ub90",
+    "/analysis/tost_equivalent",
+    "/analysis/spec_delta_abs",
+    "/analysis/spec_delta_abs_lb",
+    "/analysis/loop_vs_textonly_delta",
+    "/analysis/loop_vs_textonly_lb",
+    "/analysis/external_vs_textonly_delta",
+    "/analysis/external_vs_textonly_lb",
+    "/analysis/falsefire_wilson_ub",
+    "/analysis/mean_extra_tokens_internal",
+    "/analysis/mean_extra_tokens_external"
+   ]
+  }
+ },
+ "endpoints": [
+  {
+   "id": "primary",
+   "role": "primary",
+   "metric": "/analysis/delta_primary_bca_lb",
+   "test": "PRIMARY (exactly one, ABSOLUTE - never a ratio, the F2 degenerate-denominator lesson): paired absolute accuracy delta acc(internal) - acc(external-text) on the covered stratum; one-sided 95% BCa bootstrap lower bound (B=2000, seed pinned); the recorded field is the IUT minimum across R1 and R2; superiority iff > 0",
+   "smallest_effect_of_interest": {
+    "type": "absolute paired accuracy delta",
+    "value": 0.02
+   }
+  },
+  {
+   "id": "sec-tost",
+   "role": "secondary",
+   "metric": "/analysis/tost_equivalent",
+   "test": "TOST equivalence reading: 90% BCa CI of the primary delta inside +/-0.02 at both rungs => NULL verdict (kernel-inside adds nothing over kernel-outside at these rungs) - recorded with the same prominence as PASS"
+  },
+  {
+   "id": "sec-specificity",
+   "role": "secondary",
+   "metric": "/analysis/spec_delta_abs_lb",
+   "test": "kernel-keying specificity (co-gate in the PASS rule): one-sided 95% BCa LB of acc(internal) - acc(shuffled) > 0 at both rungs; clears only if the deranged map loses the effect (E9-defl discipline); absolute difference, no ratio",
+   "smallest_effect_of_interest": {
+    "type": "absolute paired accuracy delta",
+    "value": 0.02
+   }
+  },
+  {
+   "id": "sec-loop-value",
+   "role": "secondary",
+   "metric": "/analysis/loop_vs_textonly_lb",
+   "test": "Holm family with sec-specificity, sec-external-value, sec-kernel-as-text contrasts: does the internal loop beat no-feedback at all",
+   "smallest_effect_of_interest": {
+    "type": "absolute paired accuracy delta",
+    "value": 0.02
+   }
+  },
+  {
+   "id": "sec-external-value",
+   "role": "secondary",
+   "metric": "/analysis/external_vs_textonly_lb",
+   "test": "does the external F2-topology loop itself work here (replicates the F2 shape at hop-1 granularity); also the skeptic-memo item-2 vacuousness check at campaign scale",
+   "smallest_effect_of_interest": {
+    "type": "absolute paired accuracy delta",
+    "value": 0.02
+   }
+  },
+  {
+   "id": "sec-stage0",
+   "role": "secondary",
+   "metric": "/gates/stage0_rescuable_wilson_lb",
+   "test": "Stage-0 B5 diagnostic: Wilson 95% one-sided LB of rescued/swept text-only failures; >= 0.15 required at each rung else the FAIL family-kill rule fires; also the ceiling estimate reported for the family",
+   "wilson_gate": {
+    "expected_rate": 0.35,
+    "n_planned": 300,
+    "threshold": 0.15
+   }
+  },
+  {
+   "id": "sec-cost",
+   "role": "secondary",
+   "metric": "/analysis/mean_extra_tokens_internal",
+   "test": "descriptive V-ledger: matched extra-token budgets (internal <=8 side-decode vs external-text <=24 feedback) plus FLOP/latency ledger; no cost claim is tested in this record"
+  }
+ ],
+ "verdict_rules": [
+  {
+   "verdict": "INSTRUMENT-INVALID",
+   "when": {
+    "op": "not",
+    "a": {
+     "metric": "/gates/instrument_valid"
+    }
+   }
+  },
+  {
+   "verdict": "FAIL",
+   "when": {
+    "op": "lte",
+    "a": {
+     "metric": "/gates/stage0_rescuable_wilson_lb"
+    },
+    "b": {
+     "const": 0.15
+    }
+   }
+  },
+  {
+   "verdict": "FAIL",
+   "when": {
+    "op": "and",
+    "a": {
+     "op": "gt",
+     "a": {
+      "metric": "/analysis/delta_primary_bca_lb"
+     },
+     "b": {
+      "const": 0
+     }
+    },
+    "b": {
+     "op": "lte",
+     "a": {
+      "metric": "/analysis/spec_delta_abs_lb"
+     },
+     "b": {
+      "const": 0
+     }
+    }
+   }
+  },
+  {
+   "verdict": "PASS",
+   "when": {
+    "op": "and",
+    "a": {
+     "op": "gt",
+     "a": {
+      "metric": "/analysis/delta_primary_bca_lb"
+     },
+     "b": {
+      "const": 0
+     }
+    },
+    "b": {
+     "op": "gt",
+     "a": {
+      "metric": "/analysis/spec_delta_abs_lb"
+     },
+     "b": {
+      "const": 0
+     }
+    }
+   }
+  },
+  {
+   "verdict": "NULL",
+   "when": {
+    "op": "eq",
+    "a": {
+     "metric": "/analysis/tost_equivalent"
+    },
+    "b": {
+     "const": true
+    }
+   }
+  },
+  {
+   "verdict": "INCONCLUSIVE",
+   "when": {
+    "op": "eq",
+    "a": {
+     "const": 1
+    },
+    "b": {
+     "const": 1
+    }
+   }
+  }
+ ],
+ "kill_criterion_verbatim": "docs/design-neurosym-kernel-internals.md section 4.5 (verbatim): '1. INSTRUMENT-INVALID if any instrument gate fails. 2. FAIL (family cheap kill) if Stage-0 Wilson-LB < 0.15 at either rung. 3. KILL-semantics-free co-gate: PASS additionally requires one-sided 95% LB of acc(internal) - acc(shuffled) > 0 at both rungs; if the primary clears but this does not, the verdict is FAIL-attribution (the write channel works but kernel-keying adds nothing - the E9-defl discipline). 4. PASS: primary LB > 0 at both rungs AND (3) holds. 5. NULL-EQUIV: TOST holds at both rungs => equivalence recorded with the same prominence as a PASS. 6. Anything else: INCONCLUSIVE (report CIs; no adjective).' Instrument gates with their own bounds: patchscope extraction-failure Wilson-UB <= 0.30 (covered, loop arms); mapper abstention on covered <= 0.20; steering-cache extraction success >= 0.90 of entities (calibration); intervention false-fire Wilson-UB <= 0.05 on uncovered controls; headroom: text-only covered accuracy in [0.05, 0.85] with >= 500 scored items.",
+ "extrapolation_envelope_verbatim": "Measured range on any outcome: R1-R2 (SmolLM2-135M/360M), ONE synthetic covered 2-hop task family (nsk1-eval, all facts in-context), ONE kernel instance's minted concepts (mother-of/father-of/man/woman), ONE write channel (B2 kernel-keyed cached steering, alpha and L* rule-selected on a disjoint calibration split), k=1 loop cadence, ONE engine build. A PASS licenses exactly: 'at these two rungs, on this covered synthetic family, kernel-engine content delivered by internal steering beat the same content delivered as text at matched budget' - a sign (2 rungs), no scale adjectives, no slope. It does NOT license: natural-corpus or public-benchmark claims, NL-parse claims, any statement at R3+, multi-hop beyond 2, other write channels, training-time or trained-bridge claims, efficiency-thesis claims, or any 'the kernel powers the network' headline. A FAIL or NULL kills/demotes the training-free internal-write family at these rungs and redirects the line to external seams (L0/L3) and later staged variants under their own gates. Stage-0's rescuable fraction extrapolates only to this task family at these rungs (ASM-0024 resolution).",
+ "budget": {
+  "usd_cap": 60,
+  "gpu_hours_cap": 14,
+  "wall_clock_cap_hours": 30
+ },
+ "runner_constraints": {
+  "provider": "modal",
+  "infra": "1x A10G (or L4), poc/modal harness pattern",
+  "concurrency_cap": 5,
+  "foreground_gates": true,
+  "gate": "Tier-2 GPU spend REQUIRES maintainer sign-off + prereg-freeze of this record + skeptic-memo item-2 calibration check; design-stage harness refuses real mode (ERR_NSK1_GPU_GATED); the final campaign is runner-role work (run != audit) - the designer identity that built this record never runs, grades, or audits it"
+ }
+}
