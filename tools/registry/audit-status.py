@@ -63,8 +63,14 @@ def main():
     root = args.root or repo_root()
     rows = load(root)
 
+    # "pending" == genuinely awaiting a Fable interpretive assessment (i.e. a run
+    # experiment with a verdict). Rows marked "n/a" (frozen-but-UNRUN, DRAFT, or
+    # not applicable) are NOT awaiting interpretation and must not inflate the
+    # backlog count — conflating the two hides real state and invites duplicate work.
     pending = [r for r in rows
-               if r.get("fable_interpretive_assessed") != "done"]
+               if r.get("fable_interpretive_assessed") == "pending"]
+    na = [r for r in rows
+          if r.get("fable_interpretive_assessed") not in ("pending", "done")]
     shown = pending if args.pending else rows
 
     if args.json:
@@ -75,13 +81,20 @@ def main():
           % ("experiment", "by", "codex", "fable", "note"))
     print("-" * 92)
     for r in shown:
-        flag = "" if r.get("fable_interpretive_assessed") == "done" else "  <- PENDING fable-assess"
+        fa = r.get("fable_interpretive_assessed")
+        if fa == "pending":
+            flag = "  <- PENDING fable-assess"
+        elif fa == "done":
+            flag = ""
+        else:
+            flag = "  (%s — not awaiting interpretation)" % fa
         print("%-16s %-8s %-9s %-8s%s"
               % (r["experiment_id"], r["executed_by"], r["codex_audited"],
                  r["fable_interpretive_assessed"], flag))
     print("-" * 92)
     print("%d experiment(s); %d PENDING a Fable interpretive assessment"
-          % (len(rows), len(pending)))
+          "; %d n/a (unrun / draft / not-applicable)"
+          % (len(rows), len(pending), len(na)))
     if not args.pending and pending:
         print("(run with --pending to list only those)")
 
