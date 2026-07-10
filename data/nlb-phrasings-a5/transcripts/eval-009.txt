@@ -1,0 +1,119 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-a5/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — a5-nl blind phrasings (code vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items about entities in a Python codebase. For EACH item, write ONE
+natural-English question and output ONE JSON line:
+`{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the code entity's canonical identifier (a function,
+  class, or module), e.g. `code-fn-claims-check--check-doc`. Refer to it by
+  this identifier VERBATIM (keep the hyphens exactly as given — it is an
+  identifier, not prose).
+- `concept_label` — for `is-a` items: the category to ask about
+  (e.g. `python function`).
+- `shape` — the MEANING your question must carry:
+  - `callers-of`: ask WHICH functions call the entity.
+  - `callees-of`: ask WHICH functions the entity calls.
+  - `imports-of`: ask WHICH modules the entity imports.
+  - `imported-by`: ask WHICH modules import the entity.
+  - `contains`: ask WHAT the entity contains (its members).
+  - `contained-in`: ask WHAT contains the entity (where it sits).
+  - `where-defined`: ask WHERE the entity is defined.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (yes/no).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess, never mention
+   this prompt or the packet.
+4. VARY your syntax. Across items with the same shape use genuinely
+   different constructions: direct questions, passives ("is called by"),
+   nominal forms ("the callers of"), embedded forms ("Tell me which ...").
+   At most half of your items for one shape may follow the same
+   construction, and do not copy the gloss wording above verbatim.
+5. Write the question a developer would actually ask to get exactly the
+   packeted meaning — no more, no less.
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### BATCH STDIN (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-a5/packets/packets-eval-009.jsonl) #####
+{"entity_label": "code-mod-registry-check", "qid": "a0901", "shape": "imported-by"}
+{"entity_label": "code-fn-claims-check--check-doc", "qid": "a0902", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--check-entry", "qid": "a0903", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--check-record", "qid": "a0904", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--findings----init--", "qid": "a0905", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--findings--err", "qid": "a0906", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--findings--ok", "qid": "a0907", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--load-register", "qid": "a0908", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--logical-lines", "qid": "a0909", "shape": "contains"}
+{"entity_label": "code-fn-claims-check--main", "qid": "a0910", "shape": "contains"}
+{"entity_label": "code-fn-corpus-pin--main", "qid": "a0911", "shape": "contains"}
+{"entity_label": "code-fn-ghost-0", "qid": "a0912", "shape": "callers-of"}
+{"entity_label": "code-fn-ghost-0", "qid": "a0913", "shape": "where-defined"}
+{"entity_label": "code-mod-ghost-0", "qid": "a0914", "shape": "imports-of"}
+{"concept_label": "python class", "entity_label": "code-cls-ghost-0", "qid": "a0915", "shape": "is-a"}
+{"entity_label": "code-fn-ghost-1", "qid": "a0916", "shape": "callers-of"}
+{"entity_label": "code-fn-ghost-1", "qid": "a0917", "shape": "where-defined"}
+{"entity_label": "code-mod-ghost-1", "qid": "a0918", "shape": "imports-of"}
+{"concept_label": "python class", "entity_label": "code-cls-ghost-1", "qid": "a0919", "shape": "is-a"}
+{"entity_label": "code-fn-ghost-2", "qid": "a0920", "shape": "callers-of"}
+{"entity_label": "code-fn-ghost-2", "qid": "a0921", "shape": "where-defined"}
+{"entity_label": "code-mod-ghost-2", "qid": "a0922", "shape": "imports-of"}
+{"concept_label": "python class", "entity_label": "code-cls-ghost-2", "qid": "a0923", "shape": "is-a"}
+{"entity_label": "code-fn-ghost-3", "qid": "a0924", "shape": "callers-of"}
+{"entity_label": "code-fn-ghost-3", "qid": "a0925", "shape": "where-defined"}
+{"entity_label": "code-mod-ghost-3", "qid": "a0926", "shape": "imports-of"}
+{"concept_label": "python class", "entity_label": "code-cls-ghost-3", "qid": "a0927", "shape": "is-a"}
+{"entity_label": "code-fn-ghost-4", "qid": "a0928", "shape": "callers-of"}
+{"entity_label": "code-fn-ghost-4", "qid": "a0929", "shape": "where-defined"}
+{"entity_label": "code-mod-ghost-4", "qid": "a0930", "shape": "imports-of"}
+{"concept_label": "python class", "entity_label": "code-cls-ghost-4", "qid": "a0931", "shape": "is-a"}
+{"entity_label": "code-fn-ghost-5", "qid": "a0932", "shape": "callers-of"}
+{"entity_label": "code-fn-ghost-5", "qid": "a0933", "shape": "where-defined"}
+{"entity_label": "code-mod-ghost-5", "qid": "a0934", "shape": "imports-of"}
+{"concept_label": "python class", "entity_label": "code-cls-ghost-5", "qid": "a0935", "shape": "is-a"}
+{"entity_label": "code-mod-claims-check", "qid": "a0936", "shape": "where-defined"}
+{"entity_label": "code-mod-corpus-pin", "qid": "a0937", "shape": "where-defined"}
+{"entity_label": "code-mod-gen-l3a-corpora", "qid": "a0938", "shape": "where-defined"}
+{"entity_label": "code-mod-kot-axiom", "qid": "a0939", "shape": "where-defined"}
+{"entity_label": "code-mod-kot-common", "qid": "a0940", "shape": "where-defined"}
+{"entity_label": "code-mod-l3a", "qid": "a0941", "shape": "where-defined"}
+{"entity_label": "code-mod-l3a-instrument", "qid": "a0942", "shape": "where-defined"}
+{"entity_label": "code-mod-log-append", "qid": "a0943", "shape": "where-defined"}
+{"entity_label": "code-mod-m0b", "qid": "a0944", "shape": "where-defined"}
+{"entity_label": "code-mod-m0b-instrument", "qid": "a0945", "shape": "where-defined"}
+{"entity_label": "code-mod-prereg-freeze", "qid": "a0946", "shape": "where-defined"}
+{"entity_label": "code-mod-registry-check", "qid": "a0947", "shape": "where-defined"}
+{"entity_label": "code-mod-report-gen", "qid": "a0948", "shape": "where-defined"}
+{"entity_label": "code-mod-test-fixtures", "qid": "a0949", "shape": "where-defined"}
+{"entity_label": "code-mod-verdict-gen", "qid": "a0950", "shape": "where-defined"}
+{"concept_label": "bookmark", "entity_label": "code-mod-claims-check", "qid": "a0951", "shape": "is-a"}
+{"concept_label": "bookmark", "entity_label": "code-mod-corpus-pin", "qid": "a0952", "shape": "is-a"}
+{"concept_label": "bookmark", "entity_label": "code-mod-gen-l3a-corpora", "qid": "a0953", "shape": "is-a"}
+{"concept_label": "friend", "entity_label": "code-fn-claims-check--check-doc", "qid": "a0954", "shape": "is-a"}
+{"concept_label": "friend", "entity_label": "code-fn-claims-check--check-entry", "qid": "a0955", "shape": "is-a"}
+{"concept_label": "friend", "entity_label": "code-fn-claims-check--check-record", "qid": "a0956", "shape": "is-a"}
+{"concept_label": "python function", "entity_label": "code-planted-both", "qid": "a0957", "shape": "is-a"}
+{"concept_label": "python module", "entity_label": "code-planted-both", "qid": "a0958", "shape": "is-a"}
+{"entity_label": "code-planted-fn-x", "qid": "a0959", "shape": "where-defined"}
+{"entity_label": "code-planted-mod-i", "qid": "a0960", "shape": "imports-of"}
+{"entity_label": "code-planted-fn-t", "qid": "a0961", "shape": "imported-by"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=b9439cb2-10fa-4825-b89a-d89e4a736d1e  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"b9439cb2-10fa-4825-b89a-d89e4a736d1e","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"cc958969-bed9-48bd-939a-62f9c733106c","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.91,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"c36eddc2-19b8-45a4-905e-300570ab881b","session_id":"b9439cb2-10fa-4825-b89a-d89e4a736d1e"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctKrtDc2MnksasQNzQPH","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"a0901\", \"text\": \"Which modules import code-mod-registry-check?\"}\n{\"qid\": \"a0902\", \"text\": \"What members or components does code-fn-claims-check--check-doc contain?\"}\n{\"qid\": \"a0903\", \"text\": \"What does code-fn-claims-check--check-entry define or expose internally?\"}\n{\"qid\": \"a0904\", \"text\": \"What nested functions or attributes are in code-fn-claims-check--check-record?\"}\n{\"qid\": \"a0905\", \"text\": \"Tell me the contents of code-fn-claims-check--findings----init--.\"}\n{\"qid\": \"a0906\", \"text\": \"What is defined inside code-fn-claims-check--findings--err?\"}\n{\"qid\": \"a0907\", \"text\": \"Which items belong to code-fn-claims-check--findings--ok?\"}\n{\"qid\": \"a0908\", \"text\": \"What does code-fn-claims-check--load-register contain?\"}\n{\"qid\": \"a0909\", \"text\": \"What are the internal members of code-fn-claims-check--logical-lines?\"}\n{\"qid\": \"a0910\", \"text\": \"Tell me what code-fn-claims-check--main comprises.\"}\n{\"qid\": \"a0911\", \"text\": \"What is inside code-fn-corpus-pin--main?\"}\n{\"qid\": \"a0912\", \"text\": \"Who calls code-fn-ghost-0?\"}\n{\"qid\": \"a0913\", \"text\": \"Where is code-fn-ghost-0 defined?\"}\n{\"qid\": \"a0914\", \"text\": \"What modules does code-mod-ghost-0 import?\"}\n{\"qid\": \"a0915\", \"text\": \"Is code-cls-ghost-0 a python class?\"}\n{\"qid\": \"a0916\", \"text\": \"Which functions invoke code-fn-ghost-1?\"}\n{\"qid\": \"a0917\", \"text\": \"In what file or location is code-fn-ghost-1 defined?\"}\n{\"qid\": \"a0918\", \"text\": \"What does code-mod-ghost-1 import?\"}\n{\"qid\": \"a0919\", \"text\": \"Does code-cls-ghost-1 qualify as a python class?\"}\n{\"qid\": \"a0920\", \"text\": \"What calls code-fn-ghost-2?\"}\n{\"qid\": \"a0921\", \"text\": \"Where can code-fn-ghost-2 be found?\"}\n{\"qid\": \"a0922\", \"text\": \"What are the imports of code-mod-ghost-2?\"}\n{\"qid\": \"a0923\", \"text\": \"Is code-cls-ghost-2 a python class?\"}\n{\"qid\": \"a0924\", \"text\": \"Tell me the callers of code-fn-ghost-3.\"}\n{\"qid\": \"a0925\", \"text\": \"Code-fn-ghost-3 is defined where?\"}\n{\"qid\": \"a0926\", \"text\": \"Which modules are imported by code-mod-ghost-3?\"}\n{\"qid\": \"a0927\", \"text\": \"Does code-cls-ghost-3 represent a python class?\"}\n{\"qid\": \"a0928\", \"text\": \"What functions call code-fn-ghost-4?\"}\n{\"qid\": \"a0929\", \"text\": \"In which module is code-fn-ghost-4 located?\"}\n{\"qid\": \"a0930\", \"text\": \"What dependencies does code-mod-ghost-4 have?\"}\n{\"qid\": \"a0931\", \"text\": \"Is code-cls-ghost-4 a python class?\"}\n{\"qid\": \"a0932\", \"text\": \"Who invokes code-fn-ghost-5?\"}\n{\"qid\": \"a0933\", \"text\": \"Code-fn-ghost-5 is defined in which location?\"}\n{\"qid\": \"a0934\", \"text\": \"What modules does code-mod-ghost-5 import from?\"}\n{\"qid\": \"a0935\", \"text\": \"Is code-cls-ghost-5 classified as a python class?\"}\n{\"qid\": \"a0936\", \"text\": \"Where is code-mod-claims-check defined?\"}\n{\"qid\": \"a0937\", \"text\": \"In what location is code-mod-corpus-pin defined?\"}\n{\"qid\": \"a0938\", \"text\": \"Where is code-mod-gen-l3a-corpora located?\"}\n{\"qid\": \"a0939\", \"text\": \"In which file is code-mod-kot-axiom defined?\"}\n{\"qid\": \"a0940\", \"text\": \"Where can code-mod-kot-common be found?\"}\n{\"qid\": \"a0941\", \"text\": \"What is the location of code-mod-l3a?\"}\n{\"qid\": \"a0942\", \"text\": \"Code-mod-l3a-instrument is defined where?\"}\n{\"qid\": \"a0943\", \"text\": \"In what module file is code-mod-log-append located?\"}\n{\"qid\": \"a0944\", \"text\": \"Where is code-mod-m0b defined?\"}\n{\"qid\": \"a0945\", \"text\": \"Code-mod-m0b-instrument is defined at what location?\"}\n{\"qid\": \"a0946\", \"text\": \"Where does code-mod-prereg-freeze reside?\"}\n{\"qid\": \"a0947\", \"text\": \"Code-mod-registry-check is located where?\"}\n{\"qid\": \"a0948\", \"text\": \"In what location is code-mod-report-gen defined?\"}\n{\"qid\": \"a0949\", \"text\": \"Where is code-mod-test-fixtures defined?\"}\n{\"qid\": \"a0950\", \"text\": \"Code-mod-verdict-gen is defined in which location?\"}\n{\"qid\": \"a0951\", \"text\": \"Is code-mod-claims-check a bookmark?\"}\n{\"qid\": \"a0952\", \"text\": \"Does code-mod-corpus-pin count as a bookmark?\"}\n{\"qid\": \"a0953\", \"text\": \"Is code-mod-gen-l3a-corpora a bookmark?\"}\n{\"qid\": \"a0954\", \"text\": \"Is code-fn-claims-check--check-doc a friend?\"}\n{\"qid\": \"a0955\", \"text\": \"Does code-fn-claims-check--check-entry qualify as a friend?\"}\n{\"qid\": \"a0956\", \"text\": \"Is code-fn-claims-check--check-record a friend?\"}\n{\"qid\": \"a0957\", \"text\": \"Is code-planted-both a python function?\"}\n{\"qid\": \"a0958\", \"text\": \"Is code-planted-both a python module?\"}\n{\"qid\": \"a0959\", \"text\": \"Where is code-planted-fn-x defined?\"}\n{\"qid\": \"a0960\", \"text\": \"What modules does code-planted-mod-i import?\"}\n{\"qid\": \"a0961\", \"text\": \"Which modules import code-planted-fn-t?\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2877,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"b9439cb2-10fa-4825-b89a-d89e4a736d1e","uuid":"5270e358-4996-488e-883d-a9e59d36498b","request_id":"req_011CctKrsVhWarZKs1MnSS8B"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":14754,"duration_api_ms":16153,"ttft_ms":14719,"ttft_stream_ms":843,"time_to_request_ms":33,"num_turns":1,"result":"```json\n{\"qid\": \"a0901\", \"text\": \"Which modules import code-mod-registry-check?\"}\n{\"qid\": \"a0902\", \"text\": \"What members or components does code-fn-claims-check--check-doc contain?\"}\n{\"qid\": \"a0903\", \"text\": \"What does code-fn-claims-check--check-entry define or expose internally?\"}\n{\"qid\": \"a0904\", \"text\": \"What nested functions or attributes are in code-fn-claims-check--check-record?\"}\n{\"qid\": \"a0905\", \"text\": \"Tell me the contents of code-fn-claims-check--findings----init--.\"}\n{\"qid\": \"a0906\", \"text\": \"What is defined inside code-fn-claims-check--findings--err?\"}\n{\"qid\": \"a0907\", \"text\": \"Which items belong to code-fn-claims-check--findings--ok?\"}\n{\"qid\": \"a0908\", \"text\": \"What does code-fn-claims-check--load-register contain?\"}\n{\"qid\": \"a0909\", \"text\": \"What are the internal members of code-fn-claims-check--logical-lines?\"}\n{\"qid\": \"a0910\", \"text\": \"Tell me what code-fn-claims-check--main comprises.\"}\n{\"qid\": \"a0911\", \"text\": \"What is inside code-fn-corpus-pin--main?\"}\n{\"qid\": \"a0912\", \"text\": \"Who calls code-fn-ghost-0?\"}\n{\"qid\": \"a0913\", \"text\": \"Where is code-fn-ghost-0 defined?\"}\n{\"qid\": \"a0914\", \"text\": \"What modules does code-mod-ghost-0 import?\"}\n{\"qid\": \"a0915\", \"text\": \"Is code-cls-ghost-0 a python class?\"}\n{\"qid\": \"a0916\", \"text\": \"Which functions invoke code-fn-ghost-1?\"}\n{\"qid\": \"a0917\", \"text\": \"In what file or location is code-fn-ghost-1 defined?\"}\n{\"qid\": \"a0918\", \"text\": \"What does code-mod-ghost-1 import?\"}\n{\"qid\": \"a0919\", \"text\": \"Does code-cls-ghost-1 qualify as a python class?\"}\n{\"qid\": \"a0920\", \"text\": \"What calls code-fn-ghost-2?\"}\n{\"qid\": \"a0921\", \"text\": \"Where can code-fn-ghost-2 be found?\"}\n{\"qid\": \"a0922\", \"text\": \"What are the imports of code-mod-ghost-2?\"}\n{\"qid\": \"a0923\", \"text\": \"Is code-cls-ghost-2 a python class?\"}\n{\"qid\": \"a0924\", \"text\": \"Tell me the callers of code-fn-ghost-3.\"}\n{\"qid\": \"a0925\", \"text\": \"Code-fn-ghost-3 is defined where?\"}\n{\"qid\": \"a0926\", \"text\": \"Which modules are imported by code-mod-ghost-3?\"}\n{\"qid\": \"a0927\", \"text\": \"Does code-cls-ghost-3 represent a python class?\"}\n{\"qid\": \"a0928\", \"text\": \"What functions call code-fn-ghost-4?\"}\n{\"qid\": \"a0929\", \"text\": \"In which module is code-fn-ghost-4 located?\"}\n{\"qid\": \"a0930\", \"text\": \"What dependencies does code-mod-ghost-4 have?\"}\n{\"qid\": \"a0931\", \"text\": \"Is code-cls-ghost-4 a python class?\"}\n{\"qid\": \"a0932\", \"text\": \"Who invokes code-fn-ghost-5?\"}\n{\"qid\": \"a0933\", \"text\": \"Code-fn-ghost-5 is defined in which location?\"}\n{\"qid\": \"a0934\", \"text\": \"What modules does code-mod-ghost-5 import from?\"}\n{\"qid\": \"a0935\", \"text\": \"Is code-cls-ghost-5 classified as a python class?\"}\n{\"qid\": \"a0936\", \"text\": \"Where is code-mod-claims-check defined?\"}\n{\"qid\": \"a0937\", \"text\": \"In what location is code-mod-corpus-pin defined?\"}\n{\"qid\": \"a0938\", \"text\": \"Where is code-mod-gen-l3a-corpora located?\"}\n{\"qid\": \"a0939\", \"text\": \"In which file is code-mod-kot-axiom defined?\"}\n{\"qid\": \"a0940\", \"text\": \"Where can code-mod-kot-common be found?\"}\n{\"qid\": \"a0941\", \"text\": \"What is the location of code-mod-l3a?\"}\n{\"qid\": \"a0942\", \"text\": \"Code-mod-l3a-instrument is defined where?\"}\n{\"qid\": \"a0943\", \"text\": \"In what module file is code-mod-log-append located?\"}\n{\"qid\": \"a0944\", \"text\": \"Where is code-mod-m0b defined?\"}\n{\"qid\": \"a0945\", \"text\": \"Code-mod-m0b-instrument is defined at what location?\"}\n{\"qid\": \"a0946\", \"text\": \"Where does code-mod-prereg-freeze reside?\"}\n{\"qid\": \"a0947\", \"text\": \"Code-mod-registry-check is located where?\"}\n{\"qid\": \"a0948\", \"text\": \"In what location is code-mod-report-gen defined?\"}\n{\"qid\": \"a0949\", \"text\": \"Where is code-mod-test-fixtures defined?\"}\n{\"qid\": \"a0950\", \"text\": \"Code-mod-verdict-gen is defined in which location?\"}\n{\"qid\": \"a0951\", \"text\": \"Is code-mod-claims-check a bookmark?\"}\n{\"qid\": \"a0952\", \"text\": \"Does code-mod-corpus-pin count as a bookmark?\"}\n{\"qid\": \"a0953\", \"text\": \"Is code-mod-gen-l3a-corpora a bookmark?\"}\n{\"qid\": \"a0954\", \"text\": \"Is code-fn-claims-check--check-doc a friend?\"}\n{\"qid\": \"a0955\", \"text\": \"Does code-fn-claims-check--check-entry qualify as a friend?\"}\n{\"qid\": \"a0956\", \"text\": \"Is code-fn-claims-check--check-record a friend?\"}\n{\"qid\": \"a0957\", \"text\": \"Is code-planted-both a python function?\"}\n{\"qid\": \"a0958\", \"text\": \"Is code-planted-both a python module?\"}\n{\"qid\": \"a0959\", \"text\": \"Where is code-planted-fn-x defined?\"}\n{\"qid\": \"a0960\", \"text\": \"What modules does code-planted-mod-i import?\"}\n{\"qid\": \"a0961\", \"text\": \"Which modules import code-planted-fn-t?\"}\n```","stop_reason":"end_turn","session_id":"b9439cb2-10fa-4825-b89a-d89e4a736d1e","total_cost_usd":0.014285999999999998,"usage":{"input_tokens":2877,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":1741,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":0,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2877,"output_tokens":1741,"cache_read_input_tokens":0,"cache_creation_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":5511,"outputTokens":1755,"cacheReadInputTokens":0,"cacheCreationInputTokens":0,"webSearchRequests":0,"costUSD":0.014285999999999998,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"13b142cf-050a-4b30-89cc-5318419949b1"}
+

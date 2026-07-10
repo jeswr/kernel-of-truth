@@ -1,0 +1,60 @@
+{
+ "schema": "nlb-recoverability-audit/1",
+ "n": 60,
+ "recovered": 43,
+ "rate": 0.7167,
+ "misses": [
+  "q0345",
+  "q0347",
+  "q0348",
+  "q0388",
+  "q0389",
+  "q0390",
+  "q0391",
+  "q0431",
+  "q0432",
+  "q0433",
+  "q0434",
+  "q0461",
+  "q0462",
+  "q0463",
+  "q0464",
+  "q0564",
+  "q0604"
+ ],
+ "judge_transcript_sha256": "7f3f2291a7e46fb554e7477fc92ff3611d4a0131e117aa5c027960563f36fb1a",
+ "match_rule": "shape==exact; entity case/hyphen/space-insensitive (substring-tolerant); rel/concept up-to-inflection stem-overlap",
+ "diagnostic": {
+  "strict_rule": "shape==exact AND entity insensitive AND rel up-to-inflection",
+  "rate_strict": 0.7167,
+  "n_shape_and_entity_correct": 52,
+  "rate_shape_entity_only_UPPER_BOUND": 0.8667,
+  "genuine_shape_recovery_failures": [
+   "q0345",
+   "q0347",
+   "q0348",
+   "q0431",
+   "q0432",
+   "q0433",
+   "q0434",
+   "q0604"
+  ],
+  "genuine_shape_failure_families": {
+   "unique-maker": 3,
+   "made-lookup": 4,
+   "out-of-scope-rel": 1
+  },
+  "rel_synonym_only_misses": [
+   "q0388",
+   "q0389",
+   "q0390",
+   "q0391",
+   "q0461",
+   "q0462",
+   "q0463",
+   "q0464",
+   "q0564"
+  ],
+  "interpretation": "Even ignoring rel-label matching entirely (upper bound), rate=0.8667 < 0.95. Block driven by 8 shape-recovery failures where NL phrasings for maker-of/teacher relations cannot disambiguate one-role vs all-role vs all-holder (blind reader cannot know cardinality). Not a scorer artifact. NO re-roll per spec 5.5."
+ }
+}

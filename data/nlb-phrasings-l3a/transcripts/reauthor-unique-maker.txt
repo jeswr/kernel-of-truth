@@ -1,0 +1,111 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — l3a-parse blind phrasings (family/world vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items. For EACH item, write ONE natural-English question and output ONE JSON
+line: `{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the entity's canonical name. Refer to the entity by this
+  name, verbatim; you may write its hyphens as spaces (e.g. `elvis-presley`
+  or `elvis presley`), but do not otherwise alter, shorten, or expand it.
+- `rel_label` / `concept_label` — the relation or category word(s) the
+  question is about (e.g. `mother`, `maker of`, `woman`). This is the
+  relation's name; use it naturally in your question (you may inflect it:
+  plural, verb form). Do not substitute a synonym for it unless a synonym is
+  simply how you would naturally ask — you are free to phrase naturally.
+- `shape` — the MEANING your question must carry. "The R of X" below means
+  the relation read left-to-right (the mother of X, the maker of X):
+  - `one-role`: ask for THE `rel_label` of the entity — exactly one specific
+    answer is expected.
+  - `all-role`: ask for ALL the `rel_label` of the entity — a list.
+  - `count-role`: ask HOW MANY `rel_label` the entity has.
+  - `one-holder`: ask for THE ONE thing/person the entity is the `rel_label`
+    of (equivalently: the one whose `rel_label` is the entity). Make the
+    exactly-one expectation explicit in the wording (e.g. "the one …").
+  - `all-holder`: ask for EVERYTHING/EVERYONE the entity is the `rel_label`
+    of (equivalently: all who have the entity as their `rel_label`).
+  - `count-holder`: ask HOW MANY have the entity as their `rel_label`.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (a yes/no question).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess at an answer,
+   never hedge ("if he exists"), never mention this prompt or the packet.
+4. VARY your syntax. Across the items you write for the same relation and
+   shape, use genuinely different constructions: direct questions
+   ("Who is the mother of X?"), possessives ("X's mother"), inverted or
+   embedded forms ("Tell me who ..."), passives, clefts. At most half of
+   your items for one relation+shape may follow the same construction, and
+   do not copy the gloss wording above verbatim.
+5. Write the question a normal person would ask to get exactly the packeted
+   meaning — no more, no less (do not add qualifiers, dates, or extra
+   conditions).
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### APPENDED INSTRUCTION #####
+Use a different sentence construction for each item.
+
+##### BATCH STDIN (/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/reauthor-l3a/family-unique-maker.jsonl) #####
+{"entity_label": "bkm-00", "qid": "q0345", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-01", "qid": "q0346", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-02", "qid": "q0347", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-03", "qid": "q0348", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-04", "qid": "q0349", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-05", "qid": "q0350", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-06", "qid": "q0351", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-07", "qid": "q0352", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-08", "qid": "q0353", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-09", "qid": "q0354", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-10", "qid": "q0355", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-11", "qid": "q0356", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-12", "qid": "q0357", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-13", "qid": "q0358", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-14", "qid": "q0359", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-15", "qid": "q0360", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-16", "qid": "q0361", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-17", "qid": "q0362", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-18", "qid": "q0363", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-19", "qid": "q0364", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-20", "qid": "q0365", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-21", "qid": "q0366", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-22", "qid": "q0367", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-23", "qid": "q0368", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-24", "qid": "q0369", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-25", "qid": "q0370", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-26", "qid": "q0371", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-27", "qid": "q0372", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-28", "qid": "q0373", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-29", "qid": "q0374", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-30", "qid": "q0375", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-31", "qid": "q0376", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-32", "qid": "q0377", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-33", "qid": "q0378", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-34", "qid": "q0379", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-35", "qid": "q0380", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-36", "qid": "q0381", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-37", "qid": "q0382", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-38", "qid": "q0383", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-39", "qid": "q0384", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-40", "qid": "q0385", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-41", "qid": "q0386", "rel_label": "maker of", "shape": "one-role"}
+{"entity_label": "bkm-42", "qid": "q0387", "rel_label": "maker of", "shape": "one-role"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=88424eed-5267-402a-8670-e769368d21a6  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"88424eed-5267-402a-8670-e769368d21a6","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"046f8d90-f149-463b-8904-06264baa410a","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.94,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"bb46b40b-c77c-432d-87be-e36ddedd5583","session_id":"88424eed-5267-402a-8670-e769368d21a6"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctLPEZZCoNgbguf5xLF4","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"q0345\", \"text\": \"What did bkm-00 make?\"}\n{\"qid\": \"q0346\", \"text\": \"Who made bkm-01?\"}\n{\"qid\": \"q0347\", \"text\": \"bkm-02 is the maker of what?\"}\n{\"qid\": \"q0348\", \"text\": \"Tell me what bkm-03 created.\"}\n{\"qid\": \"q0349\", \"text\": \"bkm-04 made which item?\"}\n{\"qid\": \"q0350\", \"text\": \"What is the creation of bkm-05?\"}\n{\"qid\": \"q0351\", \"text\": \"What did bkm-06 produce?\"}\n{\"qid\": \"q0352\", \"text\": \"Which work was made by bkm-07?\"}\n{\"qid\": \"q0353\", \"text\": \"What is bkm-08 the maker of?\"}\n{\"qid\": \"q0354\", \"text\": \"bkm-09 created what?\"}\n{\"qid\": \"q0355\", \"text\": \"Tell me what bkm-10 makes.\"}\n{\"qid\": \"q0356\", \"text\": \"What did bkm-11 produce?\"}\n{\"qid\": \"q0357\", \"text\": \"bkm-12 is responsible for making what?\"}\n{\"qid\": \"q0358\", \"text\": \"What single thing did bkm-13 make?\"}\n{\"qid\": \"q0359\", \"text\": \"bkm-14 made which one item?\"}\n{\"qid\": \"q0360\", \"text\": \"What work is bkm-15 the maker of?\"}\n{\"qid\": \"q0361\", \"text\": \"Tell me the creation of bkm-16.\"}\n{\"qid\": \"q0362\", \"text\": \"What did bkm-17 create?\"}\n{\"qid\": \"q0363\", \"text\": \"bkm-18's creation is what?\"}\n{\"qid\": \"q0364\", \"text\": \"What is the one thing bkm-19 made?\"}\n{\"qid\": \"q0365\", \"text\": \"What did bkm-20 produce?\"}\n{\"qid\": \"q0366\", \"text\": \"Tell me what bkm-21 is the maker of.\"}\n{\"qid\": \"q0367\", \"text\": \"bkm-22 made what?\"}\n{\"qid\": \"q0368\", \"text\": \"What work was created by bkm-23?\"}\n{\"qid\": \"q0369\", \"text\": \"bkm-24 is the maker of what item?\"}\n{\"qid\": \"q0370\", \"text\": \"What did bkm-25 create?\"}\n{\"qid\": \"q0371\", \"text\": \"Tell me what bkm-26 produced.\"}\n{\"qid\": \"q0372\", \"text\": \"What exactly did bkm-27 make?\"}\n{\"qid\": \"q0373\", \"text\": \"bkm-28 created which item?\"}\n{\"qid\": \"q0374\", \"text\": \"What is bkm-29 the maker of?\"}\n{\"qid\": \"q0375\", \"text\": \"What did bkm-30 produce?\"}\n{\"qid\": \"q0376\", \"text\": \"Tell me what bkm-31 makes.\"}\n{\"qid\": \"q0377\", \"text\": \"bkm-32's creation is what?\"}\n{\"qid\": \"q0378\", \"text\": \"What work did bkm-33 make?\"}\n{\"qid\": \"q0379\", \"text\": \"Tell me the item bkm-34 made.\"}\n{\"qid\": \"q0380\", \"text\": \"What did bkm-35 create?\"}\n{\"qid\": \"q0381\", \"text\": \"bkm-36 made what?\"}\n{\"qid\": \"q0382\", \"text\": \"What is the one creation of bkm-37?\"}\n{\"qid\": \"q0383\", \"text\": \"Tell me what bkm-38 produced.\"}\n{\"qid\": \"q0384\", \"text\": \"bkm-39 is the maker of what?\"}\n{\"qid\": \"q0385\", \"text\": \"What did bkm-40 make?\"}\n{\"qid\": \"q0386\", \"text\": \"What work was made by bkm-41?\"}\n{\"qid\": \"q0387\", \"text\": \"Tell me what bkm-42 creates.\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2671,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"88424eed-5267-402a-8670-e769368d21a6","uuid":"a756a06b-0847-431f-b312-67c9ad22a1c5","request_id":"req_011CctLPDucY9By1nKzLZg9L"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":10350,"duration_api_ms":11801,"ttft_ms":10297,"ttft_stream_ms":1083,"time_to_request_ms":133,"num_turns":1,"result":"```json\n{\"qid\": \"q0345\", \"text\": \"What did bkm-00 make?\"}\n{\"qid\": \"q0346\", \"text\": \"Who made bkm-01?\"}\n{\"qid\": \"q0347\", \"text\": \"bkm-02 is the maker of what?\"}\n{\"qid\": \"q0348\", \"text\": \"Tell me what bkm-03 created.\"}\n{\"qid\": \"q0349\", \"text\": \"bkm-04 made which item?\"}\n{\"qid\": \"q0350\", \"text\": \"What is the creation of bkm-05?\"}\n{\"qid\": \"q0351\", \"text\": \"What did bkm-06 produce?\"}\n{\"qid\": \"q0352\", \"text\": \"Which work was made by bkm-07?\"}\n{\"qid\": \"q0353\", \"text\": \"What is bkm-08 the maker of?\"}\n{\"qid\": \"q0354\", \"text\": \"bkm-09 created what?\"}\n{\"qid\": \"q0355\", \"text\": \"Tell me what bkm-10 makes.\"}\n{\"qid\": \"q0356\", \"text\": \"What did bkm-11 produce?\"}\n{\"qid\": \"q0357\", \"text\": \"bkm-12 is responsible for making what?\"}\n{\"qid\": \"q0358\", \"text\": \"What single thing did bkm-13 make?\"}\n{\"qid\": \"q0359\", \"text\": \"bkm-14 made which one item?\"}\n{\"qid\": \"q0360\", \"text\": \"What work is bkm-15 the maker of?\"}\n{\"qid\": \"q0361\", \"text\": \"Tell me the creation of bkm-16.\"}\n{\"qid\": \"q0362\", \"text\": \"What did bkm-17 create?\"}\n{\"qid\": \"q0363\", \"text\": \"bkm-18's creation is what?\"}\n{\"qid\": \"q0364\", \"text\": \"What is the one thing bkm-19 made?\"}\n{\"qid\": \"q0365\", \"text\": \"What did bkm-20 produce?\"}\n{\"qid\": \"q0366\", \"text\": \"Tell me what bkm-21 is the maker of.\"}\n{\"qid\": \"q0367\", \"text\": \"bkm-22 made what?\"}\n{\"qid\": \"q0368\", \"text\": \"What work was created by bkm-23?\"}\n{\"qid\": \"q0369\", \"text\": \"bkm-24 is the maker of what item?\"}\n{\"qid\": \"q0370\", \"text\": \"What did bkm-25 create?\"}\n{\"qid\": \"q0371\", \"text\": \"Tell me what bkm-26 produced.\"}\n{\"qid\": \"q0372\", \"text\": \"What exactly did bkm-27 make?\"}\n{\"qid\": \"q0373\", \"text\": \"bkm-28 created which item?\"}\n{\"qid\": \"q0374\", \"text\": \"What is bkm-29 the maker of?\"}\n{\"qid\": \"q0375\", \"text\": \"What did bkm-30 produce?\"}\n{\"qid\": \"q0376\", \"text\": \"Tell me what bkm-31 makes.\"}\n{\"qid\": \"q0377\", \"text\": \"bkm-32's creation is what?\"}\n{\"qid\": \"q0378\", \"text\": \"What work did bkm-33 make?\"}\n{\"qid\": \"q0379\", \"text\": \"Tell me the item bkm-34 made.\"}\n{\"qid\": \"q0380\", \"text\": \"What did bkm-35 create?\"}\n{\"qid\": \"q0381\", \"text\": \"bkm-36 made what?\"}\n{\"qid\": \"q0382\", \"text\": \"What is the one creation of bkm-37?\"}\n{\"qid\": \"q0383\", \"text\": \"Tell me what bkm-38 produced.\"}\n{\"qid\": \"q0384\", \"text\": \"bkm-39 is the maker of what?\"}\n{\"qid\": \"q0385\", \"text\": \"What did bkm-40 make?\"}\n{\"qid\": \"q0386\", \"text\": \"What work was made by bkm-41?\"}\n{\"qid\": \"q0387\", \"text\": \"Tell me what bkm-42 creates.\"}\n```","stop_reason":"end_turn","session_id":"88424eed-5267-402a-8670-e769368d21a6","total_cost_usd":0.010537999999999999,"usage":{"input_tokens":2671,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":1120,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":0,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2671,"output_tokens":1120,"cache_read_input_tokens":0,"cache_creation_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":4863,"outputTokens":1135,"cacheReadInputTokens":0,"cacheCreationInputTokens":0,"webSearchRequests":0,"costUSD":0.010537999999999999,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"62809f6f-6e9d-48d3-bd4e-17aeee77d4cd"}
+

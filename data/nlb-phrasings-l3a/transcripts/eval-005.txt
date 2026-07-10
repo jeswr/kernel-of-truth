@@ -1,0 +1,165 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — l3a-parse blind phrasings (family/world vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items. For EACH item, write ONE natural-English question and output ONE JSON
+line: `{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the entity's canonical name. Refer to the entity by this
+  name, verbatim; you may write its hyphens as spaces (e.g. `elvis-presley`
+  or `elvis presley`), but do not otherwise alter, shorten, or expand it.
+- `rel_label` / `concept_label` — the relation or category word(s) the
+  question is about (e.g. `mother`, `maker of`, `woman`). This is the
+  relation's name; use it naturally in your question (you may inflect it:
+  plural, verb form). Do not substitute a synonym for it unless a synonym is
+  simply how you would naturally ask — you are free to phrase naturally.
+- `shape` — the MEANING your question must carry. "The R of X" below means
+  the relation read left-to-right (the mother of X, the maker of X):
+  - `one-role`: ask for THE `rel_label` of the entity — exactly one specific
+    answer is expected.
+  - `all-role`: ask for ALL the `rel_label` of the entity — a list.
+  - `count-role`: ask HOW MANY `rel_label` the entity has.
+  - `one-holder`: ask for THE ONE thing/person the entity is the `rel_label`
+    of (equivalently: the one whose `rel_label` is the entity). Make the
+    exactly-one expectation explicit in the wording (e.g. "the one …").
+  - `all-holder`: ask for EVERYTHING/EVERYONE the entity is the `rel_label`
+    of (equivalently: all who have the entity as their `rel_label`).
+  - `count-holder`: ask HOW MANY have the entity as their `rel_label`.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (a yes/no question).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess at an answer,
+   never hedge ("if he exists"), never mention this prompt or the packet.
+4. VARY your syntax. Across the items you write for the same relation and
+   shape, use genuinely different constructions: direct questions
+   ("Who is the mother of X?"), possessives ("X's mother"), inverted or
+   embedded forms ("Tell me who ..."), passives, clefts. At most half of
+   your items for one relation+shape may follow the same construction, and
+   do not copy the gloss wording above verbatim.
+5. Write the question a normal person would ask to get exactly the packeted
+   meaning — no more, no less (do not add qualifiers, dates, or extra
+   conditions).
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### BATCH STDIN (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/packets/packets-eval-005.jsonl) #####
+{"entity_label": "note-15", "qid": "q0501", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-16", "qid": "q0502", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-17", "qid": "q0503", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-18", "qid": "q0504", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-19", "qid": "q0505", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-20", "qid": "q0506", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-21", "qid": "q0507", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-22", "qid": "q0508", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-23", "qid": "q0509", "rel_label": "part of", "shape": "all-holder"}
+{"entity_label": "note-24", "qid": "q0510", "rel_label": "part of", "shape": "all-holder"}
+{"concept_label": "man", "entity_label": "dm-1", "qid": "q0511", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "dm-2", "qid": "q0512", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "dm-3", "qid": "q0513", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "elvis-presley", "qid": "q0514", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "gladys-presley", "qid": "q0515", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "lisa-marie-presley", "qid": "q0516", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f00-c1", "qid": "q0517", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f00-c2", "qid": "q0518", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f00-g1", "qid": "q0519", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f00-g2", "qid": "q0520", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f00-gf", "qid": "q0521", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f00-gm", "qid": "q0522", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f00-sp", "qid": "q0523", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f01-c1", "qid": "q0524", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f01-c2", "qid": "q0525", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f01-g1", "qid": "q0526", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f01-g2", "qid": "q0527", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f01-gf", "qid": "q0528", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f01-gm", "qid": "q0529", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f01-sp", "qid": "q0530", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f02-c1", "qid": "q0531", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f02-c2", "qid": "q0532", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f02-g1", "qid": "q0533", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f02-g2", "qid": "q0534", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f02-gf", "qid": "q0535", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f02-gm", "qid": "q0536", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f02-sp", "qid": "q0537", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f03-c1", "qid": "q0538", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f03-c2", "qid": "q0539", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f03-g1", "qid": "q0540", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f03-g2", "qid": "q0541", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f03-gf", "qid": "q0542", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f03-gm", "qid": "q0543", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f03-sp", "qid": "q0544", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f04-c1", "qid": "q0545", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f04-c2", "qid": "q0546", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f04-g1", "qid": "q0547", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f04-g2", "qid": "q0548", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f04-gf", "qid": "q0549", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f04-gm", "qid": "q0550", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f04-sp", "qid": "q0551", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f05-c1", "qid": "q0552", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f05-c2", "qid": "q0553", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f05-g1", "qid": "q0554", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f05-g2", "qid": "q0555", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f05-gf", "qid": "q0556", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f05-gm", "qid": "q0557", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f05-sp", "qid": "q0558", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-c1", "qid": "q0559", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f06-c2", "qid": "q0560", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f06-g1", "qid": "q0561", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-g2", "qid": "q0562", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f06-gf", "qid": "q0563", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-gm", "qid": "q0564", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-sp", "qid": "q0565", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f07-c1", "qid": "q0566", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-c2", "qid": "q0567", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f07-g1", "qid": "q0568", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-g2", "qid": "q0569", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f07-gf", "qid": "q0570", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-gm", "qid": "q0571", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-sp", "qid": "q0572", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f08-c1", "qid": "q0573", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-c2", "qid": "q0574", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f08-g1", "qid": "q0575", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-g2", "qid": "q0576", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f08-gf", "qid": "q0577", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-gm", "qid": "q0578", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-sp", "qid": "q0579", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f09-c1", "qid": "q0580", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-c2", "qid": "q0581", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f09-g1", "qid": "q0582", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-g2", "qid": "q0583", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f09-gf", "qid": "q0584", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-gm", "qid": "q0585", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-sp", "qid": "q0586", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f10-c1", "qid": "q0587", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-c2", "qid": "q0588", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f10-g1", "qid": "q0589", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-g2", "qid": "q0590", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f10-gf", "qid": "q0591", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-gm", "qid": "q0592", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-sp", "qid": "q0593", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f11-c1", "qid": "q0594", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-c2", "qid": "q0595", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f11-g1", "qid": "q0596", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-g2", "qid": "q0597", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f11-gf", "qid": "q0598", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-gm", "qid": "q0599", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-sp", "qid": "q0600", "shape": "is-a"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=cd8eccfd-8274-4176-b077-ecd0181e17c0  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"cd8eccfd-8274-4176-b077-ecd0181e17c0","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"bfc19b37-b96a-4ba7-904a-22e11a0f82fe","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.91,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"449d464f-9185-492b-9d18-e801a9237428","session_id":"cd8eccfd-8274-4176-b077-ecd0181e17c0"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctKm95u4JPMAiHzk3xKh","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"q0501\", \"text\": \"What documents or sections contain note 15 as a part?\"}\n{\"qid\": \"q0502\", \"text\": \"Which works includes note 16?\"}\n{\"qid\": \"q0503\", \"text\": \"Note 17 is part of what larger items?\"}\n{\"qid\": \"q0504\", \"text\": \"Tell me everything that has note 18 as a component.\"}\n{\"qid\": \"q0505\", \"text\": \"What comprises note 19 among its parts?\"}\n{\"qid\": \"q0506\", \"text\": \"In what is note 20 contained?\"}\n{\"qid\": \"q0507\", \"text\": \"Note 21 belongs to which works or documents?\"}\n{\"qid\": \"q0508\", \"text\": \"What collections or texts have note 22 within them?\"}\n{\"qid\": \"q0509\", \"text\": \"All the things note 23 is part of are?\"}\n{\"qid\": \"q0510\", \"text\": \"Note 24 appears in which wholes?\"}\n{\"qid\": \"q0511\", \"text\": \"Is dm-1 a man?\"}\n{\"qid\": \"q0512\", \"text\": \"Is dm-2 a man?\"}\n{\"qid\": \"q0513\", \"text\": \"Is dm-3 a man?\"}\n{\"qid\": \"q0514\", \"text\": \"Is elvis presley a man?\"}\n{\"qid\": \"q0515\", \"text\": \"Is gladys presley a woman?\"}\n{\"qid\": \"q0516\", \"text\": \"Is lisa marie presley a woman?\"}\n{\"qid\": \"q0517\", \"text\": \"Is p-f00-c1 a man?\"}\n{\"qid\": \"q0518\", \"text\": \"Is p-f00-c2 a woman?\"}\n{\"qid\": \"q0519\", \"text\": \"Is p-f00-g1 a man?\"}\n{\"qid\": \"q0520\", \"text\": \"Is p-f00-g2 a woman?\"}\n{\"qid\": \"q0521\", \"text\": \"Is p-f00-gf a man?\"}\n{\"qid\": \"q0522\", \"text\": \"Is p-f00-gm a woman?\"}\n{\"qid\": \"q0523\", \"text\": \"Is p-f00-sp a woman?\"}\n{\"qid\": \"q0524\", \"text\": \"Is p-f01-c1 a man?\"}\n{\"qid\": \"q0525\", \"text\": \"Is p-f01-c2 a woman?\"}\n{\"qid\": \"q0526\", \"text\": \"Is p-f01-g1 a man?\"}\n{\"qid\": \"q0527\", \"text\": \"Is p-f01-g2 a woman?\"}\n{\"qid\": \"q0528\", \"text\": \"Is p-f01-gf a man?\"}\n{\"qid\": \"q0529\", \"text\": \"Is p-f01-gm a woman?\"}\n{\"qid\": \"q0530\", \"text\": \"Is p-f01-sp a woman?\"}\n{\"qid\": \"q0531\", \"text\": \"Is p-f02-c1 a man?\"}\n{\"qid\": \"q0532\", \"text\": \"Is p-f02-c2 a woman?\"}\n{\"qid\": \"q0533\", \"text\": \"Is p-f02-g1 a man?\"}\n{\"qid\": \"q0534\", \"text\": \"Is p-f02-g2 a woman?\"}\n{\"qid\": \"q0535\", \"text\": \"Is p-f02-gf a man?\"}\n{\"qid\": \"q0536\", \"text\": \"Is p-f02-gm a woman?\"}\n{\"qid\": \"q0537\", \"text\": \"Is p-f02-sp a woman?\"}\n{\"qid\": \"q0538\", \"text\": \"Is p-f03-c1 a man?\"}\n{\"qid\": \"q0539\", \"text\": \"Is p-f03-c2 a woman?\"}\n{\"qid\": \"q0540\", \"text\": \"Is p-f03-g1 a man?\"}\n{\"qid\": \"q0541\", \"text\": \"Is p-f03-g2 a woman?\"}\n{\"qid\": \"q0542\", \"text\": \"Is p-f03-gf a man?\"}\n{\"qid\": \"q0543\", \"text\": \"Is p-f03-gm a woman?\"}\n{\"qid\": \"q0544\", \"text\": \"Is p-f03-sp a woman?\"}\n{\"qid\": \"q0545\", \"text\": \"Is p-f04-c1 a man?\"}\n{\"qid\": \"q0546\", \"text\": \"Is p-f04-c2 a woman?\"}\n{\"qid\": \"q0547\", \"text\": \"Is p-f04-g1 a man?\"}\n{\"qid\": \"q0548\", \"text\": \"Is p-f04-g2 a woman?\"}\n{\"qid\": \"q0549\", \"text\": \"Is p-f04-gf a man?\"}\n{\"qid\": \"q0550\", \"text\": \"Is p-f04-gm a woman?\"}\n{\"qid\": \"q0551\", \"text\": \"Is p-f04-sp a woman?\"}\n{\"qid\": \"q0552\", \"text\": \"Is p-f05-c1 a man?\"}\n{\"qid\": \"q0553\", \"text\": \"Is p-f05-c2 a woman?\"}\n{\"qid\": \"q0554\", \"text\": \"Is p-f05-g1 a man?\"}\n{\"qid\": \"q0555\", \"text\": \"Is p-f05-g2 a woman?\"}\n{\"qid\": \"q0556\", \"text\": \"Is p-f05-gf a man?\"}\n{\"qid\": \"q0557\", \"text\": \"Is p-f05-gm a woman?\"}\n{\"qid\": \"q0558\", \"text\": \"Is p-f05-sp a woman?\"}\n{\"qid\": \"q0559\", \"text\": \"Is p-f06-c1 a man?\"}\n{\"qid\": \"q0560\", \"text\": \"Is p-f06-c2 a woman?\"}\n{\"qid\": \"q0561\", \"text\": \"Is p-f06-g1 a woman?\"}\n{\"qid\": \"q0562\", \"text\": \"Is p-f06-g2 a man?\"}\n{\"qid\": \"q0563\", \"text\": \"Is p-f06-gf a woman?\"}\n{\"qid\": \"q0564\", \"text\": \"Is p-f06-gm a man?\"}\n{\"qid\": \"q0565\", \"text\": \"Is p-f06-sp a man?\"}\n{\"qid\": \"q0566\", \"text\": \"Is p-f07-c1 a woman?\"}\n{\"qid\": \"q0567\", \"text\": \"Is p-f07-c2 a man?\"}\n{\"qid\": \"q0568\", \"text\": \"Is p-f07-g1 a woman?\"}\n{\"qid\": \"q0569\", \"text\": \"Is p-f07-g2 a man?\"}\n{\"qid\": \"q0570\", \"text\": \"Is p-f07-gf a woman?\"}\n{\"qid\": \"q0571\", \"text\": \"Is p-f07-gm a man?\"}\n{\"qid\": \"q0572\", \"text\": \"Is p-f07-sp a man?\"}\n{\"qid\": \"q0573\", \"text\": \"Is p-f08-c1 a woman?\"}\n{\"qid\": \"q0574\", \"text\": \"Is p-f08-c2 a man?\"}\n{\"qid\": \"q0575\", \"text\": \"Is p-f08-g1 a woman?\"}\n{\"qid\": \"q0576\", \"text\": \"Is p-f08-g2 a man?\"}\n{\"qid\": \"q0577\", \"text\": \"Is p-f08-gf a woman?\"}\n{\"qid\": \"q0578\", \"text\": \"Is p-f08-gm a man?\"}\n{\"qid\": \"q0579\", \"text\": \"Is p-f08-sp a man?\"}\n{\"qid\": \"q0580\", \"text\": \"Is p-f09-c1 a woman?\"}\n{\"qid\": \"q0581\", \"text\": \"Is p-f09-c2 a man?\"}\n{\"qid\": \"q0582\", \"text\": \"Is p-f09-g1 a woman?\"}\n{\"qid\": \"q0583\", \"text\": \"Is p-f09-g2 a man?\"}\n{\"qid\": \"q0584\", \"text\": \"Is p-f09-gf a woman?\"}\n{\"qid\": \"q0585\", \"text\": \"Is p-f09-gm a man?\"}\n{\"qid\": \"q0586\", \"text\": \"Is p-f09-sp a man?\"}\n{\"qid\": \"q0587\", \"text\": \"Is p-f10-c1 a woman?\"}\n{\"qid\": \"q0588\", \"text\": \"Is p-f10-c2 a man?\"}\n{\"qid\": \"q0589\", \"text\": \"Is p-f10-g1 a woman?\"}\n{\"qid\": \"q0590\", \"text\": \"Is p-f10-g2 a man?\"}\n{\"qid\": \"q0591\", \"text\": \"Is p-f10-gf a woman?\"}\n{\"qid\": \"q0592\", \"text\": \"Is p-f10-gm a man?\"}\n{\"qid\": \"q0593\", \"text\": \"Is p-f10-sp a man?\"}\n{\"qid\": \"q0594\", \"text\": \"Is p-f11-c1 a woman?\"}\n{\"qid\": \"q0595\", \"text\": \"Is p-f11-c2 a man?\"}\n{\"qid\": \"q0596\", \"text\": \"Is p-f11-g1 a woman?\"}\n{\"qid\": \"q0597\", \"text\": \"Is p-f11-g2 a man?\"}\n{\"qid\": \"q0598\", \"text\": \"Is p-f11-gf a woman?\"}\n{\"qid\": \"q0599\", \"text\": \"Is p-f11-gm a man?\"}\n{\"qid\": \"q0600\", \"text\": \"Is p-f11-sp a man?\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2,"cache_creation_input_tokens":4922,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4922},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"cd8eccfd-8274-4176-b077-ecd0181e17c0","uuid":"e6f7e009-3e94-4fc5-a82e-72b0bb3d2bc3","request_id":"req_011CctKm8MFFYupy3qTNnm1n"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":11194,"duration_api_ms":12421,"ttft_ms":11159,"ttft_stream_ms":925,"time_to_request_ms":43,"num_turns":1,"result":"```json\n{\"qid\": \"q0501\", \"text\": \"What documents or sections contain note 15 as a part?\"}\n{\"qid\": \"q0502\", \"text\": \"Which works includes note 16?\"}\n{\"qid\": \"q0503\", \"text\": \"Note 17 is part of what larger items?\"}\n{\"qid\": \"q0504\", \"text\": \"Tell me everything that has note 18 as a component.\"}\n{\"qid\": \"q0505\", \"text\": \"What comprises note 19 among its parts?\"}\n{\"qid\": \"q0506\", \"text\": \"In what is note 20 contained?\"}\n{\"qid\": \"q0507\", \"text\": \"Note 21 belongs to which works or documents?\"}\n{\"qid\": \"q0508\", \"text\": \"What collections or texts have note 22 within them?\"}\n{\"qid\": \"q0509\", \"text\": \"All the things note 23 is part of are?\"}\n{\"qid\": \"q0510\", \"text\": \"Note 24 appears in which wholes?\"}\n{\"qid\": \"q0511\", \"text\": \"Is dm-1 a man?\"}\n{\"qid\": \"q0512\", \"text\": \"Is dm-2 a man?\"}\n{\"qid\": \"q0513\", \"text\": \"Is dm-3 a man?\"}\n{\"qid\": \"q0514\", \"text\": \"Is elvis presley a man?\"}\n{\"qid\": \"q0515\", \"text\": \"Is gladys presley a woman?\"}\n{\"qid\": \"q0516\", \"text\": \"Is lisa marie presley a woman?\"}\n{\"qid\": \"q0517\", \"text\": \"Is p-f00-c1 a man?\"}\n{\"qid\": \"q0518\", \"text\": \"Is p-f00-c2 a woman?\"}\n{\"qid\": \"q0519\", \"text\": \"Is p-f00-g1 a man?\"}\n{\"qid\": \"q0520\", \"text\": \"Is p-f00-g2 a woman?\"}\n{\"qid\": \"q0521\", \"text\": \"Is p-f00-gf a man?\"}\n{\"qid\": \"q0522\", \"text\": \"Is p-f00-gm a woman?\"}\n{\"qid\": \"q0523\", \"text\": \"Is p-f00-sp a woman?\"}\n{\"qid\": \"q0524\", \"text\": \"Is p-f01-c1 a man?\"}\n{\"qid\": \"q0525\", \"text\": \"Is p-f01-c2 a woman?\"}\n{\"qid\": \"q0526\", \"text\": \"Is p-f01-g1 a man?\"}\n{\"qid\": \"q0527\", \"text\": \"Is p-f01-g2 a woman?\"}\n{\"qid\": \"q0528\", \"text\": \"Is p-f01-gf a man?\"}\n{\"qid\": \"q0529\", \"text\": \"Is p-f01-gm a woman?\"}\n{\"qid\": \"q0530\", \"text\": \"Is p-f01-sp a woman?\"}\n{\"qid\": \"q0531\", \"text\": \"Is p-f02-c1 a man?\"}\n{\"qid\": \"q0532\", \"text\": \"Is p-f02-c2 a woman?\"}\n{\"qid\": \"q0533\", \"text\": \"Is p-f02-g1 a man?\"}\n{\"qid\": \"q0534\", \"text\": \"Is p-f02-g2 a woman?\"}\n{\"qid\": \"q0535\", \"text\": \"Is p-f02-gf a man?\"}\n{\"qid\": \"q0536\", \"text\": \"Is p-f02-gm a woman?\"}\n{\"qid\": \"q0537\", \"text\": \"Is p-f02-sp a woman?\"}\n{\"qid\": \"q0538\", \"text\": \"Is p-f03-c1 a man?\"}\n{\"qid\": \"q0539\", \"text\": \"Is p-f03-c2 a woman?\"}\n{\"qid\": \"q0540\", \"text\": \"Is p-f03-g1 a man?\"}\n{\"qid\": \"q0541\", \"text\": \"Is p-f03-g2 a woman?\"}\n{\"qid\": \"q0542\", \"text\": \"Is p-f03-gf a man?\"}\n{\"qid\": \"q0543\", \"text\": \"Is p-f03-gm a woman?\"}\n{\"qid\": \"q0544\", \"text\": \"Is p-f03-sp a woman?\"}\n{\"qid\": \"q0545\", \"text\": \"Is p-f04-c1 a man?\"}\n{\"qid\": \"q0546\", \"text\": \"Is p-f04-c2 a woman?\"}\n{\"qid\": \"q0547\", \"text\": \"Is p-f04-g1 a man?\"}\n{\"qid\": \"q0548\", \"text\": \"Is p-f04-g2 a woman?\"}\n{\"qid\": \"q0549\", \"text\": \"Is p-f04-gf a man?\"}\n{\"qid\": \"q0550\", \"text\": \"Is p-f04-gm a woman?\"}\n{\"qid\": \"q0551\", \"text\": \"Is p-f04-sp a woman?\"}\n{\"qid\": \"q0552\", \"text\": \"Is p-f05-c1 a man?\"}\n{\"qid\": \"q0553\", \"text\": \"Is p-f05-c2 a woman?\"}\n{\"qid\": \"q0554\", \"text\": \"Is p-f05-g1 a man?\"}\n{\"qid\": \"q0555\", \"text\": \"Is p-f05-g2 a woman?\"}\n{\"qid\": \"q0556\", \"text\": \"Is p-f05-gf a man?\"}\n{\"qid\": \"q0557\", \"text\": \"Is p-f05-gm a woman?\"}\n{\"qid\": \"q0558\", \"text\": \"Is p-f05-sp a woman?\"}\n{\"qid\": \"q0559\", \"text\": \"Is p-f06-c1 a man?\"}\n{\"qid\": \"q0560\", \"text\": \"Is p-f06-c2 a woman?\"}\n{\"qid\": \"q0561\", \"text\": \"Is p-f06-g1 a woman?\"}\n{\"qid\": \"q0562\", \"text\": \"Is p-f06-g2 a man?\"}\n{\"qid\": \"q0563\", \"text\": \"Is p-f06-gf a woman?\"}\n{\"qid\": \"q0564\", \"text\": \"Is p-f06-gm a man?\"}\n{\"qid\": \"q0565\", \"text\": \"Is p-f06-sp a man?\"}\n{\"qid\": \"q0566\", \"text\": \"Is p-f07-c1 a woman?\"}\n{\"qid\": \"q0567\", \"text\": \"Is p-f07-c2 a man?\"}\n{\"qid\": \"q0568\", \"text\": \"Is p-f07-g1 a woman?\"}\n{\"qid\": \"q0569\", \"text\": \"Is p-f07-g2 a man?\"}\n{\"qid\": \"q0570\", \"text\": \"Is p-f07-gf a woman?\"}\n{\"qid\": \"q0571\", \"text\": \"Is p-f07-gm a man?\"}\n{\"qid\": \"q0572\", \"text\": \"Is p-f07-sp a man?\"}\n{\"qid\": \"q0573\", \"text\": \"Is p-f08-c1 a woman?\"}\n{\"qid\": \"q0574\", \"text\": \"Is p-f08-c2 a man?\"}\n{\"qid\": \"q0575\", \"text\": \"Is p-f08-g1 a woman?\"}\n{\"qid\": \"q0576\", \"text\": \"Is p-f08-g2 a man?\"}\n{\"qid\": \"q0577\", \"text\": \"Is p-f08-gf a woman?\"}\n{\"qid\": \"q0578\", \"text\": \"Is p-f08-gm a man?\"}\n{\"qid\": \"q0579\", \"text\": \"Is p-f08-sp a man?\"}\n{\"qid\": \"q0580\", \"text\": \"Is p-f09-c1 a woman?\"}\n{\"qid\": \"q0581\", \"text\": \"Is p-f09-c2 a man?\"}\n{\"qid\": \"q0582\", \"text\": \"Is p-f09-g1 a woman?\"}\n{\"qid\": \"q0583\", \"text\": \"Is p-f09-g2 a man?\"}\n{\"qid\": \"q0584\", \"text\": \"Is p-f09-gf a woman?\"}\n{\"qid\": \"q0585\", \"text\": \"Is p-f09-gm a man?\"}\n{\"qid\": \"q0586\", \"text\": \"Is p-f09-sp a man?\"}\n{\"qid\": \"q0587\", \"text\": \"Is p-f10-c1 a woman?\"}\n{\"qid\": \"q0588\", \"text\": \"Is p-f10-c2 a man?\"}\n{\"qid\": \"q0589\", \"text\": \"Is p-f10-g1 a woman?\"}\n{\"qid\": \"q0590\", \"text\": \"Is p-f10-g2 a man?\"}\n{\"qid\": \"q0591\", \"text\": \"Is p-f10-gf a woman?\"}\n{\"qid\": \"q0592\", \"text\": \"Is p-f10-gm a man?\"}\n{\"qid\": \"q0593\", \"text\": \"Is p-f10-sp a man?\"}\n{\"qid\": \"q0594\", \"text\": \"Is p-f11-c1 a woman?\"}\n{\"qid\": \"q0595\", \"text\": \"Is p-f11-c2 a man?\"}\n{\"qid\": \"q0596\", \"text\": \"Is p-f11-g1 a woman?\"}\n{\"qid\": \"q0597\", \"text\": \"Is p-f11-g2 a man?\"}\n{\"qid\": \"q0598\", \"text\": \"Is p-f11-gf a woman?\"}\n{\"qid\": \"q0599\", \"text\": \"Is p-f11-gm a man?\"}\n{\"qid\": \"q0600\", \"text\": \"Is p-f11-sp a man?\"}\n```","stop_reason":"end_turn","session_id":"cd8eccfd-8274-4176-b077-ecd0181e17c0","total_cost_usd":0.027486,"usage":{"input_tokens":2,"cache_creation_input_tokens":4922,"cache_read_input_tokens":0,"output_tokens":2622,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":4922,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2,"output_tokens":2622,"cache_read_input_tokens":0,"cache_creation_input_tokens":4922,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4922},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":4457,"outputTokens":2637,"cacheReadInputTokens":0,"cacheCreationInputTokens":4922,"webSearchRequests":0,"costUSD":0.027486,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"7aae328d-3ac3-47fb-b6ee-d8be7bedaef0"}
+

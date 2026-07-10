@@ -1,0 +1,165 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — l3a-parse blind phrasings (family/world vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items. For EACH item, write ONE natural-English question and output ONE JSON
+line: `{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the entity's canonical name. Refer to the entity by this
+  name, verbatim; you may write its hyphens as spaces (e.g. `elvis-presley`
+  or `elvis presley`), but do not otherwise alter, shorten, or expand it.
+- `rel_label` / `concept_label` — the relation or category word(s) the
+  question is about (e.g. `mother`, `maker of`, `woman`). This is the
+  relation's name; use it naturally in your question (you may inflect it:
+  plural, verb form). Do not substitute a synonym for it unless a synonym is
+  simply how you would naturally ask — you are free to phrase naturally.
+- `shape` — the MEANING your question must carry. "The R of X" below means
+  the relation read left-to-right (the mother of X, the maker of X):
+  - `one-role`: ask for THE `rel_label` of the entity — exactly one specific
+    answer is expected.
+  - `all-role`: ask for ALL the `rel_label` of the entity — a list.
+  - `count-role`: ask HOW MANY `rel_label` the entity has.
+  - `one-holder`: ask for THE ONE thing/person the entity is the `rel_label`
+    of (equivalently: the one whose `rel_label` is the entity). Make the
+    exactly-one expectation explicit in the wording (e.g. "the one …").
+  - `all-holder`: ask for EVERYTHING/EVERYONE the entity is the `rel_label`
+    of (equivalently: all who have the entity as their `rel_label`).
+  - `count-holder`: ask HOW MANY have the entity as their `rel_label`.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (a yes/no question).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess at an answer,
+   never hedge ("if he exists"), never mention this prompt or the packet.
+4. VARY your syntax. Across the items you write for the same relation and
+   shape, use genuinely different constructions: direct questions
+   ("Who is the mother of X?"), possessives ("X's mother"), inverted or
+   embedded forms ("Tell me who ..."), passives, clefts. At most half of
+   your items for one relation+shape may follow the same construction, and
+   do not copy the gloss wording above verbatim.
+5. Write the question a normal person would ask to get exactly the packeted
+   meaning — no more, no less (do not add qualifiers, dates, or extra
+   conditions).
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### BATCH STDIN (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/packets/packets-eval-001.jsonl) #####
+{"entity_label": "p-f24-g1", "qid": "q0101", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f24-g2", "qid": "q0102", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f25-c1", "qid": "q0103", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f25-c2", "qid": "q0104", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f25-g1", "qid": "q0105", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f25-g2", "qid": "q0106", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f26-c1", "qid": "q0107", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f26-c2", "qid": "q0108", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f26-g1", "qid": "q0109", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f26-g2", "qid": "q0110", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f27-c1", "qid": "q0111", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f27-c2", "qid": "q0112", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f27-g1", "qid": "q0113", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f27-g2", "qid": "q0114", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f28-c1", "qid": "q0115", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f28-c2", "qid": "q0116", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f28-g1", "qid": "q0117", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f28-g2", "qid": "q0118", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f29-c1", "qid": "q0119", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f29-c2", "qid": "q0120", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f29-g1", "qid": "q0121", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f29-g2", "qid": "q0122", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "elvis-presley", "qid": "q0123", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "lisa-marie-presley", "qid": "q0124", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f00-c1", "qid": "q0125", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f00-c2", "qid": "q0126", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f00-g1", "qid": "q0127", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f00-g2", "qid": "q0128", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f01-c1", "qid": "q0129", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f01-c2", "qid": "q0130", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f01-g1", "qid": "q0131", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f01-g2", "qid": "q0132", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f02-c1", "qid": "q0133", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f02-c2", "qid": "q0134", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f02-g1", "qid": "q0135", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f02-g2", "qid": "q0136", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f03-c1", "qid": "q0137", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f03-c2", "qid": "q0138", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f03-g1", "qid": "q0139", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f03-g2", "qid": "q0140", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f04-c1", "qid": "q0141", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f04-c2", "qid": "q0142", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f04-g1", "qid": "q0143", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f04-g2", "qid": "q0144", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f05-c1", "qid": "q0145", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f05-c2", "qid": "q0146", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f05-g1", "qid": "q0147", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f05-g2", "qid": "q0148", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f06-c1", "qid": "q0149", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f06-c2", "qid": "q0150", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f06-g1", "qid": "q0151", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f06-g2", "qid": "q0152", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f07-c1", "qid": "q0153", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f07-c2", "qid": "q0154", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f07-g1", "qid": "q0155", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f07-g2", "qid": "q0156", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f08-c1", "qid": "q0157", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f08-c2", "qid": "q0158", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f08-g1", "qid": "q0159", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f08-g2", "qid": "q0160", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f09-c1", "qid": "q0161", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f09-c2", "qid": "q0162", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f09-g1", "qid": "q0163", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f09-g2", "qid": "q0164", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f10-c1", "qid": "q0165", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f10-c2", "qid": "q0166", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f10-g1", "qid": "q0167", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f10-g2", "qid": "q0168", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f11-c1", "qid": "q0169", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f11-c2", "qid": "q0170", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f11-g1", "qid": "q0171", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f11-g2", "qid": "q0172", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f12-c1", "qid": "q0173", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f12-c2", "qid": "q0174", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f12-g1", "qid": "q0175", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f12-g2", "qid": "q0176", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f13-c1", "qid": "q0177", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f13-c2", "qid": "q0178", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f13-g1", "qid": "q0179", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f13-g2", "qid": "q0180", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f14-c1", "qid": "q0181", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f14-c2", "qid": "q0182", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f14-g1", "qid": "q0183", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f14-g2", "qid": "q0184", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f15-c1", "qid": "q0185", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f15-c2", "qid": "q0186", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f15-g1", "qid": "q0187", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f15-g2", "qid": "q0188", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f16-c1", "qid": "q0189", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f16-c2", "qid": "q0190", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f16-g1", "qid": "q0191", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f16-g2", "qid": "q0192", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f17-c1", "qid": "q0193", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f17-c2", "qid": "q0194", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f17-g1", "qid": "q0195", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f17-g2", "qid": "q0196", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f18-c1", "qid": "q0197", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f18-c2", "qid": "q0198", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f18-g1", "qid": "q0199", "rel_label": "father", "shape": "one-role"}
+{"entity_label": "p-f18-g2", "qid": "q0200", "rel_label": "father", "shape": "one-role"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=9ff6cc83-45fb-4fb5-874b-ea88058ba340  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"9ff6cc83-45fb-4fb5-874b-ea88058ba340","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"f7a60ef3-f63a-4409-878a-ca194dce1cae","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.91,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"0383cb4f-c4ca-45f0-a60f-67d7402423ec","session_id":"9ff6cc83-45fb-4fb5-874b-ea88058ba340"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctKk87ppnnCLZbbGJ43p","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"q0101\", \"text\": \"Who is the mother of p-f24-g1?\"}\n{\"qid\": \"q0102\", \"text\": \"What is p-f24-g2's mother?\"}\n{\"qid\": \"q0103\", \"text\": \"Who was p-f25-c1's mother?\"}\n{\"qid\": \"q0104\", \"text\": \"Tell me the mother of p-f25-c2.\"}\n{\"qid\": \"q0105\", \"text\": \"Who gave birth to p-f25-g1?\"}\n{\"qid\": \"q0106\", \"text\": \"p-f25-g2's mother was whom?\"}\n{\"qid\": \"q0107\", \"text\": \"Name the mother of p-f26-c1.\"}\n{\"qid\": \"q0108\", \"text\": \"Who is p-f26-c2's mother?\"}\n{\"qid\": \"q0109\", \"text\": \"What was the name of p-f26-g1's mother?\"}\n{\"qid\": \"q0110\", \"text\": \"Tell me who mothered p-f26-g2.\"}\n{\"qid\": \"q0111\", \"text\": \"Who was the mother of p-f27-c1?\"}\n{\"qid\": \"q0112\", \"text\": \"p-f27-c2 had which mother?\"}\n{\"qid\": \"q0113\", \"text\": \"Identify the mother of p-f27-g1.\"}\n{\"qid\": \"q0114\", \"text\": \"Who is p-f27-g2's mother?\"}\n{\"qid\": \"q0115\", \"text\": \"What is p-f28-c1's mother?\"}\n{\"qid\": \"q0116\", \"text\": \"Tell me the mother of p-f28-c2.\"}\n{\"qid\": \"q0117\", \"text\": \"Who mothered p-f28-g1?\"}\n{\"qid\": \"q0118\", \"text\": \"p-f28-g2's mother was?\"}\n{\"qid\": \"q0119\", \"text\": \"Name p-f29-c1's mother.\"}\n{\"qid\": \"q0120\", \"text\": \"Who is the mother of p-f29-c2?\"}\n{\"qid\": \"q0121\", \"text\": \"What was p-f29-g1's mother's name?\"}\n{\"qid\": \"q0122\", \"text\": \"Tell me who is the mother of p-f29-g2.\"}\n{\"qid\": \"q0123\", \"text\": \"Who was Elvis Presley's father?\"}\n{\"qid\": \"q0124\", \"text\": \"What is Lisa Marie Presley's father?\"}\n{\"qid\": \"q0125\", \"text\": \"Tell me the father of p-f00-c1.\"}\n{\"qid\": \"q0126\", \"text\": \"Who is p-f00-c2's father?\"}\n{\"qid\": \"q0127\", \"text\": \"Name the father of p-f00-g1.\"}\n{\"qid\": \"q0128\", \"text\": \"p-f00-g2's father was whom?\"}\n{\"qid\": \"q0129\", \"text\": \"Who was the father of p-f01-c1?\"}\n{\"qid\": \"q0130\", \"text\": \"What is p-f01-c2's father?\"}\n{\"qid\": \"q0131\", \"text\": \"Tell me who fathered p-f01-g1.\"}\n{\"qid\": \"q0132\", \"text\": \"p-f01-g2 had which father?\"}\n{\"qid\": \"q0133\", \"text\": \"Who is the father of p-f02-c1?\"}\n{\"qid\": \"q0134\", \"text\": \"Identify p-f02-c2's father.\"}\n{\"qid\": \"q0135\", \"text\": \"What was p-f02-g1's father's name?\"}\n{\"qid\": \"q0136\", \"text\": \"Tell me the father of p-f02-g2.\"}\n{\"qid\": \"q0137\", \"text\": \"Who fathered p-f03-c1?\"}\n{\"qid\": \"q0138\", \"text\": \"p-f03-c2's father is whom?\"}\n{\"qid\": \"q0139\", \"text\": \"Name the father of p-f03-g1.\"}\n{\"qid\": \"q0140\", \"text\": \"Who is p-f03-g2's father?\"}\n{\"qid\": \"q0141\", \"text\": \"What is the father of p-f04-c1?\"}\n{\"qid\": \"q0142\", \"text\": \"Tell me p-f04-c2's father.\"}\n{\"qid\": \"q0143\", \"text\": \"Who was p-f04-g1's father?\"}\n{\"qid\": \"q0144\", \"text\": \"p-f04-g2's father was?\"}\n{\"qid\": \"q0145\", \"text\": \"Identify the father of p-f05-c1.\"}\n{\"qid\": \"q0146\", \"text\": \"Who is the father of p-f05-c2?\"}\n{\"qid\": \"q0147\", \"text\": \"What was p-f05-g1's father?\"}\n{\"qid\": \"q0148\", \"text\": \"Tell me who is p-f05-g2's father.\"}\n{\"qid\": \"q0149\", \"text\": \"Who fathered p-f06-c1?\"}\n{\"qid\": \"q0150\", \"text\": \"p-f06-c2 had which father?\"}\n{\"qid\": \"q0151\", \"text\": \"Name p-f06-g1's father.\"}\n{\"qid\": \"q0152\", \"text\": \"Who is the father of p-f06-g2?\"}\n{\"qid\": \"q0153\", \"text\": \"What is p-f07-c1's father?\"}\n{\"qid\": \"q0154\", \"text\": \"Tell me the father of p-f07-c2.\"}\n{\"qid\": \"q0155\", \"text\": \"Who was p-f07-g1's father?\"}\n{\"qid\": \"q0156\", \"text\": \"Identify p-f07-g2's father.\"}\n{\"qid\": \"q0157\", \"text\": \"Who is the father of p-f08-c1?\"}\n{\"qid\": \"q0158\", \"text\": \"p-f08-c2's father was?\"}\n{\"qid\": \"q0159\", \"text\": \"Name the father of p-f08-g1.\"}\n{\"qid\": \"q0160\", \"text\": \"Tell me who fathered p-f08-g2.\"}\n{\"qid\": \"q0161\", \"text\": \"What was the father of p-f09-c1?\"}\n{\"qid\": \"q0162\", \"text\": \"Who is p-f09-c2's father?\"}\n{\"qid\": \"q0163\", \"text\": \"p-f09-g1's father is whom?\"}\n{\"qid\": \"q0164\", \"text\": \"Tell me the father of p-f09-g2.\"}\n{\"qid\": \"q0165\", \"text\": \"Identify p-f10-c1's father.\"}\n{\"qid\": \"q0166\", \"text\": \"Who fathered p-f10-c2?\"}\n{\"qid\": \"q0167\", \"text\": \"What is the father of p-f10-g1?\"}\n{\"qid\": \"q0168\", \"text\": \"Who is p-f10-g2's father?\"}\n{\"qid\": \"q0169\", \"text\": \"Tell me the father of p-f11-c1.\"}\n{\"qid\": \"q0170\", \"text\": \"p-f11-c2 had which father?\"}\n{\"qid\": \"q0171\", \"text\": \"Name the father of p-f11-g1.\"}\n{\"qid\": \"q0172\", \"text\": \"Who was p-f11-g2's father?\"}\n{\"qid\": \"q0173\", \"text\": \"What was p-f12-c1's father?\"}\n{\"qid\": \"q0174\", \"text\": \"Who is the father of p-f12-c2?\"}\n{\"qid\": \"q0175\", \"text\": \"p-f12-g1's father was whom?\"}\n{\"qid\": \"q0176\", \"text\": \"Identify the father of p-f12-g2.\"}\n{\"qid\": \"q0177\", \"text\": \"Who fathered p-f13-c1?\"}\n{\"qid\": \"q0178\", \"text\": \"Tell me p-f13-c2's father.\"}\n{\"qid\": \"q0179\", \"text\": \"What is p-f13-g1's father?\"}\n{\"qid\": \"q0180\", \"text\": \"Who is the father of p-f13-g2?\"}\n{\"qid\": \"q0181\", \"text\": \"Name p-f14-c1's father.\"}\n{\"qid\": \"q0182\", \"text\": \"Who was p-f14-c2's father?\"}\n{\"qid\": \"q0183\", \"text\": \"Tell me the father of p-f14-g1.\"}\n{\"qid\": \"q0184\", \"text\": \"p-f14-g2 had which father?\"}\n{\"qid\": \"q0185\", \"text\": \"What is the father of p-f15-c1?\"}\n{\"qid\": \"q0186\", \"text\": \"Who is p-f15-c2's father?\"}\n{\"qid\": \"q0187\", \"text\": \"Identify p-f15-g1's father.\"}\n{\"qid\": \"q0188\", \"text\": \"Tell me who fathered p-f15-g2.\"}\n{\"qid\": \"q0189\", \"text\": \"Who was the father of p-f16-c1?\"}\n{\"qid\": \"q0190\", \"text\": \"p-f16-c2's father is whom?\"}\n{\"qid\": \"q0191\", \"text\": \"Name the father of p-f16-g1.\"}\n{\"qid\": \"q0192\", \"text\": \"Who is p-f16-g2's father?\"}\n{\"qid\": \"q0193\", \"text\": \"What was p-f17-c1's father?\"}\n{\"qid\": \"q0194\", \"text\": \"Tell me the father of p-f17-c2.\"}\n{\"qid\": \"q0195\", \"text\": \"Who fathered p-f17-g1?\"}\n{\"qid\": \"q0196\", \"text\": \"p-f17-g2 had which father?\"}\n{\"qid\": \"q0197\", \"text\": \"Who is the father of p-f18-c1?\"}\n{\"qid\": \"q0198\", \"text\": \"Identify p-f18-c2's father.\"}\n{\"qid\": \"q0199\", \"text\": \"What is p-f18-g1's father?\"}\n{\"qid\": \"q0200\", \"text\": \"Tell me who is the father of p-f18-g2.\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2,"cache_creation_input_tokens":4978,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4978},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"9ff6cc83-45fb-4fb5-874b-ea88058ba340","uuid":"7de39b29-f5e3-40ef-9fa6-51326448e169","request_id":"req_011CctKk6UrHeuhApvVtFgEN"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":22576,"duration_api_ms":24057,"ttft_ms":22524,"ttft_stream_ms":1146,"time_to_request_ms":86,"num_turns":1,"result":"```json\n{\"qid\": \"q0101\", \"text\": \"Who is the mother of p-f24-g1?\"}\n{\"qid\": \"q0102\", \"text\": \"What is p-f24-g2's mother?\"}\n{\"qid\": \"q0103\", \"text\": \"Who was p-f25-c1's mother?\"}\n{\"qid\": \"q0104\", \"text\": \"Tell me the mother of p-f25-c2.\"}\n{\"qid\": \"q0105\", \"text\": \"Who gave birth to p-f25-g1?\"}\n{\"qid\": \"q0106\", \"text\": \"p-f25-g2's mother was whom?\"}\n{\"qid\": \"q0107\", \"text\": \"Name the mother of p-f26-c1.\"}\n{\"qid\": \"q0108\", \"text\": \"Who is p-f26-c2's mother?\"}\n{\"qid\": \"q0109\", \"text\": \"What was the name of p-f26-g1's mother?\"}\n{\"qid\": \"q0110\", \"text\": \"Tell me who mothered p-f26-g2.\"}\n{\"qid\": \"q0111\", \"text\": \"Who was the mother of p-f27-c1?\"}\n{\"qid\": \"q0112\", \"text\": \"p-f27-c2 had which mother?\"}\n{\"qid\": \"q0113\", \"text\": \"Identify the mother of p-f27-g1.\"}\n{\"qid\": \"q0114\", \"text\": \"Who is p-f27-g2's mother?\"}\n{\"qid\": \"q0115\", \"text\": \"What is p-f28-c1's mother?\"}\n{\"qid\": \"q0116\", \"text\": \"Tell me the mother of p-f28-c2.\"}\n{\"qid\": \"q0117\", \"text\": \"Who mothered p-f28-g1?\"}\n{\"qid\": \"q0118\", \"text\": \"p-f28-g2's mother was?\"}\n{\"qid\": \"q0119\", \"text\": \"Name p-f29-c1's mother.\"}\n{\"qid\": \"q0120\", \"text\": \"Who is the mother of p-f29-c2?\"}\n{\"qid\": \"q0121\", \"text\": \"What was p-f29-g1's mother's name?\"}\n{\"qid\": \"q0122\", \"text\": \"Tell me who is the mother of p-f29-g2.\"}\n{\"qid\": \"q0123\", \"text\": \"Who was Elvis Presley's father?\"}\n{\"qid\": \"q0124\", \"text\": \"What is Lisa Marie Presley's father?\"}\n{\"qid\": \"q0125\", \"text\": \"Tell me the father of p-f00-c1.\"}\n{\"qid\": \"q0126\", \"text\": \"Who is p-f00-c2's father?\"}\n{\"qid\": \"q0127\", \"text\": \"Name the father of p-f00-g1.\"}\n{\"qid\": \"q0128\", \"text\": \"p-f00-g2's father was whom?\"}\n{\"qid\": \"q0129\", \"text\": \"Who was the father of p-f01-c1?\"}\n{\"qid\": \"q0130\", \"text\": \"What is p-f01-c2's father?\"}\n{\"qid\": \"q0131\", \"text\": \"Tell me who fathered p-f01-g1.\"}\n{\"qid\": \"q0132\", \"text\": \"p-f01-g2 had which father?\"}\n{\"qid\": \"q0133\", \"text\": \"Who is the father of p-f02-c1?\"}\n{\"qid\": \"q0134\", \"text\": \"Identify p-f02-c2's father.\"}\n{\"qid\": \"q0135\", \"text\": \"What was p-f02-g1's father's name?\"}\n{\"qid\": \"q0136\", \"text\": \"Tell me the father of p-f02-g2.\"}\n{\"qid\": \"q0137\", \"text\": \"Who fathered p-f03-c1?\"}\n{\"qid\": \"q0138\", \"text\": \"p-f03-c2's father is whom?\"}\n{\"qid\": \"q0139\", \"text\": \"Name the father of p-f03-g1.\"}\n{\"qid\": \"q0140\", \"text\": \"Who is p-f03-g2's father?\"}\n{\"qid\": \"q0141\", \"text\": \"What is the father of p-f04-c1?\"}\n{\"qid\": \"q0142\", \"text\": \"Tell me p-f04-c2's father.\"}\n{\"qid\": \"q0143\", \"text\": \"Who was p-f04-g1's father?\"}\n{\"qid\": \"q0144\", \"text\": \"p-f04-g2's father was?\"}\n{\"qid\": \"q0145\", \"text\": \"Identify the father of p-f05-c1.\"}\n{\"qid\": \"q0146\", \"text\": \"Who is the father of p-f05-c2?\"}\n{\"qid\": \"q0147\", \"text\": \"What was p-f05-g1's father?\"}\n{\"qid\": \"q0148\", \"text\": \"Tell me who is p-f05-g2's father.\"}\n{\"qid\": \"q0149\", \"text\": \"Who fathered p-f06-c1?\"}\n{\"qid\": \"q0150\", \"text\": \"p-f06-c2 had which father?\"}\n{\"qid\": \"q0151\", \"text\": \"Name p-f06-g1's father.\"}\n{\"qid\": \"q0152\", \"text\": \"Who is the father of p-f06-g2?\"}\n{\"qid\": \"q0153\", \"text\": \"What is p-f07-c1's father?\"}\n{\"qid\": \"q0154\", \"text\": \"Tell me the father of p-f07-c2.\"}\n{\"qid\": \"q0155\", \"text\": \"Who was p-f07-g1's father?\"}\n{\"qid\": \"q0156\", \"text\": \"Identify p-f07-g2's father.\"}\n{\"qid\": \"q0157\", \"text\": \"Who is the father of p-f08-c1?\"}\n{\"qid\": \"q0158\", \"text\": \"p-f08-c2's father was?\"}\n{\"qid\": \"q0159\", \"text\": \"Name the father of p-f08-g1.\"}\n{\"qid\": \"q0160\", \"text\": \"Tell me who fathered p-f08-g2.\"}\n{\"qid\": \"q0161\", \"text\": \"What was the father of p-f09-c1?\"}\n{\"qid\": \"q0162\", \"text\": \"Who is p-f09-c2's father?\"}\n{\"qid\": \"q0163\", \"text\": \"p-f09-g1's father is whom?\"}\n{\"qid\": \"q0164\", \"text\": \"Tell me the father of p-f09-g2.\"}\n{\"qid\": \"q0165\", \"text\": \"Identify p-f10-c1's father.\"}\n{\"qid\": \"q0166\", \"text\": \"Who fathered p-f10-c2?\"}\n{\"qid\": \"q0167\", \"text\": \"What is the father of p-f10-g1?\"}\n{\"qid\": \"q0168\", \"text\": \"Who is p-f10-g2's father?\"}\n{\"qid\": \"q0169\", \"text\": \"Tell me the father of p-f11-c1.\"}\n{\"qid\": \"q0170\", \"text\": \"p-f11-c2 had which father?\"}\n{\"qid\": \"q0171\", \"text\": \"Name the father of p-f11-g1.\"}\n{\"qid\": \"q0172\", \"text\": \"Who was p-f11-g2's father?\"}\n{\"qid\": \"q0173\", \"text\": \"What was p-f12-c1's father?\"}\n{\"qid\": \"q0174\", \"text\": \"Who is the father of p-f12-c2?\"}\n{\"qid\": \"q0175\", \"text\": \"p-f12-g1's father was whom?\"}\n{\"qid\": \"q0176\", \"text\": \"Identify the father of p-f12-g2.\"}\n{\"qid\": \"q0177\", \"text\": \"Who fathered p-f13-c1?\"}\n{\"qid\": \"q0178\", \"text\": \"Tell me p-f13-c2's father.\"}\n{\"qid\": \"q0179\", \"text\": \"What is p-f13-g1's father?\"}\n{\"qid\": \"q0180\", \"text\": \"Who is the father of p-f13-g2?\"}\n{\"qid\": \"q0181\", \"text\": \"Name p-f14-c1's father.\"}\n{\"qid\": \"q0182\", \"text\": \"Who was p-f14-c2's father?\"}\n{\"qid\": \"q0183\", \"text\": \"Tell me the father of p-f14-g1.\"}\n{\"qid\": \"q0184\", \"text\": \"p-f14-g2 had which father?\"}\n{\"qid\": \"q0185\", \"text\": \"What is the father of p-f15-c1?\"}\n{\"qid\": \"q0186\", \"text\": \"Who is p-f15-c2's father?\"}\n{\"qid\": \"q0187\", \"text\": \"Identify p-f15-g1's father.\"}\n{\"qid\": \"q0188\", \"text\": \"Tell me who fathered p-f15-g2.\"}\n{\"qid\": \"q0189\", \"text\": \"Who was the father of p-f16-c1?\"}\n{\"qid\": \"q0190\", \"text\": \"p-f16-c2's father is whom?\"}\n{\"qid\": \"q0191\", \"text\": \"Name the father of p-f16-g1.\"}\n{\"qid\": \"q0192\", \"text\": \"Who is p-f16-g2's father?\"}\n{\"qid\": \"q0193\", \"text\": \"What was p-f17-c1's father?\"}\n{\"qid\": \"q0194\", \"text\": \"Tell me the father of p-f17-c2.\"}\n{\"qid\": \"q0195\", \"text\": \"Who fathered p-f17-g1?\"}\n{\"qid\": \"q0196\", \"text\": \"p-f17-g2 had which father?\"}\n{\"qid\": \"q0197\", \"text\": \"Who is the father of p-f18-c1?\"}\n{\"qid\": \"q0198\", \"text\": \"Identify p-f18-c2's father.\"}\n{\"qid\": \"q0199\", \"text\": \"What is p-f18-g1's father?\"}\n{\"qid\": \"q0200\", \"text\": \"Tell me who is the father of p-f18-g2.\"}\n```","stop_reason":"end_turn","session_id":"9ff6cc83-45fb-4fb5-874b-ea88058ba340","total_cost_usd":0.028279000000000002,"usage":{"input_tokens":2,"cache_creation_input_tokens":4978,"cache_read_input_tokens":0,"output_tokens":2745,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":4978,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2,"output_tokens":2745,"cache_read_input_tokens":0,"cache_creation_input_tokens":4978,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4978},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":4513,"outputTokens":2762,"cacheReadInputTokens":0,"cacheCreationInputTokens":4978,"webSearchRequests":0,"costUSD":0.028279000000000002,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"675e12cd-93ca-4e5e-9bd4-4a26429e7119"}
+

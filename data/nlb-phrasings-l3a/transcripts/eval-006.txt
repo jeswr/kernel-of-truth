@@ -1,0 +1,165 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — l3a-parse blind phrasings (family/world vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items. For EACH item, write ONE natural-English question and output ONE JSON
+line: `{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the entity's canonical name. Refer to the entity by this
+  name, verbatim; you may write its hyphens as spaces (e.g. `elvis-presley`
+  or `elvis presley`), but do not otherwise alter, shorten, or expand it.
+- `rel_label` / `concept_label` — the relation or category word(s) the
+  question is about (e.g. `mother`, `maker of`, `woman`). This is the
+  relation's name; use it naturally in your question (you may inflect it:
+  plural, verb form). Do not substitute a synonym for it unless a synonym is
+  simply how you would naturally ask — you are free to phrase naturally.
+- `shape` — the MEANING your question must carry. "The R of X" below means
+  the relation read left-to-right (the mother of X, the maker of X):
+  - `one-role`: ask for THE `rel_label` of the entity — exactly one specific
+    answer is expected.
+  - `all-role`: ask for ALL the `rel_label` of the entity — a list.
+  - `count-role`: ask HOW MANY `rel_label` the entity has.
+  - `one-holder`: ask for THE ONE thing/person the entity is the `rel_label`
+    of (equivalently: the one whose `rel_label` is the entity). Make the
+    exactly-one expectation explicit in the wording (e.g. "the one …").
+  - `all-holder`: ask for EVERYTHING/EVERYONE the entity is the `rel_label`
+    of (equivalently: all who have the entity as their `rel_label`).
+  - `count-holder`: ask HOW MANY have the entity as their `rel_label`.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (a yes/no question).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess at an answer,
+   never hedge ("if he exists"), never mention this prompt or the packet.
+4. VARY your syntax. Across the items you write for the same relation and
+   shape, use genuinely different constructions: direct questions
+   ("Who is the mother of X?"), possessives ("X's mother"), inverted or
+   embedded forms ("Tell me who ..."), passives, clefts. At most half of
+   your items for one relation+shape may follow the same construction, and
+   do not copy the gloss wording above verbatim.
+5. Write the question a normal person would ask to get exactly the packeted
+   meaning — no more, no less (do not add qualifiers, dates, or extra
+   conditions).
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### BATCH STDIN (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/packets/packets-eval-006.jsonl) #####
+{"entity_label": "elvis-presley", "qid": "q0601", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "lisa-marie-presley", "qid": "q0602", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f00-c1", "qid": "q0603", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f00-c2", "qid": "q0604", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f00-g1", "qid": "q0605", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f00-g2", "qid": "q0606", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f01-c1", "qid": "q0607", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f01-c2", "qid": "q0608", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f01-g1", "qid": "q0609", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f01-g2", "qid": "q0610", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f02-c1", "qid": "q0611", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f02-c2", "qid": "q0612", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f02-g1", "qid": "q0613", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f02-g2", "qid": "q0614", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f03-c1", "qid": "q0615", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f03-c2", "qid": "q0616", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f03-g1", "qid": "q0617", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f03-g2", "qid": "q0618", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f04-c1", "qid": "q0619", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f04-c2", "qid": "q0620", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f04-g1", "qid": "q0621", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f04-g2", "qid": "q0622", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f05-c1", "qid": "q0623", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f05-c2", "qid": "q0624", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f05-g1", "qid": "q0625", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f05-g2", "qid": "q0626", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f06-c1", "qid": "q0627", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f06-c2", "qid": "q0628", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f06-g1", "qid": "q0629", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f06-g2", "qid": "q0630", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f07-c1", "qid": "q0631", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f07-c2", "qid": "q0632", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f07-g1", "qid": "q0633", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f07-g2", "qid": "q0634", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f08-c1", "qid": "q0635", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f08-c2", "qid": "q0636", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f08-g1", "qid": "q0637", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f08-g2", "qid": "q0638", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f09-c1", "qid": "q0639", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f09-c2", "qid": "q0640", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f09-g1", "qid": "q0641", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f09-g2", "qid": "q0642", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f10-c1", "qid": "q0643", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f10-c2", "qid": "q0644", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f10-g1", "qid": "q0645", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f10-g2", "qid": "q0646", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f11-c1", "qid": "q0647", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f11-c2", "qid": "q0648", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f11-g1", "qid": "q0649", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f11-g2", "qid": "q0650", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f12-c1", "qid": "q0651", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f12-c2", "qid": "q0652", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f12-g1", "qid": "q0653", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f12-g2", "qid": "q0654", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f13-c1", "qid": "q0655", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f13-c2", "qid": "q0656", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f13-g1", "qid": "q0657", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f13-g2", "qid": "q0658", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "p-f14-c1", "qid": "q0659", "rel_label": "friend", "shape": "all-role"}
+{"entity_label": "p-f14-c2", "qid": "q0660", "rel_label": "teacher", "shape": "all-role"}
+{"entity_label": "ghost-00", "qid": "q0661", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-01", "qid": "q0662", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-02", "qid": "q0663", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-03", "qid": "q0664", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-04", "qid": "q0665", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-05", "qid": "q0666", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-06", "qid": "q0667", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-07", "qid": "q0668", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-08", "qid": "q0669", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-09", "qid": "q0670", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-10", "qid": "q0671", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-11", "qid": "q0672", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-12", "qid": "q0673", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-13", "qid": "q0674", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-14", "qid": "q0675", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-15", "qid": "q0676", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-16", "qid": "q0677", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-17", "qid": "q0678", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-18", "qid": "q0679", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-19", "qid": "q0680", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-20", "qid": "q0681", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-21", "qid": "q0682", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-22", "qid": "q0683", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-23", "qid": "q0684", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-24", "qid": "q0685", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-25", "qid": "q0686", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-26", "qid": "q0687", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-27", "qid": "q0688", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-28", "qid": "q0689", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-29", "qid": "q0690", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-30", "qid": "q0691", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-31", "qid": "q0692", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-32", "qid": "q0693", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-33", "qid": "q0694", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-34", "qid": "q0695", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-35", "qid": "q0696", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-36", "qid": "q0697", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-37", "qid": "q0698", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-38", "qid": "q0699", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "ghost-39", "qid": "q0700", "rel_label": "mother", "shape": "one-role"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=dc903d85-293e-4af1-a291-ed32110686dc  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"dc903d85-293e-4af1-a291-ed32110686dc","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"5c57a6b0-cceb-439f-8863-ffb9af803bd2","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.91,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"0c346e01-1e40-463b-92d9-68419e99071b","session_id":"dc903d85-293e-4af1-a291-ed32110686dc"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctKmgs6Gvnh5u6CQY8F6","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"q0601\", \"text\": \"Who are all of Elvis Presley's friends?\"}\n{\"qid\": \"q0602\", \"text\": \"Which teachers did Lisa Marie Presley have?\"}\n{\"qid\": \"q0603\", \"text\": \"List the friends of p f00 c1.\"}\n{\"qid\": \"q0604\", \"text\": \"Who taught p f00 c2?\"}\n{\"qid\": \"q0605\", \"text\": \"Name all the friends that p f00 g1 has.\"}\n{\"qid\": \"q0606\", \"text\": \"What are the teachers of p f00 g2?\"}\n{\"qid\": \"q0607\", \"text\": \"Who counts as a friend of p f01 c1?\"}\n{\"qid\": \"q0608\", \"text\": \"List p f01 c2's teachers.\"}\n{\"qid\": \"q0609\", \"text\": \"What friends does p f01 g1 have?\"}\n{\"qid\": \"q0610\", \"text\": \"Name the teachers of p f01 g2.\"}\n{\"qid\": \"q0611\", \"text\": \"Tell me who the friends of p f02 c1 are.\"}\n{\"qid\": \"q0612\", \"text\": \"Which people taught p f02 c2?\"}\n{\"qid\": \"q0613\", \"text\": \"p f02 g1's friends include whom?\"}\n{\"qid\": \"q0614\", \"text\": \"Who were p f02 g2's teachers?\"}\n{\"qid\": \"q0615\", \"text\": \"List all friends of p f03 c1.\"}\n{\"qid\": \"q0616\", \"text\": \"What teachers did p f03 c2 have?\"}\n{\"qid\": \"q0617\", \"text\": \"Who are the friends that p f03 g1 counts?\"}\n{\"qid\": \"q0618\", \"text\": \"Name all the teachers of p f03 g2.\"}\n{\"qid\": \"q0619\", \"text\": \"Tell me the friends of p f04 c1.\"}\n{\"qid\": \"q0620\", \"text\": \"Which instructors taught p f04 c2?\"}\n{\"qid\": \"q0621\", \"text\": \"p f04 g1 has which friends?\"}\n{\"qid\": \"q0622\", \"text\": \"List the teachers who taught p f04 g2.\"}\n{\"qid\": \"q0623\", \"text\": \"Who are all of p f05 c1's friends?\"}\n{\"qid\": \"q0624\", \"text\": \"Name the teachers of p f05 c2.\"}\n{\"qid\": \"q0625\", \"text\": \"What friends belong to p f05 g1?\"}\n{\"qid\": \"q0626\", \"text\": \"Which people were teachers of p f05 g2?\"}\n{\"qid\": \"q0627\", \"text\": \"Tell me the friends that p f06 c1 has.\"}\n{\"qid\": \"q0628\", \"text\": \"Who taught p f06 c2?\"}\n{\"qid\": \"q0629\", \"text\": \"List p f06 g1's friends.\"}\n{\"qid\": \"q0630\", \"text\": \"p f06 g2's teachers are whom?\"}\n{\"qid\": \"q0631\", \"text\": \"Name the friends of p f07 c1.\"}\n{\"qid\": \"q0632\", \"text\": \"What teachers did p f07 c2 study under?\"}\n{\"qid\": \"q0633\", \"text\": \"Who counts among the friends of p f07 g1?\"}\n{\"qid\": \"q0634\", \"text\": \"List all teachers of p f07 g2.\"}\n{\"qid\": \"q0635\", \"text\": \"Tell me who the friends of p f08 c1 are.\"}\n{\"qid\": \"q0636\", \"text\": \"Which teachers taught p f08 c2?\"}\n{\"qid\": \"q0637\", \"text\": \"p f08 g1's friends include which people?\"}\n{\"qid\": \"q0638\", \"text\": \"Name p f08 g2's teachers.\"}\n{\"qid\": \"q0639\", \"text\": \"Who are all the friends of p f09 c1?\"}\n{\"qid\": \"q0640\", \"text\": \"List the teachers of p f09 c2.\"}\n{\"qid\": \"q0641\", \"text\": \"What friends does p f09 g1 have?\"}\n{\"qid\": \"q0642\", \"text\": \"Who were p f09 g2's teachers?\"}\n{\"qid\": \"q0643\", \"text\": \"Tell me the friends of p f10 c1.\"}\n{\"qid\": \"q0644\", \"text\": \"Which people taught p f10 c2?\"}\n{\"qid\": \"q0645\", \"text\": \"Name all friends of p f10 g1.\"}\n{\"qid\": \"q0646\", \"text\": \"List p f10 g2's teachers.\"}\n{\"qid\": \"q0647\", \"text\": \"Who are the friends that p f11 c1 has?\"}\n{\"qid\": \"q0648\", \"text\": \"What teachers did p f11 c2 have?\"}\n{\"qid\": \"q0649\", \"text\": \"Tell me the friends of p f11 g1.\"}\n{\"qid\": \"q0650\", \"text\": \"Name the teachers of p f11 g2.\"}\n{\"qid\": \"q0651\", \"text\": \"List all of p f12 c1's friends.\"}\n{\"qid\": \"q0652\", \"text\": \"Who taught p f12 c2?\"}\n{\"qid\": \"q0653\", \"text\": \"What are the friends of p f12 g1?\"}\n{\"qid\": \"q0654\", \"text\": \"Which teachers taught p f12 g2?\"}\n{\"qid\": \"q0655\", \"text\": \"Who counts as a friend of p f13 c1?\"}\n{\"qid\": \"q0656\", \"text\": \"List p f13 c2's teachers.\"}\n{\"qid\": \"q0657\", \"text\": \"Name the friends that p f13 g1 has.\"}\n{\"qid\": \"q0658\", \"text\": \"What were the teachers of p f13 g2?\"}\n{\"qid\": \"q0659\", \"text\": \"Tell me all the friends of p f14 c1.\"}\n{\"qid\": \"q0660\", \"text\": \"Which people were teachers of p f14 c2?\"}\n{\"qid\": \"q0661\", \"text\": \"Who is the mother of ghost 00?\"}\n{\"qid\": \"q0662\", \"text\": \"What is ghost 01's mother's name?\"}\n{\"qid\": \"q0663\", \"text\": \"Tell me the mother of ghost 02.\"}\n{\"qid\": \"q0664\", \"text\": \"Who gave birth to ghost 03?\"}\n{\"qid\": \"q0665\", \"text\": \"Ghost 04's mother is whom?\"}\n{\"qid\": \"q0666\", \"text\": \"Name the mother of ghost 05.\"}\n{\"qid\": \"q0667\", \"text\": \"Who is ghost 06's mother?\"}\n{\"qid\": \"q0668\", \"text\": \"The mother of ghost 07 is?\"}\n{\"qid\": \"q0669\", \"text\": \"Tell me who the mother of ghost 08 is.\"}\n{\"qid\": \"q0670\", \"text\": \"What is the name of ghost 09's mother?\"}\n{\"qid\": \"q0671\", \"text\": \"Who gave birth to ghost 10?\"}\n{\"qid\": \"q0672\", \"text\": \"Ghost 11's mother is whom?\"}\n{\"qid\": \"q0673\", \"text\": \"Name ghost 12's mother.\"}\n{\"qid\": \"q0674\", \"text\": \"Who is the mother of ghost 13?\"}\n{\"qid\": \"q0675\", \"text\": \"Tell me the mother of ghost 14.\"}\n{\"qid\": \"q0676\", \"text\": \"Ghost 15's mother is?\"}\n{\"qid\": \"q0677\", \"text\": \"Who gave birth to ghost 16?\"}\n{\"qid\": \"q0678\", \"text\": \"What is ghost 17's mother?\"}\n{\"qid\": \"q0679\", \"text\": \"Name the mother of ghost 18.\"}\n{\"qid\": \"q0680\", \"text\": \"Ghost 19 was born to whom?\"}\n{\"qid\": \"q0681\", \"text\": \"Who is the mother of ghost 20?\"}\n{\"qid\": \"q0682\", \"text\": \"Tell me ghost 21's mother.\"}\n{\"qid\": \"q0683\", \"text\": \"Who gave birth to ghost 22?\"}\n{\"qid\": \"q0684\", \"text\": \"Ghost 23's mother is whom?\"}\n{\"qid\": \"q0685\", \"text\": \"Name the mother of ghost 24.\"}\n{\"qid\": \"q0686\", \"text\": \"Who is ghost 25's mother?\"}\n{\"qid\": \"q0687\", \"text\": \"Tell me the mother of ghost 26.\"}\n{\"qid\": \"q0688\", \"text\": \"Ghost 27 was born to whom?\"}\n{\"qid\": \"q0689\", \"text\": \"Who gave birth to ghost 28?\"}\n{\"qid\": \"q0690\", \"text\": \"Ghost 29's mother is?\"}\n{\"qid\": \"q0691\", \"text\": \"Name ghost 30's mother.\"}\n{\"qid\": \"q0692\", \"text\": \"Who is the mother of ghost 31?\"}\n{\"qid\": \"q0693\", \"text\": \"Tell me the mother of ghost 32.\"}\n{\"qid\": \"q0694\", \"text\": \"Who gave birth to ghost 33?\"}\n{\"qid\": \"q0695\", \"text\": \"Ghost 34's mother is whom?\"}\n{\"qid\": \"q0696\", \"text\": \"Name the mother of ghost 35.\"}\n{\"qid\": \"q0697\", \"text\": \"Who is ghost 36's mother?\"}\n{\"qid\": \"q0698\", \"text\": \"Tell me ghost 37's mother.\"}\n{\"qid\": \"q0699\", \"text\": \"Who gave birth to ghost 38?\"}\n{\"qid\": \"q0700\", \"text\": \"Ghost 39's mother is?\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2,"cache_creation_input_tokens":4818,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4818},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"dc903d85-293e-4af1-a291-ed32110686dc","uuid":"bc7dbc43-0ebf-445d-802d-ae19aef0915d","request_id":"req_011CctKmgCf4Shaj6ZmRhFoL"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":20264,"duration_api_ms":22341,"ttft_ms":20241,"ttft_stream_ms":868,"time_to_request_ms":90,"num_turns":1,"result":"```json\n{\"qid\": \"q0601\", \"text\": \"Who are all of Elvis Presley's friends?\"}\n{\"qid\": \"q0602\", \"text\": \"Which teachers did Lisa Marie Presley have?\"}\n{\"qid\": \"q0603\", \"text\": \"List the friends of p f00 c1.\"}\n{\"qid\": \"q0604\", \"text\": \"Who taught p f00 c2?\"}\n{\"qid\": \"q0605\", \"text\": \"Name all the friends that p f00 g1 has.\"}\n{\"qid\": \"q0606\", \"text\": \"What are the teachers of p f00 g2?\"}\n{\"qid\": \"q0607\", \"text\": \"Who counts as a friend of p f01 c1?\"}\n{\"qid\": \"q0608\", \"text\": \"List p f01 c2's teachers.\"}\n{\"qid\": \"q0609\", \"text\": \"What friends does p f01 g1 have?\"}\n{\"qid\": \"q0610\", \"text\": \"Name the teachers of p f01 g2.\"}\n{\"qid\": \"q0611\", \"text\": \"Tell me who the friends of p f02 c1 are.\"}\n{\"qid\": \"q0612\", \"text\": \"Which people taught p f02 c2?\"}\n{\"qid\": \"q0613\", \"text\": \"p f02 g1's friends include whom?\"}\n{\"qid\": \"q0614\", \"text\": \"Who were p f02 g2's teachers?\"}\n{\"qid\": \"q0615\", \"text\": \"List all friends of p f03 c1.\"}\n{\"qid\": \"q0616\", \"text\": \"What teachers did p f03 c2 have?\"}\n{\"qid\": \"q0617\", \"text\": \"Who are the friends that p f03 g1 counts?\"}\n{\"qid\": \"q0618\", \"text\": \"Name all the teachers of p f03 g2.\"}\n{\"qid\": \"q0619\", \"text\": \"Tell me the friends of p f04 c1.\"}\n{\"qid\": \"q0620\", \"text\": \"Which instructors taught p f04 c2?\"}\n{\"qid\": \"q0621\", \"text\": \"p f04 g1 has which friends?\"}\n{\"qid\": \"q0622\", \"text\": \"List the teachers who taught p f04 g2.\"}\n{\"qid\": \"q0623\", \"text\": \"Who are all of p f05 c1's friends?\"}\n{\"qid\": \"q0624\", \"text\": \"Name the teachers of p f05 c2.\"}\n{\"qid\": \"q0625\", \"text\": \"What friends belong to p f05 g1?\"}\n{\"qid\": \"q0626\", \"text\": \"Which people were teachers of p f05 g2?\"}\n{\"qid\": \"q0627\", \"text\": \"Tell me the friends that p f06 c1 has.\"}\n{\"qid\": \"q0628\", \"text\": \"Who taught p f06 c2?\"}\n{\"qid\": \"q0629\", \"text\": \"List p f06 g1's friends.\"}\n{\"qid\": \"q0630\", \"text\": \"p f06 g2's teachers are whom?\"}\n{\"qid\": \"q0631\", \"text\": \"Name the friends of p f07 c1.\"}\n{\"qid\": \"q0632\", \"text\": \"What teachers did p f07 c2 study under?\"}\n{\"qid\": \"q0633\", \"text\": \"Who counts among the friends of p f07 g1?\"}\n{\"qid\": \"q0634\", \"text\": \"List all teachers of p f07 g2.\"}\n{\"qid\": \"q0635\", \"text\": \"Tell me who the friends of p f08 c1 are.\"}\n{\"qid\": \"q0636\", \"text\": \"Which teachers taught p f08 c2?\"}\n{\"qid\": \"q0637\", \"text\": \"p f08 g1's friends include which people?\"}\n{\"qid\": \"q0638\", \"text\": \"Name p f08 g2's teachers.\"}\n{\"qid\": \"q0639\", \"text\": \"Who are all the friends of p f09 c1?\"}\n{\"qid\": \"q0640\", \"text\": \"List the teachers of p f09 c2.\"}\n{\"qid\": \"q0641\", \"text\": \"What friends does p f09 g1 have?\"}\n{\"qid\": \"q0642\", \"text\": \"Who were p f09 g2's teachers?\"}\n{\"qid\": \"q0643\", \"text\": \"Tell me the friends of p f10 c1.\"}\n{\"qid\": \"q0644\", \"text\": \"Which people taught p f10 c2?\"}\n{\"qid\": \"q0645\", \"text\": \"Name all friends of p f10 g1.\"}\n{\"qid\": \"q0646\", \"text\": \"List p f10 g2's teachers.\"}\n{\"qid\": \"q0647\", \"text\": \"Who are the friends that p f11 c1 has?\"}\n{\"qid\": \"q0648\", \"text\": \"What teachers did p f11 c2 have?\"}\n{\"qid\": \"q0649\", \"text\": \"Tell me the friends of p f11 g1.\"}\n{\"qid\": \"q0650\", \"text\": \"Name the teachers of p f11 g2.\"}\n{\"qid\": \"q0651\", \"text\": \"List all of p f12 c1's friends.\"}\n{\"qid\": \"q0652\", \"text\": \"Who taught p f12 c2?\"}\n{\"qid\": \"q0653\", \"text\": \"What are the friends of p f12 g1?\"}\n{\"qid\": \"q0654\", \"text\": \"Which teachers taught p f12 g2?\"}\n{\"qid\": \"q0655\", \"text\": \"Who counts as a friend of p f13 c1?\"}\n{\"qid\": \"q0656\", \"text\": \"List p f13 c2's teachers.\"}\n{\"qid\": \"q0657\", \"text\": \"Name the friends that p f13 g1 has.\"}\n{\"qid\": \"q0658\", \"text\": \"What were the teachers of p f13 g2?\"}\n{\"qid\": \"q0659\", \"text\": \"Tell me all the friends of p f14 c1.\"}\n{\"qid\": \"q0660\", \"text\": \"Which people were teachers of p f14 c2?\"}\n{\"qid\": \"q0661\", \"text\": \"Who is the mother of ghost 00?\"}\n{\"qid\": \"q0662\", \"text\": \"What is ghost 01's mother's name?\"}\n{\"qid\": \"q0663\", \"text\": \"Tell me the mother of ghost 02.\"}\n{\"qid\": \"q0664\", \"text\": \"Who gave birth to ghost 03?\"}\n{\"qid\": \"q0665\", \"text\": \"Ghost 04's mother is whom?\"}\n{\"qid\": \"q0666\", \"text\": \"Name the mother of ghost 05.\"}\n{\"qid\": \"q0667\", \"text\": \"Who is ghost 06's mother?\"}\n{\"qid\": \"q0668\", \"text\": \"The mother of ghost 07 is?\"}\n{\"qid\": \"q0669\", \"text\": \"Tell me who the mother of ghost 08 is.\"}\n{\"qid\": \"q0670\", \"text\": \"What is the name of ghost 09's mother?\"}\n{\"qid\": \"q0671\", \"text\": \"Who gave birth to ghost 10?\"}\n{\"qid\": \"q0672\", \"text\": \"Ghost 11's mother is whom?\"}\n{\"qid\": \"q0673\", \"text\": \"Name ghost 12's mother.\"}\n{\"qid\": \"q0674\", \"text\": \"Who is the mother of ghost 13?\"}\n{\"qid\": \"q0675\", \"text\": \"Tell me the mother of ghost 14.\"}\n{\"qid\": \"q0676\", \"text\": \"Ghost 15's mother is?\"}\n{\"qid\": \"q0677\", \"text\": \"Who gave birth to ghost 16?\"}\n{\"qid\": \"q0678\", \"text\": \"What is ghost 17's mother?\"}\n{\"qid\": \"q0679\", \"text\": \"Name the mother of ghost 18.\"}\n{\"qid\": \"q0680\", \"text\": \"Ghost 19 was born to whom?\"}\n{\"qid\": \"q0681\", \"text\": \"Who is the mother of ghost 20?\"}\n{\"qid\": \"q0682\", \"text\": \"Tell me ghost 21's mother.\"}\n{\"qid\": \"q0683\", \"text\": \"Who gave birth to ghost 22?\"}\n{\"qid\": \"q0684\", \"text\": \"Ghost 23's mother is whom?\"}\n{\"qid\": \"q0685\", \"text\": \"Name the mother of ghost 24.\"}\n{\"qid\": \"q0686\", \"text\": \"Who is ghost 25's mother?\"}\n{\"qid\": \"q0687\", \"text\": \"Tell me the mother of ghost 26.\"}\n{\"qid\": \"q0688\", \"text\": \"Ghost 27 was born to whom?\"}\n{\"qid\": \"q0689\", \"text\": \"Who gave birth to ghost 28?\"}\n{\"qid\": \"q0690\", \"text\": \"Ghost 29's mother is?\"}\n{\"qid\": \"q0691\", \"text\": \"Name ghost 30's mother.\"}\n{\"qid\": \"q0692\", \"text\": \"Who is the mother of ghost 31?\"}\n{\"qid\": \"q0693\", \"text\": \"Tell me the mother of ghost 32.\"}\n{\"qid\": \"q0694\", \"text\": \"Who gave birth to ghost 33?\"}\n{\"qid\": \"q0695\", \"text\": \"Ghost 34's mother is whom?\"}\n{\"qid\": \"q0696\", \"text\": \"Name the mother of ghost 35.\"}\n{\"qid\": \"q0697\", \"text\": \"Who is ghost 36's mother?\"}\n{\"qid\": \"q0698\", \"text\": \"Tell me ghost 37's mother.\"}\n{\"qid\": \"q0699\", \"text\": \"Who gave birth to ghost 38?\"}\n{\"qid\": \"q0700\", \"text\": \"Ghost 39's mother is?\"}\n```","stop_reason":"end_turn","session_id":"dc903d85-293e-4af1-a291-ed32110686dc","total_cost_usd":0.026749000000000002,"usage":{"input_tokens":2,"cache_creation_input_tokens":4818,"cache_read_input_tokens":0,"output_tokens":2538,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":4818,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2,"output_tokens":2538,"cache_read_input_tokens":0,"cache_creation_input_tokens":4818,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4818},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":4353,"outputTokens":2552,"cacheReadInputTokens":0,"cacheCreationInputTokens":4818,"webSearchRequests":0,"costUSD":0.026749000000000002,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"a4241e2a-8d8a-43f1-8b87-3834599689f7"}
+

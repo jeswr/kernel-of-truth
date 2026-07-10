@@ -1,0 +1,165 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — l3a-parse blind phrasings (family/world vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items. For EACH item, write ONE natural-English question and output ONE JSON
+line: `{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the entity's canonical name. Refer to the entity by this
+  name, verbatim; you may write its hyphens as spaces (e.g. `elvis-presley`
+  or `elvis presley`), but do not otherwise alter, shorten, or expand it.
+- `rel_label` / `concept_label` — the relation or category word(s) the
+  question is about (e.g. `mother`, `maker of`, `woman`). This is the
+  relation's name; use it naturally in your question (you may inflect it:
+  plural, verb form). Do not substitute a synonym for it unless a synonym is
+  simply how you would naturally ask — you are free to phrase naturally.
+- `shape` — the MEANING your question must carry. "The R of X" below means
+  the relation read left-to-right (the mother of X, the maker of X):
+  - `one-role`: ask for THE `rel_label` of the entity — exactly one specific
+    answer is expected.
+  - `all-role`: ask for ALL the `rel_label` of the entity — a list.
+  - `count-role`: ask HOW MANY `rel_label` the entity has.
+  - `one-holder`: ask for THE ONE thing/person the entity is the `rel_label`
+    of (equivalently: the one whose `rel_label` is the entity). Make the
+    exactly-one expectation explicit in the wording (e.g. "the one …").
+  - `all-holder`: ask for EVERYTHING/EVERYONE the entity is the `rel_label`
+    of (equivalently: all who have the entity as their `rel_label`).
+  - `count-holder`: ask HOW MANY have the entity as their `rel_label`.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (a yes/no question).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess at an answer,
+   never hedge ("if he exists"), never mention this prompt or the packet.
+4. VARY your syntax. Across the items you write for the same relation and
+   shape, use genuinely different constructions: direct questions
+   ("Who is the mother of X?"), possessives ("X's mother"), inverted or
+   embedded forms ("Tell me who ..."), passives, clefts. At most half of
+   your items for one relation+shape may follow the same construction, and
+   do not copy the gloss wording above verbatim.
+5. Write the question a normal person would ask to get exactly the packeted
+   meaning — no more, no less (do not add qualifiers, dates, or extra
+   conditions).
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### BATCH STDIN (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/packets/packets-eval-000.jsonl) #####
+{"entity_label": "elvis-presley", "qid": "q0001", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "lisa-marie-presley", "qid": "q0002", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f00-c1", "qid": "q0003", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f00-c2", "qid": "q0004", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f00-g1", "qid": "q0005", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f00-g2", "qid": "q0006", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f01-c1", "qid": "q0007", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f01-c2", "qid": "q0008", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f01-g1", "qid": "q0009", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f01-g2", "qid": "q0010", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f02-c1", "qid": "q0011", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f02-c2", "qid": "q0012", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f02-g1", "qid": "q0013", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f02-g2", "qid": "q0014", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f03-c1", "qid": "q0015", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f03-c2", "qid": "q0016", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f03-g1", "qid": "q0017", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f03-g2", "qid": "q0018", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f04-c1", "qid": "q0019", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f04-c2", "qid": "q0020", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f04-g1", "qid": "q0021", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f04-g2", "qid": "q0022", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f05-c1", "qid": "q0023", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f05-c2", "qid": "q0024", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f05-g1", "qid": "q0025", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f05-g2", "qid": "q0026", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f06-c1", "qid": "q0027", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f06-c2", "qid": "q0028", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f06-g1", "qid": "q0029", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f06-g2", "qid": "q0030", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f07-c1", "qid": "q0031", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f07-c2", "qid": "q0032", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f07-g1", "qid": "q0033", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f07-g2", "qid": "q0034", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f08-c1", "qid": "q0035", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f08-c2", "qid": "q0036", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f08-g1", "qid": "q0037", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f08-g2", "qid": "q0038", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f09-c1", "qid": "q0039", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f09-c2", "qid": "q0040", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f09-g1", "qid": "q0041", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f09-g2", "qid": "q0042", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f10-c1", "qid": "q0043", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f10-c2", "qid": "q0044", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f10-g1", "qid": "q0045", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f10-g2", "qid": "q0046", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f11-c1", "qid": "q0047", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f11-c2", "qid": "q0048", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f11-g1", "qid": "q0049", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f11-g2", "qid": "q0050", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f12-c1", "qid": "q0051", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f12-c2", "qid": "q0052", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f12-g1", "qid": "q0053", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f12-g2", "qid": "q0054", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f13-c1", "qid": "q0055", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f13-c2", "qid": "q0056", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f13-g1", "qid": "q0057", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f13-g2", "qid": "q0058", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f14-c1", "qid": "q0059", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f14-c2", "qid": "q0060", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f14-g1", "qid": "q0061", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f14-g2", "qid": "q0062", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f15-c1", "qid": "q0063", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f15-c2", "qid": "q0064", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f15-g1", "qid": "q0065", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f15-g2", "qid": "q0066", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f16-c1", "qid": "q0067", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f16-c2", "qid": "q0068", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f16-g1", "qid": "q0069", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f16-g2", "qid": "q0070", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f17-c1", "qid": "q0071", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f17-c2", "qid": "q0072", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f17-g1", "qid": "q0073", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f17-g2", "qid": "q0074", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f18-c1", "qid": "q0075", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f18-c2", "qid": "q0076", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f18-g1", "qid": "q0077", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f18-g2", "qid": "q0078", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f19-c1", "qid": "q0079", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f19-c2", "qid": "q0080", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f19-g1", "qid": "q0081", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f19-g2", "qid": "q0082", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f20-c1", "qid": "q0083", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f20-c2", "qid": "q0084", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f20-g1", "qid": "q0085", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f20-g2", "qid": "q0086", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f21-c1", "qid": "q0087", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f21-c2", "qid": "q0088", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f21-g1", "qid": "q0089", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f21-g2", "qid": "q0090", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f22-c1", "qid": "q0091", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f22-c2", "qid": "q0092", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f22-g1", "qid": "q0093", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f22-g2", "qid": "q0094", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f23-c1", "qid": "q0095", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f23-c2", "qid": "q0096", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f23-g1", "qid": "q0097", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f23-g2", "qid": "q0098", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f24-c1", "qid": "q0099", "rel_label": "mother", "shape": "one-role"}
+{"entity_label": "p-f24-c2", "qid": "q0100", "rel_label": "mother", "shape": "one-role"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=b98e7145-e238-4011-8a6d-9be75e91f86d  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"b98e7145-e238-4011-8a6d-9be75e91f86d","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"2a17c5f8-343a-4f76-9b92-8568d34c4c58","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.9,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"8d43d5e7-73cc-4f21-8b31-73f0458db481","session_id":"b98e7145-e238-4011-8a6d-9be75e91f86d"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctKk4zZFC7HZJmC1YSxw","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"q0001\", \"text\": \"Who is the mother of elvis presley?\"}\n{\"qid\": \"q0002\", \"text\": \"What is lisa marie presley's mother's name?\"}\n{\"qid\": \"q0003\", \"text\": \"Tell me who the mother of p f00 c1 is.\"}\n{\"qid\": \"q0004\", \"text\": \"Who gave birth to p f00 c2?\"}\n{\"qid\": \"q0005\", \"text\": \"What is the name of p f00 g1's mother?\"}\n{\"qid\": \"q0006\", \"text\": \"Who is p f00 g2's mother?\"}\n{\"qid\": \"q0007\", \"text\": \"Tell me the mother of p f01 c1.\"}\n{\"qid\": \"q0008\", \"text\": \"Who mothered p f01 c2?\"}\n{\"qid\": \"q0009\", \"text\": \"What mother does p f01 g1 have?\"}\n{\"qid\": \"q0010\", \"text\": \"Who is the mother of p f01 g2?\"}\n{\"qid\": \"q0011\", \"text\": \"Tell me who gave birth to p f02 c1.\"}\n{\"qid\": \"q0012\", \"text\": \"What is p f02 c2's mother?\"}\n{\"qid\": \"q0013\", \"text\": \"Who is the mother of p f02 g1?\"}\n{\"qid\": \"q0014\", \"text\": \"Tell me p f02 g2's mother.\"}\n{\"qid\": \"q0015\", \"text\": \"Who mothered p f03 c1?\"}\n{\"qid\": \"q0016\", \"text\": \"What is the name of p f03 c2's mother?\"}\n{\"qid\": \"q0017\", \"text\": \"Tell me the mother of p f03 g1.\"}\n{\"qid\": \"q0018\", \"text\": \"Who is p f03 g2's mother?\"}\n{\"qid\": \"q0019\", \"text\": \"What mother does p f04 c1 have?\"}\n{\"qid\": \"q0020\", \"text\": \"Tell me who the mother of p f04 c2 is.\"}\n{\"qid\": \"q0021\", \"text\": \"Who gave birth to p f04 g1?\"}\n{\"qid\": \"q0022\", \"text\": \"What is p f04 g2's mother's name?\"}\n{\"qid\": \"q0023\", \"text\": \"Tell me the mother of p f05 c1.\"}\n{\"qid\": \"q0024\", \"text\": \"Who is the mother of p f05 c2?\"}\n{\"qid\": \"q0025\", \"text\": \"What mother does p f05 g1 have?\"}\n{\"qid\": \"q0026\", \"text\": \"Tell me who gave birth to p f05 g2.\"}\n{\"qid\": \"q0027\", \"text\": \"Who mothered p f06 c1?\"}\n{\"qid\": \"q0028\", \"text\": \"What is the name of p f06 c2's mother?\"}\n{\"qid\": \"q0029\", \"text\": \"Tell me the mother of p f06 g1.\"}\n{\"qid\": \"q0030\", \"text\": \"Who is p f06 g2's mother?\"}\n{\"qid\": \"q0031\", \"text\": \"What mother does p f07 c1 have?\"}\n{\"qid\": \"q0032\", \"text\": \"Tell me who the mother of p f07 c2 is.\"}\n{\"qid\": \"q0033\", \"text\": \"Who gave birth to p f07 g1?\"}\n{\"qid\": \"q0034\", \"text\": \"What is p f07 g2's mother's name?\"}\n{\"qid\": \"q0035\", \"text\": \"Tell me the mother of p f08 c1.\"}\n{\"qid\": \"q0036\", \"text\": \"Who is the mother of p f08 c2?\"}\n{\"qid\": \"q0037\", \"text\": \"What mother does p f08 g1 have?\"}\n{\"qid\": \"q0038\", \"text\": \"Tell me who gave birth to p f08 g2.\"}\n{\"qid\": \"q0039\", \"text\": \"Who mothered p f09 c1?\"}\n{\"qid\": \"q0040\", \"text\": \"What is the name of p f09 c2's mother?\"}\n{\"qid\": \"q0041\", \"text\": \"Tell me the mother of p f09 g1.\"}\n{\"qid\": \"q0042\", \"text\": \"Who is p f09 g2's mother?\"}\n{\"qid\": \"q0043\", \"text\": \"What mother does p f10 c1 have?\"}\n{\"qid\": \"q0044\", \"text\": \"Tell me who the mother of p f10 c2 is.\"}\n{\"qid\": \"q0045\", \"text\": \"Who gave birth to p f10 g1?\"}\n{\"qid\": \"q0046\", \"text\": \"What is p f10 g2's mother's name?\"}\n{\"qid\": \"q0047\", \"text\": \"Tell me the mother of p f11 c1.\"}\n{\"qid\": \"q0048\", \"text\": \"Who is the mother of p f11 c2?\"}\n{\"qid\": \"q0049\", \"text\": \"What mother does p f11 g1 have?\"}\n{\"qid\": \"q0050\", \"text\": \"Tell me who gave birth to p f11 g2.\"}\n{\"qid\": \"q0051\", \"text\": \"Who mothered p f12 c1?\"}\n{\"qid\": \"q0052\", \"text\": \"What is the name of p f12 c2's mother?\"}\n{\"qid\": \"q0053\", \"text\": \"Tell me the mother of p f12 g1.\"}\n{\"qid\": \"q0054\", \"text\": \"Who is p f12 g2's mother?\"}\n{\"qid\": \"q0055\", \"text\": \"What mother does p f13 c1 have?\"}\n{\"qid\": \"q0056\", \"text\": \"Tell me who the mother of p f13 c2 is.\"}\n{\"qid\": \"q0057\", \"text\": \"Who gave birth to p f13 g1?\"}\n{\"qid\": \"q0058\", \"text\": \"What is p f13 g2's mother's name?\"}\n{\"qid\": \"q0059\", \"text\": \"Tell me the mother of p f14 c1.\"}\n{\"qid\": \"q0060\", \"text\": \"Who is the mother of p f14 c2?\"}\n{\"qid\": \"q0061\", \"text\": \"What mother does p f14 g1 have?\"}\n{\"qid\": \"q0062\", \"text\": \"Tell me who gave birth to p f14 g2.\"}\n{\"qid\": \"q0063\", \"text\": \"Who mothered p f15 c1?\"}\n{\"qid\": \"q0064\", \"text\": \"What is the name of p f15 c2's mother?\"}\n{\"qid\": \"q0065\", \"text\": \"Tell me the mother of p f15 g1.\"}\n{\"qid\": \"q0066\", \"text\": \"Who is p f15 g2's mother?\"}\n{\"qid\": \"q0067\", \"text\": \"What mother does p f16 c1 have?\"}\n{\"qid\": \"q0068\", \"text\": \"Tell me who the mother of p f16 c2 is.\"}\n{\"qid\": \"q0069\", \"text\": \"Who gave birth to p f16 g1?\"}\n{\"qid\": \"q0070\", \"text\": \"What is p f16 g2's mother's name?\"}\n{\"qid\": \"q0071\", \"text\": \"Tell me the mother of p f17 c1.\"}\n{\"qid\": \"q0072\", \"text\": \"Who is the mother of p f17 c2?\"}\n{\"qid\": \"q0073\", \"text\": \"What mother does p f17 g1 have?\"}\n{\"qid\": \"q0074\", \"text\": \"Tell me who gave birth to p f17 g2.\"}\n{\"qid\": \"q0075\", \"text\": \"Who mothered p f18 c1?\"}\n{\"qid\": \"q0076\", \"text\": \"What is the name of p f18 c2's mother?\"}\n{\"qid\": \"q0077\", \"text\": \"Tell me the mother of p f18 g1.\"}\n{\"qid\": \"q0078\", \"text\": \"Who is p f18 g2's mother?\"}\n{\"qid\": \"q0079\", \"text\": \"What mother does p f19 c1 have?\"}\n{\"qid\": \"q0080\", \"text\": \"Tell me who the mother of p f19 c2 is.\"}\n{\"qid\": \"q0081\", \"text\": \"Who gave birth to p f19 g1?\"}\n{\"qid\": \"q0082\", \"text\": \"What is p f19 g2's mother's name?\"}\n{\"qid\": \"q0083\", \"text\": \"Tell me the mother of p f20 c1.\"}\n{\"qid\": \"q0084\", \"text\": \"Who is the mother of p f20 c2?\"}\n{\"qid\": \"q0085\", \"text\": \"What mother does p f20 g1 have?\"}\n{\"qid\": \"q0086\", \"text\": \"Tell me who gave birth to p f20 g2.\"}\n{\"qid\": \"q0087\", \"text\": \"Who mothered p f21 c1?\"}\n{\"qid\": \"q0088\", \"text\": \"What is the name of p f21 c2's mother?\"}\n{\"qid\": \"q0089\", \"text\": \"Tell me the mother of p f21 g1.\"}\n{\"qid\": \"q0090\", \"text\": \"Who is p f21 g2's mother?\"}\n{\"qid\": \"q0091\", \"text\": \"What mother does p f22 c1 have?\"}\n{\"qid\": \"q0092\", \"text\": \"Tell me who the mother of p f22 c2 is.\"}\n{\"qid\": \"q0093\", \"text\": \"Who gave birth to p f22 g1?\"}\n{\"qid\": \"q0094\", \"text\": \"What is p f22 g2's mother's name?\"}\n{\"qid\": \"q0095\", \"text\": \"Tell me the mother of p f23 c1.\"}\n{\"qid\": \"q0096\", \"text\": \"Who is the mother of p f23 c2?\"}\n{\"qid\": \"q0097\", \"text\": \"What mother does p f23 g1 have?\"}\n{\"qid\": \"q0098\", \"text\": \"Tell me who gave birth to p f23 g2.\"}\n{\"qid\": \"q0099\", \"text\": \"Who mothered p f24 c1?\"}\n{\"qid\": \"q0100\", \"text\": \"What is the name of p f24 c2's mother?\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2,"cache_creation_input_tokens":4978,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4978},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"b98e7145-e238-4011-8a6d-9be75e91f86d","uuid":"5c2b56df-da6f-406d-9f88-fecedddffae6","request_id":"req_011CctKk42Gg2uStoimr7NmW"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":19967,"duration_api_ms":21495,"ttft_ms":19900,"ttft_stream_ms":1180,"time_to_request_ms":133,"num_turns":1,"result":"```json\n{\"qid\": \"q0001\", \"text\": \"Who is the mother of elvis presley?\"}\n{\"qid\": \"q0002\", \"text\": \"What is lisa marie presley's mother's name?\"}\n{\"qid\": \"q0003\", \"text\": \"Tell me who the mother of p f00 c1 is.\"}\n{\"qid\": \"q0004\", \"text\": \"Who gave birth to p f00 c2?\"}\n{\"qid\": \"q0005\", \"text\": \"What is the name of p f00 g1's mother?\"}\n{\"qid\": \"q0006\", \"text\": \"Who is p f00 g2's mother?\"}\n{\"qid\": \"q0007\", \"text\": \"Tell me the mother of p f01 c1.\"}\n{\"qid\": \"q0008\", \"text\": \"Who mothered p f01 c2?\"}\n{\"qid\": \"q0009\", \"text\": \"What mother does p f01 g1 have?\"}\n{\"qid\": \"q0010\", \"text\": \"Who is the mother of p f01 g2?\"}\n{\"qid\": \"q0011\", \"text\": \"Tell me who gave birth to p f02 c1.\"}\n{\"qid\": \"q0012\", \"text\": \"What is p f02 c2's mother?\"}\n{\"qid\": \"q0013\", \"text\": \"Who is the mother of p f02 g1?\"}\n{\"qid\": \"q0014\", \"text\": \"Tell me p f02 g2's mother.\"}\n{\"qid\": \"q0015\", \"text\": \"Who mothered p f03 c1?\"}\n{\"qid\": \"q0016\", \"text\": \"What is the name of p f03 c2's mother?\"}\n{\"qid\": \"q0017\", \"text\": \"Tell me the mother of p f03 g1.\"}\n{\"qid\": \"q0018\", \"text\": \"Who is p f03 g2's mother?\"}\n{\"qid\": \"q0019\", \"text\": \"What mother does p f04 c1 have?\"}\n{\"qid\": \"q0020\", \"text\": \"Tell me who the mother of p f04 c2 is.\"}\n{\"qid\": \"q0021\", \"text\": \"Who gave birth to p f04 g1?\"}\n{\"qid\": \"q0022\", \"text\": \"What is p f04 g2's mother's name?\"}\n{\"qid\": \"q0023\", \"text\": \"Tell me the mother of p f05 c1.\"}\n{\"qid\": \"q0024\", \"text\": \"Who is the mother of p f05 c2?\"}\n{\"qid\": \"q0025\", \"text\": \"What mother does p f05 g1 have?\"}\n{\"qid\": \"q0026\", \"text\": \"Tell me who gave birth to p f05 g2.\"}\n{\"qid\": \"q0027\", \"text\": \"Who mothered p f06 c1?\"}\n{\"qid\": \"q0028\", \"text\": \"What is the name of p f06 c2's mother?\"}\n{\"qid\": \"q0029\", \"text\": \"Tell me the mother of p f06 g1.\"}\n{\"qid\": \"q0030\", \"text\": \"Who is p f06 g2's mother?\"}\n{\"qid\": \"q0031\", \"text\": \"What mother does p f07 c1 have?\"}\n{\"qid\": \"q0032\", \"text\": \"Tell me who the mother of p f07 c2 is.\"}\n{\"qid\": \"q0033\", \"text\": \"Who gave birth to p f07 g1?\"}\n{\"qid\": \"q0034\", \"text\": \"What is p f07 g2's mother's name?\"}\n{\"qid\": \"q0035\", \"text\": \"Tell me the mother of p f08 c1.\"}\n{\"qid\": \"q0036\", \"text\": \"Who is the mother of p f08 c2?\"}\n{\"qid\": \"q0037\", \"text\": \"What mother does p f08 g1 have?\"}\n{\"qid\": \"q0038\", \"text\": \"Tell me who gave birth to p f08 g2.\"}\n{\"qid\": \"q0039\", \"text\": \"Who mothered p f09 c1?\"}\n{\"qid\": \"q0040\", \"text\": \"What is the name of p f09 c2's mother?\"}\n{\"qid\": \"q0041\", \"text\": \"Tell me the mother of p f09 g1.\"}\n{\"qid\": \"q0042\", \"text\": \"Who is p f09 g2's mother?\"}\n{\"qid\": \"q0043\", \"text\": \"What mother does p f10 c1 have?\"}\n{\"qid\": \"q0044\", \"text\": \"Tell me who the mother of p f10 c2 is.\"}\n{\"qid\": \"q0045\", \"text\": \"Who gave birth to p f10 g1?\"}\n{\"qid\": \"q0046\", \"text\": \"What is p f10 g2's mother's name?\"}\n{\"qid\": \"q0047\", \"text\": \"Tell me the mother of p f11 c1.\"}\n{\"qid\": \"q0048\", \"text\": \"Who is the mother of p f11 c2?\"}\n{\"qid\": \"q0049\", \"text\": \"What mother does p f11 g1 have?\"}\n{\"qid\": \"q0050\", \"text\": \"Tell me who gave birth to p f11 g2.\"}\n{\"qid\": \"q0051\", \"text\": \"Who mothered p f12 c1?\"}\n{\"qid\": \"q0052\", \"text\": \"What is the name of p f12 c2's mother?\"}\n{\"qid\": \"q0053\", \"text\": \"Tell me the mother of p f12 g1.\"}\n{\"qid\": \"q0054\", \"text\": \"Who is p f12 g2's mother?\"}\n{\"qid\": \"q0055\", \"text\": \"What mother does p f13 c1 have?\"}\n{\"qid\": \"q0056\", \"text\": \"Tell me who the mother of p f13 c2 is.\"}\n{\"qid\": \"q0057\", \"text\": \"Who gave birth to p f13 g1?\"}\n{\"qid\": \"q0058\", \"text\": \"What is p f13 g2's mother's name?\"}\n{\"qid\": \"q0059\", \"text\": \"Tell me the mother of p f14 c1.\"}\n{\"qid\": \"q0060\", \"text\": \"Who is the mother of p f14 c2?\"}\n{\"qid\": \"q0061\", \"text\": \"What mother does p f14 g1 have?\"}\n{\"qid\": \"q0062\", \"text\": \"Tell me who gave birth to p f14 g2.\"}\n{\"qid\": \"q0063\", \"text\": \"Who mothered p f15 c1?\"}\n{\"qid\": \"q0064\", \"text\": \"What is the name of p f15 c2's mother?\"}\n{\"qid\": \"q0065\", \"text\": \"Tell me the mother of p f15 g1.\"}\n{\"qid\": \"q0066\", \"text\": \"Who is p f15 g2's mother?\"}\n{\"qid\": \"q0067\", \"text\": \"What mother does p f16 c1 have?\"}\n{\"qid\": \"q0068\", \"text\": \"Tell me who the mother of p f16 c2 is.\"}\n{\"qid\": \"q0069\", \"text\": \"Who gave birth to p f16 g1?\"}\n{\"qid\": \"q0070\", \"text\": \"What is p f16 g2's mother's name?\"}\n{\"qid\": \"q0071\", \"text\": \"Tell me the mother of p f17 c1.\"}\n{\"qid\": \"q0072\", \"text\": \"Who is the mother of p f17 c2?\"}\n{\"qid\": \"q0073\", \"text\": \"What mother does p f17 g1 have?\"}\n{\"qid\": \"q0074\", \"text\": \"Tell me who gave birth to p f17 g2.\"}\n{\"qid\": \"q0075\", \"text\": \"Who mothered p f18 c1?\"}\n{\"qid\": \"q0076\", \"text\": \"What is the name of p f18 c2's mother?\"}\n{\"qid\": \"q0077\", \"text\": \"Tell me the mother of p f18 g1.\"}\n{\"qid\": \"q0078\", \"text\": \"Who is p f18 g2's mother?\"}\n{\"qid\": \"q0079\", \"text\": \"What mother does p f19 c1 have?\"}\n{\"qid\": \"q0080\", \"text\": \"Tell me who the mother of p f19 c2 is.\"}\n{\"qid\": \"q0081\", \"text\": \"Who gave birth to p f19 g1?\"}\n{\"qid\": \"q0082\", \"text\": \"What is p f19 g2's mother's name?\"}\n{\"qid\": \"q0083\", \"text\": \"Tell me the mother of p f20 c1.\"}\n{\"qid\": \"q0084\", \"text\": \"Who is the mother of p f20 c2?\"}\n{\"qid\": \"q0085\", \"text\": \"What mother does p f20 g1 have?\"}\n{\"qid\": \"q0086\", \"text\": \"Tell me who gave birth to p f20 g2.\"}\n{\"qid\": \"q0087\", \"text\": \"Who mothered p f21 c1?\"}\n{\"qid\": \"q0088\", \"text\": \"What is the name of p f21 c2's mother?\"}\n{\"qid\": \"q0089\", \"text\": \"Tell me the mother of p f21 g1.\"}\n{\"qid\": \"q0090\", \"text\": \"Who is p f21 g2's mother?\"}\n{\"qid\": \"q0091\", \"text\": \"What mother does p f22 c1 have?\"}\n{\"qid\": \"q0092\", \"text\": \"Tell me who the mother of p f22 c2 is.\"}\n{\"qid\": \"q0093\", \"text\": \"Who gave birth to p f22 g1?\"}\n{\"qid\": \"q0094\", \"text\": \"What is p f22 g2's mother's name?\"}\n{\"qid\": \"q0095\", \"text\": \"Tell me the mother of p f23 c1.\"}\n{\"qid\": \"q0096\", \"text\": \"Who is the mother of p f23 c2?\"}\n{\"qid\": \"q0097\", \"text\": \"What mother does p f23 g1 have?\"}\n{\"qid\": \"q0098\", \"text\": \"Tell me who gave birth to p f23 g2.\"}\n{\"qid\": \"q0099\", \"text\": \"Who mothered p f24 c1?\"}\n{\"qid\": \"q0100\", \"text\": \"What is the name of p f24 c2's mother?\"}\n```","stop_reason":"end_turn","session_id":"b98e7145-e238-4011-8a6d-9be75e91f86d","total_cost_usd":0.028164,"usage":{"input_tokens":2,"cache_creation_input_tokens":4978,"cache_read_input_tokens":0,"output_tokens":2724,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":4978,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2,"output_tokens":2724,"cache_read_input_tokens":0,"cache_creation_input_tokens":4978,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":4978},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":4513,"outputTokens":2739,"cacheReadInputTokens":0,"cacheCreationInputTokens":4978,"webSearchRequests":0,"costUSD":0.028164,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"04aaa6fe-86fa-4234-b9f2-4eae536c26d3"}
+

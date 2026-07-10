@@ -1,0 +1,108 @@
+##### PINNED SYSTEM PROMPT (/home/ec2-user/css/kernel/kernel-of-truth/data/nlb-phrasings-l3a/prompt-eval.md) #####
+# Pinned EVAL authoring prompt — l3a-parse blind phrasings (family/world vertical)
+
+You are a question-writing assistant. You will receive a JSONL packet of
+items. For EACH item, write ONE natural-English question and output ONE JSON
+line: `{"qid": "<qid>", "text": "<your question>"}`. Output nothing else.
+
+You have NO access to any repository, code, lexicon, parser, or expected
+answers, and you must not ask for any. Work only from this prompt and the
+packet lines.
+
+## What each packet line means
+
+- `entity_label` — the entity's canonical name. Refer to the entity by this
+  name, verbatim; you may write its hyphens as spaces (e.g. `elvis-presley`
+  or `elvis presley`), but do not otherwise alter, shorten, or expand it.
+- `rel_label` / `concept_label` — the relation or category word(s) the
+  question is about (e.g. `mother`, `maker of`, `woman`). This is the
+  relation's name; use it naturally in your question (you may inflect it:
+  plural, verb form). Do not substitute a synonym for it unless a synonym is
+  simply how you would naturally ask — you are free to phrase naturally.
+- `shape` — the MEANING your question must carry. "The R of X" below means
+  the relation read left-to-right (the mother of X, the maker of X):
+  - `one-role`: ask for THE `rel_label` of the entity — exactly one specific
+    answer is expected.
+  - `all-role`: ask for ALL the `rel_label` of the entity — a list.
+  - `count-role`: ask HOW MANY `rel_label` the entity has.
+  - `one-holder`: ask for THE ONE thing/person the entity is the `rel_label`
+    of (equivalently: the one whose `rel_label` is the entity). Make the
+    exactly-one expectation explicit in the wording (e.g. "the one …").
+  - `all-holder`: ask for EVERYTHING/EVERYONE the entity is the `rel_label`
+    of (equivalently: all who have the entity as their `rel_label`).
+  - `count-holder`: ask HOW MANY have the entity as their `rel_label`.
+  - `is-a`: ask WHETHER the entity is a `concept_label` (a yes/no question).
+
+## Hard constraints (mechanically linted)
+
+1. One single-line question per item, at most 200 characters, UTF-8.
+2. Never write `urn:`, JSON braces, the word `inverse`, or anything that
+   looks like a query language. Plain English questions only.
+3. Ask the QUESTION faithfully. Never answer it, never guess at an answer,
+   never hedge ("if he exists"), never mention this prompt or the packet.
+4. VARY your syntax. Across the items you write for the same relation and
+   shape, use genuinely different constructions: direct questions
+   ("Who is the mother of X?"), possessives ("X's mother"), inverted or
+   embedded forms ("Tell me who ..."), passives, clefts. At most half of
+   your items for one relation+shape may follow the same construction, and
+   do not copy the gloss wording above verbatim.
+5. Write the question a normal person would ask to get exactly the packeted
+   meaning — no more, no less (do not add qualifiers, dates, or extra
+   conditions).
+
+## Output
+
+One JSON line per packet line, same order, `{"qid": ..., "text": ...}`.
+
+##### APPENDED INSTRUCTION #####
+Use a different sentence construction for each item.
+
+##### BATCH STDIN (/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/reauthor-l3a/family-instance-false-disjoint.jsonl) #####
+{"concept_label": "woman", "entity_label": "p-f06-g1", "qid": "q0561", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-g2", "qid": "q0562", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f06-gf", "qid": "q0563", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-gm", "qid": "q0564", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f06-sp", "qid": "q0565", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f07-c1", "qid": "q0566", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-c2", "qid": "q0567", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f07-g1", "qid": "q0568", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-g2", "qid": "q0569", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f07-gf", "qid": "q0570", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-gm", "qid": "q0571", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f07-sp", "qid": "q0572", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f08-c1", "qid": "q0573", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-c2", "qid": "q0574", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f08-g1", "qid": "q0575", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-g2", "qid": "q0576", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f08-gf", "qid": "q0577", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-gm", "qid": "q0578", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f08-sp", "qid": "q0579", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f09-c1", "qid": "q0580", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-c2", "qid": "q0581", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f09-g1", "qid": "q0582", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-g2", "qid": "q0583", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f09-gf", "qid": "q0584", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-gm", "qid": "q0585", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f09-sp", "qid": "q0586", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f10-c1", "qid": "q0587", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-c2", "qid": "q0588", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f10-g1", "qid": "q0589", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-g2", "qid": "q0590", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f10-gf", "qid": "q0591", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-gm", "qid": "q0592", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f10-sp", "qid": "q0593", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f11-c1", "qid": "q0594", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-c2", "qid": "q0595", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f11-g1", "qid": "q0596", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-g2", "qid": "q0597", "shape": "is-a"}
+{"concept_label": "woman", "entity_label": "p-f11-gf", "qid": "q0598", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-gm", "qid": "q0599", "shape": "is-a"}
+{"concept_label": "man", "entity_label": "p-f11-sp", "qid": "q0600", "shape": "is-a"}
+
+##### RAW STREAM-JSON OUTPUT (per attempt) #####
+===== ATTEMPT 1  session=e14e4f8a-4892-40a4-8197-b84ac4b798e8  ok=True =====
+{"type":"system","subtype":"init","cwd":"/tmp/claude-1000/-home-ec2-user-css/85798a0b-4e71-4020-b0b9-ac1fed9631d0/scratchpad/blind-workdir","session_id":"e14e4f8a-4892-40a4-8197-b84ac4b798e8","tools":[],"mcp_servers":[],"model":"claude-haiku-4-5-20251001","permissionMode":"default","slash_commands":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator","agents","clear","compact","config","context","heapdump","init","__remote-workflow","reload-skills","review","security-review","usage-credits","extra-usage","usage","insights","recap","goal","design","design-consent","design-revoke","team-onboarding"],"apiKeySource":"none","claude_code_version":"2.1.201","output_style":"default","agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"skills":["deep-research","design-sync","dataviz","update-config","verify","debug","code-review","simplify","batch","fewer-permission-prompts","loop","schedule","claude-api","run","run-skill-generator"],"plugins":[],"analytics_disabled":false,"product_feedback_disabled":false,"uuid":"f517d803-c2c5-4a1e-91a8-92da9f6ad93e","memory_paths":{"auto":"/home/ec2-user/.claude/projects/-tmp-claude-1000--home-ec2-user-css-85798a0b-4e71-4020-b0b9-ac1fed9631d0-scratchpad-blind-workdir/memory/"},"fast_mode_state":"off"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1783690800,"rateLimitType":"five_hour","utilization":0.94,"isUsingOverage":false,"surpassedThreshold":0.9},"uuid":"e0604860-7453-47b0-aa01-d79106b1ad58","session_id":"e14e4f8a-4892-40a4-8197-b84ac4b798e8"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011CctLPEUMQAN2EXr7WgS3T","type":"message","role":"assistant","content":[{"type":"text","text":"```json\n{\"qid\": \"q0561\", \"text\": \"Is p-f06-g1 a woman?\"}\n{\"qid\": \"q0562\", \"text\": \"Is p-f06-g2 a man?\"}\n{\"qid\": \"q0563\", \"text\": \"Would you say p-f06-gf is a woman?\"}\n{\"qid\": \"q0564\", \"text\": \"Is p-f06-gm male?\"}\n{\"qid\": \"q0565\", \"text\": \"Is p-f06-sp a man?\"}\n{\"qid\": \"q0566\", \"text\": \"Can p-f07-c1 be classified as a woman?\"}\n{\"qid\": \"q0567\", \"text\": \"Is p-f07-c2 male?\"}\n{\"qid\": \"q0568\", \"text\": \"Is p-f07-g1 female?\"}\n{\"qid\": \"q0569\", \"text\": \"Is p-f07-g2 a man?\"}\n{\"qid\": \"q0570\", \"text\": \"Would p-f07-gf be considered a woman?\"}\n{\"qid\": \"q0571\", \"text\": \"Is p-f07-gm a man?\"}\n{\"qid\": \"q0572\", \"text\": \"Is p-f07-sp male?\"}\n{\"qid\": \"q0573\", \"text\": \"Does p-f08-c1 qualify as a woman?\"}\n{\"qid\": \"q0574\", \"text\": \"Is p-f08-c2 a man?\"}\n{\"qid\": \"q0575\", \"text\": \"Is p-f08-g1 female?\"}\n{\"qid\": \"q0576\", \"text\": \"Is p-f08-g2 male?\"}\n{\"qid\": \"q0577\", \"text\": \"Is p-f08-gf a woman?\"}\n{\"qid\": \"q0578\", \"text\": \"Is p-f08-gm a man?\"}\n{\"qid\": \"q0579\", \"text\": \"Would you call p-f08-sp a man?\"}\n{\"qid\": \"q0580\", \"text\": \"Is p-f09-c1 female?\"}\n{\"qid\": \"q0581\", \"text\": \"Is p-f09-c2 a man?\"}\n{\"qid\": \"q0582\", \"text\": \"Can p-f09-g1 be described as a woman?\"}\n{\"qid\": \"q0583\", \"text\": \"Is p-f09-g2 male?\"}\n{\"qid\": \"q0584\", \"text\": \"Is p-f09-gf a woman?\"}\n{\"qid\": \"q0585\", \"text\": \"Is p-f09-gm a man?\"}\n{\"qid\": \"q0586\", \"text\": \"Is p-f09-sp male?\"}\n{\"qid\": \"q0587\", \"text\": \"Does p-f10-c1 count as a woman?\"}\n{\"qid\": \"q0588\", \"text\": \"Is p-f10-c2 male?\"}\n{\"qid\": \"q0589\", \"text\": \"Is p-f10-g1 female?\"}\n{\"qid\": \"q0590\", \"text\": \"Is p-f10-g2 a man?\"}\n{\"qid\": \"q0591\", \"text\": \"Is p-f10-gf a woman?\"}\n{\"qid\": \"q0592\", \"text\": \"Would p-f10-gm be a man?\"}\n{\"qid\": \"q0593\", \"text\": \"Is p-f10-sp male?\"}\n{\"qid\": \"q0594\", \"text\": \"Is p-f11-c1 female?\"}\n{\"qid\": \"q0595\", \"text\": \"Is p-f11-c2 a man?\"}\n{\"qid\": \"q0596\", \"text\": \"Can p-f11-g1 be classified as a woman?\"}\n{\"qid\": \"q0597\", \"text\": \"Is p-f11-g2 male?\"}\n{\"qid\": \"q0598\", \"text\": \"Is p-f11-gf a woman?\"}\n{\"qid\": \"q0599\", \"text\": \"Is p-f11-gm a man?\"}\n{\"qid\": \"q0600\", \"text\": \"Is p-f11-sp male?\"}\n```"}],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":2588,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"},"diagnostics":null,"context_management":null},"parent_tool_use_id":null,"session_id":"e14e4f8a-4892-40a4-8197-b84ac4b798e8","uuid":"ed1d20c1-9b3f-4428-8e56-b26f557facd9","request_id":"req_011CctLPDfEM6gdaCoVgv3r5"}
+{"type":"result","subtype":"success","is_error":false,"api_error_status":null,"duration_ms":9827,"duration_api_ms":10924,"ttft_ms":9396,"ttft_stream_ms":1295,"time_to_request_ms":340,"num_turns":1,"result":"```json\n{\"qid\": \"q0561\", \"text\": \"Is p-f06-g1 a woman?\"}\n{\"qid\": \"q0562\", \"text\": \"Is p-f06-g2 a man?\"}\n{\"qid\": \"q0563\", \"text\": \"Would you say p-f06-gf is a woman?\"}\n{\"qid\": \"q0564\", \"text\": \"Is p-f06-gm male?\"}\n{\"qid\": \"q0565\", \"text\": \"Is p-f06-sp a man?\"}\n{\"qid\": \"q0566\", \"text\": \"Can p-f07-c1 be classified as a woman?\"}\n{\"qid\": \"q0567\", \"text\": \"Is p-f07-c2 male?\"}\n{\"qid\": \"q0568\", \"text\": \"Is p-f07-g1 female?\"}\n{\"qid\": \"q0569\", \"text\": \"Is p-f07-g2 a man?\"}\n{\"qid\": \"q0570\", \"text\": \"Would p-f07-gf be considered a woman?\"}\n{\"qid\": \"q0571\", \"text\": \"Is p-f07-gm a man?\"}\n{\"qid\": \"q0572\", \"text\": \"Is p-f07-sp male?\"}\n{\"qid\": \"q0573\", \"text\": \"Does p-f08-c1 qualify as a woman?\"}\n{\"qid\": \"q0574\", \"text\": \"Is p-f08-c2 a man?\"}\n{\"qid\": \"q0575\", \"text\": \"Is p-f08-g1 female?\"}\n{\"qid\": \"q0576\", \"text\": \"Is p-f08-g2 male?\"}\n{\"qid\": \"q0577\", \"text\": \"Is p-f08-gf a woman?\"}\n{\"qid\": \"q0578\", \"text\": \"Is p-f08-gm a man?\"}\n{\"qid\": \"q0579\", \"text\": \"Would you call p-f08-sp a man?\"}\n{\"qid\": \"q0580\", \"text\": \"Is p-f09-c1 female?\"}\n{\"qid\": \"q0581\", \"text\": \"Is p-f09-c2 a man?\"}\n{\"qid\": \"q0582\", \"text\": \"Can p-f09-g1 be described as a woman?\"}\n{\"qid\": \"q0583\", \"text\": \"Is p-f09-g2 male?\"}\n{\"qid\": \"q0584\", \"text\": \"Is p-f09-gf a woman?\"}\n{\"qid\": \"q0585\", \"text\": \"Is p-f09-gm a man?\"}\n{\"qid\": \"q0586\", \"text\": \"Is p-f09-sp male?\"}\n{\"qid\": \"q0587\", \"text\": \"Does p-f10-c1 count as a woman?\"}\n{\"qid\": \"q0588\", \"text\": \"Is p-f10-c2 male?\"}\n{\"qid\": \"q0589\", \"text\": \"Is p-f10-g1 female?\"}\n{\"qid\": \"q0590\", \"text\": \"Is p-f10-g2 a man?\"}\n{\"qid\": \"q0591\", \"text\": \"Is p-f10-gf a woman?\"}\n{\"qid\": \"q0592\", \"text\": \"Would p-f10-gm be a man?\"}\n{\"qid\": \"q0593\", \"text\": \"Is p-f10-sp male?\"}\n{\"qid\": \"q0594\", \"text\": \"Is p-f11-c1 female?\"}\n{\"qid\": \"q0595\", \"text\": \"Is p-f11-c2 a man?\"}\n{\"qid\": \"q0596\", \"text\": \"Can p-f11-g1 be classified as a woman?\"}\n{\"qid\": \"q0597\", \"text\": \"Is p-f11-g2 male?\"}\n{\"qid\": \"q0598\", \"text\": \"Is p-f11-gf a woman?\"}\n{\"qid\": \"q0599\", \"text\": \"Is p-f11-gm a man?\"}\n{\"qid\": \"q0600\", \"text\": \"Is p-f11-sp male?\"}\n```","stop_reason":"end_turn","session_id":"e14e4f8a-4892-40a4-8197-b84ac4b798e8","total_cost_usd":0.010122,"usage":{"input_tokens":2588,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":1069,"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":0,"ephemeral_5m_input_tokens":0},"inference_geo":"not_available","iterations":[{"input_tokens":2588,"output_tokens":1069,"cache_read_input_tokens":0,"cache_creation_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"type":"message"}],"speed":"standard"},"modelUsage":{"claude-haiku-4-5-20251001":{"inputTokens":4697,"outputTokens":1085,"cacheReadInputTokens":0,"cacheCreationInputTokens":0,"webSearchRequests":0,"costUSD":0.010122,"contextWindow":200000,"maxOutputTokens":32000}},"permission_denials":[],"terminal_reason":"completed","fast_mode_state":"off","uuid":"9f885158-5538-4e9a-b550-b9fe74a30e2e"}
+
