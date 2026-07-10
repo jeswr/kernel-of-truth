@@ -1,0 +1,93 @@
+## Item-by-item verification
+
+### FB-1 — RESOLVED
+
+Both scorers now independently enforce the omitted supersession rules:
+
+- A row carrying `supersedes` must have a string `reason` whose stripped value is nonempty; failures populate `missing_reason` ([l3a_parse.py:332](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:332), [a5_nl.py:322](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:322)).
+- Targets are accumulated across all superseding rows; a repeated target populates the deduplicated `retired_twice` list ([l3a_parse.py:344](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:344), [a5_nl.py:334](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:334)).
+- Any populated detail makes G0 false, and `analyze` returns immediately with `instrument_valid=False` ([l3a_parse.py:367](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:367), [l3a_parse.py:384](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:384)).
+
+I constructed complete `kot-log/1` rows with required stamps, canonical newline-terminated row hashes, sequential `seq`, and correct `prev_sha256` linkage. Missing and whitespace-only reasons were schema-valid chains; the empty string was correctly already schema-invalid under `reason.minLength:1` ([kot-log-1.json:49](/home/ec2-user/css/kernel/kernel-of-truth/registry/schema/kot-log-1.json:49)), but was also rejected independently by both scorers.
+
+| Fixture | l3a-parse | a5-nl |
+|---|---|---|
+| Missing `reason` | Invalid; `missing_reason` present in both scorer-input orders | Same |
+| `reason=""` | Schema-invalid and scorer-invalid; `missing_reason` present | Same |
+| `reason="   "` | Invalid; `missing_reason` present in both orders | Same |
+| Double retirement | Invalid in both orders; `retired_twice` contained exactly the duplicated target SHA | Same |
+| Valid same-arm retry | Valid in both orders; surviving row scored at exact rate 1.0 | Same |
+
+A genuine chain necessarily places a target before its superseder because the latter names the target’s full row hash. “Reverse order” here means feeding the same authenticated rows to G0 in reverse order, as in prior audit fixtures; a physically reversed hash chain would require an impossible forward/self hash dependency.
+
+The transitive `event`/`phase`/`exit` reliance is genuine. `select_eligible` discards non-run rows, then rejects non-final and non-ok run rows before returning scorer input ([verdict-gen.py:281](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:281)). It passes eligible rows unchanged to the pinned scorer ([verdict-gen.py:371](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:371), [verdict-gen.py:454](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:454)). Direct fixtures using a non-run, non-final, or non-ok target left only its superseder in scorer input; all three became dangling-reference G0 failures.
+
+### FB-2 — RESOLVED
+
+Both scorers populate G0–G7 and `instrument_valid`, then immediately return when `g1_counts` is false, before Wilson, Holm, or descriptive output arithmetic ([l3a_parse.py:548](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:548), [l3a_parse.py:553](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:553), [a5_nl.py:532](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:532), [a5_nl.py:537](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:537)). The Wilson calculations begin only after that return point ([l3a_parse.py:564](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:564), [a5_nl.py:549](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:549)).
+
+I ran every fixture both in-process and through the standalone pinned script with canonical JSONL stdin:
+
+| Substitution | Both in-process results | Standalone process |
+|---|---|---|
+| `n_control=True` | G1 false, instrument invalid, `analysis={}` | Exit 0, valid JSON, same result |
+| `n_covered=True` | Same | Exit 0, valid JSON |
+| `n_covered=600.0` l3a / `855.0` a5 | Same | Exit 0, valid JSON |
+| `dev_parse_refused=-1` | Same; G4 also false | Exit 0, valid JSON |
+| `n_covered_exact=True` | Same | Exit 0, valid JSON |
+| `n_control_refused_acceptable=True` | Same | Exit 0, valid JSON |
+
+Thus the formerly crashing values now reach verdict-gen as a normal `instrument_valid=False` analysis result, rather than triggering its nonzero-exit `ERR_P2_ANALYSIS` path ([verdict-gen.py:455](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:455)).
+
+### SF-3 — PARTIALLY RESOLVED
+
+The actual two records are remediated. `scan_open_extrapolations` builds a predecessor-to-successor map from the general `SUCCESSOR of ASM-NNNN (supersede-by-citation` marker, not from a hard-coded ASM-0425 exclusion ([prereg-freeze.py:80](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/prereg-freeze.py:80), [prereg-freeze.py:130](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/prereg-freeze.py:130)). It follows cited entries until no successor remains and flags only a live open extrapolation ([prereg-freeze.py:145](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/prereg-freeze.py:145)).
+
+Actual dry-runs:
+
+- `l3a-parse`: `DRY-RUN-OK`, `pause_flags=["ASM-0623"]`.
+- `a5-nl`: `DRY-RUN-OK`, `pause_flags=["ASM-0623"]`.
+
+ASM-0425 no longer appeared.
+
+A synthetic two-hop chain `ASM-1000 → ASM-1001 → ASM-1002` correctly returned only `ASM-1002`, demonstrating genuine multi-hop behavior. However, cycle handling is only termination-safe, not semantically fail-closed: for `ASM-2000 ↔ ASM-2001`, citing 2000 returned 2000, while citing both returned both. The loop stops because of `seen`, but then treats whichever cycle member it stopped on as a “live end,” although a cycle has no live end. This does not affect the current acyclic register, but it does not fully satisfy ASM-0626’s general cycle-safe-to-live-end claim.
+
+## Regression checks
+
+- Executable G0 supersession path — **UNCHANGED-AND-FINE.** Schema and append-time enforcement remain present, including existing-target, same-arm, phase, nonblank-reason, and already-retired checks ([log-append.py:144](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:144)). Valid scorer-side retries still resolve correctly.
+
+- Instrument run-body loggability — **UNCHANGED-AND-FINE.** The pinned instrument hash remains `b3cd5bc9…`; it still emits `event:"run"`, `exit:"ok"`, phase, `config.arm`, metrics and pins, conditionally adds the frozen prereg hash, and supports retry metadata ([nlb_instrument.py:466](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:466), [nlb_instrument.py:477](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:477)).
+
+- Prior G1 fixes — **UNCHANGED-AND-FINE.** Both selftests passed. Zeroed control-family `ok`, floating totals, and negative/out-of-range `dev_parse_refused` remain invalid; G4’s division remains type- and range-guarded ([l3a_parse.py:457](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:457), [l3a_parse.py:527](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:527)).
+
+- G5 and G7 — **UNCHANGED-AND-FINE.** G5 still requires an existing deranged arm with strict integer counts; G7 still checks every mandatory arm against the complete frozen pin manifest ([a5_nl.py:516](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:516), [a5_nl.py:530](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:530)).
+
+- Wilson arithmetic — **UNCHANGED-AND-FINE.** Independent integer sweeps reproduced 486/462/4/16 at n=527 and 784/755/9/24 at n=855. The Wilson implementation remains unchanged ([l3a_parse.py:249](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:249), [a5_nl.py:239](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:239)).
+
+- Coincidental cancellation — **UNCHANGED-AND-FINE.** A coherent lower aggregate acceptable count—269 for l3a and 105 for a5—with one control family’s `ok` reduced by one and another increased by one remained `instrument_valid=True`. G1 correctly constrains partitions and aggregate equality without inventing unfrozen family-level acceptable targets.
+
+- Analysis pins — **UNCHANGED-AND-FINE.** Current script hashes exactly match the record pins: `d6b3e65…` for l3a and `4ea2383c…` for a5 ([l3a-parse.json:327](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:327), [a5-nl.json:320](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:320)).
+
+- Freeze dry-runs — **RESOLVED.** Both returned `DRY-RUN-OK` and exactly `["ASM-0623"]`.
+
+## Still-open or newly identified issues
+
+### Supersession-cycle scan has no fail-closed result
+
+SEVERITY: should-fix
+
+Concrete mechanism: the `seen` loop terminates a cycle but unconditionally inserts the final cycle member into `live` ([prereg-freeze.py:145](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/prereg-freeze.py:145)). Synthetic cycle results depended on which members were cited.
+
+Why it matters: the scanner can emit arbitrary or duplicate backlog signals if the prose-defined supersession graph ever becomes cyclic. It should diagnose/refuse the malformed graph or otherwise define cycle semantics. This is non-freeze-blocking because the current graph is acyclic and pause flags are nonfatal.
+
+### Experiment assumption inventories omit ASM-0626
+
+SEVERITY: nit
+
+Concrete mechanism: both `design.n_planned.assumption_ids` lists end at ASM-0625 and contain no ASM-0626 ([l3a-parse.json:130](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:130), [a5-nl.json:125](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:125)). ASM-0626 is cited only in the pinned design document ([design:1392](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:1392)).
+
+Why it matters: this contradicts the review brief’s statement that both records were updated to cite ASM-0626 and leaves the record-local assumption inventory incomplete. It does not alter scoring or the verified dry-run result.
+
+## OVERALL VERDICT
+
+no freeze-blocking defect remains.

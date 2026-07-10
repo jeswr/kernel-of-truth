@@ -1,0 +1,210 @@
+You are an INDEPENDENT REVIEWER performing a STATISTICAL-INTEGRITY
+PRE-REGISTRATION AUDIT of two DRAFT scientific experiment records in this
+research repository. This is a data-validation and reproducibility review of a
+research pipeline — it is NOT security or penetration testing. You have full
+read access to the repository and should read whatever files you need to
+verify the pre-registration's correctness claims. You are an independent
+methodologist: not the designer, not the person who will run the experiment,
+and with no stake in whether the experiment passes or fails.
+
+BACKGROUND: this is the "NL-boundary" leg of two experiments, l3a-parse and
+a5-nl. They test whether a deterministic (non-LLM) front-end parser can
+recover a closed query grammar from blind, held-out natural-language phrasings
+of two frozen evaluation sets (a family/world vertical and a code vertical),
+compared against a measured gold-parse ceiling. A run is scored PASS or FAIL
+by pre-registered Wilson-confidence-bound gates. The scoring code contains a
+series of fail-closed VALIDITY CHECKS ("gates" G0-G7) whose job is to mark a
+run INSTRUMENT-INVALID whenever the input data records are malformed or
+internally inconsistent, so that a nominal PASS can never be reported off of
+corrupt or contradictory measurements. Your review confirms those validity
+checks correctly REJECT malformed or internally-inconsistent input records,
+and correctly ACCEPT well-formed ones.
+
+REVIEW HISTORY: the immediately preceding round of this audit (your own prior
+report, committed verbatim at poc/nlb-skeptic/skeptic-round3-output.txt)
+found the round-2 remediation of the G0 supersede path and the instrument
+run-body loggability sound, but identified TWO remaining freeze-blocking
+correctness gaps plus one should-fix:
+
+  (FB-1) "G0 read-time defense accepts unreasoned and double-retirement
+         supersession" — the per-arm one-row check (G0) validated the shape
+         and arm-consistency of a run row's `supersedes` list, but never
+         independently re-validated that a superseding row carries a
+         non-blank `reason`, and never checked whether a target had already
+         been retired by an earlier superseding row. A manually constructed,
+         schema-valid, correctly hash-chained log line with a missing/blank
+         reason, or one that retired an already-retired target, was
+         classified `instrument_valid=True` in both scorers and both record
+         orders — even though the official append path (log-append.py) had
+         always rejected such a line. This contradicted the registered
+         claim that the scorer forms an INDEPENDENT second enforcement of
+         the same rule (defense in depth), not a mere pass-through.
+  (FB-2) "Invalid boolean totals can crash instead of returning
+         INSTRUMENT-INVALID" — the counts-integrity gate (G1) correctly
+         detected a boolean-valued `n_control`/`n_covered` and set
+         `g1_counts=False`, but the scorer then CONTINUED past the gate
+         into Wilson/Holm arithmetic using the rejected value as a
+         denominator. `n_control=True` crashed both l3a_parse.py and
+         a5_nl.py with a `TypeError` (Python's `True > x` comparisons
+         against a `complex` intermediate); a5_nl.py's `n_covered=True`
+         reached the output with complex-valued Wilson bounds and then
+         crashed on JSON serialization. Verdict generation treats a
+         nonzero scorer exit code as `ERR_P2_ANALYSIS`, not the registered
+         `INSTRUMENT-INVALID` verdict, so the pre-registration's promise
+         that malformed counts are classified `INSTRUMENT-INVALID` was
+         unreachable on exactly these inputs.
+  (SF-3) "Freeze scanner still treats superseded ASM-0425 as a live
+         citation" (should-fix) — `prereg-freeze.py`'s
+         `scan_open_extrapolations` scanned every ASM token appearing
+         anywhere in the pinned prereg document, including historical
+         supersession prose, so a dry-run kept emitting a nonfatal pause
+         flag for the already-superseded ASM-0425 even though the
+         remediation claimed no live citation reached it.
+
+The designer has recorded remediations for all three in
+docs/design-nl-boundary-l3a-parse-a5-nl.md section 14.10 ("Independent-skeptic
+round-3 remediation", items A-C), re-pinned both scorers, and updated both
+registry records (now additionally citing ASM-0625 for items A/B and ASM-0626
+for item C). YOUR JOB THIS ROUND is to verify, item by item, whether each of
+the three items is now GENUINELY remediated in the actual code — not merely
+narrated as remediated in the change-list — and to independently check that
+the remediation did not introduce any new correctness gap. Ground every
+conclusion in the current code/schema/text you read (cite file and line), not
+in the change-list's self-description.
+
+READ THESE FILES YOURSELF (paths relative to the repo root, your working
+directory):
+
+1. poc/nlb-skeptic/skeptic-round3-output.txt — your own prior report; its two
+   freeze-blocking items (FB-1, FB-2) and one should-fix (SF-3) above are
+   this round's checklist.
+2. docs/design-nl-boundary-l3a-parse-a5-nl.md section 14.10 in full (the
+   remediation change-list, items A-C) and section 14.9 for context on what
+   it extends. Skim sections 14.7-14.8 for further base-design context if
+   needed.
+3. analysis/l3a_parse.py and analysis/a5_nl.py — both re-pinned. Look
+   specifically at `_one_row_per_arm` (G0; around l3a_parse.py:292-352 and
+   the equivalent in a5_nl.py, the `missing_reason` / `retired_twice` detail
+   keys) and `analyze` (the G1 short-circuit immediately after the gates
+   block, around l3a_parse.py:385-400 and the a5_nl.py equivalent). G5 and
+   G7 should be unchanged from prior rounds (re-confirm briefly).
+4. tools/registry/prereg-freeze.py — `scan_open_extrapolations` and the new
+   `ASM_SUPERSEDED_RE` marker / supersede-by-citation resolution (around
+   lines 83-140).
+5. registry/experiments/l3a-parse.json and registry/experiments/a5-nl.json —
+   both kot-reg/2, now additionally citing ASM-0625 and ASM-0626, with
+   re-pinned harness_manifest hashes for the analysis scripts.
+6. registry/assumptions.jsonl — ASM-0625 (item A+B) and ASM-0626 (item C)
+   entries, for the exact registered claim text.
+
+You MAY read any other file (nlb_frontend.py, tools/registry/verdict-gen.py,
+tools/registry/log-append.py, registry/schema/kot-log-1.json,
+tools/experiments/nlb/nlb_instrument.py) if needed to verify a specific claim.
+
+YOUR TASK — three parts.
+
+PART 1: For each of the three items below, state whether it is now RESOLVED,
+PARTIALLY RESOLVED, or NOT RESOLVED, grounded in the current code (cite
+file/line). For each, CONSTRUCT SMALL INPUT-RECORD FIXTURES the same way you
+did in prior rounds and confirm the validity check CLASSIFIES THEM CORRECTLY
+— i.e. that a well-formed valid record is still accepted and that each
+previously-accepted malformed or internally-inconsistent record is now
+correctly rejected as INSTRUMENT-INVALID. Specifically:
+
+(A) FB-1 remediation. Confirm the scorer's per-arm one-row check (G0) now
+    independently re-validates, at read time, on the real hash-chained
+    kot-log/1 format (not a unit-test dictionary):
+      - a superseding row with a missing `reason` field is rejected
+        (`instrument_valid=False`, with a `missing_reason` detail entry);
+      - a superseding row with an empty-string or whitespace-only `reason`
+        is likewise rejected;
+      - a construction where two different superseding rows each name the
+        same target (a target retired twice) is rejected (with a
+        `retired_twice` detail entry naming the target), in BOTH possible
+        log orders (the double-retiring rows appearing before or after the
+        target row in the scored record set);
+      - a well-formed retry (non-blank reason, each target retired at most
+        once, same arm) is still correctly ACCEPTED and the surviving row is
+        scored.
+    Also confirm the registered reliance is genuine, not merely asserted:
+    that target `event`/`exit`/`phase` are enforced TRANSITIVELY because
+    verdict-gen's eligibility filter drops non-run/non-final/non-ok rows
+    before the scorer ever sees them (so a reference to such a row is
+    already a dangling, G0-invalid reference) — read tools/registry/
+    verdict-gen.py's eligibility filter yourself rather than taking the
+    design doc's word for it.
+
+(B) FB-2 remediation. Confirm that when G1 (counts integrity) fails, both
+    scorers now SHORT-CIRCUIT immediately: the returned result has
+    `instrument_valid=False`, the gates block populated, the `analysis`
+    block EMPTY, the output is valid, serializable JSON, and the process
+    exits 0 — BEFORE any Wilson, Holm, or descriptive-statistics arithmetic
+    runs on the rejected values. Confirm this holds for, at minimum:
+      - `n_control=True` (previously crashed both scorers with a
+        `TypeError`);
+      - a5_nl.py's `n_covered=True` (previously reached complex-valued
+        Wilson output and crashed on JSON serialization);
+      - the previously-reproduced float and negative forms (e.g.
+        `n_covered=600.0`, `dev_parse_refused=-1`), to confirm they still
+        classify as INSTRUMENT-INVALID and now ALSO short-circuit cleanly;
+      - at least one additional boolean substitution not explicitly called
+        out above (e.g. a boolean `n_covered_exact` or
+        `n_control_refused_acceptable`), to confirm the short-circuit is
+        general and not special-cased to the two originally-reported
+        fields.
+    Run each fixture (in-process, calling the pinned `analyze`/scoring
+    function directly, as in prior rounds) and report the actual exit
+    behavior — do not accept the design doc's description in place of
+    executing the code.
+
+(C) SF-3 remediation. Confirm `prereg-freeze.py --dry-run` against BOTH
+    registry/experiments/l3a-parse.json and registry/experiments/a5-nl.json
+    (consult its --help for the exact arguments; it needs --experiment and
+    --agent-id) now returns `DRY-RUN-OK` AND that the reported pause-flag set
+    is exactly `["ASM-0623"]` for each record — i.e. that ASM-0425 (superseded)
+    no longer appears in the flagged set. Read `scan_open_extrapolations` and
+    the `ASM_SUPERSEDED_RE` supersede-by-citation resolution to confirm the
+    mechanism is genuine (follows the citation chain to its live end) rather
+    than a special-cased string exclusion of "ASM-0425" specifically — try to
+    think of a case where the general mechanism could misfire (e.g. a cycle,
+    or a chain of more than one hop) and note whether the code handles it or
+    is merely lucky on the two-entry case that exists today.
+
+PART 2: Confirm NO REGRESSION on:
+  - the resolved-in-round-3 items (round-2/round-1 findings; the executable
+    G0 supersede path being reachable end-to-end; the instrument run-body
+    loggability; the counts-integrity fixes for zeroed control-family `ok`,
+    float totals, and out-of-range `dev_parse_refused`) — spot-check, flag
+    anything the 14.10 changes appear to have disturbed;
+  - the Wilson-bound arithmetic and the n=527/855 thresholds (486/462/4/16 at
+    n=527; 784/755/9/24 at n=855) — confirm unchanged;
+  - the "coincidental cancellation" behavior noted in the prior round (a
+    coherent lower aggregate count with one family's `ok` redistributed by
+    -1/+1) remains correctly ACCEPTED as valid (no frozen per-family
+    acceptable targets exist, so this is not itself a contradiction) —
+    confirm this has not been inadvertently broken by the G1 short-circuit
+    change;
+  - Actually RUN tools/registry/prereg-freeze.py --dry-run against both
+    registry/experiments/l3a-parse.json and registry/experiments/a5-nl.json
+    and report the real result, including the exact pause-flag set reported
+    for each.
+
+PART 3 — OUTPUT FORMAT:
+First, an item-by-item verification for FB-1, FB-2, and SF-3: for each,
+RESOLVED / PARTIALLY RESOLVED / NOT RESOLVED, reasoning grounded in current
+code (cite file/line), and the specific fixtures you constructed with their
+outcomes.
+Then a brief regression check on the round-3-resolved items, the Wilson
+arithmetic, the coincidental-cancellation case, and the dry-run results —
+RESOLVED / REGRESSED / UNCHANGED-AND-FINE for each, one to two sentences.
+Then, for ANY still-open or newly-identified issue, report: a short title;
+SEVERITY (exactly one of "freeze-blocking", "should-fix", or "nit"); the
+concrete mechanism (cite file/section/line/field); and why it matters.
+At the end, give an OVERALL VERDICT line. If and ONLY IF you find zero defects
+that should block freezing, write the EXACT sentence: "no freeze-blocking
+defect remains." Otherwise write "defects remain" and list which issues (by
+title) are freeze-blocking versus should-fix versus nit.
+
+Be precise and specific. Do not pad the review with praise. Where a validity
+check is now genuinely correct, say so briefly (grounded in what you checked)
+and move on; spend your effort confirming the correctness of what changed.
