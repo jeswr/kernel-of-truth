@@ -168,6 +168,38 @@ Element-by-element (every flag semantics MEASURED 2026-07-10 on claude-code
   construction: fresh OS process, fresh session id, empty workdir, no session
   resume, no cross-item context of any kind. `num_turns` must equal 1.
 
+### 4.3.1 MCP tool-definition isolation — POST-RUN HARDENING ADDENDUM (2026-07-10)
+
+> ADDENDUM, added 2026-07-10 by FABLE (designer-1) AFTER the final-phase
+> record and verdict, which consumed the STAGED bytes of this spec — sha256
+> `5b543f41635f4676382952bd1f6cd75daafa6f4e2186d64ed7f34de06467543d`,
+> committed in `harness-manifest.json` and pinned via ops amendment seq 1.
+> This addendum changes the working-tree file only; auditors recomputing the
+> harness-manifest pin must use the staged bytes (git history / the
+> manifest's recorded sha). Ruling: `mcp-tool-isolation-ruling.md`;
+> stipulations ASM-0644 (ruling), ASM-0645 (evidence), ASM-0646 (mechanism).
+
+- CORRECTION to the `--tools ""` bullet above: "disable ALL tools" is
+  intermittently FALSE for claude.ai account-level MCP connectors. In the
+  completed p3 pass, 8 of 818 init events (~1%) carried non-empty `tools`
+  arrays of MCP tool definitions (`mcp__claude_ai_*`) despite `--tools ""`
+  and `--setting-sources ""`, and 269/818 inits showed the connectors
+  attached in `init.mcp_servers` [MEASURED: run 20260710T182459Z]. The §7.1
+  gate marked every such attempt content-invalid; only `init.tools == []`
+  calls produced retained labels, so the frozen structurally-tool-less clause
+  held over all retained data and the verdict stands (ruling §2).
+- BINDING invariant (was already §7.1; now explicitly load-bearing): the
+  per-call `init.tools == []` gate — with zero `tool_use` blocks,
+  `permission_denials == []`, `num_turns == 1` — is MANDATORY for every blind
+  headless `claude -p` judge. `--tools ""` alone is never a sufficient
+  structural-isolation guarantee.
+- Headless-judge protocols staged AFTER 2026-07-10 MUST additionally pass
+  `--strict-mcp-config` (with no `--mcp-config`) in this command form
+  [MEASURED 2026-07-10, 3 probes, claude-code 2.1.201: flag accepted in `-p`
+  mode; `init.mcp_servers == []` and `init.tools == []`]. Defense-in-depth
+  only — the `init.tools == []` gate remains the binding check, and
+  `--setting-sources ""` must never be cited as an MCP-exclusion mechanism.
+
 ## 5. Answer extraction (per judge)
 
 - codex judges: the answer is the `answer` field of `last-message.json`
