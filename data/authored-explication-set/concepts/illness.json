@@ -1,0 +1,267 @@
+{
+  "id": "urn:g9-author:illness",
+  "datasetId": 24402,
+  "word": "illness",
+  "label": "illness (impairment of physiological function)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this is some bad something; there is a someone; when it is happening, some parts of this someone’s body cannot do the same things they did before now; when it is happening, this someone feels something bad; when it is happening, this someone cannot do many things; it happens for some time; maybe after some time it is not happening.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "quant": "SOME",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "quant": "SOME",
+                        "head": {
+                          "kind": "partFrame",
+                          "of": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      },
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "THE-SAME",
+                        "restrictedBy": {
+                          "type": "pred",
+                          "pred": "DO",
+                          "roles": {
+                            "agent": {
+                              "kind": "sp",
+                              "head": {
+                                "kind": "partFrame",
+                                "of": {
+                                  "kind": "ref",
+                                  "index": 2
+                                }
+                              }
+                            },
+                            "time": {
+                              "kind": "temporal",
+                              "op": "BEFORE",
+                              "anchor": {
+                                "kind": "prime",
+                                "prime": "NOW"
+                              }
+                            }
+                          }
+                        },
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "undergoer": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "MAYBE",
+        "args": [
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                }
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

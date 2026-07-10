@@ -1,0 +1,188 @@
+{
+  "id": "urn:g9-author:male",
+  "datasetId": 17389,
+  "word": "male",
+  "label": "male (gamete-producing organism)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this something lives; there is another something of another kind, it lives; when there is a new small living something, it is because this something did something with the other one; before some time, this small something is inside the other one; it is not inside this something.",
+  "notes": "KNOWN-WEAK: biological sense; gamete production reduced to procreative causation without gestation (offspring grows inside the other kind, not this one).",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 2,
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "LIVE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            },
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "bind": 3,
+                "restrictedBy": {
+                  "type": "pred",
+                  "pred": "LIVE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  }
+                },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "BECAUSE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "comitative": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "INSIDE"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "INSIDE"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

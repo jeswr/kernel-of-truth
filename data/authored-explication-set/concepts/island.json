@@ -1,0 +1,199 @@
+{
+  "id": "urn:g9-author:island",
+  "datasetId": 18923,
+  "word": "island",
+  "label": "island (land surrounded by water)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this is a kind of place; another something is near this place at all sides; people cannot move at this other something; if someone wants to move from this place to another place, this someone moves at this other something; it is not a very big place.",
+  "notes": "KNOWN-WEAK: no water molecule; the sea rendered as the impassable other-something at all sides.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "NEAR"
+          },
+          "place": {
+            "kind": "sp",
+            "quant": "ALL",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SIDE"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "MOVE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "place": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 3,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "MOVE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "place": {
+                      "kind": "sp",
+                      "det": "OTHER~ELSE~ANOTHER",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "WHERE~PLACE"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "place": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG",
+                    "intensifier": "VERY"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

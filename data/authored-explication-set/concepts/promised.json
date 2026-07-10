@@ -1,0 +1,248 @@
+{
+  "id": "urn:g9-author:promised",
+  "datasetId": 15012,
+  "word": "promised",
+  "label": "promised (X promised Y to do something)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X said to Y about some something: 'I want to do it; after now I will do it; you can know this is true'; X knows: if X does not do it, Y thinks about X: 'this someone is a bad someone'.",
+  "notes": "Same headword family as urn:kernel-v0:promise; authored fresh for this corpus against the dataset sense (commitment verb).",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "prime",
+                          "prime": "I"
+                        },
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 3
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "AFTER",
+                "args": [
+                  {
+                    "kind": "prime",
+                    "prime": "NOW"
+                  },
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "KNOW",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "YOU"
+                      },
+                      "complement": {
+                        "kind": "clause",
+                        "clause": {
+                          "type": "pred",
+                          "pred": "TRUE",
+                          "roles": {
+                            "undergoer": {
+                              "kind": "quote",
+                              "clauses": [
+                                {
+                                  "type": "op",
+                                  "op": "AFTER",
+                                  "args": [
+                                    {
+                                      "kind": "prime",
+                                      "prime": "NOW"
+                                    },
+                                    {
+                                      "type": "pred",
+                                      "pred": "DO",
+                                      "roles": {
+                                        "agent": {
+                                          "kind": "prime",
+                                          "prime": "I"
+                                        },
+                                        "undergoer": {
+                                          "kind": "ref",
+                                          "index": 3
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "IF",
+              "args": [
+                {
+                  "type": "op",
+                  "op": "NOT",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "ref",
+                          "index": 1
+                        },
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 3
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "pred",
+                  "pred": "THINK",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "topic": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "quote": {
+                      "kind": "quote",
+                      "clauses": [
+                        {
+                          "type": "pred",
+                          "pred": "BE-SPEC",
+                          "roles": {
+                            "undergoer": {
+                              "kind": "sp",
+                              "det": "THIS",
+                              "head": {
+                                "kind": "primeHead",
+                                "prime": "SOMEONE"
+                              }
+                            },
+                            "attribute": {
+                              "kind": "sp",
+                              "mods": [
+                                {
+                                  "mod": "BAD"
+                                }
+                              ],
+                              "head": {
+                                "kind": "primeHead",
+                                "prime": "SOMEONE"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "id": "urn:g9-author:making",
+  "datasetId": 1017,
+  "word": "making",
+  "label": "making (X makes Y; cause to come to be)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X did something for some time at some time; before this time there was no Y; because X did this, after this time there is Y; X wanted Y to exist.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 3
+              },
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "THERE-IS",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

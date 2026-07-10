@@ -1,0 +1,32 @@
+{
+  "schema": "g9-mechanical-summary/1",
+  "node": "g9.author",
+  "epistemic_status": "MEASURED (mechanical legality leg only). NOT the composite endpoint: the composite validator bar additionally requires substitutability + cross-translatability from g9.review (GATE-H, blinded human review). blinded_review_done=0 at this node, so /gates/instrument_valid is FALSE by construction and NO verdict is claimable here. The mechanical pass rate is an UPPER BOUND on the composite rate (an explication failing the mechanical gates cannot pass the composite bar).",
+  "arm": "fable-class-authoring",
+  "n_explications": 50,
+  "n_mechanical_pass": 50,
+  "mechanical_pass_rate": 1,
+  "mechanical_ceiling_wilson_lb": 0.9486581467678504,
+  "mechanical_ceiling_wilson_ub": 0.9999999999999998,
+  "pinned_comparison": {
+    "baseline": "deepnsm-8b-published-point-estimate",
+    "deepnsm_published_point": 0.24,
+    "source": "registry/experiments/g9.json design.arms_mandatory_baselines + analysis/g9.py input contract (deepnsm_published_point_x100=24); published point, CIs unavailable (P7 RT-16 deferred)",
+    "margin": 0.1,
+    "margin_threshold": 0.33999999999999997,
+    "mechanical_ceiling_clears_margin": true,
+    "note": "mechanical_ceiling_clears_margin only says the gate REMAINS REACHABLE after the mechanical leg; the verdict-bearing test runs on the post-review composite counts through the pinned analysis/g9.py."
+  },
+  "review_stage_bar": {
+    "n": 50,
+    "z": 1.645,
+    "k_min_composite_pass_for_PASS": 23,
+    "k_max_composite_pass_for_FAIL": 11,
+    "inconclusive_band": [
+      12,
+      22
+    ],
+    "detectable_alternative": "reliable clearance of 0.34 at n=50 needs true composite rate >~0.54 (frozen record n_planned.detectable_alternative; expected rate 0.60 declared)"
+  },
+  "encoder_hash": "40e8c8ba4c3d081c5051ea62d946d2ee9ee9f3205853b5c377a4c1e647e2d10c"
+}

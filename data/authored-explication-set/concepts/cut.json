@@ -1,0 +1,218 @@
+{
+  "id": "urn:g9-author:cut",
+  "datasetId": 2645,
+  "word": "cut",
+  "label": "cut (X cuts Y; separate with an instrument)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X did something to Y with some something at some time; one part of this something is a very small (thin) something; because X did this, after this time Y is not one something; after this time there are two parts of Y; X wanted it to be like this.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 4,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "ONE",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 4
+              }
+            }
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "SMALL",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "instrument": {
+                "kind": "ref",
+                "index": 4
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "ref",
+                "index": 3
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "quant": "ONE",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "TWO",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "NOT",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "BE-SPEC",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "attribute": {
+                      "kind": "sp",
+                      "quant": "ONE",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

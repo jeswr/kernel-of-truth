@@ -1,0 +1,194 @@
+{
+  "id": "urn:g9-author:anger",
+  "datasetId": 14713,
+  "word": "anger",
+  "label": "anger (emotion toward a grievance)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is a someone; this someone thinks like this: 'another someone did some bad something; I don't want this; I want to do something to this someone because of this'; because this someone thinks like this, this someone feels something bad; when this someone feels like this, this something (anger) is happening.",
+  "notes": "Wierzbicka-style emotion schema; the noun-to-feeling identity is carried by the closing when-happen clause. Referent 3 (the offender) is quote-local.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "sp",
+                    "det": "OTHER~ELSE~ANOTHER",
+                    "bind": 3,
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "SOME",
+                    "mods": [
+                      {
+                        "mod": "BAD"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "DON'T-WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "sp",
+                    "det": "THE-SAME",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "prime",
+                          "prime": "I"
+                        },
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 3
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

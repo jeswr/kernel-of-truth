@@ -1,0 +1,300 @@
+{
+  "id": "urn:g9-author:stole",
+  "datasetId": 34276,
+  "word": "stole",
+  "label": "stole (took without consent)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "some someone thinks about this something: 'it is mine'; X did something to it at some time; X knew: this someone doesn't want X to do this; this someone did not know: X did it at this time; after this time, X can do things with it; after this time, this someone cannot do things with it; people think: 'this is something very bad'.",
+  "notes": "Third-party ownership carried by the is-mine quote re-anchoring pattern (gist §4.6).",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "IS-MINE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "possessor": {
+                    "kind": "prime",
+                    "prime": "I"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 4,
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DON'T-WANT",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 3
+                },
+                "complement": {
+                  "kind": "clause",
+                  "clause": {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "ref",
+                        "index": 1
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "time": {
+                      "kind": "ref",
+                      "index": 4
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "SOME",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  },
+                  "instrument": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "ref",
+                        "index": 3
+                      },
+                      "undergoer": {
+                        "kind": "sp",
+                        "quant": "SOME",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      },
+                      "instrument": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "det": "THIS",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "BAD",
+                        "intensifier": "VERY"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

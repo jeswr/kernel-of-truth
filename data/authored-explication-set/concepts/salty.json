@@ -1,0 +1,158 @@
+{
+  "id": "urn:g9-author:salty",
+  "datasetId": 52751,
+  "word": "salty",
+  "label": "salty (containing salt)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "when X is inside a part of someone, this someone feels something; because of this feeling, this someone can know: some something is inside X; this something is many very small things.",
+  "notes": "KNOWN-WEAK: no salt/taste molecules; taste carried by feel-inside-a-body-part, salt as the many-very-small-things inside X. The weakest record in this set by design honesty.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "sp",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "sp",
+                    "det": "SOME",
+                    "bind": 2,
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  }
+                }
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "INSIDE"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "BE-SOMEWHERE",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "sp",
+                          "quant": "SOME",
+                          "bind": 3,
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "SOMETHING~THING"
+                          }
+                        },
+                        "locus": {
+                          "kind": "ref",
+                          "index": 1
+                        },
+                        "manner": {
+                          "kind": "prime",
+                          "prime": "INSIDE"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "attribute": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "mods": [
+              {
+                "mod": "SMALL",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

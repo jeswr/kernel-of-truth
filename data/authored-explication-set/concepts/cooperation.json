@@ -1,0 +1,187 @@
+{
+  "id": "urn:g9-author:cooperation",
+  "datasetId": 17569,
+  "word": "cooperation",
+  "label": "cooperation (joint action)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "many people want the same something to happen; because of this, all these people do some things with the other ones of these people; because they do things like this, this something can happen; when it is like this, this something (cooperation) is happening.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "det": "THE-SAME",
+                  "bind": 3,
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "quant": "ALL",
+                "head": {
+                  "kind": "refHead",
+                  "index": 2
+                }
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              },
+              "comitative": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "refHead",
+                  "index": 2
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "comitative": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "refHead",
+                  "index": 2
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "comitative": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "refHead",
+                  "index": 2
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

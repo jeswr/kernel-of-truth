@@ -1,0 +1,282 @@
+{
+  "id": "urn:g9-author:thirst",
+  "datasetId": 49748,
+  "word": "thirst",
+  "label": "thirst (physiological need to drink)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is a someone; this someone feels something in the body; because of this, this someone wants some something to be inside the body; if this something is inside the body, after some time this someone does not feel it; if it is not inside the body for a long time, maybe something very bad happens; when this someone wants it like this, there is this something (thirst).",
+  "notes": "KNOWN-WEAK: no water/drink molecule; the need carried by want-something-inside-the-body + harm-if-lacking.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "place": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "BODY"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "place": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "sp",
+                      "quant": "SOME",
+                      "bind": 3,
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "SOMETHING~THING"
+                      }
+                    },
+                    "locus": {
+                      "kind": "sp",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "BODY"
+                      }
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "INSIDE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "locus": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "INSIDE"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                }
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "FEEL",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "place": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "BODY"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "locus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "BODY"
+                    }
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  },
+                  "duration": {
+                    "kind": "prime",
+                    "prime": "A-LONG-TIME"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "op",
+            "op": "MAYBE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "SOME",
+                    "mods": [
+                      {
+                        "mod": "BAD",
+                        "intensifier": "VERY"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

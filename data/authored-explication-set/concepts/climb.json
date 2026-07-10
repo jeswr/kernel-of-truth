@@ -1,0 +1,178 @@
+{
+  "id": "urn:g9-author:climb",
+  "datasetId": 33133,
+  "word": "climb",
+  "label": "climb (go upward gradually)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X moves for some time at some time; before this time, X is in some place; after this time, X is in another place; this other place is above the first place; X does something with many parts of the body all this time; X does not move there in one moment.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 3,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 2
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "locus": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "bind": 4,
+                "restrictedBy": {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 4
+                    },
+                    "locus": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "ABOVE"
+                    }
+                  }
+                },
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "instrument": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "MOMENT"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

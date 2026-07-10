@@ -1,0 +1,212 @@
+{
+  "id": "urn:g9-author:liberty",
+  "datasetId": 16842,
+  "word": "liberty",
+  "label": "liberty (immunity from arbitrary authority)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this is something good; there is a someone; when there is this something, other people cannot say to this someone: 'you cannot do some things'; if this someone does not want other people to do something to this someone, other people cannot do it.",
+  "notes": "Kept distinct from the 'freedom' record: freedom = the subject can act per own wants; liberty = others cannot prohibit or compel.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "SAY",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        }
+                      },
+                      "addressee": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "quote": {
+                        "kind": "quote",
+                        "clauses": [
+                          {
+                            "type": "op",
+                            "op": "NOT",
+                            "args": [
+                              {
+                                "type": "op",
+                                "op": "CAN",
+                                "args": [
+                                  {
+                                    "type": "pred",
+                                    "pred": "DO",
+                                    "roles": {
+                                      "agent": {
+                                        "kind": "prime",
+                                        "prime": "YOU"
+                                      },
+                                      "undergoer": {
+                                        "kind": "sp",
+                                        "quant": "SOME",
+                                        "head": {
+                                          "kind": "primeHead",
+                                          "prime": "SOMETHING~THING"
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DON'T-WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "DO",
+                  "roles": {
+                    "agent": {
+                      "kind": "sp",
+                      "det": "OTHER~ELSE~ANOTHER",
+                      "head": {
+                        "kind": "primeHead",
+                        "prime": "PEOPLE"
+                      }
+                    },
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "sp",
+                        "det": "OTHER~ELSE~ANOTHER",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        }
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

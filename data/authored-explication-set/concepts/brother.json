@@ -1,0 +1,110 @@
+{
+  "id": "urn:g9-author:brother",
+  "datasetId": 10107,
+  "word": "brother",
+  "label": "brother (male sibling)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there are two people; because these two people did something before now, there is X; because the same two people did something, there is Y.",
+  "notes": "KNOWN-WEAK: no gender primes in profile-1; 'male' clause dropped, sense reduced to same-two-progenitors sibling (see also the 'male' record's notes).",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "TWO",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 3
+              },
+              "time": {
+                "kind": "temporal",
+                "op": "BEFORE",
+                "anchor": {
+                  "kind": "prime",
+                  "prime": "NOW"
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "THE-SAME",
+                "head": {
+                  "kind": "refHead",
+                  "index": 3
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

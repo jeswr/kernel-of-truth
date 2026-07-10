@@ -1,0 +1,168 @@
+{
+  "id": "urn:g9-author:smooth",
+  "datasetId": 17065,
+  "word": "smooth",
+  "label": "smooth (surface free from roughness)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "when a part of someone’s body moves at X, touching it, this someone does not feel something bad; there are no small parts of X above other parts of X; all parts of X are like the other parts of X.",
+  "notes": "Surface collapsed to part-structure: roughness = small parts above other parts; referent 3 is the (denied) protruding part.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "sp",
+                    "det": "SOME",
+                    "bind": 2,
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  }
+                }
+              },
+              "place": {
+                "kind": "ref",
+                "index": 1
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "attribute": {
+                    "kind": "prime",
+                    "prime": "BAD"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ],
+                "bind": 3,
+                "restrictedBy": {
+                  "type": "pred",
+                  "pred": "BE-SOMEWHERE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "locus": {
+                      "kind": "sp",
+                      "det": "OTHER~ELSE~ANOTHER",
+                      "head": {
+                        "kind": "partFrame",
+                        "of": {
+                          "kind": "ref",
+                          "index": 1
+                        }
+                      }
+                    },
+                    "manner": {
+                      "kind": "prime",
+                      "prime": "ABOVE"
+                    }
+                  }
+                },
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "LIKE",
+        "args": [
+          {
+            "kind": "sp",
+            "quant": "ALL",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

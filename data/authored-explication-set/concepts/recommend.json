@@ -1,0 +1,212 @@
+{
+  "id": "urn:g9-author:recommend",
+  "datasetId": 22474,
+  "word": "recommend",
+  "label": "recommend (push for something)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X says to some someone about Y: 'Y is something good; if you do something with Y, maybe you feel something good; I want you to do something with Y'; X says this because X thinks like this about Y: 'Y is something good'.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "GOOD"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "IF",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "DO",
+                    "roles": {
+                      "agent": {
+                        "kind": "prime",
+                        "prime": "YOU"
+                      },
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "MAYBE",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "FEEL",
+                        "roles": {
+                          "experiencer": {
+                            "kind": "prime",
+                            "prime": "YOU"
+                          },
+                          "attribute": {
+                            "kind": "prime",
+                            "prime": "GOOD"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "prime",
+                          "prime": "YOU"
+                        },
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SPEC",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "attribute": {
+                        "kind": "sp",
+                        "mods": [
+                          {
+                            "mod": "GOOD"
+                          }
+                        ],
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "addressee": {
+                "kind": "ref",
+                "index": 3
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

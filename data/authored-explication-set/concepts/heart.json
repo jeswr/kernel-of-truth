@@ -1,0 +1,195 @@
+{
+  "id": "urn:g9-author:heart",
+  "datasetId": 4302,
+  "word": "heart",
+  "label": "heart (locus of feelings, figurative)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this is a part of some someone; people cannot see this part; because there is this part, this someone can feel something at many times; when this someone feels something, people think like this: 'some something is happening in the place where this part is'.",
+  "notes": "Figurative WordNet sense (locus of feelings), NOT the organ; rendered as the unseen feeling-part.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 2,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SEE",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "stimulus": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "time": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WHEN~TIME"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "quote": {
+                "kind": "quote",
+                "clauses": [
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "det": "SOME",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      },
+                      "place": {
+                        "kind": "sp",
+                        "bind": 3,
+                        "restrictedBy": {
+                          "type": "pred",
+                          "pred": "BE-SOMEWHERE",
+                          "roles": {
+                            "undergoer": {
+                              "kind": "ref",
+                              "index": 1
+                            },
+                            "locus": {
+                              "kind": "ref",
+                              "index": 3
+                            }
+                          }
+                        },
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "WHERE~PLACE"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "id": "urn:g9-author:proverb",
+  "datasetId": 47591,
+  "word": "proverb",
+  "label": "proverb (condensed memorable saying)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this something is few words; before now, many people said these words at many times; many people know these words; when someone hears these words, this someone can know something about many things.",
+  "notes": "'Memorable saying embodying a fact of experience' compressed to widely-known few-words + generalized knowledge on hearing.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "quant": "LITTLE~FEW",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              },
+              "time": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HEAR",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 2,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "topic": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

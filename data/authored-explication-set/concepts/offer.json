@@ -1,0 +1,195 @@
+{
+  "id": "urn:g9-author:offer",
+  "datasetId": 9326,
+  "word": "offer",
+  "label": "offer (present for acceptance or rejection)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X says to some someone about Y: 'if you want this something, after now you can say: it is mine'; X knows: maybe this someone wants it; X knows: maybe this someone does not want it.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "IF",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "WANT",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "YOU"
+                      },
+                      "complement": {
+                        "kind": "ref",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "AFTER",
+                    "args": [
+                      {
+                        "kind": "prime",
+                        "prime": "NOW"
+                      },
+                      {
+                        "type": "op",
+                        "op": "CAN",
+                        "args": [
+                          {
+                            "type": "pred",
+                            "pred": "SAY",
+                            "roles": {
+                              "agent": {
+                                "kind": "prime",
+                                "prime": "YOU"
+                              },
+                              "quote": {
+                                "kind": "quote",
+                                "clauses": [
+                                  {
+                                    "type": "pred",
+                                    "pred": "IS-MINE",
+                                    "roles": {
+                                      "undergoer": {
+                                        "kind": "ref",
+                                        "index": 2
+                                      },
+                                      "possessor": {
+                                        "kind": "prime",
+                                        "prime": "I"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "MAYBE",
+              "args": [
+                {
+                  "type": "pred",
+                  "pred": "WANT",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 3
+                    },
+                    "complement": {
+                      "kind": "ref",
+                      "index": 2
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "op",
+              "op": "MAYBE",
+              "args": [
+                {
+                  "type": "op",
+                  "op": "NOT",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "WANT",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "ref",
+                          "index": 3
+                        },
+                        "complement": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

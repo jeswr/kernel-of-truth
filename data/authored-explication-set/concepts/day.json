@@ -1,0 +1,154 @@
+{
+  "id": "urn:g9-author:day",
+  "datasetId": 106,
+  "word": "day",
+  "label": "day (daylight hours)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this is a kind of time; it happens for some time; when it is happening, people can see many things in all places; after this time, people cannot see many things.",
+  "notes": "KNOWN-WEAK: no sun/light prime in profile-1; daylight rendered as the seeing-conditions contrast only.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SEE",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "stimulus": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  },
+                  "place": {
+                    "kind": "sp",
+                    "quant": "ALL",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WHERE~PLACE"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 1
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "SEE",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "sp",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "PEOPLE"
+                        }
+                      },
+                      "stimulus": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

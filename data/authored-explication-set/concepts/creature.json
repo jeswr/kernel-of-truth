@@ -1,0 +1,87 @@
+{
+  "id": "urn:g9-author:creature",
+  "datasetId": 28439,
+  "word": "creature",
+  "label": "creature (organism with voluntary movement)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this something lives; it can move; when it wants to move, it moves.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "MOVE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "urn:g9-author:complex",
+  "datasetId": 9458,
+  "word": "complex",
+  "label": "complex (complicated in structure)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there are many parts of X; many parts of X touch other parts of X; if someone wants to know all the parts of X, this someone thinks about X for a long time; this someone cannot know all the parts of X in a short time.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "TOUCH"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 2,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "KNOW",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "topic": {
+                      "kind": "sp",
+                      "quant": "ALL",
+                      "head": {
+                        "kind": "partFrame",
+                        "of": {
+                          "kind": "ref",
+                          "index": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "topic": {
+                    "kind": "sp",
+                    "quant": "ALL",
+                    "head": {
+                      "kind": "partFrame",
+                      "of": {
+                        "kind": "ref",
+                        "index": 1
+                      }
+                    }
+                  },
+                  "duration": {
+                    "kind": "prime",
+                    "prime": "A-SHORT-TIME"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "id": "urn:g9-author:size",
+  "datasetId": 4733,
+  "word": "size",
+  "label": "size (physical magnitude)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is some thing; when someone sees this thing, this someone can know this something about it; if this someone knows it, this someone can say about this thing: 'it is a big thing'; if this someone knows it, this someone can say about this thing: 'it is a small thing'.",
+  "notes": "KNOWN-WEAK: metalinguistic concept; the big/small exclusive-or is not expressible, so both possibility clauses are carried and exclusivity is dropped.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 3,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                }
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SAY",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "quote": {
+                    "kind": "quote",
+                    "clauses": [
+                      {
+                        "type": "pred",
+                        "pred": "BE-SPEC",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "attribute": {
+                            "kind": "sp",
+                            "mods": [
+                              {
+                                "mod": "BIG"
+                              }
+                            ],
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SAY",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "quote": {
+                    "kind": "quote",
+                    "clauses": [
+                      {
+                        "type": "pred",
+                        "pred": "BE-SPEC",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "attribute": {
+                            "kind": "sp",
+                            "mods": [
+                              {
+                                "mod": "SMALL"
+                              }
+                            ],
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

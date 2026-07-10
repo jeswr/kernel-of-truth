@@ -1,0 +1,214 @@
+{
+  "id": "urn:g9-author:friend",
+  "datasetId": 5249,
+  "word": "friend",
+  "label": "friend (X is a friend of Y)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X has known Y for a long time; when X does some things with Y, X feels something good; X wants Y to feel something good; X thinks like this about Y: 'I can say many things to this someone; if I say many things to this someone, some bad something does not happen'.",
+  "notes": "Same headword as urn:kernel-v0:friend; authored fresh for this corpus against the dataset sense (know well + affection + trust), trust carried by the say-many-things quote.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              },
+              "comitative": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "FEEL",
+              "roles": {
+                "experiencer": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "attribute": {
+                  "kind": "prime",
+                  "prime": "GOOD"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "SAY",
+                    "roles": {
+                      "agent": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "addressee": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "topic": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "op",
+                "op": "IF",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "SAY",
+                    "roles": {
+                      "agent": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "addressee": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "topic": {
+                        "kind": "sp",
+                        "quant": "MUCH~MANY",
+                        "head": {
+                          "kind": "primeHead",
+                          "prime": "SOMETHING~THING"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "NOT",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "sp",
+                            "quant": "SOME",
+                            "mods": [
+                              {
+                                "mod": "BAD"
+                              }
+                            ],
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,338 @@
+{
+  "id": "urn:g9-author:depression",
+  "datasetId": 22791,
+  "word": "depression",
+  "label": "depression (clinical depressive state)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is a someone; this someone feels something bad at many times, for a long time; this someone thinks like this: 'something good cannot happen after now; I don't want to do things; I cannot do many things'; if this someone wants not to feel something bad, this someone cannot not feel it; because of this, this someone cannot live in a good way; when it is like this, there is this something (depression).",
+  "notes": "KNOWN-WEAK: clinical severity carried by long duration + involuntariness + incapacity; no anhedonia-specific prime.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "BAD"
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "HAPPEN",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "sp",
+                            "quant": "SOME",
+                            "mods": [
+                              {
+                                "mod": "GOOD"
+                              }
+                            ],
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          },
+                          "time": {
+                            "kind": "temporal",
+                            "op": "AFTER",
+                            "anchor": {
+                              "kind": "prime",
+                              "prime": "NOW"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "pred",
+                "pred": "DON'T-WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "DO",
+                      "roles": {
+                        "agent": {
+                          "kind": "prime",
+                          "prime": "I"
+                        },
+                        "undergoer": {
+                          "kind": "sp",
+                          "quant": "SOME",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "SOMETHING~THING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "DO",
+                        "roles": {
+                          "agent": {
+                            "kind": "prime",
+                            "prime": "I"
+                          },
+                          "undergoer": {
+                            "kind": "sp",
+                            "quant": "MUCH~MANY",
+                            "head": {
+                              "kind": "primeHead",
+                              "prime": "SOMETHING~THING"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "op",
+                  "op": "NOT",
+                  "args": [
+                    {
+                      "type": "pred",
+                      "pred": "FEEL",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "ref",
+                          "index": 2
+                        },
+                        "attribute": {
+                          "kind": "prime",
+                          "prime": "BAD"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "NOT",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "FEEL",
+                        "roles": {
+                          "experiencer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "attribute": {
+                            "kind": "prime",
+                            "prime": "BAD"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "op",
+                "op": "CAN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "LIVE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "GOOD"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

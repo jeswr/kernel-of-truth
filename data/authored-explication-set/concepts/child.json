@@ -1,0 +1,151 @@
+{
+  "id": "urn:g9-author:child",
+  "datasetId": 1732,
+  "word": "child",
+  "label": "child (a young person)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "this someone has lived for a short time, not for a long time; this someone is a small someone; this someone cannot do many things; after some time, this someone can be a big someone.",
+  "notes": "KNOWN-WEAK: 'young' carried by lived-a-short-time + small + not-yet-capable; no gender ('of either sex' needs no gender clause).",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "LIVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-SHORT-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "LIVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "A-LONG-TIME"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "SMALL"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SPEC",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "attribute": {
+                    "kind": "sp",
+                    "mods": [
+                      {
+                        "mod": "BIG"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

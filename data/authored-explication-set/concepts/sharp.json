@@ -1,0 +1,168 @@
+{
+  "id": "urn:g9-author:sharp",
+  "datasetId": 11438,
+  "word": "sharp",
+  "label": "sharp (thin edge, suitable for cutting)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is one part of X; this part is a very small (thin) something; if this part touches a part of some someone, this someone feels something bad; because there is this part, people can do many things with X.",
+  "notes": "KNOWN-WEAK: cutting-suitability carried generically (people can do many things with X because of the thin part).",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "ONE",
+            "bind": 2,
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "SMALL",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "sp",
+                "head": {
+                  "kind": "partFrame",
+                  "of": {
+                    "kind": "sp",
+                    "det": "SOME",
+                    "bind": 3,
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMEONE"
+                    }
+                  }
+                }
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "TOUCH"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  },
+                  "instrument": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "id": "urn:g9-author:migrant",
+  "datasetId": 59574,
+  "word": "migrant",
+  "label": "migrant (mover between regions)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "before now, this someone lived in some place; this someone moved before now; now this someone is in another place; this other place is far from the first place; this someone does not live in the first place now; this someone wants to live in this other place.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "pred",
+            "pred": "LIVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "place": {
+                "kind": "sp",
+                "det": "SOME",
+                "bind": 2,
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHERE~PLACE"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "temporal",
+            "op": "BEFORE",
+            "anchor": {
+              "kind": "prime",
+              "prime": "NOW"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 3,
+            "restrictedBy": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 3
+                },
+                "locus": {
+                  "kind": "ref",
+                  "index": 2
+                },
+                "manner": {
+                  "kind": "prime",
+                  "prime": "FAR"
+                }
+              }
+            },
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            }
+          },
+          "time": {
+            "kind": "prime",
+            "prime": "NOW"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "LIVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "place": {
+                "kind": "ref",
+                "index": 2
+              },
+              "time": {
+                "kind": "prime",
+                "prime": "NOW"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "LIVE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "place": {
+                  "kind": "ref",
+                  "index": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

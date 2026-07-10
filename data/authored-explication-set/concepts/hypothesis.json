@@ -1,0 +1,231 @@
+{
+  "id": "urn:g9-author:hypothesis",
+  "datasetId": 26583,
+  "word": "hypothesis",
+  "label": "hypothesis (tentative insight, not yet verified)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "some someone thinks like this: 'maybe this is true; I do not know: it is true; I want to know: it is true'; because this someone wants to know it, this someone does some things; after some time, maybe this someone knows: it is true.",
+  "notes": "Referent 1 is declared ClauseRef: the instance IS a sayable/thinkable content whose truth is undetermined.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "ClauseRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 2,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "MAYBE",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "TRUE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "KNOW",
+                    "roles": {
+                      "experiencer": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "complement": {
+                        "kind": "clause",
+                        "clause": {
+                          "type": "pred",
+                          "pred": "TRUE",
+                          "roles": {
+                            "undergoer": {
+                              "kind": "ref",
+                              "index": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "KNOW",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "prime",
+                          "prime": "I"
+                        },
+                        "complement": {
+                          "kind": "clause",
+                          "clause": {
+                            "type": "pred",
+                            "pred": "TRUE",
+                            "roles": {
+                              "undergoer": {
+                                "kind": "ref",
+                                "index": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "KNOW",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "complement": {
+                      "kind": "clause",
+                      "clause": {
+                        "type": "pred",
+                        "pred": "TRUE",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          {
+            "type": "op",
+            "op": "MAYBE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "TRUE",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

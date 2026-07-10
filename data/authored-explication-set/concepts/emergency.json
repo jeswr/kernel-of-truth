@@ -1,0 +1,205 @@
+{
+  "id": "urn:g9-author:emergency",
+  "datasetId": 19251,
+  "word": "emergency",
+  "label": "emergency (sudden crisis requiring immediate action)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "something very bad is happening now; before now, people did not know: this will happen; if people do not do something in a short time, maybe something more bad happens; people want to do something now.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "prime",
+            "prime": "NOW"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BAD",
+                "intensifier": "VERY"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "prime",
+            "prime": "NOW"
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "HAPPEN",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "DO",
+                "roles": {
+                  "agent": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "SOME",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  },
+                  "duration": {
+                    "kind": "prime",
+                    "prime": "A-SHORT-TIME"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "op",
+            "op": "MAYBE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "quant": "SOME",
+                    "mods": [
+                      {
+                        "mod": "BAD",
+                        "intensifier": "MORE"
+                      }
+                    ],
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "PEOPLE"
+                  }
+                },
+                "undergoer": {
+                  "kind": "sp",
+                  "quant": "SOME",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  }
+                },
+                "time": {
+                  "kind": "prime",
+                  "prime": "NOW"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

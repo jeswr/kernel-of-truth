@@ -1,0 +1,265 @@
+{
+  "id": "urn:g9-author:sell",
+  "datasetId": 16370,
+  "word": "sell",
+  "label": "sell (exchange for money)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is another something; X says to some someone about Y: 'I want it to be like this: if I can say about this other something \"it is mine\", you can say about Y \"it is mine\"'; after some time, this someone can say about Y: 'it is mine'; after the same time, X can say about the other something: 'it is mine'.",
+  "notes": "KNOWN-WEAK: no money molecule in profile-1; payment rendered as 'another something' exchanged under the two is-mine quotes.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "bind": 4,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            }
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "op",
+                      "op": "IF",
+                      "args": [
+                        {
+                          "type": "op",
+                          "op": "CAN",
+                          "args": [
+                            {
+                              "type": "pred",
+                              "pred": "SAY",
+                              "roles": {
+                                "agent": {
+                                  "kind": "prime",
+                                  "prime": "I"
+                                },
+                                "quote": {
+                                  "kind": "quote",
+                                  "clauses": [
+                                    {
+                                      "type": "pred",
+                                      "pred": "IS-MINE",
+                                      "roles": {
+                                        "undergoer": {
+                                          "kind": "ref",
+                                          "index": 4
+                                        },
+                                        "possessor": {
+                                          "kind": "prime",
+                                          "prime": "I"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "op",
+                          "op": "CAN",
+                          "args": [
+                            {
+                              "type": "pred",
+                              "pred": "SAY",
+                              "roles": {
+                                "agent": {
+                                  "kind": "prime",
+                                  "prime": "YOU"
+                                },
+                                "quote": {
+                                  "kind": "quote",
+                                  "clauses": [
+                                    {
+                                      "type": "pred",
+                                      "pred": "IS-MINE",
+                                      "roles": {
+                                        "undergoer": {
+                                          "kind": "ref",
+                                          "index": 2
+                                        },
+                                        "possessor": {
+                                          "kind": "prime",
+                                          "prime": "I"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SAY",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 3
+                  },
+                  "quote": {
+                    "kind": "quote",
+                    "clauses": [
+                      {
+                        "type": "pred",
+                        "pred": "IS-MINE",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "possessor": {
+                            "kind": "prime",
+                            "prime": "I"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "sp",
+            "det": "THE-SAME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SAY",
+                "roles": {
+                  "agent": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "quote": {
+                    "kind": "quote",
+                    "clauses": [
+                      {
+                        "type": "pred",
+                        "pred": "IS-MINE",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "ref",
+                            "index": 4
+                          },
+                          "possessor": {
+                            "kind": "prime",
+                            "prime": "I"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

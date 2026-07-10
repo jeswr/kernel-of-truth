@@ -1,0 +1,212 @@
+{
+  "id": "urn:g9-author:miss",
+  "datasetId": 24339,
+  "word": "miss",
+  "label": "miss (feel the lack of someone)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X thinks about Y at many times; X thinks like this: 'Y was near me before now; Y is not near me now; I want Y to be near me; I cannot see Y now'; because X thinks about Y, X feels something bad.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THINK",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "NEAR"
+                  },
+                  "time": {
+                    "kind": "temporal",
+                    "op": "BEFORE",
+                    "anchor": {
+                      "kind": "prime",
+                      "prime": "NOW"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "BE-SOMEWHERE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 2
+                      },
+                      "locus": {
+                        "kind": "prime",
+                        "prime": "I"
+                      },
+                      "manner": {
+                        "kind": "prime",
+                        "prime": "NEAR"
+                      },
+                      "time": {
+                        "kind": "prime",
+                        "prime": "NOW"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "pred",
+                "pred": "WANT",
+                "roles": {
+                  "experiencer": {
+                    "kind": "prime",
+                    "prime": "I"
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "BE-SOMEWHERE",
+                      "roles": {
+                        "undergoer": {
+                          "kind": "ref",
+                          "index": 2
+                        },
+                        "locus": {
+                          "kind": "prime",
+                          "prime": "I"
+                        },
+                        "manner": {
+                          "kind": "prime",
+                          "prime": "NEAR"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "SEE",
+                        "roles": {
+                          "experiencer": {
+                            "kind": "prime",
+                            "prime": "I"
+                          },
+                          "stimulus": {
+                            "kind": "ref",
+                            "index": 2
+                          },
+                          "time": {
+                            "kind": "prime",
+                            "prime": "NOW"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THINK",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "BAD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

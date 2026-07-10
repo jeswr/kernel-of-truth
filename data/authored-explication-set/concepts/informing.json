@@ -1,0 +1,171 @@
+{
+  "id": "urn:g9-author:informing",
+  "datasetId": 48079,
+  "word": "informing",
+  "label": "informing (imparting knowledge)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "X says something about some something to Y at some time; X says it because X wants Y to know about it; before this time, Y did not know about it; after this time, Y knows about it.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "ref",
+            "index": 2
+          },
+          "topic": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 3,
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            }
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "bind": 4,
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "KNOW",
+                  "roles": {
+                    "experiencer": {
+                      "kind": "ref",
+                      "index": 2
+                    },
+                    "topic": {
+                      "kind": "ref",
+                      "index": 3
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "addressee": {
+                "kind": "ref",
+                "index": 2
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "topic": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

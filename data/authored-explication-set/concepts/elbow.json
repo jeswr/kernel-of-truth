@@ -1,0 +1,186 @@
+{
+  "id": "urn:g9-author:elbow",
+  "datasetId": 40111,
+  "word": "elbow",
+  "label": "elbow (hinge of the arm)",
+  "status": "g9-authored",
+  "arm": "fable-class-authoring",
+  "gloss": "there is one part of a body; this something is a part of this part; one part of this part is above this something; another part of this part is below this something; because there is this something, it can be like this: when one part of this part moves, the other part does not move.",
+  "notes": "KNOWN-WEAK: no 'arm'/'joint' molecules; the hinge is carried by the differential-movement clause over the enclosing limb-part.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "ONE",
+            "bind": 2,
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "ONE",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "ABOVE"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "det": "OTHER~ELSE~ANOTHER",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "BELOW"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "op",
+                "op": "WHEN",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "MOVE",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "sp",
+                        "quant": "ONE",
+                        "head": {
+                          "kind": "partFrame",
+                          "of": {
+                            "kind": "ref",
+                            "index": 2
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "op",
+                    "op": "NOT",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "MOVE",
+                        "roles": {
+                          "undergoer": {
+                            "kind": "sp",
+                            "det": "OTHER~ELSE~ANOTHER",
+                            "head": {
+                              "kind": "partFrame",
+                              "of": {
+                                "kind": "ref",
+                                "index": 2
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
