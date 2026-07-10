@@ -152,14 +152,35 @@ def normalize(raw):
     return s if s in ALLOWED else None     # 5. VALID iff in set
 
 
+# §7.3 matching clarified per poc/truthstyle-2x2/blinding-audit-clarification.md
+# + registry/corrections/truthstyle-2x2/1-blinding-audit-clarification.json
+# (ASM-0360): a token that is itself entirely hexadecimal ("f2b") is a HIT only
+# as a standalone token — NOT when embedded inside a longer maximal [0-9a-f]
+# run, where it is arithmetic coincidence inside a machine-generated identifier
+# (session/thread/request UUIDs, per-event ids). Tokens containing non-hex
+# letters can never sit inside a hex run; their matching is byte-identical to
+# the original scan.
+_HEX_BYTES = frozenset(b"0123456789abcdef")
+
+
+def _hex_embedded(data, i, n):
+    """True iff data[i:i+n] sits inside a [0-9a-f] run longer than itself."""
+    return ((i > 0 and data[i - 1] in _HEX_BYTES)
+            or (i + n < len(data) and data[i + n] in _HEX_BYTES))
+
+
 def blinding_scan(paths):
     for p in paths:
         if not os.path.exists(p):
             continue
         data = open(p, "rb").read().lower()
         for t in BLIND_TOKENS:
-            if t in data:
-                return (os.path.basename(p), t.decode())
+            pure_hex = all(c in _HEX_BYTES for c in t)
+            i = data.find(t)
+            while i >= 0:
+                if not (pure_hex and _hex_embedded(data, i, len(t))):
+                    return (os.path.basename(p), t.decode())
+                i = data.find(t, i + 1)
     return None
 
 
