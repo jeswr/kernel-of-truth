@@ -65,21 +65,25 @@ def build_gazetteer(entity_urns):
     return gaz
 
 
-def match_entities(text, gaz, ordered_surfaces):
+def compile_matcher(gaz):
+    """One combined alternation regex, alternatives sorted longest-first, so a
+    single left-to-right scan realises longest-match-first non-overlapping
+    matching deterministically (compiled ONCE per parse_all call)."""
+    ordered = sorted(gaz, key=lambda s: (-len(s), s))
+    if not ordered:
+        return None
+    return re.compile(r"(?<![a-z0-9_])(?:" +
+                      "|".join(re.escape(s) for s in ordered) +
+                      r")(?![a-z0-9_])")
+
+
+def match_entities(text, gaz, matcher):
     """Longest-match-first, non-overlapping; returns ([urn...], masked_text)."""
     low = text.lower()
     taken = []  # (start, end, urn)
-
-    def overlaps(a, b):
-        return not (a[1] <= b[0] or b[1] <= a[0])
-
-    for surface in ordered_surfaces:
-        pat = re.compile(r"(?<![a-z0-9_])" + re.escape(surface) + r"(?![a-z0-9_])")
-        for m in pat.finditer(low):
-            span = (m.start(), m.end(), gaz[surface])
-            if not any(overlaps(span, t) for t in taken):
-                taken.append(span)
-    taken.sort()
+    if matcher is not None:
+        for m in matcher.finditer(low):
+            taken.append((m.start(), m.end(), gaz[m.group(0)]))
     out, prev, ents = [], 0, []
     for s, e, urn in taken:
         out.append(low[prev:s])
@@ -180,10 +184,10 @@ def _frame_a5(masked, ents, mapped, derange):
 def parse_all(phrasings, vertical, entity_urns, derange=False):
     """phrasings: [{qid, text}] -> {qid: parse-or-refusal dict}."""
     gaz = build_gazetteer(entity_urns)
-    ordered = sorted(gaz, key=lambda s: (-len(s), s))
+    matcher = compile_matcher(gaz)
     staged, out = [], {}
     for rec in phrasings:
-        ents, masked = match_entities(rec["text"], gaz, ordered)
+        ents, masked = match_entities(rec["text"], gaz, matcher)
         staged.append((rec["qid"], ents, masked))
     mapped = map_batch(
         [{"pid": qid, "text": masked} for qid, _e, masked in staged],

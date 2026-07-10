@@ -468,8 +468,6 @@ re-run by a non-designer identity against the BUILT inputs.)
 
 Everything measured here is a property of THIS front-end build, THESE two
 blind-authored phrasing sets, and the parents' frozen evals/stores/engine.
-DECISION: two records, two per-vertical verdicts, one shared harness
-(FK-NLB-1) [premises: the frozen parents' successor pre-declarations —
-MEASURED: registry/experiments/l3a.json + a5.json `n_planned.successors`].
+DECISION: two records, two per-vertical verdicts, one shared harness (FK-NLB-1) [MEASURED: registry/experiments/l3a.json + a5.json `n_planned.successors` — the frozen parents pre-declare separate successor ids].
 It extrapolates to no other phrasing distribution, corpus, domain, or
 language; no LLM-comparative claim; no kernel-usefulness-to-model claim.
