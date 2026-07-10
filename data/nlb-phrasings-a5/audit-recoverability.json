@@ -1,0 +1,49 @@
+{
+ "schema": "nlb-recoverability-audit/1",
+ "variant": "split-gate (ASM-0421 shape+entity-gated / concept-label descriptive); a5 audit is genuinely PRE-DATA (corrected gate applied from the start, design doc 14.3). Covered-only sample over the CURRENT eval.jsonl (post instance-true EVAL-DIVERSITY re-authoring).",
+ "n": 60,
+ "sample_rule": "deterministic round-robin over the 9 a5 covered families in eval appearance order (callers-of, callees-of, where-defined, imports-of, imported-by, contains, contained-in, instance-true, instance-false-disjoint), first 60 covered items. No FK-NLB-10 scope cut on a5 (that fork is l3a-only).",
+ "gate": {
+  "metric": "shape+entity recovery",
+  "threshold": 0.95,
+  "min_recovered": 57,
+  "recovered": 59,
+  "rate": 0.9833,
+  "pass": true
+ },
+ "shape_entity_recovered": 59,
+ "shape_entity_misses": [
+  "a0350"
+ ],
+ "shape_entity_miss_detail": {
+  "a0350": {
+   "ok_shape": false,
+   "ok_ent": true,
+   "ok_concept": true,
+   "pkt": [
+    "imports-of",
+    "code-mod-corpus-pin",
+    null
+   ],
+   "judge": [
+    "imported-by",
+    "code-mod-corpus-pin",
+    null
+   ]
+  }
+ },
+ "descriptive_strict_recovery": {
+  "shape+entity+concept_recovered": 56,
+  "rate": 0.9333,
+  "note": "concept-label recovery (is-a items) is DESCRIPTIVE under ASM-0421."
+ },
+ "concept_label_only_misses": [
+  "a0818",
+  "a0819",
+  "a0820"
+ ],
+ "judge_transcript_sha256": "b5f658d67dc4b1866d0d2e3b31f9b71a61ac49611dd2946fa6fffd6f891ed5f9",
+ "match_rule": "shape==exact; entity case/hyphen/space-insensitive (substring-tolerant); concept up-to-inflection stem-overlap (descriptive)",
+ "expectation_note": "designer expectation (assessment a5_audit_expectation) was that a5 op frames are direction-marked in English with no l3a cardinality trap; MEASURED: 59/60 shape+entity, the single miss a0350 is an imports-of/imported-by converse flip (entity recovered), the sole converse confusion.",
+ "no_account_handles": true
+}

@@ -24,7 +24,15 @@ Checks (each a named finding; ALL must pass for green):
                      'unique(', 'lookup(', 'instance(', JSON braces, or the
                      scaffold token 'inverse'
     EVAL-NO-ANSWER   no covered phrasing contains its own expected answer's
-                     surface form (value slug/string)
+                     surface form (value slug/string) AFTER masking all
+                     occurrences of the item's entity surfaces (longest-first,
+                     the mask_template discipline). An answer surface that
+                     leaks ONLY as a forced substring of the mandatory
+                     verbatim entity identifier (ASM-0142) is EXEMPT and its
+                     qid is DISCLOSED in the receipt field
+                     waived_forced_substring — never silent (FK-NLB-11 /
+                     ASM-0423, design doc section 14.4). Only answer surfaces
+                     that SURVIVE the entity mask are flagged.
     EVAL-NO-MOCK     no phrasing byte-identical to a mock template
                      instantiation (poc/nlb-mock quarantine, section 10.6)
     EVAL-DIVERSITY   per covered family: >= min(6, n) distinct masked
@@ -99,8 +107,16 @@ def mask_template(text, ent_surfaces):
     return low
 
 
+def _has_surface(hay, s):
+    """Word-boundary presence of surface s in already-lowercased hay (the
+    EVAL-NO-ANSWER predicate; underscores/alphanumerics are word chars,
+    hyphens and '@' are boundaries)."""
+    return bool(re.search(r"(?<![a-z0-9_])%s(?![a-z0-9_])" % re.escape(s), hay))
+
+
 def run(root, vertical):
     findings = []
+    waived = []  # EVAL-NO-ANSWER forced-substring exemptions (FK-NLB-11)
     base = os.path.join(root, "data", "nlb-phrasings-%s" % vertical)
     ev = load_jsonl(os.path.join(
         root, "data", "l3a-eval" if vertical == "l3a" else "a5-eval",
@@ -161,18 +177,6 @@ def run(root, vertical):
             rec = by_qid.get(r["qid"])
             if rec is None:
                 continue
-            low = r["text"].lower()
-            if rec["class"] == "covered":
-                val = rec["expected"].get("value")
-                vals = val if isinstance(val, list) else [val]
-                for v in vals:
-                    if isinstance(v, str) and v.startswith(_ENT_PREFIX):
-                        for s in surfaces(v):
-                            if re.search(r"(?<![a-z0-9_])%s(?![a-z0-9_])"
-                                         % re.escape(s), low):
-                                findings.append(
-                                    "EVAL-NO-ANSWER: %s leaks expected value"
-                                    % r["qid"])
             if r["text"] in mock_texts:
                 findings.append("EVAL-NO-MOCK: %s equals a mock template"
                                 % r["qid"])
@@ -183,9 +187,28 @@ def run(root, vertical):
                 ent_surf = set()
                 for u in ent_urns:
                     ent_surf |= surfaces(u)
-                tpl = mask_template(r["text"], ent_surf)
+                low_raw = re.sub(r"\s+", " ", r["text"].lower().strip())
+                masked = mask_template(r["text"], ent_surf)
+                # EVAL-NO-ANSWER masked forced-substring rule (FK-NLB-11 /
+                # ASM-0423): flag an answer surface only if it SURVIVES masking
+                # of the entity identifier; a leak removed entirely by the mask
+                # is a forced substring of the mandatory verbatim identifier
+                # (ASM-0142) -> EXEMPT and disclosed in waived_forced_substring.
+                val = rec["expected"].get("value")
+                vals = val if isinstance(val, list) else [val]
+                ans_surf = set()
+                for v in vals:
+                    if isinstance(v, str) and v.startswith(_ENT_PREFIX):
+                        ans_surf |= surfaces(v)
+                leaked_masked = any(_has_surface(masked, s) for s in ans_surf)
+                leaked_raw = any(_has_surface(low_raw, s) for s in ans_surf)
+                if leaked_masked:
+                    findings.append("EVAL-NO-ANSWER: %s leaks expected value"
+                                    % r["qid"])
+                elif leaked_raw:
+                    waived.append(r["qid"])
                 fam_templates.setdefault(rec["family"], []).append(
-                    (tpl, q, r["text"]))
+                    (masked, q, r["text"]))
         for fam, rows in fam_templates.items():
             n = len(rows)
             tpls = [t for t, _q, _x in rows]
@@ -232,7 +255,7 @@ def run(root, vertical):
                                     % (r["qid"], lab))
         form_lint(findings, "PROBE-FORM", probe)
 
-    return findings, checked
+    return findings, checked, sorted(waived)
 
 
 def file_sha256(path):
@@ -248,10 +271,11 @@ def main():
     ap.add_argument("--root", default=_ROOT)
     ap.add_argument("--receipt", action="store_true")
     args = ap.parse_args()
-    findings, checked = run(args.root, args.vertical)
+    findings, checked, waived = run(args.root, args.vertical)
     green = not findings
     out = {"schema": "nlb-lint-receipt/1", "vertical": args.vertical,
-           "green": green, "checked": checked, "findings": findings}
+           "green": green, "checked": checked, "findings": findings,
+           "waived_forced_substring": waived}
     print(json.dumps(out, indent=1, sort_keys=True))
     if args.receipt:
         base = os.path.join(args.root, "data",

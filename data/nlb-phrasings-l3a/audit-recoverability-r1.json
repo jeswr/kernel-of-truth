@@ -1,0 +1,53 @@
+{
+ "schema": "nlb-recoverability-audit/1",
+ "variant": "r1-split-gate (ASM-0421 shape+entity-gated / rel-label descriptive; ASM-0422 no judge re-roll; FK-NLB-10 in-scope covered-only sample)",
+ "n": 60,
+ "sample_rule": "deterministic round-robin over the 7 FK-NLB-10 in-scope covered families in eval appearance order (unique-mother, unique-father, children-lookup, count-maker, part-lookup, instance-true, instance-false-disjoint), first 60 items; the first 4 per family (28 items) coincide with the original 60-item audit sample and are MECHANICALLY RE-SCORED from the committed judge transcript; the remaining 32 NEW items were judged by a fresh blind identity (skipping already-judged qids, ASM-0422).",
+ "gate": {
+  "metric": "shape+entity recovery",
+  "threshold": 0.95,
+  "min_recovered": 57,
+  "recovered": 60,
+  "rate": 1.0,
+  "pass": true
+ },
+ "shape_entity_recovered": 60,
+ "shape_entity_misses": [],
+ "rescored_from_original_transcript": {
+  "n": 28,
+  "shape_entity_recovered": 28
+ },
+ "fresh_judge": {
+  "n": 32,
+  "shape_entity_recovered": 32,
+  "judge_transcript_sha256": "7fa768e90bcf4158db814221cfb684358fb73a22e542115b9d2c7ea7f1d7dd32"
+ },
+ "descriptive_strict_recovery": {
+  "shape+entity+rel_recovered": 42,
+  "rate": 0.7,
+  "note": "rel-label recovery is DESCRIPTIVE under ASM-0421 (gating on it would re-impose label-verbatim authoring FK-NLB-8 removed and double-count the synonym penalty the experiment measures). Rel misses are the natural-synonym phrasings authors used freely."
+ },
+ "rel_label_only_misses": [
+  "q0249",
+  "q0250",
+  "q0251",
+  "q0252",
+  "q0253",
+  "q0388",
+  "q0389",
+  "q0390",
+  "q0391",
+  "q0392",
+  "q0461",
+  "q0462",
+  "q0463",
+  "q0464",
+  "q0465",
+  "q0564",
+  "q0567",
+  "q0568"
+ ],
+ "original_audit_ref": "data/nlb-phrasings-l3a/audit-recoverability.json (sha256 d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5) stays committed as the driving evidence (strict 43/60, shape+entity ceiling 52/60 over the ORIGINAL all-family sample that surfaced the finding).",
+ "match_rule": "shape==exact; entity case/hyphen/space-insensitive (substring-tolerant); rel/concept up-to-inflection stem-overlap (descriptive)",
+ "no_account_handles": true
+}
