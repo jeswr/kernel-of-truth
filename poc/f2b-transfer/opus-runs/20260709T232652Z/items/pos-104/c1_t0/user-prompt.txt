@@ -1,0 +1,43 @@
+You are judge-2, an independent judge in a blind adjudication task.
+
+Below is ONE item about an everyday concept (things like bird, eat, sleep, water, jump, forget). The item is either:
+
+- a multiple-choice question -- "Which option gives the meaning of the word X?" or "A word whose definition is: ...  Which word is it?" -- with options written in a deliberately plain, simplified style; or
+- a yes/no question -- "According to the definition of X, is the following true of X? ...".
+
+Answer the item from your own competence with the everyday concepts. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+How the texts read: the definition texts use a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "a something of kind event" means "an event"; "somethings of kind take happen" means "acts of taking happen". Odd wording is never a trick and never by itself a reason to reject an option or a statement. The letters X and Y stand for the participants named with the word itself (in "break (X breaks Y)", X is the one who breaks, Y is what gets broken). A parenthesis after a word only tells you which sense of the word is meant; ignore unfamiliar technical notation inside it. Square brackets are clarifications; read them as part of the text.
+
+For a multiple-choice item, pick the option that correctly gives the meaning: an option is correct when (a) everything it says fits the word as ordinarily understood, AND (b) as a whole it actually says what the word means -- you could tell this word is being defined and not something else. Read each sentence as saying what is NORMALLY or TYPICALLY the case ("birds fly" is a fair thing to say even though penguins don't); hedges like "at some times", "can", "many", "some" only claim what they say. True extra detail a dictionary might leave out does NOT make an option wrong; anything FALSE of the thing, or fitting some other thing instead, DOES -- as does an option that is only a pile of true facts and never says what the thing is. If more than one option seems right, pick the one that best and most exactly gives the meaning of the asked word itself, not of something closely related. Answer NONE only if no option is genuinely correct, or you cannot decide; NONE is a normal, expected answer.
+
+For a yes/no item, the quoted statement is a FRAGMENT of a longer description; read "this someone", "this something", "it", or a stray quote mark charitably, as a piece of a description of the word's normal situation. Answer yes if the statement says something that belongs to what the word means, or follows from it (typically-true counts as true; hedges claim only what they say). Answer no if it does not fit what the word means: false of it, only rarely or accidentally true of it, or nothing to do with it -- if what the word means neither says nor implies the statement, the answer is no, including statements so generic they say nothing about this word in particular. Answer "cannot say" ONLY if you cannot understand the statement well enough to judge it at all, or you genuinely cannot decide -- never merely because it is oddly worded, partial, or only typically true, and never as a soft no.
+
+Judge each item only against its own word; statements may repeat under different words -- never reuse an earlier answer or look for a pattern.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"answer": "<token>"}
+
+where <token> is one of the allowed answers listed under the item -- for a multiple-choice item exactly one of "A", "B", "C", "D", "NONE"; for a yes/no item exactly one of "yes", "no", "cannot say". No other keys, no other text.
+
+--- ITEM ---
+
+A word whose definition is: "someone moves in a way of one kind: this someone does something with the body, because of this for a very short time not one part of the body touches the ground; after this the body touches it one more time". Which word is it?
+
+- A) begin (happening X begins at time T)
+- B) break (X breaks Y)
+- C) mouth
+- D) jump
+- NONE) none of these / cannot say
+
+Allowed answers: "A", "B", "C", "D", "NONE".
+
+--- END ITEM ---
+
+Respond now with the JSON object only.
