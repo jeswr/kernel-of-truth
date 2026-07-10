@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kot-log-1.json",
-  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok; reuse => a reuse block matching a frozen kot-reg/2 reused_from declaration, ratification-gated) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py. The reuse event (delta D9, resource-optimization-plan.md section 3 revision-1) is the RC-6 in-chain witness of consumed producer rows: {producer, producer_frozen_sha256, seqs, row_hashes}.",
+  "title": "kot-log/1 run-record — one line in results-log/<id>.jsonl (P2 02-data-and-reporting.md section 2.2). Event-conditional requirements (run => phase/config/metrics/exit; supersede => target exit != ok; reuse => a reuse block matching a frozen kot-reg/2 reused_from declaration, ratification-gated) and the raw-metrics-only rule (section 2.4) are enforced by tools/registry/log-append.py. The reuse event (delta D9, resource-optimization-plan.md section 3 revision-1) is the RC-6 in-chain witness of consumed producer rows: {producer, producer_frozen_sha256, seqs, row_hashes}. RETRY SUPERSESSION (design-nl-boundary 14.9 item A, ASM-0624): a run row may carry `supersedes`, a list of row hashes (sha256 of the replaced line's exact bytes incl. newline — the same row identity as prev_sha256 and reuse.row_hashes); log-append enforces run-event-only, mandatory reason, targets existing exit:'ok' run rows of the SAME config.arm and phase, not already superseded (self/forward/cyclic references are structurally impossible: a target must already be a chain line). This is the ONLY lawful way to replace a successful row — event:'supersede' still refuses exit:'ok' targets, so a success can never be voided WITHOUT its replacement row in the same append.",
   "type": "object",
   "required": ["schema_version", "seq", "prev_sha256", "ts", "experiment", "event", "runner", "prereg_hash"],
   "additionalProperties": false,
@@ -46,7 +46,12 @@
     "to": { "type": "string" },
     "note": { "type": "string" },
     "target_seq": { "type": "integer", "minimum": 0 },
-    "reason": { "type": "string" },
+    "reason": { "type": "string", "minLength": 1 },
+    "supersedes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+    },
     "reuse": {
       "type": "object",
       "required": ["producer", "producer_frozen_sha256", "seqs", "row_hashes"],

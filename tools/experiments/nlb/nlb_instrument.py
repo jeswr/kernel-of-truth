@@ -11,12 +11,32 @@ pins, config) on stdout; renders NO verdict and knows nothing about the
 pre-registered thresholds (DRAFT records registry/experiments/l3a-parse.json
 and a5-nl.json; applied by verdict-gen through the pinned analysis scripts).
 
+LOG ENVELOPE (design doc 14.9 item B, ASM-0624): the emitted body is
+DIRECTLY appendable through tools/registry/log-append.py with no external
+transform: event "run", exit "ok" (a body exists only when the pass
+completed), phase from --phase, config.arm the ONLY arm declaration (no
+undeclared top-level key — kot-log/1 is additionalProperties:false), and
+prereg_hash auto-stamped from registry/frozen-index.json once the record is
+FROZEN. Pre-freeze the hash is absent and the single log writer refuses the
+body (ERR_P2_NOT_FROZEN) — by design: nothing run pre-freeze can feed a
+verdict. RETRY SUPERSESSION: if a successful row must be replaced (e.g. a
+crash after append), re-run the SAME arm with
+--supersedes <sha256 of the replaced log line's exact bytes incl. newline>
+(repeatable) plus --reason; log-append validates the channel fail-closed
+(same arm, exit-ok run target, not already superseded) and scorer gate G0
+honours exactly the same semantics.
+
 Arms (design doc docs/design-nl-boundary-l3a-parse-a5-nl.md section 6.4):
   mapper-parse      the pipeline under test: gazetteer + mapper a1-hybrid +
-                    closed frame layer (nlb_frontend) -> byte-identical engine.
+                    closed frame layer (nlb_frontend) -> the engine build
+                    re-verified behaviourally parent-perfect IN-RUN by gate
+                    G2 (the engine sha differs from the parent-frozen pin;
+                    NO byte-identity is claimed — design doc 10.9 / 14.8
+                    item 8, ASM-0147).
   gold-replication  measured-ceiling arm: the parent's FULL gold eval (incl.
-                    malformed) on the byte-identical engine — instrument gate
-                    G2 requires the parent-perfect outcome.
+                    malformed) on the SAME engine build the mapper arm runs
+                    — instrument gate G2 requires the parent-perfect
+                    outcome, and G2 IS the record's engine-continuity claim.
   deranged-lexicon  scramble control (gate G5): seed-0 fixed-point-free
                     rotation of concept bindings (nlb_map.mjs) and, on the a5
                     vertical, of the relational-op bindings (nlb_frontend).
@@ -381,7 +401,22 @@ def run_probe_pass(root, vertical, oracle, included):
             "probe_exact": n_exact}
 
 
-def one_arm_body(root, vertical, arm, phrasing_by_qid, phase, phrasings_path):
+def _prereg_hash(root, exp_id):
+    """The frozen prereg hash for exp_id from registry/frozen-index.json.
+    Present only once the record is FROZEN; a pre-freeze body therefore
+    omits prereg_hash and log-append refuses it (ERR_P2_NOT_FROZEN) —
+    fail-closed by design (design doc 14.9 item B, ASM-0624)."""
+    path = os.path.join(root, "registry", "frozen-index.json")
+    if not os.path.isfile(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        index = json.load(f)
+    h = index.get(exp_id)
+    return h if isinstance(h, str) else None
+
+
+def one_arm_body(root, vertical, arm, phrasing_by_qid, phase, phrasings_path,
+                 supersedes=None, reason=None):
     metrics, out1, elapsed = run_once(root, vertical, arm, phrasing_by_qid)
     _m2, out2, _e2 = run_once(root, vertical, arm, phrasing_by_qid)
     deterministic = (json.dumps(out1, sort_keys=True, default=str) ==
@@ -428,14 +463,24 @@ def one_arm_body(root, vertical, arm, phrasing_by_qid, phase, phrasings_path):
             lint = json.load(f)
         pins["phrasings_lint"] = {"observed": file_sha256(lint_path),
                                   "green": bool(lint.get("green"))}
-    return {
-        "experiment": exp_id, "phase": phase, "arm": arm,
+    # kot-log/1 run body (14.9 item B, ASM-0624): every key below is a
+    # declared schema property; event/exit/prereg_hash complete the
+    # log-append run requirements; config.arm is the ONLY arm declaration.
+    body = {
+        "experiment": exp_id, "event": "run", "phase": phase, "exit": "ok",
         "config": {"vertical": vertical, "arm": arm,
                    "phrasings": phrasings_path,
                    "frame_rules": "DRAFT-v0 (pre-freeze; see design doc 5.3)",
                    "host": platform.node()},
         "metrics": metrics, "pins_observed": pins,
     }
+    h = _prereg_hash(root, exp_id)
+    if h is not None:
+        body["prereg_hash"] = h
+    if supersedes:
+        body["supersedes"] = list(supersedes)
+        body["reason"] = reason
+    return body
 
 
 def load_phrasings(path):
@@ -525,15 +570,27 @@ def main():
     ap.add_argument("--phase", default="mock")
     ap.add_argument("--mock", action="store_true")
     ap.add_argument("--root", default=None)
+    ap.add_argument("--supersedes", action="append", default=None,
+                    metavar="ROW_SHA256",
+                    help="retry supersession (14.9 item A, ASM-0624): sha256 "
+                         "of the replaced results-log line's exact bytes "
+                         "(incl. newline); repeatable; same arm only; "
+                         "requires --reason")
+    ap.add_argument("--reason", default=None,
+                    help="mandatory with --supersedes: why the replaced "
+                         "row is being retried")
     args = ap.parse_args()
     root = args.root or _ROOT
+    if args.supersedes and not (args.reason or "").strip():
+        ap.error("--supersedes requires a non-empty --reason")
     if args.mock:
         sys.exit(run_mock(root, args.vertical))
     if not args.arm or not args.phrasings:
         ap.error("--arm and --phrasings required outside --mock")
     body = one_arm_body(root, args.vertical, args.arm,
                         load_phrasings(args.phrasings), args.phase,
-                        args.phrasings)
+                        args.phrasings, supersedes=args.supersedes,
+                        reason=args.reason)
     print(json.dumps(body, sort_keys=True))
 
 

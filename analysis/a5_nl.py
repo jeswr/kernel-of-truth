@@ -11,12 +11,23 @@ a5-nl is NOT re-scoped — FK-NLB-10 is l3a-only — so the gated numerators
 stay run-level over the full 855, and the ASM-0480 by_family buckets are
 consumed HERE as counts-integrity invariants, not as a scope cut).
 
-SKEPTIC-ROUND-2 HARDENING (design doc 14.8, ASM-0621; all fail-closed):
+SKEPTIC ROUND-2 + ROUND-2-RE-AUDIT HARDENING (design doc 14.8 + 14.9,
+ASM-0621/ASM-0624; all fail-closed):
   G0 one-row-per-arm: duplicate/retry rows for the same arm are NEVER
-     resolved by log order. A re-run row must carry a top-level
-     `supersedes: [<sha256 of the replaced body's sorted-keys JSON>]`;
-     any arm with >1 non-superseded row, or any dangling supersede target,
-     invalidates the instrument in BOTH log orders.
+     resolved by log order. A retry row carries the kot-log/1 run-row
+     channel `supersedes: [<row sha256>]` — the sha256 of the REPLACED log
+     line's exact bytes incl. newline (identical to prev_sha256 /
+     reuse.row_hashes identity; producible with sha256 over the line), the
+     same channel log-append validates at append time (14.9 item A). Here
+     the semantics are independently re-verified: the field must be a
+     non-empty list of DISTINCT 64-hex row hashes; every target must be
+     present among the scored records, belong to the SAME arm, and not be
+     the row itself; every record needs a string config.arm (no top-level
+     fallback); >1 surviving row per arm, a dangling/self target, a
+     malformed field (dict/string/etc.), a cross-arm supersede, byte-
+     duplicate rows, or an arm whose every row is superseded (a cycle —
+     unconstructible without a SHA-256 fixed point, checked anyway)
+     invalidates the instrument in EVERY log order.
   G7 harness-pin enforcement: the pins_observed emitted by the instrument
      (engine, kot_code desugar layer, nlb_instrument/nlb_frontend/nlb_map,
      corpus digests, phrasing corpus files, lint receipt) must equal the
@@ -34,8 +45,15 @@ SKEPTIC-ROUND-2 HARDENING (design doc 14.8, ASM-0621; all fail-closed):
      acceptable == strict+parse on the mapper arm, which never emits
      ABSTAIN), family-key set equality (no unexpected families), per-family
      bucket partition + exact == ok, bucket sums == run-level twins,
-     zero covered buckets on control families, all buckets non-negative
-     integers.
+     zero covered buckets on control families, CONTROL-FAMILY ACCEPTABLE
+     SUMS == the run-level acceptable total (14.9 item C: a dropped
+     control-family classification can no longer coexist with an intact
+     run-level total), all buckets non-negative integers, run-level totals
+     n_covered/n_control/dev_n and dev_parse_refused strictly non-negative
+     INTEGERS with dev_parse_refused <= dev_n (no float/negative counter
+     can reach a gate).
+  G2/G4 typing: gold-replication counters must be exact non-negative
+     integers; G4 divides only well-formed in-range dev counters.
 
 Endpoints (design doc section 6, verdict rules in the record):
   primary   retained covered exactness == absolute covered-exact rate
@@ -77,10 +95,16 @@ construction; round-2 fixtures prove duplicate arms invalidate in both log
 orders, an explicit supersede is honoured, an empty deranged arm fails G5,
 harness-pin drift fails G7, and every counts-integrity breach fails G1
 (including the reproduced n_covered_exact=855 AND n_covered_refused_parse=855
-conflict).
+conflict). Round-2-RE-AUDIT fixtures (14.9, ASM-0624) reproduce the
+skeptic's surviving attacks and assert each now fails closed: dict-valued
+and bare-string `supersedes`, answer-all superseding a stale mapper row
+(cross-arm), a two-step supersede chain (honoured), zeroed control-family
+ok with the run-level acceptable total intact, float-valued
+855.0/106.0/60.0 totals, and dev_parse_refused in {-1, 0.5, 61}.
 """
 import hashlib
 import json
+import re
 import sys
 
 EXPERIMENT = "a5-nl"
@@ -137,7 +161,7 @@ EXPECTED_HARNESS_PINS = {
     "code_layer":
         "9fbe2a50dcd80e100a8a32ffb5d455e9ce993424fbf0bd293b8143aef96bb99a",
     "nlb_instrument.py":
-        "3d92e1ab7ef71ae577f63f8955f4381bc90a7c257e44102089220b96e25853d2",
+        "b3cd5bc9ba6e311081a06110cee61801648601432e89faf8eb7b50b055c12e54",
     "nlb_frontend.py":
         "590377760ed5067688ddc0dd859c1a1cfa955e640b3a07c0f75e91d3bc908ea0",
     "nlb_map.mjs":
@@ -200,38 +224,85 @@ def _count(v):
     return isinstance(v, int) and not isinstance(v, bool) and v >= 0
 
 
-def _body_sha(r):
-    """Identity of one run-record body for the G0 supersede mechanism:
-    sha256 over its sorted-keys JSON bytes."""
-    return hashlib.sha256(
-        json.dumps(r, sort_keys=True).encode("utf-8")).hexdigest()
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _canonical(r):
+    """Byte-identical twin of tools/registry/kot_common.canonical_dumps —
+    the exact serialization the single log writer (log-append) emits.
+    Re-implemented here so the pinned sha stays the complete analysis
+    artifact (self-contained by design, no shared import)."""
+    return json.dumps(r, sort_keys=True, ensure_ascii=False,
+                      separators=(",", ":"), allow_nan=False)
+
+
+def _row_sha(r):
+    """kot-log/1 row identity for G0 (14.9 item A, ASM-0624): sha256 over
+    the row's exact log line bytes (canonical JSON + trailing newline) —
+    the SAME identity prev_sha256 and reuse.row_hashes use, so a runner
+    computes a supersede target directly from the results-log line."""
+    return hashlib.sha256((_canonical(r) + "\n").encode("utf-8")).hexdigest()
 
 
 def _one_row_per_arm(records):
-    """G0 (fail-closed; design doc 14.8, ASM-0621): duplicate/retry rows are
-    never resolved by log order. Returns (by_arm, ok, detail)."""
-    eligible = [r for r in records
-                if r.get("experiment") in (None, EXPERIMENT)]
-    shas = [_body_sha(r) for r in eligible]
-    sha_set = set(shas)
-    superseded, dangling = set(), []
-    for r in eligible:
-        for s in (r.get("supersedes") or []):
-            if s not in sha_set:
-                dangling.append(s)
-            superseded.add(s)
-    by_arm, dup = {}, []
-    for r, s in zip(eligible, shas):
-        if s in superseded:
+    """G0 (fail-closed; design doc 14.8 item 3 as re-based by 14.9 item A,
+    ASM-0621/ASM-0624): duplicate/retry rows are never resolved by log
+    order; the ONLY lawful resolution is the kot-log/1 run-row `supersedes`
+    channel, re-verified here independently of log-append.
+    Returns (by_arm, ok, detail)."""
+    eligible = [r for r in records if r.get("experiment") == EXPERIMENT]
+    shas = [_row_sha(r) for r in eligible]
+    detail = {"duplicate_arms": [], "dangling_supersedes": [],
+              "malformed_supersedes": [], "cross_arm_supersedes": [],
+              "self_supersedes": [], "malformed_arm": [],
+              "duplicate_row_bytes": [], "arms_fully_superseded": []}
+    if len(set(shas)) != len(shas):
+        detail["duplicate_row_bytes"] = sorted(
+            s for s in set(shas) if shas.count(s) > 1)
+    arms = []
+    for i, r in enumerate(eligible):
+        arm = (r.get("config") or {}).get("arm")
+        if not isinstance(arm, str) or not arm:
+            detail["malformed_arm"].append(i)
+            arm = None
+        arms.append(arm)
+    by_sha = {s: i for i, s in enumerate(shas)}
+    superseded = set()
+    for i, r in enumerate(eligible):
+        sup = r.get("supersedes")
+        if sup is None:
             continue
-        arm = r.get("config", {}).get("arm") or r.get("arm")
-        if arm in by_arm:
-            dup.append(arm)
-        by_arm[arm] = r
-    ok = not dup and not dangling
-    detail = {"duplicate_arms": sorted(set(dup)),
-              "dangling_supersedes": sorted(set(dangling))}
-    return by_arm, ok, detail
+        if not (isinstance(sup, list) and sup and
+                all(isinstance(t, str) and _SHA256_RE.match(t) for t in sup)
+                and len(set(sup)) == len(sup)):
+            # dict/string/empty/duplicate/non-hex forms all die here — a
+            # malformed field never resolves anything.
+            detail["malformed_supersedes"].append(i)
+            continue
+        for t in sup:
+            if t == shas[i]:
+                detail["self_supersedes"].append(t)
+            elif t not in by_sha:
+                detail["dangling_supersedes"].append(t)
+            elif arms[by_sha[t]] != arms[i]:
+                detail["cross_arm_supersedes"].append(t)
+            superseded.add(t)
+    by_arm, dup = {}, []
+    for i, r in enumerate(eligible):
+        if shas[i] in superseded or arms[i] is None:
+            continue
+        if arms[i] in by_arm:
+            dup.append(arms[i])
+        by_arm[arms[i]] = r
+    # An arm with rows but zero survivors is a supersede cycle / dead chain
+    # (unconstructible through log-append, which forbids forward targets;
+    # checked anyway — fail closed on any input).
+    detail["arms_fully_superseded"] = sorted(
+        set(a for a in arms if a) - set(by_arm))
+    detail["duplicate_arms"] = sorted(set(dup))
+    detail["dangling_supersedes"] = sorted(set(detail["dangling_supersedes"]))
+    ok = not any(detail.values())
+    return by_arm, ok, {k: v for k, v in detail.items() if v}
 
 
 def _pins_ok(body):
@@ -311,8 +382,15 @@ def analyze(records):
             all(buck(k, b) == 0 for b in BUCKET_KEYS) and
             buck(k, "ok") <= buck(k, "n")
             for k in PLANNED_CONTROL_STRATA)
+        # (iii-b) 14.9 item C: the control-family acceptable ('ok') sums
+        # must equal the run-level acceptable total — a zeroed/dropped
+        # control-family classification can no longer coexist with an
+        # intact run-level n_control_refused_acceptable (reproduced attack)
+        control_sum_ok = (sum(buck(k, "ok") for k in PLANNED_CONTROL_STRATA)
+                          == n_ctl_acc)
     else:
         strata_ok = partition_ok = twins_ok = control_zero_ok = False
+        control_sum_ok = False
     # (iv) run-level covered outcome partition over 855 (the reproduced
     # finding-6 conflict — e.g. exact=855 AND refused_parse=855 — dies here)
     run_counts = (n_exact, n_wrong, n_rparse, n_rengine)
@@ -327,18 +405,31 @@ def analyze(records):
                         n_ctl_ans + n_ctl_acc + n_ctl_other == ng and
                         n_ctl_any == n_ctl_acc + n_ctl_other and
                         n_ctl_acc == n_ctl_strict + n_ctl_parse)
+    # (vi) 14.9 item C: run-level totals and dev counters must be strict
+    # non-negative INTEGERS (855.0/106.0/60.0 are not lawful counts — the
+    # == comparisons above would accept them) and dev_parse_refused must be
+    # a count within [0, dev_n]
+    totals_int_ok = (_count(nc) and _count(ng) and _count(dev_n) and
+                     _count(dev_ref) and dev_ref <= dev_n)
     g1 = (all(a in by_arm for a in ARMS) and nc == PLANNED_COVERED and
           ng == PLANNED_CONTROL and dev_n == PLANNED_DEV and fam_keys_ok and
           buckets_wellformed and strata_ok and partition_ok and twins_ok and
-          control_zero_ok and run_partition_ok and ctl_partition_ok)
+          control_zero_ok and control_sum_ok and run_partition_ok and
+          ctl_partition_ok and totals_int_ok)
     gm = gold["metrics"] if gold else {}
-    g2 = all(gm.get(k) == v for k, v in GOLD_PERFECT.items())
+    # G2 typed (14.9 item C): a float 855.0 must not satisfy parent-perfect
+    g2 = all(_count(gm.get(k)) and gm.get(k) == v
+             for k, v in GOLD_PERFECT.items())
     lint = (mp.get("pins_observed", {}) or {}).get("phrasings_lint", {})
     g3 = bool(lint.get("green"))
     if EXPECTED_PHRASINGS_SHA256 is not None:
         pf = (mp.get("pins_observed", {}) or {}).get("phrasings_file", {})
         g3 = g3 and pf.get("observed") == EXPECTED_PHRASINGS_SHA256
-    g4 = dev_n > 0 and (dev_ref / float(dev_n)) <= DEV_MAX_ABSTENTION
+    # G4 hardened (14.9 item C): the division runs only over well-formed
+    # in-range integer counters — dev_parse_refused in {-1, 0.5, 61} or a
+    # float dev_n fails closed here (and in G1's totals_int_ok).
+    g4 = (_count(dev_n) and dev_n > 0 and _count(dev_ref) and
+          dev_ref <= dev_n and (dev_ref / float(dev_n)) <= DEV_MAX_ABSTENTION)
     # G5 (14.8 hardening): the deranged arm must EXIST, cover the full
     # planned covered set, and report an explicit integer exact count —
     # a missing arm or missing metric is a broken instrument, NEVER
@@ -483,7 +574,10 @@ def _rec(arm, covered=None, control_accept=106, control_parse=24, **kw):
          "deterministic_repeat_identical": True,
          "frontend_total_ns": 960000000}
     m.update(kw)
-    body = {"experiment": EXPERIMENT, "config": {"arm": arm}, "metrics": m,
+    # Fixture bodies mirror REAL eligible log rows (verdict-gen passes the
+    # stamped kot-log/1 rows through): run event, final phase, ok exit.
+    body = {"experiment": EXPERIMENT, "event": "run", "phase": "final",
+            "exit": "ok", "config": {"arm": arm}, "metrics": m,
             "pins_observed": _pins()}
     if arm == "gold-replication":
         body["metrics"] = dict(GOLD_PERFECT)
@@ -584,6 +678,34 @@ def selftest():
     recs = _suite()
     recs[0]["metrics"]["n_control_refused_strict_engine_code"] = 70
     assert analyze(recs)["gates"]["g1_counts"] is False
+    # G1 (14.9, reproduced round-2 attack): ZEROED control-family ok with
+    # the run-level acceptable total left intact — previously g1_counts was
+    # True with S1 PASS and acceptable-refusal rate 1.0; now invalid
+    recs = _suite()
+    for k in PLANNED_CONTROL_STRATA:
+        recs[0]["metrics"]["by_family"][k]["ok"] = 0
+    o = analyze(recs)
+    assert o["gates"]["g1_counts"] is False, o["gates"]
+    assert o["gates"]["instrument_valid"] is False, o["gates"]
+    # G1 (14.9, reproduced): float-valued run totals 855.0 / 106.0 / 60.0
+    for key, val in (("n_covered", 855.0), ("n_control", 106.0),
+                     ("dev_n", 60.0)):
+        recs = _suite()
+        recs[0]["metrics"][key] = val
+        o = analyze(recs)
+        assert o["gates"]["g1_counts"] is False, (key, o["gates"])
+        assert o["gates"]["instrument_valid"] is False, (key, o["gates"])
+    # G2 typed (14.9): a float gold counter is not parent-perfect
+    recs = _suite()
+    recs[1]["metrics"]["n_covered_exact"] = 855.0
+    assert analyze(recs)["gates"]["g2_gold_replication"] is False
+    # G4 hardened (14.9, reproduced): dev_parse_refused in {-1, 0.5, 61}
+    for bad in (-1, 0.5, 61):
+        recs = _suite()
+        recs[0]["metrics"]["dev_parse_refused"] = bad
+        o = analyze(recs)
+        assert o["gates"]["g4_dev_abstention"] is False, (bad, o["gates"])
+        assert o["gates"]["instrument_valid"] is False, (bad, o["gates"])
     # G0 (14.8): duplicate mapper-parse rows are INVALID in BOTH log orders
     stale = _rec("mapper-parse", covered={"contained-in": _fam(201, exact=0,
                                                                rparse=201)})
@@ -592,17 +714,57 @@ def selftest():
         o = analyze(order)
         assert o["gates"]["g0_one_row_per_arm"] is False, o["gates"]
         assert o["gates"]["instrument_valid"] is False, o["gates"]
-    # G0: an EXPLICIT supersede is honoured (order-independent) and the
-    # surviving row feeds the analysis
+    # G0: an EXPLICIT supersede (kot-log/1 row-hash channel, 14.9 item A)
+    # is honoured (order-independent) and the surviving row feeds the
+    # analysis
     recs = _suite()
-    recs[0]["supersedes"] = [_body_sha(stale)]
+    recs[0]["supersedes"] = [_row_sha(stale)]
+    recs[0]["reason"] = "retry after simulated crash-after-append"
     for order in ([stale] + recs, recs + [stale]):
         o = analyze(order)
         assert o["gates"]["instrument_valid"] is True, o["gates"]
         assert o["analysis"]["retained_covered_exact_rate"] == 1.0, o
+    # G0 (14.9): a two-step retry CHAIN is honoured — the newest row wins,
+    # each step explicitly superseding its predecessor
+    stale2 = _rec("mapper-parse", covered={"contained-in": _fam(201, exact=1,
+                                                                rparse=200)})
+    stale2["supersedes"] = [_row_sha(stale)]
+    stale2["reason"] = "first retry"
+    recs = _suite()
+    recs[0]["supersedes"] = [_row_sha(stale2)]
+    recs[0]["reason"] = "second retry"
+    o = analyze([stale, stale2] + recs)
+    assert o["gates"]["instrument_valid"] is True, o["gates"]
+    assert o["analysis"]["retained_covered_exact_rate"] == 1.0, o
     # G0: a dangling supersede target fails closed
     recs = _suite()
     recs[0]["supersedes"] = ["0" * 64]
+    assert analyze(recs)["gates"]["g0_one_row_per_arm"] is False
+    # G0 (14.9, reproduced round-2 attack): a DICT-valued supersedes must
+    # not resolve anything — under the old scorer a dict of hash keys (and
+    # a bare 64-char string, iterated char-wise) counted as supersession
+    recs = _suite()
+    recs[0]["supersedes"] = {_row_sha(stale): 1}
+    o = analyze([stale] + recs)
+    assert o["gates"]["g0_one_row_per_arm"] is False, o["gates"]
+    assert o["gates"]["instrument_valid"] is False, o["gates"]
+    recs = _suite()
+    recs[0]["supersedes"] = _row_sha(stale)  # bare string
+    assert analyze([stale] + recs)["gates"]["g0_one_row_per_arm"] is False
+    # G0 (14.9, reproduced round-2 attack): CROSS-ARM supersession —
+    # answer-all superseding a stale mapper-parse row — fails closed in
+    # both log orders (the old scorer accepted it)
+    recs = _suite()
+    recs[4]["supersedes"] = [_row_sha(stale)]
+    recs[4]["reason"] = "cross-arm attack"
+    for order in ([stale] + recs, recs + [stale]):
+        o = analyze(order)
+        assert o["gates"]["g0_one_row_per_arm"] is False, o["gates"]
+        assert o["gates"]["instrument_valid"] is False, o["gates"]
+    # G0 (14.9): a record without a string config.arm fails closed (the
+    # top-level "arm" fallback is gone — kot-log/1 forbids that key)
+    recs = _suite()
+    del recs[0]["config"]["arm"]
     assert analyze(recs)["gates"]["g0_one_row_per_arm"] is False
     # G5 (14.8): an EMPTY deranged arm is a broken instrument, not collapse
     recs = _suite()

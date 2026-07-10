@@ -1042,7 +1042,11 @@ moves an endpoint, a threshold, or a decision boundary.
    replaced body's sorted-keys JSON>]`; more than one non-superseded row
    per arm, or a dangling supersede target, is INSTRUMENT-INVALID in both
    log orders (selftested on the skeptic's good+bad-row reproduction in
-   both orders). [STIPULATED: ASM-0621]
+   both orders). [STIPULATED: ASM-0621] SUPERSEDED IN MECHANICS by §14.9
+   item A [STIPULATED: ASM-0624]: the round-2 re-audit proved this
+   sorted-keys-JSON identity unproducible in a valid kot-log/1 row; the
+   channel is now the schema'd run-row `supersedes` row-hash field,
+   enforced end-to-end by log-append and re-verified by G0.
 4. **Harness pins enforced (finding 4).** DECISION: new gate G7 in both
    pinned scorers compares the instrument-emitted `pins_observed` —
    engine (+ kot_code on a5), nlb_instrument.py, nlb_frontend.py,
@@ -1072,7 +1076,10 @@ moves an endpoint, a threshold, or a decision boundary.
    non-negative-integer buckets everywhere. The skeptic's reproduced a5
    conflict (n_covered_exact=855 AND n_covered_refused_parse=855 both
    green) is now a selftest fixture asserting INSTRUMENT-INVALID.
-   [STIPULATED: ASM-0621]
+   [STIPULATED: ASM-0621] EXTENDED by §14.9 item C [STIPULATED: ASM-0624]:
+   the re-audit showed this set still admitted zeroed control-family
+   classifications and non-integral totals; control-family acceptable sums
+   and strict integer typing are now gated too.
 7. **Mechanical freezability (finding 7).** Record-side repairs: both
    records now carry the exact kot-corpus-hash/1 recipe string in
    `pins.corpus_hashes._recipe`; `prereg_doc.sha256` is pinned to this
@@ -1084,7 +1091,11 @@ moves an endpoint, a threshold, or a decision boundary.
    declared in COMPLEMENT form — {expected_rate 0.995, threshold 0.98} —
    which is the IDENTICAL gate by the Wilson complement identity
    LB(1−p, n, z) ≡ 1 − UB(p, n, z) (verified numerically at both n: the
-   4/527 and 9/855 pass boundaries are bit-equal under both forms); the
+   two forms make the IDENTICAL pass/fail decision at every integer count
+   k at n=527 and n=855 — zero mismatches — and the computed bounds agree
+   to within one binary64 ULP: at 4/527 the complement form differs by
+   exactly 1 ULP, 9/855 is bit-equal; corrected per §14.9 item D, the
+   earlier "bit-equal at both boundaries" wording overclaimed); the
    tested quantity, the 0.02 bound and every decision boundary are
    unchanged, and the endpoint metric stays
    `/analysis/holm_s2_pass` computed from the UB as registered. Second
@@ -1119,9 +1130,13 @@ moves an endpoint, a threshold, or a decision boundary.
     unchanged [MEASURED: data/nlb-phrasings-l3a/audit-recoverability-r1.json
     sha256 57e9d8d12826ae6ba28da4289fcc703109b2fb9994ef99eb589655874ea6da6d].
     The 27/33 and 9/27 counts inside the ASM-0422 / ASM-0425 register
-    rationales are superseded by the artifact's 28/32 and 9/28; the
-    register lines are append-only history and stand there uncorrected —
-    §14.1/§14.3 as amended are the authoritative restatement.
+    rationales are superseded by the artifact's 28/32 and 9/28. As the
+    round-2 re-audit correctly held, an append-only register still cited
+    by live records must carry a MECHANICAL superseding correction:
+    corrected successor entries ASM-0622 (protocol, 28+32) and ASM-0623
+    (sizing note, 9/28) are registered, and both records cite them IN
+    PLACE OF ASM-0422/ASM-0425 (§14.9 item D); the old lines stand only
+    as append-only history, cited by nothing live.
 11. **Model-arm lint guard fail-closed (finding 11).** DECISION:
     nlb_lint.py now DEFAULTS to `--arms-profile model`, under which a
     nonempty `waived_forced_substring` list is itself a blocking finding
@@ -1141,3 +1156,133 @@ analysis/l3a_parse.py and analysis/a5_nl.py at their round-2 shas,
 nlb_lint.py at the arms-profile-guard sha, and prereg_doc.sha256 at this
 document revision. G6 determinism, G2 gold replication, every Wilson
 threshold and every planned n are byte-unchanged from §14.2/§7.
+
+### 14.9 Independent-skeptic round-2 RE-AUDIT remediation (2026-07-10)
+
+Author: Kern (Fable designer role). The re-run of the §11 item-6
+independent re-attack against the §14.8 revision
+(`poc/nlb-skeptic/skeptic-round2-output.txt`, committed verbatim, sha256
+6e60f408a4231c595832dd6b91262ef49c3617a410e5e71522ea33bb578b7773)
+confirmed findings 1, 2, 4, 5, 7, 8, 9 and 11 RESOLVED and every Wilson
+boundary / gate decision sound (486/462/4/16 at n=527; 784/755/9/24 at
+n=855), but returned three freeze-blocking defects — two deeper
+log-pipeline integration mismatches the §14.8 dry-runs never exercised,
+and one materially open remainder of finding 6 — plus two should-fix
+items and one nit. All are remediated below. The ASM-0424 boundary holds:
+no front-end artifact, phrasing or eval byte changes; no endpoint,
+threshold, decision boundary or planned n moves. The new integration
+surface (log schema + log writer + instrument envelope) was this time
+EXERCISED end-to-end, not just dry-run: a real instrument-emitted body
+was appended to a scratch hash-chained log through the real
+`tools/registry/log-append.py`, retried via the new supersession channel,
+and scored by the pinned scorer off the actual log lines.
+
+- **Item A — executable retry supersession (re-audit finding 1,
+  freeze-blocking; supersedes §14.8 item 3's mechanics).** The registered
+  G0 recovery path consumed a top-level `supersedes` list keyed by a
+  sorted-keys-JSON body hash — a field no valid `kot-log/1` row can carry
+  (`additionalProperties:false`), unreachable via the official
+  `event:"supersede"` (which refuses `exit:"ok"` targets while only
+  `exit:"ok"` rows reach the scorer): the promised retry recovery existed
+  only in unit-test dictionaries, and a real duplicate-append would have
+  poisoned a frozen record permanently. DECISION: make the channel real
+  end-to-end. `kot-log/1` now declares a run-row `supersedes` property
+  (array of `^[0-9a-f]{64}$`, minItems 1); row identity is the sha256 of
+  the REPLACED log line's exact bytes incl. newline — the identity
+  already used by `prev_sha256` and `reuse.row_hashes`, computable by a
+  runner straight off the results-log line. `log-append.py` enforces
+  fail-closed (ERR_P2_SUPERSEDE_RUN): run-event only, mandatory non-empty
+  `reason`, no duplicate targets, every target an EXISTING `exit:"ok"`
+  run row of the SAME `config.arm` and phase, not already superseded;
+  self/forward/cyclic references are structurally impossible because a
+  target must already be a chain line (a self-reference would need a
+  SHA-256 fixed point). The anti-re-roll invariant is PRESERVED:
+  `event:"supersede"` still refuses `exit:"ok"` targets, so a success is
+  only ever retired by an explicit, reasoned, same-arm REPLACEMENT row in
+  the same chain — nothing is voided into silence, and result-shopping
+  remains G6-detectable (the pipeline is deterministic). Both scorers' G0
+  re-verify the identical semantics independently of log-append
+  (defence in depth): `supersedes` must be a non-empty list of DISTINCT
+  64-hex row hashes; targets must be present among the scored records,
+  same-arm, non-self; a malformed field (the re-audit's dict-valued form,
+  or a bare string), a cross-arm supersede (the re-audit's answer-all →
+  mapper attack), byte-duplicate rows, a missing/non-string `config.arm`
+  (the top-level `arm` fallback is REMOVED), a dangling target, an arm
+  whose every row is superseded, or >1 surviving row per arm is
+  INSTRUMENT-INVALID in every log order. Consumption contract:
+  verdict-gen passes eligible rows (including retry-superseded ok rows)
+  unchanged to the pinned scorer, which is the resolution point — no
+  verdict-gen change is needed or made. [STIPULATED: ASM-0624]
+- **Item B — the instrument emits a loggable run body (re-audit finding
+  2, freeze-blocking).** `one_arm_body` emitted a top-level `"arm"`
+  (rejected by `kot-log/1`) and omitted `event`/`exit`/`prereg_hash`
+  (required by `log-append.py` for a run): the pinned instrument's
+  advertised raw output could not enter the real log without an
+  undocumented external transform — the §14.8 dry-run validated only the
+  registry record, never this seam. DECISION: the emitted body is now a
+  directly appendable `kot-log/1` run body — `event:"run"`,
+  `exit:"ok"` (a body exists only when the pass completed), `phase` from
+  `--phase`, `config.arm` the ONLY arm declaration, and `prereg_hash`
+  auto-stamped from `registry/frozen-index.json` once the record is
+  FROZEN (absent pre-freeze, so the single log writer refuses pre-freeze
+  bodies with ERR_P2_NOT_FROZEN — exactly the G-1 discipline); native
+  `--supersedes`/`--reason` flags drive the item-A retry path through the
+  pinned harness. Verified end-to-end against a scratch hash-chained log
+  via the real `log-append.py`: first append OK; same-arm retry via
+  `--supersedes` OK; cross-arm, dict-valued, dangling, and
+  already-superseded attacks all refused at append time; the pinned
+  scorer, fed the ACTUAL appended log lines, resolves the retry
+  (`g0_one_row_per_arm` true, stale row excluded) with the scorer-side
+  row hash matching the runner-side sha256 of the raw line bytes.
+  [STIPULATED: ASM-0624]
+- **Item C — control-count and typing integrity (re-audit finding 3,
+  freeze-blocking; extends §14.8 item 6 / round-1 finding 6).** G1
+  checked control families only for zero covered buckets and ok <= n, so
+  zeroing EVERY control-family `ok` while leaving the run-level
+  acceptable total intact still yielded g1_counts=True, S1 PASS and an
+  acceptable-refusal rate of 1.0 (reproduced); `n_covered`, `n_control`
+  and `dev_n` accepted floats (600.0/855.0/270.0/106.0/60.0 reproduced)
+  and `dev_parse_refused` was divided unchecked (−1 and 0.5 reproduced).
+  DECISION, fail-closed in BOTH scorers: per-family control acceptable
+  (`ok`) sums must equal the run-level `n_control_refused_acceptable`;
+  run-level totals `n_covered`/`n_control`/`dev_n`, `dev_parse_refused`,
+  and every gold-replication counter must be strict non-negative
+  INTEGERS (bool excluded); `dev_parse_refused <= dev_n`; G4 divides
+  only well-formed in-range counters. Every reproduced attack above is
+  now a selftest fixture asserting INSTRUMENT-INVALID (and G4 false
+  where applicable) in both scorers. [STIPULATED: ASM-0624]
+- **Item D — register correction, docstring, and complement-claim
+  honesty (re-audit should-fixes and nit).** (i) Corrected successor
+  register entries ASM-0622 (r1 protocol with the artifact's 28 rescored
+  + 32 fresh) and ASM-0623 (sizing note with 9/28 = 0.3214) are
+  registered append-only; BOTH records cite them in place of
+  ASM-0422/ASM-0425, so no live citation reaches the stale 27+33 / 9/27
+  arithmetic (§14.8 item 10 as amended). (ii) The pinned instrument's
+  docstring no longer claims a byte-identical engine; it restates the G2
+  behavioural claim (engine sha differs from the parent-frozen pin, G2
+  parent-perfect replication is the continuity evidence — ASM-0147).
+  (iii) The §14.8 item-7 complement claim is softened to the measured
+  fact: identical pass/fail decision at every integer count at both n
+  (zero mismatches), bounds equal to within one binary64 ULP — at 4/527
+  the complement differs by exactly 1 ULP, 9/855 is bit-equal; no
+  threshold or boundary moves. [MEASURED:
+  poc/nlb-skeptic/skeptic-round2-output.txt sha256
+  6e60f408a4231c595832dd6b91262ef49c3617a410e5e71522ea33bb578b7773 —
+  the re-audit's own ULP measurement and zero-mismatch sweep]
+  [STIPULATED: ASM-0624]
+
+Re-pins executed in this change (both records still DRAFT):
+nlb_instrument.py at
+b3cd5bc9ba6e311081a06110cee61801648601432e89faf8eb7b50b055c12e54
+(supersedes 3d92e1ab…), analysis/l3a_parse.py at
+6954ab925481546c988c88328f1a507f05fc4ff02ac4888224484008ff851a74 and
+analysis/a5_nl.py at
+bcb9dfa67cb66b2df773d1986f53844f2fba7d53aa2fa5ed4834e53b58a35f47
+(superseding the §14.8 round-2 shas), the G7 frozen-manifest constant for
+nlb_instrument.py inside both scorers, and prereg_doc.sha256 at this
+document revision. The kot-log/1 schema and log-append gains are
+programme-wide infrastructure (append-only compatible: an optional
+property plus new fail-closed refusals); no existing log row is affected.
+G6 determinism, G2 gold replication, every Wilson threshold, every
+decision boundary and every planned n are byte-unchanged from §14.2/§7 —
+the re-audit independently reconfirmed all of them.

@@ -23,6 +23,25 @@ Fail-closed refusals:
   ERR_P2_STAMPED_FIELD    caller tried to supply seq/prev_sha256/ts/runner
   ERR_P2_SUPERSEDE_OK     supersede targets a successful run (exit=="ok") —
                           you cannot re-roll results you don't like
+  ERR_P2_SUPERSEDE_RUN    a run row's `supersedes` retry channel (design doc
+                          design-nl-boundary 14.9 item A, ASM-0624) is
+                          malformed: present on a non-run event, missing a
+                          non-empty reason, duplicate targets, a target hash
+                          matching no existing log line, or a target that is
+                          not an exit=="ok" run row of the SAME config.arm
+                          and phase, or is already superseded. Row identity =
+                          sha256 of the replaced line's exact bytes incl.
+                          newline (same as prev_sha256 / reuse.row_hashes).
+                          Self/forward/cyclic references are structurally
+                          impossible: a target must already be a chain line,
+                          so a row would need its own SHA-256 fixed point to
+                          reference itself. This channel is the ONLY lawful
+                          replacement of a successful row — the replacement
+                          row lands in the SAME append that retires the old
+                          one, in-chain and auditor-visible (a success is
+                          never voided without its successor; result-shopping
+                          on the NLB records is additionally detectable via
+                          their G6 determinism gate)
   ERR_P2_ACCOUNT_IN_RECORD  account-identifying material in the line bytes (RT-14)
   ERR_P2_REUSE_*          event:"reuse" witness fails the D9 checks: ruling not
                           maintainer-ratified (ERR_P2_REUSE_UNRATIFIED), no
@@ -36,6 +55,14 @@ phase:"final" unless status is RUNNING) is reduced to "the experiment is
 FROZEN and the prereg hash matches" — the status-event index
 (registry/status.json) is not built yet. Defence in depth is unchanged:
 verdict-gen re-filters eligibility.
+
+Retry-supersession consumption contract (14.9 item A, ASM-0624): verdict-gen
+passes every eligible run row — INCLUDING a retry-superseded exit:"ok" row —
+to the pinned analysis script; the resolution point is the pinned scorer's
+gate G0, which re-verifies exactly this channel's semantics fail-closed
+(row-hash identity, same arm, no dangling/self targets) and scores only the
+surviving row per arm. This tool's append-time checks and the scorer's
+read-time checks are two independent enforcements of one registered rule.
 """
 
 import argparse
@@ -97,6 +124,9 @@ def append_record(root, experiment, agent_id, body, ts=None):
         raise kc.KotError("ERR_P2_SCHEMA", "; ".join(errs[:10]))
 
     event = record["event"]
+    if "supersedes" in record and event != "run":
+        raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                          "supersedes is lawful only on event:\"run\" rows (retry supersession)")
     if event == "run":
         missing = [k for k in RUN_REQUIRED if k not in record]
         if missing:
@@ -111,6 +141,57 @@ def append_record(root, experiment, agent_id, body, ts=None):
         want = kc.canonical_sha256(record["config"])
         if record.setdefault("config_sha256", want) != want:
             raise kc.KotError("ERR_P2_SCHEMA", "config_sha256 does not match canonical hash of config")
+        sup = record.get("supersedes")
+        if sup is not None:
+            # Retry-supersession channel (14.9 item A, ASM-0624): schema
+            # already guarantees a non-empty list of 64-hex strings; the
+            # semantic checks here are fail-closed. Targets must ALREADY be
+            # chain lines, so forward/self/cyclic references cannot be
+            # appended (a self-reference would need a SHA-256 fixed point).
+            if len(set(sup)) != len(sup):
+                raise kc.KotError("ERR_P2_SUPERSEDE_RUN", "supersedes carries duplicate targets")
+            if not isinstance(record.get("reason"), str) or not record["reason"].strip():
+                raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                  "a run row carrying supersedes must state a non-empty reason")
+            new_arm = (record.get("config") or {}).get("arm")
+            if not isinstance(new_arm, str) or not new_arm:
+                raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                  "a run row carrying supersedes must declare a string config.arm")
+            row_hashes = [kc.sha256_hex(raw) for raw in raw_lines]
+            already = set()
+            for prior in records:
+                for t in prior.get("supersedes") or []:
+                    already.add(t)
+            for t in sup:
+                if t not in row_hashes:
+                    raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                      "supersede target %s… matches no existing log line "
+                                      "(row identity = sha256 of the line's exact bytes incl. newline)"
+                                      % t[:12])
+                target = records[row_hashes.index(t)]
+                if target.get("event") != "run":
+                    raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                      "supersede target seq %d is not a run row" % target["seq"])
+                if target.get("exit") != "ok":
+                    raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                      "supersede target seq %d has exit %r — annotate failed rows "
+                                      "with event:\"supersede\" instead; the retry channel replaces "
+                                      "SUCCESSFUL rows only (they alone reach the scorer)"
+                                      % (target["seq"], target.get("exit")))
+                if (target.get("config") or {}).get("arm") != new_arm:
+                    raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                      "supersede target seq %d config.arm %r != %r — a retry may "
+                                      "only replace a row of its OWN arm"
+                                      % (target["seq"], (target.get("config") or {}).get("arm"), new_arm))
+                if target.get("phase") != record.get("phase"):
+                    raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                      "supersede target seq %d phase %r != %r — a retry may only "
+                                      "replace a row of its own phase"
+                                      % (target["seq"], target.get("phase"), record.get("phase")))
+                if t in already:
+                    raise kc.KotError("ERR_P2_SUPERSEDE_RUN",
+                                      "supersede target seq %d is already superseded — supersede "
+                                      "the LATEST row of the chain instead" % target["seq"])
     elif event == "reuse":
         # D9 (resource-optimization-plan.md §3 revision-1): the RC-6 in-chain
         # witness that another record's logged rows are consumed. Lawful ONLY
