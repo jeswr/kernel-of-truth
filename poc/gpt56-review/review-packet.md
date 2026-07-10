@@ -1,0 +1,875 @@
+# Kernel of Truth — external review packet
+
+> **REVIEWER FRAMING.** You are **GPT-5.6-sol**, an external scientific reviewer.
+> Give rigorous, specific, prioritized, candid feedback. Name concrete
+> experiments, methods, and prior-art works; where you cite literature flag your
+> confidence (it will be verified). Respect the honesty rail — flag any
+> suggestion that would risk circularity or overclaiming. This is advisory: the
+> programme's designer (Fable) adjudicates what to adopt.
+
+This packet is self-contained. It describes a research programme you have never
+seen, at enough depth that you can (a) find gaps in the planned experiments,
+(b) propose experiments or analyses we have not, and (c) point at prior art we
+should be measuring against. The registry (`registry/experiments/*.json`) is
+**authoritative**; this document paraphrases it faithfully and does not soften
+kill criteria or envelopes. Where a number, kill, or envelope is quoted it comes
+verbatim from the frozen record.
+
+Section map: **§1** thesis + epistemic discipline · **§2** every registry
+experiment, by family · **§3** roadmap and freshly-raised directions · **§4**
+what we parked and why (don't re-suggest these) · **§5** the 47-idea backlog
+· **§6** literature already in our KB.
+
+---
+
+## 1. Programme thesis and epistemic discipline
+
+### 1.1 The object
+
+The **kernel** is a set of **canonical, deterministic, training-free vectors for
+concepts**, built from a closed basis of ~65 **semantic primes** in the tradition
+of the Natural Semantic Metalanguage (NSM; Wierzbicka, Goddard). A concept is
+authored as a **reductive-paraphrase explication** over the primes; a
+deterministic encoder turns that explication into a fixed vector (construction B:
+exact Hadamard tensor-product binding within clauses, whitened unitary circular
+convolution / HRR across clauses and depth), and a decoder recovers the structure
+with a confidence report. The encoder is seeded by **nothing** — it is SHA-256
+over fixed labels only — so a concept's vector is **content-addressed**: the same
+explication always yields the same bytes, and a content hash pins
+{schema, algorithm, dimension, codebook, weighting}. Alongside the vectors sits a
+**kot-axiom engine**: a deterministic rules engine over a closed query grammar
+(`kot-query/1`: `unique` / `lookup` / `count` / `instance`) and an authored axiom
+sidecar (`kot-axiom/1`), which answers covered queries from explicit records and
+**refuses** (with typed `ERR_*` codes) anything it cannot ground. Refusal is a
+first-class, valid output — not a failure.
+
+### 1.2 Two value theses (both, always, on one Pareto ledger)
+
+Every architecture is judged on **correctness AND efficiency at once** — never a
+single flattering number. The full metric vector `V` is
+{accuracy, params (total/active/trained), memory, inference compute
+(FLOPs/latency/usd), training compute (tokens-to-target), authoring cost}.
+
+- **(a) CORRECTNESS.** NSM-grounded, content-addressed, training-free vectors plus
+  the deterministic engine let a system **ground and check claims against explicit
+  definitions and axioms rather than against model weights**. The bet is that a
+  deterministic checker over kernel-covered content catches error classes text
+  self-checks structurally cannot, refuses rather than fabricates when it lacks a
+  license, and does so with scale-invariant soundness (the engine is deterministic;
+  only the neural translation step scales — the AlphaGeometry / Logic-LM template).
+
+- **(b) EFFICIENCY.** **Verifier-offload** (a small model + a deterministic kernel
+  verifier matches a larger model), **dense concept I/O** (kernel-covered spans
+  enter/leave as dense concept tokens, cutting prompt FLOPs and KV), and
+  **compression / content-addressed storage** (a kernel pack beats a compressed
+  text store) so that small models do the work of larger ones.
+
+### 1.3 The honesty rail (this is load-bearing; violating it is the failure mode we most fear)
+
+- **Epistemic tags on every claim.** Every statement is tagged **MEASURED**
+  (registry verdict / committed data), **LIT-BACKED** (verified at source or in a
+  repo lit-report), **STIPULATED** (design choice / planning constant), or
+  **EXTRAPOLATION** (hope — *never* load-bearing as a premise). Planning constants
+  are never emitted as measurements.
+
+- **Pre-registration and freezing.** Anything that runs is frozen first: a registry
+  record with one primary endpoint, exhaustive verdict rules, a `frozen_sha256`, a
+  statistical analysis plan, and verbatim **kill criteria** and **extrapolation
+  envelope**. Kill criteria cannot be edited after data is seen; a re-draw or
+  re-adjudication before freeze requires a correction record, and after freeze a new
+  experiment id.
+
+- **Run ≠ audit ≠ grade.** One party runs an experiment; a **cross-vendor auditor**
+  (Codex / GPT-5.5, and here GPT-5.6) re-computes verdicts mechanically from pinned
+  bytes. Write ≠ grade; a sole committer; no self-audit.
+
+- **Nulls are TOST-gated**; refusal-to-answer is a valid engine output; INCONCLUSIVE
+  and INSTRUMENT-INVALID are first-class verdicts distinct from FAIL. Instrument
+  failures (extraction, adjudication, coverage, engagement) can **never** masquerade
+  as evidence about the kernel — they read INSTRUMENT-INVALID, "no free wins or
+  losses".
+
+- **Scale honesty.** ≥3 rungs to speak about a slope; a claim extrapolates at most
+  ~1 order of magnitude past the top measured rung, and only along an axis a
+  published anchor licenses. Two rungs license a **sign, not a slope**.
+
+- **We reject designs that risk circularity or license conclusions the data can't
+  bear.** The clearest live example: the F2-line verifier accepts iff an answer
+  string-equals a canonical record, and the self-authored QA gold was *defined* by
+  that same equality — so a lift there could be **definitional circularity**. The
+  entire f2b-transfer sub-programme exists to break exactly that circle with
+  externally-adjudicated gold, and its envelope states precisely which single
+  confound a PASS removes and which remain.
+
+**Honest status today (MEASURED, from the Programme-2 overview):** one supported
+in-network injection cell (A2/E5, one model rung, content-transfer only); one
+deployable external verifier seam under paid test (the F2 line); two audited Tier-0
+passes (m0b coverage gate at 0.3542 content-token mass on one pinned corpus; f1
+store-bytes at ~6.7×); and **zero demonstrated end-task wins over the
+kernel-as-text null.** Kernel-expressibility coverage is **0.3542 at rung
+molecules-v0**, measured on one incomplete kernel instance — every accuracy claim
+is bounded to the kernel-covered slice, and this number is restated in every
+verdict (guardrail G-7).
+
+### 1.4 The plan structure and the global decision tree (orientation)
+
+Experiments are ordered by a **tiered kill tree**, cheapest-decisive-first, with
+budget caps: **Tier 0** (on-box, ~$0: m0b, f1, the g6/g7/g8 deterministic counts,
+l3a/a5 engine oracles), **Tier 1–2** (small GPU: the F2 line, e8/e9), up to
+**Tier 5** (frontier, `maintainer_signoff`-gated: f7). The rule is to spend the
+cheapest decisive money first and never let a toy rung license a frontier claim.
+GNG-0 (the go/no-go that froze the plan) is done; execution started 2026-07-08 with
+a cross-vendor auditor. The programme's top-level question **H0** — "is the kernel
+useful to an LLM beyond the kernel-as-text null?" — is decided by **a-h0**, whose
+five routes (TAKE / NARROW / PIVOT / KILL / **STOP-AND-PUBLISH-UNDECIDED**)
+partition the outcome space with an explicit catch-all, so an inconclusive
+portfolio has a *lawful* home (route 5) rather than being tortured into a verdict.
+A crucial consequence for a reviewer: **an honest "we could not decide" is a
+first-class, publishable outcome here**, and several kill criteria are written to
+*force* that route rather than a false positive (e.g. a member that is INCONCLUSIVE
+after its single replication buy blocks H0-NO). The 14 honesty guardrails G-1…G-14
+each name a specific dishonesty pattern (goalpost-moving, re-roll-until-pass,
+self-audit, p-hacking, scale overclaim, coverage-hiding) and are enforced
+mechanically. Three "Laws" from the repo's prior-art synthesis frame every
+efficiency envelope and are the sharpest sources of *bias against our own thesis*:
+**Law 1** symbol-side interventions tend to win at the symbol side (author
+capability, minting); **Law 2** text baselines *improve with host scale*, so any
+dense-I/O or verifier win is expected to shrink as models grow (this is why the
+gloss-text self-verify+retry arm is mandatory everywhere and why "beating only the
+passive text null" is never enough); **Law 3** deterministic-engine correctness is
+scale-invariant while the neural translation step scales — the AlphaGeometry /
+Logic-LM template that underwrites the correctness thesis.
+
+---
+
+## 2. Every registry experiment
+
+Grouped F (efficiency) · G (semantics/authoring) · E (mechanistic) · A/L3a/M0b
+(engine oracle + coverage gate). For each: id · question · design shape · primary
+metric + verdict rule · what a PASS licenses vs explicitly does NOT · status ·
+key stipulation/caveat. Statuses: **FROZEN** = pre-registered and locked;
+**DRAFT** = designed, not yet frozen. Hypothesis codes (HE1–HE7 efficiency,
+HC1–HC5 correctness, HS1–HS13 semantics, HA5 engine, H0 disjunction) index rows
+of the master plan P1 §4b.
+
+### 2.0 Shared instruments, nulls, and corpora (read once, applies throughout)
+
+Several devices recur; understanding them makes the per-experiment paragraphs
+compact.
+
+- **The kernel-as-text (Law-2 passive) null.** The single most important baseline:
+  render the kernel's content as *prose* and give it to the model as text. If the
+  kernel only ever matches its own prose rendering, its value is a governance claim
+  (determinism/provenance), not a performance one. Almost every F/E experiment
+  carries it, and several kills are "you did not beat this at matched cost".
+
+- **The gloss-text self-verify+retry null (RT-2).** The strongest *active* text
+  baseline — the model checks and retries against its own gloss text at matched
+  retry budget and FLOPs. Law 2 predicts this arm eventually wins; so a kernel-verify
+  arm **cannot PASS** without beating it. This closes the "the win is
+  verification-with-retry as such, not the kernel" loophole.
+
+- **The shuffled-kernel / derangement null (E5 discipline).** A seed-pinned
+  derangement of the record↔item (or record↔concept) map at *identical* topology and
+  cost. It isolates **kernel CONTENT** from generic **retry-against-any-oracle
+  STRUCTURE**: if a shuffled kernel recovers ≥30% of the lift, the content-specific
+  claim dies at any accuracy. Load-bearing and never cut.
+
+- **The P10 extraction-instrument gate.** Free-text model outputs are parsed to
+  answers by a fixed extractor; ≥300 labelled outputs per host rung, and an
+  extraction-failure Wilson-LB >10% ⇒ **INSTRUMENT-INVALID**. Extraction problems are
+  instrument events, never hypothesis wins or losses.
+
+- **TOST for nulls.** A "NULL" (equivalence) verdict requires a two-one-sided-test at
+  a pre-declared margin (commonly Cohen's h=0.2); you cannot claim equivalence from a
+  failure to reject.
+
+- **Corpora.** `d-qa` (the original self-authored definitional-QA set),
+  `d-qa-r` (fresh replication items, leak-checked disjoint), `d-qa-t` (fresh items
+  whose gold is set by blind external adjudication — the ground-truth-independence
+  set), `d-ext` (externally-authored OpenBookQA — MEASURED ≈49% lemma-touch, **0%
+  checkable**), `d-adj-t` (the adjudication protocol/labels), `d-ir` / `d-ir-n`
+  (planted / natural constraint-violation corpora for e9-c), `d-ax` (authored axiom
+  corpus), `d-xif` (the pinned extraction-instrument labelled set). "Membership gold"
+  = labels defined by the kernel's own string-equality (the circularity risk);
+  "external gold" = labels from blind human/LLM adjudication.
+
+### 2.1 F-family — efficiency, verifier-offload, dense I/O, compression
+
+**f1 — byte accounting (FROZEN).** *Does the KOTK/2 kernel pack beat the best
+general-purpose-compressed text store of the same records by ≥2× bytes?* (HE5 byte
+premise.) Deterministic R0 measurement, one run: KOTK/2 entropy-columnar pack of
+the full committed lexical-wn31 corpus (~1.18×10⁵ records; packer self-verifies
+encode→decode→re-mint all URNs, exits 1 on mismatch) vs a **zstd-19 glosses-only
+text store** of the same records. Metric `byte_ratio`; **PASS iff ≥2.0, FAIL iff
+<2.0.** Priors: 2.90 B/rec KOTK/2 vs 9.58 B/rec zstd-JCS structured text; the open
+question is vs compressed **gloss** text. **Licenses:** the byte ratio only; the
+store-size axis extrapolates freely (B/rec is size-independent). **Does NOT
+license:** the ≤2× retrieval-latency sub-premise or any accuracy claim — both
+attach to F5, where retrieval is actually served. Caveat: if the ratio <2×, the
+byte claim is dropped and M4 proceeds (if at all) on verifiability alone
+(HC2 territory, not an efficiency claim).
+
+**f2 — the pivot (FROZEN; verdict FAIL).** *Does verifier-offload buy parameters?*
+(HE1 primary; HE2 cascade; HC3 PRM; HS12 placement.) SmolLM2 135M/360M/1.7B across
+rungs R1/R2/R3, retry budgets {0,1,2,4}, escalation budgets {0,.1,.25,.5}; arms:
+model-alone, kernel-verify-retry, kernel-as-text, rag-over-text,
+self-consistency-FLOP-matched, gloss-self-verify-retry, PRM-verifier, int4, four
+cascade topologies, extraction-instrument. Primary = per-item correctness on the
+kernel-covered slice, conjunctive over rung-pairs {(R1,R2),(R2,R3)} under an
+intersection-union test; **PASS** needs primary reject AND beats text null AND
+beats gloss-self-verify AND cost_ratio<1. **This record's verdict was FAIL** — the
+`gap_closed` primary died on a **degenerate gap denominator** (272/500-up, 0-down
+flip profile). It is **superseded-in-spirit by f2b-replicate**, but the FAIL and
+its confirmatory secondaries (HE2 cascade, etc.) **stand untouched**. Envelope:
+3 rungs → gap-closure trend to 7B, direction-only, with the stated bias that the
+s→S gap itself narrows as S grows; cascade/routing literature licenses mechanism
+existence above 7B, never effect size; HC3 verdict indexed to the PRM size class
+tested.
+
+**f2b-replicate — fresh-item replication (FROZEN; verdict PASS, audit-confirmed).**
+*Is the F2 lift real on fresh items, and is it kernel-CONTENT-specific rather than
+retry-against-any-oracle STRUCTURE?* (HE1 absolute non-inferiority, **no
+denominator**; H-STRUCT new and load-bearing; HC3; RT-2.) Right-sized by the
+architecture advisor: 250 fresh, leak-checked d-qa-r items × 3 seeds, fixed
+pre-registered **k=4**, single A100; R2, k-ladder, gold-oracle, cascades, int4,
+RAG, self-consistency all dropped. Arms: 135M-alone (R1), 1.7B-alone (R3, the
+non-inferiority reference), kernel-verify-retry, **shuffled-kernel-verify-retry**
+(the oracle-STRUCTURE null — identical retry topology and cost, record content
+decoupled from items by a seed-pinned derangement; the one control **not** to cut),
+gloss-self-verify, PRM (Skywork-o1-Open-PRM-Qwen-2.5-1.5B), kernel-as-text.
+**PASS conjunction fired:** kernel-verify **0.7507** vs 1.7B-alone **0.6000**
+(absolute **+0.1507**, one-sided 95% BCa LB +0.1053); shuffled recovers **−2.1%**
+of the lift (ub95 10.8% < the 30% kill); gloss-self-verify 0.4893, PRM 0.5267,
+text-null 0.4920 — none closes as much at ≤ matched FLOPs. **Licenses (MEASURED):**
+the verifier lift is real on fresh items in denominator-free form, is
+kernel-content-specific (correct record↔item alignment required), needs the
+machine-checkable verify-retry (passive kernel prose confers no lift), and beats a
+trained PRM **at the 1.5B class**. **Does NOT license:** any slope (2 rungs =
+sign), anything above 1.7B, anything off the self-authored kernel-covered slice,
+or ground-truth independence — the gold was still defined by the verifier's own
+string-equality. **Key caveat/stipulation:** the oracle-leakage hypothesis is
+explicitly *not* closed here; that is f2b-transfer's job.
+
+**f2b-transfer — ground-truth independence (FROZEN; stage-1 in flight).** *Does the
+lift survive when item gold is fixed by BLIND EXTERNAL adjudication instead of the
+kernel's own string-equality?* (H-TRANSFER vs H-CIRC, killed/supported
+symmetrically.) The f2b-replicate arms re-run **fresh** on 250 externally-labelled
+d-qa-t items × 3 seeds, k=4, on kernel-covered items whose gold is set by a
+**blind dual-judge protocol** (data/d-adj-t): judge-1 (human, kernel-naive),
+judge-2 (human, else a pre-declared cross-vendor Codex/GPT-5.5 fallback), tie-break
+judge-3 on discordant pairs, provenance-blind rendering, mandatory cannot-say
+escape. **Two-stage with a pre-GPU kill:** Stage 1 computes endorsement
+`A = agreement of external gold with membership gold`; **kill (d) fires — with
+ZERO GPU — iff the one-sided 95% Wilson LB of A < 0.70.** Stage 2 (only if stage 1
+passes) scores GPU arms on external gold; **PASS** = primary reject (135M+verify >
+135M-alone) AND shuffled-low-recovery (ub95 < 0.30) AND beats gloss-self-verify.
+Instrument gates: adjudication (n≥300, unresolved ≤15%, raw two-judge agreement
+≥0.80), engagement (decidable ≥0.95, attempt-0 rejection ∈ [0.05,0.95], ≥1 changed
+answer — the RT-7a vacuity fixed structurally), headroom (R1-alone ≤0.85).
+**Licenses:** a PASS removes **exactly one** confound from f2b-replicate — gold
+defined by the kernel's own string-equality. **Does NOT license:** external
+question-**style** ecological validity (public-benchmark surfaces remain unmeasured
+for system lift — the verifier is byte-identical to model-alone on all 500 d-ext
+OpenBookQA items, MEASURED), any coverage-general claim, any PRM comparison, or any
+scale language beyond sign-only. **Caveat:** public benchmarks *cannot* adjudicate
+this fork (no-lift under both hypotheses — over-determined), so they are dropped
+here by design.
+
+**f2b-transfer-llmproxy — the LLM stand-in (FROZEN; RUNNING NOW).** *Weak
+feasibility read: does a kernel-instance-naive cross-vendor LLM endorse the
+kernel's content under the frozen blind protocol?* The kernel-naive **human**
+judge-1 that f2b-transfer requires is unavailable at run time, so this **separate,
+clearly-labelled** record fills the judge-1 **role** with a pinned LLM
+(**GPT-5.6-Sol** via `codex-cli 0.144.1`, effort low) — you, in a low-effort
+schema-constrained instance. Sole gold = **judge-1p alone** (`A_1p` over 360 blind
+d-qa-t items, byte-identical to f2b-transfer's); the in-flight GPT-5.5 judge-2 is
+**demoted** to a correlated single-family diagnostic + stability gate (never gold);
+a 60-item **deranged-gloss probe** (own-gloss deranged out via seed-pinned Sattolo
+cycle → correct answer is NONE by construction) bounds style/false-endorsement. Zero
+GPU. **FAIL iff Wilson-LB(A_1p) < 0.70.** Gates: preflight, n_labelled ≥300,
+no-label ≤18, judge-1p/judge-2 raw agreement ≥0.80 (**FAIL-direction only** — its
+pass direction validates nothing, one model family), probe false-endorse <0.30.
+**Does NOT license:** it does **not** adjudicate H-TRANSFER vs H-CIRC, does not
+substitute for f2b-transfer stage-1, and does not license f2b-transfer stage-2 GPU
+cells. **Binding weakenings (verbatim spirit):** (1) single judge **family** —
+GPT-5.6 + GPT-5.5 may correlate through shared training/preference/style; (2)
+**kernel-tradition familiarity** — the judge is kernel-*instance*-naive by context
+control but NSM literature is plausibly in GPT-5.x training data, so it may endorse
+a familiar *style* rather than judge content (inflates A_1p under both hypotheses;
+the probe bounds only the crudest form); (3) **partial** circularity break, weaker
+than a human judge; (4) a PASS is a **weak feasibility proxy (ASM-0022)** for
+programme sequencing only. *This is the experiment you are reviewing in one sense
+and executing in another; treat the two as independent.*
+
+**f3 — dense concept input (DRAFT).** *Does dense concept input cut prompt
+FLOPs/KV at matched accuracy?* (HE3; HS10 interface-vs-dense fork with F2.) 7 arms:
+kernel-vectors-adapter vs full-text definitions, **matched-token-compressed-text**,
+**matched-token-truncated-text**, **xRAG-style trained compressor at matched
+training budget**, shuffled-kernel (E5), no-definitions; glossary_d ∈ {4,16,64};
+R1/R2/R3. **PASS** = primary reject AND beats **both** matched-budget text arms at
+d≥16 AND prompt_flops_ratio ≤0.5 AND seed-sign-consistent. **Kills:** fails to beat
+both text arms at d≥16; OR the trained compressor matches it (then dense injection
+works but training-free canonical content adds nothing to efficiency — residual
+moves to governance); OR amortized adapter cost exceeds per-query savings at
+Q=10⁶. A pre-declared **expected-fail** rider on the M2-output corner (per
+LCM/SONAR-LLM). HS10: if dominated by the F2 cascade at matched accuracy, dense I/O
+is dropped. Envelope: ≤1.7B firm; to 7B direction-only with expected **shrinkage**;
+NO win extrapolated beyond 7B under any fit (Law 2 + xRAG fidelity ceiling +
+LCM/CALM penalty all predict decay).
+
+**f4 — amortized vocabulary onboarding (DRAFT).** *Does a frozen kernel-vector
+adapter beat LoRA / in-context text / ToolkenGPT-protocol embeddings?* (HE4.) Arms:
+frozen-kernel-vectors-adapter, lora-finetune, **in-context-text-definitions (the
+null most likely to win)**, toolkengpt-per-concept trained embeddings, model-alone;
+R1/R2/R3. **PASS** = primary reject AND adapter ≥90% of LoRA accuracy AND
+adaptation FLOPs ≤0.1× AND seed-sign. **Kills:** adapter <90% of LoRA at every
+rung; OR in-context text ≥ adapter at matched inference FLOPs (text-parity, with a
+Wilson-LB ≥ point-estimate or TOST at d=0.5); OR ToolkenGPT-style per-concept
+embeddings match at comparable all-in cost with per-concept training FLOPs on the
+ledger. **RT-11 binding:** the verdict must quote the break-even Q **including
+authoring cost**. Envelope: mechanism existence to 13–33B (ToolkenGPT measured
+there); effect size + the text-null comparison ≤1.7B, direction to 7B only via the
+F7 slice.
+
+**f5 — content-addressed store accuracy leg (DRAFT; double-gated).** *Does the
+kernel store leave the accuracy/byte hull of realistic stores?* (HE5 full claim;
+HS9 lifecycle crossover; HS11 structured-store-earns-place.) Arms:
+kernel-store-retrieval, byte-matched-text-RAG, int4-quantized-larger,
+distilled-smaller, no-store, larger-model-alone; tiers T1/T2/(T3-if-T2-positive).
+**PASS** = primary reject AND **hull_outside** AND seed-sign. **Kills:** fails to
+leave the hull of {byte-matched text-RAG, quantized, distilled} — beating only
+"no store" re-establishes Atlas/RETRO and is reported as **not-ours**; OR
+text-store parity on both metrics (then the kernel's storage contribution is a
+compression **format**, not an architecture — KOTK/2 kept as engineering, the M4
+architectural claim retired). Gate: **f1 PASS + f3 settled + maintainer budget
+approval.** Envelope: byte claim store-size-free; accuracy ≤410M without T3,
+direction to 7B via RETRO's published 150M–7B range (InstructRetro absorption
+caveat).
+
+**f6 — training-token scaffolding (DRAFT).** *Does kernel scaffolding cut training
+tokens-to-target?* (HE6.) Arms: kernel-scaffold-frozen-rows, trainable-baseline,
+**explication-text-interleaved-data** (else the win is curriculum, not
+architecture), shuffled-scaffold; T0/T1/T2 (5M–160M). **PASS** = primary reject AND
+token_budget_ratio ≤0.8 AND seed-sign. **Kills:** the ≤0.8× bound fails (TOST) vs
+trainable; OR the text-data arm matches the vector arm (filed as **M3-data**, a
+data result, not an architecture result). **T2 = 160M is the smallest decisive
+rung** (frozen-embedding convergence penalties are documented ≥100M; toy wins gate
+spending, decide nothing). Envelope: ≤410M at most; **explicitly UNLICENSED
+beyond** — *no published scaling study of frozen-embedding convergence penalties
+exists*; this is the one hypothesis the literature gives **no anchor at all**.
+Carve-out: a repeated instrument failure after the pre-registered repair scores
+HE6 **undetermined-not-supporting** for H0-NO (not a FAIL).
+
+**f7 (≡E7) — survivors-only scale-slope grid (DRAFT; Tier-5, maintainer-gated).**
+*For each surviving mechanism, does its advantage hold or shrink across rungs?*
+(HE7 the programme's licensing instrument; HC5 verifier-lift slice; HS13.) Each
+survivor's own frozen baseline set re-run at added rungs R1–R5 (135M–3B/7B),
+T0/T2/T3. **PASS** = fitted WLS slope on log-params with 90% CI lower bound > −0.1
+(material shrinkage excluded) AND not toy-only. **Kill:** Δ shrinks across three
+rungs AND the fitted trend extrapolates below 10% cost-saving at 7B → **toy-only**
+(kept for the prospectus, excluded from any frontier pitch). This record **cannot
+freeze without `budget.maintainer_signoff`.** Envelope: one OOM past the top rung,
+direction-only (Kaplan/Hoffmann discipline, per mechanism); a positive HS13 would
+**contradict** the frozen-vocabulary literature and demands independent replication
+before any extrapolation.
+
+**family-h0 — the Holm family record (DRAFT).** Not a scientific question — the
+**multiple-comparison bookkeeping instrument**. 8 members fixed at freeze
+{HC1, HC2, HE1–HE6 primaries}, never data-dependently selected; Holm at α=0.05;
+a member not read out is scored a **non-rejection**, never dropped. **PASS** =
+any rejection; **FAIL** = none. Must freeze **before** a-h0. Envelope: verdict
+valid 135M–7B-class only; the disjunction inherits the tightest surviving member's
+envelope.
+
+### 2.2 G-family — semantics, soundness, authoring
+
+**g1 — semantic pinning vs null lenses (DRAFT).** *Does NSM-semantic pinning beat a
+random-atom codebook / Numberbatch / a KGE lens?* (HS1.) Rides on the F4 primary
+endpoint; **2 model families mandatory**. **PASS** = true-kernel margin > 0 AND a
+second family replicates. **Kills:** if **Numberbatch** matches true-kernel, the
+"designed deterministic content" performance claim is dead and value narrows to
+determinism/versioning/verifiability (governance); if the **random-atom codebook**
+matches, the X-series *structure* is doing the work and NSM pinning is decoration.
+Envelope: content-vs-format is an interface property, ≤1.7B, weakly
+scale-dependent; anchored on Wieting–Kiela random-structure nulls.
+
+**g2 — Π subsumption soundness (FROZEN).** *Is the Π read-out sound against human
+gold?* (HS2 / NF1.) One-sided exact binomial over **n=500** blind dual-annotator
+gold subsumption judgments (raised from ~50–100 because n=100 is undecidable unless
+true precision ≳0.96). **PASS** = Wilson 95% LB > 0.9 AND litmus promise recovered
+AND partition residue OK AND no sidecar conflict. **Kill:** precision <0.9 → Π
+**demoted to lint**, all axioms live in the authored sidecar. Envelope:
+model-scale-free (a property of the formalism); the relevant axis is **kernel
+size** (verdicts on 54–10³ records re-checked at 10⁴–10⁵ during bulk authoring).
+
+**g3 — necessity/sufficiency violations (FROZEN).** *Do semantics-pin necessity or
+sufficiency conditions fail on human judgment?* (HS3 / NF7.) ~20 concepts × ~10
+instances, 2 blind annotators, ~200 judgments (powered ≥0.9 to distinguish true 10%
+from 20%). **PASS** = necessity Wilson UB ≤0.1. **Kills:** necessity failures >10%
+→ defeasible-script stands, Π is lint, HS2 auto-resolves to sidecar-only;
+sufficiency failures >10% → equivalence dead, necessary-conditions only. Between
+bounds = INCONCLUSIVE (buy more annotations, not a verdict).
+
+**g4 — axiom authoring surface (DRAFT).** *NSM-native AxiomSchema vs the
+kot-axiom/1 sidecar — which is authored more reliably and decoded more legibly?*
+(HS4 / NF2.) Dual authoring + decode-legibility probe. **PASS** = effort ratio ≤2×
+AND NSM-native mistranslation ≤ sidecar mistranslation. **Kills:** NSM-native if
+>2× effort or unresolved pin disputes; sidecar-only if its axioms are
+systematically mistranslated while NSM-native's are not.
+
+**g5 — constraints stay out of the vector (DRAFT; conditional).** *Does adding an
+axiom block leave encode-twice margins and the RDM unchanged?* (HS5 / NF4.) Runs
+**only if HS2 lands Π-as-normative.** **PASS** = no surprise reversal. **FAIL** =
+a surprise (axiom block improves margins AND adds RDM signal) → forces a **new
+pre-registration**, not a programme kill.
+
+**g6 — AND-under-operator census (FROZEN).** *What fraction of the committed axiom
+corpora needs AND-under-operator, and is it sidecar-expressible?* (HS6 / NF5.)
+Deterministic static count, no test, over lexical-wn31 typed-edge axioms +
+onto-sumo logical axioms + kernel/molecules-v0 sidecars. **PASS** = AND-share <20%
+AND all such sidecar-expressible. **Kill:** ≥20% need it **and** not
+sidecar-expressible → extend the grammar (kot-ast). Caveat (c-g6-1): the authored
+G4-set leg re-runs under a successor id once d-ax exists.
+
+**g7 — apply-clause cap/growth projection (FROZEN).** *Does inlining relational
+content force cap violations or >1.5× clause growth at bulk scale?* (HS7 / NF6.)
+Deterministic projection over kernel/molecules-v0 + lexical-wn31 (bulk ≥10⁴).
+**PASS** = breach share ≤10%. **Kill:** cap violations or >1.5× growth on >10% of
+records → apply-clauses (kot-ast/2) win. Caveat (c-g7-1): pinned one-level inline
+projection, **biased against the kill**.
+
+**g8 — Lean-minting viability (FROZEN).** *Can NSM explications round-trip into a
+verified Lean fragment at a useful rate and location accuracy?* (HS8 / NF3.) Over a
+random 1,000-declaration Mathlib sample (the null denominator). **PASS** = fragment
+rate Wilson-LB >1% AND top-5 location Wilson-LB >0.8 AND round-trip fixed point
+holds AND F-verification ≥1%. **Kill:** below either bound → Metamath-only identity
+stands, Lean stays annotation-only; near-zero F-verification of LLM candidates
+kills the bridge programme.
+
+**g9 — authoring capability gate ("why now") (FROZEN).** *Is Fable-class authoring
+in the validator loop decisively better than DeepNSM-8B's published numbers?*
+(HS-A.) Comparator: DeepNSM-8B ~24/100 self-metric published point. **PASS** =
+composite validator-pass Wilson-LB (N≥50 explications) exceeds DeepNSM-8B's point
+by **≥10 points** (published CIs unavailable, so the margin substitutes for CI
+overlap). **Kill:** not decisively better → the "why now" argument is materially
+weakened and authoring-cost estimates revert to human rates in every plan.
+Envelope: extrapolates forward monotonically with author capability (Law 1); says
+nothing about host-side scale.
+
+### 2.3 E-family — mechanistic / SAE / downstream
+
+**e8-r — SAE replication on a third family (DRAFT).** *Does a site-matched
+residual-stream SAE correspondence with kernel structure replicate on a third model
+family?* (HC4 leg 1; sole primary = replication on the seed-stable subset.) Nulls:
+shuffled-kernel, permutation, cross-seed correspondence without the kernel.
+**PASS** = both new pairs reject the shuffled-kernel null (permutation test,
+p<0.01 per pair; effect = Spearman ρ with bootstrap CI). **Kill:** third family
+fails both pairs → A6 has one unreplicated pass, **shelved not pitched**. Envelope:
+open-weights ≤7B, qualitative above; anchored on Templeton 2024 / Paulo–Belrose
+seed-stability; quantitative ρ does not transfer across SAE training regimes.
+
+**e8-d — downstream acceptance (DRAFT; conditional).** *Does the SAE instrument
+beat a linear probe at cross-version semantic-regression detection?* (HC4 leg 2;
+the GDM "downstream use" bar.) **Freezes only after e8-r PASS.** Planted-drift
+primary + natural version-pair secondary (RT-10). Arm: linear-probe baseline.
+**PASS** = ΔAUC ≥0.05 AND DeLong p<0.05. **Kill:** fails to beat the probe by
+ΔAUC ≥0.05 → "alignment above chance, no downstream use" = **decoration**.
+
+**e9-c — axiom-sidecar constraint-violation delta (DRAFT).** *Does the deterministic
+checker catch planted violations that text arms structurally cannot?* (HC2; HS11
+text-diff-checker part.) Arms: all E9-full arms + a text-diff-checker-over-gloss
+file (EF4 folded in). D-IR planted primary + D-IR-N natural secondary (RT-7c).
+**PASS** = catch-rate Wilson-LB >0.8 AND catch-ratio vs best text arm ≥3.0 AND
+false-positive Wilson-UB ≤0.02 on clean records. **Kill:** any of those bounds
+missed. The checker is deterministic; what is at risk is the **decode step** and
+the **authoring of checkable axioms** — the verdict must name which stage failed.
+Envelope: checker soundness is model-free and extrapolates without limit; the
+end-to-end rate is bottlenecked by decode fidelity (≤3B; larger hosts likely
+*improve* decode legibility, favourable, unmeasured).
+
+**e9-full — decode-verify vs the strongest text baselines (DRAFT).** *Does
+decode-then-verify beat RAG-with-citations, a gloss dictionary, and — critically —
+gloss-text self-verify+retry at matched budget?* (HC1.) Arms 1–6 including the P7
+RT-2 arm 6 (**gloss-text self-verify+retry, the arm Law 2 predicts will win**);
+P10 interface gate; rungs R1,R2 + a frozen extension predicate for R3. **PASS** =
+primary reject AND beats the text dictionary AND beats gloss-self-verify. **Kill:**
+arm 4/5's error-catch set ≥90% covered by arm 3's at ≤ its cost; OR end-task
+accuracy after repair does not exceed arm 3 by Cohen's h=0.2; OR **fails to beat
+arm 6 at matched retry budget and FLOPs** — beating only arms that lack the retry
+loop attributes the win to verification-with-retry as such, not the kernel, and is
+a FAIL. Must ship a per-error-class breakdown naming the classes only the
+structured checker catches. Envelope: ≤3B direction-only; absolute catch counts
+shrink with scale (hosts' raw error rates fall), the *relative* catch on covered
+slices is what extrapolates.
+
+### 2.4 A-family engine oracle, L3a, M0b coverage gate
+
+**m0b — coverage census + NICHE-SCOPE gate (FROZEN).** *What fraction of a target
+task family's content-word token mass is kernel-expressible?* Deterministic on-box
+census, no annotators; denominator = pinned TinyStories-validation content-word
+table. **PASS** = coverage >0.2; **FAIL** = ≤0.2 → every verdict renders a
+**NICHE-SCOPE banner** and any frontier pitch carries an explicit coverage-growth
+cost line. **MEASURED 0.3542 at rung molecules-v0.** Not a hypothesis — "the number
+every later verdict restates" (G-7). Envelope: coverage is corpus-indexed;
+extrapolates to no other corpus or rung; re-measured as the kernel grows.
+
+**l3a — rules-engine oracle (FROZEN).** *On a closed-grammar gold-parsed eval, does
+the kot-axiom/1 v0 engine answer covered queries exactly and refuse everything
+else?* (HL3a engine leg.) ONE engine build (`kot_axiom.py`, pinned), ONE axiom set
+(6 records), ONE world layer (598 records, 324 entities), ONE 900-query eval.
+Trivial-policy brackets: abstain-all, answer-all (neither can satisfy the
+conjunction). **PASS** = covered exact-answer Wilson-LB >0.98 AND control
+correct-refusal Wilson-LB >0.95 AND exactly 6 store-violations detected. This
+record instantiates **clause 1 only** (engine leg); the NL-parse and LLM-cost kills
+belong to successors l3a-parse / l3a-cost. Envelope: a formalism property
+(kernel-size axis); extrapolates to **NO** natural-language behaviour, NO other
+corpus, NO real-world fact-coverage, NO LLM-comparative claim, and licenses **NO**
+statement about kernel usefulness to any model.
+
+**a5 — code world-layer + code-structure oracle (FROZEN).** The code vertical of
+l3a: ONE engine (byte-identical to l3a's pin) + a desugaring layer (`kot_code.py`),
+5 code axioms, **889 records extracted by `kot-code-extract/1` from a pinned
+15-file Python snapshot of this repo's own tooling**, a 977-query closed-grammar
+eval. Trivial brackets abstain-all/answer-all. **PASS** = covered exact-answer
+Wilson-LB >0.98 AND control refusal Wilson-LB >0.95 AND exactly 3 store-violations.
+Envelope: extrapolates to NO other codebase or language, NO NL behaviour, NO
+extraction-soundness w.r.t. **runtime** semantics (ASM-0009), and — stated
+explicitly — **NO engine-vs-LLM claim is licensed by this record** (that is a5-llm).
+
+**a5-llm — engine-vs-LLM head-to-head (FROZEN; design-complete, maintainer
+sign-off pending).** *On the pinned 977-query code slice, does the deterministic
+engine beat every small-LLM arm on conjunctive accuracy by >0.10 absolute at >10³×
+lower usd/query?* (HA5-LLM — per the a5 freeze, the **only** record class licensed
+to make an engine-vs-LLM claim on this slice; + H-FAB anti-hallucination.) Arms:
+**llm-rag** (Law-2 kernel-as-text null in its strongest, **oracle-strong**
+retrieval form — the load-bearing competitor: the differentiator dies against THIS
+arm or it stands), llm-direct (closed-book — measures fabrication/refusal + scale
+sign), abstain-all, answer-all; SmolLM2 R1/R2/R3; a **lenient, pro-LLM** extraction
+instrument with P10-analogue gates; fresh runs only (engine re-run doubles as the
+regression gate). **PASS** = primary one-sided 95% lower bound >0.10 AND
+cost_ratio_min >10³ AND engine matches its a5 result. **Kills:** (a)
+**differentiator-kill** — any extraction-gate-valid LLM cell within 0.05 (point) of
+the engine → exactness differentiator dead **regardless of cost**, and L3b's router
+premise must be re-argued from cost alone; (b) **cost-kill** — cost_ratio ≤10³;
+(c) primary upper ≤0.10. **H-FAB:** on control queries (no licensed answer), LLM
+arms fabricate at a material rate (best-cell Wilson-LB >0.30) while the engine
+refuses with ERR codes. Envelope: ONE model family, ONE vendor, 3 rungs = **sign +
+at most order-of-magnitude trend**, never a slope law; the covered slice is covered
+**by construction** (queries authored against the extracted records — no
+representativeness claim); no deployable-RAG claim (the null is oracle-strong by
+design); nothing speaks for larger hosts. Converts the arXiv:2505.12118 motivation
+from LIT-BACKED to MEASURED **on this slice**, whichever way the data lands.
+
+**a-h0 — the H0 route selector (DRAFT).** The top-level programme-decision
+instrument. Expresses the P1 §1 YES/NO patterns and the STOP-AND-PUBLISH-UNDECIDED
+route (RT-1) as boolean expressions over member verdict objects; five P1 §6 routes,
+first-match-from-top, route 5 the explicit **else** branch. **PASS** = the YES
+pattern; **FAIL** = the NO pattern (e.g. F2 kills HE1/HE2 at both rung-pairs AND
+E9-full kills HC1+HC2 AND F4 kills HE4 AND F6 kills HE6…). Replication-buy cap
+1/experiment and 2 programme-wide; the F6 instrument carve-out (RT-19) scores
+undetermined-not-supporting. Linted against family-h0 at freeze.
+
+---
+
+## 3. Roadmap directions and freshly-raised ideas
+
+These are **DESIGN/PLANNING** documents (`docs/next/`). None is pre-registered;
+none spends GPU; everything becomes real only through the freeze rail (+ maintainer
+sign-off for anything touching the honesty machinery). Summarized, not dumped.
+
+- **Programme 2 — the self-maintaining neurosymbolic research engine
+  (`00-programme-2-overview.md`, `research-engine.md`).** Programme 1 asked whether
+  the kernel object is useful to an LLM at all. Programme 2 generalizes the
+  *machinery*: a **reusable research engine** that turns any candidate neurosymbolic
+  architecture into a pre-registered, kill-criterioned, honestly-analysed,
+  cross-vendor-audited experiment, and a **self-maintaining loop** that mechanically
+  turns every verdict (pass/fail/null) into the next prioritised, costed,
+  pre-registerable questions — so the programme never again needs a bespoke
+  eleven-document planning build to ask what to do next. Built on an instance/engine
+  split: the registry schemas, the 14 honesty guardrails, the SAP/IUT/Holm/TOST
+  templates, scale-extrapolation discipline, role separation, and the audit kit are
+  already architecture-agnostic; the kernel-specific hypotheses/pins/coverage-gate
+  become parameters. Three pillars: A architecture ladder, B research engine, C
+  literature KB. Status: design/planning.
+
+- **The kernel-centrality architecture ladder (`architecture-ladder.md`).** A ladder
+  of architectures in which the kernel becomes progressively more central to
+  inference: **L0** baseline seams (external verifier F2 + input adapter A2/E5) →
+  **L1a** kernel input canonicaliser (normalises text pre-model, no model change) →
+  **L1b** concept-dense I/O (= F3, plus a record-constrained output head) → **L2a**
+  kernel-labelled concept bottleneck at depth → **L2b** kernel-addressed in-FFN
+  memory layer → **L2c** semantic-fixedness sweep (φ = fraction of the representation
+  pinned to kernel vectors, a dose–response with the φ=1 LCM-analog as mandatory
+  endpoint; maintainer-mandated) → **L3a** rules-engine oracle (frozen as l3a/a5) →
+  **L3b** routed hybrid (deterministic router: engine answers the covered slice, LLM
+  the rest) → **L3c** engine-in-decode → **L4** kernel-native substrate (horizon,
+  **not proposed**, recorded for honesty). Recommended cheapest-decisive-first order:
+  L3a → L1a → L3b → L1b → L2c-lite → L2a → L2b → L2c-full → L3c. Each rung is phrased
+  as a pre-registerable experiment with a gate and kill criteria, climbed or cut by
+  evidence.
+
+- **Resource-optimization plan (`resource-optimization-plan.md`, Fable-owned, P0).**
+  Authoritative resource policy: a work taxonomy, reuse/composition rules,
+  GPU-result reuse, and reuse-maximising ordering. Its highest-leverage change is the
+  **superset-logging producer rule (R-2)** — final-phase logs carry per-item
+  *metric/indicator arrays*, not raw decoded text, so a consumer's dependent variable
+  must be a pure function of fields the producer actually logged; output-level reuse
+  is available *only by design* (author the consumer's records as a declared subset
+  at freeze). It validated/corrected an earlier Opus reuse recon and retired three of
+  its reuse claims. Status: authoritative once committed; permissive halves stay
+  inert behind a ratification interlock.
+
+- **Coverage-growth ingestion plan (`coverage-growth-ingestion-plan.md`).** Signs
+  off the **OBO biomedical stack (8 sources)** for immediate records-only ingestion,
+  a **Cost-1 bespoke-RDF-extractor wave** as Fable design work, and **holds back**
+  the three ingestions that actually move benchmark κ_B (ConceptNet, a curated
+  science world layer, a filtered Wikidata subset) as world-layer / query-grammar
+  gated. Governing MEASURED fact: **checkability ≠ vocabulary coverage.** An item is
+  `kernel_checkable` only when three legs coincide — (1) a canonical **record**, (2)
+  a **licensing axiom**, (3) a **mapper parse** into the closed 4-op grammar.
+  Ingestion supplies legs 1–2, never leg 3. This is why d-ext measured **≈49%
+  lemma-touch coexisting with 0% checkability** on OpenBookQA.
+
+- **I/O-compression ideas (`io-compression-ideas.md`).** Two maintainer ideas on the
+  efficiency thesis: **(A)** mint concepts for the highest-frequency words/phrases
+  *across languages* and generate definitions cheaply via a cache-prefixed Haiku
+  concept-definer (worked estimate ~$0.006–0.012/concept; the objective must be
+  **expected token savings** = frequency × (host-BPE tokens − 1) × mappable-sense
+  probability, not raw frequency, since many high-frequency English words are already
+  one BPE token). A ~$5–10 sub-test (A-F0) resolves the maintainer's fork: does
+  directly-symbolic output cut tokens or paradoxically increase thinking time?
+  **(B)** statically roll up compositional structure ("a is b", "a AND b", "a OR c")
+  into invented composite concepts with a per-utterance expansion dictionary.
+  **Note:** idea B has since been **parked** by the compression-census assessment
+  (see §4); idea A remains a live design, gated on a mandatory tokenizer-vocabulary-
+  extension null.
+
+- **Kernel precision linter (`kernel-precision-linter.md`).** The kernel as a
+  grounding/precision **guardrail** and controlled-language **linter** for LLM
+  output. Treat precision the way software linters do — not detecting every defect
+  but **enforcing a discipline under which whole classes of defect cannot be
+  expressed**. It parses LLM output into propositions, classifies each into a
+  five-way lattice (grounded-consistent / grounded-contradicted / ungrounded /
+  vacuous / ambiguous), and acts per mode: **flag** (permissive report),
+  **quarantine** (ungroundable content must sit in marked unverified blocks), or
+  **rewrite** (deterministic re-render of groundable content into a Minimal-English
+  kernel-native surface with a mechanical round-trip check). Honest boundary built
+  into the lattice: **ungroundable ≠ false**; at 0.3542 coverage a "flag everything
+  ungrounded" linter would flag most text, so ungroundedness is *informational* by
+  default and an error only under an opt-in strict contract — the coverage-
+  *independent* classes (vacuity, ambiguity, analytic contradiction on covered
+  content) carry the near-term value.
+
+**Two maintainer-raised directions we are actively scoping:**
+
+1. **Evaluation against LLM-leaderboard benchmarks** (`idea-leaderboard-benchmark-eval`,
+   bead hu10; **status: SCOPED** as N1-LB, `architecture-ladder.md` §10). The
+   maintainer asks how the best kernel support does on MMLU / ARC / GSM8K /
+   HellaSwag / TruthfulQA. The honest, already-MEASURED constraint: the strongest
+   supported config (kernel-verify-retry, +15.1pp on the covered self-authored slice)
+   was **byte-identical to model-alone on all 500 OpenBookQA items** — every d-ext
+   item is `kernel_checkable=false`, so a naive "kernel on MMLU" run measures how
+   little the kernel *covers*, not how good it is where it applies (a ~0-engagement
+   score would read misleadingly "bad"). So this is scoped as **(1) b-cov** — a
+   Tier-0, CPU-only, model-free **benchmark-checkability census** (m0b's sibling)
+   tracking each benchmark's checkable slice as the kernel grows, mode-indexed into
+   κ_B^verify (F2-line verifier can decide) and κ_B^engine (mapper+engine can answer);
+   and **(2) LB-1** — a coverage-gated Tier-1/2 augmentation eval measuring value-add
+   **on the checkable slice only, at matched compute** (structurally f2b-transfer
+   scaled onto public benchmarks), with the blended benchmark score reported only as
+   the arithmetic identity it is. Benchmark triage: Tier A (census first: WiC,
+   OpenBookQA, ARC-Easy, CommonsenseQA, TruthfulQA-mc, BoolQ, definitional MMLU
+   subjects), Tier B (census cheap, run only on Tier-A yield), Tier C (essentially
+   none by construction — GSM8K/MATH, HellaSwag/WinoGrande, HumanEval/MBPP,
+   TriviaQA/NQ, BBH). The b-cov census is now-eligible; LB-1 is LB-GATE'd.
+
+2. **Kernel-as-linter guardrail** (`idea-kernel-precision-linter`, bead z82;
+   **status: proposed**, Fable design complete 2026-07-09, awaiting maintainer
+   sign-off). The linter above; the ingestion plan's Axis-A (proposition-level
+   coverage) is its records-only consumer, delivered immediately by ingestion (see
+   the define-op census in §4: 0.7710 internal define-checkability substrate now
+   live).
+
+---
+
+## 4. What we have PARKED and why (do not re-suggest these)
+
+From `registry/assessments/*.json` — interpretive reads (not fired kills) that took
+a route off the table for now, each with its re-entry condition.
+
+- **Compositional roll-up compression (idea B), PARKED — below floor by ~4.5–5×.**
+  On TinyStories-valid (21,990 stories) the kernel-v0+molecules-v0 roll-up instrument
+  engages 0.592–0.643% of expanded word mass and yields **0.399–0.444%** net token
+  savings, against a 2%-of-prefill sanity floor — decisively below it on *every*
+  cell including the most permissive (and lossy). The binding constraint is
+  **vocabulary coverage** (2.07M unmapped words dominate the abstains), *not* the
+  roll-up grammar or parse permissiveness. The maintainer's flagship native pattern
+  "a AND b" (clause-AND) engages **~0** on real text (n=1 fragment in 405,523
+  sentences). This is a **PARK, not a mechanism kill** — the round-trip machinery is
+  exact (100%, banked); re-entry = a coverage-grown re-run that clears the floor. The
+  downstream consumption experiment (B-E1) stays **BLOCKED** and is explicitly not
+  recommended now. (Idea A's priority is unchanged — different estimand.)
+
+- **Genus-differentia define-op census — Axis-A substrate maturity, NOT a κ_B
+  number.** Post-8es internal define-checkability is **0.7710** (up from 0.5478):
+  GO 1.0000, SO 1.0000, MONDO 0.4871. This is a strong *Axis-A substrate* signal —
+  the cheapest κ_B lever's records-only lane works end-to-end on ingested records —
+  but it is **not a κ_B number and not an end-task grounding claim**: it measures at
+  most two of the three checkability legs on the self-authored minted substrate; the
+  binding **leg-3 (mapper parse of an external benchmark item) is untouched**. The
+  entire 0.4871→ residual on MONDO is a **data** gap (all 3,941 misses are foreign
+  fillers HP/CHEBI/NCBITaxon whose shards are un-ingested — the named Wave-A route
+  closes them), not an engine defect. Axis-B / N1-LB κ_B is unchanged and still
+  gated on leg-3 + the benchmark-data unblock. *In short: 0.77 define-checkability is
+  Axis-A substrate readiness, not evidence of end-task grounding — don't cite it as
+  the latter.*
+
+- **f2b-replicate — PROMOTED (for the record; audit-confirmed PASS).** Not parked —
+  promoted for **exactly** its envelope scope, no wider. None of the three kills
+  fired; the promotion **unblocked f2b-transfer** (its declared gate) as the
+  portfolio's foreground question, because f2b-transfer attacks the one confound this
+  design provably could not close (ground-truth independence). The HC3 fork is
+  **closed at the 1.5B PRM class**, re-openable at a frontier PRM class. The F2
+  record is untouched (supersedes-in-spirit only). Listed here so a reviewer does not
+  re-litigate a settled PASS or its confirmed nulls.
+
+---
+
+## 5. Idea backlog (47 ideas; last-line-wins per id)
+
+From `registry/ideas.jsonl`. Status vocabulary: **anchored** (mechanism established
+in repo), **candidate** (promotion path open), **scoped** (design/scoping done),
+**proposed** (Fable design complete, awaiting maintainer sign-off), **open** /
+**idea** (backlog), **boundary** (deliberately out of scope for now),
+**unsupported** (evidence says no). Counts: idea 33, candidate 3, scoped 3,
+proposed 3, anchored 2, boundary 1, open 1, unsupported 1.
+
+| id | status | one-line |
+|---|---|---|
+| idea-construction-b | anchored | Construction B binding operator (the encoder in use) |
+| idea-a2-adapter | anchored | A2 trained-adapter injection (the one supported in-network cell) |
+| idea-verifier-external | candidate | External deterministic verifier seam (A5 / F2 line) |
+| idea-l3a-oracle | candidate | L3a rules-engine oracle (frozen as l3a/a5) |
+| idea-code-worldlayer-cpg | candidate | Code world-layer via deterministic CPG/call-graph extraction (A5) |
+| idea-leaderboard-benchmark-eval | scoped | Leaderboard-benchmark eval of kernel augmentation on the checkable slice (N1-LB) |
+| idea-axiom-expressivity | scoped | Axiom-layer expressivity (kot-axiom v0 vs +rules) |
+| idea-worldlayer-population | scoped | World-layer population route |
+| idea-kernel-precision-linter | proposed | Kernel as grounding guardrail + controlled-language linter |
+| idea-crosslingual-phrase-coverage-io-compression | proposed | Cross-lingual phrase coverage + cheap-mint Haiku definer (I/O compression, idea A) |
+| idea-compositional-rollup-invented-concepts | proposed | Encoder/decoder static roll-up into invented composite concepts (idea B — since parked, §4) |
+| idea-a6-sae-labels | open | A6 kernel↔SAE label space |
+| idea-a1-frozen-vocab | unsupported | A1 frozen-vocabulary rows |
+| idea-ast-input-injection-boundary | boundary | Serialized-AST / deep-static-analysis input injection at LLM scale (X1) |
+| idea-tpr-exact-shallow | idea | Exact TPR binding (shallow) |
+| idea-wl-compressed-sensing | idea | WL-subtree features + compressed-sensing decode (construction C) |
+| idea-box-taxonomy-lane | idea | Constructed box/hyperbolic taxonomy lane |
+| idea-polarity-similarity | idea | Polarity-aware kernel similarity (X3 mitigation) |
+| idea-structural-decode-similarity | idea | Structural-decode similarity |
+| idea-grammar-and-under-op | idea | AND-under-operator grammar extension (X1) |
+| idea-grammar-apply-clause | idea | Apply-clause grammar extension (X5) |
+| idea-vocab-extensions | idea | Vocabulary/basis extensions (molecule, physics, math, code) |
+| idea-concept-toolkens | idea | Concept-toolkens (frozen kernel-derived embeddings) |
+| idea-l1a-canonicaliser | idea | L1a kernel input canonicaliser |
+| idea-l1b-dense-io | idea | L1b concept-dense I/O + record-constrained output |
+| idea-l2a-bottleneck | idea | L2a kernel-labelled concept bottleneck |
+| idea-l2b-memory-layer | idea | L2b kernel-addressed in-network memory layer |
+| idea-l2c-phi-fixedness | idea | L2c semantic-fixedness sweep (φ) |
+| idea-l3b-routed-hybrid | idea | L3b routed hybrid inference |
+| idea-l3c-engine-in-decode | idea | L3c engine-in-decode |
+| idea-calm-hybrid-latent | idea | CALM-hybrid: latent regularised toward kernel coordinates |
+| idea-axiom-rdm-regulariser | idea | Sidecar-axiom / kernel-RDM training regularisers |
+| idea-gradual-introduction | idea | Gradual-introduction training schedule |
+| idea-moe-expert-instrument | idea | Kernel as MoE expert-label instrument |
+| idea-structured-data-parser | idea | Deterministic structured-data → concept parsing (idea A) |
+| idea-symbolic-inference-between-layers | idea | Symbolic inference between layers (idea B) |
+| idea-code-input-canonicaliser | idea | Structured-input canonicaliser for code/tables (A1) |
+| idea-constrained-record-emission | idea | Grammar+type-constrained P10-record emission, two-stage decouple (A2) |
+| idea-trie-concept-name-emission | idea | Trie-constrained concept-name emission + name→hash map (A3) |
+| idea-record-paired-corpus-grounding | idea | Kernel-record paired-corpus grounding, IRCoder shape (A4) |
+| idea-canonical-facts-augmentation | idea | Kernel-canonical shallow facts as prompt augmentation, text (A6) |
+| idea-inter-layer-loop-trainingfree | idea | Training-free inter-layer loop (B1) |
+| idea-kernel-keyed-steering-dict | idea | Kernel-keyed steering dictionary (B2) |
+| idea-vsa-engine-internals | idea | VSA-algebra rule evaluation inside the kot-axiom engine (B3) |
+| idea-trained-kernel-bridge-depth | idea | Trained kernel bridge at depth (2502.01657 replication) (B4) |
+| idea-backpatch-diagnostic | idea | Back-patching diagnostic: are covered-slice failures layer-timing failures? (B5) |
+| idea-coconut-engine-loop | idea | Coconut-wiring + deterministic engine + no training (B6) |
+
+---
+
+## 6. Literature already in our KB
+
+The literature KB (`kb/chunks/*.jsonl`, 4,550 chunks across 5 shards) already spans
+the fields this programme sits between, so please prioritise prior art we are
+**missing** or **mis-citing** over restating what we cite. Coverage (approximate
+in-KB hit density): NSM / Wierzbicka / semantic primes; grounded and compositional
+distributional semantics (Numberbatch/ConceptNet, Wieting–Kiela-style
+random-structure nulls); process reward models / process supervision / verifiers
+(a dense area); retrieval-augmented generation (RAG, RETRO, Atlas, xRAG);
+knowledge editing (ROME/MEMIT-class); neuro-symbolic and vector-symbolic
+architectures (VSA / HRR / holographic / tensor-product representations, and the
+LCM/CALM latent-reasoning line); constrained / grammar-constrained decoding and
+structured output; hallucination / faithfulness / factuality; SAE-based
+mechanistic interpretability and superposition (the densest area, tied to the E8
+line); and formal-methods bridges (Lean / Metamath / theorem-proving, the
+AlphaGeometry / Logic-LM deterministic-engine template). Named anchors already
+load-bearing in envelopes: RETRO (150M–7B), ToolkenGPT (13–33B), Templeton 2024
+and Paulo–Belrose SAE seed-stability, DeepNSM (Baartmans et al.), Kaplan/Hoffmann
+scaling discipline, and the repo's own "Laws 1–3" synthesis (symbol-side wins;
+text arms improve with scale; deterministic-engine correctness is scale-invariant).
+
+---
+
+## 7. Where reviewer leverage is highest (residuals the records already foreground)
+
+Offered not as answers but as the seams the envelopes themselves mark open — the
+places where a sharp external critique is most valuable. Please also look *beyond*
+this list.
+
+- **The coverage ceiling (0.3542) is the master constraint.** Every accuracy result
+  is scoped to the kernel-covered slice, and the two directions that would grow it —
+  structured-DB ingestion (records) and mapper/query-grammar growth (checkability
+  leg 3) — are separated by the MEASURED "≈49% lemma-touch, 0% checkable" fact. Is the
+  covered-slice-only framing scientifically honest, or does it risk a
+  "measures-where-it-wins" selection effect that no amount of null-arming fixes? What
+  is the least-cost experiment that would make the *representativeness* of the covered
+  slice itself a measured quantity rather than a disclosed caveat?
+
+- **Circularity is broken only in the letter, not fully.** f2b-transfer replaces
+  kernel-defined gold with blind adjudication, but the answer surface is still
+  kernel-*rendered* (constrained IF-C options), and the LLM-proxy stand-in shares a
+  model family with its own diagnostic judge and is kernel-tradition-familiar. Are
+  there confounds in the blind-adjudication design (style leakage through NSM-shaped
+  options, judge familiarity with the NSM tradition) that our deranged-gloss probe
+  does not bound? Is there a cleaner externalisation of gold we are missing?
+
+- **Two rungs everywhere.** Almost every efficiency record licenses a *sign, not a
+  slope*, and the one instrument that would license slopes (f7) is Tier-5,
+  maintainer-gated, and survivors-only. Given Law 2 (text arms improve with scale),
+  is the sign-only evidence base at ≤1.7B strong enough to justify the frontier
+  narrative at all, or should the prospectus be re-scoped now?
+
+- **The correctness thesis leans on determinism the literature already grants.** The
+  engine oracles (l3a, a5) are, by envelope, formalism properties that say **nothing**
+  about kernel usefulness to any model. The load-bearing correctness claim is really
+  e9-c/e9-full (does a deterministic checker catch classes text self-checks cannot,
+  and does that survive the decode bottleneck?). Is our error-class taxonomy the right
+  one, and is the ≥3× "catch ratio vs best text arm" bar the right operationalisation?
+
+- **What have we not measured against?** We especially want prior-art we should be
+  benchmarking (verification-routing / cascade lines beyond FrugalGPT; constrained-
+  decoding and controlled-language systems relevant to the linter; latent-reasoning
+  LCM/CALM baselines for dense I/O; knowledge-editing baselines for the correctness
+  thesis) and any place a cited anchor (RETRO, ToolkenGPT, DeepNSM, the SAE
+  seed-stability results) is being stretched past what it actually established.
+
+**How to structure your review (suggested, not binding).** (1) A short verdict on
+whether the two value theses are *falsifiably* operationalised as written. (2) A
+prioritised list of the top design flaws or confounds, most-severe first, each tied
+to a named experiment id and a concrete failure scenario. (3) Concrete missing
+experiments or analyses, with the cheapest decisive version of each. (4) Named
+prior-art we should measure against or are mis-citing, each with a confidence flag
+(it will be verified). (5) An explicit honesty-rail check: flag any of your own
+suggestions that would themselves risk circularity, overclaiming, or licensing a
+conclusion beyond its data. Be specific and candid; vague praise is not useful to
+this programme.
