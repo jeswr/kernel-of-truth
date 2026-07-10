@@ -68,9 +68,11 @@ PLANNED_CONTROL_STRATA = {
 GOLD_PERFECT = {"n_covered": 855, "n_covered_exact": 855,
                 "n_control": 122, "n_control_refused_correct_code": 122,
                 "n_covered_answered_wrong": 0, "n_control_answered": 0}
-# Set by prereg-freeze once the blind EVAL corpus is pinned (PINNED-AT-INPUTS);
-# None disables ONLY the sha-equality sub-check of G3, never the lint gate.
-EXPECTED_PHRASINGS_SHA256 = None
+# EVAL corpus pinned 2026-07-10 (EVAL-BUILD-SPEC step 6): sha256 of
+# data/nlb-phrasings-a5/eval.jsonl, checked against the run's observed
+# phrasings_file in G3. None would disable ONLY the sha-equality sub-check.
+EXPECTED_PHRASINGS_SHA256 = \
+    "746b202d27239cc1b49aa611696387080313a7116c48a8ce5cad2f963d3489c6"
 
 ARMS = ("mapper-parse", "gold-replication", "deranged-lexicon",
         "abstain-all", "answer-all")
@@ -226,7 +228,9 @@ def _rec(arm, **kw):
          "frontend_total_ns": 960000000}
     m.update(kw)
     body = {"experiment": EXPERIMENT, "config": {"arm": arm}, "metrics": m,
-            "pins_observed": {"phrasings_lint": {"green": True}}}
+            "pins_observed": {"phrasings_lint": {"green": True},
+                              "phrasings_file":
+                              {"observed": EXPECTED_PHRASINGS_SHA256}}}
     if arm == "gold-replication":
         body["metrics"] = dict(GOLD_PERFECT)
         body["metrics"]["deterministic_repeat_identical"] = True

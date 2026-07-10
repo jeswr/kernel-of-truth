@@ -1,7 +1,7 @@
 {
   "schema": "nlb-phrasings-manifest/1",
   "vertical": "l3a",
-  "status": "DEV-COMPLETE; EVAL/PROBE PENDING-OPUS-BUILD (tools/experiments/nlb/EVAL-BUILD-SPEC.md)",
+  "status": "EVAL/PROBE BUILT 2026-07-10 (blind fresh-identity authoring, EVAL-BUILD-SPEC); freeze-candidate — corpus pinned in registry/experiments/l3a-parse.json; NOT frozen (independent skeptic re-attack + prereg-freeze still owed, design doc section 11 items 6-7).",
   "protocol_ref": "docs/design-nl-boundary-l3a-parse-a5-nl.md section 5",
   "dev": {
     "files": {
@@ -18,6 +18,35 @@
     "prompt-probe.md": "b741ab65c41ccdaedd8ba0ef48f81ae36f7d9d75d94937bdffac6403877db699",
     "prompt-audit.md": "6b9097b3204f805dd225e495492a747954d977f7ca7d5ecd450a3bd8b40d9cf2"
   },
-  "eval": {"status": "PENDING-OPUS-BUILD", "n_planned": 870, "files_expected": ["eval.jsonl", "packets/", "transcripts/", "audit-recoverability.json"]},
-  "probe": {"status": "PENDING-OPUS-BUILD", "n_planned": 60, "note": "synonym-boundary probe; descriptive only, never gated (FK-NLB-8)"}
+  "eval": {
+    "status": "BUILT",
+    "n": 870,
+    "files": {"eval.jsonl": "832828d892260ee53aff51d648998e3656a2d5dc16b26c55713b638964858d8a"},
+    "authoring": "one blind held-out NL phrasing per included query (600 covered + 270 control, K=1, FK-NLB-4), authored by fresh agent identities per 100-packet batch under prompt-eval.md; raw transcripts committed under transcripts/eval-NNN.txt; deterministic packets under packets/ (packets-manifest.json). No phrasing hand-edited (EVAL-BUILD-SPEC).",
+    "shape_recoverable_scope": "FK-NLB-10 / ASM-0420: the gated primary + S2 are scored (in analysis/l3a_parse.py) over the 7 shape-recoverable IN-SCOPE families only (n_scored=527); the 2 shape-ambiguous families (unique-maker 43, made-lookup 30) are executed but reported descriptively, never gated. Corpus bytes are untouched by the re-scope — it lives in the pinned analysis script alone."
+  },
+  "probe": {
+    "status": "BUILT",
+    "n": 60,
+    "files": {"probe.jsonl": "11c4bfee8587346bbec8bba0600fc26195b7f37d006f173328218f86c5a8aac2"},
+    "note": "synonym-boundary probe (FK-NLB-8/ASM-0144); descriptive only, never gated, carved out of the envelope; disjoint authoring pass under prompt-probe.md; transcript committed."
+  },
+  "lint": {
+    "receipt": "lint-receipt.json",
+    "sha256": "9716a8551349b0fd7d99d01e012fbce93d9f134ec80de8b55449dc2b48c56aed",
+    "green": true,
+    "waived_forced_substring": "empty (l3a re-lints green under the 14.4 masked forced-substring rule with no waivers)"
+  },
+  "audit": {
+    "recoverability": {
+      "file": "audit-recoverability.json",
+      "sha256": "d6365bd95e7d61a1cce7585bb446aa8f905b2b8eec08d0756a446e2e70a09bf5",
+      "note": "original all-family sample that surfaced Finding 1 (strict 43/60 = 0.7167; shape+entity ceiling 52/60); stays committed as the driving evidence (design doc 14.1)."
+    },
+    "recoverability_r1": {
+      "file": "audit-recoverability-r1.json",
+      "sha256": "57e9d8d12826ae6ba28da4289fcc703109b2fb9994ef99eb589655874ea6da6d",
+      "note": "the GATING audit (ASM-0421/0422 split gate, FK-NLB-10 in-scope covered-only 60-item sample): shape+entity recovery 60/60 = 1.0 >= 0.95 PASS; rel-label recovery descriptive. Referenced by /analysis/audit_r1_ref."
+    }
+  }
 }

@@ -1,7 +1,7 @@
 {
   "schema": "nlb-phrasings-manifest/1",
   "vertical": "a5",
-  "status": "DEV-COMPLETE; EVAL/PROBE PENDING-OPUS-BUILD (tools/experiments/nlb/EVAL-BUILD-SPEC.md)",
+  "status": "EVAL/PROBE BUILT 2026-07-10 (blind fresh-identity authoring, EVAL-BUILD-SPEC; instance-true EVAL-DIVERSITY re-authored per design doc 14.4); freeze-candidate — corpus pinned in registry/experiments/a5-nl.json; NOT frozen (independent skeptic re-attack + prereg-freeze still owed, design doc section 11 items 6-7).",
   "protocol_ref": "docs/design-nl-boundary-l3a-parse-a5-nl.md section 5",
   "dev": {
     "files": {
@@ -18,6 +18,29 @@
     "prompt-probe.md": "8843321b5f354f61302bb0587be9660ff8c34f491d6131283a9cde8ca738ef52",
     "prompt-audit.md": "76ded60f7eac527b2dfd0d0ea4de060f948b23a43413a3d05f3351baa6af82d2"
   },
-  "eval": {"status": "PENDING-OPUS-BUILD", "n_planned": 961, "files_expected": ["eval.jsonl", "packets/", "transcripts/", "audit-recoverability.json"]},
-  "probe": {"status": "PENDING-OPUS-BUILD", "n_planned": 60, "note": "synonym-boundary probe; descriptive only, never gated (FK-NLB-8)"}
+  "eval": {
+    "status": "BUILT",
+    "n": 961,
+    "files": {"eval.jsonl": "746b202d27239cc1b49aa611696387080313a7116c48a8ce5cad2f963d3489c6"},
+    "authoring": "one blind held-out NL phrasing per included query (855 covered + 106 control, K=1, FK-NLB-4), authored by fresh agent identities per 100-packet batch under prompt-eval.md; raw transcripts committed under transcripts/eval-NNN.txt; deterministic packets under packets/. The instance-true family was re-authored by a fresh identity per EVAL-BUILD-SPEC step 4 to clear the EVAL-DIVERSITY finding (design doc 14.4). No phrasing hand-edited."
+  },
+  "probe": {
+    "status": "BUILT",
+    "n": 60,
+    "files": {"probe.jsonl": "8ca0458c7f45e79f7a7886089b1bb6446cb386453c901e7886e4a13d62acbdf1"},
+    "note": "synonym-boundary probe (FK-NLB-8/ASM-0144); descriptive only, never gated, carved out of the envelope; disjoint authoring pass under prompt-probe.md; transcript committed."
+  },
+  "lint": {
+    "receipt": "lint-receipt.json",
+    "sha256": "cc8a286e4165cfa949b8c679990b65cc6ff5f8723aeaf581dd9ef525be4c8c83",
+    "green": true,
+    "waived_forced_substring": "28 qids (FK-NLB-11/ASM-0423): answer surfaces occurring only inside the mandatory verbatim entity identifier (nested-definition where-defined/contained-in + self-recursion callers-of/callees-of); listed in lint-receipt.json. Lawful for this record's surface-blind non-model arms only; MANDATORY caveat for any model-based successor is written into a5-nl.json successors (design doc 14.4)."
+  },
+  "audit": {
+    "recoverability": {
+      "file": "audit-recoverability.json",
+      "sha256": "6ff8879e79c27ae2558ce187ae8501187f3066029e825fe007a57e170ef00ef2",
+      "note": "the GATING audit (ASM-0421 split gate applied pre-data from the start, design doc 14.3; covered-only 60-item sample over the current post-re-authoring eval.jsonl): shape+entity recovery 59/60 = 0.9833 >= 0.95 PASS (single miss a0350 is an imports-of/imported-by converse flip, entity recovered); concept-label recovery descriptive. No FK-NLB-10 scope cut on a5 (that fork is l3a-only)."
+    }
+  }
 }
