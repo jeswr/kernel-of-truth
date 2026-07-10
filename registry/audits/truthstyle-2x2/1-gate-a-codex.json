@@ -1,0 +1,61 @@
+{
+  "audit_kind": "GATE-A cross-vendor audit (P2 G-6; directives sec.8) — truthstyle-2x2 mechanical verdict recompute. The verdict is PASS-PENDING-AUDIT (rule 2 fired: /analysis/style_tost_pass true, style_leak_established false, all 6 instrument gates valid); a PASS mandatorily fires this Gate-A audit per registry/corrections/truthstyle-2x2/2-verdict-path-reconciliation.json post_run_order_of_operations step 6. This record certifies the PASS is the correct pure function of the frozen record + the 4-amendment ops overlay + the hash-chained results log + the pinned analysis script over the committed d-ts / d-ts-labels corpora, recomputed independently from raw bytes — NOT any science judgement, and it does NOT validate judge quality (two of three judges are GPT-family models; disclosed below).",
+  "auditor": "auditor-7",
+  "auditor_binding": "cross-vendor auditor identity per docs/kernel-design-directives.md sec.8: Codex via the codex CLI; vendor tag only, no account credential (RT-14). Run-vs-audit separation is cross-vendor: Opus runner-1 ran the three-judge adjudication and coordinator-1 ran the unblind/verdict-gen-dts step, this audit is by Codex/GPT-5.6-Sol under an ISOLATED CODEX_HOME (auto-clean) distinct from any judge-invocation home. DISCLOSED family overlap: judge-p1-gpt56sol is GPT-5.6-Sol (the SAME model as this auditor) and judge-p2-gpt55 is GPT-5.5 — irrelevant to a mechanical byte-recompute, which certifies the verdict as a pure function of committed bytes and explicitly does not validate judge quality or bias (stated in the auditor's own reasoning below, per the audit-brief's mandatory disclosure clause).",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.144.1 (npx -y @openai/codex@0.144.1 under an isolated, auto-cleaned CODEX_HOME; global codex-cli 0.142.5 verified untouched before and after)",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "sandbox": "read-only",
+    "session_id": "019f4d91-aba3-70b0-ba38-7795457b06fc"
+  },
+  "checks": {
+    "frozen_hash": "ok",
+    "log_chain": "ok",
+    "amendments": "ok",
+    "pins": "ok",
+    "driver_sha": "ok",
+    "endpoint_recompute": "ok",
+    "gates": "ok",
+    "verdict_rule": "ok",
+    "independence": "ok",
+    "scope": "ok"
+  },
+  "codex_raw_excerpt": "{\"experiment\":\"truthstyle-2x2\",\"result\":\"CONFIRM\",\"matches_verdict_object\":true,\"family_overlap_disclosed\":true,\"recomputed_frozen_sha256\":\"18893369a1206614ade399bfbdf33f7952f3a6b3460f1edc4193b8f13db71d74\",\"recomputed_amended_record_sha256\":\"cb3244931fdbc2f73e7a8c61563e267471bbad9908a0f51f22b02a00c30f3e98\",\"recomputed_analysis_output_sha256\":\"0227c8b7938b49108405983ab7e0f6833afe3f6c28a38233fdf843aa431346bf\",\"recomputed_style_effect\":0.025,\"recomputed_style_effect_ci_low\":0.0033333333333333335,\"recomputed_style_effect_ci_high\":0.04666666666666667,\"recomputed_style_tost_pass\":true,\"recomputed_style_leak_established\":false,\"recomputed_n_labelled\":2352,\"recomputed_n_pairs_evaluable\":600,\"reproduces_analysis_output\":true,\"fired_rule_index\":2,\"verdict\":\"PASS\",\"checks\":{\"frozen_hash\":\"ok\",\"log_chain\":\"ok\",\"amendments\":\"ok\",\"pins\":\"ok\",\"driver_sha\":\"ok\",\"endpoint_recompute\":\"ok\",\"gates\":\"ok\",\"verdict_rule\":\"ok\",\"independence\":\"ok\",\"scope\":\"ok\"},\"failing_step\":null,\"reasoning\":\"[abridged; full text in the run's audit-last-message.json] Independent read-only recompute at repo HEAD confirms: frozen hash 18893369...d74 matches record + frozen-index; log chain (2 lines, seq 0 run/final/ok + seq 1 unblind) byte-verifies with correct prev_sha256 chaining and raw-counts-only metrics (no FORBIDDEN_METRIC_KEYS present); all 4 ops amendments touch only /pins/*, replace PINNED-AT-INPUTS placeholders with bare hex digests, and JSON-patch-replay to effective hash cb3244...325; analysis_script sha bf171ed9...c8, driver sha 528dfe44...9e, corpus_hashes d-ts e4cac457...900 and d-ts-labels 97486ab7...959 all reproduce from disk via kot-corpus-hash/1; re-running analysis/truthstyle_2x2.py over the two pinned corpora reproduces analysis-output.json byte-for-byte (sha 0227c8b7...6bf) and independently re-derives style_effect=15/600=0.025 with bootstrap (B=10000, seed 20260710) 5th/95th percentiles 0.00333.../0.04666..., strictly inside +/-0.10, so style_tost_pass=true and style_leak_established=false; all six gates independently re-derived true from raw label/tier counts; verdict_rules evaluated top-down give rule0=false, rule1=false, rule2=true, so fired_rule_index=2 and the mechanical verdict is PASS (the committed PASS-PENDING-AUDIT is the expected pre-audit demotion); independence confirmed (runner-1/coordinator-1 are not this auditor); scope text (extrapolation_envelope_verbatim, kill_criterion_verbatim) present and byte-identical to the frozen record. Family-overlap disclosure stated explicitly: auditor is GPT-5.6-Sol, same model as judge-p1; this audit certifies mechanics only, not judge quality/bias.\"}",
+  "experiment": "truthstyle-2x2",
+  "fired_rule_index": 2,
+  "independence": "auditor-7 does not appear as runner or coordinator in either record of results-log/truthstyle-2x2.jsonl (seq 0 run/final/ok by runner-1; seq 1 unblind by coordinator-1). run-vs-audit + cross-vendor separation per directives sec.8; auditor ran under a fresh isolated CODEX_HOME with no prior session history in this repo.",
+  "matches_verdict_object": true,
+  "outcome": "CONFIRMED",
+  "recomputed_amended_record_sha256": "cb3244931fdbc2f73e7a8c61563e267471bbad9908a0f51f22b02a00c30f3e98",
+  "recomputed_analysis_output_sha256": "0227c8b7938b49108405983ab7e0f6833afe3f6c28a38233fdf843aa431346bf",
+  "recomputed_cells": {
+    "style_effect": 0.025,
+    "style_effect_ci_low": 0.0033333333333333335,
+    "style_effect_ci_high": 0.04666666666666667,
+    "style_tost_pass": true,
+    "style_leak_established": false,
+    "n_labelled": 2352,
+    "n_pairs_evaluable": 600,
+    "label_coverage_valid": true,
+    "pool_valid": true,
+    "truth_manipulation_valid": true,
+    "style_fidelity_valid": true,
+    "length_match_valid": true,
+    "retest_valid": true
+  },
+  "recomputed_driver_sha256": "528dfe447f9e8ef19f61ca1c0a73ca6c9db2d2c95ad464d5881d80d1c6e64c9e",
+  "recomputed_endpoint": {
+    "metric": "/analysis/style_effect",
+    "value": 0.025
+  },
+  "recomputed_frozen_sha256": "18893369a1206614ade399bfbdf33f7952f3a6b3460f1edc4193b8f13db71d74",
+  "reproduces_analysis_output": true,
+  "result": "CONFIRM",
+  "schema_version": "kot-audit/1",
+  "smoke_test": "codex exec returned the exact requested token KOT-AUDIT-SMOKE-OK before the audit was attempted (session 019f4d84-c000-7ec1-9b9d-37fcf8ee843d); global codex-cli remained 0.142.5 before and after both the smoke test and the audit run.",
+  "ts": "2026-07-10T19:53:18Z",
+  "vendor": "openai/gpt-5.6-sol",
+  "verdict": "PASS",
+  "verdict_object_audited_sha256": "31391cb5633437eedca52d3e875e8f5b8d7c193a3c979d293bc4a897d40a112b"
+}
