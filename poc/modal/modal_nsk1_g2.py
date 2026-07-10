@@ -2697,3 +2697,1007 @@ def bprime2(dry_plan: bool = False, gpu: str = "A10G"):
     print("MECHANICAL VERDICT (spec §5): %s" % gate["gate_label"])
     print("sha256 bprime2_rows.jsonl    = %s" % sha_rows)
     print("sha256 bprime2_summary.json  = %s" % sha_sum)
+
+
+# =====================================================================
+# nsk1 STAGE-1 — free-generation KEYED-RESCUE probe at R3, phase:"exploratory"
+# ---------------------------------------------------------------------
+# EXECUTES docs/next/nsk1-stage1-spec.md (Fable, runner-ready; ASM-0400..0404;
+# ZERO design decisions left to the runner). Successor to B″ (bprime2). This
+# entrypoint is APPENDED; the g2/g2b/g2c/g2d/bprime/bprime2 code and every shared
+# helper above are byte-untouched. It REUSES the verified B″ instrument:
+#   * specs = _build_specs_bprime2() VERBATIM (958 form-2 prompts + D_top/D_bridge
+#     donors + all build asserts + byte-equality vs _build_specs_g2b f2_to).
+#   * _score_entity scorer byte-verbatim; _bp_wilson / _bp_binom_sf_ge /
+#     _bp_sattolo / _bprime2_coin_bit / _B2Abort byte-verbatim.
+#   * the B″ additive norm-matched pre-hook (h_p ← h_p + s·α·‖h_p‖·Δ̂v at the
+#     final prompt-token position, prefill only) re-created here identically.
+# NEW read-out (spec §1/§2): moves from teacher-forced margins to FREE GENERATION
+#   at the 2 measured keying cells [(12,16),(16,16)] (ASSERT L=24), over the α
+#   ladder {0.25,0.5,0.75,1.0} (α-descending, 1.0 anchor first), scoring keyed
+#   emission + RESCUE of text-only failures. Two pre-fixed endpoints (ASM-0404):
+#   R− (integration rescue, real −, echo-proof) and R+ (delivered-conclusion
+#   rescue, real +, echo-confounded). Content-specificity via 3 independent
+#   Sattolo derangements (seeds 20260712/13/14) with the coin (content-free null)
+#   and role (role-consistent) controls DERIVED from the same deranged gens.
+# Host R3 = SmolLM2-1.7B-Instruct, commit-pinned; A10G fp32; all 958 covered
+# CLUTRR entity-form items; greedy 16-tok gens; every row phase:"exploratory".
+#
+#   poc/modal/.venv/bin/modal run poc/modal/modal_nsk1_g2.py::stage1 --dry-plan   # $0
+#   poc/modal/.venv/bin/modal run poc/modal/modal_nsk1_g2.py::stage1              # A10G
+# =====================================================================
+
+STAGE1_MODEL = "HuggingFaceTB/SmolLM2-1.7B-Instruct"           # R3 (ASM-0040/0400)
+STAGE1_PIN = "31b70e2e869a7173562077fd711b654946d38674"         # commit pin (ABORT otherwise)
+STAGE1_CELLS = [(12, 16), (16, 16)]                             # the 2 measured keying cells (ASM-0400)
+STAGE1_HARVEST_LH = sorted({c[0] for c in STAGE1_CELLS})        # donor-harvest layers = [12, 16]
+STAGE1_ALPHA_LADDER = [1.0, 0.75, 0.5, 0.25]                    # α-DESCENDING, 1.0 anchor first (spec §3 Step 6)
+STAGE1_SEEDS = [20260712, 20260713, 20260714]                   # σ_a / σ_b / σ_c derangement seeds (ASM-0400)
+STAGE1_SAMPLE_SEED = 20260712                                   # Swept 300-sample + C100 sample (ASM-0400)
+STAGE1_SWEEP_CAP = 300                                          # Swept cap (spec §2)
+STAGE1_C100 = 100                                               # correct subsample size (spec §2)
+STAGE1_BATCH = 16                                               # GPU mini-batch (OOM auto-halves)
+STAGE1_WALL_CAP_S = 19800                                       # soft in-container wall guard (5.5 h)
+STAGE1_REPL_FLOOR = 0.70                                        # B″ keying-replication floor (spec §2/§5)
+STAGE1_Z_KILL = 1.6449                                          # one-sided 95% (Wilson UB / pooled UB), Φ⁻¹(0.95)
+STAGE1_Z_CTRL = 3.2790                                          # control-validity tripwire (two-sided 0.05 / 48 series×2 sides)
+STAGE1_P_COIN = 0.05 / 8                                        # per-endpoint Bonferroni over 8 (cell×α) combos = 0.00625
+STAGE1_P_ROLE = 0.05                                            # role-conjunct threshold (spec §5)
+STAGE1_DELTA_MEAN_FLOOR = 0.10                                  # mean_s Δ_es floor (spec §5)
+STAGE1_DELTA_MIN_FLOOR = 0.05                                   # min_s Δ_es floor (spec §5)
+STAGE1_KILL_UB = 0.10                                           # pooled-UB KILL margin (spec §5)
+# input pins reused from B″ (spec §2: "same input-pin sha256s as B″ §2, ABORT on drift")
+STAGE1_ITEMS_PIN = "0e1f5c6bad6f97b575e3c354803713c3efef2a25cf76a9745e79b3d584f5839e"
+STAGE1_HEAD_PIN = "8b8e99e48cce5fd40a8b7e858b4b75730c9a2d66e9237034f0d3b3b4468c4d8d"
+
+
+# ----------------------------------------------------- GPU body (torch, remote)
+def _stage1_body(model_id, specs, bprime2_text_correct, batch_size, wall_cap_s):
+    import traceback
+    try:
+        return _stage1_body_impl(model_id, specs, bprime2_text_correct,
+                                 batch_size, wall_cap_s)
+    except Exception as e:  # noqa: BLE001
+        tb = traceback.format_exc()
+        print("STAGE1 ERROR:", repr(e))
+        print(tb)
+        return {"aborted": True, "abort_reason": "EXCEPTION: %s" % repr(e),
+                "traceback": tb, "rows": [], "summary": {}, "swept_item_ids": [],
+                "c100_item_ids": [], "per_unit": {}, "completed_units": []}
+
+
+def _stage1_body_impl(model_id, specs, bprime2_text_correct, batch_size, wall_cap_s):
+    import re
+    import time
+    import math
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    t0 = time.time()
+    n = len(specs)
+    tok = AutoTokenizer.from_pretrained(model_id, revision=STAGE1_PIN)
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    tok.padding_side = "left"
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id, revision=STAGE1_PIN, torch_dtype=torch.float32)
+    model.to("cuda").eval()
+    L = int(model.config.num_hidden_layers)
+    d_model = int(model.config.hidden_size)
+    commit = getattr(model.config, "_commit_hash", None)
+
+    def _abort_ret(reason, summ=None):
+        return {"aborted": True, "abort_reason": reason, "rows": [],
+                "summary": (summ or {"model_commit": commit}),
+                "swept_item_ids": [], "c100_item_ids": [], "per_unit": {},
+                "completed_units": []}
+
+    # spec §2: resolved commit MUST equal the pin (ABORT otherwise)
+    if commit is not None and commit != STAGE1_PIN:
+        return _abort_ret("COMMIT_PIN_MISMATCH got=%s want=%s" % (commit, STAGE1_PIN))
+    # spec §3 Step 2: ASSERT L == 24
+    if L != 24:
+        return _abort_ret("L_NOT_24 got=%d" % L)
+    layers = model.model.layers
+    print("[s1] model=%s L=%d d=%d commit=%s" % (model_id, L, d_model, commit))
+    print("[s1] cells=%s harvest_lh=%s alpha_ladder=%s seeds=%s"
+          % (STAGE1_CELLS, STAGE1_HARVEST_LH, STAGE1_ALPHA_LADDER, STAGE1_SEEDS))
+
+    # ---- additive norm-matched pre-hook (edits INPUT of module ℓt at pos w) ----
+    # byte-mirror of B″'s add_pre_hook (spec §2: injection operator UNCHANGED).
+    hook_state = {"vec": None, "wpos": None}  # vec=[bs,d]=s·α·Δ̂v ; wpos=[bs] long
+
+    def add_pre_hook(module, args, kwargs):
+        st = hook_state
+        if st["vec"] is None:
+            return None
+        hs = None
+        where = None
+        if len(args) > 0 and torch.is_tensor(args[0]) and args[0].dim() == 3:
+            hs, where = args[0], "arg"
+        elif torch.is_tensor(kwargs.get("hidden_states")):
+            hs, where = kwargs["hidden_states"], "kw"
+        if hs is None or hs.shape[1] <= 1:
+            return None  # decode step (seq==1): prefill-only (spec §2/§3)
+        hs = hs.clone()
+        u = st["vec"].to(hs.dtype)              # [bs, d]
+        wpos = st["wpos"]                        # [bs] long
+        bs = hs.shape[0]
+        rws = torch.arange(bs, device=hs.device)
+        cur = hs[rws, wpos, :]                    # [bs, d]
+        nrm = cur.norm(dim=-1, keepdim=True)      # [bs, 1] = ‖h_p‖
+        hs[rws, wpos, :] = cur + nrm * u          # h ← h + ‖h‖·(s·α·Δ̂v)
+        if where == "arg":
+            return ((hs,) + tuple(args[1:]), kwargs)
+        nk = dict(kwargs)
+        nk["hidden_states"] = hs
+        return (args, nk)
+
+    def _chat_ids(prompt):
+        msgs = [{"role": "user", "content": prompt}]
+        try:
+            return list(tok.apply_chat_template(msgs, add_generation_prompt=True))
+        except Exception:  # noqa: BLE001
+            return list(tok(prompt).input_ids)
+
+    def _pad_batch(id_lists):
+        maxlen = max(len(x) for x in id_lists)
+        ii, am = [], []
+        for x in id_lists:
+            pad = maxlen - len(x)
+            ii.append([tok.pad_token_id] * pad + x)
+            am.append([0] * pad + [1] * len(x))
+        return (torch.tensor(ii, device="cuda"),
+                torch.tensor(am, device="cuda"), maxlen)
+
+    def _mini(items):
+        for a in range(0, len(items), batch_size):
+            yield items[a:a + batch_size]
+
+    def _gen_plain(id_lists):
+        try:
+            ii, am, maxlen = _pad_batch(id_lists)
+            with torch.no_grad():
+                out = model.generate(input_ids=ii, attention_mask=am,
+                                     max_new_tokens=MAX_NEW_TOKENS, do_sample=False,
+                                     num_beams=1, pad_token_id=tok.pad_token_id)
+            return [tok.decode(out[r][maxlen:], skip_special_tokens=True)
+                    for r in range(len(id_lists))]
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(id_lists) == 1:
+                raise
+            h = len(id_lists) // 2
+            return _gen_plain(id_lists[:h]) + _gen_plain(id_lists[h:])
+
+    def _gen_add(id_lists, lt, vecs_signed):
+        """Greedy 16-tok gen with the additive hook at layer lt, final prompt pos
+        (prefill only). vecs_signed[r]=s·α·Δ̂v (unit dir). OOM->halve."""
+        try:
+            ii, am, maxlen = _pad_batch(id_lists)
+            handle = None
+            if lt is not None and vecs_signed is not None:
+                hook_state["vec"] = torch.stack(vecs_signed).to("cuda")
+                hook_state["wpos"] = torch.full((len(id_lists),), maxlen - 1,
+                                                device="cuda", dtype=torch.long)
+                handle = layers[lt].register_forward_pre_hook(add_pre_hook, with_kwargs=True)
+            try:
+                with torch.no_grad():
+                    out = model.generate(input_ids=ii, attention_mask=am,
+                                         max_new_tokens=MAX_NEW_TOKENS, do_sample=False,
+                                         num_beams=1, pad_token_id=tok.pad_token_id)
+            finally:
+                if handle is not None:
+                    handle.remove()
+                hook_state["vec"] = None
+                hook_state["wpos"] = None
+            return [tok.decode(out[r][maxlen:], skip_special_tokens=True)
+                    for r in range(len(id_lists))]
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(id_lists) == 1:
+                raise
+            h = len(id_lists) // 2
+            v1 = vecs_signed[:h] if vecs_signed is not None else None
+            v2 = vecs_signed[h:] if vecs_signed is not None else None
+            return _gen_add(id_lists[:h], lt, v1) + _gen_add(id_lists[h:], lt, v2)
+
+    prompt_ids = [None] * n
+    cand_ids = [None] * n  # per item: {'top': ids, 'bridge': ids}
+
+    def _tf_lp(mb, cand_key, lt, vec_for):
+        """Teacher-forced Σ logprob of candidate cand_key for each item idx in mb,
+        under additive injection at layer lt (vec_for(i)=s·α·Δ̂v_i) at the last
+        prompt-token position w=maxlen−len(cand)−1. lt/vec_for None => unhooked
+        baseline. ASSERTs write-index; OOM->halve. (byte-mirror of B″ _tf_lp)"""
+        try:
+            id_lists = [prompt_ids[i] + cand_ids[i][cand_key] for i in mb]
+            clens = [len(cand_ids[i][cand_key]) for i in mb]
+            ii, am, maxlen = _pad_batch(id_lists)
+            wrows = [maxlen - clens[r] - 1 for r in range(len(mb))]
+            for r, i in enumerate(mb):
+                if int(ii[r, wrows[r]].item()) != prompt_ids[i][-1]:
+                    raise _B2Abort("WRITE_INDEX_MISMATCH item=%s" % specs[i]["item_id"])
+            handle = None
+            if lt is not None and vec_for is not None:
+                u = torch.stack([vec_for(i) for i in mb]).to("cuda")
+                hook_state["vec"] = u
+                hook_state["wpos"] = torch.tensor(wrows, device="cuda", dtype=torch.long)
+                handle = layers[lt].register_forward_pre_hook(add_pre_hook, with_kwargs=True)
+            try:
+                with torch.no_grad():
+                    out = model(input_ids=ii, attention_mask=am)
+            finally:
+                if handle is not None:
+                    handle.remove()
+                hook_state["vec"] = None
+                hook_state["wpos"] = None
+            logits = out.logits
+            lps = []
+            for r, i in enumerate(mb):
+                w = wrows[r]
+                cid = cand_ids[i][cand_key]
+                lp = 0.0
+                for j, tid in enumerate(cid):
+                    lr = torch.log_softmax(logits[r, w + j, :].float(), dim=-1)
+                    lp += float(lr[tid].item())
+                lps.append(lp)
+            del out, logits
+            return lps
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(mb) == 1:
+                raise
+            h = len(mb) // 2
+            return _tf_lp(mb[:h], cand_key, lt, vec_for) + _tf_lp(mb[h:], cand_key, lt, vec_for)
+
+    def _has_any(g, surfaces):
+        t = g.lower()
+        return any(re.search(r"(?<![a-z])%s(?![a-z])" % re.escape(x.lower()), t)
+                   for x in surfaces)
+
+    def _emit_cat(g, s):
+        t = g.lower()
+        pos = {}
+        for role, name in (("top", s["top_surface"]), ("bridge", s["bridge_surface"]),
+                           ("base", s["base"])):
+            mt = re.search(r"(?<![a-z])%s(?![a-z])" % re.escape(name.lower()), t)
+            if mt:
+                pos[role] = mt.start()
+        if not pos:
+            return "none"
+        first = min(pos, key=pos.get)
+        return {"top": "top", "bridge": "bridge", "base": "other"}[first]
+
+    def _mm(a):
+        if not a:
+            return {"mean": None, "median": None, "n": 0}
+        srt = sorted(a)
+        med = srt[len(srt) // 2] if len(srt) % 2 else 0.5 * (srt[len(srt) // 2 - 1] + srt[len(srt) // 2])
+        return {"mean": sum(a) / len(a), "median": med, "n": len(a)}
+
+    def _row(**kw):
+        base = {"phase": "exploratory", "gate": "NSK1-S1", "host": "R3",
+                "model": model_id, "surface": "clutrr", "form": "2",
+                "item_id": None, "probe": None, "arm": None, "sign": None,
+                "cell": None, "alpha": None, "seed": None, "coin": None,
+                "lp_top": None, "lp_bridge": None, "gen": None, "correct": None,
+                "emitted": None, "gold": None}
+        base.update(kw)
+        return base
+
+    rows = []
+
+    # =============== STEP 1: text-only pass (958 batched gens) ===================
+    for i, s in enumerate(specs):
+        prompt_ids[i] = _chat_ids(s["prompt"])
+    text_only = [False] * n
+    text_gen = [None] * n
+    done = 0
+    for mb in _mini(list(range(n))):
+        gens = _gen_plain([prompt_ids[i] for i in mb])
+        for i, g in zip(mb, gens):
+            s = specs[i]
+            ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+            text_only[i] = ok
+            text_gen[i] = g
+        done += len(mb)
+        if done % 160 == 0 or done == n:
+            print("[s1] step1 %d/%d acc_running=%.3f t=%.0fs"
+                  % (done, n, sum(text_only[:done]) / max(1, done), time.time() - t0))
+    acc_text = sum(text_only) / n
+    headroom_ok = (0.05 <= acc_text <= 0.85) and (n >= 900)
+    # repro gate vs B″ text-only correctness vector (spec §3 Step 1); <910/958 => ABORT
+    repro_agree = 0
+    repro_disagree = []
+    for i, s in enumerate(specs):
+        ref = bprime2_text_correct.get(s["item_id"])
+        if ref is not None and bool(text_only[i]) == bool(ref):
+            repro_agree += 1
+        elif ref is not None:
+            repro_disagree.append(s["item_id"])
+    print("[s1] STEP1 acc_text=%.4f headroom_ok=%s repro_agree=%d/958"
+          % (acc_text, headroom_ok, repro_agree))
+    for i, s in enumerate(specs):
+        rows.append(_row(item_id=s["item_id"], probe="text-only", gen=text_gen[i],
+                         correct=bool(text_only[i]), gold=s["gold_top"]))
+
+    summary = {
+        "model": model_id, "model_commit": commit, "L": L, "d_model": d_model,
+        "cells": [list(c) for c in STAGE1_CELLS], "harvest_lh": STAGE1_HARVEST_LH,
+        "alpha_ladder": STAGE1_ALPHA_LADDER, "seeds": STAGE1_SEEDS,
+        "sample_seed": STAGE1_SAMPLE_SEED,
+        "coin_bit_recipe": "int(sha256('seed|item_id|lh|lt').hexdigest(),16)&1 (derangement seed in seed slot, alpha-independent)",
+        "z": {"kill": STAGE1_Z_KILL, "ctrl": STAGE1_Z_CTRL},
+        "p_coin_bonferroni": STAGE1_P_COIN, "p_role": STAGE1_P_ROLE,
+        "delta_mean_floor": STAGE1_DELTA_MEAN_FLOOR, "delta_min_floor": STAGE1_DELTA_MIN_FLOOR,
+        "kill_ub": STAGE1_KILL_UB, "repl_floor": STAGE1_REPL_FLOOR,
+        "n_items": n, "n_scored": n, "acc_text_only": acc_text,
+        "headroom_ok": bool(headroom_ok), "repro_agree": repro_agree,
+        "repro_disagreements": repro_disagree, "batch_size": batch_size,
+    }
+
+    def _early(reason):
+        summary.update({"aborted": True, "abort_reason": reason,
+                        "elapsed_s": time.time() - t0})
+        return {"aborted": True, "abort_reason": reason, "rows": rows,
+                "summary": summary, "swept_item_ids": [], "c100_item_ids": [],
+                "per_unit": {}, "completed_units": []}
+
+    if repro_agree < 910:
+        return _early("REPRO_DRIFT repro_agree=%d<910" % repro_agree)
+    if not headroom_ok:
+        return _early("HEADROOM acc_text=%.4f n=%d" % (acc_text, n))
+
+    # =============== STEP 3: sets, derangements, coins ==========================
+    F = [i for i in range(n) if not text_only[i]]
+    correct_idx = [i for i in range(n) if text_only[i]]
+    if len(F) <= STAGE1_SWEEP_CAP:
+        swept = list(F)
+    else:
+        swept = sorted(_bp_random.Random(STAGE1_SAMPLE_SEED).sample(F, STAGE1_SWEEP_CAP))
+    if len(correct_idx) < STAGE1_C100:
+        return _early("C100_SHORT only %d correct (<%d)" % (len(correct_idx), STAGE1_C100))
+    c100 = sorted(_bp_random.Random(STAGE1_SAMPLE_SEED).sample(correct_idx, STAGE1_C100))
+    assert not (set(swept) & set(c100)), "ABORT: Swept∩C100 nonempty"
+    assert len(c100) == STAGE1_C100, "ABORT: |C100|=%d != %d" % (len(c100), STAGE1_C100)
+    m = len(swept)
+    # three independent Sattolo derangements over Swept ascending order (ASM-0400)
+    perms = {}
+    sigma_by_seed = {}
+    for si in STAGE1_SEEDS:
+        p = _bp_sattolo(m, si)
+        assert all(p[k] != k for k in range(m)), "ABORT: σ seed=%d has fixed point" % si
+        perms[si] = p
+        sigma_by_seed[si] = {swept[k]: swept[p[k]] for k in range(m)}
+    # pairwise σ agreement counts (report-only): positions mapping to same target
+    sigma_agreement = {}
+    for a_i in range(len(STAGE1_SEEDS)):
+        for b_i in range(a_i + 1, len(STAGE1_SEEDS)):
+            sa, sb = STAGE1_SEEDS[a_i], STAGE1_SEEDS[b_i]
+            sigma_agreement["%d_%d" % (sa, sb)] = sum(
+                1 for k in range(m) if perms[sa][k] == perms[sb][k])
+    print("[s1] |F|=%d |Swept|=%d |C100|=%d (3 σ fixed-point-free) σ_agree=%s"
+          % (len(F), m, len(c100), sigma_agreement))
+    summary.update({"n_failures": len(F), "n_swept": m, "n_c100": len(c100),
+                    "swept_is_full_F": len(F) <= STAGE1_SWEEP_CAP,
+                    "sigma_pairwise_agreement": sigma_agreement})
+
+    # candidate token ids (spec §2 host UNCHANGED; B″ recipe)
+    need = sorted(set(swept) | set(c100))
+    for i in need:
+        s = specs[i]
+        for key, name in (("top", s["top_surface"]), ("bridge", s["bridge_surface"])):
+            cid = tok(" " + name, add_special_tokens=False).input_ids
+            assert len(cid) >= 1, "ABORT: empty cand ids (%s)" % s["item_id"]
+            if cand_ids[i] is None:
+                cand_ids[i] = {}
+            cand_ids[i][key] = list(cid)
+
+    aborted = False
+    abort_reason = None
+    partial = False
+    partial_reason = None
+    completed_units = []
+    per_unit = {}
+    baseline_margins = []
+    dhat = {}
+
+    try:
+        # ============ STEP 4: donor harvest (Δ̂v at ℓh ∈ {12,16}) ================
+        def _last_name_tok(text, name, offsets):
+            cstart = text.rfind(name)
+            if cstart < 0:
+                return None
+            cend = cstart + len(name)
+            found = None
+            for ti, (a, b) in enumerate(offsets):
+                if a == b:
+                    continue
+                if a < cend and b > cstart:
+                    found = ti
+            return found
+
+        for i in need:
+            s = specs[i]
+            hv = {}
+            for key, name, text in (("top", s["top_surface"], s["d_top"]),
+                                    ("bridge", s["bridge_surface"], s["d_bridge"])):
+                enc = tok(text, return_offsets_mapping=True)
+                ti = _last_name_tok(text, name, enc["offset_mapping"])
+                if ti is None:
+                    raise _B2Abort("NAME_LOCATION donor=%s item=%s" % (key, s["item_id"]))
+                idt = torch.tensor([enc["input_ids"]], device="cuda")
+                with torch.no_grad():
+                    fwd = model(idt, output_hidden_states=True)
+                hv[key] = {lh: fwd.hidden_states[lh][0, ti, :].detach().float().clone()
+                           for lh in STAGE1_HARVEST_LH}
+                del fwd
+            dv = {}
+            for lh in STAGE1_HARVEST_LH:
+                d = hv["top"][lh] - hv["bridge"][lh]
+                if not (float(d.norm()) > 0):
+                    raise _B2Abort("DELTA_ZERO item=%s lh=%d" % (s["item_id"], lh))
+                dv[lh] = d / d.norm()
+            dhat[i] = dv
+        print("[s1] donors harvested for %d items (no gen) t=%.0fs"
+              % (len(need), time.time() - t0))
+
+        # ============ STEP 5: unhooked baselines (Swept ∪ C100) =================
+        for mb in _mini(need):
+            lpt = _tf_lp(mb, "top", None, None)
+            lpb = _tf_lp(mb, "bridge", None, None)
+            for r_idx, i in enumerate(mb):
+                s = specs[i]
+                if not (math.isfinite(lpt[r_idx]) and math.isfinite(lpb[r_idx])):
+                    raise _B2Abort("NAN_BASELINE item=%s" % s["item_id"])
+                baseline_margins.append(lpt[r_idx] - lpb[r_idx])
+                rows.append(_row(item_id=s["item_id"], probe="baseline",
+                                 lp_top=lpt[r_idx], lp_bridge=lpb[r_idx],
+                                 gold=s["gold_top"]))
+        print("[s1] baselines done t=%.0fs" % (time.time() - t0))
+
+        # ============ STEP 6: per-α tiers (α DESCENDING; cells in order) =========
+        skeys = [str(si) for si in STAGE1_SEEDS]
+        for alpha in STAGE1_ALPHA_LADDER:
+            if partial:
+                break
+            for (lh, lt) in STAGE1_CELLS:
+                # wall-guard check BETWEEN (α, cell) units (spec §3 Step 6)
+                if time.time() - t0 > wall_cap_s:
+                    partial, partial_reason = True, "WALL_CAP before unit alpha=%g cell=%d_%d" % (alpha, lh, lt)
+                    break
+                ukey = "%g|%d_%d" % (alpha, lh, lt)
+
+                # -------- (6a) margin sweep (Swept) --------
+                m_acc = {"real": [], "coin": {sk: [] for sk in skeys},
+                         "role": {sk: [] for sk in skeys},
+                         "real_ties": 0, "coin_ties": {sk: 0 for sk in skeys},
+                         "role_ties": {sk: 0 for sk in skeys},
+                         "mdiff_real": [], "mdiff_role": {sk: [] for sk in skeys},
+                         "mdiff_coin": {sk: [] for sk in skeys}}
+                for mb in _mini(swept):
+                    def _mgn(vecfn):
+                        r = {}
+                        for sgn in (1, -1):
+                            vf = (lambda i, sgn=sgn, vecfn=vecfn:
+                                  alpha * sgn * vecfn(i))
+                            lpt = _tf_lp(mb, "top", lt, vf)
+                            lpb = _tf_lp(mb, "bridge", lt, vf)
+                            r[sgn] = (lpt, lpb)
+                        return r
+                    real = _mgn(lambda i: dhat[i][lh])
+                    drg = {si: _mgn(lambda i, si=si: dhat[sigma_by_seed[si][i]][lh])
+                           for si in STAGE1_SEEDS}
+                    for r_idx, i in enumerate(mb):
+                        s = specs[i]
+                        rp_t, rp_b = real[1][0][r_idx], real[1][1][r_idx]
+                        rm_t, rm_b = real[-1][0][r_idx], real[-1][1][r_idx]
+                        dvals = {}
+                        allvals = [rp_t, rp_b, rm_t, rm_b]
+                        for si in STAGE1_SEEDS:
+                            dp_t, dp_b = drg[si][1][0][r_idx], drg[si][1][1][r_idx]
+                            dm_t, dm_b = drg[si][-1][0][r_idx], drg[si][-1][1][r_idx]
+                            dvals[si] = (dp_t, dp_b, dm_t, dm_b)
+                            allvals += [dp_t, dp_b, dm_t, dm_b]
+                        if not all(math.isfinite(v) for v in allvals):
+                            raise _B2Abort("NAN_MARGINS item=%s cell=%d_%d alpha=%g"
+                                           % (s["item_id"], lh, lt, alpha))
+                        mr_p = rp_t - rp_b
+                        mr_m = rm_t - rm_b
+                        real_bit = 1 if mr_p > mr_m else 0
+                        m_acc["real"].append(real_bit)
+                        if mr_p == mr_m:
+                            m_acc["real_ties"] += 1
+                        m_acc["mdiff_real"].append(mr_p - mr_m)
+                        rows.append(_row(item_id=s["item_id"], probe="margin", cell=[lh, lt],
+                                         arm="real", sign=1, alpha=alpha, lp_top=rp_t,
+                                         lp_bridge=rp_b, gold=s["gold_top"]))
+                        rows.append(_row(item_id=s["item_id"], probe="margin", cell=[lh, lt],
+                                         arm="real", sign=-1, alpha=alpha, lp_top=rm_t,
+                                         lp_bridge=rm_b, gold=s["gold_top"]))
+                        for si in STAGE1_SEEDS:
+                            sk = str(si)
+                            dp_t, dp_b, dm_t, dm_b = dvals[si]
+                            md_p = dp_t - dp_b
+                            md_m = dm_t - dm_b
+                            b = _bprime2_coin_bit(s["item_id"], lh, lt, seed=si)
+                            role_bit = 1 if md_p > md_m else 0
+                            coin_bit = (1 if md_p > md_m else 0) if b == 1 else (1 if md_m > md_p else 0)
+                            m_acc["role"][sk].append(role_bit)
+                            m_acc["coin"][sk].append(coin_bit)
+                            if md_p == md_m:
+                                m_acc["role_ties"][sk] += 1
+                                m_acc["coin_ties"][sk] += 1
+                            m_acc["mdiff_role"][sk].append(md_p - md_m)
+                            m_acc["mdiff_coin"][sk].append((md_p - md_m) if b == 1 else (md_m - md_p))
+                            rows.append(_row(item_id=s["item_id"], probe="margin", cell=[lh, lt],
+                                             arm="drg", sign=1, alpha=alpha, seed=si, coin=b,
+                                             lp_top=dp_t, lp_bridge=dp_b, gold=s["gold_top"]))
+                            rows.append(_row(item_id=s["item_id"], probe="margin", cell=[lh, lt],
+                                             arm="drg", sign=-1, alpha=alpha, seed=si, coin=b,
+                                             lp_top=dm_t, lp_bridge=dm_b, gold=s["gold_top"]))
+
+                # -------- (6b) rescue generations (Swept) --------
+                gen_real = {1: {}, -1: {}}
+                gen_drg = {si: {1: {}, -1: {}} for si in STAGE1_SEEDS}
+                for sgn in (1, -1):
+                    for mb in _mini(swept):
+                        idl = [prompt_ids[i] for i in mb]
+                        vecs = [alpha * sgn * dhat[i][lh] for i in mb]
+                        gens = _gen_add(idl, lt, vecs)
+                        for i, g in zip(mb, gens):
+                            s = specs[i]
+                            cat = _emit_cat(g, s)
+                            ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                            gen_real[sgn][i] = (g, cat, ok)
+                            rows.append(_row(item_id=s["item_id"], probe="rescue-gen",
+                                             cell=[lh, lt], arm="real", sign=sgn, alpha=alpha,
+                                             gen=g, correct=ok, emitted=cat, gold=s["gold_top"]))
+                for si in STAGE1_SEEDS:
+                    for sgn in (1, -1):
+                        for mb in _mini(swept):
+                            idl = [prompt_ids[i] for i in mb]
+                            vecs = [alpha * sgn * dhat[sigma_by_seed[si][i]][lh] for i in mb]
+                            gens = _gen_add(idl, lt, vecs)
+                            for i, g in zip(mb, gens):
+                                s = specs[i]
+                                cat = _emit_cat(g, s)
+                                ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                                b = _bprime2_coin_bit(s["item_id"], lh, lt, seed=si)
+                                gen_drg[si][sgn][i] = (g, cat, ok)
+                                rows.append(_row(item_id=s["item_id"], probe="rescue-gen",
+                                                 cell=[lh, lt], arm="drg", sign=sgn, alpha=alpha,
+                                                 seed=si, coin=b, gen=g, correct=ok,
+                                                 emitted=cat, gold=s["gold_top"]))
+                # derive per-item rescue/emission bits (spec §3 Step 6b / §4)
+                r_acc = {"real_plus": [], "real_minus": [],
+                         "coin": {sk: [] for sk in skeys},
+                         "role_plus": {sk: [] for sk in skeys},
+                         "role_minus": {sk: [] for sk in skeys},
+                         "keyem_real": [], "keyem_role": {sk: [] for sk in skeys},
+                         "keyem_coin": {sk: [] for sk in skeys}}
+                for i in swept:
+                    s = specs[i]
+                    rp = gen_real[1][i]
+                    rm = gen_real[-1][i]
+                    r_acc["real_plus"].append(1 if rp[2] else 0)
+                    r_acc["real_minus"].append(1 if rm[2] else 0)
+                    r_acc["keyem_real"].append(1 if (rp[1] == "top" and rm[1] == "bridge") else 0)
+                    for si in STAGE1_SEEDS:
+                        sk = str(si)
+                        b = _bprime2_coin_bit(s["item_id"], lh, lt, seed=si)
+                        dp = gen_drg[si][1][i]
+                        dm = gen_drg[si][-1][i]
+                        role_plus = 1 if dp[2] else 0
+                        role_minus = 1 if dm[2] else 0
+                        r_acc["role_plus"][sk].append(role_plus)
+                        r_acc["role_minus"][sk].append(role_minus)
+                        # coin: bit=1 -> the + deranged gen counts, bit=0 -> the − deranged gen
+                        r_acc["coin"][sk].append(role_plus if b == 1 else role_minus)
+                        # keyem_role_s = f(drg+, drg-); keyem_coin_s = f in coin-s order
+                        r_acc["keyem_role"][sk].append(1 if (dp[1] == "top" and dm[1] == "bridge") else 0)
+                        if b == 1:
+                            km = 1 if (dp[1] == "top" and dm[1] == "bridge") else 0
+                        else:
+                            km = 1 if (dm[1] == "top" and dp[1] == "bridge") else 0
+                        r_acc["keyem_coin"][sk].append(km)
+
+                # -------- (6c) breakage generations (C100) --------
+                brk = {"1": 0, "-1": 0}
+                coll = {"1": 0, "-1": 0}
+                bridge_emit_minus = 0
+                for sgn in (1, -1):
+                    for mb in _mini(c100):
+                        idl = [prompt_ids[i] for i in mb]
+                        vecs = [alpha * sgn * dhat[i][lh] for i in mb]
+                        gens = _gen_add(idl, lt, vecs)
+                        for i, g in zip(mb, gens):
+                            s = specs[i]
+                            cat = _emit_cat(g, s)
+                            ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                            if not ok:
+                                brk[str(sgn)] += 1  # C100 are text-only-correct => flip
+                            if not _has_any(g, s["surfaces"]):
+                                coll[str(sgn)] += 1
+                            if sgn == -1 and cat == "bridge":
+                                bridge_emit_minus += 1
+                            rows.append(_row(item_id=s["item_id"], probe="breakage",
+                                             cell=[lh, lt], arm="real", sign=sgn, alpha=alpha,
+                                             gen=g, correct=ok, emitted=cat, gold=s["gold_top"]))
+
+                per_unit[ukey] = {
+                    "alpha": alpha, "cell": [lh, lt], "completed": True,
+                    "margin_real": m_acc["real"], "margin_coin": m_acc["coin"],
+                    "margin_role": m_acc["role"], "margin_real_ties": m_acc["real_ties"],
+                    "margin_coin_ties": m_acc["coin_ties"], "margin_role_ties": m_acc["role_ties"],
+                    "mdiff_real": _mm(m_acc["mdiff_real"]),
+                    "mdiff_role": {sk: _mm(m_acc["mdiff_role"][sk]) for sk in skeys},
+                    "mdiff_coin": {sk: _mm(m_acc["mdiff_coin"][sk]) for sk in skeys},
+                    "real_plus": r_acc["real_plus"], "real_minus": r_acc["real_minus"],
+                    "coin": r_acc["coin"], "role_plus": r_acc["role_plus"],
+                    "role_minus": r_acc["role_minus"], "keyem_real": r_acc["keyem_real"],
+                    "keyem_role": r_acc["keyem_role"], "keyem_coin": r_acc["keyem_coin"],
+                    "breakage": brk, "collapse": coll, "bridge_emit_minus": bridge_emit_minus,
+                }
+                completed_units.append([alpha, lh, lt])
+                print("[s1] unit alpha=%g cell=(%d,%d) done: keyacc_real=%.3f "
+                      "R+=%.3f R-=%.3f t=%.0fs"
+                      % (alpha, lh, lt,
+                         sum(m_acc["real"]) / max(1, len(m_acc["real"])),
+                         sum(r_acc["real_plus"]) / max(1, m),
+                         sum(r_acc["real_minus"]) / max(1, m),
+                         time.time() - t0))
+
+    except _B2Abort as e:
+        aborted = True
+        abort_reason = str(e)
+        print("[s1] ABORT:", abort_reason)
+
+    summary.update({"baseline_margin": _mm(baseline_margins),
+                    "aborted": bool(aborted), "abort_reason": abort_reason,
+                    "partial": bool(partial), "partial_reason": partial_reason,
+                    "n_completed_units": len(completed_units),
+                    "elapsed_s": time.time() - t0})
+
+    return {
+        "aborted": bool(aborted), "abort_reason": abort_reason,
+        "partial": bool(partial), "partial_reason": partial_reason,
+        "rows": [json.loads(json.dumps(r, default=str)) for r in rows],
+        "summary": json.loads(json.dumps(summary, default=str)),
+        "swept_item_ids": [specs[i]["item_id"] for i in swept],
+        "c100_item_ids": [specs[i]["item_id"] for i in c100],
+        "per_unit": json.loads(json.dumps(per_unit, default=str)),
+        "completed_units": completed_units,
+        "elapsed_s": time.time() - t0,
+    }
+
+
+@app.function(image=image, gpu="A10G", volumes={HF_CACHE_MOUNT: hf_cache}, timeout=21600)
+def stage1_a10g(model_id, specs, bprime2_text_correct, batch_size, wall_cap_s):
+    r = _stage1_body(model_id, specs, bprime2_text_correct, batch_size, wall_cap_s)
+    try:
+        hf_cache.commit()
+    except Exception:  # noqa: BLE001
+        pass
+    return r
+
+
+def _stage1_gate(res):
+    """Mechanical §5 decision rule from returned per-unit bit arrays. Computes the
+    two-endpoint FIRE conjunctions (coin Bonferroni p<0.05/8 all seeds AND role
+    p<0.05 all seeds AND Δ floors), the keying-replication check, the coin
+    validity tripwires, and the KILL pooled-UB conjunction, then applies the
+    ordered gate. Runner reports these numbers; interpretation is designer work."""
+    aborted = bool(res.get("aborted", False))
+    summary = res.get("summary", {})
+    headroom_ok = bool(summary.get("headroom_ok", False))
+    per_unit = res.get("per_unit", {})
+    completed = [tuple(u) for u in res.get("completed_units", [])]
+    m = summary.get("n_swept") or 0
+    skeys = [str(si) for si in STAGE1_SEEDS]
+
+    def _paired(real, ctrl):
+        b = sum(1 for x, y in zip(real, ctrl) if x and not y)
+        c = sum(1 for x, y in zip(real, ctrl) if (not x) and y)
+        p = _bp_binom_sf_ge(b, b + c, 0.5)
+        return {"b": b, "c": c, "n_discordant": b + c, "p_one_sided": p}
+
+    any_coin_invalid = False
+    coin_invalid_hits = []
+    fire_minus = []
+    fire_plus = []
+    role_only_hits = []
+    kill_all_below = True
+    unit_reports = []
+
+    for ukey, u in per_unit.items():
+        completed_u = bool(u.get("completed", False))
+        mr = u["margin_real"]
+        nn = len(u["real_plus"])
+        kr = sum(mr)
+        ub_real = _bp_wilson(kr, len(mr), STAGE1_Z_KILL)[1] if mr else None
+        # coin validity tripwires (margin-coin keyacc + emission-coin keyem)
+        tripwire = {}
+        for sk in skeys:
+            mc = u["margin_coin"][sk]
+            kec = u["keyem_coin"][sk]
+            lb_mc = _bp_wilson(sum(mc), len(mc), STAGE1_Z_CTRL)[0] if mc else 0.0
+            lb_kec = _bp_wilson(sum(kec), len(kec), STAGE1_Z_CTRL)[0] if kec else 0.0
+            tripwire[sk] = {"keyacc_coin": (sum(mc) / len(mc) if mc else None),
+                            "wilson_lb_keyacc_coin_z3_2790": lb_mc,
+                            "keyem_coin": (sum(kec) / len(kec) if kec else None),
+                            "wilson_lb_keyem_coin_z3_2790": lb_kec}
+            if completed_u and (lb_mc > 0.5 or lb_kec > 0.5):
+                any_coin_invalid = True
+                coin_invalid_hits.append({"unit": ukey, "seed": sk,
+                                          "lb_keyacc_coin": lb_mc, "lb_keyem_coin": lb_kec})
+
+        endpoints = {}
+        for e, real_key, role_key in (("minus", "real_minus", "role_minus"),
+                                      ("plus", "real_plus", "role_plus")):
+            real_e = u[real_key]
+            per_seed = {}
+            deltas = []
+            ses = []
+            p_coins = []
+            p_roles = []
+            for sk in skeys:
+                coin_s = u["coin"][sk]
+                role_es = u[role_key][sk]
+                pc = _paired(real_e, coin_s)
+                prole = _paired(real_e, role_es)
+                delta = (pc["b"] - pc["c"]) / m if m else 0.0
+                se = (_bp_math.sqrt(max(0.0, pc["b"] + pc["c"] - (pc["b"] - pc["c"]) ** 2 / m)) / m) if m else 0.0
+                deltas.append(delta)
+                ses.append(se)
+                p_coins.append(pc["p_one_sided"])
+                p_roles.append(prole["p_one_sided"])
+                per_seed[sk] = {"rescue_coin": (sum(coin_s) / len(coin_s) if coin_s else None),
+                                "rescue_role": (sum(role_es) / len(role_es) if role_es else None),
+                                "paired_real_gt_coin": pc, "paired_real_gt_role": prole,
+                                "delta_vs_coin": delta, "se": se}
+            mean_delta = sum(deltas) / len(deltas)
+            min_delta = min(deltas)
+            max_se = max(ses)
+            pooled_ub = mean_delta + STAGE1_Z_KILL * max_se
+            cond_i = all(p < STAGE1_P_COIN for p in p_coins)
+            cond_ii = all(p < STAGE1_P_ROLE for p in p_roles)
+            cond_iii = (mean_delta >= STAGE1_DELTA_MEAN_FLOOR) and (min_delta >= STAGE1_DELTA_MIN_FLOOR)
+            fire = completed_u and cond_i and cond_ii and cond_iii
+            endpoints[e] = {
+                "rescue_real": (sum(real_e) / len(real_e) if real_e else None),
+                "per_seed": per_seed, "mean_delta_vs_coin": mean_delta,
+                "min_delta_vs_coin": min_delta, "max_se": max_se, "pooled_ub95": pooled_ub,
+                "cond_i_all_seeds_coin_p_lt_0.00625": cond_i,
+                "cond_ii_all_seeds_role_p_lt_0.05": cond_ii,
+                "cond_iii_delta_floors": cond_iii, "FIRE": fire}
+            if fire and e == "minus":
+                fire_minus.append(ukey)
+            if fire and e == "plus":
+                fire_plus.append(ukey)
+            if completed_u and cond_i and cond_iii and not cond_ii:
+                role_only_hits.append({"unit": ukey, "endpoint": e})
+            if completed_u and pooled_ub >= STAGE1_KILL_UB:
+                kill_all_below = False
+
+        unit_reports.append({
+            "unit": ukey, "alpha": u.get("alpha"), "cell": u.get("cell"),
+            "completed": completed_u, "n": nn,
+            "keyacc_real": (kr / len(mr) if mr else None),
+            "wilson_ub95_keyacc_real_z1_6449": ub_real,
+            "margin_coin_tripwire": tripwire,
+            "keyacc_role": {sk: (sum(u["margin_role"][sk]) / len(u["margin_role"][sk])
+                                 if u["margin_role"][sk] else None) for sk in skeys},
+            "ties": {"real": u.get("margin_real_ties"), "coin": u.get("margin_coin_ties"),
+                     "role": u.get("margin_role_ties")},
+            "keyem_real": (sum(u["keyem_real"]) / len(u["keyem_real"]) if u["keyem_real"] else None),
+            "endpoints": endpoints,
+            "breakage_c100": u.get("breakage"), "collapse_c100": u.get("collapse"),
+            "bridge_emit_minus_c100": u.get("bridge_emit_minus"),
+        })
+
+    # keying-replication check (spec §5 label 2): both α=1.0 cells completed AND
+    # both UB95(keyacc_real@1.0) < 0.70
+    a1_units = [u for u in per_unit.values() if abs(float(u.get("alpha", -1)) - 1.0) < 1e-9]
+    a1_completed = [u for u in a1_units if u.get("completed")]
+    a1_ubs = [_bp_wilson(sum(u["margin_real"]), len(u["margin_real"]), STAGE1_Z_KILL)[1]
+              for u in a1_completed if u["margin_real"]]
+    keying_not_replicated = (len(a1_units) == 2 and len(a1_completed) == 2
+                             and len(a1_ubs) == 2 and all(ub < STAGE1_REPL_FLOOR for ub in a1_ubs))
+
+    all8_done = len(completed) == 8
+    all_kill = all8_done and kill_all_below
+
+    if aborted or (not headroom_ok) or any_coin_invalid:
+        label = "INSTRUMENT-INVALID"
+    elif keying_not_replicated:
+        label = "KEYING-NOT-REPLICATED"
+    elif fire_minus:
+        label = "PASS-INTEGRATION-RESCUE"
+    elif fire_plus:
+        label = "PASS-EMISSION-RESCUE-ONLY"
+    elif role_only_hits:
+        label = "ROLE-RESCUE-ONLY"
+    elif all_kill:
+        label = "KILL-NO-KEYED-RESCUE"
+    else:
+        label = "INCONCLUSIVE"
+
+    return {
+        "gate_label": label,
+        "floors": {"repl": STAGE1_REPL_FLOOR, "delta_mean": STAGE1_DELTA_MEAN_FLOOR,
+                   "delta_min": STAGE1_DELTA_MIN_FLOOR, "kill_ub": STAGE1_KILL_UB},
+        "z": {"kill": STAGE1_Z_KILL, "ctrl": STAGE1_Z_CTRL},
+        "p_thresholds": {"coin_bonferroni": STAGE1_P_COIN, "role": STAGE1_P_ROLE},
+        "headroom_ok": headroom_ok, "aborted": aborted,
+        "partial": bool(res.get("partial", False)),
+        "n_completed_units": len(completed), "all8_units_completed": all8_done,
+        "instrument_invalid_triggers": {
+            "aborted": aborted, "not_headroom_ok": (not headroom_ok),
+            "coin_tripwire_fired": any_coin_invalid, "coin_invalid_hits": coin_invalid_hits},
+        "keying_not_replicated": keying_not_replicated,
+        "alpha1_ub95_keyacc_real": a1_ubs,
+        "fire_minus_units": fire_minus, "fire_plus_units": fire_plus,
+        "role_only_hits": role_only_hits, "all9_kill": all_kill,
+        "kill_all_units_below_ub": kill_all_below,
+        "n_swept": m, "unit_reports": unit_reports,
+    }
+
+
+@app.local_entrypoint()
+def stage1(dry_plan: bool = False, gpu: str = "A10G"):
+    import hashlib
+    import time
+
+    def _sha_file(p):
+        return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+    # ---- input pins (spec §2), ABORT on drift ----
+    items_sha = _sha_file(_ROOT / "data/nsk1-clutrr/items.jsonl")
+    head_sha = _sha_file(_ROOT / "data/nsk1-clutrr/headroom.jsonl")
+    assert items_sha == STAGE1_ITEMS_PIN, "ABORT: items.jsonl sha mismatch %s" % items_sha
+    assert head_sha == STAGE1_HEAD_PIN, "ABORT: headroom.jsonl sha mismatch %s" % head_sha
+
+    specs = _build_specs_bprime2()  # spec §3 Step 0: verbatim B″ build (all asserts)
+    n = len(specs)
+    # byte-equality ASSERT: headroom-100 form-2 prompts == _build_specs_g2b f2_to
+    g2b_specs, _vocab = _build_specs_g2b()
+    g2b_f2 = {s["item_id"]: s["f2_to"] for s in g2b_specs}
+    mine = {s["item_id"]: s["prompt"] for s in specs}
+    mism = [iid for iid in g2b_f2 if g2b_f2[iid] != mine.get(iid)]
+    assert not mism, "ABORT: form-2 prompt not byte-equal to g2b for %s" % mism[:5]
+    print("[s1] byte-equality vs _build_specs_g2b f2_to: 100/100 OK")
+
+    # ---- B″ text-only correctness vector for the repro gate (spec §3 Step 1) ----
+    bp2_rows = _ROOT / "poc/nsk1/out/bprime2/bprime2_rows.jsonl"
+    bprime2_text_correct = {}
+    for l in bp2_rows.read_text().splitlines():
+        if not l.strip():
+            continue
+        r = json.loads(l)
+        if r.get("probe") == "text-only":
+            bprime2_text_correct[r["item_id"]] = bool(r["correct"])
+    assert len(bprime2_text_correct) >= 900, \
+        "ABORT: B″ text-only reference incomplete (%d)" % len(bprime2_text_correct)
+    # B″ swept ids for swept_overlap_bprime2 (report-only)
+    bp2_summary = json.loads((_ROOT / "poc/nsk1/out/bprime2/bprime2_summary.json").read_text())
+    bp2_swept = set(bp2_summary.get("swept_item_ids", []))
+
+    n_units = len(STAGE1_ALPHA_LADDER) * len(STAGE1_CELLS)  # 8
+    swept_plan = 200   # B″ measured |F| (spec §3 planning value)
+    swept_worst = 300
+
+    def _counts(nsw):
+        gens = n + nsw * 8 * n_units + STAGE1_C100 * 2 * n_units
+        fwd_donor = 2 * (nsw + STAGE1_C100)
+        fwd_base = 2 * (nsw + STAGE1_C100)
+        fwd_margin = nsw * 16 * n_units
+        fwd = fwd_donor + fwd_base + fwd_margin
+        return gens, fwd, (fwd_donor, fwd_margin, fwd_base)
+
+    gens_p, fwd_p, brk_p = _counts(swept_plan)
+    gens_w, fwd_w, brk_w = _counts(swept_worst)
+    # GPU-h / $ planning band = spec §7 (STIPULATED-grade planning, not a measurement)
+    gpuh_lo, gpuh_hi = 0.4, 1.5
+    usd_lo, usd_hi = 0.5, 2.0
+
+    print("=== nsk1 STAGE-1 free-generation keyed-rescue probe — PLAN (spec docs/next/nsk1-stage1-spec.md) ===")
+    print("host                : R3 = %s  commit-pin %s" % (STAGE1_MODEL, STAGE1_PIN))
+    print("items (covered)     : %d (858 items.jsonl covered + 100 headroom.jsonl)" % n)
+    print("input pins OK       : items=%s… headroom=%s…" % (items_sha[:12], head_sha[:12]))
+    print("cells               : %s  (ASSERT L=24; ℓt=16 both; ℓh∈{12,16})" % STAGE1_CELLS)
+    print("α ladder (descending): %s  (1.0 anchor first; no α* selection)" % STAGE1_ALPHA_LADDER)
+    print("derangement seeds   : %s (σ_a/σ_b/σ_c) ; sample/C100 seed %d" % (STAGE1_SEEDS, STAGE1_SAMPLE_SEED))
+    print("units (cell×α)      : %d" % n_units)
+    print("endpoints           : R− (integration, real −) + R+ (delivered-conclusion, real +)")
+    print("gate stats          : coin p<%.5f ALL 3 seeds ; role p<%.2f ALL seeds ; Δmean≥%.2f & Δmin≥%.2f ; KILL pooled-UB<%.2f ; repl UB95<%.2f ; ctrl-LB tripwire z=%.4f"
+          % (STAGE1_P_COIN, STAGE1_P_ROLE, STAGE1_DELTA_MEAN_FLOOR, STAGE1_DELTA_MIN_FLOOR, STAGE1_KILL_UB, STAGE1_REPL_FLOOR, STAGE1_Z_CTRL))
+    print("planning |Swept|    : %d (=B″ measured |F|; actual = text-only failures, cap %d)" % (swept_plan, STAGE1_SWEEP_CAP))
+    print("gens   @|Swept|=%d  : %d  (text-only %d + rescue %d + breakage %d)"
+          % (swept_plan, gens_p, n, swept_plan * 8 * n_units, STAGE1_C100 * 2 * n_units))
+    print("forwards@|Swept|=%d : %d  (donor %d + margins %d + baseline %d)"
+          % (swept_plan, fwd_p, brk_p[0], brk_p[1], brk_p[2]))
+    print("worst  @|Swept|=%d  : gens=%d forwards=%d" % (swept_worst, gens_w, fwd_w))
+    print("GPU-h estimate      : %.1f–%.1f  |  $ estimate : $%.1f–$%.1f  (A10G fp32; spec §7 planning band)" % (gpuh_lo, gpuh_hi, usd_lo, usd_hi))
+    print("HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard %ds)" % STAGE1_WALL_CAP_S)
+    print("decision rule       : §5 — INSTRUMENT-INVALID → KEYING-NOT-REPLICATED → PASS-INTEGRATION-RESCUE → PASS-EMISSION-RESCUE-ONLY → ROLE-RESCUE-ONLY → KILL-NO-KEYED-RESCUE → INCONCLUSIVE")
+    print("phase               : exploratory (quarantined, uncitable, flips no verdict)")
+
+    caps_ok = (gpuh_hi <= 10 and usd_hi <= 25 and gens_w + fwd_w <= 120000)
+    print("within caps (plan)  : %s" % caps_ok)
+
+    if dry_plan:
+        s0 = specs[0]
+        # dry-plan build assertions: cells, α ladder, seeds, derangement fixed-point-free
+        assert len(STAGE1_CELLS) == 2 and all(c[1] == 16 for c in STAGE1_CELLS), "cells not [(12,16),(16,16)]"
+        assert STAGE1_ALPHA_LADDER == [1.0, 0.75, 0.5, 0.25], "alpha ladder drift"
+        assert STAGE1_SEEDS == [20260712, 20260713, 20260714], "seed drift"
+        for si in STAGE1_SEEDS:
+            p = _bp_sattolo(swept_plan, si)
+            assert all(p[k] != k for k in range(swept_plan)), "σ seed=%d not fixed-point-free @plan-n" % si
+        print("\nDRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.")
+        print("build-assert: cells=[(12,16),(16,16)] α=[1.0,0.75,0.5,0.25] seeds=%s (3 σ fixed-point-free @n=%d) OK"
+              % (STAGE1_SEEDS, swept_plan))
+        print("gens≈%d (~15.4k target) forwards≈%d (~26.8k target); within-caps=%s" % (gens_p, fwd_p, caps_ok))
+        print("\n--- sample form-2 text-only prompt (item %s) ---\n%s" % (s0["item_id"], s0["prompt"]))
+        print("\n--- donors (item %s) ---\nD_top   : %s\nD_bridge: %s\n[top=%s bridge=%s base=%s]"
+              % (s0["item_id"], s0["d_top"], s0["d_bridge"], s0["top_surface"], s0["bridge_surface"], s0["base"]))
+        print("\ncoin-bit samples (item %s):" % s0["item_id"])
+        for si in STAGE1_SEEDS:
+            for (lh, lt) in STAGE1_CELLS:
+                print("  seed=%d cell=(%d,%d) b=%d" % (si, lh, lt, _bprime2_coin_bit(s0["item_id"], lh, lt, seed=si)))
+        return
+
+    if not caps_ok:
+        raise SystemExit("ABORT: plan exceeds caps — not launching")
+
+    t_launch = time.time()
+    res = stage1_a10g.remote(STAGE1_MODEL, specs, bprime2_text_correct,
+                             STAGE1_BATCH, STAGE1_WALL_CAP_S)
+    wall_s = time.time() - t_launch
+
+    outdir = _ROOT / "poc/nsk1/out/stage1"
+    outdir.mkdir(parents=True, exist_ok=True)
+    rows = res.get("rows", [])
+    with open(outdir / "stage1_rows.jsonl", "w") as f:
+        for r in rows:
+            f.write(json.dumps(r, sort_keys=True) + "\n")
+
+    gate = _stage1_gate(res)
+    # swept_overlap_bprime2 (report-only, never gated)
+    s1_swept = set(res.get("swept_item_ids", []))
+    swept_overlap = len(s1_swept & bp2_swept)
+
+    summary = dict(res.get("summary", {}))
+    elapsed = res.get("summary", {}).get("elapsed_s", res.get("elapsed_s", 0.0)) or 0.0
+    summary.update({
+        "spec_ref": "docs/next/nsk1-stage1-spec.md",
+        "gate": "NSK1-S1", "phase": "exploratory",
+        "input_pins": {"items_jsonl_sha256": items_sha, "headroom_jsonl_sha256": head_sha},
+        "verdict": gate,
+        "swept_item_ids": res.get("swept_item_ids", []),
+        "c100_item_ids": res.get("c100_item_ids", []),
+        "swept_overlap_bprime2": swept_overlap,
+        "wall_clock_s_local": round(wall_s, 1),
+        "gpu_h_estimate": round(elapsed / 3600.0, 3),
+        "usd_estimate": round(elapsed / 3600.0 * 1.10, 3),
+        "n_rows": len(rows),
+        "aborted": bool(res.get("aborted", False)), "abort_reason": res.get("abort_reason"),
+        "partial": bool(res.get("partial", False)), "partial_reason": res.get("partial_reason"),
+        "hard_caps": {"usd": 25, "gpu_h": 10, "wall_h": 12},
+    })
+    with open(outdir / "stage1_summary.json", "w") as f:
+        json.dump(summary, f, indent=1, sort_keys=True)
+
+    sha_rows = _sha_file(outdir / "stage1_rows.jsonl")
+    sha_sum = _sha_file(outdir / "stage1_summary.json")
+    print("\n=== nsk1 STAGE-1 RESULT (phase:exploratory) ===")
+    print("aborted=%s partial=%s n_rows=%d n_completed_units=%d elapsed=%.0fs (GPU) / %.0fs (wall)"
+          % (res.get("aborted"), res.get("partial"), len(rows),
+             gate.get("n_completed_units"), elapsed, wall_s))
+    print("swept_overlap_bprime2=%d/%d" % (swept_overlap, len(s1_swept)))
+    print(json.dumps(gate, indent=1, sort_keys=True))
+    print("MECHANICAL VERDICT (spec §5): %s" % gate["gate_label"])
+    print("sha256 stage1_rows.jsonl    = %s" % sha_rows)
+    print("sha256 stage1_summary.json  = %s" % sha_sum)

@@ -1,0 +1,1671 @@
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/<workspace-scrubbed>/main/ap-<scrubbed>
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+├── 🔨 Created function gen_l4.
+├── 🔨 Created function bprime_a10g.
+├── 🔨 Created function bprime2_a10g.
+└── 🔨 Created function stage1_a10g.
+[s1] byte-equality vs _build_specs_g2b f2_to: 100/100 OK
+=== nsk1 STAGE-1 free-generation keyed-rescue probe — PLAN (spec docs/next/nsk1-stage1-spec.md) ===
+host                : R3 = HuggingFaceTB/SmolLM2-1.7B-Instruct  commit-pin 31b70e2e869a7173562077fd711b654946d38674
+items (covered)     : 958 (858 items.jsonl covered + 100 headroom.jsonl)
+input pins OK       : items=0e1f5c6bad6f… headroom=8b8e99e48cce…
+cells               : [(12, 16), (16, 16)]  (ASSERT L=24; ℓt=16 both; ℓh∈{12,16})
+α ladder (descending): [1.0, 0.75, 0.5, 0.25]  (1.0 anchor first; no α* selection)
+derangement seeds   : [20260712, 20260713, 20260714] (σ_a/σ_b/σ_c) ; sample/C100 seed 20260712
+units (cell×α)      : 8
+endpoints           : R− (integration, real −) + R+ (delivered-conclusion, real +)
+gate stats          : coin p<0.00625 ALL 3 seeds ; role p<0.05 ALL seeds ; Δmean≥0.10 & Δmin≥0.05 ; KILL pooled-UB<0.10 ; repl UB95<0.70 ; ctrl-LB tripwire z=3.2790
+planning |Swept|    : 200 (=B″ measured |F|; actual = text-only failures, cap 300)
+gens   @|Swept|=200  : 15358  (text-only 958 + rescue 12800 + breakage 1600)
+forwards@|Swept|=200 : 26800  (donor 600 + margins 25600 + baseline 600)
+worst  @|Swept|=300  : gens=21758 forwards=40000
+GPU-h estimate      : 0.4–1.5  |  $ estimate : $0.5–$2.0  (A10G fp32; spec §7 planning band)
+HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard 19800s)
+decision rule       : §5 — INSTRUMENT-INVALID → KEYING-NOT-REPLICATED → PASS-INTEGRATION-RESCUE → PASS-EMISSION-RESCUE-ONLY → ROLE-RESCUE-ONLY → KILL-NO-KEYED-RESCUE → INCONCLUSIVE
+phase               : exploratory (quarantined, uncitable, flips no verdict)
+within caps (plan)  : True
+G2_BUILD=v2 module import ok (root=/root)
+[s1] model=HuggingFaceTB/SmolLM2-1.7B-Instruct L=24 d=2048 commit=31b70e2e869a7173562077fd711b654946d38674
+[s1] cells=[(12, 16), (16, 16)] harvest_lh=[12, 16] alpha_ladder=[1.0, 0.75, 0.5, 0.25] seeds=[20260712, 20260713, 20260714]
+[s1] step1 160/958 acc_running=0.719 t=14s
+[s1] step1 320/958 acc_running=0.766 t=21s
+[s1] step1 480/958 acc_running=0.756 t=28s
+[s1] step1 640/958 acc_running=0.786 t=34s
+[s1] step1 800/958 acc_running=0.792 t=41s
+[s1] step1 958/958 acc_running=0.791 t=48s
+[s1] STEP1 acc_text=0.7912 headroom_ok=True repro_agree=958/958
+[s1] |F|=200 |Swept|=200 |C100|=100 (3 σ fixed-point-free) σ_agree={'20260712_20260713': 0, '20260712_20260714': 2, '20260713_20260714': 2}
+[s1] donors harvested for 300 items (no gen) t=61s
+[s1] baselines done t=85s
+[s1] unit alpha=1 cell=(12,16) done: keyacc_real=0.810 R+=0.245 R-=0.120 t=314s
+[s1] unit alpha=1 cell=(16,16) done: keyacc_real=0.850 R+=0.225 R-=0.125 t=548s
+[s1] unit alpha=0.75 cell=(12,16) done: keyacc_real=0.685 R+=0.120 R-=0.125 t=779s
+[s1] unit alpha=0.75 cell=(16,16) done: keyacc_real=0.625 R+=0.140 R-=0.125 t=1008s
+[s1] unit alpha=0.5 cell=(12,16) done: keyacc_real=0.630 R+=0.115 R-=0.105 t=1235s
+[s1] unit alpha=0.5 cell=(16,16) done: keyacc_real=0.540 R+=0.095 R-=0.075 t=1461s
+[s1] unit alpha=0.25 cell=(12,16) done: keyacc_real=0.560 R+=0.055 R-=0.045 t=1685s
+[s1] unit alpha=0.25 cell=(16,16) done: keyacc_real=0.540 R+=0.070 R-=0.040 t=1910s
+
+=== nsk1 STAGE-1 RESULT (phase:exploratory) ===
+aborted=False partial=False n_rows=28458 n_completed_units=8 elapsed=1910s (GPU) / 1924s (wall)
+swept_overlap_bprime2=200/200
+{
+ "aborted": false,
+ "all8_units_completed": true,
+ "all9_kill": false,
+ "alpha1_ub95_keyacc_real": [
+  0.8513743912847108,
+  0.8868454960424751
+ ],
+ "fire_minus_units": [],
+ "fire_plus_units": [],
+ "floors": {
+  "delta_mean": 0.1,
+  "delta_min": 0.05,
+  "kill_ub": 0.1,
+  "repl": 0.7
+ },
+ "gate_label": "INCONCLUSIVE",
+ "headroom_ok": true,
+ "instrument_invalid_triggers": {
+  "aborted": false,
+  "coin_invalid_hits": [],
+  "coin_tripwire_fired": false,
+  "not_headroom_ok": false
+ },
+ "keying_not_replicated": false,
+ "kill_all_units_below_ub": false,
+ "n_completed_units": 8,
+ "n_swept": 200,
+ "p_thresholds": {
+  "coin_bonferroni": 0.00625,
+  "role": 0.05
+ },
+ "partial": false,
+ "role_only_hits": [],
+ "unit_reports": [
+  {
+   "alpha": 1.0,
+   "breakage_c100": {
+    "-1": 32,
+    "1": 16
+   },
+   "bridge_emit_minus_c100": 27,
+   "cell": [
+    12,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 1
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.03206243908376279,
+     "mean_delta_vs_coin": -0.049999999999999996,
+     "min_delta_vs_coin": -0.12,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.12,
+       "paired_real_gt_coin": {
+        "b": 10,
+        "c": 34,
+        "n_discordant": 44,
+        "p_one_sided": 0.9999469776668661
+       },
+       "paired_real_gt_role": {
+        "b": 15,
+        "c": 28,
+        "n_discordant": 43,
+        "p_one_sided": 0.9842302513234245
+       },
+       "rescue_coin": 0.24,
+       "rescue_role": 0.185,
+       "se": 0.03206243908376279
+      },
+      "20260713": {
+       "delta_vs_coin": -0.025,
+       "paired_real_gt_coin": {
+        "b": 14,
+        "c": 19,
+        "n_discordant": 33,
+        "p_one_sided": 0.8518968157004565
+       },
+       "paired_real_gt_role": {
+        "b": 14,
+        "c": 22,
+        "n_discordant": 36,
+        "p_one_sided": 0.9337509180186316
+       },
+       "rescue_coin": 0.145,
+       "rescue_role": 0.16,
+       "se": 0.028668362352949287
+      },
+      "20260714": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 17,
+        "c": 18,
+        "n_discordant": 35,
+        "p_one_sided": 0.6320605995715596
+       },
+       "paired_real_gt_role": {
+        "b": 12,
+        "c": 15,
+        "n_discordant": 27,
+        "p_one_sided": 0.7789658308029175
+       },
+       "rescue_coin": 0.125,
+       "rescue_role": 0.135,
+       "se": 0.029578285954395666
+      }
+     },
+     "pooled_ub95": 0.0027395060488814224,
+     "rescue_real": 0.12
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.04092523671281573,
+     "mean_delta_vs_coin": 0.075,
+     "min_delta_vs_coin": 0.005,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": 0.005,
+       "paired_real_gt_coin": {
+        "b": 34,
+        "c": 33,
+        "n_discordant": 67,
+        "p_one_sided": 0.5000000000000001
+       },
+       "paired_real_gt_role": {
+        "b": 34,
+        "c": 28,
+        "n_discordant": 62,
+        "p_one_sided": 0.262886680087825
+       },
+       "rescue_coin": 0.24,
+       "rescue_role": 0.215,
+       "se": 0.04092523671281573
+      },
+      "20260713": {
+       "delta_vs_coin": 0.1,
+       "paired_real_gt_coin": {
+        "b": 33,
+        "c": 13,
+        "n_discordant": 46,
+        "p_one_sided": 0.0022669307910945236
+       },
+       "paired_real_gt_role": {
+        "b": 31,
+        "c": 18,
+        "n_discordant": 49,
+        "p_one_sided": 0.04271656657869727
+       },
+       "rescue_coin": 0.145,
+       "rescue_role": 0.18,
+       "se": 0.033166247903554
+      },
+      "20260714": {
+       "delta_vs_coin": 0.12,
+       "paired_real_gt_coin": {
+        "b": 36,
+        "c": 12,
+        "n_discordant": 48,
+        "p_one_sided": 0.00035863483669729135
+       },
+       "paired_real_gt_role": {
+        "b": 36,
+        "c": 17,
+        "n_discordant": 53,
+        "p_one_sided": 0.006330167901207107
+       },
+       "rescue_coin": 0.125,
+       "rescue_role": 0.15,
+       "se": 0.03358571124749333
+      }
+     },
+     "pooled_ub95": 0.14231792186891057,
+     "rescue_real": 0.245
+    }
+   },
+   "keyacc_real": 0.81,
+   "keyacc_role": {
+    "20260712": 0.595,
+    "20260713": 0.55,
+    "20260714": 0.59
+   },
+   "keyem_real": 0.15,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.51,
+     "keyem_coin": 0.115,
+     "wilson_lb_keyacc_coin_z3_2790": 0.39657700493151005,
+     "wilson_lb_keyem_coin_z3_2790": 0.059955392855073245
+    },
+    "20260713": {
+     "keyacc_coin": 0.455,
+     "keyem_coin": 0.07,
+     "wilson_lb_keyacc_coin_z3_2790": 0.34479636793491736,
+     "wilson_lb_keyem_coin_z3_2790": 0.03027338460866677
+    },
+    "20260714": {
+     "keyacc_coin": 0.525,
+     "keyem_coin": 0.075,
+     "wilson_lb_keyacc_coin_z3_2790": 0.41092436492758844,
+     "wilson_lb_keyem_coin_z3_2790": 0.033362327324781754
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "1|12_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.8513743912847108
+  },
+  {
+   "alpha": 1.0,
+   "breakage_c100": {
+    "-1": 34,
+    "1": 13
+   },
+   "bridge_emit_minus_c100": 26,
+   "cell": [
+    16,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 2
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.029991665508937646,
+     "mean_delta_vs_coin": -0.021666666666666667,
+     "min_delta_vs_coin": -0.045,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.01,
+       "paired_real_gt_coin": {
+        "b": 14,
+        "c": 16,
+        "n_discordant": 30,
+        "p_one_sided": 0.707667644135654
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 17,
+        "n_discordant": 33,
+        "p_one_sided": 0.6358337595593184
+       },
+       "rescue_coin": 0.135,
+       "rescue_role": 0.13,
+       "se": 0.027376997644007642
+      },
+      "20260713": {
+       "delta_vs_coin": -0.045,
+       "paired_real_gt_coin": {
+        "b": 13,
+        "c": 22,
+        "n_discordant": 35,
+        "p_one_sided": 0.9552344605326653
+       },
+       "paired_real_gt_role": {
+        "b": 9,
+        "c": 19,
+        "n_discordant": 28,
+        "p_one_sided": 0.9821509309113026
+       },
+       "rescue_coin": 0.17,
+       "rescue_role": 0.175,
+       "se": 0.02940875719917453
+      },
+      "20260714": {
+       "delta_vs_coin": -0.01,
+       "paired_real_gt_coin": {
+        "b": 17,
+        "c": 19,
+        "n_discordant": 36,
+        "p_one_sided": 0.691140341485152
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 19,
+        "n_discordant": 35,
+        "p_one_sided": 0.7502200833987445
+       },
+       "rescue_coin": 0.135,
+       "rescue_role": 0.14,
+       "se": 0.029991665508937646
+      }
+     },
+     "pooled_ub95": 0.02766662392898487,
+     "rescue_real": 0.125
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": true,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.036876483021025745,
+     "mean_delta_vs_coin": 0.07833333333333332,
+     "min_delta_vs_coin": 0.055,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": 0.09,
+       "paired_real_gt_coin": {
+        "b": 34,
+        "c": 16,
+        "n_discordant": 50,
+        "p_one_sided": 0.007673338916315053
+       },
+       "paired_real_gt_role": {
+        "b": 34,
+        "c": 20,
+        "n_discordant": 54,
+        "p_one_sided": 0.037952364744550715
+       },
+       "rescue_coin": 0.135,
+       "rescue_role": 0.155,
+       "se": 0.03477786652455841
+      },
+      "20260713": {
+       "delta_vs_coin": 0.055,
+       "paired_real_gt_coin": {
+        "b": 33,
+        "c": 22,
+        "n_discordant": 55,
+        "p_one_sided": 0.08850068238517908
+       },
+       "paired_real_gt_role": {
+        "b": 29,
+        "c": 13,
+        "n_discordant": 42,
+        "p_one_sided": 0.009760236391230137
+       },
+       "rescue_coin": 0.17,
+       "rescue_role": 0.145,
+       "se": 0.036876483021025745
+      },
+      "20260714": {
+       "delta_vs_coin": 0.09,
+       "paired_real_gt_coin": {
+        "b": 33,
+        "c": 15,
+        "n_discordant": 48,
+        "p_one_sided": 0.006641640781122504
+       },
+       "paired_real_gt_role": {
+        "b": 32,
+        "c": 17,
+        "n_discordant": 49,
+        "p_one_sided": 0.022192080493574906
+       },
+       "rescue_coin": 0.135,
+       "rescue_role": 0.15,
+       "se": 0.034051431687962846
+      }
+     },
+     "pooled_ub95": 0.13899146025461856,
+     "rescue_real": 0.225
+    }
+   },
+   "keyacc_real": 0.85,
+   "keyacc_role": {
+    "20260712": 0.58,
+    "20260713": 0.59,
+    "20260714": 0.615
+   },
+   "keyem_real": 0.16,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.505,
+     "keyem_coin": 0.07,
+     "wilson_lb_keyacc_coin_z3_2790": 0.39181601007998984,
+     "wilson_lb_keyem_coin_z3_2790": 0.03027338460866677
+    },
+    "20260713": {
+     "keyacc_coin": 0.53,
+     "keyem_coin": 0.08,
+     "wilson_lb_keyacc_coin_z3_2790": 0.415728312462283,
+     "wilson_lb_keyem_coin_z3_2790": 0.03651213049331398
+    },
+    "20260714": {
+     "keyacc_coin": 0.5,
+     "keyem_coin": 0.065,
+     "wilson_lb_keyacc_coin_z3_2790": 0.38706573428310304,
+     "wilson_lb_keyem_coin_z3_2790": 0.027250346186746023
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "1|16_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.8868454960424751
+  },
+  {
+   "alpha": 0.75,
+   "breakage_c100": {
+    "-1": 17,
+    "1": 13
+   },
+   "bridge_emit_minus_c100": 13,
+   "cell": [
+    12,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 0
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.031998046815391715,
+     "mean_delta_vs_coin": -0.02666666666666667,
+     "min_delta_vs_coin": -0.06,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.06,
+       "paired_real_gt_coin": {
+        "b": 14,
+        "c": 26,
+        "n_discordant": 40,
+        "p_one_sided": 0.9807613458578999
+       },
+       "paired_real_gt_role": {
+        "b": 19,
+        "c": 25,
+        "n_discordant": 44,
+        "p_one_sided": 0.8543923817270525
+       },
+       "rescue_coin": 0.185,
+       "rescue_role": 0.155,
+       "se": 0.0313368792319848
+      },
+      "20260713": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 15,
+        "c": 16,
+        "n_discordant": 31,
+        "p_one_sided": 0.639949934091419
+       },
+       "paired_real_gt_role": {
+        "b": 14,
+        "c": 16,
+        "n_discordant": 30,
+        "p_one_sided": 0.707667644135654
+       },
+       "rescue_coin": 0.13,
+       "rescue_role": 0.135,
+       "se": 0.027836576657340607
+      },
+      "20260714": {
+       "delta_vs_coin": -0.015,
+       "paired_real_gt_coin": {
+        "b": 19,
+        "c": 22,
+        "n_discordant": 41,
+        "p_one_sided": 0.7336453723819432
+       },
+       "paired_real_gt_role": {
+        "b": 19,
+        "c": 15,
+        "n_discordant": 34,
+        "p_one_sided": 0.30379568063654006
+       },
+       "rescue_coin": 0.14,
+       "rescue_role": 0.105,
+       "se": 0.031998046815391715
+      }
+     },
+     "pooled_ub95": 0.025966920539971166,
+     "rescue_real": 0.125
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.033968735625571934,
+     "mean_delta_vs_coin": -0.03166666666666667,
+     "min_delta_vs_coin": -0.065,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.065,
+       "paired_real_gt_coin": {
+        "b": 17,
+        "c": 30,
+        "n_discordant": 47,
+        "p_one_sided": 0.9800069715869739
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 24,
+        "n_discordant": 40,
+        "p_one_sided": 0.923070027918584
+       },
+       "rescue_coin": 0.185,
+       "rescue_role": 0.16,
+       "se": 0.033968735625571934
+      },
+      "20260713": {
+       "delta_vs_coin": -0.01,
+       "paired_real_gt_coin": {
+        "b": 17,
+        "c": 19,
+        "n_discordant": 36,
+        "p_one_sided": 0.691140341485152
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 19,
+        "n_discordant": 35,
+        "p_one_sided": 0.7502200833987445
+       },
+       "rescue_coin": 0.13,
+       "rescue_role": 0.135,
+       "se": 0.029991665508937646
+      },
+      "20260714": {
+       "delta_vs_coin": -0.02,
+       "paired_real_gt_coin": {
+        "b": 15,
+        "c": 19,
+        "n_discordant": 34,
+        "p_one_sided": 0.804235847434029
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 23,
+        "n_discordant": 39,
+        "p_one_sided": 0.9002045665401965
+       },
+       "rescue_coin": 0.14,
+       "rescue_role": 0.155,
+       "se": 0.029120439557122072
+      }
+     },
+     "pooled_ub95": 0.024208506563836607,
+     "rescue_real": 0.12
+    }
+   },
+   "keyacc_real": 0.685,
+   "keyacc_role": {
+    "20260712": 0.535,
+    "20260713": 0.535,
+    "20260714": 0.545
+   },
+   "keyem_real": 0.08,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.54,
+     "keyem_coin": 0.105,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4253685456425862,
+     "wilson_lb_keyem_coin_z3_2790": 0.05303796680999838
+    },
+    "20260713": {
+     "keyacc_coin": 0.46,
+     "keyem_coin": 0.085,
+     "wilson_lb_keyacc_coin_z3_2790": 0.3494498731219509,
+     "wilson_lb_keyem_coin_z3_2790": 0.039718411383957805
+    },
+    "20260714": {
+     "keyacc_coin": 0.52,
+     "keyem_coin": 0.08,
+     "wilson_lb_keyacc_coin_z3_2790": 0.40613117317899666,
+     "wilson_lb_keyem_coin_z3_2790": 0.03651213049331398
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "0.75|12_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.7362543902308382
+  },
+  {
+   "alpha": 0.75,
+   "breakage_c100": {
+    "-1": 13,
+    "1": 9
+   },
+   "bridge_emit_minus_c100": 8,
+   "cell": [
+    16,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 1
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.03041175759471984,
+     "mean_delta_vs_coin": -0.011666666666666665,
+     "min_delta_vs_coin": -0.015,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.015,
+       "paired_real_gt_coin": {
+        "b": 12,
+        "c": 15,
+        "n_discordant": 27,
+        "p_one_sided": 0.7789658308029175
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 14,
+        "n_discordant": 30,
+        "p_one_sided": 0.427767775952816
+       },
+       "rescue_coin": 0.14,
+       "rescue_role": 0.115,
+       "se": 0.02595910244981517
+      },
+      "20260713": {
+       "delta_vs_coin": -0.015,
+       "paired_real_gt_coin": {
+        "b": 15,
+        "c": 18,
+        "n_discordant": 33,
+        "p_one_sided": 0.7565748791676015
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 17,
+        "n_discordant": 33,
+        "p_one_sided": 0.6358337595593184
+       },
+       "rescue_coin": 0.14,
+       "rescue_role": 0.13,
+       "se": 0.028703222815565504
+      },
+      "20260714": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 18,
+        "c": 19,
+        "n_discordant": 37,
+        "p_one_sided": 0.6285853206354659
+       },
+       "paired_real_gt_role": {
+        "b": 18,
+        "c": 16,
+        "n_discordant": 34,
+        "p_one_sided": 0.4320831202203408
+       },
+       "rescue_coin": 0.13,
+       "rescue_role": 0.115,
+       "se": 0.03041175759471984
+      }
+     },
+     "pooled_ub95": 0.038357633400888,
+     "rescue_real": 0.125
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.03082207001484488,
+     "mean_delta_vs_coin": 0.0033333333333333335,
+     "min_delta_vs_coin": 0.0,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": 0.0,
+       "paired_real_gt_coin": {
+        "b": 17,
+        "c": 17,
+        "n_discordant": 34,
+        "p_one_sided": 0.5679168797796592
+       },
+       "paired_real_gt_role": {
+        "b": 23,
+        "c": 23,
+        "n_discordant": 46,
+        "p_one_sided": 0.5585020439388018
+       },
+       "rescue_coin": 0.14,
+       "rescue_role": 0.14,
+       "se": 0.029154759474226504
+      },
+      "20260713": {
+       "delta_vs_coin": 0.0,
+       "paired_real_gt_coin": {
+        "b": 19,
+        "c": 19,
+        "n_discordant": 38,
+        "p_one_sided": 0.564292660317733
+       },
+       "paired_real_gt_role": {
+        "b": 19,
+        "c": 19,
+        "n_discordant": 38,
+        "p_one_sided": 0.564292660317733
+       },
+       "rescue_coin": 0.14,
+       "rescue_role": 0.14,
+       "se": 0.03082207001484488
+      },
+      "20260714": {
+       "delta_vs_coin": 0.01,
+       "paired_real_gt_coin": {
+        "b": 19,
+        "c": 17,
+        "n_discordant": 36,
+        "p_one_sided": 0.4339697002142202
+       },
+       "paired_real_gt_role": {
+        "b": 20,
+        "c": 18,
+        "n_discordant": 38,
+        "p_one_sided": 0.43570733968226705
+       },
+       "rescue_coin": 0.13,
+       "rescue_role": 0.13,
+       "se": 0.029991665508937646
+      }
+     },
+     "pooled_ub95": 0.054032556300751676,
+     "rescue_real": 0.14
+    }
+   },
+   "keyacc_real": 0.625,
+   "keyacc_role": {
+    "20260712": 0.535,
+    "20260713": 0.55,
+    "20260714": 0.6
+   },
+   "keyem_real": 0.105,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.5,
+     "keyem_coin": 0.08,
+     "wilson_lb_keyacc_coin_z3_2790": 0.38706573428310304,
+     "wilson_lb_keyem_coin_z3_2790": 0.03651213049331398
+    },
+    "20260713": {
+     "keyacc_coin": 0.57,
+     "keyem_coin": 0.075,
+     "wilson_lb_keyacc_coin_z3_2790": 0.45454979546858654,
+     "wilson_lb_keyem_coin_z3_2790": 0.033362327324781754
+    },
+    "20260714": {
+     "keyacc_coin": 0.515,
+     "keyem_coin": 0.095,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4013487234176553,
+     "wilson_lb_keyem_coin_z3_2790": 0.04628551180622255
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "0.75|16_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.6792886266260592
+  },
+  {
+   "alpha": 0.5,
+   "breakage_c100": {
+    "-1": 8,
+    "1": 5
+   },
+   "bridge_emit_minus_c100": 5,
+   "cell": [
+    12,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 0
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.028668362352949287,
+     "mean_delta_vs_coin": -0.011666666666666667,
+     "min_delta_vs_coin": -0.025,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.025,
+       "paired_real_gt_coin": {
+        "b": 14,
+        "c": 19,
+        "n_discordant": 33,
+        "p_one_sided": 0.8518968157004565
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 20,
+        "n_discordant": 36,
+        "p_one_sided": 0.7974838769296184
+       },
+       "rescue_coin": 0.13,
+       "rescue_role": 0.125,
+       "se": 0.028668362352949287
+      },
+      "20260713": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 13,
+        "c": 14,
+        "n_discordant": 27,
+        "p_one_sided": 0.6494459807872772
+       },
+       "paired_real_gt_role": {
+        "b": 12,
+        "c": 13,
+        "n_discordant": 25,
+        "p_one_sided": 0.6549810171127319
+       },
+       "rescue_coin": 0.11,
+       "rescue_role": 0.11,
+       "se": 0.025978356376029646
+      },
+      "20260714": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 14,
+        "c": 15,
+        "n_discordant": 29,
+        "p_one_sided": 0.644464448094368
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 11,
+        "n_discordant": 27,
+        "p_one_sided": 0.22103416919708252
+       },
+       "rescue_coin": 0.11,
+       "rescue_role": 0.08,
+       "se": 0.026923502743885313
+      }
+     },
+     "pooled_ub95": 0.03548992256769962,
+     "rescue_real": 0.105
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.029578285954395666,
+     "mean_delta_vs_coin": -0.0016666666666666661,
+     "min_delta_vs_coin": -0.015,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.015,
+       "paired_real_gt_coin": {
+        "b": 15,
+        "c": 18,
+        "n_discordant": 33,
+        "p_one_sided": 0.7565748791676015
+       },
+       "paired_real_gt_role": {
+        "b": 17,
+        "c": 15,
+        "n_discordant": 32,
+        "p_one_sided": 0.4300250329542905
+       },
+       "rescue_coin": 0.13,
+       "rescue_role": 0.105,
+       "se": 0.028703222815565504
+      },
+      "20260713": {
+       "delta_vs_coin": 0.005,
+       "paired_real_gt_coin": {
+        "b": 18,
+        "c": 17,
+        "n_discordant": 35,
+        "p_one_sided": 0.5
+       },
+       "paired_real_gt_role": {
+        "b": 16,
+        "c": 13,
+        "n_discordant": 29,
+        "p_one_sided": 0.355535551905632
+       },
+       "rescue_coin": 0.11,
+       "rescue_role": 0.1,
+       "se": 0.029578285954395666
+      },
+      "20260714": {
+       "delta_vs_coin": 0.005,
+       "paired_real_gt_coin": {
+        "b": 16,
+        "c": 15,
+        "n_discordant": 31,
+        "p_one_sided": 0.5
+       },
+       "paired_real_gt_role": {
+        "b": 17,
+        "c": 19,
+        "n_discordant": 36,
+        "p_one_sided": 0.691140341485152
+       },
+       "rescue_coin": 0.11,
+       "rescue_role": 0.125,
+       "se": 0.027836576657340607
+      }
+     },
+     "pooled_ub95": 0.04698665589971877,
+     "rescue_real": 0.115
+    }
+   },
+   "keyacc_real": 0.63,
+   "keyacc_role": {
+    "20260712": 0.57,
+    "20260713": 0.535,
+    "20260714": 0.565
+   },
+   "keyem_real": 0.085,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.545,
+     "keyem_coin": 0.085,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4302048745206321,
+     "wilson_lb_keyem_coin_z3_2790": 0.039718411383957805
+    },
+    "20260713": {
+     "keyacc_coin": 0.5,
+     "keyem_coin": 0.085,
+     "wilson_lb_keyacc_coin_z3_2790": 0.38706573428310304,
+     "wilson_lb_keyem_coin_z3_2790": 0.039718411383957805
+    },
+    "20260714": {
+     "keyacc_coin": 0.54,
+     "keyem_coin": 0.08,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4253685456425862,
+     "wilson_lb_keyem_coin_z3_2790": 0.03651213049331398
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "0.5|12_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.6840716471766669
+  },
+  {
+   "alpha": 0.5,
+   "breakage_c100": {
+    "-1": 6,
+    "1": 4
+   },
+   "bridge_emit_minus_c100": 5,
+   "cell": [
+    16,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 0
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.02440286868382486,
+     "mean_delta_vs_coin": -0.021666666666666667,
+     "min_delta_vs_coin": -0.03,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.025,
+       "paired_real_gt_coin": {
+        "b": 9,
+        "c": 14,
+        "n_discordant": 23,
+        "p_one_sided": 0.8949801921844482
+       },
+       "paired_real_gt_role": {
+        "b": 12,
+        "c": 13,
+        "n_discordant": 25,
+        "p_one_sided": 0.6549810171127319
+       },
+       "rescue_coin": 0.1,
+       "rescue_role": 0.08,
+       "se": 0.02391390808713624
+      },
+      "20260713": {
+       "delta_vs_coin": -0.01,
+       "paired_real_gt_coin": {
+        "b": 8,
+        "c": 10,
+        "n_discordant": 18,
+        "p_one_sided": 0.7596588134765625
+       },
+       "paired_real_gt_role": {
+        "b": 9,
+        "c": 15,
+        "n_discordant": 24,
+        "p_one_sided": 0.9242051839828491
+       },
+       "rescue_coin": 0.085,
+       "rescue_role": 0.105,
+       "se": 0.021201415047114192
+      },
+      "20260714": {
+       "delta_vs_coin": -0.03,
+       "paired_real_gt_coin": {
+        "b": 9,
+        "c": 15,
+        "n_discordant": 24,
+        "p_one_sided": 0.9242051839828491
+       },
+       "paired_real_gt_role": {
+        "b": 10,
+        "c": 15,
+        "n_discordant": 25,
+        "p_one_sided": 0.885238528251648
+       },
+       "rescue_coin": 0.105,
+       "rescue_role": 0.1,
+       "se": 0.02440286868382486
+      }
+     },
+     "pooled_ub95": 0.01847361203135684,
+     "rescue_real": 0.075
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.027376997644007642,
+     "mean_delta_vs_coin": -0.0016666666666666668,
+     "min_delta_vs_coin": -0.01,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 13,
+        "c": 14,
+        "n_discordant": 27,
+        "p_one_sided": 0.6494459807872772
+       },
+       "paired_real_gt_role": {
+        "b": 15,
+        "c": 11,
+        "n_discordant": 26,
+        "p_one_sided": 0.2785985469818115
+       },
+       "rescue_coin": 0.1,
+       "rescue_role": 0.075,
+       "se": 0.025978356376029646
+      },
+      "20260713": {
+       "delta_vs_coin": 0.01,
+       "paired_real_gt_coin": {
+        "b": 16,
+        "c": 14,
+        "n_discordant": 30,
+        "p_one_sided": 0.427767775952816
+       },
+       "paired_real_gt_role": {
+        "b": 17,
+        "c": 17,
+        "n_discordant": 34,
+        "p_one_sided": 0.5679168797796592
+       },
+       "rescue_coin": 0.085,
+       "rescue_role": 0.095,
+       "se": 0.027376997644007642
+      },
+      "20260714": {
+       "delta_vs_coin": -0.01,
+       "paired_real_gt_coin": {
+        "b": 13,
+        "c": 15,
+        "n_discordant": 28,
+        "p_one_sided": 0.7142059057950974
+       },
+       "paired_real_gt_role": {
+        "b": 14,
+        "c": 12,
+        "n_discordant": 26,
+        "p_one_sided": 0.42250949144363403
+       },
+       "rescue_coin": 0.105,
+       "rescue_role": 0.085,
+       "se": 0.02644806231087639
+      }
+     },
+     "pooled_ub95": 0.04336575675796151,
+     "rescue_real": 0.095
+    }
+   },
+   "keyacc_real": 0.54,
+   "keyacc_role": {
+    "20260712": 0.55,
+    "20260713": 0.525,
+    "20260714": 0.575
+   },
+   "keyem_real": 0.075,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.505,
+     "keyem_coin": 0.065,
+     "wilson_lb_keyacc_coin_z3_2790": 0.39181601007998984,
+     "wilson_lb_keyem_coin_z3_2790": 0.027250346186746023
+    },
+    "20260713": {
+     "keyacc_coin": 0.545,
+     "keyem_coin": 0.06,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4302048745206321,
+     "wilson_lb_keyem_coin_z3_2790": 0.024299066414675385
+    },
+    "20260714": {
+     "keyacc_coin": 0.48,
+     "keyem_coin": 0.085,
+     "wilson_lb_keyacc_coin_z3_2790": 0.368171836918679,
+     "wilson_lb_keyem_coin_z3_2790": 0.039718411383957805
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "0.5|16_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.5970499724451085
+  },
+  {
+   "alpha": 0.25,
+   "breakage_c100": {
+    "-1": 4,
+    "1": 1
+   },
+   "bridge_emit_minus_c100": 3,
+   "cell": [
+    12,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 0
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.02110687091920543,
+     "mean_delta_vs_coin": -0.011666666666666665,
+     "min_delta_vs_coin": -0.03,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.005,
+       "paired_real_gt_coin": {
+        "b": 7,
+        "c": 8,
+        "n_discordant": 15,
+        "p_one_sided": 0.696380615234375
+       },
+       "paired_real_gt_role": {
+        "b": 7,
+        "c": 11,
+        "n_discordant": 18,
+        "p_one_sided": 0.8810577392578125
+       },
+       "rescue_coin": 0.05,
+       "rescue_role": 0.065,
+       "se": 0.01936168897591323
+      },
+      "20260713": {
+       "delta_vs_coin": 0.0,
+       "paired_real_gt_coin": {
+        "b": 6,
+        "c": 6,
+        "n_discordant": 12,
+        "p_one_sided": 0.61279296875
+       },
+       "paired_real_gt_role": {
+        "b": 4,
+        "c": 10,
+        "n_discordant": 14,
+        "p_one_sided": 0.9713134765625
+       },
+       "rescue_coin": 0.045,
+       "rescue_role": 0.075,
+       "se": 0.017320508075688773
+      },
+      "20260714": {
+       "delta_vs_coin": -0.03,
+       "paired_real_gt_coin": {
+        "b": 6,
+        "c": 12,
+        "n_discordant": 18,
+        "p_one_sided": 0.951873779296875
+       },
+       "paired_real_gt_role": {
+        "b": 7,
+        "c": 9,
+        "n_discordant": 16,
+        "p_one_sided": 0.7727508544921875
+       },
+       "rescue_coin": 0.075,
+       "rescue_role": 0.055,
+       "se": 0.02110687091920543
+      }
+     },
+     "pooled_ub95": 0.023052025308334348,
+     "rescue_real": 0.045
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.021201415047114192,
+     "mean_delta_vs_coin": -0.001666666666666667,
+     "min_delta_vs_coin": -0.02,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": 0.005,
+       "paired_real_gt_coin": {
+        "b": 8,
+        "c": 7,
+        "n_discordant": 15,
+        "p_one_sided": 0.5
+       },
+       "paired_real_gt_role": {
+        "b": 9,
+        "c": 8,
+        "n_discordant": 17,
+        "p_one_sided": 0.5
+       },
+       "rescue_coin": 0.05,
+       "rescue_role": 0.05,
+       "se": 0.01936168897591323
+      },
+      "20260713": {
+       "delta_vs_coin": 0.01,
+       "paired_real_gt_coin": {
+        "b": 10,
+        "c": 8,
+        "n_discordant": 18,
+        "p_one_sided": 0.40726470947265625
+       },
+       "paired_real_gt_role": {
+        "b": 10,
+        "c": 7,
+        "n_discordant": 17,
+        "p_one_sided": 0.3145294189453125
+       },
+       "rescue_coin": 0.045,
+       "rescue_role": 0.04,
+       "se": 0.021201415047114192
+      },
+      "20260714": {
+       "delta_vs_coin": -0.02,
+       "paired_real_gt_coin": {
+        "b": 6,
+        "c": 10,
+        "n_discordant": 16,
+        "p_one_sided": 0.8949432373046875
+       },
+       "paired_real_gt_role": {
+        "b": 8,
+        "c": 11,
+        "n_discordant": 19,
+        "p_one_sided": 0.8203582763671875
+       },
+       "rescue_coin": 0.075,
+       "rescue_role": 0.07,
+       "se": 0.01994993734326
+      }
+     },
+     "pooled_ub95": 0.03320754094433147,
+     "rescue_real": 0.055
+    }
+   },
+   "keyacc_real": 0.56,
+   "keyacc_role": {
+    "20260712": 0.57,
+    "20260713": 0.53,
+    "20260714": 0.565
+   },
+   "keyem_real": 0.05,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.545,
+     "keyem_coin": 0.035,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4302048745206321,
+     "wilson_lb_keyem_coin_z3_2790": 0.010912124068161382
+    },
+    "20260713": {
+     "keyacc_coin": 0.455,
+     "keyem_coin": 0.04,
+     "wilson_lb_keyacc_coin_z3_2790": 0.34479636793491736,
+     "wilson_lb_keyem_coin_z3_2790": 0.013370058324376197
+    },
+    "20260714": {
+     "keyacc_coin": 0.57,
+     "keyem_coin": 0.065,
+     "wilson_lb_keyacc_coin_z3_2790": 0.45454979546858654,
+     "wilson_lb_keyem_coin_z3_2790": 0.027250346186746023
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "0.25|12_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.6165538531616118
+  },
+  {
+   "alpha": 0.25,
+   "breakage_c100": {
+    "-1": 4,
+    "1": 1
+   },
+   "bridge_emit_minus_c100": 3,
+   "cell": [
+    16,
+    16
+   ],
+   "collapse_c100": {
+    "-1": 0,
+    "1": 0
+   },
+   "completed": true,
+   "endpoints": {
+    "minus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.019987496091306685,
+     "mean_delta_vs_coin": -0.01,
+     "min_delta_vs_coin": -0.025,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": -0.025,
+       "paired_real_gt_coin": {
+        "b": 4,
+        "c": 9,
+        "n_discordant": 13,
+        "p_one_sided": 0.953857421875
+       },
+       "paired_real_gt_role": {
+        "b": 7,
+        "c": 7,
+        "n_discordant": 14,
+        "p_one_sided": 0.604736328125
+       },
+       "rescue_coin": 0.065,
+       "rescue_role": 0.04,
+       "se": 0.017940875118009153
+      },
+      "20260713": {
+       "delta_vs_coin": 0.005,
+       "paired_real_gt_coin": {
+        "b": 6,
+        "c": 5,
+        "n_discordant": 11,
+        "p_one_sided": 0.5
+       },
+       "paired_real_gt_role": {
+        "b": 6,
+        "c": 9,
+        "n_discordant": 15,
+        "p_one_sided": 0.84912109375
+       },
+       "rescue_coin": 0.035,
+       "rescue_role": 0.055,
+       "se": 0.01657935463158925
+      },
+      "20260714": {
+       "delta_vs_coin": -0.01,
+       "paired_real_gt_coin": {
+        "b": 7,
+        "c": 9,
+        "n_discordant": 16,
+        "p_one_sided": 0.7727508544921875
+       },
+       "paired_real_gt_role": {
+        "b": 6,
+        "c": 9,
+        "n_discordant": 15,
+        "p_one_sided": 0.84912109375
+       },
+       "rescue_coin": 0.05,
+       "rescue_role": 0.055,
+       "se": 0.019987496091306685
+      }
+     },
+     "pooled_ub95": 0.022877432320590363,
+     "rescue_real": 0.04
+    },
+    "plus": {
+     "FIRE": false,
+     "cond_i_all_seeds_coin_p_lt_0.00625": false,
+     "cond_ii_all_seeds_role_p_lt_0.05": false,
+     "cond_iii_delta_floors": false,
+     "max_se": 0.021791626832340906,
+     "mean_delta_vs_coin": 0.02,
+     "min_delta_vs_coin": 0.005,
+     "per_seed": {
+      "20260712": {
+       "delta_vs_coin": 0.005,
+       "paired_real_gt_coin": {
+        "b": 10,
+        "c": 9,
+        "n_discordant": 19,
+        "p_one_sided": 0.5
+       },
+       "paired_real_gt_role": {
+        "b": 12,
+        "c": 9,
+        "n_discordant": 21,
+        "p_one_sided": 0.33181190490722656
+       },
+       "rescue_coin": 0.065,
+       "rescue_role": 0.055,
+       "se": 0.021791626832340906
+      },
+      "20260713": {
+       "delta_vs_coin": 0.035,
+       "paired_real_gt_coin": {
+        "b": 12,
+        "c": 5,
+        "n_discordant": 17,
+        "p_one_sided": 0.0717315673828125
+       },
+       "paired_real_gt_role": {
+        "b": 12,
+        "c": 7,
+        "n_discordant": 19,
+        "p_one_sided": 0.1796417236328125
+       },
+       "rescue_coin": 0.035,
+       "rescue_role": 0.045,
+       "se": 0.020466435937895974
+      },
+      "20260714": {
+       "delta_vs_coin": 0.02,
+       "paired_real_gt_coin": {
+        "b": 10,
+        "c": 6,
+        "n_discordant": 16,
+        "p_one_sided": 0.2272491455078125
+       },
+       "paired_real_gt_role": {
+        "b": 12,
+        "c": 5,
+        "n_discordant": 17,
+        "p_one_sided": 0.0717315673828125
+       },
+       "rescue_coin": 0.05,
+       "rescue_role": 0.035,
+       "se": 0.01994993734326
+      }
+     },
+     "pooled_ub95": 0.05584504697651756,
+     "rescue_real": 0.07
+    }
+   },
+   "keyacc_real": 0.54,
+   "keyacc_role": {
+    "20260712": 0.56,
+    "20260713": 0.505,
+    "20260714": 0.595
+   },
+   "keyem_real": 0.065,
+   "margin_coin_tripwire": {
+    "20260712": {
+     "keyacc_coin": 0.495,
+     "keyem_coin": 0.055,
+     "wilson_lb_keyacc_coin_z3_2790": 0.38232617601491037,
+     "wilson_lb_keyem_coin_z3_2790": 0.021426406184841824
+    },
+    "20260713": {
+     "keyacc_coin": 0.545,
+     "keyem_coin": 0.035,
+     "wilson_lb_keyacc_coin_z3_2790": 0.4302048745206321,
+     "wilson_lb_keyem_coin_z3_2790": 0.010912124068161382
+    },
+    "20260714": {
+     "keyacc_coin": 0.48,
+     "keyem_coin": 0.045,
+     "wilson_lb_keyacc_coin_z3_2790": 0.368171836918679,
+     "wilson_lb_keyem_coin_z3_2790": 0.01595108637177304
+    }
+   },
+   "n": 200,
+   "ties": {
+    "coin": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    },
+    "real": 0,
+    "role": {
+     "20260712": 0,
+     "20260713": 0,
+     "20260714": 0
+    }
+   },
+   "unit": "0.25|16_16",
+   "wilson_ub95_keyacc_real_z1_6449": 0.5970499724451085
+  }
+ ],
+ "z": {
+  "ctrl": 3.279,
+  "kill": 1.6449
+ }
+}
+MECHANICAL VERDICT (spec §5): INCONCLUSIVE
+sha256 stage1_rows.jsonl    = fd9f4e02baf2b1c4b9a9def9cae59a1b4cabf62c78116a4b2b32efabe3047bd7
+sha256 stage1_summary.json  = 63525fcd5f67407752abeeedb0f02e31892d78ca74249f044bbb2094a5832626
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/<workspace-scrubbed>/main/ap-<scrubbed>
