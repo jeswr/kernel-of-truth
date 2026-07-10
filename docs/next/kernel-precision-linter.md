@@ -492,7 +492,10 @@ bounded:
 
 **Where verifier-offload stands [MEASURED]:** HE1's primary FAILED at F2 (gap-closure
 primary −40.13, `registry/verdicts/f2.json`); the f2b pivot then replicated a real,
-kernel-content-specific verifier lift (+0.151 primary) — but on self-authored covered
+correct-alignment-specific verifier lift (+0.151 primary; the derangement control
+destroys record↔item alignment, not NSM content, so "kernel-content-specific" is not
+licensed — registry/corrections/f2b-replicate/3-claims-language-erratum.json) — but
+on self-authored covered
 definitional QA at ≤1.7B hosts, with the circularity question (content vs
 self-defined gold) explicitly unresolved and under paid test right now
 (f2b-transfer). The offload framing stakes the kernel's value on winning an accuracy
