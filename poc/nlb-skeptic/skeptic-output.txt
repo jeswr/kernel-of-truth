@@ -1,0 +1,111 @@
+Defects found.
+
+### 1. l3a was effectively run before preregistration finished
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: [§14.5](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:764) permits scorer changes on the premise that “no scored outcome exists.” [§14.7](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:874) then admits that a mapper-parse diagnostic disclosed dropped-family refusals and eight in-scope wrong answers before the instrument enrichment and final analysis pin were ratified. Commit chronology confirms the carve-out itself was declared in `924bf6b` before the diagnostic in `0847ce0`, but the instrument decision and exact scorer specification were finalized afterward.
+
+Why it matters: this deterministic diagnostic produced the same outcomes the eventual final run will reproduce. The family carve-out does not appear reverse-engineered from those outcomes, but freezing afterward would still be post-outcome registration. The claim that the same edit would have been ratified under every possible outcome is an after-the-fact stipulation, not an enforceable blind constraint.
+
+### 2. The l3a envelope still claims the two excluded families
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: §14.2 requires the frozen envelope to cover “the 7-family shape-recoverable slice ONLY” ([lines 678–681](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:678)). The actual record instead says a PASS licenses reachability of “the closed kot-query/1 grammar” with no slice restriction ([l3a-parse.json line 55](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:55)). Its successor text also allows the result into `l3a-cost` without requiring that successor to exclude the quarantined shapes ([line 39](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:39)).
+
+Why it matters: all 73 excluded items can fail without moving any gate. At the minimum PASS count, total full-eval exactness could be only 486/600 = 81%, while the record would claim no more than 10% loss over the closed grammar. This is precisely how the carve-out could game a broader claim even though the slice-specific endpoint is defensible.
+
+### 3. Duplicate eligible arms are silently last-write-wins
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: both scorers build `by_arm` by assignment, silently replacing an earlier record with a later record carrying the same arm ([l3a lines 128–134](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:128), [a5 lines 99–105](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:99)). The verdict selector admits every eligible final row and imposes no one-row-per-arm/cell invariant ([verdict-gen.py lines 271–309](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:271)).
+
+I reproduced the failure: six inputs containing one bad and one good mapper record were instrument-valid when the good record came last, and invalid when their order was reversed.
+
+Why it matters: retries or duplicate logged arms can select an outcome by log order unless someone explicitly supersedes every prior row. G1’s arm-presence check does not detect this, so the same underlying runs can yield different verdict inputs.
+
+### 4. Harness pins are emitted but never enforced
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: the instrument emits observed hashes for the instrument, front end, mapper, engine, and corpus files ([nlb_instrument.py lines 406–430](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:406)). The analysis scripts check only the lint boolean and phrasing-file hash ([l3a lines 187–191](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:187), [a5 lines 128–132](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:128)). Eligibility likewise checks preregistration/configuration, not observed pins.
+
+Why it matters: a run produced by a modified instrument or front end can remain eligible and instrument-valid. The extensive hashes in `harness_manifest` are prose unless some executable gate compares them. G2 partly protects engine behavior on the parent eval, but it does not authenticate the scorer/front end producing the primary data.
+
+### 5. A missing or broken deranged arm passes G5
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: G1 requires only that the deranged arm name be present. G5 then treats a missing `n_covered_exact` as zero ([l3a lines 193–195](/home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:193), [a5 lines 134–136](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:134)). I replaced the deranged metrics with `{}` in each selftest suite; both returned `instrument_valid=True`, `g5_deranged_collapse=True`, and a deranged rate of zero.
+
+Why it matters: a failed or empty scramble control is interpreted as perfect collapse. G5 therefore does not execute its claimed purpose of showing that correct semantic bindings, rather than frame/entity shape, carry the signal.
+
+### 6. Counts integrity remains incomplete, especially in a5-nl
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism:
+
+- `a5_nl.py` ignores the enriched per-family outcome buckets and never checks that exact + wrong + refusals equals 855 ([lines 119–141](/home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:119)).
+- I supplied `n_covered_exact=855` and `n_covered_refused_parse=855` simultaneously; every gate remained green.
+- Both scripts fail to partition control outcomes. A record can claim all controls were acceptable refusals and all were answered; instrument validity and S1 remain green.
+- l3’s covered-item extension is materially better, but it does not reject unexpected families, nonzero covered buckets on control families, or non-integer/negative buckets, despite §14.7 claiming those invariants ([design lines 848–852](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:848)).
+
+Why it matters: duplicated, dropped, or mutually inconsistent outcome classifications can produce a valid PASS. The pinned instrument currently increments mutually exclusive branches correctly, but finding 4 means that pin is not actually enforced.
+
+### 7. Both records are mechanically unfreezable as written
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: `prereg-freeze.py --dry-run` rejects both records because `pins.analysis_script.sha_note` is not allowed by the schema. The routine `PINNED-AT-FREEZE` document placeholder also still needs replacement. In addition, both records use the abbreviated corpus recipe string at [l3 line 65](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:65) and [a5 line 61](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:61), whereas the freeze checker requires exact equality with the current full recipe string ([prereg-freeze.py lines 228–253](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/prereg-freeze.py:228)). All individual corpus digests themselves recompute correctly.
+
+Why it matters: even after the expected prereg-document hash is filled, the schema and recipe errors prevent either record from freezing.
+
+### 8. Both records falsely claim a byte-identical parent engine
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: the titles and extrapolation envelopes claim a byte-identical engine ([l3 lines 5 and 55](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:5), [a5 lines 5 and 51](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:5)). Their own harness manifests say the engine SHA differs from the parent and that only behavioral identity is rechecked through G2 ([l3 line 66](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:66), [a5 line 62](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:62)). The design explicitly calls the old premise false in §10.9.
+
+Why it matters: G2 can support “behaviorally parent-perfect on this eval”; it cannot support byte identity. The false statement sits inside the claimed measured range and should not be frozen as an untagged premise.
+
+### 9. The design document has two live l3a denominators
+
+SEVERITY: should-fix
+
+Concrete mechanism: base §6 still defines l3a over 600 ([lines 274–300](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:274)); §7 still prints the 600-item thresholds and says no l3a boundary changed ([lines 368–393](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:368)); §14 changes these to 527. The records’ `prereg_doc.anchors` name sections 0, 6, and 10 but omit section 14 ([l3 line 9](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:9)). Base §6 also retains the superseded a5 planning LB 0.9351, while §7 and the record correctly say 0.9363.
+
+Why it matters: the pinned preregistration directs readers to the obsolete endpoint definition. The amendment is discoverable, but the supposedly binding endpoint section is numerically false.
+
+The requested recomputation itself is sound:
+
+- LB(486/527, 1.645) = 0.9007785254
+- UB(462/527, 1.645) = 0.8983173705
+- UB(4/527, 1.96) = 0.0193517683
+- LB(16/527, 1.645) = 0.0202638968
+
+The adjacent boundary fixtures and one-sided z assignments also match. `a5_nl.py` was not re-scoped; its only post-candidate changes were the phrasing SHA and corresponding fixture pin.
+
+### 10. The r1 audit provenance is off by one
+
+SEVERITY: should-fix
+
+Concrete mechanism: §14.1/14.3 and ASM-0422 describe 27 mechanically rescored items plus 33 fresh items ([design line 715](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:715)). The committed r1 artifact says 28 rescored plus 32 fresh, with four items from each of seven families. The related synonym-rate statement uses 9/27 rather than 9/28 ([line 723](/home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:723)).
+
+Why it matters: the 60/60 gate result does not change, but the registered no-reroll protocol and its evidence accounting disagree. The non-gating synonym estimate is 0.3214, not 0.333, if the artifact’s denominator is authoritative.
+
+### 11. The model-successor substring protection is advisory only
+
+SEVERITY: should-fix
+
+Concrete mechanism: the lint unconditionally converts forced entity-contained answer occurrences into `waived_forced_substring` and makes `green` depend only on other findings ([nlb_lint.py lines 191–209](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_lint.py:191), [lines 268–278](/home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_lint.py:268)). G3 ignores whether the waived list is nonempty. The only model-arm protection is prose in `a5-nl.design.n_planned.successors` ([line 35](/home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:35)).
+
+Why it matters: a model-based successor reusing this lint can receive a green receipt with all 28 leaks unless a human remembers the caveat. The current non-model result is not directly biased by surface answer extraction—the deterministic gazetteer uses longest, non-overlapping entity matches and the engine computes the answers—but the reuse guard is not fail-closed.
+
+OVERALL VERDICT: defects found.
+
+- Freeze-blocking: “l3a was effectively run before preregistration finished”; “The l3a envelope still claims the two excluded families”; “Duplicate eligible arms are silently last-write-wins”; “Harness pins are emitted but never enforced”; “A missing or broken deranged arm passes G5”; “Counts integrity remains incomplete, especially in a5-nl”; “Both records are mechanically unfreezable as written”; “Both records falsely claim a byte-identical parent engine.”
+- Should-fix: “The design document has two live l3a denominators”; “The r1 audit provenance is off by one”; “The model-successor substring protection is advisory only.”
+- Nit: none.

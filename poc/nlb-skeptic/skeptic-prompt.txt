@@ -1,0 +1,115 @@
+You are an INDEPENDENT SKEPTIC performing an adversarial pre-freeze review
+of two DRAFT experiment records in this repository. This is an AUDIT, not a
+blinded judge task: you have full read access to the repository and should
+read whatever files you need to verify claims. Your job is to try to BREAK
+the design before it is allowed to freeze. You are not the designer, not the
+runner, and you have no stake in the outcome — say so plainly if you find
+nothing that blocks freezing.
+
+BACKGROUND: this is the "NL-boundary" leg of two experiments, l3a-parse and
+a5-nl, testing whether a deterministic (non-LLM) front-end parser can
+recover a closed query grammar from blind, held-out natural-language
+phrasings of two frozen evals (family/world vertical and code vertical),
+compared against a measured gold-parse ceiling. A run is scored PASS/FAIL
+by pre-registered Wilson-bound gates. Two post-build findings forced a
+late, pre-freeze re-scope of the l3a-parse scoring (dropping two
+"shape-ambiguous" families into a descriptive-only stratum) and a lint
+exemption for 28 items on the a5-nl side. Both records are still DRAFT;
+nothing is frozen yet. This review is the mandatory pre-freeze gate before
+that can happen.
+
+READ THESE FILES YOURSELF (paths relative to repo root, which is your
+working directory):
+
+1. docs/design-nl-boundary-l3a-parse-a5-nl.md — read section 14 in full
+   (subsections 14.1 through 14.7 especially: 14.2 the shape-recoverable
+   re-scope decision, 14.6 the coordinator change-list, 14.7 the scorer
+   enrichment ratification). Also skim earlier sections (0, 5, 6, 10) for
+   the base design if you need context for any specific claim.
+2. registry/experiments/l3a-parse.json — the DRAFT freeze-candidate record.
+   Note assumption_ids ASM-0420 through ASM-0425 and ASM-0480.
+3. registry/experiments/a5-nl.json — the other DRAFT freeze-candidate
+   record (same assumption family).
+4. analysis/l3a_parse.py — the pinned scorer implementing the n=527
+   shape-recoverable re-scope and the G1 counts-integrity extension.
+5. analysis/a5_nl.py — the a5-nl scorer (NOT re-scoped; check that this is
+   actually true and that nothing there silently drifted).
+
+You MAY read any other file in the repo (e.g. tools/experiments/nlb/
+nlb_lint.py, nlb_instrument.py, or the referenced audit/assessment JSON
+under registry/assessments/ or data/nlb-phrasings-*/) if you need to verify
+a specific claim made in the design doc or registry records — do not take
+a prose claim on faith if the underlying artifact is available to check.
+
+YOUR TASK: hunt for FREEZE-BLOCKING defects. Concretely, attack these five
+angles, and any others you independently find:
+
+(a) THE N=527 IN-SCOPE-FAMILY CARVE-OUT. l3a-parse drops the shape-ambiguous
+    families (unique-maker, made-lookup) out of the gated primary/S2
+    denominators into a descriptive-only stratum, on the strength of a
+    measured recoverability audit. Is this carve-out SOUND, or does it
+    bias/game the pass/fail decision? Could a real failure mode hide inside
+    the carved-out families precisely because they're no longer gated?
+    Is the bucket-sum numerator (exact_in / wrong_in summed over the 7
+    in-scope families) actually faithful to what the run measures, or is
+    there a path by which it could diverge from the true covered outcome?
+    Does the carve-out decision appear to have been reverse-engineered from
+    already-seen scored outcomes (look hard at the diagnostic-disclosure
+    paragraph in section 14.7 — was any decision made or shaped AFTER
+    someone looked at scored results, even partially)?
+
+(b) THE WILSON-BOUND + GATE/KILL ARITHMETIC. Independently recompute the
+    one-sided Wilson bounds yourself (z=1.645 for primary/kill legs,
+    z=1.96 for the Holm-first leg) and check whether the design doc's own
+    stated boundary numbers are internally consistent with each other and
+    with the pinned analysis script's asserted selftest boundaries.
+    Specifically verify (recompute, don't just trust the prose): primary
+    PASS threshold LB(486/527, z=1.645), primary FAIL threshold
+    UB(462/527, z=1.645), S2 gate UB(4/527, z=1.96), S2 kill LB(16/527,
+    z=1.645). Flag ANY numeric inconsistency you find anywhere in the
+    design doc, including between different sections of the SAME document,
+    or between the document and the registry JSON / analysis script. Also
+    check whether the one-sided framing is honestly applied throughout (no
+    quiet switch to a two-sided interpretation, no z mismatch between a
+    stated gate and its selftest fixture).
+
+(c) UNGUARDED INSTRUMENT-INVALIDITY PATHS. Is there any way a run could
+    look VALID (instrument_valid=True, all gates green) while actually
+    being broken — e.g. a gate that doesn't check what it claims to check,
+    a counts-integrity check with a gap, a bucket-sum invariant that could
+    silently fail to hold, or a code path where a family's outcome could be
+    double-counted, dropped, or misattributed without tripping G1?
+
+(d) HONESTY-LINT. Any premise stated without a tag (MEASURED/STIPULATED/
+    EXTRAPOLATION) that should have one? Any claim in the extrapolation
+    envelope or the endpoint text that exceeds what the evidence actually
+    supports? Any circularity between what a definitional/registered
+    endorsement asserts and what the engine or scorer actually checks
+    (i.e., does the design just assert something is true that only the
+    thing being tested could tell you)?
+
+(e) THE FORCED-SUBSTRING WAIVER (28 `waived_forced_substring` qids on the
+    a5-nl side, section 14.4). Does this waiver leak into, or create a
+    trap for, any future model-based successor (the design doc claims a
+    reuse caveat handles this — is that caveat actually sufficient and
+    correctly scoped, or does it leave a gap)? Does the waiver bias the
+    CURRENT non-model boundary result in any way (e.g., inflate exactness
+    by keeping in items that are structurally easier for the deterministic
+    pipeline, or mask a lint failure that should still count against
+    something)?
+
+OUTPUT FORMAT: for EACH defect you find, report:
+  - a short title
+  - SEVERITY: exactly one of "freeze-blocking", "should-fix", or "nit"
+  - the concrete mechanism (cite the file/section/line or field you're
+    relying on)
+  - why it matters (what could go wrong if unfixed)
+
+At the end, give an OVERALL VERDICT line. If you find zero defects that
+should block freezing, write the exact sentence: "no freeze-blocking defect
+found." Otherwise state clearly: "defects found" and list which ones (by
+title) are freeze-blocking versus should-fix versus nit.
+
+Be adversarial and specific. Do not pad the review with praise. If a
+section is sound, say so briefly and move on — spend your effort on
+concrete attempts to break it.
