@@ -1,0 +1,64 @@
+{
+ "census_local_disclosed_input": true,
+ "NOTE": "DISCLOSED MIRROR — census-local input only. This does NOT edit or relax the programme fail-closed sourcing policy in data/d-ext/manifest.json (which correctly declined mirror substitution for the frozen d-ext build). This is an exploratory census cell.",
+ "canonical_predeclared_source": {
+  "hf_repo": "pilehvar/wic",
+  "status": "UNAVAILABLE (HTTP 401 unauthenticated)",
+  "license": "CC BY-NC 4.0"
+ },
+ "mirror_used": {
+  "hf_repo": "aps/super_glue",
+  "config": "wic",
+  "split": "validation",
+  "hf_commit_sha": "3de24cf8022e94f4ee4b9d55a6f539891524d646",
+  "hf_parquet_convert_sha": "fd77e85946ac3435f3864f2a34bae3947c1561d0",
+  "api": "datasets-server.huggingface.co/rows",
+  "what_it_is": "SuperGLUE (Wang et al. 2019) incorporation of the Word-in-Context dataset (Pilehvar & Camacho-Collados 2019, NAACL). Same items/task/labels as the WiC dataset.",
+  "license_note": "SuperGLUE packaging CC BY 4.0; underlying WiC data CC BY-NC 4.0 (research use).",
+  "explicit_caveat": "EXPLORATORY MIRROR, NOT the canonical pilehvar/wic source. Selected by the experiment-runner under a maintainer delegation; faithfulness verified below."
+ },
+ "faithfulness_verification": {
+  "dev_split_n": 638,
+  "expected_dev_n": 638,
+  "schema": [
+   "word",
+   "sentence1",
+   "sentence2",
+   "start1",
+   "start2",
+   "end1",
+   "end2",
+   "idx",
+   "label"
+  ],
+  "label_type": "ClassLabel names [\"False\",\"True\"] -> 0=different sense (False), 1=same sense (True)",
+  "dev_label_balance": {
+   "label0_diff_sense": 319,
+   "label1_same_sense": 319
+  },
+  "offset_target_lemma_exact": 387,
+  "offset_lemma_consistent_prefix3": 631,
+  "offset_irregular_inflection": 7,
+  "irregular_inflection_examples": [
+   "buy",
+   "leave",
+   "keep",
+   "shake",
+   "catch",
+   "go",
+   "rise"
+  ],
+  "offset_structural_check": "all spans in-bounds, non-empty, single-token",
+  "canonical_head_items_idx0_2": [
+   "class",
+   "stripe",
+   "check"
+  ],
+  "all_checks": "PASS (fail-closed; any mismatch aborts before write)"
+ },
+ "output": {
+  "path": "wic-validation.jsonl",
+  "n": 638,
+  "sha256": "sha256:dccc5a7709e2d016ed6dcab6566039da37dc2a6a1be2fd500f8b04952a5dcaec"
+ }
+}
