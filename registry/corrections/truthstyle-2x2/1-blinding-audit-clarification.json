@@ -1,0 +1,26 @@
+{
+  "kind": "protocol-clarification",
+  "experiment": "truthstyle-2x2",
+  "seq": 1,
+  "author": "writer-1",
+  "author_session_note": "Fable experiment-designer role, session 2026-07-10, ratifying the section-7.3 boundary stop raised by the mechanical runner; pseudonym writer-1 per the RT-14 closed record-role list (same identity mapping as registry/amendments/truthstyle-2x2/1-pin-harness-manifest.json: author writer-1 is the experiment-designer role, register-owner pseudonym designer-1)",
+  "authorized_by": "frozen stage discipline of registry/experiments/truthstyle-2x2.json (runner_constraints.stage_discipline: 'the runner never improvises - undecided situations are boundary stops back to Fable') + coordinator escalation 2026-07-10 of the ERR_DTS_BLINDING abort; precedent registry/corrections/f2b-transfer/1-prefreeze-correction.json (pre-data protocol clarification ratified by the design side)",
+  "date": "2026-07-10",
+  "unblinding_state_at_write": "pre",
+  "what_happened": "The section-7.3 blinding audit (spec poc/truthstyle-2x2/judges-invocation.md, pinned via amendment seq 1) aborts on ANY case-insensitive occurrence of the four tokens kernel/nsm/truthstyle/f2b in user-prompt.txt, events.jsonl, or stderr.log. The token f2b is the only one whose bytes are all valid hexadecimal, so it occurs by arithmetic coincidence inside machine-generated hex identifiers that the vendor harnesses emit on every call (session/thread/request UUIDs). judge-p3 aborted at position 16/808 on the session UUID cdf6ab6f-ab88-4fc7-a1a8-f2b8d1b64df9 (segment f2b8d1b64df9); expected coincidence rate under a PERFECTLY blind harness is about 4-6 hits per codex pass and 25+ per p3 pass, i.e. the strict scan aborts every campaign of this shape with probability near 1 and therefore detects nothing. user-prompt.txt was byte-clean everywhere; no label was ever written or read (data/d-ts-labels was never created); the abort surfaced only the token name and a file basename. This is a detector false-positive channel, NOT project-context leakage, and the runner was CORRECT to boundary-stop rather than self-modify a pinned control.",
+  "ruling": "Section 7.3 matching is CLARIFIED, not weakened: a token match counts as a hit unless (i) the token consists entirely of hexadecimal characters AND (ii) the match lies strictly inside a longer maximal [0-9a-f] run (the byte immediately before or after the match is itself hex). Within the pinned token set this affects ONLY f2b; matching for kernel, nsm, and truthstyle is byte-identical to the original scan. Every real leak spelling (f2b, f2b-transfer, f2b-replicate, f2b-errors, repo path fragments) keeps non-hex delimiters and still fires. Full statement, intent-preservation argument, rejected alternatives (identifier-field-value exclusion; naive word-boundary matching), residual-risk disclosure with repo census, and the NORMATIVE replacement blinding_scan code + post-pass audit-sweep tool are in the ratified clarification doc.",
+  "clarification_doc": {
+    "path": "poc/truthstyle-2x2/blinding-audit-clarification.md",
+    "sha256": "4e5d57210655e2ab48d4cd8c6fc67d2a4fb412b7e1d8e6446062665c4d2d369a"
+  },
+  "changes": [
+    "poc/truthstyle-2x2/run-dts-judges.py: blinding_scan replaced with the hex-run-boundary form given verbatim in the clarification doc section 4 (adds _HEX_BYTES + _hex_embedded helpers); signature, return contract, call sites, abort message, token list, scanned surfaces, and all other tripwires unchanged. This file is the UNPINNED mechanical executor: it is not one of the 8 staged harness-manifest files and is named in no pin, so the amendment-1 one-shot pin discipline is intact.",
+    "poc/truthstyle-2x2/blinding-sweep.py: NEW post-pass audit sweep (normative code in the clarification doc section 5); run over the completed run dir before the d-ts-labels ops amendment; GREEN requires zero clarified hits; every hex-embedded exclusion is listed with its surrounding hex run for auditor inspection.",
+    "VOID-AND-RESTART: the aborted run poc/truthstyle-2x2/opus-runs/20260710T115128Z is void for labels and retained as provenance; the campaign restarts from item 1 for all three judges (fresh preflight + main, new run dir, clarified runner committed before launch, sha256 of the runner recorded in the new run dir). No resume mechanism is invented; no selection effect is possible because no label from the void run was ever assembled or read.",
+    "NO frozen or staged byte changed: registry/experiments/truthstyle-2x2.json, all 8 harness-manifest files (judges-invocation.md included), amendments 1-3, and the pinned analysis are byte-identical before and after this correction."
+  ],
+  "asm_refs": ["ASM-0360", "ASM-0361"],
+  "frozen_objects_untouched": true,
+  "staged_bytes_untouched": true,
+  "consumer_note": "The Codex GATE-A auditor can re-derive this ruling mechanically: all attempt artifacts of the void run are retained, so both the strict scan (fires on hex-identifier coincidences) and the clarified scan (fires on none) can be independently re-run over the same bytes."
+}
