@@ -78,6 +78,16 @@ import kot_common as kc
 FIVE_V = ("accuracy", "params", "memory", "inference_compute", "training_compute")
 CATCH_ALL = {"verdict": "INCONCLUSIVE", "when": {"const": True}}
 ASM_CITE_RE = re.compile(r"\bASM-\d{4}\b")
+# Supersede-by-citation marker (the register's append-only supersession
+# convention, first used by ASM-0622/ASM-0623 per design-nl-boundary §14.9
+# item D): a successor entry declares itself "... SUCCESSOR of ASM-NNNN
+# (supersede-by-citation ...)" in its claim. The named predecessor line
+# stands only as append-only history — a citation of it (typically the
+# supersession/historical prose inside a pinned design doc) is NOT a live
+# premise, so the pause scan must follow the chain to the successor and
+# flag THAT entry when it is itself an open EXTRAPOLATION.
+ASM_SUPERSEDED_RE = re.compile(
+    r"SUCCESSOR of (ASM-\d{4}) \(supersede-by-citation")
 
 
 def load_assumption_register(root):
@@ -107,8 +117,23 @@ def scan_open_extrapolations(record, root):
     ASM-id cited anywhere in the record's canonical bytes or in its pinned
     prereg doc whose CURRENT register entry is an open EXTRAPOLATION.
     Returns the sorted list of such ids. Non-fatal by design — the guiding
-    principle is 'stop false conclusions, not experiments'."""
+    principle is 'stop false conclusions, not experiments'.
+
+    Supersession resolution (design-nl-boundary §14.10 item C, ASM-0626):
+    an id whose current register entry has been superseded-by-citation (a
+    successor entry names it via ASM_SUPERSEDED_RE) is historical, not
+    live — citing it (e.g. in a design doc's supersession prose) must not
+    flag the stale entry. The citation is followed along the supersession
+    chain to its live end; the LIVE entry is flagged iff it is an open
+    EXTRAPOLATION, so the backlog signal always points at the entry a
+    resolution would actually retire."""
     register = load_assumption_register(root)
+    successor_of = {}
+    for sid, entry in register.items():
+        claim = entry.get("claim")
+        if isinstance(claim, str):
+            for old in ASM_SUPERSEDED_RE.findall(claim):
+                successor_of[old] = sid
     cited = set(ASM_CITE_RE.findall(kc.canonical_dumps(record)))
     prereg_path = os.path.join(root, record.get("prereg_doc", {}).get("path", ""))
     if os.path.isfile(prereg_path):
@@ -117,7 +142,14 @@ def scan_open_extrapolations(record, root):
                 cited |= set(ASM_CITE_RE.findall(f.read()))
         except (OSError, UnicodeDecodeError):
             pass  # the P-6 pin check already guarantees the doc's bytes
-    return sorted(a for a in cited
+    live = set()
+    for a in cited:
+        seen = set()
+        while a in successor_of and a not in seen:  # cycle-safe chain walk
+            seen.add(a)
+            a = successor_of[a]
+        live.add(a)
+    return sorted(a for a in live
                   if register.get(a, {}).get("tag") == "EXTRAPOLATION"
                   and register.get(a, {}).get("status") == "open")
 

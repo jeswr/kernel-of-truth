@@ -1213,6 +1213,10 @@ and scored by the pinned scorer off the actual log lines.
   verdict-gen passes eligible rows (including retry-superseded ok rows)
   unchanged to the pinned scorer, which is the resolution point — no
   verdict-gen change is needed or made. [STIPULATED: ASM-0624]
+  COMPLETED by §14.10 item A [STIPULATED: ASM-0625]: the round-3 re-audit
+  showed this G0 re-verification enumerates less than the full append-time
+  semantics (reason and already-superseded were not re-checked); the
+  scorer now re-validates both.
 - **Item B — the instrument emits a loggable run body (re-audit finding
   2, freeze-blocking).** `one_arm_body` emitted a top-level `"arm"`
   (rejected by `kot-log/1`) and omitted `event`/`exit`/`prereg_hash`
@@ -1251,6 +1255,10 @@ and scored by the pinned scorer off the actual log lines.
   only well-formed in-range counters. Every reproduced attack above is
   now a selftest fixture asserting INSTRUMENT-INVALID (and G4 false
   where applicable) in both scorers. [STIPULATED: ASM-0624]
+  EXTENDED by §14.10 item B [STIPULATED: ASM-0625]: the round-3 re-audit
+  showed a G1-rejected boolean denominator still flowed into Wilson/Holm
+  arithmetic (crash, ERR_P2_ANALYSIS); G1 failure now short-circuits the
+  scorer before any arithmetic.
 - **Item D — register correction, docstring, and complement-claim
   honesty (re-audit should-fixes and nit).** (i) Corrected successor
   register entries ASM-0622 (r1 protocol with the artifact's 28 rescored
@@ -1286,3 +1294,114 @@ property plus new fail-closed refusals); no existing log row is affected.
 G6 determinism, G2 gold replication, every Wilson threshold, every
 decision boundary and every planned n are byte-unchanged from §14.2/§7 —
 the re-audit independently reconfirmed all of them.
+
+### 14.10 Independent-skeptic round-3 remediation (2026-07-10)
+
+Author: Kern (Fable designer role). The round-3 re-run of the §11 item-6
+independent re-attack against the §14.9 revision
+(`poc/nlb-skeptic/skeptic-round3-output.txt`, committed verbatim, sha256
+5d1867482fab9065233936d8080b36b251116040cea93707f57604c922babdde)
+confirmed the §14.9 items A and B mechanics executable end-to-end (real
+`append_record` fixtures; the retry channel, the loggable run envelope
+and the pre-freeze ERR_P2_NOT_FROZEN refusal all reproduced), confirmed
+round-1 findings 1, 2, 4, 5, 7, 8, 9 and 11 intact, and independently
+reconfirmed every Wilson boundary (486/462/4/16 at n=527; 784/755/9/24
+at n=855) — but returned two freeze-blocking remainders (each a
+claim-vs-implementation gap inside an item already registered) and one
+should-fix. All are remediated below. The ASM-0424 boundary holds: no
+front-end artifact, phrasing or eval byte changes; no endpoint,
+threshold, decision boundary or planned n moves; every edit is
+scorer-side, freeze-tool-side or record-side.
+
+- **Item A — scorer-side G0 re-validation made COMPLETE (round-3 finding
+  1, freeze-blocking; completes §14.9 item A).** §14.9 registered the
+  scorer as an INDEPENDENT re-verification of the append-time supersession
+  semantics ("two independent enforcements of one registered rule"), but
+  G0 never re-checked two of them: a schema-valid, correctly hash-chained
+  log written AROUND log-append could carry a missing/blank `reason` or a
+  double retirement (a newest row retiring a target the middle row had
+  already retired) and still score `instrument_valid=true` with a nominal
+  PASS — the registered defence-in-depth was an overclaim for exactly
+  those two rules. DECISION (epistemic call, resolution (a) of the two
+  honest options — make the claim TRUE rather than downgrade it): both
+  pinned scorers' G0 now re-validate the FULL append-time semantics that
+  are order-independently checkable at read time: (i) every row carrying
+  `supersedes` must state a non-blank string `reason` (`missing_reason`
+  detail); (ii) no target may be retired twice — the order-free form of
+  log-append's not-already-superseded rule, since in a lawful chain every
+  retired row is retired exactly once, by its direct successor
+  (`retired_twice` detail). Both fail closed to INSTRUMENT-INVALID in
+  every log order. Threat-model honesty note: an honest runner ALWAYS
+  writes through log-append (which already refused all of these at append
+  time), so the closed gap was reachable only from a manually constructed
+  chain — but the registered claim was independence, and the claim now
+  matches the implementation. What the scorer still does NOT re-check —
+  target `event`/`exit`/`phase` — is enforced TRANSITIVELY and stated as
+  such: verdict-gen's eligibility filter drops non-run/non-final/non-ok
+  rows before the scorer, so any reference to them is a dangling target
+  (already G0-invalid); this reliance is part of the registered contract,
+  not an omission. Fixtures (both scorers, both log orders): missing,
+  empty and whitespace-only reasons; the re-audit's double-retirement
+  construction (newest row retires both prior rows), asserting the exact
+  `retired_twice` target. [STIPULATED: ASM-0625]
+- **Item B — G1 failure short-circuits before any arithmetic (round-3
+  finding 2, freeze-blocking; extends §14.9 item C).** G1 correctly
+  REJECTED boolean/float/negative counters, but the scorer then CONTINUED
+  into Wilson/Holm arithmetic with the rejected denominator:
+  `n_control=True` crashed both scorers (complex-vs-float TypeError) and
+  a5 `n_covered=True` reached the output with complex Wilson values and
+  died at JSON serialization — verdict-gen surfaces a nonzero scorer exit
+  as ERR_P2_ANALYSIS, NOT the registered INSTRUMENT-INVALID
+  classification, so the promised verdict for malformed counts was
+  unreachable on exactly those inputs. DECISION: in BOTH scorers, any
+  `g1_counts` failure SHORT-CIRCUITS the scorer immediately after the
+  gate block is emitted — gates populated, `instrument_valid` false,
+  analysis block EMPTY, output valid JSON, exit 0 — so verdict-gen's
+  frozen rule 0 fires INSTRUMENT-INVALID mechanically and no rejected
+  denominator is ever computed over. G1 is additionally extended to type
+  EVERY remaining counter the analysis divides (the descriptive
+  `label_strata`, synonym-probe and `frontend_total_ns` counters,
+  whenever present), and non-dict `metrics`/`pins_observed` bodies on any
+  arm are handled fail-closed instead of raising — after a green G1,
+  no malformed metric of any kind reaches arithmetic. Fixtures (both
+  scorers): boolean `n_covered`/`n_control`/`dev_n`/`n_covered_exact`/
+  `n_control_refused_acceptable`/`dev_parse_refused`, the reproduced
+  float/negative forms, non-dict metrics on the mapper and gold arms, and
+  malformed descriptive counters — each asserting a clean, serializable
+  INSTRUMENT-INVALID with an empty analysis block (`json.dumps` inside
+  the fixture). Holm-boundary fixtures now construct an INTERNALLY
+  CONSISTENT control split (the non-acceptable remainder is deducted from
+  the by_family `ok` counts), which the short-circuit newly requires of
+  them; no boundary value moves. [STIPULATED: ASM-0625]
+- **Item C — pause scan follows supersede-by-citation (round-3
+  should-fix).** `prereg-freeze.py`'s `scan_open_extrapolations` flagged
+  the SUPERSEDED ASM-0425 as a live open-EXTRAPOLATION citation because
+  this document still names it in §14.8/§14.9 supersession prose — a
+  misleading backlog signal contradicting the §14.9 item-D remediation
+  ("no live citation reaches the stale entry"). DECISION: the scanner now
+  resolves the register's supersede-by-citation convention mechanically —
+  a current entry declaring itself "SUCCESSOR of ASM-NNNN
+  (supersede-by-citation …" (the exact marker ASM-0622/ASM-0623 carry)
+  retires the named predecessor from the live scan, and any citation of
+  the predecessor is followed along the supersession chain (cycle-safe)
+  to its live end, which is flagged iff it is itself an open
+  EXTRAPOLATION. Result on both records: the pause flag set is exactly
+  `["ASM-0623"]` — the one live sizing-note extrapolation — and ASM-0425
+  no longer emits a flag. Historical prose stays untouched; the register
+  stays append-only; the freeze remains non-blocked either way (PAUSE is
+  non-fatal by design). [STIPULATED: ASM-0626]
+
+Re-pins executed in this change (both records still DRAFT):
+analysis/l3a_parse.py at
+d6b3e65e6206cd781713f54c529c4b70bf6e72141e741704011f341a80901ce6 and
+analysis/a5_nl.py at
+4ea2383cc8c75c8d32a50c8229fe13550a478847906f80ddb07e9d0827cde018
+(superseding the §14.9 round-2-re-audit shas 6954ab92… / bcb9dfa6…), and
+prereg_doc.sha256 at this document revision. No instrument, lint,
+front-end, phrasing or eval byte changes (nlb_instrument.py stays at
+b3cd5bc9…, so the G7 frozen-manifest constants inside both scorers are
+byte-unchanged); the prereg-freeze scanner change is programme-wide
+freeze tooling outside any record pin. G6 determinism, G2 gold
+replication, every Wilson threshold, every decision boundary and every
+planned n are byte-unchanged from §14.2/§7 — the round-3 re-audit
+independently reconfirmed all of them.

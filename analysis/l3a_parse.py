@@ -62,6 +62,32 @@ ASM-0621/ASM-0624; all fail-closed):
   G2/G4 typing: gold-replication counters must be exact non-negative
      integers; G4 divides only well-formed in-range dev counters.
 
+SKEPTIC ROUND-3 HARDENING (design doc 14.10, ASM-0625; all fail-closed):
+  G0 defence-in-depth made COMPLETE: the scorer re-validates the FULL
+     append-time supersession semantics that are order-independently
+     checkable — a superseding row must carry a non-blank string `reason`,
+     and NO target may be retired twice (the order-free form of
+     log-append's not-already-superseded rule: in a lawful chain every
+     retired row is retired exactly once, by its direct successor) — so a
+     manually constructed, schema-valid, correctly hash-chained log that
+     bypasses log-append can no longer reach a nominal PASS carrying an
+     unreasoned or double-retired supersession. Target event/exit/phase
+     remain transitively enforced: verdict-gen's eligibility filter drops
+     non-run/non-final/non-ok rows before the scorer, leaving any
+     reference to them dangling (G0 invalid).
+  G1 SHORT-CIRCUIT: any counts-integrity failure returns a clean,
+     serializable INSTRUMENT-INVALID result (gates populated, analysis
+     EMPTY) BEFORE any Wilson/Holm/descriptive arithmetic — a rejected
+     denominator (boolean/float/negative/missing counter, non-dict
+     metrics) is never computed over and can never crash the scorer into
+     verdict-gen's ERR_P2_ANALYSIS in place of the registered
+     INSTRUMENT-INVALID classification. G1 additionally types EVERY
+     remaining counter the analysis divides — label_strata, synonym-probe
+     counters and frontend_total_ns must be well-formed non-negative
+     integers (in-range) whenever present — and non-dict metrics /
+     pins_observed blocks on any arm are handled fail-closed, never as
+     exceptions.
+
 Endpoints (design doc section 6 + 14.2, verdict rules in the record):
   primary   retained covered exactness == absolute covered-exact rate over
             the 527 shape-recoverable covered queries (gold ceiling MEASURED
@@ -109,7 +135,14 @@ assert each now fails closed: dict-valued and bare-string `supersedes`,
 answer-all superseding a stale mapper row (cross-arm), a two-step supersede
 chain (honoured), zeroed control-family ok with the run-level acceptable
 total intact, float-valued 600.0/270.0/60.0 totals, and dev_parse_refused
-in {-1, 0.5, 61}.
+in {-1, 0.5, 61}. ROUND-3 fixtures (14.10, ASM-0625) reproduce the round-3
+skeptic's surviving attacks and assert each now fails closed: a superseding
+row with a missing/empty/whitespace reason (both log orders), double
+retirement (the newest row retires a target the middle row already
+retired), boolean totals (n_covered/n_control/dev_n/... = True) returning a
+clean serializable INSTRUMENT-INVALID with an EMPTY analysis block (no
+complex Wilson values, no TypeError), non-dict metrics bodies, and
+malformed descriptive counters (label_strata/probe/frontend_total_ns).
 """
 import hashlib
 import json
@@ -257,17 +290,22 @@ def _row_sha(r):
 
 
 def _one_row_per_arm(records):
-    """G0 (fail-closed; design doc 14.8 item 3 as re-based by 14.9 item A,
-    ASM-0621/ASM-0624): duplicate/retry rows are never resolved by log
-    order; the ONLY lawful resolution is the kot-log/1 run-row `supersedes`
-    channel, re-verified here independently of log-append.
+    """G0 (fail-closed; design doc 14.8 item 3 as re-based by 14.9 item A
+    and completed by 14.10 item A, ASM-0621/ASM-0624/ASM-0625):
+    duplicate/retry rows are never resolved by log order; the ONLY lawful
+    resolution is the kot-log/1 run-row `supersedes` channel, re-verified
+    here independently of log-append — INCLUDING the append-time rules that
+    are order-independently checkable at read time: a superseding row must
+    state a non-blank string `reason`, and no target may be retired twice
+    (the order-free form of not-already-superseded).
     Returns (by_arm, ok, detail)."""
     eligible = [r for r in records if r.get("experiment") == EXPERIMENT]
     shas = [_row_sha(r) for r in eligible]
     detail = {"duplicate_arms": [], "dangling_supersedes": [],
               "malformed_supersedes": [], "cross_arm_supersedes": [],
               "self_supersedes": [], "malformed_arm": [],
-              "duplicate_row_bytes": [], "arms_fully_superseded": []}
+              "duplicate_row_bytes": [], "arms_fully_superseded": [],
+              "missing_reason": [], "retired_twice": []}
     if len(set(shas)) != len(shas):
         detail["duplicate_row_bytes"] = sorted(
             s for s in set(shas) if shas.count(s) > 1)
@@ -291,6 +329,11 @@ def _one_row_per_arm(records):
             # malformed field never resolves anything.
             detail["malformed_supersedes"].append(i)
             continue
+        # 14.10 item A (ASM-0625): re-validate log-append's mandatory
+        # non-blank reason — an unreasoned retirement never resolves.
+        reason = r.get("reason")
+        if not isinstance(reason, str) or not reason.strip():
+            detail["missing_reason"].append(i)
         for t in sup:
             if t == shas[i]:
                 detail["self_supersedes"].append(t)
@@ -298,7 +341,15 @@ def _one_row_per_arm(records):
                 detail["dangling_supersedes"].append(t)
             elif arms[by_sha[t]] != arms[i]:
                 detail["cross_arm_supersedes"].append(t)
+            # 14.10 item A (ASM-0625): re-validate log-append's
+            # not-already-superseded rule in its order-free form — in a
+            # lawful chain every retired row is retired EXACTLY ONCE, by
+            # its direct successor; a target named by two superseding rows
+            # is a double retirement and never resolves.
+            if t in superseded:
+                detail["retired_twice"].append(t)
             superseded.add(t)
+    detail["retired_twice"] = sorted(set(detail["retired_twice"]))
     by_arm, dup = {}, []
     for i, r in enumerate(eligible):
         if shas[i] in superseded or arms[i] is None:
@@ -342,7 +393,11 @@ def analyze(records):
     der = by_arm.get("deranged-lexicon")
     if mp is None:
         return out
-    m = mp["metrics"]
+    # 14.10 item B (ASM-0625): a non-dict metrics body is a counts-integrity
+    # failure, never an exception — every read below stays total.
+    m = mp.get("metrics")
+    if not isinstance(m, dict):
+        m = {}
     nc, ng = m.get("n_covered", 0), m.get("n_control", 0)
     n_exact = m.get("n_covered_exact", 0)
     n_wrong = m.get("n_covered_answered_wrong", 0)
@@ -428,19 +483,46 @@ def analyze(records):
     # a count within [0, dev_n]
     totals_int_ok = (_count(nc) and _count(ng) and _count(dev_n) and
                      _count(dev_ref) and dev_ref <= dev_n)
+    # (viii) 14.10 item B (ASM-0625): every REMAINING counter the analysis
+    # divides — the descriptive label_strata, synonym-probe and
+    # frontend_total_ns counters — must be well-formed whenever present, so
+    # once G1 is green NO malformed metric of any kind reaches arithmetic.
+    ls = m.get("label_strata")
+    ls_ok = ls is None or (isinstance(ls, dict) and all(
+        isinstance(v, dict) and _count(v.get("n")) and _count(v.get("exact"))
+        and v["exact"] <= v["n"] for v in ls.values()))
+    if m.get("probe_n"):
+        probe_ok = (_count(m.get("probe_n")) and
+                    _count(m.get("probe_parse_ok")) and
+                    _count(m.get("probe_exact")) and
+                    m["probe_parse_ok"] <= m["probe_n"] and
+                    m["probe_exact"] <= m["probe_n"])
+    else:
+        probe_ok = True
+    descr_ok = ls_ok and probe_ok and _count(m.get("frontend_total_ns", 0))
     g1 = (all(a in by_arm for a in ARMS) and nc == PLANNED_COVERED and
           ng == PLANNED_CONTROL and dev_n == PLANNED_DEV and fam_keys_ok and
           buckets_wellformed and strata_ok and scored_ok and partition_ok and
           twins_ok and control_zero_ok and control_sum_ok and
-          run_partition_ok and ctl_partition_ok and totals_int_ok)
-    gm = gold["metrics"] if gold else {}
+          run_partition_ok and ctl_partition_ok and totals_int_ok and
+          descr_ok)
+    gm = gold.get("metrics") if gold else {}
+    if not isinstance(gm, dict):
+        gm = {}
     # G2 typed (14.9 item C): a float 600.0 must not satisfy parent-perfect
     g2 = all(_count(gm.get(k)) and gm.get(k) == v
              for k, v in GOLD_PERFECT.items())
-    lint = (mp.get("pins_observed", {}) or {}).get("phrasings_lint", {})
+    po_mp = mp.get("pins_observed")
+    if not isinstance(po_mp, dict):
+        po_mp = {}
+    lint = po_mp.get("phrasings_lint")
+    if not isinstance(lint, dict):
+        lint = {}
     g3 = bool(lint.get("green"))
     if EXPECTED_PHRASINGS_SHA256 is not None:
-        pf = (mp.get("pins_observed", {}) or {}).get("phrasings_file", {})
+        pf = po_mp.get("phrasings_file")
+        if not isinstance(pf, dict):
+            pf = {}
         g3 = g3 and pf.get("observed") == EXPECTED_PHRASINGS_SHA256
     # G4 hardened (14.9 item C): the division runs only over well-formed
     # in-range integer counters — dev_parse_refused in {-1, 0.5, 61} or a
@@ -451,7 +533,9 @@ def analyze(records):
     # planned covered set, and report an explicit integer exact count —
     # a missing arm or missing metric is a broken instrument, NEVER
     # "perfect collapse".
-    dm = der["metrics"] if der else {}
+    dm = der.get("metrics") if der else {}
+    if not isinstance(dm, dict):
+        dm = {}
     if der is not None and dm.get("n_covered") == PLANNED_COVERED and \
             _count(dm.get("n_covered")) and _count(dm.get("n_covered_exact")):
         der_rate = dm["n_covered_exact"] / float(dm["n_covered"])
@@ -466,6 +550,16 @@ def analyze(records):
                          "g5_deranged_collapse": g5, "g6_determinism": g6,
                          "g7_harness_pins": g7})
     out["gates"]["instrument_valid"] = all((g0, g1, g2, g3, g4, g5, g6, g7))
+    if not g1:
+        # 14.10 item B (ASM-0625, round-3 freeze-blocker): a counts-
+        # integrity failure SHORT-CIRCUITS the scorer BEFORE any Wilson/
+        # Holm/descriptive arithmetic. A rejected denominator (boolean/
+        # float/negative/missing counter) is never computed over: the
+        # result is a clean, serializable INSTRUMENT-INVALID (gates
+        # populated, analysis EMPTY) — never a crash that verdict-gen
+        # would surface as ERR_P2_ANALYSIS in place of the registered
+        # INSTRUMENT-INVALID classification.
+        return out
 
     # ---- primary (retained == absolute over the 527 in-scope slice;
     # measured gold ceiling 600/600)
@@ -586,8 +680,17 @@ def _rec(arm, covered=None, control_accept=270, control_parse=40, **kw):
         assert b["n"] == PLANNED_COVERED_STRATA[k], (k, b)
         cov[k] = b
     fam = dict(cov)
-    for k, v in PLANNED_CONTROL_STRATA.items():
-        fam[k] = {"n": v, "ok": v, "exact": 0, "wrong": 0,
+    # 14.10: fixtures model an INTERNALLY CONSISTENT instrument — the
+    # non-acceptable control remainder (PLANNED_CONTROL - control_accept)
+    # is deducted from the by_family 'ok' counts so the 14.9 item-C
+    # control-sum invariant holds by construction (G1 now short-circuits,
+    # so a Holm-boundary fixture may no longer ride on an inconsistent
+    # control split).
+    deficit = PLANNED_CONTROL - control_accept
+    for k, v in sorted(PLANNED_CONTROL_STRATA.items()):
+        take = min(deficit, v)
+        deficit -= take
+        fam[k] = {"n": v, "ok": v - take, "exact": 0, "wrong": 0,
                   "refused_parse": 0, "refused_engine": 0}
     ce = sum(cov[k]["exact"] for k in cov)
     cw = sum(cov[k]["wrong"] for k in cov)
@@ -762,6 +865,62 @@ def selftest():
         o = analyze(recs)
         assert o["gates"]["g4_dev_abstention"] is False, (bad, o["gates"])
         assert o["gates"]["instrument_valid"] is False, (bad, o["gates"])
+    # G1 SHORT-CIRCUIT (14.10, reproduced round-3 attack): BOOLEAN totals
+    # and counters return a CLEAN INSTRUMENT-INVALID — no Wilson/Holm
+    # arithmetic runs over the rejected denominator (previously
+    # n_control=True crashed with a complex-vs-float TypeError), the output
+    # is JSON-serializable, and the analysis block is EMPTY
+    for key in ("n_covered", "n_control", "dev_n", "n_covered_exact",
+                "n_control_refused_acceptable", "dev_parse_refused"):
+        recs = _suite()
+        recs[0]["metrics"][key] = True
+        o = analyze(recs)
+        json.dumps(o)  # must not raise: serializable, no complex values
+        assert o["gates"]["g1_counts"] is False, (key, o["gates"])
+        assert o["gates"]["instrument_valid"] is False, (key, o["gates"])
+        assert o["analysis"] == {}, (key, o)
+    # G1 SHORT-CIRCUIT (14.10): every counts-integrity failure — including
+    # the reproduced float/negative forms — now stops before arithmetic
+    for key, val in (("n_covered", 599), ("n_control", -1),
+                     ("n_covered_exact", 0.5)):
+        recs = _suite()
+        recs[0]["metrics"][key] = val
+        o = analyze(recs)
+        json.dumps(o)
+        assert o["gates"]["g1_counts"] is False, (key, o["gates"])
+        assert o["analysis"] == {}, (key, o)
+    # 14.10: non-dict metrics bodies are counts-integrity failures, never
+    # exceptions (mapper arm => G1 short-circuit; gold arm => G2 false)
+    recs = _suite()
+    recs[0]["metrics"] = "bogus"
+    o = analyze(recs)
+    json.dumps(o)
+    assert o["gates"]["g1_counts"] is False, o["gates"]
+    assert o["analysis"] == {}, o
+    recs = _suite()
+    recs[1]["metrics"] = None
+    o = analyze(recs)
+    json.dumps(o)
+    assert o["gates"]["g2_gold_replication"] is False, o["gates"]
+    assert o["gates"]["instrument_valid"] is False, o["gates"]
+    # 14.10: malformed DESCRIPTIVE counters (label_strata / probe /
+    # frontend_total_ns) fail G1 instead of crashing the divisions
+    recs = _suite()
+    recs[0]["metrics"]["label_strata"] = {"verbatim": {"n": "x", "exact": 1}}
+    o = analyze(recs)
+    json.dumps(o)
+    assert o["gates"]["g1_counts"] is False, o["gates"]
+    assert o["analysis"] == {}, o
+    recs = _suite()
+    recs[0]["metrics"]["probe_n"] = True
+    o = analyze(recs)
+    json.dumps(o)
+    assert o["gates"]["g1_counts"] is False, o["gates"]
+    recs = _suite()
+    recs[0]["metrics"]["frontend_total_ns"] = "1e9"
+    o = analyze(recs)
+    json.dumps(o)
+    assert o["gates"]["g1_counts"] is False, o["gates"]
     # G0 (14.8): duplicate mapper-parse rows are INVALID in BOTH log orders
     stale = _rec("mapper-parse", covered={"unique-father": _fam(122, exact=0,
                                                                 rparse=122)})
@@ -792,6 +951,33 @@ def selftest():
     o = analyze([stale, stale2] + recs)
     assert o["gates"]["instrument_valid"] is True, o["gates"]
     assert o["analysis"]["retained_covered_exact_rate"] == 1.0, o
+    # G0 (14.10, reproduced round-3 attack): a superseding row with a
+    # MISSING / empty / whitespace reason fails closed in BOTH log orders —
+    # log-append refuses these at append time; the scorer now re-validates
+    # them independently, so the defence-in-depth claim is executable
+    for bad in (None, "", "   "):
+        recs = _suite()
+        recs[0]["supersedes"] = [_row_sha(stale)]
+        if bad is not None:
+            recs[0]["reason"] = bad
+        for order in ([stale] + recs, recs + [stale]):
+            o = analyze(order)
+            assert o["gates"]["g0_one_row_per_arm"] is False, (bad, o["gates"])
+            assert o["gates"]["instrument_valid"] is False, (bad, o["gates"])
+            assert "missing_reason" in o["gates"]["g0_detail"], (bad, o)
+    # G0 (14.10, reproduced round-3 attack): DOUBLE RETIREMENT — the newest
+    # row retires BOTH prior rows although the middle row already retired
+    # the first (log-append's not-already-superseded rule, re-validated
+    # order-independently: no target may be retired twice)
+    recs = _suite()
+    recs[0]["supersedes"] = [_row_sha(stale), _row_sha(stale2)]
+    recs[0]["reason"] = "over-broad retirement"
+    for order in ([stale, stale2] + recs, recs + [stale2, stale]):
+        o = analyze(order)
+        assert o["gates"]["g0_one_row_per_arm"] is False, o["gates"]
+        assert o["gates"]["instrument_valid"] is False, o["gates"]
+        assert o["gates"]["g0_detail"]["retired_twice"] == \
+            [_row_sha(stale)], o
     # G0: a dangling supersede target fails closed
     recs = _suite()
     recs[0]["supersedes"] = ["0" * 64]
