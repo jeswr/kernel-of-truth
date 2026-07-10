@@ -1,0 +1,54 @@
+{
+  "analysis_input_metrics": {
+    "judge_pairs_both_labelled": 360,
+    "judge_pairs_token_equal": 347,
+    "labels_sha256": "f0f1ada57168dc8fda82bf6ec805c1ddecd342ac0ba8b9f55d902044818b1461",
+    "n_agree_j1p": 342,
+    "n_agree_j2": 345,
+    "n_escape_j1p": 1,
+    "n_items": 360,
+    "n_labelled_j1p": 360,
+    "n_labelled_j2": 360,
+    "n_nolabel_j1p": 0,
+    "n_probe_deranged_pick": 1,
+    "n_probe_false_endorse": 1,
+    "n_probe_labelled": 60,
+    "n_probe_none": 59,
+    "panel_agree_membership": 337,
+    "panel_resolved": 347,
+    "preflight_pass": true
+  },
+  "arm": "adjudication-instrument",
+  "experiment": "f2b-transfer-llmproxy",
+  "run_ts": "20260710T001512Z",
+  "sourcing_disclosure": {
+    "coverage_disclosure": "kernel-expressibility coverage 0.3542 at rung molecules-v0, MEASURED by m0b on one incomplete kernel-v0 instance -- NOT general coverage; bounded to the covered concepts of d-qa-t.",
+    "judge_1p": {
+      "codex": "codex-cli 0.144.1 via npx -y @openai/codex@0.144.1",
+      "invocation_spec_sha256": "4e487159a95493eafff0374c84f3bf6393836c4781b6f60e003966f734450f34",
+      "model": "gpt-5.6-sol",
+      "probe_responses_sha256": "cf6eadc2ee4adc83d0dd238aba239ffebfa15e70dfe68702cf8e09df2c0c119f",
+      "reasoning_effort": "low",
+      "responses_sha256": "d8337eb835a1925734158e27db534754986f6f9fbc30cee77a69b9e9eb684bf1",
+      "role": "SOLE gold source (judge-1 role STAND-IN)"
+    },
+    "judge_2": {
+      "codex": "codex-cli 0.142.5 (global)",
+      "model": "gpt-5.5",
+      "note": "judge-1p (GPT-5.6) and judge-2 (GPT-5.5) are ONE model family; their raw agreement is a CORRELATION DIAGNOSTIC and NEVER independent validation (envelope clauses 1 and 5).",
+      "reasoning_effort": "low",
+      "responses_sha256": "7291a9955f2bba2e8c98d97f0231a36a3ed29192379a57bb0cae8468009d3b60",
+      "role": "DIAGNOSTIC-ONLY + FAIL-direction stability gate (NEVER gold)"
+    },
+    "membership_gold": {
+      "corpus": "d-qa-t",
+      "pin": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+      "source": "data/d-qa-t/items/covered.jsonl (answer field)"
+    },
+    "probe": {
+      "correct_answer_by_construction": "NONE",
+      "manifest_sha256": "ff5d7c1f603c4981187aa52cea196ab95c154c2fcb5a5058fc04b7a34e6b343f",
+      "source": "data/d-adj-t-llmproxy/deranged-probe.jsonl"
+    }
+  }
+}
