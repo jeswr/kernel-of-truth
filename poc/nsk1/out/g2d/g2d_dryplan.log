@@ -1,0 +1,85 @@
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/jmwright-045/main/ap-jmSjghRUO9lCElW01q6jfU
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+└── 🔨 Created function gen_l4.
+=== G2d host-scale + few-shot headroom probe (ladder-exhaustion §6 A'+A'') ===
+CLUTRR items        : 100 (data/nsk1-clutrr/headroom.jsonl)
+custom items        : 100 (nsk1-eval first-100-covered)
+forms               : CLUTRR {1b, 2}; custom {2} (form 1b N/A on custom)
+arms                : text-only, external-text
+host configs        : R3=HuggingFaceTB/SmolLM2-1.7B-Instruct (zero-shot) ; R1=HuggingFaceTB/SmolLM2-135M-Instruct (few-shot k=2) ; R2=HuggingFaceTB/SmolLM2-360M-Instruct (few-shot k=2)
+few-shot exemplars  : CLUTRR=['clutrr-c0001', 'clutrr-c0002'] ; custom=['nsk1-c0116', 'nsk1-c0118'] (disjoint, class-balanced CLUTRR)
+generations total   : 1800 (600/host), greedy, max_new_tokens=16
+gpu                 : A10G (A10G fits 1.7B fp32 ~7GB)
+gate                : (form,host,shot) PASS iff text-only in [0.05,0.85] AND external >= text-only+0.02
+worst-case wall/$   : << a few GPU-h; ~$5-10 bound (standing G2 envelope + maintainer G2d fork)
+phase               : exploratory (quarantined, uncitable)
+
+DRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.
+
+--- CLUTRR form-1b few-shot prefix (text-only) ---
+Story:
+[Michael] and his daughter [Jennifer] like to read poems together. [Jason] is the proud father of the lovely [Michael]
+Question: How is Jason related to Jennifer?
+Answer with exactly one word naming the family relationship, chosen from this list: aunt, brother, brother-in-law, daughter, daughter-in-law, father, father-in-law, granddaughter, grandfather, grandmother, grandson, husband, mother, mother-in-law, neice, nephew, no-relation, sister, sister-in-law, son, son-in-law, uncle, wife. Answer: grandfather
+
+Story:
+[Christopher] took his daughter [Angela] to the movies [Christopher] wanted to buy his mother, [Gabrielle], a birthday present. But he did n't know what to get her.
+Question: How is Gabrielle related to Angela?
+Answer with exactly one word naming the family relationship, chosen from this list: aunt, brother, brother-in-law, daughter, daughter-in-law, father, father-in-law, granddaughter, grandfather, grandmother, grandson, husband, mother, mother-in-law, neice, nephew, no-relation, sister, sister-in-law, son, son-in-law, uncle, wife. Answer: grandmother
+
+
+--- + target (item clutrr-h0001) ---
+Story:
+[Joe] likes it when his mother, [Lisa], plays the flute. [Lisa] learned this skill from her mother, [Gabrielle].
+Question: How is Gabrielle related to Joe?
+Answer with exactly one word naming the family relationship, chosen from this list: aunt, brother, brother-in-law, daughter, daughter-in-law, father, father-in-law, granddaughter, grandfather, grandmother, grandson, husband, mother, mother-in-law, neice, nephew, no-relation, sister, sister-in-law, son, son-in-law, uncle, wife. Answer:
+
+--- CLUTRR form-2 few-shot prefix (external) tail ---
+...y [Michael]
+Question: Who is the grandfather of Jennifer?
+Note: the father of Jennifer is Michael.
+Answer with exactly one word: the name of the person. Answer: Jason
+
+Story:
+[Christopher] took his daughter [Angela] to the movies [Christopher] wanted to buy his mother, [Gabrielle], a birthday present. But he did n't know what to get her.
+Question: Who is the grandmother of Angela?
+Note: the father of Angela is Christopher.
+Answer with exactly one word: the name of the person. Answer: Gabrielle
+
+
+--- + target (item clutrr-h0001) tail ---
+...Story:
+[Joe] likes it when his mother, [Lisa], plays the flute. [Lisa] learned this skill from her mother, [Gabrielle].
+Question: Who is the grandmother of Joe?
+Note: the mother of Joe is Lisa.
+Answer with exactly one word: the name of the person. Answer:
+
+--- custom form-2 few-shot prefix (text-only) tail ---
+...ather of Tilda Kovan-Kovan is Egon Kovan-Kovan.
+The father of Wim Kovan-Lorne is Joss Kovan-Lorne.
+The father of Boris Kovan-Kovan is Ulric Kovan-Kovan.
+The mother of Ines Marek-Prell is Elin Marek-Prell.
+The mother of Hesta Umber-Weller is Jorun Umber-Weller.
+The mother of Brina Zeller-Krail is Cora Zeller-Krail.
+The mother of Lira Kovan-Kovan is Tilda Kovan-Kovan.
+Question: Who is the mother of the father of Tomas Kovan-Kovan?
+Answer with the full name of the person. Answer: Xena Kovan-Kovan
+
+
+--- + target (item nsk1-c0001) tail ---
+...Voss-Voss is Mina Voss-Voss.
+The mother of Ysolt Prell-Sable is Vera Prell-Sable.
+The mother of Milo Krail-Ekwe is Yola Krail-Ekwe.
+The mother of Brina Brant-Fenmore is Petra Brant-Fenmore.
+Question: Who is the mother of the mother of Rurik Voss-Voss?
+Answer with the full name of the person. Answer:
+
+exemplar golds: CLUTRR 1b=['grandfather', 'grandmother'] | custom form2=['Ulric Kovan-Kovan', 'Xena Kovan-Kovan']
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/jmwright-045/main/ap-jmSjghRUO9lCElW01q6jfU

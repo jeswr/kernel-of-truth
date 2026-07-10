@@ -661,3 +661,349 @@ def g2c(dry_plan: bool = False, gpu: str = "A10G"):
     print(json.dumps(summary, indent=1, sort_keys=True))
     print("form2_PASS =", form2_pass, "| freeze_candidate =", freeze_candidate,
           "| LADDER_EXHAUSTED =", ladder_exhausted)
+
+
+# =====================================================================
+# G2d — HOST-SCALE + FEW-SHOT HEADROOM PROBE (ladder-exhaustion fork A'+A'')
+# ---------------------------------------------------------------------
+# The fallback ladder (g2/g2b/g2c) EXHAUSTED at R1=135M / R2=360M zero-shot: no
+# measurable headroom for the flagship's internal-vs-external contrast on EITHER
+# eval surface. Per docs/next/nsk1-ladder-exhaustion.md §6 the maintainer chose
+# the combined G2d fork (ranks 1+2), run here as ONE Modal launch:
+#   A'  host-scale probe : the SAME two-clause G2 headroom check at
+#       SmolLM2-1.7B-Instruct (the in-family R3 of f2/f2b), ZERO-SHOT — does the
+#       "compose a delivered fact" capability exist in-family at 1.7B?
+#   A'' few-shot rider   : the SAME check at R1=135M / R2=360M with k=2 compose
+#       exemplars prepended (a DISCLOSED prompt amendment: zero-shot -> few-shot)
+#       — is the g2b/g2c format-collapse / bridge-capture pathology a zero-shot
+#       prompt artifact the smallest hosts can be rescued from?
+# Forms + surfaces UNCHANGED from the ladder: CLUTRR forms {1b relation-word,
+# 2 entity} on data/nsk1-clutrr/headroom.jsonl (TARGET prompts byte-reused from
+# _build_specs_g2b) and form 2 on the custom nsk1-eval first-100-covered split
+# (TARGET prompts byte-reused from _build_specs_g2c). Arms unchanged: text-only,
+# external-text. The two-clause gate is REUSED VERBATIM (§5.2.1): a
+# (form, host, shot) cell PASSES iff acc(text-only) in [0.05,0.85] AND
+# acc(external) >= acc(text-only)+0.02. Every row is phase:"exploratory"
+# (quarantined, uncitable, flips no verdict).
+#
+# FEW-SHOT EXEMPLAR CONSTRUCTION — a runner OPERATIONAL instantiation of Fable's
+# "k-shot compose exemplars" mechanism (§6 A''); DISCLOSED here and FLAGGED in
+# the handoff for Fable to confirm at interpretation (same status as the g2c
+# operational adaptations above — mechanical, deterministic, phase:exploratory):
+#   * k = 2 exemplars, prepended as worked examples in the SAME prompt format as
+#     the target (each = the target's rendered prompt for that form/arm with the
+#     gold answer appended after "Answer:"; examples separated by a blank line;
+#     the whole few-shot string is ONE user turn, chat-templated exactly as the
+#     zero-shot arm). The TARGET prompt is byte-identical to g2b/g2c, so the ONLY
+#     change vs the zero-shot arm is the prepended prefix (clean host-scale and
+#     shot contrasts).
+#   * exemplar items are drawn DETERMINISTICALLY and DISJOINT from the scored
+#     slice (never a scored item): CLUTRR = the first covered grandfather-gold and
+#     first covered grandmother-gold items of data/nsk1-clutrr/items.jsonl NOT in
+#     the 100-item headroom slice (class-balanced so neither relation is favoured);
+#     custom = the first two covered nsk1-eval items AFTER the first-100
+#     calibration split. Same exemplars for both CLUTRR forms.
+#   * external-arm exemplars carry their OWN feedback sentence (byte-identical
+#     renderer) and their answer is the COMPOSED grandparent / chain-top (NOT the
+#     parroted bridge) — the demonstration whose absence g2b/g2c diagnosed.
+#   * gold-not-in-feedback + feedback-budget + 3-name asserts hold per exemplar
+#     (ABORT on violation), exactly as the target build gates do.
+#
+# Cells (9): {clutrr/1b, clutrr/2, custom/2} x {R3-1.7B zero-shot, R1-135M
+# few-shot, R2-360M few-shot}. Generations: 3 hosts x (2 forms x 2 arms x 100
+# CLUTRR + 1 form x 2 arms x 100 custom) = 3 x 600 = 1800 short greedy gens,
+# max_new_tokens=16 (MAX_NEW_TOKENS), << a few GPU-h; ~$5-10 bound (standing G2
+# envelope + the maintainer's explicit G2d fork choice). Outputs ->
+# poc/nsk1/out/g2d/. Nothing above g2/g2b/g2c or the shared helpers is modified.
+# =====================================================================
+
+HOSTSCALE_MODEL = "HuggingFaceTB/SmolLM2-1.7B-Instruct"  # A' zero-shot probe (R3)
+FEWSHOT_K = 2
+
+
+def _clutrr_exemplar_items():
+    """First covered grandfather-gold + grandmother-gold CLUTRR items NOT in the
+    headroom slice, in file order (deterministic, class-balanced, DISJOINT from
+    the 100 scored items). Returns [grandfather_item, grandmother_item]."""
+    head_ids = set()
+    for line in (_ROOT / "data/nsk1-clutrr/headroom.jsonl").read_text().splitlines():
+        if line.strip():
+            head_ids.add(json.loads(line)["item_id"])
+    gf = gm = None
+    for line in (_ROOT / "data/nsk1-clutrr/items.jsonl").read_text().splitlines():
+        if not line.strip():
+            continue
+        it = json.loads(line)
+        if it.get("stratum") != "covered" or it["item_id"] in head_ids:
+            continue
+        if it["gold_surface"] == "grandfather" and gf is None:
+            gf = it
+        elif it["gold_surface"] == "grandmother" and gm is None:
+            gm = it
+        if gf is not None and gm is not None:
+            break
+    assert gf is not None and gm is not None, \
+        "could not find disjoint grandfather/grandmother CLUTRR exemplars"
+    return [gf, gm]
+
+
+def _render_clutrr_exemplar(it, form, arm, vocab, rel_surface):
+    """Render ONE CLUTRR exemplar (worked example) in the SAME format as the g2b
+    TARGET prompt for (form, arm) with the gold answer appended after 'Answer:'.
+    Feedback byte-identical to run 1 / g2b. ABORTs on the same build assertions."""
+    lex = it["lexicon"]
+    surfaces = list(lex.values())
+    assert len(lex) == 3 and len({s.lower() for s in surfaces}) == 3, \
+        "exemplar %s not 3-name-distinct" % it["item_id"]
+    subj = it["hop1"]["subject"]
+    br = it["hop1_bridge"]
+    base = lex[subj]
+    bridge = lex[br]
+    tops = [u for u in lex if u not in (subj, br)]
+    assert len(tops) == 1, "exemplar %s: no unique chain-top" % it["item_id"]
+    top = lex[tops[0]]
+    gold_rel = it["gold_surface"]
+    story = "\n".join(it["context"])
+    rs = rel_surface[it["hop1"]["rel"]]
+    fb = "Note: the %s of %s is %s." % (rs, base, bridge)
+    assert len(fb.split()) <= FEEDBACK_TOKEN_BUDGET, "exemplar feedback budget breach"
+    fb_tokens = [w.strip(".").lower() for w in fb.split()]
+    assert gold_rel.lower() not in fb_tokens, \
+        "exemplar 1b gold leaked into feedback (%s)" % it["item_id"]
+    assert top.lower() not in fb_tokens, \
+        "exemplar 2 gold name leaked into feedback (%s)" % it["item_id"]
+    instr_rel = INSTRUCTION % ", ".join(vocab)
+    if form == "1b":
+        q = "How is %s related to %s?" % (top, base)
+        prompt = ("Story:\n%s\nQuestion: %s\n%s" % (story, q, instr_rel) if arm == "to"
+                  else "Story:\n%s\nQuestion: %s\n%s\n%s" % (story, q, fb, instr_rel))
+        gold = gold_rel
+    else:  # form 2 (entity)
+        q = "Who is the %s of %s?" % (gold_rel, base)
+        prompt = ("Story:\n%s\nQuestion: %s\n%s" % (story, q, INSTRUCTION_ENTITY) if arm == "to"
+                  else "Story:\n%s\nQuestion: %s\n%s\n%s" % (story, q, fb, INSTRUCTION_ENTITY))
+        gold = top
+    return "%s %s" % (prompt, gold)
+
+
+def _fewshot_prefix_clutrr(exemplars, form, arm, vocab, rel_surface):
+    blocks = [_render_clutrr_exemplar(it, form, arm, vocab, rel_surface)
+              for it in exemplars]
+    return "\n\n".join(blocks) + "\n\n"
+
+
+def _custom_exemplar_items():
+    """First FEWSHOT_K covered nsk1-eval items AFTER the first-100 calibration
+    split (deterministic, DISJOINT from the scored custom split)."""
+    covered = []
+    for line in (_ROOT / "data/nsk1-eval/items.jsonl").read_text().splitlines():
+        if not line.strip():
+            continue
+        it = json.loads(line)
+        if it.get("stratum") == "covered":
+            covered.append(it)
+    pool = covered[100:]
+    assert len(pool) >= FEWSHOT_K, "custom disjoint exemplar pool too small"
+    return pool[:FEWSHOT_K]
+
+
+def _render_custom_exemplar(it, arm, ent, rel_surface):
+    """Render ONE custom (nsk1-eval) form-2 exemplar in the SAME format as the
+    g2c TARGET prompt for the arm, with the gold name appended. Feedback
+    byte-identical to g2c. ABORTs on the same build assertions."""
+    base = ent[it["hop1"]["subject"]]
+    bridge = ent[it["hop1_bridge"]]
+    gold = it["gold_surface"]
+    story = "\n".join(it["context"])
+    rs = rel_surface[it["hop1"]["rel"]]
+    fb = "Note: the %s of %s is %s." % (rs, base, bridge)
+    assert len(fb.split()) <= FEEDBACK_TOKEN_BUDGET, "custom exemplar feedback budget breach"
+    assert gold.lower() not in fb.lower(), \
+        "custom exemplar gold leaked into feedback (%s)" % it["item_id"]
+    q = it["question"]
+    prompt = ("Story:\n%s\nQuestion: %s\n%s" % (story, q, INSTRUCTION_ENTITY_CUSTOM)
+              if arm == "to"
+              else "Story:\n%s\nQuestion: %s\n%s\n%s" % (story, q, fb, INSTRUCTION_ENTITY_CUSTOM))
+    return "%s %s" % (prompt, gold)
+
+
+def _fewshot_prefix_custom(exemplars, arm, ent, rel_surface):
+    blocks = [_render_custom_exemplar(it, arm, ent, rel_surface) for it in exemplars]
+    return "\n\n".join(blocks) + "\n\n"
+
+
+@app.local_entrypoint()
+def g2d(dry_plan: bool = False, gpu: str = "A10G"):
+    # ---- TARGET prompts: byte-reused from the ladder builders (unmodified) ----
+    cl, vocab = _build_specs_g2b()            # CLUTRR forms 1b + 2 (100 items)
+    cu = _build_specs_g2c()                   # custom form 2 (100 items)
+    n_c = len(cl)
+    n_cu = len(cu)
+
+    # ---- few-shot exemplars (deterministic, disjoint, disclosed) ----
+    lex_c = json.loads((_ROOT / "data/nsk1-clutrr/lexicon.json").read_text())
+    rel_surface_c = {v: k for k, v in lex_c["relations"].items()}
+    lex_cu = json.loads((_ROOT / "data/nsk1-eval/lexicon.json").read_text())
+    ent = lex_cu["entities"]
+    rel_surface_cu = {v: k for k, v in lex_cu["relations"].items()}
+
+    ex_c = _clutrr_exemplar_items()
+    ex_cu = _custom_exemplar_items()
+    pfx_c = {(form, arm): _fewshot_prefix_clutrr(ex_c, form, arm, vocab, rel_surface_c)
+             for form in ("1b", "2") for arm in ("to", "ext")}
+    pfx_cu = {arm: _fewshot_prefix_custom(ex_cu, arm, ent, rel_surface_cu)
+              for arm in ("to", "ext")}
+
+    ex_c_ids = [it["item_id"] for it in ex_c]
+    ex_cu_ids = [it["item_id"] for it in ex_cu]
+
+    # ---- host configs: A' (1.7B zero-shot) + A'' (135M/360M few-shot) ----
+    host_configs = [
+        ("R3", HOSTSCALE_MODEL, "zero-shot"),
+        ("R1", RUNGS["R1"], "few-shot"),
+        ("R2", RUNGS["R2"], "few-shot"),
+    ]
+    gens_per_host = n_c * 2 * 2 + n_cu * 2   # 400 CLUTRR + 200 custom = 600
+    total_gens = gens_per_host * len(host_configs)
+
+    print("=== G2d host-scale + few-shot headroom probe (ladder-exhaustion §6 A'+A'') ===")
+    print("CLUTRR items        : %d (data/nsk1-clutrr/headroom.jsonl)" % n_c)
+    print("custom items        : %d (nsk1-eval first-100-covered)" % n_cu)
+    print("forms               : CLUTRR {1b, 2}; custom {2} (form 1b N/A on custom)")
+    print("arms                : text-only, external-text")
+    print("host configs        : R3=%s (zero-shot) ; R1=%s (few-shot k=%d) ; R2=%s (few-shot k=%d)"
+          % (HOSTSCALE_MODEL, RUNGS["R1"], FEWSHOT_K, RUNGS["R2"], FEWSHOT_K))
+    print("few-shot exemplars  : CLUTRR=%s ; custom=%s (disjoint, class-balanced CLUTRR)"
+          % (ex_c_ids, ex_cu_ids))
+    print("generations total   : %d (%d/host), greedy, max_new_tokens=%d"
+          % (total_gens, gens_per_host, MAX_NEW_TOKENS))
+    print("gpu                 : %s (A10G fits 1.7B fp32 ~7GB)" % gpu)
+    print("gate                : (form,host,shot) PASS iff text-only in [0.05,0.85] AND external >= text-only+0.02")
+    print("worst-case wall/$   : << a few GPU-h; ~$5-10 bound (standing G2 envelope + maintainer G2d fork)")
+    print("phase               : exploratory (quarantined, uncitable)")
+
+    if dry_plan:
+        print("\nDRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.")
+        print("\n--- CLUTRR form-1b few-shot prefix (text-only) ---\n%s" % pfx_c[("1b", "to")])
+        print("--- + target (item %s) ---\n%s" % (cl[0]["item_id"], cl[0]["f1b_to"]))
+        print("\n--- CLUTRR form-2 few-shot prefix (external) tail ---\n...%s" % pfx_c[("2", "ext")][-500:])
+        print("--- + target (item %s) tail ---\n...%s" % (cl[0]["item_id"], cl[0]["f2_ext"][-300:]))
+        print("\n--- custom form-2 few-shot prefix (text-only) tail ---\n...%s" % pfx_cu["to"][-500:])
+        print("--- + target (item %s) tail ---\n...%s" % (cu[0]["item_id"], cu[0]["f2_to"][-300:]))
+        print("\nexemplar golds: CLUTRR 1b=%s | custom form2=%s"
+              % ([it["gold_surface"] for it in ex_c], [it["gold_surface"] for it in ex_cu]))
+        return
+
+    genfn = gen_a10g if gpu == "A10G" else gen_l4
+
+    def _assemble(shot):
+        fewshot = (shot == "few-shot")
+        b = []
+        b += [(pfx_c[("1b", "to")] + s["f1b_to"]) if fewshot else s["f1b_to"] for s in cl]
+        b += [(pfx_c[("1b", "ext")] + s["f1b_ext"]) if fewshot else s["f1b_ext"] for s in cl]
+        b += [(pfx_c[("2", "to")] + s["f2_to"]) if fewshot else s["f2_to"] for s in cl]
+        b += [(pfx_c[("2", "ext")] + s["f2_ext"]) if fewshot else s["f2_ext"] for s in cl]
+        b += [(pfx_cu["to"] + s["f2_to"]) if fewshot else s["f2_to"] for s in cu]
+        b += [(pfx_cu["ext"] + s["f2_ext"]) if fewshot else s["f2_ext"] for s in cu]
+        return b
+
+    all_rows = []
+    cells = []
+    for host_label, model_id, shot in host_configs:
+        batch = _assemble(shot)
+        assert len(batch) == gens_per_host, \
+            "expected %d prompts, got %d" % (gens_per_host, len(batch))
+        gens = genfn.remote(model_id, batch)
+        assert len(gens) == gens_per_host, \
+            "expected %d gens, got %d" % (gens_per_host, len(gens))
+        g_c1b_to = gens[0:n_c]
+        g_c1b_ex = gens[n_c:2 * n_c]
+        g_c2_to = gens[2 * n_c:3 * n_c]
+        g_c2_ex = gens[3 * n_c:4 * n_c]
+        off = 4 * n_c
+        g_cu_to = gens[off:off + n_cu]
+        g_cu_ex = gens[off + n_cu:off + 2 * n_cu]
+
+        acc = {"c1b_to": 0, "c1b_ex": 0, "c2_to": 0, "c2_ex": 0, "cu_to": 0, "cu_ex": 0}
+        for i, s in enumerate(cl):
+            c1b_to = _score(g_c1b_to[i], s["f1b_gold"], vocab)
+            c1b_ex = _score(g_c1b_ex[i], s["f1b_gold"], vocab)
+            c2_to = _score_entity(g_c2_to[i], s["f2_gold"], s["f2_base"], s["f2_surfaces"])
+            c2_ex = _score_entity(g_c2_ex[i], s["f2_gold"], s["f2_base"], s["f2_surfaces"])
+            acc["c1b_to"] += c1b_to
+            acc["c1b_ex"] += c1b_ex
+            acc["c2_to"] += c2_to
+            acc["c2_ex"] += c2_ex
+            all_rows.append({"phase": "exploratory", "gate": "G2d", "surface": "clutrr",
+                             "form": "1b", "host": host_label, "model": model_id,
+                             "shot": shot, "item_id": s["item_id"], "gold": s["f1b_gold"],
+                             "gen_text_only": g_c1b_to[i], "gen_external_text": g_c1b_ex[i],
+                             "correct_text_only": bool(c1b_to),
+                             "correct_external_text": bool(c1b_ex)})
+            all_rows.append({"phase": "exploratory", "gate": "G2d", "surface": "clutrr",
+                             "form": "2", "host": host_label, "model": model_id,
+                             "shot": shot, "item_id": s["item_id"], "gold": s["f2_gold"],
+                             "base": s["f2_base"], "gen_text_only": g_c2_to[i],
+                             "gen_external_text": g_c2_ex[i],
+                             "correct_text_only": bool(c2_to),
+                             "correct_external_text": bool(c2_ex)})
+        for i, s in enumerate(cu):
+            cu_to = _score_entity(g_cu_to[i], s["gold"], s["base"], s["surfaces"])
+            cu_ex = _score_entity(g_cu_ex[i], s["gold"], s["base"], s["surfaces"])
+            acc["cu_to"] += cu_to
+            acc["cu_ex"] += cu_ex
+            all_rows.append({"phase": "exploratory", "gate": "G2d", "surface": "custom",
+                             "form": "2",
+                             "split": "nsk1-eval-custom-calibration-first100covered",
+                             "host": host_label, "model": model_id, "shot": shot,
+                             "item_id": s["item_id"], "gold": s["gold"], "base": s["base"],
+                             "gen_text_only": g_cu_to[i], "gen_external_text": g_cu_ex[i],
+                             "correct_text_only": bool(cu_to),
+                             "correct_external_text": bool(cu_ex)})
+
+        def _cell(surface, form, a_to_c, a_ex_c, nn):
+            a_to = a_to_c / nn
+            a_ex = a_ex_c / nn
+            c_i = 0.05 <= a_to <= 0.85
+            c_ii = a_ex >= a_to + 0.02
+            return {"surface": surface, "form": form, "host": host_label,
+                    "model": model_id, "shot": shot, "n": nn,
+                    "acc_text_only": a_to, "acc_external_text": a_ex,
+                    "delta": a_ex - a_to,
+                    "clause_i_text_only_in_window": c_i,
+                    "clause_ii_external_ge_text_plus_2pp": c_ii,
+                    "pass": c_i and c_ii}
+        cells.append(_cell("clutrr", "1b", acc["c1b_to"], acc["c1b_ex"], n_c))
+        cells.append(_cell("clutrr", "2", acc["c2_to"], acc["c2_ex"], n_c))
+        cells.append(_cell("custom", "2", acc["cu_to"], acc["cu_ex"], n_cu))
+        for cell in cells[-3:]:
+            print("[%s %s form %s %s] %s : text-only=%.4f external-text=%.4f delta=%+.4f pass=%s"
+                  % (host_label, shot, cell["form"], cell["surface"], model_id,
+                     cell["acc_text_only"], cell["acc_external_text"], cell["delta"],
+                     cell["pass"]))
+
+    passing = [{"surface": c["surface"], "form": c["form"], "host": c["host"],
+                "shot": c["shot"]} for c in cells if c["pass"]]
+    summary = {
+        "phase": "exploratory",
+        "gate": "G2d",
+        "spec_ref": "docs/next/nsk1-ladder-exhaustion.md §6 ranks 1+2 (A'+A'')",
+        "gate_rule": "(form,host,shot) PASS iff acc(text-only) in [0.05,0.85] AND acc(external) >= acc(text-only)+0.02",
+        "fewshot_k": FEWSHOT_K,
+        "fewshot_exemplars": {"clutrr": ex_c_ids, "custom": ex_cu_ids},
+        "host_configs": [{"host": h, "model": m, "shot": s} for h, m, s in host_configs],
+        "cells": cells,
+        "passing_cells": passing,
+        "any_pass": bool(passing),
+    }
+
+    outdir = _ROOT / "poc/nsk1/out/g2d"
+    outdir.mkdir(parents=True, exist_ok=True)
+    with open(outdir / "g2d_rows.jsonl", "w") as f:
+        for r in all_rows:
+            f.write(json.dumps(r, sort_keys=True) + "\n")
+    with open(outdir / "g2d_summary.json", "w") as f:
+        json.dump(summary, f, indent=1, sort_keys=True)
+    print("\n=== G2d RESULT (phase:exploratory) ===")
+    print(json.dumps(summary, indent=1, sort_keys=True))
+    print("\nany_pass =", bool(passing), "| passing_cells =", passing)

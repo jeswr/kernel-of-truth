@@ -1,0 +1,171 @@
+{
+ "any_pass": true,
+ "cells": [
+  {
+   "acc_external_text": 0.0,
+   "acc_text_only": 0.0,
+   "clause_i_text_only_in_window": false,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "1b",
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "zero-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.43,
+   "acc_text_only": 0.76,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.33,
+   "form": "2",
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "zero-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.03,
+   "acc_text_only": 0.1,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.07,
+   "form": "2",
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "zero-shot",
+   "surface": "custom"
+  },
+  {
+   "acc_external_text": 0.0,
+   "acc_text_only": 0.0,
+   "clause_i_text_only_in_window": false,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "1b",
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.17,
+   "acc_text_only": 0.09,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": true,
+   "delta": 0.08000000000000002,
+   "form": "2",
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100,
+   "pass": true,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.0,
+   "acc_text_only": 0.0,
+   "clause_i_text_only_in_window": false,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "2",
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "custom"
+  },
+  {
+   "acc_external_text": 0.34,
+   "acc_text_only": 0.34,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "1b",
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.63,
+   "acc_text_only": 0.77,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.14,
+   "form": "2",
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.05,
+   "acc_text_only": 0.07,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.020000000000000004,
+   "form": "2",
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "custom"
+  }
+ ],
+ "fewshot_exemplars": {
+  "clutrr": [
+   "clutrr-c0001",
+   "clutrr-c0002"
+  ],
+  "custom": [
+   "nsk1-c0116",
+   "nsk1-c0118"
+  ]
+ },
+ "fewshot_k": 2,
+ "gate": "G2d",
+ "gate_rule": "(form,host,shot) PASS iff acc(text-only) in [0.05,0.85] AND acc(external) >= acc(text-only)+0.02",
+ "host_configs": [
+  {
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "shot": "zero-shot"
+  },
+  {
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "shot": "few-shot"
+  },
+  {
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "shot": "few-shot"
+  }
+ ],
+ "passing_cells": [
+  {
+   "form": "2",
+   "host": "R1",
+   "shot": "few-shot",
+   "surface": "clutrr"
+  }
+ ],
+ "phase": "exploratory",
+ "spec_ref": "docs/next/nsk1-ladder-exhaustion.md \u00a76 ranks 1+2 (A'+A'')"
+}

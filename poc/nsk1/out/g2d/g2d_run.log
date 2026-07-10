@@ -1,0 +1,246 @@
+G2d real run launched 2026-07-10T08:51:51Z
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/jmwright-045/main/ap-NlapCfiCvzm2oXgHPfE1k5
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+└── 🔨 Created function gen_l4.
+=== G2d host-scale + few-shot headroom probe (ladder-exhaustion §6 A'+A'') ===
+CLUTRR items        : 100 (data/nsk1-clutrr/headroom.jsonl)
+custom items        : 100 (nsk1-eval first-100-covered)
+forms               : CLUTRR {1b, 2}; custom {2} (form 1b N/A on custom)
+arms                : text-only, external-text
+host configs        : R3=HuggingFaceTB/SmolLM2-1.7B-Instruct (zero-shot) ; R1=HuggingFaceTB/SmolLM2-135M-Instruct (few-shot k=2) ; R2=HuggingFaceTB/SmolLM2-360M-Instruct (few-shot k=2)
+few-shot exemplars  : CLUTRR=['clutrr-c0001', 'clutrr-c0002'] ; custom=['nsk1-c0116', 'nsk1-c0118'] (disjoint, class-balanced CLUTRR)
+generations total   : 1800 (600/host), greedy, max_new_tokens=16
+gpu                 : A10G (A10G fits 1.7B fp32 ~7GB)
+gate                : (form,host,shot) PASS iff text-only in [0.05,0.85] AND external >= text-only+0.02
+worst-case wall/$   : << a few GPU-h; ~$5-10 bound (standing G2 envelope + maintainer G2d fork)
+phase               : exploratory (quarantined, uncitable)
+G2_BUILD=v2 module import ok (root=/root)
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 50/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 100/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 150/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 200/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 250/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 300/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 350/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 400/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 450/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 500/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 550/600
+[g2] HuggingFaceTB/SmolLM2-1.7B-Instruct generated 600/600
+[R3 zero-shot form 1b clutrr] HuggingFaceTB/SmolLM2-1.7B-Instruct : text-only=0.0000 external-text=0.0000 delta=+0.0000 pass=False
+[R3 zero-shot form 2 clutrr] HuggingFaceTB/SmolLM2-1.7B-Instruct : text-only=0.7600 external-text=0.4300 delta=-0.3300 pass=False
+[R3 zero-shot form 2 custom] HuggingFaceTB/SmolLM2-1.7B-Instruct : text-only=0.1000 external-text=0.0300 delta=-0.0700 pass=False
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 50/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 100/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 150/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 200/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 250/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 300/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 350/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 400/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 450/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 500/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 550/600
+[g2] HuggingFaceTB/SmolLM2-135M-Instruct generated 600/600
+[R1 few-shot form 1b clutrr] HuggingFaceTB/SmolLM2-135M-Instruct : text-only=0.0000 external-text=0.0000 delta=+0.0000 pass=False
+[R1 few-shot form 2 clutrr] HuggingFaceTB/SmolLM2-135M-Instruct : text-only=0.0900 external-text=0.1700 delta=+0.0800 pass=True
+[R1 few-shot form 2 custom] HuggingFaceTB/SmolLM2-135M-Instruct : text-only=0.0000 external-text=0.0000 delta=+0.0000 pass=False
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 50/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 100/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 150/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 200/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 250/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 300/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 350/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 400/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 450/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 500/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 550/600
+[g2] HuggingFaceTB/SmolLM2-360M-Instruct generated 600/600
+[R2 few-shot form 1b clutrr] HuggingFaceTB/SmolLM2-360M-Instruct : text-only=0.3400 external-text=0.3400 delta=+0.0000 pass=False
+[R2 few-shot form 2 clutrr] HuggingFaceTB/SmolLM2-360M-Instruct : text-only=0.7700 external-text=0.6300 delta=-0.1400 pass=False
+[R2 few-shot form 2 custom] HuggingFaceTB/SmolLM2-360M-Instruct : text-only=0.0700 external-text=0.0500 delta=-0.0200 pass=False
+
+=== G2d RESULT (phase:exploratory) ===
+{
+ "any_pass": true,
+ "cells": [
+  {
+   "acc_external_text": 0.0,
+   "acc_text_only": 0.0,
+   "clause_i_text_only_in_window": false,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "1b",
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "zero-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.43,
+   "acc_text_only": 0.76,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.33,
+   "form": "2",
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "zero-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.03,
+   "acc_text_only": 0.1,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.07,
+   "form": "2",
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "zero-shot",
+   "surface": "custom"
+  },
+  {
+   "acc_external_text": 0.0,
+   "acc_text_only": 0.0,
+   "clause_i_text_only_in_window": false,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "1b",
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.17,
+   "acc_text_only": 0.09,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": true,
+   "delta": 0.08000000000000002,
+   "form": "2",
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100,
+   "pass": true,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.0,
+   "acc_text_only": 0.0,
+   "clause_i_text_only_in_window": false,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "2",
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "custom"
+  },
+  {
+   "acc_external_text": 0.34,
+   "acc_text_only": 0.34,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": 0.0,
+   "form": "1b",
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.63,
+   "acc_text_only": 0.77,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.14,
+   "form": "2",
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "clutrr"
+  },
+  {
+   "acc_external_text": 0.05,
+   "acc_text_only": 0.07,
+   "clause_i_text_only_in_window": true,
+   "clause_ii_external_ge_text_plus_2pp": false,
+   "delta": -0.020000000000000004,
+   "form": "2",
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "n": 100,
+   "pass": false,
+   "shot": "few-shot",
+   "surface": "custom"
+  }
+ ],
+ "fewshot_exemplars": {
+  "clutrr": [
+   "clutrr-c0001",
+   "clutrr-c0002"
+  ],
+  "custom": [
+   "nsk1-c0116",
+   "nsk1-c0118"
+  ]
+ },
+ "fewshot_k": 2,
+ "gate": "G2d",
+ "gate_rule": "(form,host,shot) PASS iff acc(text-only) in [0.05,0.85] AND acc(external) >= acc(text-only)+0.02",
+ "host_configs": [
+  {
+   "host": "R3",
+   "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "shot": "zero-shot"
+  },
+  {
+   "host": "R1",
+   "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "shot": "few-shot"
+  },
+  {
+   "host": "R2",
+   "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "shot": "few-shot"
+  }
+ ],
+ "passing_cells": [
+  {
+   "form": "2",
+   "host": "R1",
+   "shot": "few-shot",
+   "surface": "clutrr"
+  }
+ ],
+ "phase": "exploratory",
+ "spec_ref": "docs/next/nsk1-ladder-exhaustion.md \u00a76 ranks 1+2 (A'+A'')"
+}
+
+any_pass = True | passing_cells = [{'surface': 'clutrr', 'form': '2', 'host': 'R1', 'shot': 'few-shot'}]
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/jmwright-045/main/ap-NlapCfiCvzm2oXgHPfE1k5
