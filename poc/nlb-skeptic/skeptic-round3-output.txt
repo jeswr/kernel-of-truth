@@ -1,0 +1,132 @@
+## Part 1 — freeze-blocking gaps
+
+### A. G0 executable supersede path — PARTIALLY RESOLVED
+
+The official append path is now executable and correctly constrained:
+
+- `kot-log/1` declares `supersedes` as a non-empty array of 64-hex hashes; top-level undeclared fields remain forbidden ([kot-log-1.json:6](</home/ec2-user/css/kernel/kernel-of-truth/registry/schema/kot-log-1.json:6>), [kot-log-1.json:50](</home/ec2-user/css/kernel/kernel-of-truth/registry/schema/kot-log-1.json:50>)).
+- The writer requires `event:"run"`, a non-blank reason, distinct existing targets, `exit:"ok"`, matching `config.arm` and phase, and a target not already superseded ([log-append.py:127](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:127>), [log-append.py:144](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:144>)).
+- Legacy `event:"supersede"` still rejects successful targets ([log-append.py:228](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:228>)).
+- G0 uses the canonical log-line hash including the trailing newline ([l3a_parse.py:242](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:242>), [a5_nl.py:230](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:230>)) and rejects malformed lists, dangling/cross-arm/self references, duplicate bytes, zero-survivor arms, and duplicate survivors ([l3a_parse.py:259](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:259>), [a5_nl.py:247](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:247>)).
+
+I exercised the actual `append_record` function against canonical, fully stamped `kot-log/1` raw lines using an in-memory filesystem because this audit environment permits no scratch-file writes.
+
+| Fixture | Append result | G0 result, target-first / replacement-first |
+|---|---:|---:|
+| Valid same-arm retry with reason | `OK` | valid / valid; surviving retry scored |
+| Cross-arm target | `ERR_P2_SUPERSEDE_RUN` | invalid / invalid |
+| Dictionary `supersedes` | `ERR_P2_SCHEMA` | invalid / invalid |
+| Bare-string `supersedes` | `ERR_P2_SCHEMA` | invalid / invalid |
+| Dangling hash | `ERR_P2_SUPERSEDE_RUN` | invalid / invalid |
+| Missing reason | `ERR_P2_SUPERSEDE_RUN` | **valid / valid in both scorers** |
+| Empty reason | `ERR_P2_SCHEMA` | **valid / valid in both scorers** |
+| Whitespace reason | `ERR_P2_SUPERSEDE_RUN` | **valid / valid in both scorers** |
+| Already-superseded target | `ERR_P2_SUPERSEDE_RUN` | **valid / valid when the newest row retires both prior rows** |
+| Non-`ok` target | `ERR_P2_SUPERSEDE_RUN` | Out of scorer input scope: verdict selection removes the target, making the remaining reference dangling |
+| Legacy supersede of `ok` row | `ERR_P2_SUPERSEDE_OK` | Not a run-row retry |
+| Forward/cycle precursor | `ERR_P2_SUPERSEDE_RUN` as dangling | No executable cycle |
+
+A genuine cycle cannot be constructed through the format without a SHA-256 fixed point: every target must already exist. The closest executable forward-reference attempt was rejected. Theoretical zero-survivor cycles are also explicitly invalidated by G0.
+
+The partial resolution is important: G0 never examines `reason` and never tracks whether a target was already superseded; it simply adds every structurally valid target to a set ([l3a_parse.py:283](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:283>), [a5_nl.py:271](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:271>)). Therefore both scorers returned `instrument_valid=True` for missing/blank reasons and for a double-retirement construction, in either record order.
+
+This is reachable from a manually constructed but schema-valid and correctly hash-chained log: `read_log` checks sequence and hash linkage but not schema or append semantics ([kot_common.py:297](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/kot_common.py:297>)); verdict generation then passes final, successful run rows without re-running `log-append` validation ([verdict-gen.py:271](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:271>), [verdict-gen.py:367](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:367>)). Such a malformed chain can therefore support a nominal PASS despite the claimed scorer-side defense in depth.
+
+No malformed duplicate-survivor fixture was selected by log order: ordinary duplicates, malformed lists, cross-arm references, and dangling references were invalid in both orders. The accepted malformed reason/double-retirement cases produce one survivor, also order-independently.
+
+### B. Instrument run-body loggability — RESOLVED
+
+`one_arm_body` now emits:
+
+- `event:"run"`, `exit:"ok"`, and the selected phase;
+- `config.arm`;
+- `prereg_hash` when present in `frozen-index.json`;
+- no top-level `arm` ([nlb_instrument.py:466](</home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:466>)).
+
+My mocked-run fixture produced pre-freeze keys:
+
+`config, event, exit, experiment, metrics, phase, pins_observed`
+
+with no `arm` and no `prereg_hash`. With a frozen hash and retry arguments, it produced `supersedes`, `reason`, and a schema-valid stamped row with zero validation errors.
+
+The frozen hash lookup is direct and returns `None` pre-freeze ([nlb_instrument.py:404](</home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:404>)). Passing that pre-freeze body to the writer returned `ERR_P2_NOT_FROZEN`, as required by [log-append.py:96](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/log-append.py:96>).
+
+The CLI threads repeatable `--supersedes` and `--reason` into `one_arm_body` and rejects absent or blank reasons before execution ([nlb_instrument.py:573](</home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:573>), [nlb_instrument.py:584](</home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:584>)). I reproduced the argparse refusal.
+
+### C. Counts integrity — PARTIALLY RESOLVED
+
+The three prior attacks are fixed in both scorers:
+
+- Zeroing every control-family `ok` while retaining the run-level acceptable total now gives `g1_counts=False` and `instrument_valid=False`; the new equality is at [l3a_parse.py:402](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:402>) and [a5_nl.py:385](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:385>).
+- Float-valued `n_covered`, `n_control`, and `dev_n` all give `g1_counts=False`.
+- `dev_parse_refused=-1`, `0.5`, and `dev_n+1` give both `g1_counts=False` and `g4_dev_abstention=False`.
+- `_count` genuinely excludes booleans ([l3a_parse.py:234](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:234>), [a5_nl.py:222](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:222>)); the totals/range checks use it at [l3a_parse.py:425](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:425>) and [a5_nl.py:408](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:408>).
+
+However, malformed boolean totals do not always get classified as `INSTRUMENT-INVALID`:
+
+- `n_control=True` makes both pinned scripts exit 1 with `TypeError: '>' not supported between instances of 'complex' and 'float'`.
+- In a5, `n_covered=True` reaches output with complex Wilson values and exits 1 because complex numbers are not JSON serializable.
+
+G1 correctly becomes false, but analysis continues into Wilson and Holm arithmetic using the invalid denominators ([l3a_parse.py:473](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:473>), [l3a_parse.py:496](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:496>), [a5_nl.py:455](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:455>), [a5_nl.py:473](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:473>)). Verdict generation treats a nonzero analysis process as `ERR_P2_ANALYSIS`, not the registered `INSTRUMENT-INVALID` verdict ([verdict-gen.py:455](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:455>)).
+
+For the “coincidental cancellation” variant, I built a coherent lower aggregate acceptable count, redistributed one family’s `ok` by −1 and another’s by +1, and both scorers remained valid. That is appropriate: no frozen per-family acceptable targets exist, so a different within-family distribution is not internally contradictory provided every `ok<=n` and the aggregate matches.
+
+## Part 2 — regression checks
+
+- Round-1 finding 1, post-outcome framing — **UNCHANGED-AND-FINE.** The withdrawal/disclosure remains in design §14.8 ([design:1010](</home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:1010>)).
+
+- Finding 2, l3a envelope — **UNCHANGED-AND-FINE.** The record remains expressly restricted to the seven-family, n=527 slice ([l3a-parse.json:210](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:210>)).
+
+- Finding 4, G7 pins — **UNCHANGED-AND-FINE.** Both selftests passed; G7 still checks every mandatory arm ([l3a_parse.py:463](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:463>), [a5_nl.py:446](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:446>)). Current file hashes match both registry pins.
+
+- Finding 5, G5 deranged-arm existence — **UNCHANGED-AND-FINE.** Both selftests reconfirmed missing/empty/non-integral deranged metrics fail ([l3a_parse.py:450](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:450>), [a5_nl.py:433](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:433>)).
+
+- Finding 7, mechanical freezability — **UNCHANGED-AND-FINE.** Both required dry-runs returned `DRY-RUN-OK`.
+
+- Finding 8, engine claim — **UNCHANGED-AND-FINE.** Records still distinguish behavioral G2 continuity from byte identity ([l3a-parse.json:158](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:158>), [a5-nl.json:153](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:153>)).
+
+- Finding 9, denominators and anchors — **UNCHANGED-AND-FINE.** Section 14 remains pinned in both records, and the l3 scorer still fixes `N_SCORED=527` ([l3a-parse.json:17](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:17>), [a5-nl.json:17](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:17>), [l3a_parse.py:131](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:131>)).
+
+- Finding 11, model-arm lint guard — **UNCHANGED-AND-FINE.** `model` remains the default profile ([nlb_lint.py:281](</home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_lint.py:281>)).
+
+- Wilson arithmetic — **UNCHANGED-AND-FINE.** Independent integer sweeps reproduced 486/462/4/16 at n=527 and 784/755/9/24 at n=855. The Wilson implementation and registered constants remain unchanged ([l3a_parse.py:119](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:119>), [a5_nl.py:110](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:110>)).
+
+- ASM correction — **RESOLVED in the registry records, with a remaining tooling inconsistency.** Both records cite ASM-0622/0623/0624 and no longer contain ASM-0422/0425 ([l3a-parse.json:143](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/l3a-parse.json:143>), [a5-nl.json:138](</home/ec2-user/css/kernel/kernel-of-truth/registry/experiments/a5-nl.json:138>)); the successor entries contain 28+32 and 9/28 ([assumptions.jsonl:172](</home/ec2-user/css/kernel/kernel-of-truth/registry/assumptions.jsonl:172>)).
+
+- Instrument docstring — **RESOLVED.** It now says the engine differs from the parent pin and G2 supplies behavioral continuity ([nlb_instrument.py:29](</home/ec2-user/css/kernel/kernel-of-truth/tools/experiments/nlb/nlb_instrument.py:29>)).
+
+- Complement nit — **RESOLVED.** Section 14.8 now says one ULP at 4/527 and bit-equal at 9/855 ([design:1091](</home/ec2-user/css/kernel/kernel-of-truth/docs/design-nl-boundary-l3a-parse-a5-nl.md:1091>)). I reproduced the `−1.1102230246251565e−16` difference at 4/527 and equality at 9/855.
+
+- Freeze dry-runs — **UNCHANGED-AND-FINE for freezability.** Both returned `DRY-RUN-OK`. Each also emitted nonfatal pause flags for `ASM-0425` and `ASM-0623`.
+
+## Still-open or newly identified issues
+
+### G0 read-time defense accepts unreasoned and double-retirement supersession
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: G0 validates the list shape and target arm but never validates `reason` or detects that a target was already superseded ([l3a_parse.py:283](</home/ec2-user/css/kernel/kernel-of-truth/analysis/l3a_parse.py:283>), [a5_nl.py:271](</home/ec2-user/css/kernel/kernel-of-truth/analysis/a5_nl.py:271>)). Verdict generation does not re-run append validation on a chain-verified log.
+
+Why it matters: a schema-valid manually constructed chain with a missing reason or double-retirement can produce `instrument_valid=True` and a nominal PASS, contradicting the registered independent defense-in-depth contract.
+
+### Invalid boolean totals can crash instead of returning INSTRUMENT-INVALID
+
+SEVERITY: freeze-blocking
+
+Concrete mechanism: G1 rejects the boolean, but the scorer continues to compute Wilson/Holm statistics using the malformed denominator. `n_control=True` crashes both scripts; a5 `n_covered=True` produces unserializable complex values.
+
+Why it matters: the pre-registration promises malformed counts are classified `INSTRUMENT-INVALID`. These fixtures instead abort analysis with `ERR_P2_ANALYSIS`.
+
+### Freeze scanner still treats superseded ASM-0425 as a live citation
+
+SEVERITY: should-fix
+
+Concrete mechanism: `scan_open_extrapolations` scans every ASM token in the pinned prereg document, including historical/supersession prose ([prereg-freeze.py:105](</home/ec2-user/css/kernel/kernel-of-truth/tools/registry/prereg-freeze.py:105>)). Because the design still names ASM-0425 historically, both dry-runs reported pause flags for ASM-0425 despite the records replacing it.
+
+Why it matters: freezing succeeds, but the mechanical output contradicts the remediation claim that no live citation reaches the stale entry and emits a misleading backlog signal.
+
+OVERALL VERDICT: defects remain.
+
+- Freeze-blocking: “G0 read-time defense accepts unreasoned and double-retirement supersession”; “Invalid boolean totals can crash instead of returning INSTRUMENT-INVALID.”
+- Should-fix: “Freeze scanner still treats superseded ASM-0425 as a live citation.”
+- Nit: none.

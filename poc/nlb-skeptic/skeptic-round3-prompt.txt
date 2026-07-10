@@ -1,0 +1,193 @@
+You are an INDEPENDENT REVIEWER performing a STATISTICAL-INTEGRITY
+PRE-REGISTRATION AUDIT of two DRAFT scientific experiment records in this
+research repository. This is a data-validation and reproducibility review of a
+research pipeline — it is NOT security or penetration testing. You have full
+read access to the repository and should read whatever files you need to
+verify the pre-registration's correctness claims. You are an independent
+methodologist: not the designer, not the person who will run the experiment,
+and with no stake in whether the experiment passes or fails.
+
+BACKGROUND: this is the "NL-boundary" leg of two experiments, l3a-parse and
+a5-nl. They test whether a deterministic (non-LLM) front-end parser can
+recover a closed query grammar from blind, held-out natural-language phrasings
+of two frozen evaluation sets (a family/world vertical and a code vertical),
+compared against a measured gold-parse ceiling. A run is scored PASS or FAIL
+by pre-registered Wilson-confidence-bound gates. The scoring code contains a
+series of fail-closed VALIDITY CHECKS ("gates" G0-G7) whose job is to mark a
+run INSTRUMENT-INVALID whenever the input data records are malformed or
+internally inconsistent, so that a nominal PASS can never be reported off of
+corrupt or contradictory measurements. Your review confirms those validity
+checks behave as the pre-registration specifies.
+
+REVIEW HISTORY: an earlier round of this audit (your own prior report,
+committed verbatim at poc/nlb-skeptic/skeptic-round2-output.txt) confirmed
+eight earlier items resolved and identified exactly THREE remaining
+freeze-blocking correctness gaps in the validity checks:
+
+  (i)   "G0 supersede path not executable in kot-log/1" — the retry-recovery
+        mechanism (a later successful run row replacing an earlier successful
+        run row of the same experiment arm) was described in the scorer but
+        could not actually exist in a real log line: the log schema had no
+        `supersedes` property (additionalProperties:false), and the official
+        event:"supersede" mechanism only annotates non-"ok" rows while the
+        scorer only consumes "ok" rows. The raw check also accepted a
+        dictionary-valued `supersedes` and a same-run cross-arm reference.
+  (ii)  "Instrument run body not directly loggable" — the pinned instrument's
+        emitted run body carried a top-level `"arm"` key the log schema
+        rejects and omitted event/exit/prereg_hash that the log writer
+        requires, so the advertised raw output could not be appended to the
+        real log without an undocumented hand transform.
+  (iii) "G1 counts-integrity incomplete" — the counts check did not require
+        the per-control-family acceptable-refusal counts to sum to the
+        run-level acceptable total, and accepted non-integer totals
+        (n_covered / n_control / dev_n as floats) and an out-of-range
+        dev_parse_refused, so an internally inconsistent or non-integral set
+        of measurements could still report a nominal PASS.
+
+plus two lower-severity items (two register entries ASM-0422/ASM-0425 still
+citing superseded 27/33 and 9/27 figures; an instrument docstring still
+describing a byte-identical engine) and one cosmetic nit (an n=527 Wilson
+"complement form" claimed bit-identical but actually one floating-point ULP
+off at 4/527, with no effect on any pass/fail decision).
+
+The designer has recorded remediations for all of these in
+docs/design-nl-boundary-l3a-parse-a5-nl.md section 14.9 ("Independent-skeptic
+round-2 RE-AUDIT remediation", items A-D), and re-pinned both scorers, the
+instrument, the log schema, the log-append writer, and both registry records
+(now citing ASM-0622/ASM-0623/ASM-0624). YOUR JOB THIS ROUND is to verify,
+item by item, whether each of the three remaining freeze-blocking gaps (plus
+the two lower-severity items and the nit) is now GENUINELY remediated in the
+actual code and schema — not merely narrated as remediated in the change-list
+— and to independently check that the remediation did not introduce any new
+correctness gap. Ground every conclusion in the current code/schema/text you
+read (cite file and line), not in the change-list's self-description.
+
+READ THESE FILES YOURSELF (paths relative to the repo root, your working
+directory):
+
+1. poc/nlb-skeptic/skeptic-round2-output.txt — your own prior report; its
+   three freeze-blocking items (plus two should-fix and one nit) are this
+   round's checklist.
+2. docs/design-nl-boundary-l3a-parse-a5-nl.md section 14.9 in full (the
+   remediation change-list, items A-D) and section 14.8 for context on what
+   it supersedes. Skim sections 0, 5, 6, 10 for base-design context if needed.
+3. analysis/l3a_parse.py and analysis/a5_nl.py — both re-pinned; the G0
+   (one-row-per-arm / supersede) and G1 (counts integrity) validity checks
+   claim to be further hardened; G5 and G7 should be unchanged from the prior
+   round (re-confirm briefly).
+4. tools/experiments/nlb/nlb_instrument.py — one_arm_body claims to now emit a
+   directly-appendable log run body (event:"run", exit:"ok", config.arm as the
+   sole arm field, prereg_hash auto-stamped once the record is frozen and
+   absent before freeze), plus new --supersedes/--reason command-line flags
+   for the retry path.
+5. registry/schema/kot-log-1.json — claims a new run-row `supersedes` property
+   (array of 64-hex strings, minItems 1).
+6. tools/registry/log-append.py — claims a new fail-closed validation path
+   (ERR_P2_SUPERSEDE_RUN): the `supersedes` field is lawful only on a "run"
+   row, requires a non-empty reason, forbids duplicate targets, and requires
+   every target to be an EXISTING exit:"ok" run row of the SAME config.arm and
+   phase that is not already superseded.
+7. registry/experiments/l3a-parse.json and registry/experiments/a5-nl.json —
+   both kot-reg/2, now citing ASM-0622/ASM-0623/ASM-0624 in place of the
+   superseded ASM-0422/ASM-0425 citations, with re-pinned harness_manifest
+   hashes.
+
+You MAY read any other file (nlb_frontend.py, tools/registry/verdict-gen.py,
+tools/registry/prereg-freeze.py, registry/assumptions.jsonl,
+data/nlb-phrasings-*/) if needed to verify a specific claim.
+
+YOUR TASK — three parts.
+
+PART 1: For each of the three previously-noted freeze-blocking gaps, state
+whether it is now RESOLVED, PARTIALLY RESOLVED, or NOT RESOLVED, grounded in
+the current code (cite file/line). For each, CONSTRUCT SMALL INPUT-RECORD
+FIXTURES the same way you did in prior rounds and confirm the validity check
+CLASSIFIES THEM CORRECTLY — i.e. that a well-formed valid record is accepted
+and that malformed or internally-inconsistent records are correctly rejected
+as INSTRUMENT-INVALID. Specifically:
+
+(A) G0 executable supersede path. In the real hash-chained log format (not a
+    unit-test dictionary), confirm the schema + log-append.py + scorer chain
+    now lets a genuine successful-retry run row correctly REPLACE a prior
+    successful run row of the SAME arm, and confirm the validity checks
+    correctly REJECT each of the following malformed or inconsistent records,
+    in BOTH possible log orders (target line before the replacement line, and
+    the reverse ordering within the scored record set):
+      - a reference that points to a row of a DIFFERENT arm;
+      - a `supersedes` field that is a dictionary or a bare string rather than
+        a list of hashes;
+      - a reference to a row hash that is not present in the log (dangling);
+      - a construction that would form a reference cycle (A replaces B and B
+        replaces A, or as close to that as the format allows);
+      - a reference to a row that has already been superseded;
+      - a replacement row missing a reason or with an empty reason;
+      - a reference that targets a NON-"ok" row through this run-row channel
+        (confirm whether that is in-scope or correctly out of scope).
+    Confirm that under none of these malformed inputs can two surviving rows
+    for the same arm let a verdict be selected merely by their order in the
+    log. Confirm the intended invariant is preserved: the official
+    event:"supersede" annotation still refuses exit:"ok" targets, so a
+    genuinely successful row is only ever retired by an explicit,
+    reason-bearing, same-arm replacement row — never silently dropped.
+
+(B) Instrument run-body loggability. Confirm one_arm_body (or the command-line
+    path that calls it) now produces a body that log-append.py accepts with NO
+    external hand transform — carrying event, exit, phase, config.arm, and
+    (once frozen) prereg_hash, with NO undeclared top-level key (in
+    particular, confirm the old top-level `"arm"` is genuinely gone, not
+    merely renamed). Trace or read the code closely enough to confirm the
+    pre-freeze refusal (ERR_P2_NOT_FROZEN) fires when prereg_hash is absent,
+    and that --supersedes/--reason on the command line thread through to a
+    schema-valid supersede request.
+
+(C) Counts-integrity. Re-check the three previously-noted inputs against the
+    current analysis/l3a_parse.py and analysis/a5_nl.py and confirm each is
+    now correctly rejected as INSTRUMENT-INVALID:
+      - every per-control-family acceptable count set to zero while the
+        run-level acceptable total is left intact (a dropped classification) —
+        does the new per-family-sum == run-level-total check now fail it?
+      - n_covered / n_control / dev_n supplied as floats (e.g. 600.0 / 855.0 /
+        270.0 / 106.0 / 60.0) — does strict-integer typing now reject them?
+      - dev_parse_refused = -1 and = 0.5 — rejected rather than divided?
+    Also check at least one NEW consistency variant not in the prior report,
+    e.g. dev_parse_refused greater than dev_n; or a boolean supplied where an
+    integer is expected (note True/False are ints in Python — confirm the
+    "bool excluded" claim actually holds); or per-family control counts that
+    reach the run-level total only by some families being over and others
+    under (coincidental cancellation).
+
+PART 2: Confirm NO REGRESSION on:
+  - the eight earlier items already confirmed resolved in the prior round
+    (round-1 findings 1, 2, 4, 5, 7, 8, 9, 11) — spot-check, flag anything the
+    14.9 changes appear to have disturbed;
+  - the Wilson-bound arithmetic and the n=527/855 thresholds (486/462/4/16 at
+    n=527; 784/755/9/24 at n=855) — confirm unchanged;
+  - the two should-fix items (ASM-0422/ASM-0425 now superseded by
+    ASM-0622/ASM-0623; instrument docstring no longer claiming a byte-
+    identical engine) and the nit (complement claim now stated honestly as
+    one-ULP-off at 4/527, bit-equal at 9/855) — confirm the corrected language
+    is actually present.
+  - Actually RUN tools/registry/prereg-freeze.py --dry-run against both
+    registry/experiments/l3a-parse.json and registry/experiments/a5-nl.json
+    (consult its --help for the exact arguments; it needs --experiment and
+    --agent-id) and report the real result.
+
+PART 3 — OUTPUT FORMAT:
+First, an item-by-item verification for the three freeze-blocking gaps (A, B,
+C): for each, RESOLVED / PARTIALLY RESOLVED / NOT RESOLVED, reasoning grounded
+in current code (cite file/line), and the specific fixtures you constructed
+with their outcomes.
+Then a brief regression check on the eight previously-resolved items, the
+Wilson arithmetic, the should-fixes, the nit, and the dry-run result —
+RESOLVED / REGRESSED / UNCHANGED-AND-FINE for each, one to two sentences.
+Then, for ANY still-open or newly-identified issue, report: a short title;
+SEVERITY (exactly one of "freeze-blocking", "should-fix", or "nit"); the
+concrete mechanism (cite file/section/line/field); and why it matters.
+At the end, give an OVERALL VERDICT line. If and ONLY IF you find zero defects
+that should block freezing, write the EXACT sentence: "no freeze-blocking
+defect remains." Otherwise write "defects remain" and list which issues (by
+title) are freeze-blocking versus should-fix versus nit.
+
+Be precise and specific. Do not pad the review with praise. Where a validity
+check is now genuinely correct, say so briefly (grounded in what you checked)
+and move on; spend your effort confirming the correctness of what changed.
