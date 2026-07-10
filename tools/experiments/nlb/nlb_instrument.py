@@ -194,7 +194,19 @@ def score_nl(included, outcomes, arm, world_ids, labelmap=None, texts=None):
                           "paraphrase": {"n": 0, "exact": 0}}}
     for rec in included:
         r = outcomes[rec["qid"]]
-        fam = m["by_family"].setdefault(rec["family"], {"n": 0, "ok": 0})
+        # Per-family covered-outcome buckets (design doc 14.7, ASM-0480):
+        # a PURE re-bucketing of the four existing run-level covered counters
+        # — each bucket increments on EXACTLY the branch of its counterpart
+        # (exact ~ n_covered_exact, wrong ~ n_covered_answered_wrong,
+        # refused_parse ~ n_covered_refused_parse, refused_engine ~
+        # n_covered_refused_engine), so for every covered family
+        # exact + wrong + refused_parse + refused_engine == n and exact == ok.
+        # Control families keep the ok (acceptable-refusal) semantics and
+        # hold zeros in the four buckets. No predicate is added and no
+        # parse/outcome/phrasing behaviour changes.
+        fam = m["by_family"].setdefault(
+            rec["family"], {"n": 0, "ok": 0, "exact": 0, "wrong": 0,
+                            "refused_parse": 0, "refused_engine": 0})
         fam["n"] += 1
         exp = rec["expected"]
         is_parse_refusal = r.get("code") == "ERR_PARSE"
@@ -214,8 +226,10 @@ def score_nl(included, outcomes, arm, world_ids, labelmap=None, texts=None):
             if r["status"] != "answer":
                 if is_parse_refusal:
                     m["n_covered_refused_parse"] += 1
+                    fam["refused_parse"] += 1
                 else:
                     m["n_covered_refused_engine"] += 1
+                    fam["refused_engine"] += 1
             else:
                 exact = r["value"] == exp["value"]
                 if require_prov:
@@ -225,10 +239,12 @@ def score_nl(included, outcomes, arm, world_ids, labelmap=None, texts=None):
                 if exact:
                     m["n_covered_exact"] += 1
                     fam["ok"] += 1
+                    fam["exact"] += 1
                     if stratum is not None:
                         stratum["exact"] += 1
                 else:
                     m["n_covered_answered_wrong"] += 1
+                    fam["wrong"] += 1
         else:
             m["n_control"] += 1
             if r["status"] == "answer":

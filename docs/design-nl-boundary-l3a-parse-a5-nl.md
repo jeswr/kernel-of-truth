@@ -787,19 +787,156 @@ support. S1 unchanged (n=270, gate 0.95, passes from 264/270, planning 0.99
    over unique-maker + made-lookup) and `/analysis/audit_r1_ref`; selftest
    fixtures moved to the 14.2 boundaries (486/462/4/16). `analysis/a5_nl.py`
    unchanged except EXPECTED_PHRASINGS_SHA256 at step 6 as already spec'd.
+   Implementation consumes the per-family covered-outcome buckets ratified
+   in §14.7 (exact mechanical spec there; amendment of 2026-07-10).
 3. a5 instance-true re-authoring per EVAL-BUILD-SPEC step 4 (fresh
    identity, same packets, appended transcripts); never hand-edit text.
 4. l3a audit r1 per 14.3 (mechanical re-score + fresh-judge extension to
    60 covered-only in-scope; gate ≥ 57/60). a5 audit per step 5 under the
    split gate.
-5. Record edits (both DRAFT): re-pin nlb_lint.py + analysis shas in
-   harness_manifest/pins; l3a-parse n_planned gains
+5. Record edits (both DRAFT): re-pin nlb_lint.py + nlb_instrument.py
+   (§14.7 enrichment, ASM-0480) + analysis shas in harness_manifest/pins;
+   l3a-parse n_planned gains
    `n_covered_run: 600, n_covered_scored: 527`,
    `shape_ambiguous_strata: {unique-maker: 43, made-lookup: 30}`, endpoint
    texts and wilson_gate n updated to 527 per 14.2; a5-nl successors field
-   gains the FK-NLB-11 reuse caveat; both records cite ASM-0420..0425.
+   gains the FK-NLB-11 reuse caveat; both records cite ASM-0420..0425 +
+   ASM-0480.
 6. Then corpus pins (spec step 6), smoke (step 7), skeptic re-attack
    (§11 item 6, scope extended per 14.5), prereg-freeze (item 7).
 
 Deferred: `ERR_KB_INTERNAL`-only kb-sync (coordinator heals; not run here
 per the standing instruction).
+
+### 14.7 Scorer enrichment ratification (2026-07-10) — unblocks §14.6 step 2
+
+Author: Kern (Fable designer role), adjudicating the runner's blocker from
+the §14.6 partial. Amends the §14.6 change-list (items 2 and 5 as edited
+above); everything else in §14 stands.
+
+- PREMISE: §14.6 step 2 needs the S2 numerator restricted to the 7
+  in-scope families and a per-family descriptive `shape_ambiguous_stratum`,
+  but the pinned instrument's `score_nl` emits `by_family` as `{n, ok}`
+  only (ok = exact on covered families), so neither quantity is derivable
+  from the pinned emission plus run totals; substituting the run-level
+  `n_covered_answered_wrong` would rest on the contingent fact that the
+  dropped families abstained — the manufactured-kill pathway §14.1
+  preempts, should that fact ever fail on a re-run
+  [MEASURED: runner build report, commit
+  0847ce079189b4d1244911fe026b0799e1db4da7; pre-EVAL instrument pin
+  426722aa813a7843190849348a6b309f3e898d19a0b979f354d5207dc85c6073].
+- DECISION (ratifies the runner-proposed fix): `score_nl.by_family` gains
+  four ADDITIVE per-family covered-outcome buckets
+  `{exact, wrong, refused_parse, refused_engine}` — a pure re-bucketing of
+  outcomes score_nl already classifies, each bucket incremented on exactly
+  the branch of its existing run-level counterpart; `n`/`ok` semantics
+  unchanged; buckets stay zero on control families; no parse, outcome,
+  phrasing, or front-end behaviour changes; frame files stay byte-frozen.
+  Extends the ASM-0424 lawful scorer-side edit set by this one named,
+  diff-scoped edit and no other [STIPULATED: ASM-0480].
+
+Outcome→bucket mapping (covered items; each row is the SAME branch as its
+run-level twin — no new predicate exists):
+
+| bucket | increments when | run-level twin |
+|---|---|---|
+| `exact` | status=answer AND value==expected AND (mapper/deranged arms) provenance⊆world + license non-empty | `n_covered_exact` (== `ok` on covered) |
+| `wrong` | status=answer AND not exact | `n_covered_answered_wrong` |
+| `refused_parse` | status≠answer AND code==ERR_PARSE | `n_covered_refused_parse` |
+| `refused_engine` | status≠answer AND code≠ERR_PARSE (incl. policy ABSTAIN on the abstain-all arm, mirroring the run total) | `n_covered_refused_engine` |
+
+Invariants (mechanically checkable, folded into G1 per the step-2 spec
+below): per covered family `exact + wrong + refused_parse + refused_engine
+== n` and `exact == ok`; summed over the 9 covered families each bucket
+equals its run-level twin; control families hold zeros and keep `ok` =
+acceptable-refusal.
+
+- Lawfulness: `score_nl` runs strictly AFTER `run_nl_arm` has produced
+  every outcome; it neither parses nor answers, so the edit cannot leak
+  eval content into the system under test. The §14.5 blindness invariant
+  is carried by nlb_frontend.py, nlb_map.mjs, the mapper policy pin and
+  the phrasing bytes — all byte-untouched (diff confined to `score_nl`;
+  `run_nl_arm`, `fabricate`, oracle construction and the parse invocation
+  byte-unchanged). The G6 determinism gate compares outcomes, not metrics,
+  so it is unaffected. ASM-0424's enumeration named the lint/analysis
+  scripts but not the instrument's aggregation function; ASM-0480 closes
+  that gap for this single edit — any OTHER nlb_instrument.py edit still
+  mints a new record id.
+- Verification: both green-mocks re-run GREEN under the enriched
+  instrument with receipts byte-identical except the wall-clock
+  `frontend_total_ns` (timing, run-varying by nature); new instrument
+  sha256 3d92e1ab7ef71ae577f63f8955f4381bc90a7c257e44102089220b96e25853d2
+  [MEASURED: poc/nlb-mock/l3a/mock-receipt.json sha256
+  9122a6d10fc5fc35860be2c569d72a0ec8b4d92e6bad9e6c6173b956b5895f46 +
+  poc/nlb-mock/a5/mock-receipt.json sha256
+  57b96de51e09c030f37797132e8b57d757260776d3884654e308241e0b8ac8d9,
+  checks all green].
+- Diagnostic disclosure (load-bearing for NOTHING in this ratification):
+  the runner reported — commit-message only, no committed artifact — that
+  on a mapper-parse diagnostic pass the dropped families all abstained
+  (unique-maker 43/43 refused, 0 wrong; in-scope wrong = total wrong = 8)
+  [MEASURED: commit 0847ce079189b4d1244911fe026b0799e1db4da7 message;
+  non-verdict]. The ratified edit is OUTCOME-INVARIANT: its schema is
+  forced by the step-2 requirement registered BEFORE that diagnostic ran,
+  and the same edit would be ratified whatever the diagnostic had shown.
+  The pre-freeze peek at scored outcomes is itself a protocol deviation to
+  disclose: the independent skeptic re-attack scope (§14.5) extends to
+  ASM-0480 and to this diagnostic disclosure.
+
+Exact step-2 spec for `analysis/l3a_parse.py` (mechanical; implements
+§14.6 item 2 using the buckets):
+
+1. Constants: `IN_SCOPE_FAMILIES = ("children-lookup", "count-maker",
+   "instance-false-disjoint", "instance-true", "part-lookup",
+   "unique-father", "unique-mother")`; `SHAPE_AMBIGUOUS_FAMILIES =
+   ("unique-maker", "made-lookup")`; `N_SCORED = 527`.
+2. Numerators from `by_family` sums over IN_SCOPE_FAMILIES:
+   `n_scored = Σ n` (must equal 527), `exact_in = Σ exact`,
+   `wrong_in = Σ wrong`. Primary = `exact_in/527` with Wilson LB/UB at
+   z=1.645 vs floor 0.90 (boundaries: PASS ≥486, FAIL-UB ≤462). S2 =
+   `wrong_in/527` in the unchanged m=2 Holm family with S1 (270 controls,
+   gate 0.95, run-level totals as today); S2 gate UB < 0.02 (passes ≤4 at
+   z=1.96), kill leg LB ≥ 0.02 (fires ≥16 at z=1.645, exported
+   unadjusted). Boundaries independently recomputed 2026-07-10: LB(486) =
+   0.9008 > 0.90 vs 485 → 0.8987; UB(462) = 0.8983 ≤ 0.90 vs 463 →
+   0.9001; S2 UB(4) = 0.0194 < 0.02 vs 5 → 0.0220; kill LB(16) = 0.0203 ≥
+   0.02 vs 15 → 0.0187; planning 0.95 → LB 0.9320, 3/527 → UB 0.0166.
+3. G1 extension (counts-integrity, same gate): existing checks PLUS
+   (i) `n_scored == 527`; (ii) per covered family the bucket partition
+   `exact + wrong + refused_parse + refused_engine == n` and
+   `exact == ok`; (iii) covered-family bucket sums equal the run-level
+   twins (`n_covered_exact`, `n_covered_answered_wrong`,
+   `n_covered_refused_parse`, `n_covered_refused_engine`). Any failure ⇒
+   instrument-invalid.
+4. Outputs: `/analysis/n_covered_run` (600) and `/analysis/n_covered_scored`
+   (527) REPLACE `/analysis/n_covered` (the record's output_fields list is
+   updated at step 5 — no silently reinterpreted field);
+   `/analysis/shape_ambiguous_stratum` = per family in
+   SHAPE_AMBIGUOUS_FAMILIES `{n, exact, wrong, refused_parse,
+   refused_engine, exact_rate}` + a note string "descriptive only; never
+   gated; carved out of the envelope (FK-NLB-10, ASM-0420)";
+   `/analysis/audit_r1_ref` =
+   `{path: "data/nlb-phrasings-l3a/audit-recoverability-r1.json", sha256:
+   "57e9d8d12826ae6ba28da4289fcc703109b2fb9994ef99eb589655874ea6da6d"}`.
+   Full-run descriptives (parse_ok_rate over 870, label strata,
+   stage breakdown, dev, probe, cost) stay full-run, disclosed as such.
+5. Selftest: fixture builder emits enriched by_family; boundary fixtures
+   at 486/462 (primary) and 4/16 (S2/kill) with the varied counts placed
+   in in-scope families; S1 fixtures unchanged (264/263 Holm-worst, 263
+   nominal); PLUS an isolation fixture placing `wrong > 0` in a
+   SHAPE_AMBIGUOUS family and asserting it moves NO gate and NO gated
+   numerator and appears only in `shape_ambiguous_stratum`; PLUS a G1
+   fixture where a bucket partition is broken ⇒ instrument-invalid.
+6. `analysis/a5_nl.py`: UNCHANGED now (additive by_family keys are ignored
+   by its reads and fixtures); EXPECTED_PHRASINGS_SHA256 at step 6 as
+   already spec'd.
+
+Re-pin instruction (executed at §14.6 item 5, both DRAFT records,
+harness_manifest): replace the nlb_instrument.py pin
+`426722aa813a7843190849348a6b309f3e898d19a0b979f354d5207dc85c6073`
+with
+`3d92e1ab7ef71ae577f63f8955f4381bc90a7c257e44102089220b96e25853d2`
+annotated "(14.7 score_nl by_family enrichment, ASM-0480; supersedes the
+pre-EVAL pin)", alongside the already-owed nlb_lint.py re-pin
+`c141004caed2d855ac74deb62ab3c0648f97c77be3f82ccd3116d3cf8b65e112`
+and the analysis-script re-pins.
