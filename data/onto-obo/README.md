@@ -1,6 +1,7 @@
 # onto-obo — OBO Foundry logical-definition tier (AxiomsOnly)
 
-**95,749 records** mechanically extracted from ten OBO Foundry ontologies,
+**96,192 records** mechanically extracted from twelve OBO Foundry ontologies
+(ten logical-definition shards + two **reference-stub** shards, Extraction 6),
 one JSONL line per class/relation, sharded by ontology. This is the
 `AxiomsOnly` stratum of the bulk-kernel design (`docs/design-bulk-kernel.md`) —
 but a **tier richer than WordNet hypernymy**: where the source carries an OBO
@@ -19,7 +20,14 @@ structured axiom inside record identity, not just a taxonomy link.
 | `ogms.jsonl` | Ontology for General Medical Science | 117 | 0 | 0 | 2021-08-19 | CC BY 4.0 |
 | `so.jsonl` | Sequence Ontology | 2,447 | 219 | **219** | 2024-11-18 | CC BY 4.0 |
 | `mondo.jsonl` | Mondo Disease Ontology | 32,136 | 7,685 | **7,582** | releases/2026-07-06 | CC BY 4.0 |
-| **total** | | **95,749** | **24,693** | **24,578** | | |
+| `chebi.jsonl` | ChEBI *(reference-stub tier)* | 41 | 0 | 0 | 253 | CC BY 4.0 |
+| `ncbitaxon.jsonl` | NCBI Taxonomy *(reference-stub tier)* | 402 | 0 | 0 | 2026-05-13 | CC0 1.0 |
+| **total** | | **96,192** | **24,693** | **24,578** | | |
+
+The two **reference-stub** shards (Extraction 6) are NOT the logical-definition
+tier: they carry the label(+prose def) of the exact foreign terms referenced as
+genus-differentia *fillers* by MONDO/CL/UBERON, minted as label-only anchors so
+those definitions resolve under the `define`-op. See **Extraction 6** below.
 
 **The headline:** 9,303 GO terms carry a machine-extractable genus-differentia
 definition ("X = *genus* that *rel* *filler*", e.g. *regulation of DNA
@@ -55,6 +63,12 @@ to profile-1 structured explications** (follow-up filed).
 - **MONDO — CC BY 4.0.** Derived records may be redistributed with attribution to
   the Mondo Disease Ontology (`http://purl.obolibrary.org/obo/mondo`). SPDX from
   the OBO Foundry registry.
+- **ChEBI — CC BY 4.0.** Derived records may be redistributed with attribution to
+  ChEBI (`http://purl.obolibrary.org/obo/chebi`). License asserted in the source
+  header (`property_value: terms:license …/by/4.0/`) and the OBO Foundry registry.
+- **NCBITaxon — CC0 1.0.** Public-domain dedication; no restrictions on derived
+  records. License asserted in the source header (`property_value: terms:license
+  …/publicdomain/zero/1.0/`) and the OBO Foundry registry.
 
 Authoritative SPDX from the OBO Foundry registry
 (`obofoundry.org/registry/ontologies.jsonld`), recorded in `manifest.json` and
@@ -140,12 +154,14 @@ committed (`source/` gitignored); re-download to regenerate (see below).
 
 | file | what |
 |---|---|
-| `bfo/ro/go/pato/po/cl/uberon/ogms/so/mondo.jsonl` | the records (one shard per ontology) |
+| `bfo/ro/go/pato/po/cl/uberon/ogms/so/mondo.jsonl` | the logical-definition records (one shard per ontology) |
+| `chebi.jsonl`, `ncbitaxon.jsonl` | reference-stub tier (Extraction 6): label(+def)-only stubs for referenced foreign fillers |
+| `foreign-filler-subset.json` | the mechanically-derived reference-stub ingestion subset + the full unresolved-filler diagnosis ledger (`collect-foreign-fillers.mjs`) |
 | `minted-urns.jsonl` | `urn:kot:` identity URNs (stable-mode mint; see below) |
 | `archive-mint-20260709-substitute-5ont/` | the superseded 5-ontology substitute-mode mint (42,565 URNs), preserved for provenance |
 | `manifest.json` | per-ontology source pins, licences, counts, axiom/differentia histograms, extractor hash |
 | `alignment-kernel-v0.json` | hand-reviewed bridge candidates: kernel-v0 + molecules-v0 → BFO/RO categories (confidence per link; annotation-layer only, not identity) |
-| `extractor/` | `parse-obo.mjs` (OBO 1.4 parser), `extract.mjs`, `sample-review.mjs`, `parse-obo.test.mjs` (Node ≥ 20, zero deps) |
+| `extractor/` | `parse-obo.mjs` (OBO 1.4 parser), `extract.mjs`, `stream-obo.mjs` (chunk-ingest), `sample-review.mjs` (whole-file audit), `stub-review.mjs` (streaming reference-stub audit), `collect-foreign-fillers.mjs` (subset generator), `parse-obo.test.mjs`, `chunk-ingest.test.mjs` (Node ≥ 20, zero deps) |
 | `validate.mjs` | source-free structural + reference-closure + manifest re-check |
 
 ## Verification results (2026-07-07 extraction)
@@ -282,12 +298,12 @@ Mechanical checks on this run:
   standard product URL 404; PRO is a multi-product distribution (full = millions of
   protein forms; plan expects ~10Ks) requiring a product/subset choice (curation)
   and a non-standard download path.
-- **ChEBI** — **scale/mechanism hold.** 270 MB / ~160k terms; the plan specifies
-  "chunk ingest", a mechanism the whole-file extractor does not have, and whole-file
-  is unsafe on this 7.6 GB / 2-core box (already swapping, shared with a live server).
-- **NCBITaxon** — **scale + curation hold.** 661 MB / ~2.5M terms; plan specifies
-  "chunk/filter" (a mechanism the extractor lacks + a subset-curation decision);
-  whole-file infeasible here.
+- **ChEBI** — ~~scale/mechanism hold~~ **RESOLVED in Extraction 6.** Chunk-ingested
+  as a targeted reference-stub tier (41 referenced fillers only), not a whole-file
+  ingest. CC BY 4.0.
+- **NCBITaxon** — ~~scale + curation hold~~ **RESOLVED in Extraction 6.**
+  Chunk-ingested as a targeted reference-stub tier (402 referenced fillers only); the
+  subset is mechanically derived (referenced-by-corpus), not curated. CC0 1.0.
 
 ## Extraction 5 — differentia relations resolved to minted relation URNs (2026-07-09)
 
@@ -368,6 +384,100 @@ the separate Wave-A foreign-ontology ingestion gap, out of 8es scope), 0 on
 relation or genus. The OLD-column figures (9,307 / 18 / 103) match the define-op
 census RUN-LOG exactly, validating the method.
 
+## Extraction 6 — targeted foreign-filler reference-stub tier: CHEBI + NCBITaxon (2026-07-10)
+
+Bead: foreign-filler unlock (Fable). The `define`-op census [MEASURED
+`poc/define-op-census/RUN-LOG.md`] showed **3,941 minted MONDO genus-differentia
+definitions `ERR_DEFN_UNRESOLVED` on foreign FILLERS only** (0 on genus/relation):
+the held cross-ontology ingestion gap. This extraction unlocks the subset of those
+whose fillers come from **clean-licence, source-available OBO sources** — WITHOUT a
+blind whole-ontology ingest and WITHOUT curation, by ingesting **only the exact
+filler terms referenced** as a minimal **reference-stub tier**.
+
+**Mechanism (extractor-logic change; parser untouched).** Two large sources are
+added to `ONTOLOGIES[]` with `streamed:true` + `stubTier:true` + a
+`subset:{policy:'id-list'}` whose ids are the mechanically-derived referenced
+fillers (`data/onto-obo/foreign-filler-subset.json`, from
+`collect-foreign-fillers.mjs`). Each is chunk-ingested (`stream-obo.mjs`, never
+materialised) and emitted as a **label(+prose def)-only stub**
+(`stanzaToStubRecord`): `axioms:[]`, no `logicalDefinition`, `kind:class`. Because
+a stub carries **no is_a**, the subset need not be is_a-closed (no dangling
+backbone — `validate.mjs` stays green), and the `define`-op resolves a filler
+purely through the mint bridge, so a minted stub is exactly enough to unlock it.
+`PREFIX_OWNER` gains `CHEBI`/`NCBITaxon`; a new `STUBTIER_PREFIXES` rule makes those
+prefixes own their whole id-space so the pre-existing MONDO/CL/UBERON CHEBI/NCBITaxon
+import stubs stay **dropped** (importedAlias) — the ten prior shards are byte-identical.
+
+| source | licence | referenced fillers ingested | source size | data-version |
+|---|---|---|---|---|
+| **ChEBI** | CC BY 4.0 (source header + registry) | **41** (of 41 referenced; 0 obsolete/missing) | 271 MB | 253 |
+| **NCBITaxon** | CC0 1.0 (source header + registry) | **402** (of 402 referenced; 0 obsolete/missing) | 662 MB | 2026-05-13 |
+
+**MEASURED unlock (re-run `python3 poc/define-op-census/define_census.py`):**
+
+| shard | population | checkable BEFORE | checkable AFTER | Δ |
+|---|---|---|---|---|
+| go.jsonl | 9,307 | 9,307 | 9,307 | 0 |
+| so.jsonl | 219 | 219 | 219 | 0 |
+| mondo.jsonl | 7,685 | 3,744 | **4,298** | **+554** |
+| **TOTAL** | **17,211** | **13,270** | **13,824** | **+554** |
+
+Checkable fraction **0.7710 → 0.8032** [MEASURED 2026-07-10]. The +554 equals
+exactly NCBITaxon(515) + CHEBI(39), the per-concept single-blocking-prefix counts —
+a MONDO definition unlocks only when ALL its foreign fillers resolve, so this is the
+clean gain from these two prefixes (no double-counting).
+
+**The full unresolved-filler ledger (why not the whole 3,941).** A per-concept
+blocking analysis of the 3,941 (see `foreign-filler-subset.json →
+diagnosisAllUnresolvedFillerPrefixes`); each MONDO definition unlocks only when its
+ENTIRE foreign-filler set resolves:
+
+| blocking prefix | distinct fillers | MONDO defs blocked (single-prefix) | disposition |
+|---|---|---|---|
+| `http:` (HGNC gene IRIs) | 2,034 | 2,450 | **out of OBO scope** — `http://identifiers.org/hgnc/*` is the HUGO gene registry, not an OBO; needs a bespoke non-OBO extractor (world/gene-layer track), NOT a filler ingest |
+| HP | 91 | 442 (+62 in HP∩other sets) | **licence hold** — HPO custom restrictive licence forbids altering the logical relationships (Extraction 4); NOT ingestible even as a targeted subset |
+| CHR | 173 | 318 | **held** — chromosome-band terms (`CHR:9606-chrXq28`) declared INLINE in mondo.obo (no clean standalone source; purl is a legacy OCLC redirect). Ownership-design decision (MONDO-sourced CHR tier), flagged not improvised |
+| NCBITaxon | 402 | 515 | **INGESTED (this extraction)** |
+| CHEBI | 41 | 39 | **INGESTED (this extraction)** |
+| ECTO / NCIT / ENVO / MF / MAXO / NBO / HsapDv / MFOMD | 50 total | 114 total | **deferred tail** — small clean-licence OBOs (CC BY / CC0), cheap follow-ups; low marginal unlock each, enumerated for the coordinator |
+| PR | 208 | 0 (in census shards) | not in go/so/mondo — PR fillers are in cl/uberon (non-census); source hold (404 / multi-product) stands |
+
+So of the 3,941: **554 unlocked here**; ~2,511 are HGNC (separate track); ~504
+involve HP (licence); 318 CHR (bundled/legacy); ~114 the small-OBO tail. The
+task-premise number (~17,211) assumed the gap was mostly HP/CHEBI/NCBITaxon; the
+MEASURED composition is dominated by HGNC genes + HP, which this bounded OBO-filler
+ingest deliberately does not chase.
+
+**Mechanical checks on this run [MEASURED 2026-07-10]:**
+
+- **10 prior shards byte-identical** to Extraction 5 (sha256 vs git HEAD): bfo/ro/
+  go/pato/po/cl/uberon/ogms/so/mondo all UNCHANGED. New shards: `chebi.jsonl` (41),
+  `ncbitaxon.jsonl` (402).
+- **Structural validation** (`validate.mjs`): all gates pass. **96,192 records,
+  96,192 unique ids, 0 duplicate ids**; reference closure internal 238,539 (+3,162
+  now resolve), **0 fatal backbone dangling**, 3,776 dangling-known-prefix
+  (non-backbone, counted), 18,533 external.
+- **Stub audit** (`stub-review.mjs`, streaming — sample-review can't string-load the
+  662 MB source): **0 errors** over ALL 443 stubs (label + def-presence re-derived
+  from source; empty-axioms / no-logicalDefinition invariants; 0 missing).
+- **Sample audit** (`sample-review.mjs 400 0x0b0`, 10 whole-file shards): **0 errors**.
+- **Parser + chunk-ingest tests**: parse-obo 12/12, chunk-ingest 7/7 (streaming ==
+  whole-file equivalence preserved).
+- **Deterministic re-mint** (`tools/mint`, stable mode, ×2): `minted-urns.jsonl` +
+  `manifest.json` **byte-identical across two mints**. **96,192 minted, 96,192
+  unique URNs, 0 duplicate-identity groups, 0 cyclic components**, 8,988 unresolved
+  (foreign) ref targets (9,431 → 8,988: the 443 fillers now resolve).
+  `corpusIdentityRoot 7ad7988f…` (generation bump from `1adab65e…`).
+- Versioning: `EXTRACTOR_VERSION`/`EXTRACTION_DATE` left pinned (`0.1.0` /
+  `2026-07-07`) per the established pattern; the real code signal is
+  `manifest.extractor.contentHash`. The 10 prior shards' `sourceVersion` pins are
+  unchanged, so their bytes are unchanged.
+
+**Not the ChEBI/NCBITaxon domain tiers.** These shards are reference-target anchors,
+NOT the ChEBI chemistry axioms or the NCBITaxon taxonomy backbone. Those richer,
+is_a-closed tiers (the "shippable subset" of the `stream-obo.mjs` design note) remain
+future work; this extraction deliberately stays minimal.
+
 ## The bridge (alignment-kernel-v0.json)
 
 kernel-v0 already targets gUFO (`gufo:Event`, `gufo:Kind`), which is
@@ -395,13 +505,22 @@ curl -sSLO http://purl.obolibrary.org/obo/uberon.obo
 curl -sSLO http://purl.obolibrary.org/obo/ogms.obo
 curl -sSLO http://purl.obolibrary.org/obo/so.obo
 curl -sSLO http://purl.obolibrary.org/obo/mondo.obo
+curl -sSLO http://purl.obolibrary.org/obo/chebi.obo         # Extraction 6 (271 MB)
+curl -sSLO http://purl.obolibrary.org/obo/ncbitaxon.obo     # Extraction 6 (662 MB)
 cd ../../..
+# regenerate the reference-stub subset from the committed shards (before extract, so the
+# stubTier ONTOLOGIES read the current referenced-filler set):
+node          data/onto-obo/extractor/collect-foreign-fillers.mjs
 nice -n 10 node data/onto-obo/extractor/extract.mjs      # fails closed on sha mismatch
 node          data/onto-obo/validate.mjs
-nice -n 10 node data/onto-obo/extractor/sample-review.mjs 400 0x0b0
+nice -n 10 node data/onto-obo/extractor/sample-review.mjs 400 0x0b0   # 10 whole-file shards
+nice -n 10 node data/onto-obo/extractor/stub-review.mjs              # chebi/ncbitaxon stubs
 node --test    data/onto-obo/extractor/parse-obo.test.mjs
+node --test    data/onto-obo/extractor/chunk-ingest.test.mjs
 # re-mint (stable mode): writes minted-urns.jsonl + manifest minting block
 nice -n 10 node tools/mint/dist/src/cli.js --data ./data --out /tmp/onto-canon --corpus onto-obo
+# MEASURE define-op unlock:
+python3 poc/define-op-census/define_census.py
 ```
 
 Sources drift (RO/GO release monthly). A new download with a different sha will

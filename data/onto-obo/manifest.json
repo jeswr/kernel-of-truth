@@ -9,12 +9,22 @@
     "version": "0.1.0",
     "files": [
       "parse-obo.mjs",
-      "extract.mjs"
+      "extract.mjs",
+      "stream-obo.mjs"
     ],
-    "contentHash": "a053806d8bd5df4af6a0bf09e21aa614a98e89fbdf04488688e14ca17310c74b",
+    "contentHash": "895f3a43fe26971d056c1df885433f36bc67fdb8e8620d79a0603ac9e9ac2bfb",
     "hashRule": "sha256 over concatenated bytes of listed files, in listed order"
   },
   "extractionDate": "2026-07-07",
+  "foreignFillerSubset": {
+    "file": "foreign-filler-subset.json",
+    "sha256": "sha256:0402670b813466e7bf04cee650807b2aa047b02ad1e12cc4572aa5c46f265f0a",
+    "counts": {
+      "CHEBI": 41,
+      "NCBITaxon": 402
+    },
+    "note": "Mechanically-derived reference-stub ingestion subset consumed by the stubTier ontologies; regenerate with collect-foreign-fillers.mjs."
+  },
   "ontologies": {
     "BFO": {
       "sourceName": "Basic Formal Ontology (OBO Foundry canonical serialization)",
@@ -60,8 +70,8 @@
         "withLogicalDef": 0,
         "genusDifferentia": 0,
         "obsoleteSkipped": 17,
-        "importedAliasesSkipped": 34,
-        "foreignStubsSkipped": 14,
+        "importedAliasesSkipped": 35,
+        "foreignStubsSkipped": 13,
         "axiomsByRel": {
           "is_a": 730,
           "relationship": 1,
@@ -240,8 +250,8 @@
         "withLogicalDef": 1731,
         "genusDifferentia": 1723,
         "obsoleteSkipped": 213,
-        "importedAliasesSkipped": 13173,
-        "foreignStubsSkipped": 2410,
+        "importedAliasesSkipped": 13295,
+        "foreignStubsSkipped": 2288,
         "axiomsByRel": {
           "is_a": 4897,
           "relationship": 4247,
@@ -368,8 +378,8 @@
         "withLogicalDef": 5670,
         "genusDifferentia": 5670,
         "obsoleteSkipped": 1097,
-        "importedAliasesSkipped": 8756,
-        "foreignStubsSkipped": 1631,
+        "importedAliasesSkipped": 9967,
+        "foreignStubsSkipped": 420,
         "axiomsByRel": {
           "is_a": 19744,
           "relationship": 27939,
@@ -659,8 +669,8 @@
         "withLogicalDef": 7685,
         "genusDifferentia": 7582,
         "obsoleteSkipped": 4609,
-        "importedAliasesSkipped": 10895,
-        "foreignStubsSkipped": 15768,
+        "importedAliasesSkipped": 14237,
+        "foreignStubsSkipped": 12426,
         "axiomsByRel": {
           "is_a": 46470,
           "relationship": 19536,
@@ -761,6 +771,68 @@
           45
         ]
       ]
+    },
+    "CHEBI": {
+      "sourceName": "Chemical Entities of Biological Interest (ChEBI)",
+      "purl": "http://purl.obolibrary.org/obo/chebi.obo",
+      "sourceVersion": "sha256:81132a8c34a1e978e8dc2dcd262e3b54c15792391b5edcb1f8d2e7fcffa8f128",
+      "dataVersion": "253",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC BY 4.0 permits redistribution of derived records with attribution (ChEBI, http://purl.obolibrary.org/obo/chebi). Asserted in the source header (property_value: terms:license https://creativecommons.org/licenses/by/4.0/) and the OBO Foundry registry.",
+      "note": "REFERENCE-STUB TIER. data-version 253. Chunk-ingested (streamed:true) for ONLY the ChEBI ids referenced as genus-differentia fillers by MONDO/UBERON (foreign-filler-subset.json), emitted as label(+def)-only stubs (stubTier: empty axioms, no logicalDefinition, kind:class). This is NOT the ChEBI chemistry tier (is_a/role/has_part axioms deliberately NOT extracted); it is the minimal set of minted anchors that let foreign fillers resolve under the define-op. CHEBI owns CHEBI:* by prefix-ownership, so MONDO/CL/UBERON CHEBI import stubs stay dropped (importedAlias).",
+      "shard": "chebi.jsonl",
+      "counts": {
+        "records": 41,
+        "classes": 41,
+        "relations": 0,
+        "withLogicalDef": 0,
+        "genusDifferentia": 0,
+        "obsoleteSkipped": 1,
+        "importedAliasesSkipped": 0,
+        "foreignStubsSkipped": 0,
+        "subsetFilteredSkipped": 218500,
+        "axiomsByRel": {},
+        "differentiaProps": {}
+      },
+      "topDifferentiaProperties": [],
+      "stubTier": true,
+      "subsetPolicy": {
+        "policy": "id-list",
+        "ids": 41,
+        "source": "foreign-filler-subset.json"
+      }
+    },
+    "NCBITaxon": {
+      "sourceName": "NCBI Taxonomy (ncbitaxon OBO edition)",
+      "purl": "http://purl.obolibrary.org/obo/ncbitaxon.obo",
+      "sourceVersion": "sha256:8f7ef4e02f0a82127c4de246726ed2f137292bb41ac873897330a2c52b5497d3",
+      "dataVersion": "2026-05-13",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseVerdict": "REDISTRIBUTABLE: CC0 1.0 is a public-domain dedication; no restrictions on derived records. Asserted in the source header (property_value: terms:license https://creativecommons.org/publicdomain/zero/1.0/) and the OBO Foundry registry.",
+      "note": "REFERENCE-STUB TIER. data-version 2026-05-13. Chunk-ingested (streamed:true) for ONLY the NCBITaxon ids referenced as genus-differentia fillers by MONDO/CL/UBERON (foreign-filler-subset.json), emitted as label-only stubs (stubTier: empty axioms, no logicalDefinition, kind:class). This is NOT the taxonomy-backbone tier (is_a lineage deliberately NOT extracted, so the subset need not be is_a-closed); it is the minimal set of minted anchors that let foreign fillers resolve under the define-op. NCBITaxon owns NCBITaxon:* by prefix-ownership, so MONDO/CL/UBERON NCBITaxon import stubs stay dropped (importedAlias).",
+      "shard": "ncbitaxon.jsonl",
+      "counts": {
+        "records": 402,
+        "classes": 402,
+        "relations": 0,
+        "withLogicalDef": 0,
+        "genusDifferentia": 0,
+        "obsoleteSkipped": 49,
+        "importedAliasesSkipped": 0,
+        "foreignStubsSkipped": 0,
+        "subsetFilteredSkipped": 2739173,
+        "axiomsByRel": {},
+        "differentiaProps": {}
+      },
+      "topDifferentiaProperties": [],
+      "stubTier": true,
+      "subsetPolicy": {
+        "policy": "id-list",
+        "ids": 402,
+        "source": "foreign-filler-subset.json"
+      }
     }
   },
   "sourceFiles": {
@@ -774,7 +846,9 @@
     "uberon.obo": "sha256:7f06d8e8442008a67132a1599b652e86fe0c52d75c8d6bc5b0cc36a0031e6b3f",
     "ogms.obo": "sha256:e099f77e76ccbeeae03e95574f79785066d2a1e5231652595cdf75fb17ff9cbd",
     "so.obo": "sha256:dde032d4c7cfb89a7013f2f8ab7420a8ef7dc469fbc2b0ffb38bef2a064a1d1f",
-    "mondo.obo": "sha256:75c51066741e04c0ec4751210911d29e17e16431ed2ba5b8a46fc6a37ff5b00e"
+    "mondo.obo": "sha256:75c51066741e04c0ec4751210911d29e17e16431ed2ba5b8a46fc6a37ff5b00e",
+    "chebi.obo": "sha256:81132a8c34a1e978e8dc2dcd262e3b54c15792391b5edcb1f8d2e7fcffa8f128",
+    "ncbitaxon.obo": "sha256:8f7ef4e02f0a82127c4de246726ed2f137292bb41ac873897330a2c52b5497d3"
   },
   "shards": {
     "bfo.jsonl": {
@@ -826,20 +900,30 @@
       "records": 32136,
       "bytes": 42041389,
       "sha256": "b9d20d63041d1a3eab0e1e31b96acb9789d76077e2c629f2e3a8901f399bab5e"
+    },
+    "chebi.jsonl": {
+      "records": 41,
+      "bytes": 48276,
+      "sha256": "d57fb1db2c05a241469ecf792911ade864a6726f94b67b568ad30bbf9bb4954c"
+    },
+    "ncbitaxon.jsonl": {
+      "records": 402,
+      "bytes": 285184,
+      "sha256": "4bd16561f10b04f232f5cad7f20ff29c50539f39e43e3d9338b44a54675e20e0"
     }
   },
   "totals": {
-    "records": 95749,
+    "records": 96192,
     "withLogicalDef": 24693,
     "genusDifferentia": 24578,
-    "bytes": 118277086
+    "bytes": 118610546
   },
   "minting": {
     "profileHeader": "kot-obo/1\n",
-    "mintedCount": 95749,
-    "uniqueUrnCount": 95749,
-    "mintToolHash": "8dab7b0806b3b8df99b3b343ef6ffbd01f2a093be9bdefd660640f1901938103",
-    "corpusIdentityRoot": "1adab65eebbbfea6ec77a9d8f3a0fad61f33092f201f780c367347d097e85ae2",
+    "mintedCount": 96192,
+    "uniqueUrnCount": 96192,
+    "mintToolHash": "5fb4fc9f221caeb421583b4eaad349b788af10a768d856ec447111c975e67888",
+    "corpusIdentityRoot": "7ad7988fa5a6ee151e49cf9409a58aa8e02477ff1540d21f560b627769c6cb06",
     "identityRootAlgorithm": "binary Merkle over unique minted URNs sorted by UTF-16 code unit; leaf=sha256(utf8(urn)); parent=sha256(left||right); odd node promoted; hex root",
     "urnScheme": "urn:kot:<multibase-b-base32(multihash sha2-256)> per docs/design-hash-input.md",
     "referenceMode": "stable",

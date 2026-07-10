@@ -50,3 +50,25 @@ Checkable fraction **0.7710** (was 0.5478 pre-8es). SO fully unlocked (18->219);
 GO byte-unchanged. The 3,941 MONDO unresolved are ALL foreign fillers (HP/CHEBI/NCBITaxon) — the
 held Wave-A ingestion gap, not the engine. Fable interpretation still pending (what this coverage
 means for the linter Axis-A + benchmark N1-LB kappa_B).
+
+## RE-RUN post targeted foreign-filler stub tier (2026-07-10) — AUTHORITATIVE MEASURED
+After the Extraction-6 targeted foreign-filler stub tier (NCBITaxon 402 fillers / CHEBI 41 fillers
+chunk-ingested as label(+prose)-only stubs; 10 prior shards byte-identical; mint gen-bump
+corpusIdentityRoot 1adab65e -> 7ad7988f), re-running `define_census.py`:
+
+| shard | population | checkable (answer) | ERR_DEFN_UNRESOLVED |
+|---|---|---|---|
+| go.jsonl | 9,307 | 9,307 | 0 |
+| so.jsonl | 219 | 219 | 0 |
+| mondo.jsonl | 7,685 | 4,298 | 3,387 |
+| **TOTAL** | **17,211** | **13,824** | **3,387** |
+
+Checkable fraction **0.8032** (was 0.7710). MONDO 3,744 -> 4,298 (+554 = NCBITaxon 515 + CHEBI 39,
+per-concept blocking-prefix model, no double-count). The residual 3,387 is NOT more HP/CHEBI/NCBITaxon:
+mechanical per-concept blocker analysis (data/onto-obo/foreign-filler-subset.json) shows it is
+HGNC gene IRIs (2,034 fillers -> 2,450 defs; **non-OBO** HUGO registry, needs a bespoke gene-track
+extractor — a Fable design call, NOT this OBO-filler pattern), HP (~504; restrictive licence, held),
+CHR chromosome bands (318; inline in mondo.obo, ownership decision), and a small clean-licence OBO
+tail (~114; cheap deferred follow-ups). Fable interpretation still pending (linter Axis-A + N1-LB
+kappa_B); registry/assessments/define-op-census.json still records the pre-run 0.7710 — refresh is a
+Fable kot-assess surface, not this runner log.

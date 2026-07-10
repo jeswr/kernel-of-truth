@@ -344,7 +344,9 @@ export function makeSpecs(dataRoot: string, opts: SpecOptions = {}): CorpusSpec[
     outDir: join(dataRoot, "onto-obo"),
     load: (root) => {
       const out: RawRecord[] = [];
-      for (const f of ["bfo.jsonl", "ro.jsonl", "go.jsonl", "pato.jsonl", "po.jsonl", "cl.jsonl", "uberon.jsonl", "ogms.jsonl", "so.jsonl", "mondo.jsonl"]) {
+      // chebi/ncbitaxon = the Extraction-6 reference-stub tier (label-only class stubs
+      // minted so foreign differentia fillers resolve); same stable-mode identity rule.
+      for (const f of ["bfo.jsonl", "ro.jsonl", "go.jsonl", "pato.jsonl", "po.jsonl", "cl.jsonl", "uberon.jsonl", "ogms.jsonl", "so.jsonl", "mondo.jsonl", "chebi.jsonl", "ncbitaxon.jsonl"]) {
         for (const r of readJsonl(join(root, "onto-obo", f))) out.push({ id: r["id"] as string, raw: r });
       }
       return out;
