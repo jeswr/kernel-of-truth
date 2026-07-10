@@ -1,0 +1,80 @@
+{
+  "audit": {
+    "path": null,
+    "state": "PENDING"
+  },
+  "computed_at": "2026-07-10T01:16:05Z",
+  "coverage": {
+    "fraction": 0.3542,
+    "rung": "molecules-v0"
+  },
+  "endpoint_results": [
+    {
+      "id": "primary",
+      "metric": "/analysis/external_endorsement_proxy",
+      "role": "primary",
+      "value": 0.95
+    },
+    {
+      "id": "sec-adjudication-gate",
+      "metric": "/gates/adjudication_valid",
+      "role": "secondary",
+      "value": true
+    },
+    {
+      "id": "sec-probe-gate",
+      "metric": "/gates/probe_valid",
+      "role": "secondary",
+      "value": true
+    },
+    {
+      "id": "sec-judge-agreement-diagnostic",
+      "metric": "/analysis/judge_pair_agreement_raw",
+      "role": "secondary",
+      "value": 0.9638888888888889
+    },
+    {
+      "id": "sec-a-j2-diagnostic",
+      "metric": "/analysis/a_j2",
+      "role": "secondary",
+      "value": 0.9583333333333334
+    },
+    {
+      "id": "sec-a-panel-diagnostic",
+      "metric": "/analysis/a_panel_concordant",
+      "role": "secondary",
+      "value": 0.9711815561959655
+    }
+  ],
+  "experiment": "f2b-transfer-llmproxy",
+  "extrapolation_envelope_verbatim": "Binding on ANY verdict of this record and on every citation of its numbers. STAND-IN, NOT THE ADJUDICATING EXPERIMENT: the judge-1 role is filled by a pinned LLM (GPT-5.6-Sol via codex-cli 0.144.1, reasoning effort low, pinned invocation data/d-adj-t-llmproxy/judge-1p-invocation.md) because the kernel-naive HUMAN judge-1 that the frozen f2b-transfer section-4 protocol requires is unavailable at run time; f2b-transfer (frozen_sha256 b341a0901e12023d3c56bdc196be0b9c492c7d348f988416d7e9c43aade20879) remains FROZEN, unconsumed, and is the ONLY experiment on this line whose Stage-1 adjudicates H-TRANSFER vs H-CIRC. External gold here IS one LLM's endorsement under blind rendering -- NOT blind human concept competence. Binding weakenings: (1) SINGLE JUDGE FAMILY -- judge-1p (GPT-5.6) and the diagnostic judge-2 (GPT-5.5) are same-vendor, adjacent-generation models and may correlate through shared training data, shared preference tuning, and shared style priors; they are NOT a two-judge panel in the section-4 sense; their raw agreement is reported as a CORRELATION DIAGNOSTIC and is NEVER evidence of independent validation; A_1p estimates 'GPT-5.x-family endorsement of the kernel's content', an estimand that family-level bias can inflate or deflate independent of real kernel content. (2) KERNEL-TRADITION FAMILIARITY -- the judge is kernel-INSTANCE-naive by context control (E5: empty out-of-repo workdir, user config ignored, memories and web search disabled) but NOT kernel-tradition-naive: NSM literature and NSM-style explications are plausibly in GPT-5.x training data (ASM-0021), so the judge may endorse a familiar explication STYLE rather than judge content from concept competence -- a channel that inflates A_1p under BOTH hypotheses; the deranged-probe gate bounds only its crudest form. (3) PARTIAL CIRCULARITY BREAK ONLY -- the LLM's label is a genuinely different function from the kernel verifier's string-equality, so the d-qa/d-qa-r gold-definition circularity is broken in the letter, but with WEAKER independence than a human judge. (4) LICENSE OF A PASS -- a PASS means exactly: 'an independent, kernel-instance-naive LLM, under blind rendering with a demonstrated working escape, endorses the kernel's record content at the pre-declared bar on the 360 d-qa-t items'. It is a WEAK FEASIBILITY PROXY (ASM-0022). It does NOT adjudicate H-TRANSFER vs H-CIRC, does NOT substitute for f2b-transfer Stage-1, does NOT license f2b-transfer Stage-2 GPU cells or promotion of any f2b claim, and does NOT extend to human judges, public-benchmark surfaces, other corpora, other rungs, or any coverage-general claim (kernel-expressibility coverage 0.3542 at rung molecules-v0, MEASURED by m0b on one incomplete kernel-v0 instance, restated mandatorily). (5) ASYMMETRIC READING -- the named channels plausibly push A_1p UP (direction unproven, ASM-0021), so FAIL is the more informative outcome: a FAIL warrants the same programme response as f2b-transfer's kill (d) -- pause the verifier-content line and escalate to the maintainer -- while remaining formally scoped to this proxy id; a PASS licenses only continued investment (human judge-1 recruitment, Stage-2 harness build-out) and never upgrades any claim. (6) Item bytes, blind rendering, and the S1-S7 judging standards are byte-identical to f2b-transfer's; nothing else carries over.",
+  "fired_rule": {
+    "metric": "/analysis/endorsement_pass"
+  },
+  "fired_rule_index": 2,
+  "hypotheses": [
+    "H-PROXY-ENDORSE (the only load-bearing hypothesis, scoped to the proxy): a kernel-instance-naive cross-vendor LLM (GPT-5.6-Sol), shown ONLY the blind item rendering under the frozen S1-S7 standards with a mandatory escape, endorses the kernel's record content: one-sided 95% Wilson lower bound of A_1p >= 0.70 over the 360 d-qa-t items. A PASS is a WEAK FEASIBILITY SIGNAL only (envelope clause 4); a FAIL is the kill-(d) analog at this proxy id",
+    "H-PROXY-STYLE (instrument alternative, controlled): a high A_1p could be style/familiarity endorsement of NSM-shaped text rather than content endorsement; the deranged-gloss probe (own-gloss deranged out; content-competent judges must answer NONE) bounds the crude form -- false-endorsement point-rate >= 0.30 invalidates the instrument, never reads as a hypothesis outcome",
+    "H-FAMILY-CORR (disclosed, measured-as-diagnostic, never verdict-bearing in its pass direction): GPT-5.6 and GPT-5.5 judgments correlate as one model family; raw agreement is reported as the correlation diagnostic; only its FAIL direction (< 0.80, instrument instability) gates"
+  ],
+  "inputs": {
+    "amended_record_sha256": "62a515058a979272f43f3bcaf40aad85615ba250ea7b9f3d9b9daf3045804325",
+    "amendments_applied": [
+      1,
+      2
+    ],
+    "analysis_output_sha256": "73f4bce9a2c01598999d146b4fd8cbaa2ea5fb8717b3e2167ae3bf14cd14cd19",
+    "analysis_script_sha256": "94f0a1818abd83e6ee3c74fd2542a59d097e8f83eeca1dbbc41621c3c52bea53",
+    "eligible_runs": 1,
+    "excluded_runs": [],
+    "frozen_sha256": "c9d81ee5c163db8febbf256878a4684e5e4b4984c5452dd303b5a0b0daa74d87",
+    "log_tail_sha256": "67d9ae31edbbe67764302660eaeefe3ec41dc203041f79ed34d1e660a0a023f4"
+  },
+  "kill_criterion_verbatim": "f2b-transfer-llmproxy kill (STAGE-1-ONLY, zero GPU, judge-1 role filled by the pinned GPT-5.6 STAND-IN): FAIL fires iff the one-sided 95% Wilson lower bound of A_1p < 0.70, where A_1p = n_agree_j1p / n_labelled_j1p over the 360 blind d-qa-t items, computed from judge-1p's labels ALONE (GPT-5.6-Sol, pinned invocation data/d-adj-t-llmproxy/judge-1p-invocation.md); agreement = judge-1p label equals membership gold; escape tokens (NONE / 'cannot say') count as DISAGREEMENT; no-label items leave the denominator (instrument events, capped by gate). This mirrors f2b-transfer kill (d) in FORM ONLY; it can neither fire nor discharge f2b-transfer's own kill (d), whose judge-1 is a kernel-naive HUMAN. Degeneracy discipline (INSTRUMENT-INVALID, never FAIL/PASS): preflight failure; n_labelled_j1p < 300 of 360; n_nolabel_j1p > 18 (5%); raw judge-1p/judge-2 agreement < 0.80 over both-labelled items (single-family stability check -- only its FAIL direction is informative; its pass direction validates nothing, judges being one model family); deranged-probe false-endorsement point-rate >= 0.30 or probe coverage < 54/60 (every probe item's own-gloss is deranged out by a seed-pinned Sattolo cycle, so a content-competent judge must answer NONE; a judge endorsing wrong glosses at >= 0.30 is answering from style/familiarity, and its endorsement of the real items cannot be read as content endorsement -- exactly the channel that would fabricate a proxy-PASS under H-CIRC).",
+  "rungs_measured": [
+    "none"
+  ],
+  "scale_language_licensed": "none",
+  "schema_version": "kot-verdict/1",
+  "verdict": "PASS-PENDING-AUDIT"
+}
