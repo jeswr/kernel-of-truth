@@ -202,13 +202,27 @@ wish to *dis*endorse a specific contested definition without dropping the shard.
 
 ```json
 { "schema": "kot-axiom/1",
-  "subject": "urn:kot:<onto-obo-corpus-marker or a concept URN>",
+  "subject": "urn:kot:<minted onto-obo corpus-marker URN>",
   "constraints": [
     { "kind": "definitional",
       "form": "obo-genus-differentia",
       "source": { "corpus": "onto-obo", "shard": "go.jsonl",
                   "sourceVersion": "sha256:<pinned>" } } ] }
 ```
+
+DECISION (subject convention — the pin the census flagged as open): the
+  endorsement's `subject` is a **minted onto-obo corpus-marker URN** (one stable
+  `urn:kot:` URN naming the endorsed corpus), NOT a per-concept URN and NOT the
+  shard string. The endorsement's admitted set is keyed off `source.{corpus,shard,
+  sourceVersion}` (shard membership), so `subject` names the endorsing governance
+  act, is not consulted by the define-op index, and does not affect any coverage
+  count; the per-concept-override case (§3, disendorsement) is the only path that
+  ever puts a concept URN in `subject`, and it is out of scope for the corpus-scoped
+  v0 records. This retires the `__PENDING_FABLE_SUBJECT_PIN__` fail-closed stub the
+  census staged; the three v0 records (`defn-onto-obo-{go,so,mondo}.json`) each carry
+  a minted corpus-marker URN and validate.
+  [STIPULATED: ASM-0130 — endorsement subject = minted corpus-marker URN; registered
+  2026-07-10 to close census boundary-stop #1; see §8/§10]
 
 DECISION: `definitional` is a **new `kot-axiom/1` constraint kind**, added to
   `CONSTRAINT_KINDS` and `IMPLEMENTED_KINDS`; it is an *endorsement*, not an
@@ -234,6 +248,28 @@ why (it would smuggle DL subsumption). The `definitional` endorsement licenses
 subsumption inference, so it does not touch the `subClassOf` refusal.
 
 ### 3.3 The pinned relation-shorthand alias table (part of the licence machinery)
+
+> **SUPERSEDED — successor implemented (bead `kernel-of-truth-8es`, committed
+> `6bf9d72`; verified-in-repo 2026-07-10).** The "cleaner long-term fix" the
+> DECISION at the foot of this section filed as a successor is now **DONE**: the
+> onto-obo extractor (`data/onto-obo/extractor/extract.mjs`,
+> `buildRelationResolver` / `resolveRel`) resolves each differentia `property`
+> shorthand to its canonical minted relation `urn:onto-obo:` IRI **at extraction
+> time**, derived purely from the sources' own Typedef `xref:` declarations
+> (no hand-authored table), fail-closed (`ERR_OBO_REL_AMBIGUOUS`,
+> `ERR_OBO_REL_UNRESOLVED`). Every minted onto-obo shard now carries a resolved
+> `relation: urn:onto-obo:…` field per differentia (go/cl/mondo/po/so/uberon —
+> verified-in-repo 2026-07-10), and the define-index reads that field first
+> (bead `kernel-of-truth-o6pj`, `tools/axiom/kot_axiom.py`
+> `_resolve_logical_definition`), keeping `PINNED_RELATION_ALIASES` below ONLY as
+> a fail-closed fallback for a hypothetical pre-8es shard lacking the field — no
+> longer the primary path. Because resolution is now source-driven rather than a
+> GO+PO-only table, it is what unlocked SO/MONDO define-op resolution
+> [MEASURED: define-op census RE-RUN post-8es, commit `f64ba35` — 13,270/17,211].
+> The table below is retained verbatim as the frozen provenance of the ten GO+PO
+> shorthands and their LIT-BACKED RO/BFO targets; it is **no longer the live
+> resolution mechanism**. The §1 statement that a shorthand "must be resolved …
+> through a pinned alias table (§3.3)" is superseded in the same way.
 
 The differentia `property` shorthands must resolve to relation-concept `urn:kot:`
 URNs. The extractor currently stores them as bare strings, so the `define`-op
@@ -265,6 +301,10 @@ in the onto-obo extractor (so the record carries `relation: urn:onto-obo:...`
 instead of a bare string). That is another agent's turf (`kernel-of-truth-4im`
 neighbourhood) — recommended, not performed here. Until then the pinned alias
 table is the fail-closed bridge.
+[SUPERSEDED / DONE 2026-07-10: implemented in bead `kernel-of-truth-8es`
+(commit `6bf9d72`) exactly as described — the extractor now writes
+`relation: urn:onto-obo:…` per differentia and this successor is no longer
+pending. See the SUPERSEDED banner at the head of §3.3.]
 
 ---
 
@@ -396,6 +436,36 @@ semantics**. Six constraints, each fail-closed:
   the checkable slice (a definitional-uniqueness precondition on item eligibility),
   keeping the op sound and the item honest. Filed as a census predicate, §7.
 
+  **C5 operationalization (the exact census-side algorithm, so hu10 is a mechanical
+  build).** The filter is computed over the SAME endorsed definitional index the
+  engine builds (`defn[urn:kot:X] → {genus, differentiae}` from the union of endorsed
+  shards; §2.3), with no new resolution path and no engine change:
+  1. **Build the definitional inverse index once, at census load:**
+     `inv[key] → sorted set of licensed concept URNs`, where
+     `key = canonicalise(defn[X])` and `canonicalise` is EXACTLY the §2.2
+     DEFINE-MATCH canonical form — genus as a sorted `urn:kot:` set, differentiae as a
+     sorted set of `(relation-URN, filler-URN)` pairs — serialised deterministically
+     (e.g. the sorted-tuple JSON) as the map key. Only resolved entries (`X ∈ defn`,
+     i.e. not `defn_unresolved`/`ERR_NO_DEFINITION`) contribute; unresolved concepts
+     are never a collision partner.
+  2. **Per candidate-bearing item** (a def-MMLU stem / WiC option whose candidate
+     definition resolves to a canonical tuple `key_item` via the mapper leg, §5):
+     look up `n = |inv.get(key_item, ∅)|` — the number of DISTINCT licensed concepts
+     whose endorsed definition is structurally set-equal to the item's candidate.
+  3. **Eligibility:** the item is `define-checkable` only if `n == 1` (exactly one
+     licensed concept bears that definition — the answer is unambiguous). `n ≥ 2` ⇒
+     the item is definitionally ambiguous ⇒ **dropped from the checkable slice**
+     (recorded as `INELIGIBLE_DEFN_COLLISION`, a census-eligibility exclusion, NOT an
+     engine refusal — the engine's DEFINE-MATCH stays sound per subject, §2.2). `n == 0`
+     is not a collision: it is the ordinary "candidate matches no licensed concept"
+     case, handled by DEFINE-MATCH `false` / the item's own gold key, never by C5.
+  This filter is a property of the *item set*, is deterministic given the endorsed
+  index + census hash, and is reported in the census row (N dropped by C5) alongside
+  N_checkable/N_total. It touches neither the engine nor the mapper — it is pure
+  census instrumentation over the already-built index.
+  [STIPULATED: ASM-0131 — C5 = inverse-index collision count over the §2.2 canonical
+  form, drop iff `n ≥ 2`; registered 2026-07-10; owner hu10; see §8/§10]
+
 - **C6 — endorsement ≠ adequacy.** The `definitional` endorsement admits a shard as a
   *definitional-source*; it makes no semantic-adequacy claim about GO's biology
   (onto-obo's `AxiomsOnly` honesty is preserved). What the op certifies is: "the
@@ -499,6 +569,12 @@ placeholders; the register assigns real sequential ids):
 - **ASM-DEF-6** [STIPULATED] — the mapper leg is closed templates + annotation-label
   index + abstain-on-ambiguity (no sense resolution); owner: mapper; the census prices
   the gold-vs-mapper loss.
+- **ASM-DEF-7 = ASM-0130** [STIPULATED, REGISTERED 2026-07-10] — endorsement `subject`
+  is a minted onto-obo corpus-marker URN (§3.1); owner: governance/design; closes
+  census boundary-stop #1.
+- **ASM-DEF-8 = ASM-0131** [STIPULATED, REGISTERED 2026-07-10] — §C5 = inverse-index
+  collision count over the §2.2 canonical form, item dropped iff `n ≥ 2` (§6 C5);
+  owner: hu10 census; the audit is DEFINE-MATCH per-subject soundness (ASM-DEF-2).
 
 Recommended bead/register additions (not filed here): (1) the `define`-op engine +
 mapper implementation bead (Opus, this design); (2) a successor bead for the onto-obo
@@ -511,9 +587,64 @@ time (removes the §3.3 alias table) — another agent's turf; (3) a note to
 ## 9. Exact changed / created paths
 
 - **Created:** `docs/design-kot-query-define-op.md` (this memo).
-- **Changed:** none. No extractor, `tools/mint`, `tools/axiom/kot_axiom.py`, mapper,
-  registry, world-layer, or endorsement file touched; no pipeline run; no git
-  commit/push; `registry/ideas.jsonl` and `registry/assumptions.jsonl` untouched.
+- **Changed (original authoring pass):** none.
+- **Changed (2026-07-10 finalization pass, §10):** this memo — §3.1 subject pin,
+  §6 C5 operationalization, §8 addenda, this §9 line, §10; and
+  `registry/assumptions.jsonl` — appended ASM-0130, ASM-0131 (append-only, reserved
+  block). No extractor, `tools/mint`, `tools/axiom/kot_axiom.py`, mapper, world-layer,
+  or endorsement file touched by this pass; no pipeline run; no git commit/push.
+
+---
+
+## 10. Finalization addendum (2026-07-10) — bead 57b closure, readiness for 46f
+
+This pass answers the 57b question — *is the define-op design implementation-ready
+for 46f to build against?* — and closes the two design pins the define-op census
+(`registry/assessments/define-op-census.json`, 0.7710) flagged as Fable
+boundary-stops. **Verdict: YES, implementation-ready.** Both the query-semantics leg
+and the mapper leg were already precise enough that a mechanical build exists and
+follows this memo (verified-in-repo 2026-07-10); the two remaining open items were
+design-role pins, now closed here.
+
+### 10.1 The two pins closed here (were the only open gaps)
+
+- **Subject convention (§3.1) — CLOSED.** Endorsement `subject` = a minted onto-obo
+  corpus-marker URN [STIPULATED: ASM-0130]. Retires the census's
+  `__PENDING_FABLE_SUBJECT_PIN__` fail-closed stub (boundary-stop #1). The three v0
+  records already carry a minted corpus-marker URN and validate.
+- **§C5 uniqueness filter (§6 C5) — CLOSED.** Operationalized as an inverse-index
+  collision count over the §2.2 canonical form, drop iff `n ≥ 2` [STIPULATED:
+  ASM-0131]. This is a census-side (hu10) predicate; it needs no engine or mapper
+  change. It unblocks hu10 (next in the 57b→46f→hu10→j3iq chain).
+
+### 10.2 Drift reconciliation (§3.3 alias table vs beads 8es/o6pj)
+
+The §3.3 pinned relation-shorthand alias table was designed as the fail-closed bridge
+"until" the extractor resolves shorthands at extraction time. Beads 8es (extractor
+writes a resolved `relation` field) and o6pj (engine reads it) have since landed. The
+engine (`_resolve_logical_definition`) now **prefers the resolved `relation` field
+and falls back to the §3.3 alias table** when absent — byte-identical for GO/PO,
+and the resolved field is what unlocked SO/MONDO (0.5478→0.7710). Both the memo and
+the built engine keep the alias table as the closed fallback, so this is a
+compatible superset, not a contradiction — 46f builds against both paths exactly as
+already coded. No design change required.
+
+### 10.3 Readiness checklist (each item verified-in-repo 2026-07-10)
+
+| Design element | Spec | Build state (evidence) | Ready |
+|---|---|---|---|
+| Query semantics — DEFINE / DEFINE-MATCH shapes, refusal codes | §2 | engine `_query_define`, `_canonicalise_candidate` (`tools/axiom/kot_axiom.py`) | YES |
+| Definitional index + fail-closed resolution (C4) | §2.3/§3.3/§6 | `_build_definitional_index`, `_resolve_logical_definition` (resolved-`relation` + alias fallback) | YES |
+| `definitional` endorsement kind (disjoint from CWA store pass) | §3 | `CONSTRAINT_KINDS`+`IMPLEMENTED_KINDS`, `load_definitional_endorsements` | YES |
+| Endorsement subject convention | §3.1 + **ASM-0130** | 3 records in `data/axioms-definitional-v0/` carry minted corpus-marker URN | YES (pinned here) |
+| Mapper leg — closed templates + label→URN index + abstain | §5 | `mapper/src/defineTemplates.ts` (`parseDefineQuestion`, `DefineIndex`, `DefineParse`), separate gold/mapper paths | YES |
+| §C5 definitional-uniqueness item filter | §6 C5 + **ASM-0131** | census-side (hu10), algorithm now pinned; needs no engine/mapper change | YES (spec'd here) |
+| Soundness/leak envelope (C1–C6, X3 ban, subClassOf refusal untouched) | §6 | engine comments cite §6; no closure/cosine anywhere | YES |
+| Implement-then-measure plan (b-cov before/after, gold vs mapper) | §7 | 46f (build) → hu10 (census lane) | plan frozen |
+
+Nothing in the query-semantics or mapper-leg specs requires further design work: 46f
+is a mechanical build of §2/§3/§5, and hu10 a mechanical build of §6 C5 + §7.2.
+Coordinator may close 57b and unblock 46f.
 
 ---
 
