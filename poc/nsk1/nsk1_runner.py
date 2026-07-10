@@ -34,8 +34,15 @@ Modes:
            the record is FROZEN — this harness is design-stage; the final
            campaign belongs to the runner role, never the designer (run!=audit).
 
+Corpora (--data, default data/nsk1-eval): any corpus in the nsk1 harness format
+(items.jsonl / world.jsonl / axioms/ / lexicon.json). CLUTRR-derived corpora
+(data/nsk1-clutrr, built per design section 5.1) additionally carry a per-item
+"lexicon" field (the item's closed name lexicon - the read-channel match set) and
+null hop1 on third-party uncovered controls; both are supported here so the build's
+mock gate (section 5.1 S10) runs this same harness unchanged.
+
 Zero deps beyond the stdlib in mock mode. Usage:
-  python3 poc/nsk1/nsk1_runner.py --mock [--out poc/nsk1/out/mock]
+  python3 poc/nsk1/nsk1_runner.py --mock [--data data/nsk1-eval] [--out poc/nsk1/out/mock]
 """
 import argparse
 import hashlib
@@ -50,7 +57,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools", "axiom"))
 from kot_axiom import Engine  # noqa: E402
 
-DATA = os.path.join(ROOT, "data", "nsk1-eval")
+DATA_DEFAULT = os.path.join(ROOT, "data", "nsk1-eval")
 ARMS = ["internal", "external-text", "text-only", "kernel-as-text",
         "shuffled", "random-dir", "noop-hook"]
 # Pre-declared mock behaviour profile (mechanics only — obviously fake):
@@ -63,33 +70,43 @@ FEEDBACK_TOKEN_BUDGET = 24   # matched extra-token budget both loop arms honour
 STAGE0_PATCH_GRID = [(20, 8), (24, 8), (24, 12), (28, 12), (28, 16), (16, 4)]
 
 
-def load_inputs():
+def load_inputs(data_dir):
     ax = []
-    axdir = os.path.join(DATA, "axioms")
+    axdir = os.path.join(data_dir, "axioms")
+    corpus = os.path.basename(os.path.normpath(data_dir))
     for n in sorted(os.listdir(axdir)):
         if n.endswith(".json"):
             with open(os.path.join(axdir, n)) as f:
-                ax.append(("nsk1-eval/axioms/%s" % n, json.load(f)))
-    with open(os.path.join(DATA, "world.jsonl")) as f:
+                ax.append(("%s/axioms/%s" % (corpus, n), json.load(f)))
+    with open(os.path.join(data_dir, "world.jsonl")) as f:
         world = [json.loads(l) for l in f if l.strip()]
-    with open(os.path.join(DATA, "items.jsonl")) as f:
+    with open(os.path.join(data_dir, "items.jsonl")) as f:
         items = [json.loads(l) for l in f if l.strip()]
-    with open(os.path.join(DATA, "lexicon.json")) as f:
+    with open(os.path.join(data_dir, "lexicon.json")) as f:
         lex = json.load(f)
     return Engine(ax, world), items, lex
 
 
 class ExactMapper(object):
-    """EXACT surface-form -> entity URN match over the closed lexicon.
-    Abstains (returns None) on anything else. No similarity, no kNN — X3."""
+    """EXACT surface-form -> entity URN match over a closed lexicon
+    ({urn: surface}). Abstains (returns None) on anything else. No similarity,
+    no kNN — X3. Corpus-global for nsk1-eval (unique surfaces); PER-ITEM for
+    CLUTRR-derived corpora (items carry their own closed name lexicon —
+    design section 4.3/5.1 S8)."""
 
-    def __init__(self, lex):
-        self.by_surface = {v: k for k, v in lex["entities"].items()}
-        if len(self.by_surface) != len(lex["entities"]):
+    def __init__(self, entities):
+        self.by_surface = {v: k for k, v in entities.items()}
+        if len(self.by_surface) != len(entities):
             raise RuntimeError("lexicon surface forms not unique")
 
     def match(self, text):
         return self.by_surface.get(text.strip())
+
+
+def item_lexicon(it, lex):
+    """The item's closed name lexicon if it carries one, else the corpus-global
+    entity lexicon."""
+    return it.get("lexicon") or lex.get("entities") or {}
 
 
 class SteeringCache(object):
@@ -185,16 +202,25 @@ def run_stage0(host, items, rows, rung):
     return len(failures), len(cap)
 
 
-def run_stage1(host, engine, mapper, items, lex, rows, rung, seed):
-    ent_urns = list(lex["entities"])
+def run_stage1(host, engine, mapper_global, items, lex, rows, rung, seed):
+    # steering-cache universe = corpus-global entities plus every per-item lexicon
+    ent_urns = set(lex.get("entities") or {})
+    for it in items:
+        ent_urns.update(it.get("lexicon") or {})
+    ent_urns = sorted(ent_urns)
     cache_true = SteeringCache(ent_urns, seed)
     cache_shuf = SteeringCache(ent_urns, seed, deranged=True)
     rng_rand = random.Random(seed + 7)
     layer = 12   # mock stand-in for the Stage-0-selected layer L*
 
     for it in items:
+        ilex = item_lexicon(it, lex)
+        if not ilex:
+            raise RuntimeError("item %s has no lexicon (neither per-item nor "
+                               "corpus-global)" % it.get("item_id"))
+        mapper = ExactMapper(ilex) if it.get("lexicon") else mapper_global
         # bridge surface available to the mock read channel
-        it["_bridge_surface"] = (lex["entities"].get(it["hop1_bridge"])
+        it["_bridge_surface"] = (ilex.get(it["hop1_bridge"])
                                  if it["hop1_bridge"] else None)
         for arm in ARMS:
             fired, abstained, extraction_ok = False, False, True
@@ -206,7 +232,7 @@ def run_stage1(host, engine, mapper, items, lex, rows, rung, seed):
                 if urn is None:
                     abstained = True
                     extraction_ok = it["hop1_bridge"] is None  # controls: correct abstain
-                else:
+                elif it.get("hop1"):
                     q = dict(it["hop1"])
                     res = engine.query(q)            # REAL engine, hop-1 only
                     if res["status"] == "answer":
@@ -226,11 +252,14 @@ def run_stage1(host, engine, mapper, items, lex, rows, rung, seed):
                             steer = [0.0] * SteeringCache.DIM
                         elif arm == "external-text":
                             fb = "Note: the %s of %s is %s." % (
-                                REL_SURF(it), lex["entities"][it["hop1"]["subject"]],
-                                lex["entities"][bridge_urn])
+                                REL_SURF(it), ilex[it["hop1"]["subject"]],
+                                ilex[bridge_urn])
                             extra_tokens = len(fb.split())
                             if extra_tokens > FEEDBACK_TOKEN_BUDGET:
                                 raise RuntimeError("budget breach")
+                # else: a matched name but NO licensed query exists (third-party
+                # uncovered control, null hop1): the loop no-ops; fired stays
+                # False and feeds the false-fire gate.
                 # write-back arithmetic (exercised even though host is mock)
                 if steer is not None:
                     h = host.hidden_state(it["item_id"], layer)
@@ -255,6 +284,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mock", action="store_true")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--data", default=DATA_DEFAULT,
+                    help="corpus root in the nsk1 harness format "
+                         "(default data/nsk1-eval; the CLUTRR-derived corpus "
+                         "data/nsk1-clutrr once built per design section 5.1)")
     ap.add_argument("--out", default=os.path.join(HERE, "out", "mock"))
     args = ap.parse_args()
 
@@ -268,14 +301,15 @@ def main():
         return 2
 
     os.makedirs(args.out, exist_ok=True)
-    engine, items, lex = load_inputs()
-    mapper = ExactMapper(lex)
+    engine, items, lex = load_inputs(args.data)
+    mapper_global = (ExactMapper(lex["entities"])
+                     if lex.get("entities") else None)
     host = MockHost(args.seed)
     rows = []
     rung = "R0-mock"
 
     n_fail, n_swept = run_stage0(host, items, rows, rung)
-    run_stage1(host, engine, mapper, items, lex, rows, rung, args.seed)
+    run_stage1(host, engine, mapper_global, items, lex, rows, rung, args.seed)
 
     rows_path = os.path.join(args.out, "rows.jsonl")
     with open(rows_path, "w") as f:

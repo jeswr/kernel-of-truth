@@ -3,13 +3,17 @@
 - **Line id:** `knull-content-injection-ablation` (feasibility-synthesis §5 row 3 / §3d;
   GPT-5.6 review G1 / backlog row N1; sibling of the human f2b-transfer path — either one
   settles attribution of the f2b lift).
-- **Status:** DRAFT design + green mock. **NOT frozen. No GPU spent.** No frozen record,
-  verdict, or engine file is touched by this line.
+- **Status:** DRAFT design + green mock + **pre-freeze gates G-1..G-5 satisfied
+  (2026-07-10; evidence in §6.2/§6.5) — FREEZE-READY**: registry record
+  `registry/experiments/knull.json` (DRAFT) awaits coordinator
+  `prereg-freeze.py`. **NOT frozen. No GPU spent.** No frozen record, verdict, or
+  engine file is touched by this line.
 - **Author:** Fable experiment-designer role (`kern/fable-designer`), 2026-07-10.
 - **Owner type:** Fable-design (this spec); the run is **GPU-gated** (maintainer sign-off,
   $0–250 envelope; exact ask in §6.3).
 - **Artifacts owned by this line:** this doc, `poc/knull/**` (builder, stores, items,
-  runner). Nothing else.
+  runner, linter, G-3 checker), `analysis/knull.py` (the pinned SAP),
+  `registry/experiments/knull.json`. Nothing else.
 - **Dedup verification (hard rule 1):** re-checked before design. `registry/ideas.jsonl`
   (47 ideas, last-line-wins): no K-NULL / content-injection / opaque-ID / conventional-store
   idea exists. `registry/experiments/*.json` (32 records): no ablation of the f2b verifier's
@@ -189,6 +193,22 @@ secondaries, never as co-primaries.
   linter (length band, LC1, segmentability, uniqueness) + a 10-item blind style
   spot-check. Kill: if no source passes the linter within budget, the plain arm falls
   back to opaque-only (weaker but still decisive against the pure-alignment reading).
+  **RESOLVED 2026-07-10 → option (ii).**
+  - DECISION: the plain store is authored under option (ii) — 108 dictionary-register
+    definitions LLM-drafted by this designer role, committed with full disclosure in
+    `poc/knull/inputs/plain-authored.json`, and the G-1 linter passes every check
+    (D-1, L-1..L-5, R-1..R-4; non-NSM register ratio min 0.333 vs canonical-gloss max
+    0.069 at threshold 0.25) [MEASURED: `python3 poc/knull/lint_plain_store.py
+    --report` over committed store sha256
+    df4a17cff6c6da70ddb19c1ef2f4d25b5868ac352318162e8e68f9982848cf58].
+  - The drafting model family (Claude/Fable) differs from the SmolLM2 host family, so
+    attack-9's same-family idiom-leakage channel does not apply in its strong form;
+    the residual style-familiarity axis stays a stipulation until truthstyle-2x2
+    reads out — an ASM for this is REPORTED for registration at freeze (§6.4), not
+    silently assumed.
+  - The 10-item blind style spot-check file is prepared at
+    `poc/knull/inputs/plain-spotcheck.json` (deterministic sample; answer key
+    separated) — a maintainer sign-off step, not a designer step.
 - **F-KN-B — opaque arm difficulty.** Options: keep opaque as a co-primary candidate
   comparator (current) vs demote to descriptive pole. Why uncertain: nonce surfaces may
   push R1-alone accuracy outside the ±0.15 difficulty band (mock cannot tell — stub is
@@ -208,7 +228,25 @@ secondaries, never as co-primaries.
 
 ---
 
-## 3. DRAFT `kot-reg/1` record (deliverable 3 — NOT frozen; freeze blocked on §6.2 gates)
+## 3. DRAFT `kot-reg/1` record (deliverable 3 — NOT frozen; freeze gates §6.2 now satisfied)
+
+**The registered record file is `registry/experiments/knull.json`** (added at
+gate-satisfaction, 2026-07-10; `prereg-freeze.py --dry-run` green). It is the
+schema-legal `kot-reg/1` rendering of the design-shaped draft below; where the two
+differ on FIELD SHAPE, the record file governs. The mapping, verbatim:
+
+- verdict enum (the schema's closed set): **NULL** carries the PASS-GENERIC outcome
+  (TOST equivalence ⇒ the lift is store-content-generic — a decisive null, recorded
+  with the same prominence as a PASS); **PASS** carries PASS-CONTENT (kernel superior
+  beyond margin); **FAIL** carries KERNEL-INFERIOR (deflationary a fortiori);
+  INSTRUMENT-INVALID and the INCONCLUSIVE catch-all are unchanged.
+- the draft's `assumptions[]` block lives at `design.n_planned.assumptions` (the
+  f2b-replicate pattern; kot-reg/1 has no top-level assumptions field), and the
+  per-type breakdown endpoint is registered as a secondary whose test text declares
+  it DESCRIPTIVE-only (the schema's role enum has no "descriptive").
+- `pins.analysis_script` = `analysis/knull.py` (gate G-4) with its declared
+  output_fields; prereg/plan docs + corpus digests + model revisions pinned as in
+  the record file.
 
 ```json
 {
@@ -364,8 +402,10 @@ clearly more than the margin, which is the point.
 
 `python3 poc/knull/build_inputs.py` — $0, CPU, no wall-clock dependence; rebuild is
 byte-identical. Manifest: `poc/knull/inputs/manifest.json`, sha256
-`fd08807b1cebb69b3a327a8a78796f5f5a05001a333b437f37e00525cbd53d03` (pins every store
-file + item file + the f2b/build-dqar provenance shas).
+`ee3a93f5e4a7a6ec871420f9184f7e2dfa7749111a13ae55c819bd7b6306c422` (pins every store
+file + item file + the authored plain source + the f2b/build-dqar provenance shas).
+Superseded pre-G-1 build (placeholder plain store): manifest sha `fd08807b...` —
+retained here only as provenance of the earlier mock transcript.
 
 - **1080 skeletons × 3 arms** over the 108 covered concepts; identical skeleton_uid
   sequence, template types, distractor/donor concept coordinates, and option-slot layout
@@ -377,12 +417,25 @@ file + item file + the f2b/build-dqar provenance shas).
   108 concepts (d-qa-r itself recorded 39 claim-true→claim-false substitutions); 160
   joint substitutions recorded in the manifest. Fork F-KN-D governs this.
 - **Opaque store** (`inputs/stores/opaque/`): REAL arm content — deterministic nonce
-  definitions, segment count ≥ 2 matched to the NSM gloss's segment structure, word count
-  banded ±25% to the NSM gloss (KNULL_ERR_WORDBAND fail-closed), uniqueness asserted.
-- **Plain store** (`inputs/stores/plain/`): **SYNTHETIC PLACEHOLDER** definitions
-  (`plain_store_placeholder: true` in the manifest) — mechanics only. The authored
-  plain-dictionary store is pre-freeze gate G-2 (§6.2); the runner refuses any non-mock
-  run while the flag is true.
+  definitions, ≥ 2 segments, word target **token-calibrated** (factor
+  `OPAQUE_TOKEN_CALIB = 0.48`, band ±25% vs the calibrated target,
+  KNULL_ERR_WORDBAND fail-closed), uniqueness asserted. Why calibrated: nonce
+  syllable text tokenizes at ~2.09x the rate of NSM English under the pinned
+  SmolLM2 tokenizer, so an uncalibrated word band silently broke the FLOPs-parity
+  budget the word band was proxying — exactly the failure mode gate G-3 exists to
+  catch (measured in `inputs/g3-token-band.json`; §6.2 G-3).
+- **Plain store** (`inputs/stores/plain/`): **AUTHORED** plain-dictionary definitions
+  (`plain_store_placeholder: false`; source file `inputs/plain-authored.json`, sha256
+  `df4a17cff6c6da70ddb19c1ef2f4d25b5868ac352318162e8e68f9982848cf58`, fork F-KN-A
+  option (ii), disclosure block inside the file). Linted fail-closed at build by
+  `poc/knull/lint_plain_store.py` (gate G-1): LC1 (full label AND headword), ±25%
+  word band vs the NSM gloss, ≥2 admissible segments, pairwise + vs-canonical
+  uniqueness, no-verbatim-NSM-line (both directions), the register check
+  ("zero NSM-legal syntax": every segment carries ≥1 token outside the 65-prime
+  exponent surface + closed function words + the 108 concept headwords; whole-def
+  non-NSM ratio ≥ 0.25 — authored min 0.333, canonical-gloss max 0.069),
+  own-gloss Jaccard < 0.5, ASCII/quote/account hygiene, disclosure presence.
+  Blind style spot-check file: `inputs/plain-spotcheck.json` (maintainer step).
 - **Kernel store**: the existing pinned records (`data/kernel-v0` + `data/molecules-v0`),
   untouched; items carry the same record_path + record_sha256 pins the verifier
   fail-closes on.
@@ -395,8 +448,14 @@ ShuffledKernelVerifier, run_alone, run_verify_retry, extract_record, verify_answ
 verbatim f2b prompt frames and F0 flop accounting) at the pinned sha
 (`KNULL_ERR_PIN` fail-closed) and swapping only `records_root` + the item file per arm.
 `poc/f2b/**` is never modified. Real-mode is refused (`KNULL_ERR_DRAFT_ONLY`) until a
-frozen record exists AND the plain store is non-placeholder; the real path then reuses
-the f2b HFLM backends at the same pinned model revisions.
+frozen record for `knull` is in `registry/frozen-index.json` AND the plain store is
+non-placeholder — and even then this designer-built harness stops at
+`KNULL_ERR_RUNNER_ROLE`: the real HF-backend campaign is runner-role work against the
+frozen record (run ≠ audit), re-pinned at campaign start exactly as f2b did.
+`--dry-plan` (gate G-2's $0 real-path smoke) verifies every pin, loads the full
+n=1000 rank-prefix item sets + stores fail-closed, and prints the 30-GPU-cell plan
+with its cost envelope. Cells emit per-item coverage vectors + metered per-query
+FLOPs, the exact input contract of the pinned SAP `analysis/knull.py` (G-4).
 
 ### 4.3 Green mock (mechanics only, $0 — never measurements)
 
@@ -405,14 +464,34 @@ python3 poc/knull/runner/knull_runner.py --selftest
   -> selftest OK: EQUIVALENT-GENERIC / KERNEL-SUPERIOR / KERNEL-INFERIOR all
      classified correctly (planted data)
 python3 poc/knull/runner/knull_runner.py --mock --out-dir <scratch> --items 1080
-  -> map-check M-V: 3456 decisions IDENTICAL (the $0 vector-free result, real)
+  -> map-check M-V: 3456 decisions IDENTICAL (the $0 vector-free result, real;
+     re-proven on the authored-store build 2026-07-10)
   -> 20 cells green (3 arms x [alone-R1, alone-R3, verify] x 2 mock seeds
      + 2 shuffled bridge cells); all gates computed; extraction 0 failures;
      MOCK verdict shape INCONCLUSIVE (diff -0.025, CI [-0.050, 0.000]) under an
      ARM-BLIND stub - the expected mock shape is equivalence-noise, and every
      analysis path (gates, TOST, superiority, inferiority, Holm secondaries,
-     per-type breakdown) executed; ~14 s CPU
+     per-type breakdown) executed; ~22 s CPU
+python3 poc/knull/runner/knull_runner.py --dry-plan            (gate G-2)
+  -> dry-plan OK: 30 GPU cells over 1000 paired items x 3 arms; all pins
+     verified; stores load fail-closed
+python3 analysis/knull.py --selftest                           (gate G-4)
+  -> analysis selftest OK: equivalence / superiority / inferiority /
+     difficulty-gate / shuffled-bridge all classified correctly (planted covs)
+python3 analysis/knull.py --records <mock>/run-records.jsonl
+    --item-meta <mock>/item-meta.json --out <mock>/analysis-sap.json
+  -> knull SAP: n=1080 best=opaque diff=-0.0255 [-0.0514, -0.0009]
+     tost/sup/inf all False (INCONCLUSIVE shape); bridge + difficulty +
+     extraction gates green; Holm + per-type paths executed; ~9 s CPU
 ```
+
+Known mock-only artifact, disclosed in advance: the SAP's `flops_parity` gate reads
+FALSE **on mock records only** (`flops_ratio_opaque` ≈ 0.61) because the StubLM
+meters tokens by a chars/4 proxy, which undercounts nonce text roughly 2x. The
+authoritative pre-freeze parity evidence is the pinned-tokenizer G-3 measurement
+(opaque/kernel mean-prompt-token ratio **1.004**, plain 0.948 —
+`inputs/g3-token-band.json`); at run time the real HFLM meters real token counts.
+The SAP is not bent to make the mock pretty: the gate stays strict.
 
 Mock artifacts worth recording (stub-level, labelled MOCK, never measurements): the
 shuffled bridge cell showed recovery ≈ 0.25 under the stub — a mechanical consequence of
@@ -453,6 +532,10 @@ with the leakage structure itself.
 `plain_store_placeholder: true` in the manifest + `KNULL_ERR_DRAFT_ONLY` in the runner;
 freeze gate G-2 requires the authored store + linter pass + re-pinned manifest. A frozen
 record pointing at a placeholder sha cannot pass registry lint against G-2's checklist.
+*Resolution 2026-07-10: the authored store LANDED (G-1/G-2 satisfied; §6.2); the flag
+is false in the re-pinned manifest; the runner still refuses real runs until the
+record is in `registry/frozen-index.json`, and then stops at `KNULL_ERR_RUNNER_ROLE`
+— the campaign belongs to the runner identity, not this designer.*
 
 **Attack 5 — best-comparator selection gameability.** Selecting the max-lift aligned arm
 after seeing lifts is a post-hoc choice INSIDE the frozen SAP (a deterministic function
@@ -494,6 +577,14 @@ arm baseline) or its verify acceptance dynamics (not harmless). Mitigation: auth
 source must be disclosed in the frozen record; linter includes a no-verbatim-NSM-line
 check; the truthstyle-2x2 sibling measures the style-familiarity axis directly and its
 read informs F-KN-A before freeze.
+*Resolution 2026-07-10: option (ii) taken with the mitigations realized — disclosure
+block committed inside `plain-authored.json` and copied into the manifest + record;
+the drafting family (Claude/Fable) differs from the SmolLM2 host family; the
+no-verbatim-NSM-line check (R-1) and the register check (R-2) pass on all 108
+definitions. The residual style-familiarity stipulation is REPORTED for ASM
+registration at freeze (§6.4) with truthstyle-2x2 as its resolution path; if
+truthstyle-2x2 reads out before the knull campaign launches, its read is attached to
+the run packet as context (it does not amend this record).*
 
 **Attack 10 — run≠audit and ownership.** This line touches only `poc/knull/**` + this
 doc. The designer identity (this role) will not run the final campaign, grade, or audit;
@@ -516,18 +607,48 @@ until the cross-vendor auditor confirms.
 Scale language: two host rungs ⇒ sign-only, verbatim inherited. Every claim bounded to
 the covered slice with the m0b coverage sentence restated (§3.5).
 
-### 6.2 Pre-freeze gates (this record must NOT be frozen until)
+### 6.2 Pre-freeze gates — ALL SATISFIED 2026-07-10 (evidence per gate)
 
-1. **G-1**: fork F-KN-A decided + authored plain store lands; linter (LC1, ±25% length
-   band, ≥2 segments, uniqueness, no NSM-legal syntax, authoring-source disclosure) green.
-2. **G-2**: `plain_store_placeholder` flips false; inputs manifest re-pinned; runner
-   real-path smoke on Modal (`--dry-plan` analog) green.
-3. **G-3**: tokenizer-level FLOPs band re-checked with the pinned SmolLM2 tokenizer
-   (build-time word-band is a proxy); fork F-KN-C margin call finalized.
-4. **G-4**: pinned analysis script (BCa, B=10000, seed 20260710) written to
-   `analysis/knull.py`, output fields declared, sha into the record.
-5. **G-5**: N0 §5 / N1-A §8 pre-registration checklists run; this skeptic memo re-read
-   against the final record; then `prereg-freeze.py` + external timestamp.
+1. **G-1 SATISFIED**: fork F-KN-A decided → option (ii) (§2.3); authored plain store
+   landed (`poc/knull/inputs/plain-authored.json`, sha256
+   `df4a17cff6c6da70ddb19c1ef2f4d25b5868ac352318162e8e68f9982848cf58`); linter
+   `poc/knull/lint_plain_store.py` green on all checks — LC1 (full label AND
+   headword), ±25% word band, ≥2 segments, uniqueness (pairwise + vs canonical),
+   no-verbatim-NSM-line, register/no-NSM-legal-syntax (authored min ratio 0.333 vs
+   canonical max 0.069, threshold 0.25), own-gloss Jaccard, hygiene, disclosure.
+   Blind spot-check file prepared (maintainer sign-off step, §2.3).
+2. **G-2 SATISFIED**: `plain_store_placeholder: false`; manifest re-pinned
+   (`ee3a93f5e4a7a6ec871420f9184f7e2dfa7749111a13ae55c819bd7b6306c422`); runner
+   real-path smoke green via `--dry-plan` ($0 analog: every pin verified, full
+   n=1000 rank-prefix item sets + all three stores loaded fail-closed, 30-cell plan
+   emitted). The Modal-side I-MODAL image rebuild smoke remains a runner-role step
+   at campaign start (same posture as nsk1's real-mode HF harness) — it is a spend
+   step, not a design step, and is listed in the dry-plan's
+   `residual_runner_role_steps`.
+3. **G-3 SATISFIED**: tokenizer-level re-check run with the pinned
+   SmolLM2-135M-Instruct tokenizer (revision `12fd25f7...`, tokenizer.json sha256
+   `9ca9acdd...`): the word-band proxy had silently left the opaque store at
+   **2.09x** kernel tokens; the opaque generator was token-calibrated
+   (`OPAQUE_TOKEN_CALIB = 0.48`) and the rebuilt stores measure — mean prompt
+   tokens per item, exact f2b `build_prompt` rendering — kernel 110.5, plain
+   104.8 (ratio 0.948), opaque 110.9 (ratio 1.004), all inside the pre-declared
+   ±10% pre-freeze band (run-time gate ±20%). Artifact:
+   `poc/knull/inputs/g3-token-band.json`. Fork F-KN-C margin call FINALIZED:
+   n stays 1000 ≥ 900 ⇒ **margin 0.05 stands**.
+4. **G-4 SATISFIED**: pinned SAP `analysis/knull.py` (sha256
+   `683f3e06189da0856565b1c6cd1053a9116dabaa21d65488919955458951f3bf`) — BCa,
+   B=10000, seed 20260710, ONE shared skeleton-level resampling plan across all
+   statistics; output fields declared in the record
+   (`pins.analysis_script.output_fields`); selftest green (5 planted regimes);
+   full run over the 1080-item mock green (§4.3).
+5. **G-5 SATISFIED**: N0 §5 / N1-A §8 checklists run — item-by-item record in
+   §6.5; this skeptic memo re-read against the final record 2026-07-10 (attacks 4
+   and 9 updated in place with their resolutions; no new attack found; the one new
+   design fact — opaque token calibration — is attack-1-relevant and disclosed in
+   §4.1/G-3). The freeze itself is the COORDINATOR'S step:
+   `python3 tools/registry/prereg-freeze.py --experiment knull --agent-id
+   coordinator-1` + RT-15 external timestamp (post the printed hash line to the
+   coordination issue).
 
 ### 6.3 Compute ask (GPU-gated; maintainer sign-off requested)
 
@@ -550,5 +671,82 @@ the covered slice with the m0b coverage sentence restated (§3.5).
   attribution; if the human read lands first, K-NULL's freeze decision is revisited
   (it may still be worth running for the content-vs-alignment axis, which f2b-transfer
   does not measure).
-- Everything here persists in-repo: this doc, `poc/knull/**`. Temporary mock outputs live
-  in the session scratchpad only.
+- Everything here persists in-repo: this doc, `poc/knull/**`, `analysis/knull.py`,
+  `registry/experiments/knull.json`. Temporary mock outputs live in the session
+  scratchpad only.
+- **ASMs to REGISTER at freeze** (reported here for the coordinator — this designer
+  does not append to `registry/assumptions.jsonl`; mint at the next free ids, watching
+  the flagged id-collision queue):
+  1. STIPULATED — power planning bound for the knull TOST primary: power 0.65–0.95 at
+     margin 0.05, n=1000 paired skeletons, from f2b-measured variance scaled +
+     mock half-width under arm-independent stub noise; a planning constant, never a
+     measurement; owner designer-1; resolution_path: realized CI width at analysis.
+  2. STIPULATED — plain-store style-familiarity residual: the authored
+     dictionary-register store (LLM-drafted, Claude/Fable family ≠ SmolLM2 host
+     family, linter-gated) does not advantage/disadvantage the plain arm's verify
+     acceptance dynamics beyond what the within-arm baseline and difficulty gate
+     absorb; owner designer-1; resolution_path: truthstyle-2x2 readout (style axis)
+     + knull's own difficulty-gate + per-type descriptive table.
+  3. STIPULATED — construction-held-fixed licence: holding the oracle-favourable
+     construction fixed across arms isolates the content variable; gold-label
+     independence is explicitly out of scope (f2b-transfer owns it); owner
+     designer-1; resolution_path: f2b-transfer Stage-2 human read.
+  4. STIPULATED — StubLM chars/4 token proxy is mock-mechanics only; the mock
+     flops_parity=false artifact (§4.3) carries no information about the real gate,
+     whose pre-freeze evidence is the pinned-tokenizer G-3 artifact (opaque ratio
+     1.004); owner designer-1; resolution_path: run-time HFLM-metered FLOPs ledger.
+- **Coordinator freeze sequence**: (1) register the 4 ASMs; (2)
+  `python3 tools/registry/prereg-freeze.py --experiment knull --agent-id
+  coordinator-1` (drop `--dry-run` only when ready — dry-run is green as of
+  2026-07-10); (3) post the printed `external_timestamp_post` hash line to the
+  coordination issue (RT-15); (4) `tools/kb/kb-sync-internal` for this doc's edits
+  (this designer does not run it).
+
+### 6.5 G-5 checklist run (N0 §5 items 1–10; N1-A §8 items 11–15) — 2026-07-10
+
+1. **Law / interface-locality cell**: Law 2 (kernel-as-text is the real opponent) is
+   the line's SUBJECT — knull ablates store content inside an already-nulled
+   mechanism; interface cell = text-in/text-out (verifier reads strings, model sees
+   text; map §1). No raw-coordinate cell is touched (map M-V: zero vector bytes in
+   the seam).
+2. **X3 cosine ban**: no kernel-vector cosine anywhere — the verifier is string
+   identity/membership (map A-1..A-4); the item generator is hash+Jaccard on tokens.
+3. **Kernel-as-text null**: measured against THIS mechanism in f2b-replicate
+   (beats_text_null, audit CONFIRMED); not re-run — no claim here exceeds that
+   scope, and the record's arms_mandatory_baselines carries the justification
+   verbatim (§3 record NOTE).
+4. **Shuffled-kernel / scramble controls**: shuffled-derangement bridge cell on the
+   kernel store (H-KN3 + Holm secondary), claim-polarity asymmetry disclosed
+   (attack 6); the plain/opaque arms ARE the content-scramble axis.
+5. **Metric vector V + strong baselines**: V components logged per arm (F0 ledger,
+   descriptive); baselines = within-arm alone-R1, alone-R3 (1.7B), the f2b-frozen
+   nulls by reference; authoring cost of the plain store is part of the
+   PASS-GENERIC consequence analysis (re-route to authoring-cost economics).
+6. **Scale rungs + envelope + anchor**: R1 + R3 declared ⇒ sign-only language,
+   envelope verbatim in the record; literature anchor inherited from f2b-replicate's
+   envelope (P1 §4b HE1 cascade/verification-routing anchors) — knull makes no
+   scale claim of its own.
+7. **No semantic-web smuggling**: stores are flat JSON {label, gloss}; no RDF/OWL
+   anywhere (directives §1).
+8. **Absorption framing**: outcomes license attribution/efficiency statements only
+   (§6.1); no permanent-residence claim in any outcome.
+9. **Coverage + power on the covered slice**: all items over the 108 covered
+   concepts; m0b coverage sentence restated verbatim in §3.5 and in the record's
+   envelope + n_planned; power ∈ [0.65, 0.95] at margin 0.05 (§3.6, STIPULATED
+   planning bound, ASM 1 above); decidability: TOST cannot pass by noise
+   (attack 7), Wilson extraction gate powered at n=3000 verify calls/arm.
+10. **Run ≠ audit route**: designer (this role) → Opus runner → SAP pure function →
+    Codex/GPT-5.5 cross-vendor audit; identities named in §6.4.
+11. **Composition accounting (N1-A 11)**: no composed arm is claimed; the only
+    composition is the frozen f2b mechanism itself, declared as the unit under
+    ablation.
+12. **Routing/mis-route gate (N1-A 12)**: n/a — no router in this design.
+13. **Workload-mix sensitivity (N1-A 13)**: the type mix is fixed and IDENTICAL
+    across arms (324/324/56/376), disclosed with the claim-true scarcity fork
+    F-KN-D; no mixed-workload claim is made, and the per-type table is descriptive.
+14. **Stage indictment (N1-A 14)**: per-stage instruments present — extraction gate
+    (P10), difficulty band (headroom stage), bridge gate (mechanism-reproduction
+    stage), FLOPs parity (budget stage); each failure names its stage as
+    INSTRUMENT-INVALID rather than a hypothesis event.
+15. **Dose–response discipline (N1-A 15)**: n/a — no swept knob; k=4 fixed,
+    inherited pre-registered from f2b-replicate.

@@ -1,0 +1,5025 @@
+{
+ "sample": "mathlib-1000-sample/v0",
+ "purpose": "D-ML input for experiment g8 (HS8 Lean-minting viability). The random 1,000-declaration Mathlib sample = the null denominator for the fragment-gate primary endpoint (registry/experiments/g8.json).",
+ "seed": 0,
+ "sampling_algorithm": {
+  "description": "Deterministic uniform-random sample without replacement over the Mathlib-proper declaration set, realised by a SHA-256 keyed sort (repo convention: SHA-256 over fixed labels only). For each fully-qualified declaration name N, key(N)=sha256(seed_label + '\\x00' + N) as lowercase hex; rank all Mathlib-proper names by key ascending; take the first 1000.",
+  "seed_label": "g8:mathlib-1000-sample:seed=0",
+  "population": "Mathlib-proper declarations = every entry of declaration-data.bmp['declarations'] whose docLink begins './Mathlib/' (module page under Mathlib/).",
+  "population_size": 315970,
+  "n_selected": 1000
+ },
+ "enumeration_index": {
+  "url": "https://leanprover-community.github.io/mathlib4_docs/declarations/declaration-data.bmp",
+  "sha256": "ea533afebfa00deb1d862411f59a28532692c10611f1725eab3ff04ad3451fc8",
+  "content_type": "image/bmp (served for compression; content is plain JSON)",
+  "bytes": 65923951,
+  "last_modified": "Fri, 10 Jul 2026 01:26:54 GMT",
+  "note": "66 MB enumeration index; NOT byte-archived in-repo (size). The sha256 + the mathlib commit in every extracted record's gh_link are the content pins; the daily doc-gen4 build rotates the URL in place."
+ },
+ "n_mathlib_proper": 315970,
+ "n_sample": 1000,
+ "distinct_modules": 866,
+ "selected": [
+  {
+   "name": "Homeomorph.mulRight\u2080",
+   "docLink": "./Mathlib/Topology/Algebra/GroupWithZero.html#Homeomorph.mulRight\u2080",
+   "indexKind": "def"
+  },
+  {
+   "name": "FirstOrder.Language.Substructure.mem_top",
+   "docLink": "./Mathlib/ModelTheory/Substructures.html#FirstOrder.Language.Substructure.mem_top",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NonLindelofSpace.mk",
+   "docLink": "./Mathlib/Topology/Compactness/Lindelof.html#NonLindelofSpace.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "Filter.Germ.instIsStrictOrderedRing",
+   "docLink": "./Mathlib/Order/Filter/FilterProduct.html#Filter.Germ.instIsStrictOrderedRing",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Precoverage.IsStableUnderSup.of_preZeroHypercoverFamily",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Hypercover/ZeroFamily.html#CategoryTheory.Precoverage.IsStableUnderSup.of_preZeroHypercoverFamily",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Option.map\u2082_coe_right",
+   "docLink": "./Mathlib/Data/Option/NAry.html#Option.map\u2082_coe_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "rankCondition_iff_le_of_comp_eq_one",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/InvariantBasisNumber.html#rankCondition_iff_le_of_comp_eq_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "isOrderRightAdjoint_csSup",
+   "docLink": "./Mathlib/Order/SemiconjSup.html#isOrderRightAdjoint_csSup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NormedRing.inverse_continuousAt",
+   "docLink": "./Mathlib/Analysis/Normed/Ring/Units.html#NormedRing.inverse_continuousAt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithAbs.ofAbs_sub",
+   "docLink": "./Mathlib/Analysis/Normed/Ring/WithAbs.html#WithAbs.ofAbs_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "chainClosure_maxChain",
+   "docLink": "./Mathlib/Order/CompleteLattice/Chain.html#chainClosure_maxChain",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithBot.continuous_unbot",
+   "docLink": "./Mathlib/Topology/Order/WithTop.html#WithBot.continuous_unbot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.le_add_iff",
+   "docLink": "./Mathlib/Order/Filter/Pointwise.html#Filter.le_add_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.Exact.mono_cokernelDesc",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/Exact.html#CategoryTheory.ShortComplex.Exact.mono_cokernelDesc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.imageUnopOp",
+   "docLink": "./Mathlib/CategoryTheory/Abelian/Opposite.html#CategoryTheory.imageUnopOp",
+   "indexKind": "def"
+  },
+  {
+   "name": "Monoid.exponent_ne_zero_iff_range_orderOf_finite",
+   "docLink": "./Mathlib/GroupTheory/Exponent.html#Monoid.exponent_ne_zero_iff_range_orderOf_finite",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Abelian.SpectralObject.cokernelSequenceE_X\u2082",
+   "docLink": "./Mathlib/Algebra/Homology/SpectralObject/Page.html#CategoryTheory.Abelian.SpectralObject.cokernelSequenceE_X\u2082",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "OpenPartialHomeomorph.IsImage.iff_preimage_eq'",
+   "docLink": "./Mathlib/Topology/OpenPartialHomeomorph/IsImage.html#OpenPartialHomeomorph.IsImage.iff_preimage_eq'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.multiset_sum_subset_multiset_sum",
+   "docLink": "./Mathlib/Algebra/Group/Pointwise/Set/BigOperators.html#Set.multiset_sum_subset_multiset_sum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "sSup_insert",
+   "docLink": "./Mathlib/Order/CompleteLattice/Basic.html#sSup_insert",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MultilinearMap.compMultilinearMap_apply",
+   "docLink": "./Mathlib/LinearAlgebra/Multilinear/Basic.html#MultilinearMap.compMultilinearMap_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.OuterMeasure.trim_add",
+   "docLink": "./Mathlib/MeasureTheory/OuterMeasure/Induced.html#MeasureTheory.OuterMeasure.trim_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.Walk.reverse_toWalk",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Walk/Operations.html#SimpleGraph.Walk.reverse_toWalk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.whiskeringLimYonedaIsoCones_inv_app_app_hom_apply",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Types/Yoneda.html#CategoryTheory.Limits.whiskeringLimYonedaIsoCones_inv_app_app_hom_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DMatrix.instAddCommMonoid",
+   "docLink": "./Mathlib/Data/Matrix/DMatrix.html#DMatrix.instAddCommMonoid",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Matrix.charpoly_reindex",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Charpoly/Basic.html#Matrix.charpoly_reindex",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Subobject.lowerEquivalence_unitIso",
+   "docLink": "./Mathlib/CategoryTheory/Subobject/Basic.html#CategoryTheory.Subobject.lowerEquivalence_unitIso",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsLocalization.eq_mk'_iff_mul_eq",
+   "docLink": "./Mathlib/RingTheory/Localization/Defs.html#IsLocalization.eq_mk'_iff_mul_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "neg_involutive",
+   "docLink": "./Mathlib/Algebra/Group/Basic.html#neg_involutive",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.PreservesPushout.inr_iso_hom",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Shapes/Pullbacks.html#CategoryTheory.Limits.PreservesPushout.inr_iso_hom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.isColimitOfEffectiveEpiStruct",
+   "docLink": "./Mathlib/CategoryTheory/Sites/EffectiveEpimorphic.html#CategoryTheory.isColimitOfEffectiveEpiStruct",
+   "indexKind": "def"
+  },
+  {
+   "name": "existsUnique_zsmul_near_of_pos'",
+   "docLink": "./Mathlib/Algebra/Order/Archimedean/Basic.html#existsUnique_zsmul_near_of_pos'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomotopicalAlgebra.FibrantBrownFactorization.r",
+   "docLink": "./Mathlib/AlgebraicTopology/ModelCategory/BrownLemma.html#HomotopicalAlgebra.FibrantBrownFactorization.r",
+   "indexKind": "def"
+  },
+  {
+   "name": "Algebra.sInf_toSubmodule",
+   "docLink": "./Mathlib/Algebra/Algebra/Subalgebra/Lattice.html#Algebra.sInf_toSubmodule",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "isUnit_iff_mem_nonZeroDivisors_of_finite",
+   "docLink": "./Mathlib/Algebra/Ring/NonZeroDivisors.html#isUnit_iff_mem_nonZeroDivisors_of_finite",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.cof_ord_cof",
+   "docLink": "./Mathlib/SetTheory/Cardinal/Cofinality/Ordinal.html#Ordinal.cof_ord_cof",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Fin.find_pos",
+   "docLink": "./Mathlib/Data/Fin/Tuple/Basic.html#Fin.find_pos",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddSubgroup.IsComplement.finite_right",
+   "docLink": "./Mathlib/GroupTheory/Complement.html#AddSubgroup.IsComplement.finite_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "InfHom.symm_dual_comp",
+   "docLink": "./Mathlib/Order/Hom/Lattice.html#InfHom.symm_dual_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingCat.Colimits.coconeMorphism",
+   "docLink": "./Mathlib/Algebra/Category/Ring/Colimits.html#RingCat.Colimits.coconeMorphism",
+   "indexKind": "def"
+  },
+  {
+   "name": "Shrink.instNonAssocSemiring",
+   "docLink": "./Mathlib/Algebra/Ring/Shrink.html#Shrink.instNonAssocSemiring",
+   "indexKind": "instance"
+  },
+  {
+   "name": "PLift.forall",
+   "docLink": "./Mathlib/Data/ULift.html#PLift.forall",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submonoid.mulSingle_mem_pi",
+   "docLink": "./Mathlib/Algebra/Group/Submonoid/Operations.html#Submonoid.mulSingle_mem_pi",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NonUnitalStarAlgHom.inr_apply",
+   "docLink": "./Mathlib/Algebra/Star/StarAlgHom.html#NonUnitalStarAlgHom.inr_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Bialgebra.ext_to_ring_iff",
+   "docLink": "./Mathlib/RingTheory/Bialgebra/Hom.html#Bialgebra.ext_to_ring_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithTop.map_comm",
+   "docLink": "./Mathlib/Order/WithBot.html#WithTop.map_comm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Function.Injective.surjective_of_finite",
+   "docLink": "./Mathlib/Data/Fintype/Card.html#Function.Injective.surjective_of_finite",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Equivalence.inverse_counitInv_comp_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Equivalence.html#CategoryTheory.Equivalence.inverse_counitInv_comp_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.instIsOpenImmersionF",
+   "docLink": "./Mathlib/AlgebraicGeometry/Cover/Open.html#AlgebraicGeometry.Scheme.instIsOpenImmersionF",
+   "indexKind": "instance"
+  },
+  {
+   "name": "LawfulTraversable.traverse_eq_map_id",
+   "docLink": "./Mathlib/Control/Traversable/Basic.html#LawfulTraversable.traverse_eq_map_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.Determinant.Cert.proof",
+   "docLink": "./Mathlib/Tactic/Determinant/Bird/Cert.html#Mathlib.Tactic.Determinant.Cert.proof",
+   "indexKind": "def"
+  },
+  {
+   "name": "AlgHom.toLinearMap_ofLinearMap",
+   "docLink": "./Mathlib/Algebra/Algebra/Hom.html#AlgHom.toLinearMap_ofLinearMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CharacterModule.intSpanEquivQuotAddOrderOf_apply_self",
+   "docLink": "./Mathlib/Algebra/Module/CharacterModule.html#CharacterModule.intSpanEquivQuotAddOrderOf_apply_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.truncatedSup_union",
+   "docLink": "./Mathlib/Combinatorics/SetFamily/AhlswedeZhang.html#Finset.truncatedSup_union",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.fintypeBiUnion",
+   "docLink": "./Mathlib/Data/Set/Finite/Lattice.html#Set.fintypeBiUnion",
+   "indexKind": "def"
+  },
+  {
+   "name": "inf_left_right_swap",
+   "docLink": "./Mathlib/Order/Lattice.html#inf_left_right_swap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.WithTerminal.mkCommaObject_right",
+   "docLink": "./Mathlib/CategoryTheory/WithTerminal/Basic.html#CategoryTheory.WithTerminal.mkCommaObject_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.instIsEquivalenceOppositeOpOp",
+   "docLink": "./Mathlib/CategoryTheory/Opposites.html#CategoryTheory.instIsEquivalenceOppositeOpOp",
+   "indexKind": "instance"
+  },
+  {
+   "name": "LatticeHomClass.toInfHomClass",
+   "docLink": "./Mathlib/Order/Hom/Lattice.html#LatticeHomClass.toInfHomClass",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CommRingCat.commMon_forget\u2082_map",
+   "docLink": "./Mathlib/Algebra/Category/Ring/Basic.html#CommRingCat.commMon_forget\u2082_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousMapZero.instMetricSpace",
+   "docLink": "./Mathlib/Topology/ContinuousMap/ContinuousMapZero.html#ContinuousMapZero.instMetricSpace",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.MonoidalCategory.IsPushout.whiskerLeft_w_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Limits/Shapes/Pullback.html#CategoryTheory.MonoidalCategory.IsPushout.whiskerLeft_w_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.IsTuranMaximal.nonempty_iso_turanGraph",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Extremal/Turan.html#SimpleGraph.IsTuranMaximal.nonempty_iso_turanGraph",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "map_le_lineMap_iff_slope_le_slope_left",
+   "docLink": "./Mathlib/LinearAlgebra/AffineSpace/Ordered.html#map_le_lineMap_iff_slope_le_slope_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Grothendieck.grothendieckTypeToCatInverse_obj_fiber_as",
+   "docLink": "./Mathlib/CategoryTheory/Grothendieck.html#CategoryTheory.Grothendieck.grothendieckTypeToCatInverse_obj_fiber_as",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Integrable.toL1_add",
+   "docLink": "./Mathlib/MeasureTheory/Function/L1Space/AEEqFun.html#MeasureTheory.Integrable.toL1_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearMap.IsIdempotentElem.eq_projection",
+   "docLink": "./Mathlib/LinearAlgebra/Projection.html#LinearMap.IsIdempotentElem.eq_projection",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "UpperHalfPlane.subset_verticalStrip_of_isCompact",
+   "docLink": "./Mathlib/Analysis/Complex/UpperHalfPlane/Topology.html#UpperHalfPlane.subset_verticalStrip_of_isCompact",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CStarMatrix.map_apply",
+   "docLink": "./Mathlib/Analysis/CStarAlgebra/CStarMatrix.html#CStarMatrix.map_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "OrderMonoidIso.val_inv_unitsCongr_symm_apply",
+   "docLink": "./Mathlib/Algebra/Order/Hom/Units.html#OrderMonoidIso.val_inv_unitsCongr_symm_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousCohomology.cocycles",
+   "docLink": "./Mathlib/RepresentationTheory/Homological/ContCohomology/Basic.html#ContinuousCohomology.cocycles",
+   "indexKind": "def"
+  },
+  {
+   "name": "dist_triangle_left",
+   "docLink": "./Mathlib/Topology/MetricSpace/Pseudo/Defs.html#dist_triangle_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Join.pseudofunctorLeft_mapId_inv_toNatTrans_app",
+   "docLink": "./Mathlib/CategoryTheory/Join/Pseudofunctor.html#CategoryTheory.Join.pseudofunctorLeft_mapId_inv_toNatTrans_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FreeAddGroup.toWord_injective",
+   "docLink": "./Mathlib/GroupTheory/FreeGroup/Reduce.html#FreeAddGroup.toWord_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CommRingCat.piFan_pt",
+   "docLink": "./Mathlib/Algebra/Category/Ring/Constructions.html#CommRingCat.piFan_pt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "\u03c9CPO.instLargeCategory",
+   "docLink": "./Mathlib/Order/Category/OmegaCompletePartialOrder.html#\u03c9CPO.instLargeCategory",
+   "indexKind": "instance"
+  },
+  {
+   "name": "MvPolynomial.isNilpotent_iff",
+   "docLink": "./Mathlib/Algebra/MvPolynomial/Nilpotent.html#MvPolynomial.isNilpotent_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polygon.toTriangle",
+   "docLink": "./Mathlib/Geometry/Polygon/Basic.html#Polygon.toTriangle",
+   "indexKind": "def"
+  },
+  {
+   "name": "DistLat.ofHom_comp",
+   "docLink": "./Mathlib/Order/Category/DistLat.html#DistLat.ofHom_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.HasRingHomProperty.descendsAlong",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/Descent.html#AlgebraicGeometry.HasRingHomProperty.descendsAlong",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonoid.End.instAddMonoidWithOne",
+   "docLink": "./Mathlib/Algebra/Group/Hom/End.html#AddMonoid.End.instAddMonoidWithOne",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Stream'.Any",
+   "docLink": "./Mathlib/Data/Stream/Defs.html#Stream'.Any",
+   "indexKind": "def"
+  },
+  {
+   "name": "Bool.bool_iff_false",
+   "docLink": "./Mathlib/Data/Bool/Basic.html#Bool.bool_iff_false",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.Hom.quasiFiniteAt",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/QuasiFinite.html#AlgebraicGeometry.Scheme.Hom.quasiFiniteAt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.Algebra.rat_ofNat_smul_1",
+   "docLink": "./Mathlib/Tactic/Algebra/Lemmas.html#Mathlib.Tactic.Algebra.rat_ofNat_smul_1",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IncidenceAlgebra.zeta_prod_mk",
+   "docLink": "./Mathlib/Combinatorics/Enumerative/IncidenceAlgebra.html#IncidenceAlgebra.zeta_prod_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NonUnitalStarSubalgebra.instIsScalarTower'",
+   "docLink": "./Mathlib/Algebra/Star/NonUnitalSubalgebra.html#NonUnitalStarSubalgebra.instIsScalarTower'",
+   "indexKind": "instance"
+  },
+  {
+   "name": "AddSubsemigroup.opEquiv",
+   "docLink": "./Mathlib/Algebra/Group/Subsemigroup/MulOpposite.html#AddSubsemigroup.opEquiv",
+   "indexKind": "def"
+  },
+  {
+   "name": "IsDedekindDomain.HeightOneSpectrum.intValuation_def",
+   "docLink": "./Mathlib/RingTheory/DedekindDomain/AdicValuation.html#IsDedekindDomain.HeightOneSpectrum.intValuation_def",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MDifferentiable.apply_eq_of_compactSpace",
+   "docLink": "./Mathlib/Geometry/Manifold/Complex.html#MDifferentiable.apply_eq_of_compactSpace",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Functor.leftDerivedZeroIsoSelf_hom_inv_id_app_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Abelian/LeftDerived.html#CategoryTheory.Functor.leftDerivedZeroIsoSelf_hom_inv_id_app_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.Subtype.ofNat_range",
+   "docLink": "./Mathlib/Logic/Denumerable.html#Nat.Subtype.ofNat_range",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.GradedObject.mapBifunctorRightUnitor_naturality_assoc",
+   "docLink": "./Mathlib/CategoryTheory/GradedObject/Unitor.html#CategoryTheory.GradedObject.mapBifunctorRightUnitor_naturality_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.FormalCoproduct.coproductIsoSelf_hom_f",
+   "docLink": "./Mathlib/CategoryTheory/Limits/FormalCoproducts/Basic.html#CategoryTheory.Limits.FormalCoproduct.coproductIsoSelf_hom_f",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithTop.map\u2082",
+   "docLink": "./Mathlib/Order/WithBot.html#WithTop.map\u2082",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Functor.Monoidal.whiskerLeft_app_snd",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Cartesian/FunctorCategory.html#CategoryTheory.Functor.Monoidal.whiskerLeft_app_snd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.Cover.Hom.comp",
+   "docLink": "./Mathlib/AlgebraicGeometry/Cover/MorphismProperty.html#AlgebraicGeometry.Scheme.Cover.Hom.comp",
+   "indexKind": "def"
+  },
+  {
+   "name": "Polynomial.degree_mul_leadingCoeff_self_inv",
+   "docLink": "./Mathlib/Algebra/Polynomial/Degree/Lemmas.html#Polynomial.degree_mul_leadingCoeff_self_inv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subalgebra.mulMap_map_comp_eq",
+   "docLink": "./Mathlib/LinearAlgebra/TensorProduct/Subalgebra.html#Subalgebra.mulMap_map_comp_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.IsIso.inv_inv",
+   "docLink": "./Mathlib/CategoryTheory/Iso.html#CategoryTheory.IsIso.inv_inv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.constantsOnSelfStructure",
+   "docLink": "./Mathlib/ModelTheory/LanguageMap.html#FirstOrder.Language.constantsOnSelfStructure",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CondensedSet.mem_locallyConstant_essImage_of_isColimit_mapCocone",
+   "docLink": "./Mathlib/Condensed/Discrete/Characterization.html#CondensedSet.mem_locallyConstant_essImage_of_isColimit_mapCocone",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.iInf_span_singleton_natCast",
+   "docLink": "./Mathlib/RingTheory/Ideal/Operations.html#Ideal.iInf_span_singleton_natCast",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Real.cos_pi_sub",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Trigonometric/Basic.html#Real.cos_pi_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.exists_hasLaw_indepFun",
+   "docLink": "./Mathlib/Probability/HasLawExists.html#ProbabilityTheory.exists_hasLaw_indepFun",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PNat.ofNat_le_ofNat",
+   "docLink": "./Mathlib/Data/PNat/Basic.html#PNat.ofNat_le_ofNat",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.invVeblen\u2082_of_lt_opow",
+   "docLink": "./Mathlib/SetTheory/Ordinal/Veblen.html#Ordinal.invVeblen\u2082_of_lt_opow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SSet.StrictSegal.spineToSimplex_arrow",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplicialSet/StrictSegal.html#SSet.StrictSegal.spineToSimplex_arrow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithTop.add_coe_eq_top_iff",
+   "docLink": "./Mathlib/Algebra/Order/Monoid/Unbundled/WithTop.html#WithTop.add_coe_eq_top_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "algebraMap_le_iff_le_spectrum",
+   "docLink": "./Mathlib/Analysis/CStarAlgebra/ContinuousFunctionalCalculus/Unital.html#algebraMap_le_iff_le_spectrum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finsupp.DegLex.single_lt_iff",
+   "docLink": "./Mathlib/Data/Finsupp/MonomialOrder/DegLex.html#Finsupp.DegLex.single_lt_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopologicalSpace.Opens.mem_himp",
+   "docLink": "./Mathlib/Topology/Sets/Opens.html#TopologicalSpace.Opens.mem_himp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsRelLowerSet.prop_of_mem",
+   "docLink": "./Mathlib/Order/UpperLower/Relative.html#IsRelLowerSet.prop_of_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsArtinianRing.isUnitSubmonoid_eq_of_mulOpposite",
+   "docLink": "./Mathlib/RingTheory/Artinian/Module.html#IsArtinianRing.isUnitSubmonoid_eq_of_mulOpposite",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingSeminormClass.toAddGroupSeminormClass",
+   "docLink": "./Mathlib/Algebra/Order/Hom/Basic.html#RingSeminormClass.toAddGroupSeminormClass",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.one_le_traceDual_one",
+   "docLink": "./Mathlib/RingTheory/DedekindDomain/Different.html#Submodule.one_le_traceDual_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CocompactMapClass.cocompact_tendsto",
+   "docLink": "./Mathlib/Topology/ContinuousMap/CocompactMap.html#CocompactMapClass.cocompact_tendsto",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Sieve.pullback_monotone",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Sieves.html#CategoryTheory.Sieve.pullback_monotone",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Measure.addModularCharacterFun_eq_addHaarScalarFactor",
+   "docLink": "./Mathlib/MeasureTheory/Group/ModularCharacter.html#MeasureTheory.Measure.addModularCharacterFun_eq_addHaarScalarFactor",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.pushoutIsoUnopPullback_inl_hom",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Opposites/Pullbacks.html#CategoryTheory.Limits.pushoutIsoUnopPullback_inl_hom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Stream'.WSeq.union",
+   "docLink": "./Mathlib/Data/WSeq/Defs.html#Stream'.WSeq.union",
+   "indexKind": "def"
+  },
+  {
+   "name": "Set.countable_of_injective_of_countable_image",
+   "docLink": "./Mathlib/Data/Set/Countable.html#Set.countable_of_injective_of_countable_image",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mulEquivIsoCommGroupIso",
+   "docLink": "./Mathlib/Algebra/Category/Grp/Basic.html#mulEquivIsoCommGroupIso",
+   "indexKind": "def"
+  },
+  {
+   "name": "AddSubgroup.instAddActionLeftTransversal",
+   "docLink": "./Mathlib/GroupTheory/Complement.html#AddSubgroup.instAddActionLeftTransversal",
+   "indexKind": "instance"
+  },
+  {
+   "name": "TruncatedWittVector.mk_coeff",
+   "docLink": "./Mathlib/RingTheory/WittVector/Truncated.html#TruncatedWittVector.mk_coeff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.posSemidef_vecMulVec_star_self",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/PosDef.html#Matrix.posSemidef_vecMulVec_star_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopCat.presheafToType_obj",
+   "docLink": "./Mathlib/Topology/Sheaves/PresheafOfFunctions.html#TopCat.presheafToType_obj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "instFunLikeContMDiffAddMonoidMorphism",
+   "docLink": "./Mathlib/Geometry/Manifold/Algebra/Monoid.html#instFunLikeContMDiffAddMonoidMorphism",
+   "indexKind": "instance"
+  },
+  {
+   "name": "ContinuousAlternatingMap.ofSubsingleton_symm_apply_apply",
+   "docLink": "./Mathlib/Topology/Algebra/Module/Alternating/Basic.html#ContinuousAlternatingMap.ofSubsingleton_symm_apply_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.reflectsFiniteLimits_leftOp",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Opposites.html#CategoryTheory.Limits.reflectsFiniteLimits_leftOp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.isHermitian_mul_mul_conjTranspose",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Hermitian.html#Matrix.isHermitian_mul_mul_conjTranspose",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.Term.realize_restrictVarLeft'",
+   "docLink": "./Mathlib/ModelTheory/Semantics.html#FirstOrder.Language.Term.realize_restrictVarLeft'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Unique.subsingleton_unique'",
+   "docLink": "./Mathlib/Logic/Unique.html#Unique.subsingleton_unique'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.shiftFunctorAdd'_zero_add_inv_app",
+   "docLink": "./Mathlib/CategoryTheory/Shift/Basic.html#CategoryTheory.shiftFunctorAdd'_zero_add_inv_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.rank_quotient_add_rank",
+   "docLink": "./Mathlib/LinearAlgebra/Dimension/RankNullity.html#Submodule.rank_quotient_add_rank",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsOpen.mul_closure",
+   "docLink": "./Mathlib/Topology/Algebra/Group/Pointwise.html#IsOpen.mul_closure",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Functor.isContinuous_of_preservesOneHypercovers",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Continuous.html#CategoryTheory.Functor.isContinuous_of_preservesOneHypercovers",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.pairwiseDisjoint_map_sigmaMk",
+   "docLink": "./Mathlib/Data/Finset/Sigma.html#Finset.pairwiseDisjoint_map_sigmaMk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.height_le_iff",
+   "docLink": "./Mathlib/RingTheory/Ideal/Height.html#Ideal.height_le_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "UniqueFactorizationMonoid.multiplicative_prime_power",
+   "docLink": "./Mathlib/RingTheory/UniqueFactorizationDomain/Multiplicative.html#UniqueFactorizationMonoid.multiplicative_prime_power",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ComposableArrows.ext\u2082",
+   "docLink": "./Mathlib/CategoryTheory/ComposableArrows/Basic.html#CategoryTheory.ComposableArrows.ext\u2082",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.Ici.isCompl_iff",
+   "docLink": "./Mathlib/Order/LatticeIntervals.html#Set.Ici.isCompl_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.apply_piecewise",
+   "docLink": "./Mathlib/Data/Set/Piecewise.html#Set.apply_piecewise",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.indep_iSup_of_monotone",
+   "docLink": "./Mathlib/Probability/Independence/Basic.html#ProbabilityTheory.indep_iSup_of_monotone",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.veblenWith_eq_self_of_le",
+   "docLink": "./Mathlib/SetTheory/Ordinal/Veblen.html#Ordinal.veblenWith_eq_self_of_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matroid.IsBase.eq_exchange_of_diff_eq_singleton",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Basic.html#Matroid.IsBase.eq_exchange_of_diff_eq_singleton",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AffineEquiv.coe_trans_to_affineMap",
+   "docLink": "./Mathlib/LinearAlgebra/AffineSpace/AffineEquiv.html#AffineEquiv.coe_trans_to_affineMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingHom.coe_monoidHom_injective",
+   "docLink": "./Mathlib/Algebra/Ring/Hom/Defs.html#RingHom.coe_monoidHom_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Lp.pow_mul_meas_ge_le_enorm",
+   "docLink": "./Mathlib/MeasureTheory/Function/LpSpace/Basic.html#MeasureTheory.Lp.pow_mul_meas_ge_le_enorm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Lean.Elab.InfoTree.findSome?",
+   "docLink": "./Mathlib/Lean/Elab/InfoTree.html#Lean.Elab.InfoTree.findSome?",
+   "indexKind": "def"
+  },
+  {
+   "name": "AddZeroClass.ext",
+   "docLink": "./Mathlib/Algebra/Group/Defs.html#AddZeroClass.ext",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LieModuleHom.coe_zero",
+   "docLink": "./Mathlib/Algebra/Lie/Basic.html#LieModuleHom.coe_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "alexDiscEquivPreord_unitIso",
+   "docLink": "./Mathlib/Topology/Order/Category/AlexDisc.html#alexDiscEquivPreord_unitIso",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.coprodComparisonNatTrans_app",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/BinaryProducts.html#CategoryTheory.Limits.coprodComparisonNatTrans_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ExactPairing.coevaluation_evaluation''",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Rigid/Basic.html#CategoryTheory.ExactPairing.coevaluation_evaluation''",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearIsometryEquiv.comp_differentiableOn_iff",
+   "docLink": "./Mathlib/Analysis/Calculus/FDeriv/Equiv.html#LinearIsometryEquiv.comp_differentiableOn_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.IdealSheafData.instIsPreimmersionGlueDataObj\u03b9",
+   "docLink": "./Mathlib/AlgebraicGeometry/IdealSheaf/Subscheme.html#AlgebraicGeometry.Scheme.IdealSheafData.instIsPreimmersionGlueDataObj\u03b9",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Sublocale.himp_mem'",
+   "docLink": "./Mathlib/Order/Sublocale.html#Sublocale.himp_mem'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.instLawfulSingleton",
+   "docLink": "./Mathlib/Data/Finset/Insert.html#Finset.instLawfulSingleton",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.NatTrans.toCatHom\u2082",
+   "docLink": "./Mathlib/CategoryTheory/Category/Cat.html#CategoryTheory.NatTrans.toCatHom\u2082",
+   "indexKind": "def"
+  },
+  {
+   "name": "not_compRel_iff",
+   "docLink": "./Mathlib/Order/Comparable.html#not_compRel_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "map_pos_of_ne_one",
+   "docLink": "./Mathlib/Algebra/Order/Hom/Basic.html#map_pos_of_ne_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "groupCohomology.resNatTrans_app",
+   "docLink": "./Mathlib/RepresentationTheory/Homological/GroupCohomology/Functoriality.html#groupCohomology.resNatTrans_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "intervalIntegrable_iff_integrableOn_Icc_of_le",
+   "docLink": "./Mathlib/MeasureTheory/Integral/IntervalIntegral/Basic.html#intervalIntegrable_iff_integrableOn_Icc_of_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Under.inv_right_hom_right",
+   "docLink": "./Mathlib/CategoryTheory/Comma/Over/Basic.html#CategoryTheory.Under.inv_right_hom_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "OrderHom.mul_eq_comp",
+   "docLink": "./Mathlib/Algebra/Order/Group/End.html#OrderHom.mul_eq_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddGroupTopology.instBoundedOrder",
+   "docLink": "./Mathlib/Topology/Algebra/Group/GroupTopology.html#AddGroupTopology.instBoundedOrder",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Matroid.ground_indep_iff_isBase",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Basic.html#Matroid.ground_indep_iff_isBase",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "EuclideanDomain.dvd_or_coprime",
+   "docLink": "./Mathlib/RingTheory/EuclideanDomain.html#EuclideanDomain.dvd_or_coprime",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Triangulated.TStructure.truncGE\u03b4LT_comp_natTransTruncLTOfLE_app_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Triangulated/TStructure/TruncLTGE.html#CategoryTheory.Triangulated.TStructure.truncGE\u03b4LT_comp_natTransTruncLTOfLE_app_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NonarchAddGroupSeminorm.coe_sSup_apply",
+   "docLink": "./Mathlib/Analysis/Normed/Group/Seminorm.html#NonarchAddGroupSeminorm.coe_sSup_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CommRingCat.coyoneda_obj_map",
+   "docLink": "./Mathlib/Algebra/Category/Ring/Adjunctions.html#CommRingCat.coyoneda_obj_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.HasSeparableContraction.dvd_degree",
+   "docLink": "./Mathlib/RingTheory/Polynomial/SeparableDegree.html#Polynomial.HasSeparableContraction.dvd_degree",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Complex.hasStrictFDerivAt_cpow'",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Pow/Deriv.html#Complex.hasStrictFDerivAt_cpow'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.prodOpEquiv",
+   "docLink": "./Mathlib/CategoryTheory/Products/Basic.html#CategoryTheory.prodOpEquiv",
+   "indexKind": "def"
+  },
+  {
+   "name": "MeasureTheory.Conservative.iterate",
+   "docLink": "./Mathlib/Dynamics/Ergodic/Conservative.html#MeasureTheory.Conservative.iterate",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomologicalComplex.instHasHomologyObjOppositeSymmUnopFunctorOp",
+   "docLink": "./Mathlib/Algebra/Homology/Opposite.html#HomologicalComplex.instHasHomologyObjOppositeSymmUnopFunctorOp",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Subgroup.Commensurable.comm",
+   "docLink": "./Mathlib/GroupTheory/Commensurable.html#Subgroup.Commensurable.comm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Int.\u00abterm\u230a_\u230b\u00bb",
+   "docLink": "./Mathlib/Algebra/Order/Floor/Defs.html#Int.\u00abterm\u230a_\u230b\u00bb",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.MorphismProperty.Comma.mapLeftIso_inverse_obj_right",
+   "docLink": "./Mathlib/CategoryTheory/MorphismProperty/Comma.html#CategoryTheory.MorphismProperty.Comma.mapLeftIso_inverse_obj_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SemiRingCat.instInhabited",
+   "docLink": "./Mathlib/Algebra/Category/Ring/Basic.html#SemiRingCat.instInhabited",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Cardinal.exists_finset_le_card",
+   "docLink": "./Mathlib/SetTheory/Cardinal/Basic.html#Cardinal.exists_finset_le_card",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.Ioi_sdiff_Ioi",
+   "docLink": "./Mathlib/Order/Interval/Set/LinearOrder.html#Set.Ioi_sdiff_Ioi",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Valuation.ltSubmodule_monotone",
+   "docLink": "./Mathlib/RingTheory/Valuation/Integers.html#Valuation.ltSubmodule_monotone",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "omegaLimit_eq_biInter_inter",
+   "docLink": "./Mathlib/Dynamics/OmegaLimit.html#omegaLimit_eq_biInter_inter",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.IsPushout.inl_isoPushout_inv",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/IsPullback/Defs.html#CategoryTheory.IsPushout.inl_isoPushout_inv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SemiconjBy.units_zpow_right",
+   "docLink": "./Mathlib/Algebra/Group/Semiconj/Units.html#SemiconjBy.units_zpow_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinOrd.dual_map",
+   "docLink": "./Mathlib/Order/Category/LinOrd.html#LinOrd.dual_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matroid.IsBasis.exists_isBasis_inter_eq_of_superset",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Basic.html#Matroid.IsBasis.exists_isBasis_inter_eq_of_superset",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "QuaternionAlgebra.lift",
+   "docLink": "./Mathlib/Algebra/QuaternionBasis.html#QuaternionAlgebra.lift",
+   "indexKind": "def"
+  },
+  {
+   "name": "FixedPoints.toAlgHomEquiv",
+   "docLink": "./Mathlib/FieldTheory/Fixed.html#FixedPoints.toAlgHomEquiv",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Grp.forget\u2082Mon_obj_mul",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Grp.html#CategoryTheory.Grp.forget\u2082Mon_obj_mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MvPolynomial.isWeightedHomogeneous_of_total_degree_zero",
+   "docLink": "./Mathlib/RingTheory/MvPolynomial/WeightedHomogeneous.html#MvPolynomial.isWeightedHomogeneous_of_total_degree_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.einfsep_anti",
+   "docLink": "./Mathlib/Topology/MetricSpace/Infsep.html#Set.einfsep_anti",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Tactic.ComputeAsymptotics.Seq.FriendlyOperation.dist_le",
+   "docLink": "./Mathlib/Tactic/ComputeAsymptotics/Multiseries/Corecursion.html#Tactic.ComputeAsymptotics.Seq.FriendlyOperation.dist_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ruzsaSzemerediNumberNat_one",
+   "docLink": "./Mathlib/Combinatorics/Extremal/RuzsaSzemeredi.html#ruzsaSzemerediNumberNat_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.lintegral_sub_right_eq_self",
+   "docLink": "./Mathlib/MeasureTheory/Group/LIntegral.html#MeasureTheory.lintegral_sub_right_eq_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LatticeCon.toSetoid",
+   "docLink": "./Mathlib/Order/Lattice/Congruence.html#LatticeCon.toSetoid",
+   "indexKind": "def"
+  },
+  {
+   "name": "Perfection.coe_teichmuller_eq_teichmuller\u2080",
+   "docLink": "./Mathlib/RingTheory/Teichmuller.html#Perfection.coe_teichmuller_eq_teichmuller\u2080",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.VectorMeasure.ennrealToMeasure_apply",
+   "docLink": "./Mathlib/MeasureTheory/VectorMeasure/Basic.html#MeasureTheory.VectorMeasure.ennrealToMeasure_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Projectivization.Subspace.mem_carrier_iff",
+   "docLink": "./Mathlib/LinearAlgebra/Projectivization/Subspace.html#Projectivization.Subspace.mem_carrier_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ZNum.abs_toZNum",
+   "docLink": "./Mathlib/Data/Num/ZNum.html#ZNum.abs_toZNum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonoidHom.mem_eqLocusM",
+   "docLink": "./Mathlib/Algebra/Group/Submonoid/Defs.html#AddMonoidHom.mem_eqLocusM",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithTop.instIsBotZeroClass",
+   "docLink": "./Mathlib/Algebra/Order/Monoid/Unbundled/WithTop.html#WithTop.instIsBotZeroClass",
+   "indexKind": "instance"
+  },
+  {
+   "name": "restr_mem_maximalAtlas",
+   "docLink": "./Mathlib/Geometry/Manifold/HasGroupoid.html#restr_mem_maximalAtlas",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+   "docLink": "./Mathlib/Tactic/ExtractGoal.html#Mathlib.Tactic.ExtractGoal.goalSignature",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Endofunctor.Adjunction.algebraCoalgebraEquiv_unitIso_hom_app_f",
+   "docLink": "./Mathlib/CategoryTheory/Endofunctor/Algebra.html#CategoryTheory.Endofunctor.Adjunction.algebraCoalgebraEquiv_unitIso_hom_app_f",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.Quotient.ringCon",
+   "docLink": "./Mathlib/RingTheory/Ideal/Quotient/Defs.html#Ideal.Quotient.ringCon",
+   "indexKind": "def"
+  },
+  {
+   "name": "zpow_one_add\u2080",
+   "docLink": "./Mathlib/Algebra/GroupWithZero/Basic.html#zpow_one_add\u2080",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "neg_le_neg",
+   "docLink": "./Mathlib/Algebra/Order/Group/Defs.html#neg_le_neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "GroupExtension.Section.mul_mul_mul_inv_mem_range_inl",
+   "docLink": "./Mathlib/GroupTheory/GroupExtension/Basic.html#GroupExtension.Section.mul_mul_mul_inv_mem_range_inl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopologicalSpace.instNoetherianSpaceCofiniteTopology",
+   "docLink": "./Mathlib/Topology/NoetherianSpace.html#TopologicalSpace.instNoetherianSpaceCofiniteTopology",
+   "indexKind": "instance"
+  },
+  {
+   "name": "HomologicalComplex.Acyclic.truncGE",
+   "docLink": "./Mathlib/Algebra/Homology/Embedding/TruncGEHomology.html#HomologicalComplex.Acyclic.truncGE",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.instFaithfulAddGrpFunctorOppositeAddGrpCatYonedaAddGrp",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Cartesian/Grp.html#CategoryTheory.instFaithfulAddGrpFunctorOppositeAddGrpCatYonedaAddGrp",
+   "indexKind": "instance"
+  },
+  {
+   "name": "AEMeasurable.inf",
+   "docLink": "./Mathlib/MeasureTheory/Order/Lattice.html#AEMeasurable.inf",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.mem_center_iff",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Diam.html#SimpleGraph.mem_center_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "StandardEtalePair.monic_f",
+   "docLink": "./Mathlib/RingTheory/Etale/StandardEtale.html#StandardEtalePair.monic_f",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsUltrametricDist.isUltrametricDist_of_isNonarchimedean_norm",
+   "docLink": "./Mathlib/Analysis/Normed/Group/Ultra.html#IsUltrametricDist.isUltrametricDist_of_isNonarchimedean_norm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Convexity.convexCombPair_zero",
+   "docLink": "./Mathlib/Geometry/Convex/ConvexSpace/Defs.html#Convexity.convexCombPair_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousMultilinearMap.analyticOn_uncurry_compContinuousLinearMap",
+   "docLink": "./Mathlib/Analysis/Analytic/CPolynomial.html#ContinuousMultilinearMap.analyticOn_uncurry_compContinuousLinearMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.natDegree_sum_eq_of_disjoint",
+   "docLink": "./Mathlib/Algebra/Polynomial/Degree/Lemmas.html#Polynomial.natDegree_sum_eq_of_disjoint",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.instIsIsoTerminalComparison",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Shapes/Terminal.html#CategoryTheory.Limits.instIsIsoTerminalComparison",
+   "indexKind": "instance"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.Modules.pseudofunctor_mapId_inv_\u03c4l",
+   "docLink": "./Mathlib/AlgebraicGeometry/Modules/Sheaf.html#AlgebraicGeometry.Scheme.Modules.pseudofunctor_mapId_inv_\u03c4l",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.Determinant.reifyBirdDet",
+   "docLink": "./Mathlib/Tactic/Determinant/Bird/Meta.html#Mathlib.Tactic.Determinant.reifyBirdDet",
+   "indexKind": "def"
+  },
+  {
+   "name": "ConvexOn.exists_ge_of_mem_convexHull",
+   "docLink": "./Mathlib/Analysis/Convex/Jensen.html#ConvexOn.exists_ge_of_mem_convexHull",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "stoneCech_hom_ext",
+   "docLink": "./Mathlib/Topology/Compactification/StoneCech.html#stoneCech_hom_ext",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.lintegral_condKernel_mem",
+   "docLink": "./Mathlib/Probability/Kernel/Disintegration/Integral.html#ProbabilityTheory.lintegral_condKernel_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithLp.instDistribMulAction",
+   "docLink": "./Mathlib/Analysis/Normed/Lp/WithLp.html#WithLp.instDistribMulAction",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Set.Icc.mk_one",
+   "docLink": "./Mathlib/Algebra/Order/Interval/Set/Instances.html#Set.Icc.mk_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Linter.Style.nameCheck.isBadNameWithUnderscore",
+   "docLink": "./Mathlib/Tactic/Linter/Style.html#Mathlib.Linter.Style.nameCheck.isBadNameWithUnderscore",
+   "indexKind": "def"
+  },
+  {
+   "name": "rank_pi",
+   "docLink": "./Mathlib/LinearAlgebra/Dimension/Constructions.html#rank_pi",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgHom.coe_ringHom_mk",
+   "docLink": "./Mathlib/Algebra/Algebra/Hom.html#AlgHom.coe_ringHom_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.FreeBicategory.normalizeUnitIso",
+   "docLink": "./Mathlib/CategoryTheory/Bicategory/Coherence.html#CategoryTheory.FreeBicategory.normalizeUnitIso",
+   "indexKind": "def"
+  },
+  {
+   "name": "Prod.Lex.instPartialOrder",
+   "docLink": "./Mathlib/Data/Prod/Lex.html#Prod.Lex.instPartialOrder",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Limits.limitIsoLimitCurryCompLim_hom_\u03c0_\u03c0_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Fubini.html#CategoryTheory.Limits.limitIsoLimitCurryCompLim_hom_\u03c0_\u03c0_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearMap.surjective_range_liftQ",
+   "docLink": "./Mathlib/Algebra/Exact/Basic.html#LinearMap.surjective_range_liftQ",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.addUnits_eq_zero",
+   "docLink": "./Mathlib/Algebra/Group/Nat/Units.html#Nat.addUnits_eq_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Real.lt_sqrt",
+   "docLink": "./Mathlib/Analysis/Real/Sqrt.html#Real.lt_sqrt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Booleanisation.instBot",
+   "docLink": "./Mathlib/Order/Booleanisation.html#Booleanisation.instBot",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Int.succ_dvd_or_succ_dvd_of_succ_sum_dvd_mul",
+   "docLink": "./Mathlib/Data/Int/NatPrime.html#Int.succ_dvd_or_succ_dvd_of_succ_sum_dvd_mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "injective_pair_iff_ne",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Notation.html#injective_pair_iff_ne",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.MonoidalCategory.InducedLawfulDayConvolutionMonoidalCategoryStructCore.tensorHom_eq",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/DayConvolution.html#CategoryTheory.MonoidalCategory.InducedLawfulDayConvolutionMonoidalCategoryStructCore.tensorHom_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.RightHomologyData.opcyclesIso_inv_comp_descOpcycles_assoc",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/RightHomology.html#CategoryTheory.ShortComplex.RightHomologyData.opcyclesIso_inv_comp_descOpcycles_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.instPreservesColimitsOfShapeFunctorLim",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/FunctorCategory.html#CategoryTheory.instPreservesColimitsOfShapeFunctorLim",
+   "indexKind": "instance"
+  },
+  {
+   "name": "dvd_prime_pow",
+   "docLink": "./Mathlib/Algebra/GroupWithZero/Associated.html#dvd_prime_pow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.orthogonalProjection_apply_eq_linearProjOfIsCompl",
+   "docLink": "./Mathlib/Analysis/InnerProductSpace/Projection/Submodule.html#Submodule.orthogonalProjection_apply_eq_linearProjOfIsCompl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.edgeFinset",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Finite.html#SimpleGraph.edgeFinset",
+   "indexKind": "def"
+  },
+  {
+   "name": "Matroid.ofExistsFiniteIsBase_rankFinite",
+   "docLink": "./Mathlib/Combinatorics/Matroid/IndepAxioms.html#Matroid.ofExistsFiniteIsBase_rankFinite",
+   "indexKind": "instance"
+  },
+  {
+   "name": "\u00abterm_\u2192\u2097\u22c6[_]_\u00bb",
+   "docLink": "./Mathlib/Algebra/Module/LinearMap/Star.html#\u00abterm_\u2192\u2097\u22c6[_]_\u00bb",
+   "indexKind": "def"
+  },
+  {
+   "name": "CharTwo.add_eq_iff_eq_add",
+   "docLink": "./Mathlib/Algebra/CharP/Two.html#CharTwo.add_eq_iff_eq_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsOpen.isImmersionAt",
+   "docLink": "./Mathlib/Geometry/Manifold/Immersion.html#IsOpen.isImmersionAt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "EquivLike.coe_apply",
+   "docLink": "./Mathlib/Data/FunLike/Equiv.html#EquivLike.coe_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PSigma.fintypePropRight",
+   "docLink": "./Mathlib/Data/Fintype/Basic.html#PSigma.fintypePropRight",
+   "indexKind": "instance"
+  },
+  {
+   "name": "TopologicalSpace.NonemptyCompacts.closure_finite_subsets",
+   "docLink": "./Mathlib/Topology/Sets/VietorisTopology.html#TopologicalSpace.NonemptyCompacts.closure_finite_subsets",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Unitization.instDistribMulAction",
+   "docLink": "./Mathlib/Algebra/Algebra/Unitization.html#Unitization.instDistribMulAction",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Sylow.smul_eq_iff_mem_normalizer",
+   "docLink": "./Mathlib/GroupTheory/Sylow.html#Sylow.smul_eq_iff_mem_normalizer",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Profinite.NobelingProof.GoodProducts.sum_to_range",
+   "docLink": "./Mathlib/Topology/Category/Profinite/Nobeling/Successor.html#Profinite.NobelingProof.GoodProducts.sum_to_range",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Bimod.TensorBimod.actRight",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Bimod.html#Bimod.TensorBimod.actRight",
+   "indexKind": "def"
+  },
+  {
+   "name": "Stream'.Seq.take_succ_cons",
+   "docLink": "./Mathlib/Data/Seq/Basic.html#Stream'.Seq.take_succ_cons",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.one_mem_pow",
+   "docLink": "./Mathlib/Algebra/Group/Pointwise/Finset/Basic.html#Finset.one_mem_pow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContMDiffWithinAt.mpullback_vectorField_of_mem_nhdsWithin_of_eq",
+   "docLink": "./Mathlib/Geometry/Manifold/VectorField/Pullback.html#ContMDiffWithinAt.mpullback_vectorField_of_mem_nhdsWithin_of_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Field.FieldAxiom.oneMul",
+   "docLink": "./Mathlib/ModelTheory/Algebra/Field/Basic.html#FirstOrder.Field.FieldAxiom.oneMul",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "Polynomial.SplittingField.instCharZero",
+   "docLink": "./Mathlib/FieldTheory/SplittingField/Construction.html#Polynomial.SplittingField.instCharZero",
+   "indexKind": "instance"
+  },
+  {
+   "name": "ZFSet.isOrdinal_iff_isWellOrder",
+   "docLink": "./Mathlib/SetTheory/ZFC/Ordinal.html#ZFSet.isOrdinal_iff_isWellOrder",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.pullbackAssoc_hom_fst",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/Assoc.html#CategoryTheory.Limits.pullbackAssoc_hom_fst",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "QuaternionAlgebra.instSub",
+   "docLink": "./Mathlib/Algebra/Quaternion.html#QuaternionAlgebra.instSub",
+   "indexKind": "instance"
+  },
+  {
+   "name": "NormedAlgebra.toAlgebra",
+   "docLink": "./Mathlib/Analysis/Normed/Module/Basic.html#NormedAlgebra.toAlgebra",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Limits.CategoricalPullback.CatCommSqOver.transformObjComp_hom_app_snd_app",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/Categorical/Basic.html#CategoryTheory.Limits.CategoricalPullback.CatCommSqOver.transformObjComp_hom_app_snd_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.LHom.defaultExpansion",
+   "docLink": "./Mathlib/ModelTheory/LanguageMap.html#FirstOrder.Language.LHom.defaultExpansion",
+   "indexKind": "def"
+  },
+  {
+   "name": "AddSubgroup.exists_isComplement_right",
+   "docLink": "./Mathlib/GroupTheory/Complement.html#AddSubgroup.exists_isComplement_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.Hom.isAffineOpen_iff_of_isOpenImmersion",
+   "docLink": "./Mathlib/AlgebraicGeometry/AffineScheme.html#AlgebraicGeometry.Scheme.Hom.isAffineOpen_iff_of_isOpenImmersion",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.isCoprime_scaleRoots",
+   "docLink": "./Mathlib/RingTheory/Polynomial/ScaleRoots.html#Polynomial.isCoprime_scaleRoots",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.IsRoot.dvd",
+   "docLink": "./Mathlib/Algebra/Polynomial/Eval/Defs.html#Polynomial.IsRoot.dvd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SetLike.GradedSMul.smul_mem",
+   "docLink": "./Mathlib/Algebra/GradedMulAction.html#SetLike.GradedSMul.smul_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "t2Space_antitone",
+   "docLink": "./Mathlib/Topology/Separation/Hausdorff.html#t2Space_antitone",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.pairwise_empty",
+   "docLink": "./Mathlib/Data/Set/Pairwise/Basic.html#Set.pairwise_empty",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.univ_add_of_zero_mem",
+   "docLink": "./Mathlib/Algebra/Group/Pointwise/Set/Basic.html#Set.univ_add_of_zero_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.VectorMeasure.variation_restrict",
+   "docLink": "./Mathlib/MeasureTheory/VectorMeasure/Variation/Basic.html#MeasureTheory.VectorMeasure.variation_restrict",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearIsometryEquiv.toMeasurableEquiv_symm",
+   "docLink": "./Mathlib/MeasureTheory/Measure/Haar/InnerProductSpace.html#LinearIsometryEquiv.toMeasurableEquiv_symm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "inv_mul_cancel_comm_assoc",
+   "docLink": "./Mathlib/Algebra/Group/Defs.html#inv_mul_cancel_comm_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "exteriorPower.\u03b9Multi_family_linearIndependent_field",
+   "docLink": "./Mathlib/LinearAlgebra/ExteriorPower/Basis.html#exteriorPower.\u03b9Multi_family_linearIndependent_field",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NonUnitalStarSubalgebra.coe_center",
+   "docLink": "./Mathlib/Algebra/Star/NonUnitalSubalgebra.html#NonUnitalStarSubalgebra.coe_center",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "iInf_image2",
+   "docLink": "./Mathlib/Order/CompleteLattice/Basic.html#iInf_image2",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MonotoneOn.countable_setOf_two_preimages",
+   "docLink": "./Mathlib/Topology/Order/Monotone.html#MonotoneOn.countable_setOf_two_preimages",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.small_Icc",
+   "docLink": "./Mathlib/SetTheory/Ordinal/Basic.html#Ordinal.small_Icc",
+   "indexKind": "instance"
+  },
+  {
+   "name": "DifferentiableOn.inner",
+   "docLink": "./Mathlib/Analysis/InnerProductSpace/Calculus.html#DifferentiableOn.inner",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.FiniteMeasure.ext_of_forall_lintegral_eq",
+   "docLink": "./Mathlib/MeasureTheory/Measure/FiniteMeasure.html#MeasureTheory.FiniteMeasure.ext_of_forall_lintegral_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Field.exists_primitive_element_of_finite_bot",
+   "docLink": "./Mathlib/FieldTheory/PrimitiveElement.html#Field.exists_primitive_element_of_finite_bot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MvPolynomial.aeval_algebraMap_apply",
+   "docLink": "./Mathlib/RingTheory/MvPolynomial/Tower.html#MvPolynomial.aeval_algebraMap_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ball_preimage",
+   "docLink": "./Mathlib/Topology/UniformSpace/Basic.html#ball_preimage",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "analyticOrderAt_id",
+   "docLink": "./Mathlib/Analysis/Analytic/Order.html#analyticOrderAt_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PresheafOfModules.ModuleColimit.homEquiv'_symm_apply",
+   "docLink": "./Mathlib/Algebra/Category/ModuleCat/Presheaf/ColimitFunctor.html#PresheafOfModules.ModuleColimit.homEquiv'_symm_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ModN.natCard_eq",
+   "docLink": "./Mathlib/LinearAlgebra/FreeModule/ModN.html#ModN.natCard_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PowerSeries.constantCoeff_one",
+   "docLink": "./Mathlib/RingTheory/PowerSeries/Basic.html#PowerSeries.constantCoeff_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonCat.hasLimits",
+   "docLink": "./Mathlib/Algebra/Category/MonCat/Limits.html#AddMonCat.hasLimits",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Pi.monoidHomMulEquiv",
+   "docLink": "./Mathlib/Algebra/BigOperators/Pi.html#Pi.monoidHomMulEquiv",
+   "indexKind": "def"
+  },
+  {
+   "name": "LinearMap.CompatibleSMul.mk",
+   "docLink": "./Mathlib/Algebra/Module/LinearMap/Defs.html#LinearMap.CompatibleSMul.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "Order.isPredLimitRecOn_of_isPredLimit",
+   "docLink": "./Mathlib/Order/SuccPred/Limit.html#Order.isPredLimitRecOn_of_isPredLimit",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TwoSidedIdeal.instAddSubtypeMem",
+   "docLink": "./Mathlib/RingTheory/TwoSidedIdeal/Basic.html#TwoSidedIdeal.instAddSubtypeMem",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Nat.ascFactorial_pos",
+   "docLink": "./Mathlib/Data/Nat/Factorial/Basic.html#Nat.ascFactorial_pos",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeromorphicAt.meromorphicTrailingCoeffAt_fun_sub_eq_left_of_lt",
+   "docLink": "./Mathlib/Analysis/Meromorphic/TrailingCoefficient.html#MeromorphicAt.meromorphicTrailingCoeffAt_fun_sub_eq_left_of_lt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matroid.eRk_lt_top_iff",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Rank/ENat.html#Matroid.eRk_lt_top_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.FunctorToTypes.binaryCoproductColimitCocone",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/FunctorToTypes.html#CategoryTheory.FunctorToTypes.binaryCoproductColimitCocone",
+   "indexKind": "def"
+  },
+  {
+   "name": "SimpleGraph.isNClique_empty",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Clique.html#SimpleGraph.isNClique_empty",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsTopologicalAddGroup.isOpenMap_iff_nhds_zero",
+   "docLink": "./Mathlib/Topology/Algebra/Group/Basic.html#IsTopologicalAddGroup.isOpenMap_iff_nhds_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.Intersecting.ne_bot",
+   "docLink": "./Mathlib/Combinatorics/SetFamily/Intersecting.html#Set.Intersecting.ne_bot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomotopicalAlgebra.Cylinder.LeftHomotopy.exists_good_cylinder",
+   "docLink": "./Mathlib/AlgebraicTopology/ModelCategory/LeftHomotopy.html#HomotopicalAlgebra.Cylinder.LeftHomotopy.exists_good_cylinder",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsCompactlyGenerated.BooleanGenerators.mk",
+   "docLink": "./Mathlib/Order/BooleanGenerators.html#IsCompactlyGenerated.BooleanGenerators.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "WithLp.idemSnd",
+   "docLink": "./Mathlib/Analysis/Normed/Lp/ProdLp.html#WithLp.idemSnd",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Subfunctor.Subpresheaf.image",
+   "docLink": "./Mathlib/CategoryTheory/Subfunctor/Image.html#CategoryTheory.Subfunctor.Subpresheaf.image",
+   "indexKind": "def"
+  },
+  {
+   "name": "ascPochhammer_mul",
+   "docLink": "./Mathlib/RingTheory/Polynomial/Pochhammer.html#ascPochhammer_mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LieModule.genWeightSpace_chainTopCoeff_add_one_zsmul_add",
+   "docLink": "./Mathlib/Algebra/Lie/Weights/Chain.html#LieModule.genWeightSpace_chainTopCoeff_add_one_zsmul_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Differentiable.abs",
+   "docLink": "./Mathlib/Analysis/Calculus/Deriv/Abs.html#Differentiable.abs",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Monoidal.commMonFunctorCategoryEquivalence_unitIso",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Internal/FunctorCategory.html#CategoryTheory.Monoidal.commMonFunctorCategoryEquivalence_unitIso",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "dependsOn_iff_exists_comp",
+   "docLink": "./Mathlib/Logic/Function/DependsOn.html#dependsOn_iff_exists_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonoid.toZero",
+   "docLink": "./Mathlib/Algebra/Group/Defs.html#AddMonoid.toZero",
+   "indexKind": "def"
+  },
+  {
+   "name": "ProbabilityTheory.iIndepFun.hasGaussianLaw_fun_sub",
+   "docLink": "./Mathlib/Probability/Distributions/Gaussian/HasGaussianLaw/Independence.html#ProbabilityTheory.iIndepFun.hasGaussianLaw_fun_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AffineEquiv.coe_refl_to_affineMap",
+   "docLink": "./Mathlib/LinearAlgebra/AffineSpace/AffineEquiv.html#AffineEquiv.coe_refl_to_affineMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "sup_inf_left",
+   "docLink": "./Mathlib/Order/Lattice.html#sup_inf_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousLinearMap.frontier_preimage",
+   "docLink": "./Mathlib/Analysis/Normed/Operator/Banach.html#ContinuousLinearMap.frontier_preimage",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "monotonicSequenceLimitIndex",
+   "docLink": "./Mathlib/Order/OrderIsoNat.html#monotonicSequenceLimitIndex",
+   "indexKind": "def"
+  },
+  {
+   "name": "Matroid.IsRkFinite.isRkFinite_union_iff",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Rank/Finite.html#Matroid.IsRkFinite.isRkFinite_union_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddAction.mem_fixedBy_zsmul",
+   "docLink": "./Mathlib/GroupTheory/GroupAction/FixedPoints.html#AddAction.mem_fixedBy_zsmul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Topology.Continuous_of",
+   "docLink": "./Mathlib/Topology/Defs/Basic.html#Topology.Continuous_of",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Functor.hom_ext_of_isRightKanExtension",
+   "docLink": "./Mathlib/CategoryTheory/Functor/KanExtension/Basic.html#CategoryTheory.Functor.hom_ext_of_isRightKanExtension",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FreeAlgebra.charZero",
+   "docLink": "./Mathlib/Algebra/CharP/Algebra.html#FreeAlgebra.charZero",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Primrec.list_append",
+   "docLink": "./Mathlib/Computability/Primrec/List.html#Primrec.list_append",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.PresheafedSpace.ColimitCoconeIsColimit.descCApp",
+   "docLink": "./Mathlib/Geometry/RingedSpace/PresheafedSpace/HasColimits.html#AlgebraicGeometry.PresheafedSpace.ColimitCoconeIsColimit.descCApp",
+   "indexKind": "def"
+  },
+  {
+   "name": "le_sup_of_le_left",
+   "docLink": "./Mathlib/Order/Lattice.html#le_sup_of_le_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DirectLimit.induction\u2082",
+   "docLink": "./Mathlib/Order/DirectedInverseSystem.html#DirectLimit.induction\u2082",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.MonoidalCategory.MonoidalLeftAction.actionOfMonoidalFunctorToEndofunctorMop",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Action/End.html#CategoryTheory.MonoidalCategory.MonoidalLeftAction.actionOfMonoidalFunctorToEndofunctorMop",
+   "indexKind": "def"
+  },
+  {
+   "name": "OrderIso.sumDualDistrib_symm_inl",
+   "docLink": "./Mathlib/Data/Sum/Order.html#OrderIso.sumDualDistrib_symm_inl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PairReduction.iSup_edist_pairSet",
+   "docLink": "./Mathlib/Topology/EMetricSpace/PairReduction.html#PairReduction.iSup_edist_pairSet",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ValueDistribution.Cartan.integrableOn_intervalIntegral_cartanKernel_right",
+   "docLink": "./Mathlib/Analysis/Complex/ValueDistribution/Proximity/IntegralPresentation.html#ValueDistribution.Cartan.integrableOn_intervalIntegral_cartanKernel_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Comma.mapRightIso_functor_obj_right",
+   "docLink": "./Mathlib/CategoryTheory/Comma/Basic.html#CategoryTheory.Comma.mapRightIso_functor_obj_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Int.bit_zero",
+   "docLink": "./Mathlib/Data/Int/Bitwise.html#Int.bit_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "compl_unique",
+   "docLink": "./Mathlib/Order/Heyting/Basic.html#compl_unique",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.Fork.op_unop_\u03b9",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Opposites/Equalizers.html#CategoryTheory.Limits.Fork.op_unop_\u03b9",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.IsUnitTrinomial.trailingCoeff_isUnit",
+   "docLink": "./Mathlib/Algebra/Polynomial/UnitTrinomial.html#Polynomial.IsUnitTrinomial.trailingCoeff_isUnit",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SSet.stdSimplex.\u03b9\u2081_whiskerLeft_toSSetObjI_\u03bc_assoc",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplicialSet/TopAdj.html#SSet.stdSimplex.\u03b9\u2081_whiskerLeft_toSSetObjI_\u03bc_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.sum_preimage'",
+   "docLink": "./Mathlib/Algebra/BigOperators/Group/Finset/Preimage.html#Finset.sum_preimage'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.MorphismProperty.presheaf_mono_of_le",
+   "docLink": "./Mathlib/CategoryTheory/MorphismProperty/Representable.html#CategoryTheory.MorphismProperty.presheaf_mono_of_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "OmegaCompletePartialOrder.ContinuousHom.\u03c9Sup",
+   "docLink": "./Mathlib/Order/OmegaCompletePartialOrder.html#OmegaCompletePartialOrder.ContinuousHom.\u03c9Sup",
+   "indexKind": "def"
+  },
+  {
+   "name": "Set.sub_mem_Ico_iff_left",
+   "docLink": "./Mathlib/Algebra/Order/Interval/Set/Group.html#Set.sub_mem_Ico_iff_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ZMod.decidableEq",
+   "docLink": "./Mathlib/Data/ZMod/Defs.html#ZMod.decidableEq",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Ne.le_iff_lt",
+   "docLink": "./Mathlib/Order/Basic.html#Ne.le_iff_lt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.mul_sum",
+   "docLink": "./Mathlib/Algebra/BigOperators/Ring/Finset.html#Finset.mul_sum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsOfFinAddOrder.prod_mk",
+   "docLink": "./Mathlib/GroupTheory/OrderOfElement.html#IsOfFinAddOrder.prod_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.affine_isIntegral_iff",
+   "docLink": "./Mathlib/AlgebraicGeometry/Properties.html#AlgebraicGeometry.affine_isIntegral_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddSubgroup.norm_normedMk_le",
+   "docLink": "./Mathlib/Analysis/Normed/Group/Quotient.html#AddSubgroup.norm_normedMk_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.fastFibAux_eq",
+   "docLink": "./Mathlib/Data/Nat/Fib/Basic.html#Nat.fastFibAux_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.CategoricalPullback.CatCommSqOver.transform_map_whiskerLeft",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/Categorical/Basic.html#CategoryTheory.Limits.CategoricalPullback.CatCommSqOver.transform_map_whiskerLeft",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.iCondIndepFun.indepFun_div_right",
+   "docLink": "./Mathlib/Probability/Independence/Conditional.html#ProbabilityTheory.iCondIndepFun.indepFun_div_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.integrable_finset_sum",
+   "docLink": "./Mathlib/MeasureTheory/Function/L1Space/Integrable.html#MeasureTheory.integrable_finset_sum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.IdealSheafData.comap_sup",
+   "docLink": "./Mathlib/AlgebraicGeometry/IdealSheaf/Functorial.html#AlgebraicGeometry.Scheme.IdealSheafData.comap_sup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopologicalSpace.Closeds.carrier",
+   "docLink": "./Mathlib/Topology/Sets/Closeds.html#TopologicalSpace.Closeds.carrier",
+   "indexKind": "def"
+  },
+  {
+   "name": "IsFormallyReal.instOfIsStrictOrderedRing",
+   "docLink": "./Mathlib/Algebra/Ring/IsFormallyReal.html#IsFormallyReal.instOfIsStrictOrderedRing",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Quotient.natIsoLift_inv",
+   "docLink": "./Mathlib/CategoryTheory/Quotient.html#CategoryTheory.Quotient.natIsoLift_inv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.le_trailingDegree_X_pow",
+   "docLink": "./Mathlib/Algebra/Polynomial/Degree/TrailingDegree.html#Polynomial.le_trailingDegree_X_pow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SeparationQuotient.liftContinuousAddCommMonoidHom_mk",
+   "docLink": "./Mathlib/Topology/Algebra/SeparationQuotient/Hom.html#SeparationQuotient.liftContinuousAddCommMonoidHom_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.L1.hasFiniteIntegral_coeFn",
+   "docLink": "./Mathlib/MeasureTheory/Function/L1Space/AEEqFun.html#MeasureTheory.L1.hasFiniteIntegral_coeFn",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Algebra.IsStandardSmoothOfRelativeDimension.out",
+   "docLink": "./Mathlib/RingTheory/Smooth/StandardSmooth.html#Algebra.IsStandardSmoothOfRelativeDimension.out",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WeierstrassCurve.Projective.negDblY_eq'",
+   "docLink": "./Mathlib/AlgebraicGeometry/EllipticCurve/Projective/Formula.html#WeierstrassCurve.Projective.negDblY_eq'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.preimage_subset_of_surjOn",
+   "docLink": "./Mathlib/Data/Set/Image.html#Set.preimage_subset_of_surjOn",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Functor.Monoidal.whiskerLeft_\u03b4_\u03bc",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Functor.html#CategoryTheory.Functor.Monoidal.whiskerLeft_\u03b4_\u03bc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.eq_zero_of_mul_eq_zero_of_smul",
+   "docLink": "./Mathlib/Algebra/Polynomial/AlgebraMap.html#Polynomial.eq_zero_of_mul_eq_zero_of_smul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingEquiv.opOp_symm_apply",
+   "docLink": "./Mathlib/Algebra/Ring/Equiv.html#RingEquiv.opOp_symm_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.AEDisjoint.iUnion_left_iff",
+   "docLink": "./Mathlib/MeasureTheory/Measure/AEDisjoint.html#MeasureTheory.AEDisjoint.iUnion_left_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.ceil_pos",
+   "docLink": "./Mathlib/Algebra/Order/Floor/Defs.html#Nat.ceil_pos",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingEquiv.subsemiringMap",
+   "docLink": "./Mathlib/Algebra/Ring/Subsemiring/Basic.html#RingEquiv.subsemiringMap",
+   "indexKind": "def"
+  },
+  {
+   "name": "Matrix.liftLinear_comp_singleLinearMap",
+   "docLink": "./Mathlib/Data/Matrix/Basis.html#Matrix.liftLinear_comp_singleLinearMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomologicalComplex\u2082.total.mapAux.d\u2082_mapMap",
+   "docLink": "./Mathlib/Algebra/Homology/TotalComplex.html#HomologicalComplex\u2082.total.mapAux.d\u2082_mapMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.CostructuredArrow.pre",
+   "docLink": "./Mathlib/CategoryTheory/Comma/StructuredArrow/Basic.html#CategoryTheory.CostructuredArrow.pre",
+   "indexKind": "def"
+  },
+  {
+   "name": "ContinuousMapZero.instPartialOrder",
+   "docLink": "./Mathlib/Topology/ContinuousMap/ContinuousMapZero.html#ContinuousMapZero.instPartialOrder",
+   "indexKind": "instance"
+  },
+  {
+   "name": "LinearEquiv.extendOfIsometry_apply",
+   "docLink": "./Mathlib/Analysis/Normed/Operator/Extend.html#LinearEquiv.extendOfIsometry_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsAddUnit.tmul_left",
+   "docLink": "./Mathlib/LinearAlgebra/TensorProduct/Defs.html#IsAddUnit.tmul_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.CosimplicialObject.instCategoryTruncated",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplicialObject/Basic.html#CategoryTheory.CosimplicialObject.instCategoryTruncated",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.\u03b5_\u03b7_app",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/End.html#CategoryTheory.\u03b5_\u03b7_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.Partrec.Code.encode_lt_pair",
+   "docLink": "./Mathlib/Computability/PartrecCode.html#Nat.Partrec.Code.encode_lt_pair",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.isLocalHom_expand",
+   "docLink": "./Mathlib/Algebra/Polynomial/Expand.html#Polynomial.isLocalHom_expand",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Fin2.equivFin",
+   "docLink": "./Mathlib/Data/Fin/Fin2.html#Fin2.equivFin",
+   "indexKind": "def"
+  },
+  {
+   "name": "AlgebraicGeometry.isSmooth_isStableUnderBaseChange",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/Smooth.html#AlgebraicGeometry.isSmooth_isStableUnderBaseChange",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.createsLimitsUnop",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Creates/Opposites.html#CategoryTheory.Limits.createsLimitsUnop",
+   "indexKind": "def"
+  },
+  {
+   "name": "HahnSeries.SummableFamily.hsum_orderTop_of_le",
+   "docLink": "./Mathlib/RingTheory/HahnSeries/Summable.html#HahnSeries.SummableFamily.hsum_orderTop_of_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.multispanShapeCoend_snd",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/End.html#CategoryTheory.Limits.multispanShapeCoend_snd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finsupp.sum_smul_index_addMonoidHom",
+   "docLink": "./Mathlib/Data/Finsupp/SMul.html#Finsupp.sum_smul_index_addMonoidHom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.DirectedSystem.map_map",
+   "docLink": "./Mathlib/ModelTheory/DirectLimit.html#FirstOrder.Language.DirectedSystem.map_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LocalizedModule.mk_pow",
+   "docLink": "./Mathlib/Algebra/Module/LocalizedModule/Basic.html#LocalizedModule.mk_pow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.HasBasis.eq_generate",
+   "docLink": "./Mathlib/Order/Filter/Bases/Basic.html#Filter.HasBasis.eq_generate",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.Kernel.iIndepSet.indep_generateFrom_of_disjoint",
+   "docLink": "./Mathlib/Probability/Independence/Kernel/Indep.html#ProbabilityTheory.Kernel.iIndepSet.indep_generateFrom_of_disjoint",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "nonempty_sections_of_finite_cofiltered_system.init",
+   "docLink": "./Mathlib/CategoryTheory/CofilteredSystem.html#nonempty_sections_of_finite_cofiltered_system.init",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.coyonedaLemma",
+   "docLink": "./Mathlib/CategoryTheory/Yoneda.html#CategoryTheory.coyonedaLemma",
+   "indexKind": "def"
+  },
+  {
+   "name": "MeasureTheory.Measure.addHaar_image_continuousLinearEquiv",
+   "docLink": "./Mathlib/MeasureTheory/Measure/Lebesgue/EqHaar.html#MeasureTheory.Measure.addHaar_image_continuousLinearEquiv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "EReal.log_exp",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Log/ENNRealLogExp.html#EReal.log_exp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DifferentiableOn.continuousAlternatingMap_apply_const",
+   "docLink": "./Mathlib/Analysis/Calculus/FDeriv/CompCLM.html#DifferentiableOn.continuousAlternatingMap_apply_const",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Functor.const.opObjUnop_hom_app",
+   "docLink": "./Mathlib/CategoryTheory/Functor/Const.html#CategoryTheory.Functor.const.opObjUnop_hom_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.sum_ramification_inertia_eq_finrank_fiber",
+   "docLink": "./Mathlib/RingTheory/RamificationInertia/Basic.html#Ideal.sum_ramification_inertia_eq_finrank_fiber",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.\u00abterm__[|_In_]\u00bb",
+   "docLink": "./Mathlib/Probability/ConditionalProbability.html#ProbabilityTheory.\u00abterm__[|_In_]\u00bb",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Functor.preservesProjectiveObjects_comp",
+   "docLink": "./Mathlib/CategoryTheory/Preadditive/Projective/Preserves.html#CategoryTheory.Functor.preservesProjectiveObjects_comp",
+   "indexKind": "instance"
+  },
+  {
+   "name": "IsPrimitiveRoot.norm_sub_one_of_prime_ne_two",
+   "docLink": "./Mathlib/NumberTheory/Cyclotomic/PrimitiveRoots.html#IsPrimitiveRoot.norm_sub_one_of_prime_ne_two",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Lean.Meta.DiscrTree.getSubexpressionMatches",
+   "docLink": "./Mathlib/Lean/Meta/DiscrTree.html#Lean.Meta.DiscrTree.getSubexpressionMatches",
+   "indexKind": "opaque"
+  },
+  {
+   "name": "CochainComplex.mappingConeHomOfDegreewiseSplitIso_inv_comp_triangle_mor\u2083",
+   "docLink": "./Mathlib/Algebra/Homology/HomotopyCategory/DegreewiseSplit.html#CochainComplex.mappingConeHomOfDegreewiseSplitIso_inv_comp_triangle_mor\u2083",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HasCompactSupport.smul_right",
+   "docLink": "./Mathlib/Topology/Algebra/Support.html#HasCompactSupport.smul_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.Bivariate.swap_apply",
+   "docLink": "./Mathlib/Algebra/Polynomial/Bivariate.html#Polynomial.Bivariate.swap_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "GroupWithZero.mul_right_injective",
+   "docLink": "./Mathlib/Algebra/GroupWithZero/Basic.html#GroupWithZero.mul_right_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.kernelCokernelCompSequence.inr_\u03c0",
+   "docLink": "./Mathlib/CategoryTheory/Abelian/DiagramLemmas/KernelCokernelComp.html#CategoryTheory.kernelCokernelCompSequence.inr_\u03c0",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.IsUnitTrinomial.irreducible_aux1",
+   "docLink": "./Mathlib/Algebra/Polynomial/UnitTrinomial.html#Polynomial.IsUnitTrinomial.irreducible_aux1",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HurwitzZeta.evenKernel_def",
+   "docLink": "./Mathlib/NumberTheory/LSeries/HurwitzZetaEven.html#HurwitzZeta.evenKernel_def",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subalgebra.mem_pi",
+   "docLink": "./Mathlib/Algebra/Algebra/Subalgebra/Pi.html#Subalgebra.mem_pi",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.integrable_binomial",
+   "docLink": "./Mathlib/Probability/Distributions/Binomial.html#ProbabilityTheory.integrable_binomial",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.pairwise_disjoint_Ioo_intCast",
+   "docLink": "./Mathlib/Algebra/Order/Interval/Set/Group.html#Set.pairwise_disjoint_Ioo_intCast",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.Locally.of_and",
+   "docLink": "./Mathlib/Probability/Process/LocalProperty.html#ProbabilityTheory.Locally.of_and",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.IsExtensionPair.definedAtLeft",
+   "docLink": "./Mathlib/ModelTheory/PartialEquiv.html#FirstOrder.Language.IsExtensionPair.definedAtLeft",
+   "indexKind": "def"
+  },
+  {
+   "name": "CompositionAsSet.card_boundaries_pos",
+   "docLink": "./Mathlib/Combinatorics/Enumerative/Composition.html#CompositionAsSet.card_boundaries_pos",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Combinatorics.Line.vertical_apply",
+   "docLink": "./Mathlib/Combinatorics/HalesJewett.html#Combinatorics.Line.vertical_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SSet.Subcomplex.Pairing.strongInnerAnodyneExtensions",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplicialSet/AnodyneExtensions/Inner/Basic.html#SSet.Subcomplex.Pairing.strongInnerAnodyneExtensions",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Padic.valuation_intCast",
+   "docLink": "./Mathlib/NumberTheory/Padics/PadicNumbers.html#Padic.valuation_intCast",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Measure.FiniteAtFilter.inf_of_right",
+   "docLink": "./Mathlib/MeasureTheory/Measure/Typeclasses/Finite.html#MeasureTheory.Measure.FiniteAtFilter.inf_of_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CochainComplex.mappingCone.mapTrianglehIso",
+   "docLink": "./Mathlib/Algebra/Homology/HomotopyCategory/Pretriangulated.html#CochainComplex.mappingCone.mapTrianglehIso",
+   "indexKind": "def"
+  },
+  {
+   "name": "TopologicalSpace.IsTopologicalBasis.prod",
+   "docLink": "./Mathlib/Topology/Bases.html#TopologicalSpace.IsTopologicalBasis.prod",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Tropical.instLinearOrderTropical",
+   "docLink": "./Mathlib/Algebra/Tropical/Basic.html#Tropical.instLinearOrderTropical",
+   "indexKind": "instance"
+  },
+  {
+   "name": "List.mem_take_iff_idxOf_lt",
+   "docLink": "./Mathlib/Data/List/Basic.html#List.mem_take_iff_idxOf_lt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "BialgCat.Hom.toBialgHom_injective",
+   "docLink": "./Mathlib/Algebra/Category/BialgCat/Basic.html#BialgCat.Hom.toBialgHom_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CFC.exp_log",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/ContinuousFunctionalCalculus/ExpLog/Basic.html#CFC.exp_log",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "BddOrd.hasForgetToPartOrd",
+   "docLink": "./Mathlib/Order/Category/BddOrd.html#BddOrd.hasForgetToPartOrd",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Set.iInter_eq_iInter_finset'",
+   "docLink": "./Mathlib/Order/CompleteLattice/Finset.html#Set.iInter_eq_iInter_finset'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddEquiv.mapMatrix",
+   "docLink": "./Mathlib/Data/Matrix/Basic.html#AddEquiv.mapMatrix",
+   "indexKind": "def"
+  },
+  {
+   "name": "SimpleGraph.fintypeSubtypeWalkLength",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Walk/Counting.html#SimpleGraph.fintypeSubtypeWalkLength",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Seminorm.ball_zero_eq_preimage_ball",
+   "docLink": "./Mathlib/Analysis/Seminorm.html#Seminorm.ball_zero_eq_preimage_ball",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithConv.ofConv_neg",
+   "docLink": "./Mathlib/Algebra/WithConv.html#WithConv.ofConv_neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Turing.TM2.init",
+   "docLink": "./Mathlib/Computability/TuringMachine/StackTuringMachine.html#Turing.TM2.init",
+   "indexKind": "def"
+  },
+  {
+   "name": "Nat.factorization_lcmUpto",
+   "docLink": "./Mathlib/NumberTheory/Chebyshev.html#Nat.factorization_lcmUpto",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.tilted_apply'",
+   "docLink": "./Mathlib/MeasureTheory/Measure/Tilted.html#MeasureTheory.tilted_apply'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.CatCospanTransformMorphism.whiskerRight",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/Categorical/CatCospanTransform.html#CategoryTheory.Limits.CatCospanTransformMorphism.whiskerRight",
+   "indexKind": "def"
+  },
+  {
+   "name": "QuadraticModuleCat.toIsometry_id",
+   "docLink": "./Mathlib/LinearAlgebra/QuadraticForm/QuadraticModuleCat.html#QuadraticModuleCat.toIsometry_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IntermediateField.inf_relfinrank_left",
+   "docLink": "./Mathlib/FieldTheory/Relrank.html#IntermediateField.inf_relfinrank_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "zpow_ne_zero",
+   "docLink": "./Mathlib/Algebra/GroupWithZero/Units/Basic.html#zpow_ne_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "InfIrred",
+   "docLink": "./Mathlib/Order/Irreducible.html#InfIrred",
+   "indexKind": "def"
+  },
+  {
+   "name": "HomotopicalAlgebra.CofibrantObject.HoCat.to\u03c0CompToLocalizationIso",
+   "docLink": "./Mathlib/AlgebraicTopology/ModelCategory/CofibrantObjectHomotopy.html#HomotopicalAlgebra.CofibrantObject.HoCat.to\u03c0CompToLocalizationIso",
+   "indexKind": "def"
+  },
+  {
+   "name": "Associates.mk_ne_zero'",
+   "docLink": "./Mathlib/RingTheory/Ideal/Operations.html#Associates.mk_ne_zero'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.pushout.instIsSplitEpiCodiagonal",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Diagonal.html#CategoryTheory.Limits.pushout.instIsSplitEpiCodiagonal",
+   "indexKind": "instance"
+  },
+  {
+   "name": "TopologicalSpace.OpenNhds.op_map_id_obj",
+   "docLink": "./Mathlib/Topology/Category/TopCat/OpenNhds.html#TopologicalSpace.OpenNhds.op_map_id_obj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Triangulated.AbelianSubcategory.mor\u2081_\u03c0Q_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Triangulated/TStructure/AbelianSubcategory.html#CategoryTheory.Triangulated.AbelianSubcategory.mor\u2081_\u03c0Q_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.CNF.coeff_injective",
+   "docLink": "./Mathlib/SetTheory/Ordinal/CantorNormalForm.html#Ordinal.CNF.coeff_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.kernelSequence_g",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/Exact.html#CategoryTheory.ShortComplex.kernelSequence_g",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.one_kronecker_one",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Kronecker.html#Matrix.one_kronecker_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicIndependent.mvPolynomialOptionEquivPolynomialAdjoin_C'",
+   "docLink": "./Mathlib/RingTheory/AlgebraicIndependent/Basic.html#AlgebraicIndependent.mvPolynomialOptionEquivPolynomialAdjoin_C'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Proj.basicOpen_eq_iSup_proj",
+   "docLink": "./Mathlib/AlgebraicGeometry/ProjectiveSpectrum/Basic.html#AlgebraicGeometry.Proj.basicOpen_eq_iSup_proj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.veblen_zero",
+   "docLink": "./Mathlib/SetTheory/Ordinal/Veblen.html#Ordinal.veblen_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "List.cons_subset_of_subset_of_mem",
+   "docLink": "./Mathlib/Data/List/Basic.html#List.cons_subset_of_subset_of_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousOpenMap.instContinuousOpenMapClass",
+   "docLink": "./Mathlib/Topology/Hom/Open.html#ContinuousOpenMap.instContinuousOpenMapClass",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Matrix.toInnerProductSpace",
+   "docLink": "./Mathlib/Analysis/Matrix/PosDef.html#Matrix.toInnerProductSpace",
+   "indexKind": "def"
+  },
+  {
+   "name": "Complex.div_intCast",
+   "docLink": "./Mathlib/Data/Complex/Basic.html#Complex.div_intCast",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Adjunction.unit_rightAdjointUniq_hom_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Adjunction/Unique.html#CategoryTheory.Adjunction.unit_rightAdjointUniq_hom_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "finprod_emb_domain'",
+   "docLink": "./Mathlib/Algebra/BigOperators/Finprod.html#finprod_emb_domain'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.Cocone.mapCoconeToOver",
+   "docLink": "./Mathlib/CategoryTheory/Limits/ConeCategory.html#CategoryTheory.Limits.Cocone.mapCoconeToOver",
+   "indexKind": "def"
+  },
+  {
+   "name": "map_add_eq_sum_add_integral_iteratedFDeriv",
+   "docLink": "./Mathlib/Analysis/Calculus/TaylorIntegral.html#map_add_eq_sum_add_integral_iteratedFDeriv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "eval_minpolyDiv_self",
+   "docLink": "./Mathlib/FieldTheory/Minpoly/MinpolyDiv.html#eval_minpolyDiv_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsLocalDiffeomorphAt.localInverse_open_source",
+   "docLink": "./Mathlib/Geometry/Manifold/LocalDiffeomorph.html#IsLocalDiffeomorphAt.localInverse_open_source",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FundamentalGroupoidFunctor.preservesProduct",
+   "docLink": "./Mathlib/AlgebraicTopology/FundamentalGroupoid/Product.html#FundamentalGroupoidFunctor.preservesProduct",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AbsoluteValue.abs_isEuclidean",
+   "docLink": "./Mathlib/Algebra/Order/AbsoluteValue/Euclidean.html#AbsoluteValue.abs_isEuclidean",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "neg_add_eq_mul_invOf_mul_same_iff",
+   "docLink": "./Mathlib/Algebra/Ring/Invertible.html#neg_add_eq_mul_invOf_mul_same_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Action.hom_inv_hom_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Action/Basic.html#Action.hom_inv_hom_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "BinaryTree.treesOfNumNodesEq_zero",
+   "docLink": "./Mathlib/Combinatorics/Enumerative/Catalan/Tree.html#BinaryTree.treesOfNumNodesEq_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.isExtensionPair_iff_exists_embedding_closure_singleton_sup",
+   "docLink": "./Mathlib/ModelTheory/PartialEquiv.html#FirstOrder.Language.isExtensionPair_iff_exists_embedding_closure_singleton_sup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsUnit.map",
+   "docLink": "./Mathlib/Algebra/Group/Units/Hom.html#IsUnit.map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "groupCohomology.map_one_fst_of_isCocycle\u2082",
+   "docLink": "./Mathlib/RepresentationTheory/Homological/GroupCohomology/LowDegree.html#groupCohomology.map_one_fst_of_isCocycle\u2082",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matroid.uniqueBaseOn_closure_eq",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Closure.html#Matroid.uniqueBaseOn_closure_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsCyclotomicExtension.Rat.inertiaDegIn_eq_of_prime",
+   "docLink": "./Mathlib/NumberTheory/NumberField/Cyclotomic/Ideal.html#IsCyclotomicExtension.Rat.inertiaDegIn_eq_of_prime",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "tprod_nat_mul_neg",
+   "docLink": "./Mathlib/Topology/Algebra/InfiniteSum/NatInt.html#tprod_nat_mul_neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Option.exists_mem_map",
+   "docLink": "./Mathlib/Data/Option/Basic.html#Option.exists_mem_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousAt.prodMk",
+   "docLink": "./Mathlib/Topology/Constructions/SumProd.html#ContinuousAt.prodMk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.AddMonObj",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Mon.html#CategoryTheory.AddMonObj",
+   "indexKind": "class"
+  },
+  {
+   "name": "CategoryTheory.Endofunctor.Adjunction.algebraCoalgebraEquiv",
+   "docLink": "./Mathlib/CategoryTheory/Endofunctor/Algebra.html#CategoryTheory.Endofunctor.Adjunction.algebraCoalgebraEquiv",
+   "indexKind": "def"
+  },
+  {
+   "name": "Ideal.mem_leadingCoeff",
+   "docLink": "./Mathlib/RingTheory/Polynomial/Basic.html#Ideal.mem_leadingCoeff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "term\u2082F\u2081",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.html#term\u2082F\u2081",
+   "indexKind": "def"
+  },
+  {
+   "name": "DomMulAct.mk_smul_toLp",
+   "docLink": "./Mathlib/MeasureTheory/Function/LpSpace/DomAct/Basic.html#DomMulAct.mk_smul_toLp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.Quotient.restrictScalarsEquiv_symm_mk",
+   "docLink": "./Mathlib/LinearAlgebra/Quotient/Basic.html#Submodule.Quotient.restrictScalarsEquiv_symm_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.SheafedSpace.forgetToPresheafedSpace_map",
+   "docLink": "./Mathlib/Geometry/RingedSpace/SheafedSpace.html#AlgebraicGeometry.SheafedSpace.forgetToPresheafedSpace_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.CostructuredArrow.locallySmall",
+   "docLink": "./Mathlib/CategoryTheory/Comma/LocallySmall.html#CategoryTheory.CostructuredArrow.locallySmall",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Function.update_one",
+   "docLink": "./Mathlib/Algebra/Group/Pi/Lemmas.html#Function.update_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Pi.single_comm",
+   "docLink": "./Mathlib/Algebra/Notation/Pi/Basic.html#Pi.single_comm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.LeftHomologyData.f'_i_assoc",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/LeftHomology.html#CategoryTheory.ShortComplex.LeftHomologyData.f'_i_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "List.Pairwise.reverse",
+   "docLink": "./Mathlib/Data/List/Pairwise.html#List.Pairwise.reverse",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousAddEquiv.surjective",
+   "docLink": "./Mathlib/Topology/Algebra/ContinuousMonoidHom.html#ContinuousAddEquiv.surjective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IncidenceAlgebra.instInhabited",
+   "docLink": "./Mathlib/Combinatorics/Enumerative/IncidenceAlgebra.html#IncidenceAlgebra.instInhabited",
+   "indexKind": "instance"
+  },
+  {
+   "name": "hasStrictFDerivAt_ringInverse",
+   "docLink": "./Mathlib/Analysis/Calculus/FDeriv/Mul.html#hasStrictFDerivAt_ringInverse",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.StructuredArrow.createsLimit",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Comma.html#CategoryTheory.StructuredArrow.createsLimit",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Subfunctor.iInf_obj",
+   "docLink": "./Mathlib/CategoryTheory/Subfunctor/Basic.html#CategoryTheory.Subfunctor.iInf_obj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "right_lt_lineMap_iff_one_lt",
+   "docLink": "./Mathlib/LinearAlgebra/AffineSpace/Ordered.html#right_lt_lineMap_iff_one_lt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Complex.canonicalFactor_apply_self",
+   "docLink": "./Mathlib/Analysis/Complex/CanonicalDecomposition.html#Complex.canonicalFactor_apply_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WithBot.map_coe",
+   "docLink": "./Mathlib/Order/WithBot.html#WithBot.map_coe",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IndepMatroid.ofFinite",
+   "docLink": "./Mathlib/Combinatorics/Matroid/IndepAxioms.html#IndepMatroid.ofFinite",
+   "indexKind": "def"
+  },
+  {
+   "name": "MvPolynomial.rename_id",
+   "docLink": "./Mathlib/Algebra/MvPolynomial/Rename.html#MvPolynomial.rename_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mul_lt_one",
+   "docLink": "./Mathlib/Algebra/Order/Monoid/Unbundled/Basic.html#mul_lt_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.NonPreadditiveAbelian.neg_add",
+   "docLink": "./Mathlib/CategoryTheory/Abelian/NonPreadditive.html#CategoryTheory.NonPreadditiveAbelian.neg_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.Bicategory.normalizeIsoComp",
+   "docLink": "./Mathlib/Tactic/CategoryTheory/Bicategory/PureCoherence.html#Mathlib.Tactic.Bicategory.normalizeIsoComp",
+   "indexKind": "def"
+  },
+  {
+   "name": "NNReal.coe_tsum_of_nonneg",
+   "docLink": "./Mathlib/Topology/Instances/NNReal/Lemmas.html#NNReal.coe_tsum_of_nonneg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SubMulAction.ofFixingSubgroupEmpty_equivariantMap_bijective",
+   "docLink": "./Mathlib/GroupTheory/GroupAction/SubMulAction/OfFixingSubgroup.html#SubMulAction.ofFixingSubgroupEmpty_equivariantMap_bijective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Comma.map_map_right",
+   "docLink": "./Mathlib/CategoryTheory/Comma/Basic.html#CategoryTheory.Comma.map_map_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.Walk.map",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Walk/Maps.html#SimpleGraph.Walk.map",
+   "indexKind": "def"
+  },
+  {
+   "name": "coeff_addMonoidAlgebraAddEquivDirectSum_symm_apply_apply",
+   "docLink": "./Mathlib/Algebra/MonoidAlgebra/ToDirectSum.html#coeff_addMonoidAlgebraAddEquivDirectSum_symm_apply_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CircleDeg1Lift.exists_eq_add_translationNumber",
+   "docLink": "./Mathlib/Dynamics/Circle/RotationNumber/TranslationNumber.html#CircleDeg1Lift.exists_eq_add_translationNumber",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subring.pointwise_smul_toSubsemiring",
+   "docLink": "./Mathlib/Algebra/Ring/Subring/Pointwise.html#Subring.pointwise_smul_toSubsemiring",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.AddContent.ofFunction_eq",
+   "docLink": "./Mathlib/MeasureTheory/OuterMeasure/OfAddContent.html#MeasureTheory.AddContent.ofFunction_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "lowerBounds_countableInfClosure",
+   "docLink": "./Mathlib/Order/CountableSupClosed.html#lowerBounds_countableInfClosure",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.prod_mono",
+   "docLink": "./Mathlib/RingTheory/Ideal/Prod.html#Ideal.prod_mono",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.IsPushout.of_is_coproduct'",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/IsPullback/Basic.html#CategoryTheory.IsPushout.of_is_coproduct'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PrincipalSeg.subrelIso_apply",
+   "docLink": "./Mathlib/Order/InitialSeg.html#PrincipalSeg.subrelIso_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContIntertwiningMap.instSub",
+   "docLink": "./Mathlib/RepresentationTheory/Continuous/Basic.html#ContIntertwiningMap.instSub",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Functor.PreOneHypercoverDenseData.toPreOneHypercover_Y",
+   "docLink": "./Mathlib/CategoryTheory/Sites/DenseSubsite/OneHypercoverDense.html#CategoryTheory.Functor.PreOneHypercoverDenseData.toPreOneHypercover_Y",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.disjoint_map_inl_map_inr",
+   "docLink": "./Mathlib/Data/Finset/Sum.html#Finset.disjoint_map_inl_map_inr",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.pseudofunctorOfIsLocallyDiscrete_obj",
+   "docLink": "./Mathlib/CategoryTheory/Bicategory/Functor/LocallyDiscrete.html#CategoryTheory.pseudofunctorOfIsLocallyDiscrete_obj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.smul_eval",
+   "docLink": "./Mathlib/Algebra/Polynomial/GroupRingAction.html#Polynomial.smul_eval",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Representation.invariants_eq_inter",
+   "docLink": "./Mathlib/RepresentationTheory/Invariants.html#Representation.invariants_eq_inter",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.instJacobsonSpaceCarrierCarrierCommRingCatSpecOfIsJacobsonRingCarrier",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/FiniteType.html#AlgebraicGeometry.instJacobsonSpaceCarrierCarrierCommRingCatSpecOfIsJacobsonRingCarrier",
+   "indexKind": "instance"
+  },
+  {
+   "name": "BoxIntegral.IntegrationParams.henstock_le_mcShane",
+   "docLink": "./Mathlib/Analysis/BoxIntegral/Partition/Filter.html#BoxIntegral.IntegrationParams.henstock_le_mcShane",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.pointwiseProduct",
+   "docLink": "./Mathlib/CategoryTheory/Limits/FilteredColimitCommutesProduct.html#CategoryTheory.Limits.pointwiseProduct",
+   "indexKind": "def"
+  },
+  {
+   "name": "Function.Embedding.coe_smul",
+   "docLink": "./Mathlib/GroupTheory/GroupAction/Embedding.html#Function.Embedding.coe_smul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsPreconnected.intermediate_value_Ico",
+   "docLink": "./Mathlib/Topology/Order/IntermediateValue.html#IsPreconnected.intermediate_value_Ico",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearIsometry.toContinuousLinearMap_injective",
+   "docLink": "./Mathlib/Analysis/Normed/Operator/LinearIsometry.html#LinearIsometry.toContinuousLinearMap_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.Ioi_mem_atTop",
+   "docLink": "./Mathlib/Order/Filter/AtTopBot/Defs.html#Filter.Ioi_mem_atTop",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Con.comapQuotientEquivOfSurj_symm_mk",
+   "docLink": "./Mathlib/GroupTheory/Congruence/Basic.html#Con.comapQuotientEquivOfSurj_symm_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TestFunction.monoCLM_eq_zero",
+   "docLink": "./Mathlib/Analysis/Distribution/TestFunction.html#TestFunction.monoCLM_eq_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.presburger.natCast_zero",
+   "docLink": "./Mathlib/ModelTheory/Arithmetic/Presburger/Basic.html#FirstOrder.Language.presburger.natCast_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ActionCategory.coe_back",
+   "docLink": "./Mathlib/CategoryTheory/Action.html#CategoryTheory.ActionCategory.coe_back",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.\u00abterm\u2210_\u00bb",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Products.html#CategoryTheory.Limits.\u00abterm\u2210_\u00bb",
+   "indexKind": "def"
+  },
+  {
+   "name": "Combinatorics.Line.instCoeFun",
+   "docLink": "./Mathlib/Combinatorics/HalesJewett.html#Combinatorics.Line.instCoeFun",
+   "indexKind": "instance"
+  },
+  {
+   "name": "PowerBasis.liftEquiv_apply_coe",
+   "docLink": "./Mathlib/RingTheory/PowerBasis.html#PowerBasis.liftEquiv_apply_coe",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.aecover_Ico",
+   "docLink": "./Mathlib/MeasureTheory/Integral/IntegralEqImproper.html#MeasureTheory.aecover_Ico",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ModelWithCorners.symm_continuousWithinAt_comp_right_iff",
+   "docLink": "./Mathlib/Geometry/Manifold/IsManifold/Basic.html#ModelWithCorners.symm_continuousWithinAt_comp_right_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mul_lt_of_lt_inv_mul",
+   "docLink": "./Mathlib/Algebra/Order/Group/Unbundled/Basic.html#mul_lt_of_lt_inv_mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.ModCases.\u00abtacticMod_cases_:_%_\u00bb",
+   "docLink": "./Mathlib/Tactic/ModCases.html#Mathlib.Tactic.ModCases.\u00abtacticMod_cases_:_%_\u00bb",
+   "indexKind": "def"
+  },
+  {
+   "name": "MvPolynomial.universalFactorizationMapPresentation",
+   "docLink": "./Mathlib/RingTheory/Polynomial/UniversalFactorizationRing.html#MvPolynomial.universalFactorizationMapPresentation",
+   "indexKind": "def"
+  },
+  {
+   "name": "RelSeries.tail_cons",
+   "docLink": "./Mathlib/Order/RelSeries.html#RelSeries.tail_cons",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "List.headI_dedup",
+   "docLink": "./Mathlib/Data/List/Dedup.html#List.headI_dedup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.IsAcyclic.isAcyclic_sup_fromEdgeSet_of_not_reachable",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Acyclic.html#SimpleGraph.IsAcyclic.isAcyclic_sup_fromEdgeSet_of_not_reachable",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SubringClass.coe_subtype",
+   "docLink": "./Mathlib/Algebra/Ring/Subring/Defs.html#SubringClass.coe_subtype",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mem_leftAddCoset_iff",
+   "docLink": "./Mathlib/GroupTheory/Coset/Basic.html#mem_leftAddCoset_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddSubmonoid.LocalizationMap.mk'_sec",
+   "docLink": "./Mathlib/GroupTheory/MonoidLocalization/Basic.html#AddSubmonoid.LocalizationMap.mk'_sec",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "smul_nonpos_iff_nonpos_of_pos_left",
+   "docLink": "./Mathlib/Algebra/Order/Module/Defs.html#smul_nonpos_iff_nonpos_of_pos_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "nsmulBinRec_zero",
+   "docLink": "./Mathlib/Algebra/Group/Defs.html#nsmulBinRec_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.GrothendieckTopology.Point.skyscraperPresheafHomEquiv_symm_apply",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Point/Skyscraper.html#CategoryTheory.GrothendieckTopology.Point.skyscraperPresheafHomEquiv_symm_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MonoidHom.transferCenterPow",
+   "docLink": "./Mathlib/GroupTheory/Transfer.html#MonoidHom.transferCenterPow",
+   "indexKind": "def"
+  },
+  {
+   "name": "Topology.IsOpenEmbedding.locallyCompactSpace",
+   "docLink": "./Mathlib/Topology/Compactness/LocallyCompact.html#Topology.IsOpenEmbedding.locallyCompactSpace",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "selfAdjointPart",
+   "docLink": "./Mathlib/Algebra/Star/Module.html#selfAdjointPart",
+   "indexKind": "def"
+  },
+  {
+   "name": "Urysohns.CU.hP",
+   "docLink": "./Mathlib/Topology/UrysohnsLemma.html#Urysohns.CU.hP",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LieAlgebra.derivedSeries_of_bot_eq_bot",
+   "docLink": "./Mathlib/Algebra/Lie/Solvable.html#LieAlgebra.derivedSeries_of_bot_eq_bot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WellFounded.induction_bot'",
+   "docLink": "./Mathlib/Order/WellFounded.html#WellFounded.induction_bot'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.preservesLimitsOfShape_colim_grothendieck",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Grothendieck.html#CategoryTheory.Limits.preservesLimitsOfShape_colim_grothendieck",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Action.isIso_of_hom_isIso",
+   "docLink": "./Mathlib/CategoryTheory/Action/Basic.html#Action.isIso_of_hom_isIso",
+   "indexKind": "instance"
+  },
+  {
+   "name": "HahnSeries.SummableFamily.zero_apply",
+   "docLink": "./Mathlib/RingTheory/HahnSeries/Summable.html#HahnSeries.SummableFamily.zero_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AffineSubspace.SSameSide.trans_wOppSide",
+   "docLink": "./Mathlib/Analysis/Convex/Side.html#AffineSubspace.SSameSide.trans_wOppSide",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ObjectProperty.instIsClosedUnderLimitsOfShapeOppositeOpOfIsClosedUnderColimitsOfShape_1",
+   "docLink": "./Mathlib/CategoryTheory/ObjectProperty/ColimitsOfShape.html#CategoryTheory.ObjectProperty.instIsClosedUnderLimitsOfShapeOppositeOpOfIsClosedUnderColimitsOfShape_1",
+   "indexKind": "instance"
+  },
+  {
+   "name": "MeromorphicAt.eventuallyEq_nhdsNE_of_eventuallyEq_codiscreteWithin",
+   "docLink": "./Mathlib/Analysis/Meromorphic/IsolatedZeros.html#MeromorphicAt.eventuallyEq_nhdsNE_of_eventuallyEq_codiscreteWithin",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "existsUnique_false",
+   "docLink": "./Mathlib/Logic/ExistsUnique.html#existsUnique_false",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "UniqueFactorizationMonoid.normalizedFactors_prod_inter_eq_inter",
+   "docLink": "./Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.html#UniqueFactorizationMonoid.normalizedFactors_prod_inter_eq_inter",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.cospanCompIso_app_left",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/Cospan.html#CategoryTheory.Limits.cospanCompIso_app_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopologicalSpace.Compacts.uniformContinuous_singleton",
+   "docLink": "./Mathlib/Topology/UniformSpace/Closeds.html#TopologicalSpace.Compacts.uniformContinuous_singleton",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Representation.IntertwiningMap.comp_apply",
+   "docLink": "./Mathlib/RepresentationTheory/Intertwining.html#Representation.IntertwiningMap.comp_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProjectiveSpectrum.union_zeroLocus",
+   "docLink": "./Mathlib/AlgebraicGeometry/ProjectiveSpectrum/Topology.html#ProjectiveSpectrum.union_zeroLocus",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.LocallyRingedSpace.stalkMap_congr_hom_assoc",
+   "docLink": "./Mathlib/Geometry/RingedSpace/LocallyRingedSpace.html#AlgebraicGeometry.LocallyRingedSpace.stalkMap_congr_hom_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsClub.iInter",
+   "docLink": "./Mathlib/SetTheory/Cardinal/Cofinality/Club.html#IsClub.iInter",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.Widget.StringDiagram.dsl",
+   "docLink": "./Mathlib/Tactic/Widget/StringDiagram.html#Mathlib.Tactic.Widget.StringDiagram.dsl",
+   "indexKind": "def"
+  },
+  {
+   "name": "Nat.lcm.charP",
+   "docLink": "./Mathlib/Algebra/CharP/Basic.html#Nat.lcm.charP",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Lax.OplaxTrans.Modification.ext_iff",
+   "docLink": "./Mathlib/CategoryTheory/Bicategory/Modification/Lax.html#CategoryTheory.Lax.OplaxTrans.Modification.ext_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mul_left_cancel_iff",
+   "docLink": "./Mathlib/Algebra/Group/Defs.html#mul_left_cancel_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ReflQuiv.instReflQuiver\u03b1",
+   "docLink": "./Mathlib/CategoryTheory/Category/ReflQuiv.html#CategoryTheory.ReflQuiv.instReflQuiver\u03b1",
+   "indexKind": "instance"
+  },
+  {
+   "name": "gcd_greatest",
+   "docLink": "./Mathlib/Algebra/GCDMonoid/Basic.html#gcd_greatest",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.dotProduct\u1d63_eq",
+   "docLink": "./Mathlib/Data/Matrix/Reflection.html#Matrix.dotProduct\u1d63_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProbabilityTheory.Kernel.fst_compProd",
+   "docLink": "./Mathlib/Probability/Kernel/Composition/CompProd.html#ProbabilityTheory.Kernel.fst_compProd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CauSeq.Completion.ofRat_neg",
+   "docLink": "./Mathlib/Algebra/Order/CauSeq/Completion.html#CauSeq.Completion.ofRat_neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.cycles",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/LeftHomology.html#CategoryTheory.ShortComplex.cycles",
+   "indexKind": "def"
+  },
+  {
+   "name": "PositiveLinearMap.toLinearMap_zero",
+   "docLink": "./Mathlib/Algebra/Order/Module/PositiveLinearMap.html#PositiveLinearMap.toLinearMap_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PowerSeries.aeval_coe",
+   "docLink": "./Mathlib/RingTheory/PowerSeries/Evaluation.html#PowerSeries.aeval_coe",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Algebra.SubmersivePresentation.linearIndependent_aeval_val_pderiv_relation",
+   "docLink": "./Mathlib/RingTheory/Extension/Presentation/Submersive.html#Algebra.SubmersivePresentation.linearIndependent_aeval_val_pderiv_relation",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingHom.surjective_of_tmul_eq_tmul_of_finite",
+   "docLink": "./Mathlib/Algebra/Algebra/Epi.html#RingHom.surjective_of_tmul_eq_tmul_of_finite",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearIndependent.linearCombinationEquiv_apply_coe",
+   "docLink": "./Mathlib/LinearAlgebra/LinearIndependent/Defs.html#LinearIndependent.linearCombinationEquiv_apply_coe",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NumberField.IsCMField.indexRealUnits_eq_one_or_two",
+   "docLink": "./Mathlib/NumberTheory/NumberField/CMField.html#NumberField.IsCMField.indexRealUnits_eq_one_or_two",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "instSupSetEReal",
+   "docLink": "./Mathlib/Data/EReal/Basic.html#instSupSetEReal",
+   "indexKind": "instance"
+  },
+  {
+   "name": "integral_log",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Integrals/Basic.html#integral_log",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "groupCohomology.cochainsMap_f_map_mono",
+   "docLink": "./Mathlib/RepresentationTheory/Homological/GroupCohomology/Functoriality.html#groupCohomology.cochainsMap_f_map_mono",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FreeAlgebra.instInhabited",
+   "docLink": "./Mathlib/Algebra/FreeAlgebra.html#FreeAlgebra.instInhabited",
+   "indexKind": "instance"
+  },
+  {
+   "name": "HeytAlg.Hom.ext",
+   "docLink": "./Mathlib/Order/Category/HeytAlg.html#HeytAlg.Hom.ext",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.Separable.squarefree",
+   "docLink": "./Mathlib/FieldTheory/Separable.html#Polynomial.Separable.squarefree",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.ChosenPullback\u2083.p\u2081\u2083",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/ChosenPullback.html#CategoryTheory.Limits.ChosenPullback\u2083.p\u2081\u2083",
+   "indexKind": "def"
+  },
+  {
+   "name": "Filter.tendsto_div_const_atBot_iff",
+   "docLink": "./Mathlib/Order/Filter/AtTopBot/Field.html#Filter.tendsto_div_const_atBot_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.setAverage_eq'",
+   "docLink": "./Mathlib/MeasureTheory/Integral/Average.html#MeasureTheory.setAverage_eq'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DirectedOn.lt_csSup_of_lt",
+   "docLink": "./Mathlib/Order/ConditionallyCompletePartialOrder/Basic.html#DirectedOn.lt_csSup_of_lt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ULift.instT1Space",
+   "docLink": "./Mathlib/Topology/Separation/Basic.html#ULift.instT1Space",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Ind.isSeparator_range_yoneda",
+   "docLink": "./Mathlib/CategoryTheory/Generator/Indization.html#CategoryTheory.Ind.isSeparator_range_yoneda",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FiniteMultiplicity.multiplicity_eq_iff",
+   "docLink": "./Mathlib/RingTheory/Multiplicity.html#FiniteMultiplicity.multiplicity_eq_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsCoveringMap.monodromy",
+   "docLink": "./Mathlib/Topology/Homotopy/Lifting.html#IsCoveringMap.monodromy",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Functor.Initial.reflectsLimit_of_comp",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Final.html#CategoryTheory.Functor.Initial.reflectsLimit_of_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimplexCategory.const_subinterval_eq",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplexCategory/Basic.html#SimplexCategory.const_subinterval_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NormedSpace.expSeries_hasSum_exp_of_mem_ball'",
+   "docLink": "./Mathlib/Analysis/Normed/Algebra/Exponential.html#NormedSpace.expSeries_hasSum_exp_of_mem_ball'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Module.length_pos_iff",
+   "docLink": "./Mathlib/RingTheory/Length.html#Module.length_pos_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PositiveLinearMap.nsmul_apply",
+   "docLink": "./Mathlib/Algebra/Order/Module/PositiveLinearMap.html#PositiveLinearMap.nsmul_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.IsHermitian.sub",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Hermitian.html#Matrix.IsHermitian.sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.instAlgebraQuotientComapRingHomAlgebraMap",
+   "docLink": "./Mathlib/RingTheory/Ideal/Quotient/Operations.html#Ideal.instAlgebraQuotientComapRingHomAlgebraMap",
+   "indexKind": "instance"
+  },
+  {
+   "name": "borel_eq_generateFrom_Ioc",
+   "docLink": "./Mathlib/MeasureTheory/Constructions/BorelSpace/Order.html#borel_eq_generateFrom_Ioc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.Walk.darts_ofDarts",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Walk/Basic.html#SimpleGraph.Walk.darts_ofDarts",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Real.hasProd_of_hasSum_log",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Log/Summable.html#Real.hasProd_of_hasSum_log",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonoidAlgebra.coeffAddEquiv_symm_apply",
+   "docLink": "./Mathlib/Algebra/MonoidAlgebra/Defs.html#AddMonoidAlgebra.coeffAddEquiv_symm_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearMap.isPositive_ofNat",
+   "docLink": "./Mathlib/Analysis/InnerProductSpace/Positive.html#LinearMap.isPositive_ofNat",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Condensed.profiniteSolid",
+   "docLink": "./Mathlib/Condensed/Solid.html#Condensed.profiniteSolid",
+   "indexKind": "def"
+  },
+  {
+   "name": "PowerSeries.coeff_mul",
+   "docLink": "./Mathlib/RingTheory/PowerSeries/Basic.html#PowerSeries.coeff_mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "iSupIndep.ringEquiv",
+   "docLink": "./Mathlib/RingTheory/SimpleModule/Isotypic.html#iSupIndep.ringEquiv",
+   "indexKind": "def"
+  },
+  {
+   "name": "Equiv.withBotCongr_refl",
+   "docLink": "./Mathlib/Order/WithBot.html#Equiv.withBotCongr_refl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "inv_mul_cancel_comm",
+   "docLink": "./Mathlib/Algebra/Group/Defs.html#inv_mul_cancel_comm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.instAddRightReflectLT",
+   "docLink": "./Mathlib/SetTheory/Ordinal/Arithmetic.html#Ordinal.instAddRightReflectLT",
+   "indexKind": "instance"
+  },
+  {
+   "name": "AlgebraicGeometry.instIsStableUnderCompositionSchemeLocallyOfFiniteType",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/FiniteType.html#AlgebraicGeometry.instIsStableUnderCompositionSchemeLocallyOfFiniteType",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Submodule.IsCoideal",
+   "docLink": "./Mathlib/RingTheory/Coalgebra/Quotient.html#Submodule.IsCoideal",
+   "indexKind": "class"
+  },
+  {
+   "name": "CategoryTheory.GrothendieckTopology.HOneHypercover",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Hypercover/Homotopy.html#CategoryTheory.GrothendieckTopology.HOneHypercover",
+   "indexKind": "def"
+  },
+  {
+   "name": "SSet.Truncated.trunc",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplicialSet/Basic.html#SSet.Truncated.trunc",
+   "indexKind": "def"
+  },
+  {
+   "name": "AddChar.zmodChar_apply",
+   "docLink": "./Mathlib/NumberTheory/LegendreSymbol/AddCharacter.html#AddChar.zmodChar_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "continuousWithinAt_insert_self",
+   "docLink": "./Mathlib/Topology/ContinuousOn.html#continuousWithinAt_insert_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WittVector.nth_mul_coeff'",
+   "docLink": "./Mathlib/RingTheory/WittVector/MulCoeff.html#WittVector.nth_mul_coeff'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HurwitzZeta.hasSum_int_completedHurwitzZetaOdd",
+   "docLink": "./Mathlib/NumberTheory/LSeries/HurwitzZetaOdd.html#HurwitzZeta.hasSum_int_completedHurwitzZetaOdd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CompleteLatticeHom.coe_mk",
+   "docLink": "./Mathlib/Order/Hom/CompleteLattice.html#CompleteLatticeHom.coe_mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsDiscrete.exists_nhds_eq_one_of_image_mulLeft_inter_nonempty",
+   "docLink": "./Mathlib/Topology/Algebra/Group/Pointwise.html#IsDiscrete.exists_nhds_eq_one_of_image_mulLeft_inter_nonempty",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subalgebra.iSupLift_comp_inclusion",
+   "docLink": "./Mathlib/Algebra/Algebra/Subalgebra/Directed.html#Subalgebra.iSupLift_comp_inclusion",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WeakEMetricSpace.ext",
+   "docLink": "./Mathlib/Topology/EMetricSpace/Defs.html#WeakEMetricSpace.ext",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.Order.findBestOrderInstance",
+   "docLink": "./Mathlib/Tactic/Order/Preprocessing.html#Mathlib.Tactic.Order.findBestOrderInstance",
+   "indexKind": "def"
+  },
+  {
+   "name": "AffineMap.fst",
+   "docLink": "./Mathlib/LinearAlgebra/AffineSpace/AffineMap.html#AffineMap.fst",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.MonoidalCategory.rightUnitor_tensor_hom",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Category.html#CategoryTheory.MonoidalCategory.rightUnitor_tensor_hom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Measure.instOuterMeasureClass",
+   "docLink": "./Mathlib/MeasureTheory/Measure/MeasureSpaceDef.html#MeasureTheory.Measure.instOuterMeasureClass",
+   "indexKind": "instance"
+  },
+  {
+   "name": "one_lt_mul_of_le_of_lt'",
+   "docLink": "./Mathlib/Algebra/Order/Monoid/Unbundled/Basic.html#one_lt_mul_of_le_of_lt'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddSubgroup.coe_comap",
+   "docLink": "./Mathlib/Algebra/Group/Subgroup/Map.html#AddSubgroup.coe_comap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "iSup_subtype''",
+   "docLink": "./Mathlib/Order/CompleteLattice/Basic.html#iSup_subtype''",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "continuousSMul_closedBall_ball",
+   "docLink": "./Mathlib/Analysis/Normed/Module/Ball/Action.html#continuousSMul_closedBall_ball",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.ModObj.comp_smul",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Cartesian/Mod.html#CategoryTheory.ModObj.comp_smul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "polynomialFunctions_separatesPoints",
+   "docLink": "./Mathlib/Topology/ContinuousMap/Polynomial.html#polynomialFunctions_separatesPoints",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.degree_le_maxDegree",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Finite.html#SimpleGraph.degree_le_maxDegree",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IncidenceAlgebra.one_prod_one",
+   "docLink": "./Mathlib/Combinatorics/Enumerative/IncidenceAlgebra.html#IncidenceAlgebra.one_prod_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.gcdA",
+   "docLink": "./Mathlib/Data/Int/GCD.html#Nat.gcdA",
+   "indexKind": "def"
+  },
+  {
+   "name": "AlgebraicGeometry.IsClosedImmersion.overEquivIdealSheafData",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/ClosedImmersion.html#AlgebraicGeometry.IsClosedImmersion.overEquivIdealSheafData",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Limits.hasImage_comp_iso",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Images.html#CategoryTheory.Limits.hasImage_comp_iso",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Fin.predAbove_last_castSucc",
+   "docLink": "./Mathlib/Data/Fin/SuccPred.html#Fin.predAbove_last_castSucc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PSigma.Lex.orderBot",
+   "docLink": "./Mathlib/Data/PSigma/Order.html#PSigma.Lex.orderBot",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Cardinal.eventuallyConst_of_antitone",
+   "docLink": "./Mathlib/SetTheory/Cardinal/EventuallyConst.html#Cardinal.eventuallyConst_of_antitone",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.PresheafedSpace.restrict_top_presheaf",
+   "docLink": "./Mathlib/Geometry/RingedSpace/PresheafedSpace.html#AlgebraicGeometry.PresheafedSpace.restrict_top_presheaf",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WeierstrassCurve.Jacobian.baseChange_negDblY",
+   "docLink": "./Mathlib/AlgebraicGeometry/EllipticCurve/Jacobian/Formula.html#WeierstrassCurve.Jacobian.baseChange_negDblY",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ENNReal.log_eq_iff",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Log/ENNRealLog.html#ENNReal.log_eq_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Triangulated.TStructure.le",
+   "docLink": "./Mathlib/CategoryTheory/Triangulated/TStructure/Basic.html#CategoryTheory.Triangulated.TStructure.le",
+   "indexKind": "def"
+  },
+  {
+   "name": "OrthonormalBasis.sum_repr_symm",
+   "docLink": "./Mathlib/Analysis/InnerProductSpace/PiL2.html#OrthonormalBasis.sum_repr_symm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.MkIff.mkIffOfInductiveProp",
+   "docLink": "./Mathlib/Tactic/MkIffOfInductiveProp.html#Mathlib.Tactic.MkIff.mkIffOfInductiveProp",
+   "indexKind": "def"
+  },
+  {
+   "name": "WithTop.image_coe_Ici",
+   "docLink": "./Mathlib/Order/Interval/Set/WithBotTop.html#WithTop.image_coe_Ici",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Sylow.prime_dvd_card_quotient_normalizer",
+   "docLink": "./Mathlib/GroupTheory/Sylow.html#Sylow.prime_dvd_card_quotient_normalizer",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.inr_mem_disjSum",
+   "docLink": "./Mathlib/Data/Finset/Sum.html#Finset.inr_mem_disjSum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearMap.IsIdempotentElem.isSymmetric_iff_isOrtho_range_ker",
+   "docLink": "./Mathlib/Analysis/InnerProductSpace/Symmetric.html#LinearMap.IsIdempotentElem.isSymmetric_iff_isOrtho_range_ker",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasurableSpace.comap_prodMk",
+   "docLink": "./Mathlib/MeasureTheory/MeasurableSpace/Prod.html#MeasurableSpace.comap_prodMk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mem_adjoin_map_integralClosure_of_isStandardEtale",
+   "docLink": "./Mathlib/RingTheory/Smooth/IntegralClosure.html#mem_adjoin_map_integralClosure_of_isStandardEtale",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MvPolynomial.coeff_toPolynomialAdjoinImageCompl_ne_zero",
+   "docLink": "./Mathlib/FieldTheory/SeparablyGenerated.html#MvPolynomial.coeff_toPolynomialAdjoinImageCompl_ne_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.fderivWithin",
+   "docLink": "./Mathlib/Analysis/Calculus/Deriv/Polynomial.html#Polynomial.fderivWithin",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Affine.Simplex.signedInfDist_reindex",
+   "docLink": "./Mathlib/Geometry/Euclidean/SignedDist.html#Affine.Simplex.signedInfDist_reindex",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PowerSeries.largeSchroderSeries",
+   "docLink": "./Mathlib/RingTheory/PowerSeries/Schroder.html#PowerSeries.largeSchroderSeries",
+   "indexKind": "def"
+  },
+  {
+   "name": "MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_of_nnnorm",
+   "docLink": "./Mathlib/MeasureTheory/Function/LpSeminorm/CompareExp.html#MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_of_nnnorm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Measure.haar.mul_left_index_le",
+   "docLink": "./Mathlib/MeasureTheory/Measure/Haar/Basic.html#MeasureTheory.Measure.haar.mul_left_index_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Equiv.sigmaAssocProd_symm_apply_fst",
+   "docLink": "./Mathlib/Logic/Equiv/Basic.html#Equiv.sigmaAssocProd_symm_apply_fst",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Homotopy.nullHomotopy'",
+   "docLink": "./Mathlib/Algebra/Homology/Homotopy.html#Homotopy.nullHomotopy'",
+   "indexKind": "def"
+  },
+  {
+   "name": "Mathlib.Tactic.Bicategory.evalWhiskerRight_id",
+   "docLink": "./Mathlib/Tactic/CategoryTheory/Bicategory/Normalize.html#Mathlib.Tactic.Bicategory.evalWhiskerRight_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.BicategoryLike.MkEval.mkEvalComp",
+   "docLink": "./Mathlib/Tactic/CategoryTheory/Coherence/Normalize.html#Mathlib.Tactic.BicategoryLike.MkEval.mkEvalComp",
+   "indexKind": "def"
+  },
+  {
+   "name": "ExistsAndEq.withExistsElimAlongPathImp",
+   "docLink": "./Mathlib/Tactic/Simproc/ExistsAndEq.html#ExistsAndEq.withExistsElimAlongPathImp",
+   "indexKind": "opaque"
+  },
+  {
+   "name": "nnnorm_le_nnnorm_add_nnnorm_sub",
+   "docLink": "./Mathlib/Analysis/Normed/Group/Basic.html#nnnorm_le_nnnorm_add_nnnorm_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddSubgroup.top_prod",
+   "docLink": "./Mathlib/Algebra/Group/Subgroup/Basic.html#AddSubgroup.top_prod",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Valuation.valuationSubring_not_isField",
+   "docLink": "./Mathlib/RingTheory/Valuation/Discrete/Basic.html#Valuation.valuationSubring_not_isField",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "NonUnitalStarAlgebra.instIsMulCommutative_adjoin",
+   "docLink": "./Mathlib/Algebra/Star/NonUnitalSubalgebra.html#NonUnitalStarAlgebra.instIsMulCommutative_adjoin",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CFC.nnrpow_one_eqOn",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/ContinuousFunctionalCalculus/Rpow/Basic.html#CFC.nnrpow_one_eqOn",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomologicalComplex.homotopyCofiber.ext_from_X'",
+   "docLink": "./Mathlib/Algebra/Homology/HomotopyCofiber.html#HomologicalComplex.homotopyCofiber.ext_from_X'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.tendsto_integral_smul_of_tendsto_average_norm_sub",
+   "docLink": "./Mathlib/MeasureTheory/Integral/Average.html#MeasureTheory.tendsto_integral_smul_of_tendsto_average_norm_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.HopfObj.antipode_antipode",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Hopf_.html#CategoryTheory.HopfObj.antipode_antipode",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.insert_Ico_succ_left_eq_Ico",
+   "docLink": "./Mathlib/Order/Interval/Finset/SuccPred.html#Finset.insert_Ico_succ_left_eq_Ico",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AntivaryOn.of_inv_right",
+   "docLink": "./Mathlib/Algebra/Order/Monovary.html#AntivaryOn.of_inv_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Pseudofunctor.StrongTrans.instBicategory",
+   "docLink": "./Mathlib/CategoryTheory/Bicategory/FunctorBicategory/Pseudo.html#CategoryTheory.Pseudofunctor.StrongTrans.instBicategory",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Limits.Types.range_fst_of_isPullback",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Types/Pullbacks.html#CategoryTheory.Limits.Types.range_fst_of_isPullback",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Bipointed.Hom.id_toFun",
+   "docLink": "./Mathlib/CategoryTheory/Category/Bipointed.html#Bipointed.Hom.id_toFun",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearMap.iterateFrobenius",
+   "docLink": "./Mathlib/Algebra/CharP/Frobenius.html#LinearMap.iterateFrobenius",
+   "indexKind": "def"
+  },
+  {
+   "name": "ReaderT.goto_mkLabel",
+   "docLink": "./Mathlib/Control/Monad/Cont.html#ReaderT.goto_mkLabel",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Algebra.Presentation.span_range_relation_eq_ker",
+   "docLink": "./Mathlib/RingTheory/Extension/Presentation/Basic.html#Algebra.Presentation.span_range_relation_eq_ker",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopologicalSpace.Closeds.isClosedEmbedding_singleton",
+   "docLink": "./Mathlib/Topology/UniformSpace/Closeds.html#TopologicalSpace.Closeds.isClosedEmbedding_singleton",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HahnSeries.instDivInvMonoid",
+   "docLink": "./Mathlib/RingTheory/HahnSeries/Summable.html#HahnSeries.instDivInvMonoid",
+   "indexKind": "instance"
+  },
+  {
+   "name": "LinearMap.toMatrix\u2082_symm'",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/SesquilinearForm.html#LinearMap.toMatrix\u2082_symm'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.aestronglyMeasurable_fun_sum",
+   "docLink": "./Mathlib/MeasureTheory/Function/StronglyMeasurable/AEStronglyMeasurable.html#Finset.aestronglyMeasurable_fun_sum",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.CoFG.fg_of_isCompl",
+   "docLink": "./Mathlib/RingTheory/Finiteness/Cofinite.html#Submodule.CoFG.fg_of_isCompl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Units.val_eq_one",
+   "docLink": "./Mathlib/Algebra/Group/Units/Defs.html#Units.val_eq_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DvdNotUnit.ne",
+   "docLink": "./Mathlib/Algebra/Prime/Lemmas.html#DvdNotUnit.ne",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.Primes.countable",
+   "docLink": "./Mathlib/Data/Nat/PrimeFin.html#Nat.Primes.countable",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Set.uIoo_ofDual",
+   "docLink": "./Mathlib/Order/Interval/Set/UnorderedInterval.html#Set.uIoo_ofDual",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Cardinal.instOne",
+   "docLink": "./Mathlib/SetTheory/Cardinal/Defs.html#Cardinal.instOne",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Limits.equalizerPullbackMapIso_hom_fst_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/Equalizer.html#CategoryTheory.Limits.equalizerPullbackMapIso_hom_fst_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsCompact.nhdsSet_inf_eq_biSup",
+   "docLink": "./Mathlib/Topology/Compactness/Compact.html#IsCompact.nhdsSet_inf_eq_biSup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Quotient.functor_additive",
+   "docLink": "./Mathlib/CategoryTheory/Quotient/Preadditive.html#CategoryTheory.Quotient.functor_additive",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Abelian.SpectralObject.p_opcyclesToE_assoc",
+   "docLink": "./Mathlib/Algebra/Homology/SpectralObject/Page.html#CategoryTheory.Abelian.SpectralObject.p_opcyclesToE_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Real.arctan_one",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Trigonometric/Arctan.html#Real.arctan_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MvPolynomial.weightedHomogeneousComponent_eq_zero'",
+   "docLink": "./Mathlib/RingTheory/MvPolynomial/WeightedHomogeneous.html#MvPolynomial.weightedHomogeneousComponent_eq_zero'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Mon.EquivLaxMonoidalFunctorPUnit.monToLaxMonoidal_map_hom_app",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Mon.html#CategoryTheory.Mon.EquivLaxMonoidalFunctorPUnit.monToLaxMonoidal_map_hom_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RingCon.coe_dfinsuppProd",
+   "docLink": "./Mathlib/RingTheory/Congruence/BigOperators.html#RingCon.coe_dfinsuppProd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Profinite.NobelingProof.GoodProducts.max_eq_eval",
+   "docLink": "./Mathlib/Topology/Category/Profinite/Nobeling/Successor.html#Profinite.NobelingProof.GoodProducts.max_eq_eval",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Module.rank_eq_one_iff_finrank_eq_one",
+   "docLink": "./Mathlib/LinearAlgebra/Dimension/Finrank.html#Module.rank_eq_one_iff_finrank_eq_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CommCStarAlgebra",
+   "docLink": "./Mathlib/Analysis/CStarAlgebra/Classes.html#CommCStarAlgebra",
+   "indexKind": "class"
+  },
+  {
+   "name": "WithTop.preimage_coe_Iio_top",
+   "docLink": "./Mathlib/Order/Interval/Set/WithBotTop.html#WithTop.preimage_coe_Iio_top",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Prod.symmetry_inv_app",
+   "docLink": "./Mathlib/CategoryTheory/Products/Basic.html#CategoryTheory.Prod.symmetry_inv_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.GrpObj.inv_comp_inv_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Grp.html#CategoryTheory.GrpObj.inv_comp_inv_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Valuation.Integers.coe_span_singleton_eq_setOf_le_v_algebraMap",
+   "docLink": "./Mathlib/RingTheory/Valuation/Integers.html#Valuation.Integers.coe_span_singleton_eq_setOf_le_v_algebraMap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Sigma.fst_injective_iff",
+   "docLink": "./Mathlib/Data/Sigma/Basic.html#Sigma.fst_injective_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddCommute.isOfFinAddOrder_add",
+   "docLink": "./Mathlib/GroupTheory/OrderOfElement.html#AddCommute.isOfFinAddOrder_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ideal.IsPrime",
+   "docLink": "./Mathlib/RingTheory/Ideal/Prime.html#Ideal.IsPrime",
+   "indexKind": "class"
+  },
+  {
+   "name": "IsPrimal.mul",
+   "docLink": "./Mathlib/Algebra/GroupWithZero/Divisibility.html#IsPrimal.mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.StructuredArrow.IsUniversal.fac",
+   "docLink": "./Mathlib/CategoryTheory/Comma/StructuredArrow/Basic.html#CategoryTheory.StructuredArrow.IsUniversal.fac",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Bicategory.yoneda_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj_toPrelaxFunctor_toPrelaxFunctorStruct_map\u2082_toNatTrans_app",
+   "docLink": "./Mathlib/CategoryTheory/Bicategory/Yoneda.html#CategoryTheory.Bicategory.yoneda_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj_toPrelaxFunctor_toPrelaxFunctorStruct_map\u2082_toNatTrans_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.coe_prodEquivOfIsCompl",
+   "docLink": "./Mathlib/LinearAlgebra/Projection.html#Submodule.coe_prodEquivOfIsCompl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.rightHomologyMap'_zero",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/RightHomology.html#CategoryTheory.ShortComplex.rightHomologyMap'_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Sat.Fmla.proof_of_subsumes",
+   "docLink": "./Mathlib/Tactic/Sat/FromLRAT.html#Sat.Fmla.proof_of_subsumes",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopPair.HomologyPretheory.h\u209aFunctor_obj",
+   "docLink": "./Mathlib/AlgebraicTopology/EilenbergSteenrod.html#TopPair.HomologyPretheory.h\u209aFunctor_obj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PreInnerProductSpace.Core.smul_left",
+   "docLink": "./Mathlib/Analysis/InnerProductSpace/Defs.html#PreInnerProductSpace.Core.smul_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.map_comp",
+   "docLink": "./Mathlib/Algebra/Polynomial/Eval/Defs.html#Polynomial.map_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "mul_mem_connectedComponent_one",
+   "docLink": "./Mathlib/Topology/Algebra/Group/Basic.html#mul_mem_connectedComponent_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContRepresentation.coind\u2081Map",
+   "docLink": "./Mathlib/RepresentationTheory/Continuous/Basic.html#ContRepresentation.coind\u2081Map",
+   "indexKind": "def"
+  },
+  {
+   "name": "Equiv.involutiveStar",
+   "docLink": "./Mathlib/Algebra/Star/TransferInstance.html#Equiv.involutiveStar",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.MorphismProperty.LeftFraction.Localization.homMk_eq",
+   "docLink": "./Mathlib/CategoryTheory/Localization/CalculusOfFractions.html#CategoryTheory.MorphismProperty.LeftFraction.Localization.homMk_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ENNReal.sub_mul",
+   "docLink": "./Mathlib/Data/ENNReal/Operations.html#ENNReal.sub_mul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "natCast_mem\u2113p_infty",
+   "docLink": "./Mathlib/Analysis/Normed/Lp/lpSpace.html#natCast_mem\u2113p_infty",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "VonNeumannAlgebra.toStarSubalgebra",
+   "docLink": "./Mathlib/Analysis/VonNeumannAlgebra/Basic.html#VonNeumannAlgebra.toStarSubalgebra",
+   "indexKind": "def"
+  },
+  {
+   "name": "AlgebraicIndependent.injective",
+   "docLink": "./Mathlib/RingTheory/AlgebraicIndependent/Basic.html#AlgebraicIndependent.injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.HasFiniteIntegral.mono_measure",
+   "docLink": "./Mathlib/MeasureTheory/Function/L1Space/HasFiniteIntegral.html#MeasureTheory.HasFiniteIntegral.mono_measure",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Condensed.StoneanProfinite.instEffectivelyEnoughStoneanProfiniteToProfinite",
+   "docLink": "./Mathlib/Condensed/Equivalence.html#Condensed.StoneanProfinite.instEffectivelyEnoughStoneanProfiniteToProfinite",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Height.logHeight_eval_ge",
+   "docLink": "./Mathlib/NumberTheory/Height/MvPolynomial.html#Height.logHeight_eval_ge",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddEquiv.mapMatrix_apply",
+   "docLink": "./Mathlib/Data/Matrix/Basic.html#AddEquiv.mapMatrix_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ULift.isLeftRegular_down",
+   "docLink": "./Mathlib/Algebra/Regular/ULift.html#ULift.isLeftRegular_down",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Pi.comapId_inv_app",
+   "docLink": "./Mathlib/CategoryTheory/Pi/Basic.html#CategoryTheory.Pi.comapId_inv_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.\u0393_obj",
+   "docLink": "./Mathlib/AlgebraicGeometry/Scheme.html#AlgebraicGeometry.Scheme.\u0393_obj",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddEquiv.addMonoidHomCongrRightEquiv_refl",
+   "docLink": "./Mathlib/Algebra/Group/Equiv/Basic.html#AddEquiv.addMonoidHomCongrRightEquiv_refl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.StrongEpiCategory",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/StrongEpi.html#CategoryTheory.StrongEpiCategory",
+   "indexKind": "class"
+  },
+  {
+   "name": "map_dualTensorHom",
+   "docLink": "./Mathlib/LinearAlgebra/Contraction.html#map_dualTensorHom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsRelPrime.add_mul_right_right",
+   "docLink": "./Mathlib/RingTheory/Coprime/Basic.html#IsRelPrime.add_mul_right_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.IsCompl.isTopCompl_iff_linearProjOfIsCompl",
+   "docLink": "./Mathlib/Topology/Algebra/Module/Complement.html#Submodule.IsCompl.isTopCompl_iff_linearProjOfIsCompl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AffineMap.snd_linear",
+   "docLink": "./Mathlib/LinearAlgebra/AffineSpace/AffineMap.html#AffineMap.snd_linear",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.Germ.const_nat",
+   "docLink": "./Mathlib/Order/Filter/Germ/Basic.html#Filter.Germ.const_nat",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LocallyConstant.comap",
+   "docLink": "./Mathlib/Topology/LocallyConstant/Basic.html#LocallyConstant.comap",
+   "indexKind": "def"
+  },
+  {
+   "name": "MvPolynomial.map_expand_pow_char",
+   "docLink": "./Mathlib/RingTheory/MvPolynomial/Expand.html#MvPolynomial.map_expand_pow_char",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finmap.notMem_empty",
+   "docLink": "./Mathlib/Data/Finmap.html#Finmap.notMem_empty",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearMap.IsIdempotentElem.eq_zero_of_trace_eq_zero",
+   "docLink": "./Mathlib/LinearAlgebra/Trace.html#LinearMap.IsIdempotentElem.eq_zero_of_trace_eq_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "isCyclic_of_prime_card",
+   "docLink": "./Mathlib/GroupTheory/SpecificGroups/Cyclic/Basic.html#isCyclic_of_prime_card",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Functor.Final.extendCocone",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Final.html#CategoryTheory.Functor.Final.extendCocone",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Bimon.ext_iff",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Bimon_.html#CategoryTheory.Bimon.ext_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Specializes.neg",
+   "docLink": "./Mathlib/Topology/Algebra/Group/Basic.html#Specializes.neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ULift.down_bot",
+   "docLink": "./Mathlib/Order/BoundedOrder/Basic.html#ULift.down_bot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RatFunc.coePolynomial",
+   "docLink": "./Mathlib/FieldTheory/RatFunc/Basic.html#RatFunc.coePolynomial",
+   "indexKind": "def"
+  },
+  {
+   "name": "Ordinal.opow_one_add",
+   "docLink": "./Mathlib/SetTheory/Ordinal/Exponential.html#Ordinal.opow_one_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subgroup.mem_carrier",
+   "docLink": "./Mathlib/Algebra/Group/Subgroup/Defs.html#Subgroup.mem_carrier",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subgroup.comap_upperCentralSeries_quotient_center",
+   "docLink": "./Mathlib/GroupTheory/Nilpotent.html#Subgroup.comap_upperCentralSeries_quotient_center",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Irreducible.maximalIdeal_pow_eq_closedBall_pow",
+   "docLink": "./Mathlib/Topology/Algebra/Valued/LocallyCompact.html#Irreducible.maximalIdeal_pow_eq_closedBall_pow",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Complex.UnitClosedDisc.instSMulCommClassCircle_2",
+   "docLink": "./Mathlib/Analysis/Complex/UnitDisc/Basic.html#Complex.UnitClosedDisc.instSMulCommClassCircle_2",
+   "indexKind": "instance"
+  },
+  {
+   "name": "ENNReal.nhds_top'",
+   "docLink": "./Mathlib/Topology/Instances/ENNReal/Lemmas.html#ENNReal.nhds_top'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.instWellFoundedGTSubobjectOfIsNoetherianObject",
+   "docLink": "./Mathlib/CategoryTheory/Subobject/NoetherianObject.html#CategoryTheory.instWellFoundedGTSubobjectOfIsNoetherianObject",
+   "indexKind": "instance"
+  },
+  {
+   "name": "AlgebraicGeometry.IsSchemeTheoreticallyDominant.ker_eq_bot",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/SchemeTheoreticallyDominant.html#AlgebraicGeometry.IsSchemeTheoreticallyDominant.ker_eq_bot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.aecover_Ioc_of_Ico",
+   "docLink": "./Mathlib/MeasureTheory/Integral/IntegralEqImproper.html#MeasureTheory.aecover_Ioc_of_Ico",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ZFSet.sInter",
+   "docLink": "./Mathlib/SetTheory/ZFC/Basic.html#ZFSet.sInter",
+   "indexKind": "def"
+  },
+  {
+   "name": "FirstOrder.Language.isFraisse_finite_linear_order",
+   "docLink": "./Mathlib/ModelTheory/Order.html#FirstOrder.Language.isFraisse_finite_linear_order",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FintypeCat.incl",
+   "docLink": "./Mathlib/CategoryTheory/FintypeCat.html#FintypeCat.incl",
+   "indexKind": "def"
+  },
+  {
+   "name": "SeparationQuotient.forall",
+   "docLink": "./Mathlib/Topology/Inseparable.html#SeparationQuotient.forall",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "sdiff_compl",
+   "docLink": "./Mathlib/Order/BooleanAlgebra/Basic.html#sdiff_compl",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.Exact.fIsKernel",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/Exact.html#CategoryTheory.ShortComplex.Exact.fIsKernel",
+   "indexKind": "def"
+  },
+  {
+   "name": "MeasureTheory.integral_const",
+   "docLink": "./Mathlib/MeasureTheory/Integral/Bochner/Basic.html#MeasureTheory.integral_const",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "subtypeOrLeftEmbedding_apply_right",
+   "docLink": "./Mathlib/Logic/Embedding/Basic.html#subtypeOrLeftEmbedding_apply_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousMap.tendsto_of_antitone_of_pointwise",
+   "docLink": "./Mathlib/Topology/UniformSpace/Dini.html#ContinuousMap.tendsto_of_antitone_of_pointwise",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SemimoduleCat.MonoidalCategory.rightUnitor",
+   "docLink": "./Mathlib/Algebra/Category/ModuleCat/Monoidal/Basic.html#SemimoduleCat.MonoidalCategory.rightUnitor",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Sieve.W_shrinkFunctor_\u03b9_of_mem",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Localization.html#CategoryTheory.Sieve.W_shrinkFunctor_\u03b9_of_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonCat.sectionsAddSubmonoid",
+   "docLink": "./Mathlib/Algebra/Category/MonCat/Limits.html#AddMonCat.sectionsAddSubmonoid",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.GrothendieckTopology.W.transport_isMonoidal",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Monoidal.html#CategoryTheory.GrothendieckTopology.W.transport_isMonoidal",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SeparationQuotient.instAddSemigroup",
+   "docLink": "./Mathlib/Topology/Algebra/SeparationQuotient/Basic.html#SeparationQuotient.instAddSemigroup",
+   "indexKind": "instance"
+  },
+  {
+   "name": "ContMDiffMul",
+   "docLink": "./Mathlib/Geometry/Manifold/Algebra/Monoid.html#ContMDiffMul",
+   "indexKind": "class"
+  },
+  {
+   "name": "Submonoid.powLogEquiv_symm_apply",
+   "docLink": "./Mathlib/Algebra/Group/Submonoid/Membership.html#Submonoid.powLogEquiv_symm_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "seminormFromBounded_ge",
+   "docLink": "./Mathlib/Analysis/Normed/Unbundled/SeminormFromBounded.html#seminormFromBounded_ge",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Metric.cthickening_of_nonpos",
+   "docLink": "./Mathlib/Topology/MetricSpace/Thickening.html#Metric.cthickening_of_nonpos",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ENNReal.iSup_lt_eq_self",
+   "docLink": "./Mathlib/Data/ENNReal/Operations.html#ENNReal.iSup_lt_eq_self",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.vadd_finset_union",
+   "docLink": "./Mathlib/Algebra/Group/Pointwise/Finset/Scalar.html#Finset.vadd_finset_union",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Cardinal.beth_lt_beth",
+   "docLink": "./Mathlib/SetTheory/Cardinal/Aleph.html#Cardinal.beth_lt_beth",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Ordinal.isInitial_one",
+   "docLink": "./Mathlib/SetTheory/Cardinal/Aleph.html#Ordinal.isInitial_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Fin.sum_Ioc_succ",
+   "docLink": "./Mathlib/Algebra/BigOperators/Fin.html#Fin.sum_Ioc_succ",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Localization.StrictUniversalPropertyFixedTarget.inverts",
+   "docLink": "./Mathlib/CategoryTheory/Localization/Predicate.html#CategoryTheory.Localization.StrictUniversalPropertyFixedTarget.inverts",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SetRel.InfiniteDimensional.mk",
+   "docLink": "./Mathlib/Order/RelSeries.html#SetRel.InfiniteDimensional.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "AlgebraicGeometry.pullbackRestrictIsoRestrict",
+   "docLink": "./Mathlib/AlgebraicGeometry/Restrict.html#AlgebraicGeometry.pullbackRestrictIsoRestrict",
+   "indexKind": "def"
+  },
+  {
+   "name": "NNReal.sub_div",
+   "docLink": "./Mathlib/Data/NNReal/Basic.html#NNReal.sub_div",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.\u00abterm_\u27f6[_]_\u00bb",
+   "docLink": "./Mathlib/CategoryTheory/Enriched/Basic.html#CategoryTheory.\u00abterm_\u27f6[_]_\u00bb",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Bicategory.LeftExtension.IsKan.adjunction",
+   "docLink": "./Mathlib/CategoryTheory/Bicategory/Kan/Adjunction.html#CategoryTheory.Bicategory.LeftExtension.IsKan.adjunction",
+   "indexKind": "def"
+  },
+  {
+   "name": "TopModuleCat.ofIso",
+   "docLink": "./Mathlib/Algebra/Category/ModuleCat/Topology/Basic.html#TopModuleCat.ofIso",
+   "indexKind": "def"
+  },
+  {
+   "name": "Tactic.ComputeAsymptotics.MultiseriesExpansion.Multiseries.leadingExp_nil",
+   "docLink": "./Mathlib/Tactic/ComputeAsymptotics/Multiseries/Defs.html#Tactic.ComputeAsymptotics.MultiseriesExpansion.Multiseries.leadingExp_nil",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.evalEval_CC",
+   "docLink": "./Mathlib/Algebra/Polynomial/Bivariate.html#Polynomial.evalEval_CC",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.MonoidalOpposite.mopMopEquivalenceInverseMonoidal",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Opposite.html#CategoryTheory.MonoidalOpposite.mopMopEquivalenceInverseMonoidal",
+   "indexKind": "instance"
+  },
+  {
+   "name": "MeasurableEquiv.map_eq",
+   "docLink": "./Mathlib/MeasureTheory/MeasurableSpace/Embedding.html#MeasurableEquiv.map_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.univ_val_map_subtype_val",
+   "docLink": "./Mathlib/Data/Finset/BooleanAlgebra.html#Finset.univ_val_map_subtype_val",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "RootPairing.Equiv.reflection_weightEquiv",
+   "docLink": "./Mathlib/LinearAlgebra/RootSystem/Hom.html#RootPairing.Equiv.reflection_weightEquiv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ZFSet.exists_mem_vonNeumann",
+   "docLink": "./Mathlib/SetTheory/ZFC/VonNeumann.html#ZFSet.exists_mem_vonNeumann",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Multiset.cons_ndinter_of_mem",
+   "docLink": "./Mathlib/Data/Multiset/FinsetOps.html#Multiset.cons_ndinter_of_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MvPFunctor.wpRec",
+   "docLink": "./Mathlib/Data/PFunctor/Multivariate/W.html#MvPFunctor.wpRec",
+   "indexKind": "def"
+  },
+  {
+   "name": "MvPolynomial.isHomogeneous_of_totalDegree_zero",
+   "docLink": "./Mathlib/RingTheory/MvPolynomial/Homogeneous.html#MvPolynomial.isHomogeneous_of_totalDegree_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Meta.NormNum.evalAbs",
+   "docLink": "./Mathlib/Tactic/NormNum/Abs.html#Mathlib.Meta.NormNum.evalAbs",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Limits.reflectsFiniteCoproductsOfReflectsIsomorphisms",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Finite.html#CategoryTheory.Limits.reflectsFiniteCoproductsOfReflectsIsomorphisms",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.Pretriangulated.opShiftFunctorEquivalence_zero_unitIso_hom_app",
+   "docLink": "./Mathlib/CategoryTheory/Triangulated/Opposite/Basic.html#CategoryTheory.Pretriangulated.opShiftFunctorEquivalence_zero_unitIso_hom_app",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Classical.dec",
+   "docLink": "./Mathlib/Logic/Basic.html#Classical.dec",
+   "indexKind": "def"
+  },
+  {
+   "name": "AList.insert_insert_of_ne",
+   "docLink": "./Mathlib/Data/List/AList.html#AList.insert_insert_of_ne",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "finprod_prod_comm",
+   "docLink": "./Mathlib/Algebra/BigOperators/Finprod.html#finprod_prod_comm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.insert_Ioc_succ_left_eq_Ioc",
+   "docLink": "./Mathlib/Order/Interval/Finset/SuccPred.html#Finset.insert_Ioc_succ_left_eq_Ioc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.lmarginal_empty",
+   "docLink": "./Mathlib/MeasureTheory/Integral/Marginal.html#MeasureTheory.lmarginal_empty",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.HomClass.toHom_toFun",
+   "docLink": "./Mathlib/ModelTheory/Basic.html#FirstOrder.Language.HomClass.toHom_toFun",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SemimoduleCat.MonoidalCategory.tensorLift",
+   "docLink": "./Mathlib/Algebra/Category/ModuleCat/Monoidal/Basic.html#SemimoduleCat.MonoidalCategory.tensorLift",
+   "indexKind": "def"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.IdealSheafData.mem_supportSet_iff_of_mem",
+   "docLink": "./Mathlib/AlgebraicGeometry/IdealSheaf/Basic.html#AlgebraicGeometry.Scheme.IdealSheafData.mem_supportSet_iff_of_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.eq_zero_of_det_mem_nonZeroDivisors_of_mulVec_eq_zero",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Nondegenerate.html#Matrix.eq_zero_of_det_mem_nonZeroDivisors_of_mulVec_eq_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Behrend.map",
+   "docLink": "./Mathlib/Combinatorics/Additive/AP/Three/Behrend.html#Behrend.map",
+   "indexKind": "def"
+  },
+  {
+   "name": "MeasureTheory.ProbabilityMeasure.val_eq_to_measure",
+   "docLink": "./Mathlib/MeasureTheory/Measure/ProbabilityMeasure.html#MeasureTheory.ProbabilityMeasure.val_eq_to_measure",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SSet.PtSimplex.RelStruct.refl",
+   "docLink": "./Mathlib/AlgebraicTopology/SimplicialSet/KanComplex/MulStruct.html#SSet.PtSimplex.RelStruct.refl",
+   "indexKind": "def"
+  },
+  {
+   "name": "Matroid.coloops",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Loop.html#Matroid.coloops",
+   "indexKind": "def"
+  },
+  {
+   "name": "WithVal.instModule",
+   "docLink": "./Mathlib/Topology/Algebra/Valued/WithVal.html#WithVal.instModule",
+   "indexKind": "instance"
+  },
+  {
+   "name": "MeasureTheory.tendstoUniformlyOn_of_ae_tendsto_of_measurable_edist",
+   "docLink": "./Mathlib/MeasureTheory/Function/Egorov.html#MeasureTheory.tendstoUniformlyOn_of_ae_tendsto_of_measurable_edist",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "List.Vector.toList_injective",
+   "docLink": "./Mathlib/Data/Vector/Basic.html#List.Vector.toList_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "instContMDiffAddOfNatWithTopENatOfContinuousAdd",
+   "docLink": "./Mathlib/Geometry/Manifold/Algebra/Monoid.html#instContMDiffAddOfNatWithTopENatOfContinuousAdd",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Multiset.Ico_cons_right",
+   "docLink": "./Mathlib/Order/Interval/Multiset.html#Multiset.Ico_cons_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Metric.boundedSpace_iff_edist",
+   "docLink": "./Mathlib/Topology/MetricSpace/Pseudo/Defs.html#Metric.boundedSpace_iff_edist",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Function.not_surjective",
+   "docLink": "./Mathlib/Logic/Function/Basic.html#Function.not_surjective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subgroup.le_pi_iff",
+   "docLink": "./Mathlib/Algebra/Group/Subgroup/Basic.html#Subgroup.le_pi_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "instNontrivialENat",
+   "docLink": "./Mathlib/Data/ENat/Basic.html#instNontrivialENat",
+   "indexKind": "instance"
+  },
+  {
+   "name": "FiniteField.instIsCyclicAlgEquivOfFinite",
+   "docLink": "./Mathlib/FieldTheory/Finite/Basic.html#FiniteField.instIsCyclicAlgEquivOfFinite",
+   "indexKind": "instance"
+  },
+  {
+   "name": "mul_inv_le_inv_mul_iff",
+   "docLink": "./Mathlib/Algebra/Order/Group/Unbundled/Basic.html#mul_inv_le_inv_mul_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Lp.coeFn_add",
+   "docLink": "./Mathlib/MeasureTheory/Function/LpSpace/Basic.html#MeasureTheory.Lp.coeFn_add",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.GRewrite.GRewriteResult.mk",
+   "docLink": "./Mathlib/Tactic/GRewrite/Core.html#Mathlib.Tactic.GRewrite.GRewriteResult.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "LinearMap.IsRefl.ker_flip",
+   "docLink": "./Mathlib/LinearAlgebra/SesquilinearForm/Basic.html#LinearMap.IsRefl.ker_flip",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DFinsupp.coe_smul",
+   "docLink": "./Mathlib/Data/DFinsupp/Module.html#DFinsupp.coe_smul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AnalyticOn.neg",
+   "docLink": "./Mathlib/Analysis/Analytic/Constructions.html#AnalyticOn.neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Geometry.SimplicialComplex.mem_facets",
+   "docLink": "./Mathlib/Analysis/Convex/SimplicialComplex/Basic.html#Geometry.SimplicialComplex.mem_facets",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Polynomial.coe_C",
+   "docLink": "./Mathlib/RingTheory/PowerSeries/Basic.html#Polynomial.coe_C",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.Embedding.liftWithConstants",
+   "docLink": "./Mathlib/ModelTheory/LanguageMap.html#FirstOrder.Language.Embedding.liftWithConstants",
+   "indexKind": "def"
+  },
+  {
+   "name": "succ_max",
+   "docLink": "./Mathlib/Order/SuccPred/Archimedean.html#succ_max",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SimpleGraph.induceHom_id",
+   "docLink": "./Mathlib/Combinatorics/SimpleGraph/Maps.html#SimpleGraph.induceHom_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.CommSq.cone_fst",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Pullback/PullbackCone.html#CategoryTheory.CommSq.cone_fst",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.IsStronglyProgressive.finsetProd'",
+   "docLink": "./Mathlib/Probability/Process/Adapted.html#MeasureTheory.IsStronglyProgressive.finsetProd'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.levyProkhorovDist_le_of_forall_le",
+   "docLink": "./Mathlib/MeasureTheory/Measure/LevyProkhorovMetric.html#MeasureTheory.levyProkhorovDist_le_of_forall_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Descriptive.Tree.pullSub_append",
+   "docLink": "./Mathlib/SetTheory/Descriptive/Tree.html#Descriptive.Tree.pullSub_append",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CochainComplex.HomComplex.Cochain.fromSingleMk_v",
+   "docLink": "./Mathlib/Algebra/Homology/HomotopyCategory/HomComplexSingle.html#CochainComplex.HomComplex.Cochain.fromSingleMk_v",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CongruenceSubgroup.Gamma0_is_congruence",
+   "docLink": "./Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.html#CongruenceSubgroup.Gamma0_is_congruence",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Dynamics.one_le_netMaxcard_iff",
+   "docLink": "./Mathlib/Dynamics/TopologicalEntropy/NetEntropy.html#Dynamics.one_le_netMaxcard_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddCircle.liftIco_zero_coe_apply",
+   "docLink": "./Mathlib/Topology/Instances/AddCircle/Defs.html#AddCircle.liftIco_zero_coe_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "TopologicalSpace.OpenNhds.infLERight",
+   "docLink": "./Mathlib/Topology/Category/TopCat/OpenNhds.html#TopologicalSpace.OpenNhds.infLERight",
+   "indexKind": "def"
+  },
+  {
+   "name": "Bornology.IsBounded.exists_pos_norm_lt",
+   "docLink": "./Mathlib/Analysis/Normed/Group/Bounded.html#Bornology.IsBounded.exists_pos_norm_lt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "concaveOn_iff_forall_pos",
+   "docLink": "./Mathlib/Analysis/Convex/Function.html#concaveOn_iff_forall_pos",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousMultilinearMap.toMultilinearMap",
+   "docLink": "./Mathlib/Topology/Algebra/Module/Multilinear/Basic.html#ContinuousMultilinearMap.toMultilinearMap",
+   "indexKind": "def"
+  },
+  {
+   "name": "MvPowerSeries.subst",
+   "docLink": "./Mathlib/RingTheory/MvPowerSeries/Substitution.html#MvPowerSeries.subst",
+   "indexKind": "def"
+  },
+  {
+   "name": "Continuous.matrix_cramer",
+   "docLink": "./Mathlib/Topology/Instances/Matrix.html#Continuous.matrix_cramer",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ArchimedeanClass.mk_smul",
+   "docLink": "./Mathlib/Algebra/Order/Module/Archimedean.html#ArchimedeanClass.mk_smul",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.specializes_iff_le",
+   "docLink": "./Mathlib/Topology/Filter.html#Filter.specializes_iff_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.yonedaAddMonObjRepresentableBy",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Cartesian/Mon.html#CategoryTheory.yonedaAddMonObjRepresentableBy",
+   "indexKind": "def"
+  },
+  {
+   "name": "PerfectSpace.not_isolated",
+   "docLink": "./Mathlib/Topology/Perfect.html#PerfectSpace.not_isolated",
+   "indexKind": "instance"
+  },
+  {
+   "name": "completeLatticeOfCompleteSemilatticeInf",
+   "docLink": "./Mathlib/Order/CompleteLattice/Defs.html#completeLatticeOfCompleteSemilatticeInf",
+   "indexKind": "def"
+  },
+  {
+   "name": "QuotientGroup.out_conj_pow_minimalPeriod_mem",
+   "docLink": "./Mathlib/GroupTheory/GroupAction/Quotient.html#QuotientGroup.out_conj_pow_minimalPeriod_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsSelfAdjoint.cfc\u2099",
+   "docLink": "./Mathlib/Analysis/CStarAlgebra/ContinuousFunctionalCalculus/NonUnital.html#IsSelfAdjoint.cfc\u2099",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matroid.contract_delete_contract",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Minor/Contract.html#Matroid.contract_delete_contract",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonoidAlgebra.apply_supDegree_add_supDegree",
+   "docLink": "./Mathlib/Algebra/MonoidAlgebra/Degree.html#AddMonoidAlgebra.apply_supDegree_add_supDegree",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Affine.Simplex.excenterExists_map",
+   "docLink": "./Mathlib/Geometry/Euclidean/Incenter.html#Affine.Simplex.excenterExists_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "memPartitionSet_of_mem",
+   "docLink": "./Mathlib/Data/Set/MemPartition.html#memPartitionSet_of_mem",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "\u03b5NFA.start_zero",
+   "docLink": "./Mathlib/Computability/EpsilonNFA.html#\u03b5NFA.start_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.PullbackCone.combine",
+   "docLink": "./Mathlib/CategoryTheory/Limits/FunctorCategory/Shapes/Pullbacks.html#CategoryTheory.Limits.PullbackCone.combine",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.toCycles_comp_leftHomology\u03c0_assoc",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/LeftHomology.html#CategoryTheory.ShortComplex.toCycles_comp_leftHomology\u03c0_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "tsum_enorm_ne_top_iff_summable_norm",
+   "docLink": "./Mathlib/Analysis/Normed/Group/InfiniteSum.html#tsum_enorm_ne_top_iff_summable_norm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Nat.term\u03c6",
+   "docLink": "./Mathlib/Data/Nat/Totient.html#Nat.term\u03c6",
+   "indexKind": "def"
+  },
+  {
+   "name": "NormedRing.inverse_one_sub_nth_order'",
+   "docLink": "./Mathlib/Analysis/Normed/Ring/Units.html#NormedRing.inverse_one_sub_nth_order'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Cycle.chain_mono",
+   "docLink": "./Mathlib/Data/List/Cycle.html#Cycle.chain_mono",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LaurentSeries.instValuedSpaceWithValRatFuncWithZeroMultiplicativeIntPolynomialValuationXRatfuncAdicComplPkg",
+   "docLink": "./Mathlib/RingTheory/LaurentSeries.html#LaurentSeries.instValuedSpaceWithValRatFuncWithZeroMultiplicativeIntPolynomialValuationXRatfuncAdicComplPkg",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.BraidedCategory.ofBifunctor.Reverse.secondMap\u2082",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Braided/Multifunctor.html#CategoryTheory.BraidedCategory.ofBifunctor.Reverse.secondMap\u2082",
+   "indexKind": "def"
+  },
+  {
+   "name": "Algebra.Unramified.of_unramified_tensorProduct_of_faithfullyFlat",
+   "docLink": "./Mathlib/RingTheory/Etale/Descent.html#Algebra.Unramified.of_unramified_tensorProduct_of_faithfullyFlat",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.instIsZariskiLocalAtSourceTopologicallyIsOpenMap",
+   "docLink": "./Mathlib/AlgebraicGeometry/Morphisms/UnderlyingMap.html#AlgebraicGeometry.instIsZariskiLocalAtSourceTopologicallyIsOpenMap",
+   "indexKind": "instance"
+  },
+  {
+   "name": "AddHom.fst_comp_prod",
+   "docLink": "./Mathlib/Algebra/Group/Prod.html#AddHom.fst_comp_prod",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submonoid.comap_inf_map_of_injective",
+   "docLink": "./Mathlib/Algebra/Group/Submonoid/Operations.html#Submonoid.comap_inf_map_of_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.instIsAddCommutative",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Defs.html#Matrix.instIsAddCommutative",
+   "indexKind": "instance"
+  },
+  {
+   "name": "IsIrrefl",
+   "docLink": "./Mathlib/Order/Defs/Unbundled.html#IsIrrefl",
+   "indexKind": "def"
+  },
+  {
+   "name": "spectrum.subset_closedBall_norm",
+   "docLink": "./Mathlib/Analysis/Normed/Algebra/Spectrum.html#spectrum.subset_closedBall_norm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Fin.preimage_apply_01_prod'",
+   "docLink": "./Mathlib/Logic/Equiv/Fin/Basic.html#Fin.preimage_apply_01_prod'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "WeierstrassCurve.Projective.baseChange_negAddY",
+   "docLink": "./Mathlib/AlgebraicGeometry/EllipticCurve/Projective/Formula.html#WeierstrassCurve.Projective.baseChange_negAddY",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MulEquiv.ofUnique",
+   "docLink": "./Mathlib/Algebra/Group/Equiv/Basic.html#MulEquiv.ofUnique",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.ShortComplex.isIso_homologyMap_of_iso",
+   "docLink": "./Mathlib/Algebra/Homology/ShortComplex/Homology.html#CategoryTheory.ShortComplex.isIso_homologyMap_of_iso",
+   "indexKind": "instance"
+  },
+  {
+   "name": "ite_le_sup",
+   "docLink": "./Mathlib/Order/Lattice.html#ite_le_sup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddGroupSeminorm.le_def",
+   "docLink": "./Mathlib/Analysis/Normed/Group/Seminorm.html#AddGroupSeminorm.le_def",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "UpperSet.coe_inf",
+   "docLink": "./Mathlib/Order/UpperLower/CompleteLattice.html#UpperSet.coe_inf",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.GradedObject.Monoidal.pentagon_inv",
+   "docLink": "./Mathlib/CategoryTheory/GradedObject/Monoidal.html#CategoryTheory.GradedObject.Monoidal.pentagon_inv",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "instMonadWriterStateTOfMonad",
+   "docLink": "./Mathlib/Control/Monad/Writer.html#instMonadWriterStateTOfMonad",
+   "indexKind": "instance"
+  },
+  {
+   "name": "le_inv_mul_right",
+   "docLink": "./Mathlib/Algebra/Order/GroupWithZero/Basic.html#le_inv_mul_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Real.rpow_lt_rpow_of_neg",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Pow/Real.html#Real.rpow_lt_rpow_of_neg",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "supClosure_singleton",
+   "docLink": "./Mathlib/Order/SupClosed.html#supClosure_singleton",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FreeMagma.of",
+   "docLink": "./Mathlib/Algebra/Free.html#FreeMagma.of",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "Mathlib.Tactic.ClickSuggestions.RwKey",
+   "docLink": "./Mathlib/Tactic/ClickSuggestions/Rewrite.html#Mathlib.Tactic.ClickSuggestions.RwKey",
+   "indexKind": "structure"
+  },
+  {
+   "name": "Prefunctor.pathStar",
+   "docLink": "./Mathlib/Combinatorics/Quiver/Covering.html#Prefunctor.pathStar",
+   "indexKind": "def"
+  },
+  {
+   "name": "Perfection.teichmullerAux",
+   "docLink": "./Mathlib/RingTheory/Teichmuller.html#Perfection.teichmullerAux",
+   "indexKind": "def"
+  },
+  {
+   "name": "Function.locallyFinsuppWithin.instLTOfPreorder",
+   "docLink": "./Mathlib/Topology/LocallyFinsupp.html#Function.locallyFinsuppWithin.instLTOfPreorder",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Monoid.Coprod.swap_comp_swap",
+   "docLink": "./Mathlib/GroupTheory/Coprod/Basic.html#Monoid.Coprod.swap_comp_swap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.wideEqualizer",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/WideEqualizers.html#CategoryTheory.Limits.wideEqualizer",
+   "indexKind": "def"
+  },
+  {
+   "name": "Multiset.covBy_cons",
+   "docLink": "./Mathlib/Data/Finset/Grade.html#Multiset.covBy_cons",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "QuadraticForm.QuadraticMap.toMatrix'",
+   "docLink": "./Mathlib/LinearAlgebra/QuadraticForm/Basic.html#QuadraticForm.QuadraticMap.toMatrix'",
+   "indexKind": "def"
+  },
+  {
+   "name": "summableLocallyUniformly_of_of_forall_exists_nhds",
+   "docLink": "./Mathlib/Topology/Algebra/InfiniteSum/UniformOn.html#summableLocallyUniformly_of_of_forall_exists_nhds",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsTopologicalSemiring.toOppositeIsModuleTopology",
+   "docLink": "./Mathlib/Topology/Algebra/Module/ModuleTopology.html#IsTopologicalSemiring.toOppositeIsModuleTopology",
+   "indexKind": "instance"
+  },
+  {
+   "name": "IsOrderedVAdd.vadd_le_vadd",
+   "docLink": "./Mathlib/Algebra/Order/AddTorsor.html#IsOrderedVAdd.vadd_le_vadd",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.Hom.iInf_ker_openCover_map_comp",
+   "docLink": "./Mathlib/AlgebraicGeometry/IdealSheaf/Basic.html#AlgebraicGeometry.Scheme.Hom.iInf_ker_openCover_map_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.image\u2082_inter_subset_right",
+   "docLink": "./Mathlib/Data/Finset/NAry.html#Finset.image\u2082_inter_subset_right",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.FormalCoproduct.shrinkYoneda",
+   "docLink": "./Mathlib/CategoryTheory/Limits/FormalCoproducts/Basic.html#CategoryTheory.Limits.FormalCoproduct.shrinkYoneda",
+   "indexKind": "def"
+  },
+  {
+   "name": "CategoryTheory.Triangulated.TStructure.instIsIsoFunctorTruncGELTToLTGE",
+   "docLink": "./Mathlib/CategoryTheory/Triangulated/TStructure/TruncLTGE.html#CategoryTheory.Triangulated.TStructure.instIsIsoFunctorTruncGELTToLTGE",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Finsupp.sum_embDomain",
+   "docLink": "./Mathlib/Algebra/BigOperators/Finsupp/Basic.html#Finsupp.sum_embDomain",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "amenable_of_maxAddFoelner_neBot",
+   "docLink": "./Mathlib/MeasureTheory/Group/FoelnerFilter.html#amenable_of_maxAddFoelner_neBot",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AntitoneOn.sup",
+   "docLink": "./Mathlib/Order/Lattice.html#AntitoneOn.sup",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matroid.ext_iff_isCircuit",
+   "docLink": "./Mathlib/Combinatorics/Matroid/Circuit.html#Matroid.ext_iff_isCircuit",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.MorphismProperty.instHasPushoutHomDiscretePUnitOfHasPushoutsAlong",
+   "docLink": "./Mathlib/CategoryTheory/MorphismProperty/OverAdjunction.html#CategoryTheory.MorphismProperty.instHasPushoutHomDiscretePUnitOfHasPushoutsAlong",
+   "indexKind": "instance"
+  },
+  {
+   "name": "ModuleCat.RestrictionCoextensionAdj.HomEquiv.toRestriction_hom_apply",
+   "docLink": "./Mathlib/Algebra/Category/ModuleCat/ChangeOfRings.html#ModuleCat.RestrictionCoextensionAdj.HomEquiv.toRestriction_hom_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "BddAbove.of_lowerClosure",
+   "docLink": "./Mathlib/Order/UpperLower/Closure.html#BddAbove.of_lowerClosure",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Monoidal.transportStruct_whiskerLeft",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Transport.html#CategoryTheory.Monoidal.transportStruct_whiskerLeft",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HasStrictDerivAt.hasDerivAt",
+   "docLink": "./Mathlib/Analysis/Calculus/Deriv/Basic.html#HasStrictDerivAt.hasDerivAt",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Stream'.WSeq.of_mem_append",
+   "docLink": "./Mathlib/Data/WSeq/Basic.html#Stream'.WSeq.of_mem_append",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Equidecomp.source_restr",
+   "docLink": "./Mathlib/Algebra/Group/Action/Equidecomp.html#Equidecomp.source_restr",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Sbtw.not_rotate",
+   "docLink": "./Mathlib/Analysis/Convex/Between.html#Sbtw.not_rotate",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddChar.zmod_char_primitive_of_eq_one_only_at_zero",
+   "docLink": "./Mathlib/NumberTheory/LegendreSymbol/AddCharacter.html#AddChar.zmod_char_primitive_of_eq_one_only_at_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContMDiffAt.fst",
+   "docLink": "./Mathlib/Geometry/Manifold/ContMDiff/Constructions.html#ContMDiffAt.fst",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.reflectsColimits_op",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Preserves/Opposites.html#CategoryTheory.Limits.reflectsColimits_op",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Mathlib.Tactic.TFAE.proveTFAE",
+   "docLink": "./Mathlib/Tactic/TFAE.html#Mathlib.Tactic.TFAE.proveTFAE",
+   "indexKind": "def"
+  },
+  {
+   "name": "Subring.inclusion",
+   "docLink": "./Mathlib/Algebra/Ring/Subring/Basic.html#Subring.inclusion",
+   "indexKind": "def"
+  },
+  {
+   "name": "IsPreconnected.intermediate_value_Iii",
+   "docLink": "./Mathlib/Topology/Order/IntermediateValue.html#IsPreconnected.intermediate_value_Iii",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.Theory.CompleteType.typesWith_eq_univ_of_mem_onTheory_lhomWithConstants",
+   "docLink": "./Mathlib/ModelTheory/Types.html#FirstOrder.Language.Theory.CompleteType.typesWith_eq_univ_of_mem_onTheory_lhomWithConstants",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Cycle.coe_cons_eq_coe_append",
+   "docLink": "./Mathlib/Data/List/Cycle.html#Cycle.coe_cons_eq_coe_append",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "LinearEquiv.dilatransvection_mem_dilatransvections",
+   "docLink": "./Mathlib/LinearAlgebra/Transvection/Basic.html#LinearEquiv.dilatransvection_mem_dilatransvections",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CoalgHom.counit_comp",
+   "docLink": "./Mathlib/RingTheory/Coalgebra/Hom.html#CoalgHom.counit_comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "instZeroLocallyFinsuppWithin",
+   "docLink": "./Mathlib/Topology/LocallyFinsupp.html#instZeroLocallyFinsuppWithin",
+   "indexKind": "instance"
+  },
+  {
+   "name": "TopCat.Presheaf.pullback",
+   "docLink": "./Mathlib/Topology/Sheaves/Presheaf.html#TopCat.Presheaf.pullback",
+   "indexKind": "def"
+  },
+  {
+   "name": "PartOrdEmb.instCoeSortType",
+   "docLink": "./Mathlib/Order/Category/PartOrdEmb.html#PartOrdEmb.instCoeSortType",
+   "indexKind": "instance"
+  },
+  {
+   "name": "CategoryTheory.FunctorToTypes.coprod_map",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/FunctorToTypes.html#CategoryTheory.FunctorToTypes.coprod_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "closedConvexHull_eq_closure_convexHull",
+   "docLink": "./Mathlib/Analysis/Convex/Topology.html#closedConvexHull_eq_closure_convexHull",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ClosedSubgroup.instSemilatticeInfClosedSubgroup",
+   "docLink": "./Mathlib/Topology/Algebra/Group/ClosedSubgroup.html#ClosedSubgroup.instSemilatticeInfClosedSubgroup",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Finsupp.erase_sub",
+   "docLink": "./Mathlib/Algebra/Group/Finsupp.html#Finsupp.erase_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Complex.ext_norm_arg_iff",
+   "docLink": "./Mathlib/Analysis/SpecialFunctions/Complex/Arg.html#Complex.ext_norm_arg_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DirectSum.decompose_map",
+   "docLink": "./Mathlib/RingTheory/GradedAlgebra/RingHom.html#DirectSum.decompose_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.Sigma.\u03b9_desc",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Products.html#CategoryTheory.Limits.Sigma.\u03b9_desc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.pullbackComparison_forget_surjective",
+   "docLink": "./Mathlib/AlgebraicGeometry/PullbackCarrier.html#AlgebraicGeometry.Scheme.pullbackComparison_forget_surjective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "EuclideanGeometry.orthogonalProjection_contLinear",
+   "docLink": "./Mathlib/Geometry/Euclidean/Projection.html#EuclideanGeometry.orthogonalProjection_contLinear",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Sheaf.\u0393",
+   "docLink": "./Mathlib/CategoryTheory/Sites/GlobalSections.html#CategoryTheory.Sheaf.\u0393",
+   "indexKind": "def"
+  },
+  {
+   "name": "DualNumber.lift_comp_inlHom",
+   "docLink": "./Mathlib/Algebra/DualNumber.html#DualNumber.lift_comp_inlHom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomologicalComplex.xNext",
+   "docLink": "./Mathlib/Algebra/Homology/HomologicalComplex.html#HomologicalComplex.xNext",
+   "indexKind": "def"
+  },
+  {
+   "name": "AlgebraicGeometry.LocallyRingedSpace.IsOpenImmersion.hasPullback_of_left",
+   "docLink": "./Mathlib/Geometry/RingedSpace/OpenImmersion.html#AlgebraicGeometry.LocallyRingedSpace.IsOpenImmersion.hasPullback_of_left",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Matrix.adjugate_fin_three_of",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Adjugate.html#Matrix.adjugate_fin_three_of",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ENNReal.ofNNReal",
+   "docLink": "./Mathlib/Data/ENNReal/Basic.html#ENNReal.ofNNReal",
+   "indexKind": "def"
+  },
+  {
+   "name": "List.sum_insertIdx",
+   "docLink": "./Mathlib/Algebra/BigOperators/Group/List/Basic.html#List.sum_insertIdx",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "SubRootedTree.bot_mem_iff",
+   "docLink": "./Mathlib/Order/SuccPred/Tree.html#SubRootedTree.bot_mem_iff",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.HasStrongEpiMonoFactorisations.mk",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/Images.html#CategoryTheory.Limits.HasStrongEpiMonoFactorisations.mk",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CoalgEquiv.ext",
+   "docLink": "./Mathlib/RingTheory/Coalgebra/Equiv.html#CoalgEquiv.ext",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Submodule.isTopCompl_comm",
+   "docLink": "./Mathlib/Topology/Algebra/Module/Complement.html#Submodule.isTopCompl_comm",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "DirectSum.decompose_symm_zero",
+   "docLink": "./Mathlib/Algebra/DirectSum/Decomposition.html#DirectSum.decompose_symm_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "MeasureTheory.Measure.comap_comap",
+   "docLink": "./Mathlib/MeasureTheory/Measure/Comap.html#MeasureTheory.Measure.comap_comap",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Commute.map",
+   "docLink": "./Mathlib/Algebra/Group/Commute/Hom.html#Commute.map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Localization.mk_left_injective",
+   "docLink": "./Mathlib/GroupTheory/MonoidLocalization/Basic.html#Localization.mk_left_injective",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ContinuousLinearEquiv.instCoeContinuousLinearMap",
+   "docLink": "./Mathlib/Topology/Algebra/Module/Equiv.html#ContinuousLinearEquiv.instCoeContinuousLinearMap",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Set.TermDefinable.comp",
+   "docLink": "./Mathlib/ModelTheory/Definability.html#Set.TermDefinable.comp",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IntermediateField.fixedField.smul",
+   "docLink": "./Mathlib/FieldTheory/Galois/Basic.html#IntermediateField.fixedField.smul",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Fintype.card_subtype_eq_or_eq_of_ne",
+   "docLink": "./Mathlib/Data/Fintype/Sum.html#Fintype.card_subtype_eq_or_eq_of_ne",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddSubsemigroup.closure_union",
+   "docLink": "./Mathlib/Algebra/Group/Subsemigroup/Basic.html#AddSubsemigroup.closure_union",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ProperlyDiscontinuousVAdd.mk",
+   "docLink": "./Mathlib/Topology/Algebra/ConstMulAction.html#ProperlyDiscontinuousVAdd.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "continuousAt_sign_of_ne_zero",
+   "docLink": "./Mathlib/Topology/Instances/Sign.html#continuousAt_sign_of_ne_zero",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "HomotopicalAlgebra.ReedyStructure.lt\u2082",
+   "docLink": "./Mathlib/AlgebraicTopology/Reedy/Basic.html#HomotopicalAlgebra.ReedyStructure.lt\u2082",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.extraction_forall_of_eventually'",
+   "docLink": "./Mathlib/Order/Filter/AtTopBot/Basic.html#Filter.extraction_forall_of_eventually'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Int.inductionOn'_add_one",
+   "docLink": "./Mathlib/Data/Int/Init.html#Int.inductionOn'_add_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.term\ud835\udcab_",
+   "docLink": "./Mathlib/Data/Set/Defs.html#Set.term\ud835\udcab_",
+   "indexKind": "def"
+  },
+  {
+   "name": "DFinsupp.neg_apply",
+   "docLink": "./Mathlib/Data/DFinsupp/Defs.html#DFinsupp.neg_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Precoverage.comp_mem_coverings",
+   "docLink": "./Mathlib/CategoryTheory/Sites/Precoverage.html#CategoryTheory.Precoverage.comp_mem_coverings",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PowerSeries.trunc_derivative'",
+   "docLink": "./Mathlib/RingTheory/PowerSeries/Derivative.html#PowerSeries.trunc_derivative'",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FirstOrder.Language.addEmptyConstants_is_expansion_on'",
+   "docLink": "./Mathlib/ModelTheory/LanguageMap.html#FirstOrder.Language.addEmptyConstants_is_expansion_on'",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Mathlib.Tactic.FieldSimp.subst_sub",
+   "docLink": "./Mathlib/Tactic/FieldSimp/Lemmas.html#Mathlib.Tactic.FieldSimp.subst_sub",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "ZMod.frobenius_zmod",
+   "docLink": "./Mathlib/FieldTheory/Finite/Basic.html#ZMod.frobenius_zmod",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Finset.covBy_iff_card_sdiff_eq_one",
+   "docLink": "./Mathlib/Data/Finset/Grade.html#Finset.covBy_iff_card_sdiff_eq_one",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Subring.instPartialOrder",
+   "docLink": "./Mathlib/Algebra/Ring/Subring/Defs.html#Subring.instPartialOrder",
+   "indexKind": "instance"
+  },
+  {
+   "name": "dotProduct_pUnit",
+   "docLink": "./Mathlib/Data/Matrix/Mul.html#dotProduct_pUnit",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.exists_subset_encard_eq",
+   "docLink": "./Mathlib/Data/Set/Card.html#Set.exists_subset_encard_eq",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Homeomorph.mulRight",
+   "docLink": "./Mathlib/Topology/Algebra/Group/Basic.html#Homeomorph.mulRight",
+   "indexKind": "def"
+  },
+  {
+   "name": "Convex.combo_interior_self_subset_interior",
+   "docLink": "./Mathlib/Analysis/Convex/Topology.html#Convex.combo_interior_self_subset_interior",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "IsLocalDiffeomorph.preimage_boundary",
+   "docLink": "./Mathlib/Geometry/Manifold/IsManifold/InteriorBoundary.html#IsLocalDiffeomorph.preimage_boundary",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.MonoidalCategory.inv_hom_id_tensor'_assoc",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Category.html#CategoryTheory.MonoidalCategory.inv_hom_id_tensor'_assoc",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AlgebraicGeometry.Scheme.instIsStableUnderBaseChangeProetalePrecoverage",
+   "docLink": "./Mathlib/AlgebraicGeometry/Sites/Proetale.html#AlgebraicGeometry.Scheme.instIsStableUnderBaseChangeProetalePrecoverage",
+   "indexKind": "instance"
+  },
+  {
+   "name": "Metric.IsCover.isCompact_closure",
+   "docLink": "./Mathlib/Topology/MetricSpace/Cover.html#Metric.IsCover.isCompact_closure",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "BoxIntegral.Prepartition.mk",
+   "docLink": "./Mathlib/Analysis/BoxIntegral/Partition/Basic.html#BoxIntegral.Prepartition.mk",
+   "indexKind": "ctor"
+  },
+  {
+   "name": "Matrix.eRank_reindex",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/Rank.html#Matrix.eRank_reindex",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Filter.le_limsInf_of_le",
+   "docLink": "./Mathlib/Order/LiminfLimsup.html#Filter.le_limsInf_of_le",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "PerfectionMap.comp_map",
+   "docLink": "./Mathlib/RingTheory/Perfection.html#PerfectionMap.comp_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "List.index_of_argmin",
+   "docLink": "./Mathlib/Data/List/MinMax.html#List.index_of_argmin",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Set.image_single_Ioo_left",
+   "docLink": "./Mathlib/Order/Interval/Set/Pi.html#Set.image_single_Ioo_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "convexJoin_singleton_segment",
+   "docLink": "./Mathlib/Analysis/Convex/Join.html#convexJoin_singleton_segment",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Functor.obj.neg_def",
+   "docLink": "./Mathlib/CategoryTheory/Monoidal/Grp.html#CategoryTheory.Functor.obj.neg_def",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Topology.image_snd_preimageImageRestrict",
+   "docLink": "./Mathlib/Topology/IsClosedRestrict.html#Topology.image_snd_preimageImageRestrict",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "AddMonCat.zero_of",
+   "docLink": "./Mathlib/Algebra/Category/MonCat/Basic.html#AddMonCat.zero_of",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Algebra.FormallySmooth.exists_kerProj_comp_eq_id",
+   "docLink": "./Mathlib/RingTheory/Smooth/AdicCompletion.html#Algebra.FormallySmooth.exists_kerProj_comp_eq_id",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.BinaryFan.swap",
+   "docLink": "./Mathlib/CategoryTheory/Limits/Shapes/BinaryProducts.html#CategoryTheory.Limits.BinaryFan.swap",
+   "indexKind": "def"
+  },
+  {
+   "name": "norm_cfcHom",
+   "docLink": "./Mathlib/Analysis/CStarAlgebra/ContinuousFunctionalCalculus/Isometric.html#norm_cfcHom",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "CategoryTheory.Limits.pointwiseBinaryBicone_pt_map",
+   "docLink": "./Mathlib/CategoryTheory/Limits/FunctorCategory/BinaryBiproducts.html#CategoryTheory.Limits.pointwiseBinaryBicone_pt_map",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "EuclideanGeometry.Sphere.oangle_eq_pi_sub_two_zsmul_oangle_center_left",
+   "docLink": "./Mathlib/Geometry/Euclidean/Angle/Sphere.html#EuclideanGeometry.Sphere.oangle_eq_pi_sub_two_zsmul_oangle_center_left",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "FermatLastTheoremWith",
+   "docLink": "./Mathlib/NumberTheory/FLT/Basic.html#FermatLastTheoremWith",
+   "indexKind": "def"
+  },
+  {
+   "name": "dimH_of_hausdorffMeasure_ne_zero_ne_top",
+   "docLink": "./Mathlib/Topology/MetricSpace/HausdorffDimension.html#dimH_of_hausdorffMeasure_ne_zero_ne_top",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Matrix.GeneralLinearGroup.map_comp_apply",
+   "docLink": "./Mathlib/LinearAlgebra/Matrix/GeneralLinearGroup/Defs.html#Matrix.GeneralLinearGroup.map_comp_apply",
+   "indexKind": "theorem"
+  },
+  {
+   "name": "Prod.noncompactSpace_right",
+   "docLink": "./Mathlib/Topology/Compactness/Compact.html#Prod.noncompactSpace_right",
+   "indexKind": "instance"
+  },
+  {
+   "name": "UpperSet.sdiff_inf_upperClosure",
+   "docLink": "./Mathlib/Order/UpperLower/Closure.html#UpperSet.sdiff_inf_upperClosure",
+   "indexKind": "theorem"
+  }
+ ]
+}

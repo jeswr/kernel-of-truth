@@ -9,15 +9,22 @@ Builds, deterministically (generator seed KNULL GEN_SEED, no wall-clock):
 
   stores/plain/<label>.json    aligned CONVENTIONAL store — plain typed schema,
                                same record<->item alignment, ZERO NSM content.
-                               DRAFT NOTE: definitions here are SYNTHETIC
-                               PLACEHOLDERS (placeholder:true in the store
-                               manifest); the authored plain-dictionary set is
-                               an input-build gate BEFORE freeze. The runner
-                               refuses any non-mock run on placeholder stores.
+                               Definitions are the AUTHORED plain-dictionary
+                               set (inputs/plain-authored.json, fork F-KN-A
+                               option (ii), disclosure in that file), linted
+                               fail-closed by lint_plain_store.py at build
+                               (pre-freeze gate G-1). plain_store_placeholder
+                               is FALSE in the manifest (gate G-2).
   stores/opaque/<label>.json   opaque-ID store — semantically empty nonce
                                definitions, alignment preserved, REAL logic
-                               (no authoring needed; word-count banded to the
-                               NSM gloss so token budgets stay matched).
+                               (no authoring needed). Word target is TOKEN-
+                               calibrated: nonce syllable text tokenizes at
+                               ~2.09x the rate of NSM English under the pinned
+                               SmolLM2 tokenizer (G-3 re-check artifact
+                               inputs/g3-token-band.json), so the word target
+                               is scaled by OPAQUE_TOKEN_CALIB to keep the
+                               per-query FLOPs budget matched (the +/-20%
+                               parity gate).
   items/kernel.jsonl           per-arm item sets rendered from ONE shared
   items/plain.jsonl            skeleton per (concept, slot): same concept, same
   items/opaque.jsonl           template type, same distractor/donor concept
@@ -53,16 +60,27 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 
 SCHEMA = "kot-knull-inputs/1"
-VERSION = "0.1.0-draft"
+VERSION = "0.2.0"
 GENERATED = "2026-07-10"                    # fixed build date, never wall-clock
 GEN_SEED = "knull/1|knull-content-injection-ablation|20260710"
 SLOTS_PER_CONCEPT = 10                      # 108 concepts x 10 = 1080 skeletons
 N_ITEMS = 1000                              # rank-prefix consumed by the runner
 MIN_SEGMENT_CHARS = 15                      # = build-dqa.py contract
 FALSE_CLAIM_JACCARD_MAX = 0.5
-WORDBAND_FRAC = 0.25                        # opaque/plain gloss word-count band
+WORDBAND_FRAC = 0.25                        # gloss word-count band vs reference
+# Opaque word-target calibration (G-3): nonce syllable words tokenize at
+# ~2.9 tokens/word vs ~1.4 tokens/word for the NSM glosses under the pinned
+# SmolLM2-135M-Instruct tokenizer (revision 12fd25f7..., tokenizer.json sha256
+# 9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c) — an
+# uncalibrated word-count band left the opaque store at 2.09x kernel tokens
+# (measured; inputs/g3-token-band.json). The opaque word target is therefore
+# NSM-word-count * OPAQUE_TOKEN_CALIB so the TOKEN budget — the FLOPs-parity
+# quantity the +/-20% gate meters — stays matched. Verified post-build by
+# poc/knull/check_token_band.py (gate G-3).
+OPAQUE_TOKEN_CALIB = 0.48
 ARMS = ("kernel", "plain", "opaque")
 TYPE_CYCLE = ("def-match", "term-match", "claim-true", "claim-false")
+PLAIN_AUTHORED = "plain-authored.json"      # inputs/, fork F-KN-A option (ii)
 
 
 def die(code, msg):
@@ -208,23 +226,6 @@ def load_logged_prompt_hashes():
 SYLLABLES = ["ba", "de", "fi", "go", "hu", "ka", "le", "mi",
              "no", "pu", "ra", "se", "ti", "vo", "wu", "za"]
 
-PLAIN_CLAUSES = [
-    "a thing of one kind that people often see or use in everyday situations",
-    "something that many people know about and can talk about with other people",
-    "one kind of thing that happens or exists in many places at many times",
-    "people can tell this kind of thing apart from other kinds of things",
-    "when people think about it, they often think about other things like it",
-    "it is part of what happens in the ordinary life of many people",
-    "people in many places have a word for this kind of thing",
-    "someone who knows about it can say some things about what it is like",
-]
-
-PLAIN_FILLERS = ["ordinary", "typical", "familiar", "everyday", "common",
-                 "particular", "special", "simple", "usual", "general",
-                 "basic", "regular", "standard", "normal", "frequent",
-                 "notable"]
-
-
 def nonce_word(key):
     n = 2 + h("%s|len" % key) % 2
     return "".join(SYLLABLES[h("%s|syl|%d" % (key, i)) % len(SYLLABLES)]
@@ -235,14 +236,22 @@ def word_count(text):
     return len(text.split())
 
 
+def opaque_target_words(concept):
+    """TOKEN-calibrated opaque word target (see the OPAQUE_TOKEN_CALIB
+    derivation note at the top of this file; gate G-3)."""
+    return max(6, int(round(word_count(concept["gloss"]) * OPAQUE_TOKEN_CALIB)))
+
+
 def opaque_gloss(concept):
-    """Semantically empty nonce definition: same segment count as the NSM
-    gloss (>=2 so claim items exist), total word count banded to the NSM
-    gloss. REAL arm content (no authoring gate)."""
+    """Semantically empty nonce definition: >=2 segments (so claim items
+    exist), word target TOKEN-calibrated to the NSM gloss so the per-query
+    FLOPs budget stays matched under the pinned tokenizer (gate G-3;
+    verified post-build by check_token_band.py). REAL arm content (no
+    authoring gate)."""
     nsm = concept["gloss"]
-    n_seg = max(2, len(segments(nsm)))
-    target = max(12, word_count(nsm))
-    per_seg = max(4, target // n_seg)
+    target = opaque_target_words(concept)
+    n_seg = max(2, min(len(segments(nsm)), target // 3))
+    per_seg = max(2, target // n_seg)
     segs = []
     for si in range(n_seg):
         words = [nonce_word("%s|op|%d|%d" % (concept["label"], si, wi))
@@ -254,38 +263,33 @@ def opaque_gloss(concept):
     return "; ".join(segs)
 
 
-def plain_gloss(concept, all_labels):
-    """SYNTHETIC PLACEHOLDER plain-typed-store definition (mock only —
-    placeholder:true is stamped in the store manifest and the runner refuses
-    non-mock runs on it). The REAL plain store is an authored plain-dictionary
-    definition set (input-build gate; see design doc section 4.2)."""
-    nsm = concept["gloss"]
-    n_seg = max(2, len(segments(nsm)))
-    target = max(12, word_count(nsm))
-    budget = max(6, target // n_seg)          # per-segment word budget
-    segs = []
-    for si in range(n_seg):
-        base = PLAIN_CLAUSES[h("%s|pl|%d" % (concept["label"], si)) % len(PLAIN_CLAUSES)]
-        f1 = PLAIN_FILLERS[h("%s|f1|%d" % (concept["label"], si)) % len(PLAIN_FILLERS)]
-        f2 = PLAIN_FILLERS[h("%s|f2|%d" % (concept["label"], si)) % len(PLAIN_FILLERS)]
-        # trim the BASE to the budget; the concept-specific filler tail
-        # survives trimming so segments stay unique across concepts
-        if budget >= 9:
-            core = " ".join(base.split()[:budget - 6])
-            segs.append("%s in a %s and %s way" % (core, f1, f2))
-        else:                                  # tight budget: short tail
-            core = " ".join(base.split()[:max(2, budget - 4)])
-            segs.append("%s in a %s way" % (core, f1))
-    text = "; ".join(segs)
-    # pad toward the NSM word count if the trim left us under the lower band
-    while word_count(text) < target * (1 - WORDBAND_FRAC):
-        f = PLAIN_FILLERS[h("%s|pad|%d" % (concept["label"], word_count(text)))
-                          % len(PLAIN_FILLERS)]
-        text += "; people may also call it a %s thing among other %s things" % (f, f)
-    for lab in all_labels:
-        if lab == concept["label"] and word_in(lab, text):
-            die("KNULL_ERR_LC1", "placeholder leaks own label %s" % lab)
-    return text
+def load_plain_authored(concepts):
+    """The AUTHORED plain-dictionary store (fork F-KN-A option (ii),
+    disclosure inside the file) — linted fail-closed via lint_plain_store
+    (gate G-1) before any item is rendered from it. Returns
+    (definitions, manifest_block)."""
+    path = os.path.join(HERE, "inputs", PLAIN_AUTHORED)
+    with open(path, encoding="utf-8") as f:
+        authored = json.load(f)
+    if HERE not in sys.path:
+        sys.path.insert(0, HERE)
+    import lint_plain_store
+    findings = []
+    lint_plain_store.lint(authored, concepts, findings)
+    if findings:
+        for code, msg in findings[:20]:
+            sys.stderr.write("%s: %s\n" % (code, msg))
+        die("KNULL_ERR_PLAIN_LINT",
+            "authored plain store failed lint_plain_store (%d finding(s))"
+            % len(findings))
+    block = {
+        "path": "poc/knull/inputs/%s" % PLAIN_AUTHORED,
+        "sha256": file_sha256(path),
+        "authoring_disclosure": authored["authoring_disclosure"],
+        "lint": "poc/knull/lint_plain_store.py PASS (checks D-1, L-1..L-5, "
+                "R-1..R-4) - re-run fail-closed at this build",
+    }
+    return authored["definitions"], block
 
 
 # ------------------------------------------------------------- store assembly
@@ -299,9 +303,16 @@ def build_stores(concepts):
             "record_path": c["record_path"], "record_sha256": c["record_sha256"],
             "records_root": "REPO_ROOT",
         }
+    plain_defs, authored_block = load_plain_authored(concepts)
+    stores["_plain_authored_block"] = authored_block
     seen = {"plain": set(), "opaque": set()}
-    for arm, gen in (("plain", lambda c: plain_gloss(c, all_labels)),
-                     ("opaque", opaque_gloss)):
+    for arm, gen, ref_words in (
+            # plain: word band vs the NSM gloss (English-vs-English, the
+            # measured token ratio is ~0.90 — inputs/g3-token-band.json)
+            ("plain", lambda c: plain_defs[c["label"]],
+             lambda c: word_count(c["gloss"])),
+            # opaque: word band vs the TOKEN-calibrated target (G-3)
+            ("opaque", opaque_gloss, opaque_target_words)):
         adir = os.path.join(HERE, "inputs", "stores", arm)
         os.makedirs(adir, exist_ok=True)
         for c in concepts:
@@ -310,10 +321,12 @@ def build_stores(concepts):
                 die("KNULL_ERR_DUPGLOSS", "%s store: duplicate gloss (%s)"
                     % (arm, c["label"]))
             seen[arm].add(gl)
-            wc, wn = word_count(c["gloss"]), word_count(gl)
+            if word_in(c["label"], gl):
+                die("KNULL_ERR_LC1", "%s/%s: own label in gloss" % (arm, c["label"]))
+            wc, wn = ref_words(c), word_count(gl)
             if not (wc * (1 - WORDBAND_FRAC) <= wn <= max(
                     wc * (1 + WORDBAND_FRAC), wc + 8)):
-                die("KNULL_ERR_WORDBAND", "%s/%s: %d words vs NSM %d (band %.0f%%)"
+                die("KNULL_ERR_WORDBAND", "%s/%s: %d words vs reference %d (band %.0f%%)"
                     % (arm, c["label"], wn, wc, WORDBAND_FRAC * 100))
             if len(segments(gl)) < 2:
                 die("KNULL_ERR_SEGMENTS", "%s/%s: <2 admissible claim segments"
@@ -556,6 +569,7 @@ def main():
               "lc3_rejected": 0, "lc4_option_sets": 0, "lc6_true_claims": 0,
               "lc8_retries": 0, "substitutions": []}
     stores = build_stores(concepts)
+    authored_block = stores.pop("_plain_authored_block")
     items = build_items(concepts, stores, taken_logged, checks)
 
     pins = {}
@@ -583,11 +597,19 @@ def main():
         "design_doc": "docs/design-knull-content-injection-ablation.md",
         "n_skeletons": len(seqs[0]), "n_items_planned_per_arm": N_ITEMS,
         "arms": list(ARMS),
-        "plain_store_placeholder": True,
-        "plain_store_note": ("SYNTHETIC PLACEHOLDER definitions — mock "
-                             "mechanics only; the authored plain-dictionary "
-                             "store is a pre-freeze input gate. Runner "
-                             "refuses non-mock runs while this flag is true."),
+        "plain_store_placeholder": False,
+        "plain_store_note": ("AUTHORED plain-dictionary definitions (fork "
+                             "F-KN-A option (ii)); source, disclosure and "
+                             "lint state in plain_store_authored; gate G-1 "
+                             "linted fail-closed at this build."),
+        "plain_store_authored": authored_block,
+        "opaque_token_calibration": {
+            "factor": OPAQUE_TOKEN_CALIB,
+            "why": ("nonce syllable words tokenize at ~2.09x NSM English "
+                    "under the pinned SmolLM2 tokenizer; the opaque word "
+                    "target is scaled so the TOKEN budget (the FLOPs-parity "
+                    "gate quantity) stays matched; measured artifact "
+                    "poc/knull/inputs/g3-token-band.json (gate G-3)")},
         "kernel_store": "existing pinned records (data/kernel-v0 + "
                         "data/molecules-v0); records_root = repo root",
         "leak_checks": {k: v for k, v in checks.items() if k != "substitutions"},
@@ -607,6 +629,30 @@ def main():
     with open(mpath, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=1, sort_keys=True)
         f.write("\n")
+
+    # 10-item blind style spot-check for the maintainer (fork F-KN-A gate):
+    # deterministic sample; judge reads items BEFORE the answer key.
+    labels = [c["label"] for c in concepts]
+    picks = pick_k("plain-spotcheck", len(labels), 10)
+    spot = {
+        "schema": "kot-knull-spotcheck/1",
+        "instructions": ("BLIND style spot-check (fork F-KN-A, design doc "
+                         "section 2.3): read the 10 definitions below "
+                         "WITHOUT looking at answer_key. For each, judge: "
+                         "(a) does it read as ordinary dictionary-register "
+                         "English (not NSM-style controlled language)? "
+                         "(b) is it a fair definition a general dictionary "
+                         "could print? Record verdicts, then unblind."),
+        "items": [{"id": i, "definition":
+                   stores["plain"][labels[p]]["gloss"]}
+                  for i, p in enumerate(picks)],
+        "answer_key": {str(i): labels[p] for i, p in enumerate(picks)},
+    }
+    spath = os.path.join(HERE, "inputs", "plain-spotcheck.json")
+    with open(spath, "w", encoding="utf-8") as f:
+        json.dump(spot, f, indent=1, sort_keys=True)
+        f.write("\n")
+
     print("knull inputs built: %d skeletons x %d arms; manifest %s"
           % (len(seqs[0]), len(ARMS), mpath))
     print("manifest sha256: %s" % file_sha256(mpath))

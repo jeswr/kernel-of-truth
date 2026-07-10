@@ -31,6 +31,8 @@ kernel VECTORS/ASTs inject zero bytes into the accept decision.
 Usage:
   python3 poc/knull/runner/knull_runner.py --mock --out-dir /tmp/knull
   python3 poc/knull/runner/knull_runner.py --selftest        # TOST logic only
+  python3 poc/knull/runner/knull_runner.py --dry-plan        # $0 real-run plan
+                                                             # (gate G-2 smoke)
 """
 
 import argparse
@@ -227,10 +229,92 @@ def map_check_vector_free(kernel_items, out_dir):
                        "vectors/ASTs are not in the seam (map point M-V)")}
 
 
+def dry_plan():
+    """$0 real-run plan check — the gate G-2 'real-path smoke (--dry-plan
+    analog)': verifies every pin and input the real campaign will load, then
+    enumerates the GPU cell plan and its cost envelope WITHOUT touching any
+    model. Allowed pre-freeze (it runs nothing); the Modal-side image rebuild
+    smoke is runner-role work at campaign start (same posture as nsk1)."""
+    man_path = os.path.join(POC, "knull", "inputs", "manifest.json")
+    man = json.load(open(man_path, encoding="utf-8"))
+    if man.get("plain_store_placeholder", True):
+        die("KNULL_ERR_PLACEHOLDER",
+            "plain store is a placeholder — dry-plan refused (gate G-2)")
+    got = sha256_file(os.path.join(F2B_RUNNER_DIR, "f2b_runner.py"))
+    want = man["provenance_pins"]["f2b_runner_py_sha256"]
+    if got != want:
+        die("KNULL_ERR_PIN", "f2b_runner.py sha %s != inputs pin %s"
+            % (got[:12], want[:12]))
+    f2b_man = json.load(open(os.path.join(POC, "f2b", "inputs",
+                                          "f2b-manifest.json"),
+                             encoding="utf-8"))
+    n = man["n_items_planned_per_arm"]
+    # load + verify the REAL rank-prefix item sets and their store pins
+    roots = {"kernel": ROOT,
+             "plain": os.path.join(POC, "knull", "inputs", "stores", "plain"),
+             "opaque": os.path.join(POC, "knull", "inputs", "stores", "opaque")}
+    uids = None
+    for a in ARMS:
+        vec = load_jsonl(os.path.join(POC, "knull", "inputs", "items",
+                                      "%s.jsonl" % a))
+        vec.sort(key=lambda x: x["rank"])
+        vec = vec[:n]
+        if len(vec) != n:
+            die("KNULL_ERR_ITEMS", "arm %s: %d items < planned %d"
+                % (a, len(vec), n))
+        cur = [it["skeleton_uid"] for it in vec]
+        if uids is None:
+            uids = cur
+        elif cur != uids:
+            die("KNULL_ERR_PAIRING", "rank-prefix differs for arm %s" % a)
+        ver = KernelVerifier(roots[a])          # fail-closed store load
+        ver.index_labels(vec)
+    seeds = [0, 1, 2]
+    cells = ([(a, "alone", r, s) for a in ARMS for r in ("R1", "R3")
+              for s in seeds]
+             + [(a, "verify-retry", "R1", s) for a in ARMS for s in seeds]
+             + [("kernel", "shuffled-verify-retry", "R1", s) for s in seeds])
+    plan = {
+        "schema": "kot-knull-dryplan/1",
+        "record": "registry/experiments/knull.json (freeze required before "
+                  "any real cell)",
+        "inputs_manifest_sha256": sha256_file(man_path),
+        "n_items_per_arm": n,
+        "cells": ["%s/%s/%s/s%d" % c for c in cells],
+        "n_gpu_cells": len(cells),
+        "models": {r: f2b_man["models"][r] for r in ("R1", "R3")},
+        "hardware": "1x A100-40GB Modal (f2b image, I-MODAL rebuild)",
+        "planning_estimates_never_measurements": {
+            "basis": "f2b MEASURED wall-clock 0.604 GPU-h for 20 cells at "
+                     "n=250 incl. heavier arms; knull: 30 cells at n=1000, "
+                     "R3 cells are alone-only",
+            "gpu_hours_estimate": "4-6",
+            "usd_estimate": "15-30 at A100 list price",
+            "caps_requested": {"usd_cap": 60, "gpu_hours_cap": 8,
+                               "wall_clock_cap_hours": 24}},
+        "residual_runner_role_steps": [
+            "prereg-freeze registry/experiments/knull.json (coordinator)",
+            "I-MODAL image rebuild + Modal-side smoke (runner role)",
+            "final campaign + log-append phase:final (runner role)"],
+    }
+    print(json.dumps(plan, indent=1, sort_keys=True))
+    print("dry-plan OK: %d GPU cells over %d paired items x 3 arms; all "
+          "pins verified; stores load fail-closed" % (len(cells), n))
+
+
+
+def fpq(meter):
+    """Per-query FLOPs from the (real) F0 meter: model + pinned-rate verifier
+    CPU — the /gates/flops_parity quantity (F0 section 3.3)."""
+    n = max(1, meter.n_queries)
+    return (meter.model_flops + meter.verifier_cpu_s * meter.cpu_rate) / n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mock", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--dry-plan", action="store_true")
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--items", type=int, default=60,
                     help="rank-prefix skeletons per arm (mock default 60)")
@@ -241,12 +325,27 @@ def main():
     if args.selftest:
         selftest()
         return
+    if args.dry_plan:
+        dry_plan()
+        return
     if not args.mock:
-        die("KNULL_ERR_DRAFT_ONLY",
-            "this line is DRAFT: no frozen kot-reg/1 record exists and the "
-            "plain store is a placeholder (inputs/manifest.json "
-            "plain_store_placeholder=true). Real runs are refused by design "
-            "until prereg-freeze + authored plain store land.")
+        # Real mode stays refused until BOTH freeze conditions hold:
+        # a frozen kot-reg/1 record for this id AND a non-placeholder store.
+        man = json.load(open(os.path.join(POC, "knull", "inputs",
+                                          "manifest.json"), encoding="utf-8"))
+        idx_path = os.path.join(ROOT, "registry", "frozen-index.json")
+        frozen = (os.path.isfile(idx_path)
+                  and "knull" in json.load(open(idx_path, encoding="utf-8")))
+        if man.get("plain_store_placeholder", True) or not frozen:
+            die("KNULL_ERR_DRAFT_ONLY",
+                "real runs refused: plain_store_placeholder=%s, knull frozen=%s "
+                "— prereg-freeze registry/experiments/knull.json first; the "
+                "final campaign is runner-role work (run != audit)"
+                % (man.get("plain_store_placeholder", True), frozen))
+        die("KNULL_ERR_RUNNER_ROLE",
+            "real mode is runner-role work against the FROZEN record; this "
+            "designer-built harness intentionally stops here (the real HF "
+            "backend wiring re-pins at campaign start, as in f2b)")
     if not args.out_dir:
         die("KNULL_ERR_ARGS", "--out-dir required")
     os.makedirs(args.out_dir, exist_ok=True)
@@ -296,6 +395,8 @@ def main():
     records = []
     lifts, accs = {}, {}
     xfail_by_arm = {}
+    item_meta = {a: {"skeleton_uids": [it["skeleton_uid"] for it in items[a]],
+                     "types": [it["type"] for it in items[a]]} for a in ARMS}
     for a in ARMS:
         ver = KernelVerifier(roots[a])
         ver.index_labels(items[a])
@@ -309,7 +410,8 @@ def main():
                 per_seed[key].append(cov)
                 records.append({"arm": a, "cell": "model-alone", "rung": rung,
                                 "seed": seed, "k": 0, "n": len(cov),
-                                "acc": sum(cov) / len(cov), "mock": True})
+                                "acc": sum(cov) / len(cov), "cov": cov,
+                                "flops_per_query": fpq(meter), "mock": True})
             g = CellGuard("%s/verify/R1/s%d" % (a, seed), *guard_args)
             meter = FlopMeter(fc, "A100")
             cov, xf = run_verify_retry(lms["R1"], frames, items[a], ver,
@@ -319,8 +421,10 @@ def main():
             n_verify_calls += len(items[a])
             records.append({"arm": a, "cell": "verify-retry", "rung": "R1",
                             "seed": seed, "k": K_RETRY, "n": len(cov),
-                            "acc": sum(cov) / len(cov),
-                            "extraction_failures": xf, "mock": True})
+                            "acc": sum(cov) / len(cov), "cov": cov,
+                            "flops_per_query": fpq(meter),
+                            "extraction_failures": xf,
+                            "extraction_calls": len(items[a]), "mock": True})
         xfail_by_arm[a] = {"failures": xfails, "calls": n_verify_calls}
         n = len(items[a])
         sm = {k: [sum(v[s][i] for s in range(len(seeds))) / len(seeds)
@@ -343,6 +447,7 @@ def main():
         records.append({"arm": "kernel", "cell": "shuffled-verify-retry",
                         "rung": "R1", "seed": seed, "k": K_RETRY,
                         "n": len(cov), "acc": sum(cov) / len(cov),
+                        "cov": cov, "flops_per_query": fpq(meter),
                         "perm_sha256": shuf.perm_sha256, "mock": True})
 
     ana = analyse(lifts, accs, args.boot_b)
@@ -375,6 +480,9 @@ def main():
     with open(os.path.join(args.out_dir, "run-records.jsonl"), "w") as f:
         for r in records:
             f.write(json.dumps(r, sort_keys=True) + "\n")
+    with open(os.path.join(args.out_dir, "item-meta.json"), "w") as f:
+        json.dump(item_meta, f, sort_keys=True)
+        f.write("\n")
     with open(os.path.join(args.out_dir, "analysis-mock.json"), "w") as f:
         json.dump(ana, f, indent=1, sort_keys=True)
         f.write("\n")

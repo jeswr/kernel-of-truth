@@ -2,7 +2,7 @@
  "schema_version": "kot-reg/1",
  "id": "nsk1",
  "status": "DRAFT",
- "title": "nsk1 - kernel-powered neurosymbolic internals, first decisive experiment: training-free kernel-keyed steering write-back (patchscope-read -> exact-match -> kot-axiom hop-1 -> B2 steering) vs the SAME engine feedback as external text at matched budget, on covered 2-hop composition at R1-R2; Stage-0 = B5 back-patch diagnostic with a rescuable-fraction family-kill floor (flagship line neurosym-kernel-internals; consolidates B1/B2/B5 for this record)",
+ "title": "nsk1 - kernel-powered neurosymbolic internals, first decisive experiment: training-free kernel-keyed steering write-back (patchscope-read -> exact-match -> kot-axiom hop-1 -> B2 steering) vs the SAME engine feedback as external text at matched budget, on covered 2-hop composition at R1-R2; PRIMARY eval = the third-party CLUTRR covered slice (clean k=2 up-edge-only chains over {mother, father}, released gold in {grandmother, grandfather}; Sinha et al. 2019, arXiv:1908.06177, CC-BY-NC-4.0), with the custom nsk1-eval demoted to the L*/alpha calibration split + a named self-authored secondary stratum (eval-necessity adjudication section 2; ASM-0027 supersedes ASM-0023); Stage-0 = B5 back-patch diagnostic with a rescuable-fraction family-kill floor on the primary stratum (flagship line neurosym-kernel-internals; consolidates B1/B2/B5 for this record)",
  "hypotheses": [
   "HNSK0",
   "HNSK1"
@@ -17,10 +17,11 @@
    "section 2",
    "section 3",
    "section 4",
+   "section 5",
    "section 7",
    "section 8"
   ],
-  "sha256": "baa326513f7c5c51545c8b8f0a4d1da4f82a99860e4dddd23f8f9226a144e0b6"
+  "sha256": "b2e4bc7cc230e5e6d578335cd28c5e01e07458ef3186e1ce8b35f994159575af"
  },
  "analysis_plan_ref": {
   "path": "docs/research-plan/08-stats-and-extrapolation.md",
@@ -65,7 +66,7 @@
     "name": "exact_correct",
     "unit": "boolean per item",
     "better": "higher",
-    "definition": "generated answer exact-matches the generator graph-traversal gold surface form (gold is INDEPENDENT of the engine accept test: the engine resolves hop-1 only and never sees or scores the 2-hop gold - the f2b oracle-leakage lesson)"
+    "definition": "generated answer exact-matches the item's gold surface: on the PRIMARY CLUTRR stratum the released target_text relation word over the closed 24-relation vocabulary (third-party gold, verbatim - never recomputed, relabelled, or filtered-by-answer); on the custom secondary stratum the generator graph-traversal entity surface. Gold is INDEPENDENT of the engine accept test: the engine resolves hop-1 only (the bridge parent) and never sees, produces, or scores the target relation / 2-hop gold in any arm; the rendered feedback names a bridge entity and a hop-1 relation word, never the gold word (token-exact distinctness asserted at build - the f2b oracle-leakage lesson)"
    },
    {
     "name": "rescued",
@@ -111,36 +112,56 @@
   ],
   "n_planned": {
    "assumption_ids": [
-    "ASM-0023",
+    "ASM-0027",
     "ASM-0024",
     "ASM-0025"
    ],
+   "assumption_note": "ASM-0027 (the CLUTRR-primary stipulation, docs/next/eval-necessity-adjudication.md section 2) supersedes ASM-0023 (register updated 2026-07-10, append-only last-line-wins); ASM-0024/0025 carry over unchanged",
+   "primary_eval": "data/nsk1-clutrr covered slice: clean k=2 rows of the pinned CLUTRR release (Sinha et al. 2019, arXiv:1908.06177, CC-BY-NC-4.0; source facebookresearch/clutrr data_emnlp_final.zip, pins in data/nsk1-clutrr/manifest.json) whose proof chain is up-edge-only over {mother, father} and whose released gold relation word (target_text) is in {grandmother, grandfather}; item text and question third-party bytes verbatim; scoring = exact match of the generated relation word against target_text over the closed 24-relation vocabulary (X3: no cosine anywhere); per-item closed name lexicons for the read channel; engine world store derived MECHANICALLY from the released story_edges+genders columns onto the already-minted kernel concepts (mother-of/father-of/man/woman) - the engine never sees or parses story text. Build recipe: prereg doc section 5.1 (runner role, mechanical, committed converter poc/nsk1/build_clutrr_corpus.py, pinned at build)",
+   "covered_filter_predicate": "prereg doc section 5.1 S4 verbatim: (a) proof_state chain exactly 2 edges; (b) story_edges contains exactly those 2 edges and no others (clean-by-structure); (c) both edge_types in {mother, father} and f_comb agrees with edge_types; (d) released gold word in {grandmother, grandfather}; (e) query pair == {chain base, chain top} as a set; (f) per-item surface names pairwise distinct. Up-edges only is a LICENSING requirement: hop-1 on an up-edge is axiom-licensed unique under the functional-parent axioms; down-edges are not",
+   "third_party_controls": "n=100 seed-pinned (seed 20260710) from pooled clean k=2 rows with NEITHER edge type in {mother, father, son, daughter} (sibling/spouse/in-law-only chains): zero convertible parent material, so the engine MUST refuse every up-edge lookup and fired ~= 0 is the correct behaviour (feeds the false-fire gate <= 0.05); mixed chains excluded from this record entirely (Phase-B successor material)",
+   "secondary_stratum": "the demoted self-authored nsk1-eval: 900 covered + 100 uncovered items (row-log strata custom-covered/custom-uncovered), the same seven-arm contrast reported with CIs OUTSIDE the Holm family; licenses only a consistency statement (prereg doc sections 4.4/5.3)",
    "n_covered": 1000,
    "n_control_uncovered": 100,
-   "n_calibration_split": 100,
-   "calibration_note": "10% covered calibration split (seed-pinned, excluded from final analysis) mechanically selects L* (FK-NSK-2 rule) and alpha (FK-NSK-5 rule) and runs the skeptic-memo item-2 external-arm sanity check (external-text > text-only by >=2pp on calibration) BEFORE freeze-eligibility",
+   "n_headroom_slice_discarded": 100,
+   "n_calibration_split_custom": 100,
+   "n_secondary_custom_covered": 900,
+   "n_secondary_custom_uncovered": 100,
+   "count_gate": "pre-freeze build gate (section 5.2 G1): n_final = min(1000, pooled deduped covered pool - 100 headroom); n_final >= 1000 -> full-power branch; 600 <= n_final < 1000 -> the power computation is REDONE at the achieved n and written into this record BEFORE freeze; n_final < 600 -> fallback ladder rung 2 with no GPU spent on rung 1. The covered-slice count is a TO-MEASURE build fact, deliberately not estimated at design time",
+   "headroom_blocker": "pre-freeze calibration blocker (section 5.2 G2), ~USD 2-5 GPU, maintainer sign-off REQUIRED for even this spend: per rung on the discarded seed-pinned 100-item CLUTRR slice, run exactly two arms (text-only, external-text) with the real hosts (greedy decode, pinned prompt format); PASS iff at BOTH rungs acc(text-only) in [0.05, 0.85] AND acc(external-text) >= acc(text-only) + 0.02 (the skeptic-item-2 vacuousness check pointed at the new surface); every row logged phase:exploratory (quarantined, uncitable); the slice and anything computed on it are excluded from the final analysis; any few-shot exemplars are drawn ONLY from this slice, seed-pinned, fixed at freeze",
+   "fallback_ladder": "pre-declared, decided by the blocker outcomes BEFORE freeze, never after: rung 1 = CLUTRR native relation task (this record as specified); rung 2 (fires if count gate < 600 or rung-1 headroom FAIL) = entity-question form over the SAME third-party covered graphs ('Who is the grandmother of X?'; programme-authored question template DISCLOSED as such; gold = chain-top entity name by mechanical traversal of released story_edges; answer lexicon = the per-item name lexicon; re-run the headroom blocker, ~USD 2-5 more); rung 3 (fires if rung-2 headroom FAIL) = custom nsk1-eval primary with CLUTRR demoted to a reported stratum. Whichever rung passes is what freezes; the frozen record NAMES the rung",
+   "calibration_note": "L* (FK-NSK-2 rule) and alpha (FK-NSK-5 rule) are selected by pre-declared MECHANICAL rules on the CUSTOM corpus ONLY: the 100-item nsk1-eval calibration split (seed-pinned, excluded from final analysis) plus the custom-stratum Stage-0(b) rescue heatmap; selection rules never touch the third-party surface (strict tuning/eval provenance separation); zero CLUTRR contact before the final campaign except the discarded headroom slice",
    "stage0_sweep_cap": 300,
+   "stage0_note": "dual surface (prereg doc section 4.2): (a) the CLUTRR covered stratum carries the family-kill floor and the headroom instrument gate (a gate, never a selection rule); (b) the custom-stratum sweep (cap 300 swept) produces the L* heatmap input and is reported as a secondary, gating nothing",
    "stage0_patch_grid": "pinned (source-layer, target-layer) grid, source > target, stride pruned to <=40 cells per model; grid literal fixed at freeze from the model's layer count",
-   "stage0_floor": "Wilson-LB(rescued/swept) >= 0.15 at each rung, else FAIL (family cheap kill; Stage-1 does not run)",
+   "stage0_floor": "Wilson-LB(rescued/swept) >= 0.15 at each rung ON THE PRIMARY (CLUTRR covered) stratum, else FAIL (family cheap kill; Stage-1 does not run)",
    "write_channel": "FK-NSK-1 option (a): kernel-keyed cached steering vectors - per-(model, entity) vectors extracted ONCE, training-free, by contrastive activation arithmetic over the model's OWN activations on 16 pinned carrier prompts; injection h <- h + alpha*v at L*; addressing is EXACT record identity. Law 1: no raw kernel/encoder coordinates ever enter the model. Option (b) kernel-gated activation modulation is the registered fallback (variant V2), out of this record",
    "loop_cadence": "k=1 (single pre-answer intervention; FK-NSK-4)",
    "rung_conjunction": "PASS requires the primary and specificity bounds to clear at BOTH rungs (IUT); the analysis fields are the per-rung minima",
-   "mock_note": "the committed analysis (mock stage) computes single-pseudo-rung fields over the mock rows; the freeze revision computes per-rung fields and their IUT minima - analysis_script re-pins at freeze",
-   "coverage_restatement": "m0b coverage 0.3542 @ molecules-v0 is corpus-indexed on the pinned TinyStories task family on ONE incomplete kernel instance (ASM-0001) and does NOT describe nsk1-eval; nsk1-eval covered-stratum coverage is BY CONSTRUCTION and verified by a run-time gate (every covered item's hop-1 resolves licensed)",
-   "power": "paired binary, n=1000 covered per rung; planning values acc(external-text) 0.45-0.60, target delta +0.05 absolute, discordant rate 0.25-0.35 => McNemar-style power ~0.8-0.9 at one-sided alpha=0.05; TOST +/-0.02 decidable inside the headroom window enforced by the headroom gate",
-   "successors": "staged variants V2-V7 of idea-neurosym-kernel-internals (gated activation modulation; VSA engine internals; kernel-keyed embedding injection; engine-in-decode; latent loop; trained-bridge latent) register separately under their own gates"
+   "mock_note": "the committed analysis (mock stage) computes single-pseudo-rung fields over the covered/uncovered strata; the freeze revision computes per-rung fields, their IUT minima across R1/R2, and the custom-covered/custom-uncovered secondary-stratum fields - analysis_script re-pins at freeze. The harness supports --data corpus roots, per-item lexicons and null-hop1 third-party controls (CLUTRR format) and MUST re-run its mock green against data/nsk1-clutrr at build (section 5.1 S10)",
+   "coverage_restatement": "m0b coverage 0.3542 @ molecules-v0 is corpus-indexed on the pinned TinyStories task family on ONE incomplete kernel instance (ASM-0001) and does NOT describe either nsk1 corpus; the CLUTRR covered stratum has coverage BY FILTER (a committed mechanical predicate over released structured columns, verified at build by engine resolution of every covered item's hop-1 and re-verified by the run-time harness gate); the custom secondary stratum has coverage BY CONSTRUCTION",
+   "power": "paired binary, n=1000 CLUTRR covered items per rung (full-power branch of the count gate); planning values acc(external-text) 0.45-0.60, target delta +0.05 absolute, discordant rate 0.25-0.35 => McNemar-style power ~0.8-0.9 at one-sided alpha=0.05; TOST +/-0.02 decidable inside the headroom window enforced by the headroom blocker + gate; if the count gate lands 600 <= n_final < 1000 this computation is redone at the achieved n before freeze; the 900-item custom secondary stratum inherits the original power shape at reduced n (reported only)",
+   "contamination_note": "CLUTRR is public since 2019 and may be in SmolLM2 pretraining; the primary is a WITHIN-ITEM arm contrast, symmetric across arms in first order; the main first-order effect is headroom compression, measured directly by the blocker and the campaign headroom gate; a names-swapped scramble diagnostic (consistent global name permutation, text-only arm, covered subsample) is recommended as a reported-only memorization probe, phase:exploratory, gating nothing (ASM-0027 residual)",
+   "licence_quarantine": "CC-BY-NC-4.0 with attribution: data/nsk1-clutrr carries a LICENSE-NOTICE + provenance manifest (source pins, per-item ids); CLUTRR bytes are EVAL-side only - nothing fetched or derived may enter kernel concepts, explications, molecules, or axiom content (the kernel artifact stays licence-clean); the NC constraint bars any commercial packaging of this eval data",
+   "provenance_triple": {
+    "items": "third-party (CLUTRR, Sinha et al. 2019) on the primary stratum; programme on the secondary stratum",
+    "gold": "third-party (CLUTRR generator target_text, verbatim) on the primary stratum; programme generator traversal on the secondary stratum",
+    "grader": "programme (exact-match harness over the closed released 24-relation vocabulary on the primary; closed entity lexicon on the secondary)"
+   },
+   "successors": "staged variants V2-V7 of idea-neurosym-kernel-internals (gated activation modulation; VSA engine internals; kernel-keyed embedding injection; engine-in-decode; latent loop; trained-bridge latent) register separately under their own gates; Phase B (mint native NSM explications for sibling-of/spouse-of to open the uncle/aunt/in-law CLUTRR slices, plus k>2 and noise configs) registers separately under its own gates - new authoring stays out of this record"
   }
  },
  "pins": {
   "corpus_hashes": {
    "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
-   "nsk1-eval": "5c7c4dfe28cf0c2e131fcb232a8a9cd36132e8fcef9f4e0c2557ab1f7a7b53aa"
+   "nsk1-eval": "5c7c4dfe28cf0c2e131fcb232a8a9cd36132e8fcef9f4e0c2557ab1f7a7b53aa",
+   "nsk1-clutrr": "PINNED-AT-INPUTS: data/nsk1-clutrr is built by the runner per prereg doc section 5.1 (pooled clean k=2 covered slice of the pinned CLUTRR release + third-party uncovered controls + discarded headroom slice; upstream zip and per-file sha256s recorded in data/nsk1-clutrr/manifest.json) and this placeholder is replaced by the real kot-corpus-hash/1 digest BEFORE freeze; freeze is blocked on the real digest plus a green mock on the built corpus (section 5.2 G4)"
   },
   "model_revisions": {
    "R1": "HuggingFaceTB/SmolLM2-135M (revision pinned at freeze)",
    "R2": "HuggingFaceTB/SmolLM2-360M (revision pinned at freeze)"
   },
-  "harness_manifest": "runner poc/nsk1/nsk1_runner.py sha256 17d40b6ee3f7d6f5d2b57e0ee3b4c6d5af73203d5836cc3758719c2f0b80386b (mock-green 2026-07-10, $0); generator poc/nsk1/gen_nsk1_corpus.py sha256 b7beac286c0fcfead23c9fcd9f0257142263e43c2f8cacbd4e2e4467f102c099 (output pinned via nsk1-eval digest); engine tools/axiom/kot_axiom.py sha256 b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf (the l3a artifact as currently extended - define-op added post-l3a-freeze; l3a envelope regression re-run applies at nsk1 freeze); real-mode HF harness is runner-role work against the FROZEN record and re-pins here",
+  "harness_manifest": "runner poc/nsk1/nsk1_runner.py sha256 bdded4275a80d62a388796ca581bf1d97f5587a8789c6e10081cf89da0cd78cc (mock-green 2026-07-10 post-CLUTRR-revision, $0; adds --data corpus root, per-item closed name lexicons, null-hop1 third-party controls); generator poc/nsk1/gen_nsk1_corpus.py sha256 b7beac286c0fcfead23c9fcd9f0257142263e43c2f8cacbd4e2e4467f102c099 (output pinned via nsk1-eval digest); CLUTRR converter poc/nsk1/build_clutrr_corpus.py is runner-role work per prereg doc section 5.1 and is pinned here (sha256 + output digest) at build, BEFORE freeze; engine tools/axiom/kot_axiom.py sha256 b622694022000367349b158aea5322e63677379521c47b29a9d62f2e86e46ccf (the l3a artifact as currently extended - define-op added post-l3a-freeze; l3a envelope regression re-run applies at nsk1 freeze); real-mode HF harness is runner-role work against the FROZEN record and re-pins here",
   "analysis_script": {
    "path": "analysis/nsk1.py",
    "sha256": "aba06bbee99dd7b85295cefcaa129acba9dd5a66cb4c2e4baeb03013a63631c0",
@@ -182,7 +203,7 @@
    "id": "primary",
    "role": "primary",
    "metric": "/analysis/delta_primary_bca_lb",
-   "test": "PRIMARY (exactly one, ABSOLUTE - never a ratio, the F2 degenerate-denominator lesson): paired absolute accuracy delta acc(internal) - acc(external-text) on the covered stratum; one-sided 95% BCa bootstrap lower bound (B=2000, seed pinned); the recorded field is the IUT minimum across R1 and R2; superiority iff > 0",
+   "test": "PRIMARY (exactly one, ABSOLUTE - never a ratio, the F2 degenerate-denominator lesson): paired absolute accuracy delta acc(internal) - acc(external-text) on the PRIMARY covered stratum (the CLUTRR covered slice); one-sided 95% BCa bootstrap lower bound (B=2000, seed pinned); the recorded field is the IUT minimum across R1 and R2; superiority iff > 0",
    "smallest_effect_of_interest": {
     "type": "absolute paired accuracy delta",
     "value": 0.02
@@ -228,7 +249,7 @@
    "id": "sec-stage0",
    "role": "secondary",
    "metric": "/gates/stage0_rescuable_wilson_lb",
-   "test": "Stage-0 B5 diagnostic: Wilson 95% one-sided LB of rescued/swept text-only failures; >= 0.15 required at each rung else the FAIL family-kill rule fires; also the ceiling estimate reported for the family",
+   "test": "Stage-0 B5 diagnostic: Wilson 95% one-sided LB of rescued/swept text-only failures ON THE PRIMARY (CLUTRR covered) stratum; >= 0.15 required at each rung else the FAIL family-kill rule fires; also the ceiling estimate reported for the family; the custom-stratum sweep is reported alongside, gating nothing",
    "wilson_gate": {
     "expected_rate": 0.35,
     "n_planned": 300,
@@ -337,18 +358,18 @@
    }
   }
  ],
- "kill_criterion_verbatim": "docs/design-neurosym-kernel-internals.md section 4.5 (verbatim): '1. INSTRUMENT-INVALID if any instrument gate fails. 2. FAIL (family cheap kill) if Stage-0 Wilson-LB < 0.15 at either rung. 3. KILL-semantics-free co-gate: PASS additionally requires one-sided 95% LB of acc(internal) - acc(shuffled) > 0 at both rungs; if the primary clears but this does not, the verdict is FAIL-attribution (the write channel works but kernel-keying adds nothing - the E9-defl discipline). 4. PASS: primary LB > 0 at both rungs AND (3) holds. 5. NULL-EQUIV: TOST holds at both rungs => equivalence recorded with the same prominence as a PASS. 6. Anything else: INCONCLUSIVE (report CIs; no adjective).' Instrument gates with their own bounds: patchscope extraction-failure Wilson-UB <= 0.30 (covered, loop arms); mapper abstention on covered <= 0.20; steering-cache extraction success >= 0.90 of entities (calibration); intervention false-fire Wilson-UB <= 0.05 on uncovered controls; headroom: text-only covered accuracy in [0.05, 0.85] with >= 500 scored items.",
- "extrapolation_envelope_verbatim": "Measured range on any outcome: R1-R2 (SmolLM2-135M/360M), ONE synthetic covered 2-hop task family (nsk1-eval, all facts in-context), ONE kernel instance's minted concepts (mother-of/father-of/man/woman), ONE write channel (B2 kernel-keyed cached steering, alpha and L* rule-selected on a disjoint calibration split), k=1 loop cadence, ONE engine build. A PASS licenses exactly: 'at these two rungs, on this covered synthetic family, kernel-engine content delivered by internal steering beat the same content delivered as text at matched budget' - a sign (2 rungs), no scale adjectives, no slope. It does NOT license: natural-corpus or public-benchmark claims, NL-parse claims, any statement at R3+, multi-hop beyond 2, other write channels, training-time or trained-bridge claims, efficiency-thesis claims, or any 'the kernel powers the network' headline. A FAIL or NULL kills/demotes the training-free internal-write family at these rungs and redirects the line to external seams (L0/L3) and later staged variants under their own gates. Stage-0's rescuable fraction extrapolates only to this task family at these rungs (ASM-0024 resolution).",
+ "kill_criterion_verbatim": "docs/design-neurosym-kernel-internals.md section 4.5 (verbatim): '1. INSTRUMENT-INVALID if any instrument gate fails. 2. FAIL (family cheap kill) if Stage-0 Wilson-LB < 0.15 at either rung on the primary (CLUTRR covered) stratum. 3. KILL-semantics-free co-gate: PASS additionally requires one-sided 95% LB of acc(internal) - acc(shuffled) > 0 at both rungs; if the primary clears but this does not, the verdict is FAIL-attribution (the write channel works but kernel-keying adds nothing - the E9-defl discipline). 4. PASS: primary LB > 0 at both rungs AND (3) holds. 5. NULL-EQUIV: TOST holds at both rungs => equivalence recorded with the same prominence as a PASS. 6. Anything else: INCONCLUSIVE (report CIs; no adjective).' Instrument gates with their own bounds, all computed on the PRIMARY surfaces: patchscope extraction-failure Wilson-UB <= 0.30 (CLUTRR covered, loop arms); mapper abstention on CLUTRR covered <= 0.20; steering-cache extraction success >= 0.90 of entities (custom calibration split); intervention false-fire Wilson-UB <= 0.05 on the CLUTRR third-party uncovered controls; headroom: text-only CLUTRR-covered accuracy in [0.05, 0.85] with >= 500 scored items",
+ "extrapolation_envelope_verbatim": "Measured range on any outcome: R1-R2 (SmolLM2-135M/360M), ONE third-party covered task slice - the CLUTRR covered stratum (clean k=2 up-edge-only chains over {mother, father} with released gold in {grandmother, grandfather}, drawn from the pinned release configs named in data/nsk1-clutrr/manifest.json, all facts in-context) - plus ONE named self-authored secondary stratum (nsk1-eval), ONE kernel instance's minted concepts (mother-of/father-of/man/woman), ONE write channel (B2 kernel-keyed cached steering, alpha and L* rule-selected on the custom calibration split only), k=1 loop cadence, ONE engine build. A PASS licenses exactly: 'at these two rungs, on the CLUTRR covered stratum as filtered here, kernel-engine content delivered by internal steering beat the same content delivered as text at matched budget' - a sign (2 rungs), no scale adjectives, no slope. It does NOT license: any CLUTRR leaderboard/SOTA/benchmark-performance claim (an inference-only filtered covered subset is NOT the published CLUTRR task; published CLUTRR numbers may be cited as context only, never as a comparison claim), any claim about uncovered CLUTRR strata (k>2, noise configs, sibling/spouse/in-law relations), natural-corpus or NL-parse claims, any statement at R3+, multi-hop beyond 2, other write channels, training-time or trained-bridge claims, efficiency-thesis claims, or any 'the kernel powers the network' headline. The custom secondary stratum licenses nothing on its own beyond 'the same sign/null was or was not also observed on the self-authored stratum' (a consistency report). A FAIL or NULL kills/demotes the training-free internal-write family at these rungs and redirects the line to external seams (L0/L3) and later staged variants under their own gates. Stage-0's rescuable fraction extrapolates only to the strata measured at these rungs (ASM-0024 resolution)",
  "budget": {
   "usd_cap": 60,
-  "gpu_hours_cap": 14,
-  "wall_clock_cap_hours": 30
+  "gpu_hours_cap": 20,
+  "wall_clock_cap_hours": 40
  },
  "runner_constraints": {
   "provider": "modal",
   "infra": "1x A10G (or L4), poc/modal harness pattern",
   "concurrency_cap": 5,
   "foreground_gates": true,
-  "gate": "Tier-2 GPU spend REQUIRES maintainer sign-off + prereg-freeze of this record + skeptic-memo item-2 calibration check; design-stage harness refuses real mode (ERR_NSK1_GPU_GATED); the final campaign is runner-role work (run != audit) - the designer identity that built this record never runs, grades, or audits it"
+  "gate": "Tier-2 GPU spend REQUIRES maintainer sign-off + the section 5.2 pre-freeze gates (G1 build+count, G2 headroom calibration ~USD 2-5 with its own sign-off, G3 lit-report reports/lit-eval-benchmarks.md, G4 pins) + prereg-freeze of this record; design-stage harness refuses real mode (ERR_NSK1_GPU_GATED); the final campaign is runner-role work (run != audit) - the designer identity that built this record never runs, grades, or audits it"
  }
 }
