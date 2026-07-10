@@ -448,6 +448,10 @@ re-run by a non-designer identity against the BUILT inputs.)
 
 ## 12. Assumptions to register at freeze (`registry/assumptions.jsonl`)
 
+- **Registered NOW (this draft):** ASM-0026 (STIPULATED, owner designer-1) —
+  the FK-NLB-1 record-topology methodology stipulation cited by the §13
+  DECISION line; it does not wait for freeze because the §13 decision line
+  rests on it today.
 - **ASM-NLB-1 (STIPULATED):** agent-authored phrasings under the §5 blind
   protocol are an adequate held-out proxy for NL phrasings of these queries;
   natural-user-distribution claims are excluded from the envelope regardless.
@@ -468,6 +472,11 @@ re-run by a non-designer identity against the BUILT inputs.)
 
 Everything measured here is a property of THIS front-end build, THESE two
 blind-authored phrasing sets, and the parents' frozen evals/stores/engine.
-DECISION: two records, two per-vertical verdicts, one shared harness (FK-NLB-1) [MEASURED: registry/experiments/l3a.json + a5.json `n_planned.successors` — the frozen parents pre-declare separate successor ids].
 It extrapolates to no other phrasing distribution, corpus, domain, or
 language; no LLM-comparative claim; no kernel-usefulness-to-model claim.
+
+- DECISION: two records, two per-vertical verdicts, one shared harness
+  (FK-NLB-1) [STIPULATED: ASM-0026] — the registered record-topology
+  methodology stipulation, backed by (not constituted by) the frozen
+  parents' per-vertical successor pre-declarations
+  (registry/experiments/l3a.json + a5.json `design.n_planned.successors`).
