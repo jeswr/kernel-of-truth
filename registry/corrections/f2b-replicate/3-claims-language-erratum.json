@@ -1,0 +1,27 @@
+{
+  "kind": "claims-language-erratum",
+  "experiment": "f2b-replicate",
+  "seq": 3,
+  "author": "writer-2",
+  "author_session_note": "Fable experiment-designer/interpreter role acting as claims-language corrector, session 2026-07-10, executing the Fable-only half (spec SS5) of the claims-language + envelope corrections bundle; pseudonym writer-2 per RT-14 closed record-role list (precedent: registry/corrections/a5-llm/1-posthoc-pin-erratum.json). The matching register entries carry owner designer-1 (register roster includes design-side roles). The Opus-executable halves (spec SS3 forward-doc edits, SS4 tracker fix, SS4b ledger appends, SS3.6 bead correction) landed earlier the same day.",
+  "authorized_by": "feasibility-synthesis SS5 row 1 executor gate (Fable-design: forward language + successor records only; frozen objects untouched) + poc/gpt56-review/SYNTHESIS.md SS5 item 1; spec docs/design-claims-envelope-corrections.md",
+  "date": "2026-07-10",
+  "frozen_objects_untouched": ["registry/experiments/f2b-replicate.json", "registry/verdicts/f2b-replicate.json", "registry/assessments/f2b-replicate.json", "registry/assessments/f-efficiency.json", "poc/f2b-transfer/design.md", "reports/auto/"],
+  "corrections": [
+    {"id": "L1", "phrase_superseded": "kernel-content-specific (and bare 'content-specific' predicated of the f2b lift)",
+     "binding_reading": "correct-alignment-specific: the seed-pinned derangement control destroys record<->item ALIGNMENT, not NSM content; any aligned deterministic answer table would produce the same lift and die under the same derangement, so the control cannot discriminate kernel content from correct alignment",
+     "applies_to": ["registry/assessments/f2b-replicate.json epistemic_promotions[] ('the lift is kernel-content-specific')", "registry/assessments/f2b-replicate.json licenses[] H-STRUCT line + ledger_updates[] pass statement on shuffled recovery + forks_resolved[] H-STRUCT", "registry/assessments/f-efficiency.json epistemic_promotions[] ('content-specificity')", "all forward narration of the f2b-replicate PASS"],
+     "basis": "MEASURED: registry/verdicts/f2b-replicate.json shuffled recovery -0.0206 (ub95 0.1076 < 0.30) + registry/assessments/f2b-replicate.json does_not_license; convergent external adjudication poc/gpt56-review/SYNTHESIS.md G1"},
+    {"id": "L2", "phrase_superseded": "ground-truth independence / removes ground-truth dependence (of f2b-transfer)",
+     "binding_reading": "gold-label independence: a Stage-2 PASS removes gold-defined-by-the-verifier's-own-string-equality only, not ground-truth dependence in general; the frozen poc/f2b-transfer/design.md retains its original wording (pinned) and assessors map the terms explicitly at assessment time",
+     "applies_to": ["registry/assessments/f2b-replicate.json does_not_license[] ('Content-specificity is not ground-truth independence') + epistemic_promotions[] scope", "all forward narration of f2b-transfer and f2b-transfer-llmproxy"],
+     "basis": "registry/assessments/f2b-replicate.json does_not_license; poc/gpt56-review/SYNTHESIS.md G2"},
+    {"id": "L3", "phrase_superseded": "HC3 closed at the 1.5B (PRM) class",
+     "binding_reading": "HC3 closed against the NAMED checkpoint Skywork-o1-Open-PRM-Qwen-2.5-1.5B (math-domain process PRM, zero-shot, pinned revision) on d-qa-r at matched FLOPs - one checkpoint, not a class; class-width statements are EXTRAPOLATION; the successor stub f2b-frontier-prm must carry a task-matched verifier arm whose supervision uses external gold (never membership-string labels)",
+     "applies_to": ["registry/assessments/f2b-replicate.json licenses[] HC3 line, forks_resolved[] HC3, ledger_updates[] scope, questions_opened[] f2b-frontier-prm, tree_impact", "registry/assessments/f-efficiency.json forks_resolved[] HC3 + _mechanism_state_note + tree_impact", "all forward narration"],
+     "basis": "MEASURED scope: registry/verdicts/f2b-replicate.json PRM arm 0.5267 (single pinned checkpoint); poc/gpt56-review/SYNTHESIS.md G4"}
+  ],
+  "assumption_register_entries": {"L1_wider_reading": "ASM-0160", "L3_wider_reading": "ASM-0163", "f1_scope_envelope": "ASM-0161", "g9_monotonicity_envelope": "ASM-0162"},
+  "non_retroactivity": "No verdict value, endpoint, fired rule, or assessment verdict field changes. This record narrows LANGUAGE to measured scope. Where an assessment sentence and this erratum conflict, this erratum is the current reading; the underlying verdict objects are untouched and already consistent with the narrowed reading. Assessment records stay byte-identical as issued (append-never-edit per spec SS0 invariant 1), so sha256 pins of them elsewhere (e.g. registry/assessments/f-efficiency.json continuity block) remain valid.",
+  "schema_version": "kot-correction/1"
+}
