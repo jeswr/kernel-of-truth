@@ -1,0 +1,172 @@
+B-prime REAL run launched 2026-07-10T09:41:04Z
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/REDACTED-WORKSPACE/main/ap-qjLGdR6fGZ44eiXb0peKvE
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+├── 🔨 Created function gen_l4.
+└── 🔨 Created function bprime_a10g.
+[bprime] byte-equality vs _build_specs_g2b f2_to: 100/100 OK
+=== B′ Stage-0 internal-channel diagnostic — PLAN (spec docs/next/nsk1-bprime-stage0-spec.md) ===
+host                : R3 = HuggingFaceTB/SmolLM2-1.7B-Instruct (zero-shot, CLUTRR entity form 2)
+items (covered)     : 958 (858 items.jsonl covered + 100 headroom.jsonl)
+grid (L=24 expected) : S=[12, 14, 16, 18, 20, 22] T=[2, 4, 6, 8, 10, 12]  |P1|=35  |P2|=36
+seeds               : 20260711 (σ derangement / C100 / 300-subsample)
+floor / z           : 0.15 / 1.6449 (one-sided Wilson 95%)
+planning |Swept|    : 230 (STIPULATED ASM-0042; actual = text-only failures, cap 300)
+gen count @|Swept|=230: step1=958  P1=16100  P2=16560  breakage=3600  TOTAL=37218 (+330 carrier forwards, no-gen)
+gen count @|Swept|=300: TOTAL=47158 (+400 carrier forwards)  <- worst case
+GPU-h estimate      : 2.0–8.0  |  $ estimate : $2.2–$8.8  (A10G, fp32)
+HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard 19800s)
+phase               : exploratory (quarantined, uncitable, flips no verdict)
+decision rule       : ASM-0041 §5 — PASS iff Wilson-LB95(P1)>=0.15 AND paired-excess(P1); KILL iff Wilson-UB95(P1)<0.15; ctrl-LB>=0.15 => INSTRUMENT-INVALID
+within caps (plan)  : True
+G2_BUILD=v2 module import ok (root=/root)
+[bprime] model=HuggingFaceTB/SmolLM2-1.7B-Instruct L=24 d=2048 commit=31b70e2e869a7173562077fd711b654946d38674
+[bprime] S=[12, 14, 16, 18, 20, 22] T=[2, 4, 6, 8, 10, 12] |P1|=35 |P2|=36
+[bprime] step1 100/958  acc_running=0.740  t=26s
+[bprime] step1 200/958  acc_running=0.735  t=41s
+[bprime] step1 300/958  acc_running=0.770  t=56s
+[bprime] step1 400/958  acc_running=0.748  t=68s
+[bprime] step1 500/958  acc_running=0.760  t=80s
+[bprime] step1 600/958  acc_running=0.772  t=93s
+[bprime] step1 700/958  acc_running=0.786  t=108s
+[bprime] step1 800/958  acc_running=0.792  t=122s
+[bprime] step1 900/958  acc_running=0.794  t=137s
+[bprime] STEP1 done: acc_text=0.7912 headroom_ok=True repro_agree=100/100
+[bprime] |F|=200 |Swept|=200 |C100|=100 (derangement fixed-point-free)
+[bprime] carriers harvested: 300 (no generation)
+[bprime] P1 cell (ls=12,lt=2) done t=173s
+[bprime] P1 cell (ls=12,lt=4) done t=195s
+[bprime] P1 cell (ls=12,lt=6) done t=215s
+[bprime] P1 cell (ls=12,lt=8) done t=237s
+[bprime] P1 cell (ls=12,lt=10) done t=256s
+[bprime] P1 cell (ls=14,lt=2) done t=275s
+[bprime] P1 cell (ls=14,lt=4) done t=293s
+[bprime] P1 cell (ls=14,lt=6) done t=312s
+[bprime] P1 cell (ls=14,lt=8) done t=330s
+[bprime] P1 cell (ls=14,lt=10) done t=348s
+[bprime] P1 cell (ls=14,lt=12) done t=367s
+[bprime] P1 cell (ls=16,lt=2) done t=386s
+[bprime] P1 cell (ls=16,lt=4) done t=405s
+[bprime] P1 cell (ls=16,lt=6) done t=423s
+[bprime] P1 cell (ls=16,lt=8) done t=442s
+[bprime] P1 cell (ls=16,lt=10) done t=461s
+[bprime] P1 cell (ls=16,lt=12) done t=480s
+[bprime] P1 cell (ls=18,lt=2) done t=498s
+[bprime] P1 cell (ls=18,lt=4) done t=517s
+[bprime] P1 cell (ls=18,lt=6) done t=536s
+[bprime] P1 cell (ls=18,lt=8) done t=555s
+[bprime] P1 cell (ls=18,lt=10) done t=574s
+[bprime] P1 cell (ls=18,lt=12) done t=593s
+[bprime] P1 cell (ls=20,lt=2) done t=613s
+[bprime] P1 cell (ls=20,lt=4) done t=633s
+[bprime] P1 cell (ls=20,lt=6) done t=654s
+[bprime] P1 cell (ls=20,lt=8) done t=675s
+[bprime] P1 cell (ls=20,lt=10) done t=696s
+[bprime] P1 cell (ls=20,lt=12) done t=717s
+[bprime] P1 cell (ls=22,lt=2) done t=739s
+[bprime] P1 cell (ls=22,lt=4) done t=760s
+[bprime] P1 cell (ls=22,lt=6) done t=782s
+[bprime] P1 cell (ls=22,lt=8) done t=805s
+[bprime] P1 cell (ls=22,lt=10) done t=827s
+[bprime] P1 cell (ls=22,lt=12) done t=850s
+[bprime] P2 cell (lh=12,lt=2) done t=866s
+[bprime] P2 cell (lh=12,lt=4) done t=882s
+[bprime] P2 cell (lh=12,lt=6) done t=898s
+[bprime] P2 cell (lh=12,lt=8) done t=914s
+[bprime] P2 cell (lh=12,lt=10) done t=930s
+[bprime] P2 cell (lh=12,lt=12) done t=946s
+[bprime] P2 cell (lh=14,lt=2) done t=962s
+[bprime] P2 cell (lh=14,lt=4) done t=978s
+[bprime] P2 cell (lh=14,lt=6) done t=994s
+[bprime] P2 cell (lh=14,lt=8) done t=1010s
+[bprime] P2 cell (lh=14,lt=10) done t=1026s
+[bprime] P2 cell (lh=14,lt=12) done t=1042s
+[bprime] P2 cell (lh=16,lt=2) done t=1059s
+[bprime] P2 cell (lh=16,lt=4) done t=1075s
+[bprime] P2 cell (lh=16,lt=6) done t=1092s
+[bprime] P2 cell (lh=16,lt=8) done t=1109s
+[bprime] P2 cell (lh=16,lt=10) done t=1125s
+[bprime] P2 cell (lh=16,lt=12) done t=1142s
+[bprime] P2 cell (lh=18,lt=2) done t=1162s
+[bprime] P2 cell (lh=18,lt=4) done t=1182s
+[bprime] P2 cell (lh=18,lt=6) done t=1202s
+[bprime] P2 cell (lh=18,lt=8) done t=1222s
+[bprime] P2 cell (lh=18,lt=10) done t=1241s
+[bprime] P2 cell (lh=18,lt=12) done t=1261s
+[bprime] P2 cell (lh=20,lt=2) done t=1279s
+[bprime] P2 cell (lh=20,lt=4) done t=1297s
+[bprime] P2 cell (lh=20,lt=6) done t=1315s
+[bprime] P2 cell (lh=20,lt=8) done t=1333s
+[bprime] P2 cell (lh=20,lt=10) done t=1351s
+[bprime] P2 cell (lh=20,lt=12) done t=1369s
+[bprime] P2 cell (lh=22,lt=2) done t=1389s
+[bprime] P2 cell (lh=22,lt=4) done t=1407s
+[bprime] P2 cell (lh=22,lt=6) done t=1426s
+[bprime] P2 cell (lh=22,lt=8) done t=1446s
+[bprime] P2 cell (lh=22,lt=10) done t=1465s
+[bprime] P2 cell (lh=22,lt=12) done t=1485s
+
+=== B′ RESULT (phase:exploratory) ===
+aborted=False partial=False  n_rows=32958  elapsed=1645s (GPU) / 1656s (wall)
+{
+ "aborted": false,
+ "control_rescues_at_floor": true,
+ "floor": 0.15,
+ "gate_label": "INSTRUMENT-INVALID",
+ "headroom_ok": true,
+ "instrument_invalid_triggers": {
+  "aborted": false,
+  "ctrl_lb_ge_floor": true,
+  "not_headroom_ok": false
+ },
+ "n_swept": 200,
+ "paired_excess_p1": {
+  "b": 4,
+  "c": 29,
+  "excess_pass": false,
+  "n_discordant": 33,
+  "p_one_sided": 0.9999992994125932
+ },
+ "paired_excess_p2": {
+  "b": 7,
+  "c": 9,
+  "excess_pass": false,
+  "n_discordant": 16,
+  "p_one_sided": 0.7727508544921875
+ },
+ "partial": false,
+ "rescue_p1": {
+  "k": 80,
+  "rate": 0.4,
+  "wilson_lb95": 0.34471961183426647,
+  "wilson_ub95": 0.45794996880728256
+ },
+ "rescue_p1_ctrl": {
+  "k": 105,
+  "rate": 0.525,
+  "wilson_lb95": 0.46697102777355515,
+  "wilson_ub95": 0.5823615770660576
+ },
+ "rescue_p2": {
+  "k": 8,
+  "rate": 0.04,
+  "wilson_lb95": 0.022682424369174024,
+  "wilson_ub95": 0.06959764658195111
+ },
+ "rescue_p2_ctrl": {
+  "k": 10,
+  "rate": 0.05,
+  "wilson_lb95": 0.03012018700556189,
+  "wilson_ub95": 0.08189292588140834
+ }
+}
+MECHANICAL VERDICT (ASM-0041 §5): INSTRUMENT-INVALID
+sha256 bprime_rows.jsonl    = f45b12e06ec7010d9148611f4dd11a833d69ecac4855d3452109ad8b76522ea4
+sha256 bprime_summary.json  = 539040e93c78ec244ad20f77ee32ab7cf19358add5033c525851cea799f1ef7c
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/REDACTED-WORKSPACE/main/ap-qjLGdR6fGZ44eiXb0peKvE

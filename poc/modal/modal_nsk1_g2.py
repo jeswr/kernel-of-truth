@@ -1007,3 +1007,705 @@ def g2d(dry_plan: bool = False, gpu: str = "A10G"):
     print("\n=== G2d RESULT (phase:exploratory) ===")
     print(json.dumps(summary, indent=1, sort_keys=True))
     print("\nany_pass =", bool(passing), "| passing_cells =", passing)
+
+
+# =====================================================================
+# B′ — nsk1 Stage-0 INTERNAL-CHANNEL DIAGNOSTIC at R3, phase:"exploratory"
+# ---------------------------------------------------------------------
+# EXECUTES docs/next/nsk1-bprime-stage0-spec.md (Fable, runner-ready; the spec
+# leaves ZERO design decisions to the runner). This entrypoint is APPENDED; the
+# g2/g2b/g2c/g2d code and every shared helper above are byte-untouched. It
+# reuses the verified G2d machinery: form-2 (entity) prompt construction
+# byte-identical to _build_specs_g2b's f2 branch, the _score_entity scorer
+# byte-verbatim, the g2d feedback sentence renderer, and the hooksmoke-verified
+# residual read/write hook path (hidden_states[k] = output of decoder layer
+# module k-1 = INPUT of module k).
+#
+# Two replacement-transplant probe families (Law 1: only the model's OWN
+# activations ever enter the model — no raw kernel/encoder coordinates):
+#   P1 self back-patch (GATE-BEARING): replace the final-prompt-token residual
+#       carrying hidden_states[ℓt] (INPUT of decoder module ℓt) with the item's
+#       OWN harvested hidden_states[ℓs], ℓs>ℓt, prefill-only. Control = source
+#       from the seed-pinned deranged item σ(i).
+#   P2 oracle bridge-patch (REPORTED-ONLY): patch the item's feedback-sentence
+#       bridge-token residual hidden_states[ℓh] into the same target position.
+#       Control = deranged bridge σ(i). Breakage = real bridge-patch on 100
+#       text-only-correct items (no control).
+#
+# Host R3 = SmolLM2-1.7B-Instruct, zero-shot, CLUTRR entity form 2, all 958
+# covered items (858 covered rows of data/nsk1-clutrr/items.jsonl + 100 rows of
+# data/nsk1-clutrr/headroom.jsonl). Greedy, fp32, chat template, 16 new tokens.
+# Every row phase:"exploratory" (quarantined, uncitable, flips no verdict).
+#
+#   .venv/bin/modal run poc/modal/modal_nsk1_g2.py::bprime --dry-plan   # $0
+#   .venv/bin/modal run poc/modal/modal_nsk1_g2.py::bprime              # A10G
+# =====================================================================
+
+import math as _bp_math       # appended-only import (existing bytes untouched)
+import random as _bp_random   # appended-only import
+
+BPRIME_MODEL = "HuggingFaceTB/SmolLM2-1.7B-Instruct"  # R3 (ASM-0040)
+BPRIME_SEED = 20260711        # σ derangement, C100 sample, 300-subsample (ASM-0041/spec §3)
+BPRIME_FLOOR = 0.15           # Stage-0 floor VALUE (pre-declared, ASM-0041)
+BPRIME_Z = 1.6449             # one-sided 95% (Φ⁻¹(0.95)); Wilson bounds (spec §4)
+BPRIME_SWEEP_CAP = 300        # Swept cap (spec §3)
+BPRIME_C100 = 100             # correct subsample size (spec §3)
+BPRIME_BATCH = 16             # GPU mini-batch (memory-safe; OOM auto-halves)
+BPRIME_WALL_CAP_S = 19800     # soft in-container wall guard (5.5 h) < Modal timeout
+
+
+def _bprime_grid(L: int):
+    """Fractional (ℓs,ℓt) grid (spec §2 Step 2). Pure function of L.
+    lay(f)=min(L-1,max(1,round(f·L))); S=sources, T=targets;
+    P1={(ℓs,ℓt)∈S×T: ℓs>ℓt}; P2=S×T. At L=24: S={12,14,16,18,20,22},
+    T={2,4,6,8,10,12}, |P1|=35, |P2|=36."""
+    def lay(f):
+        return min(L - 1, max(1, int(round(f * L))))
+    S = sorted({lay(f) for f in (1 / 2, 7 / 12, 2 / 3, 3 / 4, 5 / 6, 11 / 12)})
+    T = sorted({lay(f) for f in (1 / 12, 1 / 6, 1 / 4, 1 / 3, 5 / 12, 1 / 2)})
+    P1 = [(s, t) for s in S for t in T if s > t]
+    P2 = [(h, t) for h in S for t in T]
+    return S, T, P1, P2
+
+
+def _build_specs_bprime():
+    """Render the form-2 (entity) TEXT-ONLY prompt + the P2 carrier feedback for
+    ALL 958 covered CLUTRR items, byte-identical in construction to
+    _build_specs_g2b's f2 branch and the g2/g2b feedback renderer (spec §3 Step
+    0 / Step 5). Order: covered rows of items.jsonl (file order) then
+    headroom.jsonl (file order) — deterministic, seeds pinned over this order.
+    Pure/local (torch-free). ABORTs (assert) on any build-gate violation."""
+    lex = json.loads((_ROOT / "data/nsk1-clutrr/lexicon.json").read_text())
+    rel_surface = {v: k for k, v in lex["relations"].items()}  # URN -> mother/father
+
+    def _rows(path, stratum_filter):
+        for line in (_ROOT / path).read_text().splitlines():
+            if not line.strip():
+                continue
+            it = json.loads(line)
+            if stratum_filter is not None and it.get("stratum") != stratum_filter:
+                continue
+            yield it
+
+    src = list(_rows("data/nsk1-clutrr/items.jsonl", "covered")) + \
+        list(_rows("data/nsk1-clutrr/headroom.jsonl", None))
+
+    specs = []
+    for it in src:
+        item_lex = it["lexicon"]
+        surfaces = list(item_lex.values())
+        # 3-name pairwise-distinct (spec §3 Step 0 ASSERT)
+        assert len(item_lex) == 3 and len(surfaces) == 3, \
+            "item %s not 3-name" % it["item_id"]
+        assert len({s.lower() for s in surfaces}) == 3, \
+            "item %s names not pairwise distinct" % it["item_id"]
+        subj_urn = it["hop1"]["subject"]
+        bridge_urn = it["hop1_bridge"]
+        base_surface = item_lex[subj_urn]
+        top_urns = [u for u in item_lex if u not in (subj_urn, bridge_urn)]
+        assert len(top_urns) == 1, "item %s: no unique chain-top" % it["item_id"]
+        top_surface = item_lex[top_urns[0]]
+        bridge_surface = item_lex[bridge_urn]
+        gold_rel = it["gold_surface"]
+
+        story = "\n".join(it["context"])
+        # form-2 text-only prompt — byte-identical to _build_specs_g2b f2_to
+        q2 = "Who is the %s of %s?" % (gold_rel, base_surface)
+        f2_to = "Story:\n%s\nQuestion: %s\n%s" % (story, q2, INSTRUCTION_ENTITY)
+
+        # P2 carrier feedback — byte-identical to run-1/g2b renderer
+        rs = rel_surface[it["hop1"]["rel"]]
+        fb = "Note: the %s of %s is %s." % (rs, base_surface, bridge_surface)
+        # per-carrier asserts (spec §5, ABORT): gold-name-not-in-feedback,
+        # feedback word-count ≤ 24
+        assert len(fb.split()) <= FEEDBACK_TOKEN_BUDGET, \
+            "feedback budget breach (%s)" % it["item_id"]
+        fb_tokens = [w.strip(".").lower() for w in fb.split()]
+        assert top_surface.lower() not in fb_tokens, \
+            "gold name leaked into feedback (%s)" % it["item_id"]
+        # bridge surface must occur in the feedback (P2 locus, in-container assert too)
+        assert bridge_surface.lower() in fb.lower(), \
+            "bridge surface absent from feedback (%s)" % it["item_id"]
+
+        specs.append({
+            "item_id": it["item_id"],
+            "prompt": f2_to,               # container applies chat template
+            "feedback": fb,                # tokenized RAW in container
+            "bridge_surface": bridge_surface,
+            "gold_top": top_surface,
+            "base": base_surface,
+            "surfaces": surfaces,
+        })
+
+    assert len(specs) == 958, "expected 958 covered items, got %d" % len(specs)
+    return specs
+
+
+def _bp_wilson(k: int, n: int, z: float = BPRIME_Z):
+    """One-sided Wilson score interval bounds (spec §4). Returns (LB, UB)."""
+    if n == 0:
+        return (0.0, 0.0)
+    phat = k / n
+    denom = 1.0 + z * z / n
+    center = (phat + z * z / (2 * n)) / denom
+    half = (z / denom) * _bp_math.sqrt(phat * (1 - phat) / n + z * z / (4 * n * n))
+    return (max(0.0, center - half), min(1.0, center + half))
+
+
+def _bp_binom_sf_ge(b: int, n: int, p: float = 0.5):
+    """Exact one-sided binomial P(X >= b | n, p) (spec §4 paired excess)."""
+    if n == 0:
+        return 1.0
+    return float(sum(_bp_math.comb(n, k) * (p ** k) * ((1 - p) ** (n - k))
+                     for k in range(b, n + 1)))
+
+
+def _bp_sattolo(n: int, seed: int):
+    """Seed-pinned derangement (single-cycle Sattolo shuffle) of range(n);
+    guaranteed fixed-point-free for n>=2 (spec §3 Step 3: seed 20260711,
+    ASSERT fixed-point-free). Disclosed operational instantiation."""
+    rng = _bp_random.Random(seed)
+    perm = list(range(n))
+    for i in range(n - 1, 0, -1):
+        j = rng.randrange(i)  # 0 <= j < i (strict) => single cycle, no fixed pts
+        perm[i], perm[j] = perm[j], perm[i]
+    return perm
+
+
+# ----------------------------------------------------- GPU body (torch, remote)
+def _bprime_body(model_id, specs, headroom_ids, headroom_g2d_correct,
+                 batch_size, wall_cap_s):
+    import time
+    import traceback
+    try:
+        return _bprime_body_impl(model_id, specs, headroom_ids,
+                                 headroom_g2d_correct, batch_size, wall_cap_s)
+    except Exception as e:  # noqa: BLE001
+        tb = traceback.format_exc()
+        print("BPRIME ERROR:", repr(e))
+        print(tb)
+        return {"aborted": True, "abort_reason": "EXCEPTION: %s" % repr(e),
+                "traceback": tb, "rows": [], "swept_item_ids": [],
+                "rescued_p1": [], "rescued_p1_ctrl": [], "rescued_p2": [],
+                "rescued_p2_ctrl": []}
+
+
+def _bprime_body_impl(model_id, specs, headroom_ids, headroom_g2d_correct,
+                      batch_size, wall_cap_s):
+    import time
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    t0 = time.time()
+    n = len(specs)
+    tok = AutoTokenizer.from_pretrained(model_id)
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    tok.padding_side = "left"
+    model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.float32)
+    model.to("cuda").eval()
+    L = int(model.config.num_hidden_layers)
+    d_model = int(model.config.hidden_size)
+    assert L >= 12, "ABORT: L=%d < 12" % L
+    layers = model.model.layers
+    S, T, P1cells, P2cells = _bprime_grid(L)
+    assert 20 <= len(P1cells) <= 40, "ABORT: |P1|=%d out of [20,40]" % len(P1cells)
+    assert len(P2cells) <= 40, "ABORT: |P2|=%d > 40" % len(P2cells)
+    harvest_layers = sorted(set(S) | set(T))  # spec §3 Step 1: "layer set of Step 2"
+    commit = getattr(model.config, "_commit_hash", None)
+    print("[bprime] model=%s L=%d d=%d commit=%s" % (model_id, L, d_model, commit))
+    print("[bprime] S=%s T=%s |P1|=%d |P2|=%d" % (S, T, len(P1cells), len(P2cells)))
+
+    # ---- patch hook state + robust forward-PRE-hook (edits INPUT of module ℓt)
+    hook_state = {"vec": None}  # [bs, d] to write at final-prompt position, or None
+
+    def pre_hook(module, args, kwargs):
+        if hook_state["vec"] is None:
+            return None
+        hs = None
+        where = None
+        if len(args) > 0 and torch.is_tensor(args[0]) and args[0].dim() == 3:
+            hs, where = args[0], "arg"
+        elif torch.is_tensor(kwargs.get("hidden_states")):
+            hs, where = kwargs["hidden_states"], "kw"
+        if hs is None or hs.shape[1] <= 1:
+            return None  # decode step (seq==1) -> prefill-only patch (spec §4)
+        hs = hs.clone()
+        hs[:, -1, :] = hook_state["vec"].to(hs.dtype)
+        if where == "arg":
+            return ((hs,) + tuple(args[1:]), kwargs)
+        nk = dict(kwargs)
+        nk["hidden_states"] = hs
+        return (args, nk)
+
+    def _chat_ids(prompt):
+        msgs = [{"role": "user", "content": prompt}]
+        try:
+            return list(tok.apply_chat_template(msgs, add_generation_prompt=True))
+        except Exception:  # noqa: BLE001
+            return list(tok(prompt).input_ids)
+
+    def _pad_batch(id_lists):
+        maxlen = max(len(x) for x in id_lists)
+        ii, am = [], []
+        for x in id_lists:
+            pad = maxlen - len(x)
+            ii.append([tok.pad_token_id] * pad + x)
+            am.append([0] * pad + [1] * len(x))
+        return (torch.tensor(ii, device="cuda"),
+                torch.tensor(am, device="cuda"), maxlen)
+
+    def _gen(id_lists, patch_layer=None, patch_vecs=None):
+        """Greedy 16-tok generate over a left-padded batch; optional prefill-only
+        patch on decoder module patch_layer. OOM -> halve + recurse."""
+        try:
+            ii, am, maxlen = _pad_batch(id_lists)
+            handle = None
+            if patch_layer is not None:
+                hook_state["vec"] = torch.stack(patch_vecs).to("cuda")
+                handle = layers[patch_layer].register_forward_pre_hook(
+                    pre_hook, with_kwargs=True)
+            try:
+                with torch.no_grad():
+                    out = model.generate(
+                        input_ids=ii, attention_mask=am,
+                        max_new_tokens=MAX_NEW_TOKENS, do_sample=False,
+                        num_beams=1, pad_token_id=tok.pad_token_id)
+            finally:
+                if handle is not None:
+                    handle.remove()
+                hook_state["vec"] = None
+            return [tok.decode(out[i][maxlen:], skip_special_tokens=True)
+                    for i in range(len(id_lists))]
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if len(id_lists) == 1:
+                raise
+            mid = len(id_lists) // 2
+            pv1 = patch_vecs[:mid] if patch_vecs is not None else None
+            pv2 = patch_vecs[mid:] if patch_vecs is not None else None
+            return (_gen(id_lists[:mid], patch_layer, pv1)
+                    + _gen(id_lists[mid:], patch_layer, pv2))
+
+    # =============== STEP 1: text-only pass + harvest (958 items) ===============
+    prompt_ids = [_chat_ids(s["prompt"]) for s in specs]
+    text_only = [False] * n
+    text_gen = [None] * n
+    harvest = [None] * n  # per item: {ℓ: fp32 cuda vector} for ℓ in harvest_layers
+    for i, s in enumerate(specs):
+        ids = prompt_ids[i]
+        idt = torch.tensor([ids], device="cuda")
+        with torch.no_grad():
+            fwd = model(idt, output_hidden_states=True)
+        hv = {}
+        for ell in harvest_layers:
+            hv[ell] = fwd.hidden_states[ell][0, -1, :].detach().float().clone()
+        harvest[i] = hv
+        del fwd
+        gen = _gen([ids])[0]
+        text_gen[i] = gen
+        text_only[i] = bool(_score_entity(gen, s["gold_top"], s["base"], s["surfaces"]))
+        if (i + 1) % 100 == 0:
+            print("[bprime] step1 %d/%d  acc_running=%.3f  t=%.0fs"
+                  % (i + 1, n, sum(text_only[:i + 1]) / (i + 1), time.time() - t0))
+
+    acc_text = sum(text_only) / n
+    headroom_ok = (0.05 <= acc_text <= 0.85) and (n >= 900)
+    # reproducibility check on the 100 headroom items vs G2d R3/clutrr/form-2
+    hid_set = set(headroom_ids)
+    id_to_idx = {s["item_id"]: i for i, s in enumerate(specs)}
+    repro_agree = 0
+    repro_disagree = []
+    for hid in headroom_ids:
+        idx = id_to_idx[hid]
+        if bool(text_only[idx]) == bool(headroom_g2d_correct[hid]):
+            repro_agree += 1
+        else:
+            repro_disagree.append(hid)
+    print("[bprime] STEP1 done: acc_text=%.4f headroom_ok=%s repro_agree=%d/100"
+          % (acc_text, headroom_ok, repro_agree))
+
+    rows = []
+    for i, s in enumerate(specs):
+        rows.append({"item_id": s["item_id"], "probe": "text-only", "cell": None,
+                     "gen": text_gen[i], "correct": bool(text_only[i]),
+                     "gold": s["gold_top"], "phase": "exploratory",
+                     "gate": "BPRIME", "host": "R3", "model": model_id,
+                     "surface": "clutrr", "form": "2"})
+
+    base_summary = {
+        "model": model_id, "model_commit": commit, "L": L, "d_model": d_model,
+        "S": S, "T": T, "P1_cells": P1cells, "P2_cells": P2cells,
+        "harvest_layers": harvest_layers, "seed": BPRIME_SEED,
+        "n_items": n, "acc_text_only": acc_text, "n_scored": n,
+        "headroom_ok": bool(headroom_ok),
+        "repro_agree_headroom": repro_agree, "repro_disagreements": repro_disagree,
+        "batch_size": batch_size,
+    }
+
+    # ABORT gates that must fire BEFORE any sweep spend (spec §3 Step 1 / §5.1)
+    if repro_agree < 95:
+        base_summary.update({"aborted": True,
+                             "abort_reason": "REPRO_DRIFT repro_agree=%d<95" % repro_agree})
+        return {"aborted": True, "abort_reason": base_summary["abort_reason"],
+                "rows": rows, "summary": base_summary, "swept_item_ids": [],
+                "rescued_p1": [], "rescued_p1_ctrl": [], "rescued_p2": [],
+                "rescued_p2_ctrl": [], "elapsed_s": time.time() - t0}
+
+    # =============== STEP 3: swept sets, C100, derangement ======================
+    F = [i for i in range(n) if not text_only[i]]
+    correct_idx = [i for i in range(n) if text_only[i]]
+    if len(F) <= BPRIME_SWEEP_CAP:
+        swept = list(F)
+    else:
+        swept = sorted(_bp_random.Random(BPRIME_SEED).sample(F, BPRIME_SWEEP_CAP))
+    assert len(correct_idx) >= BPRIME_C100, \
+        "ABORT: only %d correct items (<%d for C100)" % (len(correct_idx), BPRIME_C100)
+    c100 = sorted(_bp_random.Random(BPRIME_SEED).sample(correct_idx, BPRIME_C100))
+    assert not (set(swept) & set(c100)), "ABORT: Swept∩C100 nonempty"
+    m = len(swept)
+    perm = _bp_sattolo(m, BPRIME_SEED)  # derangement over swept positions
+    assert all(perm[k] != k for k in range(m)), "ABORT: derangement has fixed point"
+    sigma = {swept[k]: swept[perm[k]] for k in range(m)}  # item idx -> deranged item idx
+    print("[bprime] |F|=%d |Swept|=%d |C100|=%d (derangement fixed-point-free)"
+          % (len(F), m, len(c100)))
+    base_summary.update({"n_failures": len(F), "n_swept": m, "n_c100": len(c100),
+                         "swept_is_full_F": len(F) <= BPRIME_SWEEP_CAP})
+
+    # =============== P2 carriers: feedback forward + bridge-token harvest =======
+    carrier = {}   # item idx -> {ℓh: fp32 cuda vector} for ℓh in S
+    need_carrier = sorted(set(swept) | set(c100))
+    for i in need_carrier:
+        s = specs[i]
+        enc = tok(s["feedback"], return_offsets_mapping=True)
+        ids = enc["input_ids"]
+        offsets = enc["offset_mapping"]
+        bridge = s["bridge_surface"]
+        cstart = s["feedback"].rfind(bridge)
+        assert cstart >= 0, "ABORT: bridge '%s' not in feedback (%s)" % (bridge, s["item_id"])
+        cend = cstart + len(bridge)
+        tok_idx = None
+        for ti, (a, b) in enumerate(offsets):
+            if a == b:  # special token (e.g. BOS) has zero-width span
+                continue
+            if a < cend and b > cstart:  # token overlaps the bridge span
+                tok_idx = ti           # keep the LAST overlapping token
+        assert tok_idx is not None, "ABORT: bridge token not located (%s)" % s["item_id"]
+        idt = torch.tensor([ids], device="cuda")
+        with torch.no_grad():
+            fwd = model(idt, output_hidden_states=True)
+        cv = {}
+        for ell in S:
+            cv[ell] = fwd.hidden_states[ell][0, tok_idx, :].detach().float().clone()
+        carrier[i] = cv
+        del fwd
+    print("[bprime] carriers harvested: %d (no generation)" % len(need_carrier))
+
+    # =============== STEP 4/5: P1 + P2 sweeps + breakage ========================
+    def _mini(items):
+        for a in range(0, len(items), batch_size):
+            yield items[a:a + batch_size]
+
+    rescued_p1 = {i: False for i in swept}
+    rescued_p1_ctrl = {i: False for i in swept}
+    rescued_p2 = {i: False for i in swept}
+    rescued_p2_ctrl = {i: False for i in swept}
+    p1_real_cell = {}
+    p1_ctrl_cell = {}
+    p2_real_cell = {}
+    p2_ctrl_cell = {}
+    breakage_cell = {}
+    partial = False
+    partial_reason = None
+
+    def _sweep_cell_arm(cell_items, ls, lt, source_map, probe, cell_correct_acc,
+                        rescued_acc):
+        for mb in _mini(cell_items):
+            idl = [prompt_ids[i] for i in mb]
+            vecs = [source_map(i)[ls] for i in mb]
+            gens = _gen(idl, patch_layer=lt, patch_vecs=vecs)
+            for i, g in zip(mb, gens):
+                s = specs[i]
+                ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                rows.append({"item_id": s["item_id"], "probe": probe,
+                             "cell": [ls, lt], "gen": g, "correct": ok,
+                             "gold": s["gold_top"], "phase": "exploratory",
+                             "gate": "BPRIME", "host": "R3", "model": model_id,
+                             "surface": "clutrr", "form": "2"})
+                if ok:
+                    cell_correct_acc[(ls, lt)] = cell_correct_acc.get((ls, lt), 0) + 1
+                    if rescued_acc is not None:
+                        rescued_acc[i] = True
+
+    # ---- P1 self back-patch (gate-bearing): real + control ----
+    for (ls, lt) in P1cells:
+        if time.time() - t0 > wall_cap_s:
+            partial, partial_reason = True, "WALL_CAP during P1"
+            break
+        _sweep_cell_arm(swept, ls, lt, lambda i: harvest[i], "p1",
+                        p1_real_cell, rescued_p1)
+        _sweep_cell_arm(swept, ls, lt, lambda i: harvest[sigma[i]], "p1-ctrl",
+                        p1_ctrl_cell, rescued_p1_ctrl)
+        print("[bprime] P1 cell (ls=%d,lt=%d) done t=%.0fs" % (ls, lt, time.time() - t0))
+
+    # ---- P2 oracle bridge-patch (reported-only): real + control ----
+    if not partial:
+        for (lh, lt) in P2cells:
+            if time.time() - t0 > wall_cap_s:
+                partial, partial_reason = True, "WALL_CAP during P2"
+                break
+            _sweep_cell_arm(swept, lh, lt, lambda i: carrier[i], "p2",
+                            p2_real_cell, rescued_p2)
+            _sweep_cell_arm(swept, lh, lt, lambda i: carrier[sigma[i]], "p2-ctrl",
+                            p2_ctrl_cell, rescued_p2_ctrl)
+            print("[bprime] P2 cell (lh=%d,lt=%d) done t=%.0fs" % (lh, lt, time.time() - t0))
+
+    # ---- P2 breakage on C100 (real bridge-patch, no control): correct->wrong ----
+    if not partial:
+        for (lh, lt) in P2cells:
+            if time.time() - t0 > wall_cap_s:
+                partial, partial_reason = True, "WALL_CAP during breakage"
+                break
+            for mb in _mini(c100):
+                idl = [prompt_ids[i] for i in mb]
+                vecs = [carrier[i][lh] for i in mb]
+                gens = _gen(idl, patch_layer=lt, patch_vecs=vecs)
+                for i, g in zip(mb, gens):
+                    s = specs[i]
+                    ok = bool(_score_entity(g, s["gold_top"], s["base"], s["surfaces"]))
+                    flip = (not ok)  # C100 items are text-only-correct by construction
+                    rows.append({"item_id": s["item_id"], "probe": "p2-breakage",
+                                 "cell": [lh, lt], "gen": g, "correct": ok,
+                                 "gold": s["gold_top"], "phase": "exploratory",
+                                 "gate": "BPRIME", "host": "R3", "model": model_id,
+                                 "surface": "clutrr", "form": "2"})
+                    if flip:
+                        breakage_cell[(lh, lt)] = breakage_cell.get((lh, lt), 0) + 1
+
+    base_summary.update({
+        "aborted": False, "partial": partial, "partial_reason": partial_reason,
+        "heatmap_p1_real": {"%d_%d" % (a, b): p1_real_cell.get((a, b), 0) for (a, b) in P1cells},
+        "heatmap_p1_ctrl": {"%d_%d" % (a, b): p1_ctrl_cell.get((a, b), 0) for (a, b) in P1cells},
+        "heatmap_p2_real": {"%d_%d" % (a, b): p2_real_cell.get((a, b), 0) for (a, b) in P2cells},
+        "heatmap_p2_ctrl": {"%d_%d" % (a, b): p2_ctrl_cell.get((a, b), 0) for (a, b) in P2cells},
+        "heatmap_breakage_c100": {"%d_%d" % (a, b): breakage_cell.get((a, b), 0) for (a, b) in P2cells},
+        "elapsed_s": time.time() - t0,
+    })
+    swept_ids = [specs[i]["item_id"] for i in swept]
+    return {
+        "aborted": False, "partial": partial, "partial_reason": partial_reason,
+        "rows": [json.loads(json.dumps(r, default=str)) for r in rows],
+        "summary": json.loads(json.dumps(base_summary, default=str)),
+        "swept_item_ids": swept_ids,
+        "rescued_p1": [1 if rescued_p1[i] else 0 for i in swept],
+        "rescued_p1_ctrl": [1 if rescued_p1_ctrl[i] else 0 for i in swept],
+        "rescued_p2": [1 if rescued_p2[i] else 0 for i in swept],
+        "rescued_p2_ctrl": [1 if rescued_p2_ctrl[i] else 0 for i in swept],
+        "elapsed_s": time.time() - t0,
+    }
+
+
+@app.function(image=image, gpu="A10G", volumes={HF_CACHE_MOUNT: hf_cache},
+              timeout=21600)
+def bprime_a10g(model_id, specs, headroom_ids, headroom_g2d_correct,
+                batch_size, wall_cap_s):
+    r = _bprime_body(model_id, specs, headroom_ids, headroom_g2d_correct,
+                     batch_size, wall_cap_s)
+    try:
+        hf_cache.commit()
+    except Exception:  # noqa: BLE001
+        pass
+    return r
+
+
+def _bprime_gate(res):
+    """Mechanical ASM-0041 verdict from returned per-item rescue vectors + gate
+    conditions. Computes Wilson bounds, paired excess, and the §5 label. The
+    runner reports these numbers; interpretation is designer work."""
+    r1 = res.get("rescued_p1", [])
+    r1c = res.get("rescued_p1_ctrl", [])
+    r2 = res.get("rescued_p2", [])
+    r2c = res.get("rescued_p2_ctrl", [])
+    ns = len(r1)
+    k1 = sum(r1)
+    k1c = sum(r1c)
+    k2 = sum(r2)
+    k2c = sum(r2c)
+    lb1, ub1 = _bp_wilson(k1, ns)
+    lb1c, ub1c = _bp_wilson(k1c, ns)
+    lb2, ub2 = _bp_wilson(k2, ns)
+    lb2c, ub2c = _bp_wilson(k2c, ns)
+
+    def _excess(real, ctrl):
+        b = sum(1 for x, y in zip(real, ctrl) if x and not y)
+        c = sum(1 for x, y in zip(real, ctrl) if (not x) and y)
+        p = _bp_binom_sf_ge(b, b + c, 0.5)
+        return {"b": b, "c": c, "n_discordant": b + c, "p_one_sided": p,
+                "excess_pass": bool((b > c) and (p < 0.05))}
+
+    exc1 = _excess(r1, r1c)
+    exc2 = _excess(r2, r2c)
+
+    summary = res.get("summary", {})
+    headroom_ok = bool(summary.get("headroom_ok", False))
+    aborted = bool(res.get("aborted", False))
+    partial = bool(res.get("partial", False))
+
+    # §5 decision rule (evaluated in order)
+    instrument_invalid = (not headroom_ok) or aborted or (lb1c >= BPRIME_FLOOR)
+    if instrument_invalid:
+        label = "INSTRUMENT-INVALID"
+    elif (lb1 >= BPRIME_FLOOR) and exc1["excess_pass"]:
+        label = "PASS"
+    elif ub1 < BPRIME_FLOOR:
+        label = "KILL-NO-LATENT-HEADROOM"
+    else:
+        label = "INCONCLUSIVE"
+
+    return {
+        "n_swept": ns,
+        "rescue_p1": {"k": k1, "rate": (k1 / ns if ns else 0.0),
+                      "wilson_lb95": lb1, "wilson_ub95": ub1},
+        "rescue_p1_ctrl": {"k": k1c, "rate": (k1c / ns if ns else 0.0),
+                           "wilson_lb95": lb1c, "wilson_ub95": ub1c},
+        "rescue_p2": {"k": k2, "rate": (k2 / ns if ns else 0.0),
+                      "wilson_lb95": lb2, "wilson_ub95": ub2},
+        "rescue_p2_ctrl": {"k": k2c, "rate": (k2c / ns if ns else 0.0),
+                           "wilson_lb95": lb2c, "wilson_ub95": ub2c},
+        "paired_excess_p1": exc1,
+        "paired_excess_p2": exc2,
+        "floor": BPRIME_FLOOR,
+        "headroom_ok": headroom_ok,
+        "aborted": aborted, "partial": partial,
+        "control_rescues_at_floor": bool(lb1c >= BPRIME_FLOOR),
+        "instrument_invalid_triggers": {
+            "not_headroom_ok": (not headroom_ok), "aborted": aborted,
+            "ctrl_lb_ge_floor": bool(lb1c >= BPRIME_FLOOR)},
+        "gate_label": label,
+    }
+
+
+@app.local_entrypoint()
+def bprime(dry_plan: bool = False, gpu: str = "A10G"):
+    import hashlib
+    import time
+
+    specs = _build_specs_bprime()
+    n = len(specs)
+    # byte-equality ASSERT: for the 100 headroom items, our f2_to == g2b's f2_to
+    g2b_specs, _vocab = _build_specs_g2b()
+    g2b_f2 = {s["item_id"]: s["f2_to"] for s in g2b_specs}
+    mine = {s["item_id"]: s["prompt"] for s in specs}
+    mism = [iid for iid in g2b_f2 if g2b_f2[iid] != mine.get(iid)]
+    assert not mism, "ABORT: form-2 prompt not byte-equal to g2b for %s" % mism[:5]
+    print("[bprime] byte-equality vs _build_specs_g2b f2_to: 100/100 OK")
+
+    # G2d reproducibility reference vector (R3 / clutrr / form-2 text-only correct)
+    headroom_ids = [json.loads(l)["item_id"]
+                    for l in (_ROOT / "data/nsk1-clutrr/headroom.jsonl")
+                    .read_text().splitlines() if l.strip()]
+    g2d_correct = {}
+    for l in (_ROOT / "poc/nsk1/out/g2d/g2d_rows.jsonl").read_text().splitlines():
+        r = json.loads(l)
+        if r.get("host") == "R3" and r.get("surface") == "clutrr" and r.get("form") == "2":
+            g2d_correct[r["item_id"]] = bool(r["correct_text_only"])
+    assert all(h in g2d_correct for h in headroom_ids), "ABORT: g2d repro vector incomplete"
+
+    L_expected = 24  # SmolLM2-1.7B (asserted in-container from the real config)
+    S, T, P1cells, P2cells = _bprime_grid(L_expected)
+    est_swept = 230   # STIPULATED planning band (ASM-0042), from G2d 24/100 failure rate
+    worst_swept = 300
+
+    def _gencount(nsw):
+        step1 = n
+        carriers = nsw + BPRIME_C100  # forward-only, no generation
+        p1 = nsw * len(P1cells) * 2
+        p2 = nsw * len(P2cells) * 2
+        breakage = BPRIME_C100 * len(P2cells)
+        return step1, carriers, p1, p2, breakage, step1 + p1 + p2 + breakage
+
+    s1, cf, p1g, p2g, brk, tot = _gencount(est_swept)
+    _, cfw, p1w, p2w, brkw, totw = _gencount(worst_swept)
+    # GPU-h / $ estimate: A10G ~$1.10/GPU-h; G2d throughput ~6 batch-1 gens/s,
+    # batched sweeps materially faster; span the spec's own 3-8 GPU-h band.
+    gpuh_lo, gpuh_hi = 2.0, 8.0
+    usd_lo, usd_hi = round(gpuh_lo * 1.10, 1), round(gpuh_hi * 1.10, 1)
+
+    print("=== B′ Stage-0 internal-channel diagnostic — PLAN (spec docs/next/nsk1-bprime-stage0-spec.md) ===")
+    print("host                : R3 = %s (zero-shot, CLUTRR entity form 2)" % BPRIME_MODEL)
+    print("items (covered)     : %d (858 items.jsonl covered + 100 headroom.jsonl)" % n)
+    print("grid (L=%d expected) : S=%s T=%s  |P1|=%d  |P2|=%d" % (L_expected, S, T, len(P1cells), len(P2cells)))
+    print("seeds               : %d (σ derangement / C100 / 300-subsample)" % BPRIME_SEED)
+    print("floor / z           : %.2f / %.4f (one-sided Wilson 95%%)" % (BPRIME_FLOOR, BPRIME_Z))
+    print("planning |Swept|    : %d (STIPULATED ASM-0042; actual = text-only failures, cap %d)" % (est_swept, BPRIME_SWEEP_CAP))
+    print("gen count @|Swept|=%d: step1=%d  P1=%d  P2=%d  breakage=%d  TOTAL=%d (+%d carrier forwards, no-gen)"
+          % (est_swept, s1, p1g, p2g, brk, tot, cf))
+    print("gen count @|Swept|=%d: TOTAL=%d (+%d carrier forwards)  <- worst case" % (worst_swept, totw, cfw))
+    print("GPU-h estimate      : %.1f–%.1f  |  $ estimate : $%.1f–$%.1f  (A10G, fp32)" % (gpuh_lo, gpuh_hi, usd_lo, usd_hi))
+    print("HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard %ds)" % BPRIME_WALL_CAP_S)
+    print("phase               : exploratory (quarantined, uncitable, flips no verdict)")
+    print("decision rule       : ASM-0041 §5 — PASS iff Wilson-LB95(P1)>=%.2f AND paired-excess(P1); "
+          "KILL iff Wilson-UB95(P1)<%.2f; ctrl-LB>=%.2f => INSTRUMENT-INVALID" % (BPRIME_FLOOR, BPRIME_FLOOR, BPRIME_FLOOR))
+
+    caps_ok = (tot <= 60000 and totw <= 60000 and gpuh_hi <= 10 and usd_hi <= 25)
+    print("within caps (plan)  : %s" % caps_ok)
+
+    if dry_plan:
+        s0 = specs[0]
+        print("\nDRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.")
+        print("\n--- sample form-2 text-only prompt (item %s) ---\n%s" % (s0["item_id"], s0["prompt"]))
+        print("\n--- sample P2 carrier feedback (item %s) ---\n%s  [bridge=%s gold_top=%s]"
+              % (s0["item_id"], s0["feedback"], s0["bridge_surface"], s0["gold_top"]))
+        print("\nP1 cells (%d): %s" % (len(P1cells), P1cells))
+        print("P2 cells (%d): %s" % (len(P2cells), P2cells))
+        return
+
+    if not caps_ok:
+        raise SystemExit("ABORT: plan exceeds caps — not launching (tot=%d totw=%d)" % (tot, totw))
+
+    genfn = bprime_a10g  # A10G only (spec §7)
+    t_launch = time.time()
+    res = genfn.remote(BPRIME_MODEL, specs, headroom_ids, g2d_correct,
+                       BPRIME_BATCH, BPRIME_WALL_CAP_S)
+    wall_s = time.time() - t_launch
+
+    outdir = _ROOT / "poc/nsk1/out/bprime"
+    outdir.mkdir(parents=True, exist_ok=True)
+    rows = res.get("rows", [])
+    with open(outdir / "bprime_rows.jsonl", "w") as f:
+        for r in rows:
+            f.write(json.dumps(r, sort_keys=True) + "\n")
+
+    gate = _bprime_gate(res)
+    summary = dict(res.get("summary", {}))
+    summary.update({
+        "spec_ref": "docs/next/nsk1-bprime-stage0-spec.md",
+        "gate": "BPRIME", "phase": "exploratory",
+        "verdict": gate,
+        "wall_clock_s_local": round(wall_s, 1),
+        "gpu_h_estimate": round((res.get("summary", {}).get("elapsed_s", 0.0)) / 3600.0, 3),
+        "usd_estimate": round((res.get("summary", {}).get("elapsed_s", 0.0)) / 3600.0 * 1.10, 3),
+        "n_rows": len(rows),
+        "aborted": bool(res.get("aborted", False)),
+        "abort_reason": res.get("abort_reason"),
+        "partial": bool(res.get("partial", False)),
+        "partial_reason": res.get("partial_reason"),
+        "hard_caps": {"usd": 25, "gpu_h": 10, "wall_h": 12},
+        "seed": BPRIME_SEED, "floor": BPRIME_FLOOR,
+    })
+    with open(outdir / "bprime_summary.json", "w") as f:
+        json.dump(summary, f, indent=1, sort_keys=True)
+
+    def _sha(p):
+        return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+    sha_rows = _sha(outdir / "bprime_rows.jsonl")
+    sha_sum = _sha(outdir / "bprime_summary.json")
+
+    print("\n=== B′ RESULT (phase:exploratory) ===")
+    print("aborted=%s partial=%s  n_rows=%d  elapsed=%.0fs (GPU) / %.0fs (wall)"
+          % (res.get("aborted"), res.get("partial"), len(rows),
+             res.get("summary", {}).get("elapsed_s", 0.0), wall_s))
+    print(json.dumps(gate, indent=1, sort_keys=True))
+    print("MECHANICAL VERDICT (ASM-0041 §5): %s" % gate["gate_label"])
+    print("sha256 bprime_rows.jsonl    = %s" % sha_rows)
+    print("sha256 bprime_summary.json  = %s" % sha_sum)

@@ -1,0 +1,42 @@
+dry-plan launched 2026-07-10T09:39:45Z
+G2_BUILD=v2 module import ok (root=/home/ec2-user/css/kernel/kernel-of-truth)
+✓ Initialized. View run at 
+https://modal.com/apps/REDACTED-WORKSPACE/main/ap-vwNEOxuGMxyKwFywglDcbh
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/modal/modal_nsk1_g2.py
+├── 🔨 Created function gen_a10g.
+├── 🔨 Created function gen_l4.
+└── 🔨 Created function bprime_a10g.
+[bprime] byte-equality vs _build_specs_g2b f2_to: 100/100 OK
+=== B′ Stage-0 internal-channel diagnostic — PLAN (spec docs/next/nsk1-bprime-stage0-spec.md) ===
+host                : R3 = HuggingFaceTB/SmolLM2-1.7B-Instruct (zero-shot, CLUTRR entity form 2)
+items (covered)     : 958 (858 items.jsonl covered + 100 headroom.jsonl)
+grid (L=24 expected) : S=[12, 14, 16, 18, 20, 22] T=[2, 4, 6, 8, 10, 12]  |P1|=35  |P2|=36
+seeds               : 20260711 (σ derangement / C100 / 300-subsample)
+floor / z           : 0.15 / 1.6449 (one-sided Wilson 95%)
+planning |Swept|    : 230 (STIPULATED ASM-0042; actual = text-only failures, cap 300)
+gen count @|Swept|=230: step1=958  P1=16100  P2=16560  breakage=3600  TOTAL=37218 (+330 carrier forwards, no-gen)
+gen count @|Swept|=300: TOTAL=47158 (+400 carrier forwards)  <- worst case
+GPU-h estimate      : 2.0–8.0  |  $ estimate : $2.2–$8.8  (A10G, fp32)
+HARD caps           : $25 / 10 GPU-h / 12 h wall  (in-container soft wall guard 19800s)
+phase               : exploratory (quarantined, uncitable, flips no verdict)
+decision rule       : ASM-0041 §5 — PASS iff Wilson-LB95(P1)>=0.15 AND paired-excess(P1); KILL iff Wilson-UB95(P1)<0.15; ctrl-LB>=0.15 => INSTRUMENT-INVALID
+within caps (plan)  : True
+
+DRY-PLAN ONLY — no GPU launched, $0 spent. All build asserts passed.
+
+--- sample form-2 text-only prompt (item clutrr-c0001) ---
+Story:
+[Michael] and his daughter [Jennifer] like to read poems together. [Jason] is the proud father of the lovely [Michael]
+Question: Who is the grandfather of Jennifer?
+Answer with exactly one word: the name of the person. Answer:
+
+--- sample P2 carrier feedback (item clutrr-c0001) ---
+Note: the father of Jennifer is Michael.  [bridge=Michael gold_top=Jason]
+
+P1 cells (35): [(12, 2), (12, 4), (12, 6), (12, 8), (12, 10), (14, 2), (14, 4), (14, 6), (14, 8), (14, 10), (14, 12), (16, 2), (16, 4), (16, 6), (16, 8), (16, 10), (16, 12), (18, 2), (18, 4), (18, 6), (18, 8), (18, 10), (18, 12), (20, 2), (20, 4), (20, 6), (20, 8), (20, 10), (20, 12), (22, 2), (22, 4), (22, 6), (22, 8), (22, 10), (22, 12)]
+P2 cells (36): [(12, 2), (12, 4), (12, 6), (12, 8), (12, 10), (12, 12), (14, 2), (14, 4), (14, 6), (14, 8), (14, 10), (14, 12), (16, 2), (16, 4), (16, 6), (16, 8), (16, 10), (16, 12), (18, 2), (18, 4), (18, 6), (18, 8), (18, 10), (18, 12), (20, 2), (20, 4), (20, 6), (20, 8), (20, 10), (20, 12), (22, 2), (22, 4), (22, 6), (22, 8), (22, 10), (22, 12)]
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/REDACTED-WORKSPACE/main/ap-vwNEOxuGMxyKwFywglDcbh
