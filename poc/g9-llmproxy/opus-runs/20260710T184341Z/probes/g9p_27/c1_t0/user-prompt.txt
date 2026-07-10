@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: child
+
+dictionary definition: a young person of either sex
+
+examples:
+-  In the park, a young girl and boy played together, their laughter filling the air as they enjoyed their afternoon activity.
+- She writes books for children and is widely respected for her ability to connect with her young readers.
+-  The teacher read a story aloud to the classroom full of eager children, captivating their imagination with every word.
+
+ambiguous examples (the word replaced by <UNK>):
+- On a rainy day, the park was nearly deserted, except for the sound of drops splashing against puddles. Amidst the greyness, a small figure darted from tree to tree, laughter echoing softly in the damp air. There, in that fleeting moment, a <UNK> found joy in a world that felt heavy under the clouds.
+- As the sun began to set, shadows elongated and danced upon the ground, creating an enchanting scene. The garden was alive with the vibrant colors of flowers, and amidst this palette, a curious <UNK> explored the intricacies of petals and leaves. It was a gentle reminder of the simple wonder that comes with discovery.
+- In a small corner of the room, the atmosphere buzzed with creativity and enthusiasm as ideas flowed freely. A sense of wonder permeated the air, inspiring those present to think beyond the ordinary and embrace the extraordinary. The presence of a <UNK> sparked the imagination, as they shared their thoughts and dreams with an infectious energy.
+- The festival bustled with excitement, colors swirling in a lively display of joy that captivated onlookers. At the heart of the celebration, a vibrant parade marched by, its rhythm pulsing through the crowd. A <UNK> pushed to the front of the crowd, eager to see the marvels parading past.
+
+proposed paraphrase: there is one part of a body; this something is a part of this part; one part of this part is above this something; another part of this part is below this something; because there is this something, it can be like this: when one part of this part moves, the other part does not move.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

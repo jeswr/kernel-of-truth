@@ -1,0 +1,46 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: illness
+
+dictionary definition: impairment of normal physiological function affecting part or all of an organism
+
+examples:
+- She diligently tracked the progression of her illness, documenting her symptoms in a journal.
+-  The flu is a common illness characterized by fever, cough, and body aches, which results in impairment of normal physiological functions such as temperature regulation and energy production.
+
+ambiguous examples (the word replaced by <UNK>):
+- The quiet hum of the machinery faded into the background as the team meticulously examined the samples. Each vial contained secrets, hints of a troubling condition lurking within the subjects. Despite their best efforts, they struggled to identify the exact nature of the <UNK> that was manifesting in their latest research.
+- As the sun set behind the mountains, casting long shadows in the laboratory, the researchers gathered around a table strewn with data sheets. The tension was palpable as they discussed the implications of their findings, knowing that the results could have significant consequences for their work. Their primary concern revolved around an unexpected <UNK> that seemed to disrupt the normal processes they had taken for granted.
+- In a world where technology often takes precedence, the delicate balance of nature remains a constant reminder of vulnerabilities. A sudden change in a creature's behavior raised alarms among scientists who knew too well what such alterations could indicate. It became evident that an underlying <UNK> was responsible for the unexpected transformation witnessed in the ecosystem.
+- During the meeting, the committee members exchanged glances, fully aware of the stakes involved. The report had outlined a cascade of events leading to a distressing breakdown in the observed population dynamics. If certain contributing factors were not addressed, they feared an impending <UNK> could decimate the very foundations of their ongoing projects.
+
+proposed paraphrase: this is some bad something; there is a someone; when it is happening, some parts of this someone’s body cannot do the same things they did before now; when it is happening, this someone feels something bad; when it is happening, this someone cannot do many things; it happens for some time; maybe after some time it is not happening.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

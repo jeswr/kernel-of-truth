@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: freedom
+
+dictionary definition: the condition of being free; the power to act or speak or think without externally imposed restraints
+
+examples:
+- The artist celebrated her newfound freedom of expression through vibrant and bold paintings.
+- The artist felt a sense of freedom when she was allowed to express her creativity without interference from her disapproving family.
+- The freedom to practice her own faith was a fundamental right that she held dear.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the quiet corners of her mind, she found herself wandering through landscapes of uncharted thoughts. Each path she traced seemed to echo the elusive nature of <UNK>, a concept that sometimes felt as distant as the stars above. With every moment of reflection, she pondered the great weight of expectations that shaped her reality.
+- In a world filled with noise and distraction, the search for clarity often felt like a distant dream. His heart beat in sync with the whispers of possibility, hinting at an existence untouched by societal confines, where <UNK> was not just a word but a profound reality. Yet, the paradox lay in the struggle to grasp something so deeply desired but often fleeting.
+- On the brink of an important decision, she stared into the horizon, wondering which path offered more than just the illusion of choice. It struck her that the real challenge was not where she would go, but rather a deeper inquiry into what it meant to embrace <UNK>. Those fleeting moments where thoughts flowed freely brought her a semblance of peace, if only for an instant.
+- As the sun dipped below the horizon, casting shadows on the walls of her constraints, she felt a spark urging her forward. The sweet taste of <UNK> lingered in the air, inviting her to explore the uncharted territories of her own desires. Every step she took resonated with the echoes of her unvoiced dreams and ambitions, yearning to break free.
+
+proposed paraphrase: this is something good; there is a someone; when there is this something, it is like this: if this someone wants to do something, this someone can do it; if this someone does not want to do something, this someone does not do it; other people do not say to this someone: 'you cannot do some things'.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

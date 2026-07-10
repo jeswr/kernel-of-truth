@@ -1,0 +1,46 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: name
+
+dictionary definition: a language unit by which a person or thing is known
+
+examples:
+- Her full name is Jessica Jane Smith.
+- those are two names for the same thing
+
+ambiguous examples (the word replaced by <UNK>):
+- The ancient scrolls held secrets about a distant world, where every creature possessed a unique identifier that defined its essence. As the scholars deciphered the faded text, they stumbled upon an intriguing reference to a powerful entity known only by its <UNK>. The implications of this discovery sent ripples through their academic community, challenging long-held beliefs about identity.
+- In quiet corners of bustling markets, artisans crafted beautiful trinkets that told stories of their origins. Visitors marveled at each item, often asking about the significance of its <UNK> to comprehend its place in the vast tapestry of culture. With every detail shared, the connection between the object and its heritage deepened, fostering a sense of unity among strangers.
+- Within the poetic verses of the forgotten bard, a sense of belonging and history shimmered through every line. Readers found themselves enchanted, pondering the profound meanings nestled within each <UNK> mentioned, which evoked memories of their own experiences. This dialogue between the text and its audience bridged generations, intertwining lives in unexpected ways.
+- In the realm of dreams, an elusive symbol danced just beyond reach, whispering hints of a story waiting to unfold. Those who dared to remember discovered the significance woven into the fabric of each <UNK> encountered in their slumber. Thus began the quest for clarity, where the subconscious sought to unlock the mysteries behind every elusive character that shaped their narrative.
+
+proposed paraphrase: this something is words; there is a someone; when people hear these words, people can think about this someone; people can know: it is not another someone; people say these words at many times.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

@@ -1,0 +1,48 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: laughing
+
+dictionary definition: showing or feeling mirth or pleasure or happiness
+
+examples:
+- The children were laughing at the silly clown.
+- The joyful memory of my wedding day was filled with moments of laughing with my loved ones.
+- Their happy laughter echoed through the park.
+- Her infectious laughter filled the room.
+
+ambiguous examples (the word replaced by <UNK>):
+- The sun dipped below the horizon, casting a soft golden light that seemed to dance on the surface of the lake. Inside the cabin, a group of friends gathered by the fire, sharing stories that drew smiles and warmth from each other's hearts. The atmosphere was infused with joy, as echoed through the room, filling it with a delightful sensation that enveloped them all in comfort and cheer, leaving no doubt of the evening’s magic, especially as they caught sight of the children outside, their faces radiant and <UNK>.
+- Strolling through the vibrant marketplace, the air was thick with the scents of spices and sweets, enticing passersby to stop and indulge. Amidst the bustling crowd, a melody played from a nearby street performer, drawing many to pause and sway in time with the rhythm. It was a sight to behold, with the happiness palpable in every cheerful face, especially as they watched a group of friends, carefree and <UNK>, twirling about in playful camaraderie.
+- As the storm clouds gathered overhead, casting a gloomy shadow over the park, there was a strange contrast found in the playground. A flicker of light caught the eye, revealing a cluster of young ones huddled together, their laughter piercing through the dreariness. Their joy was contagious, each giggle rippling through the air like a warm breeze, transforming the atmosphere entirely, the rain forgotten as they embraced fun-filled moments, seemingly oblivious to the world around them, each one gleaming with <UNK>.
+- During the quiet hours of early morning, the garden awakened with an array of colors and the invigorating scent of blooming flowers. Nearby, a couple walked hand in hand, their shared glances and whispered secrets igniting a sense of kinship that shimmered in the dawn's light. It was a serene scene, filled with an unmistakable warmth, highlighted by the sounds drifting from the children at play, their delight creating an enchanting backdrop, as they reveled in their innocent, <UNK> joys.
+
+proposed paraphrase: this someone feels something good now; because of this, this someone does something with a part of the body; because of this, there is some something that other people can hear; when other people hear it, they can know: this someone feels something good.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

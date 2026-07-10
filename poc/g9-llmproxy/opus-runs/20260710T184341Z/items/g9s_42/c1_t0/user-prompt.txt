@@ -1,0 +1,48 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: heart
+
+dictionary definition: the locus of feelings and intuitions
+
+examples:
+- She couldn't shake the feeling in her heart that something was off about the new employee.
+- Deep down, he knew in his heart that she was the one.
+- In your heart, you know the answer is no.
+- Despite the evidence to the contrary, she followed her heart and chose to believe that love would conquer all.
+
+ambiguous examples (the word replaced by <UNK>):
+- Amidst the chaos of everyday life, she often found solace in quiet moments of reflection. It was during these times that the whispers of her <UNK> guided her toward decisions that felt profoundly right. The world might have debated the logic behind her choices, but deep down, she understood that there was something greater at play.
+- As he stood at the crossroads of his journey, he felt a pull that could not be ignored. Outside influences draped in uncertainty clouded his thoughts, yet a deep-seated feeling in his <UNK> beckoned him forward, urging him toward a path less traveled. Trusting in that instinct required courage, but he sensed it was a vital part of his evolution.
+- In the dimly lit room, she gazed out the window, lost in the ebb and flow of memories intertwined with dreams. A familiar sense tugged at her, as if the very essence of her <UNK> was communicating unspoken truths that transcended reason. Though she fought against the tides of doubt, the undeniable force within her remained steadfast.
+- On the edge of a new beginning, he felt a shift that was both exhilarating and terrifying. The opinions of others rushed in like a tidal wave, yet he couldn’t shake the gnawing feeling in his <UNK> that told him to embrace the unknown. It was a struggle to silence the noise, but the quiet insistence of that inner voice was impossible to ignore.
+
+proposed paraphrase: this is a part of some someone; people cannot see this part; because there is this part, this someone can feel something at many times; when this someone feels something, people think like this: 'some something is happening in the place where this part is'.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

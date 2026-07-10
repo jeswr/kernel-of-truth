@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: soft
+
+dictionary definition: yielding readily to pressure or weight
+
+examples:
+- The ground beneath our feet felt soft and yielding.
+- The soft blanket was a welcome comfort on a cold winter night.
+- The clay was soft and easy to mold.
+
+ambiguous examples (the word replaced by <UNK>):
+- The new sofa in the living room has a unique appeal, inviting guests to sink into its plush embrace. Its fabric looks inviting, hinting at a texture that promises comfort during long conversations. However, beneath the stylish exterior, the seating is surprisingly <UNK>, making it perfect for lounging after a tiring day.
+- In the bakery, the aroma of freshly baked bread filled the air, drawing customers in with its warmth. Each loaf was a testament to the art of baking, but the pastries stood out, promising an experience that would melt in one's mouth. The chef had mastered the technique, ensuring that every creation was not just delicious but also wonderfully <UNK>.
+- During the museum's exhibit, the sculptures caught everyone's eye with their exquisite detail and form. Visitors were captivated by the way the artist had chosen to manipulate materials, creating a sense of movement that transcended their physical properties. One particular piece, an abstract form, had a surprising ability to evoke emotions due to its remarkably <UNK> nature.
+- The artist sat quietly in the dimly lit room, pondering the materials spread out on the table. Among them was a unique substance that promised to transform under the slightest touch, inviting deep exploration into the art of creation. It was this quality that captivated them, as they began to envision their next masterpiece, one that would come alive with the vibrant spirit of the <UNK> medium.
+
+proposed paraphrase: when someone does something to X with a part of this someone's body, some parts of X move; when a part of this someone's body touches X, this someone does not feel something bad; because someone does something to X, X can be like another something.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

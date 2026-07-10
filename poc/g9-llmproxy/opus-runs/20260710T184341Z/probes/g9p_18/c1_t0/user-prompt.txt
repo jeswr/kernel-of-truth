@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: marry
+
+dictionary definition: take in marriage
+
+examples:
+- He decided to marry the woman he had fallen deeply in love with.
+- The couple finally decided to marry after years of dating.
+-  John and Mary decided to marry in a grand wedding ceremony in front of their family and friends.
+- She accepted the job offer and thus began her new life, taking her husband and children to start a new home abroad.
+- She announced her plan to marry her long-time boyfriend next summer.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the midst of a lively debate about the nature of commitment, the couple exchanged glances that spoke volumes of their unspoken agreement. Their friends eagerly anticipated a celebration, sensing that the moment was approaching for them to <UNK>. It was as if the entire universe conspired to bring them to this inevitable point, entwining their destinies in ways they had yet to fully comprehend.
+- As the sun dipped below the horizon, casting a golden hue over the gathering, the air was thick with anticipation and whispered dreams. They stood hand-in-hand, surrounded by the laughter and warmth of loved ones, feeling the weight of expectations settling upon them. Little did they know, a promise might soon emerge that would lead them to <UNK>, showcasing the beauty and complexity of their bond.
+- Throughout the years, they nurtured their friendship, exploring the deepest corners of each other's hearts. Their journey had been marked by shared experiences and deep understanding, hinting at something greater that could soon unfold. On the day when they finally realized it was time to <UNK>, a sense of joy enveloped them, affirming that they were meant to take this step together.
+- In the quiet moments spent under starlit skies, conversations flowed effortlessly, revealing dreams of a future intertwined. Each declaration of affection felt like a stepping stone leading them closer to a significant decision. It was only a matter of time before they would embrace the idea of <UNK>, forever changing the course of their lives.
+
+proposed paraphrase: this someone thinks like this: 'something good is happening now; I don't want another something; I do not want more good things'; because of this, this someone feels something good.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

@@ -1,0 +1,46 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: hypothesis
+
+dictionary definition: a tentative insight into the natural world; a concept that is not yet verified but that if true would explain certain facts or phenomena
+
+examples:
+-  The chemist proposed a hypothesis suggesting that the catalytic activity of the enzyme could be increased by altering its active site structure. If this hypothesis holds, it could lead to the development of more efficient industrial catalysts.
+- The medical researcher developed a hypothesis that a new strain of the virus was causing the mysterious outbreak of flu symptoms.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the quiet corners of the laboratory, whispers of possibility intertwine with the faint hum of machinery. Researchers stare intently at their notes, pondering the implications of a new idea that could transform their understanding. This <UNK> lingers at the edge of their discussions, tantalizing yet elusive, waiting for the right experiments to either confirm or deny its validity.
+- As the sun sets behind the mountains, a group of thinkers gathers around a flickering campfire, sharing tales of the cosmos. Each story dances with the essence of wonder, leaving them contemplating the mysteries of the universe. They dwell on a fleeting thought that remains just out of reach, a <UNK> that could unravel the secrets of time and space if only they dared to explore it further.
+- Amidst the towering stacks of books, a scholar sifts through centuries of accumulated knowledge, searching for connections that might illuminate the unknown. A peculiar notion teeters on the brink of realization, begging for exploration yet shrouded in uncertainty. This intriguing <UNK> presents itself like an ancient riddle, promising insights that could reframe current understanding if only the pieces could be aligned.
+- In a dimly lit art studio, an artist confronts the canvas, grappling with the abstract notions swirling in their mind. Each brushstroke seems to suggest an untested idea, hinting at deeper truths that lie beyond the surface. Here, a bold <UNK> stands ready to ignite the imagination, a proposition that needs the light of exploration to truly come alive.
+
+proposed paraphrase: X did something for some time at some time; before this time there was no Y; because X did this, after this time there is Y; X wanted Y to exist.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

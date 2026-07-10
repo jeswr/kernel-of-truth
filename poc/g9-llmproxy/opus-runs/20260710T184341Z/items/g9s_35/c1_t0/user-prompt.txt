@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: recommend
+
+dictionary definition: push for something
+
+examples:
+- The human resources manager recommended firmly that all employees adhere to the new company policy on data security.
+- She recommended that her friend take a break from her stressful job.
+- The doctor recommended strongly that her patients get enough rest and hygiene to prevent the spread of the flu.
+- She recommended a total restructuring of the company's advertising campaign.
+- The committee recommended strongly that the budget be increased by 10%.
+
+ambiguous examples (the word replaced by <UNK>):
+- After considering the various options available, she felt it was crucial to voice her support for the local project. Many of her colleagues seemed uncertain, but she believed in its potential to positively impact the community. Therefore, she decided to <UNK> that they proceed with the initiative without delay.
+- The group gathered to discuss potential policy changes that could affect their future. Some members expressed reservations about the new direction, while others seemed eager for innovation. In the end, it became necessary to <UNK> a particular course of action that aligned with their long-term vision.
+- Despite differing opinions on the best approach, the manager understood the importance of clarity in communication. She realized that without strong guidance, the team might falter in making a decision. Thus, she felt compelled to <UNK> the most feasible alternative in order to move forward effectively.
+- The discussion grew more heated as individuals shared their insights about the upcoming event. Each person had their own vision, which made consensus difficult to achieve. Ultimately, one participant decided to <UNK> the logistics that would ensure everything ran smoothly, hoping to unify the group's efforts.
+
+proposed paraphrase: X says to some someone about Y: 'Y is something good; if you do something with Y, maybe you feel something good; I want you to do something with Y'; X says this because X thinks like this about Y: 'Y is something good'.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

@@ -1,0 +1,48 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: proverb
+
+dictionary definition: a condensed but memorable saying embodying some important fact of experience that is taken as true by many people
+
+examples:
+- "A penny saved is a penny earned" is a common proverb that emphasizes the importance of saving money and living frugally.
+- "The teacher reminded the students that honesty is always the best policy, a proverb that should guide their actions."
+- The phrase "actions speak louder than words" is a proverb that many business leaders use to emphasize the importance of a company's actions over its marketing claims.
+- The wise old man shared a proverb about perseverance, always reminding his students that struggles are part of the journey.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the quiet moments of reflection, she often found herself pondering the wisdom that shapes our lives. It was during one of these contemplations that she recalled a saying, a short phrase that encapsulated a universal truth. This simple <UNK> offered her clarity in times of doubt, reminding her of the lessons learned through shared experiences.
+- As the sun began to set, casting an orange glow over the horizon, he shared a thought that had been passed down through generations. It was a remarkable sentiment, packed into just a few words, which resonated deeply with those who heard it. Such a <UNK> served to unite them in understanding, bridging the gaps between their diverse backgrounds.
+- While exploring the old market, she stumbled upon a handwritten sign that displayed a particularly thought-provoking expression. The phrase, though brief, carried weight, speaking to the core of human experience. She smiled, knowing that this <UNK> could spark discussions that would stretch far beyond mere commerce.
+- In a quiet corner of the library, he discovered a collection of writings that delved into the essence of human nature. Among the intricate prose lay a succinct statement, one that could easily be recalled in moments of challenge. This poignant <UNK> captured the fleeting essence of truth, an idea that many have cherished over time.
+
+proposed paraphrase: this is something good; there is a someone; when there is this something, other people cannot say to this someone: 'you cannot do some things'; if this someone does not want other people to do something to this someone, other people cannot do it.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

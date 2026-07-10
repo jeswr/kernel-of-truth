@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: problem
+
+dictionary definition: a state of difficulty that needs to be resolved
+
+examples:
+- Her team struggled to overcome the problems with the new project timeline, which kept them up at night with anxiety and stress.
+- The city faced many problems with its aging infrastructure, including crumbling roads and inadequate public transportation options.
+- The lack of affordable housing is a persistent problem in many inner cities, exacerbating poverty and social inequality.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the quiet town, the unusual hush that had settled over the streets felt concerning. Residents exchanged worried glances, hinting at an underlying <UNK> that loomed just beneath the surface. Their smiles faded as they gathered, united by an invisible weight they could not openly discuss.
+- As the days turned into weeks, the once-thriving community began to show signs of discontent. Tensions simmered among the locals, each person grappling with their own unspoken <UNK>. The vibrant colors of the market felt muted, overshadowed by an atmosphere thick with uncertainty.
+- On the other side of the river, an artist found inspiration in the encroaching shadows that seemed to creep over the landscape. Eager to capture the essence of the moment, they painted the scene but struggled to articulate the underlying <UNK> that permeated their thoughts. What was once a canvas of joy transformed into a reflection of something deeper, unacknowledged yet pervasive.
+- Deep in conversation, friends savored their coffees while avoiding the elephant in the room. Although they laughed and traded stories, each individual felt a creeping sense of <UNK> that gnawed at the corners of their happiness. The vibrant atmosphere hinted at laughter but concealed a lingering discomfort that remained unspoken, echoing in their silence.
+
+proposed paraphrase: some someone thinks like this: 'maybe this is true; I do not know: it is true; I want to know: it is true'; because this someone wants to know it, this someone does some things; after some time, maybe this someone knows: it is true.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

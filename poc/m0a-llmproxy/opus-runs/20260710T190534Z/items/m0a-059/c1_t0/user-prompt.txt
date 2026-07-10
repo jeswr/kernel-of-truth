@@ -1,0 +1,39 @@
+You are an independent judge in a blind word-sense annotation task.
+
+Below is ONE item: a short passage from a simple story, with ONE word marked between double square brackets, [[like this]], and one proposed sense for that marked word. The passage is a fragment cut from a longer story, so it may begin or end mid-word; read it charitably as running text.
+
+Question: in this passage, does the marked word, as used here, have the meaning given under "proposed sense"?
+
+Judging criteria (apply exactly these):
+
+- Judge the marked word's sense IN THIS PASSAGE only. Whether the proposed sense would be a good dictionary definition of the word in general is out of scope; judge only whether it is the sense the word carries here.
+- Answer "correct" if the marked word's meaning in this passage is the sense described.
+- Answer "incorrect" if it is not -- including light-verb uses, phrasal-verb uses, idiomatic uses and auxiliary uses whose sense in this passage differs from the proposed sense.
+- Answer "unclear" only if the sense assignment is genuinely contestable either way -- never merely because the proposed sense is oddly worded, and never as a soft "incorrect".
+
+How the sense texts read: sense descriptions are written in a deliberately plain, simplified style, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". The letters X and Y stand for the participants the word applies to (for a word like "carry", X carries Y). Odd wording is never a trick and never by itself a reason to answer "incorrect".
+
+Judge each item only on its own passage; never reuse an earlier answer or look for a pattern.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"answer": "<token>"}
+
+where <token> is exactly one of "correct", "incorrect", "unclear". No other keys, no other text.
+
+--- ITEM ---
+
+passage: all mouse named Mimi. Mimi lived in a tiny house near a big tree. One day, Mimi [[found]] a piece of iron. She did not know what it was, but she thought it was very spec
+
+marked word: found
+
+proposed sense: before now X did not know where Y is; because X did something, X sees Y now; X knows now: Y is at this place.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

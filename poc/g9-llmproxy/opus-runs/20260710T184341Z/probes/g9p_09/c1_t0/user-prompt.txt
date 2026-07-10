@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: migrant
+
+dictionary definition: traveler who moves from one region or country to another
+
+examples:
+- The migrant workers traveled long distances to find employment in the city.
+- The family decided to become migrants to escape the economic crisis in their home country.
+- The influx of migrant workers in the city helped stimulate local businesses and cultural exchange programs.
+- Every year, thousands of migrants from war-torn Syria and neighboring countries arrive in Europe in search of safety and better opportunities.
+- The influx of migrants to the city put a strain on its infrastructure and services.
+
+ambiguous examples (the word replaced by <UNK>):
+- She watched as the birds soared above her, their silhouettes casting fleeting shadows across the landscape. It reminded her of people who journey from distant lands, seeking new opportunities and experiences. The sight of them inspired a sense of connection to those who travel endlessly, labeled as <UNK> to signify their search for a better life.
+- The ancient ruins whispered stories of a time when countless souls traversed the land, driven by the desire for discovery. Each step they took echoed the complexities of identity and belonging. The tales told of those classified as <UNK>, often facing challenges that would define their existence anew.
+- As the sun dipped below the horizon, she thought of the pathways that crisscrossed the earth, carrying with them dreams and aspirations. The narratives of those who venture across borders often intertwine, creating a rich tapestry of cultural exchange. Whoever they are, their journeys shape the world in profound ways, marking them as <UNK> in the eyes of many.
+- In the bustling market, the scents of spices and the sounds of conversation enveloped her, transporting her to different worlds. She found herself among people with diverse backgrounds, each with their unique tales of perseverance and hope. Their stories were often categorized, with some referred to as <UNK>, but to her, they were simply fellow wanderers in search of a place to call home.
+
+proposed paraphrase: X is a very good something; when someone sees X, this someone feels something good; this someone thinks like this about X: 'this is a very good something; before now I did not see the same something'.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

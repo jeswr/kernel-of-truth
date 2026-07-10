@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: depression
+
+dictionary definition: a state of depression and anhedonia so severe as to require clinical intervention
+
+examples:
+- The persistent low mood and lack of pleasure in activities had reached a stage where it was clear she was suffering from a debilitating depression.
+- She had not taken herself seriously enough to seek help until the effects of the deep, crippling depression had forced her to seek professional assistance.
+- She finally sought professional help after years of struggling with debilitating depression.
+- Without proper treatment, depression can have long-lasting effects on an individual's mental health and relationships.
+- Her doctor recommended therapy to help her manage her depression and alleviate its symptoms.
+
+ambiguous examples (the word replaced by <UNK>):
+- The sky was perpetually overcast, casting a gloomy shadow over everything in its wake. Many numbly went about their routines, yet behind each smile lay an unspoken struggle, a haunting sense of <UNK>. It was a collective burden that few dared to acknowledge, often masked by cheerful distractions.
+- As the days dragged on, the faint laughter of children seemed increasingly distant, a discordant melody against a backdrop of silence. The community felt the weight of <UNK>, though many chose to internalize their suffering rather than seek help. Conversations dwindled, and kindness became a rare commodity, lost among unshared burdens.
+- Within the café, conversations buzzed around a table where friends gathered, yet one seat remained eerily still. The palpable sense of <UNK> lingered, as its presence wrapped around thoughts, stifling joy and connection. Outside, life carried on, but within, a storm brewed, creating an impossible rift between the façade of normalcy and the private turmoil.
+- In quiet moments, when the noise of the day subsided, an unsettling heaviness settled in, whispering doubts and fears that clouded clarity. What was once an easy smile morphed into a distant memory, overshadowed by an absence that demands attention and understanding. A path toward healing seemed obscured, yet the realization that searching for help could illuminate a way out of the pervasive <UNK> became a flicker of hope.
+
+proposed paraphrase: there is a someone; this someone feels something bad at many times, for a long time; this someone thinks like this: 'something good cannot happen after now; I don't want to do things; I cannot do many things'; if this someone wants not to feel something bad, this someone cannot not feel it; because of this, this someone cannot live in a good way; when it is like this, there is this something (depression).
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

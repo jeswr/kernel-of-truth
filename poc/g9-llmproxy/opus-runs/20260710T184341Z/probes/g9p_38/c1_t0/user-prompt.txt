@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: offer
+
+dictionary definition: present for acceptance or rejection
+
+examples:
+- The waiter offered us a special menu for the holiday season.
+- The travel agent offered us a discounted rate for our family of five.
+- The company decided to offer a generous salary to the new employee.
+
+ambiguous examples (the word replaced by <UNK>):
+- The sun dipped below the horizon, casting a warm glow over the garden. As the guests began to gather, the host had a delightful surprise waiting for everyone. She decided to <UNK> a selection of homemade treats that she knew would please every palate and warm their hearts.
+- In the midst of the bustling market, vendors shouted out enticing phrases to catch the attention of passersby. Each stall was filled with vibrant colors and delightful scents that wafted through the air. One particular vendor caught my eye, as he was eager to <UNK> a unique blend of spices that promised to enhance any dish.
+- While the choir sang softly in the background, the community hall was filled with a congenial atmosphere. Neighbors exchanged stories and laughter, creating bonds that felt almost palpable. It was then that the organizer decided to <UNK> the chance to donate to a local charity, knowing it would resonate with everyone present.
+- As the evening progressed, the flickering candlelight illuminated the faces of the gathered friends. Conversations flowed easily, punctuated by bursts of laughter and the clinking of glasses. Realizing it was the perfect moment, he chose to <UNK> an idea that had been brewing in his mind for some time, hoping his friends would embrace it enthusiastically.
+
+proposed paraphrase: there are many parts of X; many parts of X touch other parts of X; if someone wants to know all the parts of X, this someone thinks about X for a long time; this someone cannot know all the parts of X in a short time.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

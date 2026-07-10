@@ -1,0 +1,46 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: complex
+
+dictionary definition: complicated in structure; consisting of interconnected parts
+
+examples:
+- The company's complex business model involved a delicate balance of different departments, each working together to achieve a common goal.
+- The clock tower, a complex of medieval architecture, featured intricate carvings and a maze of interconnected passageways.
+
+ambiguous examples (the word replaced by <UNK>):
+- As she navigated the winding paths of the ancient garden, she marveled at how each twist and turn seemed to lead to another hidden corner filled with life and history. The way the plants intertwined created a <UNK> web of natural beauty, inviting exploration yet hiding secrets behind every leaf. It reminded her of the intricate relationships she had always cherished in her own life, where nothing was ever as simple as it appeared.
+- In the depths of the city's architecture, towering buildings jutted out in various directions, ignoring the plane of the ground. This intricate facade hid a <UNK> arrangement of passages and chambers that few outsiders could comprehend. Standing before it, she felt the weight of creativity and struggle, each element telling a story of its own, yet connected to the whole.
+- His thoughts raced as he tried to piece together the fractured fragments of his memories, each one a puzzle that refused to fit neatly into the others. It was as if he was trying to decipher a <UNK> tapestry of experiences that shaped who he was, tangled in emotions and events like threads woven together. Understanding one piece seemed to unravel another, leaving him in a whirlwind of introspection.
+- As the symphony played on, the conductor guided the musicians through an elaborate arrangement that seemed to defy easy comprehension. The layers of sound combined to form an enchanting performance, embodying a <UNK> relationship between melody and harmony that kept the audience spellbound. Each note was a reminder of the delicate balance required to create something truly beautiful and profound.
+
+proposed paraphrase: there are many parts of X; many parts of X touch other parts of X; if someone wants to know all the parts of X, this someone thinks about X for a long time; this someone cannot know all the parts of X in a short time.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

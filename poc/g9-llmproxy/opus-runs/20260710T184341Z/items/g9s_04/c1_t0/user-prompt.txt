@@ -1,0 +1,48 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: elbow
+
+dictionary definition: hinge joint between the forearm and upper arm and the corresponding joint in the forelimb of a quadruped
+
+examples:
+- The horse's elbow is specially adapted for leverage and strength in running.
+- The dog's  elbow gave a sudden pop, as it flexed and extended its forelimb.
+- The anatomist studied the joint structure of the human elbow and its comparison to that of a horse's foreleg.
+- He injured his elbow while playing basketball.
+
+ambiguous examples (the word replaced by <UNK>):
+- As the sun set behind the mountains, the hikers gathered around to share stories of their adventures. One recounted a breathtaking encounter with a deer, gracefully navigating the forest with its elegant movements. The group marveled at how nature seamlessly connects all living beings, from the tallest mountain to the smallest creature, each joint working in perfect harmony, like the <UNK>.
+- In the stillness of the library, a young artist sketched the intricate details of a flowing gown as a model posed silently nearby. The artist focused intently on the way fabric draped over the curves and folds of the human form, capturing each subtlety with careful strokes. There was a beauty in each line that reminded her of the careful balance created by the body's <UNK>.
+- In the cozy corner of the café, an elderly man delighted in watching the world go by with a cup of steaming coffee in hand. He noticed a child joyfully playing in the park, twisting and turning with a freedom that brought a smile to his face. Observing the way both young and old adapted to the rhythm of life, he reflected on how our bodies, with their essential <UNK>, allow us to embrace movement so effortlessly.
+- As the orchestra filled the auditorium with melodious notes, the conductor's movements were a dance in themselves. With every sweep of the baton, the ensemble responded, producing a harmony that resonated within each listener's heart. It was a captivating experience, where even the smallest workings of the musicians' <UNK> blended into a powerful symphony of sound.
+
+proposed paraphrase: there is one part of a body; this something is a part of this part; one part of this part is above this something; another part of this part is below this something; because there is this something, it can be like this: when one part of this part moves, the other part does not move.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

@@ -1,0 +1,48 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: male
+
+dictionary definition: an animal that produces gametes (spermatozoa) that can fertilize female gametes (ova)
+
+examples:
+- The male giraffe's long neck allowed him to reach leaves high in the trees.
+- The male deer roamed freely in the forest, playing a crucial role in the reproduction of its species.
+- The rooster is a male bird, whose primary function is to contribute sperm to eggs laid by hens for successful fertilization.
+- This particular species of frog has separate male and female individuals.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the dim light of the forest, the sounds of rustling leaves filled the air, hinting at the presence of hidden creatures. Among them, one could find various species, each contributing to the delicate balance of their environment. One such example could be a <UNK> that plays an integral role in the intricate dance of life, representing only one part of a larger ecological puzzle.
+- As the sun began to set over the savannah, silhouettes of different animals framed the horizon, each belonging to their unique groups. The dynamics of these groups often rely on the participation of a vital member that helps ensure the continuation of their line. This member is often identified by their ability to provide <UNK>, bringing forth life in a cycle that has existed for eons.
+- In a vibrant underwater ecosystem, the interactions between colorful species create a spectacle of life. Among them swim several types that participate in a mating ritual, where the success of the event hinges on the contribution of one group in particular. The presence of a healthy <UNK> is crucial, as it determines the potential for new beginnings among the sparkling coral reef.
+- Within the lush meadows, the harmony of nature is on full display, with families of various creatures foraging and playing together. The survival of many young depends significantly on the support system provided by their counterparts who take on specific roles in this cycle. Finding a strong and capable <UNK> is often key to ensuring that the next generation thrives in this unpredictable realm.
+
+proposed paraphrase: this something lives; there is another something of another kind, it lives; when there is a new small living something, it is because this something did something with the other one; before some time, this small something is inside the other one; it is not inside this something.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

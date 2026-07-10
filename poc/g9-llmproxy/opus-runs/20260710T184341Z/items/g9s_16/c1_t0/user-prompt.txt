@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: contented
+
+dictionary definition: satisfy in a limited way
+
+examples:
+- He contented himself with watching television instead of joining the protest.
+- She contented herself with a modest salary, knowing it wasn't the highest-paying job in the industry.
+- The artist contented himself with exhibiting his work in local galleries rather than seeking fame.
+- Her contented sigh told me that she had achieved her goal, but I could see the hint of disappointment still lingering beneath the surface.
+- Despite finding only a small portion of the pie to be left, the hungry guest chose to content himself with it rather than asking for more.
+
+ambiguous examples (the word replaced by <UNK>):
+- After a long day, she settled into her favorite chair with a book, feeling a sense of calm wash over her. The aroma of freshly brewed tea filled the room, accompanying her as she immersed herself in the pages. In that moment, she <UNK> herself with the solitude, finding peace in the quietness that enveloped her.
+- The old man watched the sunset from his porch, reflecting on the passage of time. With each vibrant hue painting the sky, he felt a gentle warmth in his heart. He <UNK> himself with the beauty of the evening, grateful for the simple yet profound moments life offered.
+- As the children played in the yard, their laughter echoed in the air, drawing his attention away from his worries. He glanced at them with a soft smile, momentarily forgetting the burdens on his shoulders. Embracing the joy around him, he <UNK> himself with the sound of their happiness, letting it fill the emptiness he often felt.
+- In the corner of the bustling café, she nursed her coffee while observing the world outside. The conversations around her blended into a soothing hum that provided a sense of comfort. She <UNK> herself with the lively atmosphere, finding solace in the chaos that surrounded her.
+
+proposed paraphrase: this someone thinks like this: 'something good is happening now; I don't want another something; I do not want more good things'; because of this, this someone feels something good.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

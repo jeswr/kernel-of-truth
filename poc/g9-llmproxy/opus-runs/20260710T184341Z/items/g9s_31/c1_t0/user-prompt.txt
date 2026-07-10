@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: put
+
+dictionary definition: put into a certain place or abstract location
+
+examples:
+- The manager put the new employee in the human resources department to help with the hiring process.
+- The teacher told the students to put their backpacks on the shelves in the storage room.
+- She put the fragile vase on the highest shelf to keep it out of reach of the children.
+- Example sentence 1: She carefully put the book on the shelf.
+- I put my faith in his judgment.
+
+ambiguous examples (the word replaced by <UNK>):
+- The garden was a labyrinth of colors and textures, each corner revealing a new surprise. In the midst of it all, she paused, considering where to <UNK> the vibrant flower pots she had just purchased. With a deep breath, she visualized the perfect spot that would bring her joy every morning.
+- As the sun dipped below the horizon, shadows began to stretch across the room, creating an aura of mystery. He contemplated the best way to <UNK> the antique clock that had been in his family for generations. It was essential that its placement would not only honor its history but also enhance the room's ambiance.
+- Navigating through the clutter of memories and forgotten items, she felt the weight of nostalgia envelop her. It was time to decide where to <UNK> those cherished keepsakes that had been tucked away for far too long. Each decision held significance, echoing stories of love and laughter.
+- In the chaos of moving day, boxes were stacked high and furniture lay askew, waiting for a new arrangement. He stepped back to assess the space, thinking about how best to <UNK> the couch that would serve as the centerpiece of their new home. Each piece had a role to play in creating a harmonious living environment.
+
+proposed paraphrase: X did something to Y at some time; because of this, after this time Y is in one place; before this time Y was not in this place; X wanted Y to be in this place for some time.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

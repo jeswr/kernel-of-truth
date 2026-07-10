@@ -1,0 +1,46 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: leg
+
+dictionary definition: a human limb; commonly used to refer to a whole limb but technically only the part of the limb between the knee and ankle
+
+examples:
+- The doctor examined the patient's leg for any signs of injury or infection.
+- The doctor examined the leg for any signs of injury after the athlete fell on the field.
+
+ambiguous examples (the word replaced by <UNK>):
+- As she walked along the shore, she felt the cold waves lap at her feet, sending shivers up her spine. In the distance, she spotted a small child playing in the sand, giggling with glee as they dug a hole to the ocean's edge. Suddenly, a tiny crab scuttled by, drawing her attention away from her own <UNK> that seemed to have sand clinging to it like an undesired accessory.
+- The wind rustled the leaves overhead as he leaned against the trunk of a gnarled oak tree, lost in thought. Memories rushed back to him in waves, each one uniquely bittersweet and sharp like the chill in the air. He shifted his weight, feeling the familiar ache in his <UNK> from the long hours spent on his feet during the week.
+- With each stroke of the brush, the artist captured the essence of life flowing through the canvas, colors blending seamlessly. As she stepped back to admire her work, a surge of satisfaction filled her, knowing how far she had come on this creative journey. The stories etched within her mind began to take shape, much like the delicate curves of a well-defined <UNK> she had studied during her artistic explorations.
+- In the coffee shop, a barista worked diligently, crafting drinks with a careful precision that told tales of countless hours of practice. She took a moment to glance at the bustling street outside, her thoughts drifting to her own aspirations and dreams. With every step of her shift, she felt the grounding weight of her own <UNK>, reminding her of both her strength and her fragility.
+
+proposed paraphrase: X says something about some something to Y at some time; X says it because X wants Y to know about it; before this time, Y did not know about it; after this time, Y knows about it.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

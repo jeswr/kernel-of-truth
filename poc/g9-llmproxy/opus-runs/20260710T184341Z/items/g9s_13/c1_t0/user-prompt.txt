@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: fire
+
+dictionary definition: the event of something burning (often destructive)
+
+examples:
+- The forest ranger watched in horror as a wildfire spread rapidly through the dense foliage, threatening nearby homes and endangering the lives of residents in the surrounding area.
+- In the early hours of the morning, the old warehouse went up in flames, destroying all evidence of the illegal business activities that had taken place within its walls.
+- The tourists had to be evacuated immediately due to the fire raging in the nearby oil refinery.
+
+ambiguous examples (the word replaced by <UNK>):
+- The town was shrouded in a thick cloud of smoke, leaving residents to wander in confusion. Sirens blared in the distance as they watched the flames consume what was once a beloved gathering place. It wasn’t just property that was destroyed; memories and shared moments vanished with the <UNK>.
+- Contentment turned to chaos in an instant as the news broadcast flashed ominous images across the screen. Families huddled together, mourning the loss of many cherished possessions that could never be replaced. The sense of safety they once felt was stripped away in the wake of the tragic <UNK>.
+- In an empty field, remnants of a structure lay smoldering, the heat still lingering in the air. Neighbors gathered, exchanging whispers of disbelief and sadness, trying to comprehend the devastation that had unfolded. The community stood united in grief, facing the harsh reality brought forth by the <UNK>.
+- Even as the sun set, casting an eerie glow over the destruction, the horror of that day seemed to replay in everyone's minds. People wore expressions of shock and sorrow, remembering the vibrant life that once thrived in that space. Time might heal wounds, but the impact of the <UNK> would forever leave a scar.
+
+proposed paraphrase: it happens in some place; when someone is far from it, this someone can see it; if someone is near it, this someone feels something bad; if someone is near it for some time, maybe something very bad happens; if something is inside it, after some time this something is not there; it can be a more big something.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: reasonable
+
+dictionary definition: showing reason or sound judgment
+
+examples:
+- She gave a reasonable explanation for her absence from the meeting.
+- Her solution was a reasonable approach to the complex problem, taking into account multiple factors and potential outcomes.
+- The landlord's offer was reasonable, taking into account the current market conditions.
+- John's decision to invest in a small business was reasonable, given the market research and potential profitability.
+- He proposed a plan that was, in the end, both **reasonable** and effective.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the small town, the mayor proposed changes that ignited a spirited debate among residents. While some were passionately opposed, others offered <UNK> perspectives that highlighted the potential benefits of the new policies. Ultimately, it was this balance of opinions that guided the town toward a decision everyone could live with.
+- On the surface, the plan seemed convoluted, yet a deeper inspection revealed certain advantages that could not be overlooked. It required a <UNK> approach to sift through the complexities and articulate the key points effectively. Those involved found their conviction strengthened as they navigated the intricacies of the proposal.
+- As the clock ticked down to the deadline, tensions ran high among the stakeholders who felt the pressure mount. However, one team member suggested a <UNK> solution that managed to appease various factions without compromising core values. It was a moment of clarity amidst the chaos, and it shifted the trajectory of their negotiations.
+- After reviewing all the data, the committee faced a crossroads regarding their final recommendations. Some members advocated for drastic measures, but a few stepped forward with <UNK> reasoning that advocated for a more tempered approach. This dialogue fostered an environment of collaboration, ultimately leading to a consensus that respected individual concerns while promoting a collective vision.
+
+proposed paraphrase: there is some thing; when someone sees this thing, this someone can know this something about it; if this someone knows it, this someone can say about this thing: 'it is a big thing'; if this someone knows it, this someone can say about this thing: 'it is a small thing'.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

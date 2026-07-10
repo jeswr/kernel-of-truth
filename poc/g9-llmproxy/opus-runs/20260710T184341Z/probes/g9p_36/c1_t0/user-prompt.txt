@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: law
+
+dictionary definition: the collection of rules imposed by authority
+
+examples:
+- The government's efforts to address the crisis were guided by the rule of law, ensuring that everyone was treated fairly and equally under the law.
+- The bedrock of our society rests upon a strong and well-defined legal framework.  The rise of technology has challenged many long-held moral beliefs, forcing societies to adapt and revise their laws to reflect this changing world.
+- The country's economy has been growing steadily, and it is expected to be a model of economic freedom and prosperity, built upon the principles of the law.
+
+ambiguous examples (the word replaced by <UNK>):
+- In a small town nestled between rolling hills, the residents thrived in their daily routines, tending to their gardens and children with equal care. Yet beyond this idyllic scene, an unseen force dictated how they interacted and resolved their disputes, shaping their community in profound ways. Ultimately, these shared expectations are what many refer to as the <UNK>, a guideline that keeps harmony amidst diversity.
+- As the sun set over the bustling marketplace, merchants exchanged goods and pleasantries, unaware of the invisible lines that governed their transactions and interactions. These unwritten codes, though often taken for granted, were the foundation of order and trust among the people. Line by line, their collective understanding formed what is often termed the <UNK>, ensuring fairness in every exchange.
+- Within the confines of ancient ruins, scholars gathered to decode the remnants of a civilization once great, analyzing artifacts that hinted at a structured society. The mysteries they unearthed revealed not just artistic expressions but also a sophisticated mechanism that maintained social order. This intricate system of norms is what historians would later acknowledge as the <UNK>, essential to the civilization's enduring legacy.
+- At dawn, the bustling city awakened with the sounds of life, where every passerby engaged in an intricate dance of social interactions. These exchanges were guided not just by personal desires but also by a complex framework that dictated acceptable behavior. It is within this framework that individuals found their roles, underscored by the principles of the <UNK> that allowed society to flourish.
+
+proposed paraphrase: when someone does something to X with a part of this someone's body, some parts of X move; when a part of this someone's body touches X, this someone does not feel something bad; because someone does something to X, X can be like another something.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: salty
+
+dictionary definition: containing or filled with salt
+
+examples:
+- The farmer soaked the freshly harvested potatoes in cold water to remove excess salty brine.
+- The hams were cured with salt and hung to dry, eventually turning into a salty snack.
+- The farmer spread salt crystals strictly over the icy road to melt the ice and ensure safer travel conditions, creating a surface that was strictly salty and slippery.
+- The sea air left her skin feeling dry and salty after a long swim in the ocean.
+- The soup was salty from the generous helping of salt the chef had added to it.
+
+ambiguous examples (the word replaced by <UNK>):
+- The sea breeze carried a distinct taste that settled on my lips, tinged with a certain vibrancy. It reminded me of the countless shores I had wandered, where each wave brought a new essence. As I savored the moment, I couldn't help but appreciate the remnants of the ocean's influence, its <UNK> character enveloping everything in its vicinity.
+- Amidst the bustling market, the air was thick with various aromas, weaving an intricate tapestry of scents that beckoned passersby. In one corner, a vendor enthusiastically offered samples of cured meats, their flavors strikingly bold. With each bite, I was reminded of the contrasting elements that create such robust tastes, marked by that unmistakable <UNK> aftertaste.
+- On the edge of the dock, fishermen pulled in their nets, glistening with the morning sun's reflections. The catch of the day shimmered under the light, each fish telling a story of adventure beneath the surface. Yet, it was the ocean's handiwork that truly stood out, leaving a decidedly <UNK> essence in the air around us.
+- In that quaint little café, I found solace in the simple pleasures of life while sipping my warm drink. The barista skillfully crafted each cup with a personal touch, and I took delight in the flavors that danced on my palate. As I continued to savor my drink, a familiar undertone intrigued me, hinting at something distinctly <UNK> about the ingredients used.
+
+proposed paraphrase: when X is inside a part of someone, this someone feels something; because of this feeling, this someone can know: some something is inside X; this something is many very small things.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

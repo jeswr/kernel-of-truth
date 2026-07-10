@@ -1,0 +1,48 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: wonderful
+
+dictionary definition: extraordinarily good or great ; used especially as intensifiers
+
+examples:
+- The meal was wonderfully delicious.
+- The music was truly wonderful.
+- Her performance was absolutely wonderful.
+- The teacher thought the student's essay was wonderful and worthy of an A+.
+
+ambiguous examples (the word replaced by <UNK>):
+- The evening was filled with an atmosphere that can only be described as magical. As the sun dipped below the horizon, the sky became a canvas of colors that took everyone's breath away. It was a moment so unique that one could hardly find the right words to express the <UNK> beauty of the scene.
+- In the midst of a bustling city, a small park offered a respite from the chaotic world outside. Squirrels danced among the trees, and laughter echoed from a nearby gathering of friends. The simplicity of that experience was a reminder of the <UNK> joys that life can offer when we pause to appreciate them.
+- A melody floated through the air, reaching the ears of those who were fortunate enough to be present. Each note seemed to vibrate with emotion, wrapping the audience in a cocoon of sound. It was a performance that left everyone in awe, each listener reflecting on the <UNK> talent of the musicians who shared their gift that night.
+- As the first flowers of spring began to bloom, the world outside transformed into a vibrant tapestry. Colors burst forth in a celebration of life, and sweet fragrances danced in the breeze. The transition from winter to spring was a <UNK> reminder of nature's incredible ability to renew and inspire.
+
+proposed paraphrase: there is a someone; this is a part of a body; it is below the other parts of the body; there are two parts of this kind; because there are two parts of this kind, this someone can move in many places; when this someone wants to move, this part moves.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

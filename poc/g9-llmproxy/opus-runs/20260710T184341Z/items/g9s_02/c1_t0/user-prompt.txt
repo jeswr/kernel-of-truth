@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: thirst
+
+dictionary definition: a physiological need to drink
+
+examples:
+- She felt a sudden, overwhelming thirst after her workout.
+- After a long hike in the desert sun, I felt a strong thirst that could only be quenched by drinking plenty of water.
+- Her intense thirst from the heat drove her to rush to the nearby refrigerator for a cold drink.
+
+ambiguous examples (the word replaced by <UNK>):
+- As the sun beat down relentlessly, the air shimmered with heat, creating a mirage of a cooler world. Each step felt laborious, and a faint but persistent sensation gnawed at the edges of my focus. It was in that moment, feeling the parched weight of my body, that I recognized my body's urgent call for replenishment, a deep longing that demanded immediate attention, a sheer <UNK> for relief.
+- In the midst of the dense forest, I could hear the rhythmic cadence of a distant stream, its whispers echoing the promise of rejuvenation. Although the beautiful scenery sprawled around me, my focus was entirely subsumed by an unyielding sensation that gripped my throat, tethering my thoughts to thoughts of soothing water. The joy of nature faded into the background as I grappled with the primal <UNK> that had overtaken my mind.
+- Climbing the steep hill, I was torn between the breathtaking views and the mounting discomfort within me that seemed to constrict my senses. Each breath I took felt dry and insufficient, as if every ounce of energy was being drained from my body. My mind wandered to the source of comfort as I felt an overwhelming void that could only be satisfied by succumbing to my body's urgent <UNK> for hydration.
+- The day wore on, and the vibrant colors of the landscape began to fade into a haze of exhaustion. As thoughts of laughter and joy faded, a more insistent sensation began to consume my every moment, pulling my attention away from my surroundings. It was then I realized that the lingering burden of an unmet <UNK> had quietly begun to overshadow everything else.
+
+proposed paraphrase: there is a someone; this someone feels something in the body; because of this, this someone wants some something to be inside the body; if this something is inside the body, after some time this someone does not feel it; if it is not inside the body for a long time, maybe something very bad happens; when this someone wants it like this, there is this something (thirst).
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

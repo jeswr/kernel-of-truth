@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: creature
+
+dictionary definition: a living organism characterized by voluntary movement
+
+examples:
+- A firefly is a small creature that flashes its bioluminescent light to attract a mate.
+- The majestic creature, a polar bear, swam swiftly through the icy waters of the Arctic.
+- The scorpion is a fearsome creature known for its deadly venomous sting.
+
+ambiguous examples (the word replaced by <UNK>):
+- In the depths of the forest, under the canopy of ancient trees, whispers of life danced in the air. Something unusual stirred among the shadows, its movements fluid and graceful, yet shrouded in mystery. The unseen <UNK> continued its silent ballet, leaving only the faintest traces of its existence for those who dared to seek.
+- In the stillness of the night, a faint rustle echoed through the tall grass, hinting at a presence lurking just beyond the reach of the moonlight. It moved with a quiet purpose, each step calculated and deliberate as if it were following an unseen directive. This enigmatic <UNK> exuded an aura of both intrigue and trepidation, drawing the eyes of onlookers who were captivated by the unknown.
+- Within the vibrant tapestry of the underwater world, a myriad of forms undulated gently, each unique in its design yet bound by the same elemental essence. Amidst the coral and kelp, a sudden flash of color revealed itself, darting swiftly through the currents. The <UNK> navigated its realm with a grace that belied its existence among the more mundane sights of aquatic life.
+- High above, in the sun-drenched expanse, a silhouette traced the sky, gliding effortlessly with the grace of an artist’s brushstroke. It surveyed the landscape below, searching for the hidden wonders that lay beneath the surface of everyday life. Such a delightful and elusive <UNK> often reminded those who witnessed it of the beauty found in nature's diverse manifestations.
+
+proposed paraphrase: this something lives; it can move; when it wants to move, it moves.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

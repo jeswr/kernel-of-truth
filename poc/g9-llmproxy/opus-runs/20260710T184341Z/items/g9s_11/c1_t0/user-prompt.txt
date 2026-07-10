@@ -1,0 +1,46 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: emergency
+
+dictionary definition: a sudden unforeseen crisis (usually involving danger) that requires immediate action
+
+examples:
+- The fire alarm went off in the middle of the night, waking everyone up in a panic. It was an emergency situation that demanded immediate evacuation of the building to ensure everyone's safety.
+- The traffic accident was a major emergency, causing widespread road closures.
+
+ambiguous examples (the word replaced by <UNK>):
+- The storm approached rapidly, dark clouds swirling ominously overhead. People rushed to secure their belongings, filled with an unsettling sense of urgency that no one could quite articulate. As the first drops of rain began to fall, it became evident that a situation was developing that would demand swift action, particularly for those unprepared for the <UNK>.
+- In the bustling city, a loud screech pierced the air, followed by a chaotic commotion. Bystanders turned their heads, eyes wide with alarm, as they tried to discern the source of the disturbance. It was clear that something had gone awry, and those nearby would need to respond without hesitation to the unfolding <UNK>.
+- A loud thud echoed through the quiet neighborhood, causing an abrupt silence to hang in the air. Neighbors peeked out cautiously from behind their curtains, worry etched on their faces as they processed the sounds of distress. With a palpable tension settling in, it became evident that the circumstances at hand required immediate intervention to address the emerging <UNK>.
+- As the fire alarm blared, the familiar scent of smoke filled the air, drawing everyone's attention. Residents scrambled from their apartments, heart rates escalating as they confronted the unsettling reality unfolding within the building. In moments like these, the ability to remain composed is crucial, especially when faced with a true <UNK>.
+
+proposed paraphrase: something very bad is happening now; before now, people did not know: this will happen; if people do not do something in a short time, maybe something more bad happens; people want to do something now.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

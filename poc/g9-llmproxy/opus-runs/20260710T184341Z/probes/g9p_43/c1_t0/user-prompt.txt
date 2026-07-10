@@ -1,0 +1,47 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: sharp
+
+dictionary definition: having or made by a thin edge or sharp point; suitable for cutting or piercing
+
+examples:
+- The hiker had to be careful not to prick herself on the sharp rocks along the trail.
+- The butcher used a sharp knife to carve the meat.
+- The chef carefully sharpened the pencil to create a sharp point for writing on the paper.
+
+ambiguous examples (the word replaced by <UNK>):
+- The evening sky darkened as the wind picked up, rustling the leaves in a manner reminiscent of whispers. In the distance, a glimmer caught the eye, a fleeting moment that seemed both ominous and beautiful. The tool, waiting on the table, was perfectly poised to transform matter with its <UNK> precision.
+- As the artist worked with fervor, strokes of color began to emerge on the canvas. Each movement seemed fluid, yet the very instrument in hand required a delicate balance, as one slip could ruin everything. Her gaze often flicked to the object, a seemingly innocuous piece that nonetheless possessed a dangerously <UNK> edge.
+- In the realm of culinary arts, an array of instruments lay before the chef, each carefully selected for its unique function. There was an unspoken understanding that not all utensils were created equal; some held a distinction that could elevate a dish to new heights. Among those was a particular piece that promised a flawless execution, its <UNK> qualities setting it apart from the rest.
+- As the storm rolled in, the air shifted, saturated with an energy that felt both electric and foreboding. Shadows played on the ground, dancing in uncertain patterns, mirroring the internal tumult that stirred within. The piece sitting upon the counter radiated an inherent danger, a reminder of its unmistakably <UNK> form that could easily alter the course of events.
+
+proposed paraphrase: there is a someone; this someone feels something in the body; because of this, this someone wants some something to be inside the body; if this something is inside the body, after some time this someone does not feel it; if it is not inside the body for a long time, maybe something very bad happens; when this someone wants it like this, there is this something (thirst).
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

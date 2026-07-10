@@ -1,0 +1,49 @@
+You are an independent judge in a blind review task.
+
+Below is ONE item about an English word. You are shown: the word; a dictionary definition of it; some example uses of the word; some longer passages in which the word has been removed and replaced by the gap marker <UNK>; and a proposed paraphrase of the word's meaning.
+
+How the paraphrase reads: the paraphrase is written in a deliberately tiny, plain vocabulary, so the grammar can sound odd -- "this someone feels something bad" means "this person has a bad feeling". Odd wording is never a trick and never by itself a reason to answer no. The letters X and Y stand for the participants the word applies to (for a word like "smooth", X is the smooth thing; for a word like "carry", X carries Y). Read each clause as saying what is NORMALLY or TYPICALLY the case.
+
+Answer the two questions below from your own competence with English. You are NOT trying to guess an intended answer; there is no trick, and you must not try to infer what the item's author might have wanted.
+
+Question 1 -- "substitutable": if the proposed paraphrase replaces the word in each example, and fills the <UNK> gap in each ambiguous example, is the meaning of each passage preserved -- that is, can the paraphrase stand in for this word in these uses? Judge meaning, not style: the substituted text may read long or awkward; answer yes if the meaning of each passage survives the substitution, no if in at least one of the uses it does not.
+
+Question 2 -- "cross_translatable": does the paraphrase use only simple words that could be said in more or less any language, avoiding words more complex or more culture-specific than the word being defined?
+
+Answer each question with exactly one of "yes", "no", "cannot-say". Answer "cannot-say" only if you genuinely cannot decide -- never merely because the paraphrase is oddly worded, partial, or only typically true, and never as a soft no.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"substitutable": "<token>", "cross_translatable": "<token>"}
+
+where each <token> is exactly one of "yes", "no", "cannot-say". No other keys, no other text.
+
+--- ITEM ---
+
+word: size
+
+dictionary definition: the physical magnitude of something (how big it is)
+
+examples:
+- The size of the suitcase made it difficult to carry up the stairs.
+- The whale was an impressive size, dwarfing the fishing boat.
+- The small size of the child made it easy for her to play in the dollhouse.
+- She chose a shirt that was a comfortable size, not too tight or too loose.
+- The towering skyscraper was an impressive sight, its size dwarfing the surrounding buildings.
+
+ambiguous examples (the word replaced by <UNK>):
+- As the sun dipped below the horizon, casting an orange glow across the sky, the birds began to settle into their nests. The tranquil scene seemed to suggest a harmony among all living things, regardless of their <UNK>. Nearby, a gentle breeze rustled the leaves, whispering secrets of nature's mysteries.
+- In the quiet of the library, books lined the shelves, showcasing knowledge collected over centuries. Each volume varied significantly in <UNK>, yet they all contained worlds waiting to be explored. A soft light illuminated the pages, drawing readers into their myriad universes, each one a new journey.
+- The art exhibition was a vibrant showcase of creativity, with each piece telling a unique story. Viewers wandered from painting to sculpture, appreciating the diversity of expression and thought, without focusing too much on the <UNK> of the works. Conversations sparked around bold choices and subtle intricacies, enriching the experience for everyone present.
+- As the chef prepared the meal, the kitchen was filled with tantalizing aromas from fresh ingredients being transformed. Choosing the right ingredients often meant considering not only their flavors but also their <UNK>, as each had a role to play in the final dish. The harmony of textures, colors, and tastes created a feast for both the eyes and the palate.
+
+proposed paraphrase: there is another something; X says to some someone about Y: 'I want it to be like this: if I can say about this other something "it is mine", you can say about Y "it is mine"'; after some time, this someone can say about Y: 'it is mine'; after the same time, X can say about the other something: 'it is mine'.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.
