@@ -1,0 +1,17 @@
+{
+    "author": "runner-8",
+    "date": "2026-07-11T18:05:00Z",
+    "experiment": "f2b-transfer",
+    "kind": "ops",
+    "patch": [
+        {
+            "op": "replace",
+            "path": "/pins/harness_manifest",
+            "value": "ef3e72e68af1eac2eb03870d56cc5b9165785f6678bcd69b7a5ea8907692ae4b"
+        }
+    ],
+    "rationale": "Input pin only (P2 P-9: a PINNED-AT-INPUTS placeholder completed by ops amendment before the stage-2 final-phase run; no design field is touched). The stage-2 GPU runner was built under poc/f2b-transfer/ (runner/f2bt_runner.py adapted from poc/f2b/runner/f2b_runner.py; modal/modal_f2bt.py; inputs/f2bt-manifest.json), implementing the frozen arms EXACTLY (model-alone R1/R3, kernel-verify-retry R1 k=4, shuffled-kernel-verify-retry R1 k=4 with the seed-pinned Sattolo derangement at perm_seed=20260710=sap_prng_seed, gloss-self-verify-retry R1 k=4, extraction-instrument) with PRM/kernel-as-text/d-ext dropped per dropped_arms, dual scoring (item_correct_ext against d-adj-t gold_ext + item_correct_mem against membership gold), the RT-7a verifier_engagement block, and the 250-item eval set = first 250 resolved-gold_ext d-qa-t items in pinned rank order. This ops amendment resolves the 'PINNED-AT-INPUTS:staged-bytes-manifest-sha-of-poc/f2b-transfer-printed-by-its-modal-wrapper-filled-by-ops-amendment-before-any-final-phase-run' placeholder to the staged-bytes manifest sha printed by the modal wrapper (python3 poc/f2b-transfer/modal/modal_f2bt.py --print-manifest; 159 staged files); the in-container staged-bytes assert fails closed (ERR_PIN) on any mismatch. The mock pipeline is GREEN (analysis consumes all stage-1 + stage-2 fields, all gates true); reuse-check gate is GREEN (0 blocking; 6 cells covered by the record's fresh-runs reuse_overrides). One-shot pin discipline: any change to poc/f2b-transfer/ bytes before the run invalidates this value and requires a pre-run correction record, not a new ops amendment.",
+    "schema_version": "kot-amend/1",
+    "seq": 2,
+    "unblinding_state_at_write": "pre"
+}

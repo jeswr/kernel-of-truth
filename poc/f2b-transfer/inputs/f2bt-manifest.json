@@ -1,0 +1,121 @@
+{
+  "spec": "f2b-transfer STAGE-2 harness RunSpec — ground-truth-independence test of the verifier-offload lift (frozen design record: registry/experiments/f2b-transfer.json, frozen_sha256 b341a0901e12023d3c56bdc196be0b9c492c7d348f988416d7e9c43aade20879). This manifest pins the harness INPUTS only; it may not change any frozen design field or threshold. PINNING DIRECTION: the frozen record's pins.harness_manifest is a declared PINNED-AT-INPUTS placeholder filled by ops amendment with the staged-bytes manifest sha printed by poc/f2b-transfer/modal/modal_f2bt.py BEFORE any final-phase run; this file therefore must NOT contain that sha (circular) and must NOT contain the record's frozen_sha256 pin chain beyond the reference above.",
+  "schema": "kot-f2bt-runspec/1",
+  "experiment": "f2b-transfer",
+  "prereg": {
+    "registry_record": "registry/experiments/f2b-transfer.json",
+    "prereg_doc": "poc/f2b-transfer/design.md",
+    "analysis_script": {
+      "path": "analysis/f2b_transfer.py",
+      "sha256": "PINNED-IN-REGISTRY-RECORD (85a8fde6ea0b55e88f799e15399801bf23d55950159addf291baef7c084a6c93 in the frozen record; the frozen record is authoritative)"
+    }
+  },
+  "pins": {
+    "dqatCorpusKotHash": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+    "dqatCoveredItemsSha256": "fa8ad6e74e5e1f2732a8076109c7ab2d6893dbebb3ccfdb6ae0e37bd4dfe80fb",
+    "dqatManifestSha256": "67eb160a1f300bb39539fd0aab2bfd66a225b9551c222f870bdc37eb82262c20",
+    "dadjtCorpusKotHash": "a4baa36fbcbbfe2b51fa1dbdd0589c3c461caf190cfc5b67c65e4a5bda9b53bc",
+    "dadjtLabelsSha256": "a0ffe09b0402e71f8e542d9f40a24f8d6f63d48cf6cba5d343bbb03753191c47",
+    "dadjtSummarySha256": "54820db326794be085c471fa80db5d5ed4f2412fcaa9b651653e069f336d509a",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaGlossCorpusSha256": "87a984b94b0b03f457aa2c6c8ee2b97000bd2dbf58ad781cb52a4c865856c815",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "dxifCorpusKotHash": "8c9aded603b236a79cb555d3ad3e8e072b772a7723bd06673ed53e216826adfa",
+    "dxifOutputsR1Sha256": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "dxifManifestSha256": "ad7bfa6bea2a19dd69e2d04265f6c20bec8e2e2cd9afe8a213ef893e08fb773f",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "pinSources": "dqatCorpusKotHash / dxifCorpusKotHash / kernelV0KotHash / moleculesV0KotHash = frozen record pins.corpus_hashes verbatim; dadjtCorpusKotHash = registry/amendments/f2b-transfer/1-pin-d-adj-t-corpus.json (the ops amendment that filled the declared PINNED-AT-INPUTS placeholder); file-level shas computed from the committed bytes those corpus digests cover (sha256sum, 2026-07-11)",
+    "perItemRecordSha256": "every d-qa-t item carries record_path + record_sha256; the verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN) on mismatch — the shuffled verifier verifies the PERMUTED record's pin the same way",
+    "adjInternalConsistency": "the runner additionally fail-closes on: summary.json labels_sha256 != sha256(labels.jsonl) (ERR_ADJ_PIN); count of resolved gold_ext lines != summary n_ext_labelled (ERR_ADJ_COUNTS); eval-prefix length != summary n_eval_items on real runs (ERR_ADJ_COUNTS); any d-qa-t item id missing from labels.jsonl (ERR_LABELS_MISSING)"
+  },
+  "models": {
+    "R1": {
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+      "pinned_by": "registry/experiments/f2b-transfer.json pins.model_revisions (pinned directly at design time; same revision as f2b-replicate)"
+    },
+    "R3": {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "revision": "31b70e2e869a7173562077fd711b654946d38674",
+      "pinned_by": "registry/experiments/f2b-transfer.json pins.model_revisions (pinned directly at design time; same revision as f2b-replicate)"
+    },
+    "prm": "NO PRM IN THIS DESIGN (frozen record pins.model_revisions._note; dropped_arms: trained-PRM stays closed at and indexed to the 1.5B class of f2b-replicate)"
+  },
+  "eval_set": {
+    "rule": "EVAL SET = the first per_arm_items (250) externally-labelled items of data/d-qa-t/items/covered.jsonl in pinned rank order — externally-labelled means labels.jsonl gold_ext != null (unresolved judge disagreements and concordant-escape CONTENT-UNDECIDED items carry gold_ext null and are EXCLUDED); deterministic prefix, no sampling; floor eval_floor (200), below which the runner refuses (ERR_EVAL_FLOOR). Verbatim from the frozen record design.stage_discipline / design.n_planned.fresh_items and design.md section 5.",
+    "dual_scoring": "every arm cell scores EVERY eval item BOTH ways on the SAME final answers: item_correct_ext against gold_ext (data/d-adj-t/labels.jsonl — every endpoint) AND item_correct_mem against the item's membership answer field (descriptive contrast only; never an endpoint)"
+  },
+  "shuffle": {
+    "perm_seed": 20260710,
+    "algorithm": "Sattolo cyclic permutation over the sorted covered-concept urns of the full d-qa-t covered set via random.Random(perm_seed) — a derangement by construction (no concept maps to its own record); asserted fixed-point-free at build; the realized urn->record map + its sha256 are written to shuffle-map.json in the results directory and the sha is emitted on every shuffled-arm record",
+    "seed_note": "the frozen record requires a seed-pinned derangement with the map recorded but does not fix the integer; this manifest pins perm_seed = 20260710 (the record's published sap_prng_seed) — an INPUT pin, recorded here and on every shuffled record",
+    "note": "the shuffled-kernel-verify-retry arm is the LOAD-BEARING oracle-structure control carried over from f2b-replicate: identical retry topology and cost, record CONTENT decoupled from the item; the frozen record names it the one control NOT to cut"
+  },
+  "design_constants_from_frozen_record": {
+    "note": "copied VERBATIM from registry/experiments/f2b-transfer.json for runner convenience; the frozen record is authoritative. Arms: model-alone R1/R3, kernel-verify-retry R1 k=4, shuffled-kernel-verify-retry R1 k=4, gloss-self-verify-retry R1 k=4, extraction-instrument R1 (CPU); the adjudication-instrument stage-1 record is ALREADY in the results log and is NEVER re-emitted by a real run.",
+    "seeds": [0, 1, 2],
+    "retry_sweep": [4],
+    "per_arm_items": 250,
+    "eval_floor": 200,
+    "rungs": ["R1", "R3"],
+    "iface_gate": {"n_min_per_rung": 300, "failure_wilson_lb_max": 0.10},
+    "engagement_gate": {"decidable_fraction_min": 0.95, "attempt0_reject_rate_range": [0.05, 0.95], "final_differs_attempt0_min": 1, "note": "RT-7a made structural; evaluated by the pinned analysis over the emitted verifier_engagement blocks, INSTRUMENT-INVALID on failure — the runner only EMITS the block, it never gates"},
+    "budget": {"gpu_hours_cap": 4, "usd_cap": 15, "wall_clock_cap_hours": 24, "tier_cap_usd": 80},
+    "runner_constraints": {"concurrency_cap": 5, "foreground_gates": true, "hardware": "single GPU (A100-40GB or A10G)"}
+  },
+  "arm_plan": {
+    "resample_temperature": 1.0,
+    "retry_final_answer": "last attempt (accepted or budget-exhausted); pre-declared, no post-hoc pick; identical rule for kernel-verify, shuffled-verify and gloss-self-verify arms (carried verbatim from f2b-replicate)",
+    "shared_affordance": "P10 IF-C constrained decoding for EVERY arm: answers produced by constrained selection over the pinned option set (A-D or yes/no) via sequence logprob; arms differ ONLY in verification instrument — no context-block arm exists in this design (kernel-as-text dropped)",
+    "dropped_arms_note": "trained-PRM, kernel-as-text and the d-ext external slice are DROPPED per the frozen record's dropped_arms (HC3 closed at the 1.5B class; Law-2 passive null settled; d-ext measured degenerate — replaced by this experiment's entire externally-adjudicated eval set); R2 / gold-oracle / k-ladder / cascades / int4 / RAG / self-consistency stay dropped from the replicate right-size",
+    "engagement_block": "every kernel-verify-retry cell (and, informatively, every shuffled-verify cell) emits verifier_engagement = {n_items, n_decidable, n_attempt0_rejected, n_final_differs_attempt0}; n_decidable and n_attempt0_rejected are attempt-0 facts; n_final_differs_attempt0 counts items whose final answer differs from attempt 0"
+  },
+  "prompt_frames": {
+    "qa_prefix": "Answer the following question about the meaning of a word.\n\n",
+    "context_prefix": "Definitions you may use:\n",
+    "context_suffix": "\n\n",
+    "option_line": "{key}. {text}",
+    "answer_cue": "\nAnswer: ",
+    "self_verify_frame": "Definition of \"{term}\": {gloss}\n\nQuestion: {question}\nProposed answer: {answer}\nIs the proposed answer correct according to the definition above? Answer yes or no.\nAnswer: ",
+    "frames_note": "byte-identical to poc/f2b/inputs/f2b-manifest.json prompt_frames — the instrument is carried over unchanged (context_prefix/context_suffix retained for frame parity though no arm uses a context block here)"
+  },
+  "flop_accounting": {
+    "formula": "F0 section 3.3: FLOPs = 2*N_active*T_total + 2*L*T^2*d_attn per sequence; prefill and decode metered separately; T measured with the arm's own tokenizer",
+    "cpu_flops_per_s_pinned": 5.0e10,
+    "cpu_note": "CPU-side verifier work is metered as measured wall-clock seconds and converted at this pinned rate ONLY for the aggregate figure; wall-clock is reported separately (F0 section 3.3)",
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10, "A100": 2.10},
+    "usd_note": "Modal list prices used for planning + $-per-query conversion; actual Modal billing reconciled from the dashboard at run time"
+  },
+  "planning": {
+    "note": "dry-plan ESTIMATES only — never emitted as measurements",
+    "throughput_tok_per_s": {
+      "A100": {"R1": 16000, "R3": 2600},
+      "A10G": {"R1": 12000, "R3": 1800},
+      "T4": {"R1": 4000, "R3": 600}
+    },
+    "chars_per_token_estimate": 4.0,
+    "overhead_factor": 2.0,
+    "n_params": {"R1": 1.35e8, "R3": 1.7e9}
+  },
+  "mock": {
+    "note": "SYNTHETIC mechanics-only stub LM (no torch needed); every number it produces is labelled MOCK and never a measurement; the verifiers (true AND shuffled), extraction, dual scoring, engagement accounting, eval-set construction, flop-meter and emitter code paths are the REAL ones. The mock ALSO emits an adjudication-instrument record whose integers are copied verbatim from the pinned data/d-adj-t/summary.json so the pinned analysis pipeline can be validated end-to-end on the mock records file alone; that record is phase=mock and is NEVER log-appended (the REAL stage-1 record is already in results-log/f2b-transfer.jsonl).",
+    "n_eval_items": 16,
+    "seeds": [0, 1],
+    "iface_n_labelled": 300,
+    "stub_skill": {"R1": 0.4, "R3": 0.9},
+    "stub_context_bonus": 0.35,
+    "stub_self_check_skill": 0.75,
+    "stub_extraction_fail_rate": 0.02,
+    "stub_dims": {
+      "R1": {"n_active": 1000000, "layers": 2, "d_attn": 64},
+      "R3": {"n_active": 4000000, "layers": 2, "d_attn": 64}
+    }
+  },
+  "inputs_status": {
+    "d-qa-t": "BUILT + pinned pre-freeze (data/d-qa-t/build-dqat.py, generator seed dqat/1|f2b-transfer|20260710): 360 FRESH kernel-covered kernel_checkable items over the 108 covered concepts; ID-disjoint (dqat: namespace) AND full-prompt-surface-disjoint from all 650 d-qa AND all 1000 d-qa-r items (LC8-t, fail-closed); the runner evaluates the deterministic externally-labelled rank prefix (per_arm_items=250)",
+    "d-adj-t": "blind adjudication corpus, pinned by ops amendment 1 AFTER the stage-1 protocol run and BEFORE the stage-1 record (kot-corpus-hash a4baa36f...): labels.jsonl is the external gold (gold_ext per id; null = unresolved/undecided, EXCLUDED from the eval set); summary.json carries the stage-1 analysis-input integers the runner cross-checks",
+    "d-qa": "reused for ONE purpose beyond the P10 gate: the pinned gloss corpus (gloss-self-verify arm) plus the original covered items the pinned d-xif labelled outputs reference; NO d-qa item is scored as an eval item",
+    "d-xif": "reused from F2 (unchanged P10 gate): 500 covered real R1 outputs re-verified mechanically through THIS harness's extraction machinery; fail-closed pins"
+  }
+}

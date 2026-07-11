@@ -1,0 +1,41 @@
+{
+  "audit_kind": "GATE-A cross-vendor PASS audit (P2 G-6; directives \u00a78) \u2014 f2b-transfer stage-2 mechanical verdict recompute",
+  "auditor": "auditor-3",
+  "auditor_binding": "cross-vendor auditor identity per docs/kernel-design-directives.md \u00a78: GPT-5.6-sol via the codex CLI; vendor tag only, no account credential (RT-14); run-vs-audit separation is cross-vendor (the stage-2 GPU run + verdict-gen by Opus runner-8, this audit by GPT-5.6/codex).",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.144.1 via npx -y @openai/codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "sandbox": "read-only"
+  },
+  "checks": {
+    "amendment_overlay": "ok",
+    "analysis_script_sha": "ok",
+    "endpoint_recompute": "ok",
+    "frozen_hash": "ok",
+    "gloss_self": "ok",
+    "independence": "ok",
+    "instrument_gate": "ok",
+    "log_chain": "ok",
+    "pins": "ok",
+    "primary": "ok",
+    "scope": "ok",
+    "shuffled_control": "ok",
+    "verdict_rule": "ok"
+  },
+  "codex_raw_excerpt": "PASS CONFIRMED. verdict-gen reproduces PASS-PENDING-AUDIT byte-for-byte at computed_at=2026-07-11T18:47:00Z; fired rule index 4 (primary_reject AND shuffled_low_recovery AND beats_gloss_self_verify); analysis SHA-256 637cc767348823ebb8d958f1b23854af817199b937b92180e072984c3e052afa; eligible runs 17, no exclusions; log tail 1ebcf7fe9a6e5f4c790d043351c06dbeadf2846541d7bd5ed664f2469cc36119. Frozen canonical hash recomputes to b341a0901e12023d3c56bdc196be0b9c492c7d348f988416d7e9c43aade20879 (matches record + index). Amendment overlay changes ONLY /pins/corpus_hashes/d-adj-t (a4baa36f\u2026, independently recomputes) and /pins/harness_manifest (ef3e72e6\u2026); no /design, endpoint, threshold, verdict-rule, hypothesis, analysis-script or freeze field changed; effective amended-record SHA fcd1992508601be065ba1de7f59a8ec472e07b8eb5815fc21039aed6d509f763. Log = 18 chained records (adjudication instrument, unblind marker, 16 stage-2 rows); chain, seq, prev_sha256, prereg hashes, config_sha256 all verify; every arm/rung/retry/escalation/seed is a declared level; every scoring arm supplies 250 external- and membership-scoring observations. No statistical-integrity or preregistration defect. Full audit: poc/gpt56-review/stage2-audit-20260711/last-message.json.",
+  "experiment": "f2b-transfer",
+  "independence": "auditor-3 (GPT-5.6/codex) does not appear as a runner in any results-log/f2b-transfer.jsonl record; runner-8 ran the stage-2 arms + verdict-gen. run-vs-audit + cross-vendor separation per directives \u00a78.",
+  "matches_verdict_object": true,
+  "outcome": "CONFIRMED",
+  "recomputed_endpoint": {
+    "dual_scoring_gap": 0.005333333333333301,
+    "external_endorsement": 0.960960960960961,
+    "primary_effect_size": 0.25066666666666704
+  },
+  "result": "CONFIRM",
+  "schema_version": "kot-audit/1",
+  "ts": "2026-07-11T18:52:00Z",
+  "vendor": "openai-gpt-5.6-sol",
+  "verdict_object_audited_sha256": "d3684f24690398da17f908a6ad9e4a5909d0649fbba66fc6c86b5de96ac40aa9"
+}

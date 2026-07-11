@@ -1,0 +1,22 @@
+$ /usr/local/bin/python /root/kot/poc/f2b-transfer/runner/f2bt_runner.py --inputs-dir /root/kot/poc/f2b-transfer/inputs --dqat-dir /root/kot/data/d-qa-t --dadjt-dir /root/kot/data/d-adj-t --dqa-dir /root/kot/data/d-qa --dxif-dir /root/kot/data/d-xif --records-root /root/kot --out-dir /tmp/f2bt-results --device cuda --gpu-class A100
+[f2bt     0.0s] mode=FULL device=cuda eval_items=250 (externally-labelled d-qa-t rank prefix; 333 labelled on disk)
+[f2bt     0.1s] shuffled-verifier permutation: seed=20260710 sha=d401b19cf2fd
+[f2bt    32.0s] cell model-alone R1 k=0 seed=0 done (22.8s)
+[f2bt    53.8s] cell model-alone R1 k=0 seed=1 done (21.8s)
+[f2bt    75.7s] cell model-alone R1 k=0 seed=2 done (21.9s)
+[f2bt    98.0s] cell model-alone R3 k=0 seed=0 done (16.7s)
+[f2bt   114.8s] cell model-alone R3 k=0 seed=1 done (16.7s)
+[f2bt   131.4s] cell model-alone R3 k=0 seed=2 done (16.6s)
+[f2bt   195.1s] cell kernel-verify-retry R1 k=4 seed=0 done (63.7s)
+[f2bt   273.4s] cell kernel-verify-retry R1 k=4 seed=1 done (78.3s)
+[f2bt   335.9s] cell kernel-verify-retry R1 k=4 seed=2 done (62.5s)
+[f2bt   422.9s] cell shuffled-kernel-verify-retry R1 k=4 seed=0 done (87.0s)
+[f2bt   509.7s] cell shuffled-kernel-verify-retry R1 k=4 seed=1 done (86.8s)
+[f2bt   597.5s] cell shuffled-kernel-verify-retry R1 k=4 seed=2 done (87.9s)
+[f2bt   775.8s] cell gloss-self-verify-retry R1 k=4 seed=0 done (178.3s)
+[f2bt   953.9s] cell gloss-self-verify-retry R1 k=4 seed=1 done (178.0s)
+[f2bt  1132.0s] cell gloss-self-verify-retry R1 k=4 seed=2 done (178.1s)
+[f2bt  1132.0s] cell extraction-instrument R1 k=0 seed=0 done (0.1s)
+[f2bt  1132.0s] iface gate: 500 labelled, 0 extraction failures
+[f2bt  1132.0s] OUTCOME: HARNESS-COMPLETE (16 run-record bodies in /tmp/f2bt-results/run-records-f2bt.jsonl)
+[runner exit rc=0]
