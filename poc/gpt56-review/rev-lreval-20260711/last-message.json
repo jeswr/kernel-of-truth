@@ -1,0 +1,86 @@
+## Verdict
+
+Do **not** commit this as the final P3-LR-EVAL deliverable yet. It is a strong, decision-oriented draft with mostly real sources and good skepticism about contamination and unmatched-compute results, but several central design conclusions outrun the evidence. The sealed-evaluation gate and index/power mathematics need correction first.
+
+## Three most important concerns, ranked
+
+1. **The sealed evaluation does not yet validate a W1 win.**
+
+   The proposed gate only requires “directional consistency” with the frozen suite, not that the system beat the resource-matched baseline on sealed data by a registered margin. A frozen-suite win could therefore survive weak or null sealed performance.
+
+   The claimed “≤8% honest-model” consistency anchor is also wrong. GSM1k observed drops of up to 8% among the particular models tested; it did not define an acceptable gap for uncontaminated or “honest” models. Some families showed systematic overfitting, while frontier models showed smaller gaps. That result cannot become a universal tolerance band. [GSM1k paper](https://arxiv.org/abs/2405.00332)
+
+   P3-D-SEAL still needs:
+
+   - sealed-side baseline comparisons and a registered effect/margin;
+   - custody, access, one-shot-use and post-evaluation disclosure rules;
+   - independent difficulty calibration by domain;
+   - generator secrecy or genuinely held-out generator families—not merely fresh seeds from a known generator;
+   - rules preventing feedback from one sealed release being used before the next claimed evaluation.
+
+2. **The index and P3-D-POWER mathematics are not internally complete.**
+
+   Chance normalization is reasonable and accurately traced to OLLv2, but reference/human “ceilings” are not actual ceilings. They are noisy scores under particular prompts and harnesses. They can produce unstable denominators, scores above 1, saturation if clamped, and rank changes when the reference is updated. BLiMP’s 88.6 individual-human and 96.4 aggregate agreement are different estimands, not interchangeable ceiling candidates. [BLiMP paper](https://arxiv.org/abs/1912.00582)
+
+   More specific problems:
+
+   - Held-out LM loss, calibration, abstention/selective prediction, and robustness do not have the stated chance-to-ceiling accuracy normalization. Yet LM loss is an R-0 index component.
+   - Hierarchical bootstrapping estimates uncertainty; it does **not** “handle different variances” in the aggregate. The weighting estimand remains unresolved.
+   - Resampling benchmark families only makes sense if they are treated as samples from a larger benchmark universe. For a fixed registered suite, use fixed domain/benchmark weights and bootstrap items, prompts/seeds, and paired outputs within benchmarks.
+   - The G1 formula `κ(1−a_cov)` is on a raw-accuracy scale. Under the proposed normalized score, the maximum covered-item contribution generally needs the relevant normalization denominator and domain/benchmark weights. It also needs uncertainty in κ and covered-subset accuracy.
+   - Below-floor components should not simply be removed after looking at results; the floor/exclusion criterion must be registered from calibration data.
+
+3. **The small-model floor claims and handoff claims are overstated.**
+
+   The document says D1–D7 placements are floor-validated, but it does not validate D2/D3/D7 comprehensively, and several D4 floors remain explicitly open. MATH, GPQA and modern prompted CLUTRR/ProofWriter floors are unverified.
+
+   The BBH inference is particularly unsafe: SmolLM2’s lighteval aggregate is combined with OLLv2’s adapted per-subtask choice counts to estimate a 25–30% floor. Those are not established as the same task representation, metric or aggregation. The original BBH paper has 23 tasks, while the OLLv2 implementation/documentation uses its own task collection and normalization. The card’s 28.2/32.2 numbers alone do not prove near-floor normalized performance.
+
+   Likewise, “OLLv2 floors out at 100M–2B” conflicts with the review’s own 1.7B MMLU-Pro result of 19.3% against 10% chance. That may still be too weak for the chosen rung, but it is not demonstrated to be floor performance.
+
+## Source and factual audit
+
+I spot-checked HELM, OLLv2 normalization/components, metabench, GSM1k, rephrased contamination, Oren et al., Snell et al., BLiMP, FOLIO, BabyLM and the SmolLM2 card.
+
+No clearly hallucinated paper was found. Most central numerical claims are real:
+
+- HELM’s 42 scenarios, 16 core scenarios, seven metrics and 17.9%→96.0% coverage are supported. However, the paper says the seven metrics were applied to core scenarios **when possible—87.5% of the time**, not unconditionally “under 7 metrics per core scenario.” [HELM](https://arxiv.org/abs/2211.09110)
+- OLLv2’s chance normalization, zero-clamping and per-subtask normalization are accurately described. [OLLv2 normalization](https://huggingface.co/docs/leaderboards/en/open_llm_leaderboard/normalization)
+- The metabench 1.24%/0.58%/0.94 figures match the accepted ICLR version. Its one-factor result supports redundancy in those six benchmarks, but it does not establish that D4 is the only capability outside that factor or validate the proposed D1–D7 ontology. [Accepted metabench paper](https://openreview.net/forum?id=4T33izzFpK)
+- The paraphrase-contamination and Oren exchangeability claims are substantially accurate. Oren detects canonical-order memorization; it is not a general detector of semantic or shuffled-item contamination, which makes the review’s negative-result warning important. [Oren et al.](https://arxiv.org/abs/2310.17623)
+- Snell et al. is correctly identified as FLOPs-matched inference work, and the review commendably flags omitted verifier training cost. But the 14× result is conditional: it applies where the smaller model already has non-trivial success and depends strongly on prompt difficulty and verifier quality. It is not a blanket small-model win. [Snell et al.](https://arxiv.org/abs/2408.03314)
+- FOLIO’s construction is correctly cited, but “GPT-4 struggles on a subset, therefore ≤1.7B should be at chance” is unsupported extrapolation, not floor evidence. [FOLIO](https://aclanthology.org/2024.emnlp-main.1229/)
+- “Continuous metrics carry predictive signal upward” is too strong. The cited papers show that metric transformations can hide smooth scaling and that some observational relationships are predictable; they do not license cross-rung prediction for BLiMP/EWoK without empirical validation. [Schaeffer et al.](https://arxiv.org/abs/2304.15004), [Ruan et al.](https://arxiv.org/abs/2405.10938)
+
+Ledger issues:
+
+- All five JSONL `verified:false` records are visibly marked false. Good.
+- Partial verification is represented inconsistently: MATH tiny-scale floors have no source record, while venue details are unverified inside otherwise `verified:true` records.
+- The prose reports “24” verified sources, while the JSONL contains 27 `verified:true` entries. This may be 24 distinct works plus corroborating/card entries, but it should say so.
+- “Every chance floor is verified” is false for the entire proposed index: generative zero is a convention, LM loss has no such chance floor, and several proposed domain components are absent from the floor table.
+
+## Methodological assessment
+
+The review is genuinely decision-oriented. Its strongest conclusions are:
+
+- publish the domain vector with any scalar;
+- normalize heterogeneous multiple-choice tasks within benchmark/subtask before aggregation;
+- treat overlap screening as a gross-leakage screen, not certification;
+- require sealed evaluation;
+- pin prompting and harness choices;
+- distinguish prompted from fine-tuned benchmark performance;
+- reject unmatched-data or oracle-input wins as evidence of end-to-end superiority;
+- include adaptive test-time compute among baseline candidates where applicable.
+
+Within-domain macro-averaging is defensible if domain importance is explicitly fixed, but it is a normative weighting choice—not a statistical consequence of HELM or metabench. Equal domain weight, benchmark weight within domain, missing-domain handling and cross-rung comparability all remain unresolved.
+
+## Phase-1 handoffs
+
+- **P3-D-INDEX:** partly de-risked, but still missing metric-specific transforms, reference-score uncertainty, clamping policy, fixed weights, floor criteria, abstention scoring and full D1–D7 calibration.
+- **P3-D-SEAL:** useful recipes, but not yet a production protocol or valid claim gate.
+- **P3-D-POWER:** insufficiently de-risked. It needs corrected normalized-scale bounds, uncertainty in coverage, suite covariance, registered δ values and actual sample-size/power calculations.
+- **P3-D-BASE:** appropriately warns about verifier training and data-vs-compute matching, but does not by itself specify credible rung baselines. It remains dependent on P3-LR-RAG, P3-LR-TINY and P3-D-FRONTIER.
+
+The unmatched-compute discussion is one of the better parts: it does not simply accept the BabyLM, CLUTRR or Snell wins. The main overstatement is calling adaptive test-time compute “literature-mandatory” for every frontier; it should be mandatory to consider and include where task-appropriate and budget-feasible.
+
+**Commit recommendation:** revise first. The sources are mostly sound, but the current text overclaims floor validation and turns exploratory precedents into insufficiently specified index, power and sealed-evaluation rules. After those targeted corrections, it should be suitable as P3-LR-EVAL.

@@ -1,0 +1,73 @@
+Verdict: strong survey scaffold, but not sound yet to commit as the gate-discharging P3-LR-PARSE. Most sources are real and broadly characterized correctly; the central operational recommendations—learned parser, constrained output, explicit execution, selective abstention, adversarial paraphrase evaluation—are directionally right. The review nevertheless turns plausible transfer evidence into a stronger capability judgement than the cited work supports.
+
+## Three most important concerns, ranked
+
+1. **The a5 ROLE_DIR failure is misclassified as “fundamental.”**
+
+   The measured defect was a deterministic direction-table bug: “what contains X” versus “what X contains” mapped to the wrong valid operation. [PARSE.md:77](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md:77) and the a5 assessment even proposes a targeted deterministic repair. COGS, CFQ, and Qiu et al. establish poor OOD compositional generalization for particular learned models and splits; they do not establish that direction/argument binding is fundamental or that “a better parser” cannot fix it. Qiu et al. explicitly describe limitations of current techniques, not an impossibility result. [Qiu et al.](https://arxiv.org/abs/2205.12253)
+
+   Worse, the proposed mitigation is internally inconsistent: checked execution cannot detect a valid direction-flipped query, as the review correctly says elsewhere. Abstention may reduce such errors only if its score separates them; systematic high-confidence inversions are exactly where calibration can fail. Replace “fundamental at the parser-method level” with “currently brittle under distributional/compositional shift; directly repairable in the measured deterministic implementation; residual systematic errors require adversarial testing and risk control.”
+
+2. **The 0.90/S2 feasibility judgement is supported by unmatched proxies and inflated metrics.**
+
+   The executive claim that 110M–3B parsers “routinely hold 80–97% exactness” [PARSE.md:43](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md:43) conflates intent accuracy and slot F1 with whole-frame exactness. Joint BERT’s actual sentence-level semantic-frame accuracy was about 92.8% on Snips and 88.2% on ATIS—not 96–97%; those higher figures are intent accuracy/slot F1. The ledger itself describes the metrics correctly, but the prose promotes them to “exactness.”
+
+   TeCoD is the best-matched evidence, but even there matched BIRD execution accuracy varies roughly 83.6–89.2% for several reported settings/models; “sits AT the 0.90 bar” is selective rounding and says nothing about simultaneously meeting the KOT S2 confidence bound. TeCoD supports plausibility, not gate feasibility. Its published claim is up to +36 points and 2.2× lower latency on matched queries. [TeCoD](https://arxiv.org/abs/2604.28028)
+
+   The review eventually admits the decisive fact: no cited work reports retention-at-S2-bound for a ≤360M parser on this kind of grammar [PARSE.md:331](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md:331). Therefore the defensible conclusion is “capability-limited is the leading hypothesis, empirically unresolved at the programme gate,” not “settled” or “literature-supported at 0.90.”
+
+3. **It does not yet fully de-risk NLB/PS/ORACLE against correlated valid-but-wrong errors.**
+
+   P3-D-NLB gets useful requirements—disjoint phrasing sources, K>1, perturbation types, symmetric direction tests, frozen thresholds, and full risk–coverage reporting. But it still lacks several gate-critical requirements:
+
+   - Define whether S2 is unconditional `P(answer ∧ wrong)` or selective risk `P(wrong | answer)`; the cited literature uses both notions.
+   - Prespecify calibration/evaluation sample sizes and one-sided confidence rules needed to establish a 2% bound.
+   - Include systematic-error strata, not just average risk: every relation/operator × direction × paraphrase family needs its own minimum support and zero/near-zero wrong allowance.
+   - Separate model selection, confidence calibration, threshold selection, and final evaluation datasets.
+   - Require independent ambiguity/answerability annotation and explicit clarification behavior.
+   - Test calibration-source and deployment-source shifts, not merely random held-out paraphrases.
+
+   Conformal abstention does provide a relevant guarantee, including high-probability risk-control variants, but only under exchangeability and for the chosen loss/match function. It explicitly notes that self-consistency cannot detect a model that is consistently confident in the same wrong answer. [Conformal abstention paper](https://arxiv.org/abs/2405.01563) That limitation is central to ROLE_DIR, not a footnote.
+
+## Source audit
+
+The source ledger is generally credible. My spot checks found the cited papers real and headline claims mostly accurate:
+
+- STaR-SQL: 86.6% Spider EX, +31.6 over few-shot and +18.0 over direct fine-tuning. [ACL paper](https://aclanthology.org/2025.acl-long.1187/)
+- TinyGSM: 1.3B generator + 1.3B verifier, 81.5%, trained on 12.3M GPT-3.5-generated examples. [TinyGSM](https://arxiv.org/abs/2312.09241)
+- LEVER: +4.6–10.9 points with code-davinci-002. [LEVER](https://arxiv.org/abs/2302.08468)
+- TriageSQL: RoBERTa baseline at 60% F1. [TriageSQL](https://arxiv.org/abs/2010.12634)
+- SynCode, XGrammar, Synchromesh, type-constrained decoding, GAD, GENRE and STaR-SQL all exist and broadly match their ledger descriptions.
+
+The seven `verified:false` entries are adequately marked when substantively used: STaR-SQL, XGrammar, GAD and GENRE are explicitly labeled `UNVERIFIED-THIS-PASS`; the remaining carried sources are mostly only named in the dedup/ledger context. That handling is acceptable. However, `verified:true` currently means “primary page fetched,” not “every numerical/body claim checked”; the Joint BERT error shows that distinction matters.
+
+## Factual/citation errors and overstatements
+
+- **Joint BERT:** ~96–97% refers to intent accuracy/slot F1, not sentence-level exact semantic frames. Actual whole-frame results were about 88–93%. [PARSE.md:100](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md:100)
+- **“80–97% exactness routinely”:** not supported by the cited heterogeneous benchmarks and metrics.
+- **Role/direction “fundamental”:** unsupported category error from a hand-coded lookup defect to OOD neural compositional-generalization benchmarks.
+- **“Mitigation is checked execution”:** technically false for valid-but-wrong direction parses; the review itself contradicts this at [PARSE.md:180](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md:180).
+- **GCD/global-mask rule:** PGCD studies sampling bias and SMC proposals over finite-automaton constraints. It does not show that ordinary local constrained decoding is unsafe or incorrect, nor that global decoding is “modest cost” or “trivially feasible” for an unspecified grammar. [PGCD](https://arxiv.org/abs/2606.01926) The blanket “do not ship any locally-masked decoder” conclusion is not warranted.
+- **“Constraints remove syntax/validity failure entirely at ~zero cost”:** they remove violations expressible by a correct grammar; they do not remove semantic invalidity, grammar/specification bugs, tokenizer integration bugs, or all serving overhead.
+- **TinyGSM as “the full pipeline exists at 1.3B”:** useful existence analogy, not a matched H-PS demonstration. Its 12.3M synthetic math corpus, executable Python, sampled verifier selection, and trivial numeral rendering differ materially from KOT parsing and surface generation.
+- **MBR-EXEC characterization:** it approximates semantic equivalence using a small set of test inputs; agreement can select a majority cluster of spurious programs. [MBR-EXEC](https://arxiv.org/abs/2204.11454)
+- **“S2 budget must be carried by abstention”:** too strong. Safety should also come from fixing deterministic relation semantics, typed/operator-specific validation, contrastive inverse tests, independent verification where possible, and abstention.
+- **“Field practice supports exactly this [ORACLE] staging”:** Dr.Spider supports perturbation-typed diagnosis, but not the complete proposed KOT stage protocol. This should remain a design extrapolation.
+
+## De-risking by bead
+
+- **P3-D-NLB:** substantially helpful, but incomplete until the joint 0.90/2% statistical protocol and systematic-error strata are specified.
+- **P3-D-PS:** correctly warns that execution is necessary but insufficient. It overstates TinyGSM transfer and under-specifies protection against semantically valid wrong programs and renderer corruption.
+- **P3-D-ORACLE:** good decomposition direction, but it should separately oracle-ablate intent/frame selection, role/direction, entity linking, DSL serialization, execution, and rendering. A single “gold parse” arm will not localize correlated errors adequately.
+
+## Commit decision
+
+**Do not commit it as completed/gate-discharging P3-LR-PARSE in its present form.** It is close to a useful Phase-0 review, but requires a focused revision:
+
+1. downgrade the central conclusion to a testable capability-limited hypothesis;
+2. correct the Joint BERT/exactness and TeCoD interpretations;
+3. reclassify ROLE_DIR and remove execution as its claimed mitigation;
+4. narrow the GCD/global-mask claims;
+5. make the NLB handoff specify the exact joint confidence-bound protocol and systematic-error tests.
+
+After those corrections, it would be sound as Phase-0 evidence for proceeding to P3-D-NLB—not as evidence that the 0.90/S2 gate is likely to clear.

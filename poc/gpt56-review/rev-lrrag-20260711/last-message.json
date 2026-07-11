@@ -1,0 +1,59 @@
+Verdict: not sound to commit as P3-LR-RAG yet. The bibliography is largely real and the review has the right fairness instincts, but it overstates how much Phase-1 design uncertainty it closes.
+
+## Three most important concerns
+
+1. **P3-D-RAGC is not actually de-risked.**
+
+   The hand-off calls the control checklist “closed,” but it never specifies an executable matched control. “Same source snapshot” is not the same as “same corpus, same retriever/index”: converting source material into kernel records, plain-text passages, triples, or tool schemas changes the indexed objects and retrieval problem. The design still needs explicit rules for:
+
+   - equivalent source-content derivation and information parity;
+   - identical versus architecture-specific retrievers;
+   - retrieved-token/context budgets and ordering;
+   - generator, tool executor, retry policy, and tuning-compute parity;
+   - store/index construction leakage and authoring effort.
+
+   KILT supports a common Wikipedia snapshot and provenance scoring, but it does not establish the proposed cross-representation “same retriever/index” control ([KILT](https://arxiv.org/abs/2009.02252)). Consequently, [RAG.md §8](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/RAG.md:322) claims substantially more closure than the literature provides.
+
+2. **The graph evidence does not support the GNN hand-off or the asserted break-even threshold.**
+
+   The sources concern GraphRAG retrieval, graph-based indexing, PageRank, and global summarisation—not GNN-to-LM fusion versus text serialisation. There is no GNN-fusion paper in the ledger. HippoRAG shows a graph retriever can beat iterative retrieval on selected multi-hop QA; MiniRAG reports comparable SLM performance and 25% storage; neither establishes that “structure wins only past a hops/aggregation threshold,” that gains increase monotonically with depth, or that a GNN encoder becomes preferable.
+
+   MiniRAG’s causal interpretation—graph structure “substitutes for” weak SLM semantics—is stronger than its reported system comparison ([MiniRAG](https://arxiv.org/abs/2501.06713)). The review correctly admits that no size×depth sweep exists, then treats the hypothesised threshold as settled in its hand-off. P3-D-GNN therefore remains dependent on P3-LR-FUSE and an explicit “no prior” statement; RAG.md cannot close its empirical premise.
+
+3. **P3-D-FRONTIER is under-specified despite the ICLR result being cited correctly.**
+
+   The Snell et al. headline is accurate: over 4× efficiency versus best-of-N and a conditional 14×-larger-model comparison on MATH ([ICLR 2025 paper](https://proceedings.iclr.cc/paper_files/paper/2025/file/1b623663fd9b874366f3ce019fdfdd44-Paper-Conference.pdf)). The missing constraints are important:
+
+   - experiments used PaLM-2 models, math, fine-tuned revision models and PRMs—not 135M–1.7B general models;
+   - prompt-difficulty estimation itself consumes non-trivial test-time compute;
+   - the 4× and 14× findings are separate comparisons, not a general “4× compute buys one model class” exchange rate;
+   - the authors explicitly leave generalisation beyond math/easily verified domains unresolved;
+   - the 14× result depends on difficulty and the assumed lifetime inference/pretraining ratio.
+
+   Thus “implement Snell-style” is not yet a baseline recipe. P3-D-FRONTIER still needs a budgeted difficulty estimator, eligible search policies by rung, verifier training/build costs, fallback when estimated base success is near zero, and a non-math calibration gate.
+
+## Source and claim audit
+
+I found no clearly hallucinated paper among the 28 ledger entries. Most titles, venues and headline results are real. The ledger nevertheless contains errors and overstatements:
+
+- **Source count is wrong:** the JSONL contains 28 entries—27 `verified:true`, one `false`—not “27 sources; 26 true, one false.”
+- **FlashRAG counts are wrong or unpinned:** RAG.md says 16 methods and 38 datasets; the primary abstract reports 12 methods and 32 datasets ([FlashRAG](https://arxiv.org/abs/2405.13576)). If these are later toolkit counts, cite and pin that release rather than attributing them to the paper.
+- **RETRO accounting overreach:** 2T tokens and 25× fewer parameters are correct ([RETRO](https://arxiv.org/abs/2112.04426)); “under a bytes-inclusive ledger the comparison reverses sign” is an unperformed calculation, not a measured result.
+- **Universal accounting claims are unsupported:** “no published small-model RAG win would survive” and “stricter than anything in this literature” require a systematic search plus actual byte/build/query calculations. The current 28-paper sweep does not establish either.
+- **GraphRAG cost statement is too absolute:** the flagship paper does report construction/runtime information, including indexing wall time for its corpus, even if it lacks the full lifecycle ledger sought here. Say “no complete bytes/build-compute ledger,” not “cost not reported.”
+- **KILT is mischaracterised as precedent for same-retriever controls.** It pins the knowledge snapshot and evaluates provenance; it does not mandate identical retrievers across systems.
+- **TinyAgent’s result is accurately reported but not resource matched:** its 80.06% versus 79.08% comparison is on a 16-tool, task-specific Mac-assistant suite and includes a separately fine-tuned DeBERTa tool selector ([TinyAgent](https://aclanthology.org/2024.emnlp-demo.9/)). That selector’s weights, training and inference belong in the system ledger.
+- **APIGen is less “narrow-domain” than stated:** it remains function-calling-specific, but spans 3,673 APIs across 21 categories; grouping it with TinyAgent as uniformly narrow curated-domain evidence is too coarse ([APIGen](https://arxiv.org/abs/2406.18518)).
+- **MiniRAG’s “25% storage” is an author-reported relative comparison**, not evidence that the complete system fits 25% of an honestly packed LLM-RAG deployment budget.
+- **The large-budget verifier failure is not universal.** The cited Scaling Flaws result is important evidence for particular learned verifiers/search procedures; it does not establish that every learned-verifier frontier must degrade, nor that the symbolic system is immune end-to-end.
+
+## Assessment by topic
+
+- **Small-model RAG/tool use:** useful examples and appropriately skeptical of parameter-only wins, but not a defensible “strongest current” survey or frontier recipe. It lacks a documented search protocol and important negative/generalisation evidence.
+- **Structured versus dense retrieval:** the high-level judgement—dense/lexical retrieval is strong for local fact lookup, graphs can help relational/global tasks, neither dominates—is reasonable and supported by the cited GraphRAG comparisons. The claimed hop/depth break-even is not supported.
+- **Index accounting:** the proposed accounting policy is good. The audit of what individual papers actually count is too qualitative to justify its universal conclusions.
+- **Unmatched-compute wins:** most are correctly caveated, but RETRO’s alleged reversed result, MiniRAG’s causal/storage reading, and the Snell synthesis still convert unmatched findings into stronger conclusions than warranted.
+- **Adaptive test-time compute:** primary result verified, envelope partly captured, implementation and transfer costs insufficiently handled.
+- **P3-D-RAGC / FRONTIER / GNN:** useful input to all three, but none is genuinely closed. RAGC is closest; FRONTIER needs a calibration/budget protocol; GNN is not de-risked by this source set.
+
+Recommendation: revise before committing as P3-LR-RAG. Downgrade “settled/closed” language, correct the factual errors, make the RAGC control operational, and explicitly leave GNN fusion to P3-LR-FUSE.
