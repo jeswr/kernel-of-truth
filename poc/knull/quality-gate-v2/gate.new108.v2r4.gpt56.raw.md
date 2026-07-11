@@ -1,0 +1,66 @@
+## Part 1 — Defect audit
+
+### 1. Register or word-choice faults
+
+- **3:** “**moved to hostility against its cause**” is strained and unidiomatic. A person may feel hostility *toward the person or thing that caused the anger*, but displeasure is not naturally said to have a “cause” against which one is “moved to hostility.”
+
+- **7:** “**cold wild country**” is an unnatural collocation. Natural dictionary prose would say *cold wilderness*, *northern wild regions*, or similar.
+
+- **16:** “**under a blow, strain, or fall**” improperly makes one preposition govern three unlike causes. Something may break *under strain*, but normally *from/by a blow* and *in/as a result of a fall*.
+
+- **29:** “**an informal exchange of speech**” is affected and unidiomatic. *Exchange of remarks*, *spoken exchange*, or simply *talk* would be normal.
+
+- **30:** “**by its source in emotion**” uses an unnatural collocation. The crying is *caused by* or *arises from* emotion; it does not naturally have its “source in emotion” in this construction.
+
+- **34:** “**human keepers**” is a strained substitute for *people*, *humans*, or, in this context, *human care*. It makes ordinary dog ownership sound like zoological captivity.
+
+- **37:** “**fixed to a particular time and place**” has the wrong collocation. An event is *located*, *situated*, or *occurs* at a particular time and place; it is not normally “fixed to” them.
+
+- **54:** “**to comprise among the elements of a whole**” is unidiomatic. A whole *comprises* its elements; an element is *included among* or *forms part of* the elements of a whole.
+
+- **59:** “**a garment fitting tight about the body**” uses the informal flat adverb *tight* where edited dictionary prose calls for *tightly*.
+
+- **71:** “**whose work or labour has brought a given object into being**” is an unattached relative clause following a semicolon. It cannot stand as a coordinate definition beside “the person or agent”; it should be integrated as *a person or agent whose work...*.
+
+- **78:** “**with little room between the one point and the other**” is both affected and improperly expressed. Spatial points have little *distance*, not little “room,” between them; “the one point and the other” is needlessly mannered.
+
+- **82:** “**sets its subject before the eye**” is a literary circumlocution out of keeping with an otherwise literal general-dictionary definition. *Depicts* or *shows* the subject would be natural.
+
+### 2. Vague anaphoric renaming
+
+none found.
+
+Generic nouns such as “object” in 6, 27, and 82 introduce or classify referents; they do not vaguely rename the headword after it has already been established.
+
+### 3. Staged observers
+
+none found.
+
+Constructions such as “perceptible by the eye” in 104 describe visibility directly and do not invent an onlooker.
+
+### 4. Non-definitional material
+
+- **11:** “**with which a separate and independent existence begins**” is a decorative philosophical flourish after birth has already been defined as “the coming of a new individual from the body of its mother.” It does not add a separate lexical component of the meaning.
+
+- **34:** “**it has a keen sense of smell, and barks, a habit its wild kin lack**” is appended natural-history commentary, not part of what *dog* means. The assertion about wild relatives is also overconfident: wild canids can produce bark-like vocalizations.
+
+- **83:** “**on which that other is entitled to rely**” narrates a supposed legal or moral consequence of a promise rather than defining the ordinary word. Not every promise creates an enforceable entitlement.
+
+## Part 2 — Overall naturalness
+
+**4/10.**
+
+The collection is recognizably dictionary-shaped, and many individual entries are competent. **Entry 108** is the most natural: “**contrary to morality or to accepted standards; deserving of blame or censure**” is concise, idiomatic, and properly definitional.
+
+Taken together, however, the entries sound artificially expanded into a uniform imitation of older dictionary prose. They repeatedly replace ordinary wording with ponderous formulations:
+
+- “**moved to hostility against its cause**” (3)
+- “**as remarks pass back and forth**” (29)
+- “**the event that closes an individual existence**” (33)
+- “**for as long as it lasts**” and “**the same one on a later occasion**” (62)
+- “**sets its subject before the eye**” (82)
+- “**the wood of which it is formed**” (101)
+
+The relentless semicolon structure, explanatory codas, paired contrasts, and phrases such as “**whether gradual or sudden, partial or complete**” make the set feel generated to a template rather than independently edited for each word.
+
+**Entry 71** is the least natural because it combines cumbersome abstraction—“**the person or agent by whom a particular thing has been made**”—with the outright grammatical failure of the unattached clause “**whose work or labour has brought a given object into being**.” Entry 62 is a close second: it reads like an improvised metaphysical account of identity rather than a general-dictionary definition of *kind*.

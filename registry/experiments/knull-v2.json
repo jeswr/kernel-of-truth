@@ -1,0 +1,346 @@
+{
+ "analysis_plan_ref": {
+  "anchor": "1.5",
+  "path": "docs/research-plan/08-stats-and-extrapolation.md",
+  "sha256": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86"
+ },
+ "budget": {
+  "gpu_hours_cap": 8,
+  "usd_cap": 60,
+  "wall_clock_cap_hours": 24
+ },
+ "coverage_requirement": {
+  "rung_field": "coverage_rung",
+  "source": "m0b"
+ },
+ "depends_on": [
+  "f2b-replicate",
+  "m0b",
+  "f0-harness"
+ ],
+ "design": {
+  "arms_mandatory_baselines": [
+   "alone-R1 per store arm (each arm's own surfaces - the within-arm baseline that makes lifts comparable across arms)",
+   "alone-R3 per store arm (bridge restatement of the f2b-form effect; absolute, no ratio, no gate)",
+   "shuffled-verify-retry on the kernel store (seed-pinned derangement - the bridge to f2b-replicate, verbatim mechanism; claim-polarity asymmetry disclosed in the design doc section 5 attack 6)",
+   "NOTE kernel-as-text + gloss-self-verify text nulls are NOT re-run: the Law-2 nulls were measured against this exact mechanism in f2b-replicate (beats_text_null, beats_gloss_self_verify both passed, audit CONFIRMED) and no claim here exceeds that scope; this record varies STORE CONTENT within the already-nulled mechanism"
+  ],
+  "dependent_vars": [
+   {
+    "better": "higher",
+    "definition": "per-item correctness on the arm's own rank-prefix item set (n=1000 skeletons, paired across arms by skeleton_uid: identical concept, template type, distractor/donor coordinates and option-slot layout; only store-injected bytes differ - map D-2)",
+    "name": "item_correct",
+    "unit": "0/1 per item"
+   },
+   {
+    "better": "n/a",
+    "definition": "acc(verify-retry-R1, k=4) - acc(alone-R1), item-paired WITHIN arm, seed-averaged; ABSOLUTE - no denominator appears in any verdict-bearing quantity (the F2 degenerate-denominator lesson); the only ratio anywhere is the bridge SECONDARY's recovery fraction, gated behind the bridge instrument gate that bounds its denominator away from zero",
+    "name": "lift_abs",
+    "unit": "fraction"
+   },
+   {
+    "better": "lower",
+    "definition": "FLOPs/query, latency, usd/query, store bytes per arm (F0 ledger; verifier CPU metered at the pinned rate) - DESCRIPTIVE, feeds the flops-parity instrument gate and the V ledger; no efficiency claim is tested in this record",
+    "name": "v_components",
+    "unit": "per F0"
+   }
+  ],
+  "independent_vars": [
+   {
+    "levels": [
+     "kernel",
+     "plain",
+     "opaque"
+    ],
+    "name": "store"
+   },
+   {
+    "levels": [
+     "alone-R1",
+     "alone-R3",
+     "verify-retry-R1",
+     "shuffled-verify-retry-R1(kernel store only)"
+    ],
+    "name": "cell"
+   },
+   {
+    "levels": [
+     0,
+     4
+    ],
+    "name": "retry_budget"
+   },
+   {
+    "levels": [
+     0,
+     1,
+     2
+    ],
+    "name": "seed"
+   }
+  ],
+  "n_planned": {
+   "assumptions": [
+    {
+     "claim": "f2b lift +0.1507 absolute (one-sided 95% BCa LB +0.1053) vs 1.7B-alone on fresh covered items, audit CONFIRMED; derangement recovery ~0; adopted licence = correct-alignment-specific (registry/verdicts/f2b-replicate.json + assessments + feasibility-synthesis 2b)",
+     "tag": "MEASURED"
+    },
+    {
+     "claim": "map M-V: 3456/3456 verifier decisions bitwise identical after stripping all non-gloss record fields (poc/knull mock map-check.json, re-proven on the authored-store build 2026-07-10) - kernel vectors/ASTs inject zero bytes into the accept seam; the requested vector-free arm is map-resolved and not run",
+     "tag": "MEASURED"
+    },
+    {
+     "claim": "G-3 token parity at the pinned SmolLM2-135M tokenizer: mean prompt tokens kernel 110.5, plain 104.8 (0.948), opaque 110.9 (1.004), all inside the +/-10% pre-freeze band (run-time gate +/-20%); artifact poc/knull/inputs/g3-token-band.json",
+     "tag": "MEASURED"
+    },
+    {
+     "claim": "power planning bound 0.65-0.95 at margin 0.05, n=1000 - planning constant, never a measurement; resolution: realized CI width at analysis (ASM to be registered at freeze)",
+     "tag": "STIPULATED"
+    },
+    {
+     "claim": "the authored plain store (dictionary-register English, zero NSM-legal syntax, linter-gated, LLM-drafted by the Fable designer role - a different vendor/family from the SmolLM2 hosts, disclosed in poc/knull/inputs/plain-authored.json) does not shift verify acceptance dynamics beyond what the within-arm baseline + difficulty gate absorb; resolution: truthstyle-2x2 style axis + the per-type descriptive table (ASM to be registered at freeze)",
+     "tag": "STIPULATED"
+    },
+    {
+     "claim": "holding the oracle-favourable construction fixed across arms isolates the content variable; gold-label independence is explicitly out of scope - f2b-transfer owns it (ASM to be registered at freeze)",
+     "tag": "STIPULATED"
+    },
+    {
+     "claim": "mock-only artifact: the StubLM chars/4 token proxy undercounts nonce text ~2x, so the SAP flops_parity gate reads false on MOCK records; carries no information about the real gate - pre-freeze evidence is the pinned-tokenizer G-3 artifact; resolution: run-time HFLM-metered FLOPs ledger (ASM to be registered at freeze)",
+     "tag": "STIPULATED"
+    }
+   ],
+   "best_comparator_rule": "pre-declared: the aligned non-NSM arm (plain or opaque) passing the difficulty gate with the larger point lift; selection bias ~+0.01-0.03 on the comparator is inside the margin and conservative AGAINST the content claim (design doc section 5 attack 5)",
+   "bootstrap_B": 10000,
+   "coverage_restatement": "kernel-expressibility coverage 0.3542 at rung molecules-v0 - MEASURED by m0b on one incomplete kernel-v0 instance, NOT general coverage; every accuracy claim is bounded to the kernel-covered slice",
+   "holm_family": "ONE family F-sec(knull), membership pre-declared: shuffled_low_recovery, f2b_form_positive; bootstrap-inversion p-values on the shared resampling plan; per-type breakdown is DESCRIPTIVE and outside the family",
+   "item_source": "poc/knull/inputs-v2/items/{kernel,plain,opaque}.jsonl - 1080 skeletons over the 108 covered concepts, generator seed knull/1|knull-content-injection-ablation|20260710 (byte-identical schedule to v1), LC8 prompt-surface-disjoint from all 650 d-qa + 1000 d-qa-r logged surfaces IN EVERY ARM (fail-closed), rank-prefix 1000 consumed; type mix RE-DERIVED on the re-authored store and IDENTICAL ACROSS ARMS: all-1080 324 def-match / 324 term-match / 56 claim-true / 376 claim-false (unchanged from v1 - the re-authoring did not shift the joint-substitution mix); rank-prefix-1000 consumed 300 def-match / 304 term-match / 52 claim-true / 344 claim-false, identical across all three arms; fork F-KN-D discloses the claim-true scarcity",
+   "pairing": "skeleton_uid - identical concept, template type, distractor/donor concept coordinates and option-slot layout across arms; only store-injected bytes differ (content-injection map D-2)",
+   "per_arm_items": 1000,
+   "power": "power 0.65-0.95 at margin 0.05, n=1000 paired skeletons, from f2b-measured variance scaled + the mock half-width under arm-independent stub noise - STIPULATED planning bound, never a measurement; resolution: realized CI width at analysis; fork F-KN-C margin call FINALIZED at 0.05 (n=1000 >= 900; poc/knull/inputs/g3-token-band.json)",
+   "prefreeze_gates_evidence": "G-1 RE-AUTHORED plain store poc/knull/inputs-v2/plain-authored.json (sha256 2536a2944ab381657cf0aa9d4412f5c8b00be65ac388e80621599fcf645f74d0) linter green over the full v1 G-1 contract (D-1, L-1..L-5, R-1..R-4; report poc/knull/inputs-v2/g1-lint-report.json sha256 29dc875421ca5f08d2d5b66fc1307b5ea9fec84bbbd3a483e44a0b7a1735b647); G-2 plain_store_placeholder=false, manifest re-pinned; G-3 pinned-tokenizer token-band re-check PASS (kernel 110.5 / plain 110.5 / opaque 110.9 mean prompt tokens; plain ratio 1.001, opaque 1.004, inside the +/-10 percent pre-freeze band; artifact poc/knull/inputs-v2/g3-token-band.json sha256 1b264959cea54ea350d0164cf4c42830c7c26dba433fe911a121df32e82d70a4); G-4 analysis_script pin (analysis/knull.py unchanged from v1); G-5 checklists in prereg_doc; QUALITY GATE (the maintainer-ratified ASM-0703 two-part rule - zero defect-class findings AND blind naturalness >= 5/10, both judge families; recorded ASM-0704 design action, ASM-0705 MEASURED result, ASM-0706 escalation): blind full-108 read, headwords withheld, no project context, two families (GPT-5.6 codex-cli 0.144.1 effort high + Claude Haiku 4.5 headless claude -p per poc/truthstyle-2x2/judges-invocation.md 4.3/4.3.1, tripwires clean); MEASURED on the committed store: GPT-5.6 4/10, Haiku 3/10 - both families clear anaphoric-renaming and staged-observers (NONE), residual = rotating local register nits + mandatory-second-segment non-definitional flags; the >=5 floor is met by NEITHER family, so the ratified gate is NOT met as-stated and the freeze precondition is ESCALATED to the maintainer (ASM-0706 three-way fork). Raw evidence poc/knull/quality-gate-v2/gate.new108.v2r*.{gpt56,haiku}.raw.md",
+   "sap_prng_seed": 20260710
+  },
+  "scale_rungs": [
+   "R1",
+   "R3"
+  ],
+  "seeds": [
+   0,
+   1,
+   2
+  ]
+ },
+ "efficiency_relevant": false,
+ "endpoints": [
+  {
+   "id": "primary",
+   "metric": "/analysis/tost_equivalent",
+   "role": "primary",
+   "smallest_effect_of_interest": {
+    "type": "absolute_lift_difference",
+    "value": 0.05
+   },
+   "test": "PRIMARY (exactly one): TOST equivalence at margin +/-0.05 ABSOLUTE on D = mean_i [ lift_i(kernel) - lift_i(best) ], lift_i(a) = seedmean(verify_i) - seedmean(alone_i) within arm a, i indexes paired skeletons; best = the aligned non-NSM arm passing the difficulty gate with the larger point lift (pre-declared selection); paired skeleton-level BCa bootstrap B=10000, seed 20260710, ONE shared resampling plan across all statistics; equivalent iff one-sided 95% BCa LB > -0.05 AND one-sided 95% BCa UB < +0.05. Superiority read: LB > +0.05 (/analysis/kernel_superior_beyond_margin). Inferiority read: UB < -0.05 (/analysis/kernel_inferior_beyond_margin). ABSOLUTE lifts only - no ratio is verdict-bearing anywhere in the primary"
+  },
+  {
+   "id": "gate-bridge",
+   "metric": "/gates/bridge_kernel_lift",
+   "role": "secondary",
+   "test": "INSTRUMENT gate (H-KN3 part 1): kernel-arm lift one-sided 95% BCa LB > +0.05 - the ablation cannot attribute a lift that failed to reproduce; on failure the verdict is INSTRUMENT-INVALID (nothing to attribute), never a hypothesis event; a bridge failure raises a surface-sensitivity flag on the F2 line and does NOT contradict the f2b-replicate PASS (different surfaces)"
+  },
+  {
+   "id": "gate-difficulty",
+   "metric": "/gates/any_aligned_arm_eligible",
+   "role": "secondary",
+   "test": "INSTRUMENT gate per aligned arm: |acc(alone-R1, arm) - acc(alone-R1, kernel)| <= 0.15 (3-seed mean; /gates/difficulty_band_plain, /gates/difficulty_band_opaque); a failing arm leaves the comparator set BEFORE selection; both failing => INSTRUMENT-INVALID (fork F-KN-B is decided BY this gate at analysis time, not by a person)"
+  },
+  {
+   "id": "gate-extraction",
+   "metric": "/gates/extraction_ok",
+   "role": "secondary",
+   "test": "INSTRUMENT gate per arm: extraction-success Wilson-LB >= 0.90 over all verify calls (P10 discipline, measured in-run; per-arm fields /gates/extraction_wilson_lb_*)",
+   "wilson_gate": {
+    "expected_rate": 0.95,
+    "n_planned": 3000,
+    "threshold": 0.9
+   }
+  },
+  {
+   "id": "gate-flops-parity",
+   "metric": "/gates/flops_parity",
+   "role": "secondary",
+   "test": "INSTRUMENT gate: per-query mean FLOPs of each aligned verify arm within +/-20% of the kernel verify arm (F0 ledger; fields /gates/flops_ratio_*) - the matched-budget guarantee, enforced at build by the token-calibrated word band and pre-verified at the pinned tokenizer (G-3 artifact, ratios 0.948/1.004); NOTE the gate reads FALSE on MOCK records only (StubLM chars/4 proxy undercounts nonce text - disclosed stipulated mock artifact)"
+  },
+  {
+   "id": "sec-shuffled-bridge",
+   "metric": "/analysis/holm/shuffled_low_recovery",
+   "role": "secondary",
+   "test": "Holm family F-sec(knull) (H-KN3 part 2): shuffled-derangement recovery on the kernel store < 0.30 (one-sided 95% BCa UB), the f2b-replicate secondary verbatim, on the regenerated surfaces; the recovery ratio's denominator is bounded away from zero by the bridge gate; interpreted with the disclosed claim-polarity asymmetry (design doc section 5 attack 6; fork F-KN-D's kill applies if failure is claim-type-only)"
+  },
+  {
+   "id": "sec-f2b-form-bridge",
+   "metric": "/analysis/holm/f2b_form_positive",
+   "role": "secondary",
+   "test": "Holm family F-sec(knull): kernel-arm acc(verify-retry R1) - acc(alone R3) one-sided 95% BCa LB > 0 - the f2b-replicate primary's form restated on regenerated surfaces (absolute, no denominator)"
+  },
+  {
+   "id": "desc-per-type",
+   "metric": "/analysis/per_type_breakdown",
+   "role": "secondary",
+   "test": "DESCRIPTIVE ONLY, never verdict-bearing, OUTSIDE the Holm family (registered as secondary because kot-reg/1 has no descriptive role): per item-type accuracies and lifts per arm; headroom-normalized lifts are reported here and NOWHERE else"
+  }
+ ],
+ "extrapolation_envelope_verbatim": "Binding on ANY outcome: claims are scoped to <=1.7B hosts (verify host 135M; 1.7B only as the bridge baseline), the kernel-covered SELF-AUTHORED templated definitional-QA family over the same 108 covered concepts, k=4, this normalization/accept machinery (norm_text string identity + segment membership), and the oracle-favourable construction HELD FIXED BY DESIGN in every arm - verbatim: on the D-QA slice the verifier's accept test is string-equality to the same canonical record that DEFINED the gold answer, so its measured lift is inflated by the eval's construction; K-NULL varies only WHAT the store says, never that construction, so NO outcome here speaks to gold-label independence (f2b-transfer's question), to externally-authored items, to non-templated phrasings, to hosts >1.7B, or to any other corpus. Equivalence (NULL) licenses the relabel of the f2b lift as a generic aligned-deterministic-answer-key + retry effect AT THIS SCOPE and nothing wider; superiority (PASS) licenses NSM-content contribution >= 0.05 absolute AT THIS SCOPE and says nothing about semantics-in-general or transfer. Coverage disclosure (mandatory, verbatim): kernel-expressibility coverage 0.3542 at rung molecules-v0 - MEASURED by m0b on one incomplete kernel-v0 instance, NOT general coverage; every accuracy claim is bounded to the kernel-covered slice. Two host rungs license a SIGN, not a slope.",
+ "hypotheses": [
+  "H-KN1 equivalence (the deflationary reading): |lift(kernel) - lift(best aligned non-NSM store)| < 0.05 (TOST, one-sided 95% BCa bounds both inside the margin) => the verify-retry lift is store-content-generic - recorded as verdict NULL with the same prominence as a PASS (design doc maps this to PASS-GENERIC)",
+  "H-KN2 superiority (the content reading): lift(kernel) - lift(best) > 0.05 one-sided (BCa LB > +0.05) => NSM content carries weight beyond alignment at this scope - verdict PASS (design doc: PASS-CONTENT); the inverse (kernel INFERIOR beyond margin, BCa UB < -0.05) is a registered outcome - verdict FAIL (deflationary a fortiori: NSM surface is a net cost at matched alignment)",
+  "H-KN3 bridge: the kernel arm reproduces the f2b mechanism signature on regenerated surfaces - verify-retry lift over R1-alone one-sided 95% BCa LB > +0.05 (instrument gate, failure => INSTRUMENT-INVALID, never a hypothesis event) and shuffled-derangement recovery < 0.30 (Holm secondary, the f2b bound verbatim)"
+ ],
+ "id": "knull-v2",
+ "kill_criterion_verbatim": "K-NULL verbatim kills (verdict-enum mapping: NULL carries PASS-GENERIC, PASS carries PASS-CONTENT, FAIL carries KERNEL-INFERIOR; equal prominence for all outcomes): (a) bridge gate fails (kernel-arm lift LB <= +0.05 on regenerated surfaces) => INSTRUMENT-INVALID - the f2b mechanism did not reproduce, nothing to attribute, and the f2b-replicate PASS is NOT thereby contradicted (different surfaces) but a surface-sensitivity flag is raised on the F2 line; (b) TOST passes (verdict NULL) => the kernel-content attribution DIES at this scope - the f2b lift is licensed as a generic aligned-deterministic-answer-key + retry effect, all forward narration adopts that phrase, and F2-line investment re-routes to authoring-cost economics (the narrowed efficiency reading) and to f2b-transfer; (c) kernel-INFERIOR beyond margin (UB < -0.05, verdict FAIL) => same deflationary consequence as (b) PLUS NSM surface is a measured net cost at matched alignment - the strongest anti-content outcome; (d) BOTH aligned arms fail the difficulty band => INSTRUMENT-INVALID, redesign the stores (forks F-KN-B/F-KN-C), mint a new id; nulls and positives get equal prominence.",
+ "pins": {
+  "analysis_script": {
+   "output_fields": [
+    "/gates/instrument_valid",
+    "/gates/bridge_kernel_lift",
+    "/gates/any_aligned_arm_eligible",
+    "/gates/difficulty_band_plain",
+    "/gates/difficulty_band_opaque",
+    "/gates/extraction_ok",
+    "/gates/extraction_wilson_lb_kernel",
+    "/gates/extraction_wilson_lb_plain",
+    "/gates/extraction_wilson_lb_opaque",
+    "/gates/flops_parity",
+    "/gates/flops_ratio_plain",
+    "/gates/flops_ratio_opaque",
+    "/analysis/n_skeletons",
+    "/analysis/n_seeds",
+    "/analysis/margin",
+    "/analysis/acc_alone_r1_kernel",
+    "/analysis/acc_alone_r1_plain",
+    "/analysis/acc_alone_r1_opaque",
+    "/analysis/acc_alone_r3_kernel",
+    "/analysis/acc_alone_r3_plain",
+    "/analysis/acc_alone_r3_opaque",
+    "/analysis/acc_verify_kernel",
+    "/analysis/acc_verify_plain",
+    "/analysis/acc_verify_opaque",
+    "/analysis/lift_kernel",
+    "/analysis/lift_kernel_lb95_1s",
+    "/analysis/lift_kernel_ub95_1s",
+    "/analysis/lift_plain",
+    "/analysis/lift_plain_lb95_1s",
+    "/analysis/lift_plain_ub95_1s",
+    "/analysis/lift_opaque",
+    "/analysis/lift_opaque_lb95_1s",
+    "/analysis/lift_opaque_ub95_1s",
+    "/analysis/best_aligned_arm",
+    "/analysis/diff",
+    "/analysis/diff_lb95_1s",
+    "/analysis/diff_ub95_1s",
+    "/analysis/tost_equivalent",
+    "/analysis/kernel_superior_beyond_margin",
+    "/analysis/kernel_inferior_beyond_margin",
+    "/analysis/holm/shuffled_low_recovery",
+    "/analysis/holm/shuffled_low_recovery_p",
+    "/analysis/holm/f2b_form_positive",
+    "/analysis/holm/f2b_form_positive_p",
+    "/analysis/holm/shuffled_recovery_fraction",
+    "/analysis/holm/shuffled_recovery_ub95",
+    "/analysis/holm/f2b_form_effect",
+    "/analysis/holm/f2b_form_lb95_1s",
+    "/analysis/per_type_breakdown"
+   ],
+   "path": "analysis/knull.py",
+   "sha256": "683f3e06189da0856565b1c6cd1053a9116dabaa21d65488919955458951f3bf"
+  },
+  "corpus_hashes": {
+   "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+   "d-qa": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+   "d-qa-r": "0d548bf18ac78f9d7b2abb6686c567f0930acd494c5ca03cee49806c4996ec5e",
+   "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+   "molecules-v0": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4"
+  },
+  "harness_manifest": "knull-v2 inputs manifest poc/knull/inputs-v2/manifest.json sha256 0cb2b8c07341bc9b120d0423ca263d7ac406891b56d3cf040c0bd171303e08f7 (pins every store file + item file + RE-AUTHORED authored plain source 2536a2944ab381657cf0aa9d4412f5c8b00be65ac388e80621599fcf645f74d0 + f2b/build-dqar provenance); builder poc/knull/build_inputs_v2.py sha256 a64e23498ca0d2528909206173ea199478df32d0f20287eff98a4c7bf3e3ed77 (v2 delta = reads inputs-v2/plain-authored.json, writes under inputs-v2/, VERSION 2.0.0 / 2026-07-11; GEN_SEED, skeleton schedule, leak checks, pairing, opaque and kernel logic and all rendering byte-carried from the frozen-knull-pinned v1 builder poc/knull/build_inputs.py eae9bb7eab2d39fafaa811d2c5c7e94d22f0db488630a94b408f7eedf0886189); plain-store lint driver poc/knull/lint_plain_store_v2.py sha256 5b9f1cca78eb745617423c2bed10c3e04bc1184ca5fdfbd2dee2fab837114dc6 (thin v2 entry point; the G-1 contract logic is the frozen-pinned poc/knull/lint_plain_store.py e301951be47fdfb6543ac390d82e54f32ebc2ea2e6f82d713cbe695a3cf76573 imported byte-untouched); G-3 checker poc/knull/check_token_band_v2.py sha256 6e2e4c36a0d6139ec9b9a2d2cdc96cbd9950a56fe34b450563e072896333ceed (artifact poc/knull/inputs-v2/g3-token-band.json sha256 1b264959cea54ea350d0164cf4c42830c7c26dba433fe911a121df32e82d70a4; pinned tokenizer.json sha256 9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c); runner poc/knull/runner/knull_runner.py sha256 81e3684c4db866945a610f7647c1be02543dda6a378d368e617f1256e2497c13 (mock-green; imports poc/f2b/runner/f2b_runner.py read-only at pinned sha b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666, KNULL_ERR_PIN fail-closed; the v1 runner reads inputs/ - the real-mode HF harness is runner-role work that re-points to inputs-v2/ and re-pins at campaign start, the f2b pattern; poc/f2b is not modified); the frozen v1 record knull stays FROZEN, unconsumed history and its poc/knull/inputs/ tree is byte-untouched",
+  "model_revisions": {
+   "SmolLM2-1.7B": "HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674",
+   "SmolLM2-135M": "HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac",
+   "_note": "the f2b-replicate pinned revisions, carried over verbatim; backends already built + Modal-smoked under f2b"
+  }
+ },
+ "prereg_doc": {
+  "anchors": [
+   "section 1",
+   "section 2",
+   "section 3",
+   "section 5",
+   "section 6.2",
+   "section 6.5"
+  ],
+  "path": "docs/design-knull-content-injection-ablation.md",
+  "sha256": "2d8dddf970db4bf58c01523110d07c823efb518c46bef9c4a1f73aeb6c773bcf"
+ },
+ "runner_constraints": {
+  "concurrency_cap": 5,
+  "foreground_gates": true,
+  "gate": "GPU spend REQUIRES maintainer sign-off + prereg-freeze of this record; estimated 4-6 GPU-h / USD 15-30 at n=1000 x 30 cells (planning estimates, never measurements)",
+  "hardware": "1x A100-40GB (f2b image, I-MODAL rebuild)",
+  "harness": "poc/knull (imports poc/f2b/runner/f2b_runner.py machinery read-only at the pinned sha; poc/f2b is not modified); runner refuses real mode until this record is in registry/frozen-index.json AND then stops at KNULL_ERR_RUNNER_ROLE - the campaign is runner-role work (run != audit); the designer identity that built this record never runs, grades, or audits it",
+  "infra": "modal",
+  "provider": "modal",
+  "tier": 1,
+  "tier_cap_usd": 60
+ },
+ "schema_version": "kot-reg/1",
+ "status": "DRAFT",
+ "supersedes": "knull",
+ "title": "knull-v2 - SUPERSEDES knull (frozen_sha256 9b2065c6f18797f0754097155893f499330eca1f84cf92272836050e2b0266bb) after the maintainer language-quality ruling (ASM-0700): the K-NULL store-content ablation re-run on a plain-dictionary arm RE-AUTHORED to the maintainer lexicographic standard and blind-quality-gated under the ratified ASM-0703 rule (ASM-0704/0705/0706); identical design, endpoints, mechanism, seeds, matched token budgets and verdict logic to knull - ONLY the plain arm authored bytes change (kernel and opaque arms logic byte-identical; opaque re-derived); the frozen v1 record stays FROZEN, unconsumed history and is never run | K-NULL store-content ablation of the f2b verify-retry mechanism: kernel-NSM vs aligned authored plain-dictionary vs opaque-nonce stores at identical alignment, retry topology and matched token budgets; content-injection map first (docs/design-knull-content-injection-ablation.md section 1); decides whether the f2b +0.1507 is a generic aligned-deterministic-answer-key + retry effect or carries NSM-content weight, WITHIN the oracle-favourable construction held fixed by design (gold-label independence stays with f2b-transfer); the requested vector-free arm is MAP-RESOLVED at zero cost (3456/3456 bitwise-identical verifier decisions after stripping all non-gloss fields) and is not run",
+ "verdict_rules": [
+  {
+   "verdict": "INSTRUMENT-INVALID",
+   "when": {
+    "a": {
+     "a": {
+      "metric": "/gates/instrument_valid"
+     },
+     "b": {
+      "a": {
+       "metric": "/gates/bridge_kernel_lift"
+      },
+      "b": {
+       "metric": "/gates/any_aligned_arm_eligible"
+      },
+      "op": "and"
+     },
+     "op": "and"
+    },
+    "op": "not"
+   }
+  },
+  {
+   "verdict": "NULL",
+   "when": {
+    "metric": "/analysis/tost_equivalent"
+   }
+  },
+  {
+   "verdict": "PASS",
+   "when": {
+    "metric": "/analysis/kernel_superior_beyond_margin"
+   }
+  },
+  {
+   "verdict": "FAIL",
+   "when": {
+    "metric": "/analysis/kernel_inferior_beyond_margin"
+   }
+  },
+  {
+   "verdict": "INCONCLUSIVE",
+   "when": {
+    "const": true
+   }
+  }
+ ]
+}

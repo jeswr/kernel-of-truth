@@ -1,0 +1,81 @@
+## Part 1 — Defect audit
+
+### 1. Register or word-choice faults
+
+- **4:** “**distinguished from man on the one side and from the plants on the other**” is dated and affected; *humans* and *plants* would give a natural parallel contrast. “**Comprises the creatures wild and tame alike**” is also improper: the word or category does not literally *comprise creatures*, and the postposed “wild and tame alike” is conspicuously literary.
+
+- **7:** “**haunts the northern forests and cold wild regions**” uses *haunts* as an affected substitute for *inhabits* or *is found in*.
+
+- **9:** “**to credit a person with speaking truthfully**” is a strained use of *credit someone with*, which ordinarily means attributing an action or quality to someone, not simply believing them.
+
+- **10:** “**the jaws being sheathed in the beak**” has the wrong preposition. The jaws may be sheathed or covered **by** a beak, not *in* it.
+
+- **18:** “**an engine carried within it**” is unnatural mechanical diction; an engine is *installed*, *mounted*, or simply *contained* in the vehicle.
+
+- **34:** “**dependence on man**” uses dated generic *man*. “**Barks rather than only howling as its wild kin do**” is also clumsy and misleadingly contrastive: dogs can howl, while wild canids are not limited to howling.
+
+- **46:** “**apart from ties of blood or of passion**” is an affected and imprecise way of excluding family and romantic or sexual relationships.
+
+- **48:** “**hand over to another as his own**” uses an unnecessarily dated generic masculine pronoun.
+
+- **53:** “**circumstances answer to one’s wishes**” is literary and strained where *circumstances accord with one’s wishes* or *one’s wishes are satisfied* would be natural.
+
+- **57:** “**whenever occasion offers**” is affected pseudo-proverbial diction; *when needed* is the ordinary expression.
+
+- **62:** “**the sort that decides what is counted as a single thing**” improperly makes a *sort* “decide” something. *Determines* would be the natural verb, though the whole formulation remains obscure.
+
+- **65:** “**what he knows to be false … what he knows to be true**” uses the generic masculine in an entry applying to people of any gender.
+
+- **66:** “**deceives without design**” is an affected substitute for *misleads unintentionally* or *is made without intent to deceive*.
+
+- **78:** “**so that little intervenes between the one thing and the other**” is cumbersome and unnatural; *with little distance between them* is idiomatic.
+
+- **87:** “**a task or engagement … slipping from attention**” has a faulty collocation. A task can *slip one’s mind* or *escape one’s attention*, but it does not naturally *slip from attention*.
+
+- **90:** “**a detached stone too large to be lifted, whether a boulder in a field or a crag upon a hill**” wrongly coordinates *crag* with detached stones. A crag is a projecting mass or steep rock face, not ordinarily a detached stone.
+
+- **95:** “**recurs in every day or night**” is unidiomatic. Sleep recurs *daily*, *each day*, or *each night*, not *in every day or night*.
+
+- **97:** “**the brightest body in its heavens**” is affected and has an awkward possessive antecedent: Earth does not naturally have plural “heavens” in neutral modern dictionary prose.
+
+- **102:** “**reliance may safely be placed on his honesty, his word, or his competence**” again uses an unnecessarily dated generic masculine.
+
+- **103:** “**capable of being turned to account**” is markedly archaic and affected for *capable of being used to advantage* or simply *useful for a purpose*.
+
+### 2. Vague anaphoric renaming
+
+none found.
+
+Occurrences of *object* in entries 6, 27, 71, and 82 introduce or identify actual objects; they do not vaguely rename the headword’s referent in the proscribed manner.
+
+### 3. Staged observers
+
+- **62:** “**what is counted as a single thing … and as the same one when met again**” stages an implicit generic observer who encounters the thing again and judges its identity. That imagined encounter is an unnatural way to define *kind*.
+
+### 4. Non-definitional material
+
+- **5:** “**so that it may be returned to the active list or consulted again whenever wanted**” narrates the practical benefit of archiving after the archived state has already been defined.
+
+- **14:** “**so that the user may open it again without searching for it afresh**” describes the user’s resulting convenience, not what the saved record is.
+
+- **29:** “**ranging over whatever topics arise as remarks pass back and forth**” is decorative narration of a conversation after “an informal exchange of speech” and turn-taking have supplied the meaning.
+
+- **33:** “**the event that closes an individual existence**” is a literary flourish appended to the already complete definition “the end of life; the permanent cessation of the vital functions.”
+
+- **50:** “**something gone beyond recovery**” adds melodramatic commentary rather than a necessary component of the adjective’s meaning.
+
+- **82:** “**a likeness that sets its subject before the eye when the subject itself is not there**” is a decorative explanation of what a representation accomplishes, not a further definition.
+
+- **83:** “**on which that other is entitled to rely**” states a normative consequence of a promise rather than its lexical meaning.
+
+- **94:** “**in which the sun, moon, and stars appear to be set**” is ornamental visual imagery appended to the definition of the sky.
+
+## Part 2 — Overall naturalness
+
+**4/10.**
+
+The entries are grammatical and often accurate, but as a collection they are plainly artificial. They repeatedly inflate simple meanings into uniformly balanced, semicolon-heavy prose and favor faux-traditional diction: “**whenever occasion offers**” (57), “**deceives without design**” (66), “**circumstances answer to one’s wishes**” (53), and “**the brightest body in its heavens**” (97). The recurrent pattern of definition, elaborate paraphrase, contrast, and closing flourish is too mechanically consistent to resemble a professionally edited modern dictionary.
+
+The **least natural entry is 62**. “**A basic class to which a thing belongs by its very nature, and to which it must belong for as long as it lasts**” is obscure metaphysical prose, while “**the sort that decides what is counted as a single thing … and as the same one when met again**” is both anthropomorphic and needlessly stages an identity judgment.
+
+The **most natural entry is 32**: “**(of a person, animal, or plant) no longer alive; having permanently ceased the functions of life**.” It is concise, properly scoped, and free from anecdotes, ornament, and affected diction. Entries such as 17 and 104 come close, but 32 is the cleanest.

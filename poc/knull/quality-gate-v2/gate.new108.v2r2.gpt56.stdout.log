@@ -1,0 +1,65 @@
+## Part 1 — Defect audit
+
+I have not counted wording merely because it is formal or old-fashioned; the items below are genuinely defective under the stated categories.
+
+### 1. Register or word-choice faults
+
+- **9:** “**to hold an opinion as probably so**” is unidiomatic. One may *hold an opinion*, or hold something *to be probably true*, but not hold an opinion “as probably so.”
+
+- **34:** “**gives voice by barking**” is a strained substitute for *barks*. *Give voice to* normally takes an object such as *fear* or *an objection*.
+
+- **50:** “**occupied with the sorrow of bereavement**” is an unnatural collocation for an emotional state. *Experiencing* or *filled with* sorrow would be idiomatic.
+
+- **61:** “**from one footing toward another**” misuses *footing*. A footing is support or a secure position, not ordinarily the destination of a jump.
+
+- **83:** “**upon the strength of which that other may rely**” conflates two constructions: one *acts on the strength of* an assurance but *relies on* it.
+
+- **87:** “**sent to recall an unmet obligation to the one who owes it**” uses *recall … to* improperly. A reminder *reminds someone of* an obligation or *recalls it to mind*.
+
+- **90:** “**any stone of notable size, from a boulder in a field to the cliffs of a coast**” wrongly makes a cliff a kind of individual “stone.” *Rock mass* or *formation* is required at the upper end of that comparison.
+
+- **96:** “**the same feeling that laughter utters aloud**” improperly assigns *utterance* to a feeling: laughter may express a feeling, but the feeling is not what laughter “utters.”
+
+- **102:** “**(of a person) worthy of confidence; one on whose honesty … reliance may safely be placed**” switches improperly from an adjective definition to a noun phrase. For an adjective such as *trustworthy*, this should remain predicative—for example, “such that reliance may safely be placed on the person’s honesty….”
+
+### 2. Vague anaphoric renaming
+
+- **14:** “**return to the material**” vaguely renames the previously specified “document or web page.” *Return to it* or *reopen the document or page* would be natural.
+
+- **71:** “**the one whose work**” needlessly renames “the person or agent.” The entry could simply say “a person or agent who has made….”
+
+- **88:** After “**something that has been damaged**,” the entry renames it “**a thing**” in “to mend a thing.” A pronoun would be natural: *to mend it*.
+
+### 3. Staged observers
+
+- **94:** “**seen overhead when one looks up from the earth**” stages a generic observer performing the obvious act of looking upward. *The apparent vault of space over the earth* would state the meaning directly.
+
+### 4. Non-definitional material
+
+- **11:** “**marked in most animals by the first independent breath**” supplies an associated sign or consequence rather than defining birth; moreover, an independent breath is not necessary to the occurrence of a birth.
+
+- **21:** “**and to share in the good cheer**” is emotional coloration appended after the celebration and its purpose have already been defined.
+
+- **29:** “**passing from topic to topic as inclination or occasion leads**” is a literary miniature of how a conversation may proceed, not part of the meaning of *conversation*.
+
+- **51:** “**waters that break its expanse**” is decorative landscape prose. The necessary contrast has already been supplied by “the sea and other waters.”
+
+- **67:** “**the darkness in which nothing shows**” adds a dramatic description of darkness rather than further defining light.
+
+- **88:** “**so that it may serve again as it did before it was harmed**” narrates the hoped-for benefit of repairing something after “restore to sound or working condition” has already given the meaning.
+
+- **96:** “**a lesser and silent expression of the same feeling that laughter utters aloud**” is an ornamental comparison, not a definition of a smile.
+
+- **97:** “**that make life possible**” states a consequence or benefit of the sun’s light and heat, not what the sun means.
+
+## Part 2 — Overall naturalness
+
+**5/10.**
+
+These entries are generally grammatical and often identify the intended word accurately, but the collection is not remotely indistinguishable from a professionally edited modern general dictionary. Its most conspicuous artificial trait is the relentless pseudo-historical expansiveness: nearly every simple word receives several balanced clauses, an illustrative contrast, and an elevated closing cadence. The voice feels generated from an imitation of nineteenth-century lexicography rather than edited for present-day users.
+
+The weakest moments expose both mechanical phrasing and failed collocations: “**hold an opinion as probably so**” in 9, “**upon the strength of which that other may rely**” in 83, and “**the same feeling that laughter utters aloud**” in 96. Other phrases—“**waters that break its expanse**” in 51 and “**whenever occasion offers**” in 57—reinforce the affected house style even where they are not strictly incorrect.
+
+The **least natural entry is 62**. Its definition of *kind*—“**a class to which an object belongs by its very nature, and in which it must remain for the whole of its existence**,” followed by criteria for being “**the identical individual on a later occasion**”—reads like a compressed passage from metaphysics, not a general-dictionary entry for a common word.
+
+The **most natural entry is 104**: “**capable of being seen; perceptible by the eye, whether directly or with the aid of an instrument**.” It is concise, idiomatic, substitutable for the headword, and contains no theatrical illustration or decorative afterthought.

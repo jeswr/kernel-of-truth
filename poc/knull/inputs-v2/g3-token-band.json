@@ -1,0 +1,45 @@
+{
+ "arms": {
+  "kernel": {
+   "max_prompt_tokens": 278,
+   "mean_prompt_token_ratio_vs_kernel": 1.0,
+   "mean_prompt_tokens": 110.47,
+   "n_items": 1080,
+   "total_gloss_tokens": 5368,
+   "within_declared_band": true
+  },
+  "opaque": {
+   "max_prompt_tokens": 283,
+   "mean_prompt_token_ratio_vs_kernel": 1.0,
+   "mean_prompt_tokens": 110.94,
+   "n_items": 1080,
+   "total_gloss_tokens": 4371,
+   "within_declared_band": true
+  },
+  "plain": {
+   "max_prompt_tokens": 264,
+   "mean_prompt_token_ratio_vs_kernel": 1.0,
+   "mean_prompt_tokens": 110.54,
+   "n_items": 1080,
+   "total_gloss_tokens": 4176,
+   "within_declared_band": true
+  }
+ },
+ "gate": "G-3 tokenizer-level FLOPs band re-check",
+ "inputs_manifest_sha256": "0cb2b8c07341bc9b120d0423ca263d7ac406891b56d3cf040c0bd171303e08f7",
+ "margin_call_f_kn_c": {
+  "decision": "margin 0.05 STANDS (n_planned 1000 >= 900; fork F-KN-C fallback 0.075 not triggered)",
+  "n_floor_for_margin_005": 900,
+  "n_planned_per_arm": 1000
+ },
+ "mean_band_declared": 0.1,
+ "opaque_token_calibration_factor": 0.48,
+ "result": "PASS",
+ "runtime_gate_band": 0.2,
+ "schema": "kot-knull-g3/1",
+ "tokenizer": {
+  "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "tokenizer_json_sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c"
+ }
+}
