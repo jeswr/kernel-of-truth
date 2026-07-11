@@ -1,0 +1,73 @@
+## Bottom line
+
+Promising architecture, but **not sound to approve/commit as the Phase-1 gate design yet**. The learned-parser direction is buildable at 110–360M, and the full G-NLB experiment is genuinely falsifiable. However, the current acceptance logic can make the retention target mathematically unreachable, the rare-event statistics are not yet valid enough to certify S2, and the evaluation licenses a much narrower claim than “all natural-input use.”
+
+### Assessment
+
+1. **Concrete and buildable at 100M–2B? — Mostly, after specification repairs.**
+
+The two-tier parser, constrained entity vocabulary, intent/slot primary, decoder secondary, and deterministic execution are practical at 110–360M. A ≤50 GPU-hour fine-tune is plausible.
+
+Missing implementation-defining details include:
+
+- Exact IR grammar, tokenizer/grammar-mask interface, candidate-set construction, and confidence aggregation across intent and slots.
+- Training-set sizes and generation recipe.
+- Entity mention detection, aliases, collisions, and the unspecified “deterministic post-mapping” for unseen surface forms.
+- Which acceptance arm is the primary gate system. The document alternates between ambiguity execution being mandatory and merely an experimental arm ([NLB.md:168](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:168), [NLB.md:243](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:243)).
+- An executable resource ceiling for the front-end itself. “ms-class CPU” is a projection, not an adequate budget pin ([NLB.md:249](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:249)).
+
+2. **Cheap, decisive, falsifiable, and NL-wall-honest? — Full gate yes; NLB-0 no.**
+
+G-NLB is a hard joint retention/safety test with frozen evaluation and a legitimate failure outcome. There is no gold parse supplied at inference.
+
+But NLB-0 is only a useful screening diagnostic, not decisive:
+
+- The legacy corpus is public and has influenced the design.
+- K=1 does not make it a “conservative floor.”
+- Failure to reach 0.80 with a 5-GPU-hour pilot does not prove failure to reach 0.90 after ten times the compute, completed acceptance layers, and different author sources.
+- NLB-0-A tests repaired Tier-0, not the learned fallback that will dominate novel paraphrases and can introduce new inversions.
+- Requiring pilot GO on **both** verticals contradicts the explicitly independent per-vertical gate and ASM-0906’s “at least one vertical” projection ([NLB.md:301](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:301), [NLB.md:451](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:451)).
+
+The evaluation is oracle-conditioned at corpus construction: authors paraphrase known formal queries over a registered lexicon. That is acceptable for a controlled semantic-parsing claim, but it is not evidence about naturally occurring user traffic. Recoverability repair and ambiguity exclusion further sanitize the distribution. The document’s narrow PASS wording is honest; using that PASS to gate a different consumer grammar or extraction task is not.
+
+3. **KOT-FAIR/2 and resource accounting? — Correct direction, incomplete operationally.**
+
+It correctly charges parser weights, tries, masks, calibrator, training, authoring, latency, and energy to the consuming system ([NLB.md:76](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:76)). It also correctly makes NLB a non-W1 instrument.
+
+Before execution, add:
+
+- A canonical packed-artifact manifest including tokenizer, runtime, tables, aliases, and calibration data.
+- Measured warm/cold batch-1 CPU and GPU cost, fallback rate, peak RSS/VRAM, energy, and tail latency during G-NLB—not deferred solely to later consumers.
+- Total search/tuning cost for every tried parser, score, and acceptance arm in KOT-LIFE/1.
+- A rule that every consumer ships the exact passed front-end hash, or must re-clear its own grammar/distribution gate.
+- Explicit handling of an API parser as a remote dependency under KOT-SIZE/2 and KOT-COST/2.
+
+## Three most important concerns, ranked
+
+1. **The ambiguity-set executor is logically wrong as written.** It always includes the inverse parse and answers only when denotations agree ([NLB.md:234](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:234)). On genuinely directional queries, the correct and inverse denotations normally differ, so the system abstains precisely where direction matters. When they accidentally agree, agreement still does not identify the correct direction. Depending on directional prevalence, this alone can make 0.90 retention impossible.
+
+2. **The statistical gate cannot yet support its claimed S2 certificate.** A conventional cluster bootstrap is unreliable for a rare-event upper bound, especially with zero or very few errors; it may return a zero upper bound. There is also no simultaneous procedure covering adaptive threshold search, acceptance arms, directional strata, S1/S2, and potentially two verticals. A fixed integer boundary generally cannot be derived from an ordinary cluster bootstrap in the manner claimed ([NLB.md:295](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:295)).
+
+3. **The gate’s evaluation scope does not justify a shared pass for all NL consumers.** It tests backward-authored paraphrases of two closed parent grammars. H-GNN subgraph extraction, H-RULE addressing, H-DD reinjection, and benchmark-facing H-PS may have different output spaces and input distributions. A PASS should be a prerequisite, not a transferable certificate; each consumer still needs a compatible-grammar and task-originated G3 leg.
+
+## Technical errors and gaps
+
+- “Always include the inverse” conflicts with the retention target and is not semantic disambiguation.
+- The primary scored acceptance arm is not frozen; selecting the best arm on EVAL would be post-selection.
+- “Four-way separation” does not meet the cited four-role requirement: DEV is used for both model selection and calibrator training ([NLB.md:338](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:338), [NLB.md:395](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:395)).
+- Pointwise exact-binomial/Hoeffding bounds are insufficient after searching for the largest acceptable threshold without a uniform bound, confidence sequence, or separate threshold-selection split.
+- Cluster-bootstrap rare-event coverage and directional-stratum power are unspecified.
+- Ambiguity annotation lacks a fixed rubric, multiple independent annotators, agreement/adjudication rules, and a cap/co-report preventing hard-item exclusion from inflating retention.
+- NLB-0’s “conservative floor” claim is unsupported.
+- NLB-0-A cannot establish safety of Tier-1.
+- NLB-0’s both-vertical GO rule contradicts per-vertical independence.
+- Corpus counts are inconsistent: 527×3 + 855×3 = 4,146 covered phrasings; adding 270×3 + 106×3 controls gives 5,274 before added strata—not “≈4,700.” ASM-0904’s note about an “≈1,800-phrasing instrument” is further inconsistent.
+- Existing Tier-0 timing cannot be attributed unchanged to the repaired implementation.
+- “Exact local-vs-global mask equivalence” needs a formal definition over tokenizer state, semantic constraints, and the entity trie; grammar automaton equivalence alone is insufficient.
+- The entity-linking component—the named dominant failure class—is materially underspecified.
+
+## Decision
+
+**Do not commit this as an approved Phase-1 design or drive P3-E-NLB-1 beads yet.** It is sound to retain as a draft.
+
+Repair the ambiguity logic, freeze a primary arm, provide an executable cluster-aware power/risk-control plan, make NLB-0 explicitly a non-decisive per-vertical screen, and narrow the PASS license or add consumer-specific G3 requirements. After those changes, the deterministic ROLE_DIR repair/unit-test bead is safe to run first; the learned pilot and full experiment beads should follow only after the statistical and corpus protocols are executable.

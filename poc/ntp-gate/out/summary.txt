@@ -1,0 +1,23 @@
+ntp-gate probe summary (2026-07-11)
+json sha256 6990c047baa3845d3b67c955cd572473479c57341c664a7e02d07dfda4a56203
+
+[1] emission shapes l3a: {"answer:license,provenance,status,value": 600, "refuse:code,reason,status": 300}
+    emission shapes a5 : {"answer:license,provenance,status,value": 855, "refuse:code,reason,status": 122}
+    deterministic double pass: True
+    latency l3a per query: {"n": 900, "mean_us": 6.269085555555556, "median_us": 6.3635, "p95_us": 10.485, "max_us": 45.901}
+    latency a5  per query: {"n": 977, "mean_us": 8.68390174002047, "median_us": 7.661, "p95_us": 12.21, "max_us": 1013.366}
+
+[2] replay tally l3a: {"children-lookup|exact": 100, "count-maker|refused": 43, "instance-false-disjoint|exact": 40, "instance-true|refused": 50, "made-lookup|exact": 30, "part-lookup|exact": 50, "unique-father|exact": 122, "unique-maker|refused": 43, "unique-mother|exact": 122}
+    replay tally a5 : {"callees-of|exact": 73, "callers-of|exact": 74, "contained-in|exact": 201, "contains|exact": 41, "imported-by|exact": 2, "imports-of|exact": 9, "instance-false-disjoint|exact": 38, "instance-true|refused": 216, "where-defined|refused": 201}
+    define replays  : [["urn:kot:bciqa23hwez4d5xh", "exact"], ["urn:kot:bciqa24nownzhisz", "exact"], ["urn:kot:bciqa24yzdpnc6e6", "exact"]]
+
+[3] engine attrs matching continuation/trace pattern: []
+    W1 ops from empty partial -> next=op G1=5 G2=5 calls=9229 wall_us=101527
+    W2 rel continuations of {op:unique} -> next=rel G1=5 G2=3 calls=1771 wall_us=9042
+    W3 subject continuations of {op:unique, rel:mother, direction:forward} -> next=subject G1=324 G2=122 calls=324 wall_us=1967
+    W4 concept continuations of {op:instance, entity:elvis} -> next=concept G1=3 G2=2 calls=3 wall_us=28
+    W5 subject continuations of {op:count, rel:maker, direction:inverse} -> next=subject G1=324 G2=43 calls=1167 wall_us=6853
+    W6 subject continuations of {op:define} -> next=subject G1=72839 G2=13824 calls=72839 wall_us=367749
+    W7 (code) of-continuations of {op:callers-of} -> next=of G1=222 G2=74 calls=222 wall_us=1409
+
+[4] store violations l3a=6 a5=3; conflict refusal carries no violation pointer; canonical map size=2

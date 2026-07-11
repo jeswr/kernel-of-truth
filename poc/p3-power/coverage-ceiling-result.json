@@ -1,0 +1,114 @@
+{
+  "artifact": "P3-D-POWER coverage-ceiling paper-kill — execution result",
+  "produced_by": "Fable (autonomous worker), 2026-07-11",
+  "rig": "poc/p3-power/power.py",
+  "design": "docs/next/design/POWER.md (revision 2)",
+  "steering_note": "docs/next/analysis/round1-steering.md (the top cheap decisive kill)",
+  "governance": {
+    "git": "none", "bd": "none", "kb_sync": "none",
+    "registry_check": "PASS — no frozen registry object (registry/verdicts, registry/experiments, registry/assumptions, registry/assessments) created or modified; all outputs confined to poc/p3-power/. This run writes NO verdict and NO KB shard, per POWER.md §0 and the rig's ILLUSTRATIVE-ONLY gate."
+  },
+
+  "headline": {
+    "question": "Can perfect covered-item correction reach the win-margin delta_k on a GENERAL index, from the EXISTING coverage censuses?",
+    "answer": "NO free general-index kill is computable from the existing censuses — but NOT for the reason the steering premise assumed. The blocker is census INCOMPLETENESS, not nonzero coverage. Where coverage IS measured it is exactly zero (0/1550 define-lane; g8 0/1000 Mathlib), which drives a domain-scoped (D3) ceiling to 0. A whole-index kill is arithmetically impossible until the whole frozen suite is censused, because every uncensused component rides at FULL HEADROOM (union-bound completeness rule, POWER.md §3.1).",
+    "delta_max_general_index_simUCB95": 0.8095,
+    "delta_k_provisional": 0.03,
+    "clears_delta_k_for_a_kill": false,
+    "kill_arithmetic_simUCB95_lt_delta_k": false,
+    "verdict_eligible": false,
+    "verdict": "ILLUSTRATIVE-ONLY — no G1 verdict (provisional pin frozen=false; no census pin block; no registered Form-A eligibility)."
+  },
+
+  "runs": [
+    {
+      "label": "RUN-1 — MEASURED define-lane census (the load-bearing run)",
+      "index": "inputs/index-pin.PROVISIONAL.json",
+      "census": "inputs/census-define-lane.MEASURED.json",
+      "tag": "MEASURED coverage (0/1550), MEASURED delta_max upper bound; PROVISIONAL index pin",
+      "coverage_lane": "mapper-parse",
+      "census_mode": "exhaustive",
+      "label_fn_ub": 0.0,
+      "measured_coverage": "7 D3 benchmarks, covered_count = 0 on every one; N_total = 500+144+100+100+135+265+306 = 1550; kappa_hat = 0.0000 exhaustively",
+      "delta_max_scalar_point": 0.8095,
+      "delta_max_scalar_simUCB95": 0.8095,
+      "delta_max_D3_ownaxis_simUCB95": 0.0000,
+      "delta_max_D3_delta_k_domain": 0.05,
+      "delta_max_D4_ownaxis_simUCB95": 1.0380,
+      "kappa_star_uniform": 0.0975,
+      "kappa_star_per_D3_benchmark": 0.682,
+      "n_bonferroni_intervals": 0,
+      "kill_arithmetic": false,
+      "verdict_eligible": false,
+      "verdict": "ILLUSTRATIVE-ONLY — no G1 verdict",
+      "decomposition_of_the_0.8095": {
+        "D3_censused_7_benchmarks": 0.0000,
+        "D4_CLUTRR_full_headroom": 0.13194,
+        "D4_ProofWriter_full_headroom": 0.12755,
+        "D1_empty_domain_full_headroom": 0.15000,
+        "D2_empty_domain_full_headroom": 0.15000,
+        "D5_empty_domain_full_headroom": 0.15000,
+        "D6_empty_domain_full_headroom": 0.10000,
+        "note": "0.81 of the 0.81 general-index ceiling is FULL-HEADROOM imputation for the 5 domains + 2 benchmarks that were never censused. The MEASURED slice (D3) contributes 0. This is the whole point: a 1-domain census cannot kill a 6-domain index."
+      }
+    },
+    {
+      "label": "RUN-2 — STIPULATED-hypothetical D4 census (branch exercise only)",
+      "index": "inputs/index-pin.PROVISIONAL.json",
+      "census": "inputs/census-D4-hypothetical.STIPULATED.json",
+      "tag": "STIPULATED — placeholder coverage + baseline counts; exercises the no-kill / Bonferroni / label_fn_ub / kappa_b* branches. NOT evidence.",
+      "coverage_lane": "oracle",
+      "census_mode": "exhaustive",
+      "label_fn_ub": 0.02,
+      "delta_max_scalar_point": 0.8565,
+      "delta_max_scalar_simUCB95": 0.8658,
+      "delta_max_D4_ownaxis_simUCB95": 0.3402,
+      "kappa_star_uniform": 0.1453,
+      "kappa_star_CLUTRR": 0.327,
+      "kappa_star_ProofWriter": 0.261,
+      "n_bonferroni_intervals": 2,
+      "z_per_interval": 1.96,
+      "kill_arithmetic": false,
+      "verdict_eligible": false,
+      "verdict": "ILLUSTRATIVE-ONLY — no G1 verdict"
+    }
+  ],
+
+  "what_is_MEASURED_vs_what_is_inferred": {
+    "MEASURED": [
+      "Coverage kappa = 0/1550 on the 7 define-lane D3 benchmarks (mapper-parse lane, exhaustive), from registry/assessments/b-cov-define-lane.json.",
+      "g8 Mathlib coverage 0/1000 (registry/verdicts/g8.json) — cited context, not re-run here.",
+      "delta_max simUCB95 = 0.8095 is a MEASURED UPPER BOUND on the general-index gain given THIS partial census and THIS provisional pin (the bound is computed, not simulated; the rig is deterministic and stdlib-only).",
+      "The D3-domain-own-axis ceiling = 0.0000: on the censused D3 slice, perfect covered-item correction yields exactly zero index gain because 0 items are covered."
+    ],
+    "STIPULATED": [
+      "Every weight, chance, ceiling, and delta_k in index-pin.PROVISIONAL.json (frozen=false).",
+      "The D4-hypothetical census coverage and covered-baseline counts (placeholder).",
+      "label_fn_ub values (0.0 licensed only for the deterministic mapper classifier; 0.02 is a placeholder for RUN-2)."
+    ],
+    "EXTRAPOLATION_the_coordinators_to_draw": [
+      "Whether the general-index-mover (W1) claim is DEAD. This rig CANNOT establish that from existing data: a partial census can only make a whole-index kill HARDER, never easier (POWER.md §3.1). The 0.8095 bound is dominated by full-headroom imputation, so it does NOT license a general-index kill. The maintainer/coordinator must NOT read '0/1550' as a general-index kill.",
+      "Whether a DOMAIN-SCOPED (D3 / biomedical-define) kill fires. The MEASURED D3 own-axis ceiling of 0.0000 < delta_k^D3 = 0.05 WOULD fire a domain-scoped kill — but only on a verdict-eligible run (frozen pin + census pin block + registered Form-A eligibility). It is currently CONTINGENT (mapper-parse lane) and ILLUSTRATIVE-ONLY."
+    ]
+  },
+
+  "does_it_kill_the_general_index_mover_claim": {
+    "for_free_from_existing_censuses": false,
+    "why": "The existing censuses cover exactly ONE domain (D3) of a six-domain provisional index. The completeness rule (no silent zeros) imputes full headroom to the 5 uncensused domains + the 2 uncensused D4 benchmarks, so delta_max simUCB95 = 0.8095 >> delta_k = 0.03. A general-index kill requires simUCB95(delta_max) < delta_k, which is arithmetically unreachable while any material index weight is uncensused.",
+    "correction_to_steering_premise": "The steering note (round1-steering.md item 3) states 'the general-index W1 ambition is probably already dead' and expects this run to kill it with zero GPU. Run honestly, the rig does NOT deliver that kill from existing data — it delivers (a) a MEASURED zero-coverage D3 slice that would support a DOMAIN-SCOPED kill once eligibility lands, and (b) the arithmetic proof that no whole-index kill is possible from a one-domain census. This is a material steering correction: the free kill that exists is domain-scoped, not general-index."
+  },
+
+  "real_data_still_needed_for_a_verdict_eligible_general_index_kill": [
+    "A FROZEN index pin (P3-D-INDEX / KOT-AI-INDEX/2): frozen=true, with registered weights, chance/ceiling/metric_type per benchmark for EVERY benchmark of EVERY weighted domain (D1,D2,D3,D4,D5,D6). The provisional pin has frozen=false and 4 empty weighted domains.",
+    "A coverage census over the WHOLE frozen R-1 suite (not just the 7 D3 define-lane benchmarks): b-cov-smol + G-CODE-0 + the P3-X-SIEVE-CENSUS lemma-touch upper sieve (mechanical, genuinely cheap, gives UNCONDITIONAL kills) and/or the P3-X-ORACLE-CENSUS (human-annotated, budgeted, NOT ~$0).",
+    "The full census pin block (model_checkpoint, harness_hash, prompt_policy, seeds, store_hash, kernel_hash, world_layer_hash, mapper_hash, grammar_version, benchmark_revisions).",
+    "A registered Form-A family-eligibility (noninterference / covered-support) reference for each store-dependent family (P3-D-ELIG).",
+    "Integer covered-subset baseline counts (correct_cov / n_cov) from P3-E-CAL / P3-X-COVBASE — only needed where coverage > 0; irrelevant while kappa = 0 (a_cov imputed 0 correctly).",
+    "For a DOMAIN-SCOPED D3 kill specifically: only the frozen pin + census pin block + eligibility ref are missing; the coverage measurement (0/1550) already exists. That is the cheap, near-term win."
+  ],
+
+  "changed_files": [
+    "poc/p3-power/coverage-ceiling-result.json (this file)",
+    "poc/p3-power/RESULT.md"
+  ]
+}

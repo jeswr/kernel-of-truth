@@ -1,0 +1,1073 @@
+{
+ "date": "2026-07-11",
+ "engine_source": "tools/axiom/kot_axiom.py",
+ "legs": {
+  "api_absence": {
+   "engine_attrs_matching_continuation_or_trace": [],
+   "engine_public_attrs_consumed_by_adapter": [
+    "licensed_rels",
+    "licensed_classes",
+    "entities",
+    "defn_licensed",
+    "defn",
+    "query"
+   ],
+   "source_defs_matching_continuation_or_trace": []
+  },
+  "certificate_replay": {
+   "a5_failure_examples": {
+    "instance-true|refused": {
+     "emitted": {
+      "license": [
+       "asserted"
+      ],
+      "provenance": [
+       "cw00001"
+      ],
+      "status": "answer",
+      "value": true
+     },
+     "qid": "a0602",
+     "query": {
+      "concept": "urn:kot:bciqbxoxz3ehtnbzzpb7fqldpohgo3wehkqat4e4pjknzzxbls25pdti",
+      "entity": "urn:kotw:v0:code-cls-claims-check--findings",
+      "op": "instance-of"
+     },
+     "replay": {
+      "detail": "ERR_TERM_UNLICENSED",
+      "outcome": "refused"
+     }
+    },
+    "where-defined|refused": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/class-python-function.json#2"
+      ],
+      "provenance": [
+       "cw00240"
+      ],
+      "status": "answer",
+      "value": "urn:kotw:v0:code-mod-claims-check"
+     },
+     "qid": "a0148",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "where-defined"
+     },
+     "replay": {
+      "detail": "ERR_UNLICENSED_UNIQUE",
+      "outcome": "refused"
+     }
+    }
+   },
+   "a5_tally_family|outcome": {
+    "callees-of|exact": 73,
+    "callers-of|exact": 74,
+    "contained-in|exact": 201,
+    "contains|exact": 41,
+    "imported-by|exact": 2,
+    "imports-of|exact": 9,
+    "instance-false-disjoint|exact": 38,
+    "instance-true|refused": 216,
+    "where-defined|refused": 201
+   },
+   "define_replays": [
+    {
+     "license": [
+      "axioms-definitional-v0/defn-onto-obo-go.json#0"
+     ],
+     "outcome": "exact",
+     "provenance": [
+      "urn:onto-obo:GO_1901202"
+     ],
+     "subject": "urn:kot:bciqa23hwez4d5xhlkre3i62abec4snu4b6elutqhxs6etsslyx5hmyy"
+    },
+    {
+     "license": [
+      "axioms-definitional-v0/defn-onto-obo-go.json#0"
+     ],
+     "outcome": "exact",
+     "provenance": [
+      "urn:onto-obo:GO_0060861"
+     ],
+     "subject": "urn:kot:bciqa24nownzhiszp3dnnv4urhl2v24sch32ftqtgkvr34cmowdesnry"
+    },
+    {
+     "license": [
+      "axioms-definitional-v0/defn-onto-obo-go.json#0"
+     ],
+     "outcome": "exact",
+     "provenance": [
+      "urn:onto-obo:GO_2000928"
+     ],
+     "subject": "urn:kot:bciqa24yzdpnc6e6ocmtddqglfbpkyavnoqknueyzzsfdoofibkmyeiq"
+    }
+   ],
+   "definition": "closed certificate := (provenance world ids + license axiom files) alone rebuild a store on which the same query returns the same value",
+   "l3a_failure_examples": {
+    "count-maker|refused": {
+     "emitted": {
+      "license": [
+       "axioms-v0/class-bookmark.json#0"
+      ],
+      "provenance": [
+       "w00461"
+      ],
+      "status": "answer",
+      "value": 1
+     },
+     "qid": "q0388",
+     "query": {
+      "direction": "inverse",
+      "op": "count",
+      "rel": "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni",
+      "subject": "urn:kotw:v0:bkm-00"
+     },
+     "replay": {
+      "detail": "ERR_UNLICENSED_COUNT",
+      "outcome": "refused"
+     }
+    },
+    "instance-true|refused": {
+     "emitted": {
+      "license": [
+       "asserted"
+      ],
+      "provenance": [
+       "w00586"
+      ],
+      "status": "answer",
+      "value": true
+     },
+     "qid": "q0511",
+     "query": {
+      "concept": "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy",
+      "entity": "urn:kotw:v0:dm-1",
+      "op": "instance"
+     },
+     "replay": {
+      "detail": "ERR_TERM_UNLICENSED",
+      "outcome": "refused"
+     }
+    },
+    "unique-maker|refused": {
+     "emitted": {
+      "license": [
+       "axioms-v0/class-bookmark.json#0"
+      ],
+      "provenance": [
+       "w00461"
+      ],
+      "status": "answer",
+      "value": "urn:kotw:v0:p-f00-c1"
+     },
+     "qid": "q0345",
+     "query": {
+      "direction": "inverse",
+      "op": "unique",
+      "rel": "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni",
+      "subject": "urn:kotw:v0:bkm-00"
+     },
+     "replay": {
+      "detail": "ERR_UNLICENSED_UNIQUE",
+      "outcome": "refused"
+     }
+    }
+   },
+   "l3a_tally_family|outcome": {
+    "children-lookup|exact": 100,
+    "count-maker|refused": 43,
+    "instance-false-disjoint|exact": 40,
+    "instance-true|refused": 50,
+    "made-lookup|exact": 30,
+    "part-lookup|exact": 50,
+    "unique-father|exact": 122,
+    "unique-maker|refused": 43,
+    "unique-mother|exact": 122
+   },
+   "refusals_have_no_certificate": "refusal objects carry only {status, code, reason} - nothing to replay"
+  },
+  "continuation_sets": {
+   "semantics": "G1 = licensed vocabulary for the next field (engine index read); G2 = exists-completion-with-status-answer (exact, brute force over the closed grammar, early exit)",
+   "worked_partials": [
+    {
+     "engine_calls": 9229,
+     "g1_licensed_size": 5,
+     "g2_admissible_size": 5,
+     "g2_examples": [
+      "unique",
+      "lookup",
+      "count"
+     ],
+     "label": "W1 ops from empty partial",
+     "next_field": "op",
+     "partial": {},
+     "wall_ns": 101527498
+    },
+    {
+     "engine_calls": 1771,
+     "g1_licensed_size": 5,
+     "g2_admissible_size": 3,
+     "g2_examples": [
+      "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi",
+      "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni"
+     ],
+     "label": "W2 rel continuations of {op:unique}",
+     "next_field": "rel",
+     "partial": {
+      "op": "unique"
+     },
+     "wall_ns": 9042031
+    },
+    {
+     "engine_calls": 324,
+     "g1_licensed_size": 324,
+     "g2_admissible_size": 122,
+     "g2_examples": [
+      "urn:kotw:v0:elvis-presley",
+      "urn:kotw:v0:lisa-marie-presley",
+      "urn:kotw:v0:p-f00-c1"
+     ],
+     "label": "W3 subject continuations of {op:unique, rel:mother, direction:forward}",
+     "next_field": "subject",
+     "partial": {
+      "direction": "forward",
+      "op": "unique",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua"
+     },
+     "wall_ns": 1967122
+    },
+    {
+     "engine_calls": 3,
+     "g1_licensed_size": 3,
+     "g2_admissible_size": 2,
+     "g2_examples": [
+      "urn:kot:bciqbz6th7ul3gmk5bhtovyi2yifyv7twotuvwjcebgetthcs532sgoq",
+      "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy"
+     ],
+     "label": "W4 concept continuations of {op:instance, entity:elvis}",
+     "next_field": "concept",
+     "partial": {
+      "entity": "urn:kotw:v0:elvis-presley",
+      "op": "instance"
+     },
+     "wall_ns": 28385
+    },
+    {
+     "engine_calls": 1167,
+     "g1_licensed_size": 324,
+     "g2_admissible_size": 43,
+     "g2_examples": [
+      "urn:kotw:v0:bkm-00",
+      "urn:kotw:v0:bkm-01",
+      "urn:kotw:v0:bkm-02"
+     ],
+     "label": "W5 subject continuations of {op:count, rel:maker, direction:inverse}",
+     "next_field": "subject",
+     "partial": {
+      "direction": "inverse",
+      "op": "count",
+      "rel": "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni"
+     },
+     "wall_ns": 6852610
+    },
+    {
+     "engine_calls": 72839,
+     "g1_licensed_size": 72839,
+     "g2_admissible_size": 13824,
+     "g2_examples": [
+      "urn:kot:bciqa23hwez4d5xhlkre3i62abec4snu4b6elutqhxs6etsslyx5hmyy",
+      "urn:kot:bciqa24nownzhiszp3dnnv4urhl2v24sch32ftqtgkvr34cmowdesnry",
+      "urn:kot:bciqa24yzdpnc6e6ocmtddqglfbpkyavnoqknueyzzsfdoofibkmyeiq"
+     ],
+     "label": "W6 subject continuations of {op:define}",
+     "next_field": "subject",
+     "partial": {
+      "op": "define"
+     },
+     "wall_ns": 367749016
+    },
+    {
+     "engine_calls": 222,
+     "g1_licensed_size": 222,
+     "g2_admissible_size": 74,
+     "g2_examples": [
+      "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "urn:kotw:v0:code-fn-claims-check--check-entry",
+      "urn:kotw:v0:code-fn-claims-check--check-record"
+     ],
+     "label": "W7 (code) of-continuations of {op:callers-of}",
+     "next_field": "of",
+     "partial": {
+      "op": "callers-of"
+     },
+     "wall_ns": 1408607
+    }
+   ]
+  },
+  "emission_inventory": {
+   "a5_key_shapes": {
+    "answer:license,provenance,status,value": 855,
+    "refuse:code,reason,status": 122
+   },
+   "a5_n": 977,
+   "define_examples": [
+    {
+     "emitted": {
+      "license": [
+       "axioms-definitional-v0/defn-onto-obo-go.json#0"
+      ],
+      "provenance": [
+       "urn:onto-obo:GO_1901202"
+      ],
+      "status": "answer",
+      "value": {
+       "differentiae": [
+        {
+         "filler": "urn:kot:bciqmv4zml6663pjfayw6oicfdjqxywnob3gy37mildiej27nu2bormy",
+         "relation": "urn:kot:bciqobr3vixo3cm6tdou6h6s5rypnpcyboau42ocalkaf45ifhykljui"
+        }
+       ],
+       "form": "genus-differentia",
+       "genus": [
+        "urn:kot:bciqg2he4j6hrnfkeuw4t6mjprevngtjbsrqbwxkv27ryhh6dcraf3eq"
+       ]
+      }
+     },
+     "query": {
+      "op": "define",
+      "subject": "urn:kot:bciqa23hwez4d5xhlkre3i62abec4snu4b6elutqhxs6etsslyx5hmyy"
+     }
+    },
+    {
+     "emitted": {
+      "license": [
+       "axioms-definitional-v0/defn-onto-obo-go.json#0"
+      ],
+      "provenance": [
+       "urn:onto-obo:GO_0060861"
+      ],
+      "status": "answer",
+      "value": {
+       "differentiae": [
+        {
+         "filler": "urn:kot:bciqatilhyp5trinkdynndi77zphimhvbmdiajduw7iliaw6ocwp2sca",
+         "relation": "urn:kot:bciqjwf752qn6rkqgg4sgsj2ddp7lnj6mkz5wyyyjqkw2sgu4cxi6pni"
+        }
+       ],
+       "form": "genus-differentia",
+       "genus": [
+        "urn:kot:bciqg2he4j6hrnfkeuw4t6mjprevngtjbsrqbwxkv27ryhh6dcraf3eq"
+       ]
+      }
+     },
+     "query": {
+      "op": "define",
+      "subject": "urn:kot:bciqa24nownzhiszp3dnnv4urhl2v24sch32ftqtgkvr34cmowdesnry"
+     }
+    },
+    {
+     "emitted": {
+      "code": "ERR_DEFN_UNRESOLVED",
+      "reason": "subject's logicalDefinition has an unresolvable genus/differentia/filler",
+      "status": "refuse"
+     },
+     "query": {
+      "op": "define",
+      "subject": "urn:kot:bciqa245xewi5c5hg6uctrirlfwhsv3n73nhtteec4zljjpiq3ngfh4q"
+     }
+    },
+    {
+     "emitted": {
+      "code": "ERR_NO_DEFINITION",
+      "reason": "subject is licensed but carries no logicalDefinition",
+      "status": "refuse"
+     },
+     "query": {
+      "op": "define",
+      "subject": "urn:kot:bciqa22ji32vjgc5s7zsjufjteb3pf45sq4h4niovffblkcr7ho2cwxi"
+     }
+    }
+   ],
+   "define_index_sizes": {
+    "defn_licensed": 72839,
+    "defn_resolved": 13824,
+    "defn_unresolved": 3387
+   },
+   "deterministic_repeat_identical": true,
+   "family_examples": {
+    "a5/control/conflict": {
+     "emitted": {
+      "code": "ERR_CONFLICT",
+      "reason": "entity/class pair implicated in a store violation",
+      "status": "refuse"
+     },
+     "qid": "a0957",
+     "query": {
+      "concept": "urn:kot:bciqle4alzkancizxcexlnn76y47irpfvkzbknhsj6kxig266zyyahba",
+      "entity": "urn:kotw:v0:code-planted-both",
+      "op": "instance-of"
+     }
+    },
+    "a5/control/malformed": {
+     "emitted": {
+      "code": "ERR_BAD_QUERY",
+      "reason": "op 'type-of' is not in the closed kot-query-code/1 grammar",
+      "status": "refuse"
+     },
+     "qid": "a0962",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "type-of"
+     }
+    },
+    "a5/control/no-record-callees": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "no asserted records (no completeness claim)",
+      "status": "refuse"
+     },
+     "qid": "a0871",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-entry",
+      "op": "callees-of"
+     }
+    },
+    "a5/control/no-record-callers": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "no asserted records (no completeness claim)",
+      "status": "refuse"
+     },
+     "qid": "a0856",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--findings----init--",
+      "op": "callers-of"
+     }
+    },
+    "a5/control/no-record-contains": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "no asserted records (no completeness claim)",
+      "status": "refuse"
+     },
+     "qid": "a0902",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "contains"
+     }
+    },
+    "a5/control/no-record-imported-by": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "no asserted records (no completeness claim)",
+      "status": "refuse"
+     },
+     "qid": "a0892",
+     "query": {
+      "of": "urn:kotw:v0:code-mod-claims-check",
+      "op": "imported-by"
+     }
+    },
+    "a5/control/no-record-imports": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "no asserted records (no completeness claim)",
+      "status": "refuse"
+     },
+     "qid": "a0886",
+     "query": {
+      "of": "urn:kotw:v0:code-mod-gen-l3a-corpora",
+      "op": "imports-of"
+     }
+    },
+    "a5/control/out-of-scope-concept": {
+     "emitted": {
+      "code": "ERR_TERM_UNLICENSED",
+      "reason": "concept not in the axiom layer",
+      "status": "refuse"
+     },
+     "qid": "a0951",
+     "query": {
+      "concept": "urn:kot:bciqg2htlxn4zazdgpx7onf6vwgenwzyvwr3yj7wlv5rt5lge3gcllnq",
+      "entity": "urn:kotw:v0:code-mod-claims-check",
+      "op": "instance-of"
+     }
+    },
+    "a5/control/unknown-entity": {
+     "emitted": {
+      "code": "ERR_UNKNOWN_ENTITY",
+      "reason": "entity not in the world layer",
+      "status": "refuse"
+     },
+     "qid": "a0912",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-ghost-0",
+      "op": "callers-of"
+     }
+    },
+    "a5/control/unlicensed-unique": {
+     "emitted": {
+      "code": "ERR_UNLICENSED_UNIQUE",
+      "reason": "no functional/cardinality-1 axiom in this direction",
+      "status": "refuse"
+     },
+     "qid": "a0936",
+     "query": {
+      "of": "urn:kotw:v0:code-mod-claims-check",
+      "op": "where-defined"
+     }
+    },
+    "a5/covered/callees-of": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/rel-code-calls.json#0",
+       "code-axioms-v0/rel-code-calls.json#1"
+      ],
+      "provenance": [
+       "cw00720"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:code-fn-claims-check--logical-lines"
+      ]
+     },
+     "qid": "a0002",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "callees-of"
+     }
+    },
+    "a5/covered/callers-of": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/rel-code-calls.json#0",
+       "code-axioms-v0/rel-code-calls.json#1"
+      ],
+      "provenance": [
+       "cw00724"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:code-fn-claims-check--main"
+      ]
+     },
+     "qid": "a0001",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "callers-of"
+     }
+    },
+    "a5/covered/contained-in": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/rel-part-of.json#0"
+      ],
+      "provenance": [
+       "cw00441"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:code-mod-claims-check"
+      ]
+     },
+     "qid": "a0401",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "contained-in"
+     }
+    },
+    "a5/covered/contains": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/rel-part-of.json#0"
+      ],
+      "provenance": [
+       "cw00444",
+       "cw00446",
+       "cw00448"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:code-fn-claims-check--findings----init--",
+       "urn:kotw:v0:code-fn-claims-check--findings--err",
+       "urn:kotw:v0:code-fn-claims-check--findings--ok"
+      ]
+     },
+     "qid": "a0360",
+     "query": {
+      "of": "urn:kotw:v0:code-cls-claims-check--findings",
+      "op": "contains"
+     }
+    },
+    "a5/covered/imported-by": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/rel-code-imports.json#0",
+       "code-axioms-v0/rel-code-imports.json#1"
+      ],
+      "provenance": [
+       "cw00712"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:code-mod-l3a-instrument"
+      ]
+     },
+     "qid": "a0351",
+     "query": {
+      "of": "urn:kotw:v0:code-mod-kot-axiom",
+      "op": "imported-by"
+     }
+    },
+    "a5/covered/imports-of": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/rel-code-imports.json#0",
+       "code-axioms-v0/rel-code-imports.json#1"
+      ],
+      "provenance": [
+       "cw00710"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:code-mod-kot-common"
+      ]
+     },
+     "qid": "a0349",
+     "query": {
+      "of": "urn:kotw:v0:code-mod-claims-check",
+      "op": "imports-of"
+     }
+    },
+    "a5/covered/instance-false-disjoint": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/class-python-function.json#0"
+      ],
+      "provenance": [
+       "cw00202"
+      ],
+      "status": "answer",
+      "value": false
+     },
+     "qid": "a0818",
+     "query": {
+      "concept": "urn:kot:bciqle4alzkancizxcexlnn76y47irpfvkzbknhsj6kxig266zyyahba",
+      "entity": "urn:kotw:v0:code-mod-claims-check",
+      "op": "instance-of"
+     }
+    },
+    "a5/covered/instance-true": {
+     "emitted": {
+      "license": [
+       "asserted"
+      ],
+      "provenance": [
+       "cw00001"
+      ],
+      "status": "answer",
+      "value": true
+     },
+     "qid": "a0602",
+     "query": {
+      "concept": "urn:kot:bciqbxoxz3ehtnbzzpb7fqldpohgo3wehkqat4e4pjknzzxbls25pdti",
+      "entity": "urn:kotw:v0:code-cls-claims-check--findings",
+      "op": "instance-of"
+     }
+    },
+    "a5/covered/where-defined": {
+     "emitted": {
+      "license": [
+       "code-axioms-v0/class-python-function.json#2"
+      ],
+      "provenance": [
+       "cw00240"
+      ],
+      "status": "answer",
+      "value": "urn:kotw:v0:code-mod-claims-check"
+     },
+     "qid": "a0148",
+     "query": {
+      "of": "urn:kotw:v0:code-fn-claims-check--check-doc",
+      "op": "where-defined"
+     }
+    },
+    "l3a/control/conflict": {
+     "emitted": {
+      "code": "ERR_CONFLICT",
+      "reason": "entity/relation pair implicated in a store violation",
+      "status": "refuse"
+     },
+     "qid": "q0831",
+     "query": {
+      "direction": "forward",
+      "op": "unique",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:x1"
+     }
+    },
+    "l3a/control/instance-no-record": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "not asserted and no disjointness license",
+      "status": "refuse"
+     },
+     "qid": "q0851",
+     "query": {
+      "concept": "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy",
+      "entity": "urn:kotw:v0:bkm-00",
+      "op": "instance"
+     }
+    },
+    "l3a/control/malformed": {
+     "emitted": {
+      "code": "ERR_BAD_QUERY",
+      "reason": "unknown or missing op",
+      "status": "refuse"
+     },
+     "qid": "q0871",
+     "query": {
+      "direction": "forward",
+      "op": "solve",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:elvis-presley"
+     }
+    },
+    "l3a/control/no-record": {
+     "emitted": {
+      "code": "ERR_NO_RECORD",
+      "reason": "licensed but no asserted record",
+      "status": "refuse"
+     },
+     "qid": "q0701",
+     "query": {
+      "direction": "forward",
+      "op": "unique",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:gladys-presley"
+     }
+    },
+    "l3a/control/out-of-scope-rel": {
+     "emitted": {
+      "code": "ERR_TERM_UNLICENSED",
+      "reason": "relation not in the axiom layer",
+      "status": "refuse"
+     },
+     "qid": "q0601",
+     "query": {
+      "direction": "forward",
+      "op": "lookup",
+      "rel": "urn:kot:bciqp6qbwu6plxjo3jnl4jaqhw2dmm5u2y3y26omu2aqrl2pwlilj6fy",
+      "subject": "urn:kotw:v0:elvis-presley"
+     }
+    },
+    "l3a/control/unknown-entity": {
+     "emitted": {
+      "code": "ERR_UNKNOWN_ENTITY",
+      "reason": "entity not in the world layer",
+      "status": "refuse"
+     },
+     "qid": "q0661",
+     "query": {
+      "direction": "forward",
+      "op": "unique",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:ghost-00"
+     }
+    },
+    "l3a/control/unlicensed-count": {
+     "emitted": {
+      "code": "ERR_UNLICENSED_COUNT",
+      "reason": "no matching exact-cardinality axiom",
+      "status": "refuse"
+     },
+     "qid": "q0801",
+     "query": {
+      "direction": "inverse",
+      "op": "count",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:gladys-presley"
+     }
+    },
+    "l3a/control/unlicensed-unique": {
+     "emitted": {
+      "code": "ERR_UNLICENSED_UNIQUE",
+      "reason": "no functional/cardinality-1 axiom in this direction",
+      "status": "refuse"
+     },
+     "qid": "q0761",
+     "query": {
+      "direction": "inverse",
+      "op": "unique",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:gladys-presley"
+     }
+    },
+    "l3a/covered/children-lookup": {
+     "emitted": {
+      "license": [
+       "axioms-v0/rel-mother.json#0",
+       "axioms-v0/rel-mother.json#1"
+      ],
+      "provenance": [
+       "w00006"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:elvis-presley"
+      ]
+     },
+     "qid": "q0245",
+     "query": {
+      "direction": "inverse",
+      "op": "lookup",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:gladys-presley"
+     }
+    },
+    "l3a/covered/count-maker": {
+     "emitted": {
+      "license": [
+       "axioms-v0/class-bookmark.json#0"
+      ],
+      "provenance": [
+       "w00461"
+      ],
+      "status": "answer",
+      "value": 1
+     },
+     "qid": "q0388",
+     "query": {
+      "direction": "inverse",
+      "op": "count",
+      "rel": "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni",
+      "subject": "urn:kotw:v0:bkm-00"
+     }
+    },
+    "l3a/covered/instance-false-disjoint": {
+     "emitted": {
+      "license": [
+       "axioms-v0/class-man.json#0"
+      ],
+      "provenance": [
+       "w00102"
+      ],
+      "status": "answer",
+      "value": false
+     },
+     "qid": "q0561",
+     "query": {
+      "concept": "urn:kot:bciqbz6th7ul3gmk5bhtovyi2yifyv7twotuvwjcebgetthcs532sgoq",
+      "entity": "urn:kotw:v0:p-f06-g1",
+      "op": "instance"
+     }
+    },
+    "l3a/covered/instance-true": {
+     "emitted": {
+      "license": [
+       "asserted"
+      ],
+      "provenance": [
+       "w00586"
+      ],
+      "status": "answer",
+      "value": true
+     },
+     "qid": "q0511",
+     "query": {
+      "concept": "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy",
+      "entity": "urn:kotw:v0:dm-1",
+      "op": "instance"
+     }
+    },
+    "l3a/covered/made-lookup": {
+     "emitted": {
+      "license": [
+       "axioms-v0/class-bookmark.json#0",
+       "axioms-v0/rel-maker-of.json#0"
+      ],
+      "provenance": [
+       "w00461",
+       "w00521"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:bkm-00",
+       "urn:kotw:v0:bkm-30"
+      ]
+     },
+     "qid": "q0431",
+     "query": {
+      "direction": "forward",
+      "op": "lookup",
+      "rel": "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni",
+      "subject": "urn:kotw:v0:p-f00-c1"
+     }
+    },
+    "l3a/covered/part-lookup": {
+     "emitted": {
+      "license": [
+       "axioms-v0/rel-part-of.json#0"
+      ],
+      "provenance": [
+       "w00546"
+      ],
+      "status": "answer",
+      "value": [
+       "urn:kotw:v0:note-00"
+      ]
+     },
+     "qid": "q0461",
+     "query": {
+      "direction": "forward",
+      "op": "lookup",
+      "rel": "urn:kot:bciqpvqb32e3tr2k7uc6z4b5t65kf63khqtuhy6mft7okaip2rl2kfaq",
+      "subject": "urn:kotw:v0:col-00"
+     }
+    },
+    "l3a/covered/unique-father": {
+     "emitted": {
+      "license": [
+       "axioms-v0/rel-father.json#0"
+      ],
+      "provenance": [
+       "w00007"
+      ],
+      "status": "answer",
+      "value": "urn:kotw:v0:vernon-presley"
+     },
+     "qid": "q0123",
+     "query": {
+      "direction": "forward",
+      "op": "unique",
+      "rel": "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi",
+      "subject": "urn:kotw:v0:elvis-presley"
+     }
+    },
+    "l3a/covered/unique-maker": {
+     "emitted": {
+      "license": [
+       "axioms-v0/class-bookmark.json#0"
+      ],
+      "provenance": [
+       "w00461"
+      ],
+      "status": "answer",
+      "value": "urn:kotw:v0:p-f00-c1"
+     },
+     "qid": "q0345",
+     "query": {
+      "direction": "inverse",
+      "op": "unique",
+      "rel": "urn:kot:bciqkochlqpvvkl2o32wjbosnckrj6jledvvukpxhim6au5rkp2fh3ni",
+      "subject": "urn:kotw:v0:bkm-00"
+     }
+    },
+    "l3a/covered/unique-mother": {
+     "emitted": {
+      "license": [
+       "axioms-v0/rel-mother.json#0"
+      ],
+      "provenance": [
+       "w00006"
+      ],
+      "status": "answer",
+      "value": "urn:kotw:v0:gladys-presley"
+     },
+     "qid": "q0001",
+     "query": {
+      "direction": "forward",
+      "op": "unique",
+      "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+      "subject": "urn:kotw:v0:elvis-presley"
+     }
+    }
+   },
+   "l3a_key_shapes": {
+    "answer:license,provenance,status,value": 600,
+    "refuse:code,reason,status": 300
+   },
+   "l3a_n": 900,
+   "latency_context_raw": {
+    "a5_per_query": {
+     "max_us": 1013.366,
+     "mean_us": 8.68390174002047,
+     "median_us": 7.661,
+     "n": 977,
+     "p95_us": 12.21
+    },
+    "l3a_per_query": {
+     "max_us": 45.901,
+     "mean_us": 6.269085555555556,
+     "median_us": 6.3635,
+     "n": 900,
+     "p95_us": 10.485
+    },
+    "note": "this box, 2 shared cores, single-threaded CPython; context only, no verdict"
+   }
+  },
+  "trace_gaps": {
+   "canonicalisation_demo": {
+    "emitted": {
+     "license": [
+      "axioms-v0/rel-part-of.json#0"
+     ],
+     "provenance": [
+      "w00546"
+     ],
+     "status": "answer",
+     "value": [
+      "urn:kotw:v0:note-00"
+     ]
+    },
+    "note": "answered via inverseOf canonicalisation (rel stored under urn:kot:bciqen4teyea6c6vjee7kzmd3giqn2r2zgsdtubzbb5bq3o2qrgecggq); the flip is not visible in the emission",
+    "qid": "q0461",
+    "query": {
+     "direction": "forward",
+     "op": "lookup",
+     "rel": "urn:kot:bciqpvqb32e3tr2k7uc6z4b5t65kf63khqtuhy6mft7okaip2rl2kfaq",
+     "subject": "urn:kotw:v0:col-00"
+    }
+   },
+   "conflict_refusal_example": {
+    "emitted": {
+     "code": "ERR_CONFLICT",
+     "reason": "entity/relation pair implicated in a store violation",
+     "status": "refuse"
+    },
+    "qid": "q0831",
+    "query": {
+     "direction": "forward",
+     "op": "unique",
+     "rel": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+     "subject": "urn:kotw:v0:x1"
+    }
+   },
+   "gap": "the ERR_CONFLICT refusal names no violation object; the structured {code, detail, implicated} objects exist only in-memory (engine.violations)",
+   "internal_violations_matching_that_subject": [
+    {
+     "code": "VIOLATION_FUNCTIONAL",
+     "detail": "urn:kotw:v0:x1 has 2 asserted values for functional urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+     "implicated": [
+      [
+       "urn:kotw:v0:x1",
+       "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua"
+      ]
+     ]
+    }
+   ],
+   "inverseOf_canonical_map_size": 2,
+   "n_store_violations_a5": 3,
+   "n_store_violations_l3a": 6,
+   "violation_object_shape": [
+    "code",
+    "detail",
+    "implicated"
+   ]
+  }
+ },
+ "probe": "ntp-gate",
+ "root": "<repo>"
+}

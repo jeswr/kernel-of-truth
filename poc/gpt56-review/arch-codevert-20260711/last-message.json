@@ -1,0 +1,371 @@
+## Proposal: CASK-CODE/1
+
+Build a selective coprocessor for repository comprehension and bounded code edits—not a general code assistant.
+
+Its central claim is narrow and falsifiable:
+
+> On a preregistered Python repository workload whose semantics are structurally extractable, a small model that proposes a calibrated set of formal interpretations, followed by exact execution and fail-closed clarification, achieves materially higher task coverage at the same dangerous-error bound than the strongest resource-matched code-RAG or generic tool-use system.
+
+The symbolic system is an untrusted coprocessor. It never interprets prose by itself, and successful execution never certifies that the NL interpretation was correct.
+
+### 1. Product boundary
+
+Version 1 supports Python and these existing `kot-query-code/1` operations:
+
+```text
+callers-of(symbol)
+callees-of(symbol)
+imports-of(module)
+imported-by(module)
+contains(scope)
+contained-in(symbol)
+where-defined(symbol)
+instance-of(symbol, concept)
+```
+
+Add only two bounded edit contracts:
+
+```text
+rename(symbol_id, new_identifier)
+insert_import(module_id, imported_module)
+```
+
+Do not add arbitrary “fix this code” generation. Those two edits have deterministic applicability checks, exact changed-span boundaries, and mechanical postconditions.
+
+The accepted inputs are:
+
+```text
+(repo_commit, optional selected_code_span, NL request)
+(repo_commit, explicit DSL/tool request)
+(repo_commit, NL request, clarification response)  # at most one turn
+```
+
+The output is one of:
+
+```text
+ANSWER(value, provenance)
+PATCH(diff, verification_certificate)
+CLARIFY(choice_1, choice_2[, choice_3])
+ABSTAIN(reason_code)
+```
+
+No free-form answer renderer is required for v1. Answers and clarifications use deterministic templates.
+
+## 2. Components and data flow
+
+```text
+Pinned repository commit
+        │
+        ▼
+[SYMBOLIC] Deterministic Python extractor
+  CPython ast + symtable + pinned import resolver
+  → typed facts, symbol table, source spans, extraction status
+        │
+        ▼
+[SYMBOLIC] Versioned relational substrate
+  facts + provenance + conflict/unknown states
+        ▲
+        │ symbol trie and relation inventory
+        │
+NL request ─────────────────────────────────────────────────────┐
+        │                                                       │
+        ▼                                                       │
+[SYMBOLIC] Tier-0 exact templates                               │
+        │ miss                                                   │
+        ▼                                                       │
+[NEURAL] Contract front-end, 110M–360M initially                │
+  intent logits + copied entity spans + role/direction logits   │
+  + answer-shape + ambiguity/answerability score                │
+        │                                                       │
+        ▼                                                       │
+[NEURAL→SYMBOLIC SEAM] Calibrated ambiguity-set constructor     │
+  emits 1–8 complete DSL contracts, never one unconstrained AST │
+        │                                                       │
+        ▼                                                       │
+[SYMBOLIC] Contract-and-contrast gate                           │
+  grammar/type checks                                           │
+  entity resolution                                             │
+  mandatory directional alternatives                           │
+  execute every surviving interpretation                       │
+        │                                                       │
+        ├─ all denotations equal ─► exact answer/template
+        ├─ denotations differ ───► deterministic clarification
+        └─ invalid/large/low-confidence set ─► abstain
+```
+
+For an accepted edit:
+
+```text
+accepted edit contract
+        ▼
+[NEURAL] draft only the declared replacement span
+        ▼
+[SYMBOLIC] parse/name/type/postcondition verifier
+        ├─ pass ─► patch + certificate
+        └─ fail ─► violation trace → retry, maximum two retries
+                                      then abstain
+```
+
+The neural and symbolic sides meet at exactly two serialized interfaces:
+
+1. `InterpretationSet/1`: NL → finite set of typed contracts.
+2. `EditCandidate/1`: accepted contract → a replacement for a predeclared source span.
+
+No residual-stream injection, opaque capsule addressing, or symbolic masks over unlocated prose are part of v1.
+
+## 3. Symbolic substrate
+
+Each extracted fact is stored as:
+
+```json
+{
+  "relation": "calls",
+  "subject": "py:function:pkg/a.py::parse",
+  "object": "py:function:pkg/b.py::emit",
+  "provenance": {
+    "commit": "…",
+    "file": "pkg/a.py",
+    "start_byte": 811,
+    "end_byte": 825,
+    "extractor_rule": "direct-name-call/1"
+  },
+  "status": "proved"
+}
+```
+
+The substrate has four results:
+
+```text
+proved(value, certificate)
+disproved(certificate)
+unknown(reason)
+conflict(certificates)
+```
+
+Extraction policy is deliberately conservative:
+
+- Definitions, lexical containment, imports and symbol kinds come directly from syntax and symbol tables.
+- Calls are admitted only when the callee resolves statically under a pinned rule.
+- Dynamic dispatch, reflection, monkey-patching, wildcard-import ambiguity and unresolved aliases become `unknown`; they are not guessed.
+- Every result certificate lists the facts and rules used.
+- Extractor precision and coverage are measured on blind, repo-disjoint human annotations. “AST-derived” is not treated as automatically semantically correct.
+
+The initial implementation should reuse the measured code-world schema and executor rather than inventing a broader ontology. SQLite and pinned generic Datalog serializations of exactly the same facts must also be produced for attribution controls.
+
+## 4. Learned contract front-end
+
+Use a 110M encoder with separate heads before trying a decoder model:
+
+```text
+intent:        10-way classification
+entity spans:  BIO tagging + exact symbol-trie resolution
+role:          subject/object/of/target
+direction:     forward/inverse/not-directional
+answer shape:  set/singleton/boolean/patch
+answerability: in-contract/ambiguous/out-of-contract
+```
+
+Training data:
+
+- Deterministically generated DSL–canonical-utterance pairs.
+- Grammar recombination over fresh symbol identities.
+- Paraphrases from sources disjoint from calibration and evaluation authors.
+- Both orientations of every directional relation in equal numbers.
+- Minimal contrastive pairs such as:
+  - “What does `Parser` contain?”
+  - “What contains `Parser`?”
+- Ambiguous and unanswerable examples labelled explicitly.
+- Repo-disjoint TRAIN, DEV, CAL and EVAL splits.
+
+The model does not emit an entity identifier freely. It identifies an input span, after which the symbolic trie returns zero, one or several matching symbols.
+
+### Ambiguity-set construction
+
+The output is a calibrated set, not beam-search decoration:
+
+1. Enumerate complete contracts from the intent, role, direction and entity heads.
+2. Apply split-conformal calibration on complete-contract nonconformity.
+3. Include every contract inside the frozen coverage threshold.
+4. For every directional contract, forcibly add its typed inverse alternative before acceptance.
+5. Cap the set at eight. A larger set means clarification or abstention.
+6. Empty set means abstention.
+
+Example:
+
+```text
+Request: "What contains parse?"
+
+{
+  contained-in(py:function:…::parse),
+  contains(py:function:…::parse)
+}
+```
+
+Both execute. If their denotations differ, the system asks:
+
+```text
+Do you mean:
+A. Which scopes contain `parse`?
+B. Which symbols are inside `parse`?
+```
+
+This wording is rendered from the DSL templates, not generated by the model.
+
+Calibration is only claimed for the pinned phrasing distribution. Source-disjoint calibration/evaluation and perturbation results must be reported; “conformal” must not be presented as a distribution-free deployment guarantee.
+
+## 5. Clarification is inside the measured system
+
+Clarification cannot be a human oracle smuggled between parsing and execution.
+
+For evaluation:
+
+- Ambiguity and intended reading are annotated before systems run.
+- Each item contains either a valid scripted clarification response or `no valid clarification`.
+- Every arm, including RAG/tool baselines, may ask one clarification.
+- The response reveals only the user’s choice among the arm’s displayed readings.
+- It does not provide a DSL, symbol ID, answer or hidden repository fact.
+- A malformed or irrelevant clarification is scored as failure.
+- The extra turn, tokens and latency are charged.
+- If an arm fails to expose the intended interpretation as a choice, clarification cannot rescue it.
+
+In deployment, the same protocol is supplied by the real user.
+
+## 6. Bounded verify-retry for edits
+
+Use external verify-retry in v1; do not begin with GPU/CPU synchronization-heavy speculative masking.
+
+For an accepted edit contract:
+
+1. The symbolic planner fixes the exact editable span and postconditions.
+2. The model emits only replacement text for that span.
+3. The verifier checks:
+   - syntactic parse;
+   - no edits outside the authorized span;
+   - symbol resolution;
+   - edit-specific postcondition;
+   - repository import/compile check;
+   - pinned tests, where supplied.
+4. On failure, return a bounded structured trace such as:
+
+```json
+{
+  "failure": "unresolved_symbol",
+  "symbol": "NewParser",
+  "span": [912, 921]
+}
+```
+
+5. Permit two retries, using the same token budget available to the matched retry baseline.
+6. After the third failed candidate, abstain.
+
+A passing verifier certifies only those mechanical properties. It does not certify that the NL request was interpreted correctly; that responsibility remains with the ambiguity-set gate.
+
+Span-scoped symbolic speculative decoding should be a later replacement only if it Pareto-dominates this loop: non-inferior accuracy and safety, plus a material win in tokens, p95 latency or energy.
+
+## 7. End-to-end comparison it must win
+
+Use 20–30 held-out Python repositories, frozen before task authoring, with approximately 1,200 base tasks and three independently sourced phrasings per NL task:
+
+- 70% relational comprehension across all eight operations.
+- 15% deliberately ambiguous/unanswerable requests.
+- 15% bounded rename/import edits.
+- Balanced forward/inverse directional strata.
+- Separate synonym, structural-rephrase and typo/noise strata.
+
+Report results on the complete preregistered product distribution, not only on extractor-covered items. Also report the covered slice and blind extraction coverage `κ` separately.
+
+### Required arms
+
+All arms use the same model checkpoint at each rung.
+
+- `R0`: model alone.
+- `RAG-BM25`: raw-source chunks, BM25.
+- `RAG-dense`: raw-source chunks, pinned dense retriever.
+- `TOOL-native`: same model with strong conventional code tools: search, file read, symbol lookup and parser.
+- `GENERIC-store`: identical extracted facts in SQLite or generic Datalog, exposed through ordinary JSON tools.
+- `GENERIC-retry`: generic store/tool system with the same maximum calls and retries.
+- `CASK-top1`: proposed system forced to use one parse.
+- `CASK-set`: full ambiguity-set execution and clarification.
+- `CASK-set+retry`: full system including edit verification.
+
+The generic baseline consumes NL natively. It must not be forced through CASK’s parser. Conversely, its function-call parsing, retries and clarification tokens are charged.
+
+Parity requirements:
+
+- Same pinned repository snapshot and no extra sources.
+- Same generator checkpoint, quantization and tuning-compute allowance.
+- Same maximum indexed bytes, context tokens, output tokens, tool calls and retries.
+- Both shared/matched and architecture-native retrievers.
+- Full build compute, annotation effort and index bytes included.
+- Same hardware and measured CPU time, accelerator time, p95 latency, peak memory, I/O and energy boundary.
+- The aligned generic store receives exactly the same facts and provenance. This is the decisive deconfound.
+
+### Binding win
+
+CASK survives only if, against every admissible baseline:
+
+1. `UB95[P(answered or patched, and wrong)] < 0.02`.
+2. Every supported directional stratum passes its near-zero-error bound.
+3. At that safety point, `LB95` of successfully completed task coverage is at least **5 percentage points above** the strongest baseline.
+4. Edit success is non-inferior, with zero unauthorized-span edits.
+5. It remains within the common resource envelope.
+6. `CASK-set` strictly improves the risk–coverage frontier over `CASK-top1`.
+7. `CASK-set+retry` is non-inferior to generic verify-retry in accuracy and safety and materially improves at least one of tokens, p95 latency or energy.
+
+If `GENERIC-store` is within a preregistered 2-point non-inferiority margin, the distinctive neurosymbolic claim is dead even if CASK is a competent product. The result would be “typed extraction plus ordinary tools works,” not a Programme-3 architecture win.
+
+## 8. Cheapest decisive falsifier
+
+Run a CODE-only pilot before building the edit path:
+
+- Existing 855-query code grammar as diagnostic material.
+- Approximately 300 new blind phrasings from two disjoint sources.
+- 110M intent/slot model.
+- Synthetic/canonical training only.
+- Frozen CAL threshold.
+- Three arms: top-1, ambiguity-set execution, aligned SQLite tool-use.
+- CPU extractor/executor plus at most five GPU-hours and roughly $25 of paraphrase authoring.
+
+Kill the central recipe immediately if any holds:
+
+- No operating point reaches 80% completed-task coverage with point dangerous-error ≤1%.
+- The correct DSL is absent from the emitted set on more than 10% of answerable inputs.
+- Ambiguity sets fail to improve completed coverage by at least 5 points over top-1 at matched risk.
+- Directional inversions remain systematic in any supported stratum.
+- The aligned SQLite/tool arm is within 2 points at the same risk and resource cap.
+
+This pilot cannot establish the final claim, but it can cheaply falsify every mechanism on which the claim depends.
+
+## 9. Size and inference cost
+
+| Rung | Neural configuration | Weight bytes | Intended use |
+|---|---:|---:|---|
+| 110M | encoder contract parser | ~220 MB fp16 / ~110 MB int8 | preferred first build |
+| 135–360M | shared parser or small decoder | ~0.27–0.72 GB fp16 | stronger paraphrase robustness |
+| 1–2B | shared parser/editor model | ~2–4 GB fp16 / ~1–2 GB int8 | only if small rung fails capability, not safety |
+
+Non-neural footprint:
+
+- Extracted store and indexes: target 5–100 MB per repository snapshot.
+- Grammar, symbol tries and contracts: under 20 MB.
+- Executor: measured µs-scale; executing eight interpretations should remain below 0.1 ms absent pathological result materialization.
+- Tier-0 exact-template path: approximately the existing 250 µs class.
+- Tier-1 dominates query latency; report measured values rather than promising a hardware-independent number.
+- Parser input cap: 192 tokens.
+- Contract output: structured heads or at most 32 DSL tokens.
+- Clarification: one turn.
+- Edit retries: maximum three total candidates.
+
+The expected sweet spot is 110–360M. A 2B model is admissible, but if it is needed merely to map eight relations reliably, the direction has lost most of its efficiency rationale.
+
+## 10. Biggest failure mode
+
+The deepest failure is **agreement laundering**:
+
+> The learned front-end systematically omits the correct interpretation, while all emitted wrong interpretations execute successfully and happen to agree.
+
+The executor then returns a perfectly valid certificate for the wrong question. Grammar masks, provenance, execution success, self-consistency and confidence calibration can all remain green.
+
+Mandatory inverse alternatives and clarification reduce this risk but cannot eliminate it. Only blind human semantic gold, symmetric directional strata and whole-system risk measurement expose it.
+
+The strategic version of the same failure is attribution collapse: once the extracted code facts are available, a generic SQLite/Datalog tool system may match everything CASK does. If that happens, stop. The valuable result is deterministic code extraction plus disciplined tool use; Programme-3’s distinctive symbolic semantics have contributed nothing beyond the generic substrate.
