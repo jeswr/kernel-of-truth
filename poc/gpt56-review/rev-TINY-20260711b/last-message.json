@@ -1,0 +1,45 @@
+## Verdict
+
+**No — not sound to commit as completed P3-LR-TINY yet.** The bibliography is largely real and relevant, and the review contains useful design inputs, but several central conclusions overgeneralise unmatched or out-of-domain evidence. It is acceptable as a strong draft after correction, not as Phase-0 closure.
+
+## Three most important concerns, ranked
+
+1. **DataDecide does not validate the proposed interface sweep.** It studies ranking pretraining-data choices from roughly 150M to 1B, not symbolic-interface interventions, architecture changes, 5–30M models, or signed treatment-effect trends. Calling it “exactly our question,” treating 20% as the error rate on **any** promotion/kill, and saying it validates ASM-0815 are unjustified transfers ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:317), [TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:328), [TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:487)). It supports “small proxy decisions can sometimes transfer; continuous metrics are preferable,” nothing stronger.
+
+2. **The “modern recipe” prescription bundles unmatched wins and mistakes them for a controlled baseline.** The nanoGPT speedrun combines optimizer, architecture, kernels, precision, embeddings, attention pattern, prediction objective, and hardware-specific engineering. Its 34× wall-clock result does not show that a plain twin is 34× less compute-efficient, nor that Muon+RoPE+QK-norm is a validated optimum for 5–30M models or symbolic interfaces ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:145), [TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:156)). Worse, “identical recipe” is insufficient compute matching when the interface changes parameter count, token count, sequence length, objectives, or auxiliary execution. Training FLOPs and accelerator-hours are also conflated ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:257)).
+
+3. **The Phase-1 hand-off overstates closure.** The document says only parameter selection remains, while leaving unresolved the interface, corpus, µP validity, seed power, tuning budget, and therefore the actual experimental estimand and compute ledger ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:443), [TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:483)). The proposed beads lack acceptance criteria for FLOP accounting, interface-token parity, pilot-powered seed count, feasibility against the 15–75 GPU-hour budget, and a rule for ambiguous/non-monotone trends. The issue export still shows P3-LR-TINY in progress and no created hand-off beads; live `bd` inspection was blocked by the read-only Dolt environment.
+
+## Factual/citation problems
+
+No obvious fabricated papers or arXiv identifiers among the 31 entries. The main problem is characterisation and verification strength:
+
+- **MobileLLM:** the +2.7/+4.3 pp figures are improvements of the combined MobileLLM designs over prior same-size models, not clean causal estimates of “deep-thin beats wide-shallow.” The text conflates the model-level comparison with one design factor ([sources](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.sources.jsonl:10)).
+
+- **kNN-LM/RETRO:** one kNN-LM configuration and RETRO with a 2T-token retrieval database do not establish that interfaces help “at any/every scale” or “regardless of host capacity.” RETRO’s parameter win is explicitly not resource- or lifecycle-matched ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:290)).
+
+- **Toolformer:** the within-lineage observation around 775M is real prior evidence, but “capacity-limited by direct measurement” is too causal. Scale co-varies with base capability, generated calls, filtering, and task mix; it is not a general interface threshold ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:468)).
+
+- **Repeated data:** Muennighoff et al. supports mild degradation around four repetitions under its tested regimes. It does not license arbitrary TinyStories/kernel-synthetic corpora for four epochs “without penalty” ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:232)).
+
+- **Chinchilla constant:** the review correctly says constants are fragile, then hardcodes 20 tokens/parameter to define a 0.5×/1×/4× sweep. That should be a pilot-centred axis, not treated as the optimum for this architecture/data regime ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:339)).
+
+- **µP:** “the ONLY principled way” is false. Equal-budget per-scale tuning, registered proxy tuning, or other transfer rules are legitimate alternatives. µP is useful prior art, but its applicability to Muon and the proposed interface is itself open ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:280)).
+
+- **BabyLM curricula:** one challenge’s “largely unsuccessful” curriculum submissions plus a later challenge’s overall findings is not a replicated finding that two cycles established “no cheap curriculum win.” It also conflicts with Programme-3’s expressly scoped synthetic curriculum variant ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:138)).
+
+- **Mutable source:** the nanoGPT record is cited to a moving GitHub branch without a commit hash, release, leaderboard snapshot, or hardware/software configuration. A load-bearing 1.32-minute claim needs immutable provenance ([sources](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.sources.jsonl:5)).
+
+- **Verification overclaim:** `verified:true` means only that a primary landing page was fetched, yet many ledger entries assert body-level figures and causal interpretations. Two records are explicitly unverified this pass, so “29 verified sources” should be stated as “29 URLs/primary landing pages checked,” not source-claim verification ([TINY.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/TINY.md:511)).
+
+## Required disposition
+
+Commit only after:
+
+- narrowing DataDecide, MobileLLM, kNN/RETRO, Toolformer, and repetition conclusions;
+- replacing “solved recipe” and “method closed” with conditional design priors;
+- specifying a complete twin-compute ledger and pilot-powered sweep;
+- adding immutable provenance for the speedrun;
+- giving P3-D-GU/P3-D-BASE explicit acceptance criteria and creating their dependencies at Phase-0 closure.
+
+**Decision: REVISE, then commit as P3-LR-TINY. Do not close the bead in its current form.**

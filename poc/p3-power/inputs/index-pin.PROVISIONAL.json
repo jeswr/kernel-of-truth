@@ -1,0 +1,26 @@
+{
+  "_status": "PROVISIONAL / STIPULATED-for-demonstration. NOT a P3-D-INDEX freeze (frozen=false, so the rig can never emit a G1 verdict from this pin — ILLUSTRATIVE-ONLY by construction). Weights, ceilings, and delta_k are placeholders chosen only to exercise the rig; every number is replaced by the frozen KOT-AI-INDEX/2 pin (P3-D-INDEX) before any real kill is fired. chance floors are the EVAL.md-verified MC floors; ceilings are illustrative reference anchors (BLiMP 0.886 verified; others placeholder). Domains D1/D2/D5/D6 deliberately carry weight with NO enumerated benchmarks here: the rig must impute full headroom for them and mark the pin incomplete (review rev-dPOWER-20260711 blocking finding 1). A frozen pin must enumerate every benchmark of every weighted domain, with metric_type per benchmark.",
+  "frozen": false,
+  "clamp_normalized": false,
+  "delta_k": 0.03,
+  "delta_k_domain": {"D3": 0.05, "D4": 0.05},
+  "domains": {
+    "D1": {"weight": 0.15, "_name": "linguistic competence"},
+    "D2": {"weight": 0.15, "_name": "commonsense/world"},
+    "D3": {"weight": 0.20, "_name": "knowledge/factual"},
+    "D4": {"weight": 0.25, "_name": "relational/rule reasoning"},
+    "D5": {"weight": 0.15, "_name": "math/procedural"},
+    "D6": {"weight": 0.10, "_name": "instruction following"}
+  },
+  "benchmarks": {
+    "OpenBookQA-test":             {"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90, "_floor": "4-choice"},
+    "MMLU-college_biology-test":   {"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90},
+    "MMLU-college_chemistry-test": {"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90},
+    "MMLU-medical_genetics-test":  {"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90},
+    "MMLU-anatomy-test":           {"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90},
+    "MMLU-clinical_knowledge-test":{"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90},
+    "MMLU-nutrition-test":         {"domain": "D3", "metric_type": "accuracy", "chance": 0.25, "ceiling": 0.90},
+    "CLUTRR":                      {"domain": "D4", "metric_type": "accuracy", "chance": 0.05, "ceiling": 0.95, "_floor": "generator, ~19-relation"},
+    "ProofWriter":                 {"domain": "D4", "metric_type": "accuracy", "chance": 0.50, "ceiling": 0.99}
+  }
+}

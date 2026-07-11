@@ -1,0 +1,125 @@
+## Verdict
+
+Fable’s synthesis is directionally strong but not yet sound enough to drive the design beads unchanged.
+
+It correctly centers the measured wall, makes the right high-level rulings on most GPT-5.6 candidates, and is notably disciplined about labeling oracle stages. But it overstates the decisiveness of P2 and P4, misclassifies P7 as an architecture rather than an ingestion feeder, and omits a necessary G2 system-seam test for P1. Those are material, not editorial.
+
+My call: **commit only as a review draft; do not adopt the portfolio or create the proposed design beads until the issues below are repaired.**
+
+## 1. Candidate critiques
+
+Mostly sound:
+
+- **K1 → substrate, not bet:** correct. Exact Datalog/provenance execution is already demonstrated on the closed substrate. The interesting certificate-consumption claim belongs at the interface seam.
+- **K2 + W3 → merge into P1:** correct. They are front-end safety mechanisms, not independent kernel/world architectures.
+- **W1 → defer:** correct. Building an extracted hypergraph before any mechanism survives G2 would spend heavily on the programme’s weakest link.
+- **W2 → drop from round 1:** correct outcome, partly wrong rationale. Sealed evaluation prevents leakage, not reuse of relation/operator families learned from training traffic. Materialized views could generalize across unseen queries. It should be dropped because there is no measured reuse-heavy workload and the current engine is already microsecond-fast—not because sealed evaluation inherently defeats amortization ([lines 297–329](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/arch/round1-critique-synthesis.md:297)).
+- **M1/P1 → keep first:** correct. It is the only retained candidate directly attempting the measured NL boundary.
+- **M2/P3 → keep on formal/code scope:** correct. This is one of only two candidates connected to the verifier-offload sign.
+- **M3/P6 → retain as the one speculative training bet:** defensible, provided it stays last and receives stronger controls.
+
+Problems:
+
+- **K2’s “independent” contract does not validate NL semantics.** Deterministically inverting an already-wrong IR catches implementation inconsistency, but not a parser that consistently mapped “A contains B” to the wrong relation. A “structurally different NL check” is underspecified and could remain correlated. It needs either independent annotations/calibration or explicit enumeration of competing semantic parses.
+- **K3/P2 is overpromoted.** Two extractor agreement is not a soundness guarantee; structurally different models can share systematic semantic errors. It is a useful coverage-and-ceiling diagnostic, but should remain conditional rather than a retained architecture until joint false-rejection risk is measured.
+- **M2’s kill is too permissive.** “Any improvement in error, tokens, or p95” can preserve a dominated system—for example, slightly fewer tokens with materially worse accuracy. The programme itself requires a Pareto comparison over accuracy, coverage, latency and resource vector ([programme lines 862–868](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:862)). Require safety/accuracy non-inferiority plus a material resource improvement, or Pareto dominance.
+- **M3 lacks the critical equal-compute learned-expert control.** Plain, text-evidence and shuffled-certificate arms do not isolate deterministic symbolic expertise from extra parameters, privileged proof supervision or conditional compute. Add a matched learned neural expert and a generic typed-store expert.
+
+## 2. Recommended portfolio
+
+The promising core is:
+
+1. P1 contract front-end.
+2. P3 versus P5 on formal/code inputs.
+3. P6 as a late speculative bet.
+
+The rest are supporting work, not peer architectures:
+
+- P2 is initially a diagnostic census.
+- P4 is a representation plus interface experiment.
+- P5 is the incumbent.
+- P7 is an ingestion/coverage feeder.
+- K1 is substrate engineering.
+
+Calling all seven a single “architecture portfolio” obscures which entries can actually beat a resource-matched baseline.
+
+Two optimism problems are especially important:
+
+### P4 does not test what the synthesis says it tests
+
+An adapter-trained one-token ID can succeed by memorizing a closed record-to-embedding lookup. That does not show that the host can consume:
+
+- unseen or versioned capsules,
+- compositional capsule fields,
+- proof certificates,
+- M3 expert residuals.
+
+Nor are full text and a trained opaque ID automatically “matched information”: the ID’s semantics reside in the adapter training data and parameters, whose bytes and training cost must be charged. The current claim that one experiment validates K1, P6 and the a-e2 channel is too broad ([lines 573–584](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/arch/round1-critique-synthesis.md:573)).
+
+Repair it with held-out capsule identities and held-out field compositions, causal field perturbations, shuffled ID/content mappings, and full adapter/vocabulary/training accounting. Treat the result as evidence for closed-inventory compression unless transfer is demonstrated.
+
+### P7 is useful, but it is not an NL architecture
+
+Deterministically extracting code/schema relations may improve store coverage. It does not get an NL request into that store. Every natural-query use still depends on P1 or a syntax-grounded tool API.
+
+Further, tables, infoboxes, configuration keys and schemas often contain natural-language labels; claiming deterministic extraction does not make their semantic typing deterministic. The κ census also requires judging whether the store captures each item’s “decisive content,” which is annotation work and can become an oracle labeling exercise. Therefore it is not automatically a “~$0 CPU” test ([lines 586–615](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/arch/round1-critique-synthesis.md:586)).
+
+Keep P7 as the existing coverage-growth feeder, with source-class-specific precision and lifecycle accounting. Do not advertise it as an independent coverage-solving architecture.
+
+## 3. NL-boundary honesty
+
+There is no outright hidden gold parse in the written designs, but “none smuggles a solved NL boundary” is still too strong.
+
+- **P1:** honest and complete in shape. The parser, abstention policy, contracts, execution and renderer are inside the measured system.
+- **P2:** includes a real claim extractor, but agreement between two extractors does not make the mapping trustworthy. It recreates the NL wall at claim level.
+- **P3/P5:** honest only because natural-input claims are explicitly blocked on P1; their round-1 results are formal/oracle diagnostics.
+- **P6:** G2 is honestly oracle-addressed, but the portfolio says G3 will measure learned addressing while the run order contains no P6 G3 experiment. That missing transition must be explicit.
+- **P7:** does not contain an NL query path. It must be shown as dependent on P1 for natural use.
+- **P4:** correctly labeled oracle-diagnostic, but opaque-ID memorization is a different possible oracle: semantics can be baked into the trained adapter.
+
+The programme rule is stricter and correct: every natural-input store stage must clear NLB or remain oracle-only with no real-input claim ([lines 952–958](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:952)). The portfolio should show these dependency edges explicitly, especially P7→P1 and P6 G2→P6 G3.
+
+## 4. Run order
+
+The broad G1→G2→G3→G4 ordering is correct. The concrete sequence is not yet cheapest-decisive-first.
+
+Required corrections:
+
+1. **Freeze the prerequisites for G1 arithmetic.** The R-1 suite, domain weights, normalization constants, δ₁ and baseline accuracies must exist. If `w_b` does not already include the chance-to-ceiling derivative and domain macro-weight, the whole-query formula also needs normalization—not only P2’s formula.
+2. **Separate ROLE_DIR repair from the contract experiment.** Repair and exhaustive deterministic tests are immediate. Confidence-versus-contract and mesh-versus-hard-negative comparisons require parser outputs and possibly training; they belong inside the P1 experiment, not a nominal CPU-only step.
+3. **Do not call P2’s ceiling decisive before abstention scoring freezes.** The document itself says P2’s gain depends on the open abstention rule ([lines 617–626](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/arch/round1-critique-synthesis.md:617)), then says steps 0–2 have no freeze dependencies ([lines 654–655](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/arch/round1-critique-synthesis.md:654)). Those claims conflict. Before the freeze, report sensitivity bounds under candidate scoring rules, not a promote/kill decision.
+4. **Add P1’s missing G2 seam test before parser training:** gold DSL/parse → execution → renderer, with separate oracle ablation of serialization, execution and rendering. The PARSE review explicitly requires stage-by-stage oracle ablation, not one aggregate gold-parse arm ([lines 471–484](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md:471)).
+5. **Use a deterministic renderer baseline.** On the closed typed grammar, deterministic templates may eliminate the symbolic→NL seam. The learned copy-constrained renderer should survive only if it adds measured value with no semantic corruption.
+6. **Run P3 versus P5 before or parallel with the P1 fine-tune.** It is no-training and directly tests a mechanism tied to the only positive sign.
+7. **Run the repaired P4 transfer test, then P6 G2.**
+8. **Add P6 G3 learned-addressing degradation before any natural-input promotion.**
+9. **Only then G4**, after the full framework and resource-matched frontier freeze.
+
+## 5. Missing architecture and cheap kills
+
+The strongest missing design is an **ambiguity-set executor**:
+
+- Produce a calibrated set of plausible DSL parses, explicitly including inverse/role alternatives.
+- Execute all of them.
+- Answer only when their denotations agree; otherwise clarify or abstain.
+- Measure its risk–coverage curve against confidence-only, K2 contracts and W3 hard negatives.
+
+This directly addresses the measured ROLE_DIR failure without assuming that self-consistency proves semantic correctness. It is cheap to add to the P1 harness and is stronger than merely inverting the selected IR.
+
+Other missing cheap kills:
+
+- Deterministic-template renderer versus copy-constrained learned renderer.
+- P4 held-out-ID/composition test to distinguish consumption from memorization.
+- P6 matched learned-expert and generic-store controls.
+- P7 authoring/build-effort and semantic-labeling census before calling it CPU-cheap.
+- P2 correlated-error test: disagreement is useful, but agreement must be calibrated against human semantic gold.
+
+## Three most important concerns
+
+1. **The NL seam remains incompletely closed.** P1 is the only genuine wall attack; P6 lacks its G3 transition, P7 still depends on P1, and K2’s consistency checks do not establish semantic correctness.
+2. **Two claimed decisive falsifiers are not decisive as written.** P2 depends on an unfrozen abstention score; P4 can pass through closed-inventory memorization and does not validate M3 or certificate consumption generally.
+3. **The portfolio mixes architectures, substrates, incumbents, diagnostics and ingestion work.** This inflates apparent diversification and weakens resource-matched prioritization.
+
+Technical errors include the sealed-evaluation argument against W2, treating two-extractor agreement as sufficient safety, calling P7’s build-and-census approximately free, claiming matched information for an adapter-trained opaque ID, the permissive M2 kill, and the contradiction between P2’s index dependency and “steps 0–2 runnable now.”
+
+**Final judgment: strong critique draft, unsound adoption package. Revise before it drives beads.**

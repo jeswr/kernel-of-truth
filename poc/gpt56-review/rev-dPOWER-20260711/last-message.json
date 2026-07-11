@@ -1,0 +1,54 @@
+## Verdict
+
+Do not commit this as a completed P3-D-POWER design or drive the experiment beads yet.
+
+The central idea is sound and useful: for a mechanism whose effects are provably confined to covered items, a normalized perfect-corrector ceiling is an excellent G1 paper kill. The document also handles the NL-boundary wall correctly in principle: oracle access is used only to make the ceiling generous, survival licenses nothing, and no W1 claim crosses the oracle boundary.
+
+However, the current implementation can issue false kills. The advertised define-lane “live kill” is not a valid G1 result—it uses a partial mapper-lane census, provisional index values, and unsafe statistical defaults. The sample-sizing half is still a sketch, not a buildable design.
+
+## Blocking findings
+
+1. **Uncensused index components are silently assigned zero possible gain.**  
+   The program iterates over census entries and skips everything else ([power.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/p3-power/power.py:65)). Thus the define-lane demo considers seven D3 benchmarks while silently contributing zero for every other benchmark/domain in the provisional index. That is not an upper bound on whole-index gain. Missing eligible components must contribute their maximal headroom—effectively `κ_UB=1`, `a_cov_LB=0`—or the run must fail closed as incomplete. This alone invalidates the `0.0038 < 0.03` kill.
+
+2. **Missing covered-slice accuracy is not handled conservatively.**  
+   The design calls `a_cov=chance` “maximally generous” ([POWER.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/POWER.md:208)); the implementation does the same ([power.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/p3-power/power.py:85)). The valid distribution-free lower bound is zero, not chance. Small models can score below chance, and deliberately wrong predictions can be perfectly corrected. Using chance understates the ceiling and can false-kill. If no baseline run is available, use zero.
+
+3. **The claimed `UCB95` is not a simultaneous 95% upper bound.**  
+   Summing separate per-benchmark 95% Wilson bounds does not preserve 95% joint coverage. With many benchmarks and both κ/a-accuracy intervals, family-wise coverage can be much lower. “Each term is conservative” does not repair the multiplicity problem ([POWER.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/POWER.md:214)). Use Bonferroni/Holm-adjusted one-sided bounds, an exact joint construction, or a preregistered paired bootstrap that demonstrably controls the aggregate false-kill rate.
+
+## Other substantive gaps
+
+- **Form A is not universal across KOT-AI-INDEX/2.** `κ(1-a_cov)` applies to itemwise accuracy correctors. The index includes loss/logprob, generation and potentially other metrics. Each metric needs a registered score-range and itemwise maximum-gain functional. Unsupported metrics must receive full headroom, not be forced through an accuracy formula.
+
+- **The family scope is too broad.** The bound is valid only if the mechanism is non-interfering off coverage and its entire incremental benefit requires a covered, correctable item. That is plausible for fail-closed verify/retry or executor-derived masking, but not established for KV injection, adapters, program-synthesis training, or H-DD surgery, which may change uncovered behaviour or transfer knowledge globally. Each family needs an explicit causal support/noninterference argument or a different ceiling. The assertion that Form A covers all of them ([POWER.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/POWER.md:106)) is unsupported.
+
+- **The oracle census is not yet a concrete CPU pass.** Existing third-party data explicitly has no gold-parse lane. Producing gold semantic parses and deciding whether the answer is derivable under “best endorsement” may require substantial human annotation and could itself introduce false-negative labels. Specify the schema, adjudication, ambiguity policy, inter-annotator checks, and the safety rule `unknown ⇒ covered`. An automatic lemma-touch sieve can be a genuinely cheap decisive upper bound; an exact oracle census is not demonstrated to be ~$0.
+
+- **The confidence model does not match the census estimand.** If all frozen-suite items are exhaustively classified, finite-suite κ is exact conditional on classifier correctness; Wilson sampling uncertainty is not the main uncertainty. If items are sampled, the sampling frame and stratification must be explicit. Neither treatment captures oracle-label false negatives.
+
+- **The 100M–2B pinning is incomplete.** The mathematics is scale-independent, which is good, but `a_cov`, prompt/seed policy, eligible suite, δ, store version and mechanism can all vary by rung. The input schema currently carries only a free-text rung and lacks checkpoint, harness, prompt, seed, store/kernel hashes, metric type and coverage-lane enforcement. This is not safe for cross-rung reuse.
+
+- **The sizing deliverable is not implemented.** Section 5 says the rig “computes” item×seed power, but `power.py` contains no sizing calculation. Counts plus Δ are insufficient: it needs paired outcome variance/correlation, prompt and seed variance, comparator multiplicity and the exact bootstrap hierarchy. The single f2b calibration point cannot supply these across metrics and domains.
+
+- **Document/code mismatches:** the code does not emit the promised per-benchmark `κ_b*` table; it does not implement Form B; it lacks schema/range/weight/completeness validation; and rounded `a_cov × n_cov` should be replaced by integer correct/total counts.
+
+## KOT-FAIR/2 and resource accounting
+
+Conceptually it slots into KOT-FAIR/2 correctly as a pre-W1 diagnostic: the normalized weights, ceilings, exclusions and δ come from the frozen index, while survival makes no resource-frontier claim.
+
+The resource connection is incomplete, though. Coverage is store-version- and budget-dependent. A G1 run should pin the canonically packed store/kernel artifacts and distinguish:
+
+- ceiling under the current admissible `B_k` store;
+- ceiling under a preregistered maximum store-growth envelope;
+- authoring/review/indexing cost of reaching `κ*` under KOT-LIFE/1.
+
+A naked “κ*=0.13” is not yet an actionable coverage target without bytes, construction cost, human hours and admissibility under `B_k`.
+
+## Ranked concerns
+
+1. **False-kill unsoundness:** omitted benchmarks, chance imputation and non-simultaneous intervals invalidate the decisive guarantee.
+2. **Invalid generalization from accuracy correctors to whole metrics and mechanism families:** off-coverage/global effects can exceed the proposed bound.
+3. **The supposedly cheap oracle input and survivor sizing are not operationally specified:** human semantic annotation and a missing power implementation remain.
+
+Recommendation: retain and revise the core Form-A design, but withdraw the live define-lane kill and “complete/runnable G1 deliverable” language. Commit only after the false-kill paths, metric/family eligibility contract, complete pin schema and oracle-census protocol are fixed and tested. Then bead the oracle/upper-sieve census and covered-baseline inputs; do not yet drive downstream family experiment beads.

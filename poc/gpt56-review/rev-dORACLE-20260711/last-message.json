@@ -1,0 +1,85 @@
+## Verdict
+
+**Do not commit-freeze this design or drive the experiment bead yet.** It is substantially more concrete than a typical Phase-1 design and the harness is buildable, but the central estimand does not currently decompose the G2→G3 *mechanism gain*. The proposed shakedown is cheap, but not decisive enough to validate that claim.
+
+With a focused revision, this should become runnable without architectural redesign.
+
+## Assessment
+
+### 1. Concrete and buildable?
+
+**Harness: yes. Protocol as claimed: not yet.**
+
+The stage interface, configurations, traces, artifact pinning, error codes, report metrics, and fail-closed gates are concrete enough to implement ([ORACLE §3–§6](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/ORACLE.md:124>)). At R-0/R-1, the deterministic shakedown and a modular 135M–360M family are practical.
+
+Limitations:
+
+- `run_stage(...)` is only a generic interface; no versioned artifact schemas or family adapters are specified. Existing parsers may not expose independently replaceable PARSE.a–d boundaries.
+- Tightly fused learned stages are explicitly non-spliceable. That is honest, but means this is not automatically a complete decomposition for every family.
+- The cost model covers 135M–360M, not the advertised 1–2B end of the programme ([ORACLE §10](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/ORACLE.md:519>); compare the R-3 rung at [programme §4](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:873>)).
+- K≥3 phrasings appears not to be multiplied into LM-pass estimates. At 1,000 underlying items, the actual scored inputs may be 3,000+, before configurations.
+
+### 2. Falsifiable and respectful of the NL wall?
+
+**Cheap: yes. Decisive: no. NL discipline: mostly, with one governance conflict.**
+
+KA-1–KA-5 are good regression/plumbing tests, but KA-2 is nearly true by construction: on the legacy verticals, PARSE is declared the only boundary-crossing fallible stage, and the harness directly replaces it with gold. That cannot validate the protocol’s difficult claim—localising correlated errors and interactions across multiple fallible stages.
+
+A decisive cheap falsifier should add a synthetic known-answer pipeline with:
+
+- independently injected faults in at least two stages;
+- one pure interaction requiring two repairs;
+- one harmless artifact divergence;
+- one downstream stage whose apparent error is caused upstream;
+- known dangerous-wrong events;
+- a no-effect oracle splice.
+
+The design also handles oracle labels and isolation well ([ORACLE §5](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/ORACLE.md:270>)). However, allowing FULL-REAL runs before NLB clearance by inventing a new `boundary-diagnostic` exemption conflicts with the current programme rule: every natural-input store-touching leg is NLB-blocked or oracle-labelled ([programme lines 194–201](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:194>)). The current explicit exemptions name NLB, G1, and oracle G2—not this new FULL-REAL class ([programme lines 881–889](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:881>)).
+
+That exemption needs coordinator ratification as a programme/ASM amendment. The design cannot grant it to itself.
+
+### 3. Technical errors and practical gaps
+
+The central error is in the attribution target.
+
+The gate consumes survival of the **mechanism effect**:
+
+`γ(c) = M(S,c) − M(C,c)`
+
+But the splice ladder decomposes only raw system performance `M(S,c)`, while running the ladder on control C is optional ([ORACLE §7.2](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/ORACLE.md:365>)). Therefore it cannot tell whether σ fell because S degraded, C improved, or both. It diagnoses S’s pipeline, but does not decompose the G2→G3 gain used by K-P3v2(5).
+
+The ladder must either:
+
+- run S and C under every mandatory splice and decompose `γ(c)`; or
+- narrow its claim to “system endpoint degradation,” explicitly separate from σ attribution.
+
+Other technical errors:
+
+- **Wrong confidence-bound direction:** KA-4 requires the dangerous-wrong **LB** below 0.02 ([line 479](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/ORACLE.md:477>)). Establishing ≤2% requires the one-sided **UCB** below 0.02. An LB below 0.02 proves essentially nothing.
+- **Incompatible shakedown sample:** l3a FULL-ORACLE on the 527-item in-scope NL slice cannot reproduce “600/600” as written ([lines 466–467](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/ORACLE.md:466>)). The correct paired ceiling is 527/527; 600/600 is the larger parent formal slice.
+- **FULL-ORACLE is not consistently G2:** H-PS puts RENDER in B(F), although G2 is described as oracle-through-PARSE with downstream stages real. Oracle-rendering therefore raises the system beyond the registered G2 anchor. `M(FULL-ORACLE)−M(FULL-REAL)` is then not the G2→G3 loss.
+- **USE residual is not identified:** `M_ceiling−M(FULL-ORACLE)` cannot automatically be assigned to USE. It can include irreducible task error, label ambiguity, capacity, renderer/executor error, or a poorly chosen preregistered ceiling.
+- **Interaction statistic is incomplete:** `I(j)=Δprefix(j)−Δrepair(j)` measures the effect of conditioning on the entire upstream prefix, not a general interaction decomposition. It cannot identify which upstream stage interacts, and `I(1)=0` by construction. A small maximum I does not establish additivity.
+- **Power claim is unsupported:** n≈500–1000 is not generally sufficient for a paired 0.05 effect; required n depends strongly on discordant-pair probability and endpoint type. McNemar does not cover graph F1 or other continuous endpoints.
+- **Stochastic hierarchy is underspecified:** K phrasings are nested within items, and LM seeds/prompts may add levels. The bootstrap must resample at the item cluster and include registered seed variability. “Seed-pinned endpoint-exact” reproducibility is also unrealistic on nondeterministic GPU kernels without deterministic-kernel enforcement.
+- **KA-3 has no actual tolerance:** “within pre-registered tolerance” leaves the decisive bar to the later preregistration.
+
+### 4. KOT-FAIR/2 and resources
+
+The proposed G4 attribution annex is a sensible slot, and the design correctly keeps oracle numbers out of W1. But KOT-DECOMP/1 must be described as **supplementing**, not satisfying, KOT-FAIR/2’s separate six-way factorial attribution and generic-RAG controls ([programme §2.2–§2.3](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:469>)).
+
+Resource accounting is incomplete:
+
+- actual CPU/GPU hours for all splice runs should enter the tuning/development audit trail;
+- oracle authoring, dual annotation, adjudication, and phrasing production must enter KOT-LIFE/1;
+- K≥3 phrasing expansion and 1–2B reruns need explicit budgets;
+- cached work should be measured, not assumed;
+- any G4 FULL-REAL result still needs the complete KOT-COST/2 warm/cold resource vector—not just `cost_us|tokens`.
+
+## Three most important concerns, ranked
+
+1. **The wrong quantity is decomposed.** Raw S performance is not the G2→G3 mechanism-effect survival σ; the control ladder must be mandatory.
+2. **The falsifier is largely tautological and does not test multi-stage causal attribution.** Add a synthetic factorial fault-injection shakedown before trusting the instrument.
+3. **The design overreaches programme governance and underaccounts resources.** FULL-REAL pre-NLB exemption requires explicit ratification; oracle-authoring and full-scale run costs must enter KOT-LIFE/KOT-COST.
+
+**Maintainer call: revise before commit-freeze. Do not yet create/drive P3-E-ORACLE-0 as currently specified.** After correcting the estimand, adding the multi-stage known-answer test, fixing the statistical errors, and ratifying the NLB exemption, the design is sound enough to commit and implement.

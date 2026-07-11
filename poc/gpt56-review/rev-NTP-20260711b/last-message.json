@@ -1,0 +1,76 @@
+## Verdict
+
+Do not commit this as the final P3-LR-NTP deliverable yet. It is a strong draft with a largely real bibliography and several useful design controls, but its central accounting and uncertainty claims are too confident for a decision-grade Phase-0 review.
+
+I found no obviously fabricated paper among the 53 entries. Most spot-checked titles, identifiers, and headline numbers are real. The problem is characterization: `verified:true` often means “a primary page was fetched,” not that the detailed claim, ablation, or resource comparison was independently verified. [NTP.sources.jsonl](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.sources.jsonl) therefore overstates its evidence status.
+
+## Three most important concerns, ranked
+
+1. **“Matched” and “same budget” are used incorrectly.**
+
+   The executive verdict treats equal `pass@32` as equal compute ([NTP.md:48](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.md:48)). It is not. Equal sample count does not equal equal tokens, active parameters, accelerator work, latency, search overhead, or energy. Goedel and Pythagoras really do report 8B/4B beating DeepSeek-Prover-V2-671B at `pass@32`, but this establishes parameter efficiency under a common metric—not matched total compute. [Goedel-Prover-V2](https://arxiv.org/abs/2508.03613), [Pythagoras-Prover](https://arxiv.org/abs/2606.12594).
+
+   This is especially misleading because the 671B comparator is an MoE-derived system: quoting total parameters as an 80×/167× inference advantage is not an active-compute comparison.
+
+   Likewise, ReProver retrieval, PACT co-training, Thor’s hammer, and Goedel self-correction are controlled ablations, but not demonstrated resource-matched wins merely because the base model or `k` is shared ([NTP.md:109](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.md:109)). Retrieval, extra training objectives, compiler retries, and ATP calls add costs. Only the Polu expert-iteration result explicitly claims same-compute superiority in its abstract. [Formal Mathematics Statement Curriculum Learning](https://arxiv.org/abs/2202.01344).
+
+   This directly conflicts with the GPT-5.6 review’s resource-vector requirement and Programme-3’s own rule that no scalar/FLOP diagnostic alone licenses “compute-matched” ([programme-3:337](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:337)).
+
+2. **The review turns scoped evidence into overly broad field laws and closures.**
+
+   The dichotomy “sound-checker loops fail by plateau; learned-verifier loops fail by decay” ([NTP.md:143](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.md:143)) is memorable but too categorical. STP identifies scarcity of correct proofs on a fixed statement supply as one plateau mechanism; it does not establish statement supply as the universal binding constraint. Exploration quality, model capacity, proof representation, search policy, formal-library coverage, and training stability can also bind.
+
+   “False positives are impossible” is only true for validity relative to a checker’s formal statement, axioms, implementation, and trusted kernel. It does not protect against wrong formalization—the programme’s main measured NL failure.
+
+   Similarly, differentiable logic is reasonably low-priority, but this review has not established a field-wide negative matched-baseline record sufficient to “close” the architecture. CTP reports SOTA on CLUTRR, not a resource-matched experiment; Logic-LM is not evidence that the differentiable-logic lineage “abandoned” in-loss reasoning. These are separate, coexisting research lines. The defensible decision is “do not prioritize in Phase 1 absent stronger evidence,” not “uncertainty closed.”
+
+3. **The hand-off assumes KOT-specific transfer that the literature does not establish.**
+
+   The review usefully preserves the NL/coverage caveat, but still moves too quickly from Lean/Metamath/geometry systems to KOT design specifics. KOT’s µs query executor has not yet been shown to expose the proof states, legal-action sets, compiler-style diagnostics, or search transitions required by the cited training recipes. Cheap checking is not automatically cheap trace generation, conjecture generation, proof search, tokenization, storage, or training.
+
+   In particular, declaring H-RULE-CD’s “novelty claim safe” ([NTP.md:430](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.md:430)) is premature while P3-LR-RULE—the review explicitly tasked with executor-backed constrained decoding—is still pending. Execution-guided partial-program decoding is already acknowledged elsewhere. This review can say “no precedent found in this search,” not “no precedent exists.”
+
+## Factual and citation errors
+
+- **miniF2F-v2 direction is wrong.** The review says the corrected benchmark “drops end-to-end accuracy to 70%” ([NTP.md:134](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.md:134)). The paper reports roughly 36–40% on the original end-to-end pipeline and an improvement to 70% after correction. The correction exposes severe original misalignment, but 70% is an increase, not a drop. [miniF2F-Lean Revisited](https://arxiv.org/abs/2511.03108).
+
+- **`pass@32 budget` is mislabeled as compute.** It is a shared sample count/metric only. The document itself later says wall-clock must also be pinned, making the executive statement internally inconsistent.
+
+- **“Matched” overlabels four of the five listed wins.** ReProver, PACT, Thor, and Goedel are useful component ablations; the cited pages do not establish equality on Programme-3’s accelerator/CPU/I/O/energy/latency resource vector.
+
+- **The 671B ratios need an MoE qualification.** Total-parameter ratios are real as paper-reported marketing comparisons, but they should not be presented as compute ratios or evidence that parameters are non-binding.
+
+- **“Checker latency was never the binding constraint” is unverified.** No cited cross-system latency study establishes the asserted “10 ms–seconds” range or that every published cost ceiling lies only in proposal/search ([NTP.md:153](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/NTP.md:153)). Label this a hypothesis/inference, not `[MEASURED across cited systems]`.
+
+- **“A µs engine makes trace generation effectively free at any curriculum size” is false as written.** Engine execution may be negligible, but generator sampling, search, trace serialization, deduplication, storage, training-token processing, and validation still scale.
+
+- **“Sound engine strictly strengthens” STaR’s answer filter is not a strict dominance result.** It improves formal validity precision on covered statements while sacrificing coverage and remaining vulnerable to specification/formalization error.
+
+- **The AlphaGeometry and AlphaProof figures checked out.** AlphaGeometry used beam 512, four GPU workers and a shared pool of 10,000 CPU solver workers; AlphaProof reports about 80,000 TPU-days for RL plus 100,000 for auto-formalization. [AlphaGeometry](https://www.nature.com/articles/s41586-023-06747-5), [AlphaProof](https://www.nature.com/articles/s41586-025-09833-y).
+
+- **Discrete NAR is accurately summarized at abstract level**, including perfect reported test scores and conditional correctness proofs, but its closed-task/state-supervision scope must remain prominent. [Discrete NAR](https://proceedings.mlr.press/v267/rodionov25a.html).
+
+## Phase-1 de-risking assessment
+
+The review does add valuable controls:
+
+- within-problem distribution shifts, depth extrapolation, and multiple seeds;
+- explicit separation of formal-input results from the NL boundary;
+- `pass@k` pinning;
+- staged verifier-loop variants;
+- statement-supply measurement;
+- emulation-versus-execution soundness accounting.
+
+But it does not yet close the key Phase-1 uncertainties. The design beads should additionally require:
+
+- an oracle/API gate proving that KOT can emit the states, actions, traces, diagnostics, and continuation sets each proposed arm needs;
+- full resource-vector accounting for every ablation, not merely equal model size or `pass@k`;
+- factorial separation of synthetic curriculum, proof traces, checker filtering, retry feedback, and hard state interfaces;
+- formalization/specification-error accounting distinct from checker validity;
+- “no precedent found” language until P3-LR-RULE and P3-LR-PARSE complete their adjacent searches.
+
+## Recommendation
+
+Return for a narrow revision, not a rewrite. Correct the miniF2F-v2 error, downgrade the “matched” ledger, replace equal-`pass@32` compute language, qualify the MoE comparison, remove universal latency/plateau/free-generation claims, and change architecture “closures” and novelty claims into scoped Phase-1 prioritization decisions.
+
+After those changes, it would be sound to commit as P3-LR-NTP. In its present form, it is not sufficiently reliable as the final decision record.

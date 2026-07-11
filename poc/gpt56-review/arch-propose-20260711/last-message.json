@@ -1,0 +1,213 @@
+The programme should treat the symbolic stack as an untrusted, selectively invoked coprocessor—not as a universal replacement for neural reasoning. The evidence supports exact execution after formalization, but not reliable formalization or broad coverage: 47.6%/41.6% NL retention, 5% dangerous-wrong in one vertical, and near-zero external coverage in several censuses. Conversely, the formal verifier-offload result is strong enough to justify architectures that aggressively exploit exactness after the boundary has been crossed.
+
+All natural-input proposals below include the parser, retriever, abstention policy, and renderer inside the measured system. Oracle-addressed versions are diagnostic only. The primary gate remains ≥0.90 retention with the S2 dangerous-wrong bound, followed by KOT-FAIR/2 comparison against dense, adaptive-compute, learned-verifier, and matched generic-RAG frontiers. See [programme design](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md), [evidence synthesis](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/feasibility-synthesis.md), [PARSE](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/PARSE.md), [RAG](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/RAG.md), and [EVAL](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/EVAL.md).
+
+Cost estimates assume int8 weights: roughly 0.15–0.25 GB for a 135M host, 0.4–0.7 GB for 360M, and 1.8–2.5 GB for 1.7B, before runtime memory.
+
+# 1. Kernel architectures
+
+## K1. Proof-Carrying Relational Microkernel
+
+**Mechanism.** Represent every concept, relation, and rule as a typed Datalog-like clause with explicit polarity, argument roles, provenance, and validity interval. Compile clauses into indexed joins and small decision diagrams. Every query returns one of `{proved, disproved, unknown, conflict}` plus a minimal proof certificate. A tiny certificate VM independently replays the proof. Symbolic components are the clause store, join engine, and VM; neural components appear only upstream as proposers of clauses or queries.
+
+**Hypothesis.** At a fixed budget, exact proof replay and four-valued answers improve factual precision, multi-hop relational generalization, conflict detection, and calibrated abstention. The advantage should increase with proof depth because the neural baseline accumulates errors while deterministic joins do not. This is a shrinking architecture if a 135M–360M host plus microkernel preserves the covered-slice performance of a 1–2B model.
+
+**NL wall.** Natural text enters through the two-tier NLB parser proposed by the PARSE review: deterministic template/trie fast path; 110M–360M learned intent/slot or seq2seq fallback; exact grammar decoding; inverse-role tests; frozen risk–coverage threshold. Uncertain parses become `unknown` or clarification requests. Oracle logical forms are allowed only at G2.
+
+**Size and cost.** Approximately 5–100 MB for rules, indices, provenance, and VM at early scale; typically microseconds to low milliseconds per covered query, with cost growing with join fan-out. The learned parser is the expensive component: another 0.15–0.5 GB if not shared with the host, and several milliseconds to tens of milliseconds. Proof certificates add bytes but can replace long retrieved contexts.
+
+**Cheapest falsifier.** On procedurally generated D4 tasks, provide gold logical forms and sweep proof depth 1–12. Compare the microkernel against equal-information text prompting and a generic Datalog store. Kill the depth-generalization hypothesis if it does not increasingly outperform both as depth rises, or if generic Datalog matches it completely.
+
+**Novelty and risk.** Datalog, theorem provers, provenance semirings, and certificate checking are known. The novel claim is that tiny, replayable certificates are a better LM interface than either passages or full proof traces under deployment-resource accounting. Biggest risk: coverage is too small for even perfect proofs to move the normalized index.
+
+---
+
+## K2. Bidirectional Contract Compiler
+
+**Mechanism.** Define each relation as a bidirectional contract: forward operator, inverse operator, argument-role schema, admissible paraphrase families, and metamorphic tests. Queries compile into a small typed intermediate representation. Before execution, the kernel automatically generates the inverse query and contrastive alternatives; a parse is accepted only if role binding remains consistent across these transformations. This directly targets the measured `ROLE_DIR` failure.
+
+**Hypothesis.** Independent bidirectional checks should sharply reduce confident valid-but-wrong parses—the failure that ordinary grammar checking and successful execution cannot detect. Its advantage is therefore calibrated factual precision and safe coverage, not raw recall. If the checks are cheap enough, the system may achieve a better accuracy–abstention–latency frontier than a larger learned verifier.
+
+**NL wall.** A learned parser proposes a typed contract instance, but it is never trusted directly. Acceptance requires type validity, forward/inverse consistency, both-orientation contrastive tests, and confidence calibration on disjoint phrasing sources. Ambiguous cases abstain. This is a genuine parser path, not oracle-only.
+
+**Size and cost.** Likely below 20 MB for schemas, inverse tables, test generators, and indices. Each accepted query needs two to four microsecond-level executions. The parser still dominates latency. Compared with a generic neural parser, the kernel is slightly dearer in CPU but may save retries and dangerous outputs.
+
+**Cheapest falsifier.** Repair the known deterministic direction table, enumerate every directional frame in both orientations, and create paraphrase-diverse adversarial pairs. Compare parser confidence alone against confidence plus bidirectional contracts. Kill if S2 does not fall materially at matched ≥0.90 retention, or if the checks merely convert correct answers into abstentions without separating inversions.
+
+**Novelty and risk.** Related to relational lenses, metamorphic testing, type-directed synthesis, and contrastive semantic parsing. The programme-specific novelty is making inverse consistency a mandatory runtime safety contract and measuring it on the risk–coverage curve. Biggest risk: the parser can produce mutually consistent but jointly wrong forward/inverse interpretations.
+
+---
+
+## K3. Abstract-Interpretation Claim Firewall
+
+**Mechanism.** Instead of trying to answer whole questions, the kernel verifies atomic claims embedded in candidate responses. Compile kernel/world facts into abstract domains such as membership sets, intervals, reachability summaries, type lattices, and temporal constraints. During decoding or post-generation, decompose an answer into claims and classify each as `must-hold`, `may-hold`, `contradiction`, or `out-of-domain`. Only contradictions trigger rejection; `may` and out-of-domain claims remain explicitly unverified.
+
+**Hypothesis.** Partial verification has a larger coverage ceiling than complete question execution because a response may contain kernel-checkable subclaims even when the whole task is not expressible. It should improve hallucination precision and calibrated attribution without requiring complete formalization, potentially yielding more index movement from the current sparse store.
+
+**NL wall.** A neural claim extractor maps spans into typed predicates with offsets. High-confidence contradictions require agreement from two structurally different extractors or deterministic pattern rules plus type checks. Otherwise the firewall labels the claim unverified rather than rejecting it. An oracle claim segmentation arm establishes the G2 ceiling.
+
+**Size and cost.** Approximately 10–200 MB depending on precomputed reachability and set indices. Claim extraction can reuse the main LM or use a 50M–150M tagger. Abstract checks are microseconds to milliseconds; decomposition adds one tagging pass. It is probably dearer than unconstrained generation but cheaper than multi-sample verifier search.
+
+**Cheapest falsifier.** On an existing benchmark slice, manually annotate atomic claims for 200 responses and compute the oracle-extractor maximum gain. If even perfect claim extraction cannot reach the registered margin, kill it at G1. If the oracle ceiling survives, test whether the real extractor retains enough contradiction precision to beat a same-size learned NLI verifier.
+
+**Novelty and risk.** Abstract interpretation and claim-level factuality checking are established separately. The novel combination is a sound but deliberately incomplete abstract interpreter used as a generation firewall, with explicit `unverified` provenance. Biggest risk: NL claim decomposition recreates the boundary problem at finer granularity and may offer no coverage advantage.
+
+# 2. World-model architectures
+
+## W1. Bitemporal Provenance Hypergraph
+
+**Mechanism.** Store entities, events, concepts, and n-ary relations as typed hyperedges. Every assertion has source span, extraction method, confidence class, valid-time, transaction-time, and contradiction links. Kernel axioms occupy a privileged but not unchallengeable layer; ordinary passages and extracted triples remain attached as evidence. Query execution retrieves a compact subgraph plus the original supporting spans.
+
+**Hypothesis.** Explicit n-ary roles, time, and contradiction structure should beat passage RAG on temporally sensitive and multi-hop factual tasks, while evidence spans prevent the graph from becoming an unsupported answer key. The likely capability gains are factual precision, contradiction awareness, and relational composition.
+
+**NL wall.** Natural queries use hybrid retrieval: BM25/dense passage retrieval produces candidate entities and spans; a learned linker maps only those candidates into graph nodes; contract checks validate roles. If linking is uncertain, the system falls back to passage RAG rather than inventing an address. Gold subgraphs are G2 diagnostics only.
+
+**Size and cost.** Early world: 0.1–2 GB including passage text, hypergraph, embeddings, and provenance. Graph-only storage may be compact, but honest accounting must include the source snapshot and extraction/build cost. Query cost is one lexical/dense retrieval plus graph expansion, likely 5–50 ms CPU before LM inference.
+
+**Cheapest falsifier.** Build a 10k-document snapshot with identical source content in passage-RAG and hypergraph arms. Evaluate single-hop, temporal conflict, and 2–6-hop generated queries while separately measuring retrieval recall and answer accuracy. Kill if the graph never wins outside oracle retrieval, or if its gain disappears against an aligned generic hypergraph.
+
+**Novelty and risk.** Temporal KGs, provenance graphs, GraphRAG, and KILT-style provenance scoring are known. The distinctive feature is the joint typed-kernel/evidence hypergraph with contradiction and bitemporal semantics under strict source-parity accounting. Biggest risk: graph construction errors and lifecycle cost dominate any query-time benefit.
+
+---
+
+## W2. Compiled Path-and-View World
+
+**Mechanism.** Treat the world model as a database workload rather than a general KG. Mine a bounded family of recurrent relational query plans from training-only traffic: path automata, joins, transitive closures, inverse relations, and aggregation views. Compile frequent plans into materialized bitmaps or finite-state transducers; retain a generic slow path for rare queries. Each view maps back to source facts and a proof recipe.
+
+**Hypothesis.** Small models are especially poor at repeatedly reconstructing the same joins from text. Compiled views trade modest disk space for near-constant-time exact relational answers, improving reasoning depth and p95 latency. Adaptive view selection could beat both dense RAG and graph traversal at the same byte budget.
+
+**NL wall.** The parser selects a view template and binds typed slots. Selection is grammar-constrained and checked with bidirectional contracts. Queries not confidently assigned to a view fall back to baseline RAG. Oracle view selection isolates whether compilation itself helps.
+
+**Size and cost.** Approximately 20–500 MB depending on view count and bitmap density. Hot views answer in microseconds; cold generic paths take milliseconds. Build cost can be significant but is deterministic and measurable. It should be cheaper per query than GNN fusion or iterative RAG.
+
+**Cheapest falsifier.** On CLUTRR-like procedural graphs and one code/world corpus, compare materialized views, generic graph search, and passage RAG under equal bytes. Sweep query frequency and depth. Kill if no realistic workload distribution amortizes view construction or if the host LM already handles the repeated query families at equal cost.
+
+**Novelty and risk.** Database materialized views, regular path queries, and adaptive indexing are old art. The new bet is that they form a deployment-optimal “world model” for tiny LMs, replacing general learned graph encoders on recurrent reasoning patterns. Biggest risk: benchmark queries are too diverse for view reuse, making this an overfit cache.
+
+---
+
+## W3. Counterfactual Evidence Mesh
+
+**Mechanism.** For every supported assertion, store not only positive evidence but a locally generated contrast set: inverse relation, negated claim, swapped arguments, temporally invalid version, and nearest confusable entity. Link these alternatives into small evidence meshes. Retrieval returns the candidate fact and its strongest counterfactual competitors; the kernel eliminates alternatives using exact constraints where possible.
+
+**Hypothesis.** Most RAG systems retrieve confirming passages but do not represent nearby plausible errors. Supplying structured counterevidence should improve role binding, factual precision, and calibration, especially for small models whose errors are dominated by confusable alternatives. It may shrink inference search because one contrast set replaces multiple sampled answers.
+
+**NL wall.** Dense/BM25 retrieval identifies a source assertion; a neural linker proposes mesh nodes. The system answers only when the chosen assertion separates from its counterfactuals by both retrieval margin and kernel contract checks. Otherwise it abstains or returns alternatives. The contrast generator itself is deterministic after schema assignment.
+
+**Size and cost.** Roughly 1.5–4× the assertion index, but counterfactuals are compact IDs and deltas rather than duplicated text. A 100 MB base graph might become 150–300 MB. Query latency adds several bitmap/look-up operations and one rerank over perhaps 4–16 alternatives.
+
+**Cheapest falsifier.** Add counterfactual meshes only to the existing directional relations and evaluate adversarial argument swaps. Compare with ordinary hard-negative training and a cross-encoder reranker. Kill if meshes do not reduce high-confidence role errors beyond the generic hard-negative baseline.
+
+**Novelty and risk.** Contrastive retrieval and hard negatives are known; explicit executable counterfactual neighborhoods with provenance are less standard. Biggest risk: generated alternatives are too easy or too synthetic, producing robustness only to the generator’s own error taxonomy.
+
+# 3. Neurosymbolic AI architectures
+
+## M1. Selective Canonicalizer–Executor–Renderer
+
+**Mechanism.** A two-tier front end maps NL to a canonical utterance and then to the kernel DSL. A 110M–360M parser proposes several programs under exact grammar constraints; bidirectional contracts and execution-aware selection reject invalid or role-inconsistent candidates. The deterministic kernel executes the selected program. A constrained renderer converts the typed result into an answer, with entity/value spans copied directly and only connective language generated.
+
+**Hypothesis.** This directly attacks the measured bottleneck. Canonical utterances absorb paraphrase variation where LMs are strongest; the DSL supplies compositional structure; deterministic execution supplies depth-independent correctness; slot-copy rendering prevents checked results from being corrupted. The expected win is on D4 relational reasoning and factual precision, with competitive performance from a much smaller host.
+
+**NL wall.** This is the boundary architecture itself. It uses paraphrase-diverse supervision, grammar-constrained decoding, deterministic direction repair, inverse tests, split-source calibration, and a frozen abstention threshold. It must clear ≥0.90 retention and S2 before any W1 attempt.
+
+**Size and cost.** A shared 135M–360M LM can serve as parser and renderer, adding only 5–50 MB of adapters/grammar assets; alternatively a separate parser doubles neural bytes. Generate 2–8 short DSL candidates rather than full natural-language chains, then execute in microseconds. Likely dearer than one-pass 135M inference but cheaper than adaptive best-of-N with a learned verifier.
+
+**Cheapest falsifier.** Fine-tune a 110M–220M parser on the two existing verticals with K>1 disjoint-source paraphrases. Freeze the risk threshold and test retention/S2 plus renderer exactness. The candidate dies immediately if no threshold reaches both ≥0.90 retention and the S2 bound.
+
+**Novelty and risk.** PICARD, canonical semantic parsing, execution-guided decoding, and conformal/selective prediction are known. The distinctive contribution is their safety-critical composition with inverse contracts and a copy-constrained renderer at tiny scale. Biggest risk: systematic direction errors remain high-confidence and defeat calibration.
+
+---
+
+## M2. Symbolic Speculative Decoding
+
+**Mechanism.** A small LM drafts an answer or proof trace. In parallel, the kernel compiles the current formal state into allowed next actions, forbidden claims, or typed slot values. The draft is accepted in blocks while it remains compatible; at a violation, decoding rolls back to the last valid boundary, masks invalid continuations, and resumes. On uncovered spans the model decodes normally but marks them unverified.
+
+**Hypothesis.** This moves verification inside generation without teaching the LM all rules. It should reduce wasted full-answer retries and p95 variance relative to H-VL, while preserving deterministic precision on covered spans. The advantage should be strongest on long structured outputs and code/tool calls.
+
+**NL wall.** For open natural questions, a selective parser first identifies only the spans or subgoals for which a formal state can be constructed. No symbolic masks are applied when addressing is uncertain. For code/tool grammars, the formal state can arise directly from syntax; for general NL the candidate remains NLB-gated.
+
+**Size and cost.** No additional large weights; typically 1–20 MB of decoding integration. Symbolic state updates occur per constrained token, increasing CPU interaction and potentially hurting GPU batching. It should use fewer generated tokens than retry loops, but may have worse inter-token latency.
+
+**Cheapest falsifier.** On formal/oracle inputs, compare symbolic speculative decoding with: unrestricted decoding, grammar-only decoding, and full-answer verify-retry. Match output tokens and resource vectors. Kill if it cannot reduce either error, total generated tokens, or p95 latency relative to verify-retry.
+
+**Novelty and risk.** Grammar-constrained and speculative decoding are established; semantic state-dependent speculative acceptance with proof provenance is the novel seam. Biggest risk: CPU/GPU synchronization destroys throughput, so the theoretically cheaper loop loses under KOT-COST/2.
+
+---
+
+## M3. Routed Symbolic-Expert MoE
+
+**Mechanism.** Add a small router to a 100M–500M transformer. At selected layers, tokens can invoke one of three experts: normal neural MLP, graph-query expert, or deterministic rule expert. The symbolic experts consume typed evidence capsules and return fixed-width residual updates plus a certificate ID. Training uses synthetic curricula with increasing relation depth, proof-trace distillation, and a sparsity penalty so symbolic experts activate only when useful.
+
+**Hypothesis.** Conditional symbolic computation could replace neural capacity dedicated to memorized relations while leaving linguistic competence intact. If routing generalizes, it should improve held-out rule compositions and proof depths with little average FLOP increase, enabling a smaller dense backbone to match a larger model.
+
+**NL wall.** The router may not invent symbolic addresses. Candidate addresses come from the selective NLB parser/retriever; uncertified addresses disable the symbolic experts. G2 uses gold capsules; G3 measures the exact loss from learned addressing. Router confidence is not a substitute for NLB clearance.
+
+**Size and cost.** Router and bridges: approximately 5–30M parameters, or 5–60 MB quantized. Symbolic calls add microseconds to milliseconds only on routed tokens. Training is dearer than inference because it needs interface-present twins and proof curricula. Average inference may remain near the dense backbone if activation is sparse.
+
+**Cheapest falsifier.** Train 10M–30M models at three widths on generated D4 tasks with oracle capsules. Compare plain twins, text-evidence twins, and symbolic-expert twins on held-out compositions/depths. Kill if the interface effect is flat-negative or shrinks monotonically toward zero, or if shuffled certificates perform equally.
+
+**Novelty and risk.** Tool-routing, MoE, neural module networks, and differentiable logic are known. The novel claim is a certificate-carrying deterministic expert embedded as conditional compute and evaluated across width for scaling direction. Biggest risk: the network ignores the expert, matching the programme’s existing “delivery without use” result.
+
+# Cross-cutting representation: Typed Evidence Capsules
+
+Use one representation at all three levels:
+
+```text
+capsule_id
+canonical predicate + typed arguments
+polarity / modality / valid-time
+source-span hashes and provenance
+aliases in each language
+inverse and counterfactual capsule IDs
+executable contract or proof recipe
+abstract-domain summary
+confidence class: asserted / extracted / disputed
+certificate hash
+```
+
+A capsule is simultaneously:
+
+- a kernel instruction and proof object;
+- a world-model node or hyperedge;
+- a retrievable unit;
+- a compact LM input token sequence or KV record;
+- a cache key for compiled views;
+- an audit unit for derangement and aligned-non-kernel controls.
+
+This makes the representation ablatable without changing the source information: passage text, generic triples, capsules without executable contracts, and full capsules can be derived from the same frozen source snapshot.
+
+A particularly valuable extension is multilingual capsule IDs. Natural-language aliases map to one shared ID, while the LM consumes a short code or learned token. That is the cleanest way to test the observed 18–42% cross-lingual membership upper bound: measure whether aliases can actually be mapped and whether one-token capsule delivery preserves task accuracy. Until that consumption experiment passes, the compression figure remains only an upper bound.
+
+# Portfolio I would run first
+
+## 1. K2 + M1: Bidirectional contracts with the selective canonicalizer
+
+**Why first:** It attacks the central measured failure directly, uses the literature’s strongest small-scale recipe, and can die for under roughly one parser fine-tune. It also fixes the known deterministic direction defect before adding neural complexity.
+
+**Deciding experiment:** Can a ≤220M grammar-constrained parser plus inverse checks reach ≥0.90 retention and S2 ≤2% on disjoint-source paraphrases in both existing verticals?
+
+## 2. K3: Claim-firewall oracle ceiling
+
+**Why second:** It may escape the whole-query coverage wall, and its first test needs annotation rather than training. It gives an immediate upper bound on whether partial verification can move the index.
+
+**Deciding experiment:** With gold claim extraction on 200–500 real model answers, is the normalized-index gain ceiling above δ₁ and materially higher than whole-query coverage?
+
+## 3. M2: Symbolic speculative decoding versus verify-retry
+
+**Why third:** It builds directly on the only audited efficiency sign and has no large training requirement. It can determine whether tighter integration buys anything beyond the external loop.
+
+**Deciding experiment:** On the existing formal slice, does stateful speculative acceptance dominate fixed-k verify-retry on covered accuracy, generated tokens, p95 latency, or energy?
+
+## 4. W2: Compiled path-and-view world
+
+**Why fourth:** It is a cheap, non-neural test of whether the useful “world model” is really a general graph or simply a compiled relational workload. A positive result could be both smaller and faster than GNN fusion.
+
+**Deciding experiment:** At equal bytes, does a materialized-view store develop an increasing advantage over graph traversal and passage RAG as proof depth and query reuse rise?
+
+## 5. M3 + W1: Routed symbolic expert over a provenance hypergraph
+
+**Why fifth:** This is the highest-upside architectural bet, but it should wait for an oracle-interface result because integration has already failed once despite successful delivery.
+
+**Deciding experiment:** Across three tiny widths, does an oracle-addressed symbolic expert show a positive and increasing advantage on held-out compositions over text evidence, shuffled graphs, and plain twins?
+
+The main portfolio discipline is: run G1 coverage ceilings before mechanism work; run G2 with oracle addresses before training an NL interface for a mechanism that may not help; and never promote an oracle result to a system claim. If the NLB redesign fails its joint retention/S2 gate after the registered cycles, the realistic surviving programme is narrower: formal code/tool interfaces, internal verification instruments, and compression diagnostics—not a natural-language neurosymbolic competitor.

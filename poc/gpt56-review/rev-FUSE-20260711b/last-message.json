@@ -1,0 +1,54 @@
+## Verdict
+
+**Not sound to commit as `P3-LR-FUSE` yet.** The review has a strong experimental-control hand-off, but several load-bearing attribution claims are wrong or stronger than their sources support. Commit after a focused correction pass; otherwise label it draft.
+
+I found no clearly hallucinated paper among the spot-checked sources. The main problem is characterisation and evidence accounting, not source existence.
+
+## Three most important concerns, ranked
+
+1. **Structure causality is repeatedly overstated.**
+
+   G-Retriever’s WebQSP ablation shows that removing the graph encoder lowers Hit@1 from 70.49 to 54.62, while removing textualised graph input lowers it to 56.96. That establishes component contribution, not causal use of topology: the encoder also processes textual node/edge attributes, and no edge/label shuffle occurs in this ablation. Calling it the “strongest causal fragment,” saying “both channels causal,” or using it to support non-redundant *structural* load is too strong. [The primary paper describes these as complementary representation components](https://proceedings.neurips.cc/paper_files/paper/2024/file/efaf1c9726648c8ba363a5c927440529-Paper-Conference.pdf).
+
+   Likewise, Deceive-KG used learned/heuristic targeted perturbations. It did not run the programme’s proposed uniform shuffled-edge control, nor test GreaseLM/DRAGON as an entire lineage. “The shuffled-KG control can PASS,” “exactly this model class,” and “un-attributes the wins in this whole lineage” are unjustified generalisations. The paper supports the narrower conclusion that some earlier KG-augmented QA/recommendation models retained performance under substantial targeted semantic/structural perturbation. [ICLR paper](https://openreview.net/pdf?id=b7g3_ZMHnT0).
+
+2. **The numeric “win” audit conflates baselines and units.**
+
+   The most concrete error is [FUSE.md §4](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/FUSE.md:278): GraphToken’s “up to 73pp” is asserted to be against serialised-graph prompting. The paper’s abstract reports the 73-point headline but does not identify that specific baseline. More importantly, the repository’s own prior spot-audit already marked the GraphToken record `SPOT-REFUTED` for assigning the headline to an unsupported baseline. [GraphToken abstract](https://arxiv.org/abs/2402.05862).
+
+   The “+13 to +48 pts” synthesis also mixes relative percentages with percentage points:
+
+   - GNP reports approximately **+13.5% relative** over prompt tuning; its aggregate accuracies are 68.55→77.84 for 11B and 65.95→74.36 for 3B—about +9.3 and +8.4 points, respectively. [GNP Table 1](https://arxiv.org/html/2309.15427).
+   - G-Retriever’s reported 28.23–47.77% values are relative improvements. The absolute changes are 17.9–27.5 accuracy points and 22.15 Hit@1 points. [G-Retriever Table 3](https://proceedings.neurips.cc/paper_files/paper/2024/file/efaf1c9726648c8ba363a5c927440529-Paper-Conference.pdf).
+
+   These errors do not reverse the high-level conclusion that wins shrink under stronger adaptation, but they make the claimed audit insufficiently reliable.
+
+3. **The closure and Phase-1 hand-off overreach the search.**
+
+   The document correctly says this is “not a systematic search,” then closes with “the sweep is confirmed novel,” “no prior exists,” and “no other missing H-* family surfaced.” A 26-source purposive survey with no search strings, databases, inclusion criteria, backward/forward-citation procedure, or cutoff cannot establish any of those negative claims.
+
+   The proposed H-GNN-RET hand-off is also over-sold. [FUSE.md §8](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/lit/FUSE.md:408) says text-crossing retrieval “inherits none of the GTEval/nsk1 integration risk.” It avoids the graph-token-specific risk, but absolutely retains the nsk1 risk: the programme’s own evidence says text-delivered grounding was net harmful. “Cheapest family member” is likewise unmeasured, and deterministic path extraction is no longer a GNN design; it belongs primarily under RAG/tool/executor controls.
+
+## Other factual/citation issues
+
+- `verified: true` in the JSONL appears to mean “fetched,” not “claim independently verified.” That is misleading for an evidence ledger. It lacks table/page anchors, source-version dates, and separate statuses for bibliographic verification, claim verification, venue verification, and secondary-only limitations.
+- The ledger marks GraphToken verified despite the repository’s existing `SPOT-REFUTED` audit. That conflict must be surfaced.
+- KBLaM’s OOD/refusal/rewording claims are attributed to unnamed secondary sources but packaged inside a `verified: true` entry. Either cite those sources or mark each claim unverified.
+- “Every fusion encoder is MB-scale” does not justify “rounding error” at Programme-3’s R-0 scale. GraphToken’s projector is roughly 11M parameters; against a 135M host that is material, not automatically negligible.
+- AtlasKV is now confirmable as an ICLR 2026 paper, rather than merely “stated on arXiv.” [ICLR camera-ready paper](https://openreview.net/pdf/d569b33a1b2aa9116eee7e8609b6bf4b1c493b52.pdf).
+- GTEval is real as an arXiv paper, but I found no confirmation of the claimed ICML 2026 venue; retaining the venue as unverified is correct.
+- Kautz’s source is real, and the review appropriately flags the six-type wording as secondary/unverified.
+
+## Phase-1 hand-off assessment
+
+The useful part is genuinely good: optimised serialisation controls, matched information/resources, LoRA parity, encoder alternatives, topology perturbations, oracle-vs-NL graph construction, depth stratification, over-squashing checks, and retrieval→construction→encoding→LM-use instrumentation. Those materially de-risk `P3-D-GNN`.
+
+Before closure, revise the hand-off to say:
+
+- the trained bridge is demonstrated to carry a useful learned signal in some settings, **not** that structural integration is established;
+- the size×depth interaction remains an open empirical question, with no prior found in this bounded search;
+- G-Retriever’s ablation motivates a topology-causal experiment but does not answer it;
+- H-GNN-RET remains a candidate RAG/executor variant and still needs text-boundary integration controls;
+- novelty and “no missing family” are unverified, not settled.
+
+**Bottom line:** strong draft and good experiment-design input; **do not commit as completed `P3-LR-FUSE` until the attribution, units, ledger statuses, and closure language are corrected.**
