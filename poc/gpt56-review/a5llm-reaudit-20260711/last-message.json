@@ -1,0 +1,56 @@
+The remediation is **not CONFIRMED**. The two errata are sound and frozen bytes are unchanged, but the forward generator remediation is incomplete and has a residual licensing defect.
+
+1. The a5-llm erratum is correct.
+
+[2-scale-license-erratum.json](/home/ec2-user/css/kernel/kernel-of-truth/registry/corrections/a5-llm/2-scale-license-erratum.json:12) accurately identifies the raw-label-count defect. Lines 13–19 document all three relevant facts: R0 is not a model-scale rung, the frozen envelope says “never a slope law,” and both `separation_valid` and `scale_trend_rag` are false. Lines 24–28 bind `slope` → `sign-only` without changing measured results. The maintainer approval is cited at line 8.
+
+The cited hashes for the verdict and analysis output reproduce. The a5-llm experiment, log, issued verdict, and frozen index have no diff from `HEAD`; the issued verdict remains SHA-256 `f893cf47…`.
+
+2. The f2 erratum is also correct.
+
+[f2/2-scale-license-erratum.json](/home/ec2-user/css/kernel/kernel-of-truth/registry/corrections/f2/2-scale-license-erratum.json:12) correctly distinguishes f2 from a5-llm: its three rungs are genuinely comparable, but its envelope is direction-only and no valid fitted scale trend exists. Lines 21–26 bind the established verdict vocabulary to `sign-only`; lines 29–32 correctly note that the `FAIL` verdict and all measured results remain unchanged. Approval is cited at line 8.
+
+The f2 frozen record and verdict also match `HEAD` byte-for-byte; the verdict hash remains `38422b3c…`.
+
+3. `verdict-gen.py` prevents the reported a5-llm over-license, but does not fully implement the approved minimum rule.
+
+The positive part is correct: [verdict-gen.py](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen.py:318) permits `slope` only when the ceiling is `slope`, at least three measured labels occur in `model_scale_rungs`, and every declared trend-validity pointer resolves to Boolean `true` (lines 318–324). Exactly three comparable rungs can still produce `slope`, so this is not a blunt ≥4 rule.
+
+However, lines 316–324 initially compute the G-12 tier from **all raw rung labels**, then use comparable-rung count only as a slope/no-slope Boolean. This is not the documented minimum rule over comparable rungs. For example:
+
+```text
+measured = BASE0, BASE1, R1
+model_scale_rungs = R1
+ceiling = slope
+valid trend = true
+```
+
+The implementation returns `sign-only`; G-12 over the single comparable rung requires `none`. Thus non-model labels can still inflate `none` to `sign-only`. The tests do not cover this zero/one-comparable-rung case.
+
+The issued-record sweep nevertheless confirms that all existing zero-, one-, and two-rung verdict licenses remain unchanged. Only a5-llm and f2 move from `slope` to `sign-only` under the helper.
+
+4. The machine-readable frozen controls cannot currently pass the normal freeze path.
+
+Both registry schemas set `design.additionalProperties: false` and omit all three new fields: [kot-reg-1.json](/home/ec2-user/css/kernel/kernel-of-truth/registry/schema/kot-reg-1.json:70) and [kot-reg-2.json](/home/ec2-user/css/kernel/kernel-of-truth/registry/schema/kot-reg-2.json:70). Schema validation rejects:
+
+```text
+design.scale_language_max
+design.model_scale_rungs
+design.scale_trend_valid_metrics
+```
+
+There is also no freeze-time validation that the machine-readable ceiling agrees with the binding envelope, despite the approved requirement in [a5-llm-refute-adjudication.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/a5-llm-refute-adjudication.md:90).
+
+The test file explicitly acknowledges and bypasses this defect by “hand freezing” invalid fixtures at [test_verdict_gen_scale.py](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/test_verdict_gen_scale.py:217). Consequently, its preservation test proves that the helper can return `slope`, but not that a lawfully preregistered record can reach that path.
+
+5. The tests only partially establish the requested claims.
+
+The real a5-llm check at [test_verdict_gen_scale.py](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/test_verdict_gen_scale.py:83) calls the helper directly; it does not regenerate a5-llm through the real CLI. The CLI regression at line 274 uses a synthetic, hand-frozen fixture. The three-rung preservation case at line 301 and four-rung ceiling case at line 318 are otherwise correctly specified.
+
+Twelve pure-function/real-artifact tests passed. Five CLI tests could not execute in this read-only audit environment because no writable temporary directory was available; no assertion failed.
+
+6. Two approved forward-path edits are missing.
+
+The adjudication explicitly calls for fixing both generators, but [verdict-gen-dts.py](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/verdict-gen-dts.py:272) still emits `slope` solely from raw rung count. [report-gen.py](/home/ec2-user/css/kernel/kernel-of-truth/tools/registry/report-gen.py:192) also still prints the obsolete statement that ≥3 rungs license slope adjectives. Both were named in the approved remediation at [a5-llm-refute-adjudication.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/a5-llm-refute-adjudication.md:86).
+
+Overall: the binding a5-llm and f2 corrections are statistically sound, properly authorized, and non-mutating. The remediation as a whole has residual defects: incomplete schema/freeze integration, an incorrect comparable-rung minimum below two rungs, an unfixed specialized generator, stale report language, and insufficient production-path regression coverage.

@@ -1,0 +1,77 @@
+## Verdict
+
+The measured diagnosis is credible and useful; the build specification is not yet strong enough to freeze as the gate-clearing contract.
+
+It is cheap and bounded as an engine-engineering task, but the proposed acceptance test can pass without demonstrating complete traces, reject replay, or deployable token-level continuation masks. I would revise before committing as the Phase-1 design. A B1/B3 implementation spike is reasonable now; no trace-, distillation-, or mask-consuming model experiment should start yet.
+
+### 1. Concrete, buildable, cheap?
+
+Mostly.
+
+- B1 trace instrumentation and B3 structured diagnostics are plausibly a CPU-only, days-scale change.
+- B2 is bounded only for the stipulated field-order/formal-query interface. The design demonstrates seven worked partials, with only one code-oracle operation, not a complete continuation contract ([probe.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/ntp-gate/probe.py:386)).
+- The 330–550 LOC / two-day estimate is unsupported. Exact analytical G2 sets need semantics for every operation, legal partial, refusal, code-oracle desugaring, invalid prefix, and output mode. Returning 72,839 definition values also has nontrivial allocation and serialization cost.
+- The 100M–2B band is largely irrelevant to this gate: no model runs. It establishes a possible engine interface, not that the interface can be integrated cheaply with a 100M–2B tokenizer/decode loop.
+- “Public attributes” is informal, not a stable API contract; these are mutable Python fields rather than a versioned executor interface.
+
+So: buildable cheaply, yes; priced accurately and integration-ready, no.
+
+### 2. Falsifiable, decisive, NL-wall-safe?
+
+The current-state finding is decisive: there is no explicit API, accept certificates replay only partially, and refusals have no certificate. The hash matches the stated artifact, and the failures are systematic.
+
+The proposed build PASS is not yet decisive:
+
+- Acceptance tests only covered answers. `replay_leg` explicitly skips refusals and non-covered records ([probe.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/ntp-gate/probe.py:136)), although B1 promises traces for accepts and rejects.
+- B2 equivalence is required only on the seven hand-selected partials, not exhaustively over the finite grammar.
+- Replay tests sufficiency—“this subset reproduces the answer”—not the stronger claim that every consulted dependency was emitted. A trace containing the whole store could pass.
+- Replay uses the same engine implementation, so it tests internal self-consistency, not an independently checkable proof object. That is acceptable for an API gate, but not enough for the stronger audit/proof language currently used.
+
+The NL-wall discipline itself is good. The design explicitly restricts this to formal `kot-query/1` inputs and licenses no real-input/W1 claim ([NTP-GATE.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NTP-GATE.md:245)), consistent with Programme-3’s oracle-diagnostic rule ([programme-3-neurosymbolic-architecture.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:194)). The f2b-transfer Stage-1 endorsement does not change this: it strengthens external truth endorsement on a covered, kernel-rendered slice, not NL reachability or system-level transfer.
+
+There is no smuggled NL oracle inside this probe. But a field-level G2 set is not yet a token-level mask. Any downstream H-RULE-CD test must separately specify:
+
+- how a natural/text prefix becomes a formal partial query;
+- URN/value-to-token alignment;
+- ambiguity and abstention;
+- whether gold field boundaries or record addresses are supplied.
+
+Without that, only an explicitly labelled oracle-diagnostic G2 test is lawful.
+
+### 3. Technical errors and gaps
+
+1. **“Exactly the records it names” is false in the replay implementation.** License references contain `#constraint`, but replay strips the suffix and reloads the entire axiom file ([probe.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/ntp-gate/probe.py:118)). Several files contain multiple constraints. The reported 77.3%/51.2% closure is therefore file-granular, not record/constraint-granular, and may contain false-positive replays.
+
+2. **Reject traces have no replay semantics or acceptance endpoint.** Conflict refusals can carry a positive violation witness, but `ERR_NO_RECORD`, unknown-entity and similar conclusions depend on a complete store/index boundary. A restricted-record replay cannot prove absence. Specify either a corpus/index snapshot digest plus terminating-step evidence, or separate positive-witness and snapshot-relative rejection contracts.
+
+3. **“Every consulted record” is undefined given global store construction.** Engine initialization scans axioms/world data, builds indexes and computes global CWA violations. Query-local witness records must be distinguished from build-time/global dependencies. Otherwise a literal complete trace may be enormous.
+
+4. **The gate cannot clear all NTP §8 consumers.** B1–B3 can clear lookup-derivation, diagnostics and formal-field-continuation interfaces. They cannot clear proof states or search transitions for planning/search curricula because this executor has no such process. Calling those requirements a collapse into B1 changes the gate instead of satisfying it. Mark them `NOT APPLICABLE to v0 arms / NOT CLEARED for search-consuming arms`.
+
+5. **Continuation coverage is insufficient.** There is no exhaustive finite-domain test over all legal prefixes, no invalid-prefix contract, no `define` candidate continuation, and only `callers-of` is exercised through the code wrapper.
+
+6. **API absence is over-described as mechanised inspection.** It is a name-pattern search over `Engine` and function definitions in `kot_axiom.py`; it does not inspect the code-oracle surface comprehensively and cannot prove absence under arbitrary naming.
+
+7. **The trace schema is underspecified.** It needs schema/version, store snapshot digest, stable constraint/world/bridge identifiers, ordered step enum, outcome vocabulary, canonicalisation metadata, and compatibility behavior.
+
+### 4. KOT-FAIR/2 and resource accounting
+
+The gate itself is correctly outside W1: it is a cheap interface diagnostic and need not wait for full KOT-FAIR/2 calibration.
+
+However, it is not fully slotted into the programme:
+
+- `P3-E-NTP-GATE-0` appears in steering but is absent from the formal Phase-1/Phase-2 tables and blocking graph ([programme-3-neurosymbolic-architecture.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:928)).
+- It should block the relevant portions of P3-D-RULE, P3-D-GU and any diagnostic-consuming H-VL design—not necessarily each entire family.
+- Downstream use must charge B2 index bytes, index construction/startup, CPU-seconds, host RSS, serialization, engine calls per decoded token, p50/p95 latency, throughput, and cold/warm behavior under KOT-COST/2 ([programme-3-neurosymbolic-architecture.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/programme-3-neurosymbolic-architecture.md:323)).
+- Trace-curriculum generation must also charge trace volume, serialization, deduplication, storage and lifecycle/index-building costs.
+- Byte-identical default responses are a good compatibility test, but insufficient: eagerly built trace/continuation indexes could still change default startup time and RSS. Require lazy opt-in or byte/resource equivalence on the default path.
+
+## Three most important concerns, ranked
+
+1. **Gate-clearing acceptance is incomplete:** answers-only replay plus seven partials cannot clear reject traces, complete continuation semantics, or proof/search consumers.
+
+2. **The replay measurement is technically misstated:** it reloads whole axiom files after stripping constraint IDs, so “exactly named records” and the closure percentages are not established at the claimed granularity.
+
+3. **Formal continuations are being positioned too close to decode-time masks:** the tokenization/prefix/addressing boundary and its KOT-COST accounting remain entirely unbuilt; without them, only an oracle-diagnostic is licensed.
+
+**Commit decision:** not sound to commit as the final gate-clearing Phase-1 design. Sound to commit after tightening the trace/reject contracts, making replay constraint-granular, expanding acceptance exhaustively, narrowing which NTP consumers the gate can clear, and adding the dependency/resource-accounting hooks. Safe to authorize the bounded engine implementation work after those edits; not safe yet to drive dependent model experiments.

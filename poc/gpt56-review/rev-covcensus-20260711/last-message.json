@@ -1,0 +1,91 @@
+Review result: no kill is manufactured, and the core `STILL-INCOMPLETE + NO-KILL` direction is conservative. However, there is one arithmetic error and several scope/epistemic overclaims that should be corrected before using this as verdict input.
+
+1. The main measured counts and ceilings are correct.
+
+- `1033 / 1550 = 0.6664516129`, correctly rounded to `κ = 0.6665`.
+- The seven benchmark counts and rates match `sieve-census.json`.
+- The POWER output gives:
+  - D3 scalar contribution `0.1765086954` → `0.17651`.
+  - D3 own-axis `0.8825434770` → `0.8825`.
+  - Scalar ceiling `0.9860041603` → `0.9860`.
+- Thus the reported transition `0.8095 → 0.9860` is numerically real under the same provisional pin and baseline imputation.
+
+There is, however, a definite decomposition error: the uncensused full-headroom mass is `0.8094954649`, not `0.8235`. The correct arithmetic is:
+
+```text
+D3 censused contribution       0.1765086954
+uncensused/full-headroom       0.8094954649
+                               ------------
+total                           0.9860041603
+```
+
+`0.8235` appears to have been computed as `1 − 0.1765`, but the index’s maximum aggregate headroom is not exactly 1 under the unclamped provisional normalization. This error occurs in [coverage-census.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/analysis/coverage-census.md:35), [RESULT.md](/home/ec2-user/css/kernel/kernel-of-truth/poc/coverage-census/RESULT.md:85), and the hand-authored `coverage-census-result.json`. The authoritative rig JSON has the correct components.
+
+2. The no-kill conclusion is sound, but the explanation needs narrower wording.
+
+It is sound to say that substituting the cheap kill-sound D3 upper-sieve measurement for the mapper-parse zero raised this provisional ceiling by `0.17651`, leaving no cheap sieve-lane kill. In particular, D3 alone contributes `0.17651 > δ_k=0.03`, so this D3 sieve result cannot support the general-index kill under the provisional pin even if every other component later contributed zero.
+
+But these statements are overbroad or backwards:
+
+- “Completing the census raised the ceiling” is inaccurate because the whole census was not completed. The run completed only the D3 upper-sieve lane available to the script.
+- “A partial census can only make a kill harder, never easier” is mathematically backwards if “partial census” means replacing full-headroom imputations with measurements. Such replacement can only lower or preserve `Δ_max`, hence make a kill easier. What raised the ceiling here was changing the already-censused D3 lane from an unsound-for-unconditional-kill mapper zero to a generous upper-sieve value.
+- “Exactly as POWER’s completeness rule requires” therefore does not explain the observed increase. POWER’s rule requires uncensused cells to remain at full headroom; it does not require new census measurements to raise the ceiling.
+- “Cannot cheaply” is established only for this D3 sieve result under the provisional pin. Frozen weights, margins, and suite composition do not yet exist, so it should not be generalized to the eventual index.
+
+Suggested substance: “Replacing the D3 mapper-parse zero with the kill-sound upper sieve raised the provisional bound from 0.8095 to 0.9860. Therefore this cheap D3 sieve run cannot license either a D3 or general-index kill.”
+
+3. `STILL-INCOMPLETE + NO-KILL` is directionally honest but needs tighter scope.
+
+`STILL-INCOMPLETE` is unquestionably correct: the pin is provisional, four weighted domains have no enumerated benchmarks, two D4 benchmarks remain uncensused, the census pin is absent, and family eligibility is unregistered.
+
+`NO-KILL` should be stated as:
+
+> No unconditional kill is supported by the cheap D3 upper-sieve run; the rig remains ILLUSTRATIVE-ONLY and emits no G1 verdict.
+
+“NO-KILL on everything cheaply computable” is too broad: this run covers only seven D3 benchmarks and does not establish results for every family, suite component, or possible cheap computation.
+
+Likewise, the mapper `0/1550` is a valid measured result for that mapper-parse instrument, not literally a measurement artifact. POWER correctly says the mapper lane folds in the NL parse gap. But a positive upper-sieve result alone does not prove that oracle coverage is positive: sieve false positives, missing endorsements, and non-derivability may explain part or even all of the gap. Therefore:
+
+- “the sieve/oracle lane sits above the NL parse gap” is sound as protocol structure;
+- “the gap is the NL parse gap” and “the zero was a parse-gap artifact” are overclaims;
+- safer wording is “the mapper zero cannot be treated as oracle coverage; the upper sieve shows that the cheap unconditional-kill lane does not confirm it.”
+
+The D3 kill is correctly dissolved as a cheap unconditional kill, but not empirically disproved at the exact-oracle level.
+
+4. The missing-pieces list is mostly right, with two corrections.
+
+Accurate:
+
+- A frozen P3-D-INDEX enumeration is missing.
+- ProofWriter item data appears absent from the repository.
+- The tight oracle census is human-annotated and not a ~$0 pass.
+- Pin block and registered family eligibility are also required for a verdict-eligible run, though these should remain explicit in the final missing list.
+
+Needs correction:
+
+- “Item data for every D1/D2/D5/D6 benchmark is absent” is not well-defined before those benchmarks are enumerated. Say instead: “D1/D2/D5/D6 benchmarks are not yet enumerated; consequently no whole-suite item-data inventory or census can be established.”
+- The oracle is not “the only lane that could push a censused component below full headroom and stay sound.” The upper sieve already pushes several D3 components below full headroom. The oracle is the only defined lane that could tighten the bound below the upper-sieve result while remaining kill-sound.
+- The title and “every benchmark for which item data exists” overstate coverage: CLUTRR item data exists but was intentionally excluded. This is a D3-suite census, not a full-suite census.
+
+5. Epistemic tags need refinement.
+
+The raw counts are appropriately `[MEASURED]`, conditional on the `[STIPULATED]` surface predicate and pinned store machinery.
+
+The ceilings are not simply `[MEASURED bound]`. They combine:
+
+- measured sieve counts;
+- stipulated surface/coverage predicate;
+- provisional, unfrozen weights, ceilings and margins;
+- distribution-free imputation `a_cov=0`;
+- full-headroom imputations.
+
+A better tag would be `[COMPUTED BOUND: MEASURED κ + PROVISIONAL/STIPULATED pin]`.
+
+These also need `[EXTRAPOLATION]` or interpretive qualification:
+
+- attributing the entire mapper–sieve gap to NL parsing;
+- saying the datum “reconfirms” the earlier 49% result;
+- saying the eventual general-index kill “cannot cheaply” succeed;
+- saying the sieve “over-counts too heavily to kill anything”—it fails here, but no general threshold follows.
+
+Bottom line: no manufactured kill is present. The conservative outcome—no cheap unconditional D3 kill and no general-index kill—is sound. Before adoption, correct `0.8235 → 0.8095`, replace “completed/full-suite” with “D3 upper-sieve lane,” reverse the monotonicity explanation, scope `NO-KILL` to this illustrative run, and soften the parse-gap and missing-data assertions.

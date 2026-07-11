@@ -70,7 +70,10 @@
         "arms_mandatory_baselines": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
         "scale_rungs": { "type": "array", "minItems": 1 },
         "seeds": { "type": "array", "items": { "type": "integer" } },
-        "n_planned": { "type": "object" }
+        "n_planned": { "type": "object" },
+        "scale_language_max": { "enum": ["none", "sign-only", "slope"] },
+        "model_scale_rungs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "scale_trend_valid_metrics": { "type": "array", "items": { "type": "string", "pattern": "^/" } }
       }
     },
     "pins": {

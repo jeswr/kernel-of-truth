@@ -1,0 +1,77 @@
+{
+  "artifact": "P3-X-SIEVE-CENSUS (best-effort) — lemma-touch upper-sieve coverage census",
+  "epistemic_tag": "MEASURED (counts); STIPULATED (surface = question stem + choice texts)",
+  "coverage_lane": "upper-sieve",
+  "census_mode": "exhaustive",
+  "sieve_predicate": "item covered iff (question_stem + all choice texts) contains >= 1 covered content lemma (m0b lemmaCandidates/irregularBase, minus FUNCTION_STOPLIST)",
+  "store": {
+    "kernel": "kernel-v0 (data/kernel-v0/manifest.json)",
+    "molecules": "molecules-v0 (54 records)",
+    "covered_lemma_types": 190,
+    "stoplist_size": 204,
+    "machinery": "mapper/dist buildLexicon+lemmaCandidates+irregularBase (identical to data/d-ext/build-dext.mjs)"
+  },
+  "benchmarks": [
+    {
+      "benchmark": "OpenBookQA-test",
+      "domain": "D3",
+      "n_total": 500,
+      "touched_count": 418,
+      "kappa_upper_sieve": 0.836,
+      "mean_covered_lemma_types_per_item": 2.012
+    },
+    {
+      "benchmark": "MMLU-college_biology-test",
+      "domain": "D3",
+      "n_total": 144,
+      "touched_count": 92,
+      "kappa_upper_sieve": 0.6388888888888888,
+      "mean_covered_lemma_types_per_item": 1.2708333333333333
+    },
+    {
+      "benchmark": "MMLU-college_chemistry-test",
+      "domain": "D3",
+      "n_total": 100,
+      "touched_count": 43,
+      "kappa_upper_sieve": 0.43,
+      "mean_covered_lemma_types_per_item": 0.63
+    },
+    {
+      "benchmark": "MMLU-medical_genetics-test",
+      "domain": "D3",
+      "n_total": 100,
+      "touched_count": 39,
+      "kappa_upper_sieve": 0.39,
+      "mean_covered_lemma_types_per_item": 0.58
+    },
+    {
+      "benchmark": "MMLU-anatomy-test",
+      "domain": "D3",
+      "n_total": 135,
+      "touched_count": 69,
+      "kappa_upper_sieve": 0.5111111111111111,
+      "mean_covered_lemma_types_per_item": 0.7185185185185186
+    },
+    {
+      "benchmark": "MMLU-clinical_knowledge-test",
+      "domain": "D3",
+      "n_total": 265,
+      "touched_count": 158,
+      "kappa_upper_sieve": 0.5962264150943396,
+      "mean_covered_lemma_types_per_item": 1.0716981132075472
+    },
+    {
+      "benchmark": "MMLU-nutrition-test",
+      "domain": "D3",
+      "n_total": 306,
+      "touched_count": 214,
+      "kappa_upper_sieve": 0.6993464052287581,
+      "mean_covered_lemma_types_per_item": 1.3954248366013071
+    }
+  ],
+  "totals": {
+    "n_total": 1550,
+    "touched_count": 1033,
+    "kappa_upper_sieve_pooled": 0.6664516129032259
+  }
+}

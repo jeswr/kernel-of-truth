@@ -7,7 +7,14 @@
 # — works on both T4 (sm_75) and A10G (sm_86).
 numpy==2.2.6
 torch==2.6.0
-transformers==4.51.3
+# 2026-07-11 security bump 4.51.3 -> 4.53.0 (Dependabot #4-8/#20-24 ReDoS +
+# #3/#19 improper-input-validation): stays within the runner floor (<5), same
+# stable AutoModelForCausalLM/generate API surface. NOT bumped to 5.x: the HIGH
+# transformers-RCE advisory needs >=5.3.0, which crosses the runner's <5 floor
+# and requires a code migration + full frozen-experiment re-validation (tracked
+# in the maintainer security issue; the RCE vector is trust_remote_code / hostile
+# model repos, not triggered by the pinned SmolLM2 load in this pipeline).
+transformers==4.53.0
 # F2 int4-quantized arm (HFLM int4 path): 4-bit loading needs both of these;
 # without them the real F2 run fails closed mid-run at the int4 arm
 # (ERR_INT4_DEP). Pinned 2026-07-08 (torch-2.6/CUDA-12.4-compatible).

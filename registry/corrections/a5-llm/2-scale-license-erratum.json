@@ -1,0 +1,49 @@
+{
+  "kind": "posthoc-erratum",
+  "schema_version": "kot-correction/1",
+  "experiment": "a5-llm",
+  "seq": 2,
+  "author": "writer-2",
+  "author_session_note": "Fable implementation role acting as interpretive assessor under coordinator delegation, session 2026-07-11, branch opus/f2b-replicate-rightsize; pseudonym per RT-14 closed role list (precedent: registry/corrections/a5-llm/1-posthoc-pin-erratum.json, same author pseudonym)",
+  "authorized_by": "maintainer approval 2026-07-11 on issue #5 ('Approve all, d included'), approving the full a5-llm Gate-A REFUTE remediation recommended in docs/next/a5-llm-refute-adjudication.md (decision-list row 2: issue correction/2); execution delegated to the Fable role per the correction/1 precedent (docs/next/opus-execution-practices.md practice 4, Opus never concludes)",
+  "date": "2026-07-11",
+
+  "defect": {
+    "statement": "registry/verdicts/a5-llm.json field scale_language_licensed = \"slope\" is a verdict-GENERATION defect. MEASURED: tools/registry/verdict-gen.py (pre-fix line 560) computed the license purely from the count of distinct config.rung labels across eligible runs — license_ = \"none\" if len(rungs) < 2 else (\"sign-only\" if len(rungs) == 2 else \"slope\") — consulting NEITHER the pre-registered gates object NOR the frozen extrapolation_envelope_verbatim. For a5-llm the eligible runs carry rung labels {R0, R1, R2, R3}, so len(rungs)=4 emitted \"slope\".",
+    "class": "verdict-generator code defect (claim-governance metadata over-license); per-record, threefold: (1) R0 — the engine/abstain-all/answer-all baseline cells — is NOT a comparable model-scale rung and inflated the count; (2) the generator was blind to the licensing preconditions of docs/research-plan/08-stats-and-extrapolation.md section 2.1 (>=3 COMPARABLE rungs carrying the same pre-registered endpoint AND a validly produced scale-trend result — a5-llm's registered trend machinery produced NO valid result); (3) the generator was blind to the frozen envelope, which for a5-llm expressly says 'never a slope law'",
+    "not_a_law_change": "The G-12 count map (docs/research-plan/02-data-and-reporting.md:664; 1 rung -> none, 2 -> sign-only, >=3 -> slope) and 08-stats section 2.1 are UNCHANGED and are NOT the defect: programme law licenses a scale-trend fit at >=3 comparable rungs, and the generator implemented the LETTER of G-12. The defect is per-record enforcement, not licensing law. Explicitly rejected: any global 'slope requires >=4 rungs' rule. The defect attribution is to verdict-gen.py:560 + the failed gates + the frozen envelope — NOT to 08-stats section 2.3 (its C-6 note makes a 3-rung parametric prediction interval weak, not prohibited).",
+    "evidence": [
+      "MEASURED: registry/experiments/a5-llm.json (frozen_sha256 11c3dc4e797bcaf12f199217bb3279e794882113a7feca530b36b2c3916631ad) extrapolation_envelope_verbatim: 'ONE model family, ONE vendor, 3 rungs => SIGN plus at most direction+order-of-magnitude trend language, never a slope law'; design.scale_rungs includes R0, whose cells are the engine/abstain-all/answer-all baselines, not model-scale rungs",
+      "MEASURED: reports/auto/a5-llm/analysis-output.json (sha256 f80a491e674c50e375a76dc31652bb189391b0b0c0163182cf520af63a997559): /gates/separation_valid = false and /analysis/holm/scale_trend_rag = false — the pre-registered sec-scale-trend member left the Holm family INSTRUMENT-INVALID before any p-value comparison (separation_gap = -0.1279), so NO licensed scale-trend fit exists for a 'slope' license to describe",
+      "MEASURED: the contradiction is self-exhibiting inside one artifact: reports/auto/a5-llm/verdict-a5-llm.md line 33 restates 'never a slope law' while line 220 prints 'Scale language licensed: **slope**'",
+      "MEASURED: the 2026-07-11 Gate-A re-audit (poc/audits/a5-llm/gate-a-rerun-20260711/last-message.json, outcome REFUTE) flags scale_language_assessment.is_defect=true; the adjudication concurs and disputes nothing in the audit"
+    ]
+  },
+
+  "binding_reading": {
+    "field": "/scale_language_licensed in registry/verdicts/a5-llm.json (sha256 f893cf4752389e15c72d881ac779f30677aa25e5db48796acadace7ae0e7945e)",
+    "value_as_issued": "slope",
+    "binding_value": "sign-only",
+    "ruling": "DECISION: the binding reading of a5-llm's scale_language_licensed is 'sign-only'. Basis, per the frozen instruments (min-rule): (1) the frozen envelope ceiling is sign-only ('never a slope law', verbatim in the verdict object itself); (2) only three comparable model-scale rungs exist (SmolLM2 R1/R2/R3; R0 is not a model-scale rung); (3) the registered scale-trend instrument failed (separation_valid=false, scale_trend_rag instrument-invalid), so no valid trend result exists. Downstream documents must not state ANY slope or scaling-law claim from a5-llm; the licensed scale statement is a SIGN at R1-R3 SmolLM2 plus at most direction+order-of-magnitude trend language, per the envelope.",
+    "no_measured_number_affected": "MEASURED: no endpoint, gate boolean, Holm outcome, or fired verdict rule changes — the license field is claim-governance metadata; the numerical verdict rule reproduces independently (2026-07-11 audit: checks.verdict_rule=ok, fired rule index 2 -> PASS-PENDING-AUDIT). Every verdict-bearing number (primary 0.6601842374616171, cost_ratio_min 22835.94771419218, engine_matches_a5=1) was reproduced by the auditor to full float precision."
+  },
+
+  "corrective_action": {
+    "record_mutation": "NONE. registry/experiments/a5-llm.json, results-log/a5-llm.jsonl, registry/verdicts/a5-llm.json and registry/frozen-index.json stand byte-identical as issued (append-never-edit). This erratum record is the binding correction of the license field until the verdict object is lawfully regenerated.",
+    "generator_fix": "tools/registry/verdict-gen.py is fixed in the same change-set (per-record min-rule: machine-readable frozen ceiling design.scale_language_max AND >=3 measured rungs inside design.model_scale_rungs AND all design.scale_trend_valid_metrics pointers true in the analysis output; fail closed on any absent field). Regenerating the a5-llm verdict with the fixed generator yields sign-only. Sequencing per the adjudication section 2.2: the fix MUST be in place before any S7 regeneration of the a5-llm verdict; this correction governs the record in the interim, and any regeneration follows the maintainer's decision-1b ruling on verdict-update semantics with content-addressed traceability of the superseded object (old sha256 f893cf4752389e15c72d881ac779f30677aa25e5db48796acadace7ae0e7945e).",
+    "verdict_impact": "registry/verdicts/a5-llm.json PASS-PENDING-AUDIT stands; a5-llm is NOT currently audit-confirmed (the 2026-07-11 REFUTE post-dates and invalidates the completeness of the 2026-07-10 CONFIRM). Path to CONFIRMED: Gate-A re-audit with registry/corrections/a5-llm/ (both records) and the corrected licensing rule in scope. Until then every positive a5-llm result remains MEASURED-UNAUDITED per programme law.",
+    "sibling_record": "registry/corrections/f2/2-scale-license-erratum.json applies the analogous downgrade to f2 (different failure mode: genuine model-scale rungs, but envelope-capped to direction-only and no valid trend fit; verdict FAIL, nothing leans on it)."
+  },
+
+  "refs": {
+    "adjudication": "docs/next/a5-llm-refute-adjudication.md (sections 2.1-2.4; maintainer-approved 2026-07-11, issue #5)",
+    "audit": "poc/audits/a5-llm/gate-a-rerun-20260711/last-message.json (outcome REFUTE)",
+    "frozen_record": "registry/experiments/a5-llm.json (frozen_sha256 11c3dc4e797bcaf12f199217bb3279e794882113a7feca530b36b2c3916631ad)",
+    "verdict": "registry/verdicts/a5-llm.json (sha256 f893cf4752389e15c72d881ac779f30677aa25e5db48796acadace7ae0e7945e)",
+    "analysis_output": "reports/auto/a5-llm/analysis-output.json (sha256 f80a491e674c50e375a76dc31652bb189391b0b0c0163182cf520af63a997559)",
+    "report_line": "reports/auto/a5-llm/verdict-a5-llm.md line 220 (the defective 'slope' rendering; line 33 carries the contradicting envelope text)",
+    "prior_correction": "registry/corrections/a5-llm/1-posthoc-pin-erratum.json (instrument precedent; adjudicates the separate kot_axiom.py pin defect)",
+    "governing_law": "docs/research-plan/02-data-and-reporting.md:664 (G-12); docs/research-plan/08-stats-and-extrapolation.md section 2.1 (licensing preconditions)",
+    "regression_tests": "tools/registry/test_verdict_gen_scale.py (a5-llm regression configuration, G-12 preservation, ceiling cap)"
+  }
+}

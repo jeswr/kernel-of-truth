@@ -189,8 +189,19 @@ def render(root, exp_id):
     L.append("")
     L.append("## Scale")
     L.append("")
-    L.append("Rungs measured: %s. Scale language licensed: **%s** "
-             "(>=3 rungs for slope adjectives; 2 for a sign; 1 licenses nothing)." % (
+    # The license is the effective per-record MIN-RULE value from the verdict
+    # object — never restated as a raw rung-label count rule (a5-llm Gate-A
+    # re-audit 2026-07-11 point 6: the old ">=3 rungs for slope adjectives"
+    # line restated G-12's raw count and contradicted envelope-capped records;
+    # adjudication docs/next/a5-llm-refute-adjudication.md section 2.2).
+    L.append("Rungs measured: %s. Scale language licensed: **%s** — the MINIMUM of "
+             "the frozen per-record ceiling (design.scale_language_max, the "
+             "machine-readable form of the envelope below), the G-12 tier of the "
+             "COMPARABLE model-scale rung count (measured rungs inside "
+             "design.model_scale_rungs: 1 licenses nothing, 2 a sign, >=3 "
+             "slope-eligible), and the registered trend machinery's realized "
+             "validity (design.scale_trend_valid_metrics); on records frozen "
+             "without these fields, slope is unlicensable (fail closed)." % (
                  ", ".join(verdict.get("rungs_measured", [])) or "none",
                  verdict.get("scale_language_licensed", "none")))
     L.append("")

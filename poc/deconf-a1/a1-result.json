@@ -1,0 +1,338 @@
+{
+ "C_dec": 1.0,
+ "C_dec_exact": "11848/11848",
+ "R_repro": 1.0,
+ "all_grids_fully_concordant": true,
+ "decision_semantics": {
+  "answer_space": "closed IF-C surface: MC option keys; yes/no for claim items",
+  "gsa_side": "same checker class over the four-column GS-A rows only (GSAVerifier / GSAShuffledVerifier in this file); no record file or derivation touched at check time",
+  "kernel_side": "the literal pinned code: KernelVerifier / ShuffledKernelVerifier imported from poc/f2b/runner/f2b_runner.py at sha b62c3a72882b",
+  "triple": "(extract_ok, decidable, consistent) per f2b_runner.verify_answer"
+ },
+ "decision_space_disclosure": {
+  "kernel_triple_distribution": {
+   "shuffled|(True, False, False)": 420,
+   "shuffled|(True, True, False)": 4515,
+   "shuffled|(True, True, True)": 989,
+   "true|(True, False, False)": 420,
+   "true|(True, True, False)": 3644,
+   "true|(True, True, True)": 1860
+  },
+  "note": "vacuity guard (no-silent-caps discipline): the grid must exercise accepts, rejects, abstentions, AND true-vs-shuffled divergence, else concordance would be trivial; counted over the PRIMARY grid's kernel-side triples",
+  "true_variant_decidable_accept_vs_gold": {
+   "counts": {
+    "accept|gold": 1860,
+    "reject|nongold": 3644
+   },
+   "reading": "[MEASURED] exhaustive contingency of verifier-accept vs membership gold on all decidable (item, admissible-answer) pairs — the f2b-replicate assessment's circularity note ('gold was DEFINED by the same equality check() tests'), previously analytic, is count-verified iff the off-diagonal cells (accept|nongold, reject|gold) are zero"
+  },
+  "true_vs_shuffled_divergent_item_answer_pairs": "1673/5924"
+ },
+ "design": "docs/next/design/DECONF.md §3 (ASM-0961/ASM-0962)",
+ "dext_supplementary": {
+  "by_type_variant": {
+   "obqa-mcq|shuffled": {
+    "cells": 2000,
+    "concordant": 2000
+   },
+   "obqa-mcq|true": {
+    "cells": 2000,
+    "concordant": 2000
+   }
+  },
+  "by_variant": {
+   "shuffled": {
+    "cells": 2000,
+    "concordant": 2000
+   },
+   "true": {
+    "cells": 2000,
+    "concordant": 2000
+   }
+  },
+  "cells": 4000,
+  "concordant": 4000
+ },
+ "dext_supplementary_discordances": [],
+ "discordances": [],
+ "experiment": "DECONF/1 Stage A1 (P3-E-DECONF-0) — aligned-generic-store extensional-equivalence audit",
+ "grids": {
+  "primary:d-qa": {
+   "by_type_variant": {
+    "claim-false|shuffled": {
+     "cells": 404,
+     "concordant": 404
+    },
+    "claim-false|true": {
+     "cells": 404,
+     "concordant": 404
+    },
+    "claim-true|shuffled": {
+     "cells": 344,
+     "concordant": 344
+    },
+    "claim-true|true": {
+     "cells": 344,
+     "concordant": 344
+    },
+    "def-match|shuffled": {
+     "cells": 552,
+     "concordant": 552
+    },
+    "def-match|true": {
+     "cells": 552,
+     "concordant": 552
+    },
+    "term-match|shuffled": {
+     "cells": 552,
+     "concordant": 552
+    },
+    "term-match|true": {
+     "cells": 552,
+     "concordant": 552
+    }
+   },
+   "by_variant": {
+    "shuffled": {
+     "cells": 1852,
+     "concordant": 1852
+    },
+    "true": {
+     "cells": 1852,
+     "concordant": 1852
+    }
+   },
+   "cells": 3704,
+   "concordant": 3704
+  },
+  "primary:d-qa-r": {
+   "by_type_variant": {
+    "claim-false|shuffled": {
+     "cells": 726,
+     "concordant": 726
+    },
+    "claim-false|true": {
+     "cells": 726,
+     "concordant": 726
+    },
+    "claim-true|shuffled": {
+     "cells": 354,
+     "concordant": 354
+    },
+    "claim-true|true": {
+     "cells": 354,
+     "concordant": 354
+    },
+    "def-match|shuffled": {
+     "cells": 976,
+     "concordant": 976
+    },
+    "def-match|true": {
+     "cells": 976,
+     "concordant": 976
+    },
+    "term-match|shuffled": {
+     "cells": 864,
+     "concordant": 864
+    },
+    "term-match|true": {
+     "cells": 864,
+     "concordant": 864
+    }
+   },
+   "by_variant": {
+    "shuffled": {
+     "cells": 2920,
+     "concordant": 2920
+    },
+    "true": {
+     "cells": 2920,
+     "concordant": 2920
+    }
+   },
+   "cells": 5840,
+   "concordant": 5840
+  },
+  "primary:d-qa-t": {
+   "by_type_variant": {
+    "claim-false|shuffled": {
+     "cells": 176,
+     "concordant": 176
+    },
+    "claim-false|true": {
+     "cells": 176,
+     "concordant": 176
+    },
+    "claim-true|shuffled": {
+     "cells": 112,
+     "concordant": 112
+    },
+    "claim-true|true": {
+     "cells": 112,
+     "concordant": 112
+    },
+    "def-match|shuffled": {
+     "cells": 432,
+     "concordant": 432
+    },
+    "def-match|true": {
+     "cells": 432,
+     "concordant": 432
+    },
+    "term-match|shuffled": {
+     "cells": 432,
+     "concordant": 432
+    },
+    "term-match|true": {
+     "cells": 432,
+     "concordant": 432
+    }
+   },
+   "by_variant": {
+    "shuffled": {
+     "cells": 1152,
+     "concordant": 1152
+    },
+    "true": {
+     "cells": 1152,
+     "concordant": 1152
+    }
+   },
+   "cells": 2304,
+   "concordant": 2304
+  },
+  "run-planned:f2b-transfer-stage2:d-qa-t[:250]": {
+   "by_type_variant": {
+    "claim-false|shuffled": {
+     "cells": 130,
+     "concordant": 130
+    },
+    "claim-false|true": {
+     "cells": 130,
+     "concordant": 130
+    },
+    "claim-true|shuffled": {
+     "cells": 74,
+     "concordant": 74
+    },
+    "claim-true|true": {
+     "cells": 74,
+     "concordant": 74
+    },
+    "def-match|shuffled": {
+     "cells": 312,
+     "concordant": 312
+    },
+    "def-match|true": {
+     "cells": 312,
+     "concordant": 312
+    },
+    "term-match|shuffled": {
+     "cells": 280,
+     "concordant": 280
+    },
+    "term-match|true": {
+     "cells": 280,
+     "concordant": 280
+    }
+   },
+   "by_variant": {
+    "shuffled": {
+     "cells": 796,
+     "concordant": 796
+    },
+    "true": {
+     "cells": 796,
+     "concordant": 796
+    }
+   },
+   "cells": 1592,
+   "concordant": 1592
+  },
+  "run-realized:f2b-replicate:d-qa-r[:250]": {
+   "by_type_variant": {
+    "claim-false|shuffled": {
+     "cells": 186,
+     "concordant": 186
+    },
+    "claim-false|true": {
+     "cells": 186,
+     "concordant": 186
+    },
+    "claim-true|shuffled": {
+     "cells": 84,
+     "concordant": 84
+    },
+    "claim-true|true": {
+     "cells": 84,
+     "concordant": 84
+    },
+    "def-match|shuffled": {
+     "cells": 248,
+     "concordant": 248
+    },
+    "def-match|true": {
+     "cells": 248,
+     "concordant": 248
+    },
+    "term-match|shuffled": {
+     "cells": 212,
+     "concordant": 212
+    },
+    "term-match|true": {
+     "cells": 212,
+     "concordant": 212
+    }
+   },
+   "by_variant": {
+    "shuffled": {
+     "cells": 730,
+     "concordant": 730
+    },
+    "true": {
+     "cells": 730,
+     "concordant": 730
+    }
+   },
+   "cells": 1460,
+   "concordant": 1460
+  }
+ },
+ "invariance_lemma_scope": {
+  "licensed_iff": "C_dec == 1.0",
+  "not_licensed": "authored-content value (knull-v2), authoring economics (A-F0), consumption channels (A-E2), any architecture whose coupling is not answer->check->resample (DECONF §9.1)",
+  "scoped_to": {
+   "checker": "poc/f2b/runner/f2b_runner.py@b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
+   "note": "any checker or store schema change invalidates the lemma and requires an A1 re-run (DECONF §7.1)",
+   "store_projection": "poc/deconf-a1/gs-a.jsonl@4a28f7fae59c85d27fa4bc7d0c7d15d9856f0527fdc0492b00162af7dd41e9d5"
+  },
+  "statement": "the store's runtime role in the answer->check->resample topology is an aligned deterministic answer key; every F2-line endpoint (the +0.1507 lift, its CIs, the shuffled-control readings, and every future output of the same topology) is bit-for-bit invariant under replacement of the kernel store by its four-column projection GS-A"
+ },
+ "measured_lift_context": {
+  "effect_size_vs_r3": 0.1507,
+  "kernel_verify_k4_3seed_mean": 0.7506666666666667,
+  "primary_lower_onesided95": 0.1053,
+  "r3_alone_3seed_mean": 0.6,
+  "source": "results-log/f2b-replicate.jsonl + registry/verdicts/f2b-replicate.json (restated, [MEASURED])"
+ },
+ "n_discordant": 0,
+ "pins": {
+  "corpus_pins": {
+   "d-qa": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+   "d-qa-r": "0d548bf18ac78f9d7b2abb6686c567f0930acd494c5ca03cee49806c4996ec5e",
+   "d-qa-t": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+   "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+   "molecules-v0": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4"
+  },
+  "f2b_manifest_sha256": "da1fe9dddd9cbddc13143a7f7931ae3f0ced2548df8e36042244ee043fcb61f9",
+  "gs_a_sha256": "4a28f7fae59c85d27fa4bc7d0c7d15d9856f0527fdc0492b00162af7dd41e9d5",
+  "runner_sha256": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
+  "shuffle_perm_seed": 20260709,
+  "shuffle_perm_sha256": "05af8f50b1340ef2cc455eec3ab0fa8a075c37335d6b23fdc2775e28df788246"
+ },
+ "status_tags": {
+  "C_dec": "MEASURED (exhaustive count, no sampling error, no CI)",
+  "R_repro": "MEASURED-BY-INVARIANCE (identically 1.0 iff C_dec = 1.0, per the §1 determinism lemma; not a fresh model run)",
+  "interpretation": "NOT CONCLUDED HERE — the 'kernel adds nothing at runtime' reading is the coordinator's/maintainer's to draw (§6 verdict semantics)"
+ }
+}

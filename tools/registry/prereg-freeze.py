@@ -24,6 +24,33 @@ Fail-closed refusals (all abort with exit 1 and a named code):
   ERR_P2_SEEDS               trained arms declared but <5 seeds (constraint 6)
   ERR_P2_MISSING_KILL / ERR_P2_MISSING_ENVELOPE  (constraints 7/8; also schema-enforced)
   ERR_P2_UNPOWERED_GATE      a Wilson-bound gate undecidable at planned n (constraint 9, RT-4)
+  ERR_P2_SCALE_LANGUAGE      the machine-readable scale-language controls are
+                             inconsistent with the frozen record: a declared
+                             design.scale_language_max is not one of
+                             none/sign-only/slope (checked BEFORE generic
+                             schema validation, so this NAMED error fires —
+                             re-audit-2 residual 3), or is not AFFIRMATIVELY
+                             licensed by the extrapolation_envelope_verbatim
+                             text — a prohibition phrasing ("no/not/never/may
+                             not ... slope|sign", "slope|sign ... prohibited/
+                             forbidden/not licensed") or ambiguous/silent
+                             licensing REFUSES the freeze (fail closed;
+                             adjudication docs/next/a5-llm-refute-adjudication.md
+                             section 2.2 item 1; a5-llm Gate-A re-audit
+                             2026-07-11 point 4 + re-audit-2 residual 1); or a
+                             declared "slope" ceiling lacks the companion
+                             design.model_scale_rungs /
+                             design.scale_trend_valid_metrics machinery, or its
+                             trend pointers omit the REGISTERED
+                             scale-trend-validity result field(s) of the pinned
+                             analysis script (unrelated Booleans / a separation
+                             gate alone never license slope — re-audit-2
+                             residual 2); or a model_scale_rungs entry is not a
+                             design.scale_rungs label; or a
+                             scale_trend_valid_metrics pointer is not a declared
+                             analysis output field. All three fields are
+                             OPTIONAL (legacy records freeze unchanged); once
+                             declared they must cohere.
   ERR_P2_ACCOUNT_IN_RECORD   account-identifying material inside hashed bytes (constraint 10, RT-14)
   ERR_P2_MISSING_BASELINE    arms_mandatory_baselines empty (G-8, minimal form)
   ERR_P2_PIN_MISMATCH        pinned analysis script / plan doc / prereg doc sha256
@@ -77,6 +104,194 @@ import kot_common as kc
 
 FIVE_V = ("accuracy", "params", "memory", "inference_compute", "training_compute")
 CATCH_ALL = {"verdict": "INCONCLUSIVE", "when": {"const": True}}
+
+# Scale-language freeze-time controls (a5-llm Gate-A re-audit 2026-07-11
+# point 4; re-audit-2 2026-07-11 residual 1; adjudication
+# docs/next/a5-llm-refute-adjudication.md section 2.2 item 1: "validated by
+# prereg-freeze against the envelope text"). The prose envelope is the binding
+# ceiling and the discipline is FAIL-CLOSED IN BOTH DIRECTIONS:
+#   (a) a broad family of PROHIBITION phrasings is recognized ("no ... slope",
+#       "not ... slope", "may not ... slope", "never a slope", "slope ...
+#       prohibited/forbidden/not licensed", and the sign analogues) — any hit
+#       against the declared level refuses the freeze; and
+#   (b) the envelope must AFFIRMATIVELY license the declared ceiling level.
+#       Absent an affirmative license (silence, ambiguity), the freeze is
+#       REFUSED — recognition failure can only ever refuse, never accept.
+# A ceiling of "none" can never exceed any prose reading.
+#
+# Phrase cohesion: a prohibition/license phrase must cohere within ONE
+# comma/clause segment ([^.,;:!?]*), so "a SIGN at R1-R3 only, never a slope
+# law" reads as a sign license PLUS a slope prohibition — never as a sign
+# prohibition borrowed across the comma.
+SCALE_LICENSE_ENUM = ("none", "sign-only", "slope")
+_NEG = r"\b(?:no|not|never|may\s+not|must\s+not|cannot|can\s+not|without)\b"
+_GAP = r"[^.,;:!?]*"
+ENVELOPE_SLOPE_PROHIBITED_RE = re.compile(
+    _NEG + _GAP + r"\bslopes?\b"
+    r"|\bslopes?\b" + _GAP +
+    r"\b(?:not|never|prohibited|forbidden|disallowed|banned|refused|excluded)\b"
+    r"|no\s+slope\s+law|direction[\s-]only|sign[\s-]only",
+    re.IGNORECASE)
+ENVELOPE_SIGN_PROHIBITED_RE = re.compile(
+    _NEG + _GAP + r"\b(?:signs?|directions?)\b"
+    r"|\b(?:signs?|directions?)\b" + _GAP +
+    r"\b(?:not|never|prohibited|forbidden|disallowed|banned|refused|excluded)\b",
+    re.IGNORECASE)
+# Affirmative license of a SLOPE ceiling: a licensing verb and the slope term
+# inside one clause segment ("a fitted slope law is licensed within R1-R3",
+# "the design licenses a slope law ..."). Mere mention is NOT enough.
+ENVELOPE_SLOPE_LICENSED_RE = re.compile(
+    r"\bslopes?\b" + _GAP + r"\b(?:licen[cs]|permit|allow)"
+    r"|\b(?:licen[cs]|permit|allow)\w*" + _GAP + r"\bslopes?\b",
+    re.IGNORECASE)
+# Affirmative license of a SIGN-ONLY ceiling: the envelope must speak of sign
+# or direction language at all ("a SIGN at R1-R3 only", "direction only") —
+# silence on sign cannot verify a sign license (fail closed).
+ENVELOPE_SIGN_MENTION_RE = re.compile(r"\b(?:signs?|directions?)\b", re.IGNORECASE)
+ENVELOPE_NOTHING_LICENSED_RE = re.compile(
+    r"licenses?\s+nothing|no\s+(?:scale|trend|sign)\s+language", re.IGNORECASE)
+# The REGISTERED scale-trend-validity result (re-audit-2 residual 2): the
+# section-2 trend machinery publishes its validity under the scale-trend
+# naming discipline — the a5-llm shape's /analysis/holm/scale_trend_rag, the
+# fixture shape's /gates/scale_trend. A slope ceiling's
+# design.scale_trend_valid_metrics must include EVERY declared analysis
+# output field matching this discipline; an unrelated Boolean (e.g.
+# /analysis/primary_reject) or a separation gate alone can never stand in
+# for the registered trend result.
+SCALE_TREND_RESULT_RE = re.compile(
+    r"scale[_\-/]?trend|trend[_\-]?(?:valid|rag|result)", re.IGNORECASE)
+
+
+def check_scale_language(record):
+    """Freeze-time coherence of the machine-readable scale-language controls.
+
+    All three design fields (scale_language_max, model_scale_rungs,
+    scale_trend_valid_metrics) are OPTIONAL — existing frozen records carry
+    none of them and stay valid; verdict-gen fails closed (slope unreachable)
+    on records without them. Once any is declared it must cohere with the
+    frozen record; every violation is ERR_P2_SCALE_LANGUAGE, fail-closed.
+
+    Runs BEFORE generic schema validation (re-audit-2 residual 3), so field
+    access is defensive: a record too malformed to carry the scale fields
+    falls through to ERR_P2_SCHEMA; a record that DOES declare them gets the
+    named error first.
+    """
+    design = record.get("design")
+    if not isinstance(design, dict):
+        return  # shapeless record — generic schema validation owns it
+    ceiling = design.get("scale_language_max")
+    model_rungs = design.get("model_scale_rungs")
+    trend_ptrs = design.get("scale_trend_valid_metrics")
+    if ceiling is None and model_rungs is None and trend_ptrs is None:
+        return  # legacy shape — nothing declared, nothing to check
+
+    for name, val in (("model_scale_rungs", model_rungs),
+                      ("scale_trend_valid_metrics", trend_ptrs)):
+        if val is not None and not isinstance(val, list):
+            raise kc.KotError("ERR_P2_SCALE_LANGUAGE",
+                              "design.%s must be a list, got %s (fail closed)"
+                              % (name, type(val).__name__))
+    envelope = record.get("extrapolation_envelope_verbatim")
+    if not isinstance(envelope, str):
+        envelope = ""  # unreadable envelope licenses nothing (fail closed)
+    pins = record.get("pins") if isinstance(record.get("pins"), dict) else {}
+    script = pins.get("analysis_script") if isinstance(pins.get("analysis_script"), dict) else {}
+    declared = {f for f in (script.get("output_fields") or []) if isinstance(f, str)}
+
+    if ceiling is not None:
+        if ceiling not in SCALE_LICENSE_ENUM:
+            raise kc.KotError("ERR_P2_SCALE_LANGUAGE",
+                              "design.scale_language_max %r is not one of %s"
+                              % (ceiling, list(SCALE_LICENSE_ENUM)))
+        if ceiling == "slope":
+            if ENVELOPE_SLOPE_PROHIBITED_RE.search(envelope):
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_language_max=\"slope\" but the frozen "
+                    "extrapolation_envelope_verbatim carries a slope "
+                    "prohibition / direction-or-sign cap — the machine-readable "
+                    "ceiling may never exceed the envelope text (adjudication "
+                    "section 2.2 item 1; re-audit-2 residual 1)")
+            if not ENVELOPE_SLOPE_LICENSED_RE.search(envelope):
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_language_max=\"slope\" but the "
+                    "extrapolation_envelope_verbatim does not AFFIRMATIVELY "
+                    "license a slope (no licensing phrase co-located with the "
+                    "slope term) — ambiguous or silent licensing cannot freeze "
+                    "a slope ceiling (fail closed; state the licensed slope "
+                    "scope verbatim in the envelope)")
+            if not model_rungs or not trend_ptrs:
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_language_max=\"slope\" requires non-empty "
+                    "design.model_scale_rungs AND design.scale_trend_valid_metrics "
+                    "— without them verdict-gen can never license a slope, so a "
+                    "slope ceiling is incoherent (fail closed)")
+            # Re-audit-2 residual 2: the trend pointers must establish that
+            # the REGISTERED scale-trend machinery ran — every declared
+            # analysis output field under the scale-trend naming discipline
+            # must be included. An unrelated Boolean or a separation gate
+            # alone can never license a later slope.
+            registered = sorted(f for f in declared if SCALE_TREND_RESULT_RE.search(f))
+            if not registered:
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_language_max=\"slope\" but "
+                    "pins.analysis_script.output_fields declares NO registered "
+                    "scale-trend-validity result (no field under the "
+                    "scale-trend naming discipline) — the registered trend "
+                    "machinery cannot be shown to run, so a slope ceiling "
+                    "cannot freeze (fail closed)")
+            missing = sorted(f for f in registered if f not in set(trend_ptrs))
+            if missing:
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_trend_valid_metrics omits the registered "
+                    "scale-trend-validity result pointer(s) %s — a slope "
+                    "ceiling gated on unrelated Booleans / a separation gate "
+                    "alone does not establish the registered trend machinery "
+                    "ran (fail closed)" % ", ".join(missing))
+        if ceiling == "sign-only":
+            if ENVELOPE_SIGN_PROHIBITED_RE.search(envelope):
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_language_max=\"sign-only\" but the frozen "
+                    "extrapolation_envelope_verbatim carries a sign/direction "
+                    "prohibition — the machine-readable ceiling may never "
+                    "exceed the envelope text (re-audit-2 residual 1)")
+            if not ENVELOPE_SIGN_MENTION_RE.search(envelope):
+                raise kc.KotError(
+                    "ERR_P2_SCALE_LANGUAGE",
+                    "design.scale_language_max=\"sign-only\" but the "
+                    "extrapolation_envelope_verbatim never speaks of sign or "
+                    "direction language — an unverifiable sign license cannot "
+                    "freeze (fail closed; state the licensed sign scope "
+                    "verbatim in the envelope)")
+        if ceiling in ("sign-only", "slope") and ENVELOPE_NOTHING_LICENSED_RE.search(envelope):
+            raise kc.KotError(
+                "ERR_P2_SCALE_LANGUAGE",
+                "design.scale_language_max=%r but the envelope text licenses no "
+                "scale language at all — the ceiling exceeds the envelope" % ceiling)
+    if model_rungs is not None:
+        labels = {str(r) for r in design.get("scale_rungs") or []}
+        stray = sorted(str(r) for r in model_rungs if str(r) not in labels)
+        if stray:
+            raise kc.KotError(
+                "ERR_P2_SCALE_LANGUAGE",
+                "design.model_scale_rungs entries not in design.scale_rungs: %s "
+                "— comparable model-scale rungs must be declared ladder rungs"
+                % ", ".join(stray))
+    if trend_ptrs is not None:
+        unknown = sorted(str(p) for p in trend_ptrs
+                         if not isinstance(p, str) or p not in declared)
+        if unknown:
+            raise kc.KotError(
+                "ERR_P2_SCALE_LANGUAGE",
+                "design.scale_trend_valid_metrics pointers not in "
+                "pins.analysis_script.output_fields: %s — the trend-validity "
+                "gate must read declared analysis outputs (constraint-2 "
+                "discipline)" % ", ".join(unknown))
 ASM_CITE_RE = re.compile(r"\bASM-\d{4}\b")
 # Supersede-by-citation marker (the register's append-only supersession
 # convention, first used by ASM-0622/ASM-0623 per design-nl-boundary §14.9
@@ -173,6 +388,13 @@ SCHEMA_FILES = {"kot-reg/1": "kot-reg-1.json", "kot-reg/2": "kot-reg-2.json"}
 
 def check_record(record, root):
     """All freeze-time lints. Raises kc.KotError on the first violation."""
+    # Scale-language machine-readable controls vs the envelope text (a5-llm
+    # Gate-A re-audit 2026-07-11 point 4; adjudication section 2.2 item 1).
+    # Runs BEFORE generic schema validation (re-audit-2 residual 3) so an
+    # invalid scale_language_max / incoherent scale declaration fails as the
+    # NAMED ERR_P2_SCALE_LANGUAGE, never as generic ERR_P2_SCHEMA.
+    check_scale_language(record)
+
     sv = record.get("schema_version")
     if sv not in SCHEMA_FILES:
         raise kc.KotError("ERR_P2_SCHEMA", "schema_version %r is not one of %s"

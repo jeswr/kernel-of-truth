@@ -1,0 +1,104 @@
+## Verdict
+
+The architectural direction is sound and appropriately narrow. The current DESIGN is not yet sound enough to commit as experiment-driving authority.
+
+The query path is buildable at 110–360M and runnable cheaply. A 2B model is unnecessary for the first falsifier. The typed NL→contract seam, fail-closed execution, bounded clarification, reuse of NLB-FE/1, and generic-store death condition are the right choices.
+
+However, the design does not yet provide a genuinely cheap decisive test of the distinctive claim, and its extraction-coverage measurement can hide the coverage wall it is supposed to expose.
+
+## Assessment
+
+1. Concrete and buildable?
+
+Mostly yes for query-only CODEVERT:
+
+- A BERT-class intent/slot parser over eight closed frames is realistic at 110–360M, although the literature correctly does not guarantee the joint 0.90-retention/S2 bar ([CODEVERT §2.3](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/CODEVERT.md:132)).
+- Deterministic templates, constrained entity binding, contract execution, clarification, and SQLite/Datalog twins are straightforward.
+- The ≤5 GPU-hour parser pilot is credible. The expensive part is engineering and annotation, not inference.
+- A conservative Python extractor is buildable only as a deliberately restricted static subset. `ast + symtable` is not a call/reference resolver for general Python: higher-order calls, decorators, descriptors, inheritance, imports, aliasing, generated attributes, and framework registration will force substantial `unknown` mass.
+- The edit path is not build-ready. “Full reference closure is proved” is not operationally defined and generally cannot be certified for Python ([CODEVERT §2.5](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/CODEVERT.md:190)). Rename must be explicitly scoped to a syntactically closed subset; compile/tests certify only observed mechanical behavior, not semantic completeness.
+- The claimed $100–300 cost for 3,600 independently phrased tasks plus external adjudication is not credible given the programme’s own finding that human annotation is the binding resource.
+
+2. Falsifiable, cheap, and no oracle?
+
+The runtime design respects the NL-boundary wall: the symbolic executor never sees prose, the parser is inside the measured system, and clarification reveals only the user’s intended choice among displayed interpretations. That is clean.
+
+The evaluation does not yet fully respect it:
+
+- G1 defines its universe as queries “over extracted symbols.” That excludes symbols and relations the extractor missed. It can therefore report high κ while silently conditioning on successful extraction.
+- A 150-fact precision audit does not measure extractor recall or query-answer completeness. Missing call/import/reference edges are exactly what turn an apparently “proved” answer into a false negative.
+- Backward-authored tasks over registered symbols can recreate coverage-by-construction unless the query universe and task sampling are generated independently of extractor output.
+- DECONF-A2 is formal-query SQLite reproduction. It cannot be treated as an early NL attribution-collapse test. At G2, “SQLite consuming NL natively” needs a concrete in-system parser/tool caller. Giving it gold SQL would smuggle the oracle; giving it an underbuilt tool agent would create a weak control ([CODEVERT §4.1](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/CODEVERT.md:281)).
+- G2 is explicitly inherited from an instrument that calls itself non-decisive ([NLB §7](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/NLB.md:587)). Its point-estimate kills cannot simultaneously be called decisive evidence.
+- G3 decisively tests the NL parser, not whether CODEVERT beats a generic store/tool system.
+- G4 could be decisive, but it is deferred and under-specified.
+
+Thus: falsifiable in principle, but no cheap decisive distinctive-architecture test is currently specified.
+
+3. Correctly slotted into KOT-FAIR/2?
+
+Partially.
+
+Good:
+
+- Parser, indexes, stores, retries and clarification are inside system cost.
+- API parsers are excluded.
+- Shared/matched and native retrieval cells are invoked.
+- Tuning compute, retrieved tokens and index bytes are acknowledged.
+- The generic-store and deranged-store controls correctly target attribution.
+
+Missing for a binding KOT-FAIR/2 claim:
+
+- An explicit `B_k` resource budget and closed `F(B_k)` comparator set.
+- Canonical KOT-SIZE/2 six-figure accounting, frozen base image, cold-start and remote-dependency treatment.
+- Full KOT-COST/2 measurements: CPU time, I/O, RSS, energy, cold/warm latency, throughput and clarification-turn cost—not merely “bytes/latency/energy.”
+- KOT-LIFE/1 authoring, extraction, indexing, tuning, annotation, and amortization ledger.
+- Sealed-evaluation and construction-leakage/decontamination protocol.
+- An exact G4 arm table. The document variously says the nine-arm ladder is retained, that G4 removes retry arms, and that a deranged arm is added.
+- Paired comparison statistics. NLB’s Clopper–Pearson machinery handles single-arm rare-event rates; it does not provide the confidence interval for paired coverage differences or the 2-point generic-store non-inferiority claim. Those require a paired cluster-level difference/NI procedure.
+
+The FRONT rules explicitly require both shared/matched and native cells with distinct claim licences ([FRONT §5](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/FRONT.md:497)); CODEVERT cites this but does not instantiate the systems.
+
+## Three most important concerns, ranked
+
+1. Extractor-relative coverage can hide failure.
+
+   G1 must sample from an extractor-independent universe and measure query-level recall/completeness, not just fact precision. Otherwise κ is circular and the primary cheap kill is invalid.
+
+2. The generic-store deconfound is not concretely defined at the NL boundary.
+
+   Pin two controls: identical NLB contract front-end over the generic executor, isolating substrate/executor value; and a strong native NL tool-use arm built under FRONT. No gold SQL or formal contracts may enter either arm.
+
+3. The claimed cheap decisive test is not decisive.
+
+   G2 is a diagnostic with point thresholds; clarification has no numeric rate/utility gate; and G4 lacks paired NI statistics and a closed KOT-FAIR/2 manifest. An always-clarify/set-happy system can currently turn candidate recall into “completed coverage” despite the stated concern ([CODEVERT §5](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/CODEVERT.md:385)).
+
+## Technical errors and concrete gaps
+
+- `ast + symtable` cannot prove complete Python call/reference closure without a formally specified restricted language subset.
+- Fact precision is not sufficient to establish answer completeness; recall and negative-answer validity are missing.
+- “All queries over extracted symbols” is a biased κ denominator.
+- `unknown` propagation is not defined for inverse/exhaustive queries such as callers-of and imported-by.
+- “Zero unknown references plausibly naming it” is not executable until “plausibly” is a finite, pinned hazard analysis.
+- Insert-import lacks placement, alias collision, `__future__`, conditional import, formatter, and applicability semantics.
+- Cluster CP cannot establish paired +5-point superiority or 2-point non-inferiority.
+- No numerical clarification-rate cap or clarification-adjusted utility endpoint exists.
+- G2’s aligned-SQLite control is ambiguous about who maps NL to tools.
+- G4’s arm inventory and product denominator are internally inconsistent.
+- Reallocating the reserved edit share at G4 means G4 is not full-product-distribution scoring.
+- The annotation/adjudication cost estimate is materially underpriced.
+- The design alternates between pinning split-conformal scoring and inheriting NLB’s not-yet-selected score class.
+- The f2b-transfer Stage-1 interpretation is correctly scoped: it improves confidence in that separate membership-gold procedure, but supplies no evidence for code extraction or NL entry.
+
+## Recommendation
+
+Do not commit this version as the controlling DESIGN or use it to interpret experiments.
+
+Commit after a short revision that:
+
+1. Replaces G1 with an extractor-independent query universe plus query-level precision/recall/completeness adjudication.
+2. Fully specifies the two NL-valid generic-store controls.
+3. Adds a numeric clarification budget and paired cluster-level G4 superiority/non-inferiority statistics.
+4. Instantiates the complete KOT-FAIR/2 manifest and reconciles the arm table.
+
+It is sound to begin a non-scored extractor engineering spike now. Do not run or freeze the G1 census, G2 attribution kill, or G4 prereg until those corrections land.

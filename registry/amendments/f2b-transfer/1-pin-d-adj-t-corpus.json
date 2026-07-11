@@ -1,0 +1,17 @@
+{
+    "author": "runner-8",
+    "date": "2026-07-11T16:30:00Z",
+    "experiment": "f2b-transfer",
+    "kind": "ops",
+    "patch": [
+        {
+            "op": "replace",
+            "path": "/pins/corpus_hashes/d-adj-t",
+            "value": "a4baa36fbcbbfe2b51fa1dbdd0589c3c461caf190cfc5b67c65e4a5bda9b53bc"
+        }
+    ],
+    "rationale": "Input pin only (P2 P-9: a PINNED-AT-INPUTS placeholder completed by ops amendment after the blind adjudication run and before the stage-1 final-phase record; no design field is touched). The stage-1 blind adjudication completed under the pinned data/d-adj-t protocol (PROTOCOL.md, design.md section 4): judge-1 a kernel-naive HUMAN judge, 360/360 items; judge-2 the pre-declared cross-vendor blind LLM (GPT-5.6-Sol via npx-pinned @openai/codex 0.144.1, reasoning effort low), 360/360, read as DIAGNOSTIC + FAIL-direction stability only, never gold; judge-3 the tie-break (same codex model) on the 36 non-concordant items. Resolution follows the maintainer-confirmed issue-#9 rule (a strictly-more-conservative refinement of design.md section 4.4 recorded in registry/corrections/f2b-transfer/2-judge3-resolution-amendment.json): a discordant item resolves to the human label ONLY where judge-3 agrees with the human, else it stays unresolved. data/d-adj-t/ was assembled by poc/f2b-transfer/judge-1-results/assemble_d_adj_t.py: labels.jsonl (one line per item {id, gold_ext|null, undecided, unresolved, votes-by-pseudonym}), summary.json (the exact analysis-input integers: n_adjudicated 360, n_unresolved_disagreement 27, n_undecided 0, n_agree_membership 320, judge_pairs_total 359, judge_pairs_concordant 324, n_ext_labelled 333, n_eval_items 250), PROTOCOL.md (verbatim section 4), and the pseudonymous judge-1/judge-2/judge-3 raw response files. This ops amendment resolves the 'PINNED-AT-INPUTS:blind-adjudication-labels-pinned-by-ops-amendment-after-the-protocol-run-and-before-the-stage-1-record' placeholder in pins.corpus_hashes to the kot-corpus-hash/1 digest of data/d-adj-t/ (tools/registry/corpus-pin.py d-adj-t), covering all corpus files including the run outputs. RT-14 account_lint over the corpus is clean (the only @ is the npm package spec @openai/codex@0.144.1). One-shot pin discipline: any change to those bytes before the final-phase run invalidates this value and requires a pre-run correction record, not a new ops amendment.",
+    "schema_version": "kot-amend/1",
+    "seq": 1,
+    "unblinding_state_at_write": "post"
+}

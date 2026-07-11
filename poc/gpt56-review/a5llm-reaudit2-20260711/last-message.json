@@ -1,0 +1,28 @@
+Remediation is **NOT CONFIRMED**. The original raw-rung and sibling-generator defects are fixed, but freeze-time validation remains fail-open in two statistically relevant ways.
+
+The comparable-rung minimum rule is now correct in `tools/registry/verdict-gen.py:327-353`. It counts measured rungs intersecting `design.model_scale_rungs`, maps 0/1→`none`, 2→`sign-only`, ≥3→`slope`, then takes the minimum with the frozen ceiling and trend-validity cap. The exact `{BASE0,BASE1,R1}` / `[R1]` counterexample returns `none`. Exactly three comparable rungs can still return `slope`, so this is not a ≥4-rung rule. The 18-verdict sweep passes: only a5-llm and f2 move from `slope` to `sign-only`; legacy 0/1/2-rung licenses remain unchanged.
+
+Both schemas correctly add the fields as optional at `registry/schema/kot-reg-1.json:73-75` and `kot-reg-2.json:73-75`. All 26 actual frozen-index records validate and reproduce their frozen hashes.
+
+The sibling paths are repaired. `verdict-gen-dts.py:270-278` delegates to the shared helper with the actual analysis output, eliminating its duplicated raw-count logic. `report-gen.py:189-206` consumes the effective verdict license and explains the comparable-rung minimum rule rather than recomputing a raw-count slope.
+
+The residual defects are in `prereg-freeze.py`:
+
+1. Ceiling-versus-envelope validation is not genuinely fail-closed. The regexes at `prereg-freeze.py:105-110` recognize only a few phrasings. For example, `check_scale_language` accepts:
+
+```text
+scale_language_max = slope
+envelope = "No fitted slope may be reported."
+```
+
+It sees the word “slope” but does not recognize the prohibition. Likewise, a `sign-only` ceiling is accepted against “No sign may be reported.” Thus `prereg-freeze.py:135-163` does not reliably enforce `ceiling <= envelope`.
+
+2. The companion trend machinery is under-validated. `prereg-freeze.py:152-158` requires only non-empty arrays, while lines 173-182 merely require each pointer to be a declared output field. A slope record can designate an unrelated Boolean such as `/analysis/primary_reject`—or only a separation gate while omitting the registered trend-validity result—and later obtain `slope` when that Boolean is true. This does not establish that the registered scale-trend machinery ran and was valid.
+
+3. Invalid enum values do fail closed, but through schema validation as `ERR_P2_SCHEMA` at `prereg-freeze.py:286-288`; the explicit `ERR_P2_SCALE_LANGUAGE` enum check at lines 130-134 is unreachable through the normal CLI. That contradicts the claimed named-error behavior.
+
+The test file materially improves coverage: zero/one comparable rungs are tested at `test_verdict_gen_scale.py:265-284` and end-to-end at lines 468-487; real a5-llm CLI regeneration is constructed from actual artifacts at lines 660-717; the 18-verdict sweep and issued hashes are checked at lines 180-228. However, it has no adversarial tests for alternative prohibition wording or unrelated declared Boolean pointers.
+
+In this read-only environment, 23 tests passed and 14 write-dependent CLI tests—including the real a5-llm regeneration and freeze-path cases—were skipped. Independent checks confirmed the pinned a5-llm and f2 verdict hashes remain `f893cf47…` and `38422b3c…`, respectively, and no existing tracked frozen-index or verdict bytes differ from `HEAD`.
+
+Therefore points 3 and 6 are resolved, and schema integration from point 4 is resolved, but point 4’s claimed fail-closed ceiling/companion validation is still incomplete.

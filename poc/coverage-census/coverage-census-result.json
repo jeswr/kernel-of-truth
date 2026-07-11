@@ -1,0 +1,82 @@
+{
+  "artifact": "coverage-census — D3-suite lemma-touch upper-sieve census + normalised-scale coverage-ceiling (best effort; NOT a full-suite census)",
+  "produced_by": "Fable experiment agent, 2026-07-11",
+  "revision": "rev-2 (2026-07-11) — after GPT-5.6 review poc/gpt56-review/rev-covcensus-20260711/: arithmetic fix (uncensused full-headroom mass 0.8235 -> 0.8094954649; 0.8235 was wrongly computed as 1-0.1765) + scope wording narrowed (D3-lane-only census; NO-KILL scoped to this illustrative run; monotonicity explanation corrected; parse-gap attribution softened). Hand-authored values reconciled to authoritative rig JSON power-D3-uppersieve.result.json / sieve-census.json.",
+  "builds_on": {
+    "POWER_rig": "poc/p3-power/power.py",
+    "POWER_result": "poc/p3-power/coverage-ceiling-result.json (Delta_max simUCB95 0.8095, mapper-parse lane, D3-only)",
+    "design": "docs/next/design/POWER.md rev2 §2.1/§3.1"
+  },
+  "governance": {
+    "git": "none",
+    "bd": "none",
+    "kb_sync": "none",
+    "registry_writes": "none — outputs confined to poc/coverage-census/ + docs/next/analysis/coverage-census.md; NO verdict, NO registry object touched",
+    "frozen_records_touched": "none"
+  },
+  "what_a_complete_census_requires_per_POWER": [
+    "(1) a FROZEN P3-D-INDEX pin that ENUMERATES every benchmark of every weighted domain D1..D6 with chance/ceiling/metric_type/weight — DOES NOT EXIST (provisional pin frozen=false; D1,D2,D5,D6 carry weight with ZERO enumerated benchmarks).",
+    "(2) a coverage census over the WHOLE enumerated suite in a KILL-SOUND lane. The only cheap CPU (~$0, no human annotation) sound lane is the lemma-touch UPPER SIEVE (POWER §2.1(a)); the tight-kappa ORACLE lane requires human annotation and is NOT ~$0 (POWER §2.1(b),§7).",
+    "(3) census pin block + registered Form-A family-eligibility (verdict-eligibility, POWER §4 step 0)."
+  ],
+  "scope_of_this_run": "D3 upper-sieve lane ONLY: the seven D3 benchmarks with usable external item data. CLUTRR item data exists on disk but was intentionally EXCLUDED (authored against the store -> lemma-touch coverage ~1 by construction, not an external measurement); ProofWriter has no item data; D1/D2/D5/D6 are not enumerated so no whole-suite item-data inventory or census can be established for them. This is a D3-suite census, NOT a full-suite census. This run does not establish results for every family, suite component, or possible cheap computation.",
+  "MEASURED_new_this_run": {
+    "lane": "upper-sieve (lemma-touch; deterministic, kill-SOUND/UNCONDITIONAL; OVER-counts true coverage)",
+    "store": "kernel-v0 + molecules-v0 (m0b 2026-07-08 instance), 190 covered lemma types; machinery byte-identical to data/d-ext/build-dext.mjs",
+    "per_benchmark": [
+      { "benchmark": "OpenBookQA-test", "domain": "D3", "n_total": 500, "touched_count": 418, "kappa_upper_sieve": 0.836 },
+      { "benchmark": "MMLU-college_biology-test", "domain": "D3", "n_total": 144, "touched_count": 92, "kappa_upper_sieve": 0.6389 },
+      { "benchmark": "MMLU-college_chemistry-test", "domain": "D3", "n_total": 100, "touched_count": 43, "kappa_upper_sieve": 0.43 },
+      { "benchmark": "MMLU-medical_genetics-test", "domain": "D3", "n_total": 100, "touched_count": 39, "kappa_upper_sieve": 0.39 },
+      { "benchmark": "MMLU-anatomy-test", "domain": "D3", "n_total": 135, "touched_count": 69, "kappa_upper_sieve": 0.5111 },
+      { "benchmark": "MMLU-clinical_knowledge-test", "domain": "D3", "n_total": 265, "touched_count": 158, "kappa_upper_sieve": 0.5962 },
+      { "benchmark": "MMLU-nutrition-test", "domain": "D3", "n_total": 306, "touched_count": 214, "kappa_upper_sieve": 0.6993 }
+    ],
+    "pooled_kappa_upper_sieve": 0.6665,
+    "pooled_touched": 1033,
+    "pooled_n": 1550,
+    "contrast_mapper_parse_lane": "POWER measured this SAME D3 suite at kappa=0/1550 on the mapper-parse lane; the sound sieve lane measures kappa=0.6665 pooled (0.39–0.836). The mapper 0/1550 is a VALID measured result for the mapper-parse instrument (which folds in the NL parse gap), NOT literally an artifact; but it cannot be treated as oracle coverage, and the upper sieve shows the cheap unconditional-kill lane does not confirm it. Attributing the ENTIRE ~0-vs-0.67 gap to NL parsing is EXTRAPOLATION: sieve false positives, missing endorsements, and non-derivability may explain part or all of it."
+  },
+  "normalised_scale_ceiling_under_sieve_lane": {
+    "tag": "COMPUTED BOUND: MEASURED kappa + PROVISIONAL/STIPULATED pin (unfrozen weights/ceilings/margins, a_cov=0 imputation, full-headroom imputations)",
+    "index_pin": "inputs/index-pin.PROVISIONAL.json (frozen=false; PROVISIONAL weights/ceilings — replaced by P3-D-INDEX)",
+    "delta_k_provisional": 0.03,
+    "delta_max_scalar_simUCB95": 0.986,
+    "D3_scalar_contribution": 0.17651,
+    "D3_own_axis_simUCB95": 0.8825,
+    "delta_k_domain_D3": 0.05,
+    "uncensused_full_headroom_mass": 0.8095,
+    "scalar_decomposition": {
+      "note": "Delta_max scalar 0.98600 = D3 censused 0.17651 + uncensused/full-headroom 0.80950. Authoritative: power-D3-uppersieve.result.json (verdict.delta_max_scalar_ucb 0.9860041603; domains.D3.delta_max_ucb 0.1765086954). rev-2 correction: rev-1 wrongly reported the uncensused mass as 0.8235 = 1 - 0.1765; the index max aggregate headroom is NOT exactly 1 under the unclamped provisional normalisation. Note the uncensused mass numerically equals the mapper-parse ceiling 0.8095 because D3 contributed exactly 0 on that lane.",
+      "D3_censused": 0.1765086954,
+      "uncensused_full_headroom": 0.8094954649,
+      "uncensused_breakdown": { "D4_CLUTRR": 0.13194444444444445, "D4_ProofWriter": 0.12755102040816327, "D1": 0.15, "D2": 0.15, "D5": 0.15, "D6": 0.1 },
+      "total": 0.9860041603
+    },
+    "kill_arithmetic_scalar": "0.986 < 0.03 = FALSE",
+    "kill_arithmetic_D3_ownaxis": "0.8825 < 0.05 = FALSE",
+    "verdict_eligible": false,
+    "rig_verdict": "ILLUSTRATIVE-ONLY — no G1 verdict"
+  },
+  "verdict_input_for_coordinator": {
+    "headline": "STILL-INCOMPLETE for the general-index kill; no unconditional kill is supported by the cheap D3 upper-sieve run; the rig remains ILLUSTRATIVE-ONLY and emits no G1 verdict.",
+    "general_index_kill": "NOT SUPPORTED / STILL-INCOMPLETE. Statistic: sound-lane Delta_max simUCB95 = 0.986 >> delta_k = 0.03 under the PROVISIONAL pin; 0.80950 of that is full-headroom imputation for D1/D2/D5/D6 (unenumerated) + ProofWriter (no data) + CLUTRR (authored-against-store). No frozen enumeration exists, so the full suite cannot even be named, let alone censused. D3 alone contributes 0.17651 > delta_k = 0.03, so this cheap D3 sieve run cannot license either a D3 or a general-index kill under the provisional pin EVEN IF every other component later contributed zero. Whether the EVENTUAL frozen index (weights/margins/suite composition not yet frozen) can be cheaply killed is open. [COMPUTED BOUND -> the forward conclusion is the coordinator's EXTRAPOLATION]",
+    "domain_scoped_D3_kill": "NOT SUPPORTED on the sound lane. Statistic: sound-lane D3 own-axis simUCB95 = 0.8825 >> delta_k^D3 = 0.05. This DISSOLVES the mapper-parse 'would fire' (0.0000<0.05) AS A CHEAP UNCONDITIONAL KILL: the mapper zero cannot be treated as oracle coverage, and the sieve lane that would have made the kill unconditional does not confirm it. It is NOT empirically disproved at the exact-oracle level (a positive sieve result alone does not prove oracle coverage is positive: sieve false positives, missing endorsements, and non-derivability could account for part or all of the gap); the oracle census does not exist.",
+    "ceiling_rose_note": "Replacing the D3 mapper-parse zero with the kill-sound upper sieve RAISED the provisional bound 0.8095 -> 0.9860 — completing the D3 lane of the census RAISED the ceiling. Careful mechanism: replacing FULL-HEADROOM imputations with measurements can only LOWER or preserve Delta_max (POWER's completeness rule keeps uncensused cells at full headroom; it does not make new measurements raise the ceiling). What raised the ceiling here was changing the ALREADY-CENSUSED D3 lane from a mapper zero (unsound for an unconditional kill) to the generous kill-sound upper-sieve value. No kill is manufactured.",
+    "what_is_missing_precisely": [
+      "the FROZEN P3-D-INDEX enumeration of D1/D2/D5/D6 benchmarks (a normative freeze; cannot be fabricated here). Because those benchmarks are not yet enumerated, no whole-suite item-data inventory or census can be established for them.",
+      "item data for ProofWriter (D4) — absent on disk",
+      "the tight-kappa ORACLE census (human-annotated, NOT ~$0) — the upper sieve already pushes the censused D3 components below full headroom; the oracle is the only DEFINED lane that could tighten the bound BELOW the upper-sieve result while remaining kill-sound. The sieve fails to license a kill here (kappa~0.67); no general over-counting threshold follows.",
+      "the census pin block + a registered Form-A family-eligibility ref (verdict-eligibility, POWER §4 step 0) — required for any verdict-eligible run."
+    ]
+  },
+  "changed_files": [
+    "poc/coverage-census/sieve_census.mjs",
+    "poc/coverage-census/sieve-census.json",
+    "poc/coverage-census/census-D3-uppersieve.MEASURED.json",
+    "poc/coverage-census/power-D3-uppersieve.result.json",
+    "poc/coverage-census/coverage-census-result.json",
+    "poc/coverage-census/RESULT.md",
+    "docs/next/analysis/coverage-census.md"
+  ]
+}

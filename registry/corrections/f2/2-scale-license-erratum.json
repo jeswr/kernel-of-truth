@@ -1,0 +1,44 @@
+{
+  "kind": "posthoc-erratum",
+  "schema_version": "kot-correction/1",
+  "experiment": "f2",
+  "seq": 2,
+  "author": "writer-2",
+  "author_session_note": "Fable implementation role acting as interpretive assessor under coordinator delegation, session 2026-07-11, branch opus/f2b-replicate-rightsize; pseudonym per RT-14 closed role list (precedent: registry/corrections/a5-llm/1-posthoc-pin-erratum.json)",
+  "authorized_by": "maintainer approval 2026-07-11 on issue #5 ('Approve all, d included'), approving the full a5-llm Gate-A REFUTE remediation recommended in docs/next/a5-llm-refute-adjudication.md, item (d) explicitly included (decision-list row 7: f2 hygiene erratum); execution delegated to the Fable role per the correction/1 precedent",
+  "date": "2026-07-11",
+
+  "defect": {
+    "statement": "registry/verdicts/f2.json field scale_language_licensed = \"slope\" is over-licensed. MEASURED: tools/registry/verdict-gen.py (pre-fix line 560) computed the license from the raw distinct-rung-label count only; f2's three rungs {R1, R2, R3} mapped to \"slope\" with no check against the frozen envelope or the realized trend result.",
+    "class": "verdict-generator code defect (claim-governance metadata over-license); NOT the same failure mode as a5-llm: MEASURED, f2's three rungs ARE comparable model-scale rungs (SmolLM2 135M/360M/1.7B pinned revisions — no baseline label in rungs_measured), so the G-12 count map lawfully reached slope-ELIGIBLE. The over-license is against the OTHER two per-record caps: (1) the frozen HE1 envelope caps trend language at direction-only; (2) no valid section-2 scale-trend fit exists in the analysis output for a 'slope' license to describe.",
+    "evidence": [
+      "MEASURED: registry/verdicts/f2.json (sha256 38422b3caf5df8a339d723eaa198a26f783465667fb920c34dbb697071dd6b2e) extrapolation_envelope_verbatim row HE1: 'Measured range: (135M,360M),(360M,1.7B). Envelope: 3 rungs => gap-closure-fraction trend to 7B, direction-only; bias stated: the s->S gap itself narrows as S grows'",
+      "MEASURED: reports/auto/f2/analysis-output.json (sha256 5952a7ff26e439c6dcd99f18305becbc0a7e2dc70a91dc8041bd909316f567e2) contains NO section-2 WLS trend fit — only gap_closed_fraction_R1R2 and gap_closed_fraction_R2R3 point values — so no licensed slope fit was ever produced",
+      "MEASURED: registry/verdicts/f2.json verdict = FAIL (fired rule index 1); no positive scale claim is carried by this record and no downstream document leans on its license field (docs/next/a5-llm-refute-adjudication.md section 2.4 sweep: blast radius of the generator defect in issued records is exactly a5-llm and f2; no CONFIRMED verdict carries an over-license)"
+    ]
+  },
+
+  "binding_reading": {
+    "field": "/scale_language_licensed in registry/verdicts/f2.json (sha256 38422b3caf5df8a339d723eaa198a26f783465667fb920c34dbb697071dd6b2e)",
+    "value_as_issued": "slope",
+    "binding_value": "sign-only",
+    "ruling": "DECISION: the binding reading of f2's scale_language_licensed is 'sign-only' (the generator's established vocabulary; in the frozen HE1 envelope's own words the licensed trend language is DIRECTION-ONLY — a gap-closure-fraction direction toward 7B, never a slope law). Downstream documents must not state any slope or scaling-law claim from f2. Low-stakes hygiene: the verdict is FAIL and nothing leans on this record's license.",
+    "no_measured_number_affected": "MEASURED: no endpoint value, fired rule, or verdict changes; the license field is claim-governance metadata only."
+  },
+
+  "corrective_action": {
+    "record_mutation": "NONE. registry/experiments/f2.json, results-log/f2.jsonl, registry/verdicts/f2.json and registry/frozen-index.json stand byte-identical as issued (append-never-edit). This erratum record is the binding correction of the license field until any lawful regeneration under the maintainer's decision-1b ruling.",
+    "generator_fix": "tools/registry/verdict-gen.py is fixed in the same change-set (per-record min-rule; see registry/corrections/a5-llm/2-scale-license-erratum.json for the fix description). Regenerating the f2 verdict with the fixed generator yields sign-only (no machine-readable design.scale_language_max ceiling and no valid trend result => slope is refused, fail closed).",
+    "verdict_impact": "registry/verdicts/f2.json FAIL stands unchanged; this erratum narrows claim-governance metadata only."
+  },
+
+  "refs": {
+    "adjudication": "docs/next/a5-llm-refute-adjudication.md (section 2.4 sweep row f2; maintainer-approved 2026-07-11, issue #5, 'd included')",
+    "frozen_record": "registry/experiments/f2.json (frozen_sha256 28874f2baa8573ed0d4948bf01af3ae10158560384e236fa0772aaf0cfaa56ec)",
+    "verdict": "registry/verdicts/f2.json (sha256 38422b3caf5df8a339d723eaa198a26f783465667fb920c34dbb697071dd6b2e)",
+    "analysis_output": "reports/auto/f2/analysis-output.json (sha256 5952a7ff26e439c6dcd99f18305becbc0a7e2dc70a91dc8041bd909316f567e2)",
+    "sibling_record": "registry/corrections/a5-llm/2-scale-license-erratum.json (the load-bearing instance of the same generator defect)",
+    "governing_law": "docs/research-plan/02-data-and-reporting.md:664 (G-12); docs/research-plan/08-stats-and-extrapolation.md section 2.1 (licensing preconditions)",
+    "regression_tests": "tools/registry/test_verdict_gen_scale.py"
+  }
+}

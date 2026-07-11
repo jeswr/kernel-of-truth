@@ -1,0 +1,108 @@
+I would build one system: **CASK-PY/1**, a Python-only selective coprocessor for eight repository queries and two mechanically bounded edits. It is not a small general coding assistant. It accepts only questions that can be compiled into a closed typed contract, and otherwise clarifies once or abstains.
+
+The central hypothesis is that a 110M model devoted entirely to contract recognition can beat a ≤360M generic tool-using model because it performs one discriminative pass, while entity resolution, execution, completeness checking, patching, and verification are deterministic. This is an architecture-family claim—“typed parsing plus exact execution beats generic tool use”—not evidence for distinctive kernel content.
+
+**Assumptions.** The target is Python at a pinned repository commit. The provisional workload is 70% relational QA, 15% ambiguous/unanswerable inputs, and 15% safe edits. Questions name symbols or deterministic aliases; descriptions such as “the function that validates configs” are out of contract. Extraction is amortized over repeated repository use. All components are local. The planning budget is ≤0.75 GB canonically packed, ≤1 GB host RSS, warm CPU p95 ≤500 ms, and no remote dependency; final admissibility must use measured KOT-SIZE/2 and KOT-COST/2 figures. I assume—but do not claim as measured—that a 110M parser can approach the NLB 0.90-retention/S2 threshold after synthetic and paraphrase-diverse training. That is the riskiest learned assumption.
+
+The stack is:
+
+**1. PY-STAT/1 conservative extractor.** At repository ingest, CPython `ast`, `symtable`, and a pinned import resolver enumerate only a closed static subset:
+
+- Lexical containment and definition locations.
+- Static `import` and `from … import`.
+- Direct name-bound calls whose target resolves to a module- or class-level definition.
+- Literal class construction and single-inheritance attribute resolution when every base is analyzed.
+- Byte spans, file hashes, and analyzer-version provenance for every edge.
+
+Higher-order calls, unresolved receiver attributes, star or conditional imports, decorators outside an identity-preserving allowlist, descriptors, metaclasses, `getattr`, `importlib`, `exec`, and `eval` never receive guessed edges. They produce typed `unknown` records, optionally with candidate-name sets.
+
+The extractor emits facts of the form:
+
+`Fact(repo_hash, relation, subject, object, status, source_span, analyzer_hash)`
+
+where `status ∈ {proved, disproved, unknown, conflict}`. The eight QA relations are `callers_of`, `callees_of`, `imports_of`, `imported_by`, `contains`, `contained_in`, `where_defined`, and `instance_of`.
+
+For inverse or exhaustive questions, including negative answers, `proved` is legal only if no relevant unknown edge could affect the result. Otherwise the result is `UNKNOWN_INCOMPLETE(partial_lower_bound, blocking_count)`. This prevents “no callers” from meaning merely “no callers the extractor understood.”
+
+**2. Typed store.** The primary store is compact relation-specific adjacency tables plus symbol/type indexes and provenance spans. A SQLite serialization of exactly the same facts is generated concurrently for the generic-executor control. Neither serialization contains prose summaries or benchmark-authored answers.
+
+Planning allocation is approximately 256 MB for facts and indexes. Repositories exceeding the cap are rejected or sharded before evaluation; silently truncating the store is prohibited.
+
+**3. NLB-gated NL→contract front-end.** Tier 0 is a deterministic exact-template/trie path with the repaired directional-frame table. Any missing or conflicting orientation cue falls through.
+
+Tier 1 is one **110M BERT-base-class encoder**, quantized to int8 for deployment, with four small supervised heads:
+
+- Intent: one of eight QA or two edit contracts.
+- BIO spans and symbol-role assignment.
+- Relation direction/orientation.
+- Answerability and ambiguity score.
+
+Expected packed weights are roughly 110–130 MB; tokenizer, heads, calibration data, and runtime artifacts add approximately 20–40 MB, all charged. Training uses 10⁴–10⁵ synthetic grammar-recombination examples plus source-disjoint paraphrases. The model never emits SQL, Datalog, code, or an answer.
+
+A deterministic constructor combines the head outputs with exact symbol-trie matches and emits at most eight complete contracts:
+
+```text
+Query(relation, subject_urn, direction, scope)
+Rename(symbol_urn, new_identifier)
+InsertImport(module_urn, imported_urn, optional_alias)
+```
+
+Orientation alternatives are added only when surface evidence is absent or conflicting—not automatically. Entity-trie collisions add all type-valid bindings. Calibration and the acceptance threshold are frozen on splits disjoint from evaluation. This component is the NLB boundary: no natural-language request touches the store except through its accepted `InterpretationSet`.
+
+**4. Deterministic executor.** The executor receives serialized contracts only; it has no access to the original question or any prose. It type-checks and executes relation-specific operations over the store, applying the completeness rule above.
+
+For QA, rendering is fixed templates plus source spans. There is no neural answer generator.
+
+For v1 edits, accepted contracts produce deterministic transforms only:
+
+- `rename` is allowed only in a syntactically closed reference set with no possibly name-binding unknown edges. A finite hazard scan rejects reflection, string-named references, `__all__`, `__slots__`, `globals`/`locals`, dynamic imports, shadowing across unresolved inheritance, generated attribute names, and exact-identifier strings in source/configuration surfaces.
+- `insert_import` has pinned placement after the docstring and `__future__` block, fixed grouping/order, collision checks, and no formatter invocation.
+
+Open-ended fixes, refactors, test generation, and neural patch drafting are not part of CASK-PY/1.
+
+**5. Bounded contrast, clarification, and verification.** Every surviving interpretation is executed.
+
+- One high-confidence interpretation: answer or attempt the deterministic edit.
+- Multiple interpretations with the same non-empty denotation: answer.
+- Multiple interpretations whose denotations differ, or all agree only by being empty: display two or three deterministic readings and allow exactly one charged clarification turn.
+- No valid interpretation, low confidence, incomplete extraction, or malformed clarification: abstain with a reason code.
+
+The empty-agreement exception matters: two directionally opposite parses returning empty sets do not establish that the question was understood.
+
+Patches receive one bounded mechanical verification pass: reparse, authorized-span check, symbol-resolution postcondition, compile, and pinned tests. Failure means abstention; there is no neural retry in v1. The certificate explicitly covers only these observed mechanical properties, not Python’s dynamic semantics.
+
+Clarification is capped at 5% on independently annotated unambiguous items and 20% overall. The primary utility is:
+
+`U = mean(correct × (1 − 0.25 × clarified))`
+
+with raw coverage, no-clarification coverage, dangerous-error rate, and abstention reported separately.
+
+The learned/deterministic boundary is therefore extremely narrow. Learning ends after proposing scored intent, role, span, direction, and answerability hypotheses. Candidate construction, entity admissibility, type checking, completeness, execution, ambiguity comparison, clarification rendering, patch construction, verification, and final rendering are deterministic. In particular, neither execution success nor provenance can certify that the learned formalization was correct.
+
+Why should this beat a generic tool agent? A generic ≤360M decoder must repeatedly generate a plan, choose a tool, serialize arguments, interpret results, and often reread source. CASK-PY/1 spends its learned capacity on ten closed frames, performs one encoder pass, and amortizes repository structure across queries. It cannot generate invalid calls; direction, entity types, exhaustive-answer validity, and patch span authorization are checked mechanically. Its ambiguity set converts near-miss candidate recall into safe coverage without paying autoregressive sampling costs.
+
+The comparison must nevertheless be strong. The primary baseline is the best local ≤360M tool-calling model fitting the same complete byte, RSS, latency, and tuning-compute budget. It consumes natural language directly and accesses SQLite facts and source through pinned JSON tools; it receives no gold contract or SQL. BM25 and small-dense RAG configurations over the same snapshot are additional candidates. A second control uses CASK’s identical front-end but compiles contracts to SQLite; if that matches CASK, the special executor/store contributes nothing. All store construction, index bytes, CPU work, clarification turns, and tuning are charged.
+
+The **single most decisive cheap falsifier** is a repo-disjoint micro-G4 pilot: approximately 300 base tasks × three independently authored phrasings over 10–15 held-out repositories, using the 70/15/15 query/ambiguity/edit mix. Targets are sampled from a raw-byte syntactic census frozen before extraction, never from successfully extracted symbols. Run four paired arms: CASK top-1, CASK ambiguity-set, identical-front-end→SQLite, and the strongest pilot-budget native tool agent. Fit both learned arms within the same ≤5 GPU-hour tuning allowance and measure all execution costs.
+
+Kill this instantiation if any of the following occurs:
+
+- No operating point reaches 80% utility coverage at ≤1% point dangerous-error.
+- The gold contract is absent from CASK’s candidate set on more than 10% of answerable items.
+- Ambiguity-set execution adds less than five points over top-1 at matched risk.
+- The upper 95% paired bound for CASK’s advantage over the native tool arm does not reach the required +5-point margin.
+- Clarification caps are exceeded.
+
+A positive pilot cannot establish the final matched-budget claim: it is too small, its tool baseline is only pilot-strength, and equivalence within two points will probably be underpowered. A negative result can cheaply kill the proposed mechanism or its competitive margin before paying for the full 1,200-task, externally adjudicated comparison.
+
+The three largest failure modes are:
+
+1. **Static coverage collapses on real Python.** Dynamic idioms may turn most exhaustive questions and renames into `unknown`. The design forecloses a misleading win through extractor-independent sampling, query-level completeness and negative-answer audits, dynamic-trace soundness probes, and full-distribution scoring. It cannot manufacture coverage; if independent coverage is below roughly 0.5, the product claim should die.
+
+2. **Agreement launders a wrong formalization.** A candidate set can omit the intended parse while its wrong members agree. Evidence-gated alternatives, explicit direction heads, both-orientation evaluation strata, rejection of ambiguous empty agreement, frozen risk thresholds, and blind semantic gold foreclose the obvious versions. Novel systematic inversions remain possible and must be disclosed.
+
+3. **A generic typed store/tool agent matches it.** This is not repairable by relabelling the system “neurosymbolic.” The identical-front-end SQLite control and strong native tool arm foreclose false attribution. Equivalence within the preregistered margin kills the distinctive architecture claim even if CASK remains a useful engineering product.
+
+CASK-PY/1 probably does not win on framework-heavy or highly dynamic Python, descriptive symbol references, architectural questions, bug diagnosis, open-ended edits, semantic refactors, or tasks whose answer lives mainly in comments, documentation, runtime state, or external knowledge. It also may lose on small repositories that fit directly in the generic model’s context, and on one-off queries where extraction and index construction cannot be amortized.
+
+Its abstention cost is consequently central, not cosmetic. On unsupported language, incomplete extraction, unsafe edits, or out-of-grammar questions, the generic model may produce a useful approximate answer while CASK returns nothing. The architecture is viable only if the covered structured slice is large enough that exactness, safety, latency, and repeated-query amortization outweigh that lost breadth. If it wins, the honest claim is narrow: on a pinned static-Python query/edit distribution, this selective contract-execution coprocessor beats every searched local generic model/RAG/tool comparator within the same measured deployment and inference budget.

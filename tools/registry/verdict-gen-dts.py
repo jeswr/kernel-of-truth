@@ -130,6 +130,7 @@ def run(root, exp_id, agent_id, computed_at):
     verdict = None
     fired_index = None
     fired_rule = None
+    analysis = None
     analysis_output_sha = None
     # Ops amendments cannot touch /pins/analysis_script, so this pin is
     # byte-identical between `record` and `effective`.
@@ -269,7 +270,12 @@ def run(root, exp_id, agent_id, computed_at):
     rungs_fresh = sorted({str(r["config"]["rung"]) for r in eligible
                           if isinstance(r.get("config"), dict) and "rung" in r["config"]})
     rungs = sorted(set(rungs_fresh))
-    license_ = "none" if len(rungs) < 2 else ("sign-only" if len(rungs) == 2 else "slope")
+    # Per-record min-rule licensing via the IMPORTED spine helper (a5-llm
+    # Gate-A re-audit 2026-07-11 point 6: this driver previously duplicated the
+    # raw-label-count expression and could emit "slope" from raw rung count).
+    # Same code, not a copy — see vg.scale_language_license's docstring for
+    # the three caps (comparable-rung G-12 tier, frozen ceiling, trend gate).
+    license_ = vg.scale_language_license(effective["design"], rungs, analysis)
 
     verdict_obj = {
         "schema_version": "kot-verdict/1",

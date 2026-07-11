@@ -1,0 +1,70 @@
+Verdict: the core A1 result is sound, cheap, and worth running, but DECONF/1 is not ready to freeze as written. Commit it only as a draft. Tighten A1’s claim semantics; redesign/specify Stage B; align the statistics and resource ledger with the already-ratified RAGC/KOT-FAIR rules.
+
+## Assessment
+
+1. Concrete/buildable and cheap?
+
+- A1: yes. The current harness has a finite closed answer space and the verifier receives only extracted records. Exhaustive enumeration is minutes of CPU and should produce a useful equivalence certificate. The mechanism claim is supported by [f2b_runner.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/f2b/runner/f2b_runner.py:631).
+- A2: buildable, but “roughly a day” is unsupported. The hard part is implementing and validating the complete query-grammar mapping, not executing 977 SQLite queries. It is engineering-cheap, not cost-free.
+- B: the ≤2 GPU-hour estimate is plausible for 135M and ~12.7k worst-case generations, but the arm is not yet executable because retrieval query construction and the acceptance policy are unspecified.
+- Nothing here tests scaling through 2B. That is fine if explicitly scoped to R-1/135M; no extrapolation to the 100M–2B range is licensed.
+
+2. Falsifiable, decisive, and NL-wall compliant?
+
+A1 is decisive for one narrow proposition:
+
+> The current F2 runtime checker uses no information beyond the projected label/gloss/claim answer key.
+
+It is not a genuine empirical test of whether independently generic content can reproduce the lift. GS-A copies the exact answer-bearing kernel strings and runs effectively the same check semantics, so equality is nearly true by construction. This is an executable equivalence/regression certificate, not a competitive generic-store experiment.
+
+The design mostly acknowledges that limitation, but two outcomes are overstated:
+
+- `C_dec = 1` proves structural fields are runtime-inert under the pinned topology; it does not prove kernel-authored content is generic.
+- `C_dec < 1` does not immediately establish a “kernel semantics runtime channel.” It can indicate a projection/adapter bug, incomplete read-set, initialization-order difference, or schema mismatch. Semantic credit requires those implementation causes to be excluded.
+
+The NL discipline is directionally correct but worded incorrectly. Stage B does contain English text: templated questions and retrieved rendered records. It is exempt from the NLB gate because it is an oracle-addressed/formal covered-slice G2 diagnostic, not because “no natural-language input exists.” [DECONF.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/DECONF.md:131) and [DECONF.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/DECONF.md:393) should say that explicitly.
+
+3. Technical gaps likely to cause failure
+
+The largest is Stage B’s alleged generic checker. The “existing gloss-self-check” is not retrieval-conditioned: it selects the item-aligned gloss using `it["urn"]`, then supplies that gloss, label, question, and proposed answer to the model. See [f2b_runner.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/f2b/runner/f2b_runner.py:712). Reusing it unchanged smuggles the aligned record back into GR-D.
+
+A valid GR-D needs to pin:
+
+- Retrieval query derived solely from model-visible question text—never `urn`, `record_path`, membership answer, or hidden item metadata.
+- Behaviour for zero, one, and multiple retrieved records.
+- A concrete acceptance prompt and parser for MC and yes/no cases.
+- Whether acceptance is self-consistency, a learned verifier, or execution success.
+- Acceptance/abstention calibration and extra verifier-generation cost.
+
+Moreover, “gloss self-check over retrieved text” is not in RAGC’s frozen GR-D signal menu, which permits self-consistency, a disciplined learned verifier, or executable checking. [RAGC.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/RAGC.md:405). DECONF therefore cannot claim simple adoption of ASM-0924 without an amendment.
+
+4. KOT-FAIR/2 and accounting
+
+The precursor/scope story is broadly sensible, but the formal slotting is inaccurate:
+
+- A1/A2 are not G1. G1 is specifically the coverage-ceiling calculation. They are CPU attribution diagnostics before the gate ladder.
+- B is a formal/oracle-addressed G2 diagnostic, not a W1 or G4 experiment.
+- BM25-only is a useful cheap lexical precursor, but not a “strong generic RAG baseline” under RAGC, which requires shared BM25+dense and native cells for stronger attribution/frontier use.
+- The point-only `recovery_RAG ≥ 0.70` collapse rule is too weak and conflicts with RAGC’s already specified absolute paired contrast, TOST/LCB branches, power target, and FWER discipline in [RAGC.md](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/design/RAGC.md:667). A noisy point estimate should not feed an attribution-collapse kill.
+- Accounting is incomplete even for a diagnostic: log full model/self-check tokens and FLOPs, total artifact bytes, peak RSS, latency distribution, BM25 build CPU, query-library implementation/build effort, and store derivation effort. “$0 compute” is acceptable; “$0” without lifecycle qualification is not.
+
+## Three most important concerns, ranked
+
+1. Stage B currently risks a direct oracle leak. The existing self-check obtains the aligned gloss through the item URN, and no non-oracular retrieval-query/acceptance contract is specified.
+
+2. A1’s interpretation is overstated. It is a valuable equivalence certificate over an exact projection of kernel-authored answer strings, not a falsifiable test of independently generic content. Discordance is not automatically kernel semantics.
+
+3. Stage B’s collapse statistics and KOT-FAIR slot do not match the ratified framework. Point-only ratio thresholding, “G1-class” labeling, BM25 described as “strong,” and incomplete lifecycle accounting should be corrected before preregistration.
+
+## Additional technical errors
+
+- “Four-column row” lists `{concept_id, term_label(s), canonical_text, claims[]}` but the actual checker keys primarily by `urn`/`record_path`; the exact key and duplicate-label/collision semantics must be pinned.
+- “Every future output” is too broad. The lemma applies only to the pinned harness/checker, closed option-scoring output space, initialization procedure, and store version.
+- A1 should enumerate initialization/order state and replay logged trajectories, not only item-answer pairs.
+- A2’s `<0.99 ⇒ engine distinctive` branch is invalid without first proving the SQL/query-library implementation conforms completely. Otherwise residuals measure implementation quality.
+- A2 reproduces the kernel query semantics in a bespoke query library. This demonstrates conventional-runtime portability, not that SQLite itself supplies equivalent semantics.
+- The recovery ratio remains statistically awkward near its bridge floor; use the already-ratified absolute paired Δ/TOST design.
+- “Same retrieved-token cap across arms” should mean the same allowed evidence budget where applicable; alone and answer-key verifier arms retrieve zero tokens.
+- External adjudication breaks membership-gold circularity, but it does not remove item-generation/store-addressing circularity. Every B verdict must retain the self-authored, kernel-covered, oracle-addressed-slice rider.
+
+Final recommendation: sound to commit as an EXP-DESIGN draft after revision; sound to implement and run A1 immediately once its licence is narrowed. Do not freeze or drive Stage B as written. A2 can proceed as a secondary portability audit after its mapping/conformance and lifecycle-accounting contract is strengthened.

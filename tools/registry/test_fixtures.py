@@ -57,11 +57,32 @@ def run_cli(script, *args, stdin=None):
                           input=stdin, capture_output=True, text=True)
 
 
+def make_temp_root(prefix="kot-fixture-"):
+    """A writable throwaway root, or None when the environment is read-only.
+
+    The 2026-07-11 a5-llm Gate-A re-audit ran in a sandbox with NO writable
+    temp directory, so five CLI tests could not execute (re-audit point 5).
+    Honour KOT_TEST_TMPDIR when set (an auditor can point it anywhere
+    writable); otherwise fall back to the platform default. Callers skipTest
+    on None — a skip is loud in the run summary, never a silent pass.
+    """
+    base = os.environ.get("KOT_TEST_TMPDIR") or None
+    try:
+        if base:
+            os.makedirs(base, exist_ok=True)
+        return tempfile.mkdtemp(prefix=prefix, dir=base)
+    except OSError:
+        return None
+
+
 class SpineFixture(unittest.TestCase):
     """Shared throwaway-root scaffolding."""
 
     def setUp(self):
-        self.root = tempfile.mkdtemp(prefix="kot-fixture-")
+        self.root = make_temp_root()
+        if self.root is None:
+            self.skipTest("no writable temp dir for CLI fixtures "
+                          "(set KOT_TEST_TMPDIR to a writable path)")
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
         for d in ("registry/schema", "registry/experiments", "registry/verdicts",
                   "results-log", "reports/auto", "docs", "analysis", "data/mock-corpus"):

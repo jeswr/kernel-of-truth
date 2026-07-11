@@ -1,0 +1,565 @@
+{
+ "artifact": "GS-A — aligned generic answer-key store (DECONF/1 §2.1)",
+ "columns": [
+  "concept_id",
+  "term_labels",
+  "canonical_text",
+  "claims"
+ ],
+ "corpus_pins_verified": {
+  "d-qa": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+  "d-qa-r": "0d548bf18ac78f9d7b2abb6686c567f0930acd494c5ca03cee49806c4996ec5e",
+  "d-qa-t": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+  "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+  "molecules-v0": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4"
+ },
+ "derivation": "ASM-0961: mechanical four-column projection of the pinned kernel-v0/molecules-v0 records onto the check() read-set; canonical_text/claims derived by the pinned runner's own load-time functions (gloss.strip / render_plain, segments); zero authored prose; deterministic + seed-free",
+ "gs_a_sha256": "4a28f7fae59c85d27fa4bc7d0c7d15d9856f0527fdc0492b00162af7dd41e9d5",
+ "n_rows": 108,
+ "record_provenance": {
+  "urn:kernel-v0:afraid": {
+   "record_path": "data/kernel-v0/concepts/afraid.json",
+   "record_sha256": "ad108d5161b4ea075c7de33b17779c88a0974fca009da7ca7f4681b388212dfb",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:alive": {
+   "record_path": "data/kernel-v0/concepts/alive.json",
+   "record_sha256": "c6198935f36988706716d47970cc2517040b820ccee8f44dfdf4dd0bf6493340",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:angry": {
+   "record_path": "data/kernel-v0/concepts/angry.json",
+   "record_sha256": "19d4e78d8264ea22b8f977a1b2e2fb562da7e738f0d0c5cfb586ae781723b3d8",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:archived": {
+   "record_path": "data/kernel-v0/concepts/archived.json",
+   "record_sha256": "371b1441fed72899d316935d9f7919eda3557b0f81ad2b62059e5432d6e5553a",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:begin": {
+   "record_path": "data/kernel-v0/concepts/begin.json",
+   "record_sha256": "f0654ad0abe1a43d663a9480be0759f3ffc22072408647bfd1948b6009da4fdf",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:believe": {
+   "record_path": "data/kernel-v0/concepts/believe.json",
+   "record_sha256": "2db9d4eba3c6a7a3ddfa5ee76a3eb368196292ff7e9b1d83b8411fcc29b734b9",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:birth": {
+   "record_path": "data/kernel-v0/concepts/birth.json",
+   "record_sha256": "cd46c83ad9684e07422bf678629f84234eed54413ce4bf9ee34e896f7d8f6bfb",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:bookmark": {
+   "record_path": "data/kernel-v0/concepts/bookmark.json",
+   "record_sha256": "bb64932b322d02b90461858f312d5ed391f8abca28c67b0612ca9d8a05bba1b3",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:break": {
+   "record_path": "data/kernel-v0/concepts/break.json",
+   "record_sha256": "0a15099c740eb0ba6e02e1139eb0a3e9d08ea1272b50fbbb5bcd86db56da2e8f",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:broken": {
+   "record_path": "data/kernel-v0/concepts/broken.json",
+   "record_sha256": "f06a4333ae518274f59c6ba3809438a385df58f01b7bbc851aae793602e2ca8f",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:cause": {
+   "record_path": "data/kernel-v0/concepts/cause.json",
+   "record_sha256": "211b0184ed5bb640e55adbe13675301b05890510aaa1a4d04fb3accf8daeaef7",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:celebration": {
+   "record_path": "data/kernel-v0/concepts/celebration.json",
+   "record_sha256": "5db1ae1ed15e268c44bb62174a19b7823c1c4cbc1af1cb0e2668583edc396ff5",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:change": {
+   "record_path": "data/kernel-v0/concepts/change.json",
+   "record_sha256": "ff93a26fdbe569b6b6ca74de6d455c1b5a8353cf779f4a34f87879e7244836b3",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:condolence": {
+   "record_path": "data/kernel-v0/concepts/condolence.json",
+   "record_sha256": "f6f407621f2048d21e33e33e06ef0fd0114c4bcdca0e36d3edf0406a53826c83",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:conversation": {
+   "record_path": "data/kernel-v0/concepts/conversation.json",
+   "record_sha256": "a857fff91833997e3a5b15b70cbb9f3d4585d22cec2f56d5ee7ef80aa4f77d0c",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:dead": {
+   "record_path": "data/kernel-v0/concepts/dead.json",
+   "record_sha256": "92334ce8aca672ed426b86636324e7980f0eea1a9088532e89e592db505a9907",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:death": {
+   "record_path": "data/kernel-v0/concepts/death.json",
+   "record_sha256": "fea82160d891e820f137186d26625e71a843c693f5fc1aaeab5c05b0b381c0f0",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:end": {
+   "record_path": "data/kernel-v0/concepts/end.json",
+   "record_sha256": "b3bee69f92722c6c1f2048ab824d52610fe5fab550cb15dac3b621cb03dfc6f3",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:event": {
+   "record_path": "data/kernel-v0/concepts/event.json",
+   "record_sha256": "0240edb6a27c05a7e0c374a448738a007e13ee22a31ad0dc2d9f3dd2866863d4",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:find": {
+   "record_path": "data/kernel-v0/concepts/find.json",
+   "record_sha256": "671ffd68f4558376ef708b771db96a9774ca8be8a165a06a34db68f586cea403",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:forget": {
+   "record_path": "data/kernel-v0/concepts/forget.json",
+   "record_sha256": "30897e9011c2a258ae11665829718816726b868dd20188df4604d18947f791ee",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:friend": {
+   "record_path": "data/kernel-v0/concepts/friend.json",
+   "record_sha256": "a0ffd3745823149bc3946d0ea811f12a9de490570e8c1e79e389a05ef1f71e6f",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:gift": {
+   "record_path": "data/kernel-v0/concepts/gift.json",
+   "record_sha256": "21d1c4e4cca354dec14fe90886530b4677fca89146b4e75bcc6013e5e22ce70f",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:give": {
+   "record_path": "data/kernel-v0/concepts/give.json",
+   "record_sha256": "ec62c59af5aa264513a844bc003d949cd41a7308f3363ccec7854be806996b9e",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:grieving": {
+   "record_path": "data/kernel-v0/concepts/grieving.json",
+   "record_sha256": "28b37ffb3a0f25ae94e301a6a0ff3324e6b7da9e014515cd96f85d7c60c52cbd",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:happy": {
+   "record_path": "data/kernel-v0/concepts/happy.json",
+   "record_sha256": "dc154e6dac786d95a2b6e80012f2c7e2910275e469bc11f685acd4e072b5415d",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:has-part": {
+   "record_path": "data/kernel-v0/concepts/has-part.json",
+   "record_sha256": "48876304b0e38b2fdf659fe9c10ca5a9743fc605f0ff6aff7d414f0e1f13999e",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:help": {
+   "record_path": "data/kernel-v0/concepts/help.json",
+   "record_sha256": "94b2c437308047f7c4f1bd97ac678e98b94abb8d08de0b5972f985270a634dd2",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:helpful": {
+   "record_path": "data/kernel-v0/concepts/helpful.json",
+   "record_sha256": "64511bbf8606674b3f2b4c608134a70a0ee6154b28044172ba0bf8b4388e32d3",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:inside": {
+   "record_path": "data/kernel-v0/concepts/inside.json",
+   "record_sha256": "6cc72993e4a45b720465ada577ba5f8749edf879062a32fd578b8269971d47f0",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:kind": {
+   "record_path": "data/kernel-v0/concepts/kind.json",
+   "record_sha256": "97be3daca2dfd3524a4eabff2785583973e238ab7261d291935ec91ccf28ab34",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:learn": {
+   "record_path": "data/kernel-v0/concepts/learn.json",
+   "record_sha256": "090f1d5fdd8bcef20a07e3bfe0d41a4024472fcf1a77b4c08c8621fbf2e714cb",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:liar": {
+   "record_path": "data/kernel-v0/concepts/liar.json",
+   "record_sha256": "ccbcdadf07a9c98823c016b4a512a6aaae5b8411c0a055a0a2b94079a4ce516d",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:lie": {
+   "record_path": "data/kernel-v0/concepts/lie.json",
+   "record_sha256": "da7732987ef15c294213e2a79ca1cd676a4aa37db11484a522a4cdfdcda86994",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:lose": {
+   "record_path": "data/kernel-v0/concepts/lose.json",
+   "record_sha256": "e2ae9fb99a36a6347e298327a878dd704fc6ca40c5ceee1a4dca6ae34210bb62",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:lost": {
+   "record_path": "data/kernel-v0/concepts/lost.json",
+   "record_sha256": "b6d3390b8a28e41b56af1b022f8819414a4fea7fe098bad16e50ae93d35a2931",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:make": {
+   "record_path": "data/kernel-v0/concepts/make.json",
+   "record_sha256": "eb181f40bcc7d622177e3a5cca5e4f371506c9e43f45fdac41879731bec0036e",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:maker-of": {
+   "record_path": "data/kernel-v0/concepts/maker-of.json",
+   "record_sha256": "7a3414d9ea39aeac23b831baed4d33b7d1d9f83b2f0ffe5404d1261914513ed6",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:memory": {
+   "record_path": "data/kernel-v0/concepts/memory.json",
+   "record_sha256": "2fd8ce367378b96e09775119f2893650aadf5ac59acb21f5a6b956c5f0544a17",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:near": {
+   "record_path": "data/kernel-v0/concepts/near.json",
+   "record_sha256": "a4f63eaaf91b7bbb9153c2b88bd2bbe46b927d609642f74b134e9774a590d040",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:part-of": {
+   "record_path": "data/kernel-v0/concepts/part-of.json",
+   "record_sha256": "f6652fb40fa58f48fe07d73d0a76d646561d63c3f54c643be3da37b2222ac00e",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:promise": {
+   "record_path": "data/kernel-v0/concepts/promise.json",
+   "record_sha256": "f5c6009b291f83a4ec8250223ab21c1279227e69a65c29752adcfd0ebdb50d24",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:remember": {
+   "record_path": "data/kernel-v0/concepts/remember.json",
+   "record_sha256": "c12ac57b5c6048f1edc58ee47f42cc4fe99bdcce32783a5e024912dcf94e64c5",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:reminder": {
+   "record_path": "data/kernel-v0/concepts/reminder.json",
+   "record_sha256": "d44bac23e39b063a4c95a074ebf4af213127bc47507acee525a48d024c59a519",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:repair": {
+   "record_path": "data/kernel-v0/concepts/repair.json",
+   "record_sha256": "1ddb0892dfa56b43436098f4607ebeab1a6c980ad3217ed1727b9c8c57d864ab",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:right": {
+   "record_path": "data/kernel-v0/concepts/right.json",
+   "record_sha256": "8cdbeb51213b95967181fa2e3dc88444cbcbe836543272e363f46692e41fc568",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:sad": {
+   "record_path": "data/kernel-v0/concepts/sad.json",
+   "record_sha256": "4fd77ec53fe883863b60944a2b0ec4354bfec43db1cac8c373a899a652a91837",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:take": {
+   "record_path": "data/kernel-v0/concepts/take.json",
+   "record_sha256": "f6015fc916e42584e736ef231396e77dbee40fc14d86cddb1d00e0ba14a60b54",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:teacher": {
+   "record_path": "data/kernel-v0/concepts/teacher.json",
+   "record_sha256": "bf5c24281e00ab5ffcd4255ea4815171dae6bd82191a7caefd05477959baf946",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:thief": {
+   "record_path": "data/kernel-v0/concepts/thief.json",
+   "record_sha256": "39da7c546788043546227815ea2ddc1b039f18ef50b74fba735e0efb3e00a463",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:trustworthy": {
+   "record_path": "data/kernel-v0/concepts/trustworthy.json",
+   "record_sha256": "77005ccc94d87ce657fec7ea4ce49375cc2eaf29027c667796912ab2af1c2a3c",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:useful": {
+   "record_path": "data/kernel-v0/concepts/useful.json",
+   "record_sha256": "d9e9fb3d8943ac5c21a2b6facf4cecb212b853e9a923bdde31aff29e33129264",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:visible": {
+   "record_path": "data/kernel-v0/concepts/visible.json",
+   "record_sha256": "de26af0dcc284b99d2b6c418706dce23a7f962c5ceb8ef9bfa170d81a843c546",
+   "text_source_field": "gloss"
+  },
+  "urn:kernel-v0:wrong": {
+   "record_path": "data/kernel-v0/concepts/wrong.json",
+   "record_sha256": "a3c89ec4b6142f62e11c39750e9589435a1ee47e878c8d850c05707dd8ce52dd",
+   "text_source_field": "gloss"
+  },
+  "urn:molecule-v0:animal": {
+   "record_path": "data/molecules-v0/molecules/animal.json",
+   "record_sha256": "db2355d85cfee34fe2f6613caf114a8dec8258997849c6c029111e242827a6c6",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:ball": {
+   "record_path": "data/molecules-v0/molecules/ball.json",
+   "record_sha256": "37fc2a87fcbf40cfbdc69818466c406e729a470321c45aa95ad3d006bf7d63fa",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:bear": {
+   "record_path": "data/molecules-v0/molecules/bear.json",
+   "record_sha256": "73f4150c4379ecb6928f6845558ddb97b64a1cca0de070a32d25bc1547e0e7d6",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:bird": {
+   "record_path": "data/molecules-v0/molecules/bird.json",
+   "record_sha256": "35d6740c11d775740c07fcb9b062894a3560eb62de8f8b0b650dad76bf8add08",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:blue": {
+   "record_path": "data/molecules-v0/molecules/blue.json",
+   "record_sha256": "3a0a187af4e055a54acf3c0d7c903e03ac74e5a4fdec66e9555ecc95cb143a63",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:book": {
+   "record_path": "data/molecules-v0/molecules/book.json",
+   "record_sha256": "31a62e2fd4ee37327e694a17e70b932ce8a9fbc0cda4f918983dd546990c9503",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:box": {
+   "record_path": "data/molecules-v0/molecules/box.json",
+   "record_sha256": "144f2b967e0d4a7ecd79c8ba4e67e96f8a7d149d288313f6ea4baa8d2c0921a6",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:car": {
+   "record_path": "data/molecules-v0/molecules/car.json",
+   "record_sha256": "2d946d37ca447133773bd6691f7290907e0c312fe8f3bf15b556a75b92b8b671",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:cat": {
+   "record_path": "data/molecules-v0/molecules/cat.json",
+   "record_sha256": "8a2139f514cec872e048a0247c54b81682a615d53a8aca06167b000b17cbfc69",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:child": {
+   "record_path": "data/molecules-v0/molecules/child.json",
+   "record_sha256": "6b402dff33894689f2fdbba0fcbf76c14c06973ee110e5fe4691169dea437051",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:close": {
+   "record_path": "data/molecules-v0/molecules/close.json",
+   "record_sha256": "2b3fff79eb86813d344be8a526099408d16586cd4b900c924d576f55121f20c1",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:clothes": {
+   "record_path": "data/molecules-v0/molecules/clothes.json",
+   "record_sha256": "c55c642ce42fd4e5ffef73159f08b979f2c18478644b7252ae4ab7cfba1dfe79",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:cold": {
+   "record_path": "data/molecules-v0/molecules/cold.json",
+   "record_sha256": "a971ed17614568627c7eb689e9efef11170cb70027f159116d1b0558b24f5ad2",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:color": {
+   "record_path": "data/molecules-v0/molecules/color.json",
+   "record_sha256": "343f87b0396888d29298e3908f1a09fdaea7ff05a9b52da2631e23cfa0c45ee8",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:cry": {
+   "record_path": "data/molecules-v0/molecules/cry.json",
+   "record_sha256": "773498e321077a4d0104fe575c63c0451f9e9ff99af569707335a3c98e3d5570",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:day": {
+   "record_path": "data/molecules-v0/molecules/day.json",
+   "record_sha256": "daddb0ad780c9f321a463531f058b8c3b1390c4c82f7f0ae62b75f77e46007df",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:dog": {
+   "record_path": "data/molecules-v0/molecules/dog.json",
+   "record_sha256": "d951e1c9e79ac05a38e56d40b04cc23f95a3afe803a9bbaa95cbba3f3afc3c61",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:eat": {
+   "record_path": "data/molecules-v0/molecules/eat.json",
+   "record_sha256": "dd878fad035bca24f5d3d6662bf618c585ff84e8884df7f7167734b1cde4a640",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:eye": {
+   "record_path": "data/molecules-v0/molecules/eye.json",
+   "record_sha256": "9d4e979e6d300f490691f94a0ac10ebe0bd769bf447ff9914272822af3bebf67",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:father": {
+   "record_path": "data/molecules-v0/molecules/father.json",
+   "record_sha256": "c6bbdcf24f693714ee101a469e52588bad26077ccd65d2d8f849e6df10e72fbb",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:fire": {
+   "record_path": "data/molecules-v0/molecules/fire.json",
+   "record_sha256": "63528dd4ae7c204b8af29afd3928389a6c2143e4c072b1b85c540994eeecc657",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:fish": {
+   "record_path": "data/molecules-v0/molecules/fish.json",
+   "record_sha256": "0804a3ecef9ae4dda1571a26de8d08d9e15bd00d281e4d0fbd59c2ac26a40158",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:flower": {
+   "record_path": "data/molecules-v0/molecules/flower.json",
+   "record_sha256": "b84a75d0c3af11c0775068fb45c82ffdad9d773b40a11b728bbba038cb9c252d",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:food": {
+   "record_path": "data/molecules-v0/molecules/food.json",
+   "record_sha256": "3a9f7a51b0bb72bd71fc8d746c0b4d52124b73f05a23208d9808f458cae960a4",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:grass": {
+   "record_path": "data/molecules-v0/molecules/grass.json",
+   "record_sha256": "b65697c5a2f7121f8f03127a3518e5a9bd7450f1529e1298a5f2b279fe619a5c",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:ground": {
+   "record_path": "data/molecules-v0/molecules/ground.json",
+   "record_sha256": "6aeeefcad1a32dc0bb2453d5a18c2fd8af4b026a629c71b5c2a5bd03114e318c",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:hand": {
+   "record_path": "data/molecules-v0/molecules/hand.json",
+   "record_sha256": "90e3691eacf4ce62feb1cc400d63f9eab984ccfbc83c509368e6478a4ad331a3",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:head": {
+   "record_path": "data/molecules-v0/molecules/head.json",
+   "record_sha256": "75dea89bcb8285d43be6a48674bdb9f4f2491b0c840b485320590ff0bf001d9d",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:house": {
+   "record_path": "data/molecules-v0/molecules/house.json",
+   "record_sha256": "7a15dee1c8192b500298465d21b33916b880c094ecacaa310e689c60f87a278c",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:hug": {
+   "record_path": "data/molecules-v0/molecules/hug.json",
+   "record_sha256": "f1cfd7237944ee13010b8be6589867f67173f1e53e9d1bf8fc3a8fdb49c11dd6",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:jump": {
+   "record_path": "data/molecules-v0/molecules/jump.json",
+   "record_sha256": "95d98d686190fdf2b04e4d2ecb0f8e16ba1072c0739f392ec2fa8528a55c388a",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:laugh": {
+   "record_path": "data/molecules-v0/molecules/laugh.json",
+   "record_sha256": "70625f9609d7523e87ac0aa4912d9cf0473024331c0bd37161174154b0c85083",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:light": {
+   "record_path": "data/molecules-v0/molecules/light.json",
+   "record_sha256": "2f7e1831b083a388eedfad40ca5b1fd51d8c47e3ed1aec2e7f62db147f511bb7",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:man": {
+   "record_path": "data/molecules-v0/molecules/man.json",
+   "record_sha256": "7ffb85f1e100341e688f3af842fced5c208cab5f1de2ace1b4fab8c823789f4d",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:money": {
+   "record_path": "data/molecules-v0/molecules/money.json",
+   "record_sha256": "9d09d2c62af6b6a75fd78c0c2e844ec0eba734e1b620e878c5255eb22d26ef54",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:mother": {
+   "record_path": "data/molecules-v0/molecules/mother.json",
+   "record_sha256": "6097b80cbf8f61c1560add12a187bbebd07e467e01810648e6619c6270451a7b",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:mouth": {
+   "record_path": "data/molecules-v0/molecules/mouth.json",
+   "record_sha256": "48bbd4991ae6de4e15b28ece5a57e148b9f85996d5f0aefb68d36ff4c6fe0caa",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:music": {
+   "record_path": "data/molecules-v0/molecules/music.json",
+   "record_sha256": "0e965f2cd76ac276966a86d80346cdded5ee9d5d20ca31336292d2b96181e623",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:night": {
+   "record_path": "data/molecules-v0/molecules/night.json",
+   "record_sha256": "999eb2ff607f517f90e1ee2e835d89d61f84a0844ab365a98d644db2b1d1afa9",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:open": {
+   "record_path": "data/molecules-v0/molecules/open.json",
+   "record_sha256": "a09bcd8f4d509fe9ea475f5a5ed5089e067296f5f0a38aecafdb958d8ce5c788",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:picture": {
+   "record_path": "data/molecules-v0/molecules/picture.json",
+   "record_sha256": "87ff3fe160859b10daf537ccfd3162ebf9a75b145dce0aad69f5171aeb4728c1",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:rabbit": {
+   "record_path": "data/molecules-v0/molecules/rabbit.json",
+   "record_sha256": "7f535d8bff0f3b312332bd242b24f853ebad04e2e37e827b983bb09929dc65b4",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:red": {
+   "record_path": "data/molecules-v0/molecules/red.json",
+   "record_sha256": "e14c79302faf0ff7b83488f572d1173adfa4bd59e45b5e4af96b2e5e8e16186b",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:rock": {
+   "record_path": "data/molecules-v0/molecules/rock.json",
+   "record_sha256": "aa5dc88d2c9d3932de9d9ebc83db63e83e49e3508a55a0ad6c84a163a0c32384",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:run": {
+   "record_path": "data/molecules-v0/molecules/run.json",
+   "record_sha256": "87f8e871721553666982cb002e4567d5329ac685fff9fa2ed47d6759181d7162",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:sit": {
+   "record_path": "data/molecules-v0/molecules/sit.json",
+   "record_sha256": "ada9b47a7ac1f050fe96b4ec3c2019cd8fa6d9f74be1771c0e854e672e197f61",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:sky": {
+   "record_path": "data/molecules-v0/molecules/sky.json",
+   "record_sha256": "d2d3c338a4fad7ee6a53e5620a3815f7fd3a8f8bc36b82e41e83ee5ce9484902",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:sleep": {
+   "record_path": "data/molecules-v0/molecules/sleep.json",
+   "record_sha256": "a795ec8178d3676d96e1b76e97940f872d8207028381820c769b88baf70fd5e0",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:smile": {
+   "record_path": "data/molecules-v0/molecules/smile.json",
+   "record_sha256": "aef6e79ced90e767c50a1339ef9d1ccb4c11e10c9544d7715db8b867f171e324",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:sun": {
+   "record_path": "data/molecules-v0/molecules/sun.json",
+   "record_sha256": "05c25dee3f22ed3f67e9a7da9d58787ea101c7be54e7acf4ce947e10610c4c9d",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:tree": {
+   "record_path": "data/molecules-v0/molecules/tree.json",
+   "record_sha256": "a8ea0a5d2e16b5e0ed781806e4266e0b9348e98db72ce5044858e30a78f89154",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:walk": {
+   "record_path": "data/molecules-v0/molecules/walk.json",
+   "record_sha256": "8f3ad2afeb4e52b8f74d8e762511be04d6feeb3cb683b25b686839c1028a709b",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:water": {
+   "record_path": "data/molecules-v0/molecules/water.json",
+   "record_sha256": "edb28e4f8849825d430856596dc33f1d6b4fd68dc484f857d64a85a3e2d6a20b",
+   "text_source_field": "groundingNote(render_plain)"
+  },
+  "urn:molecule-v0:woman": {
+   "record_path": "data/molecules-v0/molecules/woman.json",
+   "record_sha256": "40317c20deed6b475623c9844556d0938edd1e82fdbcf15e597be535aea7ade6",
+   "text_source_field": "groundingNote(render_plain)"
+  }
+ },
+ "runner_pin": {
+  "path": "poc/f2b/runner/f2b_runner.py",
+  "sha256": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666"
+ }
+}

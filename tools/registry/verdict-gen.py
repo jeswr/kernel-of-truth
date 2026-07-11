@@ -268,6 +268,91 @@ def apply_amendment_overlay(root, exp_id, record, log_records):
     return effective, applied, kc.frozen_hash(effective)
 
 
+# Scale-language license total order for the min-rule (G-12 vocabulary is the
+# established one across all 17 issued verdicts: none / sign-only / slope).
+SCALE_LICENSE_ORDER = {"none": 0, "sign-only": 1, "slope": 2}
+
+
+def scale_language_license(design, rungs, analysis):
+    """Compute scale_language_licensed as the MINIMUM of three per-record caps.
+
+    The G-12 count map (docs/research-plan/02-data-and-reporting.md:664) is
+    UNCHANGED: 1 rung -> "none", 2 -> "sign-only", >=3 -> "slope"-ELIGIBLE.
+    What changed (a5-llm Gate-A re-audit REFUTE 2026-07-11, adjudicated in
+    docs/next/a5-llm-refute-adjudication.md section 2.1/2.2, maintainer-approved
+    2026-07-11 issue #5; correction records
+    registry/corrections/a5-llm/2-scale-license-erratum.json and
+    registry/corrections/f2/2-scale-license-erratum.json; residual defect fixed
+    per the cross-vendor re-audit
+    poc/gpt56-review/a5llm-reaudit-20260711/last-message.json point 3): the
+    licensed value is min over the license total order of
+
+      (i)   the G-12 TIER OF THE COMPARABLE-RUNG COUNT — when the frozen record
+            declares design.model_scale_rungs (the list of COMPARABLE
+            MODEL-SCALE rung labels, 08-stats-and-extrapolation.md section 2.1
+            precondition), the tier is computed over the count of MEASURED
+            rungs inside that list, NOT over raw measured labels. A baseline
+            label (a5-llm's R0, or any BASE* cell) can therefore inflate
+            NEITHER "sign-only"->"slope" NOR "none"->"sign-only" (the
+            2026-07-11 re-audit's point-3 residual: {measured=BASE0,BASE1,R1;
+            model_scale_rungs=[R1]} must license "none", one comparable rung).
+            A LEGACY record that never froze the field falls back to the raw
+            measured-label count — byte-identical to the pre-fix generator for
+            every issued license-"none"/"sign-only" verdict (f2b-replicate et
+            al.) — and "slope" stays unreachable there via caps (ii)+(iii).
+      (ii)  design.scale_language_max — the machine-readable frozen PER-RECORD
+            ceiling (the prose ceiling lives in extrapolation_envelope_verbatim;
+            this field is its machine-readable form, validated against that
+            text at freeze time by prereg-freeze). Absent field => no ceiling
+            permits slope => cap "sign-only" (fail closed for slope; the
+            legacy "none"/"sign-only" tiers pass through unchanged). A declared
+            ceiling below the tier also caps it (a declared "none" caps a
+            2-rung "sign-only"). A declared value OUTSIDE the license
+            vocabulary is unintelligible and caps at "none" (fail fully
+            closed; the schemas + prereg-freeze refuse it at freeze time).
+      (iii) the trend-validity gate — "slope" requires every JSON pointer in
+            design.scale_trend_valid_metrics to resolve to boolean true in the
+            analysis output: the registered section-2 trend machinery actually
+            RAN and produced a VALID result (for the a5-llm shape:
+            /gates/separation_valid plus the trend Holm member; a trend member
+            that left the family instrument-invalid can never license a
+            slope). Absent/empty metrics, a missing pointer, or no analysis at
+            all (INCOMPLETE-DATA path) => cap "sign-only".
+
+    Explicitly NOT a blunt ">=4 rungs" rule — that would rewrite G-12 /
+    08-stats section 2.1, which license a scale-trend fit at >=3 COMPARABLE
+    rungs, and that stays licensable here (3 comparable rungs + slope ceiling
+    + valid trend result => "slope").
+    """
+    model_rungs = design.get("model_scale_rungs")
+    if model_rungs is None:
+        # Legacy record: the field was never frozen. Raw measured-label count
+        # (pre-fix basis) keeps every issued 0/1/2-rung verdict byte-identical;
+        # "slope" is unreachable because caps (ii)+(iii) are also absent.
+        n_comparable = len(rungs)
+    else:
+        # Re-audit point 3: the tier is over the COUNT OF COMPARABLE rungs.
+        # A declared-empty list counts zero comparable rungs (=> "none") —
+        # the conservative reading, fail closed.
+        n_comparable = len([r for r in rungs if r in model_rungs])
+    tier = "none" if n_comparable < 2 else ("sign-only" if n_comparable == 2 else "slope")
+
+    ceiling = design.get("scale_language_max")
+    if ceiling is None:
+        ceiling_cap = "sign-only"  # absent ceiling: slope fails closed; lower tiers unaffected
+    elif ceiling in SCALE_LICENSE_ORDER:
+        ceiling_cap = ceiling
+    else:
+        ceiling_cap = "none"  # unintelligible declared ceiling: fail fully closed
+
+    trend_ptrs = design.get("scale_trend_valid_metrics") or []
+    trend_valid = (bool(trend_ptrs) and analysis is not None
+                   and all(kc.resolve_pointer(analysis, p) is True for p in trend_ptrs))
+    trend_cap = "slope" if trend_valid else "sign-only"
+
+    return min((tier, ceiling_cap, trend_cap), key=SCALE_LICENSE_ORDER.__getitem__)
+
+
 def select_eligible(records, frozen_sha, design):
     """P2 §3.1 step 3. Returns (eligible, excluded=[{seq, reason}])."""
     superseded = {r.get("target_seq") for r in records if r.get("event") == "supersede"}
@@ -428,6 +513,7 @@ def run(root, exp_id, agent_id, computed_at):
     verdict = None
     fired_index = None
     fired_rule = None
+    analysis = None
     analysis_output_sha = None
     # Ops amendments cannot touch /pins/analysis_script, so this pin is
     # byte-identical between `record` and `effective`; read it from the
@@ -557,7 +643,9 @@ def run(root, exp_id, agent_id, computed_at):
     rungs_reused = sorted({str(r["config"]["rung"]) for r in reused_rows
                            if isinstance(r.get("config"), dict) and "rung" in r["config"]})
     rungs = sorted(set(rungs_fresh) | set(rungs_reused))
-    license_ = "none" if len(rungs) < 2 else ("sign-only" if len(rungs) == 2 else "slope")
+    # Per-record min-rule licensing (a5-llm REFUTE remediation) — see
+    # scale_language_license's docstring for the three caps and their sources.
+    license_ = scale_language_license(effective["design"], rungs, analysis)
 
     verdict_obj = {
         "schema_version": "kot-verdict/1",

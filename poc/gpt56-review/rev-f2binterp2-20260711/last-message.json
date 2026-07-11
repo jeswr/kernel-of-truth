@@ -1,0 +1,31 @@
+I found one substantive arithmetic/calibration error and two epistemic-labelling issues. The central stage-1/H-CIRC conclusion is otherwise appropriately bounded.
+
+1. **Substantive error — the unresolved set is not “floor-leaning.”**  
+   [Line 80](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/f2b-transfer-stage1.md:80>) correctly enumerates 12 human abstentions and the remaining 15 disagreements, but the conclusion that model-assent resolution “would mostly have RAISED A” and that 0.961 is “the floor-leaning” reading is false as a statement about the rate.
+
+   From the artifact:
+
+   - Resolving only the 12 abstentions at the common model label gives 332/345 = **0.9623**, a slight increase.
+   - Across all 27 unresolved items, the model-pair label agrees with membership on 22 and disagrees on 5. Admitting all gives (320+22)/360 = **342/360 = 0.9500**, which lowers A.
+   - Admitting the 15 substantive human labels gives (320+5)/348 = **325/348 = 0.9339**, also lower.
+
+   Thus, “22 of 27 model labels agree with membership” is accurate, but “mostly raised A” confuses increasing the agreement numerator with increasing the proportion. “Floor-leaning” materially understates the caveat and should be removed. A calibrated replacement would say that exclusion of the 12 abstentions slightly depresses A, while plausible admission of the whole unresolved set can lower it, though not remotely enough to fire kill (d).
+
+2. **Contradictory wording in caveat 2.**  
+   [Line 81](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/f2b-transfer-stage1.md:81>) correctly says GPT-5.5 and GPT-5.6 are one model family and correctly denies independent third-party validation. But it then calls judge-3 “a **second-family check**,” which conventionally means a check by a different family and contradicts the caveat. This should be “a second, same-family model check” or simply “a same-family confirmation step.”
+
+3. **Final gate validity is correctly calculated but mislabelled as directly measured from the resolution JSON.**  
+   [Line 38](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/f2b-transfer-stage1.md:38>) tags the complete G-adj result as `[MEASURED: judge-3-resolution.json]`. The JSON contains `n_adjudicated = 360`, `n_unresolved = 27`, and the endorsement result, but it does not contain `judge_pair_agreement` or a final `adjudication_valid` field. The 0.90 agreement comes from the pre-judge-3 analysis—or can be derived as 324/360—and final gate validity is an application of the stipulated thresholds. It should be tagged as measured inputs plus a **DERIVED** gate determination.
+
+   The same issue appears in the recommended ledger wording at [line 93](</home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/f2b-transfer-stage1.md:93>): “`adjudication_valid TRUE at the final counts`” sounds like an artifact field. Prefer “the G-adj criteria are satisfied at the final counts” and label it derived. Line 101 correctly confines the actual `adjudication_valid TRUE` field to the pre-judge-3 snapshot.
+
+The authoritative arithmetic otherwise checks out:
+
+- 320/333 = **0.960960… → 0.9610**
+- One-sided 95% Wilson LB = **0.939463… → 0.9395**
+- 9 newly resolved, 3 agreeing with membership; 27 unresolved
+- G-adj: 360 ≥ 300, 27 ≤ 54, agreement 324/360 = 0.90
+- Worst-case sensitivity: 320/360 = **0.888889 → 0.889**, Wilson LB **0.858691 → 0.859**
+- The sensitivity is explicitly and correctly labelled **DERIVED** at lines 40 and 102.
+
+On H-CIRC, I do **not** find a whole-thesis overclaim: lines 52, 70, 75, 94, and 108–114 repeatedly and clearly state that H-CIRC is not refuted, stage-2 lift is unrun, and neither programme thesis moves off INCONCLUSIVE-PENDING. Calling the bounded low-endorsement/codebook prediction “strongly disconfirmed” is defensible because it is expressly restricted to that branch, kernel instance, and slice. The load-bearing defect is instead the “floor-leaning” treatment of the unresolved caveat, which makes the evidence sound more conservative than the arithmetic supports.
