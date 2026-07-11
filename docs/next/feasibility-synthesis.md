@@ -1,355 +1,211 @@
-# Cross-experiment feasibility synthesis — both value theses
+# Cross-experiment feasibility synthesis — the programme's verdict on both value theses
 
-- **Author:** Fable analyst role (`kern/fable-analyst`), 2026-07-10. This is FABLE's
-  authoritative cross-experiment conclusion (the programme-completion goal's capstone;
-  Opus never writes it — `docs/next/programme-completion-loop.md` GOAL). Opus reports
-  mechanical facts; the feasibility read is decided here and only here.
-- **Status: INTERIM.** The frozen set is NOT complete. Four correctness-thesis-critical
-  experiments (g2, g3, g8, g9) are frozen-but-UNRUN, blocked on input materials; g4/g5 are
-  DRAFT; the canonical circularity test (f2b-transfer, human judge-1) is human-pending. This
-  synthesis is the honest CURRENT-evidence picture, not a final verdict, and every bottom
-  line below is explicitly conditioned on what is still unmeasured.
-- **Inputs (all read at source):** `registry/assessments/{g-series, f-efficiency,
-  oracle-coverage, f2b-replicate, compression-census, define-op-census}.json`; the GPT-5.6
-  external review `poc/gpt56-review/SYNTHESIS.md`; the honest tracker (`python3
-  tools/registry/audit-status.py`); `registry/verdicts/f2b-transfer-llmproxy.json` and
-  `registry/verdicts/a5-llm.json`. No registry record, verdict, correction, audit, or review
-  file is modified by this document — it interprets, it changes nothing.
-- **Epistemic discipline:** every load-bearing claim is tagged MEASURED / LIT-BACKED /
-  STIPULATED / EXTRAPOLATION per `.claude/agents/analyst.md` and the honesty-guard. A
-  MEASURED number cited outside its envelope re-classifies as EXTRAPOLATION; negatives and
-  nulls carry equal prominence with positives. Authority order: verdict objects + auto-reports
-  > frozen prereg > design docs > survey prose.
-- **One ruling is explicitly NOT re-adjudicated here:** a5-llm. It is owned by a separate
-  Fable ruling (in flight). This synthesis treats it verbatim as **REFUTE-on-pins, science
-  reproduces, ruling in flight** and premises nothing on it in either direction.
-
----
-
-## 0. The one sentence that governs everything below
-
-LOAD-BEARING: Across the entire frozen registry there are ZERO audited end-task wins over the kernel-as-text null, and the question the whole programme exists to answer — *does grounding a model in the kernel make that model measurably more correct or more efficient at matched budget?* — is, as of 2026-07-10, **fully UNMEASURED** [MEASURED: the null-bound ledger entries in registry/assessments/oracle-coverage.json and registry/assessments/f-efficiency.json; every end-task-adjacent verdict is either R0 (no host model), a landed FAIL, or a PASS confined to a self-authored oracle-favourable slice].
-
-Everything that IS measured is either (a) instrument-adequacy and perimeter facts about the
-deterministic substrate, obtained *inside the fortress wall* (evals authored against the
-engine's own stores), or (b) one narrow model-free storage-byte ratio, or (c) one end-task
-PASS whose causal attribution is confounded and whose canonical de-confounding test has not
-been run. The programme is further along on *building a defensible checker* than on
-*showing the checker helps anyone*.
+- **Author:** Fable (`kern/fable-analyst`), 2026-07-11. This is the CAPSTONE — FABLE's
+  definitive cross-experiment feasibility verdict on both value theses, the "Done"
+  deliverable of the programme-completion loop (`docs/next/programme-completion-loop.md`
+  GOAL). Opus never writes this conclusion; it reports mechanical facts. This document
+  SUPERSEDES the 2026-07-10 INTERIM stub of the same path: the frozen set is now far more
+  complete (the two NL-boundary FAILs, the a5-llm head-to-head, the truthstyle instrument
+  PASS, the four weak-proxy stand-ins, and the A-E2 efficiency census all read out since),
+  so the standing verdict below is the definitive current-evidence verdict, not an interim
+  sketch.
+- **Evidence base (all read at source):** every `registry/assessments/*.json`
+  (a-e2-census, a5-llm, a5-nl, b-cov-define-lane, compression-census, define-op-census,
+  f-efficiency, f2b-replicate, f2b-transfer-llmproxy, g-series, g8, g9-llmproxy,
+  l3a-parse, l3a-parse-recoverability, m0a-llmproxy, nsk1-{stage1,bprime,bprime2,g2d},
+  oracle-coverage, truthstyle-2x2); the verdict objects in `registry/verdicts/*.json`;
+  the ledger `python3 tools/registry/audit-status.py`; `registry/frozen-index.json`;
+  the frozen experiment records; and `docs/next/knull-plain-arm-quality.md` (the
+  surface-realization gap finding). No registry record, verdict, correction, audit,
+  frozen object, or ASM outside my reserved block is modified by this document.
+- **Epistemic discipline (governance):** every PREMISE / DECISION / LOAD-BEARING line
+  carries its `[TAG: ref]` on the same logical line. I own the tags and the conclusion.
+  **MEASURED** restates a measured fact strictly within its own verdict's envelope; a
+  MEASURED number cited outside its envelope re-classifies as EXTRAPOLATION (engine law 9).
+  **Cross-experiment readings are EXTRAPOLATION** — direction-only, never a premise for a
+  verdict. **STIPULATED** marks scoping / decision choices I make here. Negatives and
+  nulls carry equal prominence with positives; a FAIL is scoped to its envelope, a
+  PASS that is instrument-only is not a kernel-content win, and an efficiency upper bound
+  is never achievable savings.
 
 ---
 
-## 1. MEASURED + confirmed (cross-vendor CONFIRMED unless noted)
+## 0. The one sentence that still governs everything
 
-These are the solid facts. All are cross-vendor Gate-A CONFIRMED except where marked, and all
-carry their scope indices verbatim.
+LOAD-BEARING: Across the entire registry there are ZERO audited end-task wins over the kernel-as-text null that are attributable to the kernel's content, and the question the whole programme exists to answer — *does grounding a model in the kernel make that model measurably more correct or more efficient at matched budget, on real input?* — remains, as of 2026-07-11, UNSETTLED on both theses [MEASURED: registry/assessments/oracle-coverage.json null-bound + registry/assessments/f-efficiency.json — every end-task-adjacent verdict is either R0 (no host model), a landed FAIL, or a PASS confined to a self-authored oracle-favourable *formal* slice whose content-attribution is confounded].
 
-### 1a. The correctness SUBSTRATE: a sound, cheap, portable, byte-identical deterministic checker exists
+The single most robust cross-experiment fact, and the one that shapes both verdicts:
 
-LOAD-BEARING: The kot-axiom/1 v0 rules engine is exact and fail-closed on its covered slice, at microsecond cost, and ports across a domain vertical with a byte-identical engine binary [MEASURED: registry/verdicts/l3a.json + registry/verdicts/a5.json, both audit CONFIRMED; registry/assessments/oracle-coverage.json].
+LOAD-BEARING (direction-only): the kernel's deterministic machinery is EXACT and sound *inside its own closed grammar / self-authored substrate*, and every MEASURED crossing of a boundary into real or natural input either FAILs or is INCONCLUSIVE [EXTRAPOLATION: ASM-0762, extending ASM-0721; each figure is index-bound to its own verdict's envelope and this cross-reading is never a premise — machinery side l3a/a5 gold-replication identical 527/527 & 855/855, g8 F/B round-trip 33/33; boundary side (i) NL input l3a-parse 47.6% / a5-nl 41.6% both FAIL, (ii) wild-formal g8 0/1000 FAIL, (iii) model-internal nsk1 INCONCLUSIVE, (iv) compute-matched verifier-offload f2 FAIL].
 
-The two measurements that establish it:
-
-- **l3a (family/world vertical, R0):** 600/600 covered queries answered exactly with
-  provenance + non-empty axiom license (one-sided Wilson 95% LB **0.9955** > 0.98); 300/300
-  control queries refused with the exact pre-authored ERR_* code (strict, Wilson LB **0.9911**
-  > 0.95); **6/6** planted store violations surfaced at load; mean **5.29 µs/query** on the
-  shared 2-core box. Trivial policies bracket the conjunction (abstain-all: covered 0.0;
-  answer-all: refused 0.0) — neither can pass, which is what makes the conjunctive primary
-  non-degenerate. Audit independently re-derived 34 expectations across all 17 families.
-- **a5 (code vertical, R0):** the engine `kot_axiom.py` **BYTE-IDENTICAL** to the l3a pin,
-  extended only by data + a pure desugaring grammar over a deterministically-extracted code
-  world layer: 855/855 covered-exact (Wilson LB **0.9968**); 122/122 strict refusals (LB
-  **0.9783**); **3/3** planted violations; mean **7.82 µs/query**. A no-LLM extraction route
-  (kot-code-extract/1) populated the stratum-4 world layer end-to-end. Audit re-derived 38
-  expectations + X3 exact-hash and generator-separation checks.
-
-LOAD-BEARING: This is the strongest, cleanest evidence in the whole registry — and it is evidence about the INSTRUMENT, not about usefulness to any model [MEASURED: both l3a/a5 evals were authored against the engines' own stores ("coverage by construction"), so exactness is a consistency-and-licensing property, never world-accuracy; both verdicts are R0 with scale_language_licensed = none].
-
-What this banks: Law-3's deterministic-engine seat (formal language + engine that owns
-correctness) demonstrably *exists*, is sound where covered, refuses with named codes off its
-slice, carries provenance/license on every answer, costs ~10¹ µs/query, and generalises as a
-*formalism* (not a hand-fit artifact) across two verticals. E9's constraint-violation arm and
-every downstream verifier design can consume this. What it explicitly does NOT contain: a
-model, natural language, a non-trivial baseline, or any real-world fact coverage.
-
-Two scope stipulations bound the semantic reach (not the engine-correctness reach): a5's
-construct→concept map is **STRUCTURAL definitions, NOT NSM explications** [STIPULATED:
-ASM-0007, load-bearing — a5 exercises the machinery, not the semantic-prime thesis]; l3a's
-relation directions are stipulated readings [STIPULATED: ASM-0004]. Until natively-relational
-and NSM-explicated concepts are minted, these results support *the formalism*, not *the NSM
-semantics*.
-
-### 1b. The f1 compression win — narrow, byte-ratio only, model-free
-
-LOAD-BEARING: KOTK/2 entropy-columnar storage beats the compressed glosses-only text of the SAME records by 6.7369× bytes, cross-vendor CONFIRMED, on ONE corpus at ONE store rung, byte-ratio ONLY [MEASURED: registry/verdicts/f1.json, audit CONFIRMED (Codex independently recomputed 2,300,224/341,435 = 6.736930894606587 and re-ran the lossless packer self-check, 117,791/117,791 URNs re-minted)].
-
-Scope, binding: lexical-wn31 (117,791 records), 2.8987 vs 19.528 B/record, single store rung
-S1e5, zstd-19 comparator. Against the more conservative identity-JCS text form the ratio is
-~3.3× (decision-record measurement), so the PASS is robust to comparator choice. Law-2
-discipline honoured — the comparator is the kernel's own content rendered as compressed text,
-not a strawman.
-
-LOAD-BEARING: f1 is a premise-RETAINER, not an efficiency win — bytes alone were pre-declared unable to carry the M4 claim, the latency half of the premise is UNDECIDED (deferred to F5), and there is no accuracy, model, or task anywhere in f1 [MEASURED: registry/verdicts/f1.json envelope + registry/assessments/f-efficiency.json; the design's own kill text: "text-store parity ⇒ the kernel's efficiency contribution is a compression format, not an architecture"]. The byte-ratio extrapolates UPWARD on store size only (table overhead amortises); DOWNWARD it is contradicted at the 2.3k-record haiku tier (~25% table overhead) — size-independence is scale-conditional [MEASURED counter-evidence in design-compact-kernel-serialization-v2.md §4]. Quoting 6.74× on any other record tier or corpus re-classifies it as EXTRAPOLATION.
-
-### 1c. Two substrate-maturity censuses (tooling-measured, no verdict object)
-
-- **define-op census: 0.7710 internal define-checkability** [MEASURED: poc/define-op-census/
-  RUN-LOG.md; GO 1.0, SO 1.0, MONDO 0.4871; the 3,941 misses are all un-ingested foreign
-  fillers with a named ingestion route]. This is Axis-A substrate readiness — NOT κ_B, NOT an
-  end-task claim: it measures checkability legs 1–2 (record present + define-op resolves) on
-  the SELF-AUTHORED substrate; the binding third leg (mapper parse of an external benchmark
-  item) is untouched. d-ext's ~49% lemma-touch coexisting with 0% checkability is the standing
-  warning that substrate coverage ≠ item checkability.
-- **B-RT round-trip: 100% (1,786/1,786)** [MEASURED: poc/compression-census/results/
-  b-rt-roundtrip.json; parse→roll-up→URN→expand→re-parse is an exact identity, D=8192 vectors
-  byte-identical]. The roll-up machinery is sound; what fails is engagement, not correctness
-  (§2d).
+I call this shape the **reachability-wall-on-coverage-wall**: there is a *coverage* wall
+(does the kernel even contain the target — g8 0/1000, m0b 0.3542, compression-census
+~0.6%, b-cov-define-lane 0/1,550) and, stacked on top of it, a *reachability* wall (even
+for content the kernel demonstrably CONTAINS and CAN decide perfectly under gold parse,
+natural language cannot reliably ADDRESS it through the pinned deterministic front-end).
+The programme is much further along on *building a defensible checker* than on *showing
+the checker reaches, or helps, anyone*.
 
 ---
 
-## 2. NOT measured / confound-exposed (equal prominence with §1)
+## 1. CORRECTNESS thesis — the verdict
 
-### 2a. "Does grounding help a model?" — the central question, fully UNMEASURED
+> **VERDICT (verbatim): INCONCLUSIVE — PENDING (a) an NL-reaching parser [FK-NLB-3] and (b) the semantics core [g2 Π-soundness vs human gold, g3 necessity]. The instrument sub-claim is FEASIBLE-and-DEMONSTRATED but INSTRUMENT-ONLY; every MEASURED crossing from the instrument into real or natural input is, so far, NEGATIVE. SCOPE: the kernel-v0 / molecules-v0 instance, R0–1.7B hosts, the two tested verticals (family/world, code), the one pinned a1-hybrid deterministic front-end, the self-authored covered slice. CONFIDENCE: high on the instrument sub-claim (cross-vendor CONFIRMED); high that the current-build NL boundary and wild-formal boundary are negative at scope; the thesis-level verdict is INCONCLUSIVE because its two decisive legs (semantics core, a better parser) are unrun, not failed.**
 
-The measured evidence reaches exactly to the fortress wall and stops. Every step that would
-make the substrate matter to a model is an open successor or a landed negative:
+The thesis decomposes into two claims that the evidence separates cleanly, and honesty
+requires keeping them apart:
 
-- NL must reach the closed grammar (l3a-parse / a5-nl): UNRUN. Every prior programme lesson
-  says the NL boundary is where mechanisms die; nothing tests it.
-- A model must be measurably better off with the engine than with the kernel-as-text null and
-  strong baselines (l3a-cost / a5-llm): UNRUN or under separate contested-audit ruling.
-- No correctness experiment scores an unfiltered externally-authored population.
+**Claim C1 — "a training-free deterministic engine that grounds/checks claims EXISTS,
+is sound where covered, fails closed off it, and ports across domains" — FEASIBLE,
+MEASURED, cross-vendor CONFIRMED, but INSTRUMENT-ONLY.**
 
-LOAD-BEARING: "a sound, licensed, fail-closed deterministic checker over kernel-governed records exists, extends across domains, and costs microseconds" is MEASURED and CONFIRMED; "that checker, or the kernel it serves, makes any model more correct on any task at matched budget" is UNMEASURED [MEASURED: registry/assessments/oracle-coverage.json null-bound].
+PREMISE: [MEASURED: registry/verdicts/l3a.json + registry/verdicts/a5.json, both audit CONFIRMED; registry/assessments/oracle-coverage.json] The kot-axiom/1 v0 engine is exact and fail-closed on its covered slice at microsecond cost and ports across a domain vertical with a BYTE-IDENTICAL engine binary: l3a (family/world, R0) 600/600 covered-exact (Wilson LB 0.9955) + 300/300 strict refusals (LB 0.9911) + 6/6 planted violations surfaced + 5.29 µs/query; a5 (code, R0) 855/855 covered-exact (LB 0.9968) + 122/122 strict refusals (LB 0.9783) + 3/3 planted violations + 7.82 µs/query, engine byte-identical to the l3a pin and extended only by data + a pure desugaring layer over a no-LLM-extracted code world.
 
-### 2b. The SOLE positive end-task signal (f2b verifier-offload) is CONFOUNDED — internal and external reviews converged independently
+LOAD-BEARING: This is the strongest, cleanest evidence in the whole registry — and it is evidence about the INSTRUMENT, not about usefulness to any model [MEASURED: both evals are authored against the engines' own stores ("coverage by construction"), so exactness is a consistency-and-licensing property, never world-accuracy; both verdicts are R0 with scale_language_licensed = none; and the a5 map is STRUCTURAL definitions not NSM explications (ASM-0007), l3a directions are stipulated readings (ASM-0004) — the results exercise the FORMALISM, not the NSM SEMANTICS].
 
-The one end-task PASS in the registry:
+**Claim C2 — "that grounding reaches real/natural input and makes a model measurably more
+correct" — INCONCLUSIVE, and every MEASURED boundary crossing is NEGATIVE so far.**
 
-LOAD-BEARING: SmolLM2-135M + kernel-verify-retry (k=4) beats SmolLM2-1.7B-alone by +0.1507 absolute (one-sided 95% BCa LB +0.1053) at cost_ratio_vs_R3 = 0.103, cross-vendor CONFIRMED, and a seed-pinned derangement of the record→item map recovers ~0 of the lift (point −0.021) [MEASURED: registry/verdicts/f2b-replicate.json, audit CONFIRMED].
+The measured boundary results, at full prominence and each scoped to its own envelope:
 
-But this result cannot yet be attributed to the kernel's semantics, and the confound was
-flagged from **two fully independent directions that reached the same place**:
+- PREMISE: [MEASURED: registry/verdicts/l3a-parse.json, verdict FAIL] NL-boundary, family/world vertical: the a1-hybrid deterministic front-end retains only 251/527 = 47.6% of gold-parse covered exactness (Wilson UB 0.5121 vs the 0.90 bar) — a decisive FAIL. The mechanism is a STRUCTURAL paraphrase ceiling: the label-verbatim stratum parses 76.4% but the PARAPHRASE stratum parses 0/261 = 0.0% (single-label mapper, no synonym table). The failure is SAFE here — the S2 dangerous-wrong KILL did NOT fire (8/527 wrong, LB 0.0086 < 0.02); mis-parses become refusals.
+- PREMISE: [MEASURED: registry/verdicts/a5-nl.json, verdict FAIL, two independent causes] NL-boundary, code vertical: 356/855 = 41.6% (UB 0.4443) — FAIL — AND the S2 dangerous-wrong KILL FIRED (43/855 = 5.0% wrong, LB 0.0394 ≥ 0.02). This is the DANGEROUS failure mode the design named worse than any refusal: the frame-layer ROLE_DIR direction table flips containment orientation (contained-in 24, where-defined 18) into a real-but-wrong answer *with provenance attached*. Same front-end as l3a-parse, opposite safety outcome, because on the code vertical the frame direction table carries the semantics.
+- PREMISE: [MEASURED: registry/assessments/nsk1-{g2d,bprime2,stage1}.json — exploratory read (nsk1 record status DRAFT, no frozen verdict); the flagship's exploratory stages] Model-internal grounding, INCONCLUSIVE two-sided: text-delivered grounding is NET-HARMFUL (g2d: host composes 0.76 text-only, appending the engine's correct fact drops it to 0.43, 0/24 text-only failures rescued — a defective channel at every scale tested); the internal residual-stream channel DELIVERS at ECHO grade (keyacc 0.81/0.85, replicated across three derangement seeds) but whether that delivered content INTEGRATES into free generation is UNRESOLVED (the echo-proof R− rescue endpoint fired 0/8, at-or-below the content-free coin null; no KILL because the echo-confounded R+ endpoint sits above the kill bound). Delivery topology, not content, was the binding failure — now measured from both sides, and integration is not settled either way.
+- PREMISE: [MEASURED: registry/verdicts/g8.json, verdict FAIL, audit CONFIRMED] Wild-formal-content boundary: the profile-M fragment captures 0 of 1,000 random Mathlib declarations (UB 0.0027 vs the 1% gate) and the locator places 5/39 math concepts in Mathlib top-5 (12.8% vs the 80% gate), wrapped around a clean machinery PASS (F/B round-trip 33/33). Lean-minting is DEAD AT SCOPE (kernel size 39, signature-layer extraction) with a pre-registered bulk-authoring re-entry — not dead as a formalism claim.
+- PREMISE: [MEASURED: registry/verdicts/g9-llmproxy.json, verdict FAIL-analog] Authoring capability, PROXY: a kernel-instance-naive cross-vendor LLM reviewer endorsed the composite (substitutable ∧ cross-translatable ∧ legal) on 9/50 Fable-authored explication sheets (0.18; UB 0.2850 vs the 0.34 bar). WEAK proxy only (STIPULATED: ASM-0550) — it can neither fire nor discharge the frozen g9's own kill; the blinded HUMAN g9 (GATE-H) is the sole HS-A adjudicator and is UNRUN. Response: authoring-cost claims PAUSED, maintainer escalated [STIPULATED: ASM-0648].
 
-- **INTERNAL (the f2b-replicate + f-efficiency assessments, Fable):** the derangement control
-  separates CONTENT from STRUCTURE, "not real semantics from definitional circularity" — the
-  verifier accepts iff the answer string-equals the canonical record, and d-qa-r gold is still
-  DEFINED by that same equality, so under BOTH the real-content reading and the
-  self-consistent-circularity reading a derangement destroys the lift; the shuffled control
-  provably cannot adjudicate between them [MEASURED: registry/assessments/f2b-replicate.json
-  does_not_license, "content-specificity is not ground-truth independence"].
-- **EXTERNAL (GPT-5.6 review, all four lenses, sharpest in A and C):** the derangement null
-  destroys record↔item *alignment*, not NSM *content* — any aligned deterministic answer table
-  (opaque IDs, a plain typed schema) would produce the same lift and die under the same
-  derangement, so the measured +0.1507 supports "an aligned deterministic acceptance rule plus
-  retry beats these arms on this authored task", not "kernel semantics caused the lift"
-  [poc/gpt56-review/SYNTHESIS.md G1].
+The one PASS in the correctness neighbourhood is not a kernel-content win:
 
-DECISION: adopt GPT-5.6's language correction — the f2b lift is **correct-alignment-specific**, not "kernel-content-specific", and the f2b-transfer confound is honestly named **gold-label independence**, not "ground-truth independence" [MEASURED: registry/assessments/f2b-replicate.json does_not_license + registry/verdicts/f2b-replicate.json — the derangement null recovers ~0 of the lift under BOTH the real-content and the definitional-circularity readings, so it provably cannot discriminate NSM content from correct record↔item alignment; the wider phrasing exceeds what the control measures, and internal and external reviews converged on the narrower one]. It is a $0 relabel that blocks a false-conclusion class.
+PREMISE: [MEASURED: registry/verdicts/truthstyle-2x2.json, verdict PASS, audit CONFIRMED] truthstyle-2x2 is an INSTRUMENT-ADEQUACY result: the LLM-judge style main effect at matched truth is +0.025 (90% interval [0.0033, 0.0467]), inside the ±0.10 margin — so LLM-judge endorsement is not materially style-leaky at that margin [STIPULATED: ASM-0680 consumption discipline — "style-robust AT MARGIN 0.10", never "zero style effect"; the measured effect is nonzero and NSM-favoring]. It scores ZERO kernel content (no endpoint measures gold agreement); it makes OTHER readings trustworthy, it is not itself evidence the kernel is correct.
 
-The convergence itself is the signal worth recording: an internal honesty-rail assessment and
-an out-of-house adversarial review, run independently, identified the *same* single weakest
-inferential link in the programme's only positive end-task result. That raises confidence the
-confound is real, not an artifact of one reviewer's framing.
+The a5-llm head-to-head is real but is a substrate comparison on FORMAL inputs, and its
+NL leg is now separately measured as a FAIL:
 
-*Where GPT-5.6 itself overstated (flagged, not adopted):* its lens-A claim that a stage-2
-f2b-transfer PASS "removes exactly one confound" is itself an overclaim (the designer
-synthesis corrects this in-house); its family-h0 "prospectivity" critique and its
-Construction-B commutativity worry are both wrong (family members are fixed in the frozen P1
-master plan; Construction B uses fixed permutations by design) [poc/gpt56-review/SYNTHESIS.md
-§Bottom line]. Adopt the language corrections; do not inherit the overstatements.
+PREMISE: [MEASURED: registry/verdicts/a5-llm.json verdict PASS, audit CONFIRMED per ledger] On the pinned 977-query kot-query-code/1 slice the deterministic engine scored conj 1.0 vs the best gate-valid LLM cell 0.3398 (+0.6602, one-sided LB +0.6346) at cost_ratio_min 22,836× and fabrication 78.7% on controls vs the engine's 0/122. DECISION: [MEASURED: registry/assessments/a5-llm.json does_not_license — the assessment's own scope ceiling, adopted verbatim] this is "a deterministic engine over its own extracted typed records beats a small closed-book/RAG LLM on a self-authored oracle-favourable code slice whose queries are already FORMAL" — there is no NL, no parse step, and NO conventional-substrate arm, so nothing distinguishes the kot-axiom kernel from ANY typed store + checker; the NL leg a5-llm deferred is exactly what a5-nl now measures = FAIL, so no code-vertical NL-usefulness claim survives the a5-llm PASS [MEASURED: a5-nl.json tree_impact].
 
-### 2c. f2 verifier-offload FAIL landed as a FAIL
+**The knull surface-realization gap — a named, unmeasured value gap the correctness thesis
+must carry openly:**
 
-LOAD-BEARING: F2's frozen HE1 (R1,R2) gap-closure primary FAILED as pre-registered (gap_closed_fraction = −40.13, one-sided CI −135.6 to −23.1); the FAIL stands unmodified, and is MEASURED-UNAUDITED because the audit gate fires on PASS only [MEASURED: registry/verdicts/f2.json, fired_rule_index 1].
-
-No softening. The diagnostic read — which does not change the verdict — is that the estimand's
-denominator was degenerate: R2-alone (360M) scored ≤ R1-alone (135M) on D-QA (0.388 vs 0.394),
-so there was no s→S gap to close, and that attribution is itself the MEASURED finding of the
-audited f2b-replicate separation gate. Un-contaminated by the denominator and carried at full
-prominence: **HE2 cascade-dominance is DEAD at this scope** — the verifier-gated cascade was
-not strictly dominant over the model's own free calibration baselines (logprob gate + gloss-text
-self-check) at every escalation budget (Holm family fail, worst-budget p 0.0471). The model's
-own free signal was not beaten under the pre-registered dominance standard. Also NOT a
-measurement: f2's external-slice "zero transfer" reading was an **instrument artifact**
-(ext_vector ran model-alone in every arm) — off-slice transfer after f2 is UNMEASURED, not
-negative [MEASURED: bead kernel-of-truth-97r; a live discrepancy D3, the uncorrected reading
-still sits in the bead description].
-
-### 2d. Coverage is the narrow, non-transferring perimeter
-
-LOAD-BEARING: Kernel-vocabulary coverage is 0.3542 of content-word mass on the FRIENDLIEST measured corpus at the molecules-v0 rung (kernel-v0 0.2210; wn31-aligned reachable band 0.7841), clearing the 0.20 niche-scope gate but leaving ~2/3 of even this corpus unreachable [MEASURED: registry/verdicts/m0b.json, audit CONFIRMED; corpus/rung/kernel-state-indexed; extrapolates to NO other corpus — ASM-0002 open, with one live non-transfer warning].
-
-This is the hard ceiling on every covered-slice claim. Two censuses show USABLE coverage is
-thinner still: proposition-level roll-up **engagement is ~0.6%** (idea-B compression, ~5×
-below its 2% floor — PARKED behind coverage growth, not a mechanism kill) and the maintainer's
-flagship "a AND b" pattern engages ~0 on real text (1 fragment / 405,523 sentences)
-[MEASURED: registry/assessments/compression-census.json]. m0b's 0.3542 must never be read as
-"fraction of the corpus the kernel can do something with"; it is surface-form vocabulary
-membership, a crude LOWER bound on expressibility.
+LOAD-BEARING: the kernel's OWN definitional output is the NSM gloss verbatim (e.g. "this someone lives now; the body can move; this someone can feel something."); NO scholarly-English surface layer exists anywhere in the system, and no verdict licenses any claim that the system produces proper-English definitions [STIPULATED: ASM-0702 (knull scope audit) — NSM is a controlled metalanguage by design; a surface-realization layer (NSM record → edited English) is a missing, unmeasured programme-wide component, and its output when built falls under the maintainer's language-quality standard and needs its own blind quality gate]. Separately, the knull *plain-dictionary control* was measured mechanically defective (3/10 blind) which one-sidedly CONFOUNDS the un-run knull ablation toward a false content-win [STIPULATED: ASM-0700]; the rewrite is in flight on a maintainer-ratified split gate and the ablation itself is UNRUN.
 
 ---
 
-## 3. OPEN decisive tests (what is still in flight or unrun)
+## 2. EFFICIENCY thesis — the verdict
 
-### 3a. The canonical circularity test (f2b-transfer) — human-pending, with a WEAK proxy in flight
+> **VERDICT (verbatim): INCONCLUSIVE — PENDING (a) de-confounding the one end-task positive [the knull K-NULL aligned-non-NSM ablation, or the human f2b-transfer Stage-1], (b) the mint-cost side [A-F0, key-gated unrun], and (c) the consumption channel [A-E2 K-A3/K-A4, unmeasured]. There is a real, audited efficiency SIGN on FORMAL inputs and a real, large membership UPPER BOUND from cross-lingual minting — but the one positive is correct-ALIGNMENT-specific (not shown kernel-content-specific), the compression number is an upper bound not achievable savings, and every cost + consumption side is unmeasured. SCOPE: ≤1.7B hosts, the self-authored covered/formal slice, one PRM size class, the 10k-concept census anchor. CONFIDENCE: high that a verifier-offload SIGN exists at scope; high that it is not yet attributable to kernel content; high that the compression figure is an upper bound only.**
 
-- **Canonical path: OPEN, human-blocked.** f2b-transfer (frozen) Stage-1 with a kernel-naive
-  HUMAN judge-1 is the ONLY experiment on this line that adjudicates H-TRANSFER vs H-CIRC — the
-  real content-vs-circularity question. The CSV awaits human annotation
-  [docs/next/programme-completion-loop.md standing human-blocked items].
-- **Proxy stand-in: PASS-PENDING-AUDIT, A₁ₚ = 0.95, but a WEAK FEASIBILITY PROXY only.**
-  f2b-transfer-llmproxy fills judge-1 with a pinned LLM (GPT-5.6-Sol) because the human is
-  unavailable; the one-sided 95% Wilson LB of A₁ₚ cleared 0.70 [MEASURED-PENDING-AUDIT:
-  registry/verdicts/f2b-transfer-llmproxy.json, verdict PASS-PENDING-AUDIT]. Its own binding
-  envelope is emphatic and I adopt it verbatim: single judge FAMILY (GPT-5.6/5.5 same-vendor,
-  may correlate), kernel-TRADITION familiarity (NSM style plausibly in training data,
-  ASM-0021), PARTIAL circularity break only, and — decisively — **a PASS does NOT adjudicate
-  H-TRANSFER vs H-CIRC, does NOT substitute for the human Stage-1, and does NOT license Stage-2
-  or any f2b promotion** [STIPULATED: ASM-0022, weak-proxy status]. Read asymmetrically: the
-  named channels plausibly push A₁ₚ up, so a FAIL would have been the informative outcome; the
-  PASS licenses only continued investment, never a claim upgrade.
+The evidence, at full prominence:
 
-LOAD-BEARING: the sole positive end-task result remains attribution-confounded, and NO experiment that could de-confound it (human f2b-transfer; the K-NULL aligned-non-NSM-store ablation) has read out [MEASURED: registry/assessments/f2b-replicate.json; the A₁ₚ=0.95 proxy is explicitly not that experiment].
+**The one end-task PASS (verifier-offload) — real, audited, but attribution-confounded and
+formal-only.**
 
-### 3b. Successor legs that decide usefulness (designed/unrun or ruling-in-flight)
+PREMISE: [MEASURED: registry/verdicts/f2b-replicate.json, verdict PASS, audit CONFIRMED] SmolLM2-135M + kernel-verify-retry (fixed k=4) beats SmolLM2-1.7B-alone by +0.1507 absolute (one-sided 95% BCa LB +0.1053) at cost_ratio_vs_R3 = 0.103 (~10% of the 1.7B per-query cost); a seed-pinned derangement of the record→item map recovers ~0 of the lift (point −0.021), and the kernel arm beats gloss-self-verify (0.4893), the trained Skywork PRM-1.5B (0.5267), and the passive kernel-as-text null (0.4920).
 
-- **l3a-parse / a5-nl (the NL boundary): UNRUN.** The highest-mortality unmeasured leg —
-  mapper-parse vs gold-parse loss on the same frozen evals. Everything §1a banked is reachable
-  only through a closed grammar; if NL cannot reach it cheaply, the oracle stays an internal
-  instrument. Tier-0-ish, no GPU.
-- **l3a-cost / a5-llm (the LLM differentiator): UNRUN / ruling-in-flight.** l3a-cost converts
-  the 5.29 µs/query V-ledger line into (or kills) an engine-vs-LLM correctness argument.
-  a5-llm is the code-vertical head-to-head: I treat it verbatim as **REFUTE-on-pins, science
-  reproduces, ruling in flight** — its mechanical endpoints (effect_size 0.6601, cost_ratio
-  ~2.3×10⁴) are not premised on here in either direction, and the separate ruling owns whether
-  the science stands on corrected pins [not adjudicated here per tasking; registry/verdicts/
-  a5-llm.json audit REFUTE]. GPT-5.6 separately flags that a5-llm's lenient pro-LLM extractor
-  is *anti-conservative for the differentiator kill* — a pre-freeze repair worth landing before
-  any re-freeze [poc/gpt56-review/SYNTHESIS.md G5], but that is a design action, not a claim.
+LOAD-BEARING: this lift is correct-ALIGNMENT-specific, NOT shown kernel-content-specific, and its canonical de-confound has NOT read out [MEASURED: registry/assessments/f2b-replicate.json does_not_license — the verifier accepts iff the answer string-equals the canonical record and d-qa-r gold is DEFINED by that same equality, so under BOTH the real-content reading and the self-consistent-circularity reading a derangement destroys the lift; the shuffled control provably cannot discriminate NSM content from correct record↔item alignment. The open question is gold-label independence, and the only experiments that could settle it — the human f2b-transfer Stage-1, or the K-NULL aligned-non-NSM-store ablation (knull) — are unrun].
 
-### 3c. The correctness SEMANTICS core (g2/g3/g8/g9) — FROZEN but UNRUN, input-blocked
+PREMISE: [MEASURED: registry/verdicts/f2b-transfer-llmproxy.json verdict PASS, audit CONFIRMED; STIPULATED: ASM-0022 weak proxy] The transfer stand-in reads A_1p = 0.95 (Wilson LB 0.9275 ≥ 0.70) — but it is a WEAK feasibility proxy: single LLM judge family (GPT-5.x), kernel-tradition (not instance) familiarity (ASM-0021), a letter-level circularity break at proxy strength only; it does NOT adjudicate H-TRANSFER vs H-CIRC, does NOT substitute for the human Stage-1, and licenses only continued investment. Its most durable value is as the pinned comparator the human round will difference against.
 
-LOAD-BEARING: The correctness thesis's load-bearing semantics measurements are UNMEASURED: g2 (Π read-out soundness vs n=500 human gold), g3 (semantics-pin necessity), g8 (Lean minting), g9 (authoring capability) are FROZEN-but-UNRUN and g4/g5 are DRAFT — blocked on INPUT MATERIALS (human gold + adjudication, instance descriptions, a Mathlib crawl, an authored explication set), not on compute or design [MEASURED: registry/experiments/g2.json frozen with verdict absent; registry/assessments/g-series.json status_census — six of eight G-rows carry verdict:null].
+LOAD-BEARING: even at full strength the f2b efficiency line inherits the NL-boundary FAIL for any real (non-formal) deployment [MEASURED: f2b inputs are templated formal QA over the 108 covered concepts; the path from natural language to that formal slice is l3a-parse/a5-nl, both FAIL at scope — so the "135M+verifier beats 1.7B" economics are demonstrated only where the input is already formal].
 
-Only g6 and g7 produced results, and both are **container-shape (formalism-capacity) facts,
-not semantics facts**: g7 FAIL selected apply-clauses (kot-ast/2) as the bulk representation —
-a design selection, verbatim "not a programme kill" (inline rendering breaches on 91.3% of
-committed bulk records); g6 INCONCLUSIVE left the ∃-conjunctive-only fragment open (AND-demand
-rare at 0.0505%, but the closed sidecar inventory absorbs only 2/142 of it). *Tracker-vs-reality
-discrepancy, corrected here:* the "13/14 frozen experiments run + audited" framing is FALSE for
-these six rows — they are NOT-RUN, and `audit-status.py` renders them indistinguishably from
-run-awaiting-assessment (a flagged tooling defect).
+Landed negatives on the same line, carried at full prominence:
 
-### 3d. The cheap $0–250 confound-sharpening probes (GPT-5.6, adopted as design targets)
+PREMISE: [MEASURED: registry/verdicts/f2.json, verdict FAIL] The compute-matched f2 HE1 gap-closure primary FAILED as pre-registered (gap_closed_fraction −40.13) — diagnostically because its denominator was degenerate (R2-alone ≤ R1-alone, no s→S gap to close), but the FAIL stands unmodified. HE2 cascade-dominance is DEAD at scope (the verifier-gated cascade was not strictly dominant over the model's own free calibration baselines — logprob gate + gloss self-check).
 
-These are the cheapest decisive money in the programme and several are timing-critical (must be
-frozen before f2b-transfer Stage-2 unblinds, or they lose confirmatory standing forever):
+**The compression / dense-I/O side — one audited model-free byte premise, and one large
+but UPPER-BOUND membership census.**
 
-- **Truth×style 2×2 adjudication probe** — crosses semantic correctness with NSM-shaped vs
-  plain surface, length/fluency-matched, order-rotated, blind-adjudicated. Protects the
-  interpretation of f2b-transfer against style/familiarity leakage. CPU + bounded adjudication.
-- **K-NULL ablation, preceded by a content-injection map** — vector-free / opaque-ID /
-  conventional-store nulls of the f2b verifier at identical retry topology and FLOPs; the
-  content-injection map (enumerate exactly where kernel-derived bytes touch the model) must come
-  first, or the ablation "passes" trivially against arms that were never different. $0–250. This
-  is the single experiment that decides what the +0.1507 *is evidence of*.
-- **Pre-frozen failure-cause taxonomy for the F2 line + exploratory item-cluster bootstrap
-  re-analysis** — ~$0, must be declared into Stage-2's consumer design before unblinding.
+PREMISE: [MEASURED: registry/verdicts/f1.json, verdict PASS, audit CONFIRMED] KOTK/2 entropy-columnar storage beats the compressed glosses-only text of the SAME records by 6.7369× bytes — but it is a premise-RETAINER, not an efficiency win: bytes alone were pre-declared unable to carry the M4 claim, the latency half is UNDECIDED (deferred to F5), there is no model/task/accuracy anywhere in f1, and the ratio extrapolates upward on store size only (contradicted at the 2.3k-record tier).
+
+PREMISE: [MEASURED: registry/assessments/a-e2-census.json — a Tier-0 GATING census, NO frozen SAP, NO verdict object; every figure is an interpretive exploratory read, quarantined from every verdict chain] Cross-lingual minting (idea A) is ALIVE at the selection stage: the blended prefill-savings MEMBERSHIP bound at the 10k-concept anchor is ~18.5–24.0% (Qwen2.5 tokenizer) / 33.4–41.7% (SmolLM2), fertility-driven and concentrated overwhelmingly in non-English cells (English near the floor ~4–6%); the K-A2 5% floor does NOT fire anywhere. This is a stark contrast with the PARKED idea B (~0.4% word-mass, ~5× below its floor).
+
+LOAD-BEARING: the A-E2 figure is a MEMBERSHIP UPPER BOUND and must never be quoted as achievable savings [MEASURED: registry/assessments/a-e2-census.json — exploratory census read; mappability (K-A4) is UNPRICED in every cell, and the entire consumption channel (K-A3 tokenizer-extension null, trained-compressor null, 1-token-per-concept delivery, accuracy non-inferiority) is ENTIRELY UNMEASURED]. The mint-cost side is also unmeasured [MEASURED: registry/experiments/a-f0-mint-economics.json — the direct Messages-API definer economics experiment is FROZEN but KEY-GATED unrun (its hard precondition is an Anthropic API key not present on the box), so mint-cost per legal record is unmeasured].
+
+The mapper-quality measurement now exists but stands on a weak proxy:
+
+PREMISE: [MEASURED: registry/verdicts/m0a-llmproxy.json PASS (instrument gates), audit confirmed; STIPULATED: ASM-0649] A blind cross-vendor proxy of the mapper's precision/recall EXISTS — strict P 0.7143, strict R 0.8419 — but it is a WEAK proxy pending the human M0a gold; the precision is ruled materially low (advisory early-warning: downstream mapper-consumers carry a "precision possibly ~0.7" risk line).
 
 ---
 
-## 4. BOTTOM LINE per thesis
+## 3. Completeness ledger — DONE vs PENDING, and reversal analysis
 
-### CORRECTNESS thesis — UNDETERMINED, pending the NL boundary and the semantics core
+**DONE (mechanical verdict + cross-vendor audit + Fable interpretation) — 17 verdicted rows
++ the census/exploratory assessments:**
 
-**Verdict: ALIVE but UNDETERMINED — its instrument half is MEASURED-and-CONFIRMED, its
-usefulness half is entirely UNMEASURED, and its semantics core has not been run at all.** The
-programme has proven, cross-vendor, that a sound, fail-closed, provenance-carrying, microsecond
-deterministic checker exists and ports across verticals with a byte-identical engine (l3a
-600/600, a5 855/855, strict refusals, planted-violation capture). That is real and it is the
-strongest evidence in the registry — but it is instrument-adequacy obtained inside the fortress
-(evals authored against the engine's own stores), it exercises the *formalism* rather than the
-*NSM semantics* (ASM-0004/0007), and it says nothing about whether grounding helps a model.
-The four experiments that would test the semantics (g2/g3/g8/g9) are frozen-but-unrun and
-input-blocked; the NL boundary that would make the checker reachable (l3a-parse/a5-nl) is unrun.
+| record | verdict | audit | bears on |
+|---|---|---|---|
+| l3a, a5 | PASS | CONFIRM | C1 instrument exists (the substrate positive) |
+| l3a-parse | FAIL (safe) | interp done | C2 NL boundary — decisive negative, family/world |
+| a5-nl | FAIL (dangerous) | interp done | C2 NL boundary — decisive negative + safety break, code |
+| g8 | FAIL | CONFIRM | C2 wild-formal boundary; Lean-minting dead at scope |
+| g6 / g7 | INCONCLUSIVE / FAIL | done | formalism-capacity design selections, NOT semantics |
+| g9-llmproxy | FAIL-analog | (proxy) | authoring capability, weak proxy; human g9 pending |
+| truthstyle-2x2 | PASS | CONFIRM | instrument adequacy (style guard); zero kernel content |
+| a5-llm | PASS | CONFIRM | substrate comparison on FORMAL inputs; NL leg = a5-nl FAIL |
+| f1 | PASS | CONFIRM | efficiency byte premise (model-free, one corpus) |
+| f2 | FAIL | (FAIL-no-audit) | compute-matched verifier-offload negative; HE2 dead |
+| f2b-replicate | PASS | CONFIRM | the one end-task positive (alignment-specific, formal) |
+| f2b-transfer-llmproxy | PASS | CONFIRM | weak transfer proxy (A_1p 0.95); not H-TRANSFER |
+| m0a-llmproxy | PASS | confirmed | mapper P/R proxy (P~0.71); human M0a pending |
+| m0b | PASS | CONFIRM | coverage 0.3542 (friendliest corpus, one instance) |
+| a-e2-census, compression-census, define-op-census, b-cov-define-lane, oracle-coverage, g-series, f-efficiency, l3a-parse-recoverability, nsk1-* | (exploratory / census — no verdict object) | interp done | efficiency breadth bound; coverage gradient; the boundary picture |
 
-*Single result that would settle it* (in truth two, in order): **(1) l3a-parse/a5-nl** —
-whether natural language reaches the closed grammar cheaply; if it does not, the checker is a
-permanent internal instrument regardless of everything else. **(2) g2** (Π read-out soundness
-vs blind human gold) — whether the kernel's semantics are sound at all, which g3 gates (a g3
-necessity-kill auto-resolves HS2 to sidecar-only). g2's gold-annotation budget is protected by
-generating g3 materials first.
+**PENDING — and how each bears on the verdicts:**
 
-### EFFICIENCY thesis — ALIVE-NARROW, pending de-confounding of its one positive
+| pending item | state | bears on | reversal power |
+|---|---|---|---|
+| **g3-llmproxy-v3** | DRAFT, proxy re-run IN-FLIGHT (blinding-scan fix, ASM-0740/0741) | correctness semantics (g3 necessity) | **Refine only.** A WEAK proxy that "can neither fire nor discharge g3's own kill"; cannot reverse the correctness verdict. |
+| **knull** (K-NULL ablation) | FROZEN-UNRUN; plain-arm rewrite IN-FLIGHT (ASM-0700/0703), ablation itself unrun | efficiency — de-confounds the +0.1507 | **Verdict-moving, unrun.** Decides whether the one positive is kernel-content or generic aligned-key. The in-flight *rewrite* is control-quality repair, NOT a verdict; nothing to wait for yet. |
+| **A-F0** (mint economics) | FROZEN, KEY-GATED unrun | efficiency — mint-cost side | Refine (prices one cost side). |
+| **human g9** (GATE-H) | human-blocked | correctness — sole HS-A adjudicator | Verdict-moving on the authoring leg; g9-llmproxy stands in (FAIL-analog). |
+| **human M0a** | human-blocked | efficiency/mapper — gold the proxy stands in for | Refine (attributes the P~0.71). |
+| **f2b-transfer (human judge-1)** | FROZEN-UNRUN, human-blocked | efficiency — THE H-TRANSFER vs H-CIRC adjudicator | **Verdict-moving.** The canonical de-confound; the A_1p proxy explicitly is not it. |
+| **g2** (Π read-out soundness vs human gold) | FROZEN-UNRUN, input-blocked | correctness — the semantics core | **Verdict-moving.** Whether the kernel's semantics are sound at all. |
+| **g3** (semantics-pin necessity) | FROZEN-UNRUN, input-blocked | correctness — gates g2 | Verdict-moving on necessity. |
+| **f2b-errors, g4, g5, b-cov-smol** | FROZEN-UNRUN / DRAFT | robustness / authoring / external-benchmark coverage | Refine. |
 
-**Verdict: ALIVE-NARROW — one audited model-free storage-byte premise retained, one end-task
-PASS that is real but attribution-confounded, one mechanism variant DEAD at scope, everything
-else unrun.** f1 retains the M4 byte premise (6.74×, audited, one corpus, one rung, latency
-undecided) but a byte ratio is a compression format, not an architecture, until an accuracy leg
-(F5) exists. The verifier-offload line has exactly one PASS (f2b-replicate, +0.1507 at
-cost_ratio 0.103, audited) — but it is correct-alignment-specific, not kernel-content-specific,
-and its canonical de-confounding test is human-pending with only a weak A₁ₚ=0.95 proxy in
-flight. f2's own frozen primary FAILED; HE2 cascade-dominance died against free calibration
-baselines; and no audited end-task efficiency win exists over the kernel-as-text null outside
-the self-authored oracle-favourable slice.
-
-*Single result that would settle it:* **f2b-transfer with a human judge-1** (the canonical
-content-vs-circularity adjudication), OR, as the cheapest decisive proxy for it, **the K-NULL
-aligned-non-NSM-store ablation** — either one decides whether the +0.1507 is a kernel-semantics
-result or a generic "aligned deterministic answer key + retry" result. Under the deflationary
-reading the *efficiency* economics still survive in narrowed form ("135M + an authored
-deterministic answer key beats 1.7B-alone at ~10% FLOPs"), but the open question then becomes
-authoring cost (Law 1), not semantics.
-
-### Neither thesis is dead; neither is established. Both hinge on measurements that are cheap and already designed, and the binding constraint is not compute — it is human annotation (f2b-transfer, g2 gold) and input-material generation (g3/g8/g9), plus a handful of $0–250 attribution probes.
+DECISION: [STIPULATED: ASM-0761] No IN-FLIGHT item is load-bearing enough to defer this synthesis. The two in-flight items (g3-llmproxy-v3, the knull plain-arm rewrite) are, respectively, a weak proxy that cannot discharge g3's kill and a control-quality repair that produces no verdict; the genuinely verdict-moving items (g2, human f2b-transfer, the knull *ablation*, human g9) are all UNRUN and human/input-blocked, not in flight. Therefore I author the DEFINITIVE STANDING verdict now. Both per-thesis verdicts are already INCONCLUSIVE-PENDING, so no pending item can *reverse* a FEASIBLE/NOT-FEASIBLE call (there is none to reverse); each verdict-moving item RESOLVES the pending INCONCLUSIVE toward FEASIBLE or NOT-FEASIBLE, and each refine-only item narrows an envelope without moving the standing call.
 
 ---
 
-## 5. Highest-information next steps (cheapest-decisive-first)
+## 4. Strongest defensible positive and negative, per thesis (tagged)
 
-Ranked by information-per-dollar toward the feasibility verdict. Each is labelled with its
-executor gate. "Adopt" = carry into the named design / propose to the maintainer; nothing here
-is committed by this document.
+**CORRECTNESS**
+- Strongest defensible POSITIVE: a sound, fail-closed, provenance-carrying, ~µs deterministic checker EXISTS and ports across two verticals with a byte-identical engine [MEASURED, cross-vendor CONFIRMED: l3a 600/600, a5 855/855]. Honest ceiling: INSTRUMENT-ONLY, self-authored substrate, formalism-not-NSM-semantics (ASM-0004/0007).
+- Strongest defensible NEGATIVE: every MEASURED crossing from that instrument into real/natural input is negative — NL boundary FAIL on BOTH verticals (47.6% / 41.6%), one of them DANGEROUS (a5-nl S2 kill fired), wild-formal FAIL (g8 0/1000), text-delivered grounding net-harmful (nsk1 g2d) — and the system produces no scholarly-English surface layer at all [MEASURED, each scoped to its verdict; the boundary conjunction is EXTRAPOLATION per ASM-0762, direction-only].
 
-| # | Next step | Why it is decisive | Cost | Executor gate |
-|---|---|---|---|---|
-| **1** | **Claims-language + envelope corrections bundle** — relabel f2b "correct-alignment-specific", rename the f2b-transfer confound "gold-label independence", narrow HC3 to the named PRM checkpoint (not "the 1.5B class"), plus the GPT-5.6 G7 envelope table (f1 store-size, f4/f5 licensing width, g9 EXTRAPOLATION). | Restores the programme's only positive result to its measured scope; every downstream doc inherits these phrases; the honesty rail IS the product. | $0 | **Fable-design** (forward language + successor records only; frozen objects untouched). Opus-executable for the mechanical tracker/prose edits once Fable specifies them. |
-| **2** | **Truth×style 2×2 adjudication probe + pre-frozen F2 failure-cause taxonomy** — frozen BEFORE f2b-transfer Stage-2 unblinds. | Protects the interpretation of the single most important record in flight; after unblinding they lose confirmatory standing forever (R-2 logging rule). | ~$0 (CPU + bounded adjudication) | **Fable-design** to freeze; **Opus-executable** to run. Timing-critical. |
-| **3** | **K-NULL ablation, content-injection map FIRST** — aligned-non-NSM-store / opaque-ID / vector-free nulls at matched topology+FLOPs. | Decides what the +0.1507 IS evidence of (kernel semantics vs generic aligned answer key) — the cheapest attribution money available, ahead of any further F2-line spend. | $0–250 | **Fable-design** (map + arms), then **GPU-gated** (small; matched-FLOP retry). |
-| **4** | **f2b-transfer with human judge-1** (canonical) — recruit/annotate the frozen CSV. | The ONLY experiment that adjudicates H-TRANSFER vs H-CIRC; the A₁ₚ=0.95 proxy explicitly cannot. Settles the efficiency thesis's one live positive. | Human annotation time | **Human-blocked** (maintainer/annotator). Standing item; do not re-dispatch, surface for scheduling. |
-| **5** | **l3a-parse / a5-nl (the NL boundary leg)** — mapper-parse vs gold-parse loss on the existing frozen evals. | The highest-mortality unmeasured correctness leg; decides whether the microsecond checker is reachable from NL or is a permanent internal instrument. | ~$10, no GPU (mapper + existing evals) | **Fable-design** to freeze; **Opus-executable** to run (Tier-0). |
-
-**Held with reasons (next tier):** g3-then-g2 materials generation (the correctness semantics
-critical path — cheap Tier-0 but human-annotation-gated on g2 gold; g3-first protects the g2
-budget) → **human-blocked / Fable-design**; l3a-cost differentiator (~$40 Modal) → **GPU-gated**,
-sequence after l3a-parse shows NL is reachable; f2b-family-replicate (the cheapest ecology buy,
-decides two-family sign) → **GPU-gated**, only after f2b-transfer reads out; a5-llm pre-freeze
-extractor/ledger repairs → **Fable-design**, but the a5-llm *ruling itself* is a separate Fable
-task not touched here. Deprioritised until attribution is settled: M5 cascade re-entry, TIMEPACK/
-versioned-contradiction (GPT-5.6's best new value surface, but design it only after the
-circularity chain reads out).
+**EFFICIENCY**
+- Strongest defensible POSITIVE: on FORMAL self-authored inputs a 135M host + kernel-verify-retry beats a 12×-larger 1.7B host by +0.1507 at ~10% FLOPs, and the lift is content-alignment-specific (a seed-pinned derangement kills it) [MEASURED, CONFIRMED: f2b-replicate]; cross-lingual minting shows a real, large MEMBERSHIP upper bound (~18–42% @10k) [MEASURED-exploratory: a-e2-census].
+- Strongest defensible NEGATIVE: the one end-task positive is correct-ALIGNMENT-specific not kernel-content-specific (a generic aligned answer-key + retry would reproduce it), its de-confound is unrun, and it inherits the NL-boundary FAIL for real deployment; the compute-matched f2 primary FAILED and HE2 cascade-dominance DIED; the A-E2 figure is an upper bound with the consumption AND mint-cost sides unmeasured [MEASURED / MEASURED-exploratory, each scoped].
 
 ---
 
-## Epistemic register (assumptions this synthesis relied on)
+## 5. The next decisive experiment, per thesis (pre-registered re-entries)
 
-- **STIPULATED, adopted from convergent internal+external review:** the f2b lift is
-  correct-alignment-specific, not kernel-content-specific (blocks a false-conclusion class; $0).
-  The f2b-transfer confound is gold-label independence, not ground-truth independence.
-- **STIPULATED (ASM-0022):** f2b-transfer-llmproxy A₁ₚ=0.95 is a WEAK feasibility proxy; it does
-  not adjudicate H-TRANSFER vs H-CIRC. Load-bearing on the efficiency bottom line's "still
-  confounded" framing; resolution path = human f2b-transfer OR K-NULL.
-- **EXTRAPOLATION (not premised):** that coverage ~0.35 or the +0.1507 lift would hold on other
-  corpora, hosts >1.7B, non-templated items, or externally-authored items. ASM-0002, the f2b
-  envelope catch-room shrinkage, and the m0b scope are all open; none premises a conclusion here.
-- **MEASURED, fully indexed and never widened:** every number in §1 carries its corpus/rung/
-  kernel-state/model indices verbatim; m0b 0.3542 is restated only as corpus-indexed gate, never
-  as "natural coverage" (the worked caution ASM-0001/0002).
-- **NOT adjudicated here:** a5-llm (separate ruling; treated verbatim as REFUTE-on-pins, science
-  reproduces, ruling in flight). No conclusion depends on it in either direction.
+**CORRECTNESS.** Two, in order:
+1. **FK-NLB-3 — an LLM-assisted (or deterministic synonym/frame-direction-repair) parser** for the NL boundary, re-clearing both the 0.90 exactness bar and the a5-nl S2 fail-closed gate per vertical [the pre-registered re-entry the l3a-parse/a5-nl kills route investment to; ASM-0720 discipline]. If NL cannot reach the closed grammar cheaply and safely, the checker is a permanent internal instrument regardless of everything else.
+2. **g2 (Π read-out soundness vs blind human gold), g3-gated** — whether the kernel's semantics are sound at all; g3 necessity is generated first to protect the g2 gold-annotation budget. Human-annotation-blocked, Tier-0 compute.
 
-This synthesis is INTERIM: it will change when the frozen-unrun set (g2/g3/g8/g9), the human
-f2b-transfer, the NL-boundary legs, and the K-NULL ablation read out. Nothing above is a final
-feasibility verdict; it is the honest current-evidence picture the maintainer can act on now.
+**EFFICIENCY.** The single decisive test is the **de-confound of the +0.1507**:
+- **the knull K-NULL aligned-non-NSM-store ablation** (its plain control re-authored to the maintainer's quality standard FIRST, per ASM-0700 — the un-rewritten control confounds it one-sidedly), which decides what the lift IS evidence of at ~$0–250; OR
+- **the human f2b-transfer Stage-1**, the canonical H-TRANSFER vs H-CIRC adjudicator.
+Then, to price the compression side: **A-F0-run** (mint cost, needs the maintainer's API key) and a **consumption-channel measurement for A-E2** (K-A3 delivery + accuracy non-inferiority), which convert the upper bound toward achievable savings or kill it.
+
+---
+
+## 6. Bottom line
+
+LOAD-BEARING: Neither thesis is dead; neither is established. Both stand at INCONCLUSIVE-PENDING within explicit scopes: correctness has a MEASURED, CONFIRMED *instrument* and a wall of MEASURED negatives at every boundary it has tried to cross, with its semantics core unrun; efficiency has one MEASURED, CONFIRMED end-task SIGN on formal inputs that is not yet attributable to kernel content, plus a large but upper-bound compression membership number, with its de-confound, cost, and consumption sides unrun [MEASURED: §1–§2 verdicts (registry/verdicts/*) restated; the cross-thesis reachability-wall-on-coverage-wall shape is separately an EXTRAPOLATION (ASM-0762), direction-only and never a premise]. The binding constraint on both verdicts is not compute — it is human annotation (f2b-transfer, g2 gold, human g9/M0a), one API key (A-F0), input-material generation (g3), and one cheap ablation (knull, after its control rewrite). Every decisive next step is already designed and pre-registered.
+
+---
+
+## Epistemic register (what this synthesis relied on)
+
+- **STIPULATED (ASM-0760):** the two standing per-thesis feasibility verdicts and their scopes/confidences (the capstone decision) — both INCONCLUSIVE-PENDING within the stated envelopes.
+- **STIPULATED (ASM-0761):** no in-flight item (g3-llmproxy-v3, knull plain-arm rewrite) is verdict-moving; the standing verdict is authored now, not deferred.
+- **EXTRAPOLATION (ASM-0762, never a premise):** the reachability-wall-on-coverage-wall cross-thesis reading; each constituent figure is index-bound to its own verdict's envelope.
+- **STIPULATED, adopted verbatim from the source assessments:** the f2b lift is correct-alignment-specific not kernel-content-specific; A_1p 0.95 is a WEAK proxy (ASM-0022); the A-E2 figure is a membership upper bound; the truthstyle PASS is instrument-only (ASM-0680); the knull surface-realization gap is a named unmeasured component (ASM-0702).
+- **MEASURED, fully indexed and never widened:** every §1–§2 number carries its corpus/rung/kernel-state/vertical indices verbatim; m0b 0.3542 is restated only as a corpus-indexed gate, never as "natural coverage".
+
+This is the definitive standing feasibility verdict on the current evidence. It moves from
+INCONCLUSIVE toward FEASIBLE or NOT-FEASIBLE only when the verdict-moving PENDING items
+(§3) read out; it changes no frozen object, no verdict, and no audit.
