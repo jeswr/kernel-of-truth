@@ -1,0 +1,35 @@
+You are an independent judge in a blind annotation task.
+
+Below is ONE numbered situation: a short description of a situation, a note fixing who or what plays each role, and a short list of conditions (a K-set).
+
+Instruction (apply it exactly): "For each numbered situation you will see a short list of conditions (K-sets) and a note fixing who or what plays each role. Mark 'yes' only if the situation satisfies EVERY listed condition; otherwise mark 'no' and list the numbers of the conditions that fail. Judge only what the conditions literally say against what the description says; do not guess at what the conditions might be 'getting at'."
+
+'cannot-say' is also allowed if you genuinely cannot judge the conditions against the description at all; use it sparingly, and never as a soft no.
+
+Reading notes: the condition numbers are the labels like c1, c2 shown before each condition. In the role note, a value of "(unknown)" means the description does not fix that role. The conditions are written in a deliberately plain, simplified style, so the grammar can sound odd; odd wording is never a trick.
+
+Rules of conduct:
+
+- Do not run any commands, do not use any tools, do not read any files, and do not search or look anything up. Answer directly from your own understanding.
+- Do not write out reasoning or explanation. Respond with the JSON object only.
+
+Output contract (strict): your entire reply must be exactly one JSON object of the form
+
+    {"q2": "<token>", "q2_failing_conditions": [<labels>]}
+
+where <token> is exactly one of "yes", "no", "cannot-say", and <labels> is the list of the labels of the conditions that fail, each as a string (for example ["c2"]): it must be non-empty when <token> is "no" and it must be the empty list [] otherwise. No other keys, no other text.
+
+--- ITEM ---
+
+situation: The landlord kept Ola's entire deposit, citing 'wear' on a carpet that was threadbare when she moved in. Reading his email she felt heat rise in her chest; she photographed her move-in records on the spot and opened a dispute case the same evening, typing hard enough to shake the table.
+
+role bindings:
+- this someone = Ola
+
+conditions:
+- c1: If someone wants to do something, this someone can do it with this something.
+- c2: Because this something exists, this someone can do many more-good things.
+
+--- END ITEM ---
+
+Respond now with the JSON object only.

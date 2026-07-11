@@ -1,0 +1,31 @@
+[09:05:08] PREFLIGHT judge-pA-gpt56sol selftest=OK banners={"npx_codex": "codex-cli 0.144.1"} workdir=/tmp/judgepA-workdir.TlJrfk
+[09:05:12]   PREFLIGHT cal:g3lp-a1 status=valid got={'q1': 'yes'} expected={'q1': 'yes'} => PASS
+[09:05:18]   PREFLIGHT cal:g3lp-a2 status=valid got={'q1': 'no'} expected={'q1': 'no'} => PASS
+[09:05:21]   PREFLIGHT cal:g3lp-b1 status=valid got={'q2': 'yes', 'q2_failing_conditions': []} expected={'q2': 'yes', 'q2_failing_conditions': []} => PASS
+[09:05:26]   PREFLIGHT cal:g3lp-b2 status=valid got={'q2': 'no', 'q2_failing_conditions': ['c2']} expected={'q2': 'no', 'q2_failing_conditions': ['c2']} => PASS
+[09:05:59] PASS judge-pA-gpt56sol A start n=200 resume_done=0 banners={"npx_codex": "codex-cli 0.144.1"}
+[09:07:49]   A 20/200 nolabel=0 elapsed=110s
+[09:09:24]   A 40/200 nolabel=0 elapsed=205s
+[09:11:15]   A 60/200 nolabel=0 elapsed=316s
+[09:12:54]   A 80/200 nolabel=0 elapsed=415s
+[09:15:08]   A 100/200 nolabel=0 elapsed=549s
+[09:16:57]   A 120/200 nolabel=0 elapsed=658s
+[09:18:36]   A 140/200 nolabel=0 elapsed=757s
+[09:20:21]   A 160/200 nolabel=0 elapsed=862s
+[09:21:55]   A 180/200 nolabel=0 elapsed=956s
+[09:23:33]   A 200/200 nolabel=0 elapsed=1054s
+[09:23:34] PASS judge-pA-gpt56sol A done nolabel=0 -> /home/ec2-user/css/kernel/kernel-of-truth/data/g3-annot-llmproxy-v3/judge-pA-pass-a-responses.jsonl
+[09:23:35] PASS judge-pA-gpt56sol B start n=200 resume_done=0 banners={"npx_codex": "codex-cli 0.144.1"}
+[09:25:26]   B 20/200 nolabel=0 elapsed=111s
+[09:27:14]   B 40/200 nolabel=0 elapsed=219s
+[09:29:16]   B 60/200 nolabel=0 elapsed=341s
+[09:31:26]   B 80/200 nolabel=0 elapsed=472s
+[09:33:05]   B 100/200 nolabel=0 elapsed=571s
+[09:35:23]   B 120/200 nolabel=0 elapsed=708s
+[09:37:24]   B 140/200 nolabel=0 elapsed=829s
+[09:39:24]   B 160/200 nolabel=0 elapsed=949s
+[09:41:18]   B 180/200 nolabel=0 elapsed=1064s
+[09:42:55]   B 200/200 nolabel=0 elapsed=1160s
+[09:42:56] PASS judge-pA-gpt56sol B done nolabel=0 -> /home/ec2-user/css/kernel/kernel-of-truth/data/g3-annot-llmproxy-v3/judge-pA-pass-b-responses.jsonl
+[09:42:57] PROBE judge-pA-gpt56sol start n=30 resume_done=0
+[09:45:46] PROBE judge-pA-gpt56sol done nolabel=0 -> /home/ec2-user/css/kernel/kernel-of-truth/data/g3-annot-llmproxy-v3/judge-pA-probe-responses.jsonl

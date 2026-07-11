@@ -1,0 +1,35 @@
+[09:04:50] PREFLIGHT judge-pB-haiku45 selftest=OK banners={"claude": "2.1.201 (Claude Code)"} workdir=/tmp/judgepB-workdir.87gHOm
+[09:04:53]   PREFLIGHT cal:g3lp-a1 status=valid got={'q1': 'yes'} expected={'q1': 'yes'} => PASS
+[09:04:56]   PREFLIGHT cal:g3lp-a2 status=valid got={'q1': 'no'} expected={'q1': 'no'} => PASS
+[09:04:59]   PREFLIGHT cal:g3lp-b1 status=valid got={'q2': 'yes', 'q2_failing_conditions': []} expected={'q2': 'yes', 'q2_failing_conditions': []} => PASS
+[09:05:01]   PREFLIGHT cal:g3lp-b2 status=valid got={'q2': 'no', 'q2_failing_conditions': ['c2']} expected={'q2': 'no', 'q2_failing_conditions': ['c2']} => PASS
+[09:05:55] PASS judge-pB-haiku45 A start n=200 resume_done=0 banners={"claude": "2.1.201 (Claude Code)"}
+[09:07:10]   A 20/200 nolabel=0 elapsed=75s
+[09:08:20]   A 40/200 nolabel=0 elapsed=145s
+[09:09:41]   A 60/200 nolabel=0 elapsed=226s
+[09:10:57]   A 80/200 nolabel=0 elapsed=302s
+[09:12:12]   A 100/200 nolabel=0 elapsed=376s
+[09:13:21]   A 120/200 nolabel=0 elapsed=446s
+[09:14:41]   A 140/200 nolabel=0 elapsed=525s
+[09:16:02]   A 160/200 nolabel=0 elapsed=606s
+[09:17:08]   A 180/200 nolabel=0 elapsed=673s
+[09:18:12]   A 200/200 nolabel=0 elapsed=736s
+[09:18:12] PASS judge-pB-haiku45 A done nolabel=0 -> /home/ec2-user/css/kernel/kernel-of-truth/data/g3-annot-llmproxy-v3/judge-pB-pass-a-responses.jsonl
+[09:18:12] PASS judge-pB-haiku45 B start n=200 resume_done=0 banners={"claude": "2.1.201 (Claude Code)"}
+[09:18:32]   pos b5 content attempt 1 INVALID (tool_use_detected)
+[09:19:28]   B 20/200 nolabel=0 elapsed=76s
+[09:20:41]   B 40/200 nolabel=0 elapsed=148s
+[09:21:50]   B 60/200 nolabel=0 elapsed=217s
+[09:23:02]   B 80/200 nolabel=0 elapsed=290s
+[09:24:10]   B 100/200 nolabel=0 elapsed=357s
+[09:24:22]   pos b103 content attempt 1 INVALID (tool_use_detected)
+[09:25:22]   B 120/200 nolabel=0 elapsed=430s
+[09:26:26]   B 140/200 nolabel=0 elapsed=494s
+[09:27:42]   B 160/200 nolabel=0 elapsed=570s
+[09:28:56]   B 180/200 nolabel=0 elapsed=644s
+[09:29:39]   pos b193 content attempt 1 INVALID (tool_use_detected)
+[09:30:05]   B 200/200 nolabel=0 elapsed=713s
+[09:30:05] PASS judge-pB-haiku45 B done nolabel=0 -> /home/ec2-user/css/kernel/kernel-of-truth/data/g3-annot-llmproxy-v3/judge-pB-pass-b-responses.jsonl
+[09:30:06] PROBE judge-pB-haiku45 start n=30 resume_done=0
+[09:31:51]   pos p29 content attempt 1 INVALID (tool_use_detected)
+[09:31:58] PROBE judge-pB-haiku45 done nolabel=0 -> /home/ec2-user/css/kernel/kernel-of-truth/data/g3-annot-llmproxy-v3/judge-pB-probe-responses.jsonl
