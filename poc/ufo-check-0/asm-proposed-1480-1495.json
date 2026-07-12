@@ -57,7 +57,7 @@
  {
   "id": "PROPOSED-ASM-1485",
   "tag": "STIPULATED",
-  "claim": "AD = AU's rules over a seed-pinned Sattolo derangement (seed 20260712) of the meta-type assignment (every type's kind/role/phase label moved), with dispositions and accept tables RE-DERIVED under the derangement. Deranged tables may coincide with true tables on some (item, answer) cells; the coincidence rate is measured and reported, and the build re-deranges if it exceeds 0.35 (pre-freeze check).",
+  "claim": "AD = AU's rules over a seed-pinned Sattolo derangement (seed 20260712) of the meta-type assignment: a Sattolo CYCLE over the meta-label alphabet {kind, subkind, role, phase}, so every type's kind/role/phase label MOVES; dispositions and accept tables RE-DERIVED under the deranged assignment. The coincidence rate with the true tables is MEASURED at materialisation over the rejection-active scored slice (items with d_AU in {E,C}; gold-U items coincide trivially because neither arm ever rejects there) and gated <= 0.35 (ERR_AD_COINCIDENCE); a deterministic attempt-bump re-derangement fires otherwise and the attempt is recorded in fixtures-sha.json. Built value: attempt 0, active-slice coincidence 0.250 (all-scored 0.417, reported).",
   "backing_ref": "docs/next/design/ufo-check-0.md section 5 + 7.3(3); rules-1 c1 precedent",
   "rationale": "Content destruction at identical topology and token cost — the anti-circularity control from the derangement direction.",
   "load_bearing": true,
@@ -68,7 +68,7 @@
  {
   "id": "PROPOSED-ASM-1486",
   "tag": "STIPULATED",
-  "claim": "AN = the representation-matched null (CK-UFO A1 fold-in): the checker sees the same materialised proposition/situation representation but applies NO UFO rules — reject ENTAILED unless the candidate is literally stated in-situation, reject CONTRADICTED unless its notHolds is literally stated, accept UNDERDETERMINED always (the GS-B stated-bytes projection family, inverted to the accept seam); rejection messages carry no rule content and are token-matched.",
+  "claim": "AN = the representation-matched null (CK-UFO A1 fold-in): the checker sees the same materialised proposition/situation representation but applies NO UFO rules — reject ENTAILED unless the candidate is literally stated in-situation, reject CONTRADICTED unless its notHolds is literally stated, accept UNDERDETERMINED always (the GS-B stated-bytes projection family, inverted to the accept seam); rejection messages carry no rule content and are token-matched. MEASURED, not asserted (review fix): materialise.py emits the exact per-item and total node/edge/reifier/byte census of the representation each checker path consumes and refuses on any AU-vs-AN inequality (ERR_REP_MISMATCH; run-time gate /gates/an_representation_match), and gates AN accept/reject nondegeneracy — at least one accepted AND one rejected E answer and likewise for C over the scored slice (ERR_AN_DEGENERATE; run-time gate /gates/an_nondegenerate). Built census: 5391 nodes, 7851 edges, 1305 reifiers, 264250 bytes, identical for both consumers.",
   "backing_ref": "docs/next/design/ufo-check-0.md section 5; docs/next/arch/full-ufo-kernel-ck-ufo.md section 3.3 arm A1; DECONF GS-B lineage",
   "rationale": "A lift over A0 that AN reproduces is attributable to 'a rejection channel over explicit structure', not UFO inference — the second anti-circularity direction.",
   "load_bearing": true,
@@ -101,7 +101,7 @@
  {
   "id": "PROPOSED-ASM-1489",
   "tag": "STIPULATED",
-  "claim": "Statistics: paired-item BCa bootstrap B=10000, PRNG seed 20260712, one-sided alpha=0.05; Holm over {s1,s2,s3,s4,s5}; Wilson bounds for rate gates; primary smallest-effect-of-interest 0.05 absolute and the n=600 power statement are STIPULATED planning bounds, never measurements — resolution: realized CI width at analysis. Two host rungs (135M, 360M) license a SIGN, not a slope.",
+  "claim": "Statistics: paired-item BCa bootstrap B=10000, PRNG seed 20260712, one-sided alpha=0.05; every secondary carries a bootstrap-INVERSION p-value (the smallest alpha at which its registered one-sided BCa decision rule fires; for s3 this inverts the registered conservative ratio rule UB_a(lift AD)/LB_a(lift AU) < 0.30 by bisection); HOLM step-down over {s1,s2,s3,s4,s5} with adjusted p <= 0.05 as the OPERATIVE pass for every secondary; the registered 95% bounds are additionally reported verbatim. The primary is standalone: decision = LB95 > 0, inversion p reported. Wilson bounds for rate gates. The n=600 power claim is resolved by the frozen simulation (PROPOSED-ASM-1494), and realized CI width is still reported at analysis. Two host rungs (135M, 360M) license a SIGN, not a slope.",
   "backing_ref": "docs/next/design/ufo-check-0.md section 6; analysis/ufo_check_0.py",
   "rationale": "Same statistical machinery as the frozen rules-1/knull-v2 records; nothing bespoke to audit.",
   "load_bearing": true,
@@ -112,13 +112,14 @@
  {
   "id": "PROPOSED-ASM-1490",
   "tag": "EXTRAPOLATION",
-  "claim": "Cost band 2-6 GPU-h / $5-20 (single a10g, ~16k short generations incl. shared first pass and k=1 retries) scales from the nsk1/rules-1 datum (32,958 rows ~= 0.457 A10G-h ~= $0.50) with a ~3x planning margin for model loads, the 360M rung and checkpointing; caps usd 20 / 6 GPU-h / 12 h wall. Planning estimate, never a measurement; the dry-plan gate re-checks before spend.",
+  "claim": "Cost band 2-6 GPU-h / $5-20 (single a10g, ~16k short generations incl. shared first pass and k=1 retries) scales from the nsk1/rules-1 datum (32,958 rows ~= 0.457 A10G-h ~= $0.50) with a ~3x planning margin for model loads, the 360M rung and checkpointing; caps usd 20 / 6 GPU-h / 12 h wall. Planning estimate, never a measurement; the dry-plan gate re-checks before spend. ENFORCED, not merely declared: fixture-tokenized dry-plan gate + in-run BudgetGuard hard stops at the registry caps (named ERR_BUDGET_* exits, partials flushed).",
   "backing_ref": "docs/next/design/ufo-check-0.md section 9; PROPOSED-ASM-1134 lineage",
   "rationale": "Keeps the rider inside the arch-synthesis Q6 ratified band.",
   "load_bearing": false,
   "status": "open",
   "owner": "designer-1",
-  "date": "2026-07-12"
+  "date": "2026-07-12",
+  "resolution_path": "Pre-launch: ufo_check0_runner.py --dry-plan (FIXTURE-TOKENIZED at the pinned tokenizer — built value 6,956,100 worst-case tokens => 0.886 GPU-h / $0.97 worst case at the 3x overhead factor) must be green vs the caps. In-run: BudgetGuard hard stops at usd_cap/gpu_hours_cap/wall_clock_cap (ERR_BUDGET_USD/ERR_BUDGET_GPU_HOURS/ERR_BUDGET_WALL_CLOCK), flushing completed cells. Post-run: the realized gpu_hours/usd_total ledger in the run sidecar resolves the band; re-tag on readout."
  },
  {
   "id": "PROPOSED-ASM-1491",
@@ -134,7 +135,7 @@
  {
   "id": "PROPOSED-ASM-1492",
   "tag": "STIPULATED",
-  "claim": "Role + gating discipline: this DRAFT was authored by the experiment-designer role, which never runs, grades or audits it; build (sections 8/10.2) and freeze (10.4-10.5) may proceed at ~$0 while the coordinator HOLDS the GPU run pending the maintainer's issue-#22 decision (KUFO/1 adoption + D2 + Q6); the run is the experiment-runner role's on Modal lane M1 (coordinator confirms the free lane at launch under the one-lane-per-account stipulation); grading is verdict-gen + analyst; audit is the cross-vendor Codex auditor. ASM rows 1480..1493 are registered centrally by the coordinator; the design bead wrote nothing to registry/assumptions.jsonl.",
+  "claim": "Role + gating discipline: this DRAFT was authored by the experiment-designer role, which never runs, grades or audits it; build (sections 8/10.2) and freeze (10.4-10.5) may proceed at ~$0 while the coordinator HOLDS the GPU run pending the maintainer's issue-#22 decision (KUFO/1 adoption + D2 + Q6); the run is the experiment-runner role's on Modal lane M1 (coordinator confirms the free lane at launch under the one-lane-per-account stipulation); grading is verdict-gen + analyst; audit is the cross-vendor Codex auditor. ASM rows 1480..1495 are registered centrally by the coordinator; the design bead wrote nothing to registry/assumptions.jsonl.",
   "backing_ref": "docs/next/design/ufo-check-0.md section 10; scratchpad arch-synthesis section 3",
   "rationale": "Run-vs-audit separation and the maintainer's decision authority preserved while pre-run preparation stays parallel.",
   "load_bearing": true,
@@ -148,6 +149,28 @@
   "claim": "Scope: families F-RIG/F-ANTI/F-DISJ/F-SPEC only; relators/qua-individuals, identity criteria, dispositions and events are NOT tested; the axioms-as-text null is NOT run at this scope (AN covers representation, not rule-text) — a disclosed limitation any promotion experiment must repair. Every claim is bounded by the section 7.4 envelope; the record is ORACLE-DIAGNOSTIC; no outcome licenses a feasibility conclusion on CORRECTNESS or EFFICIENCY (both INCONCLUSIVE-PENDING).",
   "backing_ref": "docs/next/design/ufo-check-0.md sections 2, 7.4",
   "rationale": "Names what the $5-20 rider does NOT buy so a PASS cannot be over-read.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12"
+ },
+ {
+  "id": "PROPOSED-ASM-1494",
+  "tag": "STIPULATED",
+  "claim": "Power: the n=600 claim is demonstrated by the FROZEN seed-pinned simulation poc/ufo-check-0/power_sim.py (numpy default_rng(20260712), M=2000 datasets/scenario, the SAME BCa B=10000 statistic via the exact multinomial-over-value-classes equivalence), committed result poc/ufo-check-0/inputs/power-sim.json and pinned in pins.artifact_hashes. Registered decision rule: n=600 stands iff min primary power over the a0 grid {0.20,0.35,0.50,0.65,0.80} at the +0.05 margin >= 0.80. Result: min power 1.000 (the shared-first-pass paired diff is structurally one-sided under the licensed-rejection contract); type-I at zero true lift 0.000; s5 non-inferiority power >= 0.955 at zero true increase (0.824 at a true +0.01 increase, low churn — disclosed sensitivity). The simulation is a planning instrument, never a measurement of the run.",
+  "backing_ref": "docs/next/design/ufo-check-0.md section 6 (power); poc/ufo-check-0/power_sim.py; poc/ufo-check-0/inputs/power-sim.json",
+  "rationale": "Cross-vendor review fix 1: an unsupported power stipulation cannot freeze; the simulation replaces it with a registered, reproducible artifact.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12"
+ },
+ {
+  "id": "PROPOSED-ASM-1495",
+  "tag": "STIPULATED",
+  "claim": "Machine-enforced instrument gates (review fixes 4/5/6): (a) COMPLETENESS — the analysis terminally gates the exact item x arm x host x seed factorial (630 x 5 x 2 x 3 = 18,900 rows, no missing/duplicate/unbalanced rows, the fixed 600-item scored set per cell, verified against the fixtures' committed item-id shas) as /gates/completeness_valid; (b) REPRESENTATION CENSUS + AN NONDEGENERACY per PROPOSED-ASM-1486; (c) AD COINCIDENCE per PROPOSED-ASM-1485; (d) MESSAGE DISCIPLINE — twin_ufo.lint_message prohibits disposition labels, replacement answers and conclusion-equivalent text over EVERY rejection-message byte; materialise refuses at build (ERR_MESSAGE_DISCIPLINE), the runner re-lints the loaded fixture bytes before any generation, and the analysis carries /gates/rejection_message_clean. Any gate failure is INSTRUMENT-INVALID, never a hypothesis event; rejection AND retry rates are reported per arm.",
+  "backing_ref": "docs/next/design/ufo-check-0.md sections 5.2, 5.2b, 6; analysis/ufo_check_0.py OUTPUT_FIELDS; poc/ufo-check-0/materialise.py",
+  "rationale": "The cross-vendor review required these asserted properties to be measured and gated by machine, not narrated.",
   "load_bearing": true,
   "status": "open",
   "owner": "designer-1",

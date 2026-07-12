@@ -2,7 +2,7 @@
  "analysis_plan_ref": {
   "anchor": "6",
   "path": "docs/next/design/ufo-check-0.md",
-  "sha256": "8519b3d47d276448566e561e3c2ae04f116cc44c5527963d603f7e47d296820e"
+  "sha256": "1e92e39b70dec16d08e7973c0016356428cebec2f9773459a50fdb8b500e9b39"
  },
  "budget": {
   "gpu_hours_cap": 6,
@@ -22,7 +22,7 @@
    "A0 no-checker: greedy first pass is final \u2014 the baseline and headroom gate",
    "AG gUFO-taxonomy-only checker: asserted subsumption within-situation + STATED disjointness only; no derived Kind disjointness, no cross-situation propagation, no rigidity/witness/scope semantics \u2014 what class labels alone buy (dormant gufo_prior axis lineage)",
    "AU UFO-SN3 checker: full closed inventory {U-RIGID, U-ANTI-WIT, U-KIND-DISJ, U-SPEC-MASK, U-EXIST, U-CLOSED, U-OOP}, four-valued ENTAILED/CONTRADICTED/UNDERDETERMINED/OUT-OF-PROFILE; licensed rejections only (d=U and d=OOP reject NOTHING) \u2014 the experimental arm",
-   "AD deranged-meta-typing: AU's rules over a seed-pinned Sattolo derangement (seed 20260712) of the kind/role/phase assignment, dispositions re-derived; coincidence rate with true tables reported, re-derange pre-freeze if > 0.35 (PROPOSED-ASM-1485) \u2014 content destruction",
+   "AD deranged-meta-typing: AU's rules over a seed-pinned Sattolo derangement (seed 20260712) \u2014 a Sattolo CYCLE over the meta-label alphabet {kind, subkind, role, phase}, every type's label moved \u2014 dispositions re-derived; coincidence with true tables MEASURED over the rejection-active scored slice and gated <= 0.35, deterministic attempt-bump re-derangement otherwise, attempt recorded (PROPOSED-ASM-1485; built: attempt 0, 0.250) \u2014 content destruction",
    "AN representation-matched null: same materialised proposition/situation representation, stated-fact-lookup rules only, rejection messages content-free and token-matched (PROPOSED-ASM-1486; CK-UFO section 3.3 arm A1 fold-in + GS-B lineage) \u2014 structure-plus-rejection-channel control",
    "NOTE identical prompt bytes in ALL arms; shared greedy first pass per (item, host) makes pairing exact by construction; the only arm-varying surface is the rejection message, token-matched to AU's band +/-20% (PROPOSED-ASM-1484)",
    "NOTE the axioms-as-text null (rules-1 c6 form) is NOT run at this scope \u2014 AN covers representation, not rule-text; disclosed limitation any promotion must repair (PROPOSED-ASM-1493)"
@@ -112,7 +112,7 @@
      "tag": "STIPULATED"
     },
     {
-     "claim": "Power: n=600 paired items at 3-way chance ~0.33 resolves the 0.05 margin \u2014 STIPULATED planning bound, never a measurement; resolution: realized CI width at analysis (PROPOSED-ASM-1489)",
+     "claim": "Power: DEMONSTRATED by the frozen seed-pinned simulation poc/ufo-check-0/power_sim.py (PROPOSED-ASM-1494; registered rule: n=600 stands iff min primary power over the a0 grid at the +0.05 margin >= 0.80; result: min power 1.000, type-I 0.000, s5 power >= 0.955 at zero true increase); realized CI width still reported at analysis (PROPOSED-ASM-1489)",
      "tag": "STIPULATED"
     },
     {
@@ -153,31 +153,31 @@
    "id": "sec-s1-content-over-bit",
    "metric": "/analysis/s1_pass",
    "role": "secondary",
-   "test": "s1 (H-U6, PROPOSED-ASM-1487): acc(AU) - floor_max(AU) paired LB > 0 \u2014 the host uses the rejection REASON, not merely the bit; Holm within {s1..s5}. CLAIM CAP only: failure degrades the claim verbatim to 'rejection bit, not reason'; never verdict-bearing."
+   "test": "s1 (H-U6, PROPOSED-ASM-1487): acc(AU) - floor_max(AU) paired LB > 0 \u2014 the host uses the rejection REASON, not merely the bit; Holm within {s1..s5}. CLAIM CAP only: failure degrades the claim verbatim to 'rejection bit, not reason'; never verdict-bearing. OPERATIVE decision: bootstrap-inversion p-value, Holm step-down adjusted p <= 0.05 (analysis /analysis/p_values, /analysis/holm_adjusted_p)."
   },
   {
    "id": "sec-s2-vs-null",
    "metric": "/analysis/s2_pass",
    "role": "secondary",
-   "test": "s2 (H-U2): acc(AU) - acc(AN) paired LB > 0 \u2014 beats the representation-matched null, so the lift is not 'a rejection channel over explicit structure'; Holm-corrected; PASS-necessary (KILL-U3a caps PASS to INCONCLUSIVE on failure)."
+   "test": "s2 (H-U2): acc(AU) - acc(AN) paired LB > 0 \u2014 beats the representation-matched null, so the lift is not 'a rejection channel over explicit structure'; Holm-corrected; PASS-necessary (KILL-U3a caps PASS to INCONCLUSIVE on failure). OPERATIVE decision: bootstrap-inversion p-value, Holm step-down adjusted p <= 0.05 (analysis /analysis/p_values, /analysis/holm_adjusted_p)."
   },
   {
    "id": "sec-s3-deranged",
    "metric": "/analysis/s3_pass",
    "role": "secondary",
-   "test": "s3 (H-U3): deranged recovery = UB95(lift(AD))/LB95(lift(AU)) conservative ratio (rules-1 s1 form) < 0.30 \u2014 the lift must collapse under seed-pinned meta-type derangement; Holm-corrected; PASS-necessary (KILL-U3b)."
+   "test": "s3 (H-U3): deranged recovery = UB95(lift(AD))/LB95(lift(AU)) conservative ratio (rules-1 s1 form) < 0.30 \u2014 the lift must collapse under seed-pinned meta-type derangement; Holm-corrected; PASS-necessary (KILL-U3b). OPERATIVE decision: bootstrap-inversion p-value, Holm step-down adjusted p <= 0.05 (analysis /analysis/p_values, /analysis/holm_adjusted_p)."
   },
   {
    "id": "sec-s4-vs-gufo",
    "metric": "/analysis/s4_pass",
    "role": "secondary",
-   "test": "s4 (H-U4): acc(AU) - acc(AG) paired LB > 0 \u2014 the distinctive full-UFO content (derived disjointness, rigidity semantics) beyond taxonomy labels; Holm-corrected; CLAIM CAP only, never verdict-bearing."
+   "test": "s4 (H-U4): acc(AU) - acc(AG) paired LB > 0 \u2014 the distinctive full-UFO content (derived disjointness, rigidity semantics) beyond taxonomy labels; Holm-corrected; CLAIM CAP only, never verdict-bearing. OPERATIVE decision: bootstrap-inversion p-value, Holm step-down adjusted p <= 0.05 (analysis /analysis/p_values, /analysis/holm_adjusted_p)."
   },
   {
    "id": "sec-s5-dangerous-wrong",
    "metric": "/analysis/s5_pass",
    "role": "secondary",
-   "test": "s5 (H-U5, PROPOSED-ASM-1488): dangerous_wrong(AU) - dangerous_wrong(A0) one-sided UB95 < +0.02 (non-inferiority); Holm-corrected; failure = KILL-U2, verdict FAIL regardless of accuracy."
+   "test": "s5 (H-U5, PROPOSED-ASM-1488): dangerous_wrong(AU) - dangerous_wrong(A0) one-sided UB95 < +0.02 (non-inferiority); Holm-corrected; failure = KILL-U2, verdict FAIL regardless of accuracy. OPERATIVE decision: bootstrap-inversion p-value, Holm step-down adjusted p <= 0.05 (analysis /analysis/p_values, /analysis/holm_adjusted_p)."
   },
   {
    "id": "gate-fixtures",
@@ -213,6 +213,36 @@
    "metric": "/gates/token_parity_valid",
    "role": "secondary",
    "test": "INSTRUMENT gate (PROPOSED-ASM-1484): per-arm mean rejection-message tokens within +/-20% of AU at the pinned SmolLM2 tokenizer (pre-freeze artifact + this run-time re-check)."
+  },
+  {
+   "id": "gate-completeness",
+   "metric": "/gates/completeness_valid",
+   "role": "secondary",
+   "test": "INSTRUMENT gate (PROPOSED-ASM-1495): exact item x arm x host x seed factorial \u2014 630 x 5 x 2 x 3 = 18,900 rows, no missing/duplicate/unbalanced rows, fixed 600-item scored set per cell, item-id shas equal to the committed fixtures meta; failure => INSTRUMENT-INVALID."
+  },
+  {
+   "id": "gate-an-representation",
+   "metric": "/gates/an_representation_match",
+   "role": "secondary",
+   "test": "INSTRUMENT gate (PROPOSED-ASM-1486): MEASURED AU-vs-AN representation census (per-item and total node/edge/reifier/byte equality of the consumed materialised representation, from fixtures-meta.json, re-carried in-run)."
+  },
+  {
+   "id": "gate-an-nondegenerate",
+   "metric": "/gates/an_nondegenerate",
+   "role": "secondary",
+   "test": "INSTRUMENT gate (PROPOSED-ASM-1486): AN accepts >= 1 and rejects >= 1 E answer AND likewise for C over the scored slice \u2014 the representation-matched null must neither accept-everything nor reject-everything on either polarity."
+  },
+  {
+   "id": "gate-ad-coincidence",
+   "metric": "/gates/ad_coincidence_ok",
+   "role": "secondary",
+   "test": "INSTRUMENT gate (PROPOSED-ASM-1485): AD-vs-AU accept-table coincidence over the rejection-active scored slice <= 0.35 (measured at materialisation, attempt recorded)."
+  },
+  {
+   "id": "gate-message-discipline",
+   "metric": "/gates/rejection_message_clean",
+   "role": "secondary",
+   "test": "INSTRUMENT gate (PROPOSED-ASM-1495): every rejection-message byte lint-clean against the prohibited-pattern battery (no disposition labels, no replacement answers, no conclusion-equivalent text); enforced at build, re-linted at load, carried here."
   }
  ],
  "extrapolation_envelope_verbatim": "Binding on ANY outcome: claims are scoped to SmolLM2-135M/360M hosts (two rungs license a SIGN, not a slope); formal templated two-situation synthetic items from THIS seed-pinned generator (seed 'ufo-check-0/1|two-situation-modal-rigidity|20260712'); ENGINE-DERIVED gold from the SAME engine family as the AU checker \u2014 ORACLE-DIAGNOSTIC (ASM-0814 lineage): the eval's construction favours the checker by design and is HELD FIXED across arms, so the controls answer ATTRIBUTION, never DIAGNOSTICITY; the closed twin_ufo rule inventory; retry budget k=1 with licensed-rejection discipline; the four-valued contract (UNDERDETERMINED and OUT-OF-PROFILE never converted to negatives or rejections); families F-RIG/F-ANTI/F-DISJ/F-SPEC ONLY \u2014 relators, qua-individuals, identity criteria, dispositions and events are NOT tested; the axioms-as-text null is NOT run at this scope. NO outcome speaks to natural-language inputs, externally-authored items, hosts above 360M, sparq engine work, kernel content, or either programme thesis. A PASS feeds the issue-#22 GO decision as ONE input and licenses no thesis conclusion; a FAIL/NULL kills only the host-uses-checker mechanism at this scope. Coverage disclosure: this record consumes NO kernel corpus \u2014 the m0b coverage rung is carried for registry uniformity and no kernel-coverage claim is made or licensed.",
@@ -231,13 +261,19 @@
   "analysis_script": {
    "output_fields": [
     "/gates/fixtures_deterministic",
+    "/gates/completeness_valid",
     "/gates/headroom_valid",
     "/gates/engagement_valid",
     "/gates/extraction_ok",
     "/gates/extraction_wilson_lb",
     "/gates/token_parity_valid",
     "/gates/token_parity_ratios",
+    "/gates/an_representation_match",
+    "/gates/an_nondegenerate",
+    "/gates/ad_coincidence_ok",
+    "/gates/rejection_message_clean",
     "/analysis/primary_lift_lb95",
+    "/analysis/primary_p",
     "/analysis/primary_pass",
     "/analysis/kill_u1_fired",
     "/analysis/kill_u2_fired",
@@ -251,6 +287,8 @@
     "/analysis/s4_pass",
     "/analysis/s5_dangerous_wrong_increase_ub95",
     "/analysis/s5_pass",
+    "/analysis/p_values",
+    "/analysis/holm_adjusted_p",
     "/analysis/holm_order",
     "/analysis/acc_a0",
     "/analysis/acc_ag",
@@ -266,27 +304,39 @@
     "/analysis/per_family_breakdown",
     "/analysis/per_disposition_breakdown",
     "/analysis/rejection_rates",
+    "/analysis/retry_rates",
     "/analysis/cost_ledger"
    ],
    "path": "analysis/ufo_check_0.py",
-   "sha256": "688a4c9196d043eee229f03ab46e0ff6546711e18b1089abf74d1b8e31d80c83"
+   "sha256": "134fa8c4389e08e33213fee6a1c8857d291ee367a0de430a4fe3d201847e3704"
   },
   "artifact_hashes": {
-   "accept-tables(poc/ufo-check-0/inputs/fixtures/accept-tables.jsonl)": "PINNED-AT-INPUTS: per item x arm x answer accept/reject + exact rejection-message bytes, filled at freeze",
-   "f2bt-runner(poc/f2b-transfer/runner/f2bt_runner.py)": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
-   "fixtures-sha(poc/ufo-check-0/inputs/fixtures/fixtures-sha.json)": "PINNED-AT-INPUTS: double-run determinism proof (PROPOSED-ASM-1483), filled at freeze",
-   "generator(poc/ufo-check-0/gen_items.py)": "PINNED-AT-INPUTS: build deliverable, filled at freeze",
-   "token-parity-prefreeze(poc/ufo-check-0/inputs/token-band.json)": "PINNED-AT-INPUTS: pinned-tokenizer rejection-message band artifact (knull G-3 pattern), filled at freeze",
-   "twin-ufo(poc/ufo-check-0/twin_ufo.py)": "PINNED-AT-INPUTS: build deliverable; must import poc/rules-1/twin_engine.py READ-ONLY asserting its rules-1-pinned sha 399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+   "accept-tables(poc/ufo-check-0/inputs/fixtures/accept-tables.jsonl)": "dde258b34bbef02e1ccd696708f64291f7b9d7ddaf155dda92aba07fc135e076",
+   "f2bt-runner(poc/f2b-transfer/runner/f2bt_runner.py)": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+   "fixtures-meta(poc/ufo-check-0/inputs/fixtures/fixtures-meta.json)": "2f01f443c65387337cd0bb62d27b225ccbb28e91db58b58ea1cadc2f80062cc8",
+   "fixtures-sha(poc/ufo-check-0/inputs/fixtures/fixtures-sha.json)": "93d21b5de12b8e3f121bc5f41fe5591863fafae90bf1559075e410c7dc156d70",
+   "floors(poc/ufo-check-0/inputs/fixtures/floors.jsonl)": "98ce14e2db2636011ee849f5019da08c0416f067e3a9950398ce980a6e096116",
+   "generator(poc/ufo-check-0/gen_items.py)": "a8a90a04e958671fce1dd0c9c7345ec55d5d07fcf1533dee95ec9fe982539adb",
+   "gold(poc/ufo-check-0/inputs/fixtures/gold.jsonl)": "aed9fe0302eb4e5cc500284e86eee05d19ca21c6b98fd9b7e2c05953b46a7ba0",
+   "materialise(poc/ufo-check-0/materialise.py)": "22c575e46038ce4f4109b490763cada258268e0757fc82a7885419bb54a96ac0",
+   "modal-wrapper(poc/ufo-check-0/modal/modal_ufo_check0.py)": "cd822590e416abeedac861cbdac41f8019917f6fca7db3b8befb6783d1d53a6f",
+   "power-sim(poc/ufo-check-0/power_sim.py)": "5a8a27a49f2c5cfa3fe54617e95cd949055eb49686c9afff189de868b156b443",
+   "power-sim-result(poc/ufo-check-0/inputs/power-sim.json)": "e33c59fbe67bd66608b3e81b11ad12523cd736145f0c99ea7e35b02b39a60ec7",
+   "runner(poc/ufo-check-0/ufo_check0_runner.py)": "0a0cd957abf5bf974c833226df95fd6e66d8c60312b4e09fe5ab38e0b0a51934",
+   "runner-manifest(poc/ufo-check-0/inputs/manifest.json)": "48e7fc54ef995b423bf8bd88b12787724940d2390d8baa3a80df0246719ccfc1",
+   "token-parity-prefreeze(poc/ufo-check-0/inputs/fixtures/token-band.json)": "6e8f59041f655061af6df1495e498fe7609b0256486c78a36cc0ad95ef9fa4ee",
+   "tokenizer(SmolLM2 tokenizer.json, pinned bytes)": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c",
+   "twin-engine-rules1-pin(poc/rules-1/twin_engine.py)": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8",
+   "twin-ufo(poc/ufo-check-0/twin_ufo.py)": "104a60817a2d6a3ef2475b811b1dba69600c31f8ddef45f7da8319301efdaabb"
   },
   "corpus_hashes": {
    "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
-   "ufo-sn3-items-v0": "PINNED-AT-INPUTS: data/ufo-sn3-items-v0/ committed by the build worker (design section 8), digest via corpus-pin.py at freeze (coordinator step 4)"
+   "ufo-sn3-items-v0": "58ac0a7779c930d714bb1ea64d62010bef1fe82832cf2c94a8baafa0b1e6e705"
   },
-  "harness_manifest": "PINNED-AT-INPUTS: staged-bytes manifest sha printed by poc/ufo-check-0/modal/modal_ufo_check0.py --print-manifest (modal_rules1.py pattern), ops-amended before the final run",
+  "harness_manifest": "fe1d609690bd796b0977f307fe9f124954d99fc7cf453d011b6349fab17c332a",
   "model_revisions": {
    "r135": "HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac (f2b-replicate pinned revision, carried verbatim)",
-   "r360": "PINNED-AT-INPUTS: HuggingFaceTB/SmolLM2-360M-Instruct revision pinned at freeze (PROPOSED-ASM-1491)"
+   "r360": "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951 (pinned at build from the resolved refs/main snapshot; PROPOSED-ASM-1491)"
   }
  },
  "prereg_doc": {
@@ -304,22 +354,22 @@
    "11"
   ],
   "path": "docs/next/design/ufo-check-0.md",
-  "sha256": "8519b3d47d276448566e561e3c2ae04f116cc44c5527963d603f7e47d296820e"
+  "sha256": "1e92e39b70dec16d08e7973c0016356428cebec2f9773459a50fdb8b500e9b39"
  },
  "runner_constraints": {
   "concurrency_cap": 5,
   "foreground_gates": true,
-  "gate": "GPU spend REQUIRES: (1) the maintainer's issue-#22 decision (KUFO/1 adoption + gold ruling D2 + budget Q6) \u2014 the coordinator HOLDS the run until then; (2) prereg-freeze of this record; (3) green --mock + --dry-plan vs caps; (4) fixtures determinism proof. Estimated 2-6 GPU-h / $5-20 (planning estimates, never measurements).",
+  "gate": "GPU spend REQUIRES: (1) the maintainer's issue-#22 decision (KUFO/1 adoption + gold ruling D2 + budget Q6) \u2014 the coordinator HOLDS the run until then; (2) prereg-freeze of this record; (3) green --mock + FIXTURE-TOKENIZED --dry-plan vs caps (built: $0.97 / 0.886 GPU-h worst case); (4) fixtures determinism proof. Estimated 2-6 GPU-h / $5-20 (planning estimates, never measurements).",
   "hardware": "single a10g (A10G), fp32, greedy first pass + seeded retry sampling; CPU-only for materialise.py and all fixtures",
-  "harness": "poc/ufo-check-0 (SPEC in design section 8 \u2014 not yet built; build-worker deliverable). HFLM scorer + seeded retry sampler imported READ-ONLY from poc/f2b-transfer/runner/f2bt_runner.py at the pinned sha; poc/f2b*, poc/rules-1, poc/knull trees byte-untouched. Runner refuses real mode until this record is FROZEN (ERR_RUNNER_ROLE) and fixtures pass ERR_FIXTURES_PRECONDITION.",
+  "harness": "poc/ufo-check-0 (design section 8 \u2014 BUILT and MOCK-GREEN 2026-07-12: gen_items.py + twin_ufo.py + materialise.py + ufo_check0_runner.py + power_sim.py + modal/modal_ufo_check0.py). HFLM scorer + seeded retry sampler imported READ-ONLY from poc/f2b-transfer/runner/f2bt_runner.py at the RECONCILED pinned sha 810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338 (the DRAFT's earlier b62c... pin matched no committed bytes; the reconciled pin equals the FROZEN deconf-b record's f2bt artifact pin); poc/f2b*, poc/rules-1, poc/knull trees byte-untouched. Runner refuses real mode until this record is FROZEN (ERR_RUNNER_ROLE), re-verifies fixtures in-run (ERR_FIXTURES_PRECONDITION / ERR_FIXTURE_SHA), re-lints rejection messages (ERR_MESSAGE_DISCIPLINE) and hard-stops at the budget caps (ERR_BUDGET_*).",
   "infra": "modal",
   "modal_account": "lane M1 per the one-lane-per-account stipulation (arch-synthesis section 3 lists UFO-CHECK-0 first); coordinator CONFIRMS the free lane at launch \u2014 the assignment, not the one-lane rule, is adjustable. Standing hygiene: nohup+setsid for long runs; 'modal app stop ap-<id>' after killing ANY attached client (bd memory, E5 lesson).",
   "provider": "modal",
-  "roles": "frozen-design discipline: DRAFT authored by the experiment-designer role (never runs/grades/audits); build = build worker per design section 8; freeze = coordinator (prereg-freeze.py after resolving all PINNED-AT-INPUTS pins + central ASM registration 1480..1493); run = experiment-runner role POST-#22 only; grading = verdict-gen + analyst; audit = cross-vendor Codex auditor; anything off the pinned script is quarantined exploratory."
+  "roles": "frozen-design discipline: DRAFT authored by the experiment-designer role (never runs/grades/audits); build = build worker per design section 8; freeze = coordinator (prereg-freeze.py after resolving all PINNED-AT-INPUTS pins + central ASM registration 1480..1495); run = experiment-runner role POST-#22 only; grading = verdict-gen + analyst; audit = cross-vendor Codex auditor; anything off the pinned script is quarantined exploratory."
  },
  "schema_version": "kot-reg/2",
  "status": "DRAFT",
- "title": "UFO-CHECK-0 (KUFO/1 thin-slice GPU rider, issue #22) \u2014 does a frozen small host (SmolLM2-135M primary rung, 360M sign rung) USE a UFO checker at the verify-retry seam on two-situation modal/rigidity items? Five arms: no-checker / gUFO-taxonomy-only / UFO-SN3 four-valued checker / seed-pinned deranged-meta-typing / representation-matched null (the CK-UFO fold-in). Gold + all checker accept tables pre-materialised on CPU by the Python twin (twin_engine.py extension) \u2014 NO sparq changes on this path. ORACLE-DIAGNOSTIC: engine-derived gold, formal templated inputs, no natural-input-reach claim. DESIGN-ONLY DRAFT: the coordinator HOLDS the GPU run pending the maintainer's issue-#22 decision (KUFO/1 adoption + gold ruling D2 + budget Q6).",
+ "title": "UFO-CHECK-0 (KUFO/1 thin-slice GPU rider, issue #22) \u2014 does a frozen small host (SmolLM2-135M primary rung, 360M sign rung) USE a UFO checker at the verify-retry seam on two-situation modal/rigidity items? Five arms: no-checker / gUFO-taxonomy-only / UFO-SN3 four-valued checker / seed-pinned deranged-meta-typing / representation-matched null (the CK-UFO fold-in). Gold + all checker accept tables pre-materialised on CPU by the Python twin (twin_engine.py extension) \u2014 NO sparq changes on this path. ORACLE-DIAGNOSTIC: engine-derived gold, formal templated inputs, no natural-input-reach claim. DRAFT (harness BUILT + mock-green; stats, power sim, measured gates and pins resolved per the cross-vendor FIX-THEN-FREEZE review): the coordinator HOLDS the GPU run pending the maintainer's issue-#22 decision (KUFO/1 adoption + gold ruling D2 + budget Q6).",
  "verdict_rules": [
   {
    "verdict": "INSTRUMENT-INVALID",
@@ -327,27 +377,57 @@
     "a": {
      "a": {
       "a": {
-       "metric": "/gates/fixtures_deterministic"
-      },
-      "b": {
-       "metric": "/gates/headroom_valid"
-      },
-      "op": "and"
-     },
-     "b": {
-      "a": {
        "a": {
-        "metric": "/gates/engagement_valid"
+        "a": {
+         "a": {
+          "a": {
+           "a": {
+            "a": {
+             "a": {
+              "metric": "/gates/fixtures_deterministic"
+             },
+             "b": {
+              "metric": "/gates/completeness_valid"
+             },
+             "op": "and"
+            },
+            "b": {
+             "metric": "/gates/headroom_valid"
+            },
+            "op": "and"
+           },
+           "b": {
+            "metric": "/gates/engagement_valid"
+           },
+           "op": "and"
+          },
+          "b": {
+           "metric": "/gates/extraction_ok"
+          },
+          "op": "and"
+         },
+         "b": {
+          "metric": "/gates/token_parity_valid"
+         },
+         "op": "and"
+        },
+        "b": {
+         "metric": "/gates/an_representation_match"
+        },
+        "op": "and"
        },
        "b": {
-        "metric": "/gates/extraction_ok"
+        "metric": "/gates/an_nondegenerate"
        },
        "op": "and"
       },
       "b": {
-       "metric": "/gates/token_parity_valid"
+       "metric": "/gates/ad_coincidence_ok"
       },
       "op": "and"
+     },
+     "b": {
+      "metric": "/gates/rejection_message_clean"
      },
      "op": "and"
     },

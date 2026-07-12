@@ -1,0 +1,17 @@
+$ /usr/local/bin/python /root/kot/poc/pubeval/pubeval_runner.py --model smollm2-135m --benchmarks folio,arc_easy,arc_challenge,gsm8k --n 0 --shots 5 --data-dir /root/kot/poc/pubeval/data --out-dir /tmp/pubeval-results --device cpu --mock
+[folio] 8 items, 5-shot (MIT, HUMAN-AUTHORED)
+  folio 8/8 (0.0s)
+[arc_easy] 8 items, 5-shot (CC BY-SA 4.0, HUMAN-SOURCED (EXAM))
+  arc_easy 8/8 (0.0s)
+[arc_challenge] 8 items, 5-shot (CC BY-SA 4.0, HUMAN-SOURCED (EXAM))
+  arc_challenge 8/8 (0.0s)
+[gsm8k] 8 items, 5-shot (MIT, HUMAN-AUTHORED)
+  gsm8k 8/8 (0.0s)
+
+wrote /tmp/pubeval-results/results-pubeval-mock.json
+aggregate macro_acc = 0.7500 over folio,arc_easy,arc_challenge,gsm8k
+  folio          n=8     headline=0.6250
+  arc_easy       n=8     headline=0.8750
+  arc_challenge  n=8     headline=1.0000
+  gsm8k          n=8     headline=0.5000
+[runner exit rc=0]

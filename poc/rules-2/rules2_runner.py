@@ -13,9 +13,9 @@ third-party CLUTRR gold, NO engine anywhere at inference) over the plain
 host — with the memorisation split (S-mem/S-held/S-out, ASM-1436) and the c8
 train-bytes projection gate (ASM-1427) making lookup unable to fake it?
 
-ARMS (design SS2.3):
-  B0   plain host (R1; optionally R2) — RULES-1 A1 prompt format with
-       token-matched padding on S-out; floor + headroom gate.
+ARMS (design SS2.3; prompt surface REWORKED per the cross-vendor prereg
+review 2026-07-12, fix 1):
+  B0   plain host (R1; optionally R2) — floor + headroom gate.
   B1   LoRA on families 1+3 (stated+refusal, NO entailments, size-matched via
        the pinned b1-upsample list) — exposure control (s2', ASM-1425).
   B2   LoRA on families 1+2+3 (stated + MATERIALISED CLOSURE + refusal) —
@@ -28,14 +28,35 @@ ARMS (design SS2.3):
        (s3', ASM-1428). Drivers imported BYTE-IDENTICAL from
        poc/rules-1/rules1_runner.py (pin-verified); rules-1 trees unmodified.
   B5   R3 (1.7B) alone on S-out — big-model efficiency comparator.
-  c1p  LoRA on the Sattolo-DERANGED closure (pinned c1shuf-map) — content
-       control; the lift must collapse (s1', ASM-1426).
+  c1p  LoRA on the LABEL-DERANGED closure (pinned c1shuf-map; every trained
+       target differs from the engine answer) — content control; the lift
+       must collapse (s1', ASM-1426).
 
-EVAL: greedy fp32 forced-choice over the 23-word CLUTRR menu + the named
-refusal option (24th; ASM-1431/1446); strata S-out covered/control, S-mem,
-S-held, stated-guard, refusal-guard (s4' Herron degradation guard,
-ASM-1430); per-arm byte-identical in-process S-out repeat (G4, ASM-1439).
-FT seeds {0,1,2}; eval deterministic at attempt 0.
+EVAL SURFACES (review fix 1):
+  (i)  The rules-2 surface: EVERY rules-2 arm (B0/B1/B2/B3/B5/c1p) scores
+       S-out and the corpus strata on BYTE-IDENTICAL prompts (no per-arm
+       padding; the prompt is a pure function of the cell) with the SAME
+       24-option decode (23-word CLUTRR menu + named refusal). The former
+       ASM-1127 A1 padding asymmetry for B0/B5 is REMOVED; the shared
+       prompt-surface sha is recorded in the results bytes.
+  (ii) The common 23-option gap surface: for the s3' B2-vs-B4 gap, B2 (all
+       FT seeds) and B0 are ADDITIONALLY scored on the RULES-1 A1-verbatim
+       prompt (rules-1 frames, 23-option menu, no refusal option) — the
+       exact attempt-0 surface B4 decodes on — emitted as cell="entailed23"
+       (R1 only). B2/B4 and the (B2-B0)/(B4-B0) gap fraction are scored on
+       THIS common surface, never across surfaces.
+Strata: S-out covered/control, S-mem, S-held, stated-guard, refusal-guard
+(s4' Herron degradation guard, ASM-1430); per-arm byte-identical in-process
+S-out repeat (G4, ASM-1439). FT seeds {0,1,2}; eval deterministic at
+attempt 0.
+
+EFFICIENCY LEDGER (review fix 4): per-cell (arm/rung/seed) wall seconds and
+peak memory (torch.cuda.max_memory_allocated on GPU, reset per cell;
+process peak RSS ru_maxrss on CPU, monotone process-wide — instrument named
+in the row) are recorded in results.eval_ledger / results.training_ledger;
+rows carry tokens_in/flops_formula/attempts/engine_us so the pinned
+analysis can emit per-arm/rung GPU-h, USD, tokens, FLOPs, identical-S-out
+per-query cost, B4 attempts + engine CPU, and the break-even N*.
 
 FAIL-CLOSED PINS (mock included): kot-corpus-hash/1 on rules2-train +
 nsk1-clutrr + axioms-v0 + axioms-kinship-v1; sha pins on twin_engine.py,
@@ -180,10 +201,14 @@ def load_corpus(args):
 
 
 # ---------------------------------------------------------------------------
-# Prompt construction (rules-1 frames + refusal note; B3 proof block)
+# Prompt construction (rules-1 frames + refusal note; B3 proof block).
+# REVIEW FIX 1: the eval prompt is a pure function of the cell — NO per-arm
+# padding, so every rules-2 arm scores BYTE-IDENTICAL prompts by
+# construction (the former ASM-1127 padding path is removed; the
+# padding_sentence frame is retained only for the rules-1 frame-drift
+# assertion).
 # ---------------------------------------------------------------------------
-def render_prompt(frames, context_lines, question, menu, proof_lines=None,
-                  pad_to_tokens=None, lm=None):
+def render_prompt(frames, context_lines, question, menu, proof_lines=None):
     parts = [frames["task_prefix"]]
     for line in context_lines:
         parts.append(frames["fact_line"].format(line=line))
@@ -195,18 +220,7 @@ def render_prompt(frames, context_lines, question, menu, proof_lines=None,
             parts.append(frames["proof_line"].format(line=line))
     parts.append(frames["question_prefix"] + question)
     parts.append(frames["menu_prefix"] + ", ".join(menu) + ".")
-    base = "".join(parts)
-    if pad_to_tokens is not None and lm is not None:
-        # PROPOSED-ASM-1127 discipline carried over: neutral token-matching
-        # padding, counted with the arm's own tokenizer, before the cue.
-        pad_sent = " " + frames["padding_sentence"]
-        cur = lm.count_tokens(base + frames["answer_cue"])
-        block = ""
-        while cur + lm.count_tokens(block + pad_sent) <= pad_to_tokens:
-            block += pad_sent
-        if block:
-            base += "\n" + block.strip()
-    return base + frames["answer_cue"]
+    return "".join(parts) + frames["answer_cue"]
 
 
 def build_training_texts(arm, corpus, shuf_map, upsample_ids, byid, frames,
@@ -277,23 +291,14 @@ def corpus_cells(ids, byid, menu23, refusal, cell_name):
 
 
 def eval_cells(lm, cells, arm, rung, seed, frames, refusal, emitter, guard,
-               pad_payloads=None, ctx=None, emit=True):
-    """One deterministic greedy pass; returns the decision sha."""
+               emit=True):
+    """One deterministic greedy pass on the shared rules-2 surface (prompt =
+    pure function of the cell => byte-identical across arms, review fix 1);
+    24-option decode (menu + named refusal). Returns the decision sha."""
     decisions = []
     for c in cells:
         guard.start_item({"id": c["item_id"]})
-        pad = None
-        if pad_payloads is not None and c["cell"] in ("entailed", "control"):
-            # B0/B5 A1 discipline: pad to the A2-shaped injected count
-            pay = pad_payloads[c["item_id"]]
-            inj = r1.a2_shaped_injection(pay, ctx["names"][c["item_id"]],
-                                         ctx["urn2word"])
-            target = lm.count_tokens(render_prompt(
-                frames, c["lines"], c["question"], c["menu"],
-                proof_lines=inj or None))
-            pad = target
-        prompt = render_prompt(frames, c["lines"], c["question"], c["menu"],
-                               pad_to_tokens=pad, lm=lm)
+        prompt = render_prompt(frames, c["lines"], c["question"], c["menu"])
         options = c["menu"] + [refusal]
         guard.gen()
         ans, _conf = lm.choose({"id": c["item_id"], "cell": c["cell"],
@@ -316,6 +321,59 @@ def eval_cells(lm, cells, arm, rung, seed, frames, refusal, emitter, guard,
     return hashlib.sha256(blob).hexdigest()
 
 
+def gap23_cells(lm, arm, seed, items_covered, ctx, frames1, emitter, guard):
+    """REVIEW FIX 1(ii): the COMMON 23-option gap surface for s3'. B0 and B2
+    are scored on the RULES-1 A1-verbatim prompt (rules-1 frames, 23-word
+    menu, NO refusal option, no padding, no feedback) — byte-identical to
+    B4's attempt-0 verify-retry prompt — emitted as cell='entailed23',
+    rung R1. The B2/B4 gap and its (B2-B0)/(B4-B0) fraction are computed on
+    THIS surface only."""
+    for it in items_covered:
+        iid = it["item_id"]
+        guard.start_item({"id": iid})
+        prompt = r1.build_prompt(frames1, it, ctx["stated"][iid],
+                                 ctx["names"][iid], ctx["urn2word"],
+                                 ctx["menu"])
+        guard.gen()
+        ans, _conf = lm.choose({"id": iid, "cell": "entailed23", "arm": arm},
+                               list(ctx["menu"]), it["gold_relation"], seed,
+                               0, prompt=prompt)
+        t_in = lm.count_tokens(prompt)
+        t_opts = sum(lm.count_tokens(" %s" % w) for w in ctx["menu"])
+        emitter.emit(
+            item_id=iid, arm=arm, rung="R1", seed=seed, cell="entailed23",
+            item_correct_ext=int(ans == it["gold_relation"]), refused=0,
+            attempts=1, tokens_in=t_in, tokens_out=1,
+            flops_formula=r1.flops_formula(
+                lm, t_in * len(ctx["menu"]) + t_opts))
+
+
+# ---------------------------------------------------------------------------
+# Resource instrument (review fix 4): per-cell wall + peak memory
+# ---------------------------------------------------------------------------
+def reset_peak_mem(device):
+    if device == "cuda":
+        import torch
+        torch.cuda.reset_peak_memory_stats()
+
+
+def peak_mem_bytes(device):
+    """CUDA: allocator peak since the per-cell reset (true per-cell peak).
+    CPU: process peak RSS (ru_maxrss; kB on Linux) — a process-wide
+    high-water mark, monotone across cells; the instrument is NAMED in the
+    ledger entry so no reader can mistake one for the other."""
+    if device == "cuda":
+        import torch
+        return int(torch.cuda.max_memory_allocated())
+    import resource
+    return int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024
+
+
+def mem_instrument(device):
+    return ("cuda_max_memory_allocated_per_cell" if device == "cuda"
+            else "ru_maxrss_process_peak_monotone")
+
+
 # ---------------------------------------------------------------------------
 # LoRA fine-tune (real path; never touched by --mock)
 # ---------------------------------------------------------------------------
@@ -327,6 +385,7 @@ def train_lora(spec, texts, hp, seed, device, log):
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     torch.manual_seed(seed)
+    reset_peak_mem(device)  # per-run peak memory (review fix 4)
     tok = AutoTokenizer.from_pretrained(spec["repo"],
                                         revision=spec["revision"])
     base = AutoModelForCausalLM.from_pretrained(
@@ -391,7 +450,9 @@ def train_lora(spec, texts, hp, seed, device, log):
     ledger = {"wall_seconds": time.time() - t0, "tokens_seen": tokens_seen,
               "optimizer_steps": steps, "n_examples": len(texts),
               "flops_formula_train": 6.0 * n_active * tokens_seen,
-              "n_active_base": n_active}
+              "n_active_base": n_active,
+              "peak_mem_bytes": peak_mem_bytes(device),
+              "mem_instrument": mem_instrument(device)}
     lm = r1.Rules1HFLM.__new__(r1.Rules1HFLM)
     lm.tok, lm.model, lm.device, lm.torch = tok, model, device, torch
     lm.name = "%s@%s+lora" % (spec["repo"], spec["revision"][:8])
@@ -443,7 +504,8 @@ class StubR2LM:
             if ft:
                 p += (s["c1p_format_bonus"] if self.arm == "c1p"
                       else s["ft_format_bonus"])
-            if self.arm in ("B2", "B3") and cell in ("entailed", "s_held"):
+            if self.arm in ("B2", "B3") and cell in ("entailed",
+                                                     "entailed23", "s_held"):
                 p += s["ft_content_bonus"]
             if self.arm in ("B2", "B3") and cell == "s_mem":
                 p += s["smem_lookup_bonus"]
@@ -465,8 +527,10 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
              items_control, ctx, gpu, rungs):
     """Char-accurate plan that MIRRORS the execution structure: per FT arm
     3 seeds x (train + full S-out eval), strata + pinned-subsample repeat on
-    the first seed only; B0 padded; B4 expected-attempt-factor 2 (rules-1
-    planning constant); B5 on R3."""
+    the first seed only; all rules-2 arms on the byte-identical unpadded
+    surface (review fix 1); the common 23-option gap surface for B2 (all FT
+    seeds) + B0 on R1; B4 expected-attempt-factor 2 (rules-1 planning
+    constant); B5 on R3."""
     plan = man["planning"]
     hp = man["lora"]
     dc = man["design_constants_from_design_doc"]
@@ -516,8 +580,9 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
                 / tput_t[rung] / 3600.0
             hours["eval"] += (len(dc["ft_seeds"]) * sout_tok + rep_tok
                               + strata_tok) / tput_e[rung] / 3600.0
-        # B0 on this rung: S-out + repeat + strata (padding ~ +15%)
-        hours["eval"] += (sout_tok * 1.15 + rep_tok + strata_tok) \
+        # B0 on this rung: S-out + repeat + strata (byte-identical unpadded
+        # surface, review fix 1)
+        hours["eval"] += (sout_tok + rep_tok + strata_tok) \
             / tput_e[rung] / 3600.0
     # B4 (R1): 23-option rules-1 surface, expected attempt factor 2, 3 seeds
     b4_tok = sum(len(r1.build_prompt(
@@ -527,8 +592,11 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
         ctx["names"][it["item_id"]], ctx["urn2word"], menu23)) / cpt * 23
         for it in items_covered)
     hours["eval"] += b4_tok * 2.0 * 3 / tput_e["R1"] / 3600.0
+    # gap23 common surface (review fix 1): B2 x 3 FT seeds + B0 x 1, R1 only
+    hours["eval"] += b4_tok * (len(dc["ft_seeds"]) + 1) \
+        / tput_e["R1"] / 3600.0
     # B5 (R3): S-out only + repeat
-    hours["eval"] += (sout_tok * 1.15 + rep_tok) / tput_e["R3"] / 3600.0
+    hours["eval"] += (sout_tok + rep_tok) / tput_e["R3"] / 3600.0
 
     total = hours["train"] + hours["eval"]
     worst = total * plan["overhead_factor"]
@@ -541,8 +609,10 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
         "rungs planned: %s | FT arms %s x %d seeds | train tokens/run: %s"
         % (rungs, dc["ft_arms"], len(dc["ft_seeds"]),
            {a: "%.1fM" % (t / 1e6) for a, t in train_tok.items()}),
-        "eval: S-out %d cells x %d options (all seeds) + strata/repeat on "
-        "first seed only" % (len(sout), n_opt),
+        "eval: S-out %d cells x %d options (all seeds, byte-identical "
+        "prompts across arms) + strata/repeat on first seed only + gap23 "
+        "common 23-option surface (B2 x %d seeds + B0, R1)"
+        % (len(sout), n_opt, len(dc["ft_seeds"])),
         "GPU-hours on %s: train %.2f + eval %.2f = %.2f h; with %.1fx "
         "overhead %.2f h"
         % (gpu, hours["train"], hours["eval"], total,
@@ -661,6 +731,21 @@ def main():
         pass
     repeat_shas = {}
     training_ledger = {}
+    eval_ledger = {}  # per arm/rung/seed[/gap23]: wall + peak mem (fix 4)
+
+    # REVIEW FIX 1 evidence: the eval prompt is a pure function of the cell
+    # (no per-arm padding), so the S-out prompt surface is byte-identical
+    # across every rules-2 arm BY CONSTRUCTION; record its sha once. Same
+    # for the common 23-option gap surface (rules-1 A1-verbatim frames).
+    sout_prompt_sha = hashlib.sha256(json.dumps(
+        [render_prompt(frames, c["lines"], c["question"], c["menu"])
+         for c in sout], separators=(",", ":")).encode()).hexdigest()
+    gap23_prompt_sha = hashlib.sha256(json.dumps(
+        [r1.build_prompt(man1["prompt_frames"], it,
+                         ctx["stated"][it["item_id"]],
+                         ctx["names"][it["item_id"]], ctx["urn2word"],
+                         menu23) for it in covered],
+        separators=(",", ":")).encode()).hexdigest()
 
     # G4 repeat subsample: pinned first-N-by-sha S-out covered cells
     rep_n = (man["mock"]["repeat_subsample_n"] if args.mock
@@ -670,22 +755,26 @@ def main():
         key=lambda c: hashlib.sha256(("rep|" + c["item_id"]).encode())
         .hexdigest())[:rep_n]
 
-    def run_eval_arm(lm, arm, rung, seed, pad=False, sout_only=False,
-                     first_seed=True):
+    def ledger_cell(key, guard):
+        eval_ledger[key] = {
+            "wall_seconds": guard.elapsed(),
+            "peak_mem_bytes": peak_mem_bytes(args.device),
+            "mem_instrument": mem_instrument(args.device),
+            "mode": "MOCK" if args.mock else "REAL"}
+
+    def run_eval_arm(lm, arm, rung, seed, sout_only=False, first_seed=True):
         key = "%s/%s/seed=%s" % (arm, rung, seed)
         guard = CellGuard(key, args.cell_timeout_s, MAX_GEN_PER_ITEM)
-        pads = ctx["payload_true"] if pad else None
+        reset_peak_mem(args.device)
         try:
             eval_cells(lm, sout, arm, rung, seed, frames, refusal,
-                       emitter, guard, pad_payloads=pads, ctx=ctx)
+                       emitter, guard)
             if first_seed:
                 # per-arm byte-identical repeat on the pinned subsample
                 sha_a = eval_cells(lm, rep_cells, arm, rung, seed, frames,
-                                   refusal, emitter, guard,
-                                   pad_payloads=pads, ctx=ctx, emit=False)
+                                   refusal, emitter, guard, emit=False)
                 sha_b = eval_cells(lm, rep_cells, arm, rung, seed, frames,
-                                   refusal, emitter, guard,
-                                   pad_payloads=pads, ctx=ctx, emit=False)
+                                   refusal, emitter, guard, emit=False)
                 repeat_shas[key] = {"a": sha_a, "b": sha_b,
                                     "byte_identical": sha_a == sha_b}
             if not sout_only and first_seed:
@@ -698,10 +787,28 @@ def main():
                          refused=0, attempts=0, tokens_in=0, tokens_out=0,
                          flops_formula=0.0, exit="timeout")
             raise SystemExit("ERR_CELL_TIMEOUT: %s" % e)
+        ledger_cell(key, guard)
         log("cell %s done (%.1fs%s)"
             % (key, guard.elapsed(),
                ", repeat %s" % repeat_shas[key]["byte_identical"]
                if key in repeat_shas else ""))
+
+    def run_gap23(lm, arm, seed):
+        # common 23-option gap surface (review fix 1(ii)); R1 only
+        key = "%s/R1/seed=%s/gap23" % (arm, seed)
+        guard = CellGuard(key, args.cell_timeout_s, MAX_GEN_PER_ITEM)
+        reset_peak_mem(args.device)
+        try:
+            gap23_cells(lm, arm, seed, covered, ctx, man1["prompt_frames"],
+                        emitter, guard)
+        except CellBudgetExceeded as e:
+            emitter.emit(item_id=str(e.item_id), arm=arm, rung="R1",
+                         seed=seed, cell="timeout", item_correct_ext=0,
+                         refused=0, attempts=0, tokens_in=0, tokens_out=0,
+                         flops_formula=0.0, exit="timeout")
+            raise SystemExit("ERR_CELL_TIMEOUT: %s" % e)
+        ledger_cell(key, guard)
+        log("cell %s done (%.1fs)" % (key, guard.elapsed()))
 
     ft_rungs = {a: (rungs if a in dc["rungs_r2_arms"] else ["R1"])
                 for a in ALL_ARMS}
@@ -722,10 +829,12 @@ def main():
                                     args.device))
                 guard = CellGuard("B4/seed=%s" % seed, args.cell_timeout_s,
                                   MAX_GEN_PER_ITEM)
+                reset_peak_mem(args.device)
                 r1.run_verify_retry_cell(
                     lm, "B4", man1["prompt_frames"], covered, ctx,
                     ctx["payload_true"], ctx["tbox_true"],
                     dc["k_retry_b4"], seed, emitter, guard)
+                ledger_cell("B4/R1/seed=%s" % seed, guard)
                 log("cell B4/seed=%s done (%.1fs)" % (seed, guard.elapsed()))
             # E5 control cells for B4: engine-decided named refusals (the
             # rules-1 run_control_cells semantics, emitted under arm=B4)
@@ -747,7 +856,7 @@ def main():
                           man["model_revisions"]["R3"]["repo"],
                           man["model_revisions"]["R3"]["revision"],
                           args.device))
-                run_eval_arm(lm, "B5", "R3", seed, pad=True, sout_only=True)
+                run_eval_arm(lm, "B5", "R3", seed, sout_only=True)
             continue
         for rung in ft_rungs[arm]:
             spec = man["model_revisions"][rung]
@@ -757,7 +866,9 @@ def main():
                           if args.mock else
                           r1.Rules1HFLM(spec["repo"], spec["revision"],
                                         args.device))
-                    run_eval_arm(lm, "B0", rung, seed, pad=True)
+                    run_eval_arm(lm, "B0", rung, seed)
+                    if rung == "R1":
+                        run_gap23(lm, "B0", seed)
                 continue
             # fine-tune arms
             texts = build_training_texts(arm, corpus, shuf, ups, byid,
@@ -769,7 +880,9 @@ def main():
                     training_ledger[key] = {
                         "mode": "MOCK", "wall_seconds": 0.0,
                         "tokens_seen": 0, "n_examples": len(texts),
-                        "flops_formula_train": 0.0}
+                        "flops_formula_train": 0.0,
+                        "peak_mem_bytes": peak_mem_bytes(args.device),
+                        "mem_instrument": mem_instrument(args.device)}
                 else:
                     log("LoRA fine-tune %s (%d examples)..."
                         % (key, len(texts)))
@@ -779,6 +892,8 @@ def main():
                     training_ledger[key] = ledger
                 run_eval_arm(lm, arm, rung, seed,
                              first_seed=(seed == ft_seeds[0]))
+                if arm == "B2" and rung == "R1":
+                    run_gap23(lm, "B2", seed)
                 if not args.mock:
                     del lm  # free the adapter+base before the next seed
                     import torch
@@ -815,6 +930,21 @@ def main():
                        "and compared by decision sha; rows come from pass 1 "
                        "only",
         "training_ledger": training_ledger,
+        "eval_ledger": eval_ledger,
+        "eval_ledger_note": "review fix 4: per arm/rung/seed (and per gap23 "
+                            "cell) wall seconds + peak memory; instrument "
+                            "named per entry; row-level tokens_in/"
+                            "flops_formula/attempts/engine_us carry the "
+                            "rest of the per-arm efficiency vector",
+        "usd_per_hour_table": man["planning"]["usd_per_hour"],
+        "sout_prompt_surface_sha256": sout_prompt_sha,
+        "gap23_prompt_surface_sha256": gap23_prompt_sha,
+        "prompt_surface_note": "review fix 1: S-out prompts are a pure "
+                               "function of the cell (no per-arm padding) — "
+                               "byte-identical across B0/B1/B2/B3/B5/c1p by "
+                               "construction, 24-option decode; the s3' gap "
+                               "is scored on the common 23-option rules-1 "
+                               "surface (cell=entailed23 for B0/B2 vs B4)",
         "efficiency_constants": man["efficiency_ledger_constants"],
         "pins": man["pins"],
         "pins_verified": True,

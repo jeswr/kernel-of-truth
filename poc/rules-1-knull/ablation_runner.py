@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-# RULES-1-KNULL-ABLATION runner — shadow-staged, byte-identical harness reuse.
+# RULES-1-KNULL-CERT runner — shadow-staged, byte-identical harness reuse.
+# (2026-07-12 record split: the CPU certificate leg is registered as
+# registry/experiments/rules-1-knull-cert.json; the conditional GPU host-lift
+# leg is registered separately as rules-1-knull-hostlift.json and does NOT
+# use this runner. This runner supersedes the bundled rules-1-knull-ablation
+# draft's REG_SELF binding.)
 #
 # Design anchors: docs/next/design/rules-1-knull-ablation.md;
 # PROPOSED-ASM-1400 (substitution scope), 1405 (k0 staging-identity gate),
@@ -30,7 +35,7 @@
 # ATTESTATION (PROPOSED-ASM-1413, review fix 2): before any arm runs, the
 # k1/k2 SOURCE input directories are re-digested under the kot-corpus-hash/1
 # recipe and compared against the REGISTERED pins in
-# registry/experiments/rules-1-knull-ablation.json pins.artifact_hashes —
+# registry/experiments/rules-1-knull-cert.json pins.artifact_hashes —
 # post-freeze drift of the substituted TBoxes refuses fail-closed
 # (ERR_PIN_MISMATCH). Every payload written by this runner carries an
 # `attestation` block (record identity + frozen sha, arm identity, per-arm
@@ -65,7 +70,7 @@ ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 R1 = ROOT / "poc" / "rules-1"
 REG = ROOT / "registry" / "experiments" / "rules-1.json"
-REG_SELF = ROOT / "registry" / "experiments" / "rules-1-knull-ablation.json"
+REG_SELF = ROOT / "registry" / "experiments" / "rules-1-knull-cert.json"
 CERT_RESULT = R1 / "results" / "certificate-result.json"
 
 ARM_TBOX = {
@@ -136,7 +141,7 @@ def load_pins():
 
 
 def load_self_record():
-    """The rules-1-knull-ablation registry record — the registered digest
+    """The rules-1-knull-cert registry record — the registered digest
     source the attestation is checked against (PROPOSED-ASM-1413)."""
     if not REG_SELF.is_file():
         die("ERR_INPUT_MISSING", str(REG_SELF))
@@ -456,7 +461,7 @@ def main():
                          "TBox; no closure, no decisions, no unblinding")
     ap.add_argument("--registered", action="store_true",
                     help="REQUIRED for k1/k2: acknowledges the record "
-                         "rules-1-knull-ablation is FROZEN and this is the "
+                         "rules-1-knull-cert is FROZEN and this is the "
                          "registered runner role (ASM-1409)")
     args = ap.parse_args()
     if args.mock:
@@ -478,7 +483,7 @@ def main():
     if args.arm in ("k1", "k2") and args.registered:
         if record.get("status") != "FROZEN":
             die("ERR_NOT_FROZEN",
-                "rules-1-knull-ablation.json status != FROZEN; refusing "
+                "rules-1-knull-cert.json status != FROZEN; refusing "
                 "(fail-closed, ASM-1409)")
     payload, dst = run_arm(args.arm, pins, record)
     print("->", dst)

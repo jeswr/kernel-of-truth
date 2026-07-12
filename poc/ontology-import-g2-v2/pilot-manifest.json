@@ -1,0 +1,99 @@
+{
+ "ac1_threshold_justification": "0.65 (design section 11.3): (i) above the independence-ceiling AC1 0.587 at the measured v2 operating marginals -- independent judges pass AC1>=0.55 64% and AC1>=0.60 46% of the time at n=40, AC1>=0.65 30%; (ii) tighter than the retired kappa gate's carried-over stringency (kappa 0.40 at v1 A3 marginals <=> AC1 0.51); (iii) between measured-broken v1 A3 (0.417; 0.529 on the matched 40) and measured-healthy unhedged A1 (0.744); (iv) at the pilot marginals it demands raw agreement >= 31/40, strictly beating the item-matched v1 subset's 30/40. Disclosed: the quarantined 2026-07-12 EXPLORATORY pilot measured AC1 0.578 and FAILS this gate; the threshold was not shopped to pass known data",
+ "agreement_convention": "Gwet AC1 over the both-decisive yes/no pair table of the 40 pilot items (identical function to the pinned full-run analysis; pe_gamma = 2*pi*(1-pi) <= 0.5, never degenerate for n > 0). Co-reported, never gate substitutes: Cohen kappa (v1 convention, pe == 1 implies po == 1 -> kappa := 1.0), PABAK = 2*po - 1, positive/negative specific agreement p_pos/p_neg, the raw 2x2 table, both yes-marginals, and the marginal-matched independence-ceiling AC1 (0.5873 at the measured exploratory operating marginals 35/40, 31/40) -- the gated 0.65 must clear that ceiling, which any threshold <= 0.60 does not",
+ "build_date": "2026-07-12",
+ "gate": {
+  "ac1_a3_min": 0.65,
+  "cal_correct_min": 12,
+  "decisive_min_per_judge": 36,
+  "hedgeflip_false_sat_max_per_judge": 0.25,
+  "note": "kappa-paradox redesign 2026-07-12 (design section 11): the gated pair statistic is Gwet AC1, prevalence-robust; Cohen kappa is co-reported for cross-record continuity, NEVER gated. ANY failure = STOP before any full-arm call; mechanical verdict INSTRUMENT-INVALID with the pilot channel named; pilot labels are instrument evidence only, discarded from all scoring"
+ },
+ "hedgeflip_probe_ids": [
+  "ontg2v2:hf:a3:002",
+  "ontg2v2:hf:a3:005",
+  "ontg2v2:hf:a3:009",
+  "ontg2v2:hf:a3:004",
+  "ontg2v2:hf:a3:000",
+  "ontg2v2:hf:a3:006",
+  "ontg2v2:hf:a3:003",
+  "ontg2v2:hf:a3:007"
+ ],
+ "hedgeflip_selection_rule": "probes-hedgeflip-a3.jsonl ids sorted ascending by sha256(id + '|ontg2v2/pilotflip') hex; first 8 (doubled from 4, design section 11.4)",
+ "ids": [
+  "g2:pi:000",
+  "g2:pi:004",
+  "g2:pi:005",
+  "g2:pi:006",
+  "g2:pi:011",
+  "g2:pi:014",
+  "g2:pi:016",
+  "g2:pi:018",
+  "g2:pi:020",
+  "g2:pi:021",
+  "g2:pi:023",
+  "g2:pi:025",
+  "g2:pi:032",
+  "g2:pi:033",
+  "g2:pi:034",
+  "g2:pi:036",
+  "g2:pi:037",
+  "g2:pi:040",
+  "g2:pi:041",
+  "g2:pi:044",
+  "g2:pi:046",
+  "g2:pi:053",
+  "g2:pi:059",
+  "g2:pi:060",
+  "g2:pi:062",
+  "g2:pi:064",
+  "g2:pi:065",
+  "g2:pi:068",
+  "g2:pi:070",
+  "g2:pi:071",
+  "g2:pi:073",
+  "g2:pi:074",
+  "g2:pi:075",
+  "g2:pi:077",
+  "g2:pi:080",
+  "g2:pi:081",
+  "g2:pi:084",
+  "g2:pi:086",
+  "g2:pi:089",
+  "g2:pi:090"
+ ],
+ "n_pilot_items": 40,
+ "operating_characteristics": {
+  "burden_shift_note": "at prevalence pi ~ 0.83 ANY pair-agreement coefficient discriminates weakly (the between-judge signal lives in rare no-items); the prevalence-FREE known-answer channels (calibration 12/12, deranged <= 0.30, hedge-flip <= 2/8 pilot / <= 0.30 full-run) are load-bearing instrument evidence on an equal footing with AC1 (design section 11.4)",
+  "false_pass_marginal_matched_independent_judges": {
+   "at_measured_v2_marginals_0875_0775": 0.3,
+   "at_v1_a3_marginals_0690_0631": 0.0011,
+   "note": "the retired kappa>=0.40 gate at the v2 marginals: independent-pair false-pass 0.0074 but P(pass at true agreement 0.85) only 0.700 -- a 30% false-stop on a good repair; the kappa gate punishes the rubric for raising prevalence (design section 11.1)"
+  },
+  "model": "per-item iid: pA ~ Bernoulli(m); pB = pA with prob a, flipped otherwise; Gwet AC1 over the n=40 table; Monte Carlo 200000 reps, numpy default_rng(20260712) multinomial, computed at redesign time (design section 11.6); m pinned at BOTH 58/84 (the v1 A3 pA marginal, kept for continuity) and 0.875 (the measured EXPLORATORY v2 operating marginal, provenance disclosed)",
+  "p_pass_ac1_065_at_true_agreement_m0690": {
+   "0.679_v1_broken_rate": 0.043,
+   "0.729": 0.145,
+   "0.75": 0.221,
+   "0.80": 0.487,
+   "0.85_merely_good_repair": 0.79,
+   "0.90": 0.967
+  },
+  "p_pass_ac1_065_at_true_agreement_m0875": {
+   "0.679_v1_broken_rate": 0.116,
+   "0.729": 0.296,
+   "0.75": 0.404,
+   "0.80": 0.691,
+   "0.85_merely_good_repair": 0.911,
+   "0.90": 0.992
+  }
+ },
+ "order_seed": "ontg2v2/pilot|judge-<pk>|a3|2026-07-12",
+ "schema": "ontg2v2-pilot/1",
+ "selection_rule": "within each rule stratum of poc/g2/materials/items.jsonl, ids sorted ascending by sha256(id + '|ontg2v2/pilot') hex; take the first k (R3=20, R4=16, R1=4); design doc section 4",
+ "strata": {
+  "R1": 4,
+  "R3": 20,
+  "R4": 16
+ }
+}

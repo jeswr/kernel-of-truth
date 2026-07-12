@@ -38,7 +38,7 @@
   "dtype": "fp32 (frozen runner_constraints.hardware: 'single A10G (Modal), fp32, greedy'; the reused f2bt HFLM defaults to fp16, so Rules1HFLM overrides ONLY the load dtype and inherits the scorer/sampler unchanged)"
  },
  "prompt_frames": {
-  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word.\n\nFacts:\n",
+  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word from: {menu}.\n\nFacts:\n",
   "fact_line": "- {line}\n",
   "una_line": "- All named people are distinct individuals.\n",
   "derived_prefix": "Verified derivations from a deterministic rules engine (each with its proof):\n",
@@ -46,10 +46,9 @@
   "feedback_prefix": "Verifier feedback on earlier answers (each rejection is licensed by a proof from the stated facts):\n",
   "feedback_line": "- {line}\n",
   "question_prefix": "\nQuestion: ",
-  "menu_prefix": "\nAnswer with one word from: ",
-  "answer_cue": "\nAnswer:",
+  "answer_cue": "\nAnswer: {b_name} is {a_name}'s",
   "padding_sentence": "This line is neutral padding text with no information about the family.",
-  "frames_note": "single shared affordance for every arm (nsk1/f2b discipline); arms differ ONLY in the derived/feedback blocks and padding (PROPOSED-ASM-1127 token matching: A1/A5 pad to the A2-shaped injection token count computed per item with the arm's own tokenizer)"
+  "frames_note": "single shared affordance for every arm (nsk1/f2b discipline); arms differ ONLY in the derived/feedback blocks and padding (PROPOSED-ASM-1127 token matching: A1/A5 pad to the A2-shaped injection token count computed per item with the arm's own tokenizer). RULES-1-B FIXES (PROPOSED-ASM-1630, root cause of the rules-1 void — two interacting frame defects, each measured sufficient to keep even A7 at ~0 on the R1 host): (1) answer_cue is the direction-explicit infill '{b_name} is {a_name}'s' rendered per item from the query-pair surfaces — the CLUTRR gold convention reads (A, gold, B) as 'A's <gold> is B', and the rules-1 bare '\\nAnswer:' cue left the direction to the model (whose natural reading is the reverse), making the gold word structurally un-elicitable; (2) the 23-word closed-vocabulary enumeration moved from a standalone line immediately before the answer cue (where it swamps the small host's next-token distribution with menu-prior words: measured on R1, ' grandfather' top-1 at -1.14 without the adjacent menu vs rank ~9 with it, recovering to top-1 when the menu sits in the task header) into task_prefix ({menu} placeholder); the forced-choice constraint itself is enforced by the per-option logprob scorer, not by prompt text."
  },
  "shuffle": {
   "perm_seed": 20260711,
@@ -72,7 +71,8 @@
    "T4": {"R1": 4000, "R3": 600}
   },
   "chars_per_token_estimate": 4.0,
-  "overhead_factor": 2.0,
+  "overhead_factor": 1.5,
+  "overhead_factor_note": "rules-1-b true-up (PROPOSED-ASM-1638): the executed 20260712-070956 campaign measured 4.59 h wall for an ALL-retries run (A3/c1 attempts=5 everywhere) vs 4.28 h planned worst-case compute — measured overhead ~1.07x; 1.5 keeps a conservative margin. The prior 2.0 carried from f2bt planning put the marginal expected-hours check at 5.96/6.00 h, which the +~6-token/item direction-explicit cue flipped OVER despite the measured run finishing well inside every cap.",
   "expected_attempt_factor": 2.0,
   "usd_per_hour": {"T4": 0.59, "A10G": 1.1, "A100": 2.1}
  }

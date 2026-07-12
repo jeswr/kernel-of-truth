@@ -1,0 +1,62 @@
+{
+  "aggregate": {
+    "headline_metric": "acc_norm (mc) / exact_match (gen)",
+    "macro_acc": 0.38233300008044036,
+    "per_benchmark_headline": {
+      "arc_challenge": 0.2764505119453925,
+      "arc_easy": 0.4882154882154882
+    }
+  },
+  "benchmarks": {
+    "arc_challenge": {
+      "acc": 0.26109215017064846,
+      "acc_norm": 0.2764505119453925,
+      "elapsed_s": 111.91,
+      "gold_nll_per_token": 3.8046766469751065,
+      "gold_ppl": 44.91072574587087,
+      "kind": "mc",
+      "license": "CC BY-SA 4.0",
+      "n": 1172,
+      "provenance": "HUMAN-SOURCED (EXAM)",
+      "source": "allenai/ai2_arc ARC-Challenge"
+    },
+    "arc_easy": {
+      "acc": 0.5395622895622896,
+      "acc_norm": 0.4882154882154882,
+      "elapsed_s": 234.21,
+      "gold_nll_per_token": 3.956504675423428,
+      "gold_ppl": 52.27429063874689,
+      "kind": "mc",
+      "license": "CC BY-SA 4.0",
+      "n": 2376,
+      "provenance": "HUMAN-SOURCED (EXAM)",
+      "source": "allenai/ai2_arc ARC-Easy"
+    }
+  },
+  "comparability_note": "numbers are internal-relative (fixed prompts/shots/seed); use for baseline-vs-transformed deltas, not leaderboards",
+  "config": {
+    "benchmarks": [
+      "arc_easy",
+      "arc_challenge"
+    ],
+    "max_gen_tokens": 256,
+    "n": 0,
+    "scorer": "self-contained few-shot loglikelihood + greedy exact-match (f2bt HFLM pattern); lm-evaluation-harness NOT used (pinned-image discipline)",
+    "seed": 20260712,
+    "shots": 0
+  },
+  "elapsed_s": 351.77,
+  "finished_utc": "2026-07-12T10:29:12Z",
+  "mock": false,
+  "mock_disclosure": null,
+  "model": {
+    "device": "cuda",
+    "dtype": "float16",
+    "mock": false,
+    "name": "HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f7",
+    "param_count": 134515008
+  },
+  "schema": "kot-pubeval-result/1",
+  "started_utc": "2026-07-12T10:23:21Z",
+  "transform": null
+}

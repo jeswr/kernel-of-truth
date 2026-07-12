@@ -1,0 +1,16 @@
+You are an independent judge of short statements about the meaning of everyday English words. Judge ONLY by the ordinary meaning of the quoted concept (the parenthetical, if any, tells you which sense of the word is meant). Do not use any tools. This is a single standalone question.
+
+Concept: “find (X finds Y)”
+Statement: In every case of “find (X finds Y)” as described above, Y is what is found — something that was not in view, or not known to be where it is, and then is. Normally Y is a thing, but it can be a person, an animal, a place, or even something like an answer. Typically Y is somewhere — the finding fixes where it is.
+
+A statement may contain several sentences of different strengths. Read each sentence at its own stated strength:
+- A sentence with no hedge ("Every ...", "In every case ...", "Whenever ...") claims that the concept's ordinary meaning guarantees it in ALL normal cases. It is true only if that guarantee holds.
+- A sentence hedged with "Normally" or "Typically" claims only how things usually or characteristically are for this concept. It is true if ordinary meaning makes it the usual or characteristic case; the existence of exceptions does NOT make it false. It is false if it misdescribes even the usual case.
+
+Question: Is the whole statement true of the concept's ordinary meaning, with every sentence read at its own stated strength?
+Answer "yes" only if EVERY sentence is true at its stated strength.
+Answer "no" if ANY sentence is false at its stated strength — but never answer "no" merely because a "Normally"/"Typically" sentence has exceptions.
+Answer with a single raw JSON object and nothing else — no markdown fence, no prose:
+{"answer": "yes"} — every sentence is true at its stated strength
+{"answer": "no"} — some sentence is false at its stated strength
+{"answer": "cannot-say"} — only if the statement is genuinely undecidable for this concept

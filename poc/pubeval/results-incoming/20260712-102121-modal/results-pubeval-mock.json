@@ -1,0 +1,86 @@
+{
+  "aggregate": {
+    "headline_metric": "acc_norm (mc) / exact_match (gen)",
+    "macro_acc": 0.75,
+    "per_benchmark_headline": {
+      "arc_challenge": 1.0,
+      "arc_easy": 0.875,
+      "folio": 0.625,
+      "gsm8k": 0.5
+    }
+  },
+  "benchmarks": {
+    "arc_challenge": {
+      "acc": 1.0,
+      "acc_norm": 1.0,
+      "elapsed_s": 0.0,
+      "gold_nll_per_token": 0.5794818823840828,
+      "gold_ppl": 1.7851132924623145,
+      "kind": "mc",
+      "license": "CC BY-SA 4.0",
+      "n": 8,
+      "provenance": "HUMAN-SOURCED (EXAM)",
+      "source": "allenai/ai2_arc ARC-Challenge"
+    },
+    "arc_easy": {
+      "acc": 0.875,
+      "acc_norm": 0.875,
+      "elapsed_s": 0.0,
+      "gold_nll_per_token": 0.9619844509471792,
+      "gold_ppl": 2.616884402856761,
+      "kind": "mc",
+      "license": "CC BY-SA 4.0",
+      "n": 8,
+      "provenance": "HUMAN-SOURCED (EXAM)",
+      "source": "allenai/ai2_arc ARC-Easy"
+    },
+    "folio": {
+      "acc": 0.75,
+      "acc_norm": 0.625,
+      "elapsed_s": 0.0,
+      "gold_nll_per_token": 1.4774444007845902,
+      "gold_ppl": 4.381733405526722,
+      "kind": "mc",
+      "license": "MIT",
+      "n": 8,
+      "provenance": "HUMAN-AUTHORED",
+      "source": "yale-nlp/FOLIO (arXiv:2209.00840)"
+    },
+    "gsm8k": {
+      "elapsed_s": 0.0,
+      "exact_match": 0.5,
+      "gold_solution_nll_per_token": 2.059289564904264,
+      "gold_solution_ppl": 7.840397737537503,
+      "kind": "gen",
+      "license": "MIT",
+      "n": 8,
+      "provenance": "HUMAN-AUTHORED",
+      "source": "openai/grade-school-math"
+    }
+  },
+  "comparability_note": "numbers are internal-relative (fixed prompts/shots/seed); use for baseline-vs-transformed deltas, not leaderboards",
+  "config": {
+    "benchmarks": [
+      "folio",
+      "arc_easy",
+      "arc_challenge",
+      "gsm8k"
+    ],
+    "max_gen_tokens": 256,
+    "n": 0,
+    "scorer": "self-contained few-shot loglikelihood + greedy exact-match (f2bt HFLM pattern); lm-evaluation-harness NOT used (pinned-image discipline)",
+    "seed": 20260712,
+    "shots": 5
+  },
+  "elapsed_s": 0.0,
+  "finished_utc": "2026-07-12T10:21:18Z",
+  "mock": true,
+  "mock_disclosure": "SYNTHETIC mechanics-only stub outputs \u2014 never a measurement",
+  "model": {
+    "mock": true,
+    "name": "stub-pubeval"
+  },
+  "schema": "kot-pubeval-result/1",
+  "started_utc": "2026-07-12T10:21:18Z",
+  "transform": null
+}

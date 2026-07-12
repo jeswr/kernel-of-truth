@@ -1,0 +1,110 @@
+[
+ {
+  "id": "ASM-1630",
+  "tag": "STIPULATED",
+  "claim": "RULES-1-B prompt-frame fix (the rules-1 void root cause — TWO interacting frame defects, each measured sufficient to keep even A7 at ~0 on the R1 host). Defect 1, direction inversion: the nsk1-clutrr/CLUTRR gold convention reads the target triple (A, gold, B) as 'A's <gold> is B' — for 'How is Jennifer related to Jason?' the gold word (grandfather) names what B (Jason) IS TO A (Jennifer); the rules-1 bare '\\nAnswer:' cue left direction to the model, whose natural completion is the REVERSE direction, and since gold on all 858 covered items is always the grandparent-direction word, gold was structurally un-elicitable. Defect 2, menu-adjacency interference: the 23-word vocabulary line immediately before the cue swamps the small host's next-token distribution with menu-prior words (measured on pinned R1, derivation injected + direction-explicit cue: ' grandfather' top-1 at -1.14 with no adjacent menu, rank ~9 with it, top-1 again at -1.73 with the menu moved to the task header). rules-1-b therefore (a) renders the answer cue as the per-item direction-explicit infill '\\nAnswer: {b_name} is {a_name}'s' (the exact surface of the engine's derivation rendering), identical across all arms, fail-closed when pair names are absent (ERR_FRAME), and (b) moves the menu into task_prefix ({menu} placeholder), removing the standalone pre-cue menu line — the closed-vocabulary constraint is enforced by the per-option logprob scorer, not prompt text.",
+  "backing_ref": "docs/next/analysis/rules1-void-degenerate-instrument.md §3-4; poc/rules-1/rules1_runner.py render_answer_cue; poc/rules-1/inputs/rules1-manifest.json prompt_frames.answer_cue; data/nsk1-clutrr items provenance.proof_state",
+  "rationale": "Aligns cue, injected derivations and verifier feedback on one stated direction so the forced-choice instrument measures relation knowledge, not direction-convention guessing.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "The cue includes only the two query-pair surface names, never a relation word: the S9-4 gold-leak guard is unaffected and still asserted on every feedback line."
+ },
+ {
+  "id": "ASM-1631",
+  "tag": "STIPULATED",
+  "claim": "HOST-VALIDITY INSTRUMENT GATE (new in rules-1-b; closes the pre-registration gap that forced the rules-1 void): /gates/host_validity_valid := acc(A7, entailed, seed-mean) >= 0.30 AND acc(A5, entailed, seed-mean) >= 0.15, tested in verdict rule 0 (INSTRUMENT-INVALID) ahead of the KILL-b FAIL rule. Floors vs the 23-way closed-vocab chance floor 1/23 ≈ 0.0435 (one-sided 95% binomial UB ≈ 0.051 at n=2,574 rows): A7 renders an injected engine-certified derivation (engine 858/858 vs third-party gold), so < 0.30 (~7x chance) means the host channel is not reading the surface; A5 carries the four-times-replicated nsk1 R3 headroom datum 0.7912, so < 0.15 (~3.5x chance) means the frame/scorer failed, not the hypothesis. Both arms are hypothesis-neutral (A7 = systems render arm, A5 = efficiency comparator; neither carries the A3-A1 lift claim), so the gate cannot select on the primary contrast.",
+  "backing_ref": "analysis/rules_1b.py gates.host_validity_valid; registry/experiments/rules-1-b.json endpoints sec-host-validity-gate + verdict_rules[0]",
+  "rationale": "rules-1 had only a headroom CEILING over the host instrument (acc(A1) <= 0.85) and no floor; a scorer returning a constant off-gold pick passed every frozen instrument gate and would have graded as a substantive FAIL (KILL-b). A degenerate host must read INSTRUMENT-INVALID, never FAIL or PASS.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "Retro-check executed: analysis/rules_1b.py over the voided run-1 rows returns host_validity_valid=false → the run reads INSTRUMENT-INVALID under rules-1-b rules, as it should have."
+ },
+ {
+  "id": "ASM-1632",
+  "tag": "MEASURED",
+  "claim": "Root-cause diagnosis evidence (CPU, $0, exploratory probes on the pinned R1 SmolLM2-135M-Instruct @12fd25f7 plus a 360M probe): under the AS-RUN rules-1 frame the forced-choice scorer ranks the gold word deep in the 23-option menu (rank ~12-20) and greedily picks constant off-gold menu-prior words (aunt/nephew/no-relation) — reproducing the campaign's 0.0 without a GPU; the voided run is internally consistent with this (A3 attempts=5 on all 2,574 rows: the healthy verifier rejected every off-gold proposal on every retry; softmax resampling over summed option logprobs gives the low-ranked gold vanishing mass). Defect isolation on the pinned R1 (direct next-token measurement, A7 shape): direction-cue-only fix leaves gold at rank 4-13 (menu line still adjacent to the cue); removing/relocating the menu line makes ' grandfather' top-1 (-1.14 no menu; -1.73 menu-in-header); both fixes together recover the readout — confirmed at the operating point by the rules-1-b pilot (ASM-1636). The nsk1 0.7912 headroom datum came from a DIFFERENT instrument: original CLUTRR story context + greedy GENERATION scored by first-vocab-word match (modal_nsk1_g2.py), where the narrative states the chain in the gold direction. The grade-prep §6 suspects 'unnormalised multi-token option sums' and 'fp32-vs-fp16' are ruled out as the cause: gold words ' grandfather'/' grandmother' are single SmolLM2 tokens (only the never-gold *-in-law entries are multi-token), and the degenerate ranking reproduces at CPU fp32.",
+  "backing_ref": "docs/next/analysis/rules1-void-degenerate-instrument.md §3; poc/rules-1/results-incoming/20260712-070956-modal/ (engine ledgers healthy: 300/300 refusals, c1 645/213)",
+  "rationale": "Pin the void on a demonstrated mechanism rather than a suspicion list before re-freezing.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "Exploratory diagnosis numbers; never evidence for any rules-1-b endpoint."
+ },
+ {
+  "id": "ASM-1633",
+  "tag": "STIPULATED",
+  "claim": "VOID SEMANTICS (maintainer decision 2026-07-12): the rules-1 GPU campaign 20260712-070956-modal is an instrument failure and carries no evidential weight in EITHER direction; it is not graded (results-log/rules-1.jsonl was never created — the void landed before any append/unblind), its bytes are retained under poc/rules-1/results-incoming/ for audit, and no row from it may ever be appended to any results log or consumed via the kot-reg/2 reuse surface. The fix is the NEW experiment rules-1-b (supersedes: rules-1), never a re-roll of rules-1.",
+  "backing_ref": "docs/next/analysis/rules1-void-degenerate-instrument.md §2; registry/experiments/rules-1-b.json (supersedes, runner_constraints.roles lineage note)",
+  "rationale": "Grading a FAIL from an instrument that scores the engine-direct oracle arm (858/858 certified) at 0.0 records a verdict produced by a broken measuring device; symmetric honesty: the void licenses no PASS-side comfort either.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "Supersedes the grade-runbook's 'append and grade FAIL (KILL-b)' path (prepared before the maintainer's void ruling); the runbook's mechanics (amendment seq 1, scoped verdict driver precedent) carry over to rules-1-b unchanged."
+ },
+ {
+  "id": "ASM-1634",
+  "tag": "STIPULATED",
+  "claim": "analysis/rules_1b.py fixes the rules_1.py s3 conditioning defect disclosed at the rules-1 grade prep: s3 (R1+engine vs A5 noninferiority) is computed ONLY when the separation gate holds; otherwise s3_efficiency_diff_lb95 is null and s3_pass is false-by-null (unevaluable — never a pass, never a fail), matching the frozen endpoint text. All other statistics (paired BCa B=10000 seed 20260711, Holm order, Wilson bounds) are byte-carried from rules_1.py.",
+  "backing_ref": "analysis/rules_1b.py; rules1-grade-runbook.md §4 (s3 QUARANTINE note) and §6.2",
+  "rationale": "The same defect would have emitted a spurious s3 'pass' in any future degenerate or separation-failed run.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "Also relevant to rules-2: analysis/rules_2.py shares the --run-records shape and needs the same review before its freeze."
+ },
+ {
+  "id": "ASM-1635",
+  "tag": "STIPULATED",
+  "claim": "MANDATORY PRE-LAUNCH PILOT (new rules-1-b runner constraint): before any GPU spend, the runner must show (a) --mock green AND (b) a REAL-model CPU pilot (rules1_runner.py --pilot-n 24, seed 0) clearing the host-validity floors at the operating point. Pilot rows are PILOT-labelled end-to-end (separate -pilot filenames, PILOT-HARNESS-COMPLETE outcome, results.pilot disclosure block) and are structurally incapable of entering the results log. --pilot-dtype bf16 is permitted for the 1.7B on a CPU box (fp32 does not fit 7 GB), disclosed in the results JSON; real runs remain fp32 per the frozen hardware constraint.",
+  "backing_ref": "poc/rules-1/rules1_runner.py --pilot-n/--pilot-dtype; registry/experiments/rules-1-b.json runner_constraints.harness",
+  "rationale": "The rules-1 mock validated mechanics with a synthetic stub that returns gold by construction, so the prompt-frame semantics were never exercised by a real model before the $5 GPU campaign; a $0 CPU pilot catches this class of degeneracy.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "The pilot validates the INSTRUMENT (frame + scorer + engine wiring), never hypotheses; pilot numbers are quarantined as exploratory."
+ },
+ {
+  "id": "ASM-1636",
+  "tag": "MEASURED",
+  "claim": "PILOT-RESULT-PLACEHOLDER — filled by the 2026-07-12 CPU pilot before re-freeze: fixed-frame accuracies at the operating point for A7 (135M, fp32) and A5 (1.7B, bf16 pilot dtype), vs the host-validity floors 0.30/0.15.",
+  "backing_ref": "/tmp pilot out-dirs mirrored to poc/rules-1/results-incoming/pilot-20260712-cpu/ (results-rules1-pilot.json, run-records-rules1-pilot.jsonl)",
+  "rationale": "The re-freeze proposal must carry the measured recovery, not a promise.",
+  "load_bearing": true,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "To be replaced with measured numbers the same day; if the pilot does NOT clear the floors, rules-1-b does not go to freeze."
+ },
+ {
+  "id": "ASM-1637",
+  "tag": "STIPULATED",
+  "claim": "The f2bt HFLM forced-choice scorer and seeded retry sampler are retained BYTE-IDENTICAL in rules-1-b (pins.f2btRunnerPySha256 unchanged), including the unnormalised sum of option-token logprobs: the length bias it carries is not gold-adverse on this surface (gold words ' grandfather'/' grandmother' are single SmolLM2 tokens; the multi-token menu entries — the five *-in-law words, granddaughter, neice, no-relation — are never gold on the 858 covered items) and is DISCLOSED rather than re-engineered, keeping the f2b/f2b-transfer instrument lineage intact.",
+  "backing_ref": "poc/f2b-transfer/runner/f2bt_runner.py HFLM._option_logprobs/choose; SmolLM2 tokenizer check in docs/next/analysis/rules1-void-degenerate-instrument.md §3",
+  "rationale": "Changing the scorer bytes would break the byte-identical reuse pin chain and add an uncontrolled second fix on top of the root-cause fix.",
+  "load_bearing": false,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "If a future surface makes multi-token options gold-bearing, length-normalisation becomes a design decision for THAT record."
+ },
+ {
+  "id": "ASM-1638",
+  "tag": "EXTRAPOLATION",
+  "claim": "rules-1-b cost plan carries over from the executed rules-1 campaign: the fixed cue changes prompt length by ~+6 tokens/item (two names + 3 words), <3% of the ~230-token prompts, so the measured 4.59 A10G-h / ~$5.06 for arms A1/A3/A5/A7/c1 x 3 seeds bounds the rules-1-b re-run well under the frozen $10 usd_cap and 6 gpu-h cap; A3 wall time should DROP as a working host reaches accepted answers before k=4 retries (voided run paid worst-case attempts=5 everywhere).",
+  "backing_ref": "poc/rules-1/results-incoming/20260712-070956-modal/provenance-modal.json (wall 4.59 h); rules1-manifest.json planning block",
+  "rationale": "Re-run authorization needs a cost statement; the voided run is usable as a cost datum even though it is void as evidence.",
+  "load_bearing": false,
+  "status": "open",
+  "owner": "designer-1",
+  "date": "2026-07-12",
+  "notes": "Planning true-up applied with this datum: rules1-manifest.json planning.overhead_factor 2.0 -> 1.5 (measured ~1.07x: 4.59 h wall vs 4.28 h planned worst-case compute), because the f2bt-carried 2.0 left the expected-hours check at 5.96/6.00 h and the +~6-token cue flipped it OVER. Post-fix dry-plan: expected $5.04 / worst $7.06, expected 4.58 h vs 6 h cap — all gates OK."
+ }
+]

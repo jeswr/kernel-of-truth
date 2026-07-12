@@ -21,10 +21,14 @@ WHAT THIS DOES (CPU, deterministic, ~$0 — no GPU, no network, no model):
                                 why() proof sidecar (NEVER in B2 training
                                 text; B3 only), regime tag (ASM-1162), proof
                                 depth, split in {train, sheld, dev}
-            c1shuf-map.json     Sattolo derangement of family-2 TRAIN targets
+            c1shuf-map.json     LABEL-derangement of family-2 TRAIN targets
                                 within each menu class (c1', ASM-1426;
-                                identical corpus size; token count identical
-                                by multiset permutation)
+                                identical corpus size; per-item assertion
+                                shuffled_answer != original_answer; label
+                                multiset preserved exactly wherever a
+                                multiset-preserving derangement exists —
+                                see build() for the disclosed binary-class
+                                residual rule)
             b1-upsample.json    deterministic cyclic repetition list making
                                 |B1| == |B2| (ASM-1425 size matching;
                                 PROPOSED-ASM-1447)
@@ -540,24 +544,72 @@ def build(args):
                if e["split"] == "train" and e["family"] in (1, 3)]
     sheld = [e for e in examples if e["split"] == "sheld"]
 
-    # c1' Sattolo derangement of family-2 TRAIN targets within menu class
-    # (identical corpus size; token count identical: multiset permutation)
-    shuf_map = {}
+    # c1' LABEL-derangement of family-2 TRAIN targets within menu class
+    # (review fix 2, cross-vendor prereg review 2026-07-12: the former
+    # ITEM-Sattolo permuted items, but distinct items share answers, so
+    # 3,090/11,418 shuffled targets stayed LABEL-correct — the control did
+    # not destroy the content. The control must assert, PER ITEM,
+    # shuffled_answer != original_answer.)
+    #
+    # Construction (deterministic, seed SEED_SHUF): within each menu class,
+    # order the items label-block-contiguous (blocks by descending label
+    # count, seeded shuffle inside each block) and rotate the label sequence
+    # by the largest block size m. This preserves the per-class label
+    # MULTISET (hence token count) exactly and yields ZERO fixed labels
+    # whenever m <= n/2 (rel23: max 2573 of 10126). For a BINARY class with
+    # imbalance d = 2m - n > 0 (mw2: man/woman counts differ) a
+    # multiset-preserving label-derangement is mathematically impossible by
+    # exactly d items; those forced residuals are flipped to the complement
+    # label so the per-item assertion holds for ALL items, and the multiset
+    # delta d is DISCLOSED in c1shuf-map.json and the corpus manifest.
+    shuf_map, shuf_disclosure = {}, {}
     for mclass in sorted({e["menu_class"] for e in train2}):
-        ids = sorted(e["id"] for e in train2 if e["menu_class"] == mclass)
-        answers = {e["id"]: e["answer"] for e in train2
-                   if e["menu_class"] == mclass}
-        if len(ids) < 2:
+        cls_items = sorted((e for e in train2 if e["menu_class"] == mclass),
+                           key=lambda e: e["id"])
+        if len(cls_items) < 2:
             raise SystemExit("ERR_SHUFFLE: <2 items in class %s" % mclass)
-        perm = list(range(len(ids)))
+        by_label = {}
+        for e in cls_items:
+            by_label.setdefault(e["answer"], []).append(e["id"])
         rng = random.Random(SEED_SHUF)
-        for i in range(len(perm) - 1, 0, -1):  # Sattolo: cyclic, no fixed pt
-            j = rng.randrange(i)
-            perm[i], perm[j] = perm[j], perm[i]
-        for i, iid in enumerate(ids):
-            shuf_map[iid] = answers[ids[perm[i]]]
-        if any(i == p for i, p in enumerate(perm)):
-            raise SystemExit("ERR_SHUFFLE: fixed point (bug)")
+        blocks = sorted(by_label.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+        ordered_ids, ordered_labels = [], []
+        for label, ids in blocks:
+            ids = list(ids)
+            rng.shuffle(ids)
+            ordered_ids.extend(ids)
+            ordered_labels.extend([label] * len(ids))
+        n, m = len(ordered_ids), len(blocks[0][1])
+        flipped = 0
+        for i, iid in enumerate(ordered_ids):
+            new = ordered_labels[(i + m) % n]
+            if new == ordered_labels[i]:
+                # reachable only when 2m > n, which (given the rotation by
+                # the LARGEST block) can only happen inside the largest
+                # block; a multiset-preserving derangement does not exist
+                # there. Flip to the complement — binary classes only.
+                if len(blocks) != 2:
+                    raise SystemExit("ERR_SHUFFLE: fixed label in non-binary"
+                                     " class %s (bug)" % mclass)
+                new = next(l for l, _ids in blocks
+                           if l != ordered_labels[i])
+                flipped += 1
+            shuf_map[iid] = new
+        # PER-ITEM assertion (the review's operative requirement)
+        orig = {e["id"]: e["answer"] for e in cls_items}
+        bad = [iid for iid in ordered_ids if shuf_map[iid] == orig[iid]]
+        if bad:
+            raise SystemExit("ERR_SHUFFLE: %d label-correct target(s) remain"
+                             " in class %s (first: %s)"
+                             % (len(bad), mclass, bad[0]))
+        shuf_disclosure[mclass] = {
+            "n": n, "rotation": m, "flipped_to_complement": flipped,
+            "label_counts": {k: len(v) for k, v in sorted(by_label.items())},
+            "note": ("label multiset preserved exactly" if flipped == 0 else
+                     "binary class with imbalance %d: multiset-preserving "
+                     "derangement impossible; %d forced residual(s) flipped "
+                     "to the complement label (disclosed multiset delta)"
+                     % (flipped, flipped))}
 
     # B1 size matching (ASM-1425 / PROPOSED-ASM-1447): deterministic cyclic
     # repetition of stated+refusal train ids until |B1| == |B2|
@@ -587,9 +639,18 @@ def build(args):
             f.write(json.dumps(e, sort_keys=True) + "\n")
     for name, obj in (("c1shuf-map.json",
                        {"seed": SEED_SHUF, "algorithm":
-                        "Sattolo cyclic derangement of family-2 TRAIN "
-                        "targets within each menu class (PROPOSED-ASM-1426/"
-                        "1448); token count identical (multiset permuted)",
+                        "LABEL-derangement of family-2 TRAIN targets within "
+                        "each menu class (PROPOSED-ASM-1426/1448, reworked "
+                        "per cross-vendor prereg review fix 2): label-block-"
+                        "contiguous ordering + rotation by the largest block"
+                        " — shuffled_answer != original_answer asserted for "
+                        "EVERY item; label multiset (hence token count) "
+                        "preserved exactly except the disclosed binary-class"
+                        " residual flips",
+                        "assertion": "shuffled_answer != original_answer "
+                                     "holds for all mapped items (fail-"
+                                     "closed ERR_SHUFFLE otherwise)",
+                        "disclosure": shuf_disclosure,
                         "map": shuf_map}),
                       ("b1-upsample.json",
                        {"rule": "cyclic repetition of sha-sorted stated+"
@@ -614,6 +675,7 @@ def build(args):
                   "PROPOSED-ASM-1437)",
         "pins_verified": pins,
         "seeds": {"synthetic_expansion": SEED_SYN, "c1shuf": SEED_SHUF},
+        "c1p_label_derangement": shuf_disclosure,
         "n_syn_families": n_fam, "n_dev_families": n_dev,
         "n_examples": len(examples),
         "n_train_family2": len(train2), "n_train_family13": len(train13),

@@ -211,8 +211,9 @@ conformance question is deliberately NOT on this record.
    closedFor → **UNDERDETERMINED** (open scope; U-CLOSED does not fire).
 3. **F-DISJ/C** — facts: kind(Person); kind(Rock); holds(S1, bo:Person). Candidate:
    "In S1, bo is a Rock." → U-KIND-DISJ ⊢ **CONTRADICTED** (derived disjointness,
-   nothing authored). Companion: subkind(Rock, Person) stated instead of
-   kind(Rock) → no derived disjointness → **UNDERDETERMINED**.
+   nothing authored). Companion: state "Rock specialises Person" (subkind-related
+   kinds carry no derived disjointness; the meta declarations stay globally
+   consistent for the AD derangement) → **UNDERDETERMINED**.
 4. **F-SPEC/C** — facts: kind(Person); role(Student); stated Person ⊑ Student.
    Candidate: "every Person in S1 is thereby a Student in S1 (via the stated
    specialisation)." → U-SPEC-MASK violation ⊢ **CONTRADICTED**. Companion: reverse
@@ -232,7 +233,7 @@ Prompt bytes identical in all arms; arms differ ONLY in checker behaviour.
 | **A0** no-checker | none (first-pass answer is final) | baseline; headroom gate |
 | **AG** gUFO-taxonomy checker | twin restricted to asserted-taxonomy rules only: stated subsumption propagation within a situation + STATED disjointness; NO derived Kind disjointness, NO cross-situation propagation, NO rigidity/witness/scope semantics | what class labels alone buy (the dormant gufo_prior axis, taxonomy.rs:33 lineage) |
 | **AU** UFO-SN3 checker | full §4.1 closed inventory, four-valued | the experimental arm |
-| **AD** deranged meta-typing | AU's rules over a **seed-pinned Sattolo derangement** (seed 20260712) of the meta-type assignment (every type's kind/role/phase label moved); dispositions re-derived under the derangement | content-destruction control (rules-1 c1 form); coincidence rate with true tables REPORTED |
+| **AD** deranged meta-typing | AU's rules over a **seed-pinned Sattolo derangement** (seed 20260712) of the meta-type assignment: a Sattolo CYCLE over the meta-label alphabet {kind, subkind, role, phase}, so **every type's kind/role/phase label moves**; dispositions and accept tables re-derived under the deranged assignment | content-destruction control (rules-1 c1 form); coincidence rate with true tables MEASURED at materialisation over the **rejection-active scored slice** (items with d_AU ∈ {E,C}; gold-U items coincide trivially since neither arm ever rejects there) and gated ≤ 0.35, deterministic attempt-bump re-derangement otherwise (attempt recorded) |
 | **AN** representation-matched null | same materialised proposition/situation/reifier representation; rules = **stated-fact lookup only** (reject E unless candidate literally stated in-situation; reject C unless its notHolds literally stated; accept U always) | the CK-UFO A1 fold-in: "more explicit structure + a rejection channel" without UFO inference (GS-B stated-bytes lineage) |
 
 ### 5.2 Token parity
@@ -240,9 +241,34 @@ Prompt bytes identical in all arms; arms differ ONLY in checker behaviour.
 **[STIPULATED]** The only arm-varying surface is the rejection message. AG/AD/AN
 rejection messages are padded/templated to the AU message token band: per-arm mean
 rejection-message tokens within ±20% of AU at the pinned SmolLM2 tokenizer
-(pre-freeze check artifact + run-time gate /gates/token_parity_valid; knull G-3
-pattern). AN messages carry no rule content ("REJECTED: your answer conflicts with
-the recorded facts about S1 and S2." + neutral padding).
+(pre-freeze artifact inputs/fixtures/token-band.json + run-time gate
+/gates/token_parity_valid; knull G-3 pattern). AN messages carry no rule content
+("REJECTED: your answer conflicts with the recorded facts about situations S1 and
+S2. …" + deterministic neutral padding to the band).
+
+**Rejection-message discipline (MACHINE-ENFORCED).** A rejection message names
+the rule and lists stated premise facts ONLY — it never contains a disposition
+label, a replacement answer, or conclusion-equivalent text (no
+entail*/contradict*/underdetermin* stems, no true/false/correct/should/must-be/
+instead/therefore/deriv*/prove*/proof, no "answer is/was"). The enforcing regex
+battery is `twin_ufo.lint_message`; materialise.py refuses on ANY hit over EVERY
+message byte in the accept tables (ERR_MESSAGE_DISCIPLINE) and the runner
+re-lints the loaded fixture bytes fail-closed before any generation. The
+byte-level audit surface is accept-tables.jsonl itself (exact message bytes
+committed pre-freeze); rejection AND retry rates are reported per arm
+(/analysis/rejection_rates, /analysis/retry_rates).
+
+### 5.2b Representation census (MEASURED, review fix)
+
+AU/AD/AG and AN consume the SAME canonical materialised
+proposition/situation/reifier object (`twin_ufo.build_representation`).
+materialise.py MEASURES — never merely asserts — the per-item and total
+node/edge/reifier/byte census of the representation each checker path
+consumes and refuses on any inequality (ERR_REP_MISMATCH); the census is
+committed in fixtures-meta.json and gated in-run as
+/gates/an_representation_match. AN accept/reject nondegeneracy (at least one
+accepted AND one rejected E answer, same for C, over the scored slice) is
+measured and gated as /gates/an_nondegenerate (ERR_AN_DEGENERATE at build).
 
 ### 5.3 Trivial-policy floors (the elimination confound, made mechanical)
 
@@ -260,9 +286,21 @@ the reason" — still a registered, reportable answer to the §1 question.
 
 Analysis script: `analysis/ufo_check_0.py` (pinned by sha in the registry entry) —
 a pure function over the runner's run-records; paired-item BCa bootstrap B=10000,
-PRNG seed 20260712, one-sided α=0.05; Holm over the secondary family
-{s1,s2,s3,s4,s5}; Wilson bounds for rate gates. Scored slice = the 600 scored items,
-host 135M unless named; the 360M rung reports a SIGN only.
+PRNG seed 20260712, one-sided α=0.05; Wilson bounds for rate gates. Scored slice =
+the 600 scored items, host 135M unless named; the 360M rung reports a SIGN only.
+
+**Secondary inference machinery (IMPLEMENTED, not narrated):** every secondary
+carries a **bootstrap-INVERSION p-value** — the smallest α at which its
+registered one-sided BCa decision rule fires (closed-form CI inversion for the
+mean-difference tests s1/s2/s4; for s5 the same inversion on the transformed
+diffs margin−d; for s3 a bisection inversion of the registered conservative
+ratio rule UB_α(lift AD)/LB_α(lift AU) < 0.30, monotone in α). **Holm
+step-down over {s1..s5}** produces adjusted p-values; the OPERATIVE pass for
+every secondary is Holm-adjusted p ≤ 0.05 (/analysis/p_values,
+/analysis/holm_adjusted_p, /analysis/holm_order = the step-down testing
+order). The registered 95% bounds are additionally reported verbatim. The
+primary is standalone (exactly one primary endpoint): decision = LB95 > 0;
+its inversion p is reported as /analysis/primary_p.
 
 **Primary (exactly one):** `/analysis/primary_lift_lb95` — acc(AU) − acc(A0), exact
 three-way disposition correctness vs engine-derived gold, paired by item (shared
@@ -292,7 +330,15 @@ AU-arm increase is host-behavioural and must be caught, not assumed away.)
 headroom acc(A0, 135M) ≤ 0.85; engagement (AU rejection rate on scored items in
 [0.02, 0.98] and ≥1 retry observed); extraction Wilson-LB ≥ 0.90 over all
 generations; token parity (§5.2); fixture determinism (§4.3 double-run shas match,
-verified again in-run).
+verified again in-run); **completeness** (/gates/completeness_valid — the exact
+item × arm × host × seed factorial with NO missing, duplicate or unbalanced rows
+and the fixed 600-item scored set per cell, verified against the fixtures'
+committed item-id shas: 630 × 5 arms × 2 hosts × 3 seeds = 18,900 rows exactly);
+**representation census** (/gates/an_representation_match, §5.2b); **AN
+nondegeneracy** (/gates/an_nondegenerate, §5.2b); **AD coincidence**
+(/gates/ad_coincidence_ok — rejection-active coincidence ≤ 0.35, §5 AD row);
+**message discipline** (/gates/rejection_message_clean — the §5.2 lint re-run
+fail-closed over the loaded fixture bytes in-run).
 
 **Descriptives (never verdict-bearing):** per-family × per-disposition accuracy per
 arm; near-miss pair consistency; AD coincidence rate; OOP probe checker-refusal
@@ -300,10 +346,21 @@ correctness; 360M sign; per-query cost ledger — tokens in/out, FLOPs formula,
 checker-lookup µs, GPU-h, $/query (F0 conventions) — **descriptive only, no
 efficiency claim is tested in this record** (efficiency_relevant=false).
 
-**Power [STIPULATED planning bound, never a measurement]:** n=600 paired items,
-3-way chance ≈ 0.33; at plausible A0 accuracy 0.35–0.55 the rejected-item mass gives
-detectable-lift resolution well below the 0.05 margin; resolution: realized CI width
-at analysis (registered as PROPOSED-ASM row 1489).
+**Power [MEASURED by frozen simulation — PROPOSED-ASM-1494]:** the n=600 claim
+is demonstrated by the seed-pinned simulation `poc/ufo-check-0/power_sim.py`
+(numpy default_rng(20260712), M=2000 datasets/scenario, the SAME BCa B=10000
+statistic via the exact multinomial-over-value-classes equivalence), committed
+result `poc/ufo-check-0/inputs/power-sim.json` (pinned in artifact_hashes).
+Mechanism-faithful model: gold-U items pair-diff ≡ 0 (licensed rejections);
+gold-E/C items reject exactly the wrong first answers; retry success calibrated
+to the +0.05 margin across first-pass accuracy grid a0 ∈ {0.20,…,0.80}.
+**Registered decision rule: n=600 stands iff min primary power over the grid at
+the +0.05 margin ≥ 0.80.** Result: min power = 1.000 (the shared-first-pass
+paired diff is structurally one-sided, so the margin is resolved with a wide
+buffer); type-I at zero true lift = 0.000; s5 non-inferiority power ≥ 0.955 at
+zero true increase (0.824 at a true +0.01 increase under low churn — disclosed
+sensitivity, not decision-bearing). Realized CI width is still reported at
+analysis (PROPOSED-ASM-1489).
 
 ---
 
@@ -362,8 +419,14 @@ the host-uses-checker mechanism at this scope.
 
 ## 8. Harness spec (the build-worker contract)
 
-**Status: SPEC-ONLY — no harness code exists yet.** A build worker implements this
-section verbatim; deviations require a design amendment before freeze.
+**Status: BUILT and MOCK-GREEN (2026-07-12).** The build worker implemented
+this section (deviations are recorded inline as design amendments in this
+revision: label-alphabet Sattolo derangement §5; rejection-active coincidence
+basis §5; machine-enforced message discipline + measured representation census
+§5.2/§5.2b; bootstrap-inversion p-values + Holm decisions §6; completeness
+gate §6; frozen power simulation §6; budget hard stops §9; power_sim.py added
+below). Mock evidence: 18,900-row exact factorial, all pinned analysis output
+fields resolving, all instrument gates green on the mock records.
 
 ```
 poc/ufo-check-0/
@@ -376,13 +439,23 @@ poc/ufo-check-0/
                           #   (byte-exact) + double-run sha proof; CPU, $0
   ufo_check0_runner.py    # GPU runner: HFLM scorer + seeded retry sampler imported
                           #   from poc/f2b-transfer/runner/f2bt_runner.py READ-ONLY
-                          #   at pinned sha b62c3a72… (f2b/knull/rules-1 pattern);
-                          #   --mock (StubLM, $0 local), --dry-plan (cost plan vs
-                          #   caps, $0), --arms, --hosts, --seeds; checkpointed
+                          #   at pinned sha 810dcbc5… (f2b/knull/rules-1 pattern;
+                          #   the DRAFT's earlier b62c3a72… pin was STALE — it did
+                          #   not match any committed f2bt bytes; the reconciled
+                          #   pin is the current committed bytes, identical to the
+                          #   FROZEN deconf-b record's f2bt artifact pin);
+                          #   --mock (StubLM, $0 local), --dry-plan (FIXTURE-
+                          #   TOKENIZED cost plan vs caps at the pinned tokenizer,
+                          #   $0), --arms, --hosts, --seeds; checkpointed
                           #   per-arm×host×seed (2-shared-core box discipline);
+                          #   BudgetGuard HARD STOPS at the registry caps in-run
+                          #   (ERR_BUDGET_USD / ERR_BUDGET_GPU_HOURS /
+                          #   ERR_BUDGET_WALL_CLOCK — review fix 8);
                           #   refuses real mode until the record is FROZEN
                           #   (ERR_RUNNER_ROLE) and fixtures pass ERR_FIXTURES_
                           #   PRECONDITION + ERR_FIXTURE_SHA fail-closed
+  power_sim.py            # §6 frozen power simulation (PROPOSED-ASM-1494);
+                          #   result committed at inputs/power-sim.json
   modal/modal_ufo_check0.py  # modal_rules1.py pattern VERBATIM: stage bytes,
                           #   in-container staged-manifest assert (ERR_STAGING_
                           #   MISMATCH), --print-manifest ($0, fills
@@ -397,8 +470,13 @@ poc/ufo-check-0/
 Run-record row (one per item × arm × host × seed): `{item_id, family, gold, host,
 arm, seed, first_answer, rejected, retried, final_answer, correct, dangerous_wrong,
 extracted_ok, floor_uniform, floor_always_u, floor_cycle, tokens_in, tokens_out,
-rejection_msg_tokens, flops_formula, checker_us}` + a run-level sidecar
-`{fixtures_sha_run1, fixtures_sha_run2, model_revisions, extraction_counts}`.
+rejection_msg_tokens, flops_formula, checker_us, scored}` + a run-level sidecar
+`{fixtures_sha_run1, fixtures_sha_run2, expected {hosts, arms, seeds, n_items,
+n_scored, all_item_ids_sha256, scored_item_ids_sha256 — the §6 completeness
+gate's ground truth, carried from fixtures-meta.json}, an_representation_match,
+an_nondegenerate, ad_coincidence_ok, ad_coincidence_rate,
+rejection_message_clean, oop_probe_refusal_correctness, model_revisions,
+extraction_counts, gpu_hours, usd_total}`.
 Output feeds `analysis/ufo_check_0.py` unchanged.
 
 Mock discipline: `--mock` must go green end-to-end (StubLM, fixtures, analysis
@@ -422,6 +500,17 @@ PROPOSED-ASM-1134]) this is well under 1 GPU-h of pure decode; the registered ba
 and a 3× planning margin. Caps: **usd_cap $20, gpu_hours_cap 6, wall-clock 12 h** —
 within the standing authorization per arch-synthesis §4 Q6 (spend-and-report-after
 once ratified). Worst case strands ≤ $20 + 2–4 agent-days.
+
+**Enforcement (review fix 8 — the caps are not merely declared):** (a) the
+`--dry-plan` gate is **fixture-tokenized evidence**: every prompt (×3
+forced-choice options) and every worst-case retry frame is tokenized with the
+PINNED tokenizer — built dry-plan result: 6,956,100 worst-case tokens ⇒ 0.295
+GPU-h point / 0.886 GPU-h with the 3× overhead factor ⇒ $0.32 point / $0.97
+worst case on a10g — comfortably inside the band; (b) in-run, a
+**BudgetGuard hard-stops** the runner at the registry caps (USD at the
+gpu-class list rate × elapsed hours, GPU-hours, wall-clock), flushing all
+completed cells and exiting with a named ERR_BUDGET_* code — nothing is
+fabricated, partials stay on disk.
 
 ---
 
@@ -447,7 +536,7 @@ Frozen-design discipline (run ≠ audit): this DRAFT is authored by the
    12fd25f7…; **360M = HuggingFaceTB/SmolLM2-360M-Instruct revision pinned at
    freeze**); pins.harness_manifest from `modal_ufo_check0.py --print-manifest`;
    re-verify prereg_doc/analysis_plan_ref/analysis_script shas after any edit.
-   Register ASM rows 1480..1493 (§11) centrally — **this design bead wrote nothing
+   Register ASM rows 1480..1495 (§11) centrally — **this design bead wrote nothing
    to registry/assumptions.jsonl**.
 5. `prereg-freeze.py --experiment ufo-check-0 --agent-id coordinator-1` (dry-run
    first); post the frozen sha to the coordination issue.
@@ -465,26 +554,32 @@ Frozen-design discipline (run ≠ audit): this DRAFT is authored by the
 
 ---
 
-## 11. Proposed ASM rows (PROPOSED-ASM rows 1480..1493; block 1480..1499 reserved)
+## 11. Proposed ASM rows (PROPOSED-ASM rows 1480..1495; block 1480..1499 reserved)
 
 Emitted for central registration by the coordinator at freeze (step 4). This bead
 wrote nothing to `registry/assumptions.jsonl`. Owner strings use the pseudonymous
 role convention.
 
-The 14 rows are emitted VERBATIM in `poc/ufo-check-0/asm-proposed-1480-1493.json`
+The 16 rows are emitted VERBATIM in `poc/ufo-check-0/asm-proposed-1480-1495.json`
 (the rules-1 `asm-1190-1197.json` convention — kept OUT of docs/ so the claims-check
 unknown-id lint stays green until the coordinator registers them at freeze). Row map:
 1480 item generator/scope · 1481 engine-derived gold + oracle-diagnostic label +
 promotion gate (D2) · 1482 closed UFO-SN3 inventory + four-valued contract ·
 1483 pre-materialisation, lookup-only GPU path, NO sparq · 1484 five arms, shared
-first pass, token parity · 1485 Sattolo deranged meta-typing · 1486 representation-
-matched null · 1487 k=1 licensed rejections + trivial-policy floors · 1488
-dangerous-wrong definition + 0.02 margin · 1489 statistics plan · 1490 cost band
-[EXTRAPOLATION] · 1491 host/scorer pins · 1492 roles + issue-#22 hold + lane M1 ·
-1493 scope omissions + envelope binding.
+first pass, token parity · 1485 Sattolo deranged meta-typing (label-alphabet
+cycle; rejection-active coincidence gate) · 1486 representation-matched null
+(+ measured census + nondegeneracy) · 1487 k=1 licensed rejections +
+trivial-policy floors · 1488 dangerous-wrong definition + 0.02 margin · 1489
+statistics plan (bootstrap-inversion p-values + Holm decisions + ratio-rule
+inversion) · 1490 cost band [EXTRAPOLATION, with resolution_path:
+fixture-tokenized dry-plan + in-run BudgetGuard hard stops + realized ledger] ·
+1491 host/scorer pins · 1492 roles + issue-#22 hold + lane M1 · 1493 scope
+omissions + envelope binding · 1494 frozen power simulation + n=600 decision
+rule · 1495 machine-enforced instrument gates (completeness factorial,
+representation census, AN nondegeneracy, AD coincidence, message discipline).
 
 **Self-check gate:** no feasibility conclusion stated or implied; all tags
-provisional; ORACLE-DIAGNOSTIC label + envelope verbatim; no @handle/account
-strings; assumptions confined to the reserved 1480..1499 block and NOT written to
-assumptions.jsonl; no frozen object touched; NO sparq changes on this path; the GPU
-run is explicitly held pending issue #22.
+provisional; ORACLE-DIAGNOSTIC label + envelope verbatim; no account-identifying
+handle strings; assumptions confined to the reserved 1480..1499 block and NOT
+written to assumptions.jsonl; no frozen object touched; NO sparq changes on this
+path; the GPU run is explicitly held pending issue #22.

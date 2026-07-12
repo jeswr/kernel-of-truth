@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""RULES-1 GPU-arm runner (frozen design registry/experiments/rules-1.json,
-frozen_sha256 0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c;
-prereg doc docs/next/arch/world-model-rules-engine.md §4 as amended by the
-cross-model synthesis; maintainer approvals MD-1..MD-9, issue #19).
+"""RULES-1-B GPU-arm runner (DRAFT registry/experiments/rules-1-b.json,
+superseding rules-1 frozen_sha256 0ef03ee1... after the 2026-07-12 maintainer
+VOID of its GPU run — degenerate host instrument; post-mortem
+docs/next/analysis/rules1-void-degenerate-instrument.md. Fixes over the
+rules-1 harness: direction-explicit answer cue (render_answer_cue — the root
+cause), cue-aligned ground-(iii) feedback wording, and a mandatory real-model
+CPU pilot mode (--pilot-n). Prereg doc docs/next/arch/world-model-rules-engine.md
+§4 as amended by the cross-model synthesis; maintainer approvals MD-1..MD-9,
+issue #19).
 
 WHAT THIS RUNNER MEASURES (raw rows only — verdicts belong to the pinned
 analysis/rules_1.py + verdict-gen under run-vs-audit separation): does the
@@ -120,16 +125,21 @@ class Rules1HFLM(HFLM):
     """f2bt HFLM with ONLY the load dtype overridden to fp32 (frozen
     runner_constraints.hardware: 'single A10G (Modal), fp32, greedy').
     _option_logprobs / choose / count_tokens are inherited unchanged, so the
-    forced-choice scorer and the seeded retry sampler are the reused bytes."""
+    forced-choice scorer and the seeded retry sampler are the reused bytes.
+    dtype is overridable ONLY under --pilot-n (CPU instrument pilot: 1.7B
+    fp32 does not fit a 7 GB box; the pilot validates the PROMPT FRAME, not
+    the arithmetic — dtype is disclosed in the results JSON)."""
 
-    def __init__(self, repo, revision, device):
+    def __init__(self, repo, revision, device, dtype="fp32"):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
         if not revision:
             raise SystemExit("ERR_UNPINNED_MODEL: %s has no pinned revision" % repo)
         self.tok = AutoTokenizer.from_pretrained(repo, revision=revision)
         self.model = AutoModelForCausalLM.from_pretrained(
-            repo, revision=revision, torch_dtype=torch.float32)  # fp32 per frozen record
+            repo, revision=revision,
+            torch_dtype={"fp32": torch.float32,
+                         "bf16": torch.bfloat16}[dtype])  # fp32 per frozen record
         self.model.to(device)
         self.model.eval()
         for p in self.model.parameters():
@@ -353,10 +363,11 @@ def licensed_rejection(payload, tbox, stated_set, a, b, word, vocab,
                             % (word, bn, have, word, need, word))
                     break
     if line is None:
-        # (iii) not licensed: no derivation yields this word for (a, b)
+        # (iii) not licensed: no derivation yields this word for (a, b).
+        # Wording matches the direction-explicit answer cue ('{b} is {a}'s
+        # <word>') so feedback and cue never disagree about direction.
         line = ("'%s' is rejected: no derivation from the stated facts "
-                "licenses '%s' as how %s is related to %s"
-                % (word, word, an, bn))
+                "licenses '%s is %s's %s'" % (word, bn, an, word))
     assert_no_gold_leak(line, gold_word, "A3/c1")
     return line
 
@@ -371,10 +382,35 @@ def stated_lines(stated, names, urn2word):
             [verbalise_fact(f, names, urn2word) + "." for f in clss])
 
 
+def render_answer_cue(frames, pair_names):
+    """RULES-1-B FIX (root cause of the rules-1 void; post-mortem
+    docs/next/analysis/rules1-void-degenerate-instrument.md): the CLUTRR gold
+    convention for 'How is A related to B?' is the (A, gold, B) triple read
+    'A's <gold> is B' — i.e. the gold word names what B IS TO A. The rules-1
+    cue '\\nAnswer:' left the direction to the model, whose natural reading
+    is the REVERSE (A is B's granddaughter/grandson), so the gold word was
+    structurally un-elicitable and every arm scored 0. The cue is now the
+    direction-explicit infill '\\nAnswer: {b_name} is {a_name}'s' — the exact
+    surface of the engine's own derivation rendering ('Jason is Jennifer's
+    grandfather'), identical for every arm (shared affordance preserved)."""
+    if pair_names is None:
+        raise SystemExit("ERR_FRAME: answer cue requires the item's (a, b) "
+                         "surface names — no direction-ambiguous fallback")
+    a_name, b_name = pair_names
+    return frames["answer_cue"].format(a_name=a_name, b_name=b_name)
+
+
 def build_prompt(frames, item, stated, names, urn2word, menu,
                  derived_lines=None, feedback_lines=None, pad_to_tokens=None,
-                 lm=None):
-    parts = [frames["task_prefix"]]
+                 lm=None, pair_names=None):
+    # RULES-1-B FIX 2 (PROPOSED-ASM-1630, see also render_answer_cue): the
+    # 23-word menu is rendered INSIDE the task header, not as a line adjacent
+    # to the answer cue — measured on R1: a menu line immediately before the
+    # cue swamps the small host's next-token distribution with menu-prior
+    # words (gold drops from top-1 to rank ~9 even with the derivation
+    # injected). The closed-vocabulary constraint itself is enforced by the
+    # per-option logprob scorer, not by prompt text.
+    parts = [frames["task_prefix"].format(menu=", ".join(menu))]
     for line in stated_lines(stated, names, urn2word):
         parts.append(frames["fact_line"].format(line=line))
     parts.append(frames["una_line"])
@@ -387,19 +423,19 @@ def build_prompt(frames, item, stated, names, urn2word, menu,
         for line in feedback_lines:
             parts.append(frames["feedback_line"].format(line=line))
     parts.append(frames["question_prefix"] + item["question"])
-    parts.append(frames["menu_prefix"] + ", ".join(menu) + ".")
     base = "".join(parts)
+    cue = render_answer_cue(frames, pair_names)
     if pad_to_tokens is not None and lm is not None:
         # PROPOSED-ASM-1127: neutral token-matching padding, counted with the
         # arm's own tokenizer, appended before the answer cue.
         pad_sent = " " + frames["padding_sentence"]
-        cur = lm.count_tokens(base + frames["answer_cue"])
+        cur = lm.count_tokens(base + cue)
         block = ""
         while cur + lm.count_tokens(block + pad_sent) <= pad_to_tokens:
             block += pad_sent
         if block:
             base += "\n" + block.strip()
-    return base + frames["answer_cue"]
+    return base + cue
 
 
 def a2_shaped_injection(payload, names, urn2word):
@@ -414,10 +450,10 @@ def a2_shaped_injection(payload, names, urn2word):
 # Row emission
 # ---------------------------------------------------------------------------
 class RowEmitter:
-    def __init__(self, out_dir, mock):
+    def __init__(self, out_dir, suffix):
         self.rows = []
         self.path = os.path.join(
-            out_dir, "run-records-rules1%s.jsonl" % ("-mock" if mock else ""))
+            out_dir, "run-records-rules1%s.jsonl" % suffix)
         with open(self.path, "w"):
             pass
 
@@ -456,12 +492,15 @@ def run_alone_cell(lm, rung, arm, frames, items, ctx, seed, emitter, guard):
         guard.start_item({"id": iid})
         pay = ctx["payload_true"][iid]
         names, stated = ctx["names"][iid], ctx["stated"][iid]
+        a, b = ctx["pair"][iid]
+        pn = (names.get(a, a), names.get(b, b))
         inj = a2_shaped_injection(pay, names, ctx["urn2word"])
         target = lm.count_tokens(build_prompt(
             frames, item, stated, names, ctx["urn2word"], ctx["menu"],
-            derived_lines=inj))
+            derived_lines=inj, pair_names=pn))
         prompt = build_prompt(frames, item, stated, names, ctx["urn2word"],
-                              ctx["menu"], pad_to_tokens=target, lm=lm)
+                              ctx["menu"], pad_to_tokens=target, lm=lm,
+                              pair_names=pn)
         ans, _lat, toks, t_in = choose_word(lm, item, ctx["menu"],
                                             item["gold_relation"], seed, 0,
                                             prompt, guard)
@@ -487,10 +526,12 @@ def run_verify_retry_cell(lm, arm, frames, items, ctx, payloads, tbox, k,
         gold = item["gold_relation"]
         feedback, toks_total, t_in_last = [], 0, 0
         ans, attempts = None, 0
+        pn = (names.get(a, a), names.get(b, b))
         for attempt in range(k + 1):
             prompt = build_prompt(frames, item, stated, names,
                                   ctx["urn2word"], ctx["menu"],
-                                  feedback_lines=feedback or None)
+                                  feedback_lines=feedback or None,
+                                  pair_names=pn)
             ans, _lat, toks, t_in_last = choose_word(
                 lm, item, ctx["menu"], gold, seed, attempt, prompt, guard)
             toks_total += toks
@@ -524,9 +565,11 @@ def run_direct_executor_cell(lm, frames, items, ctx, seed, emitter, guard):
                          engine_us=pay.engine_us, flops_formula=0.0,
                          refusal_code=pay.refusal)
             continue
+        a, b = ctx["pair"][iid]
+        pn = (names.get(a, a), names.get(b, b))
         inj = a2_shaped_injection(pay, names, ctx["urn2word"])
         prompt = build_prompt(frames, item, stated, names, ctx["urn2word"],
-                              ctx["menu"], derived_lines=inj)
+                              ctx["menu"], derived_lines=inj, pair_names=pn)
         ans, _lat, toks, t_in = choose_word(lm, item, ctx["menu"],
                                             item["gold_relation"], seed, 0,
                                             prompt, guard)
@@ -664,9 +707,12 @@ def dry_plan(man, items_covered, ctx, gpu):
     n_menu = 23
 
     def est_choose_tokens(item, extra_lines=0):
-        prompt = build_prompt(frames, item, ctx["stated"][item["item_id"]],
-                              ctx["names"][item["item_id"]], ctx["urn2word"],
-                              ctx["menu"])
+        iid = item["item_id"]
+        names = ctx["names"][iid]
+        a, b = ctx["pair"][iid]
+        prompt = build_prompt(frames, item, ctx["stated"][iid],
+                              names, ctx["urn2word"], ctx["menu"],
+                              pair_names=(names.get(a, a), names.get(b, b)))
         return (len(prompt) / cpt + 20 * extra_lines) * n_menu
 
     tok1 = sum(est_choose_tokens(i) for i in items_covered)
@@ -743,12 +789,28 @@ def main():
                     help="stub-LM mechanics check on CPU; $0; labelled MOCK")
     ap.add_argument("--dry-plan", action="store_true",
                     help="print the real-run cost plan vs caps; runs nothing")
+    ap.add_argument("--pilot-n", type=int, default=None,
+                    help="REAL-model instrument pilot on the first N covered "
+                         "items, seed 0 only; labelled PILOT, never a "
+                         "measurement or a final-phase row source (the "
+                         "host-validity smoke the rules-1 void mandates)")
+    ap.add_argument("--pilot-dtype", default="fp32",
+                    choices=["fp32", "bf16"],
+                    help="model load dtype for --pilot-n ONLY (bf16 lets the "
+                         "1.7B A5 pilot fit a CPU box); real runs are fp32 "
+                         "per the frozen runner_constraints")
     ap.add_argument("--cell-timeout-s", type=float, default=None)
     ap.add_argument("--max-gen-per-item", type=int,
                     default=MAX_GEN_PER_ITEM_DEFAULT)
     args = ap.parse_args()
     if args.cell_timeout_s is None:
         args.cell_timeout_s = CELL_TIMEOUT_S_DEFAULT[args.gpu_class]
+    if args.pilot_n is not None and (args.mock or args.dry_plan):
+        raise SystemExit("ERR_PILOT: --pilot-n is a REAL-model instrument "
+                         "pilot; it cannot combine with --mock/--dry-plan")
+    if args.pilot_dtype != "fp32" and args.pilot_n is None:
+        raise SystemExit("ERR_PILOT: --pilot-dtype is pilot-only; real runs "
+                         "are fp32 per the frozen runner_constraints")
     t0 = time.time()
 
     man, cert = load_inputs(args)
@@ -782,6 +844,12 @@ def main():
         covered = covered[:man["mock"]["n_covered"]]
         control = control[:man["mock"]["n_control"]]
         seeds = man["mock"]["seeds"]
+    elif args.pilot_n is not None:
+        # PILOT: real models, tiny n, seed 0 only — instrument validation
+        # (host-validity smoke) at ~$0 on CPU; NEVER final-phase rows.
+        covered = covered[:args.pilot_n]
+        control = control[:max(2, args.pilot_n // 4)]
+        seeds = [0]
     else:
         seeds = dc["seeds"]
 
@@ -812,7 +880,9 @@ def main():
         if args.mock:
             return StubRulesLM(rung, man["mock"])
         spec = man["model_revisions"][rung]
-        return Rules1HFLM(spec["repo"], spec["revision"], args.device)
+        return Rules1HFLM(spec["repo"], spec["revision"], args.device,
+                          dtype=(args.pilot_dtype if args.pilot_n is not None
+                                 else "fp32"))
 
     lms = {}
 
@@ -822,7 +892,9 @@ def main():
             lms[rung] = make_lm(rung)
         return lms[rung]
 
-    emitter = RowEmitter(args.out_dir, args.mock)
+    suffix = ("-mock" if args.mock
+              else "-pilot" if args.pilot_n is not None else "")
+    emitter = RowEmitter(args.out_dir, suffix)
     k = dc["k_retry"]
 
     def run_cell(arm, seed, fn):
@@ -902,10 +974,12 @@ def main():
             c["answered" if p.answer is not None else p.refusal] += 1
         return dict(sorted(c.items()))
 
-    label = "MOCK" if args.mock else "FULL"
+    label = ("MOCK" if args.mock
+             else "PILOT" if args.pilot_n is not None else "FULL")
     results = {
         "experiment": "rules-1",
         "outcome": ("MOCK-HARNESS-COMPLETE" if args.mock
+                    else "PILOT-HARNESS-COMPLETE" if args.pilot_n is not None
                     else "HARNESS-COMPLETE"),
         "outcome_note": "NOT a hypothesis verdict — raw run-record rows only; "
                         "the verdict is computed by the pinned "
@@ -953,7 +1027,14 @@ def main():
             "kill_a_fired": False},
         "wallClockHours": (time.time() - t0) / 3600.0,
     }
-    suffix = "-mock" if args.mock else ""
+    if args.pilot_n is not None:
+        results["pilot"] = {
+            "n_covered": len(covered), "n_control": len(control),
+            "dtype": args.pilot_dtype,
+            "note": "REAL-model instrument pilot (host-validity smoke): "
+                    "tiny n, seed 0, CPU-class; numbers validate the "
+                    "instrument only and are NEVER measurements or "
+                    "final-phase rows"}
     with open(os.path.join(args.out_dir, "results-rules1%s.json" % suffix),
               "w") as f:
         json.dump(results, f, indent=2, sort_keys=True)

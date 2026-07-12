@@ -1,5 +1,29 @@
 {
  "b3_note": "proof_sidecar is NEVER rendered into B2 training text; B3 renders it before the answer (design SS2.2 family 4)",
+ "c1p_label_derangement": {
+  "mw2": {
+   "flipped_to_complement": 18,
+   "label_counts": {
+    "man": 655,
+    "woman": 637
+   },
+   "n": 1292,
+   "note": "binary class with imbalance 18: multiset-preserving derangement impossible; 18 forced residual(s) flipped to the complement label (disclosed multiset delta)",
+   "rotation": 655
+  },
+  "rel23": {
+   "flipped_to_complement": 0,
+   "label_counts": {
+    "father": 2573,
+    "grandfather": 2490,
+    "grandmother": 2502,
+    "mother": 2561
+   },
+   "n": 10126,
+   "note": "label multiset preserved exactly",
+   "rotation": 2573
+  }
+ },
  "corpus": "rules2-train",
  "design": "docs/next/design/rules-2-train-time.md SS2.1/2.2",
  "engine": "poc/rules-1/twin_engine.py (PINNED, byte-exact, PROPOSED-ASM-1437)",
@@ -32,7 +56,7 @@
   "family3_refusal_train": 2844
  },
  "generator": "poc/rules-2/materialise_closure.py",
- "generator_sha256": "601e079c0c0b53e78b11b4e5e8e77678cb6b37d3f9f92853b8b5559ff3a5a72d",
+ "generator_sha256": "00546d5930c65c1fb9625d3625de4d63e223f57356650d3b8c51cfbac96fca8e",
  "mode": "REAL",
  "n_dev_families": 20,
  "n_examples": 21796,
