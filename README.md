@@ -20,6 +20,37 @@ Adjacent artefacts: a **phrase→concept mapping layer** (from tokens / token-sp
 
 The near-term goal is a proof-of-concept on small local models rigorous enough to take to a frontier lab.
 
+## Experiment summary (as of 2026-07-12)
+
+The programme puts two theses under pre-registered test. **CORRECTNESS**: that a training-free, meaning-grounded *kernel* — machine-readable concept definitions plus a deterministic checking engine — can supply correct answers and inferences a language model cannot be trusted to produce alone. **EFFICIENCY**: that such a kernel lets a small model offload verification to cheap deterministic machinery, or lets a model be shrunk without retraining. Every claim below is capped at its registered verdict or licensed interpretation; **neither thesis has a verdict — both remain inconclusive-pending** ([synthesis v5](docs/next/feasibility-synthesis-v5.md), ASM-1380).
+
+### Experiments run
+
+- **f2b-transfer** — does a kernel-authored answer key, checked through a thin verify-retry interface, help a small (135M) model on independently adjudicated questions? **PASS, audit-confirmed.** The key lifted the model **+0.25** accuracy, with 96% of rendered content externally endorsed; the boosted 135M was *not* shown to match a 1.7B model.
+- **DECONF-B** — what carries that lift? **PASS, audit-confirmed.** The item-aligned answer-bearing *content* carries it: a generic aligned store reproduced the kernel arm exactly, so **no kernel-specific runtime structure** is measured at this seam — a deflationary result, reported with equal weight.
+- **CASC-0′** — does kernel-style structured prompting disproportionately help a smaller reasoner at matched compute? **INSTRUMENT-INVALID** (compute-matching gate missed its band). The raw interactions showed no positive sign and kernel-style gloss was equivalent to a plain typed dialect — but no overall verdict, neither "works" nor "null", is licensed.
+- **g2** — are the kernel's hand-authored *hard* type constraints sound by ordinary-meaning standards? **INSTRUMENT-INVALID** (84 items < the registered 500), with a strongly adverse signal: only ~39% judged sound. LLM-proxy labels; human reconciliation pending.
+- **g2-import** — does importing *soft*, non-binding typing from published ontologies (BFO/SUMO/FrameNet) repair that? **INSTRUMENT-INVALID**: soundness nearly doubled (57/84 vs 33/84) — a GO-*shaped* signal, not a licensed GO — because the judge pair went unstable on exactly the adoption arm (κ = 0.29). Caveat: follow-up analysis confirms part of the low κ is the known kappa paradox (high-prevalence penalty), yet also shows the judge pair genuinely shares little signal — the invalidation stands, while the soundness gradient itself is bracket-robust. A breadth-only control also lifted, so the ontologies' *specific* content is not yet shown to carry the effect. All numbers LLM-proxy-provisional.
+- **RULES-1 CPU certificate** — can a deterministic rules engine over kernel-expressed worlds compute correct conclusions that flat lookup of stated facts cannot? **PASSED (registered certificate).** Entailed decisions were reproducible from no stated-bytes projection (0/3,680) while stated-fact behaviour was exact (1,716/1,716); the engine matched third-party CLUTRR gold 858/858 and refused correctly on missing premises, in <2 s at ~$0. This licenses *machinery non-inertness only* — not host lift, not kernel-specific value.
+- **RULES-1 host-lift, GPU run 1** — do those derivations help a small model answer? **VOIDED — degenerate instrument, not graded.** Two prompt-frame defects made the gold answer structurally un-elicitable in every arm (even the oracle arm scored 0.0); the run is evidence of nothing, in either direction, except the instrument defect.
+- **Built, not yet run:** rules-1-b (host-lift re-run on a fixed harness with a new host-validity gate), g2-import-v2 (repaired judging instrument), DDC (training-free kernel-guided model compression), and the sparq upstream PRs (quoted-triple embedding and inference).
+
+### Key findings so far
+
+- Kernel-authored content can be externally useful: an aligned answer key plus cheap deterministic verify-retry lifted a 135M model +0.25 on external gold *(measured, verdict-grade; f2b-transfer, DECONF-B)*.
+- The measured value sits in the content, not in kernel-specific runtime structure — and static kernel-style prompting showed no positive sign at its (invalidated) test *(measured, deflationary; DECONF-B, CASC-0′)*.
+- Deterministic rules machinery is genuinely non-inert: it computes correct entailed answers that lookup cannot, exactly and at ~$0 *(measured certificate; RULES-1)*. Whether that helps a *model* is unmeasured — the first attempt was voided as an instrument failure.
+- Hard hand-authored typing looks unsound (~0.39) and soft imported typing is the leading candidate repair — a GO-shaped, unlicensed signal; both readings are LLM-proxy-provisional pending human gold *(g2, g2-import)*.
+- Plainly: **both theses remain open.** Nothing yet shows a kernel-equipped small model matching a larger one, kernel-*specific* necessity, natural-language input reach, or favourable end-to-end economics. CORRECTNESS and EFFICIENCY are each INCONCLUSIVE-PENDING.
+
+### Outstanding work
+
+- **rules-1-b** — re-run the RULES-1 host-lift campaign on the repaired harness (direction-explicit cue, mandatory CPU pilot, host-validity instrument gate), then the `knull` rules-source ablation for kernel-specific attribution.
+- **g2-import-v2** — the typing repair on a fixed judging instrument (the κ-paradox-aware redesign), separating soft-routing breadth from source-specific ontology content.
+- **DDC** — the training-free kernel-guided compression experiment (does kernel-chosen structure preserve more ability than magnitude or random pruning at equal size?).
+- **sparq upstream PRs** — quoted-triple visibility in embeddings, ontology-prior readers, and quoted-triple inference in the engine.
+- **Human-gold reconciliation** — two-human blind panels on the frozen g2/g2-import packages; all proxy-labelled conclusions remain provisional until then.
+
 ## Repository layout
 
 | Path | Contents |
