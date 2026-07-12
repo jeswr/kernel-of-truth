@@ -1,0 +1,22 @@
+{
+  "kind": "prefinal-pinned-at-inputs-resolution",
+  "experiment": "rules-1-c",
+  "seq": 1,
+  "author": "coordinator-1",
+  "author_session_note": "Coordinator central-custody pin resolution (mechanical, MEASURED sha; no interpretation, no conclusion). Resolves the pins.harness_manifest PINNED-AT-INPUTS placeholder before the rules-1-c final-phase host-lift run, per the record's own instruction and the rules-1 amendment seq-1 overlay precedent (registry/corrections/rules-1/1-wmre-doc-staleness.json).",
+  "authorized_by": "maintainer approval of the RULES-1 host-lift campaign at the $10 ceiling (issue #19) carried to its superseding record rules-1-c; and the freeze-before-run discipline in rules-1-c.json pins.harness_manifest ('filled by ops amendment before any final-phase run').",
+  "date": "2026-07-12",
+  "frozen_objects_untouched": [
+    "registry/experiments/rules-1-c.json (status FROZEN, frozen_at 2026-07-12T14:07:42Z, frozen_sha256 09b246dcba4640581646dee8d8c0ca7def18102f17179ad4398e514ebdd065f6)"
+  ],
+  "why_not_edited": "rules-1-c.json is FROZEN and listed in registry/frozen-index.json; editing it in place would break the frozen registration. Per the append-never-edit discipline and the cited rules-1 seq-1 precedent, this correction record supplies the binding resolved value while the frozen record is retained byte-identical.",
+  "resolution": {
+    "pin": "pins.harness_manifest",
+    "placeholder_superseded": "PINNED-AT-INPUTS: poc/rules-1 runner (rules-1-c ENTITY-FORM bytes) staged-bytes manifest sha printed by modal_rules1.py --print-manifest - filled by ops amendment before any final-phase run",
+    "resolved_value": "2b463dd8b0039a8e22e0f10aea6db2b942ddae163a4eae38319f2c1669510bd3",
+    "basis": "MEASURED: `python3 poc/rules-1/modal/modal_rules1.py --print-manifest` = 2b463dd8...; byte-identical to the launcher poc/rules-1/modal/launch_rules1c_parallel.sh --dry-plan staged-bytes manifest sha (40 staged files, canonical JSON). This is the exact byte-set modal_rules1.py stages to the GPU for the final-phase run; the run's provenance-modal.json will record the same sha.",
+    "verification": "The pilot (results-incoming/pilot-20260712-rules1c-v2 A1/A5/A7 + pilot-20260712-rules1c-a3c1 A3/c1) executed these same staged bytes via modal_rules1_pilot.py (identical staged-bytes manifest); host-validity floors A5>=0.75, A7>=0.85 cleared (A5 24/24, A7 24/24)."
+  },
+  "non_retroactivity": "No frozen record, verdict, results-log, certificate, or registered assumption changes. This record resolves the harness_manifest INPUT pin for provenance/audit before the run; the frozen rules-1-c design, gates, arms, floors, and claim caps are untouched.",
+  "schema_version": "kot-correction/1"
+}
