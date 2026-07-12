@@ -581,23 +581,25 @@ def run_direct_executor_cell(lm, frames, items, ctx, seed, emitter, guard):
                      flops_formula=flops_formula(lm, toks))
 
 
-def run_control_cells(items_control, ctx, seeds, emitter, arms):
+def run_control_cells(items_control, ctx, cells, emitter):
     """E5 refusal stratum for the engine-bearing arms (A3/A7 — the arms the
     pinned analysis reads for refusal_correctness_e5): the engine must draw
     the named fail-closed refusal and the arm abstains. CPU-only — the
-    refusal is engine-decided; no generation is fabricated."""
+    refusal is engine-decided; no generation is fabricated. `cells` is the
+    (arm, seed) list of engine-bearing cells in THIS run/slice; emission
+    order (item-major, then the slice's serial cell order) is unchanged for
+    the default full grid."""
     for item in items_control:
         iid = item["item_id"]
         pay = ctx["payload_true"][iid]
         refused = int(pay.refusal is not None and pay.answer is None)
-        for arm in [a for a in (ARM_A3, ARM_A7) if a in arms]:
-            for seed in seeds:
-                emitter.emit(item_id=iid, arm=arm, rung="R1", seed=seed,
-                             cell="control", item_correct_ext=0,
-                             refused=refused, attempts=0, tokens_in=0,
-                             tokens_out=0, engine_us=pay.engine_us,
-                             flops_formula=0.0,
-                             refusal_code=pay.refusal or "ERR_NONE_BUG")
+        for arm, seed in cells:
+            emitter.emit(item_id=iid, arm=arm, rung="R1", seed=seed,
+                         cell="control", item_correct_ext=0,
+                         refused=refused, attempts=0, tokens_in=0,
+                         tokens_out=0, engine_us=pay.engine_us,
+                         flops_formula=0.0,
+                         refusal_code=pay.refusal or "ERR_NONE_BUG")
 
 
 # ---------------------------------------------------------------------------
@@ -785,6 +787,16 @@ def main():
     ap.add_argument("--arms", default="A1,A3,A5,A7,c1",
                     help="comma-set of arms to run (default: the frozen "
                          "host-lift set + c1)")
+    ap.add_argument("--cells", default=None,
+                    help="comma-set of ARM:SEED cells (e.g. 'A3:0,A3:1,A5:2')"
+                         " — a DISJOINT slice of the arm x seed grid for the "
+                         "parallel multi-account launch (maintainer directive"
+                         " 2026-07-12). Every arm must be in --arms and every"
+                         " seed in the mode's seed list; per-cell rows are "
+                         "byte-identical to the serial run's rows for the "
+                         "same cells (per-item seeding via SEED_BASE; no "
+                         "cross-cell state). Slices are merged by "
+                         "poc/rules-1/modal/merge_rules1b_slices.py.")
     ap.add_argument("--mock", action="store_true",
                     help="stub-LM mechanics check on CPU; $0; labelled MOCK")
     ap.add_argument("--dry-plan", action="store_true",
@@ -853,6 +865,45 @@ def main():
     else:
         seeds = dc["seeds"]
 
+    # --cells disjoint-slice filter (parallel 4-account launch): default is
+    # the full --arms x seeds grid in the serial nested order, so a run with
+    # no --cells is byte-identical to the pre-slice runner.
+    cells = [(arm, seed) for arm in arms for seed in seeds]
+    if args.cells is not None:
+        if args.pilot_n is not None:
+            raise SystemExit("ERR_CELLS: --cells cannot combine with "
+                             "--pilot-n (the pilot is a serial instrument "
+                             "smoke, never sliced)")
+        req = []
+        for tok in args.cells.split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            parts = tok.split(":")
+            if len(parts) != 2 or parts[0] not in RUNG_OF:
+                raise SystemExit("ERR_CELLS: bad cell %r (want ARM:SEED with "
+                                 "a known arm)" % tok)
+            try:
+                s = int(parts[1])
+            except ValueError:
+                raise SystemExit("ERR_CELLS: non-integer seed in %r" % tok)
+            if parts[0] not in arms:
+                raise SystemExit("ERR_CELLS: arm %s not in --arms %s"
+                                 % (parts[0], arms))
+            if s not in seeds:
+                raise SystemExit("ERR_CELLS: seed %d not in this mode's seed "
+                                 "list %s" % (s, seeds))
+            req.append((parts[0], s))
+        if not req:
+            raise SystemExit("ERR_CELLS: empty --cells")
+        if len(set(req)) != len(req):
+            raise SystemExit("ERR_CELLS: duplicate cells in %r" % args.cells)
+        req_set = set(req)
+        cells = [c for c in cells if c in req_set]  # keep serial order
+        log("cells slice: %s (%d of %d grid cells)"
+            % (",".join("%s:%d" % c for c in cells), len(cells),
+               len(arms) * len(seeds)))
+
     # record the c1 derangement next to the results (frozen c1: recorded)
     with open(os.path.join(args.out_dir, "shuffle-map-rules1.json"), "w") as f:
         json.dump({"perm_seed": man["shuffle"]["perm_seed"],
@@ -919,41 +970,42 @@ def main():
                              % (e, emitter.path))
         log("cell %s seed=%s done (%.1fs)" % (arm, seed, guard.elapsed()))
 
-    for arm in arms:
+    for arm, seed in cells:
         rung = RUNG_OF[arm]
-        for seed in seeds:
-            if arm in (ARM_A1, ARM_A5):
-                lm = lm_for(rung)
-                run_cell(arm, seed, lambda g, lm=lm, arm=arm, rung=rung,
-                         seed=seed: run_alone_cell(
-                             lm, rung, arm, frames, covered, ctx, seed,
-                             emitter, g))
-            elif arm == ARM_A3:
-                lm = lm_for("R1")
-                run_cell(arm, seed, lambda g, lm=lm, seed=seed:
-                         run_verify_retry_cell(
-                             lm, ARM_A3, frames, covered, ctx,
-                             ctx["payload_true"], ctx["tbox_true"], k, seed,
-                             emitter, g))
-            elif arm == ARM_C1:
-                lm = lm_for("R1")
-                run_cell(arm, seed, lambda g, lm=lm, seed=seed:
-                         run_verify_retry_cell(
-                             lm, ARM_C1, frames, covered, ctx,
-                             ctx["payload_shuf"], ctx["tbox_shuf"], k, seed,
-                             emitter, g))
-            elif arm == ARM_A7:
-                lm = lm_for("R1")
-                run_cell(arm, seed, lambda g, lm=lm, seed=seed:
-                         run_direct_executor_cell(
-                             lm, frames, covered, ctx, seed, emitter, g))
+        if arm in (ARM_A1, ARM_A5):
+            lm = lm_for(rung)
+            run_cell(arm, seed, lambda g, lm=lm, arm=arm, rung=rung,
+                     seed=seed: run_alone_cell(
+                         lm, rung, arm, frames, covered, ctx, seed,
+                         emitter, g))
+        elif arm == ARM_A3:
+            lm = lm_for("R1")
+            run_cell(arm, seed, lambda g, lm=lm, seed=seed:
+                     run_verify_retry_cell(
+                         lm, ARM_A3, frames, covered, ctx,
+                         ctx["payload_true"], ctx["tbox_true"], k, seed,
+                         emitter, g))
+        elif arm == ARM_C1:
+            lm = lm_for("R1")
+            run_cell(arm, seed, lambda g, lm=lm, seed=seed:
+                     run_verify_retry_cell(
+                         lm, ARM_C1, frames, covered, ctx,
+                         ctx["payload_shuf"], ctx["tbox_shuf"], k, seed,
+                         emitter, g))
+        elif arm == ARM_A7:
+            lm = lm_for("R1")
+            run_cell(arm, seed, lambda g, lm=lm, seed=seed:
+                     run_direct_executor_cell(
+                         lm, frames, covered, ctx, seed, emitter, g))
 
-    # E5 control cells (CPU-only, engine-decided refusals) for A3/A7
-    if ARM_A3 in arms or ARM_A7 in arms:
-        run_control_cells(control, ctx, seeds, emitter, arms)
-        log("control cells emitted (E5 refusal stratum, %s x %d seeds)"
-            % ("/".join(a for a in (ARM_A3, ARM_A7) if a in arms),
-               len(seeds)))
+    # E5 control cells (CPU-only, engine-decided refusals) for the A3/A7
+    # (arm, seed) cells present in THIS slice — disjoint slices emit disjoint
+    # control rows, so the parallel merge stays conflict-free.
+    ctrl_cells = [c for c in cells if c[0] in (ARM_A3, ARM_A7)]
+    if ctrl_cells:
+        run_control_cells(control, ctx, ctrl_cells, emitter)
+        log("control cells emitted (E5 refusal stratum, %s)"
+            % ",".join("%s:%d" % c for c in ctrl_cells))
 
     records_sha = sha256_file(emitter.path)
     # decision-payload sha: rows with the volatile wall-clock field stripped
@@ -989,8 +1041,15 @@ def main():
         "date": utcnow(),
         "device": args.device,
         "gpu_class_assumed_for_usd": args.gpu_class,
-        "arms": arms,
-        "seeds": seeds,
+        "arms": sorted({a for a, _ in cells}, key=arms.index),
+        "seeds": sorted({s for _, s in cells}),
+        "cells": ["%s:%d" % c for c in cells],
+        "cells_note": "the (arm x seed) cells THIS run actually executed "
+                      "(--cells disjoint slice for the parallel multi-"
+                      "account launch; default = the full --arms x seeds "
+                      "grid). Slices are merged into the canonical "
+                      "run-records-rules1b.jsonl by "
+                      "poc/rules-1/modal/merge_rules1b_slices.py.",
         "k_retry": k,
         "n_covered": len(covered),
         "n_control": len(control),

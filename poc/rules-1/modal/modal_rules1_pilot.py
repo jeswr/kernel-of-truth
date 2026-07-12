@@ -1,55 +1,22 @@
 #!/usr/bin/env python3
-"""RULES-1 GPU arms on Modal serverless GPU (FROZEN record
-registry/experiments/rules-1.json, frozen_sha256 0ef03ee16fdc278885b450500c
-b674f4319c1154ad067995e0b491feae4bec6c).
+"""RULES-1-B GPU host-validity PILOT wrapper (registry/experiments/
+rules-1-b.json, FROZEN 2b81375e...).
 
-Wraps poc/rules-1/rules1_runner.py UNCHANGED (modal_deconfb/modal_f2bt
-pattern): stages bytes, asserts the staged manifest in-container (fail
-closed, ERR_STAGING_MISMATCH), runs the runner, ships its output directory
-back as opaque bytes with sidecar-only provenance.
+PURPOSE (2026-07-12): the mandatory real-model pilot ran A1+A7 on CPU
+(poc/rules-1/results-incoming/pilot-20260712-cpu) but the parallel launcher's
+sec-host-validity-gate ALSO floors acc(A5) >= 0.15, and the 1.7B A5 arm does
+not fit this 7 GB CPU box in fp32. This wrapper runs rules1_runner.py
+--pilot-n on a Modal GPU — SAME staged bytes as modal_rules1.py (identical
+manifest computation, fail-closed ERR_STAGING_MISMATCH), SAME image reqs —
+only the runner flags differ (--pilot-n N --arms <arms> --device cuda).
+Pilot rows are instrument validation ONLY, never final-phase rows.
 
-IMAGE REUSE (PROPOSED-ASM-1106 discipline): the image is built from the SAME
-poc/modal/requirements-image.txt (sha 0fac7243...) as the pinned f2b image
-im-6uXR6RyVQV15h2B3gtpOG2 that the f2b-transfer stage-2 FULL run and the
-deconf-b Stage B run executed on; RULES-1's only new code is repo-mounted
-stdlib Python — NO new dependency, no image change. poc/f2b, poc/f2b-transfer
-and poc/deconf-b trees are staged/reused BYTE-IDENTICAL (f2bt_runner.py is
-imported for the HFLM scorer + seeded retry sampler + CellGuard bytes).
+    python3 modal_rules1_pilot.py --print-manifest      # $0, must equal modal_rules1.py's sha
+    .venv/bin/modal run modal_rules1_pilot.py --gpu a10g --arms A5 --pilot-n 24 \
+        --out-root <dir>
 
-PINNING DIRECTION: the frozen record's pins.harness_manifest is a declared
-PINNED-AT-INPUTS placeholder — the staged-bytes manifest sha printed by this
-wrapper. The ops amendment records it (together with pins.model_revisions)
-BEFORE the final run; ANY change to a staged byte after that amendment
-requires a correction record.
-
-    python3 poc/rules-1/modal/modal_rules1.py --print-manifest    # sha only, no modal, $0
-    .venv/bin/modal run poc/rules-1/modal/modal_rules1.py --dry-plan   # cost plan, $0, local
-    .venv/bin/modal run poc/rules-1/modal/modal_rules1.py --mock       # transport smoke, ~pennies
-    .venv/bin/modal run poc/rules-1/modal/modal_rules1.py --gpu a10g   # the single-GPU final run
-    .venv/bin/modal run poc/rules-1/modal/modal_rules1.py --gpu a10g \
-        --cells A3:0,A3:1 --out-root <campaign>/slice-1   # one DISJOINT slice
-        # of the arm x seed grid (parallel 4-account launch, maintainer
-        # directive 2026-07-12) — orchestrated by launch_rules1b_parallel.sh;
-        # slices merge via merge_rules1b_slices.py into the canonical
-        # run-records-rules1b.jsonl
-
-LAUNCH GATES (do NOT run the full path until ALL hold):
-  1. registry/experiments/rules-1.json is FROZEN (it is: 0ef03ee1...) and the
-     pinned CPU certificate PASSED (verified fail-closed by the runner:
-     ERR_CERT_PRECONDITION — no GPU spend otherwise);
-  2. ops amendment fills BOTH PINNED-AT-INPUTS pins: pins.harness_manifest =
-     the sha printed here, pins.model_revisions = the R1/R3 revisions in
-     poc/rules-1/inputs/rules1-manifest.json (provenance chain:
-     f2b-replicate/f2b-transfer FROZEN records — the nsk1 registry record is
-     DRAFT and carries no resolved shas);
-  3. --dry-plan OK vs caps (registry usd_cap $10 / 6 GPU-h; coordinator
-     outer ceiling $40, maintainer-approved) and green --mock;
-  4. maintainer sign-off.
-Modal hygiene (standing bd memory): launch long runs nohup+setsid;
-`modal app stop ap-<id>` after killing ANY attached client.
-
-Results land in poc/rules-1/results-incoming/<UTC stamp>-modal/ — NOT
-auto-committed. Single GPU; 12 h function timeout.
+Modal hygiene (standing bd memory): nohup+setsid; `modal app stop ap-<id>`
+after killing ANY attached client.
 """
 
 from __future__ import annotations
@@ -75,7 +42,6 @@ sys.path.insert(0, str(_MODAL_TOOLS))
 import modal_common as mc  # noqa: E402  (stdlib-only helper, poc/modal)
 
 RULES1_DIR = REPO_ROOT / "poc" / "rules-1"
-RUNNER = RULES1_DIR / "rules1_runner.py"
 RULES1_FILES = ("rules1_runner.py", "twin_engine.py", "certificate.py")
 CERT_RESULT = RULES1_DIR / "results" / "certificate-result.json"
 RULES1_INPUTS = RULES1_DIR / "inputs"
@@ -91,9 +57,9 @@ INCOMING_ROOT = RULES1_DIR / "results-incoming"
 REMOTE_ROOT = "/root/kot"
 REMOTE_RULES1 = f"{REMOTE_ROOT}/poc/rules-1"
 REMOTE_DATA = f"{REMOTE_ROOT}/data"
-REMOTE_OUT = "/tmp/rules1-results"
+REMOTE_OUT = "/tmp/rules1-pilot-results"
 HF_CACHE_MOUNT = "/root/.cache/huggingface"
-TIMEOUT_S = 12 * 3600
+TIMEOUT_S = 4 * 3600  # pilot is tiny; 12 h would be a defect
 GPU_CHOICES = ("T4", "A10G", "A100")
 
 
@@ -106,8 +72,8 @@ def _image_pins() -> list:
 
 
 def _walk_manifest(man: dict, prefix: str, base: str) -> None:
-    # __pycache__/*.pyc excluded on BOTH sides (same function computes local
-    # and in-container manifests) — modal_deconfb convention.
+    # __pycache__/*.pyc excluded on BOTH sides — modal_rules1.py convention,
+    # byte-identical logic so the manifest sha MUST match modal_rules1.py's.
     for root, dirs, files in os.walk(base):
         dirs[:] = [d for d in dirs if d != "__pycache__"]
         for name in sorted(files):
@@ -140,7 +106,6 @@ def _manifest(rules1_dir: str, cert_result: str, inputs_dir: str,
 
 
 def _manifest_sha(man: dict) -> str:
-    """pins.harness_manifest value (P2 §1.1 canonical-JSON convention)."""
     import hashlib
     blob = json.dumps(man, sort_keys=True, ensure_ascii=False,
                       separators=(",", ":")).encode("utf-8")
@@ -153,24 +118,8 @@ def _local_manifest() -> dict:
                      str(AXV0_DIR), str(AXKIN_DIR), str(IMAGE_REQS))
 
 
-def _outcome(results_dir: str) -> str:
-    cands = sorted(n for n in os.listdir(results_dir)
-                   if n.startswith("results-rules1") and n.endswith(".json"))
-    if "results-rules1.json" in cands:
-        cands = (["results-rules1.json"]
-                 + [c for c in cands if c != "results-rules1.json"])
-    if not cands:
-        raise SystemExit(f"ERR_NO_RESULTS: no results-rules1*.json in {results_dir}")
-    with open(os.path.join(results_dir, cands[0])) as f:
-        j = json.load(f)
-    outcome = j.get("outcome")
-    if not outcome:
-        raise SystemExit(f"ERR_NO_OUTCOME: {cands[0]} has no 'outcome' field")
-    return str(outcome)
-
-
-def _run_in_container(gpu_requested: str, mock: bool, arms: str, cells: str,
-                      local_manifest: dict) -> dict:
+def _run_pilot_in_container(gpu_requested: str, arms: str, pilot_n: int,
+                            local_manifest: dict) -> dict:
     import subprocess
 
     import modal_common as cmc
@@ -198,16 +147,13 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str, cells: str,
         "--inputs-dir", f"{REMOTE_RULES1}/inputs",
         "--data-root", REMOTE_DATA,
         "--out-dir", REMOTE_OUT,
-        "--device", "cpu" if mock else "cuda",
+        "--device", "cuda",
         "--gpu-class", gpu_requested,
         "--arms", arms,
+        "--pilot-n", str(pilot_n),
+        # dtype stays the fp32 default: an A10G fits the 1.7B in fp32, so the
+        # pilot exercises the SAME numeric path as the frozen full run.
     ]
-    if cells:
-        # disjoint (arm, seed) slice for the parallel multi-account launch
-        # (maintainer directive 2026-07-12); the runner validates fail-closed
-        cmd += ["--cells", cells]
-    if mock:
-        cmd.append("--mock")
     os.makedirs(REMOTE_OUT, exist_ok=True)
     lines = [f"$ {' '.join(cmd)}\n"]
     with subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -239,9 +185,9 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str, cells: str,
         finished_utc=cmc.utcnow_iso(),
         packages=packages,
         environment=cmc.redact_env(dict(os.environ)),
-        notes="rules-1 GPU arms; runner outputs shipped as opaque bytes; "
-              "sidecars only — see poc/modal/modal_common.py byte-identity "
-              "contract; arms=%s cells=%s" % (arms, cells or "<full grid>"),
+        notes="rules-1-b HOST-VALIDITY PILOT (never final-phase rows); "
+              "arms=%s pilot_n=%d; staged bytes identical to modal_rules1.py"
+              % (arms, pilot_n),
     )
     files = cmc.package_results(REMOTE_OUT, run_log=log, rc=rc,
                                 provenance=prov)
@@ -253,7 +199,7 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str, cells: str,
 
 
 if modal is not None:
-    app = modal.App("kot-rules1")
+    app = modal.App("kot-rules1-pilot")
 
     image = (
         modal.Image.debian_slim(python_version="3.11")
@@ -286,63 +232,47 @@ if modal is not None:
 
     @app.function(image=image, gpu="T4", volumes={HF_CACHE_MOUNT: hf_cache},
                   timeout=TIMEOUT_S)
-    def run_rules1_t4(mock: bool = False, arms: str = "A1,A3,A5,A7,c1",
-                      cells: str = "",
-                      local_manifest: dict = None) -> dict:  # noqa: RUF013
-        return _run_in_container("T4", mock, arms, cells, local_manifest or {})
+    def run_pilot_t4(arms: str = "A5", pilot_n: int = 24,
+                     local_manifest: dict = None) -> dict:  # noqa: RUF013
+        return _run_pilot_in_container("T4", arms, pilot_n,
+                                       local_manifest or {})
 
     @app.function(image=image, gpu="A10G", volumes={HF_CACHE_MOUNT: hf_cache},
                   timeout=TIMEOUT_S)
-    def run_rules1_a10g(mock: bool = False, arms: str = "A1,A3,A5,A7,c1",
-                        cells: str = "",
-                        local_manifest: dict = None) -> dict:  # noqa: RUF013
-        return _run_in_container("A10G", mock, arms, cells,
-                                 local_manifest or {})
+    def run_pilot_a10g(arms: str = "A5", pilot_n: int = 24,
+                       local_manifest: dict = None) -> dict:  # noqa: RUF013
+        return _run_pilot_in_container("A10G", arms, pilot_n,
+                                       local_manifest or {})
 
     @app.function(image=image, gpu="A100-40GB",
                   volumes={HF_CACHE_MOUNT: hf_cache}, timeout=TIMEOUT_S)
-    def run_rules1_a100(mock: bool = False, arms: str = "A1,A3,A5,A7,c1",
-                        cells: str = "",
-                        local_manifest: dict = None) -> dict:  # noqa: RUF013
-        return _run_in_container("A100", mock, arms, cells,
-                                 local_manifest or {})
+    def run_pilot_a100(arms: str = "A5", pilot_n: int = 24,
+                       local_manifest: dict = None) -> dict:  # noqa: RUF013
+        return _run_pilot_in_container("A100", arms, pilot_n,
+                                       local_manifest or {})
 
-    GPU_FUNCTIONS = {"T4": run_rules1_t4, "A10G": run_rules1_a10g,
-                     "A100": run_rules1_a100}
+    GPU_FUNCTIONS = {"T4": run_pilot_t4, "A10G": run_pilot_a10g,
+                     "A100": run_pilot_a100}
 
     @app.local_entrypoint()
-    def main(gpu: str = "A10G", mock: bool = False, dry_plan: bool = False,
-             arms: str = "A1,A3,A5,A7,c1", cells: str = "",
+    def main(gpu: str = "A10G", arms: str = "A5", pilot_n: int = 24,
              out_root: str = "") -> None:
         gpu = gpu.upper()
         if gpu not in GPU_FUNCTIONS:
             raise SystemExit(f"ERR_GPU: --gpu must be one of {GPU_CHOICES}, got {gpu!r}")
-
-        if dry_plan:
-            import subprocess
-            cmd = [sys.executable, str(RUNNER), "--dry-plan",
-                   "--gpu-class", gpu, "--out-dir", "/tmp/rules1-dry-plan",
-                   "--inputs-dir", str(RULES1_INPUTS),
-                   "--data-root", str(REPO_ROOT / "data")]
-            print(f"$ {' '.join(cmd)}")
-            raise SystemExit(subprocess.call(cmd))
+        if pilot_n < 1 or pilot_n > 100:
+            raise SystemExit(f"ERR_PILOT_N: implausible --pilot-n {pilot_n}")
 
         local_manifest = _local_manifest()
-        print(f"kot-rules1 via Modal: gpu={gpu} mock={mock} arms={arms} "
-              f"cells={cells or '<full grid>'} "
-              f"({len(local_manifest)} staged files, runner "
-              f"{local_manifest['poc/rules-1/rules1_runner.py'][:12]}…)")
-        print(f"pins.harness_manifest (staged-bytes manifest sha, canonical "
-              f"JSON): {_manifest_sha(local_manifest)}")
-        if not mock:
-            print("REMINDER: the printed sha MUST equal the ops-amendment "
-                  "value in the FROZEN record's pins.harness_manifest, "
-                  "pins.model_revisions must be ops-amended to the R1/R3 "
-                  "revisions in rules1-manifest.json, dry-plan + mock must "
-                  "be green, and maintainer sign-off must hold "
-                  "(registry usd_cap $10; coordinator ceiling $40).")
+        print(f"kot-rules1-pilot via Modal: gpu={gpu} arms={arms} "
+              f"pilot_n={pilot_n} ({len(local_manifest)} staged files, "
+              f"runner {local_manifest['poc/rules-1/rules1_runner.py'][:12]}…)")
+        print(f"staged-bytes manifest sha (must equal modal_rules1.py "
+              f"--print-manifest): {_manifest_sha(local_manifest)}")
+        print("PILOT: instrument validation only — rows are NEVER "
+              "measurements or final-phase rows.")
 
-        files = GPU_FUNCTIONS[gpu].remote(mock=mock, arms=arms, cells=cells,
+        files = GPU_FUNCTIONS[gpu].remote(arms=arms, pilot_n=pilot_n,
                                           local_manifest=local_manifest)
 
         stamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + "-modal"
@@ -363,26 +293,22 @@ if modal is not None:
         }
         prov_path.write_text(json.dumps(prov, indent=2, sort_keys=True) + "\n")
 
-        outcome = _outcome(str(dest))
         rc = int((dest / mc.RUNNER_EXIT_NAME).read_text().strip().split("=", 1)[1])
         print(f"\nwrote {len(files)} files to {dest}")
-        print(f"OUTCOME: {outcome}")
         if rc != 0:
             raise SystemExit(f"ERR_RUNNER: rules1_runner exited rc={rc} "
                              f"(partials + logs saved in {dest})")
-        print("done — review and commit deliberately (results are NOT "
-              "auto-committed); `modal app stop ap-<id>` after every "
-              "attached run")
+        print("done — pilot rows land in results-rules1-pilot.json / "
+              "run-records-rules1-pilot.jsonl; `modal app stop ap-<id>` "
+              "after every attached run")
 
 
 if __name__ == "__main__":
-    # sha-only path: works with NO modal install, NO network, $0 — this is
-    # what the pins.harness_manifest ops amendment records.
     if "--print-manifest" in sys.argv:
         man = _local_manifest()
         print(f"staged files: {len(man)}")
-        print(f"pins.harness_manifest (staged-bytes manifest sha, canonical "
-              f"JSON): {_manifest_sha(man)}")
+        print(f"staged-bytes manifest sha (canonical JSON): "
+              f"{_manifest_sha(man)}")
         sys.exit(0)
-    raise SystemExit("run via `modal run poc/rules-1/modal/modal_rules1.py ...` "
+    raise SystemExit("run via `modal run poc/rules-1/modal/modal_rules1_pilot.py ...` "
                      "or use --print-manifest")
