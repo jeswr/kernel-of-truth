@@ -1,0 +1,37 @@
+{
+  "note": "Concept-stratified prompts for the GLM-5.2 concept->routing probe. Each prompt gets a fresh glm run with STATS=<file> dumping the per-layer expert-usage histogram = that prompt's routing fingerprint. Offline we test whether within-concept routing similarity exceeds across-concept (permutation test). The 'sense' groups are minimal-pair sense splits (same lexeme, different concept) = the sharpest concept-not-just-token test, and map directly to the kernel's sense-split concepts (break.shatter/violate/interrupt).",
+  "groups": [
+    {"concept": "break.shatter", "sense_group": "break", "prompts": [
+      "The glass slipped from her hand and broke into pieces on the floor.",
+      "The frozen branch snapped and broke under the weight of the ice.",
+      "He dropped the plate and it shattered into fragments at once."]},
+    {"concept": "break.violate", "sense_group": "break", "prompts": [
+      "He broke his promise to her and never explained why.",
+      "The company broke the terms of the contract without warning.",
+      "She broke the rules of the club and was quietly expelled."]},
+    {"concept": "break.interrupt", "sense_group": "break", "prompts": [
+      "They stopped for a short break to rest before continuing the hike.",
+      "We took a break from work and walked outside for some air.",
+      "After a brief pause the meeting resumed where it had left off."]},
+    {"concept": "bank.river", "sense_group": "bank", "prompts": [
+      "She sat on the grassy bank of the river and watched the water.",
+      "The children played along the muddy bank near the old bridge.",
+      "Reeds grew thickly on the far bank of the slow stream."]},
+    {"concept": "bank.finance", "sense_group": "bank", "prompts": [
+      "He deposited the cheque at the bank in the centre of town.",
+      "The bank raised interest rates on its savings accounts this year.",
+      "She applied to the bank for a loan to buy the small shop."]},
+    {"concept": "animal", "sense_group": "none", "prompts": [
+      "The dog barked loudly at the mail carrier by the gate.",
+      "A grey cat slept in the warm sunlight on the windowsill.",
+      "The small bird sang brightly in the tree at dawn."]},
+    {"concept": "finance", "sense_group": "none", "prompts": [
+      "The company reported strong quarterly earnings to its shareholders.",
+      "Interest rates on government bonds rose sharply over the year.",
+      "He invested most of his savings in a diversified index fund."]},
+    {"concept": "mathematics", "sense_group": "none", "prompts": [
+      "The sum of the interior angles of a triangle is one hundred eighty degrees.",
+      "To multiply two matrices, take the dot product of rows and columns.",
+      "The derivative of a function measures its instantaneous rate of change."]}
+  ]
+}

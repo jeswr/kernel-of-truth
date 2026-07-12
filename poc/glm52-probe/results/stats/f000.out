@@ -1,0 +1,46 @@
+[OMP] hot-thread tuning: re-exec once (COLI_NO_OMP_TUNE=1 to skip)
+[MTP] active: native speculative decoding (draft=3)
+WARNING: the model is on /mnt/data/glm52-int4 (slow 9p/Windows filesystem; fadvise is ineffective).
+         Keep it on ext4 (for example, /home/...) for memory efficiency and speed.
+[USAGE] expert history: 99752 selections (/mnt/data/glm52-int4/.coli_usage)
+[PIN] hot store: 522 experts in RAM (9.9 GB) loaded in 5s from /mnt/data/glm52-int4/.coli_usage
+[RAM_GB=56.2 auto] cap raised 8->20: budget allows it (projected peak 55.5 GB; set CAP_RAISE=0 to disable)
+[stop] 3 stop tokens: 154820 154827 154829
+== GLM C engine (glm_moe_dsa), cache=8 experts/layer | experts@8-bit dense@8-bit | idot: avx512-vnni ==
+loaded in 5.70s | resident dense: 9912.75 MB | layers=78 experts=256 | MTP ACTIVE (draft=3)
+prompt: 20 tokens | generating up to 1 (EOS stop=154820) | n-gram draft=3
+[gMASK]<sop><|user|>The glass slipped from her hand and broke into pieces on the floor.<|assistant|><think></think>[prefill] layer 1/78 · 20 token
+[prefill] layer 5/78 · 20 token
+[prefill] layer 9/78 · 20 token
+[prefill] layer 13/78 · 20 token
+[prefill] layer 17/78 · 20 token
+[prefill] layer 21/78 · 20 token
+[prefill] layer 25/78 · 20 token
+[prefill] layer 29/78 · 20 token
+[prefill] layer 33/78 · 20 token
+[prefill] layer 37/78 · 20 token
+[prefill] layer 41/78 · 20 token
+[prefill] layer 45/78 · 20 token
+[prefill] layer 49/78 · 20 token
+[prefill] layer 53/78 · 20 token
+[prefill] layer 57/78 · 20 token
+[prefill] layer 61/78 · 20 token
+[prefill] layer 65/78 · 20 token
+[prefill] layer 69/78 · 20 token
+[prefill] layer 73/78 · 20 token
+[prefill] layer 77/78 · 20 token
+[prefill] layer 78/78 · 20 token
+I[STATS] 111904 selections across 10591 distinct experts -> /mnt/data/probe-out/stats/f000.stats
+
+---
+1 tokens in 70.33s (0.01 tok/s) | expert hit rate 5.8% | RSS 48.34 GB
+experts loaded/token: 12152.0 (per-layer 162.03 across 75; baseline topk=8) | TOPK=0 TOPP=0.00
+speculation: 1.00 tokens/forward (0 forwards per 1 tokens) | MTP acceptance 0% (0/0)
+PROFILE: expert-disk 58.171s | expert-matmul 7.092s | attention 3.872s (including kvb 0.221s) | lm_head 0.016s | other 1.175s
+
+    (\      colibrì v1.0
+     )·>     tiny engine, immense model
+    / \      GLM-5.2 · 744B MoE · int4 · streaming CPU
+             run
+             
+  ──────────────────────────────────────────────────────────

@@ -1,0 +1,46 @@
+[OMP] hot-thread tuning: re-exec once (COLI_NO_OMP_TUNE=1 to skip)
+[MTP] active: native speculative decoding (draft=3)
+WARNING: the model is on /mnt/data/glm52-int4 (slow 9p/Windows filesystem; fadvise is ineffective).
+         Keep it on ext4 (for example, /home/...) for memory efficiency and speed.
+[USAGE] expert history: 177520 selections (/mnt/data/glm52-int4/.coli_usage)
+[PIN] hot store: 930 experts in RAM (17.6 GB) loaded in 11s from /mnt/data/glm52-int4/.coli_usage
+[RAM_GB=56.2 auto] cap raised 8->15: budget allows it (projected peak 56.0 GB; set CAP_RAISE=0 to disable)
+[stop] 3 stop tokens: 154820 154827 154829
+== GLM C engine (glm_moe_dsa), cache=8 experts/layer | experts@8-bit dense@8-bit | idot: avx512-vnni ==
+loaded in 5.09s | resident dense: 9912.75 MB | layers=78 experts=256 | MTP ACTIVE (draft=3)
+prompt: 19 tokens | generating up to 1 (EOS stop=154820) | n-gram draft=3
+[gMASK]<sop><|user|>We took a break from work and walked outside for some air.<|assistant|><think></think>[prefill] layer 1/78 · 19 token
+[prefill] layer 5/78 · 19 token
+[prefill] layer 9/78 · 19 token
+[prefill] layer 13/78 · 19 token
+[prefill] layer 17/78 · 19 token
+[prefill] layer 21/78 · 19 token
+[prefill] layer 25/78 · 19 token
+[prefill] layer 29/78 · 19 token
+[prefill] layer 33/78 · 19 token
+[prefill] layer 37/78 · 19 token
+[prefill] layer 41/78 · 19 token
+[prefill] layer 45/78 · 19 token
+[prefill] layer 49/78 · 19 token
+[prefill] layer 53/78 · 19 token
+[prefill] layer 57/78 · 19 token
+[prefill] layer 61/78 · 19 token
+[prefill] layer 65/78 · 19 token
+[prefill] layer 69/78 · 19 token
+[prefill] layer 73/78 · 19 token
+[prefill] layer 77/78 · 19 token
+[prefill] layer 78/78 · 19 token
+That[STATS] 189064 selections across 13825 distinct experts -> /mnt/data/probe-out/stats/f007.stats
+
+---
+1 tokens in 66.69s (0.01 tok/s) | expert hit rate 12.3% | RSS 48.89 GB
+experts loaded/token: 11544.0 (per-layer 153.92 across 75; baseline topk=8) | TOPK=0 TOPP=0.00
+speculation: 1.00 tokens/forward (0 forwards per 1 tokens) | MTP acceptance 0% (0/0)
+PROFILE: expert-disk 54.872s | expert-matmul 6.978s | attention 3.701s (including kvb 0.211s) | lm_head 0.017s | other 1.125s
+
+    (\      colibrì v1.0
+     )·>     tiny engine, immense model
+    / \      GLM-5.2 · 744B MoE · int4 · streaming CPU
+             run
+             
+  ──────────────────────────────────────────────────────────

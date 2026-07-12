@@ -1,0 +1,84 @@
+==== PROBE-MAIN START Sun Jul 12 22:53:45 UTC 2026 ====
+#### P1 iobench (disk streaming baseline) ####
+-- O_DIRECT x4 --
+O_DIRECT x4 threads: 400 reads x 4MB = 1.7 GB in 0.50s -> 3.34 GB/s (1.3 effective ms/block)
+-- buffered x4 --
+buffered x4 threads: 400 reads x 4MB = 1.7 GB in 0.59s -> 2.85 GB/s (1.5 effective ms/block)
+-- O_DIRECT x8 --
+O_DIRECT x8 threads: 400 reads x 4MB = 1.7 GB in 1.18s -> 1.42 GB/s (2.9 effective ms/block)
+#### P1b baseline tok/s (DIRECT=1) — run A (cold-ish) ####
+[t=16  RSS 49.42 GB  hit 32%  0.10 tok/s  2.14 tok/fw]
+16 tokens in 157.82s (0.10 tok/s) | expert hit rate 31.6% | RSS 49.42 GB
+experts loaded/token: 1786.5 (per-layer 23.82 across 75; baseline topk=8) | TOPK=0 TOPP=0.00
+speculation: 2.29 tokens/forward (7 forwards per 16 tokens) | MTP acceptance 38% (8/21)
+PROFILE: expert-disk 118.394s | expert-matmul 19.642s | attention 16.106s (including kvb 0.222s) | lm_head 0.018s | other 3.658s
+#### P1c baseline tok/s — run B (warmer cache) ####
+[t=16  RSS 49.36 GB  hit 33%  0.10 tok/s  2.14 tok/fw]
+16 tokens in 155.51s (0.10 tok/s) | expert hit rate 32.8% | RSS 49.36 GB
+experts loaded/token: 1786.5 (per-layer 23.82 across 75; baseline topk=8) | TOPK=0 TOPP=0.00
+speculation: 2.29 tokens/forward (7 forwards per 16 tokens) | MTP acceptance 38% (8/21)
+PROFILE: expert-disk 116.157s | expert-matmul 19.599s | attention 16.086s (including kvb 0.222s) | lm_head 0.017s | other 3.647s
+#### P2 LOOKA routing predictability (3 modes) ####
+[t=16  RSS 49.31 GB  hit 34%  0.10 tok/s  2.14 tok/fw]
+16 tokens in 152.42s (0.10 tok/s) | expert hit rate 34.1% | RSS 49.31 GB
+LOOKAHEAD routing — recall of true experts in predicted top-8:
+  layer input, skip attention              0.0%  (0/0)
+#### P3 concept->routing fingerprints (24 prompts, fresh process each) ####
+  f000 break.shatter    ok=True 83s :: The glass slipped from her hand and broke into pie
+  f001 break.shatter    ok=True 80s :: The frozen branch snapped and broke under the weig
+  f002 break.shatter    ok=True 80s :: He dropped the plate and it shattered into fragmen
+  f003 break.violate    ok=True 80s :: He broke his promise to her and never explained wh
+  f004 break.violate    ok=True 78s :: The company broke the terms of the contract withou
+  f005 break.violate    ok=True 81s :: She broke the rules of the club and was quietly ex
+  f006 break.interrupt  ok=True 83s :: They stopped for a short break to rest before cont
+  f007 break.interrupt  ok=True 84s :: We took a break from work and walked outside for s
+  f008 break.interrupt  ok=True 86s :: After a brief pause the meeting resumed where it h
+  f009 bank.river       ok=True 83s :: She sat on the grassy bank of the river and watche
+  f010 bank.river       ok=True 78s :: The children played along the muddy bank near the 
+  f011 bank.river       ok=True 84s :: Reeds grew thickly on the far bank of the slow str
+  f012 bank.finance     ok=True 80s :: He deposited the cheque at the bank in the centre 
+  f013 bank.finance     ok=True 79s :: The bank raised interest rates on its savings acco
+  f014 bank.finance     ok=True 84s :: She applied to the bank for a loan to buy the smal
+  f015 animal           ok=True 78s :: The dog barked loudly at the mail carrier by the g
+  f016 animal           ok=True 77s :: A grey cat slept in the warm sunlight on the windo
+  f017 animal           ok=True 73s :: The small bird sang brightly in the tree at dawn.
+  f018 finance          ok=True 77s :: The company reported strong quarterly earnings to 
+  f019 finance          ok=True 78s :: Interest rates on government bonds rose sharply ov
+  f020 finance          ok=True 81s :: He invested most of his savings in a diversified i
+  f021 mathematics      ok=True 88s :: The sum of the interior angles of a triangle is on
+  f022 mathematics      ok=True 90s :: To multiply two matrices, take the dot product of 
+  f023 mathematics      ok=True 83s :: The derivative of a function measures its instanta
+fingerprints written: 24
+#### P4 TOPK shrink-lever sweep (tok/s + output coherence) ####
+---- TOPK=8 ----
+[gMASK]<sop><|user|>Explain in one sentence why the sky appears blue during the day.<|assistant|><think></think>[prefill] layer 1/78 · 20 token
+The sky appears blue because gases and particles in Earth's atmosphere scatter the
+14 tokens in 137.27s (0.10 tok/s) | expert hit rate 33.0% | RSS 48.99 GB
+experts loaded/token: 1825.1 (per-layer 24.34 across 75; baseline topk=8) | TOPK=8 TOPP=0.00
+---- TOPK=6 ----
+[gMASK]<sop><|user|>Explain in one sentence why the sky appears blue during the day.<|assistant|><think></think>[prefill] layer 1/78 · 20 token
+The sky appears blue because air molecules in Earth's atmosphere scatter the shorter
+14 tokens in 117.86s (0.12 tok/s) | expert hit rate 38.8% | RSS 49.06 GB
+experts loaded/token: 1596.0 (per-layer 21.28 across 75; baseline topk=8) | TOPK=6 TOPP=0.00
+---- TOPK=4 ----
+[gMASK]<sop><|user|>Explain in one sentence why the sky appears blue during the day.<|assistant|><think></think>[prefill] layer 1/78 · 20 token
+Because air molecules scatter the shorter blue wavelengths of light from the sun more
+14 tokens in 72.23s (0.19 tok/s) | expert hit rate 41.8% | RSS 48.77 GB
+experts loaded/token: 998.9 (per-layer 13.32 across 75; baseline topk=8) | TOPK=4 TOPP=0.00
+---- TOPK=2 ----
+[gMASK]<sop><|user|>Explain in one sentence why the sky appears blue during the day.<|assistant|><think></think>[prefill] layer 1/78 · 20 token
+14 tokens in 56.20s (0.25 tok/s) | expert hit rate 44.9% | RSS 47.53 GB
+experts loaded/token: 606.3 (per-layer 8.08 across 75; baseline topk=8) | TOPK=2 TOPP=0.00
+-- TOPK factual-retention check (8 vs 4 vs 2) --
+== TOPK=8 ==
+[gMASK]<sop><|user|>The capital of France is<|assistant|><think></think>[prefill] layer 1/78 · 11 token
+Paris.
+2 tokens in 66.42s (0.03 tok/s) | expert hit rate 28.5% | RSS 48.37 GB
+== TOPK=4 ==
+[gMASK]<sop><|user|>The capital of France is<|assistant|><think></think>[prefill] layer 1/78 · 11 token
+The capital of France
+4 tokens in 30.11s (0.13 tok/s) | expert hit rate 40.0% | RSS 47.46 GB
+== TOPK=2 ==
+[gMASK]<sop><|user|>The capital of France is<|assistant|><think></think>[prefill] layer 1/78 · 11 token
+4 tokens in 22.52s (0.18 tok/s) | expert hit rate 34.2% | RSS 46.82 GB
+#### upload ####
