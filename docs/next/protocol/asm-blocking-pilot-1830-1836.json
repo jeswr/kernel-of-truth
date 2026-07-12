@@ -1,0 +1,88 @@
+{
+ "_readme": [
+  "BLOCKING-PILOT-BEFORE-FREEZE protocol assumption block ASM-1830..1836 — EMITTED by the governance-design role (fable-govdesign-1, 2026-07-12) for central registration by the coordinator; registry/assumptions.jsonl is NOT touched by this build (same discipline as the 1814..1819 and 1820..1828 blocks).",
+  "Range 1830-1839 verified free at emission time (max id in registry/assumptions.jsonl = ASM-1828; no ASM-183x reference anywhere in the tree); 1830-1836 used, 1837-1839 left free.",
+  "Scope: the programme-wide mandatory blocking instrument pilot gate specified by docs/next/protocol/blocking-pilot-before-freeze.md, commissioned by docs/next/analysis/correctness-track-instrument-assessment.md item 10 / SS4 meta-recommendation, generalising the rules-2 exemplar poc/rules-2/instr_pilot.py (PROPOSED-ASM-1814..1819).",
+  "This build is process-hardening design ONLY: no experiment run or graded, no feasibility conclusion stated or implied, no frozen object altered, and tools/registry/prereg-freeze.py + registry/schema/* are NOT edited — the SS5 wiring is a PROPOSED patch for the coordinator to review, apply, and test."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1830",
+   "tag": "STIPULATED",
+   "claim": "THE RULE, programme-wide: no experiment may prereg-freeze until a RECORDED blocking instrument pilot has PASSED at the operating point. Recorded = a pinned kot-pilot/1 artifact whose sha256 the DRAFT record carries in pins.blocking_pilot before the freeze is attempted; PASSED = verdict PILOT-PASS or PILOT-PASS-WITH-FLAGS with every required generic check (ASM-1831) mechanically true; at the operating point = the pilot exercised the exact pinned configuration the campaign will run (same model revisions, sha-pinned prompt surface, same item construction, same gate thresholds) — a pilot at drifted pins is STALE and satisfies nothing. A PILOT-FAIL blocks the FREEZE (the spend), never pilot-scale exploration itself; the only escape is the explicit coordinator override record of ASM-1833. Applies to every kot-reg/1 and kot-reg/2 record frozen after adoption; already-frozen records are untouched. Reconciliation with the 2026-07-09 maintainer philosophy ('stop false conclusions, not experiments'): an invalid instrument cannot run the experiment in any epistemically meaningful sense — it can only burn budget and emit rows no verdict may consume — so this gate blocks waste, not inquiry, is itself cheap (capped ~$2) and fast (hours), and open-EXTRAPOLATION premises remain PAUSE-not-refuse exactly as today.",
+   "rationale": "Five instrument events (rules-1 VOID, rules-1-b form-dead, rules-1-c INSTRUMENT-INVALID, g2 v2 pilots #1/#2) share one process gap: no gate channel was exercised at the operating point before freeze. The correctness assessment names this gate the cheapest insurance the programme has repeatedly declined to buy and then paid for, and weights adopting it above any single next-experiment ranking entry.",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS1; docs/next/analysis/correctness-track-instrument-assessment.md SS2.2 + SS4 item 1 + meta-recommendation; poc/rules-2/instr_pilot.py (exemplar); docs/next/analysis/rules1c-instrument-invalid-interpretation.md",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1831",
+   "tag": "STIPULATED",
+   "claim": "The five generic pilot checks PC-1..PC-5, each MECHANICAL (predicate over emitted pilot rows against pre-declared constants; no model judgement), FAIL-CLOSED (absence of evidence = FAIL), and EXERCISED at the operating point: PC-1 NO DEGENERATE ARM — every measurement arm clears an exact-binomial (or equivalent) bound above its structural floor AND the strongest arm sits below a pre-declared saturation ceiling, with abstention/refusal bounded on every arm; PC-2 SEPARATION NON-VACUOUS — the treatment channel moves relative to its baseline by a pre-declared minimum gap and is not row-identical to a control (the rules-1-c A3==c1 vacuity); PC-3 CONTROLS NON-DEGENERATE — every mandatory control lands where its construction predicts (no abstention collapse, no collapse onto the treatment) AND every gating statistic clears its own degeneracy floor (chance rate; independence ceiling for agreement statistics) with a margin GREATER than its observed replicate noise at pilot n — a gate passing inside its own noise band is flagged, never silently passed; PC-4 VALIDITY GATES HAVE TEETH — for every in-run validity gate, a PLANTED violation (injected into a copy of the pilot inputs, never campaign bytes) must FIRE the gate predicate while the un-planted run stays under the ceiling, and any engagement channel must show at least one non-trivial engagement on the plant (attempts>1); PC-5 GOLD STRUCTURALLY ELICITABLE — a scripted oracle arm scores near ceiling under the pinned parser/scorer and the pilot host emits parseable output at bounded failure rate (all-arms-zero-including-oracle = dead surface, not a null). Thresholds are pre-declared runner constants; changing any after a coordinator has read a pilot result requires a fresh pilot. A check may be not_applicable only with a written structural reason, which downgrades the verdict to PILOT-PASS-WITH-FLAGS.",
+   "rationale": "Generalises the rules-2 exemplar gates (IP-1 -> PC-1/PC-2, IP-3 -> PC-3, IP-2/IP-4 -> PC-4, host-validity floors/oracle -> PC-5) and adds the margin-vs-replicate-noise clause of PC-3, which is exactly what the g2 AC1 pilot #1 near-miss (0.6909 vs gate 0.65, +/-2-item run noise spanning the margin) shows a generic gate must additionally do.",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS2; poc/rules-2/instr_pilot.py IP-1..IP-4 + asm-instrpilot-1814-1819.json; correctness-track-instrument-assessment.md SS0.1 + SS2.1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1832",
+   "tag": "STIPULATED",
+   "claim": "The pilot-pass artifact contract kot-pilot/1: one committed canonical-JSON file (convention poc/<exp>/results/instrpilot-result.json) pinned from the DRAFT record as pins.blocking_pilot={path,sha256}, carrying: schema_version kot-pilot/1; experiment (MUST equal the record id — a predecessor's pilot never carries across ids); mode REAL (MOCK artifacts validate pilot mechanics only and never satisfy the gate); verdict PILOT-PASS|PILOT-PASS-WITH-FLAGS|PILOT-FAIL with instrument-validity-only verdict_semantics; a checks block keyed by the five generic names (no_degenerate_arm, separation_nonvacuous, controls_nondegenerate, gate_teeth, elicitable_gold), each {pass:true, evidence:{...}} or {not_applicable:true, reason}; enumerated flags; operating_point{description, n_pilot, seed, pins{model_revisions, harness/corpus shas, prompt_surface_sha256}} whose pins MUST byte-equal the record's same-named pins; thresholds_predeclared; runner {path,sha256}; records_file/records_sha256 (raw per-row evidence); cost with a fail-closed worst-case cap (default $2, per-experiment override with justification); date; pseudonymous emitted_by (RT-14). Immutable once read by a coordinator: iteration means a fresh pilot run and fresh artifact. Evidence fence: no artifact number may be cited for or against any registered hypothesis; a PASS licenses exactly one sentence — 'the instrument has dynamic range at the operating point'.",
+   "rationale": "The freeze tool needs a mechanically checkable object, not a narrative; the contract makes the pilot's verdict, identity, operating point, and cost verifiable by sha and predicate, and reuses the shape instr_pilot.py already emits (a superset needing only schema_version/checks naming alignment).",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS3; poc/rules-2/instr_pilot.py result-JSON writer; registry/schema/kot-reg-2.json pins block",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1833",
+   "tag": "STIPULATED",
+   "claim": "The coordinator override path, for pilots that are genuinely INFEASIBLE (not inconvenient): a top-level blocking_pilot_override={correction_id, path, sha256, justification_verbatim, approved_by} on the DRAFT record, pointing at a committed correction record whose justification names, check by check against PC-1..PC-5, what is waived, why no pilot (or partial pilot, always preferred) can exist at this operating point, which degeneracy risks are accepted unexercised, and what post-hoc check substitutes for each. The freeze then proceeds but the tool appends a permanent non-fatal kind=PILOT-OVERRIDE flag line to registry/pause-flags.jsonl, threads the waiver into the freeze summary, and verdict-gen plus the cross-vendor auditor see the flag — an override is never silent. Maintainer signoff is additionally required whenever the record already needs Tier-5 signoff.",
+   "rationale": "Fail-closed gates without an explicit escape get worked around informally; an on-record override with enumerated accepted risks preserves coordinator agency while keeping the waived gate permanently visible in provenance, mirroring the existing correction-record discipline (c-2026-07-08 precedent).",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS4; tools/registry/prereg-freeze.py pause-flag plumbing (kot-pause/1)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1834",
+   "tag": "STIPULATED",
+   "claim": "The prereg-freeze wiring is PROPOSED, not applied, by this build: (a) schema additions — an OPTIONAL pins.blocking_pilot {path, sha256} property in kot-reg-1.json and kot-reg-2.json (necessary because both schemas pin pins with additionalProperties:false, so the field cannot be added without a schema edit; optional, so legacy records validate unchanged and no frozen bytes move) plus an optional top-level blocking_pilot_override object; (b) a check_blocking_pilot(record, root) called inside check_record AFTER the P-6 pin checks and BEFORE the D9 reuse machinery, with five named fail-closed refusals — ERR_P2_PILOT_MISSING (neither pin nor override), ERR_P2_PILOT_PIN (artifact/correction bytes missing or sha mismatch), ERR_P2_PILOT_SCHEMA (not kot-pilot/1, wrong experiment id, or mode!=REAL), ERR_P2_PILOT_FAIL (verdict PILOT-FAIL or a required check neither pass:true nor explicit not_applicable-with-reason), ERR_P2_PILOT_STALE (an operating_point.pins entry disagrees with the record's same-named pin) — and an OVERRIDE branch that verifies the correction record's sha and returns a waiver flag for the pause-flags plumbing; (c) --dry-run exercises the gate identically; (d) fixture tests one-per-named-error mirroring the ERR_P2_SCALE_LANGUAGE test discipline. Full pseudocode in the protocol doc SS5.3; the coordinator applies, tests, and commits. First consumer: the rules-2 DRAFT record, whose runner needs only a checks-naming alias onto its existing gates block.",
+   "rationale": "Role separation: this governance-design build may not edit the freeze tool; a diff-shaped proposal with named error codes, a fixed call site, and a test plan lets the coordinator apply it as a reviewable mechanical change rather than a re-design.",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS5.1-5.4; tools/registry/prereg-freeze.py check_record + docstring error table; registry/schema/kot-reg-1.json + kot-reg-2.json pins.additionalProperties",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1835",
+   "tag": "LIMIT",
+   "claim": "Licence limits of the gate, disclosed: (a) a pilot PASS licenses ONLY 'the instrument has dynamic range at the operating point' — never a preview of campaign effect size, direction, or significance, and no pilot number may enter any evidence base (the ASM-1819(a) fence, made programme-wide); (b) a pilot FAIL at pilot scale can in principle reflect pilot-scale limitations (e.g. under-training on a subsample) rather than surface degeneracy — the fail-closed policy is that EITHER reading blocks the freeze until resolved by redesign, a larger pilot, or an ASM-1833 override naming the accepted risk; (c) the five checks are a FLOOR, not a ceiling: they encode the failure modes the programme has already paid for (elicitation death, form death, verifier vacuity, boundary-sitting gate statistics), and a genuinely novel sixth failure shape may pass all five — the correct response then is a protocol amendment adding a PC row, never a claim that the gate was sufficient; (d) the gate adds a small fixed cost (~$2 + hours) and one freeze-cycle latency to every experiment, accepted deliberately against the measured alternative (three consumed campaigns in one lane).",
+   "rationale": "Keeps the gate honest in both directions: epistemically fenced so pilot rows cannot leak into evidence, and scoped so a green gate is never read as a validity guarantee beyond the five exercised channels.",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS2 + SS6 coverage-honesty note; poc/rules-2/asm-instrpilot-1814-1819.json ASM-1819",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1836",
+   "tag": "EXTRAPOLATION",
+   "claim": "The failure-to-check mapping (protocol doc SS6) is a COUNTERFACTUAL: had a blocking pilot with PC-1..PC-5 been run honestly at each as-frozen operating point, rules-1's VOID would have been caught by PC-5 (the scripted oracle arm scored 0.000 — a dead elicitation surface fails in minutes) with PC-1 failing simultaneously on every arm; rules-1-b's host-frame death by PC-1 (the unaided host at 0/24 cannot clear the exact-binomial floor vs chance at pilot n); rules-1-c's verify-retry vacuity by PC-4 (a planted violation produces no attempts>1 row — the engagement gate provably cannot fire; the same signature IP-4's b4_vacuous predicate detects on the inherited arm today) corroborated by PC-2 (A3 row-identical to c1 on the pilot slice); and the g2 AC1 pilot-#1 near-miss would have been FLAGGED (not failed) by PC-3's margin-vs-replicate-noise clause (clearance over the independence ceiling smaller than the +/-2-item run-to-run movement at n=40). This mapping is motivation for the rule, never evidence of the gate's sufficiency, and rests on the assumption that each pilot would have been designed without inheriting the same blind spot it was meant to catch.",
+   "rationale": "Stating the mapping as an open EXTRAPOLATION keeps the protocol's own epistemics clean: the catch claims are what-ifs over measured failure signatures, not measurements of the gate's performance. It is deliberately non-load-bearing — the rule (ASM-1830) stands on the measured process gap alone.",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md SS6; correctness-track-instrument-assessment.md SS0.1 (measured signatures); poc/rules-2/instr_pilot.py IP-4",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "fable-govdesign-1",
+   "date": "2026-07-12",
+   "resolution_path": "Prospective, never retrospective: each future freeze that runs the gate updates the mapping — a pilot that catches a would-have-frozen degeneracy is a confirming instance; an INSTRUMENT-INVALID verdict on a campaign whose pilot PASSED is a disconfirming instance and triggers the ASM-1835(c) protocol amendment. Track both counts in this entry's notes at each occurrence; the entry can close only by supersession, since the historical counterfactuals themselves are not resolvable."
+  }
+ ]
+}
