@@ -1,0 +1,597 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: pluggy ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/toy-example.py
+docs/examples/eggsample/setup.py
+docs/examples/eggsample/eggsample/__init__.py
+docs/examples/eggsample/eggsample/hookspecs.py
+docs/examples/eggsample/eggsample/host.py
+docs/examples/eggsample/eggsample/lib.py
+docs/examples/eggsample-spam/eggsample_spam.py
+docs/examples/eggsample-spam/setup.py
+downstream/run_downstream.py
+scripts/release.py
+scripts/towncrier-draft-to-file.py
+src/pluggy/__init__.py
+src/pluggy/_callers.py
+src/pluggy/_hooks.py
+src/pluggy/_manager.py
+src/pluggy/_result.py
+src/pluggy/_tracing.py
+src/pluggy/_warnings.py
+testing/benchmark.py
+testing/conftest.py
+testing/test_details.py
+testing/test_helpers.py
+testing/test_hookcaller.py
+testing/test_invocations.py
+testing/test_multicall.py
+testing/test_pluginmanager.py
+testing/test_result.py
+testing/test_tracer.py
+testing/test_warnings.py
+
+=== QUERIES (2) ===
+QUERY g1q-pluggy-contained_in-462: family=contained_in target=testing/test_invocations.py::test_wrappers_yield_twice_fails.Plugin.wrap
+QUERY g1q-pluggy-contained_in-704: family=contained_in target=testing/test_tracer.py::test_indent
+
+=== CONTEXT ===
+
+FILE testing/test_invocations.py:
+    1| from collections.abc import Iterator
+    2| from typing import Any
+    3| 
+    4| import pytest
+    5| 
+    6| from pluggy import HookimplMarker
+    7| from pluggy import HookspecMarker
+    8| from pluggy import PluginManager
+    9| from pluggy import PluginValidationError
+   10| 
+   11| 
+   12| hookspec = HookspecMarker("example")
+   13| hookimpl = HookimplMarker("example")
+   14| 
+   15| 
+   16| def test_argmismatch(pm: PluginManager) -> None:
+   17|     class Api:
+   18|         @hookspec
+   19|         def hello(self, arg):
+   20|             "api hook 1"
+   21| 
+   22|     pm.add_hookspecs(Api)
+   23| 
+   24|     class Plugin:
+   25|         @hookimpl
+   26|         def hello(self, argwrong):
+   27|             pass
+   28| 
+   29|     with pytest.raises(PluginValidationError) as exc:
+   30|         pm.register(Plugin())
+   31| 
+   32|     assert "argwrong" in str(exc.value)
+   33| 
+   34| 
+   35| def test_only_kwargs(pm: PluginManager) -> None:
+   36|     class Api:
+   37|         @hookspec
+   38|         def hello(self, arg):
+   39|             "api hook 1"
+   40| 
+   41|     pm.add_hookspecs(Api)
+   42|     with pytest.raises(TypeError) as exc:
+   43|         pm.hook.hello(3)  # type: ignore[call-arg]
+   44| 
+   45|     message = "__call__() takes 1 positional argument but 2 were given"
+   46|     assert message in str(exc.value)
+   47| 
+   48| 
+   49| def test_opt_in_args(pm: PluginManager) -> None:
+   50|     """Verify that two hookimpls with mutex args can serve
+   51|     under the same spec.
+   52|     """
+   53| 
+   54|     class Api:
+   55|         @hookspec
+   56|         def hello(self, arg1, arg2, common_arg):
+   57|             "api hook 1"
+   58| 
+   59|     class Plugin1:
+   60|         @hookimpl
+   61|         def hello(self, arg1, common_arg):
+   62|             return arg1 + common_arg
+   63| 
+   64|     class Plugin2:
+   65|         @hookimpl
+   66|         def hello(self, arg2, common_arg):
+   67|             return arg2 + common_arg
+   68| 
+   69|     pm.add_hookspecs(Api)
+   70|     pm.register(Plugin1())
+   71|     pm.register(Plugin2())
+   72| 
+   73|     results = pm.hook.hello(arg1=1, arg2=2, common_arg=0)
+   74|     assert results == [2, 1]
+   75| 
+   76| 
+   77| def test_call_order(pm: PluginManager) -> None:
+   78|     class Api:
+   79|         @hookspec
+   80|         def hello(self, arg):
+   81|             "api hook 1"
+   82| 
+   83|     pm.add_hookspecs(Api)
+   84| 
+   85|     class Plugin1:
+   86|         @hookimpl
+   87|         def hello(self, arg):
+   88|             return 1
+   89| 
+   90|     class Plugin2:
+   91|         @hookimpl
+   92|         def hello(self, arg):
+   93|             return 2
+   94| 
+   95|     class Plugin3:
+   96|         @hookimpl
+   97|         def hello(self, arg):
+   98|             return 3
+   99| 
+  100|     class Plugin4:
+  101|         @hookimpl(hookwrapper=True)
+  102|         def hello(self, arg):
+  103|             assert arg == 0
+  104|             outcome = yield
+  105|             assert outcome.get_result() == [3, 2, 1]
+  106|             assert outcome.exception is None
+  107|             assert outcome.excinfo is None
+  108| 
+  109|     class Plugin5:
+  110|         @hookimpl(wrapper=True)
+  111|         def hello(self, arg):
+  112|             assert arg == 0
+  113|             result = yield
+  114|             assert result == [3, 2, 1]
+  115|             return result
+  116| 
+  117|     pm.register(Plugin1())
+  118|     pm.register(Plugin2())
+  119|     pm.register(Plugin3())
+  120|     pm.register(Plugin4())  # hookwrapper should get same list result
+  121|     pm.register(Plugin5())  # hookwrapper should get same list result
+  122|     res = pm.hook.hello(arg=0)
+  123|     assert res == [3, 2, 1]
+  124| 
+  125| 
+  126| def test_firstresult_definition(pm: PluginManager) -> None:
+  127|     class Api:
+  128|         @hookspec(firstresult=True)
+  129|         def hello(self, arg):
+  130|             "api hook 1"
+  131| 
+  132|     pm.add_hookspecs(Api)
+  133| 
+  134|     class Plugin1:
+  135|         @hookimpl
+  136|         def hello(self, arg):
+  137|             return arg + 1  # pragma: no cover
+  138| 
+  139|     class Plugin2:
+  140|         @hookimpl
+  141|         def hello(self, arg):
+  142|             return arg - 1
+  143| 
+  144|     class Plugin3:
+  145|         @hookimpl
+  146|         def hello(self, arg):
+  147|             return None
+  148| 
+  149|     class Plugin4:
+  150|         @hookimpl(wrapper=True)
+  151|         def hello(self, arg):
+  152|             assert arg == 3
+  153|             outcome = yield
+  154|             assert outcome == 2
+  155|             return outcome
+  156| 
+  157|     class Plugin5:
+  158|         @hookimpl(hookwrapper=True)
+  159|         def hello(self, arg):
+  160|             assert arg == 3
+  161|             outcome = yield
+  162|             assert outcome.get_result() == 2
+  163| 
+  164|     pm.register(Plugin1())  # discarded - not the last registered plugin
+  165|     pm.register(Plugin2())  # used as result
+  166|     pm.register(Plugin3())  # None result is ignored
+  167|     pm.register(Plugin4())  # wrapper should get same non-list result
+  168|     pm.register(Plugin5())  # hookwrapper should get same non-list result
+  169|     res = pm.hook.hello(arg=3)
+  170|     assert res == 2
+  171| 
+  172| 
+  173| def test_firstresult_force_result_hookwrapper(pm: PluginManager) -> None:
+  174|     """Verify forcing a result in a wrapper."""
+  175| 
+  176|     class Api:
+  177|         @hookspec(firstresult=True)
+  178|         def hello(self, arg):
+  179|             "api hook 1"
+  180| 
+  181|     pm.add_hookspecs(Api)
+  182| 
+  183|     class Plugin1:
+  184|         @hookimpl
+  185|         def hello(self, arg):
+  186|             return arg + 1
+  187| 
+  188|     class Plugin2:
+  189|         @hookimpl(hookwrapper=True)
+  190|         def hello(self, arg):
+  191|             assert arg == 3
+  192|             outcome = yield
+  193|             assert outcome.get_result() == 4
+  194|             outcome.force_result(0)
+  195| 
+  196|     class Plugin3:
+  197|         @hookimpl
+  198|         def hello(self, arg):
+  199|             return None
+  200| 
+  201|     pm.register(Plugin1())
+  202|     pm.register(Plugin2())  # wrapper
+  203|     pm.register(Plugin3())  # ignored since returns None
+  204|     res = pm.hook.hello(arg=3)
+  205|     assert res == 0  # this result is forced and not a list
+  206| 
+  207| 
+  208| def test_firstresult_force_result(pm: PluginManager) -> None:
+  209|     """Verify forcing a result in a wrapper."""
+  210| 
+  211|     class Api:
+  212|         @hookspec(firstresult=True)
+  213|         def hello(self, arg):
+  214|             "api hook 1"
+  215| 
+  216|     pm.add_hookspecs(Api)
+  217| 
+  218|     class Plugin1:
+  219|         @hookimpl
+  220|         def hello(self, arg):
+  221|             return arg + 1
+  222| 
+  223|     class Plugin2:
+  224|         @hookimpl(wrapper=True)
+  225|         def hello(self, arg):
+  226|             assert arg == 3
+  227|             outcome = yield
+  228|             assert outcome == 4
+  229|             return 0
+  230| 
+  231|     class Plugin3:
+  232|         @hookimpl
+  233|         def hello(self, arg):
+  234|             return None
+  235| 
+  236|     pm.register(Plugin1())
+  237|     pm.register(Plugin2())  # wrapper
+  238|     pm.register(Plugin3())  # ignored since returns None
+  239|     res = pm.hook.hello(arg=3)
+  240|     assert res == 0  # this result is forced and not a list
+  241| 
+  242| 
+  243| def test_firstresult_returns_none(pm: PluginManager) -> None:
+  244|     """If None results are returned by underlying implementations ensure
+  245|     the multi-call loop returns a None value.
+  246|     """
+  247| 
+  248|     class Api:
+  249|         @hookspec(firstresult=True)
+  250|         def hello(self, arg):
+  251|             "api hook 1"
+  252| 
+  253|     pm.add_hookspecs(Api)
+  254| 
+  255|     class Plugin1:
+  256|         @hookimpl
+  257|         def hello(self, arg):
+  258|             return None
+  259| 
+  260|     pm.register(Plugin1())
+  261|     res = pm.hook.hello(arg=3)
+  262|     assert res is None
+  263| 
+  264| 
+  265| def test_firstresult_no_plugin(pm: PluginManager) -> None:
+  266|     """If no implementations/plugins have been registered for a firstresult
+  267|     hook the multi-call loop should return a None value.
+  268|     """
+  269| 
+  270|     class Api:
+  271|         @hookspec(firstresult=True)
+  272|         def hello(self, arg):
+  273|             "api hook 1"
+  274| 
+  275|     pm.add_hookspecs(Api)
+  276|     res = pm.hook.hello(arg=3)
+  277|     assert res is None
+  278| 
+  279| 
+  280| def test_no_hookspec(pm: PluginManager) -> None:
+  281|     """A hook with hookimpls can still be called even if no hookspec
+  282|     was registered for it (and call_pending wasn't called to check
+  283|     against it).
+  284|     """
+  285| 
+  286|     class Plugin:
+  287|         @hookimpl
+  288|         def hello(self, arg):
+  289|             return "Plugin.hello"
+  290| 
+  291|     pm.register(Plugin())
+  292| 
+  293|     assert pm.hook.hello(arg=10, extra=20) == ["Plugin.hello"]
+  294| 
+  295| 
+  296| def test_non_wrapper_generator(pm: PluginManager) -> None:
+  297|     """A hookimpl can be a generator without being a wrapper,
+  298|     meaning it returns an iterator result."""
+  299| 
+  300|     class Api:
+  301|         @hookspec
+  302|         def hello(self) -> Iterator[int]:
+  303|             raise NotImplementedError()
+  304| 
+  305|     pm.add_hookspecs(Api)
+  306| 
+  307|     class Plugin1:
+  308|         @hookimpl
+  309|         def hello(self):
+  310|             yield 1
+  311| 
+  312|     class Plugin2:
+  313|         @hookimpl
+  314|         def hello(self):
+  315|             yield 2
+  316|             yield 3
+  317| 
+  318|     class Plugin3:
+  319|         @hookimpl(wrapper=True)
+  320|         def hello(self):
+  321|             return (yield)
+  322| 
+  323|     pm.register(Plugin1())
+  324|     pm.register(Plugin2())  # wrapper
+  325|     res = pm.hook.hello()
+  326|     assert [y for x in res for y in x] == [2, 3, 1]
+  327|     pm.register(Plugin3())
+  328|     res = pm.hook.hello()
+  329|     assert [y for x in res for y in x] == [2, 3, 1]
+  330| 
+  331| 
+  332| @pytest.mark.parametrize(
+  333|     "kind",
+  334|     [
+  335|         pytest.param(hookimpl(wrapper=True), id="wrapper"),
+  336|         pytest.param(hookimpl(hookwrapper=True), id="legacy-wrapper"),
+  337|     ],
+  338| )
+  339| def test_wrappers_yield_twice_fails(pm: PluginManager, kind: Any) -> None:
+  340|     class Plugin:
+  341|         @kind
+  342|         def wrap(self):
+  343|             yield
+  344|             yield
+  345| 
+  346|     pm.register(Plugin())
+  347|     with pytest.raises(
+  348|         RuntimeError, match="wrap_controller at 'wrap'.* has second yield"
+  349|     ):
+  350|         pm.hook.wrap()
+  351| 
+  352| 
+  353| @pytest.mark.parametrize(
+  354|     "kind",
+  355|     [
+  356|         pytest.param(hookimpl(wrapper=True), id="wrapper"),
+  357|         pytest.param(hookimpl(hookwrapper=True), id="legacy-wrapper"),
+  358|     ],
+  359| )
+  360| def test_wrappers_yield_never_fails(pm: PluginManager, kind: Any) -> None:
+  361|     class Plugin:
+  362|         @kind
+  363|         def wrap(self):
+  364|             if False:
+  365|                 yield  # type: ignore[unreachable]
+  366| 
+  367|     pm.register(Plugin())
+  368|     with pytest.raises(RuntimeError, match="wrap_controller at 'wrap'.* did not yield"):
+  369|         pm.hook.wrap()
+
+FILE testing/test_tracer.py:
+    1| import pytest
+    2| 
+    3| from pluggy._tracing import TagTracer
+    4| 
+    5| 
+    6| @pytest.fixture
+    7| def rootlogger() -> TagTracer:
+    8|     return TagTracer()
+    9| 
+   10| 
+   11| def test_simple(rootlogger: TagTracer) -> None:
+   12|     log = rootlogger.get("pytest")
+   13|     log("hello")
+   14|     out: list[str] = []
+   15|     rootlogger.setwriter(out.append)
+   16|     log("world")
+   17|     assert len(out) == 1
+   18|     assert out[0] == "world [pytest]\n"
+   19|     sublog = log.get("collection")
+   20|     sublog("hello")
+   21|     assert out[1] == "hello [pytest:collection]\n"
+   22| 
+   23| 
+   24| def test_indent(rootlogger: TagTracer) -> None:
+   25|     log = rootlogger.get("1")
+   26|     out = []
+   27|     log.root.setwriter(lambda arg: out.append(arg))
+   28|     log("hello")
+   29|     log.root.indent += 1
+   30|     log("line1")
+   31|     log("line2")
+   32|     log.root.indent += 1
+   33|     log("line3")
+   34|     log("line4")
+   35|     log.root.indent -= 1
+   36|     log("line5")
+   37|     log.root.indent -= 1
+   38|     log("last")
+   39|     assert len(out) == 7
+   40|     names = [x[: x.rfind(" [")] for x in out]
+   41|     assert names == [
+   42|         "hello",
+   43|         "  line1",
+   44|         "  line2",
+   45|         "    line3",
+   46|         "    line4",
+   47|         "  line5",
+   48|         "last",
+   49|     ]
+   50| 
+   51| 
+   52| def test_readable_output_dictargs(rootlogger: TagTracer) -> None:
+   53|     out = rootlogger._format_message(["test"], [1])
+   54|     assert out == "1 [test]\n"
+   55| 
+   56|     out2 = rootlogger._format_message(["test"], ["test", {"a": 1}])
+   57|     assert out2 == "test [test]\n    a: 1\n"
+   58| 
+   59| 
+   60| def test_setprocessor(rootlogger: TagTracer) -> None:
+   61|     log = rootlogger.get("1")
+   62|     log2 = log.get("2")
+   63|     assert log2.tags == tuple("12")
+   64|     out = []
+   65|     rootlogger.setprocessor(tuple("12"), lambda *args: out.append(args))
+   66|     log("not seen")
+   67|     log2("seen")
+   68|     assert len(out) == 1
+   69|     tags, args = out[0]
+   70|     assert "1" in tags
+   71|     assert "2" in tags
+   72|     assert args == ("seen",)
+   73|     l2 = []
+   74|     rootlogger.setprocessor("1:2", lambda *args: l2.append(args))
+   75|     log2("seen")
+   76|     tags, args = l2[0]
+   77|     assert args == ("seen",)
+
+Answer now with ONE JSON array containing one object per query, in query order.

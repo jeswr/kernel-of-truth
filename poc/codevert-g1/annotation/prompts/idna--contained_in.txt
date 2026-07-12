@@ -1,0 +1,868 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: idna ===
+PY FILE LISTING (repo-root-relative; authoritative):
+idna/__init__.py
+idna/__main__.py
+idna/cli.py
+idna/codec.py
+idna/compat.py
+idna/core.py
+idna/idnadata.py
+idna/intranges.py
+idna/package_data.py
+idna/uts46data.py
+tests/__init__.py
+tests/test_idna.py
+tests/test_idna_cli.py
+tests/test_idna_codec.py
+tests/test_idna_compat.py
+tests/test_idna_uts46.py
+tests/test_intranges.py
+
+=== QUERIES (2) ===
+QUERY g1q-idna-contained_in-6469: family=contained_in target=tests/test_intranges.py::IntrangeContainsTests
+QUERY g1q-idna-contained_in-18: family=contained_in target=idna/core.py::_joining_type
+
+=== CONTEXT ===
+
+FILE tests/test_intranges.py:
+    1| #!/usr/bin/env python
+    2| 
+    3| import unittest
+    4| 
+    5| from idna.intranges import _encode_range, intranges_contain, intranges_from_list
+    6| 
+    7| 
+    8| class IntrangeTests(unittest.TestCase):
+    9|     def test_ranging(self):
+   10|         self.assertEqual(
+   11|             intranges_from_list(list(range(293, 499)) + list(range(4888, 9876))),
+   12|             (
+   13|                 _encode_range(293, 499),
+   14|                 _encode_range(4888, 9876),
+   15|             ),
+   16|         )
+   17| 
+   18|     def test_ranging_2(self):
+   19|         self.assertEqual(intranges_from_list([111]), (_encode_range(111, 112),))
+   20| 
+   21|     def test_skips(self):
+   22|         self.assertEqual(
+   23|             intranges_from_list(
+   24|                 [
+   25|                     0,
+   26|                     2,
+   27|                     4,
+   28|                     6,
+   29|                     9,
+   30|                     10,
+   31|                     11,
+   32|                     13,
+   33|                     15,
+   34|                 ]
+   35|             ),
+   36|             (
+   37|                 _encode_range(0, 1),
+   38|                 _encode_range(2, 3),
+   39|                 _encode_range(4, 5),
+   40|                 _encode_range(6, 7),
+   41|                 _encode_range(9, 12),
+   42|                 _encode_range(13, 14),
+   43|                 _encode_range(15, 16),
+   44|             ),
+   45|         )
+   46| 
+   47|     def test_empty_range(self):
+   48|         self.assertEqual(intranges_from_list([]), ())
+   49| 
+   50| 
+   51| class IntrangeContainsTests(unittest.TestCase):
+   52|     def _test_containment(self, ints, disjoint_ints):
+   53|         ranges = intranges_from_list(ints)
+   54|         for int_ in ints:
+   55|             assert intranges_contain(int_, ranges)
+   56|         for int_ in disjoint_ints:
+   57|             assert not intranges_contain(int_, ranges)
+   58| 
+   59|     def test_simple(self):
+   60|         self._test_containment(range(10, 20), [2, 3, 68, 3893])
+   61| 
+   62|     def test_skips(self):
+   63|         self._test_containment(
+   64|             [
+   65|                 0,
+   66|                 2,
+   67|                 4,
+   68|                 6,
+   69|                 9,
+   70|                 10,
+   71|                 11,
+   72|                 13,
+   73|                 15,
+   74|             ],
+   75|             [-1, 1, 3, 5, 7, 4898],
+   76|         )
+   77| 
+   78|     def test_singleton(self):
+   79|         self._test_containment([111], [110, 112])
+   80| 
+   81|     def test_empty(self):
+   82|         self._test_containment([], range(100))
+
+FILE idna/core.py:
+    1| import bisect
+    2| import re
+    3| import unicodedata
+    4| import warnings
+    5| from typing import Optional, Union
+    6| 
+    7| from . import idnadata
+    8| from .intranges import intranges_contain
+    9| 
+   10| _virama_combining_class = 9
+   11| _alabel_prefix = b"xn--"
+   12| _max_input_length = 1024
+   13| _unicode_dots_re = re.compile("[\u002e\u3002\uff0e\uff61]")
+   14| 
+   15| 
+   16| # Bidi category sets from RFC 5893, hoisted out of the per-codepoint loop
+   17| _bidi_rtl_first = frozenset({"R", "AL"})
+   18| _bidi_rtl_categories = frozenset({"R", "AL", "AN"})
+   19| _bidi_rtl_allowed = frozenset({"R", "AL", "AN", "EN", "ES", "CS", "ET", "ON", "BN", "NSM"})
+   20| _bidi_rtl_valid_ending = frozenset({"R", "AL", "EN", "AN"})
+   21| _bidi_rtl_numeric = frozenset({"AN", "EN"})
+   22| _bidi_ltr_allowed = frozenset({"L", "EN", "ES", "CS", "ET", "ON", "BN", "NSM"})
+   23| _bidi_ltr_valid_ending = frozenset({"L", "EN"})
+   24| _bidi_joiner_l_or_d = frozenset({"L", "D"})
+   25| _bidi_joiner_r_or_d = frozenset({"R", "D"})
+   26| 
+   27| 
+   28| def _joining_type(cp: int) -> Optional[str]:
+   29|     for jt, ranges in idnadata.joining_types.items():
+   30|         if intranges_contain(cp, ranges):
+   31|             return jt
+   32|     return None
+   33| 
+   34| 
+   35| class IDNAError(UnicodeError):
+   36|     """Base exception for all IDNA-encoding related problems"""
+   37| 
+   38| 
+   39| class IDNABidiError(IDNAError):
+   40|     """Exception when bidirectional requirements are not satisfied"""
+   41| 
+   42| 
+   43| class InvalidCodepoint(IDNAError):
+   44|     """Exception when a disallowed or unallocated codepoint is used"""
+   45| 
+   46| 
+   47| class InvalidCodepointContext(IDNAError):
+   48|     """Exception when the codepoint is not valid in the context it is used"""
+   49| 
+   50| 
+   51| def _combining_class(cp: int) -> int:
+   52|     v = unicodedata.combining(chr(cp))
+   53|     if v == 0 and not unicodedata.name(chr(cp)):
+   54|         raise ValueError("Unknown character in unicodedata")
+   55|     return v
+   56| 
+   57| 
+   58| def _is_script(cp: str, script: str) -> bool:
+   59|     return intranges_contain(ord(cp), idnadata.scripts[script])
+   60| 
+   61| 
+   62| def _punycode(s: str) -> bytes:
+   63|     return s.encode("punycode")
+   64| 
+   65| 
+   66| def _unot(s: int) -> str:
+   67|     return f"U+{s:04X}"
+   68| 
+   69| 
+   70| def valid_label_length(label: Union[bytes, str]) -> bool:
+   71|     """Check that a label does not exceed the maximum permitted length.
+   72| 
+   73|     Per :rfc:`1035` (and :rfc:`5891` §4.2.4) a DNS label must not exceed
+   74|     63 octets. The argument may be either a :class:`str` (a U-label, where
+   75|     length is measured in characters) or :class:`bytes` (an A-label, where
+   76|     length is measured in octets).
+   77| 
+   78|     :param label: The label to check.
+   79|     :returns: ``True`` if the label is within the length limit, otherwise
+   80|         ``False``.
+   81|     """
+   82|     return len(label) <= 63
+   83| 
+   84| 
+   85| def valid_string_length(domain: Union[bytes, str], trailing_dot: bool) -> bool:
+   86|     """Check that a full domain name does not exceed the maximum length.
+   87| 
+   88|     Per :rfc:`1035`, a domain name is limited to 253 octets when no trailing
+   89|     dot is present, or 254 octets when one is included.
+   90| 
+   91|     :param domain: The full (possibly multi-label) domain name.
+   92|     :param trailing_dot: ``True`` if ``domain`` includes a trailing ``.``.
+   93|     :returns: ``True`` if the domain is within the length limit, otherwise
+   94|         ``False``.
+   95|     """
+   96|     return len(domain) <= (254 if trailing_dot else 253)
+   97| 
+   98| 
+   99| def check_bidi(label: str, check_ltr: bool = False) -> bool:
+  100|     """Validate the Bidi Rule from :rfc:`5893` for a single label.
+  101| 
+  102|     The Bidi Rule constrains how bidirectional characters (Hebrew, Arabic,
+  103|     etc.) may appear within a label. By default the check is only applied
+  104|     when the label contains at least one right-to-left character (Unicode
+  105|     bidirectional categories ``R``, ``AL``, or ``AN``); set ``check_ltr``
+  106|     to ``True`` to apply it to LTR-only labels as well.
+  107| 
+  108|     :param label: The label to validate, as a Unicode string.
+  109|     :param check_ltr: If ``True``, apply the rules even when the label
+  110|         contains no RTL characters.
+  111|     :returns: ``True`` if the label satisfies the Bidi Rule.
+  112|     :raises IDNABidiError: If any of Bidi Rule conditions 1-6 are violated,
+  113|         or if the directional category of a codepoint cannot be determined.
+  114|     """
+  115|     if len(label) > _max_input_length:
+  116|         raise IDNAError("Label too long")
+  117|     # Bidi rules should only be applied if string contains RTL characters
+  118|     bidi_label = False
+  119|     for idx, cp in enumerate(label, 1):
+  120|         direction = unicodedata.bidirectional(cp)
+  121|         if direction == "":
+  122|             # String likely comes from a newer version of Unicode
+  123|             raise IDNABidiError(f"Unknown directionality in label {label!r} at position {idx}")
+  124|         if direction in _bidi_rtl_categories:
+  125|             bidi_label = True
+  126|     if not bidi_label and not check_ltr:
+  127|         return True
+  128| 
+  129|     # Bidi rule 1
+  130|     direction = unicodedata.bidirectional(label[0])
+  131|     if direction in _bidi_rtl_first:
+  132|         rtl = True
+  133|     elif direction == "L":
+  134|         rtl = False
+  135|     else:
+  136|         raise IDNABidiError(f"First codepoint in label {label!r} must be directionality L, R or AL")
+  137| 
+  138|     valid_ending = False
+  139|     number_type: Optional[str] = None
+  140|     for idx, cp in enumerate(label, 1):
+  141|         direction = unicodedata.bidirectional(cp)
+  142| 
+  143|         if rtl:
+  144|             # Bidi rule 2
+  145|             if direction not in _bidi_rtl_allowed:
+  146|                 raise IDNABidiError(f"Invalid direction for codepoint at position {idx} in a right-to-left label")
+  147|             # Bidi rule 3
+  148|             if direction in _bidi_rtl_valid_ending:
+  149|                 valid_ending = True
+  150|             elif direction != "NSM":
+  151|                 valid_ending = False
+  152|             # Bidi rule 4
+  153|             if direction in _bidi_rtl_numeric:
+  154|                 if not number_type:
+  155|                     number_type = direction
+  156|                 elif number_type != direction:
+  157|                     raise IDNABidiError("Can not mix numeral types in a right-to-left label")
+  158|         else:
+  159|             # Bidi rule 5
+  160|             if direction not in _bidi_ltr_allowed:
+  161|                 raise IDNABidiError(f"Invalid direction for codepoint at position {idx} in a left-to-right label")
+  162|             # Bidi rule 6
+  163|             if direction in _bidi_ltr_valid_ending:
+  164|                 valid_ending = True
+  165|             elif direction != "NSM":
+  166|                 valid_ending = False
+  167| 
+  168|     if not valid_ending:
+  169|         raise IDNABidiError("Label ends with illegal codepoint directionality")
+  170| 
+  171|     return True
+  172| 
+  173| 
+  174| def check_initial_combiner(label: str) -> bool:
+  175|     """Reject labels that begin with a combining mark.
+  176| 
+  177|     Per :rfc:`5891` §4.2.3.2 a label must not start with a character of
+  178|     Unicode general category ``M`` (Mark).
+  179| 
+  180|     :param label: The label to check.
+  181|     :returns: ``True`` if the first character is not a combining mark.
+  182|     :raises IDNAError: If the label begins with a combining character.
+  183|     """
+  184|     if unicodedata.category(label[0])[0] == "M":
+  185|         raise IDNAError("Label begins with an illegal combining character")
+  186|     return True
+  187| 
+  188| 
+  189| def check_hyphen_ok(label: str) -> bool:
+  190|     """Validate the hyphen restrictions for a label.
+  191| 
+  192|     Per :rfc:`5891` §4.2.3.1 a label must not start or end with a hyphen
+  193|     (``U+002D``), and must not have hyphens in both the third and fourth
+  194|     positions (the prefix reserved for A-labels).
+  195| 
+  196|     :param label: The label to check.
+  197|     :returns: ``True`` if the hyphen restrictions are satisfied.
+  198|     :raises IDNAError: If any of the hyphen restrictions are violated.
+  199|     """
+  200|     if label[2:4] == "--":
+  201|         raise IDNAError("Label has disallowed hyphens in 3rd and 4th position")
+  202|     if label[0] == "-" or label[-1] == "-":
+  203|         raise IDNAError("Label must not start or end with a hyphen")
+  204|     return True
+  205| 
+  206| 
+  207| def check_nfc(label: str) -> None:
+  208|     """Require that a label is in Unicode Normalization Form C.
+  209| 
+  210|     :param label: The label to check.
+  211|     :raises IDNAError: If ``label`` differs from its NFC normalisation.
+  212|     """
+  213|     if len(label) > _max_input_length:
+  214|         raise IDNAError("Label too long")
+  215|     if unicodedata.normalize("NFC", label) != label:
+  216|         raise IDNAError("Label must be in Normalization Form C")
+  217| 
+  218| 
+  219| def valid_contextj(label: str, pos: int) -> bool:
+  220|     """Validate the CONTEXTJ rules from :rfc:`5892` Appendix A.
+  221| 
+  222|     These rules govern the contextual use of the joiner codepoints
+  223|     ``U+200C`` (ZERO WIDTH NON-JOINER, Appendix A.1) and ``U+200D``
+  224|     (ZERO WIDTH JOINER, Appendix A.2) within a label.
+  225| 
+  226|     :param label: The label containing the codepoint.
+  227|     :param pos: Index of the joiner codepoint within ``label``.
+  228|     :returns: ``True`` if the codepoint at ``pos`` satisfies its CONTEXTJ
+  229|         rule, ``False`` otherwise (including when the codepoint at
+  230|         ``pos`` is not a recognised joiner).
+  231|     :raises ValueError: If an adjacent codepoint has no Unicode name when
+  232|         determining its combining class.
+  233|     :raises IDNAError: If ``label`` exceeds the defensive input length limit.
+  234|     """
+  235|     if len(label) > _max_input_length:
+  236|         raise IDNAError("Label too long")
+  237|     cp_value = ord(label[pos])
+  238| 
+  239|     if cp_value == 0x200C:
+  240|         if pos > 0 and _combining_class(ord(label[pos - 1])) == _virama_combining_class:
+  241|             return True
+  242| 
+  243|         ok = False
+  244|         for i in range(pos - 1, -1, -1):
+  245|             joining_type = _joining_type(ord(label[i]))
+  246|             if joining_type == "T":
+  247|                 continue
+  248|             if joining_type in _bidi_joiner_l_or_d:
+  249|                 ok = True
+  250|                 break
+  251|             break
+  252| 
+  253|         if not ok:
+  254|             return False
+  255| 
+  256|         ok = False
+  257|         for i in range(pos + 1, len(label)):
+  258|             joining_type = _joining_type(ord(label[i]))
+  259|             if joining_type == "T":
+  260|                 continue
+  261|             if joining_type in _bidi_joiner_r_or_d:
+  262|                 ok = True
+  263|                 break
+  264|             break
+  265|         return ok
+  266| 
+  267|     if cp_value == 0x200D:
+  268|         return pos > 0 and _combining_class(ord(label[pos - 1])) == _virama_combining_class
+  269| 
+  270|     return False
+  271| 
+  272| 
+  273| def valid_contexto(label: str, pos: int, exception: bool = False) -> bool:
+  274|     """Validate the CONTEXTO rules from :rfc:`5892` Appendix A.
+  275| 
+  276|     Covers the contextual rules for codepoints such as MIDDLE DOT
+  277|     (``U+00B7``), Greek lower numeral sign, Hebrew punctuation, Katakana
+  278|     middle dot, and the Arabic-Indic / Extended Arabic-Indic digit ranges.
+  279| 
+  280|     :param label: The label containing the codepoint.
+  281|     :param pos: Index of the codepoint within ``label``.
+  282|     :param exception: Reserved for forward compatibility; currently unused.
+  283|     :returns: ``True`` if the codepoint at ``pos`` satisfies its CONTEXTO
+  284|         rule, ``False`` otherwise (including when the codepoint is not a
+  285|         recognised CONTEXTO codepoint).
+  286|     :raises IDNAError: If ``label`` exceeds the defensive input length limit.
+  287|     """
+  288|     if len(label) > _max_input_length:
+  289|         raise IDNAError("Label too long")
+  290|     cp_value = ord(label[pos])
+  291| 
+  292|     if cp_value == 0x00B7:
+  293|         return 0 < pos < len(label) - 1 and ord(label[pos - 1]) == 0x006C and ord(label[pos + 1]) == 0x006C
+  294| 
+  295|     if cp_value == 0x0375:
+  296|         if pos < len(label) - 1 and len(label) > 1:
+  297|             return _is_script(label[pos + 1], "Greek")
+  298|         return False
+  299| 
+  300|     if cp_value in {0x05F3, 0x05F4}:
+  301|         if pos > 0:
+  302|             return _is_script(label[pos - 1], "Hebrew")
+  303|         return False
+  304| 
+  305|     if cp_value == 0x30FB:
+  306|         for cp in label:
+  307|             if cp == "\u30fb":
+  308|                 continue
+  309|             if _is_script(cp, "Hiragana") or _is_script(cp, "Katakana") or _is_script(cp, "Han"):
+  310|                 return True
+  311|         return False
+  312| 
+  313|     if 0x660 <= cp_value <= 0x669:
+  314|         return not any(0x6F0 <= ord(cp) <= 0x06F9 for cp in label)
+  315| 
+  316|     if 0x6F0 <= cp_value <= 0x6F9:
+  317|         return not any(0x660 <= ord(cp) <= 0x0669 for cp in label)
+  318| 
+  319|     return False
+  320| 
+  321| 
+  322| def check_label(label: Union[str, bytes, bytearray]) -> None:
+  323|     """Run the full set of IDNA 2008 validity checks on a single label.
+  324| 
+  325|     Applies, in order: NFC normalisation (:func:`check_nfc`), hyphen
+  326|     restrictions (:func:`check_hyphen_ok`), the no-leading-combiner rule
+  327|     (:func:`check_initial_combiner`), per-codepoint validity (PVALID,
+  328|     CONTEXTJ, CONTEXTO classes from :rfc:`5892`), and the Bidi Rule
+  329|     (:func:`check_bidi`).
+  330| 
+  331|     :param label: The label to validate. ``bytes`` or ``bytearray`` input
+  332|         is decoded as UTF-8 first.
+  333|     :raises IDNAError: If the label is empty or fails a structural rule.
+  334|     :raises InvalidCodepoint: If the label contains a DISALLOWED or
+  335|         UNASSIGNED codepoint.
+  336|     :raises InvalidCodepointContext: If a CONTEXTJ or CONTEXTO codepoint
+  337|         is not valid in its context.
+  338|     :raises IDNABidiError: If the Bidi Rule is violated.
+  339|     """
+  340|     if len(label) > _max_input_length:
+  341|         raise IDNAError("Label too long")
+  342|     if isinstance(label, (bytes, bytearray)):
+  343|         label = label.decode("utf-8")
+  344|     if len(label) == 0:
+  345|         raise IDNAError("Empty Label")
+  346| 
+  347|     # Reject on domain length rather than label length so support some UTS 46
+  348|     # use cases, still reducing processing of label contextual rules
+  349|     if not valid_string_length(label, trailing_dot=True):
+  350|         raise IDNAError("Label too long")
+  351| 
+  352|     check_nfc(label)
+  353|     check_hyphen_ok(label)
+  354|     check_initial_combiner(label)
+  355| 
+  356|     for pos, cp in enumerate(label):
+  357|         cp_value = ord(cp)
+  358|         if intranges_contain(cp_value, idnadata.codepoint_classes["PVALID"]):
+  359|             continue
+  360|         if intranges_contain(cp_value, idnadata.codepoint_classes["CONTEXTJ"]):
+  361|             try:
+  362|                 if not valid_contextj(label, pos):
+  363|                     raise InvalidCodepointContext(f"Joiner {_unot(cp_value)} not allowed at position {pos + 1} in {label!r}")
+  364|             except ValueError as err:
+  365|                 raise IDNAError(
+  366|                     f"Unknown codepoint adjacent to joiner {_unot(cp_value)} at position {pos + 1} in {label!r}"
+  367|                 ) from err
+  368|         elif intranges_contain(cp_value, idnadata.codepoint_classes["CONTEXTO"]):
+  369|             if not valid_contexto(label, pos):
+  370|                 raise InvalidCodepointContext(f"Codepoint {_unot(cp_value)} not allowed at position {pos + 1} in {label!r}")
+  371|         else:
+  372|             raise InvalidCodepoint(f"Codepoint {_unot(cp_value)} at position {pos + 1} of {label!r} not allowed")
+  373| 
+  374|     check_bidi(label)
+  375| 
+  376| 
+  377| def alabel(label: str) -> bytes:
+  378|     """Convert a single U-label into its A-label form.
+  379| 
+  380|     The result is the ASCII-Compatible Encoding (ACE) form per :rfc:`5891`
+  381|     §4: the label is validated, Punycode-encoded, and prefixed with
+  382|     ``xn--``. Pure ASCII labels that are already valid IDNA labels are
+  383|     returned unchanged (as :class:`bytes`).
+  384| 
+  385|     :param label: The label to convert, as a Unicode string.
+  386|     :returns: The A-label as ASCII-encoded :class:`bytes`.
+  387|     :raises IDNAError: If the label is invalid or the resulting A-label
+  388|         exceeds 63 octets.
+  389|     """
+  390|     if len(label) > _max_input_length:
+  391|         raise IDNAError("Label too long")
+  392|     try:
+  393|         label_bytes = label.encode("ascii")
+  394|     except UnicodeEncodeError:
+  395|         pass
+  396|     else:
+  397|         ulabel(label_bytes)
+  398|         if not valid_label_length(label_bytes):
+  399|             raise IDNAError("Label too long")
+  400|         return label_bytes
+  401| 
+  402|     check_label(label)
+  403|     label_bytes = _alabel_prefix + _punycode(label)
+  404| 
+  405|     if not valid_label_length(label_bytes):
+  406|         raise IDNAError("Label too long")
+  407| 
+  408|     return label_bytes
+  409| 
+  410| 
+  411| def ulabel(label: Union[str, bytes, bytearray]) -> str:
+  412|     """Convert a single A-label into its U-label form.
+  413| 
+  414|     Performs the inverse of :func:`alabel`: an ``xn--``-prefixed label is
+  415|     Punycode-decoded and validated. Labels that are already Unicode (or
+  416|     plain ASCII without the ACE prefix) are validated and returned as a
+  417|     Unicode string.
+  418| 
+  419|     :param label: The label to convert. ``bytes`` or ``bytearray`` input
+  420|         is treated as ASCII.
+  421|     :returns: The U-label as a Unicode string.
+  422|     :raises IDNAError: If the label is malformed or fails validation.
+  423|     """
+  424|     if len(label) > _max_input_length:
+  425|         raise IDNAError("Label too long")
+  426|     if not isinstance(label, (bytes, bytearray)):
+  427|         try:
+  428|             label_bytes = label.encode("ascii")
+  429|         except UnicodeEncodeError:
+  430|             check_label(label)
+  431|             return label
+  432|     else:
+  433|         label_bytes = bytes(label)
+  434| 
+  435|     label_bytes = label_bytes.lower()
+  436|     if label_bytes.startswith(_alabel_prefix):
+  437|         label_bytes = label_bytes[len(_alabel_prefix) :]
+  438|         if not label_bytes:
+  439|             raise IDNAError("Malformed A-label, no Punycode eligible content found")
+  440|         if label_bytes.endswith(b"-"):
+  441|             raise IDNAError("A-label must not end with a hyphen")
+  442|     else:
+  443|         check_label(label_bytes)
+  444|         return label_bytes.decode("ascii")
+  445| 
+  446|     try:
+  447|         label = label_bytes.decode("punycode")
+  448|     except UnicodeError as err:
+  449|         raise IDNAError("Invalid A-label") from err
+  450|     check_label(label)
+  451|     return label
+  452| 
+  453| 
+  454| def uts46_remap(domain: str, std3_rules: bool = True, transitional: bool = False) -> str:
+  455|     """Apply the UTS #46 character mapping to a domain string.
+  456| 
+  457|     Implements the mapping table from `UTS #46 §4
+  458|     <https://www.unicode.org/reports/tr46/>`_: each character is kept,
+  459|     replaced, or rejected based on its status (``V``, ``M``, ``D``, ``3``,
+  460|     ``I``). The result is returned in Normalisation Form C.
+  461| 
+  462|     :param domain: The full domain name to remap.
+  463|     :param std3_rules: If ``True``, apply the stricter STD3 ASCII rules
+  464|         (status ``3`` codepoints raise instead of being kept or mapped).
+  465|     :param transitional: If ``True``, use transitional processing (status
+  466|         ``D`` codepoints are mapped instead of kept). Transitional
+  467|         processing has been removed from UTS #46 and this option is
+  468|         retained only for backwards compatibility.
+  469|     :returns: The remapped domain, in Normalisation Form C.
+  470|     :raises InvalidCodepoint: If the domain contains a disallowed
+  471|         codepoint under the chosen rules.
+  472|     :raises IDNAError: If ``domain`` exceeds the defensive input length limit.
+  473|     """
+  474|     if len(domain) > _max_input_length:
+  475|         raise IDNAError("Domain too long")
+  476|     from .uts46data import uts46_replacements, uts46_starts, uts46_statuses
+  477| 
+  478|     output = ""
+  479| 
+  480|     for pos, char in enumerate(domain):
+  481|         code_point = ord(char)
+  482|         i = code_point if code_point < 256 else bisect.bisect_right(uts46_starts, code_point) - 1
+  483|         status = chr(uts46_statuses[i])
+  484|         replacement: Optional[str] = uts46_replacements[i]
+  485| 
+  486|         # UTS #46 §4: V is always valid, D is deviation (kept unless transitional),
+  487|         # 3 is disallowed-STD3 (kept unmapped if std3_rules is off and no mapping).
+  488|         keep_as_is = (
+  489|             status == "V" or (status == "D" and not transitional) or (status == "3" and not std3_rules and replacement is None)
+  490|         )
+  491|         # M is mapped, 3-with-replacement and transitional D fall through to the
+  492|         # same replacement output path.
+  493|         use_replacement = replacement is not None and (
+  494|             status == "M" or (status == "3" and not std3_rules) or (status == "D" and transitional)
+  495|         )
+  496| 
+  497|         if keep_as_is:
+  498|             output += char
+  499|         elif use_replacement:
+  500|             assert replacement is not None  # narrowed by use_replacement
+  501|             output += replacement
+  502|         elif status == "I":
+  503|             continue
+  504|         else:
+  505|             raise InvalidCodepoint(f"Codepoint {_unot(code_point)} not allowed at position {pos + 1} in {domain!r}")
+  506| 
+  507|     return unicodedata.normalize("NFC", output)
+  508| 
+  509| 
+  510| def encode(
+  511|     s: Union[str, bytes, bytearray],
+  512|     strict: bool = False,
+  513|     uts46: bool = False,
+  514|     std3_rules: bool = False,
+  515|     transitional: bool = False,
+  516| ) -> bytes:
+  517|     """Encode a Unicode domain name into its ASCII (A-label) form.
+  518| 
+  519|     Splits the input on label separators (only ``U+002E`` if ``strict`` is
+  520|     set; otherwise also IDEOGRAPHIC FULL STOP ``U+3002``, FULLWIDTH FULL
+  521|     STOP ``U+FF0E``, and HALFWIDTH IDEOGRAPHIC FULL STOP ``U+FF61``),
+  522|     encodes each label with :func:`alabel`, and rejoins them with ``.``.
+  523|     Optionally pre-processes the input through :func:`uts46_remap`.
+  524| 
+  525|     :param s: The domain name to encode.
+  526|     :param strict: If ``True``, only ``U+002E`` is recognised as a label
+  527|         separator.
+  528|     :param uts46: If ``True``, apply UTS #46 mapping before encoding.
+  529|     :param std3_rules: Forwarded to :func:`uts46_remap` when ``uts46`` is
+  530|         ``True``.
+  531|     :param transitional: Forwarded to :func:`uts46_remap` when ``uts46``
+  532|         is ``True``. Deprecated: emits a :class:`DeprecationWarning` and
+  533|         will be removed in a future version.
+  534|     :returns: The encoded domain as ASCII :class:`bytes`.
+  535|     :raises IDNAError: If the domain is empty, contains an invalid label,
+  536|         or exceeds the maximum domain length.
+  537|     """
+  538|     if transitional:
+  539|         warnings.warn(
+  540|             "Transitional processing has been removed from UTS #46. "
+  541|             "The transitional argument will be removed in a future version.",
+  542|             DeprecationWarning,
+  543|             stacklevel=2,
+  544|         )
+  545|     if not isinstance(s, str):
+  546|         try:
+  547|             s = str(s, "ascii")
+  548|         except (UnicodeDecodeError, TypeError) as err:
+  549|             raise IDNAError("should pass a unicode string to the function rather than a byte string.") from err
+  550|     if len(s) > _max_input_length:
+  551|         raise IDNAError("Domain too long")
+  552|     if uts46:
+  553|         s = uts46_remap(s, std3_rules, transitional)
+  554| 
+  555|     # Reject inputs that exceed the maximum DNS domain length up-front
+  556|     # to avoid expensive computation on long inputs.
+  557|     if not valid_string_length(s, trailing_dot=True):
+  558|         raise IDNAError("Domain too long")
+  559| 
+  560|     trailing_dot = False
+  561|     result = []
+  562|     labels = s.split(".") if strict else _unicode_dots_re.split(s)
+  563|     if not labels or labels == [""]:
+  564|         raise IDNAError("Empty domain")
+  565|     if labels[-1] == "":
+  566|         del labels[-1]
+  567|         trailing_dot = True
+  568|     for label in labels:
+  569|         s = alabel(label)
+  570|         if s:
+  571|             result.append(s)
+  572|         else:
+  573|             raise IDNAError("Empty label")
+  574|     if trailing_dot:
+  575|         result.append(b"")
+  576|     s = b".".join(result)
+  577|     if not valid_string_length(s, trailing_dot):
+  578|         raise IDNAError("Domain too long")
+  579|     return s
+  580| 
+  581| 
+  582| def decode(
+  583|     s: Union[str, bytes, bytearray],
+  584|     strict: bool = False,
+  585|     uts46: bool = False,
+  586|     std3_rules: bool = False,
+  587|     display: bool = False,
+  588| ) -> str:
+  589|     """Decode an A-label-encoded domain name back to Unicode.
+  590| 
+  591|     Splits the input on label separators (see :func:`encode` for the
+  592|     rules), decodes each label with :func:`ulabel`, and rejoins them
+  593|     with ``.``. Optionally pre-processes the input through
+  594|     :func:`uts46_remap`.
+  595| 
+  596|     :param s: The domain name to decode.
+  597|     :param strict: If ``True``, only ``U+002E`` is recognised as a label
+  598|         separator.
+  599|     :param uts46: If ``True``, apply UTS #46 mapping before decoding.
+  600|     :param std3_rules: Forwarded to :func:`uts46_remap` when ``uts46`` is
+  601|         ``True``.
+  602|     :param display: If ``True``, any ``xn--`` label that fails IDNA
+  603|         validation is passed through unchanged (lowercased) rather than
+  604|         aborting the whole call. Intended for "decode for display"
+  605|         consumers (e.g. URL libraries, HTTP clients) that want to show
+  606|         the user the label as it appears on the wire when it cannot be
+  607|         rendered as Unicode. Matches the per-label recovery prescribed
+  608|         by UTS #46 §4 and the WHATWG URL "domain to Unicode" algorithm.
+  609|     :returns: The decoded domain as a Unicode string.
+  610|     :raises IDNAError: If the input is not valid ASCII, contains an
+  611|         invalid label, or is empty.
+  612|     """
+  613|     if not isinstance(s, str):
+  614|         try:
+  615|             s = str(s, "ascii")
+  616|         except (UnicodeDecodeError, TypeError) as err:
+  617|             raise IDNAError("Invalid ASCII in A-label") from err
+  618|     if len(s) > _max_input_length:
+  619|         raise IDNAError("Domain too long")
+  620|     if uts46:
+  621|         s = uts46_remap(s, std3_rules, False)
+  622|     # Reject inputs that exceed the maximum DNS domain length up-front
+  623|     # to avoid expensive computation on long inputs.
+  624|     if not valid_string_length(s, trailing_dot=True):
+  625|         raise IDNAError("Domain too long")
+  626|     trailing_dot = False
+  627|     result = []
+  628|     labels = s.split(".") if strict else _unicode_dots_re.split(s)
+  629|     if not labels or labels == [""]:
+  630|         raise IDNAError("Empty domain")
+  631|     if not labels[-1]:
+  632|         del labels[-1]
+  633|         trailing_dot = True
+  634|     for label in labels:
+  635|         try:
+  636|             u = ulabel(label)
+  637|         except IDNAError:
+  638|             if display and label[:4].lower() == "xn--":
+  639|                 u = label.lower()
+  640|             else:
+  641|                 raise
+  642|         if u:
+  643|             result.append(u)
+  644|         else:
+  645|             raise IDNAError("Empty label")
+  646|     if trailing_dot:
+  647|         result.append("")
+  648|     return ".".join(result)
+
+Answer now with ONE JSON array containing one object per query, in query order.

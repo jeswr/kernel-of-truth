@@ -1,0 +1,63 @@
+{
+ "repo": "six",
+ "pytest_exit": 0,
+ "n_observed_call_edges": 198,
+ "n_observed_import_events": 117,
+ "call_soundness": {
+  "confirmed_proved": 3,
+  "confirmed_instantiation": 0,
+  "unknown_compatible": 94,
+  "miss": 3,
+  "protocol_dispatch": 16,
+  "descriptor_or_decorated": 0,
+  "class_body_exec": 69,
+  "unmapped_callee": 13,
+  "resumption_total": 0,
+  "resumption_unmatched": 0
+ },
+ "call_query_level": {
+  "covered": 116,
+  "violation": 0
+ },
+ "call_miss_examples": [
+  {
+   "caller": "test_six.py::test_with_metaclass",
+   "callee": "six.py::with_metaclass.metaclass.__new__",
+   "caller_frame": [
+    "test_six.py",
+    "test_with_metaclass",
+    685
+   ],
+   "callee_line": 868
+  },
+  {
+   "caller": "test_six.py::test_with_metaclass_prepare",
+   "callee": "six.py::with_metaclass.metaclass.__new__",
+   "caller_frame": [
+    "test_six.py",
+    "test_with_metaclass_prepare",
+    762
+   ],
+   "callee_line": 868
+  },
+  {
+   "caller": "test_six.py::test_with_metaclass_typing",
+   "callee": "six.py::with_metaclass.metaclass.__new__",
+   "caller_frame": [
+    "test_six.py",
+    "test_with_metaclass_typing",
+    716
+   ],
+   "callee_line": 868
+  }
+ ],
+ "import_soundness": {
+  "confirmed": 2,
+  "unknown_compatible": 1,
+  "miss": 0,
+  "external": 114
+ },
+ "import_miss_examples": [],
+ "validity_violations": [],
+ "n_validity_violations": 0
+}

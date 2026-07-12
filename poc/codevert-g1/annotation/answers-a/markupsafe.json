@@ -1,0 +1,102 @@
+[
+  {
+    "query_id": "g1q-markupsafe-contains-1",
+    "answerable_static": true,
+    "gold": [
+      "setup.py::BuildFailed",
+      "setup.py::ext_modules",
+      "setup.py::run_setup",
+      "setup.py::show_message",
+      "setup.py::supports_speedups",
+      "setup.py::ve_build_ext"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level children: assignments ext_modules (l12), supports_speedups (l54); classes BuildFailed (l15), ve_build_ext (l19); defs run_setup (l40), show_message (l47). The if/elif/else at l60-82 contains only calls, no bindings. Imports excluded."
+  },
+  {
+    "query_id": "g1q-markupsafe-contains-8",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_exception_custom_html.py::CustomHtmlThatRaises",
+      "tests/test_exception_custom_html.py::test_exception_custom_html"
+    ],
+    "conditional_flags": [],
+    "notes": "Direct module-level children: class CustomHtmlThatRaises (l8) and def test_exception_custom_html (l13). __html__ is nested in the class; obj is function-local; imports excluded."
+  },
+  {
+    "query_id": "g1q-markupsafe-contained_in-13",
+    "answerable_static": true,
+    "gold": [
+      "src/markupsafe/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": "class Markup (l84) is defined at module top level."
+  },
+  {
+    "query_id": "g1q-markupsafe-contained_in-32",
+    "answerable_static": true,
+    "gold": [
+      "src/markupsafe/__init__.py::Markup"
+    ],
+    "conditional_flags": [],
+    "notes": "def lower (l251) is a direct member of class Markup."
+  },
+  {
+    "query_id": "g1q-markupsafe-imports_of-5",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "tests/__init__.py is empty; no import statements exist, so the answer set is positively empty."
+  },
+  {
+    "query_id": "g1q-markupsafe-imports_of-9",
+    "answerable_static": true,
+    "gold": [
+      "ext:markupsafe._speedups",
+      "ext:pytest",
+      "ext:sys",
+      "repo:src/markupsafe/__init__.py"
+    ],
+    "conditional_flags": [
+      "ext:markupsafe._speedups"
+    ],
+    "notes": "l1 import sys, l3 import pytest (external). l5 import markupsafe -> repo package src/markupsafe/__init__.py (unconditional top-level). l8 (try/except) from markupsafe import _speedups and l25 (inside test_ext_init) import markupsafe._speedups: markupsafe._speedups is a compiled C extension with no .py file in the authoritative listing, so normalized as ext:markupsafe._speedups; its ancestor package markupsafe is the repo __init__.py already included. Both _speedups sites are conditional/non-top-level, hence flagged; markupsafe itself also has an unconditional site so it is not flagged."
+  },
+  {
+    "query_id": "g1q-markupsafe-where_defined-81",
+    "answerable_static": true,
+    "gold": [
+      "docs/conf.py:49"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence in the repo: module-level assignment in docs/conf.py line 49. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-markupsafe-where_defined-62",
+    "answerable_static": true,
+    "gold": [
+      "docs/conf.py:28"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence in the repo: module-level assignment in docs/conf.py line 28. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-markupsafe-callees_of-51",
+    "answerable_static": true,
+    "gold": [
+      "src/markupsafe/__init__.py::_MarkupEscapeHelper"
+    ],
+    "conditional_flags": [],
+    "notes": "Body (l367) has one call expression: self.__class__(self.obj[key], self.escape). self.__class__ resolves to _MarkupEscapeHelper (no subclasses exist in the repo), i.e. re-instantiation of the helper. self.obj[key] is a subscript, not a call; self.escape is passed, not called."
+  },
+  {
+    "query_id": "g1q-markupsafe-callees_of-23",
+    "answerable_static": true,
+    "gold": [
+      "src/markupsafe/__init__.py::Markup",
+      "src/markupsafe/__init__.py::escape"
+    ],
+    "conditional_flags": [],
+    "notes": "l235 escape(s): the bare name resolves lexically to the module-level escape function (class-body names are not visible from method bodies). l238 cls(rv): cls is Markup for direct use and no Markup subclasses exist in the repo, so resolved to instantiation of Markup."
+  }
+]

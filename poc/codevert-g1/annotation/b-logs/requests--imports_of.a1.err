@@ -1,0 +1,581 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.7dxs41eq"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.75lnm_9s
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c6-efdb-7031-a80c-dfa8b98c4889
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: requests ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+docs/conf.py
+docs/_themes/flask_theme_support.py
+src/requests/__init__.py
+src/requests/__version__.py
+src/requests/_internal_utils.py
+src/requests/_types.py
+src/requests/adapters.py
+src/requests/api.py
+src/requests/auth.py
+src/requests/certs.py
+src/requests/compat.py
+src/requests/cookies.py
+src/requests/exceptions.py
+src/requests/help.py
+src/requests/hooks.py
+src/requests/models.py
+src/requests/packages.py
+src/requests/sessions.py
+src/requests/status_codes.py
+src/requests/structures.py
+src/requests/utils.py
+tests/__init__.py
+tests/compat.py
+tests/conftest.py
+tests/test_adapters.py
+tests/test_help.py
+tests/test_hooks.py
+tests/test_lowlevel.py
+tests/test_packages.py
+tests/test_requests.py
+tests/test_structures.py
+tests/test_testserver.py
+tests/test_utils.py
+tests/utils.py
+tests/testserver/__init__.py
+tests/testserver/server.py
+
+=== QUERIES (2) ===
+QUERY g1q-requests-imports_of-36: family=imports_of module=tests/testserver/server.py
+QUERY g1q-requests-imports_of-6: family=imports_of module=src/requests/_types.py
+
+=== CONTEXT ===
+
+FILE tests/testserver/server.py:
+    1| import select
+    2| import socket
+    3| import ssl
+    4| import threading
+    5| 
+    6| 
+    7| def consume_socket_content(sock, timeout=0.5):
+    8|     chunks = 65536
+    9|     content = b""
+   10| 
+   11|     while True:
+   12|         more_to_read = select.select([sock], [], [], timeout)[0]
+   13|         if not more_to_read:
+   14|             break
+   15| 
+   16|         new_content = sock.recv(chunks)
+   17|         if not new_content:
+   18|             break
+   19| 
+   20|         content += new_content
+   21| 
+   22|     return content
+   23| 
+   24| 
+   25| class Server(threading.Thread):
+   26|     """Dummy server using for unit testing"""
+   27| 
+   28|     WAIT_EVENT_TIMEOUT = 5
+   29| 
+   30|     def __init__(
+   31|         self,
+   32|         handler=None,
+   33|         host="localhost",
+   34|         port=0,
+   35|         requests_to_handle=1,
+   36|         wait_to_close_event=None,
+   37|     ):
+   38|         super().__init__()
+   39| 
+   40|         self.handler = handler or consume_socket_content
+   41|         self.handler_results = []
+   42| 
+   43|         self.host = host
+   44|         self.port = port
+   45|         self.requests_to_handle = requests_to_handle
+   46| 
+   47|         self.wait_to_close_event = wait_to_close_event
+   48|         self.ready_event = threading.Event()
+   49|         self.stop_event = threading.Event()
+   50| 
+   51|     @classmethod
+   52|     def text_response_server(cls, text, request_timeout=0.5, **kwargs):
+   53|         def text_response_handler(sock):
+   54|             request_content = consume_socket_content(sock, timeout=request_timeout)
+   55|             sock.send(text.encode("utf-8"))
+   56| 
+   57|             return request_content
+   58| 
+   59|         return Server(text_response_handler, **kwargs)
+   60| 
+   61|     @classmethod
+   62|     def basic_response_server(cls, **kwargs):
+   63|         return cls.text_response_server(
+   64|             "HTTP/1.1 200 OK\r\n" + "Content-Length: 0\r\n\r\n", **kwargs
+   65|         )
+   66| 
+   67|     def run(self):
+   68|         try:
+   69|             self.server_sock = self._create_socket_and_bind()
+   70|             # in case self.port = 0
+   71|             self.port = self.server_sock.getsockname()[1]
+   72|             self.ready_event.set()
+   73|             self._handle_requests()
+   74| 
+   75|             if self.wait_to_close_event:
+   76|                 self.wait_to_close_event.wait(self.WAIT_EVENT_TIMEOUT)
+   77|         finally:
+   78|             self.ready_event.set()  # just in case of exception
+   79|             self._close_server_sock_ignore_errors()
+   80|             self.stop_event.set()
+   81| 
+   82|     def _create_socket_and_bind(self):
+   83|         sock = socket.socket()
+   84|         sock.bind((self.host, self.port))
+   85|         sock.listen()
+   86|         return sock
+   87| 
+   88|     def _close_server_sock_ignore_errors(self):
+   89|         try:
+   90|             self.server_sock.close()
+   91|         except OSError:
+   92|             pass
+   93| 
+   94|     def _handle_requests(self):
+   95|         for _ in range(self.requests_to_handle):
+   96|             sock = self._accept_connection()
+   97|             if not sock:
+   98|                 break
+   99| 
+  100|             handler_result = self.handler(sock)
+  101| 
+  102|             self.handler_results.append(handler_result)
+  103|             sock.close()
+  104| 
+  105|     def _accept_connection(self):
+  106|         try:
+  107|             ready, _, _ = select.select(
+  108|                 [self.server_sock], [], [], self.WAIT_EVENT_TIMEOUT
+  109|             )
+  110|             if not ready:
+  111|                 return None
+  112| 
+  113|             return self.server_sock.accept()[0]
+  114|         except OSError:
+  115|             return None
+  116| 
+  117|     def __enter__(self):
+  118|         self.start()
+  119|         if not self.ready_event.wait(self.WAIT_EVENT_TIMEOUT):
+  120|             raise RuntimeError("Timeout waiting for server to be ready.")
+  121|         return self.host, self.port
+  122| 
+  123|     def __exit__(self, exc_type, exc_value, traceback):
+  124|         if exc_type is None:
+  125|             self.stop_event.wait(self.WAIT_EVENT_TIMEOUT)
+  126|         else:
+  127|             if self.wait_to_close_event:
+  128|                 # avoid server from waiting for event timeouts
+  129|                 # if an exception is found in the main thread
+  130|                 self.wait_to_close_event.set()
+  131| 
+  132|         # ensure server thread doesn't get stuck waiting for connections
+  133|         self._close_server_sock_ignore_errors()
+  134|         self.join()
+  135|         return False  # allow exceptions to propagate
+  136| 
+  137| 
+  138| class TLSServer(Server):
+  139|     def __init__(
+  140|         self,
+  141|         *,
+  142|         handler=None,
+  143|         host="localhost",
+  144|         port=0,
+  145|         requests_to_handle=1,
+  146|         wait_to_close_event=None,
+  147|         cert_chain=None,
+  148|         keyfile=None,
+  149|         mutual_tls=False,
+  150|         cacert=None,
+  151|     ):
+  152|         super().__init__(
+  153|             handler=handler,
+  154|             host=host,
+  155|             port=port,
+  156|             requests_to_handle=requests_to_handle,
+  157|             wait_to_close_event=wait_to_close_event,
+  158|         )
+  159|         self.cert_chain = cert_chain
+  160|         self.keyfile = keyfile
+  161|         self.ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+  162|         self.ssl_context.load_cert_chain(self.cert_chain, keyfile=self.keyfile)
+  163|         self.mutual_tls = mutual_tls
+  164|         self.cacert = cacert
+  165|         if mutual_tls:
+  166|             # For simplicity, we're going to assume that the client cert is
+  167|             # issued by the same CA as our Server certificate
+  168|             self.ssl_context.verify_mode = ssl.CERT_OPTIONAL
+  169|             self.ssl_context.load_verify_locations(self.cacert)
+  170| 
+  171|     def _create_socket_and_bind(self):
+  172|         sock = socket.socket()
+  173|         sock = self.ssl_context.wrap_socket(sock, server_side=True)
+  174|         sock.bind((self.host, self.port))
+  175|         sock.listen()
+  176|         return sock
+
+FILE src/requests/_types.py:
+    1| """
+    2| requests._types
+    3| ~~~~~~~~~~~~~~~
+    4| 
+    5| This module contains type aliases used internally by the Requests library.
+    6| These types are not part of the public API and must not be relied upon
+    7| by external code.
+    8| """
+    9| 
+   10| from __future__ import annotations
+   11| 
+   12| from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
+   13| from typing import (
+   14|     TYPE_CHECKING,
+   15|     Any,
+   16|     Protocol,
+   17|     TypeAlias,
+   18|     TypeVar,
+   19|     runtime_checkable,
+   20| )
+   21| 
+   22| _T_co = TypeVar("_T_co", covariant=True)
+   23| _KT_co = TypeVar("_KT_co", covariant=True)
+   24| _VT_co = TypeVar("_VT_co", covariant=True)
+   25| 
+   26| 
+   27| @runtime_checkable
+   28| class SupportsRead(Protocol[_T_co]):
+   29|     def read(self, length: int = ..., /) -> _T_co: ...
+   30| 
+   31| 
+   32| def has_read(obj: Any) -> TypeIs[SupportsRead[str | bytes]]:
+   33|     """Check if obj supports read, including __getattr__ based proxies."""
+   34|     return isinstance(obj, SupportsRead) or hasattr(obj, "read")
+   35| 
+   36| 
+   37| @runtime_checkable
+   38| class SupportsItems(Protocol[_KT_co, _VT_co]):
+   39|     def items(self) -> Iterable[tuple[_KT_co, _VT_co]]: ...
+   40| 
+   41| 
+   42| # These are needed at runtime for default_hooks() return type
+   43| HookType: TypeAlias = Callable[["Response"], Any]
+   44| HooksInputType: TypeAlias = Mapping[str, Iterable[HookType] | HookType]
+   45| 
+   46| 
+   47| def is_prepared(request: PreparedRequest) -> TypeIs[_ValidatedRequest]:
+   48|     """Verify a PreparedRequest has been fully prepared."""
+   49|     if TYPE_CHECKING:
+   50|         return request.url is not None and request.method is not None
+   51|     # noop at runtime to avoid AssertionError
+   52|     return True
+   53| 
+   54| 
+   55| if TYPE_CHECKING:
+   56|     from http.cookiejar import CookieJar
+   57|     from typing import TypeAlias, TypedDict
+   58| 
+   59|     from typing_extensions import (
+   60|         Buffer,  # TODO: move to collections.abc when Python >= 3.12
+   61|         TypeIs,  # TODO: move to typing when Python >= 3.13
+   62|     )
+   63| 
+   64|     from .auth import AuthBase
+   65|     from .cookies import RequestsCookieJar
+   66|     from .models import PreparedRequest, Response
+   67|     from .structures import CaseInsensitiveDict
+   68| 
+   69|     class _ValidatedRequest(PreparedRequest):
+   70|         """Subtype asserting a PreparedRequest has been fully prepared before calling.
+   71| 
+   72|         The override suppression is required because mutable attribute types are
+   73|         invariant (Liskov), but we only narrow after preparation is complete. This
+   74|         is the explicit contract for Requests but Python's typing doesn't have a
+   75|         better way to represent the requirement.
+   76|         """
+   77| 
+   78|         url: str  # type: ignore[reportIncompatibleVariableOverride]
+   79|         method: str  # type: ignore[reportIncompatibleVariableOverride]
+   80| 
+   81|     # Type aliases for core API concepts (ordered by request() signature)
+   82|     UriType: TypeAlias = str | bytes
+   83| 
+   84|     _ParamsMappingKeyType: TypeAlias = str | bytes | int | float
+   85|     _ParamsMappingValueType: TypeAlias = (
+   86|         str | bytes | int | float | Iterable[str | bytes | int | float] | None
+   87|     )
+   88|     ParamsType: TypeAlias = (
+   89|         SupportsItems[_ParamsMappingKeyType, _ParamsMappingValueType]
+   90|         | tuple[tuple[_ParamsMappingKeyType, _ParamsMappingValueType], ...]
+   91|         | Iterable[tuple[_ParamsMappingKeyType, _ParamsMappingValueType]]
+   92|         | str
+   93|         | bytes
+   94|         | None
+   95|     )
+   96| 
+   97|     KVDataType: TypeAlias = Iterable[tuple[Any, Any]] | SupportsItems[Any, Any]
+   98| 
+   99|     RawDataType: TypeAlias = KVDataType | str | bytes
+  100|     StreamDataType: TypeAlias = SupportsRead[str | bytes]
+  101|     EncodableDataType: TypeAlias = RawDataType | StreamDataType
+  102| 
+  103|     DataType: TypeAlias = (
+  104|         KVDataType
+  105|         | Iterable[bytes | str]
+  106|         | str
+  107|         | bytes
+  108|         | Buffer
+  109|         | SupportsRead[str | bytes]
+  110|         | None
+  111|     )
+  112| 
+  113|     BodyType: TypeAlias = (
+  114|         bytes | str | Iterable[bytes | str] | SupportsRead[bytes | str] | None
+  115|     )
+  116| 
+  117|     HeadersType: TypeAlias = Mapping[str, str | bytes] | None
+  118| 
+  119|     CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str]
+  120| 
+  121|     # Building blocks for FilesType
+  122|     _FileName: TypeAlias = str | None
+  123|     _FileContent: TypeAlias = SupportsRead[str | bytes] | str | bytes
+  124|     _FileSpecBasic: TypeAlias = tuple[_FileName, _FileContent]
+  125|     _FileSpecWithContentType: TypeAlias = tuple[_FileName, _FileContent, str]
+  126|     _FileSpecWithHeaders: TypeAlias = tuple[
+  127|         _FileName, _FileContent, str, CaseInsensitiveDict[str] | Mapping[str, str]
+  128|     ]
+  129|     _FileSpec: TypeAlias = (
+  130|         _FileContent | _FileSpecBasic | _FileSpecWithContentType | _FileSpecWithHeaders
+  131|     )
+  132|     FilesType: TypeAlias = (
+  133|         Mapping[str, _FileSpec] | Iterable[tuple[str, _FileSpec]] | None
+  134|     )
+  135| 
+  136|     AuthType: TypeAlias = (
+  137|         tuple[str, str] | AuthBase | Callable[[PreparedRequest], PreparedRequest] | None
+  138|     )
+  139| 
+  140|     TimeoutType: TypeAlias = float | tuple[float | None, float | None] | None
+  141|     ProxiesType: TypeAlias = MutableMapping[str, str]
+  142|     HooksType: TypeAlias = dict[str, list[HookType]] | None
+  143|     VerifyType: TypeAlias = bool | str
+  144|     CertType: TypeAlias = str | tuple[str, str] | None
+  145|     JsonType: TypeAlias = (
+  146|         None
+  147|         | bool
+  148|         | int
+  149|         | float
+  150|         | str
+  151|         | Sequence["JsonType"]
+  152|         | Mapping[str, "JsonType"]
+  153|     )
+  154| 
+  155|     # TypedDicts for Unpack kwargs (PEP 692)
+  156| 
+  157|     class BaseRequestKwargs(TypedDict, total=False):
+  158|         headers: HeadersType
+  159|         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
+  160|         files: FilesType
+  161|         auth: AuthType
+  162|         timeout: TimeoutType
+  163|         allow_redirects: bool
+  164|         proxies: dict[str, str] | None
+  165|         hooks: HooksInputType | None
+  166|         stream: bool | None
+  167|         verify: VerifyType | None
+  168|         cert: CertType
+  169| 
+  170|     class RequestKwargs(BaseRequestKwargs, total=False):
+  171|         """kwargs for request(), options(), head(), delete()."""
+  172| 
+  173|         params: ParamsType
+  174|         data: DataType
+  175|         json: JsonType
+  176| 
+  177|     class GetKwargs(BaseRequestKwargs, total=False):
+  178|         data: DataType
+  179|         json: JsonType
+  180| 
+  181|     class PostKwargs(BaseRequestKwargs, total=False):
+  182|         params: ParamsType
+  183| 
+  184|     class DataKwargs(BaseRequestKwargs, total=False):
+  185|         """kwargs for put(), patch()."""
+  186| 
+  187|         params: ParamsType
+  188|         json: JsonType
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-requests-imports_of-36",
+    "answerable_static": true,
+    "gold": [
+      "ext:select",
+      "ext:socket",
+      "ext:ssl",
+      "ext:threading"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-requests-imports_of-6",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:collections.abc",
+      "ext:http.cookiejar",
+      "ext:typing",
+      "ext:typing_extensions",
+      "repo:src/requests/__init__.py",
+      "repo:src/requests/auth.py",
+      "repo:src/requests/cookies.py",
+      "repo:src/requests/models.py",
+      "repo:src/requests/structures.py"
+    ],
+    "conditional_flags": [
+      "ext:http.cookiejar",
+      "ext:typing",
+      "ext:typing_extensions",
+      "repo:src/requests/__init__.py",
+      "repo:src/requests/auth.py",
+      "repo:src/requests/cookies.py",
+      "repo:src/requests/models.py",
+      "repo:src/requests/structures.py"
+    ],
+    "notes": "Imports under TYPE_CHECKING are conditional."
+  }
+]
+tokens used
+8,948

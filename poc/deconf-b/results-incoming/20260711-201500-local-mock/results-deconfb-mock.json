@@ -1,0 +1,69 @@
+{
+  "accept_threshold": "2/3",
+  "date": "2026-07-11T20:11:26Z",
+  "detu_schema": "deconfb-detu/1: lm.choose(item, keys, gold, seed, attempt_code) with attempt_code = attempt*(m+1) + probe_index, m=3; probe_index 0 = candidate; (attempt=0, probe_index=0) greedy argmax (IF-C attempt-0 semantics); all other codes sample via torch.Generator(SEED_BASE*10000 + seed*100 + attempt_code), SEED_BASE=20260710 (imported pinned f2bt module constant)",
+  "device": "cpu",
+  "experiment": "deconf-b",
+  "gpu_class_assumed_for_usd": "A100",
+  "kernel_arm": "omit",
+  "lifecycle_ledger": {
+    "bm25_build_cpu_s": 0.007211982272565365,
+    "bm25_corpus_bytes": 26067,
+    "bm25_corpus_sha256": "4ef60a28f1071c6f5678e6aa854f61066f8587cb1eaebbe7063140abad47de54",
+    "bm25_index_bytes": 70544,
+    "bm25_index_sha256": "1429b7a1eb2b9bbff3d7f44e90ffd4ea20d783d4e165cdae5f91d9a1b79a29c5",
+    "gsa_store_bytes": 50041,
+    "peak_rss_kb": 25768,
+    "retrieval_aggregate": {
+      "hit_at_j_count": 16,
+      "mean_context_tokens": 487.625,
+      "mean_selected_docs": 12.1875,
+      "n_items": 16,
+      "token_cap": 512,
+      "zero_hit_count": 0
+    }
+  },
+  "mode": "MOCK",
+  "models": {
+    "note": "MOCK \u2014 synthetic stub LM, no models loaded"
+  },
+  "n_eval_items": 16,
+  "n_records": 10,
+  "outcome": "MOCK-HARNESS-COMPLETE",
+  "outcome_note": "NOT a hypothesis verdict \u2014 raw run-records only; the verdict is computed by the pinned analysis/deconf_b.py + tools/registry/verdict-gen.py under run-vs-audit separation. Rider on every downstream sentence: self-authored items, kernel-covered slice, oracle-addressed store; external adjudication removes membership-gold circularity, not item-generation or store-addressing circularity.",
+  "pins": {
+    "a1AuditSha256": "91f9ed0e60077ed9e69d61391819351fd9f47177bfd2d4fa64366e64fc2ac7b1",
+    "adjInternalConsistency": "the runner fail-closes on: summary.json labels_sha256 != sha256(labels.jsonl) (ERR_ADJ_PIN); resolved gold_ext count != summary n_ext_labelled (ERR_ADJ_COUNTS); eval-set size != the pre-registered n_items 333 (ERR_EVAL_N); item-id-list sha != evalItemIdsSha256 (ERR_EVAL_IDS); any d-qa-t id missing from labels.jsonl (ERR_LABELS_MISSING); any eval item off the DQA-type/kernel_checkable surface (ERR_ITEM_CHECKABLE) or gold_ext off the answer surface (ERR_GOLD_SURFACE)",
+    "bm25CorpusSha256": "4ef60a28f1071c6f5678e6aa854f61066f8587cb1eaebbe7063140abad47de54",
+    "bm25IndexSha256": "1429b7a1eb2b9bbff3d7f44e90ffd4ea20d783d4e165cdae5f91d9a1b79a29c5",
+    "dadjtCorpusKotHash": "a4baa36fbcbbfe2b51fa1dbdd0589c3c461caf190cfc5b67c65e4a5bda9b53bc",
+    "dadjtLabelsSha256": "a0ffe09b0402e71f8e542d9f40a24f8d6f63d48cf6cba5d343bbb03753191c47",
+    "dadjtSummarySha256": "54820db326794be085c471fa80db5d5ed4f2412fcaa9b651653e069f336d509a",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "dqatCorpusKotHash": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+    "dqatCoveredItemsSha256": "fa8ad6e74e5e1f2732a8076109c7ab2d6893dbebb3ccfdb6ae0e37bd4dfe80fb",
+    "dqatManifestSha256": "67eb160a1f300bb39539fd0aab2bfd66a225b9551c222f870bdc37eb82262c20",
+    "dxifManifestSha256": "ad7bfa6bea2a19dd69e2d04265f6c20bec8e2e2cd9afe8a213ef893e08fb773f",
+    "dxifOutputsR1Sha256": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "evalItemIdsSha256": "480cc9ab95c6844bdd91ffdd00bd6ba366cbf783a9455229bb8897ea7ce6457d",
+    "f2bRunnerSha256": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
+    "f2btRunnerSha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+    "gsaManifestSha256": "87b78193ad70f6ba06a483f3a72d66288bc4949a7c9a257475320e0dd0cf3d26",
+    "gsaStoreSha256": "4a28f7fae59c85d27fa4bc7d0c7d15d9856f0527fdc0492b00162af7dd41e9d5",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "perItemRecordSha256": "every d-qa-t item carries record_path + record_sha256; the fallback kernel arm's verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN); the GS-A arm consumes the sha-pinned gs-a.jsonl projection instead (no record files at check time, by construction)",
+    "pinSources": "dqat/dadjt/dqa/dxif/kernel/molecules pins = the f2b-transfer stage-2 pins verbatim (frozen record + its d-adj-t ops amendment; PROPOSED-ASM-1106 asset reuse); gsaStoreSha256 = the A1-built GS-A store as-built, no rebuild; f2bRunnerSha256 = the A1-verified harness pin (PROPOSED-ASM-1108 \u2014 byte-identical, any edit voids the A1 lemma); f2btRunnerSha256 = the stage-2 staged-bytes runner sha (provenance-modal.json, 20260711-184448-modal); a1AuditSha256 = poc/deconf-a1/audit_a1.py at the complete-certificate commit; evalItemIdsSha256 = sha256 over one item id per '\\n'-terminated line, ALL 333 resolved-gold_ext d-qa-t items in pinned rank order; bm25CorpusSha256/bm25IndexSha256 = canonical serialisations computed by stageb_runner.py (deconfb-bm25/1) and asserted at every run; queryFnSourceSha256 = sha256 over the concatenated source of query_of_item/query_from_prompt/bm25_tokens/BM25Index/render_corpus/build_retrieval (function-granularity freeze check)",
+    "queryFnSourceSha256": "4beb075d451c28718cb195149d310d8ca1124fec0a968801915c6b091bf1866f"
+  },
+  "probes_m": 3,
+  "records_file": "run-records-deconfb-mock.jsonl",
+  "retrieved_token_cap": 512,
+  "retry_k": 4,
+  "seeds": [
+    0,
+    1
+  ],
+  "wallClockHours": 7.860746648576525e-05
+}

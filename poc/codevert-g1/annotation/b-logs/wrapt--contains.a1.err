@@ -1,0 +1,744 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.opj442f0"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.bcf91gtl
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c7-c3f0-7520-b692-2d6648b3d8ef
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: wrapt ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+docs/benchmarks.py
+docs/conf.py
+examples/call_tracker.py
+examples/dill_decorator.py
+examples/dill_proxy.py
+examples/pickling_proxy.py
+examples/type_checker.py
+src/wrapt/__init__.py
+src/wrapt/__wrapt__.py
+src/wrapt/arguments.py
+src/wrapt/caching.py
+src/wrapt/decorators.py
+src/wrapt/importer.py
+src/wrapt/patches.py
+src/wrapt/proxies.py
+src/wrapt/signature.py
+src/wrapt/synchronization.py
+src/wrapt/weakrefs.py
+src/wrapt/wrappers.py
+tests/conftest.py
+tests/core/compat.py
+tests/core/module1.py
+tests/core/module2.py
+tests/core/test_adapter.py
+tests/core/test_adapter_annotations.py
+tests/core/test_adapter_kwonly.py
+tests/core/test_annotations.py
+tests/core/test_attribute_wrapper.py
+tests/core/test_auto_object_proxy.py
+tests/core/test_callable_binding_no_args.py
+tests/core/test_callable_object_proxy.py
+tests/core/test_class.py
+tests/core/test_class_mro_entries.py
+tests/core/test_copy.py
+tests/core/test_decorator_state.py
+tests/core/test_decorators.py
+tests/core/test_deferred_patching.py
+tests/core/test_descriptor_get_class_access.py
+tests/core/test_descriptors.py
+tests/core/test_enabled_bool_error.py
+tests/core/test_entry_points.py
+tests/core/test_formatargspec.py
+tests/core/test_function.py
+tests/core/test_function_wrapper.py
+tests/core/test_inheritance.py
+tests/core/test_inner_classmethod.py
+tests/core/test_inner_staticmethod.py
+tests/core/test_inplace_operators.py
+tests/core/test_instancemethod.py
+tests/core/test_lazy_object_proxy.py
+tests/core/test_lru_cache.py
+tests/core/test_memoize.py
+tests/core/test_monkey_patching.py
+tests/core/test_nested_function.py
+tests/core/test_object_proxy.py
+tests/core/test_object_proxy_hook.py
+tests/core/test_object_proxy_self_dict.py
+tests/core/test_object_proxy_type_checks.py
+tests/core/test_outer_classmethod.py
+tests/core/test_outer_staticmethod.py
+tests/core/test_pickle.py
+tests/core/test_post_import_hooks.py
+tests/core/test_pyerr_clear_propagation.py
+tests/core/test_resolve_path.py
+tests/core/test_runtime_type_hints.py
+tests/core/test_synchronized_async.py
+tests/core/test_synchronized_lock.py
+tests/core/test_synchronized_markers.py
+tests/core/test_type_module_attribute.py
+tests/core/test_update_attributes.py
+tests/core/test_weak_function_proxy.py
+tests/core/test_with_signature.py
+tests/mypy/mypy_auto_object_proxy_t1.py
+tests/mypy/mypy_decorator_t1.py
+tests/mypy/mypy_function_wrapper_cls_t1.py
+tests/mypy/mypy_function_wrapper_cls_t2.py
+tests/mypy/mypy_function_wrapper_cls_t3.py
+tests/mypy/mypy_function_wrapper_cls_t4.py
+tests/mypy/mypy_function_wrapper_cls_t5.py
+tests/mypy/mypy_function_wrapper_cls_t6.py
+tests/mypy/mypy_function_wrapper_cls_t7.py
+tests/mypy/mypy_function_wrapper_cls_t8.py
+tests/mypy/mypy_function_wrapper_fn_t1.py
+tests/mypy/mypy_function_wrapper_fn_t2.py
+tests/mypy/mypy_function_wrapper_fn_t3.py
+tests/mypy/mypy_function_wrapper_fn_t4.py
+tests/mypy/mypy_function_wrapper_fn_t5.py
+tests/mypy/mypy_function_wrapper_fn_t6.py
+tests/mypy/mypy_function_wrapper_fn_t7.py
+tests/mypy/mypy_object_proxy_arithmetic_t1.py
+tests/mypy/mypy_object_proxy_container_t1.py
+tests/mypy/mypy_object_proxy_context_t1.py
+tests/mypy/mypy_partial_callable_t1.py
+tests/mypy/mypy_patch_function_wrapper_t1.py
+tests/mypy/mypy_patching_primitives_t1.py
+tests/mypy/mypy_post_import_hooks_t1.py
+tests/mypy/mypy_synchronized_lock_t1.py
+tests/mypy/mypy_transient_function_wrapper_t1.py
+tests/mypy/mypy_weak_function_proxy_t1.py
+tests/mypy/mypy_wrap_function_wrapper_t1.py
+tests/mypy/mypy_wrap_function_wrapper_t2.py
+tests/mypy/mypy_wrap_function_wrapper_t3.py
+tests/mypy/mypy_wrap_function_wrapper_t4.py
+tests/mypy/mypy_wrap_function_wrapper_t5.py
+tests/mypy/mypy_wrap_function_wrapper_t6.py
+tests/mypy/mypy_wrap_function_wrapper_t7.py
+tests/mypy/mypy_wrap_function_wrapper_t8.py
+
+=== QUERIES (2) ===
+QUERY g1q-wrapt-contains-37: family=contains target=tests/core/test_deferred_patching.py
+QUERY g1q-wrapt-contains-309: family=contains target=tests/core/test_descriptor_get_class_access.py::TestProperty.test_class_level_get.C
+
+=== CONTEXT ===
+
+FILE tests/core/test_deferred_patching.py:
+    1| import unittest
+    2| import sys
+    3| 
+    4| import wrapt
+    5| from wrapt.importer import _post_import_hooks
+    6| 
+    7| 
+    8| class TestDeferredWrapFunctionWrapper(unittest.TestCase):
+    9| 
+   10|     def setUp(self):
+   11|         super(TestDeferredWrapFunctionWrapper, self).setUp()
+   12| 
+   13|         sys.modules.pop("colorsys", None)
+   14|         _post_import_hooks.pop("colorsys", None)
+   15| 
+   16|     def test_deferred_wrap_before_import(self):
+   17|         called = []
+   18| 
+   19|         def wrapper(wrapped, instance, args, kwargs):
+   20|             called.append(True)
+   21|             return wrapped(*args, **kwargs)
+   22| 
+   23|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   24| 
+   25|         self.assertIsNone(result)
+   26|         self.assertEqual(len(called), 0)
+   27| 
+   28|         import colorsys
+   29| 
+   30|         # The wrapper should now be applied.
+   31| 
+   32|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+   33| 
+   34|         self.assertEqual(len(called), 1)
+   35| 
+   36|     def test_deferred_wrap_after_import(self):
+   37|         import colorsys
+   38| 
+   39|         called = []
+   40| 
+   41|         def wrapper(wrapped, instance, args, kwargs):
+   42|             called.append(True)
+   43|             return wrapped(*args, **kwargs)
+   44| 
+   45|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   46| 
+   47|         # Module already imported, should wrap immediately.
+   48| 
+   49|         self.assertIsNotNone(result)
+   50| 
+   51|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+   52| 
+   53|         self.assertEqual(len(called), 1)
+   54| 
+   55|     def test_deferred_wrap_returns_none(self):
+   56|         def wrapper(wrapped, instance, args, kwargs):
+   57|             return wrapped(*args, **kwargs)
+   58| 
+   59|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   60| 
+   61|         self.assertIsNone(result)
+   62| 
+   63|     def test_immediate_wrap_returns_wrapper(self):
+   64|         import colorsys
+   65| 
+   66|         def wrapper(wrapped, instance, args, kwargs):
+   67|             return wrapped(*args, **kwargs)
+   68| 
+   69|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   70| 
+   71|         self.assertIsNotNone(result)
+   72| 
+   73|     def test_without_question_mark_imports_immediately(self):
+   74|         self.assertNotIn("colorsys", sys.modules)
+   75| 
+   76|         def wrapper(wrapped, instance, args, kwargs):
+   77|             return wrapped(*args, **kwargs)
+   78| 
+   79|         wrapt.wrap_function_wrapper("colorsys", "rgb_to_hsv", wrapper)
+   80| 
+   81|         # Module should have been imported immediately.
+   82| 
+   83|         self.assertIn("colorsys", sys.modules)
+   84| 
+   85| 
+   86| class TestDeferredPatchFunctionWrapper(unittest.TestCase):
+   87| 
+   88|     def setUp(self):
+   89|         super(TestDeferredPatchFunctionWrapper, self).setUp()
+   90| 
+   91|         sys.modules.pop("colorsys", None)
+   92|         _post_import_hooks.pop("colorsys", None)
+   93| 
+   94|     def test_deferred_patch_before_import(self):
+   95|         called = []
+   96| 
+   97|         @wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")
+   98|         def wrapper(wrapped, instance, args, kwargs):
+   99|             called.append(True)
+  100|             return wrapped(*args, **kwargs)
+  101| 
+  102|         self.assertEqual(len(called), 0)
+  103| 
+  104|         import colorsys
+  105| 
+  106|         # The wrapper should now be applied.
+  107| 
+  108|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  109| 
+  110|         self.assertEqual(len(called), 1)
+  111| 
+  112|     def test_deferred_patch_after_import(self):
+  113|         import colorsys
+  114| 
+  115|         called = []
+  116| 
+  117|         @wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")
+  118|         def wrapper(wrapped, instance, args, kwargs):
+  119|             called.append(True)
+  120|             return wrapped(*args, **kwargs)
+  121| 
+  122|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  123| 
+  124|         self.assertEqual(len(called), 1)
+  125| 
+  126|     def test_deferred_patch_returns_wrapper_function(self):
+  127|         # When deferred, the decorator should return the original wrapper
+  128|         # function so it remains usable.
+  129| 
+  130|         def _wrapper(wrapped, instance, args, kwargs):
+  131|             return wrapped(*args, **kwargs)
+  132| 
+  133|         wrapper = wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")(_wrapper)
+  134| 
+  135|         self.assertIs(wrapper, _wrapper)
+  136| 
+  137|     def test_immediate_patch_returns_wrapper_function(self):
+  138|         # When applied immediately, the decorator should also return the
+  139|         # original wrapper function.
+  140| 
+  141|         import colorsys
+  142| 
+  143|         def _wrapper(wrapped, instance, args, kwargs):
+  144|             return wrapped(*args, **kwargs)
+  145| 
+  146|         wrapper = wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")(_wrapper)
+  147| 
+  148|         self.assertIs(wrapper, _wrapper)
+  149| 
+  150|     def test_deferred_patch_with_enabled(self):
+  151|         called = []
+  152| 
+  153|         enable = False
+  154| 
+  155|         def enabled():
+  156|             return enable
+  157| 
+  158|         @wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv", enabled=enabled)
+  159|         def wrapper(wrapped, instance, args, kwargs):
+  160|             called.append(True)
+  161|             return wrapped(*args, **kwargs)
+  162| 
+  163|         import colorsys
+  164| 
+  165|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  166| 
+  167|         self.assertEqual(len(called), 0)
+  168| 
+  169|         enable = True
+  170| 
+  171|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  172| 
+  173|         self.assertEqual(len(called), 1)
+  174| 
+  175|     def test_without_question_mark_imports_immediately(self):
+  176|         self.assertNotIn("colorsys", sys.modules)
+  177| 
+  178|         @wrapt.patch_function_wrapper("colorsys", "rgb_to_hsv")
+  179|         def wrapper(wrapped, instance, args, kwargs):
+  180|             return wrapped(*args, **kwargs)
+  181| 
+  182|         # Module should have been imported immediately.
+  183| 
+  184|         self.assertIn("colorsys", sys.modules)
+  185| 
+  186| 
+  187| if __name__ == "__main__":
+  188|     unittest.main()
+
+FILE tests/core/test_descriptor_get_class_access.py:
+    1| """Tests for ``FunctionWrapper.__get__`` against the full range of descriptor
+    2| types found in CPython: the native C descriptor types (slot wrappers, method
+    3| descriptors, classmethod descriptors, getset descriptors, member descriptors)
+    4| as well as the Python-level descriptors (property, classmethod, staticmethod,
+    5| and user-defined descriptors). Each is exercised at class-level access (where
+    6| the C descriptor protocol passes ``NULL`` for the instance argument of the
+    7| ``tp_descr_get`` slot) and at instance-level access where applicable.
+    8| 
+    9| These cases verify that ``FunctionWrapper.__get__`` forwards the instance
+   10| argument it receives through to the wrapped descriptor's ``__get__`` slot
+   11| without modification. Native CPython descriptor types other than the
+   12| descriptor for ordinary Python functions distinguish between ``NULL`` and
+   13| ``Py_None`` for the instance argument and raise ``TypeError`` if ``Py_None``
+   14| is passed where ``NULL`` is expected, so any future change which substitutes
+   15| ``Py_None`` for ``NULL`` before invoking the wrapped descriptor is detected
+   16| here. The same tests are executed against the C and pure Python wrapper
+   17| implementations.
+   18| """
+   19| 
+   20| import io
+   21| import platform
+   22| import socket
+   23| import types
+   24| import unittest
+   25| 
+   26| import wrapt
+   27| 
+   28| # The native CPython descriptor types tested below (slot wrappers, method
+   29| # descriptors, classmethod descriptors, getset descriptors, member
+   30| # descriptors) are CPython implementation details. PyPy implements its
+   31| # descriptor protocol differently and does not always expose the same
+   32| # distinct types, and modules such as ``_pickle`` which are used here to
+   33| # obtain a C-extension backed slot wrapper are also absent. The tests
+   34| # guarding behaviour of these CPython specific descriptors are skipped
+   35| # on PyPy. The bug they guard against was specific to the wrapt C
+   36| # extension which is not built on PyPy in any case.
+   37| 
+   38| IS_PYPY = platform.python_implementation() == "PyPy"
+   39| 
+   40| skip_on_pypy = unittest.skipIf(
+   41|     IS_PYPY,
+   42|     "exercises CPython specific native descriptor types not present on PyPy",
+   43| )
+   44| 
+   45| if not IS_PYPY:
+   46|     import _pickle  # type: ignore[import-not-found]
+   47| 
+   48| 
+   49| def _wrapper(wrapped, instance, args, kwargs):
+   50|     return wrapped(*args, **kwargs)
+   51| 
+   52| 
+   53| def _wrap(target):
+   54|     return wrapt.FunctionWrapper(target, _wrapper)
+   55| 
+   56| 
+   57| def _find_member_descriptor():
+   58|     # ``socket.socket`` uses ``__slots__`` and reliably exposes
+   59|     # ``MemberDescriptorType`` attributes on CPython.
+   60|     for value in vars(socket.socket).values():
+   61|         if isinstance(value, types.MemberDescriptorType):
+   62|             return value
+   63|     return None
+   64| 
+   65| 
+   66| @skip_on_pypy
+   67| class TestSlotWrapperDescriptor(unittest.TestCase):
+   68|     # ``wrapper_descriptor`` is the descriptor type for C-level type slots
+   69|     # such as ``_pickle.Unpickler.load`` (displayed as
+   70|     # ``<slot wrapper 'load' of '_pickle.Unpickler' objects>``). A C
+   71|     # extension type is used so the slot wrapper is backed by a C function
+   72|     # rather than a Python function.
+   73| 
+   74|     def test_class_level_get(self):
+   75|         wrapped = _wrap(_pickle.Unpickler.load)
+   76|         result = wrapped.__get__(None, _pickle.Unpickler)
+   77|         self.assertIsNotNone(result.__doc__)
+   78| 
+   79|     def test_subclass_class_level_get(self):
+   80|         class Sub(_pickle.Unpickler):
+   81|             pass
+   82| 
+   83|         wrapped = _wrap(_pickle.Unpickler.load)
+   84|         result = wrapped.__get__(None, Sub)
+   85|         self.assertIsNotNone(result.__doc__)
+   86| 
+   87|     def test_instance_level_get(self):
+   88|         wrapped = _wrap(_pickle.Unpickler.load)
+   89|         instance = _pickle.Unpickler(io.BytesIO())
+   90|         bound = wrapped.__get__(instance, _pickle.Unpickler)
+   91|         self.assertIsNotNone(bound)
+   92| 
+   93| 
+   94| @skip_on_pypy
+   95| class TestMethodDescriptor(unittest.TestCase):
+   96|     # ``method_descriptor`` is the descriptor type for built-in methods
+   97|     # defined in C such as ``str.upper``.
+   98| 
+   99|     def test_class_level_get(self):
+  100|         wrapped = _wrap(str.upper)
+  101|         result = wrapped.__get__(None, str)
+  102|         self.assertIsNotNone(result.__doc__)
+  103| 
+  104|     def test_subclass_class_level_get(self):
+  105|         class SubStr(str):
+  106|             pass
+  107| 
+  108|         wrapped = _wrap(str.upper)
+  109|         result = wrapped.__get__(None, SubStr)
+  110|         self.assertIsNotNone(result.__doc__)
+  111| 
+  112|     def test_instance_level_call(self):
+  113|         wrapped = _wrap(str.upper)
+  114|         bound = wrapped.__get__("hello", str)
+  115|         self.assertEqual(bound(), "HELLO")
+  116| 
+  117| 
+  118| @skip_on_pypy
+  119| class TestClassMethodDescriptor(unittest.TestCase):
+  120|     # ``classmethod_descriptor`` is the descriptor type for C-level
+  121|     # classmethods such as ``dict.fromkeys``. A classmethod descriptor
+  122|     # ignores the instance argument entirely, so class-level and
+  123|     # instance-level access behave identically.
+  124| 
+  125|     def test_class_level_get(self):
+  126|         wrapped = _wrap(dict.fromkeys)
+  127|         bound = wrapped.__get__(None, dict)
+  128|         self.assertEqual(bound(["a", "b"], 1), {"a": 1, "b": 1})
+  129| 
+  130| 
+  131| @skip_on_pypy
+  132| class TestGetSetDescriptor(unittest.TestCase):
+  133|     # ``getset_descriptor`` is the descriptor type generated for attributes
+  134|     # defined via ``PyGetSetDef`` in C, such as ``type.__name__``.
+  135| 
+  136|     @staticmethod
+  137|     def _descriptor():
+  138|         # Resolve via __dict__ so the lookup doesn't run the descriptor itself.
+  139|         descr = type.__dict__["__name__"]
+  140|         assert isinstance(descr, types.GetSetDescriptorType)
+  141|         return descr
+  142| 
+  143|     def test_class_level_get(self):
+  144|         # Class-level access must return the descriptor itself rather than
+  145|         # invoking the getter.
+  146|         wrapped = _wrap(self._descriptor())
+  147|         result = wrapped.__get__(None, type)
+  148|         self.assertIsInstance(result, types.GetSetDescriptorType)
+  149| 
+  150|     def test_instance_level_get(self):
+  151|         # Instance-level access must invoke the getter and return the value
+  152|         # of the attribute on the instance.
+  153|         wrapped = _wrap(self._descriptor())
+  154|         self.assertEqual(wrapped.__get__(str, type), "str")
+  155| 
+  156| 
+  157| @skip_on_pypy
+  158| class TestMemberDescriptor(unittest.TestCase):
+  159|     # ``member_descriptor`` is the descriptor type generated for slots
+  160|     # defined via ``PyMemberDef`` in C and for entries in ``__slots__``.
+  161| 
+  162|     def test_class_level_get(self):
+  163|         descr = _find_member_descriptor()
+  164|         if descr is None:
+  165|             self.skipTest("no member_descriptor available in this interpreter")
+  166|         wrapped = _wrap(descr)
+  167|         result = wrapped.__get__(None, socket.socket)
+  168|         self.assertIsInstance(result, types.MemberDescriptorType)
+  169| 
+  170| 
+  171| class TestProperty(unittest.TestCase):
+  172|     # ``property`` is the Python-level descriptor for read/write computed
+  173|     # attributes. Class-level access returns the property object itself
+  174|     # whereas instance-level access invokes the getter.
+  175| 
+  176|     def test_class_level_get(self):
+  177|         class C:
+  178|             @property
+  179|             def value(self):
+  180|                 return 42
+  181| 
+  182|         wrapped = _wrap(C.__dict__["value"])
+  183|         result = wrapped.__get__(None, C)
+  184|         self.assertIsInstance(result, property)
+  185| 
+  186|     def test_instance_level_get(self):
+  187|         class C:
+  188|             @property
+  189|             def value(self):
+  190|                 return 42
+  191| 
+  192|         wrapped = _wrap(C.__dict__["value"])
+  193|         self.assertEqual(wrapped.__get__(C(), C), 42)
+  194| 
+  195| 
+  196| class TestClassMethod(unittest.TestCase):
+  197|     # ``classmethod`` is the Python-level descriptor which binds the owning
+  198|     # class as the first argument. The wrapper must forward to the
+  199|     # classmethod's ``__get__`` so that calling the bound result invokes
+  200|     # the underlying function with the class.
+  201| 
+  202|     def test_class_level_get(self):
+  203|         class C:
+  204|             @classmethod
+  205|             def make(cls):
+  206|                 return cls
+  207| 
+  208|         wrapped = _wrap(C.__dict__["make"])
+  209|         self.assertIs(wrapped.__get__(None, C)(), C)
+  210| 
+  211| 
+  212| class TestStaticMethod(unittest.TestCase):
+  213|     # ``staticmethod`` is the Python-level descriptor which returns the
+  214|     # underlying function unchanged. The wrapper must forward to the
+  215|     # staticmethod's ``__get__`` so that calling the bound result invokes
+  216|     # the function with no implicit first argument.
+  217| 
+  218|     def test_class_level_get(self):
+  219|         class C:
+  220|             @staticmethod
+  221|             def make():
+  222|                 return 42
+  223| 
+  224|         wrapped = _wrap(C.__dict__["make"])
+  225|         self.assertEqual(wrapped.__get__(None, C)(), 42)
+  226| 
+  227| 
+  228| class TestCustomDescriptor(unittest.TestCase):
+  229|     # A user-defined Python descriptor receives the arguments
+  230|     # ``FunctionWrapper.__get__`` was called with. This case asserts on the
+  231|     # exact ``(instance, owner)`` tuple seen by the inner descriptor's
+  232|     # ``__get__`` so that any modification of the instance argument by the
+  233|     # wrapper between caller and wrapped descriptor is detected.
+  234| 
+  235|     def test_class_level_get_forwards_to_descriptor_get(self):
+  236|         calls = []
+  237| 
+  238|         class Descriptor:
+  239|             def __get__(self, instance, owner):
+  240|                 calls.append((instance, owner))
+  241|                 return self
+  242| 
+  243|         descr = Descriptor()
+  244|         wrapped = _wrap(descr)
+  245|         result = wrapped.__get__(None, str)
+  246|         self.assertEqual(calls, [(None, str)])
+  247|         self.assertIs(result.__wrapped__, descr)
+  248| 
+  249| 
+  250| class TestSubclassAttributeAccess(unittest.TestCase):
+  251|     # A wrapped descriptor installed on a subclass must remain accessible
+  252|     # via class attribute access on that subclass. This is the realistic
+  253|     # monkey patching pattern used by instrumentation libraries: take an
+  254|     # existing descriptor off a parent class, wrap it, and install the
+  255|     # wrapper as an attribute of a subclass.
+  256| 
+  257|     @skip_on_pypy
+  258|     def test_wrapped_slot_wrapper_via_subclass(self):
+  259|         class Sub(_pickle.Unpickler):
+  260|             pass
+  261| 
+  262|         wrapped = _wrap(_pickle.Unpickler.load)
+  263|         Sub.load = wrapped
+  264|         self.assertIsNotNone(Sub.load.__doc__)
+  265| 
+  266|     @skip_on_pypy
+  267|     def test_wrapped_dict_slot_via_subclass(self):
+  268|         class SubDict(dict):
+  269|             pass
+  270| 
+  271|         wrapped = _wrap(dict.__dict__["__contains__"])
+  272|         SubDict.__contains__ = wrapped
+  273|         self.assertIsNotNone(SubDict.__contains__)
+  274| 
+  275|     def test_wrapped_python_method_via_subclass(self):
+  276|         class Parent:
+  277|             def method(self):
+  278|                 return "parent"
+  279| 
+  280|         class Child(Parent):
+  281|             pass
+  282| 
+  283|         Child.method = _wrap(Parent.__dict__["method"])
+  284|         self.assertEqual(Child().method(), "parent")
+  285| 
+  286| 
+  287| if __name__ == "__main__":
+  288|     unittest.main()
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-wrapt-contains-37",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_deferred_patching.py::TestDeferredPatchFunctionWrapper",
+      "tests/core/test_deferred_patching.py::TestDeferredWrapFunctionWrapper"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-wrapt-contains-309",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_descriptor_get_class_access.py::TestProperty.test_class_level_get.C.value"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  }
+]
+tokens used
+10,853

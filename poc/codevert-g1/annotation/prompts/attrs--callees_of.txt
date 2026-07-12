@@ -1,0 +1,1484 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: attrs ===
+PY FILE LISTING (repo-root-relative; authoritative):
+bench/test_benchmarks.py
+docs/conf.py
+src/attr/__init__.py
+src/attr/_cmp.py
+src/attr/_compat.py
+src/attr/_config.py
+src/attr/_funcs.py
+src/attr/_make.py
+src/attr/_next_gen.py
+src/attr/_version_info.py
+src/attr/converters.py
+src/attr/exceptions.py
+src/attr/filters.py
+src/attr/setters.py
+src/attr/validators.py
+src/attrs/__init__.py
+src/attrs/converters.py
+src/attrs/exceptions.py
+src/attrs/filters.py
+src/attrs/setters.py
+src/attrs/validators.py
+tests/__init__.py
+tests/attr_import_star.py
+tests/conftest.py
+tests/dataclass_transform_example.py
+tests/strategies.py
+tests/test_3rd_party.py
+tests/test_abc.py
+tests/test_annotations.py
+tests/test_cmp.py
+tests/test_compat.py
+tests/test_config.py
+tests/test_converters.py
+tests/test_dunders.py
+tests/test_filters.py
+tests/test_forward_references.py
+tests/test_funcs.py
+tests/test_functional.py
+tests/test_hooks.py
+tests/test_import.py
+tests/test_init_subclass.py
+tests/test_make.py
+tests/test_next_gen.py
+tests/test_packaging.py
+tests/test_pattern_matching.py
+tests/test_pyright.py
+tests/test_setattr.py
+tests/test_slots.py
+tests/test_utils.py
+tests/test_validators.py
+tests/test_version_info.py
+tests/utils.py
+typing-examples/baseline.py
+typing-examples/mypy.py
+
+=== QUERIES (2) ===
+QUERY g1q-attrs-callees_of-851: family=callees_of target=tests/test_setattr.py::TestSetAttr.test_pipe.takes_all
+QUERY g1q-attrs-callees_of-488: family=callees_of target=tests/test_funcs.py::TestHas.test_generics_negative
+
+=== CONTEXT ===
+
+FILE tests/test_setattr.py:
+    1| # SPDX-License-Identifier: MIT
+    2| 
+    3| 
+    4| import pickle
+    5| 
+    6| import pytest
+    7| 
+    8| import attr
+    9| 
+   10| from attr import setters
+   11| from attr.exceptions import FrozenAttributeError
+   12| from attr.validators import instance_of, matches_re
+   13| 
+   14| 
+   15| @attr.s(frozen=True)
+   16| class Frozen:
+   17|     x = attr.ib()
+   18| 
+   19| 
+   20| @attr.s
+   21| class WithOnSetAttrHook:
+   22|     x = attr.ib(on_setattr=lambda *args: None)
+   23| 
+   24| 
+   25| class TestSetAttr:
+   26|     def test_change(self):
+   27|         """
+   28|         The return value of a hook overwrites the value. But they are not run
+   29|         on __init__.
+   30|         """
+   31| 
+   32|         def hook(*a, **kw):
+   33|             return "hooked!"
+   34| 
+   35|         @attr.s
+   36|         class Hooked:
+   37|             x = attr.ib(on_setattr=hook)
+   38|             y = attr.ib()
+   39| 
+   40|         h = Hooked("x", "y")
+   41| 
+   42|         assert "x" == h.x
+   43|         assert "y" == h.y
+   44| 
+   45|         h.x = "xxx"
+   46|         h.y = "yyy"
+   47| 
+   48|         assert "yyy" == h.y
+   49|         assert "hooked!" == h.x
+   50| 
+   51|     def test_frozen_attribute(self):
+   52|         """
+   53|         Frozen attributes raise FrozenAttributeError, others are not affected.
+   54|         """
+   55| 
+   56|         @attr.s
+   57|         class PartiallyFrozen:
+   58|             x = attr.ib(on_setattr=setters.frozen)
+   59|             y = attr.ib()
+   60| 
+   61|         pf = PartiallyFrozen("x", "y")
+   62| 
+   63|         pf.y = "yyy"
+   64| 
+   65|         assert "yyy" == pf.y
+   66| 
+   67|         with pytest.raises(FrozenAttributeError):
+   68|             pf.x = "xxx"
+   69| 
+   70|         assert "x" == pf.x
+   71| 
+   72|     @pytest.mark.parametrize(
+   73|         "on_setattr",
+   74|         [setters.validate, [setters.validate], setters.pipe(setters.validate)],
+   75|     )
+   76|     def test_validator(self, on_setattr):
+   77|         """
+   78|         Validators are run and they don't alter the value.
+   79|         """
+   80| 
+   81|         @attr.s(on_setattr=on_setattr)
+   82|         class ValidatedAttribute:
+   83|             x = attr.ib()
+   84|             y = attr.ib(validator=[instance_of(str), matches_re("foo.*qux")])
+   85| 
+   86|         va = ValidatedAttribute(42, "foobarqux")
+   87| 
+   88|         with pytest.raises(TypeError) as ei:
+   89|             va.y = 42
+   90| 
+   91|         assert "foobarqux" == va.y
+   92| 
+   93|         assert ei.value.args[0].startswith("'y' must be <")
+   94| 
+   95|         with pytest.raises(ValueError) as ei:
+   96|             va.y = "quxbarfoo"
+   97| 
+   98|         assert ei.value.args[0].startswith("'y' must match regex '")
+   99| 
+  100|         assert "foobarqux" == va.y
+  101| 
+  102|         va.y = "foobazqux"
+  103| 
+  104|         assert "foobazqux" == va.y
+  105| 
+  106|     def test_pipe(self):
+  107|         """
+  108|         Multiple hooks are possible, in that case the last return value is
+  109|         used. They can be supplied using the pipe functions or by passing a
+  110|         list to on_setattr.
+  111|         """
+  112|         taken = None
+  113| 
+  114|         def takes_all(val, instance, attrib):
+  115|             nonlocal taken
+  116|             taken = val, instance, attrib
+  117| 
+  118|             return val
+  119| 
+  120|         s = [setters.convert, lambda _, __, nv: nv + 1]
+  121| 
+  122|         @attr.s
+  123|         class Piped:
+  124|             x1 = attr.ib(
+  125|                 converter=[
+  126|                     attr.Converter(
+  127|                         takes_all, takes_field=True, takes_self=True
+  128|                     ),
+  129|                     int,
+  130|                 ],
+  131|                 on_setattr=setters.pipe(*s),
+  132|             )
+  133|             x2 = attr.ib(converter=int, on_setattr=s)
+  134| 
+  135|         p = Piped("41", "22")
+  136| 
+  137|         assert ("41", p) == taken[:-1]
+  138|         assert "x1" == taken[-1].name
+  139| 
+  140|         assert 41 == p.x1
+  141|         assert 22 == p.x2
+  142| 
+  143|         p.x1 = "41"
+  144|         p.x2 = "22"
+  145| 
+  146|         assert 42 == p.x1
+  147|         assert 23 == p.x2
+  148| 
+  149|     def test_make_class(self):
+  150|         """
+  151|         on_setattr of make_class gets forwarded.
+  152|         """
+  153|         C = attr.make_class("C", {"x": attr.ib()}, on_setattr=setters.frozen)
+  154| 
+  155|         c = C(1)
+  156| 
+  157|         with pytest.raises(FrozenAttributeError):
+  158|             c.x = 2
+  159| 
+  160|     def test_no_validator_no_converter(self):
+  161|         """
+  162|         validate and convert tolerate missing validators and converters.
+  163|         """
+  164| 
+  165|         @attr.s(on_setattr=[setters.convert, setters.validate])
+  166|         class C:
+  167|             x = attr.ib()
+  168| 
+  169|         c = C(1)
+  170| 
+  171|         c.x = 2
+  172| 
+  173|         assert 2 == c.x
+  174| 
+  175|     def test_validate_respects_run_validators_config(self):
+  176|         """
+  177|         If run validators is off, validate doesn't run them.
+  178|         """
+  179| 
+  180|         @attr.s(on_setattr=setters.validate)
+  181|         class C:
+  182|             x = attr.ib(validator=attr.validators.instance_of(int))
+  183| 
+  184|         c = C(1)
+  185| 
+  186|         attr.set_run_validators(False)
+  187| 
+  188|         c.x = "1"
+  189| 
+  190|         assert "1" == c.x
+  191| 
+  192|         attr.set_run_validators(True)
+  193| 
+  194|         with pytest.raises(TypeError) as ei:
+  195|             c.x = "1"
+  196| 
+  197|         assert ei.value.args[0].startswith("'x' must be <")
+  198| 
+  199|     def test_frozen_on_setattr_class_is_caught(self):
+  200|         """
+  201|         @attr.s(on_setattr=X, frozen=True) raises an ValueError.
+  202|         """
+  203|         with pytest.raises(ValueError) as ei:
+  204| 
+  205|             @attr.s(frozen=True, on_setattr=setters.validate)
+  206|             class C:
+  207|                 x = attr.ib()
+  208| 
+  209|         assert "Frozen classes can't use on_setattr." == ei.value.args[0]
+  210| 
+  211|     def test_frozen_on_setattr_attribute_is_caught(self):
+  212|         """
+  213|         attr.ib(on_setattr=X) on a frozen class raises an ValueError.
+  214|         """
+  215| 
+  216|         with pytest.raises(ValueError) as ei:
+  217| 
+  218|             @attr.s(frozen=True)
+  219|             class C:
+  220|                 x = attr.ib(on_setattr=setters.validate)
+  221| 
+  222|         assert "Frozen classes can't use on_setattr." == ei.value.args[0]
+  223| 
+  224|     @pytest.mark.parametrize("nop", [None, setters.NO_OP])
+  225|     def test_frozen_on_setattr_nops(self, nop):
+  226|         """
+  227|         on_setattr on frozen classes can be used for None and NO_OP.
+  228|         """
+  229| 
+  230|         @attr.s(frozen=True)
+  231|         class C:
+  232|             x = attr.ib(on_setattr=nop)
+  233| 
+  234|     def test_setattr_reset_if_no_custom_setattr(self, slots):
+  235|         """
+  236|         If a class with an active setattr is subclassed and no new setattr
+  237|         is generated, the __setattr__ is set to object.__setattr__.
+  238| 
+  239|         We do the double test because of Python 2.
+  240|         """
+  241| 
+  242|         def boom(*args):
+  243|             pytest.fail("Must not be called.")
+  244| 
+  245|         @attr.s
+  246|         class Hooked:
+  247|             x = attr.ib(on_setattr=boom)
+  248| 
+  249|         @attr.s(slots=slots)
+  250|         class NoHook(WithOnSetAttrHook):
+  251|             x = attr.ib()
+  252| 
+  253|         assert NoHook.__setattr__ == object.__setattr__
+  254|         assert 1 == NoHook(1).x
+  255|         assert Hooked.__attrs_own_setattr__
+  256|         assert not NoHook.__attrs_own_setattr__
+  257|         assert WithOnSetAttrHook.__attrs_own_setattr__
+  258| 
+  259|     def test_setattr_inherited_do_not_reset(self, slots):
+  260|         """
+  261|         If we inherit a __setattr__ that has been written by the user, we must
+  262|         not reset it unless necessary.
+  263|         """
+  264| 
+  265|         class A:
+  266|             """
+  267|             Not an attrs class on purpose to prevent accidental resets that
+  268|             would render the asserts meaningless.
+  269|             """
+  270| 
+  271|             def __setattr__(self, *args):
+  272|                 pass
+  273| 
+  274|         @attr.s(slots=slots)
+  275|         class B(A):
+  276|             pass
+  277| 
+  278|         assert B.__setattr__ == A.__setattr__
+  279| 
+  280|         @attr.s(slots=slots)
+  281|         class C(B):
+  282|             pass
+  283| 
+  284|         assert C.__setattr__ == A.__setattr__
+  285| 
+  286|     def test_pickling_retains_attrs_own(self, slots):
+  287|         """
+  288|         Pickling/Unpickling does not lose ownership information about
+  289|         __setattr__.
+  290|         """
+  291|         i = WithOnSetAttrHook(1)
+  292| 
+  293|         assert True is i.__attrs_own_setattr__
+  294| 
+  295|         i2 = pickle.loads(pickle.dumps(i))
+  296| 
+  297|         assert True is i2.__attrs_own_setattr__
+  298| 
+  299|         WOSAH = pickle.loads(pickle.dumps(WithOnSetAttrHook))
+  300| 
+  301|         assert True is WOSAH.__attrs_own_setattr__
+  302| 
+  303|     def test_slotted_class_can_have_custom_setattr(self):
+  304|         """
+  305|         A slotted class can define a custom setattr and it doesn't get
+  306|         overwritten.
+  307| 
+  308|         Regression test for #680.
+  309|         """
+  310| 
+  311|         @attr.s(slots=True)
+  312|         class A:
+  313|             def __setattr__(self, key, value):
+  314|                 raise SystemError
+  315| 
+  316|         with pytest.raises(SystemError):
+  317|             A().x = 1
+  318| 
+  319|     @pytest.mark.xfail(raises=attr.exceptions.FrozenAttributeError)
+  320|     def test_slotted_confused(self):
+  321|         """
+  322|         If we have a in-between non-attrs class, setattr reset detection
+  323|         should still work, but currently doesn't.
+  324| 
+  325|         It works with dict classes because we can look the finished class and
+  326|         patch it.  With slotted classes we have to deduce it ourselves.
+  327|         """
+  328| 
+  329|         @attr.s(slots=True)
+  330|         class A:
+  331|             x = attr.ib(on_setattr=setters.frozen)
+  332| 
+  333|         class B(A):
+  334|             pass
+  335| 
+  336|         @attr.s(slots=True)
+  337|         class C(B):
+  338|             x = attr.ib()
+  339| 
+  340|         C(1).x = 2
+  341| 
+  342|     def test_setattr_auto_detect_if_no_custom_setattr(self, slots):
+  343|         """
+  344|         It's possible to remove the on_setattr hook from an attribute and
+  345|         therefore write a custom __setattr__.
+  346|         """
+  347|         assert 1 == WithOnSetAttrHook(1).x
+  348| 
+  349|         @attr.s(auto_detect=True, slots=slots)
+  350|         class RemoveNeedForOurSetAttr(WithOnSetAttrHook):
+  351|             x = attr.ib()
+  352| 
+  353|             def __setattr__(self, name, val):
+  354|                 object.__setattr__(self, name, val * 2)
+  355| 
+  356|         i = RemoveNeedForOurSetAttr(1)
+  357| 
+  358|         assert not RemoveNeedForOurSetAttr.__attrs_own_setattr__
+  359|         assert 2 == i.x
+  360| 
+  361|     def test_setattr_restore_respects_auto_detect(self, slots):
+  362|         """
+  363|         If __setattr__ should be restored but the user supplied its own and
+  364|         set auto_detect, leave is alone.
+  365|         """
+  366| 
+  367|         @attr.s(auto_detect=True, slots=slots)
+  368|         class CustomSetAttr:
+  369|             def __setattr__(self, _, __):
+  370|                 pass
+  371| 
+  372|         assert CustomSetAttr.__setattr__ != object.__setattr__
+  373| 
+  374|     def test_setattr_auto_detect_frozen(self, slots):
+  375|         """
+  376|         frozen=True together with a detected custom __setattr__ are rejected.
+  377|         """
+  378|         with pytest.raises(
+  379|             ValueError, match="Can't freeze a class with a custom __setattr__"
+  380|         ):
+  381| 
+  382|             @attr.s(auto_detect=True, slots=slots, frozen=True)
+  383|             class CustomSetAttr(Frozen):
+  384|                 def __setattr__(self, _, __):
+  385|                     pass
+  386| 
+  387|     def test_setattr_auto_detect_on_setattr(self, slots):
+  388|         """
+  389|         on_setattr attributes together with a detected custom __setattr__ are
+  390|         rejected.
+  391|         """
+  392|         with pytest.raises(
+  393|             ValueError,
+  394|             match="Can't combine custom __setattr__ with on_setattr hooks",
+  395|         ):
+  396| 
+  397|             @attr.s(auto_detect=True, slots=slots)
+  398|             class HookAndCustomSetAttr:
+  399|                 x = attr.ib(on_setattr=lambda *args: None)
+  400| 
+  401|                 def __setattr__(self, _, __):
+  402|                     pass
+  403| 
+  404|     @pytest.mark.parametrize("a_slots", [True, False])
+  405|     @pytest.mark.parametrize("b_slots", [True, False])
+  406|     @pytest.mark.parametrize("c_slots", [True, False])
+  407|     def test_setattr_inherited_do_not_reset_intermediate(
+  408|         self, a_slots, b_slots, c_slots
+  409|     ):
+  410|         """
+  411|         A user-provided intermediate __setattr__ is not reset to
+  412|         object.__setattr__.
+  413| 
+  414|         This only can work with auto_detect activated, such that attrs can know
+  415|         that there is a user-provided __setattr__.
+  416|         """
+  417| 
+  418|         @attr.s(slots=a_slots)
+  419|         class A:
+  420|             x = attr.ib(on_setattr=setters.frozen)
+  421| 
+  422|         @attr.s(slots=b_slots, auto_detect=True)
+  423|         class B(A):
+  424|             x = attr.ib(on_setattr=setters.NO_OP)
+  425| 
+  426|             def __setattr__(self, key, value):
+  427|                 raise SystemError
+  428| 
+  429|         @attr.s(slots=c_slots)
+  430|         class C(B):
+  431|             pass
+  432| 
+  433|         assert getattr(A, "__attrs_own_setattr__", False) is True
+  434|         assert getattr(B, "__attrs_own_setattr__", False) is False
+  435|         assert getattr(C, "__attrs_own_setattr__", False) is False
+  436| 
+  437|         with pytest.raises(SystemError):
+  438|             C(1).x = 3
+  439| 
+  440|     def test_docstring(self):
+  441|         """
+  442|         Generated __setattr__ has a useful docstring.
+  443|         """
+  444|         assert (
+  445|             "Method generated by attrs for class WithOnSetAttrHook."
+  446|             == WithOnSetAttrHook.__setattr__.__doc__
+  447|         )
+  448| 
+  449|     def test_setattr_converter_piped(self):
+  450|         """
+  451|         If a converter is used, it is piped through the on_setattr hooks.
+  452| 
+  453|         Regression test for https://github.com/python-attrs/attrs/issues/1327
+  454|         """
+  455| 
+  456|         @attr.define  # converter on setattr is implied in NG
+  457|         class C:
+  458|             x = attr.field(converter=[int])
+  459| 
+  460|         c = C("1")
+  461|         c.x = "2"
+  462| 
+  463|         assert 2 == c.x
+
+FILE tests/test_funcs.py:
+    1| # SPDX-License-Identifier: MIT
+    2| 
+    3| """
+    4| Tests for `attr._funcs`.
+    5| """
+    6| 
+    7| import re
+    8| 
+    9| from collections import OrderedDict
+   10| from typing import Generic, NamedTuple, TypeVar
+   11| 
+   12| import pytest
+   13| 
+   14| from hypothesis import assume, given
+   15| from hypothesis import strategies as st
+   16| 
+   17| import attr
+   18| 
+   19| from attr import asdict, assoc, astuple, evolve, fields, has
+   20| from attr._compat import Mapping, Sequence
+   21| from attr.exceptions import AttrsAttributeNotFoundError
+   22| from attr.validators import instance_of
+   23| 
+   24| from .strategies import nested_classes, simple_classes
+   25| 
+   26| 
+   27| MAPPING_TYPES = (dict, OrderedDict)
+   28| SEQUENCE_TYPES = (list, tuple)
+   29| 
+   30| 
+   31| @pytest.fixture(scope="session", name="C")
+   32| def _C():
+   33|     """
+   34|     Return a simple but fully featured attrs class with an x and a y attribute.
+   35|     """
+   36|     import attr
+   37| 
+   38|     @attr.s
+   39|     class C:
+   40|         x = attr.ib()
+   41|         y = attr.ib()
+   42| 
+   43|     return C
+   44| 
+   45| 
+   46| class TestAsDict:
+   47|     """
+   48|     Tests for `asdict`.
+   49|     """
+   50| 
+   51|     @given(st.sampled_from(MAPPING_TYPES))
+   52|     def test_shallow(self, C, dict_factory):
+   53|         """
+   54|         Shallow asdict returns correct dict.
+   55|         """
+   56|         assert {"x": 1, "y": 2} == asdict(
+   57|             C(x=1, y=2), False, dict_factory=dict_factory
+   58|         )
+   59| 
+   60|     @given(st.sampled_from(MAPPING_TYPES))
+   61|     def test_recurse(self, C, dict_class):
+   62|         """
+   63|         Deep asdict returns correct dict.
+   64|         """
+   65|         assert {"x": {"x": 1, "y": 2}, "y": {"x": 3, "y": 4}} == asdict(
+   66|             C(C(1, 2), C(3, 4)), dict_factory=dict_class
+   67|         )
+   68| 
+   69|     def test_non_atomic_types(self, C):
+   70|         """
+   71|         Non-atomic types that don't have special treatment for are serialized
+   72|         and the types are retained.
+   73|         """
+   74| 
+   75|         class Int(int):
+   76|             pass
+   77| 
+   78|         c = C(Int(10), [Int(1), 2])
+   79|         expected = {"x": 10, "y": [1, 2]}
+   80| 
+   81|         assert expected == asdict(c)
+   82|         assert type(asdict(c)["x"]) is Int
+   83|         assert type(asdict(c)["y"][0]) is Int
+   84| 
+   85|     def test_nested_lists(self, C):
+   86|         """
+   87|         Test unstructuring deeply nested lists.
+   88|         """
+   89|         inner = C(1, 2)
+   90|         outer = C([[inner]], None)
+   91| 
+   92|         assert {"x": [[{"x": 1, "y": 2}]], "y": None} == asdict(outer)
+   93| 
+   94|     def test_nested_dicts(self, C):
+   95|         """
+   96|         Test unstructuring deeply nested dictionaries.
+   97|         """
+   98|         inner = C(1, 2)
+   99|         outer = C({1: {2: inner}}, None)
+  100| 
+  101|         assert {"x": {1: {2: {"x": 1, "y": 2}}}, "y": None} == asdict(outer)
+  102| 
+  103|     @given(nested_classes, st.sampled_from(MAPPING_TYPES))
+  104|     def test_recurse_property(self, cls, dict_class):
+  105|         """
+  106|         Property tests for recursive asdict.
+  107|         """
+  108|         obj = cls()
+  109|         obj_dict = asdict(obj, dict_factory=dict_class)
+  110| 
+  111|         def assert_proper_dict_class(obj, obj_dict):
+  112|             assert isinstance(obj_dict, dict_class)
+  113| 
+  114|             for field in fields(obj.__class__):
+  115|                 field_val = getattr(obj, field.name)
+  116|                 if has(field_val.__class__):
+  117|                     # This field holds a class, recurse the assertions.
+  118|                     assert_proper_dict_class(field_val, obj_dict[field.name])
+  119|                 elif isinstance(field_val, Sequence):
+  120|                     dict_val = obj_dict[field.name]
+  121|                     for item, item_dict in zip(field_val, dict_val):
+  122|                         if has(item.__class__):
+  123|                             assert_proper_dict_class(item, item_dict)
+  124|                 elif isinstance(field_val, Mapping):
+  125|                     # This field holds a dictionary.
+  126|                     assert isinstance(obj_dict[field.name], dict_class)
+  127| 
+  128|                     for key, val in field_val.items():
+  129|                         if has(val.__class__):
+  130|                             assert_proper_dict_class(
+  131|                                 val, obj_dict[field.name][key]
+  132|                             )
+  133| 
+  134|         assert_proper_dict_class(obj, obj_dict)
+  135| 
+  136|     @given(st.sampled_from(MAPPING_TYPES))
+  137|     def test_filter(self, C, dict_factory):
+  138|         """
+  139|         Attributes that are supposed to be skipped are skipped.
+  140|         """
+  141|         assert {"x": {"x": 1}} == asdict(
+  142|             C(C(1, 2), C(3, 4)),
+  143|             filter=lambda a, v: a.name != "y",
+  144|             dict_factory=dict_factory,
+  145|         )
+  146| 
+  147|     @given(container=st.sampled_from(SEQUENCE_TYPES))
+  148|     def test_lists_tuples(self, container, C):
+  149|         """
+  150|         If recurse is True, also recurse into lists.
+  151|         """
+  152|         assert {
+  153|             "x": 1,
+  154|             "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"],
+  155|         } == asdict(C(1, container([C(2, 3), C(4, 5), "a"])))
+  156| 
+  157|     @given(container=st.sampled_from(SEQUENCE_TYPES))
+  158|     def test_lists_tuples_retain_type(self, container, C):
+  159|         """
+  160|         If recurse and retain_collection_types are True, also recurse
+  161|         into lists and do not convert them into list.
+  162|         """
+  163|         assert {
+  164|             "x": 1,
+  165|             "y": container([{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"]),
+  166|         } == asdict(
+  167|             C(1, container([C(2, 3), C(4, 5), "a"])),
+  168|             retain_collection_types=True,
+  169|         )
+  170| 
+  171|     @given(set_type=st.sampled_from((set, frozenset)))
+  172|     def test_sets_no_retain(self, C, set_type):
+  173|         """
+  174|         Set types are converted to lists if retain_collection_types=False.
+  175|         """
+  176|         d = asdict(
+  177|             C(1, set_type((1, 2, 3))),
+  178|             retain_collection_types=False,
+  179|             recurse=True,
+  180|         )
+  181| 
+  182|         assert {"x": 1, "y": [1, 2, 3]} == d
+  183| 
+  184|     @given(st.sampled_from(MAPPING_TYPES))
+  185|     def test_dicts(self, C, dict_factory):
+  186|         """
+  187|         If recurse is True, also recurse into dicts.
+  188|         """
+  189|         res = asdict(C(1, {"a": C(4, 5)}), dict_factory=dict_factory)
+  190| 
+  191|         assert {"x": 1, "y": {"a": {"x": 4, "y": 5}}} == res
+  192|         assert isinstance(res, dict_factory)
+  193| 
+  194|     @given(simple_classes(private_attrs=False), st.sampled_from(MAPPING_TYPES))
+  195|     def test_roundtrip(self, cls, dict_class):
+  196|         """
+  197|         Test dumping to dicts and back for Hypothesis-generated classes.
+  198| 
+  199|         Private attributes don't round-trip (the attribute name is different
+  200|         than the initializer argument).
+  201|         """
+  202|         instance = cls()
+  203|         dict_instance = asdict(instance, dict_factory=dict_class)
+  204| 
+  205|         assert isinstance(dict_instance, dict_class)
+  206| 
+  207|         roundtrip_instance = cls(**dict_instance)
+  208| 
+  209|         assert instance == roundtrip_instance
+  210| 
+  211|     @given(simple_classes())
+  212|     def test_asdict_preserve_order(self, cls):
+  213|         """
+  214|         Field order should be preserved when dumping to an ordered_dict.
+  215|         """
+  216|         instance = cls()
+  217|         dict_instance = asdict(instance, dict_factory=dict)
+  218| 
+  219|         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
+  220| 
+  221|     def test_retain_keys_are_tuples(self):
+  222|         """
+  223|         retain_collect_types also retains keys.
+  224|         """
+  225| 
+  226|         @attr.s
+  227|         class A:
+  228|             a = attr.ib()
+  229| 
+  230|         instance = A({(1,): 1})
+  231| 
+  232|         assert {"a": {(1,): 1}} == attr.asdict(
+  233|             instance, retain_collection_types=True
+  234|         )
+  235| 
+  236|     def test_tuple_keys(self):
+  237|         """
+  238|         If a key is collection type, retain_collection_types is False,
+  239|          the key is serialized as a tuple.
+  240| 
+  241|         See #646
+  242|         """
+  243| 
+  244|         @attr.s
+  245|         class A:
+  246|             a = attr.ib()
+  247| 
+  248|         instance = A({(1,): 1})
+  249| 
+  250|         assert {"a": {(1,): 1}} == attr.asdict(instance)
+  251| 
+  252|     def test_named_tuple_retain_type(self):
+  253|         """
+  254|         Namedtuples can be serialized if retain_collection_types is True.
+  255| 
+  256|         See #1164
+  257|         """
+  258| 
+  259|         class Coordinates(NamedTuple):
+  260|             lat: float
+  261|             lon: float
+  262| 
+  263|         @attr.s
+  264|         class A:
+  265|             coords: Coordinates = attr.ib()
+  266| 
+  267|         instance = A(Coordinates(50.419019, 30.516225))
+  268| 
+  269|         assert {"coords": Coordinates(50.419019, 30.516225)} == attr.asdict(
+  270|             instance, retain_collection_types=True
+  271|         )
+  272| 
+  273|     def test_type_error_with_retain_type(self):
+  274|         """
+  275|         Serialization that fails with TypeError leaves the error through if
+  276|         they're not tuples.
+  277| 
+  278|         See #1164
+  279|         """
+  280| 
+  281|         message = "__new__() missing 1 required positional argument (asdict)"
+  282| 
+  283|         class Coordinates(list):
+  284|             def __init__(self, first, *rest):
+  285|                 if isinstance(first, list):
+  286|                     raise TypeError(message)
+  287|                 super().__init__([first, *rest])
+  288| 
+  289|         @attr.s
+  290|         class A:
+  291|             coords: Coordinates = attr.ib()
+  292| 
+  293|         instance = A(Coordinates(50.419019, 30.516225))
+  294| 
+  295|         with pytest.raises(TypeError, match=re.escape(message)):
+  296|             attr.asdict(instance, retain_collection_types=True)
+  297| 
+  298| 
+  299| class TestAsTuple:
+  300|     """
+  301|     Tests for `astuple`.
+  302|     """
+  303| 
+  304|     @given(st.sampled_from(SEQUENCE_TYPES))
+  305|     def test_shallow(self, C, tuple_factory):
+  306|         """
+  307|         Shallow astuple returns correct dict.
+  308|         """
+  309|         assert tuple_factory([1, 2]) == astuple(
+  310|             C(x=1, y=2), False, tuple_factory=tuple_factory
+  311|         )
+  312| 
+  313|     @given(st.sampled_from(SEQUENCE_TYPES))
+  314|     def test_recurse(self, C, tuple_factory):
+  315|         """
+  316|         Deep astuple returns correct tuple.
+  317|         """
+  318|         assert tuple_factory(
+  319|             [tuple_factory([1, 2]), tuple_factory([3, 4])]
+  320|         ) == astuple(C(C(1, 2), C(3, 4)), tuple_factory=tuple_factory)
+  321| 
+  322|     @given(nested_classes, st.sampled_from(SEQUENCE_TYPES))
+  323|     def test_recurse_property(self, cls, tuple_class):
+  324|         """
+  325|         Property tests for recursive astuple.
+  326|         """
+  327|         obj = cls()
+  328|         obj_tuple = astuple(obj, tuple_factory=tuple_class)
+  329| 
+  330|         def assert_proper_tuple_class(obj, obj_tuple):
+  331|             assert isinstance(obj_tuple, tuple_class)
+  332|             for index, field in enumerate(fields(obj.__class__)):
+  333|                 field_val = getattr(obj, field.name)
+  334|                 if has(field_val.__class__):
+  335|                     # This field holds a class, recurse the assertions.
+  336|                     assert_proper_tuple_class(field_val, obj_tuple[index])
+  337| 
+  338|         assert_proper_tuple_class(obj, obj_tuple)
+  339| 
+  340|     @given(nested_classes, st.sampled_from(SEQUENCE_TYPES))
+  341|     def test_recurse_retain(self, cls, tuple_class):
+  342|         """
+  343|         Property tests for asserting collection types are retained.
+  344|         """
+  345|         obj = cls()
+  346|         obj_tuple = astuple(
+  347|             obj, tuple_factory=tuple_class, retain_collection_types=True
+  348|         )
+  349| 
+  350|         def assert_proper_col_class(obj, obj_tuple):
+  351|             # Iterate over all attributes, and if they are lists or mappings
+  352|             # in the original, assert they are the same class in the dumped.
+  353|             for index, field in enumerate(fields(obj.__class__)):
+  354|                 field_val = getattr(obj, field.name)
+  355|                 if has(field_val.__class__):
+  356|                     # This field holds a class, recurse the assertions.
+  357|                     assert_proper_col_class(field_val, obj_tuple[index])
+  358|                 elif isinstance(field_val, (list, tuple)):
+  359|                     # This field holds a sequence of something.
+  360|                     expected_type = type(obj_tuple[index])
+  361|                     assert type(field_val) is expected_type
+  362|                     for obj_e, obj_tuple_e in zip(field_val, obj_tuple[index]):
+  363|                         if has(obj_e.__class__):
+  364|                             assert_proper_col_class(obj_e, obj_tuple_e)
+  365|                 elif isinstance(field_val, dict):
+  366|                     orig = field_val
+  367|                     tupled = obj_tuple[index]
+  368|                     assert type(orig) is type(tupled)
+  369|                     for obj_e, obj_tuple_e in zip(
+  370|                         orig.items(), tupled.items()
+  371|                     ):
+  372|                         if has(obj_e[0].__class__):  # Dict key
+  373|                             assert_proper_col_class(obj_e[0], obj_tuple_e[0])
+  374|                         if has(obj_e[1].__class__):  # Dict value
+  375|                             assert_proper_col_class(obj_e[1], obj_tuple_e[1])
+  376| 
+  377|         assert_proper_col_class(obj, obj_tuple)
+  378| 
+  379|     @given(st.sampled_from(SEQUENCE_TYPES))
+  380|     def test_filter(self, C, tuple_factory):
+  381|         """
+  382|         Attributes that are supposed to be skipped are skipped.
+  383|         """
+  384|         assert tuple_factory([tuple_factory([1])]) == astuple(
+  385|             C(C(1, 2), C(3, 4)),
+  386|             filter=lambda a, v: a.name != "y",
+  387|             tuple_factory=tuple_factory,
+  388|         )
+  389| 
+  390|     @given(container=st.sampled_from(SEQUENCE_TYPES))
+  391|     def test_lists_tuples(self, container, C):
+  392|         """
+  393|         If recurse is True, also recurse into lists.
+  394|         """
+  395|         assert (1, [(2, 3), (4, 5), "a"]) == astuple(
+  396|             C(1, container([C(2, 3), C(4, 5), "a"]))
+  397|         )
+  398| 
+  399|     @given(st.sampled_from(SEQUENCE_TYPES))
+  400|     def test_dicts(self, C, tuple_factory):
+  401|         """
+  402|         If recurse is True, also recurse into dicts.
+  403|         """
+  404|         res = astuple(C(1, {"a": C(4, 5)}), tuple_factory=tuple_factory)
+  405|         assert tuple_factory([1, {"a": tuple_factory([4, 5])}]) == res
+  406|         assert isinstance(res, tuple_factory)
+  407| 
+  408|     @given(container=st.sampled_from(SEQUENCE_TYPES))
+  409|     def test_lists_tuples_retain_type(self, container, C):
+  410|         """
+  411|         If recurse and retain_collection_types are True, also recurse
+  412|         into lists and do not convert them into list.
+  413|         """
+  414|         assert (1, container([(2, 3), (4, 5), "a"])) == astuple(
+  415|             C(1, container([C(2, 3), C(4, 5), "a"])),
+  416|             retain_collection_types=True,
+  417|         )
+  418| 
+  419|     @given(container=st.sampled_from(MAPPING_TYPES))
+  420|     def test_dicts_retain_type(self, container, C):
+  421|         """
+  422|         If recurse and retain_collection_types are True, also recurse
+  423|         into lists and do not convert them into list.
+  424|         """
+  425|         assert (1, container({"a": (4, 5)})) == astuple(
+  426|             C(1, container({"a": C(4, 5)})), retain_collection_types=True
+  427|         )
+  428| 
+  429|     @given(simple_classes(), st.sampled_from(SEQUENCE_TYPES))
+  430|     def test_roundtrip(self, cls, tuple_class):
+  431|         """
+  432|         Test dumping to tuple and back for Hypothesis-generated classes.
+  433|         """
+  434|         instance = cls()
+  435|         tuple_instance = astuple(instance, tuple_factory=tuple_class)
+  436| 
+  437|         assert isinstance(tuple_instance, tuple_class)
+  438| 
+  439|         roundtrip_instance = cls(*tuple_instance)
+  440| 
+  441|         assert instance == roundtrip_instance
+  442| 
+  443|     @given(set_type=st.sampled_from((set, frozenset)))
+  444|     def test_sets_no_retain(self, C, set_type):
+  445|         """
+  446|         Set types are converted to lists if retain_collection_types=False.
+  447|         """
+  448|         d = astuple(
+  449|             C(1, set_type((1, 2, 3))),
+  450|             retain_collection_types=False,
+  451|             recurse=True,
+  452|         )
+  453| 
+  454|         assert (1, [1, 2, 3]) == d
+  455| 
+  456|     def test_named_tuple_retain_type(self):
+  457|         """
+  458|         Namedtuples can be serialized if retain_collection_types is True.
+  459| 
+  460|         See #1164
+  461|         """
+  462| 
+  463|         class Coordinates(NamedTuple):
+  464|             lat: float
+  465|             lon: float
+  466| 
+  467|         @attr.s
+  468|         class A:
+  469|             coords: Coordinates = attr.ib()
+  470| 
+  471|         instance = A(Coordinates(50.419019, 30.516225))
+  472| 
+  473|         assert (Coordinates(50.419019, 30.516225),) == attr.astuple(
+  474|             instance, retain_collection_types=True
+  475|         )
+  476| 
+  477|     def test_type_error_with_retain_type(self):
+  478|         """
+  479|         Serialization that fails with TypeError leaves the error through if
+  480|         they're not tuples.
+  481| 
+  482|         See #1164
+  483|         """
+  484| 
+  485|         message = "__new__() missing 1 required positional argument (astuple)"
+  486| 
+  487|         class Coordinates(list):
+  488|             def __init__(self, first, *rest):
+  489|                 if isinstance(first, list):
+  490|                     raise TypeError(message)
+  491|                 super().__init__([first, *rest])
+  492| 
+  493|         @attr.s
+  494|         class A:
+  495|             coords: Coordinates = attr.ib()
+  496| 
+  497|         instance = A(Coordinates(50.419019, 30.516225))
+  498| 
+  499|         with pytest.raises(TypeError, match=re.escape(message)):
+  500|             attr.astuple(instance, retain_collection_types=True)
+  501| 
+  502|     def test_non_atomic_types(self, C):
+  503|         """
+  504|         Non-atomic types that don't have special treatment for are serialized
+  505|         and the types are retained.
+  506|         """
+  507| 
+  508|         class Int(int):
+  509|             pass
+  510| 
+  511|         c = C(Int(10), [Int(1), 2])
+  512|         expected = (Int(10), [Int(1), 2])
+  513| 
+  514|         result = astuple(c)
+  515|         assert expected == result
+  516|         assert type(result[0]) is Int
+  517|         assert type(result[1][0]) is Int
+  518| 
+  519| 
+  520| class TestHas:
+  521|     """
+  522|     Tests for `has`.
+  523|     """
+  524| 
+  525|     def test_positive(self, C):
+  526|         """
+  527|         Returns `True` on decorated classes.
+  528|         """
+  529|         assert has(C)
+  530| 
+  531|     def test_positive_empty(self):
+  532|         """
+  533|         Returns `True` on decorated classes even if there are no attributes.
+  534|         """
+  535| 
+  536|         @attr.s
+  537|         class D:
+  538|             pass
+  539| 
+  540|         assert has(D)
+  541| 
+  542|     def test_negative(self):
+  543|         """
+  544|         Returns `False` on non-decorated classes.
+  545|         """
+  546|         assert not has(object)
+  547| 
+  548|     def test_generics(self):
+  549|         """
+  550|         Works with generic classes.
+  551|         """
+  552|         T = TypeVar("T")
+  553| 
+  554|         @attr.define
+  555|         class A(Generic[T]):
+  556|             a: T
+  557| 
+  558|         assert has(A)
+  559| 
+  560|         assert has(A[str])
+  561|         # Verify twice, since there's caching going on.
+  562|         assert has(A[str])
+  563| 
+  564|     def test_generics_negative(self):
+  565|         """
+  566|         Returns `False` on non-decorated generic classes.
+  567|         """
+  568|         T = TypeVar("T")
+  569| 
+  570|         class A(Generic[T]):
+  571|             a: T
+  572| 
+  573|         assert not has(A)
+  574| 
+  575|         assert not has(A[str])
+  576|         # Verify twice, since there's caching going on.
+  577|         assert not has(A[str])
+  578| 
+  579| 
+  580| class TestAssoc:
+  581|     """
+  582|     Tests for `assoc`.
+  583|     """
+  584| 
+  585|     @given(slots=st.booleans(), frozen=st.booleans())
+  586|     def test_empty(self, slots, frozen):
+  587|         """
+  588|         Empty classes without changes get copied.
+  589|         """
+  590| 
+  591|         @attr.s(slots=slots, frozen=frozen)
+  592|         class C:
+  593|             pass
+  594| 
+  595|         i1 = C()
+  596|         i2 = assoc(i1)
+  597| 
+  598|         assert i1 is not i2
+  599|         assert i1 == i2
+  600| 
+  601|     @given(simple_classes())
+  602|     def test_no_changes(self, C):
+  603|         """
+  604|         No changes means a verbatim copy.
+  605|         """
+  606|         i1 = C()
+  607|         i2 = assoc(i1)
+  608| 
+  609|         assert i1 is not i2
+  610|         assert i1 == i2
+  611| 
+  612|     @given(simple_classes(), st.data())
+  613|     def test_change(self, C, data):
+  614|         """
+  615|         Changes work.
+  616|         """
+  617|         # Take the first attribute, and change it.
+  618|         assume(fields(C))  # Skip classes with no attributes.
+  619|         field_names = [a.name for a in fields(C)]
+  620|         original = C()
+  621|         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
+  622|         change_dict = {name: data.draw(st.integers()) for name in chosen_names}
+  623| 
+  624|         changed = assoc(original, **change_dict)
+  625| 
+  626|         for k, v in change_dict.items():
+  627|             assert getattr(changed, k) == v
+  628| 
+  629|     @given(simple_classes())
+  630|     def test_unknown(self, C):
+  631|         """
+  632|         Wanting to change an unknown attribute raises an
+  633|         AttrsAttributeNotFoundError.
+  634|         """
+  635|         # No generated class will have a four letter attribute.
+  636|         with pytest.raises(AttrsAttributeNotFoundError) as e:
+  637|             assoc(C(), aaaa=2)
+  638| 
+  639|         assert (f"aaaa is not an attrs attribute on {C!r}.",) == e.value.args
+  640| 
+  641|     def test_frozen(self):
+  642|         """
+  643|         Works on frozen classes.
+  644|         """
+  645| 
+  646|         @attr.s(frozen=True)
+  647|         class C:
+  648|             x = attr.ib()
+  649|             y = attr.ib()
+  650| 
+  651|         assert C(3, 2) == assoc(C(1, 2), x=3)
+  652| 
+  653| 
+  654| class TestEvolve:
+  655|     """
+  656|     Tests for `evolve`.
+  657|     """
+  658| 
+  659|     @given(slots=st.booleans(), frozen=st.booleans())
+  660|     def test_empty(self, slots, frozen):
+  661|         """
+  662|         Empty classes without changes get copied.
+  663|         """
+  664| 
+  665|         @attr.s(slots=slots, frozen=frozen)
+  666|         class C:
+  667|             pass
+  668| 
+  669|         i1 = C()
+  670|         i2 = evolve(i1)
+  671| 
+  672|         assert i1 is not i2
+  673|         assert i1 == i2
+  674| 
+  675|     @given(simple_classes())
+  676|     def test_no_changes(self, C):
+  677|         """
+  678|         No changes means a verbatim copy.
+  679|         """
+  680|         i1 = C()
+  681|         i2 = evolve(i1)
+  682| 
+  683|         assert i1 is not i2
+  684|         assert i1 == i2
+  685| 
+  686|     @given(simple_classes(), st.data())
+  687|     def test_change(self, C, data):
+  688|         """
+  689|         Changes work.
+  690|         """
+  691|         # Take the first attribute, and change it.
+  692|         assume(fields(C))  # Skip classes with no attributes.
+  693|         field_names = [a.name for a in fields(C)]
+  694|         original = C()
+  695|         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
+  696|         # We pay special attention to private attributes, they should behave
+  697|         # like in `__init__`.
+  698|         change_dict = {
+  699|             name.replace("_", ""): data.draw(st.integers())
+  700|             for name in chosen_names
+  701|         }
+  702|         changed = evolve(original, **change_dict)
+  703|         for name in chosen_names:
+  704|             assert getattr(changed, name) == change_dict[name.replace("_", "")]
+  705| 
+  706|     @given(simple_classes())
+  707|     def test_unknown(self, C):
+  708|         """
+  709|         Wanting to change an unknown attribute raises an
+  710|         AttrsAttributeNotFoundError.
+  711|         """
+  712|         # No generated class will have a four letter attribute.
+  713|         with pytest.raises(TypeError) as e:
+  714|             evolve(C(), aaaa=2)
+  715| 
+  716|         if hasattr(C, "__attrs_init__"):
+  717|             expected = (
+  718|                 "__attrs_init__() got an unexpected keyword argument 'aaaa'"
+  719|             )
+  720|         else:
+  721|             expected = "__init__() got an unexpected keyword argument 'aaaa'"
+  722| 
+  723|         assert e.value.args[0].endswith(expected)
+  724| 
+  725|     def test_validator_failure(self):
+  726|         """
+  727|         TypeError isn't swallowed when validation fails within evolve.
+  728|         """
+  729| 
+  730|         @attr.s
+  731|         class C:
+  732|             a = attr.ib(validator=instance_of(int))
+  733| 
+  734|         with pytest.raises(TypeError) as e:
+  735|             evolve(C(a=1), a="some string")
+  736|         m = e.value.args[0]
+  737| 
+  738|         assert m.startswith("'a' must be <class 'int'>")
+  739| 
+  740|     def test_private(self):
+  741|         """
+  742|         evolve() acts as `__init__` with regards to private attributes.
+  743|         """
+  744| 
+  745|         @attr.s
+  746|         class C:
+  747|             _a = attr.ib()
+  748| 
+  749|         assert evolve(C(1), a=2)._a == 2
+  750| 
+  751|         with pytest.raises(TypeError):
+  752|             evolve(C(1), _a=2)
+  753| 
+  754|         with pytest.raises(TypeError):
+  755|             evolve(C(1), a=3, _a=2)
+  756| 
+  757|     def test_non_init_attrs(self):
+  758|         """
+  759|         evolve() handles `init=False` attributes.
+  760|         """
+  761| 
+  762|         @attr.s
+  763|         class C:
+  764|             a = attr.ib()
+  765|             b = attr.ib(init=False, default=0)
+  766| 
+  767|         assert evolve(C(1), a=2).a == 2
+  768| 
+  769|     def test_regression_attrs_classes(self):
+  770|         """
+  771|         evolve() can evolve fields that are instances of attrs classes.
+  772| 
+  773|         Regression test for #804
+  774|         """
+  775| 
+  776|         @attr.s
+  777|         class Cls1:
+  778|             param1 = attr.ib()
+  779| 
+  780|         @attr.s
+  781|         class Cls2:
+  782|             param2 = attr.ib()
+  783| 
+  784|         obj2a = Cls2(param2="a")
+  785|         obj2b = Cls2(param2="b")
+  786| 
+  787|         obj1a = Cls1(param1=obj2a)
+  788| 
+  789|         assert Cls1(param1=Cls2(param2="b")) == attr.evolve(
+  790|             obj1a, param1=obj2b
+  791|         )
+  792| 
+  793|     def test_dicts(self):
+  794|         """
+  795|         evolve() can replace an attrs class instance with a dict.
+  796| 
+  797|         See #806
+  798|         """
+  799| 
+  800|         @attr.s
+  801|         class Cls1:
+  802|             param1 = attr.ib()
+  803| 
+  804|         @attr.s
+  805|         class Cls2:
+  806|             param2 = attr.ib()
+  807| 
+  808|         obj2a = Cls2(param2="a")
+  809|         obj2b = {"foo": 42, "param2": 42}
+  810| 
+  811|         obj1a = Cls1(param1=obj2a)
+  812| 
+  813|         assert Cls1({"foo": 42, "param2": 42}) == attr.evolve(
+  814|             obj1a, param1=obj2b
+  815|         )
+  816| 
+  817|     def test_no_inst(self):
+  818|         """
+  819|         Missing inst argument raises a TypeError like Python would.
+  820|         """
+  821|         with pytest.raises(
+  822|             TypeError, match=r"evolve\(\) takes 1 positional argument"
+  823|         ):
+  824|             evolve(x=1)
+  825| 
+  826|     def test_too_many_pos_args(self):
+  827|         """
+  828|         More than one positional argument raises a TypeError like Python would.
+  829|         """
+  830|         with pytest.raises(
+  831|             TypeError,
+  832|             match=r"evolve\(\) takes 1 positional argument, but 2 were given",
+  833|         ):
+  834|             evolve(1, 2)
+  835| 
+  836|     def test_can_change_inst(self):
+  837|         """
+  838|         If the instance is passed by positional argument, a field named `inst`
+  839|         can be changed.
+  840|         """
+  841| 
+  842|         @attr.define
+  843|         class C:
+  844|             inst: int
+  845| 
+  846|         assert C(42) == evolve(C(23), inst=42)
+
+Answer now with ONE JSON array containing one object per query, in query order.

@@ -1,0 +1,777 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: humanize ===
+PY FILE LISTING (repo-root-relative; authoritative):
+src/humanize/__init__.py
+src/humanize/filesize.py
+src/humanize/i18n.py
+src/humanize/lists.py
+src/humanize/number.py
+src/humanize/time.py
+tests/__init__.py
+tests/test_benchmarks.py
+tests/test_filesize.py
+tests/test_i18n.py
+tests/test_lists.py
+tests/test_number.py
+tests/test_time.py
+
+=== QUERIES (2) ===
+QUERY g1q-humanize-contains-11: family=contains target=tests/test_number.py
+QUERY g1q-humanize-contains-9: family=contains target=tests/test_i18n.py
+
+=== CONTEXT ===
+
+FILE tests/test_number.py:
+    1| """Number tests."""
+    2| 
+    3| from __future__ import annotations
+    4| 
+    5| import math
+    6| import typing
+    7| 
+    8| import pytest
+    9| 
+   10| import humanize
+   11| from humanize import number
+   12| 
+   13| 
+   14| @pytest.mark.parametrize(
+   15|     "test_input, expected",
+   16|     [
+   17|         ("1", "1st"),
+   18|         ("2", "2nd"),
+   19|         ("3", "3rd"),
+   20|         ("4", "4th"),
+   21|         ("11", "11th"),
+   22|         ("12", "12th"),
+   23|         ("13", "13th"),
+   24|         ("101", "101st"),
+   25|         ("102", "102nd"),
+   26|         ("103", "103rd"),
+   27|         ("111", "111th"),
+   28|         ("something else", "something else"),
+   29|         (None, "None"),
+   30|         (math.nan, "NaN"),
+   31|         (math.inf, "+Inf"),
+   32|         (-math.inf, "-Inf"),
+   33|         ("nan", "NaN"),
+   34|         ("-inf", "-Inf"),
+   35|     ],
+   36| )
+   37| def test_ordinal(test_input: str, expected: str) -> None:
+   38|     assert humanize.ordinal(test_input) == expected
+   39| 
+   40| 
+   41| @pytest.mark.parametrize(
+   42|     "test_args, expected",
+   43|     [
+   44|         ([100], "100"),
+   45|         ([1000], "1,000"),
+   46|         ([10123], "10,123"),
+   47|         ([10311], "10,311"),
+   48|         ([1_000_000], "1,000,000"),
+   49|         ([1_234_567.25], "1,234,567.25"),
+   50|         (["100"], "100"),
+   51|         (["1000"], "1,000"),
+   52|         (["10123"], "10,123"),
+   53|         (["10311"], "10,311"),
+   54|         (["1000000"], "1,000,000"),
+   55|         (["1234567.1234567"], "1,234,567.1234567"),
+   56|         (["1234567.1234567", 0], "1,234,567"),
+   57|         (["1234567.1234567", 1], "1,234,567.1"),
+   58|         (["1234567.1234567", 10], "1,234,567.1234567000"),
+   59|         (["1234567", 1], "1,234,567.0"),
+   60|         ([None], "None"),
+   61|         ([14308.40], "14,308.4"),
+   62|         ([14308.40, None], "14,308.4"),
+   63|         ([14308.40, 1], "14,308.4"),
+   64|         ([14308.40, 2], "14,308.40"),
+   65|         ([14308.40, 3], "14,308.400"),
+   66|         ([1234.5454545], "1,234.5454545"),
+   67|         ([1234.5454545, None], "1,234.5454545"),
+   68|         ([1234.5454545, 0], "1,235"),
+   69|         ([1234.5454545, 1], "1,234.5"),
+   70|         ([1234.5454545, 2], "1,234.55"),
+   71|         ([1234.5454545, 3], "1,234.545"),
+   72|         ([1234.5454545, 10], "1,234.5454545000"),
+   73|         ([math.nan], "NaN"),
+   74|         ([math.inf], "+Inf"),
+   75|         ([-math.inf], "-Inf"),
+   76|         (["nan"], "NaN"),
+   77|         (["-inf"], "-Inf"),
+   78|     ],
+   79| )
+   80| def test_intcomma(
+   81|     test_args: list[int] | list[float] | list[str], expected: str
+   82| ) -> None:
+   83|     assert humanize.intcomma(*test_args) == expected
+   84| 
+   85| 
+   86| def test_intword_powers() -> None:
+   87|     # make sure that powers & human_powers have the same number of items
+   88|     assert len(number.powers) == len(number.human_powers)
+   89| 
+   90| 
+   91| @pytest.mark.parametrize(
+   92|     "test_args, expected",
+   93|     [
+   94|         (["0"], "0"),
+   95|         (["100"], "100"),
+   96|         (["-100"], "-100"),
+   97|         (["1000"], "1.0 thousand"),
+   98|         (["12400"], "12.4 thousand"),
+   99|         (["12490"], "12.5 thousand"),
+  100|         (["1000000"], "1.0 million"),
+  101|         (["-1000000"], "-1.0 million"),
+  102|         (["1200000"], "1.2 million"),
+  103|         (["1290000"], "1.3 million"),
+  104|         (["999999999"], "1.0 billion"),
+  105|         (["1000000000"], "1.0 billion"),
+  106|         (["-1000000000"], "-1.0 billion"),
+  107|         (["2000000000"], "2.0 billion"),
+  108|         (["999999999999"], "1.0 trillion"),
+  109|         (["1000000000000"], "1.0 trillion"),
+  110|         (["6000000000000"], "6.0 trillion"),
+  111|         (["-6000000000000"], "-6.0 trillion"),
+  112|         (["999999999999999"], "1.0 quadrillion"),
+  113|         (["1000000000000000"], "1.0 quadrillion"),
+  114|         (["1300000000000000"], "1.3 quadrillion"),
+  115|         (["-1300000000000000"], "-1.3 quadrillion"),
+  116|         (["3500000000000000000000"], "3.5 sextillion"),
+  117|         (["8100000000000000000000000000000000"], "8.1 decillion"),
+  118|         (["-8100000000000000000000000000000000"], "-8.1 decillion"),
+  119|         ([1_000_000_000_000_000_000_000_000_000_000_000_000], "1000.0 decillion"),
+  120|         ([1_100_000_000_000_000_000_000_000_000_000_000_000], "1100.0 decillion"),
+  121|         ([2_100_000_000_000_000_000_000_000_000_000_000_000], "2100.0 decillion"),
+  122|         ([2e100], "2.0 googol"),
+  123|         ([None], "None"),
+  124|         (["1230000", "%0.2f"], "1.23 million"),
+  125|         ([10**100], "1.0 googol"),
+  126|         ([10**101], "10.0 googol"),
+  127|         ([math.nan], "NaN"),
+  128|         ([math.inf], "+Inf"),
+  129|         ([-math.inf], "-Inf"),
+  130|         (["nan"], "NaN"),
+  131|         (["-inf"], "-Inf"),
+  132|         (["1234567", "%.0f"], "1 million"),
+  133|         (["1234567", "%.1f"], "1.2 million"),
+  134|         (["1234567", "%.2f"], "1.23 million"),
+  135|         (["1234567", "%.3f"], "1.235 million"),
+  136|         (["999500", "%.0f"], "1 million"),
+  137|         (["999499", "%.0f"], "999 thousand"),
+  138|     ],
+  139| )
+  140| def test_intword(test_args: list[str], expected: str) -> None:
+  141|     assert humanize.intword(*test_args) == expected
+  142| 
+  143| 
+  144| @pytest.mark.parametrize(
+  145|     "test_input, expected",
+  146|     [
+  147|         (0, "zero"),
+  148|         (1, "one"),
+  149|         (2, "two"),
+  150|         (4, "four"),
+  151|         (5, "five"),
+  152|         (9, "nine"),
+  153|         (10, "10"),
+  154|         ("7", "seven"),
+  155|         (None, "None"),
+  156|         (math.nan, "NaN"),
+  157|         (math.inf, "+Inf"),
+  158|         (-math.inf, "-Inf"),
+  159|         ("nan", "NaN"),
+  160|         ("-inf", "-Inf"),
+  161|     ],
+  162| )
+  163| def test_apnumber(test_input: int | str, expected: str) -> None:
+  164|     assert humanize.apnumber(test_input) == expected
+  165| 
+  166| 
+  167| @pytest.mark.parametrize(
+  168|     "test_input, expected",
+  169|     [
+  170|         (1, "1"),
+  171|         (2.0, "2"),
+  172|         (4.0 / 3.0, "1 1/3"),
+  173|         (5.0 / 6.0, "5/6"),
+  174|         ("7", "7"),
+  175|         ("8.9", "8 9/10"),
+  176|         ("ten", "ten"),
+  177|         (None, "None"),
+  178|         (1 / 3, "1/3"),
+  179|         (1.5, "1 1/2"),
+  180|         (0.3, "3/10"),
+  181|         (0.333, "333/1000"),
+  182|         (math.nan, "NaN"),
+  183|         (math.inf, "+Inf"),
+  184|         (-math.inf, "-Inf"),
+  185|         ("nan", "NaN"),
+  186|         ("-inf", "-Inf"),
+  187|         (-1.3, "-1 3/10"),
+  188|         (-2.5, "-2 1/2"),
+  189|         (-0.5, "-1/2"),
+  190|     ],
+  191| )
+  192| def test_fractional(test_input: float | str, expected: str) -> None:
+  193|     assert humanize.fractional(test_input) == expected
+  194| 
+  195| 
+  196| @pytest.mark.parametrize(
+  197|     "test_args, expected",
+  198|     [
+  199|         ([1000], "1.00 x 10³"),
+  200|         ([-1000], "-1.00 x 10³"),
+  201|         ([5.5], "5.50 x 10⁰"),
+  202|         ([5781651000], "5.78 x 10⁹"),
+  203|         (["1000"], "1.00 x 10³"),
+  204|         (["99"], "9.90 x 10¹"),
+  205|         ([0.3], "3.00 x 10⁻¹"),
+  206|         (["foo"], "foo"),
+  207|         ([None], "None"),
+  208|         ([1000, 1], "1.0 x 10³"),
+  209|         ([0.3, 1], "3.0 x 10⁻¹"),
+  210|         ([1000, 0], "1 x 10³"),
+  211|         ([0.3, 0], "3 x 10⁻¹"),
+  212|         ([1e20], "1.00 x 10²⁰"),
+  213|         ([2e-20], "2.00 x 10⁻²⁰"),
+  214|         ([-3e20], "-3.00 x 10²⁰"),
+  215|         ([-4e-20], "-4.00 x 10⁻²⁰"),
+  216|         ([math.nan], "NaN"),
+  217|         ([math.inf], "+Inf"),
+  218|         ([-math.inf], "-Inf"),
+  219|         (["nan"], "NaN"),
+  220|         (["-inf"], "-Inf"),
+  221|     ],
+  222| )
+  223| def test_scientific(test_args: list[typing.Any], expected: str) -> None:
+  224|     assert humanize.scientific(*test_args) == expected
+  225| 
+  226| 
+  227| @pytest.mark.parametrize(
+  228|     "test_args, expected",
+  229|     [
+  230|         ([1], "1"),
+  231|         ([None], None),
+  232|         ([0.0001, "{:.0%}"], "0%"),
+  233|         ([0.0001, "{:.0%}", 0.01], "<1%"),
+  234|         ([0.9999, "{:.0%}", None, 0.99], ">99%"),
+  235|         ([0.0001, "{:.0%}", 0.01, None, "under ", None], "under 1%"),
+  236|         ([0.9999, "{:.0%}", None, 0.99, None, "above "], "above 99%"),
+  237|         ([1, humanize.intword, 1e6, None, "under "], "under 1.0 million"),
+  238|         ([math.nan], "NaN"),
+  239|         ([math.inf], "+Inf"),
+  240|         ([-math.inf], "-Inf"),
+  241|     ],
+  242| )
+  243| def test_clamp(test_args: list[typing.Any], expected: str) -> None:
+  244|     assert humanize.clamp(*test_args) == expected
+  245| 
+  246| 
+  247| @pytest.mark.parametrize(
+  248|     "test_args, expected",
+  249|     [
+  250|         ([0], "0.00"),
+  251|         ([1, "Hz"], "1.00 Hz"),
+  252|         ([1.0, "W"], "1.00 W"),
+  253|         ([3, "C"], "3.00 C"),
+  254|         ([3, "W", 5], "3.0000 W"),
+  255|         ([1.23456], "1.23"),
+  256|         ([12.3456], "12.3"),
+  257|         ([123.456], "123"),
+  258|         ([1234.56], "1.23 k"),
+  259|         ([12345, "", 6], "12.3450 k"),
+  260|         ([200_000], "200 k"),
+  261|         ([999.9, "V"], "1.00 kV"),
+  262|         ([999.99, "V"], "1.00 kV"),
+  263|         ([999_999, "V"], "1.00 MV"),
+  264|         ([0.0009999, "V"], "1.00 mV"),
+  265|         ([1e25, "m"], "10.0 Ym"),
+  266|         ([1e26, "m"], "100 Ym"),
+  267|         ([1e27, "A"], "1.00 RA"),
+  268|         ([1.234e28, "A"], "12.3 RA"),
+  269|         ([1.234e-28, "A"], "123 qA"),
+  270|         ([1.235e29, "A"], "124 RA"),
+  271|         ([2.56e-30, "V"], "2.56 qV"),
+  272|         ([2.596e32, "F"], "260 QF"),
+  273|         ([1e50], "1.00 x 10⁵⁰"),
+  274|         ([1e-50], "1.00 x 10⁻⁵⁰"),
+  275|         ([-1500, "V"], "-1.50 kV"),
+  276|         ([0.12], "120 m"),
+  277|         ([0.012], "12.0 m"),
+  278|         ([0.0012], "1.20 m"),
+  279|         ([0.00012], "120 μ"),
+  280|         ([1e-23], "10.0 y"),
+  281|         ([1e-24], "1.00 y"),
+  282|         ([1e-25], "100 r"),
+  283|         ([1e-26], "10.0 r"),
+  284|         ([1, "°"], "1.00°"),
+  285|         ([0.1, "°"], "100m°"),
+  286|         ([100], "100"),
+  287|         ([0.1], "100 m"),
+  288|         ([1.5123, "", 0], "2"),
+  289|         ([10.5123, "", 0], "11"),
+  290|         ([10.5123, "", 1], "11"),
+  291|         ([10.5123, "", 2], "11"),
+  292|         ([10.5123, "", 3], "10.5"),
+  293|         ([1, "", 0], "1"),
+  294|         ([10, "", 0], "10"),
+  295|         ([100, "", 0], "100"),
+  296|         ([1000, "", 0], "1 k"),
+  297|         ([1, "", 1], "1"),
+  298|         ([10, "", 1], "10"),
+  299|         ([100, "", 1], "100"),
+  300|         ([1000, "", 1], "1 k"),
+  301|         ([1, "", 2], "1.0"),
+  302|         ([10, "", 2], "10"),
+  303|         ([100, "", 2], "100"),
+  304|         ([1000, "", 2], "1.0 k"),
+  305|         ([1, "", 3], "1.00"),
+  306|         ([10, "", 3], "10.0"),
+  307|         ([100, "", 3], "100"),
+  308|         ([1000, "", 3], "1.00 k"),
+  309|         ([math.nan], "NaN"),
+  310|         ([math.nan, "m"], "NaN"),
+  311|         ([math.inf], "+Inf"),
+  312|         ([-math.inf], "-Inf"),
+  313|     ],
+  314|     ids=str,
+  315| )
+  316| def test_metric(test_args: list[typing.Any], expected: str) -> None:
+  317|     assert humanize.metric(*test_args) == expected
+
+FILE tests/test_i18n.py:
+    1| """Internationalisation tests."""
+    2| 
+    3| from __future__ import annotations
+    4| 
+    5| import datetime as dt
+    6| import importlib
+    7| 
+    8| import pytest
+    9| from freezegun import freeze_time
+   10| 
+   11| import humanize
+   12| 
+   13| with freeze_time("2020-02-02"):
+   14|     NOW = dt.datetime.now(tz=dt.timezone.utc)
+   15| 
+   16| 
+   17| @freeze_time("2020-02-02")
+   18| def test_i18n() -> None:
+   19|     three_seconds = NOW - dt.timedelta(seconds=3)
+   20|     one_min_three_seconds = dt.timedelta(milliseconds=67_000)
+   21| 
+   22|     assert humanize.naturaltime(three_seconds) == "3 seconds ago"
+   23|     assert humanize.ordinal(5) == "5th"
+   24|     assert humanize.precisedelta(one_min_three_seconds) == "1 minute and 7 seconds"
+   25| 
+   26|     try:
+   27|         humanize.i18n.activate("lv")
+   28|         assert humanize.naturaltime(three_seconds) == "pirms 3 sekundēm"
+   29|         assert humanize.ordinal(5) == "5."
+   30| 
+   31|         humanize.i18n.activate("ru_RU")
+   32|         assert humanize.naturaltime(three_seconds) == "3 секунды назад"
+   33|         assert humanize.ordinal(5) == "5ый"
+   34|         assert humanize.precisedelta(one_min_three_seconds) == "1 минута и 7 секунд"
+   35| 
+   36|     except FileNotFoundError:
+   37|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+   38| 
+   39|     finally:
+   40|         humanize.i18n.deactivate()
+   41|         assert humanize.naturaltime(three_seconds) == "3 seconds ago"
+   42|         assert humanize.ordinal(5) == "5th"
+   43|         assert humanize.precisedelta(one_min_three_seconds) == "1 minute and 7 seconds"
+   44| 
+   45| 
+   46| def test_intcomma() -> None:
+   47|     number = 10_000_000
+   48| 
+   49|     assert humanize.intcomma(number) == "10,000,000"
+   50| 
+   51|     try:
+   52|         humanize.i18n.activate("de_DE")
+   53|         assert humanize.intcomma(number) == "10.000.000"
+   54|         assert humanize.intcomma(1_234_567.8901) == "1.234.567,8901"
+   55|         assert humanize.intcomma(1_234_567.89) == "1.234.567,89"
+   56|         assert humanize.intcomma("1234567,89") == "1.234.567,89"
+   57|         assert humanize.intcomma("1.234.567,89") == "1.234.567,89"
+   58|         assert humanize.intcomma("1.234.567,8") == "1.234.567,8"
+   59| 
+   60|         humanize.i18n.activate("fr_FR")
+   61|         assert humanize.intcomma(number) == "10 000 000"
+   62|         assert humanize.intcomma(1_234_567.89) == "1 234 567.89"
+   63|         assert humanize.intcomma("1 234 567.89") == "1 234 567.89"
+   64| 
+   65|         humanize.i18n.activate("pt_BR")
+   66|         assert humanize.intcomma(number) == "10.000.000"
+   67| 
+   68|     except FileNotFoundError:
+   69|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+   70| 
+   71|     finally:
+   72|         humanize.i18n.deactivate()
+   73|         assert humanize.intcomma(number) == "10,000,000"
+   74| 
+   75| 
+   76| def test_naturaldelta() -> None:
+   77|     seconds = 1234 * 365 * 24 * 60 * 60
+   78| 
+   79|     assert humanize.naturaldelta(seconds) == "1,234 years"
+   80| 
+   81|     try:
+   82|         humanize.i18n.activate("fr_FR")
+   83|         assert humanize.naturaldelta(seconds) == "1 234 ans"
+   84|         humanize.i18n.activate("es_ES")
+   85|         assert humanize.naturaldelta(seconds) == "1,234 años"
+   86| 
+   87|     except FileNotFoundError:
+   88|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+   89| 
+   90|     finally:
+   91|         humanize.i18n.deactivate()
+   92|         assert humanize.naturaldelta(seconds) == "1,234 years"
+   93| 
+   94| 
+   95| @pytest.mark.parametrize(
+   96|     "locale, number, expected_result",
+   97|     [
+   98|         # Italian uses comma as decimal separator
+   99|         ("it_IT", 1_000_000, "1,0 milione"),
+  100|         ("it_IT", 1_200_000, "1,2 milioni"),
+  101|         ("it_IT", 1_000_000_000, "1,0 miliardo"),
+  102|         ("it_IT", 3_500_000_000, "3,5 miliardi"),
+  103|         # Spanish uses dot as decimal separator
+  104|         ("es_ES", 1_000_000, "1.0 millón"),
+  105|         ("es_ES", 3_500_000, "3.5 millones"),
+  106|         ("es_ES", 1_000_000_000, "1.0 mil millones"),
+  107|         ("es_ES", 1_200_000_000, "1.2 miles de millones"),
+  108|         ("es_ES", 1_000_000_000_000, "1.0 billón"),
+  109|         ("es_ES", 6_700_000_000_000, "6.7 billones"),
+  110|         # Latvian uses comma as decimal separator
+  111|         ("lv", 1_000, "1,0 tūkstotis"),
+  112|         ("lv", 1_200, "1,2 tūkstoši"),
+  113|         ("lv", 2_000, "2,0 tūkstoši"),
+  114|         ("lv", 11_000, "11,0 tūkstoši"),
+  115|         ("lv", 21_000, "21,0 tūkstotis"),
+  116|         ("lv", 1_000_000, "1,0 miljons"),
+  117|         ("lv", 2_000_000, "2,0 miljoni"),
+  118|         ("lv", 11_000_000, "11,0 miljoni"),
+  119|         ("lv", 21_000_000, "21,0 miljons"),
+  120|         ("fr_FR", "1_000", "1.0 mille"),
+  121|         ("fr_FR", "12_400", "12.4 milles"),
+  122|         ("fr_FR", "12_490", "12.5 milles"),
+  123|         ("fr_FR", "1_000_000", "1.0 million"),
+  124|         ("fr_FR", "-1_000_000", "-1.0 million"),
+  125|         ("fr_FR", "1_200_000", "1.2 millions"),
+  126|         ("fr_FR", "1_290_000", "1.3 millions"),
+  127|         ("fr_FR", "999_999_999", "1.0 milliard"),
+  128|         ("fr_FR", "1_000_000_000", "1.0 milliard"),
+  129|         ("fr_FR", "-1_000_000_000", "-1.0 milliard"),
+  130|         ("fr_FR", "2_000_000_000", "2.0 milliards"),
+  131|         ("fr_FR", "999_999_999_999", "1.0 billion"),
+  132|         ("fr_FR", "1_000_000_000_000", "1.0 billion"),
+  133|         ("fr_FR", "6_000_000_000_000", "6.0 billions"),
+  134|         ("fr_FR", "-6_000_000_000_000", "-6.0 billions"),
+  135|         ("fr_FR", "999_999_999_999_999", "1.0 billiard"),
+  136|         ("fr_FR", "1_000_000_000_000_000", "1.0 billiard"),
+  137|         ("fr_FR", "1_300_000_000_000_000", "1.3 billiards"),
+  138|         ("fr_FR", "-1_300_000_000_000_000", "-1.3 billiards"),
+  139|         ("fr_FR", "3_500_000_000_000_000_000_000", "3.5 trilliards"),
+  140|         ("fr_FR", "8_100_000_000_000_000_000_000_000_000_000_000", "8.1 quintilliards"),
+  141|         (
+  142|             "fr_FR",
+  143|             "-8_100_000_000_000_000_000_000_000_000_000_000",
+  144|             "-8.1 quintilliards",
+  145|         ),
+  146|         (
+  147|             "fr_FR",
+  148|             1_000_000_000_000_000_000_000_000_000_000_000_000,
+  149|             "1000.0 quintilliards",
+  150|         ),
+  151|         (
+  152|             "fr_FR",
+  153|             1_100_000_000_000_000_000_000_000_000_000_000_000,
+  154|             "1100.0 quintilliards",
+  155|         ),
+  156|         (
+  157|             "fr_FR",
+  158|             2_100_000_000_000_000_000_000_000_000_000_000_000,
+  159|             "2100.0 quintilliards",
+  160|         ),
+  161|     ],
+  162| )
+  163| def test_intword_i18n(locale: str, number: int, expected_result: str) -> None:
+  164|     try:
+  165|         humanize.i18n.activate(locale)
+  166|     except FileNotFoundError:
+  167|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+  168|     else:
+  169|         assert humanize.intword(number) == expected_result
+  170|     finally:
+  171|         humanize.i18n.deactivate()
+  172| 
+  173| 
+  174| @pytest.mark.parametrize(
+  175|     "locale, value, expected_result",
+  176|     [
+  177|         ("fr_FR", 1, "1 octet"),
+  178|         ("fr_FR", 42, "42 octets"),
+  179|         ("fr_FR", 42_000, "42.0 Ko"),
+  180|         ("fr_FR", 42_000_000, "42.0 Mo"),
+  181|         ("fr_FR", 42_000_000_000, "42.0 Go"),
+  182|         ("fr_FR", -42_000, "-42.0 Ko"),
+  183|     ],
+  184| )
+  185| def test_naturalsize_i18n(locale: str, value: float, expected_result: str) -> None:
+  186|     try:
+  187|         humanize.i18n.activate(locale)
+  188|     except FileNotFoundError:
+  189|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+  190|     else:
+  191|         assert humanize.naturalsize(value) == expected_result
+  192|     finally:
+  193|         humanize.i18n.deactivate()
+  194| 
+  195| 
+  196| def test_naturalsize_i18n_binary() -> None:
+  197|     try:
+  198|         humanize.i18n.activate("fr_FR")
+  199|     except FileNotFoundError:
+  200|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+  201|     else:
+  202|         assert humanize.naturalsize(3000, binary=True) == "2.9 Kio"
+  203|     finally:
+  204|         humanize.i18n.deactivate()
+  205| 
+  206| 
+  207| @pytest.mark.parametrize(
+  208|     "locale, expected_result",
+  209|     [
+  210|         ("ar", "5 خامس"),
+  211|         ("ar_SA", "5 خامس"),
+  212|         ("fr", "5e"),
+  213|         ("fr_FR", "5e"),
+  214|         ("pt", "5º"),
+  215|         ("pt_BR", "5º"),
+  216|         ("pt_PT", "5º"),
+  217|     ],
+  218| )
+  219| def test_langauge_codes(locale: str, expected_result: str) -> None:
+  220|     try:
+  221|         humanize.i18n.activate(locale)
+  222|     except FileNotFoundError:
+  223|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+  224|     else:
+  225|         assert humanize.ordinal(5) == expected_result
+  226|     finally:
+  227|         humanize.i18n.deactivate()
+  228| 
+  229| 
+  230| @pytest.mark.parametrize(
+  231|     "locale, number, gender, expected_result",
+  232|     [
+  233|         ("fr_FR", 1, "male", "1er"),
+  234|         ("fr_FR", 1, "female", "1ère"),
+  235|         ("fr_FR", 2, "male", "2e"),
+  236|         ("es_ES", 1, "male", "1º"),
+  237|         ("es_ES", 5, "female", "5ª"),
+  238|         ("it_IT", 3, "male", "3º"),
+  239|         ("it_IT", 8, "female", "8ª"),
+  240|     ],
+  241| )
+  242| def test_ordinal_genders(
+  243|     locale: str, number: int, gender: str, expected_result: str
+  244| ) -> None:
+  245|     try:
+  246|         humanize.i18n.activate(locale)
+  247|     except FileNotFoundError:
+  248|         pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+  249|     else:
+  250|         assert humanize.ordinal(number, gender=gender) == expected_result
+  251|     finally:
+  252|         humanize.i18n.deactivate()
+  253| 
+  254| 
+  255| def test_default_locale_path_defined__spec__() -> None:
+  256|     i18n = importlib.import_module("humanize.i18n")
+  257|     assert i18n._get_default_locale_path() is not None
+  258| 
+  259| 
+  260| def test_default_locale_path_none__spec__(monkeypatch: pytest.MonkeyPatch) -> None:
+  261|     i18n = importlib.import_module("humanize.i18n")
+  262|     monkeypatch.setattr(i18n, "__spec__", None)
+  263|     assert i18n._get_default_locale_path() is None
+  264| 
+  265| 
+  266| def test_default_locale_path_undefined__file__(monkeypatch: pytest.MonkeyPatch) -> None:
+  267|     i18n = importlib.import_module("humanize.i18n")
+  268|     monkeypatch.delattr(i18n, "__spec__")
+  269|     assert i18n._get_default_locale_path() is None
+  270| 
+  271| 
+  272| class TestActivate:
+  273|     expected_msg = (
+  274|         "Humanize cannot determinate the default location of the"
+  275|         " 'locale' folder. You need to pass the path explicitly."
+  276|     )
+  277| 
+  278|     def test_default_locale_path_null__spec__(
+  279|         self, monkeypatch: pytest.MonkeyPatch
+  280|     ) -> None:
+  281|         i18n = importlib.import_module("humanize.i18n")
+  282|         monkeypatch.setattr(i18n, "__spec__", None)
+  283| 
+  284|         with pytest.raises(FileNotFoundError, match=self.expected_msg):
+  285|             i18n.activate("ru_RU")
+  286| 
+  287|     def test_default_locale_path_undefined__spec__(
+  288|         self, monkeypatch: pytest.MonkeyPatch
+  289|     ) -> None:
+  290|         i18n = importlib.import_module("humanize.i18n")
+  291|         monkeypatch.delattr(i18n, "__spec__")
+  292| 
+  293|         with pytest.raises(FileNotFoundError, match=self.expected_msg):
+  294|             i18n.activate("ru_RU")
+  295| 
+  296|     @freeze_time("2020-02-02")
+  297|     def test_en_locale(self) -> None:
+  298|         three_seconds = NOW - dt.timedelta(seconds=3)
+  299|         test_str = humanize.naturaltime(three_seconds)
+  300| 
+  301|         humanize.i18n.activate("en_US")
+  302|         assert test_str == humanize.naturaltime(three_seconds)
+  303| 
+  304|         humanize.i18n.activate("en_GB")
+  305|         assert test_str == humanize.naturaltime(three_seconds)
+  306| 
+  307|         humanize.i18n.deactivate()
+  308| 
+  309|     @freeze_time("2020-02-02")
+  310|     def test_none_locale(self) -> None:
+  311|         three_seconds = NOW - dt.timedelta(seconds=3)
+  312| 
+  313|         try:
+  314|             humanize.i18n.activate("fr")
+  315|             assert humanize.naturaltime(three_seconds) == "il y a 3 secondes"
+  316| 
+  317|             humanize.i18n.activate(None)
+  318|             test_str = humanize.naturaltime(three_seconds)
+  319|             assert test_str == "3 seconds ago"
+  320|         except FileNotFoundError:
+  321|             pytest.skip("Generate .mo with scripts/generate-translation-binaries.sh")
+  322| 
+  323|         finally:
+  324|             humanize.i18n.deactivate()
+  325| 
+  326|         assert test_str == humanize.naturaltime(three_seconds)
+
+Answer now with ONE JSON array containing one object per query, in query order.

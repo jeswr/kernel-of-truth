@@ -1,0 +1,121 @@
+[
+  {
+    "query_id": "g1q-requests-contains-76",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "RetryError class body (lines 142-143) contains only a docstring; no def/class statements or binding assignments at class-body level."
+  },
+  {
+    "query_id": "g1q-requests-contains-89",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/structures.py::LookupDict.__getattr__",
+      "src/requests/structures.py::LookupDict.__getitem__",
+      "src/requests/structures.py::LookupDict.__init__",
+      "src/requests/structures.py::LookupDict.__repr__",
+      "src/requests/structures.py::LookupDict.get"
+    ],
+    "conditional_flags": [],
+    "notes": "get has three def sites (two @overload stubs at lines 123-127 plus implementation at 129) collapsing to one set element. 'name: Any' at line 99 is an annotation-only declaration with no value, hence not a binding assignment and excluded."
+  },
+  {
+    "query_id": "g1q-requests-contained_in-142",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/exceptions.py"
+    ],
+    "conditional_flags": [],
+    "notes": "class Timeout at line 82 is a top-level class; its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-requests-contained_in-300",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/utils.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def requote_uri at line 704 is a top-level function; its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-requests-imports_of-36",
+    "answerable_static": true,
+    "gold": [
+      "ext:select",
+      "ext:socket",
+      "ext:ssl",
+      "ext:threading"
+    ],
+    "conditional_flags": [],
+    "notes": "Four unconditional top-level stdlib imports (lines 1-4); no repo-internal or nested/conditional imports anywhere in the module."
+  },
+  {
+    "query_id": "g1q-requests-imports_of-6",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:collections.abc",
+      "ext:http.cookiejar",
+      "ext:typing",
+      "ext:typing_extensions",
+      "repo:src/requests/__init__.py",
+      "repo:src/requests/auth.py",
+      "repo:src/requests/cookies.py",
+      "repo:src/requests/models.py",
+      "repo:src/requests/structures.py"
+    ],
+    "conditional_flags": [
+      "ext:http.cookiejar",
+      "ext:typing_extensions",
+      "repo:src/requests/__init__.py",
+      "repo:src/requests/auth.py",
+      "repo:src/requests/cookies.py",
+      "repo:src/requests/models.py",
+      "repo:src/requests/structures.py"
+    ],
+    "notes": "Top-level: __future__, collections.abc, typing. Inside 'if TYPE_CHECKING:' (line 55): http.cookiejar, typing (already unconditional at top level, so not flagged), typing_extensions, and relative imports .auth/.cookies/.models/.structures resolving to src/requests/*.py plus their ancestor package src/requests/__init__.py; all TYPE_CHECKING-guarded elements flagged conditional. src/ has no __init__.py so it contributes no ancestor."
+  },
+  {
+    "query_id": "g1q-requests-where_defined-29",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/adapters.py:81"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level assignment 'DEFAULT_RETRIES = 0' at adapters.py line 81. Line 205 is a parameter default and line 208 a comparison inside HTTPAdapter.__init__, neither a definition site. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-requests-where_defined-747",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_requests.py:1508"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def statement 'def test_response_chunk_size_type(self)' at tests/test_requests.py line 1508 (method of TestRequests). No other occurrences of the token exist in the repo."
+  },
+  {
+    "query_id": "g1q-requests-callees_of-29",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/api.py::request"
+    ],
+    "conditional_flags": [],
+    "notes": "Body of get (line 87) makes exactly one call: request('get', url, params=params, **kwargs), resolving to the module-level def request in the same file."
+  },
+  {
+    "query_id": "g1q-requests-callees_of-143",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.any",
+      "ext:builtins.dict.update",
+      "ext:builtins.isinstance",
+      "ext:builtins.len",
+      "ext:typing.cast",
+      "src/requests/auth.py::HTTPBasicAuth",
+      "src/requests/models.py::PreparedRequest.prepare_content_length",
+      "src/requests/utils.py::get_auth_from_url"
+    ],
+    "conditional_flags": [],
+    "notes": "answerable_static=false because of the call auth_handler(self) at line 691: auth_handler may be the caller-supplied auth callable (parameter value / dynamic dispatch), whose runtime callee cannot be determined from the shown source. Resolvable calls: get_auth_from_url (line 679, imported from .utils), cast (lines 679/688), any (680), isinstance/len (683), HTTPBasicAuth instantiation (685, imported from .auth; class body not shown but module of definition is), self.__dict__.update (694), self.prepare_content_length (697)."
+  }
+]

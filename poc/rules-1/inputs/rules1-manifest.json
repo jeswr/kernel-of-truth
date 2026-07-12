@@ -1,0 +1,79 @@
+{
+ "_readme": [
+  "RULES-1 GPU-arm harness manifest (poc/rules-1/rules1_runner.py + poc/rules-1/modal/modal_rules1.py).",
+  "FROZEN design: registry/experiments/rules-1.json frozen_sha256 0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c.",
+  "Every pin below is verified fail-closed (ERR_PIN / ERR_CERT_PRECONDITION) before any cell runs, mock included.",
+  "pins.model_revisions provenance: registry/experiments/nsk1.json is DRAFT and carries NO resolved revision shas (R1/R2 placeholders only); the FROZEN carriers of the R1/R3 Instruct revisions are registry/experiments/f2b-replicate.json and f2b-transfer.json pins.model_revisions (both FROZEN; same host family the nsk1 G2 calibration exercised). The coordinator's ops amendment should cite that chain when filling the rules-1 record's PINNED-AT-INPUTS model_revisions."
+ ],
+ "design_constants_from_frozen_record": {
+  "experiment": "rules-1",
+  "frozen_sha256": "0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c",
+  "arms_built_here": ["A1", "A3", "A5", "A7", "c1"],
+  "arms_note": "The coordinator-scoped host-lift arms (A1/A3/A5/A7) plus c1 shuffled-rules — the load-bearing structure control the frozen verdict_rules require for PASS (s1) and the design marks as the one control NOT to cut. A2/A4/c2/c4/c6 cells are NOT in this runner's default plan; c5 is phase-2 by design (MD-7).",
+  "k_retry": 4,
+  "seeds": [0, 1, 2],
+  "rungs": {"A1": "R1", "A3": "R1", "A7": "R1", "c1": "R1", "A5": "R3"},
+  "n_covered_entailed": 858,
+  "n_control": 100,
+  "budget": {"usd_cap": 10, "gpu_hours_cap": 6, "wall_clock_cap_hours": 12,
+             "coordinator_outer_ceiling_usd": 40}
+ },
+ "pins": {
+  "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+  "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+  "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+  "twinEnginePySha256": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8",
+  "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+  "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+  "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+  "analysisRules1PySha256": "6c62f8bde0b6cb770343f00b3e7e5b465f8021fcd1ae2f20ebb84f966e5e4870",
+  "imageRequirementsSha256": "0fac7243f1cd5747258bb13bde30f15eb0231a15426bb1fe4465aec68ff6636e",
+  "_pin_notes": "corpus hashes verbatim from the FROZEN record pins.corpus_hashes (kot-corpus-hash/1); twin-engine + certificate-result verbatim from pins.artifact_hashes; f2bt runner pinned so the A3 loop's reused bytes (HFLM forced-choice scorer, seeded retry sampler SEED_BASE 20260710, CellGuard) are byte-identical to the f2b-transfer FULL-run harness; poc/f2b + poc/f2b-transfer + poc/deconf-b trees are NOT modified by this build (new module only)."
+ },
+ "model_revisions": {
+  "R1": {"repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+         "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"},
+  "R3": {"repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+         "revision": "31b70e2e869a7173562077fd711b654946d38674"},
+  "dtype": "fp32 (frozen runner_constraints.hardware: 'single A10G (Modal), fp32, greedy'; the reused f2bt HFLM defaults to fp16, so Rules1HFLM overrides ONLY the load dtype and inherits the scorer/sampler unchanged)"
+ },
+ "prompt_frames": {
+  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word.\n\nFacts:\n",
+  "fact_line": "- {line}\n",
+  "una_line": "- All named people are distinct individuals.\n",
+  "derived_prefix": "Verified derivations from a deterministic rules engine (each with its proof):\n",
+  "derived_line": "- {line}\n",
+  "feedback_prefix": "Verifier feedback on earlier answers (each rejection is licensed by a proof from the stated facts):\n",
+  "feedback_line": "- {line}\n",
+  "question_prefix": "\nQuestion: ",
+  "menu_prefix": "\nAnswer with one word from: ",
+  "answer_cue": "\nAnswer:",
+  "padding_sentence": "This line is neutral padding text with no information about the family.",
+  "frames_note": "single shared affordance for every arm (nsk1/f2b discipline); arms differ ONLY in the derived/feedback blocks and padding (PROPOSED-ASM-1127 token matching: A1/A5 pad to the A2-shaped injection token count computed per item with the arm's own tokenizer)"
+ },
+ "shuffle": {
+  "perm_seed": 20260711,
+  "algorithm": "Sattolo cyclic derangement over the six kinship property-record subject URNs {mother, father, parent, grandparent, grandfather, grandmother}: each axiom record's constraint body is re-hung on a different property subject (identical record count, constraint shapes and token cost; content decoupled). Map + sha recorded in shuffle-map-rules1.json (PROPOSED-ASM-1129)."
+ },
+ "mock": {
+  "note": "SYNTHETIC mechanics-only stub LM (no torch); every number is labelled MOCK and never a measurement. The engine (twin), closures, proofs, feedback rendering, gold-leak guard, derangement, row emitter and analysis contract are the REAL code paths.",
+  "n_covered": 60,
+  "n_control": 10,
+  "seeds": [0, 1],
+  "stub_skill": {"R1": 0.55, "R3": 0.80},
+  "stub_injection_bonus": 0.40,
+  "stub_feedback_bonus": 0.20
+ },
+ "planning": {
+  "note": "dry-plan ESTIMATES only — never emitted as measurements; constants carried from poc/f2b-transfer/inputs/f2bt-manifest.json planning",
+  "throughput_tok_per_s": {
+   "A100": {"R1": 16000, "R3": 2600},
+   "A10G": {"R1": 12000, "R3": 1800},
+   "T4": {"R1": 4000, "R3": 600}
+  },
+  "chars_per_token_estimate": 4.0,
+  "overhead_factor": 2.0,
+  "expected_attempt_factor": 2.0,
+  "usd_per_hour": {"T4": 0.59, "A10G": 1.1, "A100": 2.1}
+ }
+}

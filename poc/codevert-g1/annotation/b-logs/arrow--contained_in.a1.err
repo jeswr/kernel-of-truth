@@ -1,0 +1,2478 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.z7db13ou"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.aac2gz1u
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c2-64ec-7660-a3f3-eb496fab22f9
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: arrow ===
+PY FILE LISTING (repo-root-relative; authoritative):
+arrow/__init__.py
+arrow/_version.py
+arrow/api.py
+arrow/arrow.py
+arrow/constants.py
+arrow/factory.py
+arrow/formatter.py
+arrow/locales.py
+arrow/parser.py
+arrow/util.py
+docs/conf.py
+tests/__init__.py
+tests/conftest.py
+tests/test_api.py
+tests/test_arrow.py
+tests/test_factory.py
+tests/test_formatter.py
+tests/test_locales.py
+tests/test_parser.py
+tests/test_util.py
+tests/utils.py
+
+=== QUERIES (2) ===
+QUERY g1q-arrow-contained_in-42: family=contained_in target=arrow/arrow.py::Arrow.to
+QUERY g1q-arrow-contained_in-581: family=contained_in target=tests/test_factory.py::TestGet.test_locale_with_tzinfo
+
+=== CONTEXT ===
+
+FILE arrow/arrow.py:
+    1| """
+    2| Provides the :class:`Arrow <arrow.arrow.Arrow>` class, an enhanced ``datetime``
+    3| replacement.
+    4| 
+    5| """
+    6| 
+    7| import calendar
+    8| import re
+    9| import sys
+   10| from datetime import date as dt_date
+   11| from datetime import datetime as dt_datetime
+   12| from datetime import time as dt_time
+   13| from datetime import timedelta, timezone
+   14| from datetime import tzinfo as dt_tzinfo
+   15| from math import trunc
+   16| from time import struct_time
+   17| from typing import (
+   18|     Any,
+   19|     ClassVar,
+   20|     Final,
+   21|     Generator,
+   22|     Iterable,
+   23|     List,
+   24|     Literal,
+   25|     Mapping,
+   26|     Optional,
+   27|     Tuple,
+   28|     Union,
+   29|     cast,
+   30|     overload,
+   31| )
+   32| 
+   33| from dateutil import tz as dateutil_tz
+   34| from dateutil.relativedelta import relativedelta
+   35| 
+   36| from arrow import formatter, locales, parser, util
+   37| from arrow.constants import DEFAULT_LOCALE, DEHUMANIZE_LOCALES
+   38| from arrow.locales import TimeFrameLiteral
+   39| 
+   40| TZ_EXPR = Union[dt_tzinfo, str]
+   41| 
+   42| _T_FRAMES = Literal[
+   43|     "year",
+   44|     "years",
+   45|     "month",
+   46|     "months",
+   47|     "day",
+   48|     "days",
+   49|     "hour",
+   50|     "hours",
+   51|     "minute",
+   52|     "minutes",
+   53|     "second",
+   54|     "seconds",
+   55|     "microsecond",
+   56|     "microseconds",
+   57|     "week",
+   58|     "weeks",
+   59|     "quarter",
+   60|     "quarters",
+   61| ]
+   62| 
+   63| _BOUNDS = Literal["[)", "()", "(]", "[]"]
+   64| 
+   65| _GRANULARITY = Literal[
+   66|     "auto",
+   67|     "second",
+   68|     "minute",
+   69|     "hour",
+   70|     "day",
+   71|     "week",
+   72|     "month",
+   73|     "quarter",
+   74|     "year",
+   75| ]
+   76| 
+   77| 
+   78| class Arrow:
+   79|     """An :class:`Arrow <arrow.arrow.Arrow>` object.
+   80| 
+   81|     Implements the ``datetime`` interface, behaving as an aware ``datetime`` while implementing
+   82|     additional functionality.
+   83| 
+   84|     :param year: the calendar year.
+   85|     :param month: the calendar month.
+   86|     :param day: the calendar day.
+   87|     :param hour: (optional) the hour. Defaults to 0.
+   88|     :param minute: (optional) the minute, Defaults to 0.
+   89|     :param second: (optional) the second, Defaults to 0.
+   90|     :param microsecond: (optional) the microsecond. Defaults to 0.
+   91|     :param tzinfo: (optional) A timezone expression.  Defaults to UTC.
+   92|     :param fold: (optional) 0 or 1, used to disambiguate repeated wall times. Defaults to 0.
+   93| 
+   94|     .. _tz-expr:
+   95| 
+   96|     Recognized timezone expressions:
+   97| 
+   98|         - A ``tzinfo`` object.
+   99|         - A ``str`` describing a timezone, similar to 'US/Pacific', or 'Europe/Berlin'.
+  100|         - A ``str`` in ISO 8601 style, as in '+07:00'.
+  101|         - A ``str``, one of the following:  'local', 'utc', 'UTC'.
+  102| 
+  103|     Usage::
+  104| 
+  105|         >>> import arrow
+  106|         >>> arrow.Arrow(2013, 5, 5, 12, 30, 45)
+  107|         <Arrow [2013-05-05T12:30:45+00:00]>
+  108| 
+  109|     """
+  110| 
+  111|     resolution: ClassVar[timedelta] = dt_datetime.resolution
+  112|     min: ClassVar["Arrow"]
+  113|     max: ClassVar["Arrow"]
+  114| 
+  115|     _ATTRS: Final[List[str]] = [
+  116|         "year",
+  117|         "month",
+  118|         "day",
+  119|         "hour",
+  120|         "minute",
+  121|         "second",
+  122|         "microsecond",
+  123|     ]
+  124|     _ATTRS_PLURAL: Final[List[str]] = [f"{a}s" for a in _ATTRS]
+  125|     _MONTHS_PER_QUARTER: Final[int] = 3
+  126|     _MONTHS_PER_YEAR: Final[int] = 12
+  127|     _SECS_PER_MINUTE: Final[int] = 60
+  128|     _SECS_PER_HOUR: Final[int] = 60 * 60
+  129|     _SECS_PER_DAY: Final[int] = 60 * 60 * 24
+  130|     _SECS_PER_WEEK: Final[int] = 60 * 60 * 24 * 7
+  131|     _SECS_PER_MONTH: Final[float] = 60 * 60 * 24 * 30.5
+  132|     _SECS_PER_QUARTER: Final[float] = 60 * 60 * 24 * 30.5 * 3
+  133|     _SECS_PER_YEAR: Final[int] = 60 * 60 * 24 * 365
+  134| 
+  135|     _SECS_MAP: Final[Mapping[TimeFrameLiteral, float]] = {
+  136|         "second": 1.0,
+  137|         "minute": _SECS_PER_MINUTE,
+  138|         "hour": _SECS_PER_HOUR,
+  139|         "day": _SECS_PER_DAY,
+  140|         "week": _SECS_PER_WEEK,
+  141|         "month": _SECS_PER_MONTH,
+  142|         "quarter": _SECS_PER_QUARTER,
+  143|         "year": _SECS_PER_YEAR,
+  144|     }
+  145| 
+  146|     _datetime: dt_datetime
+  147| 
+  148|     def __init__(
+  149|         self,
+  150|         year: int,
+  151|         month: int,
+  152|         day: int,
+  153|         hour: int = 0,
+  154|         minute: int = 0,
+  155|         second: int = 0,
+  156|         microsecond: int = 0,
+  157|         tzinfo: Optional[TZ_EXPR] = None,
+  158|         **kwargs: Any,
+  159|     ) -> None:
+  160|         if tzinfo is None:
+  161|             tzinfo = timezone.utc
+  162|         # detect that tzinfo is a pytz object (issue #626)
+  163|         elif (
+  164|             isinstance(tzinfo, dt_tzinfo)
+  165|             and hasattr(tzinfo, "localize")
+  166|             and hasattr(tzinfo, "zone")
+  167|             and tzinfo.zone
+  168|         ):
+  169|             tzinfo = parser.TzinfoParser.parse(tzinfo.zone)
+  170|         elif isinstance(tzinfo, str):
+  171|             tzinfo = parser.TzinfoParser.parse(tzinfo)
+  172| 
+  173|         fold = kwargs.get("fold", 0)
+  174| 
+  175|         self._datetime = dt_datetime(
+  176|             year, month, day, hour, minute, second, microsecond, tzinfo, fold=fold
+  177|         )
+  178| 
+  179|     # factories: single object, both original and from datetime.
+  180| 
+  181|     @classmethod
+  182|     def now(cls, tzinfo: Optional[dt_tzinfo] = None) -> "Arrow":
+  183|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object, representing "now" in the given
+  184|         timezone.
+  185| 
+  186|         :param tzinfo: (optional) a ``tzinfo`` object. Defaults to local time.
+  187| 
+  188|         Usage::
+  189| 
+  190|             >>> arrow.now('Asia/Baku')
+  191|             <Arrow [2019-01-24T20:26:31.146412+04:00]>
+  192| 
+  193|         """
+  194| 
+  195|         if tzinfo is None:
+  196|             tzinfo = dt_datetime.now().astimezone().tzinfo
+  197| 
+  198|         dt = dt_datetime.now(tzinfo)
+  199| 
+  200|         return cls(
+  201|             dt.year,
+  202|             dt.month,
+  203|             dt.day,
+  204|             dt.hour,
+  205|             dt.minute,
+  206|             dt.second,
+  207|             dt.microsecond,
+  208|             dt.tzinfo,
+  209|             fold=getattr(dt, "fold", 0),
+  210|         )
+  211| 
+  212|     @classmethod
+  213|     def utcnow(cls) -> "Arrow":
+  214|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object, representing "now" in UTC
+  215|         time.
+  216| 
+  217|         Usage::
+  218| 
+  219|             >>> arrow.utcnow()
+  220|             <Arrow [2019-01-24T16:31:40.651108+00:00]>
+  221| 
+  222|         """
+  223| 
+  224|         dt = dt_datetime.now(timezone.utc)
+  225| 
+  226|         return cls(
+  227|             dt.year,
+  228|             dt.month,
+  229|             dt.day,
+  230|             dt.hour,
+  231|             dt.minute,
+  232|             dt.second,
+  233|             dt.microsecond,
+  234|             dt.tzinfo,
+  235|             fold=getattr(dt, "fold", 0),
+  236|         )
+  237| 
+  238|     @classmethod
+  239|     def fromtimestamp(
+  240|         cls,
+  241|         timestamp: Union[int, float, str],
+  242|         tzinfo: Optional[TZ_EXPR] = None,
+  243|     ) -> "Arrow":
+  244|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object from a timestamp, converted to
+  245|         the given timezone.
+  246| 
+  247|         :param timestamp: an ``int`` or ``float`` timestamp, or a ``str`` that converts to either.
+  248|         :param tzinfo: (optional) a ``tzinfo`` object.  Defaults to local time.
+  249| 
+  250|         """
+  251| 
+  252|         if tzinfo is None:
+  253|             tzinfo = dt_datetime.now().astimezone().tzinfo
+  254|         elif isinstance(tzinfo, str):
+  255|             tzinfo = parser.TzinfoParser.parse(tzinfo)
+  256| 
+  257|         if not util.is_timestamp(timestamp):
+  258|             raise ValueError(f"The provided timestamp {timestamp!r} is invalid.")
+  259| 
+  260|         timestamp = util.normalize_timestamp(float(timestamp))
+  261|         dt = dt_datetime.fromtimestamp(timestamp, tzinfo)
+  262| 
+  263|         return cls(
+  264|             dt.year,
+  265|             dt.month,
+  266|             dt.day,
+  267|             dt.hour,
+  268|             dt.minute,
+  269|             dt.second,
+  270|             dt.microsecond,
+  271|             dt.tzinfo,
+  272|             fold=getattr(dt, "fold", 0),
+  273|         )
+  274| 
+  275|     @classmethod
+  276|     def utcfromtimestamp(cls, timestamp: Union[int, float, str]) -> "Arrow":
+  277|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object from a timestamp, in UTC time.
+  278| 
+  279|         :param timestamp: an ``int`` or ``float`` timestamp, or a ``str`` that converts to either.
+  280| 
+  281|         """
+  282| 
+  283|         if not util.is_timestamp(timestamp):
+  284|             raise ValueError(f"The provided timestamp {timestamp!r} is invalid.")
+  285| 
+  286|         timestamp = util.normalize_timestamp(float(timestamp))
+  287|         dt = dt_datetime.fromtimestamp(timestamp, timezone.utc)
+  288| 
+  289|         return cls(
+  290|             dt.year,
+  291|             dt.month,
+  292|             dt.day,
+  293|             dt.hour,
+  294|             dt.minute,
+  295|             dt.second,
+  296|             dt.microsecond,
+  297|             timezone.utc,
+  298|             fold=getattr(dt, "fold", 0),
+  299|         )
+  300| 
+  301|     @classmethod
+  302|     def fromdatetime(cls, dt: dt_datetime, tzinfo: Optional[TZ_EXPR] = None) -> "Arrow":
+  303|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object from a ``datetime`` and
+  304|         optional replacement timezone.
+  305| 
+  306|         :param dt: the ``datetime``
+  307|         :param tzinfo: (optional) A :ref:`timezone expression <tz-expr>`.  Defaults to ``dt``'s
+  308|             timezone, or UTC if naive.
+  309| 
+  310|         Usage::
+  311| 
+  312|             >>> dt
+  313|             datetime.datetime(2021, 4, 7, 13, 48, tzinfo=tzfile('/usr/share/zoneinfo/US/Pacific'))
+  314|             >>> arrow.Arrow.fromdatetime(dt)
+  315|             <Arrow [2021-04-07T13:48:00-07:00]>
+  316| 
+  317|         """
+  318| 
+  319|         if tzinfo is None:
+  320|             if dt.tzinfo is None:
+  321|                 tzinfo = timezone.utc
+  322|             else:
+  323|                 tzinfo = dt.tzinfo
+  324| 
+  325|         return cls(
+  326|             dt.year,
+  327|             dt.month,
+  328|             dt.day,
+  329|             dt.hour,
+  330|             dt.minute,
+  331|             dt.second,
+  332|             dt.microsecond,
+  333|             tzinfo,
+  334|             fold=getattr(dt, "fold", 0),
+  335|         )
+  336| 
+  337|     @classmethod
+  338|     def fromdate(cls, date: dt_date, tzinfo: Optional[TZ_EXPR] = None) -> "Arrow":
+  339|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object from a ``date`` and optional
+  340|         replacement timezone.  All time values are set to 0.
+  341| 
+  342|         :param date: the ``date``
+  343|         :param tzinfo: (optional) A :ref:`timezone expression <tz-expr>`.  Defaults to UTC.
+  344| 
+  345|         """
+  346| 
+  347|         if tzinfo is None:
+  348|             tzinfo = timezone.utc
+  349| 
+  350|         return cls(date.year, date.month, date.day, tzinfo=tzinfo)
+  351| 
+  352|     @classmethod
+  353|     def strptime(
+  354|         cls, date_str: str, fmt: str, tzinfo: Optional[TZ_EXPR] = None
+  355|     ) -> "Arrow":
+  356|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object from a date string and format,
+  357|         in the style of ``datetime.strptime``.  Optionally replaces the parsed timezone.
+  358| 
+  359|         :param date_str: the date string.
+  360|         :param fmt: the format string using datetime format codes.
+  361|         :param tzinfo: (optional) A :ref:`timezone expression <tz-expr>`.  Defaults to the parsed
+  362|             timezone if ``fmt`` contains a timezone directive, otherwise UTC.
+  363| 
+  364|         Usage::
+  365| 
+  366|             >>> arrow.Arrow.strptime('20-01-2019 15:49:10', '%d-%m-%Y %H:%M:%S')
+  367|             <Arrow [2019-01-20T15:49:10+00:00]>
+  368| 
+  369|         """
+  370| 
+  371|         dt = dt_datetime.strptime(date_str, fmt)
+  372|         if tzinfo is None:
+  373|             tzinfo = dt.tzinfo
+  374| 
+  375|         return cls(
+  376|             dt.year,
+  377|             dt.month,
+  378|             dt.day,
+  379|             dt.hour,
+  380|             dt.minute,
+  381|             dt.second,
+  382|             dt.microsecond,
+  383|             tzinfo,
+  384|             fold=getattr(dt, "fold", 0),
+  385|         )
+  386| 
+  387|     @classmethod
+  388|     def fromordinal(cls, ordinal: int) -> "Arrow":
+  389|         """Constructs an :class:`Arrow <arrow.arrow.Arrow>` object corresponding
+  390|             to the Gregorian Ordinal.
+  391| 
+  392|         :param ordinal: an ``int`` corresponding to a Gregorian Ordinal.
+  393| 
+  394|         Usage::
+  395| 
+  396|             >>> arrow.fromordinal(737741)
+  397|             <Arrow [2020-11-12T00:00:00+00:00]>
+  398| 
+  399|         """
+  400| 
+  401|         util.validate_ordinal(ordinal)
+  402|         dt = dt_datetime.fromordinal(ordinal)
+  403|         return cls(
+  404|             dt.year,
+  405|             dt.month,
+  406|             dt.day,
+  407|             dt.hour,
+  408|             dt.minute,
+  409|             dt.second,
+  410|             dt.microsecond,
+  411|             dt.tzinfo,
+  412|             fold=getattr(dt, "fold", 0),
+  413|         )
+  414| 
+  415|     # factories: ranges and spans
+  416| 
+  417|     @classmethod
+  418|     def range(
+  419|         cls,
+  420|         frame: _T_FRAMES,
+  421|         start: Union["Arrow", dt_datetime],
+  422|         end: Union["Arrow", dt_datetime, None] = None,
+  423|         tz: Optional[TZ_EXPR] = None,
+  424|         limit: Optional[int] = None,
+  425|     ) -> Generator["Arrow", None, None]:
+  426|         """Returns an iterator of :class:`Arrow <arrow.arrow.Arrow>` objects, representing
+  427|         points in time between two inputs.
+  428| 
+  429|         :param frame: The timeframe.  Can be any ``datetime`` property (day, hour, minute...).
+  430|         :param start: A datetime expression, the start of the range.
+  431|         :param end: (optional) A datetime expression, the end of the range.
+  432|         :param tz: (optional) A :ref:`timezone expression <tz-expr>`.  Defaults to
+  433|             ``start``'s timezone, or UTC if ``start`` is naive.
+  434|         :param limit: (optional) A maximum number of tuples to return.
+  435| 
+  436|         **NOTE**: The ``end`` or ``limit`` must be provided.  Call with ``end`` alone to
+  437|         return the entire range.  Call with ``limit`` alone to return a maximum # of results from
+  438|         the start.  Call with both to cap a range at a maximum # of results.
+  439| 
+  440|         **NOTE**: ``tz`` internally **replaces** the timezones of both ``start`` and ``end`` before
+  441|         iterating.  As such, either call with naive objects and ``tz``, or aware objects from the
+  442|         same timezone and no ``tz``.
+  443| 
+  444|         Supported frame values: year, quarter, month, week, day, hour, minute, second, microsecond.
+  445| 
+  446|         Recognized datetime expressions:
+  447| 
+  448|             - An :class:`Arrow <arrow.arrow.Arrow>` object.
+  449|             - A ``datetime`` object.
+  450| 
+  451|         Usage::
+  452| 
+  453|             >>> start = datetime(2013, 5, 5, 12, 30)
+  454|             >>> end = datetime(2013, 5, 5, 17, 15)
+  455|             >>> for r in arrow.Arrow.range('hour', start, end):
+  456|             ...     print(repr(r))
+  457|             ...
+  458|             <Arrow [2013-05-05T12:30:00+00:00]>
+  459|             <Arrow [2013-05-05T13:30:00+00:00]>
+  460|             <Arrow [2013-05-05T14:30:00+00:00]>
+  461|             <Arrow [2013-05-05T15:30:00+00:00]>
+  462|             <Arrow [2013-05-05T16:30:00+00:00]>
+  463| 
+  464|         **NOTE**: Unlike Python's ``range``, ``end`` *may* be included in the returned iterator::
+  465| 
+  466|             >>> start = datetime(2013, 5, 5, 12, 30)
+  467|             >>> end = datetime(2013, 5, 5, 13, 30)
+  468|             >>> for r in arrow.Arrow.range('hour', start, end):
+  469|             ...     print(repr(r))
+  470|             ...
+  471|             <Arrow [2013-05-05T12:30:00+00:00]>
+  472|             <Arrow [2013-05-05T13:30:00+00:00]>
+  473| 
+  474|         """
+  475| 
+  476|         _, frame_relative, relative_steps = cls._get_frames(frame)
+  477| 
+  478|         tzinfo = cls._get_tzinfo(start.tzinfo if tz is None else tz)
+  479| 
+  480|         start = cls._get_datetime(start).replace(tzinfo=tzinfo)
+  481|         end, limit = cls._get_iteration_params(end, limit)
+  482|         end = cls._get_datetime(end).replace(tzinfo=tzinfo)
+  483| 
+  484|         current = cls.fromdatetime(start)
+  485|         original_day = start.day
+  486|         day_is_clipped = False
+  487|         i = 0
+  488| 
+  489|         while current <= end and i < limit:
+  490|             i += 1
+  491|             yield current
+  492| 
+  493|             values = [getattr(current, f) for f in cls._ATTRS]
+  494|             current = cls(*values, tzinfo=tzinfo).shift(  # type: ignore[misc]
+  495|                 check_imaginary=True, **{frame_relative: relative_steps}
+  496|             )
+  497| 
+  498|             if frame in ["month", "quarter", "year"] and current.day < original_day:
+  499|                 day_is_clipped = True
+  500| 
+  501|             if day_is_clipped and not cls._is_last_day_of_month(current):
+  502|                 current = current.replace(day=original_day)
+  503| 
+  504|     def span(
+  505|         self,
+  506|         frame: _T_FRAMES,
+  507|         count: int = 1,
+  508|         bounds: _BOUNDS = "[)",
+  509|         exact: bool = False,
+  510|         week_start: int = 1,
+  511|     ) -> Tuple["Arrow", "Arrow"]:
+  512|         """Returns a tuple of two new :class:`Arrow <arrow.arrow.Arrow>` objects, representing the timespan
+  513|         of the :class:`Arrow <arrow.arrow.Arrow>` object in a given timeframe.
+  514| 
+  515|         :param frame: the timeframe.  Can be any ``datetime`` property (day, hour, minute...).
+  516|         :param count: (optional) the number of frames to span.
+  517|         :param bounds: (optional) a ``str`` of either '()', '(]', '[)', or '[]' that specifies
+  518|             whether to include or exclude the start and end values in the span. '(' excludes
+  519|             the start, '[' includes the start, ')' excludes the end, and ']' includes the end.
+  520|             If the bounds are not specified, the default bound '[)' is used.
+  521|         :param exact: (optional) whether to have the start of the timespan begin exactly
+  522|             at the time specified by ``start`` and the end of the timespan truncated
+  523|             so as not to extend beyond ``end``.
+  524|         :param week_start: (optional) only used in combination with the week timeframe. Follows isoweekday() where
+  525|             Monday is 1 and Sunday is 7.
+  526| 
+  527|         Supported frame values: year, quarter, month, week, day, hour, minute, second.
+  528| 
+  529|         Usage::
+  530| 
+  531|             >>> arrow.utcnow()
+  532|             <Arrow [2013-05-09T03:32:36.186203+00:00]>
+  533| 
+  534|             >>> arrow.utcnow().span('hour')
+  535|             (<Arrow [2013-05-09T03:00:00+00:00]>, <Arrow [2013-05-09T03:59:59.999999+00:00]>)
+  536| 
+  537|             >>> arrow.utcnow().span('day')
+  538|             (<Arrow [2013-05-09T00:00:00+00:00]>, <Arrow [2013-05-09T23:59:59.999999+00:00]>)
+  539| 
+  540|             >>> arrow.utcnow().span('day', count=2)
+  541|             (<Arrow [2013-05-09T00:00:00+00:00]>, <Arrow [2013-05-10T23:59:59.999999+00:00]>)
+  542| 
+  543|             >>> arrow.utcnow().span('day', bounds='[]')
+  544|             (<Arrow [2013-05-09T00:00:00+00:00]>, <Arrow [2013-05-10T00:00:00+00:00]>)
+  545| 
+  546|             >>> arrow.utcnow().span('week')
+  547|             (<Arrow [2021-02-22T00:00:00+00:00]>, <Arrow [2021-02-28T23:59:59.999999+00:00]>)
+  548| 
+  549|             >>> arrow.utcnow().span('week', week_start=6)
+  550|             (<Arrow [2021-02-20T00:00:00+00:00]>, <Arrow [2021-02-26T23:59:59.999999+00:00]>)
+  551| 
+  552|         """
+  553| 
+  554|         util.validate_bounds(bounds)
+  555| 
+  556|         frame_absolute, frame_relative, relative_steps = self._get_frames(frame)
+  557| 
+  558|         if frame_absolute == "week":
+  559|             if not 1 <= week_start <= 7:
+  560|                 raise ValueError("week_start argument must be between 1 and 7.")
+  561|             attr = "day"
+  562|         elif frame_absolute == "quarter":
+  563|             attr = "month"
+  564|         else:
+  565|             attr = frame_absolute
+  566| 
+  567|         floor = self
+  568|         if not exact:
+  569|             index = self._ATTRS.index(attr)
+  570|             frames = self._ATTRS[: index + 1]
+  571| 
+  572|             values = [getattr(self, f) for f in frames]
+  573| 
+  574|             for _ in range(3 - len(values)):
+  575|                 values.append(1)
+  576| 
+  577|             floor = self.__class__(*values, tzinfo=self.tzinfo)  # type: ignore[misc]
+  578| 
+  579|             if frame_absolute == "week":
+  580|                 # if week_start is greater than self.isoweekday() go back one week by setting delta = 7
+  581|                 delta = 7 if week_start > self.isoweekday() else 0
+  582|                 floor = floor.shift(days=-(self.isoweekday() - week_start) - delta)
+  583|             elif frame_absolute == "quarter":
+  584|                 floor = floor.shift(months=-((self.month - 1) % 3))
+  585| 
+  586|         ceil = floor.shift(
+  587|             check_imaginary=True, **{frame_relative: count * relative_steps}
+  588|         )
+  589| 
+  590|         if bounds[0] == "(":
+  591|             floor = floor.shift(microseconds=+1)
+  592| 
+  593|         if bounds[1] == ")":
+  594|             ceil = ceil.shift(microseconds=-1)
+  595| 
+  596|         return floor, ceil
+  597| 
+  598|     def floor(self, frame: _T_FRAMES, **kwargs: Any) -> "Arrow":
+  599|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object, representing the "floor"
+  600|         of the timespan of the :class:`Arrow <arrow.arrow.Arrow>` object in a given timeframe.
+  601|         Equivalent to the first element in the 2-tuple returned by
+  602|         :func:`span <arrow.arrow.Arrow.span>`.
+  603| 
+  604|         :param frame: the timeframe.  Can be any ``datetime`` property (day, hour, minute...).
+  605|         :param week_start: (optional) only used in combination with the week timeframe. Follows isoweekday() where
+  606|             Monday is 1 and Sunday is 7.
+  607| 
+  608|         Usage::
+  609| 
+  610|             >>> arrow.utcnow().floor('hour')
+  611|             <Arrow [2013-05-09T03:00:00+00:00]>
+  612| 
+  613|             >>> arrow.utcnow().floor('week', week_start=7)
+  614|             <Arrow [2021-02-21T00:00:00+00:00]>
+  615| 
+  616|         """
+  617| 
+  618|         return self.span(frame, **kwargs)[0]
+  619| 
+  620|     def ceil(self, frame: _T_FRAMES, **kwargs: Any) -> "Arrow":
+  621|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object, representing the "ceiling"
+  622|         of the timespan of the :class:`Arrow <arrow.arrow.Arrow>` object in a given timeframe.
+  623|         Equivalent to the second element in the 2-tuple returned by
+  624|         :func:`span <arrow.arrow.Arrow.span>`.
+  625| 
+  626|         :param frame: the timeframe.  Can be any ``datetime`` property (day, hour, minute...).
+  627|         :param week_start: (optional) only used in combination with the week timeframe. Follows isoweekday() where
+  628|             Monday is 1 and Sunday is 7.
+  629| 
+  630|         Usage::
+  631| 
+  632|             >>> arrow.utcnow().ceil('hour')
+  633|             <Arrow [2013-05-09T03:59:59.999999+00:00]>
+  634| 
+  635|             >>> arrow.utcnow().ceil('week', week_start=7)
+  636|             <Arrow [2021-02-27T23:59:59.999999+00:00]>
+  637| 
+  638|         """
+  639| 
+  640|         return self.span(frame, **kwargs)[1]
+  641| 
+  642|     @classmethod
+  643|     def span_range(
+  644|         cls,
+  645|         frame: _T_FRAMES,
+  646|         start: dt_datetime,
+  647|         end: dt_datetime,
+  648|         tz: Optional[TZ_EXPR] = None,
+  649|         limit: Optional[int] = None,
+  650|         bounds: _BOUNDS = "[)",
+  651|         exact: bool = False,
+  652|     ) -> Iterable[Tuple["Arrow", "Arrow"]]:
+  653|         """Returns an iterator of tuples, each :class:`Arrow <arrow.arrow.Arrow>` objects,
+  654|         representing a series of timespans between two inputs.
+  655| 
+  656|         :param frame: The timeframe.  Can be any ``datetime`` property (day, hour, minute...).
+  657|         :param start: A datetime expression, the start of the range.
+  658|         :param end: (optional) A datetime expression, the end of the range.
+  659|         :param tz: (optional) A :ref:`timezone expression <tz-expr>`.  Defaults to
+  660|             ``start``'s timezone, or UTC if ``start`` is naive.
+  661|         :param limit: (optional) A maximum number of tuples to return.
+  662|         :param bounds: (optional) a ``str`` of either '()', '(]', '[)', or '[]' that specifies
+  663|             whether to include or exclude the start and end values in each span in the range. '(' excludes
+  664|             the start, '[' includes the start, ')' excludes the end, and ']' includes the end.
+  665|             If the bounds are not specified, the default bound '[)' is used.
+  666|         :param exact: (optional) whether to have the first timespan start exactly
+  667|             at the time specified by ``start`` and the final span truncated
+  668|             so as not to extend beyond ``end``.
+  669| 
+  670|         **NOTE**: The ``end`` or ``limit`` must be provided.  Call with ``end`` alone to
+  671|         return the entire range.  Call with ``limit`` alone to return a maximum # of results from
+  672|         the start.  Call with both to cap a range at a maximum # of results.
+  673| 
+  674|         **NOTE**: ``tz`` internally **replaces** the timezones of both ``start`` and ``end`` before
+  675|         iterating.  As such, either call with naive objects and ``tz``, or aware objects from the
+  676|         same timezone and no ``tz``.
+  677| 
+  678|         Supported frame values: year, quarter, month, week, day, hour, minute, second, microsecond.
+  679| 
+  680|         Recognized datetime expressions:
+  681| 
+  682|             - An :class:`Arrow <arrow.arrow.Arrow>` object.
+  683|             - A ``datetime`` object.
+  684| 
+  685|         **NOTE**: Unlike Python's ``range``, ``end`` will *always* be included in the returned
+  686|         iterator of timespans.
+  687| 
+  688|         Usage:
+  689| 
+  690|             >>> start = datetime(2013, 5, 5, 12, 30)
+  691|             >>> end = datetime(2013, 5, 5, 17, 15)
+  692|             >>> for r in arrow.Arrow.span_range('hour', start, end):
+  693|             ...     print(r)
+  694|             ...
+  695|             (<Arrow [2013-05-05T12:00:00+00:00]>, <Arrow [2013-05-05T12:59:59.999999+00:00]>)
+  696|             (<Arrow [2013-05-05T13:00:00+00:00]>, <Arrow [2013-05-05T13:59:59.999999+00:00]>)
+  697|             (<Arrow [2013-05-05T14:00:00+00:00]>, <Arrow [2013-05-05T14:59:59.999999+00:00]>)
+  698|             (<Arrow [2013-05-05T15:00:00+00:00]>, <Arrow [2013-05-05T15:59:59.999999+00:00]>)
+  699|             (<Arrow [2013-05-05T16:00:00+00:00]>, <Arrow [2013-05-05T16:59:59.999999+00:00]>)
+  700|             (<Arrow [2013-05-05T17:00:00+00:00]>, <Arrow [2013-05-05T17:59:59.999999+00:00]>)
+  701| 
+  702|         """
+  703| 
+  704|         tzinfo = cls._get_tzinfo(start.tzinfo if tz is None else tz)
+  705|         start = cls.fromdatetime(start, tzinfo).span(frame, exact=exact)[0]
+  706|         end = cls.fromdatetime(end, tzinfo)
+  707|         _range = cls.range(frame, start, end, tz, limit)
+  708|         if not exact:
+  709|             for r in _range:
+  710|                 yield r.span(frame, bounds=bounds, exact=exact)
+  711| 
+  712|         for r in _range:
+  713|             floor, ceil = r.span(frame, bounds=bounds, exact=exact)
+  714|             if ceil > end:
+  715|                 ceil = end
+  716|                 if bounds[1] == ")":
+  717|                     ceil += relativedelta(microseconds=-1)
+  718|             if floor == end:
+  719|                 break
+  720|             elif floor + relativedelta(microseconds=-1) == end:
+  721|                 break
+  722|             yield floor, ceil
+  723| 
+  724|     @classmethod
+  725|     def interval(
+  726|         cls,
+  727|         frame: _T_FRAMES,
+  728|         start: dt_datetime,
+  729|         end: dt_datetime,
+  730|         interval: int = 1,
+  731|         tz: Optional[TZ_EXPR] = None,
+  732|         bounds: _BOUNDS = "[)",
+  733|         exact: bool = False,
+  734|     ) -> Iterable[Tuple["Arrow", "Arrow"]]:
+  735|         """Returns an iterator of tuples, each :class:`Arrow <arrow.arrow.Arrow>` objects,
+  736|         representing a series of intervals between two inputs.
+  737| 
+  738|         :param frame: The timeframe.  Can be any ``datetime`` property (day, hour, minute...).
+  739|         :param start: A datetime expression, the start of the range.
+  740|         :param end: (optional) A datetime expression, the end of the range.
+  741|         :param interval: (optional) Time interval for the given time frame.
+  742|         :param tz: (optional) A timezone expression.  Defaults to UTC.
+  743|         :param bounds: (optional) a ``str`` of either '()', '(]', '[)', or '[]' that specifies
+  744|             whether to include or exclude the start and end values in the intervals. '(' excludes
+  745|             the start, '[' includes the start, ')' excludes the end, and ']' includes the end.
+  746|             If the bounds are not specified, the default bound '[)' is used.
+  747|         :param exact: (optional) whether to have the first timespan start exactly
+  748|             at the time specified by ``start`` and the final interval truncated
+  749|             so as not to extend beyond ``end``.
+  750| 
+  751|         Supported frame values: year, quarter, month, week, day, hour, minute, second
+  752| 
+  753|         Recognized datetime expressions:
+  754| 
+  755|             - An :class:`Arrow <arrow.arrow.Arrow>` object.
+  756|             - A ``datetime`` object.
+  757| 
+  758|         Recognized timezone expressions:
+  759| 
+  760|             - A ``tzinfo`` object.
+  761|             - A ``str`` describing a timezone, similar to 'US/Pacific', or 'Europe/Berlin'.
+  762|             - A ``str`` in ISO 8601 style, as in '+07:00'.
+  763|             - A ``str``, one of the following:  'local', 'utc', 'UTC'.
+  764| 
+  765|         Usage:
+  766| 
+  767|             >>> start = datetime(2013, 5, 5, 12, 30)
+  768|             >>> end = datetime(2013, 5, 5, 17, 15)
+  769|             >>> for r in arrow.Arrow.interval('hour', start, end, 2):
+  770|             ...     print(r)
+  771|             ...
+  772|             (<Arrow [2013-05-05T12:00:00+00:00]>, <Arrow [2013-05-05T13:59:59.999999+00:00]>)
+  773|             (<Arrow [2013-05-05T14:00:00+00:00]>, <Arrow [2013-05-05T15:59:59.999999+00:00]>)
+  774|             (<Arrow [2013-05-05T16:00:00+00:00]>, <Arrow [2013-05-05T17:59:59.999999+00:0]>)
+  775|         """
+  776|         if interval < 1:
+  777|             raise ValueError("interval has to be a positive integer")
+  778| 
+  779|         spanRange = iter(
+  780|             cls.span_range(frame, start, end, tz, bounds=bounds, exact=exact)
+  781|         )
+  782|         while True:
+  783|             try:
+  784|                 intvlStart, intvlEnd = next(spanRange)
+  785|                 for _ in range(interval - 1):
+  786|                     try:
+  787|                         _, intvlEnd = next(spanRange)
+  788|                     except StopIteration:
+  789|                         continue
+  790|                 yield intvlStart, intvlEnd
+  791|             except StopIteration:
+  792|                 return
+  793| 
+  794|     # representations
+  795| 
+  796|     def __repr__(self) -> str:
+  797|         return f"<{self.__class__.__name__} [{self.__str__()}]>"
+  798| 
+  799|     def __str__(self) -> str:
+  800|         return self._datetime.isoformat()
+  801| 
+  802|     def __format__(self, formatstr: str) -> str:
+  803|         if len(formatstr) > 0:
+  804|             return self.format(formatstr)
+  805| 
+  806|         return str(self)
+  807| 
+  808|     def __hash__(self) -> int:
+  809|         return self._datetime.__hash__()
+  810| 
+  811|     # attributes and properties
+  812| 
+  813|     def __getattr__(self, name: str) -> Any:
+  814|         if name == "week":
+  815|             return self.isocalendar()[1]
+  816| 
+  817|         if name == "quarter":
+  818|             return int((self.month - 1) / self._MONTHS_PER_QUARTER) + 1
+  819| 
+  820|         if not name.startswith("_"):
+  821|             value: Optional[Any] = getattr(self._datetime, name, None)
+  822| 
+  823|             if value is not None:
+  824|                 return value
+  825| 
+  826|         return cast(int, object.__getattribute__(self, name))
+  827| 
+  828|     @property
+  829|     def tzinfo(self) -> dt_tzinfo:
+  830|         """Gets the ``tzinfo`` of the :class:`Arrow <arrow.arrow.Arrow>` object.
+  831| 
+  832|         Usage::
+  833| 
+  834|             >>> arw=arrow.utcnow()
+  835|             >>> arw.tzinfo
+  836|             tzutc()
+  837| 
+  838|         """
+  839| 
+  840|         # In Arrow, `_datetime` cannot be naive.
+  841|         return cast(dt_tzinfo, self._datetime.tzinfo)
+  842| 
+  843|     @property
+  844|     def datetime(self) -> dt_datetime:
+  845|         """Returns a datetime representation of the :class:`Arrow <arrow.arrow.Arrow>` object.
+  846| 
+  847|         Usage::
+  848| 
+  849|             >>> arw=arrow.utcnow()
+  850|             >>> arw.datetime
+  851|             datetime.datetime(2019, 1, 24, 16, 35, 27, 276649, tzinfo=tzutc())
+  852| 
+  853|         """
+  854| 
+  855|         return self._datetime
+  856| 
+  857|     @property
+  858|     def naive(self) -> dt_datetime:
+  859|         """Returns a naive datetime representation of the :class:`Arrow <arrow.arrow.Arrow>`
+  860|         object.
+  861| 
+  862|         Usage::
+  863| 
+  864|             >>> nairobi = arrow.now('Africa/Nairobi')
+  865|             >>> nairobi
+  866|             <Arrow [2019-01-23T19:27:12.297999+03:00]>
+  867|             >>> nairobi.naive
+  868|             datetime.datetime(2019, 1, 23, 19, 27, 12, 297999)
+  869| 
+  870|         """
+  871| 
+  872|         return self._datetime.replace(tzinfo=None)
+  873| 
+  874|     def timestamp(self) -> float:
+  875|         """Returns a timestamp representation of the :class:`Arrow <arrow.arrow.Arrow>` object, in
+  876|         UTC time.
+  877| 
+  878|         Usage::
+  879| 
+  880|             >>> arrow.utcnow().timestamp()
+  881|             1616882340.256501
+  882| 
+  883|         """
+  884| 
+  885|         return self._datetime.timestamp()
+  886| 
+  887|     @property
+  888|     def int_timestamp(self) -> int:
+  889|         """Returns an integer timestamp representation of the :class:`Arrow <arrow.arrow.Arrow>` object, in
+  890|         UTC time.
+  891| 
+  892|         Usage::
+  893| 
+  894|             >>> arrow.utcnow().int_timestamp
+  895|             1548260567
+  896| 
+  897|         """
+  898| 
+  899|         return int(self.timestamp())
+  900| 
+  901|     @property
+  902|     def float_timestamp(self) -> float:
+  903|         """Returns a floating-point timestamp representation of the :class:`Arrow <arrow.arrow.Arrow>`
+  904|         object, in UTC time.
+  905| 
+  906|         Usage::
+  907| 
+  908|             >>> arrow.utcnow().float_timestamp
+  909|             1548260516.830896
+  910| 
+  911|         """
+  912| 
+  913|         return self.timestamp()
+  914| 
+  915|     @property
+  916|     def fold(self) -> int:
+  917|         """Returns the ``fold`` value of the :class:`Arrow <arrow.arrow.Arrow>` object."""
+  918| 
+  919|         return self._datetime.fold
+  920| 
+  921|     @property
+  922|     def ambiguous(self) -> bool:
+  923|         """Indicates whether the :class:`Arrow <arrow.arrow.Arrow>` object is a repeated wall time in the current
+  924|         timezone.
+  925| 
+  926|         """
+  927| 
+  928|         return dateutil_tz.datetime_ambiguous(self._datetime)
+  929| 
+  930|     @property
+  931|     def imaginary(self) -> bool:
+  932|         """Indicates whether the :class: `Arrow <arrow.arrow.Arrow>` object exists in the current timezone."""
+  933| 
+  934|         return not dateutil_tz.datetime_exists(self._datetime)
+  935| 
+  936|     # mutation and duplication.
+  937| 
+  938|     def clone(self) -> "Arrow":
+  939|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object, cloned from the current one.
+  940| 
+  941|         Usage:
+  942| 
+  943|             >>> arw = arrow.utcnow()
+  944|             >>> cloned = arw.clone()
+  945| 
+  946|         """
+  947| 
+  948|         return self.fromdatetime(self._datetime)
+  949| 
+  950|     def replace(self, **kwargs: Any) -> "Arrow":
+  951|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object with attributes updated
+  952|         according to inputs.
+  953| 
+  954|         Use property names to set their value absolutely::
+  955| 
+  956|             >>> import arrow
+  957|             >>> arw = arrow.utcnow()
+  958|             >>> arw
+  959|             <Arrow [2013-05-11T22:27:34.787885+00:00]>
+  960|             >>> arw.replace(year=2014, month=6)
+  961|             <Arrow [2014-06-11T22:27:34.787885+00:00]>
+  962| 
+  963|         You can also replace the timezone without conversion, using a
+  964|         :ref:`timezone expression <tz-expr>`::
+  965| 
+  966|             >>> arw.replace(tzinfo=tz.tzlocal())
+  967|             <Arrow [2013-05-11T22:27:34.787885-07:00]>
+  968| 
+  969|         """
+  970| 
+  971|         absolute_kwargs = {}
+  972| 
+  973|         for key, value in kwargs.items():
+  974|             if key in self._ATTRS:
+  975|                 absolute_kwargs[key] = value
+  976|             elif key in ["week", "quarter"]:
+  977|                 raise ValueError(f"Setting absolute {key} is not supported.")
+  978|             elif key not in ["tzinfo", "fold"]:
+  979|                 raise ValueError(f"Unknown attribute: {key!r}.")
+  980| 
+  981|         current = self._datetime.replace(**absolute_kwargs)
+  982| 
+  983|         tzinfo = kwargs.get("tzinfo")
+  984| 
+  985|         if tzinfo is not None:
+  986|             tzinfo = self._get_tzinfo(tzinfo)
+  987|             current = current.replace(tzinfo=tzinfo)
+  988| 
+  989|         fold = kwargs.get("fold")
+  990| 
+  991|         if fold is not None:
+  992|             current = current.replace(fold=fold)
+  993| 
+  994|         return self.fromdatetime(current)
+  995| 
+  996|     def shift(self, check_imaginary: bool = True, **kwargs: Any) -> "Arrow":
+  997|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object with attributes updated
+  998|         according to inputs.
+  999| 
+ 1000|         Parameters:
+ 1001|         check_imaginary (bool): If True (default), will check for and resolve
+ 1002|         imaginary times (like during DST transitions). If False, skips this check.
+ 1003| 
+ 1004| 
+ 1005|         Use pluralized property names to relatively shift their current value:
+ 1006| 
+ 1007|         >>> import arrow
+ 1008|         >>> arw = arrow.utcnow()
+ 1009|         >>> arw
+ 1010|         <Arrow [2013-05-11T22:27:34.787885+00:00]>
+ 1011|         >>> arw.shift(years=1, months=-1)
+ 1012|         <Arrow [2014-04-11T22:27:34.787885+00:00]>
+ 1013| 
+ 1014|         Day-of-the-week relative shifting can use either Python's weekday numbers
+ 1015|         (Monday = 0, Tuesday = 1 .. Sunday = 6) or using dateutil.relativedelta's
+ 1016|         day instances (MO, TU .. SU).  When using weekday numbers, the returned
+ 1017|         date will always be greater than or equal to the starting date.
+ 1018| 
+ 1019|         Using the above code (which is a Saturday) and asking it to shift to Saturday:
+ 1020| 
+ 1021|         >>> arw.shift(weekday=5)
+ 1022|         <Arrow [2013-05-11T22:27:34.787885+00:00]>
+ 1023| 
+ 1024|         While asking for a Monday:
+ 1025| 
+ 1026|         >>> arw.shift(weekday=0)
+ 1027|         <Arrow [2013-05-13T22:27:34.787885+00:00]>
+ 1028| 
+ 1029|         """
+ 1030| 
+ 1031|         relative_kwargs = {}
+ 1032|         additional_attrs = ["weeks", "quarters", "weekday"]
+ 1033| 
+ 1034|         for key, value in kwargs.items():
+ 1035|             if key in self._ATTRS_PLURAL or key in additional_attrs:
+ 1036|                 relative_kwargs[key] = value
+ 1037|             else:
+ 1038|                 supported_attr = ", ".join(self._ATTRS_PLURAL + additional_attrs)
+ 1039|                 raise ValueError(
+ 1040|                     f"Invalid shift time frame. Please select one of the following: {supported_attr}."
+ 1041|                 )
+ 1042| 
+ 1043|         # core datetime does not support quarters, translate to months.
+ 1044|         relative_kwargs.setdefault("months", 0)
+ 1045|         relative_kwargs["months"] += (
+ 1046|             relative_kwargs.pop("quarters", 0) * self._MONTHS_PER_QUARTER
+ 1047|         )
+ 1048| 
+ 1049|         current = self._datetime + relativedelta(**relative_kwargs)
+ 1050| 
+ 1051|         # If check_imaginary is True, perform the check for imaginary times (DST transitions)
+ 1052|         if check_imaginary and not dateutil_tz.datetime_exists(current):
+ 1053|             current = dateutil_tz.resolve_imaginary(current)
+ 1054| 
+ 1055|         return self.fromdatetime(current)
+ 1056| 
+ 1057|     def to(self, tz: TZ_EXPR) -> "Arrow":
+ 1058|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object, converted
+ 1059|         to the target timezone.
+ 1060| 
+ 1061|         :param tz: A :ref:`timezone expression <tz-expr>`.
+ 1062| 
+ 1063|         Usage::
+ 1064| 
+ 1065|             >>> utc = arrow.utcnow()
+ 1066|             >>> utc
+ 1067|             <Arrow [2013-05-09T03:49:12.311072+00:00]>
+ 1068| 
+ 1069|             >>> utc.to('US/Pacific')
+ 1070|             <Arrow [2013-05-08T20:49:12.311072-07:00]>
+ 1071| 
+ 1072|             >>> utc.to(tz.tzlocal())
+ 1073|             <Arrow [2013-05-08T20:49:12.311072-07:00]>
+ 1074| 
+ 1075|             >>> utc.to('-07:00')
+ 1076|             <Arrow [2013-05-08T20:49:12.311072-07:00]>
+ 1077| 
+ 1078|             >>> utc.to('local')
+ 1079|             <Arrow [2013-05-08T20:49:12.311072-07:00]>
+ 1080| 
+ 1081|             >>> utc.to('local').to('utc')
+ 1082|             <Arrow [2013-05-09T03:49:12.311072+00:00]>
+ 1083| 
+ 1084|         """
+ 1085| 
+ 1086|         if not isinstance(tz, dt_tzinfo):
+ 1087|             tz = parser.TzinfoParser.parse(tz)
+ 1088| 
+ 1089|         dt = self._datetime.astimezone(tz)
+ 1090| 
+ 1091|         return self.__class__(
+ 1092|             dt.year,
+ 1093|             dt.month,
+ 1094|             dt.day,
+ 1095|             dt.hour,
+ 1096|             dt.minute,
+ 1097|             dt.second,
+ 1098|             dt.microsecond,
+ 1099|             dt.tzinfo,
+ 1100|             fold=getattr(dt, "fold", 0),
+ 1101|         )
+ 1102| 
+ 1103|     # string output and formatting
+ 1104| 
+ 1105|     def format(
+ 1106|         self, fmt: str = "YYYY-MM-DD HH:mm:ssZZ", locale: str = DEFAULT_LOCALE
+ 1107|     ) -> str:
+ 1108|         """Returns a string representation of the :class:`Arrow <arrow.arrow.Arrow>` object,
+ 1109|         formatted according to the provided format string. For a list of formatting values,
+ 1110|         see :ref:`supported-tokens`
+ 1111| 
+ 1112|         :param fmt: the format string.
+ 1113|         :param locale: the locale to format.
+ 1114| 
+ 1115|         Usage::
+ 1116| 
+ 1117|             >>> arrow.utcnow().format('YYYY-MM-DD HH:mm:ss ZZ')
+ 1118|             '2013-05-09 03:56:47 -00:00'
+ 1119| 
+ 1120|             >>> arrow.utcnow().format('X')
+ 1121|             '1368071882'
+ 1122| 
+ 1123|             >>> arrow.utcnow().format('MMMM DD, YYYY')
+ 1124|             'May 09, 2013'
+ 1125| 
+ 1126|             >>> arrow.utcnow().format()
+ 1127|             '2013-05-09 03:56:47 -00:00'
+ 1128| 
+ 1129|         """
+ 1130| 
+ 1131|         return formatter.DateTimeFormatter(locale).format(self._datetime, fmt)
+ 1132| 
+ 1133|     def humanize(
+ 1134|         self,
+ 1135|         other: Union["Arrow", dt_datetime, None] = None,
+ 1136|         locale: str = DEFAULT_LOCALE,
+ 1137|         only_distance: bool = False,
+ 1138|         granularity: Union[_GRANULARITY, List[_GRANULARITY]] = "auto",
+ 1139|     ) -> str:
+ 1140|         """Returns a localized, humanized representation of a relative difference in time.
+ 1141| 
+ 1142|         :param other: (optional) an :class:`Arrow <arrow.arrow.Arrow>` or ``datetime`` object.
+ 1143|             Defaults to now in the current :class:`Arrow <arrow.arrow.Arrow>` object's timezone.
+ 1144|         :param locale: (optional) a ``str`` specifying a locale.  Defaults to 'en-us'.
+ 1145|         :param only_distance: (optional) returns only time difference eg: "11 seconds" without "in" or "ago" part.
+ 1146|         :param granularity: (optional) defines the precision of the output. Set it to strings 'second', 'minute',
+ 1147|                            'hour', 'day', 'week', 'month' or 'year' or a list of any combination of these strings
+ 1148| 
+ 1149|         Usage::
+ 1150| 
+ 1151|             >>> earlier = arrow.utcnow().shift(hours=-2)
+ 1152|             >>> earlier.humanize()
+ 1153|             '2 hours ago'
+ 1154| 
+ 1155|             >>> later = earlier.shift(hours=4)
+ 1156|             >>> later.humanize(earlier)
+ 1157|             'in 4 hours'
+ 1158| 
+ 1159|         """
+ 1160| 
+ 1161|         locale_name = locale
+ 1162|         locale = locales.get_locale(locale)
+ 1163| 
+ 1164|         if other is None:
+ 1165|             utc = dt_datetime.now(timezone.utc).replace(tzinfo=timezone.utc)
+ 1166|             dt = utc.astimezone(self._datetime.tzinfo)
+ 1167| 
+ 1168|         elif isinstance(other, Arrow):
+ 1169|             dt = other._datetime
+ 1170| 
+ 1171|         elif isinstance(other, dt_datetime):
+ 1172|             if other.tzinfo is None:
+ 1173|                 dt = other.replace(tzinfo=self._datetime.tzinfo)
+ 1174|             else:
+ 1175|                 dt = other.astimezone(self._datetime.tzinfo)
+ 1176| 
+ 1177|         else:
+ 1178|             raise TypeError(
+ 1179|                 f"Invalid 'other' argument of type {type(other).__name__!r}. "
+ 1180|                 "Argument must be of type None, Arrow, or datetime."
+ 1181|             )
+ 1182| 
+ 1183|         if isinstance(granularity, list) and len(granularity) == 1:
+ 1184|             granularity = granularity[0]
+ 1185| 
+ 1186|         _delta = int(round((self._datetime - dt).total_seconds()))
+ 1187|         sign = -1 if _delta < 0 else 1
+ 1188|         delta_second = diff = abs(_delta)
+ 1189| 
+ 1190|         try:
+ 1191|             if granularity == "auto":
+ 1192|                 if diff < 10:
+ 1193|                     return locale.describe("now", only_distance=only_distance)
+ 1194| 
+ 1195|                 if diff < self._SECS_PER_MINUTE:
+ 1196|                     seconds = sign * delta_second
+ 1197|                     return locale.describe(
+ 1198|                         "seconds", seconds, only_distance=only_distance
+ 1199|                     )
+ 1200| 
+ 1201|                 elif diff < self._SECS_PER_MINUTE * 2:
+ 1202|                     return locale.describe("minute", sign, only_distance=only_distance)
+ 1203| 
+ 1204|                 elif diff < self._SECS_PER_HOUR:
+ 1205|                     minutes = sign * max(delta_second // self._SECS_PER_MINUTE, 2)
+ 1206|                     return locale.describe(
+ 1207|                         "minutes", minutes, only_distance=only_distance
+ 1208|                     )
+ 1209| 
+ 1210|                 elif diff < self._SECS_PER_HOUR * 2:
+ 1211|                     return locale.describe("hour", sign, only_distance=only_distance)
+ 1212| 
+ 1213|                 elif diff < self._SECS_PER_DAY:
+ 1214|                     hours = sign * max(delta_second // self._SECS_PER_HOUR, 2)
+ 1215|                     return locale.describe("hours", hours, only_distance=only_distance)
+ 1216| 
+ 1217|                 calendar_diff = (
+ 1218|                     relativedelta(dt, self._datetime)
+ 1219|                     if self._datetime < dt
+ 1220|                     else relativedelta(self._datetime, dt)
+ 1221|                 )
+ 1222|                 calendar_months = (
+ 1223|                     calendar_diff.years * self._MONTHS_PER_YEAR + calendar_diff.months
+ 1224|                 )
+ 1225| 
+ 1226|                 # For months, if more than 2 weeks, count as a full month
+ 1227|                 if calendar_diff.days > 14:
+ 1228|                     calendar_months += 1
+ 1229| 
+ 1230|                 calendar_months = min(calendar_months, self._MONTHS_PER_YEAR)
+ 1231| 
+ 1232|                 if diff < self._SECS_PER_DAY * 2:
+ 1233|                     return locale.describe("day", sign, only_distance=only_distance)
+ 1234| 
+ 1235|                 elif diff < self._SECS_PER_WEEK:
+ 1236|                     days = sign * max(delta_second // self._SECS_PER_DAY, 2)
+ 1237|                     return locale.describe("days", days, only_distance=only_distance)
+ 1238| 
+ 1239|                 elif calendar_months >= 1 and diff < self._SECS_PER_YEAR:
+ 1240|                     if calendar_months == 1:
+ 1241|                         return locale.describe(
+ 1242|                             "month", sign, only_distance=only_distance
+ 1243|                         )
+ 1244|                     else:
+ 1245|                         months = sign * calendar_months
+ 1246|                         return locale.describe(
+ 1247|                             "months", months, only_distance=only_distance
+ 1248|                         )
+ 1249| 
+ 1250|                 elif diff < self._SECS_PER_WEEK * 2:
+ 1251|                     return locale.describe("week", sign, only_distance=only_distance)
+ 1252| 
+ 1253|                 elif diff < self._SECS_PER_MONTH:
+ 1254|                     weeks = sign * max(delta_second // self._SECS_PER_WEEK, 2)
+ 1255|                     return locale.describe("weeks", weeks, only_distance=only_distance)
+ 1256| 
+ 1257|                 elif diff < self._SECS_PER_YEAR * 2:
+ 1258|                     return locale.describe("year", sign, only_distance=only_distance)
+ 1259| 
+ 1260|                 else:
+ 1261|                     years = sign * max(delta_second // self._SECS_PER_YEAR, 2)
+ 1262|                     return locale.describe("years", years, only_distance=only_distance)
+ 1263| 
+ 1264|             elif isinstance(granularity, str):
+ 1265|                 granularity = cast(TimeFrameLiteral, granularity)  # type: ignore[assignment]
+ 1266| 
+ 1267|                 if granularity == "second":
+ 1268|                     delta = sign * float(delta_second)
+ 1269|                     if abs(delta) < 2:
+ 1270|                         return locale.describe("now", only_distance=only_distance)
+ 1271|                 elif granularity == "minute":
+ 1272|                     delta = sign * delta_second / self._SECS_PER_MINUTE
+ 1273|                 elif granularity == "hour":
+ 1274|                     delta = sign * delta_second / self._SECS_PER_HOUR
+ 1275|                 elif granularity == "day":
+ 1276|                     delta = sign * delta_second / self._SECS_PER_DAY
+ 1277|                 elif granularity == "week":
+ 1278|                     delta = sign * delta_second / self._SECS_PER_WEEK
+ 1279|                 elif granularity == "month":
+ 1280|                     delta = sign * delta_second / self._SECS_PER_MONTH
+ 1281|                 elif granularity == "quarter":
+ 1282|                     delta = sign * delta_second / self._SECS_PER_QUARTER
+ 1283|                 elif granularity == "year":
+ 1284|                     delta = sign * delta_second / self._SECS_PER_YEAR
+ 1285|                 else:
+ 1286|                     raise ValueError(
+ 1287|                         "Invalid level of granularity. "
+ 1288|                         "Please select between 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter' or 'year'."
+ 1289|                     )
+ 1290| 
+ 1291|                 if trunc(abs(delta)) != 1:
+ 1292|                     granularity += "s"  # type: ignore[assignment]
+ 1293|                 return locale.describe(granularity, delta, only_distance=only_distance)
+ 1294| 
+ 1295|             else:
+ 1296|                 if not granularity:
+ 1297|                     raise ValueError(
+ 1298|                         "Empty granularity list provided. "
+ 1299|                         "Please select one or more from 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'."
+ 1300|                     )
+ 1301| 
+ 1302|                 timeframes: List[Tuple[TimeFrameLiteral, float]] = []
+ 1303| 
+ 1304|                 def gather_timeframes(_delta: float, _frame: TimeFrameLiteral) -> float:
+ 1305|                     if _frame in granularity:
+ 1306|                         value = sign * _delta / self._SECS_MAP[_frame]
+ 1307|                         _delta %= self._SECS_MAP[_frame]
+ 1308|                         if trunc(abs(value)) != 1:
+ 1309|                             timeframes.append(
+ 1310|                                 (cast(TimeFrameLiteral, _frame + "s"), value)
+ 1311|                             )
+ 1312|                         else:
+ 1313|                             timeframes.append((_frame, value))
+ 1314|                     return _delta
+ 1315| 
+ 1316|                 delta = float(delta_second)
+ 1317|                 frames: Tuple[TimeFrameLiteral, ...] = (
+ 1318|                     "year",
+ 1319|                     "quarter",
+ 1320|                     "month",
+ 1321|                     "week",
+ 1322|                     "day",
+ 1323|                     "hour",
+ 1324|                     "minute",
+ 1325|                     "second",
+ 1326|                 )
+ 1327|                 for frame in frames:
+ 1328|                     delta = gather_timeframes(delta, frame)
+ 1329| 
+ 1330|                 if len(timeframes) < len(granularity):
+ 1331|                     raise ValueError(
+ 1332|                         "Invalid level of granularity. "
+ 1333|                         "Please select between 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter' or 'year'."
+ 1334|                     )
+ 1335| 
+ 1336|                 return locale.describe_multi(timeframes, only_distance=only_distance)
+ 1337| 
+ 1338|         except KeyError as e:
+ 1339|             raise ValueError(
+ 1340|                 f"Humanization of the {e} granularity is not currently translated in the {locale_name!r} locale. "
+ 1341|                 "Please consider making a contribution to this locale."
+ 1342|             )
+ 1343| 
+ 1344|     def dehumanize(self, input_string: str, locale: str = "en_us") -> "Arrow":
+ 1345|         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object, that represents
+ 1346|         the time difference relative to the attributes of the
+ 1347|         :class:`Arrow <arrow.arrow.Arrow>` object.
+ 1348| 
+ 1349|         :param timestring: a ``str`` representing a humanized relative time.
+ 1350|         :param locale: (optional) a ``str`` specifying a locale.  Defaults to 'en-us'.
+ 1351| 
+ 1352|         Usage::
+ 1353| 
+ 1354|                 >>> arw = arrow.utcnow()
+ 1355|                 >>> arw
+ 1356|                 <Arrow [2021-04-20T22:27:34.787885+00:00]>
+ 1357|                 >>> earlier = arw.dehumanize("2 days ago")
+ 1358|                 >>> earlier
+ 1359|                 <Arrow [2021-04-18T22:27:34.787885+00:00]>
+ 1360| 
+ 1361|                 >>> arw = arrow.utcnow()
+ 1362|                 >>> arw
+ 1363|                 <Arrow [2021-04-20T22:27:34.787885+00:00]>
+ 1364|                 >>> later = arw.dehumanize("in a month")
+ 1365|                 >>> later
+ 1366|                 <Arrow [2021-05-18T22:27:34.787885+00:00]>
+ 1367| 
+ 1368|         """
+ 1369| 
+ 1370|         # Create a locale object based off given local
+ 1371|         locale_obj = locales.get_locale(locale)
+ 1372| 
+ 1373|         # Check to see if locale is supported
+ 1374|         normalized_locale_name = locale.lower().replace("_", "-")
+ 1375| 
+ 1376|         if normalized_locale_name not in DEHUMANIZE_LOCALES:
+ 1377|             raise ValueError(
+ 1378|                 f"Dehumanize does not currently support the {locale} locale, please consider making a contribution to add support for this locale."
+ 1379|             )
+ 1380| 
+ 1381|         current_time = self.fromdatetime(self._datetime)
+ 1382| 
+ 1383|         # Create an object containing the relative time info
+ 1384|         time_object_info = dict.fromkeys(
+ 1385|             ["seconds", "minutes", "hours", "days", "weeks", "months", "years"], 0
+ 1386|         )
+ 1387| 
+ 1388|         # Create an object representing if unit has been seen
+ 1389|         unit_visited = dict.fromkeys(
+ 1390|             ["now", "seconds", "minutes", "hours", "days", "weeks", "months", "years"],
+ 1391|             False,
+ 1392|         )
+ 1393| 
+ 1394|         # Create a regex pattern object for numbers
+ 1395|         num_pattern = re.compile(r"\d+")
+ 1396| 
+ 1397|         # Search input string for each time unit within locale
+ 1398|         for unit, unit_object in locale_obj.timeframes.items():
+ 1399|             # Need to check the type of unit_object to create the correct dictionary
+ 1400|             if isinstance(unit_object, Mapping):
+ 1401|                 strings_to_search = unit_object
+ 1402|             else:
+ 1403|                 strings_to_search = {unit: str(unit_object)}
+ 1404| 
+ 1405|             # Search for any matches that exist for that locale's unit.
+ 1406|             # Needs to cycle all through strings as some locales have strings that
+ 1407|             # could overlap in a regex match, since input validation isn't being performed.
+ 1408|             for time_delta, time_string in strings_to_search.items():
+ 1409|                 # Replace {0} with regex \d representing digits
+ 1410|                 search_string = str(time_string)
+ 1411|                 search_string = search_string.format(r"\d+")
+ 1412| 
+ 1413|                 # Create search pattern and find within string
+ 1414|                 pattern = re.compile(rf"(^|\b|\d){search_string}")
+ 1415|                 match = pattern.search(input_string)
+ 1416| 
+ 1417|                 # If there is no match continue to next iteration
+ 1418|                 if not match:
+ 1419|                     continue
+ 1420| 
+ 1421|                 match_string = match.group()
+ 1422|                 num_match = num_pattern.search(match_string)
+ 1423| 
+ 1424|                 # If no number matches
+ 1425|                 # Need for absolute value as some locales have signs included in their objects
+ 1426|                 if not num_match:
+ 1427|                     change_value = (
+ 1428|                         1 if not time_delta.isnumeric() else abs(int(time_delta))
+ 1429|                     )
+ 1430|                 else:
+ 1431|                     change_value = int(num_match.group())
+ 1432| 
+ 1433|                 # No time to update if now is the unit
+ 1434|                 if unit == "now":
+ 1435|                     unit_visited[unit] = True
+ 1436|                     continue
+ 1437| 
+ 1438|                 # Add change value to the correct unit (incorporates the plurality that exists within timeframe i.e second v.s seconds)
+ 1439|                 time_unit_to_change = str(unit)
+ 1440|                 time_unit_to_change += (
+ 1441|                     "s" if (str(time_unit_to_change)[-1] != "s") else ""
+ 1442|                 )
+ 1443|                 time_object_info[time_unit_to_change] = change_value
+ 1444|                 unit_visited[time_unit_to_change] = True
+ 1445| 
+ 1446|         # Assert error if string does not modify any units
+ 1447|         if not any([True for k, v in unit_visited.items() if v]):
+ 1448|             raise ValueError(
+ 1449|                 "Input string not valid. Note: Some locales do not support the week granularity in Arrow. "
+ 1450|                 "If you are attempting to use the week granularity on an unsupported locale, this could be the cause of this error."
+ 1451|             )
+ 1452| 
+ 1453|         # Sign logic
+ 1454|         future_string = locale_obj.future
+ 1455|         future_string = future_string.format(".*")
+ 1456|         future_pattern = re.compile(rf"^{future_string}$")
+ 1457|         future_pattern_match = future_pattern.findall(input_string)
+ 1458| 
+ 1459|         past_string = locale_obj.past
+ 1460|         past_string = past_string.format(".*")
+ 1461|         past_pattern = re.compile(rf"^{past_string}$")
+ 1462|         past_pattern_match = past_pattern.findall(input_string)
+ 1463| 
+ 1464|         # If a string contains the now unit, there will be no relative units, hence the need to check if the now unit
+ 1465|         # was visited before raising a ValueError
+ 1466|         if past_pattern_match:
+ 1467|             sign_val = -1
+ 1468|         elif future_pattern_match:
+ 1469|             sign_val = 1
+ 1470|         elif unit_visited["now"]:
+ 1471|             sign_val = 0
+ 1472|         else:
+ 1473|             raise ValueError(
+ 1474|                 "Invalid input String. String does not contain any relative time information. "
+ 1475|                 "String should either represent a time in the future or a time in the past. "
+ 1476|                 "Ex: 'in 5 seconds' or '5 seconds ago'."
+ 1477|             )
+ 1478| 
+ 1479|         time_changes = {k: sign_val * v for k, v in time_object_info.items()}
+ 1480| 
+ 1481|         return current_time.shift(check_imaginary=True, **time_changes)
+ 1482| 
+ 1483|     # query functions
+ 1484| 
+ 1485|     def is_between(
+ 1486|         self,
+ 1487|         start: "Arrow",
+ 1488|         end: "Arrow",
+ 1489|         bounds: _BOUNDS = "()",
+ 1490|     ) -> bool:
+ 1491|         """Returns a boolean denoting whether the :class:`Arrow <arrow.arrow.Arrow>` object is between
+ 1492|         the start and end limits.
+ 1493| 
+ 1494|         :param start: an :class:`Arrow <arrow.arrow.Arrow>` object.
+ 1495|         :param end: an :class:`Arrow <arrow.arrow.Arrow>` object.
+ 1496|         :param bounds: (optional) a ``str`` of either '()', '(]', '[)', or '[]' that specifies
+ 1497|             whether to include or exclude the start and end values in the range. '(' excludes
+ 1498|             the start, '[' includes the start, ')' excludes the end, and ']' includes the end.
+ 1499|             If the bounds are not specified, the default bound '()' is used.
+ 1500| 
+ 1501|         Usage::
+ 1502| 
+ 1503|             >>> start = arrow.get(datetime(2013, 5, 5, 12, 30, 10))
+ 1504|             >>> end = arrow.get(datetime(2013, 5, 5, 12, 30, 36))
+ 1505|             >>> arrow.get(datetime(2013, 5, 5, 12, 30, 27)).is_between(start, end)
+ 1506|             True
+ 1507| 
+ 1508|             >>> start = arrow.get(datetime(2013, 5, 5))
+ 1509|             >>> end = arrow.get(datetime(2013, 5, 8))
+ 1510|             >>> arrow.get(datetime(2013, 5, 8)).is_between(start, end, '[]')
+ 1511|             True
+ 1512| 
+ 1513|             >>> start = arrow.get(datetime(2013, 5, 5))
+ 1514|             >>> end = arrow.get(datetime(2013, 5, 8))
+ 1515|             >>> arrow.get(datetime(2013, 5, 8)).is_between(start, end, '[)')
+ 1516|             False
+ 1517| 
+ 1518|         """
+ 1519| 
+ 1520|         util.validate_bounds(bounds)
+ 1521| 
+ 1522|         if not isinstance(start, Arrow):
+ 1523|             raise TypeError(
+ 1524|                 f"Cannot parse start date argument type of {type(start)!r}."
+ 1525|             )
+ 1526| 
+ 1527|         if not isinstance(end, Arrow):
+ 1528|             raise TypeError(f"Cannot parse end date argument type of {type(start)!r}.")
+ 1529| 
+ 1530|         include_start = bounds[0] == "["
+ 1531|         include_end = bounds[1] == "]"
+ 1532| 
+ 1533|         target_ts = self.float_timestamp
+ 1534|         start_ts = start.float_timestamp
+ 1535|         end_ts = end.float_timestamp
+ 1536| 
+ 1537|         return (
+ 1538|             (start_ts <= target_ts <= end_ts)
+ 1539|             and (include_start or start_ts < target_ts)
+ 1540|             and (include_end or target_ts < end_ts)
+ 1541|         )
+ 1542| 
+ 1543|     # datetime methods
+ 1544| 
+ 1545|     def date(self) -> dt_date:
+ 1546|         """Returns a ``date`` object with the same year, month and day.
+ 1547| 
+ 1548|         Usage::
+ 1549| 
+ 1550|             >>> arrow.utcnow().date()
+ 1551|             datetime.date(2019, 1, 23)
+ 1552| 
+ 1553|         """
+ 1554| 
+ 1555|         return self._datetime.date()
+ 1556| 
+ 1557|     def time(self) -> dt_time:
+ 1558|         """Returns a ``time`` object with the same hour, minute, second, microsecond.
+ 1559| 
+ 1560|         Usage::
+ 1561| 
+ 1562|             >>> arrow.utcnow().time()
+ 1563|             datetime.time(12, 15, 34, 68352)
+ 1564| 
+ 1565|         """
+ 1566| 
+ 1567|         return self._datetime.time()
+ 1568| 
+ 1569|     def timetz(self) -> dt_time:
+ 1570|         """Returns a ``time`` object with the same hour, minute, second, microsecond and
+ 1571|         tzinfo.
+ 1572| 
+ 1573|         Usage::
+ 1574| 
+ 1575|             >>> arrow.utcnow().timetz()
+ 1576|             datetime.time(12, 5, 18, 298893, tzinfo=tzutc())
+ 1577| 
+ 1578|         """
+ 1579| 
+ 1580|         return self._datetime.timetz()
+ 1581| 
+ 1582|     def astimezone(self, tz: Optional[dt_tzinfo]) -> dt_datetime:
+ 1583|         """Returns a ``datetime`` object, converted to the specified timezone.
+ 1584| 
+ 1585|         :param tz: a ``tzinfo`` object.
+ 1586| 
+ 1587|         Usage::
+ 1588| 
+ 1589|             >>> pacific=arrow.now('US/Pacific')
+ 1590|             >>> nyc=arrow.now('America/New_York').tzinfo
+ 1591|             >>> pacific.astimezone(nyc)
+ 1592|             datetime.datetime(2019, 1, 20, 10, 24, 22, 328172, tzinfo=tzfile('/usr/share/zoneinfo/America/New_York'))
+ 1593| 
+ 1594|         """
+ 1595| 
+ 1596|         return self._datetime.astimezone(tz)
+ 1597| 
+ 1598|     def utcoffset(self) -> Optional[timedelta]:
+ 1599|         """Returns a ``timedelta`` object representing the whole number of minutes difference from
+ 1600|         UTC time.
+ 1601| 
+ 1602|         Usage::
+ 1603| 
+ 1604|             >>> arrow.now('US/Pacific').utcoffset()
+ 1605|             datetime.timedelta(-1, 57600)
+ 1606| 
+ 1607|         """
+ 1608| 
+ 1609|         return self._datetime.utcoffset()
+ 1610| 
+ 1611|     def dst(self) -> Optional[timedelta]:
+ 1612|         """Returns the daylight savings time adjustment.
+ 1613| 
+ 1614|         Usage::
+ 1615| 
+ 1616|             >>> arrow.utcnow().dst()
+ 1617|             datetime.timedelta(0)
+ 1618| 
+ 1619|         """
+ 1620| 
+ 1621|         return self._datetime.dst()
+ 1622| 
+ 1623|     def timetuple(self) -> struct_time:
+ 1624|         """Returns a ``time.struct_time``, in the current timezone.
+ 1625| 
+ 1626|         Usage::
+ 1627| 
+ 1628|             >>> arrow.utcnow().timetuple()
+ 1629|             time.struct_time(tm_year=2019, tm_mon=1, tm_mday=20, tm_hour=15, tm_min=17, tm_sec=8, tm_wday=6, tm_yday=20, tm_isdst=0)
+ 1630| 
+ 1631|         """
+ 1632| 
+ 1633|         return self._datetime.timetuple()
+ 1634| 
+ 1635|     def utctimetuple(self) -> struct_time:
+ 1636|         """Returns a ``time.struct_time``, in UTC time.
+ 1637| 
+ 1638|         Usage::
+ 1639| 
+ 1640|             >>> arrow.utcnow().utctimetuple()
+ 1641|             time.struct_time(tm_year=2019, tm_mon=1, tm_mday=19, tm_hour=21, tm_min=41, tm_sec=7, tm_wday=5, tm_yday=19, tm_isdst=0)
+ 1642| 
+ 1643|         """
+ 1644| 
+ 1645|         return self._datetime.utctimetuple()
+ 1646| 
+ 1647|     def toordinal(self) -> int:
+ 1648|         """Returns the proleptic Gregorian ordinal of the date.
+ 1649| 
+ 1650|         Usage::
+ 1651| 
+ 1652|             >>> arrow.utcnow().toordinal()
+ 1653|             737078
+ 1654| 
+ 1655|         """
+ 1656| 
+ 1657|         return self._datetime.toordinal()
+ 1658| 
+ 1659|     def weekday(self) -> int:
+ 1660|         """Returns the day of the week as an integer (0-6).
+ 1661| 
+ 1662|         Usage::
+ 1663| 
+ 1664|             >>> arrow.utcnow().weekday()
+ 1665|             5
+ 1666| 
+ 1667|         """
+ 1668| 
+ 1669|         return self._datetime.weekday()
+ 1670| 
+ 1671|     def isoweekday(self) -> int:
+ 1672|         """Returns the ISO day of the week as an integer (1-7).
+ 1673| 
+ 1674|         Usage::
+ 1675| 
+ 1676|             >>> arrow.utcnow().isoweekday()
+ 1677|             6
+ 1678| 
+ 1679|         """
+ 1680| 
+ 1681|         return self._datetime.isoweekday()
+ 1682| 
+ 1683|     def isocalendar(self) -> Tuple[int, int, int]:
+ 1684|         """Returns a 3-tuple, (ISO year, ISO week number, ISO weekday).
+ 1685| 
+ 1686|         Usage::
+ 1687| 
+ 1688|             >>> arrow.utcnow().isocalendar()
+ 1689|             (2019, 3, 6)
+ 1690| 
+ 1691|         """
+ 1692| 
+ 1693|         return self._datetime.isocalendar()
+ 1694| 
+ 1695|     def isoformat(self, sep: str = "T", timespec: str = "auto") -> str:
+ 1696|         """Returns an ISO 8601 formatted representation of the date and time.
+ 1697| 
+ 1698|         Usage::
+ 1699| 
+ 1700|             >>> arrow.utcnow().isoformat()
+ 1701|             '2019-01-19T18:30:52.442118+00:00'
+ 1702| 
+ 1703|         """
+ 1704| 
+ 1705|         return self._datetime.isoformat(sep, timespec)
+ 1706| 
+ 1707|     def ctime(self) -> str:
+ 1708|         """Returns a ctime formatted representation of the date and time.
+ 1709| 
+ 1710|         Usage::
+ 1711| 
+ 1712|             >>> arrow.utcnow().ctime()
+ 1713|             'Sat Jan 19 18:26:50 2019'
+ 1714| 
+ 1715|         """
+ 1716| 
+ 1717|         return self._datetime.ctime()
+ 1718| 
+ 1719|     def strftime(self, format: str) -> str:
+ 1720|         """Formats in the style of ``datetime.strftime``.
+ 1721| 
+ 1722|         :param format: the format string.
+ 1723| 
+ 1724|         Usage::
+ 1725| 
+ 1726|             >>> arrow.utcnow().strftime('%d-%m-%Y %H:%M:%S')
+ 1727|             '23-01-2019 12:28:17'
+ 1728| 
+ 1729|         """
+ 1730| 
+ 1731|         return self._datetime.strftime(format)
+ 1732| 
+ 1733|     def for_json(self) -> str:
+ 1734|         """Serializes for the ``for_json`` protocol of simplejson.
+ 1735| 
+ 1736|         Usage::
+ 1737| 
+ 1738|             >>> arrow.utcnow().for_json()
+ 1739|             '2019-01-19T18:25:36.760079+00:00'
+ 1740| 
+ 1741|         """
+ 1742| 
+ 1743|         return self.isoformat()
+ 1744| 
+ 1745|     # math
+ 1746| 
+ 1747|     def __add__(self, other: Any) -> "Arrow":
+ 1748|         if isinstance(other, (timedelta, relativedelta)):
+ 1749|             return self.fromdatetime(self._datetime + other, self._datetime.tzinfo)
+ 1750| 
+ 1751|         return NotImplemented
+ 1752| 
+ 1753|     def __radd__(self, other: Union[timedelta, relativedelta]) -> "Arrow":
+ 1754|         return self.__add__(other)
+ 1755| 
+ 1756|     @overload
+ 1757|     def __sub__(self, other: Union[timedelta, relativedelta]) -> "Arrow":
+ 1758|         pass  # pragma: no cover
+ 1759| 
+ 1760|     @overload
+ 1761|     def __sub__(self, other: Union[dt_datetime, "Arrow"]) -> timedelta:
+ 1762|         pass  # pragma: no cover
+ 1763| 
+ 1764|     def __sub__(self, other: Any) -> Union[timedelta, "Arrow"]:
+ 1765|         if isinstance(other, (timedelta, relativedelta)):
+ 1766|             return self.fromdatetime(self._datetime - other, self._datetime.tzinfo)
+ 1767| 
+ 1768|         elif isinstance(other, dt_datetime):
+ 1769|             return self._datetime - other
+ 1770| 
+ 1771|         elif isinstance(other, Arrow):
+ 1772|             return self._datetime - other._datetime
+ 1773| 
+ 1774|         return NotImplemented
+ 1775| 
+ 1776|     def __rsub__(self, other: Any) -> timedelta:
+ 1777|         if isinstance(other, dt_datetime):
+ 1778|             return other - self._datetime
+ 1779| 
+ 1780|         return NotImplemented
+ 1781| 
+ 1782|     # comparisons
+ 1783| 
+ 1784|     def __eq__(self, other: Any) -> bool:
+ 1785|         if not isinstance(other, (Arrow, dt_datetime)):
+ 1786|             return False
+ 1787| 
+ 1788|         return self._datetime == self._get_datetime(other)
+ 1789| 
+ 1790|     def __ne__(self, other: Any) -> bool:
+ 1791|         if not isinstance(other, (Arrow, dt_datetime)):
+ 1792|             return True
+ 1793| 
+ 1794|         return not self.__eq__(other)
+ 1795| 
+ 1796|     def __gt__(self, other: Any) -> bool:
+ 1797|         if not isinstance(other, (Arrow, dt_datetime)):
+ 1798|             return NotImplemented
+ 1799| 
+ 1800|         return self._datetime > self._get_datetime(other)
+ 1801| 
+ 1802|     def __ge__(self, other: Any) -> bool:
+ 1803|         if not isinstance(other, (Arrow, dt_datetime)):
+ 1804|             return NotImplemented
+ 1805| 
+ 1806|         return self._datetime >= self._get_datetime(other)
+ 1807| 
+ 1808|     def __lt__(self, other: Any) -> bool:
+ 1809|         if not isinstance(other, (Arrow, dt_datetime)):
+ 1810|             return NotImplemented
+ 1811| 
+ 1812|         return self._datetime < self._get_datetime(other)
+ 1813| 
+ 1814|     def __le__(self, other: Any) -> bool:
+ 1815|         if not isinstance(other, (Arrow, dt_datetime)):
+ 1816|             return NotImplemented
+ 1817| 
+ 1818|         return self._datetime <= self._get_datetime(other)
+ 1819| 
+ 1820|     # internal methods
+ 1821|     @staticmethod
+ 1822|     def _get_tzinfo(tz_expr: Optional[TZ_EXPR]) -> dt_tzinfo:
+ 1823|         """Get normalized tzinfo object from various inputs."""
+ 1824|         if tz_expr is None:
+ 1825|             return timezone.utc
+ 1826|         if isinstance(tz_expr, dt_tzinfo):
+ 1827|             return tz_expr
+ 1828|         else:
+ 1829|             try:
+ 1830|                 return parser.TzinfoParser.parse(tz_expr)
+ 1831|             except parser.ParserError:
+ 1832|                 raise ValueError(f"{tz_expr!r} not recognized as a timezone.")
+ 1833| 
+ 1834|     @classmethod
+ 1835|     def _get_datetime(
+ 1836|         cls, expr: Union["Arrow", dt_datetime, int, float, str]
+ 1837|     ) -> dt_datetime:
+ 1838|         """Get datetime object from a specified expression."""
+ 1839|         if isinstance(expr, Arrow):
+ 1840|             return expr.datetime
+ 1841|         elif isinstance(expr, dt_datetime):
+ 1842|             return expr
+ 1843|         elif util.is_timestamp(expr):
+ 1844|             timestamp = float(expr)
+ 1845|             return cls.utcfromtimestamp(timestamp).datetime
+ 1846|         else:
+ 1847|             raise ValueError(f"{expr!r} not recognized as a datetime or timestamp.")
+ 1848| 
+ 1849|     @classmethod
+ 1850|     def _get_frames(cls, name: _T_FRAMES) -> Tuple[str, str, int]:
+ 1851|         """Finds relevant timeframe and steps for use in range and span methods.
+ 1852| 
+ 1853|         Returns a 3 element tuple in the form (frame, plural frame, step), for example ("day", "days", 1)
+ 1854| 
+ 1855|         """
+ 1856|         if name in cls._ATTRS:
+ 1857|             return name, f"{name}s", 1
+ 1858|         elif name[-1] == "s" and name[:-1] in cls._ATTRS:
+ 1859|             return name[:-1], name, 1
+ 1860|         elif name in ["week", "weeks"]:
+ 1861|             return "week", "weeks", 1
+ 1862|         elif name in ["quarter", "quarters"]:
+ 1863|             return "quarter", "months", 3
+ 1864|         else:
+ 1865|             supported = ", ".join(
+ 1866|                 [
+ 1867|                     "year(s)",
+ 1868|                     "month(s)",
+ 1869|                     "day(s)",
+ 1870|                     "hour(s)",
+ 1871|                     "minute(s)",
+ 1872|                     "second(s)",
+ 1873|                     "microsecond(s)",
+ 1874|                     "week(s)",
+ 1875|                     "quarter(s)",
+ 1876|                 ]
+ 1877|             )
+ 1878|             raise ValueError(
+ 1879|                 f"Range or span over frame {name} not supported. Supported frames: {supported}."
+ 1880|             )
+ 1881| 
+ 1882|     @classmethod
+ 1883|     def _get_iteration_params(cls, end: Any, limit: Optional[int]) -> Tuple[Any, int]:
+ 1884|         """Sets default end and limit values for range method."""
+ 1885|         if end is None:
+ 1886|             if limit is None:
+ 1887|                 raise ValueError("One of 'end' or 'limit' is required.")
+ 1888| 
+ 1889|             return cls.max, limit
+ 1890| 
+ 1891|         else:
+ 1892|             if limit is None:
+ 1893|                 return end, sys.maxsize
+ 1894|             return end, limit
+ 1895| 
+ 1896|     @staticmethod
+ 1897|     def _is_last_day_of_month(date: "Arrow") -> bool:
+ 1898|         """Returns a boolean indicating whether the datetime is the last day of the month."""
+ 1899|         return cast(int, date.day) == calendar.monthrange(date.year, date.month)[1]
+ 1900| 
+ 1901| 
+ 1902| Arrow.min = Arrow.fromdatetime(dt_datetime.min)
+ 1903| Arrow.max = Arrow.fromdatetime(dt_datetime.max)
+
+FILE tests/test_factory.py:
+    1| import time
+    2| from datetime import date, datetime, timezone
+    3| from decimal import Decimal
+    4| 
+    5| import pytest
+    6| from dateutil import tz
+    7| 
+    8| try:
+    9|     from zoneinfo import ZoneInfo
+   10| except ImportError:
+   11|     from backports.zoneinfo import ZoneInfo
+   12| 
+   13| from arrow import Arrow
+   14| from arrow.parser import ParserError
+   15| 
+   16| from .utils import assert_datetime_equality
+   17| 
+   18| 
+   19| @pytest.mark.usefixtures("arrow_factory")
+   20| class TestGet:
+   21|     def test_no_args(self):
+   22|         assert_datetime_equality(
+   23|             self.factory.get(), datetime.now(timezone.utc).replace(tzinfo=timezone.utc)
+   24|         )
+   25| 
+   26|     def test_timestamp_one_arg_no_arg(self):
+   27|         no_arg = self.factory.get(1406430900).timestamp()
+   28|         one_arg = self.factory.get("1406430900", "X").timestamp()
+   29| 
+   30|         assert no_arg == one_arg
+   31| 
+   32|     def test_one_arg_none(self):
+   33|         with pytest.raises(TypeError):
+   34|             self.factory.get(None)
+   35| 
+   36|     def test_struct_time(self):
+   37|         assert_datetime_equality(
+   38|             self.factory.get(time.gmtime()),
+   39|             datetime.now(timezone.utc).replace(tzinfo=timezone.utc),
+   40|         )
+   41| 
+   42|     def test_one_arg_timestamp(self):
+   43|         int_timestamp = int(time.time())
+   44|         timestamp_dt = datetime.fromtimestamp(int_timestamp, timezone.utc).replace(
+   45|             tzinfo=tz.tzutc()
+   46|         )
+   47| 
+   48|         assert self.factory.get(int_timestamp) == timestamp_dt
+   49| 
+   50|         with pytest.raises(ParserError):
+   51|             self.factory.get(str(int_timestamp))
+   52| 
+   53|         float_timestamp = time.time()
+   54|         timestamp_dt = datetime.fromtimestamp(float_timestamp, timezone.utc).replace(
+   55|             tzinfo=tz.tzutc()
+   56|         )
+   57| 
+   58|         assert self.factory.get(float_timestamp) == timestamp_dt
+   59| 
+   60|         with pytest.raises(ParserError):
+   61|             self.factory.get(str(float_timestamp))
+   62| 
+   63|         # Regression test for issue #216
+   64|         # Python 3 raises OverflowError, Python 2 raises ValueError
+   65|         timestamp = 99999999999999999999999999.99999999999999999999999999
+   66|         with pytest.raises((OverflowError, ValueError)):
+   67|             self.factory.get(timestamp)
+   68| 
+   69|     def test_one_arg_expanded_timestamp(self):
+   70|         millisecond_timestamp = 1591328104308
+   71|         microsecond_timestamp = 1591328104308505
+   72| 
+   73|         # Regression test for issue #796
+   74|         assert self.factory.get(millisecond_timestamp) == datetime.fromtimestamp(
+   75|             1591328104.308, timezone.utc
+   76|         ).replace(tzinfo=tz.tzutc())
+   77|         assert self.factory.get(microsecond_timestamp) == datetime.fromtimestamp(
+   78|             1591328104.308505, timezone.utc
+   79|         ).replace(tzinfo=tz.tzutc())
+   80| 
+   81|     def test_one_arg_timestamp_with_tzinfo(self):
+   82|         timestamp = time.time()
+   83|         timestamp_dt = datetime.fromtimestamp(timestamp, tz=tz.tzutc()).astimezone(
+   84|             ZoneInfo("US/Pacific")
+   85|         )
+   86|         timezone = ZoneInfo("US/Pacific")
+   87| 
+   88|         assert_datetime_equality(
+   89|             self.factory.get(timestamp, tzinfo=timezone), timestamp_dt
+   90|         )
+   91| 
+   92|     def test_one_arg_arrow(self):
+   93|         arw = self.factory.utcnow()
+   94|         result = self.factory.get(arw)
+   95| 
+   96|         assert arw == result
+   97| 
+   98|     def test_one_arg_datetime(self):
+   99|         dt = datetime.now(timezone.utc).replace(tzinfo=tz.tzutc())
+  100| 
+  101|         assert self.factory.get(dt) == dt
+  102| 
+  103|     def test_one_arg_date(self):
+  104|         d = date.today()
+  105|         dt = datetime(d.year, d.month, d.day, tzinfo=tz.tzutc())
+  106| 
+  107|         assert self.factory.get(d) == dt
+  108| 
+  109|     def test_one_arg_tzinfo(self):
+  110|         self.expected = (
+  111|             datetime.now(timezone.utc)
+  112|             .replace(tzinfo=tz.tzutc())
+  113|             .astimezone(ZoneInfo("US/Pacific"))
+  114|         )
+  115| 
+  116|         assert_datetime_equality(
+  117|             self.factory.get(ZoneInfo("US/Pacific")), self.expected
+  118|         )
+  119| 
+  120|     # regression test for issue #658
+  121|     def test_one_arg_dateparser_datetime(self):
+  122|         dateparser = pytest.importorskip("dateparser")
+  123|         expected = datetime(1990, 1, 1).replace(tzinfo=tz.tzutc())
+  124|         # dateparser outputs: datetime.datetime(1990, 1, 1, 0, 0, tzinfo=<StaticTzInfo 'UTC\+00:00'>)
+  125|         parsed_date = dateparser.parse("1990-01-01T00:00:00+00:00")
+  126|         dt_output = self.factory.get(parsed_date)._datetime.replace(tzinfo=tz.tzutc())
+  127|         assert dt_output == expected
+  128| 
+  129|     def test_kwarg_tzinfo(self):
+  130|         self.expected = (
+  131|             datetime.now(timezone.utc)
+  132|             .replace(tzinfo=tz.tzutc())
+  133|             .astimezone(ZoneInfo("US/Pacific"))
+  134|         )
+  135| 
+  136|         assert_datetime_equality(
+  137|             self.factory.get(tzinfo=ZoneInfo("US/Pacific")), self.expected
+  138|         )
+  139| 
+  140|     def test_kwarg_tzinfo_string(self):
+  141|         self.expected = (
+  142|             datetime.now(timezone.utc)
+  143|             .replace(tzinfo=tz.tzutc())
+  144|             .astimezone(ZoneInfo("US/Pacific"))
+  145|         )
+  146| 
+  147|         assert_datetime_equality(self.factory.get(tzinfo="US/Pacific"), self.expected)
+  148| 
+  149|         with pytest.raises(ParserError):
+  150|             self.factory.get(tzinfo="US/PacificInvalidTzinfo")
+  151| 
+  152|     def test_kwarg_normalize_whitespace(self):
+  153|         result = self.factory.get(
+  154|             "Jun 1 2005  1:33PM",
+  155|             "MMM D YYYY H:mmA",
+  156|             tzinfo=tz.tzutc(),
+  157|             normalize_whitespace=True,
+  158|         )
+  159|         assert result._datetime == datetime(2005, 6, 1, 13, 33, tzinfo=tz.tzutc())
+  160| 
+  161|         result = self.factory.get(
+  162|             "\t 2013-05-05T12:30:45.123456 \t \n",
+  163|             tzinfo=tz.tzutc(),
+  164|             normalize_whitespace=True,
+  165|         )
+  166|         assert result._datetime == datetime(
+  167|             2013, 5, 5, 12, 30, 45, 123456, tzinfo=tz.tzutc()
+  168|         )
+  169| 
+  170|     # regression test for #944
+  171|     def test_one_arg_datetime_tzinfo_kwarg(self):
+  172|         dt = datetime(2021, 4, 29, 6)
+  173| 
+  174|         result = self.factory.get(dt, tzinfo="America/Chicago")
+  175| 
+  176|         expected = datetime(2021, 4, 29, 6, tzinfo=ZoneInfo("America/Chicago"))
+  177| 
+  178|         assert_datetime_equality(result._datetime, expected)
+  179| 
+  180|     def test_one_arg_arrow_tzinfo_kwarg(self):
+  181|         arw = Arrow(2021, 4, 29, 6)
+  182| 
+  183|         result = self.factory.get(arw, tzinfo="America/Chicago")
+  184| 
+  185|         expected = datetime(2021, 4, 29, 6, tzinfo=ZoneInfo("America/Chicago"))
+  186| 
+  187|         assert_datetime_equality(result._datetime, expected)
+  188| 
+  189|     def test_one_arg_date_tzinfo_kwarg(self):
+  190|         da = date(2021, 4, 29)
+  191| 
+  192|         result = self.factory.get(da, tzinfo="America/Chicago")
+  193| 
+  194|         expected = Arrow(2021, 4, 29, tzinfo=ZoneInfo("America/Chicago"))
+  195| 
+  196|         assert result.date() == expected.date()
+  197|         assert result.tzinfo == expected.tzinfo
+  198| 
+  199|     def test_one_arg_iso_calendar_tzinfo_kwarg(self):
+  200|         result = self.factory.get((2004, 1, 7), tzinfo="America/Chicago")
+  201| 
+  202|         expected = Arrow(2004, 1, 4, tzinfo="America/Chicago")
+  203| 
+  204|         assert_datetime_equality(result, expected)
+  205| 
+  206|     def test_one_arg_iso_str(self):
+  207|         dt = datetime.now(timezone.utc)
+  208| 
+  209|         assert_datetime_equality(self.factory.get(dt.isoformat()), dt)
+  210| 
+  211|     def test_one_arg_iso_calendar(self):
+  212|         pairs = [
+  213|             (datetime(2004, 1, 4), (2004, 1, 7)),
+  214|             (datetime(2008, 12, 30), (2009, 1, 2)),
+  215|             (datetime(2010, 1, 2), (2009, 53, 6)),
+  216|             (datetime(2000, 2, 29), (2000, 9, 2)),
+  217|             (datetime(2005, 1, 1), (2004, 53, 6)),
+  218|             (datetime(2010, 1, 4), (2010, 1, 1)),
+  219|             (datetime(2010, 1, 3), (2009, 53, 7)),
+  220|             (datetime(2003, 12, 29), (2004, 1, 1)),
+  221|         ]
+  222| 
+  223|         for pair in pairs:
+  224|             dt, iso = pair
+  225|             assert self.factory.get(iso) == self.factory.get(dt)
+  226| 
+  227|         with pytest.raises(TypeError):
+  228|             self.factory.get((2014, 7, 1, 4))
+  229| 
+  230|         with pytest.raises(TypeError):
+  231|             self.factory.get((2014, 7))
+  232| 
+  233|         with pytest.raises(ValueError):
+  234|             self.factory.get((2014, 70, 1))
+  235| 
+  236|         with pytest.raises(ValueError):
+  237|             self.factory.get((2014, 7, 10))
+  238| 
+  239|     def test_one_arg_other(self):
+  240|         with pytest.raises(TypeError):
+  241|             self.factory.get(object())
+  242| 
+  243|     def test_one_arg_bool(self):
+  244|         with pytest.raises(TypeError):
+  245|             self.factory.get(False)
+  246| 
+  247|         with pytest.raises(TypeError):
+  248|             self.factory.get(True)
+  249| 
+  250|     def test_one_arg_decimal(self):
+  251|         result = self.factory.get(Decimal(1577836800.26843))
+  252| 
+  253|         assert result._datetime == datetime(
+  254|             2020, 1, 1, 0, 0, 0, 268430, tzinfo=tz.tzutc()
+  255|         )
+  256| 
+  257|     def test_two_args_datetime_tzinfo(self):
+  258|         result = self.factory.get(datetime(2013, 1, 1), ZoneInfo("US/Pacific"))
+  259| 
+  260|         assert result._datetime == datetime(2013, 1, 1, tzinfo=ZoneInfo("US/Pacific"))
+  261| 
+  262|     def test_two_args_datetime_tz_str(self):
+  263|         result = self.factory.get(datetime(2013, 1, 1), "US/Pacific")
+  264| 
+  265|         assert result._datetime == datetime(2013, 1, 1, tzinfo=ZoneInfo("US/Pacific"))
+  266| 
+  267|     def test_two_args_date_tzinfo(self):
+  268|         result = self.factory.get(date(2013, 1, 1), ZoneInfo("US/Pacific"))
+  269| 
+  270|         assert result._datetime == datetime(2013, 1, 1, tzinfo=ZoneInfo("US/Pacific"))
+  271| 
+  272|     def test_two_args_date_tz_str(self):
+  273|         result = self.factory.get(date(2013, 1, 1), "US/Pacific")
+  274| 
+  275|         assert result._datetime == datetime(2013, 1, 1, tzinfo=ZoneInfo("US/Pacific"))
+  276| 
+  277|     def test_two_args_datetime_other(self):
+  278|         with pytest.raises(TypeError):
+  279|             self.factory.get(datetime.now(timezone.utc), object())
+  280| 
+  281|     def test_two_args_date_other(self):
+  282|         with pytest.raises(TypeError):
+  283|             self.factory.get(date.today(), object())
+  284| 
+  285|     def test_two_args_str_str(self):
+  286|         result = self.factory.get("2013-01-01", "YYYY-MM-DD")
+  287| 
+  288|         assert result._datetime == datetime(2013, 1, 1, tzinfo=tz.tzutc())
+  289| 
+  290|     def test_two_args_str_tzinfo(self):
+  291|         result = self.factory.get("2013-01-01", tzinfo=ZoneInfo("US/Pacific"))
+  292| 
+  293|         assert_datetime_equality(
+  294|             result._datetime, datetime(2013, 1, 1, tzinfo=ZoneInfo("US/Pacific"))
+  295|         )
+  296| 
+  297|     def test_two_args_twitter_format(self):
+  298|         # format returned by twitter API for created_at:
+  299|         twitter_date = "Fri Apr 08 21:08:54 +0000 2016"
+  300|         result = self.factory.get(twitter_date, "ddd MMM DD HH:mm:ss Z YYYY")
+  301| 
+  302|         assert result._datetime == datetime(2016, 4, 8, 21, 8, 54, tzinfo=tz.tzutc())
+  303| 
+  304|     def test_two_args_str_list(self):
+  305|         result = self.factory.get("2013-01-01", ["MM/DD/YYYY", "YYYY-MM-DD"])
+  306| 
+  307|         assert result._datetime == datetime(2013, 1, 1, tzinfo=tz.tzutc())
+  308| 
+  309|     def test_two_args_unicode_unicode(self):
+  310|         result = self.factory.get("2013-01-01", "YYYY-MM-DD")
+  311| 
+  312|         assert result._datetime == datetime(2013, 1, 1, tzinfo=tz.tzutc())
+  313| 
+  314|     def test_two_args_other(self):
+  315|         with pytest.raises(TypeError):
+  316|             self.factory.get(object(), object())
+  317| 
+  318|     def test_three_args_with_tzinfo(self):
+  319|         timefmt = "YYYYMMDD"
+  320|         d = "20150514"
+  321| 
+  322|         assert self.factory.get(d, timefmt, tzinfo=tz.tzlocal()) == datetime(
+  323|             2015, 5, 14, tzinfo=tz.tzlocal()
+  324|         )
+  325| 
+  326|     def test_three_args(self):
+  327|         assert self.factory.get(2013, 1, 1) == datetime(2013, 1, 1, tzinfo=tz.tzutc())
+  328| 
+  329|     def test_full_kwargs(self):
+  330|         assert self.factory.get(
+  331|             year=2016,
+  332|             month=7,
+  333|             day=14,
+  334|             hour=7,
+  335|             minute=16,
+  336|             second=45,
+  337|             microsecond=631092,
+  338|         ) == datetime(2016, 7, 14, 7, 16, 45, 631092, tzinfo=tz.tzutc())
+  339| 
+  340|     def test_three_kwargs(self):
+  341|         assert self.factory.get(year=2016, month=7, day=14) == datetime(
+  342|             2016, 7, 14, 0, 0, tzinfo=tz.tzutc()
+  343|         )
+  344| 
+  345|     def test_tzinfo_string_kwargs(self):
+  346|         result = self.factory.get("2019072807", "YYYYMMDDHH", tzinfo="UTC")
+  347|         assert result._datetime == datetime(2019, 7, 28, 7, 0, 0, 0, tzinfo=tz.tzutc())
+  348| 
+  349|     def test_insufficient_kwargs(self):
+  350|         with pytest.raises(TypeError):
+  351|             self.factory.get(year=2016)
+  352| 
+  353|         with pytest.raises(TypeError):
+  354|             self.factory.get(year=2016, month=7)
+  355| 
+  356|     def test_locale(self):
+  357|         result = self.factory.get("2010", "YYYY", locale="ja")
+  358|         assert result._datetime == datetime(2010, 1, 1, 0, 0, 0, 0, tzinfo=tz.tzutc())
+  359| 
+  360|         # regression test for issue #701
+  361|         result = self.factory.get(
+  362|             "Montag, 9. September 2019, 16:15-20:00", "dddd, D. MMMM YYYY", locale="de"
+  363|         )
+  364|         assert result._datetime == datetime(2019, 9, 9, 0, 0, 0, 0, tzinfo=tz.tzutc())
+  365| 
+  366|     def test_locale_kwarg_only(self):
+  367|         res = self.factory.get(locale="ja")
+  368|         assert res.tzinfo == timezone.utc
+  369| 
+  370|     def test_locale_with_tzinfo(self):
+  371|         res = self.factory.get(locale="ja", tzinfo=ZoneInfo("Asia/Tokyo"))
+  372|         assert res.tzinfo == ZoneInfo("Asia/Tokyo")
+  373| 
+  374| 
+  375| @pytest.mark.usefixtures("arrow_factory")
+  376| class TestUtcNow:
+  377|     def test_utcnow(self):
+  378|         assert_datetime_equality(
+  379|             self.factory.utcnow()._datetime,
+  380|             datetime.now(timezone.utc),
+  381|         )
+  382| 
+  383| 
+  384| @pytest.mark.usefixtures("arrow_factory")
+  385| class TestNow:
+  386|     def test_no_tz(self):
+  387|         assert_datetime_equality(self.factory.now(), datetime.now().astimezone())
+  388| 
+  389|     def test_tzinfo(self):
+  390|         assert_datetime_equality(
+  391|             self.factory.now(ZoneInfo("EST")), datetime.now(ZoneInfo("EST"))
+  392|         )
+  393| 
+  394|     def test_tz_str(self):
+  395|         assert_datetime_equality(self.factory.now("EST"), datetime.now(ZoneInfo("EST")))
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-arrow-contained_in-42",
+    "answerable_static": true,
+    "gold": [
+      "arrow/arrow.py::Arrow"
+    ],
+    "conditional_flags": [],
+    "notes": "Arrow.to is directly defined in the Arrow class body."
+  },
+  {
+    "query_id": "g1q-arrow-contained_in-581",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_factory.py::TestGet"
+    ],
+    "conditional_flags": [],
+    "notes": "TestGet.test_locale_with_tzinfo is directly defined in the TestGet class body."
+  }
+]
+tokens used
+33,476

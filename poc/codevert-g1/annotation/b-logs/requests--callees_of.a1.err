@@ -1,0 +1,1567 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.0rjhym9x"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.m3wsqq8j
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c6-c9b3-7090-95ca-7258d9e8c70a
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: requests ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+docs/conf.py
+docs/_themes/flask_theme_support.py
+src/requests/__init__.py
+src/requests/__version__.py
+src/requests/_internal_utils.py
+src/requests/_types.py
+src/requests/adapters.py
+src/requests/api.py
+src/requests/auth.py
+src/requests/certs.py
+src/requests/compat.py
+src/requests/cookies.py
+src/requests/exceptions.py
+src/requests/help.py
+src/requests/hooks.py
+src/requests/models.py
+src/requests/packages.py
+src/requests/sessions.py
+src/requests/status_codes.py
+src/requests/structures.py
+src/requests/utils.py
+tests/__init__.py
+tests/compat.py
+tests/conftest.py
+tests/test_adapters.py
+tests/test_help.py
+tests/test_hooks.py
+tests/test_lowlevel.py
+tests/test_packages.py
+tests/test_requests.py
+tests/test_structures.py
+tests/test_testserver.py
+tests/test_utils.py
+tests/utils.py
+tests/testserver/__init__.py
+tests/testserver/server.py
+
+=== QUERIES (2) ===
+QUERY g1q-requests-callees_of-29: family=callees_of target=src/requests/api.py::get
+QUERY g1q-requests-callees_of-143: family=callees_of target=src/requests/models.py::PreparedRequest.prepare_auth
+
+=== CONTEXT ===
+
+FILE src/requests/api.py:
+    1| """
+    2| requests.api
+    3| ~~~~~~~~~~~~
+    4| 
+    5| This module implements the Requests API.
+    6| 
+    7| :copyright: (c) 2012 by Kenneth Reitz.
+    8| :license: Apache2, see LICENSE for more details.
+    9| """
+   10| 
+   11| from __future__ import annotations
+   12| 
+   13| from typing import TYPE_CHECKING
+   14| 
+   15| from . import sessions
+   16| from .models import Response
+   17| 
+   18| if TYPE_CHECKING:
+   19|     from typing_extensions import Unpack
+   20| 
+   21|     from . import _types as _t
+   22| 
+   23| 
+   24| def request(
+   25|     method: str, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]
+   26| ) -> Response:
+   27|     """Constructs and sends a :class:`Request <Request>`.
+   28| 
+   29|     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
+   30|     :param url: URL for the new :class:`Request` object.
+   31|     :param params: (optional) Dictionary, list of tuples or bytes to send
+   32|         in the query string for the :class:`Request`.
+   33|     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+   34|         object to send in the body of the :class:`Request`.
+   35|     :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+   36|     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+   37|     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
+   38|     :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': file-tuple}``) for multipart encoding upload.
+   39|         ``file-tuple`` can be a 2-tuple ``('filename', fileobj)``, 3-tuple ``('filename', fileobj, 'content_type')``
+   40|         or a 4-tuple ``('filename', fileobj, 'content_type', custom_headers)``, where ``'content_type'`` is a string
+   41|         defining the content type of the given file and ``custom_headers`` a dict-like object containing additional headers
+   42|         to add for the file.
+   43|     :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
+   44|     :param timeout: (optional) How many seconds to wait for the server to send data
+   45|         before giving up, as a float, or a :ref:`(connect timeout, read
+   46|         timeout) <timeouts>` tuple.
+   47|     :type timeout: float or tuple
+   48|     :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.
+   49|     :type allow_redirects: bool
+   50|     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+   51|     :param verify: (optional) Either a boolean, in which case it controls whether we verify
+   52|             the server's TLS certificate, or a string, in which case it must be a path
+   53|             to a CA bundle to use. Defaults to ``True``.
+   54|     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
+   55|     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+   56|     :return: :class:`Response <Response>` object
+   57|     :rtype: requests.Response
+   58| 
+   59|     Usage::
+   60| 
+   61|       >>> import requests
+   62|       >>> req = requests.request('GET', 'https://httpbin.org/get')
+   63|       >>> req
+   64|       <Response [200]>
+   65|     """
+   66| 
+   67|     # By using the 'with' statement we are sure the session is closed, thus we
+   68|     # avoid leaving sockets open which can trigger a ResourceWarning in some
+   69|     # cases, and look like a memory leak in others.
+   70|     with sessions.Session() as session:
+   71|         return session.request(method=method, url=url, **kwargs)
+   72| 
+   73| 
+   74| def get(
+   75|     url: _t.UriType, params: _t.ParamsType = None, **kwargs: Unpack[_t.GetKwargs]
+   76| ) -> Response:
+   77|     r"""Sends a GET request.
+   78| 
+   79|     :param url: URL for the new :class:`Request` object.
+   80|     :param params: (optional) Dictionary, list of tuples or bytes to send
+   81|         in the query string for the :class:`Request`.
+   82|     :param \*\*kwargs: Optional arguments that ``request`` takes.
+   83|     :return: :class:`Response <Response>` object
+   84|     :rtype: requests.Response
+   85|     """
+   86| 
+   87|     return request("get", url, params=params, **kwargs)
+   88| 
+   89| 
+   90| def options(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
+   91|     r"""Sends an OPTIONS request.
+   92| 
+   93|     :param url: URL for the new :class:`Request` object.
+   94|     :param \*\*kwargs: Optional arguments that ``request`` takes.
+   95|     :return: :class:`Response <Response>` object
+   96|     :rtype: requests.Response
+   97|     """
+   98| 
+   99|     return request("options", url, **kwargs)
+  100| 
+  101| 
+  102| def head(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
+  103|     r"""Sends a HEAD request.
+  104| 
+  105|     :param url: URL for the new :class:`Request` object.
+  106|     :param \*\*kwargs: Optional arguments that ``request`` takes. If
+  107|         `allow_redirects` is not provided, it will be set to `False` (as
+  108|         opposed to the default :meth:`request` behavior).
+  109|     :return: :class:`Response <Response>` object
+  110|     :rtype: requests.Response
+  111|     """
+  112| 
+  113|     kwargs.setdefault("allow_redirects", False)
+  114|     return request("head", url, **kwargs)
+  115| 
+  116| 
+  117| def post(
+  118|     url: _t.UriType,
+  119|     data: _t.DataType = None,
+  120|     json: _t.JsonType = None,
+  121|     **kwargs: Unpack[_t.PostKwargs],
+  122| ) -> Response:
+  123|     r"""Sends a POST request.
+  124| 
+  125|     :param url: URL for the new :class:`Request` object.
+  126|     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+  127|         object to send in the body of the :class:`Request`.
+  128|     :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+  129|     :param \*\*kwargs: Optional arguments that ``request`` takes.
+  130|     :return: :class:`Response <Response>` object
+  131|     :rtype: requests.Response
+  132|     """
+  133| 
+  134|     return request("post", url, data=data, json=json, **kwargs)
+  135| 
+  136| 
+  137| def put(
+  138|     url: _t.UriType, data: _t.DataType = None, **kwargs: Unpack[_t.DataKwargs]
+  139| ) -> Response:
+  140|     r"""Sends a PUT request.
+  141| 
+  142|     :param url: URL for the new :class:`Request` object.
+  143|     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+  144|         object to send in the body of the :class:`Request`.
+  145|     :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+  146|     :param \*\*kwargs: Optional arguments that ``request`` takes.
+  147|     :return: :class:`Response <Response>` object
+  148|     :rtype: requests.Response
+  149|     """
+  150| 
+  151|     return request("put", url, data=data, **kwargs)
+  152| 
+  153| 
+  154| def patch(
+  155|     url: _t.UriType, data: _t.DataType = None, **kwargs: Unpack[_t.DataKwargs]
+  156| ) -> Response:
+  157|     r"""Sends a PATCH request.
+  158| 
+  159|     :param url: URL for the new :class:`Request` object.
+  160|     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+  161|         object to send in the body of the :class:`Request`.
+  162|     :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+  163|     :param \*\*kwargs: Optional arguments that ``request`` takes.
+  164|     :return: :class:`Response <Response>` object
+  165|     :rtype: requests.Response
+  166|     """
+  167| 
+  168|     return request("patch", url, data=data, **kwargs)
+  169| 
+  170| 
+  171| def delete(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
+  172|     r"""Sends a DELETE request.
+  173| 
+  174|     :param url: URL for the new :class:`Request` object.
+  175|     :param \*\*kwargs: Optional arguments that ``request`` takes.
+  176|     :return: :class:`Response <Response>` object
+  177|     :rtype: requests.Response
+  178|     """
+  179| 
+  180|     return request("delete", url, **kwargs)
+
+FILE src/requests/models.py:
+    1| """
+    2| requests.models
+    3| ~~~~~~~~~~~~~~~
+    4| 
+    5| This module contains the primary objects that power Requests.
+    6| """
+    7| 
+    8| from __future__ import annotations
+    9| 
+   10| import datetime
+   11| 
+   12| # Import encoding now, to avoid implicit import later.
+   13| # Implicit import within threads may cause LookupError when standard library is in a ZIP,
+   14| # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
+   15| import encodings.idna  # noqa: F401
+   16| from collections.abc import Callable, Generator, Iterable, Iterator, Mapping
+   17| from io import UnsupportedOperation
+   18| from typing import (
+   19|     TYPE_CHECKING,
+   20|     Any,
+   21|     Final,
+   22|     Literal,
+   23|     cast,
+   24|     overload,
+   25| )
+   26| 
+   27| from urllib3.exceptions import (
+   28|     DecodeError,
+   29|     LocationParseError,
+   30|     ProtocolError,
+   31|     ReadTimeoutError,
+   32|     SSLError,
+   33| )
+   34| from urllib3.fields import RequestField
+   35| from urllib3.filepost import encode_multipart_formdata
+   36| from urllib3.util import parse_url
+   37| 
+   38| from . import _types as _t
+   39| from ._internal_utils import to_native_string, unicode_is_ascii
+   40| from .auth import HTTPBasicAuth
+   41| from .compat import (
+   42|     JSONDecodeError,
+   43|     basestring,
+   44|     builtin_str,
+   45|     chardet,
+   46|     cookielib,
+   47|     urlencode,
+   48|     urlsplit,
+   49|     urlunparse,
+   50| )
+   51| from .compat import json as complexjson
+   52| from .cookies import (
+   53|     _copy_cookie_jar,
+   54|     cookiejar_from_dict,
+   55|     get_cookie_header,
+   56| )
+   57| from .exceptions import (
+   58|     ChunkedEncodingError,
+   59|     ConnectionError,
+   60|     ContentDecodingError,
+   61|     HTTPError,
+   62|     InvalidJSONError,
+   63|     InvalidURL,
+   64|     MissingSchema,
+   65|     StreamConsumedError,
+   66| )
+   67| from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+   68| from .exceptions import SSLError as RequestsSSLError
+   69| from .hooks import default_hooks
+   70| from .status_codes import codes
+   71| from .structures import CaseInsensitiveDict
+   72| from .utils import (
+   73|     check_header_validity,
+   74|     get_auth_from_url,
+   75|     guess_filename,
+   76|     guess_json_utf,
+   77|     iter_slices,
+   78|     parse_header_links,
+   79|     requote_uri,
+   80|     stream_decode_response_unicode,
+   81|     super_len,
+   82|     to_key_val_list,
+   83| )
+   84| 
+   85| if TYPE_CHECKING:
+   86|     from http.cookiejar import CookieJar
+   87| 
+   88|     from typing_extensions import Self
+   89| 
+   90|     from .adapters import HTTPAdapter
+   91|     from .cookies import RequestsCookieJar
+   92| 
+   93| #: The set of HTTP status codes that indicate an automatically
+   94| #: processable redirect.
+   95| REDIRECT_STATI: Final[tuple[int, ...]] = (  # type: ignore[assignment]
+   96|     codes.moved,  # 301
+   97|     codes.found,  # 302
+   98|     codes.other,  # 303
+   99|     codes.temporary_redirect,  # 307
+  100|     codes.permanent_redirect,  # 308
+  101| )
+  102| 
+  103| DEFAULT_REDIRECT_LIMIT: int = 30
+  104| CONTENT_CHUNK_SIZE: int = 10 * 1024
+  105| ITER_CHUNK_SIZE: int = 512
+  106| 
+  107| 
+  108| class RequestEncodingMixin:
+  109|     url: str | None
+  110| 
+  111|     @property
+  112|     def path_url(self) -> str:
+  113|         """Build the path URL to use."""
+  114| 
+  115|         url: list[str] = []
+  116| 
+  117|         p = urlsplit(cast(str, self.url))
+  118| 
+  119|         path = p.path
+  120|         if not path:
+  121|             path = "/"
+  122| 
+  123|         url.append(path)
+  124| 
+  125|         query = p.query
+  126|         if query:
+  127|             url.append("?")
+  128|             url.append(query)
+  129| 
+  130|         return "".join(url)
+  131| 
+  132|     @overload
+  133|     @staticmethod
+  134|     def _encode_params(data: str) -> str: ...
+  135| 
+  136|     @overload
+  137|     @staticmethod
+  138|     def _encode_params(data: bytes) -> bytes: ...
+  139| 
+  140|     @overload
+  141|     @staticmethod
+  142|     def _encode_params(
+  143|         data: _t.SupportsRead[str | bytes],
+  144|     ) -> _t.SupportsRead[str | bytes]: ...
+  145| 
+  146|     @overload
+  147|     @staticmethod
+  148|     def _encode_params(data: _t.KVDataType) -> str: ...
+  149| 
+  150|     @staticmethod
+  151|     def _encode_params(
+  152|         data: _t.EncodableDataType,
+  153|     ) -> str | bytes | _t.SupportsRead[str | bytes]:
+  154|         """Encode parameters in a piece of data.
+  155| 
+  156|         Will successfully encode parameters when passed as a dict or a list of
+  157|         2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+  158|         if parameters are supplied as a dict.
+  159|         """
+  160| 
+  161|         if isinstance(data, (str, bytes)):
+  162|             return data
+  163|         elif _t.has_read(data):
+  164|             return data
+  165|         elif hasattr(data, "__iter__"):
+  166|             result: list[tuple[bytes, bytes]] = []
+  167|             for k, vs in to_key_val_list(data):
+  168|                 if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
+  169|                     vs = [vs]
+  170|                 for v in vs:
+  171|                     if v is not None:
+  172|                         result.append(
+  173|                             (
+  174|                                 k.encode("utf-8") if isinstance(k, str) else k,
+  175|                                 v.encode("utf-8") if isinstance(v, str) else v,
+  176|                             )
+  177|                         )
+  178|             return urlencode(result, doseq=True)
+  179|         else:
+  180|             return data  # type: ignore[return-value]  # unreachable for valid _t.DataType
+  181| 
+  182|     @staticmethod
+  183|     def _encode_files(
+  184|         files: _t.FilesType, data: _t.RawDataType | None
+  185|     ) -> tuple[bytes, str]:
+  186|         """Build the body for a multipart/form-data request.
+  187| 
+  188|         Will successfully encode files when passed as a dict or a list of
+  189|         tuples. Order is retained if data is a list of tuples but arbitrary
+  190|         if parameters are supplied as a dict.
+  191|         The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
+  192|         or 4-tuples (filename, fileobj, contentype, custom_headers).
+  193|         """
+  194|         if not files:
+  195|             raise ValueError("Files must be provided.")
+  196|         elif isinstance(data, basestring):
+  197|             raise ValueError("Data must not be a string.")
+  198| 
+  199|         new_fields: list[RequestField | tuple[str, bytes]] = []
+  200|         fields = to_key_val_list(data or {})
+  201|         files = to_key_val_list(files or {})
+  202| 
+  203|         for field, val in fields:
+  204|             if isinstance(val, basestring) or not hasattr(val, "__iter__"):
+  205|                 val = [val]
+  206|             for v in val:
+  207|                 if v is not None:
+  208|                     # Don't call str() on bytestrings: in Py3 it all goes wrong.
+  209|                     if not isinstance(v, bytes):
+  210|                         v = str(v)
+  211| 
+  212|                     new_fields.append(
+  213|                         (
+  214|                             field.decode("utf-8")
+  215|                             if isinstance(field, bytes)
+  216|                             else field,
+  217|                             v.encode("utf-8") if isinstance(v, str) else v,
+  218|                         )
+  219|                     )
+  220| 
+  221|         for k, v in files:
+  222|             # support for explicit filename
+  223|             ft = None
+  224|             fh = None
+  225|             if isinstance(v, (tuple, list)):
+  226|                 if len(v) == 2:
+  227|                     fn, fp = v
+  228|                 elif len(v) == 3:
+  229|                     fn, fp, ft = v
+  230|                 else:
+  231|                     fn, fp, ft, fh = v
+  232|             else:
+  233|                 fn = guess_filename(v) or k
+  234|                 fp = v
+  235| 
+  236|             if isinstance(fp, (str, bytes, bytearray)):
+  237|                 fdata = fp
+  238|             elif _t.has_read(fp):
+  239|                 fdata = fp.read()
+  240|             elif fp is None:  # defensive check for untyped callers
+  241|                 continue
+  242|             else:
+  243|                 fdata = fp
+  244| 
+  245|             rf = RequestField(name=k, data=fdata, filename=fn, headers=fh)
+  246|             rf.make_multipart(content_type=ft)
+  247|             new_fields.append(rf)
+  248| 
+  249|         body, content_type = encode_multipart_formdata(new_fields)
+  250| 
+  251|         return body, content_type
+  252| 
+  253| 
+  254| class RequestHooksMixin:
+  255|     hooks: dict[str, list[_t.HookType]]
+  256| 
+  257|     def register_hook(
+  258|         self, event: str, hook: Iterable[_t.HookType] | _t.HookType
+  259|     ) -> None:
+  260|         """Properly register a hook."""
+  261| 
+  262|         if event not in self.hooks:
+  263|             raise ValueError(f'Unsupported event specified, with event name "{event}"')
+  264| 
+  265|         if isinstance(hook, Callable):
+  266|             self.hooks[event].append(hook)
+  267|         elif hasattr(hook, "__iter__"):
+  268|             self.hooks[event].extend(
+  269|                 h for h in hook if isinstance(h, Callable)
+  270|             )  # defensive runtime filter
+  271| 
+  272|     def deregister_hook(self, event: str, hook: _t.HookType) -> bool:
+  273|         """Deregister a previously registered hook.
+  274|         Returns True if the hook existed, False if not.
+  275|         """
+  276| 
+  277|         try:
+  278|             self.hooks[event].remove(hook)
+  279|             return True
+  280|         except ValueError:
+  281|             return False
+  282| 
+  283| 
+  284| class Request(RequestHooksMixin):
+  285|     """A user-created :class:`Request <Request>` object.
+  286| 
+  287|     Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
+  288| 
+  289|     :param method: HTTP method to use.
+  290|     :param url: URL to send.
+  291|     :param headers: dictionary of headers to send.
+  292|     :param files: dictionary of {filename: fileobject} files to multipart upload.
+  293|     :param data: the body to attach to the request. If a dictionary or
+  294|         list of tuples ``[(key, value)]`` is provided, form-encoding will
+  295|         take place.
+  296|     :param json: json for the body to attach to the request (if files or data is not specified).
+  297|     :param params: URL parameters to append to the URL. If a dictionary or
+  298|         list of tuples ``[(key, value)]`` is provided, form-encoding will
+  299|         take place.
+  300|     :param auth: Auth handler or (user, pass) tuple.
+  301|     :param cookies: dictionary or CookieJar of cookies to attach to this request.
+  302|     :param hooks: dictionary of callback hooks, for internal usage.
+  303| 
+  304|     Usage::
+  305| 
+  306|       >>> import requests
+  307|       >>> req = requests.Request('GET', 'https://httpbin.org/get')
+  308|       >>> req.prepare()
+  309|       <PreparedRequest [GET]>
+  310|     """
+  311| 
+  312|     hooks: dict[str, list[_t.HookType]]
+  313|     method: str | None
+  314|     url: _t.UriType | None
+  315|     headers: Mapping[str, str | bytes]
+  316|     files: _t.FilesType
+  317|     data: _t.DataType
+  318|     json: _t.JsonType
+  319|     params: _t.ParamsType
+  320|     auth: _t.AuthType
+  321|     cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
+  322| 
+  323|     def __init__(
+  324|         self,
+  325|         method: str | None = None,
+  326|         url: _t.UriType | None = None,
+  327|         headers: _t.HeadersType = None,
+  328|         files: _t.FilesType = None,
+  329|         data: _t.DataType = None,
+  330|         params: _t.ParamsType = None,
+  331|         auth: _t.AuthType = None,
+  332|         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
+  333|         hooks: _t.HooksInputType | None = None,
+  334|         json: _t.JsonType = None,
+  335|     ) -> None:
+  336|         # Default empty dicts for dict params.
+  337|         data = [] if data is None else data
+  338|         files = [] if files is None else files
+  339|         headers = {} if headers is None else headers
+  340|         params = {} if params is None else params
+  341|         hooks = {} if hooks is None else hooks
+  342| 
+  343|         self.hooks = default_hooks()
+  344|         for k, v in list(hooks.items()):
+  345|             self.register_hook(event=k, hook=v)
+  346| 
+  347|         self.method = method
+  348|         self.url = url
+  349|         self.headers = headers
+  350|         self.files = files
+  351|         self.data = data
+  352|         self.json = json
+  353|         self.params = params
+  354|         self.auth = auth
+  355|         self.cookies = cookies
+  356| 
+  357|     def __repr__(self) -> str:
+  358|         return f"<Request [{self.method}]>"
+  359| 
+  360|     def prepare(self) -> PreparedRequest:
+  361|         """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
+  362|         p = PreparedRequest()
+  363|         p.prepare(
+  364|             method=self.method,
+  365|             url=self.url,
+  366|             headers=self.headers,
+  367|             files=self.files,
+  368|             data=self.data,
+  369|             json=self.json,
+  370|             params=self.params,
+  371|             auth=self.auth,
+  372|             cookies=self.cookies,
+  373|             hooks=self.hooks,
+  374|         )
+  375|         return p
+  376| 
+  377| 
+  378| class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
+  379|     """The fully mutable :class:`PreparedRequest <PreparedRequest>` object,
+  380|     containing the exact bytes that will be sent to the server.
+  381| 
+  382|     Instances are generated from a :class:`Request <Request>` object, and
+  383|     should not be instantiated manually; doing so may produce undesirable
+  384|     effects.
+  385| 
+  386|     Usage::
+  387| 
+  388|       >>> import requests
+  389|       >>> req = requests.Request('GET', 'https://httpbin.org/get')
+  390|       >>> r = req.prepare()
+  391|       >>> r
+  392|       <PreparedRequest [GET]>
+  393| 
+  394|       >>> s = requests.Session()
+  395|       >>> s.send(r)
+  396|       <Response [200]>
+  397|     """
+  398| 
+  399|     method: str | None
+  400|     url: str | None
+  401|     headers: CaseInsensitiveDict[str | bytes]
+  402|     _cookies: RequestsCookieJar | CookieJar | None
+  403|     body: _t.BodyType
+  404|     hooks: dict[str, list[_t.HookType]]
+  405|     _body_position: int | object | None
+  406| 
+  407|     def __init__(self) -> None:
+  408|         #: HTTP verb to send to the server.
+  409|         self.method = None
+  410|         #: HTTP URL to send the request to.
+  411|         self.url = None
+  412|         #: dictionary of HTTP headers.
+  413|         self.headers = None  # type: ignore[assignment]
+  414|         # The `CookieJar` used to create the Cookie header will be stored here
+  415|         # after prepare_cookies is called
+  416|         self._cookies = None
+  417|         #: request body to send to the server.
+  418|         self.body = None
+  419|         #: dictionary of callback hooks, for internal usage.
+  420|         self.hooks = default_hooks()
+  421|         #: integer denoting starting position of a readable file-like body.
+  422|         self._body_position = None
+  423| 
+  424|     def prepare(
+  425|         self,
+  426|         method: str | None = None,
+  427|         url: _t.UriType | None = None,
+  428|         headers: Mapping[str, str | bytes] | None = None,
+  429|         files: _t.FilesType = None,
+  430|         data: _t.DataType = None,
+  431|         params: _t.ParamsType = None,
+  432|         auth: _t.AuthType = None,
+  433|         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
+  434|         hooks: _t.HooksInputType | None = None,
+  435|         json: _t.JsonType = None,
+  436|     ) -> None:
+  437|         """Prepares the entire request with the given parameters."""
+  438| 
+  439|         url = cast("_t.UriType", url)
+  440|         self.prepare_method(method)
+  441|         self.prepare_url(url, params)
+  442|         self.prepare_headers(headers)
+  443|         self.prepare_cookies(cookies)
+  444|         self.prepare_body(data, files, json)
+  445|         self.prepare_auth(auth, url)
+  446| 
+  447|         # Note that prepare_auth must be last to enable authentication schemes
+  448|         # such as OAuth to work on a fully prepared request.
+  449| 
+  450|         # This MUST go after prepare_auth. Authenticators could add a hook
+  451|         self.prepare_hooks(hooks)
+  452| 
+  453|     def __repr__(self) -> str:
+  454|         return f"<PreparedRequest [{self.method}]>"
+  455| 
+  456|     def copy(self) -> PreparedRequest:
+  457|         p = PreparedRequest()
+  458|         p.method = self.method
+  459|         p.url = self.url
+  460|         p.headers = self.headers.copy() if self.headers is not None else None  # type: ignore[assignment]
+  461|         p._cookies = _copy_cookie_jar(self._cookies)
+  462|         p.body = self.body
+  463|         p.hooks = self.hooks
+  464|         p._body_position = self._body_position
+  465|         return p
+  466| 
+  467|     def prepare_method(self, method: str | None) -> None:
+  468|         """Prepares the given HTTP method."""
+  469|         self.method = method
+  470|         if self.method is not None:
+  471|             self.method = to_native_string(self.method.upper())
+  472| 
+  473|     @staticmethod
+  474|     def _get_idna_encoded_host(host: str) -> str:
+  475|         import idna
+  476| 
+  477|         try:
+  478|             host = idna.encode(host, uts46=True).decode("utf-8")
+  479|         except idna.IDNAError:
+  480|             raise UnicodeError
+  481|         return host
+  482| 
+  483|     def prepare_url(
+  484|         self,
+  485|         url: _t.UriType,
+  486|         params: _t.ParamsType,
+  487|     ) -> None:
+  488|         """Prepares the given HTTP URL."""
+  489|         #: Accept objects that have string representations.
+  490|         #: We're unable to blindly call unicode/str functions
+  491|         #: as this will include the bytestring indicator (b'')
+  492|         #: on python 3.x.
+  493|         #: https://github.com/psf/requests/pull/2238
+  494|         if isinstance(url, bytes):
+  495|             url = url.decode("utf8")
+  496|         else:
+  497|             url = str(url)
+  498| 
+  499|         # Remove leading whitespaces from url
+  500|         url = url.lstrip()
+  501| 
+  502|         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
+  503|         # `data` etc to work around exceptions from `url_parse`, which
+  504|         # handles RFC 3986 only.
+  505|         if ":" in url and not url.lower().startswith("http"):
+  506|             self.url = url
+  507|             return
+  508| 
+  509|         # Support for unicode domain names and paths.
+  510|         try:
+  511|             scheme, auth, host, port, path, query, fragment = parse_url(url)
+  512|         except LocationParseError as e:
+  513|             raise InvalidURL(*e.args)
+  514| 
+  515|         if not scheme:
+  516|             raise MissingSchema(
+  517|                 f"Invalid URL {url!r}: No scheme supplied. "
+  518|                 f"Perhaps you meant https://{url}?"
+  519|             )
+  520| 
+  521|         if not host:
+  522|             raise InvalidURL(f"Invalid URL {url!r}: No host supplied")
+  523| 
+  524|         # In general, we want to try IDNA encoding the hostname if the string contains
+  525|         # non-ASCII characters. This allows users to automatically get the correct IDNA
+  526|         # behaviour. For strings containing only ASCII characters, we need to also verify
+  527|         # it doesn't start with a wildcard (*), before allowing the unencoded hostname.
+  528|         if not unicode_is_ascii(host):
+  529|             try:
+  530|                 host = self._get_idna_encoded_host(host)
+  531|             except UnicodeError:
+  532|                 raise InvalidURL("URL has an invalid label.")
+  533|         elif host.startswith(("*", ".")):
+  534|             raise InvalidURL("URL has an invalid label.")
+  535| 
+  536|         # Carefully reconstruct the network location
+  537|         netloc = auth or ""
+  538|         if netloc:
+  539|             netloc += "@"
+  540|         netloc += host
+  541|         if port:
+  542|             netloc += f":{port}"
+  543| 
+  544|         # Bare domains aren't valid URLs.
+  545|         if not path:
+  546|             path = "/"
+  547| 
+  548|         if isinstance(params, (str, bytes)):
+  549|             params = to_native_string(params)
+  550| 
+  551|         if params is not None:
+  552|             enc_params = self._encode_params(params)
+  553|         else:
+  554|             enc_params = ""
+  555| 
+  556|         if enc_params:
+  557|             if query:
+  558|                 query = f"{query}&{enc_params}"
+  559|             else:
+  560|                 query = enc_params
+  561| 
+  562|         url = requote_uri(urlunparse((scheme, netloc, path, "", query, fragment)))
+  563|         self.url = url
+  564| 
+  565|     def prepare_headers(self, headers: Mapping[str, str | bytes] | None) -> None:
+  566|         """Prepares the given HTTP headers."""
+  567| 
+  568|         self.headers = CaseInsensitiveDict()
+  569|         if headers:
+  570|             for header in headers.items():
+  571|                 # Raise exception on invalid header value.
+  572|                 check_header_validity(header)
+  573|                 name, value = header
+  574|                 self.headers[to_native_string(name)] = value
+  575| 
+  576|     def prepare_body(
+  577|         self, data: _t.DataType, files: _t.FilesType, json: _t.JsonType = None
+  578|     ) -> None:
+  579|         """Prepares the given HTTP body data."""
+  580| 
+  581|         # Check if file, fo, generator, iterator.
+  582|         # If not, run through normal process.
+  583| 
+  584|         # Nottin' on you.
+  585|         body = None
+  586|         content_type = None
+  587| 
+  588|         if not data and json is not None:
+  589|             # urllib3 requires a bytes-like body. Python 2's json.dumps
+  590|             # provides this natively, but Python 3 gives a Unicode string.
+  591|             content_type = "application/json"
+  592| 
+  593|             try:
+  594|                 body = complexjson.dumps(json, allow_nan=False)
+  595|             except ValueError as ve:
+  596|                 raise InvalidJSONError(ve, request=self)
+  597| 
+  598|             if not isinstance(body, bytes):
+  599|                 body = body.encode("utf-8")
+  600| 
+  601|         # data that proxies attributes to underlying objects needs hasattr
+  602|         is_iterable = isinstance(data, Iterable) or hasattr(data, "__iter__")
+  603|         if is_iterable and not isinstance(data, (str, bytes, list, tuple, Mapping)):
+  604|             try:
+  605|                 length = super_len(data)
+  606|             except (TypeError, AttributeError, UnsupportedOperation):
+  607|                 length = None
+  608| 
+  609|             body = data
+  610| 
+  611|             if getattr(body, "tell", None) is not None:
+  612|                 # Record the current file position before reading.
+  613|                 # This will allow us to rewind a file in the event
+  614|                 # of a redirect.
+  615|                 try:
+  616|                     self._body_position = body.tell()  # type: ignore[union-attr]  # guarded by getattr check
+  617|                 except OSError:
+  618|                     # This differentiates from None, allowing us to catch
+  619|                     # a failed `tell()` later when trying to rewind the body
+  620|                     self._body_position = object()
+  621| 
+  622|             if files:
+  623|                 raise NotImplementedError(
+  624|                     "Streamed bodies and files are mutually exclusive."
+  625|                 )
+  626| 
+  627|             if length:
+  628|                 self.headers["Content-Length"] = builtin_str(length)
+  629|             else:
+  630|                 self.headers["Transfer-Encoding"] = "chunked"
+  631|         else:
+  632|             # After is_stream filtering, remaining data is raw (not streamed)
+  633|             raw_data = cast("_t.RawDataType | None", data)
+  634| 
+  635|             # Multi-part file uploads.
+  636|             if files:
+  637|                 (body, content_type) = self._encode_files(files, raw_data)
+  638|             else:
+  639|                 if raw_data:
+  640|                     body = self._encode_params(raw_data)
+  641|                     if isinstance(data, basestring) or _t.has_read(data):
+  642|                         content_type = None
+  643|                     else:
+  644|                         content_type = "application/x-www-form-urlencoded"
+  645| 
+  646|             self.prepare_content_length(body)
+  647| 
+  648|             # Add content-type if it wasn't explicitly provided.
+  649|             if content_type and ("content-type" not in self.headers):
+  650|                 self.headers["Content-Type"] = content_type
+  651| 
+  652|         self.body = body  # type: ignore[assignment]  # body transforms from DataType to BodyType
+  653| 
+  654|     def prepare_content_length(self, body: _t.BodyType) -> None:
+  655|         """Prepare Content-Length header based on request method and body"""
+  656|         if body is not None:
+  657|             length = super_len(body)
+  658|             if length:
+  659|                 # If length exists, set it. Otherwise, we fallback
+  660|                 # to Transfer-Encoding: chunked.
+  661|                 self.headers["Content-Length"] = builtin_str(length)
+  662|         elif (
+  663|             self.method not in ("GET", "HEAD")
+  664|             and self.headers.get("Content-Length") is None
+  665|         ):
+  666|             # Set Content-Length to 0 for methods that can have a body
+  667|             # but don't provide one. (i.e. not GET or HEAD)
+  668|             self.headers["Content-Length"] = "0"
+  669| 
+  670|     def prepare_auth(
+  671|         self,
+  672|         auth: _t.AuthType,
+  673|         url: _t.UriType = "",
+  674|     ) -> None:
+  675|         """Prepares the given HTTP auth data."""
+  676| 
+  677|         # If no Auth is explicitly provided, extract it from the URL first.
+  678|         if auth is None:
+  679|             url_auth = get_auth_from_url(cast(str, self.url))
+  680|             auth = url_auth if any(url_auth) else None
+  681| 
+  682|         if auth:
+  683|             if isinstance(auth, tuple) and len(auth) == 2:  # type: ignore[arg-type]  # pyright widens tuple from Callable in AuthType
+  684|                 # special-case basic HTTP auth
+  685|                 auth_handler = HTTPBasicAuth(*auth)  # type: ignore[arg-type]  # pyright widens tuple from Callable in AuthType
+  686|             else:
+  687|                 # TODO: can be fixed by flipping the conditionals
+  688|                 auth_handler = cast("Callable[..., PreparedRequest]", auth)
+  689| 
+  690|             # Allow auth to make its changes.
+  691|             r = auth_handler(self)
+  692| 
+  693|             # Update self to reflect the auth changes.
+  694|             self.__dict__.update(r.__dict__)
+  695| 
+  696|             # Recompute Content-Length
+  697|             self.prepare_content_length(self.body)
+  698| 
+  699|     def prepare_cookies(
+  700|         self, cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
+  701|     ) -> None:
+  702|         """Prepares the given HTTP cookie data.
+  703| 
+  704|         This function eventually generates a ``Cookie`` header from the
+  705|         given cookies using cookielib. Due to cookielib's design, the header
+  706|         will not be regenerated if it already exists, meaning this function
+  707|         can only be called once for the life of the
+  708|         :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
+  709|         to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
+  710|         header is removed beforehand.
+  711|         """
+  712|         if isinstance(cookies, cookielib.CookieJar):
+  713|             self._cookies = cookies
+  714|         else:
+  715|             self._cookies = cookiejar_from_dict(cookies)
+  716| 
+  717|         cookies_jar = cast("CookieJar", self._cookies)
+  718|         cookie_header = get_cookie_header(cookies_jar, self)
+  719|         if cookie_header is not None:
+  720|             self.headers["Cookie"] = cookie_header
+  721| 
+  722|     def prepare_hooks(self, hooks: _t.HooksInputType | None) -> None:
+  723|         """Prepares the given hooks."""
+  724|         # hooks can be passed as None to the prepare method and to this
+  725|         # method. To prevent iterating over None, simply use an empty list
+  726|         # if hooks is False-y
+  727|         hooks = hooks or {}
+  728|         for event in hooks:
+  729|             self.register_hook(event, hooks[event])
+  730| 
+  731| 
+  732| class Response:
+  733|     """The :class:`Response <Response>` object, which contains a
+  734|     server's response to an HTTP request.
+  735|     """
+  736| 
+  737|     _content: bytes | Literal[False] | None
+  738|     _content_consumed: bool
+  739|     _next: PreparedRequest | None
+  740|     status_code: int
+  741|     headers: CaseInsensitiveDict[str]
+  742|     raw: Any
+  743|     url: str
+  744|     encoding: str | None
+  745|     history: list[Response]
+  746|     reason: str
+  747|     cookies: RequestsCookieJar
+  748|     elapsed: datetime.timedelta
+  749|     request: PreparedRequest
+  750|     connection: HTTPAdapter
+  751| 
+  752|     __attrs__: list[str] = [
+  753|         "_content",
+  754|         "status_code",
+  755|         "headers",
+  756|         "url",
+  757|         "history",
+  758|         "encoding",
+  759|         "reason",
+  760|         "cookies",
+  761|         "elapsed",
+  762|         "request",
+  763|     ]
+  764| 
+  765|     def __init__(self) -> None:
+  766|         self._content = False
+  767|         self._content_consumed = False
+  768|         self._next = None
+  769| 
+  770|         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
+  771|         self.status_code = None  # type: ignore[assignment]
+  772| 
+  773|         #: Case-insensitive Dictionary of Response Headers.
+  774|         #: For example, ``headers['content-encoding']`` will return the
+  775|         #: value of a ``'Content-Encoding'`` response header.
+  776|         self.headers = CaseInsensitiveDict()
+  777| 
+  778|         #: File-like object representation of response (for advanced usage).
+  779|         #: Use of ``raw`` requires that ``stream=True`` be set on the request.
+  780|         #: This requirement does not apply for use internally to Requests.
+  781|         self.raw = None
+  782| 
+  783|         #: Final URL location of Response.
+  784|         self.url = None  # type: ignore[assignment]
+  785| 
+  786|         #: Encoding to decode with when accessing r.text.
+  787|         self.encoding = None
+  788| 
+  789|         #: A list of :class:`Response <Response>` objects from
+  790|         #: the history of the Request. Any redirect responses will end
+  791|         #: up here. The list is sorted from the oldest to the most recent request.
+  792|         self.history = []
+  793| 
+  794|         #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
+  795|         self.reason = None  # type: ignore[assignment]
+  796| 
+  797|         #: A CookieJar of Cookies the server sent back.
+  798|         self.cookies = cookiejar_from_dict({})
+  799| 
+  800|         #: The amount of time elapsed between sending the request
+  801|         #: and the arrival of the response (as a timedelta).
+  802|         #: This property specifically measures the time taken between sending
+  803|         #: the first byte of the request and finishing parsing the headers. It
+  804|         #: is therefore unaffected by consuming the response content or the
+  805|         #: value of the ``stream`` keyword argument.
+  806|         self.elapsed = datetime.timedelta(0)
+  807| 
+  808|         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
+  809|         #: is a response.
+  810|         self.request = None  # type: ignore[assignment]
+  811| 
+  812|     def __enter__(self) -> Self:
+  813|         return self
+  814| 
+  815|     def __exit__(self, *args: Any) -> None:
+  816|         self.close()
+  817| 
+  818|     def __getstate__(self) -> dict[str, Any]:
+  819|         # Consume everything; accessing the content attribute makes
+  820|         # sure the content has been fully read.
+  821|         if not self._content_consumed:
+  822|             self.content
+  823| 
+  824|         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
+  825| 
+  826|     def __setstate__(self, state: dict[str, Any]) -> None:
+  827|         for name, value in state.items():
+  828|             setattr(self, name, value)
+  829| 
+  830|         # pickled objects do not have .raw
+  831|         setattr(self, "_content_consumed", True)
+  832|         setattr(self, "raw", None)
+  833| 
+  834|     def __repr__(self) -> str:
+  835|         return f"<Response [{self.status_code}]>"
+  836| 
+  837|     def __bool__(self) -> bool:
+  838|         """Returns True if :attr:`status_code` is less than 400.
+  839| 
+  840|         This attribute checks if the status code of the response is between
+  841|         400 and 600 to see if there was a client error or a server error. If
+  842|         the status code, is between 200 and 400, this will return True. This
+  843|         is **not** a check to see if the response code is ``200 OK``.
+  844|         """
+  845|         return self.ok
+  846| 
+  847|     def __nonzero__(self) -> bool:
+  848|         """Returns True if :attr:`status_code` is less than 400.
+  849| 
+  850|         This attribute checks if the status code of the response is between
+  851|         400 and 600 to see if there was a client error or a server error. If
+  852|         the status code, is between 200 and 400, this will return True. This
+  853|         is **not** a check to see if the response code is ``200 OK``.
+  854|         """
+  855|         return self.ok
+  856| 
+  857|     def __iter__(self) -> Iterator[bytes]:
+  858|         """Allows you to use a response as an iterator."""
+  859|         return self.iter_content(128)
+  860| 
+  861|     @property
+  862|     def ok(self) -> bool:
+  863|         """Returns True if :attr:`status_code` is less than 400, False if not.
+  864| 
+  865|         This attribute checks if the status code of the response is between
+  866|         400 and 600 to see if there was a client error or a server error. If
+  867|         the status code is between 200 and 400, this will return True. This
+  868|         is **not** a check to see if the response code is ``200 OK``.
+  869|         """
+  870|         try:
+  871|             self.raise_for_status()
+  872|         except HTTPError:
+  873|             return False
+  874|         return True
+  875| 
+  876|     @property
+  877|     def is_redirect(self) -> bool:
+  878|         """True if this Response is a well-formed HTTP redirect that could have
+  879|         been processed automatically (by :meth:`Session.resolve_redirects`).
+  880|         """
+  881|         return "location" in self.headers and self.status_code in REDIRECT_STATI
+  882| 
+  883|     @property
+  884|     def is_permanent_redirect(self) -> bool:
+  885|         """True if this Response one of the permanent versions of redirect."""
+  886|         return "location" in self.headers and self.status_code in (
+  887|             codes.moved_permanently,
+  888|             codes.permanent_redirect,
+  889|         )
+  890| 
+  891|     @property
+  892|     def next(self) -> PreparedRequest | None:
+  893|         """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
+  894|         return self._next
+  895| 
+  896|     @property
+  897|     def apparent_encoding(self) -> str | None:
+  898|         """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
+  899|         if chardet is not None:
+  900|             return chardet.detect(self.content)["encoding"]
+  901|         else:
+  902|             # If no character detection library is available, we'll fall back
+  903|             # to a standard Python utf-8 str.
+  904|             return "utf-8"
+  905| 
+  906|     @overload
+  907|     def iter_content(
+  908|         self, chunk_size: int | None = 1, decode_unicode: Literal[False] = False
+  909|     ) -> Iterator[bytes]: ...
+  910|     @overload
+  911|     def iter_content(
+  912|         self, chunk_size: int | None = 1, *, decode_unicode: Literal[True]
+  913|     ) -> Iterator[str | bytes]: ...
+  914|     def iter_content(
+  915|         self, chunk_size: int | None = 1, decode_unicode: bool = False
+  916|     ) -> Iterator[str | bytes]:
+  917|         """Iterates over the response data.  When stream=True is set on the
+  918|         request, this avoids reading the content at once into memory for
+  919|         large responses.  The chunk size is the number of bytes it should
+  920|         read into memory.  This is not necessarily the length of each item
+  921|         returned as decoding can take place.
+  922| 
+  923|         chunk_size must be of type int or None. A value of None will
+  924|         function differently depending on the value of `stream`.
+  925|         stream=True will read data as it arrives in whatever size the
+  926|         chunks are received. If stream=False, data is returned as
+  927|         a single chunk.
+  928| 
+  929|         If decode_unicode is True, content will be decoded using encoding
+  930|         information from the response. If no encoding information is available,
+  931|         bytes will be returned. This can be bypassed by manually setting
+  932|         `encoding` on the response.
+  933|         """
+  934| 
+  935|         def generate() -> Generator[bytes, None, None]:
+  936|             # Special case for urllib3.
+  937|             if hasattr(self.raw, "stream"):
+  938|                 try:
+  939|                     yield from self.raw.stream(chunk_size, decode_content=True)
+  940|                 except ProtocolError as e:
+  941|                     raise ChunkedEncodingError(e)
+  942|                 except DecodeError as e:
+  943|                     raise ContentDecodingError(e)
+  944|                 except ReadTimeoutError as e:
+  945|                     raise ConnectionError(e)
+  946|                 except SSLError as e:
+  947|                     raise RequestsSSLError(e)
+  948|             else:
+  949|                 # Standard file-like object.
+  950|                 while True:
+  951|                     chunk = self.raw.read(chunk_size)
+  952|                     if not chunk:
+  953|                         break
+  954|                     yield chunk
+  955| 
+  956|             self._content_consumed = True
+  957| 
+  958|         if self._content_consumed and isinstance(self._content, bool):
+  959|             raise StreamConsumedError()
+  960|         elif chunk_size is not None and not isinstance(
+  961|             chunk_size, int
+  962|         ):  # runtime guard for untyped callers
+  963|             raise TypeError(
+  964|                 f"chunk_size must be an int, it is instead a {type(chunk_size)}."
+  965|             )
+  966| 
+  967|         if self._content_consumed:
+  968|             # simulate reading small chunks of the content
+  969|             content = cast(bytes, self._content)
+  970|             chunks = iter_slices(content, chunk_size)
+  971|         else:
+  972|             chunks = generate()
+  973| 
+  974|         if decode_unicode:
+  975|             chunks = stream_decode_response_unicode(chunks, self)
+  976| 
+  977|         return chunks
+  978| 
+  979|     @overload
+  980|     def iter_lines(
+  981|         self,
+  982|         chunk_size: int = ITER_CHUNK_SIZE,
+  983|         decode_unicode: Literal[False] = False,
+  984|         delimiter: bytes | None = None,
+  985|     ) -> Iterator[bytes]: ...
+  986|     @overload
+  987|     def iter_lines(
+  988|         self,
+  989|         chunk_size: int = ITER_CHUNK_SIZE,
+  990|         *,
+  991|         decode_unicode: Literal[True],
+  992|         delimiter: str | bytes | None = None,
+  993|     ) -> Iterator[str | bytes]: ...
+  994|     def iter_lines(
+  995|         self,
+  996|         chunk_size: int = ITER_CHUNK_SIZE,
+  997|         decode_unicode: bool = False,
+  998|         delimiter: str | bytes | None = None,
+  999|     ) -> Iterator[str | bytes]:
+ 1000|         """Iterates over the response data, one line at a time.  When
+ 1001|         stream=True is set on the request, this avoids reading the
+ 1002|         content at once into memory for large responses.
+ 1003| 
+ 1004|         The decode_unicode param works the same as in `iter_content`, with the
+ 1005|         same caveats.
+ 1006| 
+ 1007|         .. note:: This method is not reentrant safe.
+ 1008|         """
+ 1009| 
+ 1010|         pending: str | bytes | None = None
+ 1011| 
+ 1012|         for chunk in self.iter_content(
+ 1013|             chunk_size=chunk_size, decode_unicode=decode_unicode
+ 1014|         ):
+ 1015|             if pending is not None:
+ 1016|                 # TODO: remove cast after iter_lines rewrite
+ 1017|                 chunk = cast("str | bytes", pending + chunk)
+ 1018| 
+ 1019|             if delimiter:
+ 1020|                 lines = chunk.split(delimiter)  # type: ignore[arg-type]
+ 1021|             else:
+ 1022|                 lines = chunk.splitlines()
+ 1023| 
+ 1024|             if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:
+ 1025|                 pending = lines.pop()
+ 1026|             else:
+ 1027|                 pending = None
+ 1028| 
+ 1029|             yield from lines
+ 1030| 
+ 1031|         if pending is not None:
+ 1032|             yield pending
+ 1033| 
+ 1034|     @property
+ 1035|     def content(self) -> bytes:
+ 1036|         """Content of the response, in bytes."""
+ 1037| 
+ 1038|         if self._content is False:
+ 1039|             # Read the contents.
+ 1040|             if self._content_consumed:
+ 1041|                 raise RuntimeError("The content for this response was already consumed")
+ 1042| 
+ 1043|             if self.status_code == 0 or self.raw is None:
+ 1044|                 self._content = None
+ 1045|             else:
+ 1046|                 self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+ 1047| 
+ 1048|         self._content_consumed = True
+ 1049|         # don't need to release the connection; that's been handled by urllib3
+ 1050|         # since we exhausted the data.
+ 1051|         return self._content  # type: ignore[return-value]
+ 1052| 
+ 1053|     @property
+ 1054|     def text(self) -> str:
+ 1055|         """Content of the response, in unicode.
+ 1056| 
+ 1057|         If Response.encoding is None, encoding will be guessed using
+ 1058|         ``charset_normalizer`` or ``chardet``.
+ 1059| 
+ 1060|         The encoding of the response content is determined based solely on HTTP
+ 1061|         headers, following RFC 2616 to the letter. If you can take advantage of
+ 1062|         non-HTTP knowledge to make a better guess at the encoding, you should
+ 1063|         set ``r.encoding`` appropriately before accessing this property.
+ 1064|         """
+ 1065| 
+ 1066|         # Try charset from content-type
+ 1067|         content = None
+ 1068|         encoding = self.encoding
+ 1069| 
+ 1070|         if not self.content:
+ 1071|             return ""
+ 1072| 
+ 1073|         # Fallback to auto-detected encoding.
+ 1074|         if self.encoding is None:
+ 1075|             encoding = self.apparent_encoding
+ 1076| 
+ 1077|         # Decode unicode from given encoding.
+ 1078|         try:
+ 1079|             content = str(self.content, encoding or "utf-8", errors="replace")
+ 1080|         except (LookupError, TypeError):
+ 1081|             # A LookupError is raised if the encoding was not found which could
+ 1082|             # indicate a misspelling or similar mistake.
+ 1083|             #
+ 1084|             # A TypeError can be raised if encoding is None
+ 1085|             #
+ 1086|             # So we try blindly encoding.
+ 1087|             content = str(self.content, errors="replace")
+ 1088| 
+ 1089|         return content
+ 1090| 
+ 1091|     def json(self, **kwargs: Any) -> Any:
+ 1092|         r"""Decodes the JSON response body (if any) as a Python object.
+ 1093| 
+ 1094|         This may return a dictionary, list, etc. depending on what is in the response.
+ 1095| 
+ 1096|         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
+ 1097|         :raises requests.exceptions.JSONDecodeError: If the response body does not
+ 1098|             contain valid json.
+ 1099|         """
+ 1100| 
+ 1101|         if not self.encoding and self.content and len(self.content) > 3:
+ 1102|             # No encoding set. JSON RFC 4627 section 3 states we should expect
+ 1103|             # UTF-8, -16 or -32. Detect which one to use; If the detection or
+ 1104|             # decoding fails, fall back to `self.text` (using charset_normalizer to make
+ 1105|             # a best guess).
+ 1106|             encoding = guess_json_utf(self.content)
+ 1107|             if encoding is not None:
+ 1108|                 try:
+ 1109|                     return complexjson.loads(self.content.decode(encoding), **kwargs)
+ 1110|                 except UnicodeDecodeError:
+ 1111|                     # Wrong UTF codec detected; usually because it's not UTF-8
+ 1112|                     # but some other 8-bit codec.  This is an RFC violation,
+ 1113|                     # and the server didn't bother to tell us what codec *was*
+ 1114|                     # used.
+ 1115|                     pass
+ 1116|                 except JSONDecodeError as e:
+ 1117|                     raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+ 1118| 
+ 1119|         try:
+ 1120|             return complexjson.loads(self.text, **kwargs)
+ 1121|         except JSONDecodeError as e:
+ 1122|             # Catch JSON-related errors and raise as requests.JSONDecodeError
+ 1123|             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
+ 1124|             raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+ 1125| 
+ 1126|     @property
+ 1127|     def links(self) -> dict[str, dict[str, str]]:
+ 1128|         """Returns the parsed header links of the response, if any."""
+ 1129| 
+ 1130|         header = self.headers.get("link")
+ 1131| 
+ 1132|         resolved_links: dict[str, dict[str, str]] = {}
+ 1133| 
+ 1134|         if header:
+ 1135|             links = parse_header_links(header)
+ 1136| 
+ 1137|             for link in links:
+ 1138|                 key = link.get("rel") or link.get("url")
+ 1139|                 if key is not None:
+ 1140|                     resolved_links[key] = link
+ 1141| 
+ 1142|         return resolved_links
+ 1143| 
+ 1144|     def raise_for_status(self) -> None:
+ 1145|         """Raises :class:`HTTPError`, if one occurred."""
+ 1146| 
+ 1147|         http_error_msg = ""
+ 1148|         if isinstance(self.reason, bytes):
+ 1149|             # We attempt to decode utf-8 first because some servers
+ 1150|             # choose to localize their reason strings. If the string
+ 1151|             # isn't utf-8, we fall back to iso-8859-1 for all other
+ 1152|             # encodings. (See PR #3538)
+ 1153|             try:
+ 1154|                 reason = self.reason.decode("utf-8")
+ 1155|             except UnicodeDecodeError:
+ 1156|                 reason = self.reason.decode("iso-8859-1")
+ 1157|         else:
+ 1158|             reason = self.reason
+ 1159| 
+ 1160|         if 400 <= self.status_code < 500:
+ 1161|             http_error_msg = (
+ 1162|                 f"{self.status_code} Client Error: {reason} for url: {self.url}"
+ 1163|             )
+ 1164| 
+ 1165|         elif 500 <= self.status_code < 600:
+ 1166|             http_error_msg = (
+ 1167|                 f"{self.status_code} Server Error: {reason} for url: {self.url}"
+ 1168|             )
+ 1169| 
+ 1170|         if http_error_msg:
+ 1171|             raise HTTPError(http_error_msg, response=self)
+ 1172| 
+ 1173|     def close(self) -> None:
+ 1174|         """Releases the connection back to the pool. Once this method has been
+ 1175|         called the underlying ``raw`` object must not be accessed again.
+ 1176| 
+ 1177|         *Note: Should not normally need to be called explicitly.*
+ 1178|         """
+ 1179|         if not self._content_consumed:
+ 1180|             self.raw.close()
+ 1181| 
+ 1182|         release_conn = getattr(self.raw, "release_conn", None)
+ 1183|         if release_conn is not None:
+ 1184|             release_conn()
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-requests-callees_of-29",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/api.py::request"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-requests-callees_of-143",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.any",
+      "ext:builtins.dict.update",
+      "ext:builtins.isinstance",
+      "ext:builtins.len",
+      "ext:typing.cast",
+      "src/requests/auth.py::HTTPBasicAuth",
+      "src/requests/models.py::PreparedRequest.prepare_content_length",
+      "src/requests/utils.py::get_auth_from_url"
+    ],
+    "conditional_flags": [],
+    "notes": "The auth_handler(self) call may invoke an arbitrary callable supplied through the auth parameter, so its runtime callee cannot be fully determined statically."
+  }
+]
+tokens used
+21,700

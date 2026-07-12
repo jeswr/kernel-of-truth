@@ -1,0 +1,61 @@
+{
+ "atomic": [
+  "parent",
+  "child",
+  "sibling"
+ ],
+ "compose": {
+  "child|child": "grandchild",
+  "child|parent": "sibling",
+  "child|sibling": "nibling",
+  "grandparent|sibling": "grandparent",
+  "nibling|child": "grandchild",
+  "nibling|sibling": "nibling",
+  "parent|parent": "grandparent",
+  "parent|sibling": "parent",
+  "pibling|sibling": "pibling",
+  "sibling|child": "child",
+  "sibling|parent": "pibling",
+  "sibling|sibling": "sibling"
+ },
+ "core_types": [
+  "parent",
+  "child",
+  "sibling",
+  "grandparent",
+  "grandchild",
+  "pibling",
+  "nibling"
+ ],
+ "semantics": "rel(A,B) = 'A is the <rel> of B'; compose(r1,r2): rel(A,B)=r1 & rel(B,C)=r2 => rel(A,C); defined only where unique under the stipulated closed world (full siblings, no step/in-law, distinct persons)",
+ "surface": {
+  "child": [
+   "daughter",
+   "son"
+  ],
+  "grandchild": [
+   "granddaughter",
+   "grandson"
+  ],
+  "grandparent": [
+   "grandmother",
+   "grandfather"
+  ],
+  "nibling": [
+   "niece",
+   "nephew"
+  ],
+  "parent": [
+   "mother",
+   "father"
+  ],
+  "pibling": [
+   "aunt",
+   "uncle"
+  ],
+  "sibling": [
+   "sister",
+   "brother"
+  ]
+ }
+}

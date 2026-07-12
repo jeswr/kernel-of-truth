@@ -1,0 +1,41 @@
+[
+  {
+    "query_id": "g1q-requests-imports_of-36",
+    "answerable_static": true,
+    "gold": [
+      "ext:select",
+      "ext:socket",
+      "ext:ssl",
+      "ext:threading"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-requests-imports_of-6",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:collections.abc",
+      "ext:http.cookiejar",
+      "ext:typing",
+      "ext:typing_extensions",
+      "repo:src/requests/__init__.py",
+      "repo:src/requests/auth.py",
+      "repo:src/requests/cookies.py",
+      "repo:src/requests/models.py",
+      "repo:src/requests/structures.py"
+    ],
+    "conditional_flags": [
+      "ext:http.cookiejar",
+      "ext:typing",
+      "ext:typing_extensions",
+      "repo:src/requests/__init__.py",
+      "repo:src/requests/auth.py",
+      "repo:src/requests/cookies.py",
+      "repo:src/requests/models.py",
+      "repo:src/requests/structures.py"
+    ],
+    "notes": "Imports under TYPE_CHECKING are conditional."
+  }
+]

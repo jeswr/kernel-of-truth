@@ -1,0 +1,28 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [
+    "ext:builtins.str",
+    "ext:re.match",
+    "tests/core/test_object_proxy.py::TestArgumentUnpackingPartial.test_self_keyword_argument_on_class_init_2a.Object"
+   ],
+   "notes": "Calls through self.assertRaises, self.assertNotEqual, and wrapper cannot be resolved statically; the definition site of wrapt.partial is not shown.",
+   "query_id": "g1q-wrapt-callees_of-1731"
+  },
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [],
+   "notes": "The method body contains no call expressions.",
+   "query_id": "g1q-wrapt-callees_of-558"
+  }
+ ],
+ "attempts": 1,
+ "batch": "wrapt--callees_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

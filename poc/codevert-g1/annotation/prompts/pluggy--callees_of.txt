@@ -1,0 +1,439 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: pluggy ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/toy-example.py
+docs/examples/eggsample/setup.py
+docs/examples/eggsample/eggsample/__init__.py
+docs/examples/eggsample/eggsample/hookspecs.py
+docs/examples/eggsample/eggsample/host.py
+docs/examples/eggsample/eggsample/lib.py
+docs/examples/eggsample-spam/eggsample_spam.py
+docs/examples/eggsample-spam/setup.py
+downstream/run_downstream.py
+scripts/release.py
+scripts/towncrier-draft-to-file.py
+src/pluggy/__init__.py
+src/pluggy/_callers.py
+src/pluggy/_hooks.py
+src/pluggy/_manager.py
+src/pluggy/_result.py
+src/pluggy/_tracing.py
+src/pluggy/_warnings.py
+testing/benchmark.py
+testing/conftest.py
+testing/test_details.py
+testing/test_helpers.py
+testing/test_hookcaller.py
+testing/test_invocations.py
+testing/test_multicall.py
+testing/test_pluginmanager.py
+testing/test_result.py
+testing/test_tracer.py
+testing/test_warnings.py
+
+=== QUERIES (2) ===
+QUERY g1q-pluggy-callees_of-14: family=callees_of target=docs/examples/eggsample/eggsample/lib.py::eggsample_prep_condiments
+QUERY g1q-pluggy-callees_of-211: family=callees_of target=testing/test_helpers.py::test_varnames_staticmethod
+
+=== CONTEXT ===
+
+FILE docs/examples/eggsample/eggsample/lib.py:
+    1| import eggsample
+    2| 
+    3| 
+    4| @eggsample.hookimpl
+    5| def eggsample_add_ingredients():
+    6|     spices = ["salt", "pepper"]
+    7|     you_can_never_have_enough_eggs = ["egg", "egg"]
+    8|     ingredients = spices + you_can_never_have_enough_eggs
+    9|     return ingredients
+   10| 
+   11| 
+   12| @eggsample.hookimpl
+   13| def eggsample_prep_condiments(condiments):
+   14|     condiments["mint sauce"] = 1
+
+FILE testing/test_helpers.py:
+    1| from collections.abc import Callable
+    2| from functools import wraps
+    3| from typing import Any
+    4| from typing import cast
+    5| from typing import TypeVar
+    6| 
+    7| from pluggy._hooks import varnames
+    8| from pluggy._manager import _formatdef
+    9| 
+   10| 
+   11| def test_varnames() -> None:
+   12|     def f(x) -> None:
+   13|         i = 3  # noqa #pragma: no cover
+   14| 
+   15|     class A:
+   16|         def f(self, y) -> None:
+   17|             pass  # pragma: no cover
+   18| 
+   19|     class B:
+   20|         def __call__(self, z) -> None:
+   21|             pass  # pragma: no cover
+   22| 
+   23|     assert varnames(f) == (("x",), ())
+   24|     assert varnames(A().f) == (("y",), ())
+   25|     assert varnames(B()) == (("z",), ())
+   26| 
+   27| 
+   28| def test_varnames_default() -> None:
+   29|     def f(x, y=3) -> None:
+   30|         pass
+   31| 
+   32|     assert varnames(f) == (("x",), ("y",))
+   33| 
+   34| 
+   35| def test_varnames_class() -> None:
+   36|     class C:
+   37|         def __init__(self, x) -> None:
+   38|             pass
+   39| 
+   40|     class D:
+   41|         pass
+   42| 
+   43|     class E:
+   44|         def __init__(self, x) -> None:
+   45|             pass
+   46| 
+   47|     class F:
+   48|         pass
+   49| 
+   50|     assert varnames(C) == (("x",), ())
+   51|     assert varnames(D) == ((), ())
+   52|     assert varnames(E) == (("x",), ())
+   53|     assert varnames(F) == ((), ())
+   54| 
+   55| 
+   56| def test_varnames_keyword_only() -> None:
+   57|     def f1(x, *, y) -> None:
+   58|         pass
+   59| 
+   60|     def f2(x, *, y=3) -> None:
+   61|         pass
+   62| 
+   63|     def f3(x=1, *, y=3) -> None:
+   64|         pass
+   65| 
+   66|     assert varnames(f1) == (("x",), ())
+   67|     assert varnames(f2) == (("x",), ())
+   68|     assert varnames(f3) == ((), ("x",))
+   69| 
+   70| 
+   71| def test_formatdef() -> None:
+   72|     def function1():
+   73|         pass
+   74| 
+   75|     assert _formatdef(function1) == "function1()"
+   76| 
+   77|     def function2(arg1):
+   78|         pass
+   79| 
+   80|     assert _formatdef(function2) == "function2(arg1)"
+   81| 
+   82|     def function3(arg1, arg2="qwe"):
+   83|         pass
+   84| 
+   85|     assert _formatdef(function3) == "function3(arg1, arg2='qwe')"
+   86| 
+   87|     def function4(arg1, *args, **kwargs):
+   88|         pass
+   89| 
+   90|     assert _formatdef(function4) == "function4(arg1, *args, **kwargs)"
+   91| 
+   92| 
+   93| def test_varnames_decorator() -> None:
+   94|     F = TypeVar("F", bound=Callable[..., Any])
+   95| 
+   96|     def my_decorator(func: F) -> F:
+   97|         @wraps(func)
+   98|         def wrapper(*args, **kwargs):
+   99|             return func(*args, **kwargs)  # pragma: no cover
+  100| 
+  101|         return cast(F, wrapper)
+  102| 
+  103|     @my_decorator
+  104|     def example(a, b=123) -> None:
+  105|         pass
+  106| 
+  107|     class Example:
+  108|         @my_decorator
+  109|         def example_method(self, x, y=1) -> None:
+  110|             pass
+  111| 
+  112|     ex_inst = Example()
+  113| 
+  114|     assert varnames(example) == (("a",), ("b",))
+  115|     # Unbound: self is stripped because it's in _IMPLICIT_NAMES and qualname is dotted.
+  116|     assert varnames(Example.example_method) == (("x",), ("y",))
+  117|     # Bound: self is already consumed.
+  118|     assert varnames(ex_inst.example_method) == (("x",), ("y",))
+  119| 
+  120| 
+  121| def test_varnames_bound_method_from_module_function() -> None:
+  122|     """A module-level function assigned to a class attribute becomes a bound
+  123|     method when accessed on an instance, but its __qualname__ has no dot.
+  124|     varnames must still strip the first parameter."""
+  125| 
+  126|     def standalone(self, x) -> None:
+  127|         pass  # pragma: no cover
+  128| 
+  129|     class MyClass:
+  130|         method = standalone
+  131| 
+  132|     assert varnames(MyClass().method) == (("x",), ())
+  133| 
+  134| 
+  135| def test_varnames_unconventional_first_param_name() -> None:
+  136|     """Bound methods strip unconditionally, but unbound methods with
+  137|     non-standard first parameter names preserve all arguments."""
+  138| 
+  139|     class MyClass:
+  140|         def method(this, x) -> None:
+  141|             pass  # pragma: no cover
+  142| 
+  143|     # Bound: stripped regardless of name.
+  144|     assert varnames(MyClass().method) == (("x",), ())
+  145|     # Unbound with dotted qualname but non-implicit name: NOT stripped.
+  146|     assert varnames(MyClass.method) == (("this", "x"), ())
+  147| 
+  148| 
+  149| def test_varnames_classmethod() -> None:
+  150|     class MyClass:
+  151|         @classmethod
+  152|         def cm(cls, x, y=1) -> None:
+  153|             pass  # pragma: no cover
+  154| 
+  155|     # Classmethods are always bound (even from the class).
+  156|     assert varnames(MyClass.cm) == (("x",), ("y",))
+  157|     assert varnames(MyClass().cm) == (("x",), ("y",))
+  158| 
+  159| 
+  160| def test_varnames_staticmethod() -> None:
+  161|     class MyClass:
+  162|         @staticmethod
+  163|         def sm(x, y=1) -> None:
+  164|             pass  # pragma: no cover
+  165| 
+  166|     # Staticmethods have no implicit first arg.
+  167|     assert varnames(MyClass.sm) == (("x",), ("y",))
+  168|     assert varnames(MyClass().sm) == (("x",), ("y",))
+  169| 
+  170| 
+  171| def test_varnames_hookspec_without_self() -> None:
+  172|     """Hookspec-style class methods without self/cls preserve all parameters.
+  173| 
+  174|     This is the convention used by projects like pytest-timeout where hookspec
+  175|     classes define methods without ``self`` since they serve as pure signatures.
+  176|     By default varnames does not warn; the warning is emitted when
+  177|     ``legacy_noself=True`` is passed (as HookSpec.__init__ does).
+  178|     """
+  179| 
+  180|     class MySpecs:
+  181|         def my_hook(item, extra) -> None:
+  182|             pass  # pragma: no cover
+  183| 
+  184|     # Accessed as unbound: first arg is not an implicit name, keep it.
+  185|     assert varnames(MySpecs.my_hook) == (("item", "extra"), ())
+  186|     # Accessed as bound (via instance): first arg is stripped.
+  187|     assert varnames(MySpecs().my_hook) == (("extra",), ())
+  188| 
+  189| 
+  190| def test_varnames_legacy_noself_warns() -> None:
+  191|     """With ``legacy_noself=True``, varnames warns when it encounters a
+  192|     class method whose first parameter is not an implicit name."""
+  193|     import warnings
+  194| 
+  195|     class MySpecs:
+  196|         def my_hook(item, extra) -> None:
+  197|             pass  # pragma: no cover
+  198| 
+  199|     with warnings.catch_warnings(record=True) as w:
+  200|         warnings.simplefilter("always")
+  201|         result = varnames(MySpecs.my_hook, legacy_noself=True)
+  202|     assert result == (("item", "extra"), ())
+  203|     assert len(w) == 1
+  204|     assert issubclass(w[0].category, DeprecationWarning)
+  205|     assert "'item' is not 'self'" in str(w[0].message)
+  206| 
+  207| 
+  208| def test_varnames_legacy_noself_no_warn_with_self() -> None:
+  209|     """With ``legacy_noself=True``, no warning when the method has ``self``."""
+  210|     import warnings
+  211| 
+  212|     class MySpecs:
+  213|         def my_hook(self, item, extra) -> None:
+  214|             pass  # pragma: no cover
+  215| 
+  216|     with warnings.catch_warnings(record=True) as w:
+  217|         warnings.simplefilter("always")
+  218|         result = varnames(MySpecs.my_hook, legacy_noself=True)
+  219|     assert result == (("item", "extra"), ())
+  220|     assert len(w) == 0
+  221| 
+  222| 
+  223| def test_varnames_no_legacy_noself_no_warn() -> None:
+  224|     """Without ``legacy_noself``, no warning even for class methods without self."""
+  225|     import warnings
+  226| 
+  227|     class MySpecs:
+  228|         def my_hook(item, extra) -> None:
+  229|             pass  # pragma: no cover
+  230| 
+  231|     with warnings.catch_warnings(record=True) as w:
+  232|         warnings.simplefilter("always")
+  233|         result = varnames(MySpecs.my_hook)
+  234|     assert result == (("item", "extra"), ())
+  235|     assert len(w) == 0
+  236| 
+  237| 
+  238| def test_varnames_legacy_noself_suppressed_for_timeout_hooks() -> None:
+  239|     """The deprecation warning is suppressed for known upstream-fixed packages."""
+  240|     import warnings
+  241| 
+  242|     class TimeoutHooks:
+  243|         def pytest_timeout_set_timer(item, settings) -> None:
+  244|             pass  # pragma: no cover
+  245| 
+  246|         def pytest_timeout_cancel_timer(item) -> None:
+  247|             pass  # pragma: no cover
+  248| 
+  249|     with warnings.catch_warnings(record=True) as w:
+  250|         warnings.simplefilter("always")
+  251|         result_set = varnames(TimeoutHooks.pytest_timeout_set_timer, legacy_noself=True)
+  252|         result_cancel = varnames(
+  253|             TimeoutHooks.pytest_timeout_cancel_timer, legacy_noself=True
+  254|         )
+  255|     assert result_set == (("item", "settings"), ())
+  256|     assert result_cancel == (("item",), ())
+  257|     assert len(w) == 0
+  258| 
+  259| 
+  260| def test_varnames_unresolvable_annotation() -> None:
+  261|     """Test that varnames works with annotations that cannot be resolved.
+  262| 
+  263|     In Python 3.14+, inspect.signature() tries to resolve string annotations
+  264|     by default, which can fail if the annotation refers to a type that isn't
+  265|     importable. Using __code__ directly avoids this issue.
+  266|     """
+  267| 
+  268|     def func_with_bad_annotation(
+  269|         x: "NonExistentType",  # type: ignore[name-defined]  # noqa: F821
+  270|         y,
+  271|     ) -> None:
+  272|         pass
+  273| 
+  274|     assert varnames(func_with_bad_annotation) == (("x", "y"), ())
+
+Answer now with ONE JSON array containing one object per query, in query order.

@@ -1,0 +1,497 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.0opn5mfg"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.tb99xghy
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c4-d4ed-7ae1-98b0-66e4d9a7f437
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: idna ===
+PY FILE LISTING (repo-root-relative; authoritative):
+idna/__init__.py
+idna/__main__.py
+idna/cli.py
+idna/codec.py
+idna/compat.py
+idna/core.py
+idna/idnadata.py
+idna/intranges.py
+idna/package_data.py
+idna/uts46data.py
+tests/__init__.py
+tests/test_idna.py
+tests/test_idna_cli.py
+tests/test_idna_codec.py
+tests/test_idna_compat.py
+tests/test_idna_uts46.py
+tests/test_intranges.py
+
+=== QUERIES (2) ===
+QUERY g1q-idna-contains-35: family=contains target=tests/test_idna_cli.py::CLIStdinTests
+QUERY g1q-idna-contains-8: family=contains target=idna/package_data.py
+
+=== CONTEXT ===
+
+FILE tests/test_idna_cli.py:
+    1| #!/usr/bin/env python
+    2| 
+    3| import io
+    4| import subprocess
+    5| import sys
+    6| import unittest
+    7| from contextlib import contextmanager, redirect_stderr, redirect_stdout
+    8| from unittest import mock
+    9| 
+   10| from idna import cli
+   11| from idna.package_data import __version__
+   12| 
+   13| 
+   14| def run_cli(*argv, stdin=None):
+   15|     """Invoke ``cli.main`` with ``argv`` and capture (rc, stdout, stderr).
+   16| 
+   17|     Pass ``stdin`` as a string to simulate a piped stdin; omit it to
+   18|     simulate an interactive terminal.
+   19|     """
+   20|     out = io.StringIO()
+   21|     err = io.StringIO()
+   22|     with redirect_stdout(out), redirect_stderr(err), _patched_stdin(stdin):
+   23|         rc = cli.main(list(argv))
+   24|     return rc, out.getvalue(), err.getvalue()
+   25| 
+   26| 
+   27| class _FakeStdin(io.StringIO):
+   28|     """``io.StringIO`` with a configurable ``isatty`` result."""
+   29| 
+   30|     def __init__(self, data: str, is_tty: bool) -> None:
+   31|         super().__init__(data)
+   32|         self._is_tty = is_tty
+   33| 
+   34|     def isatty(self) -> bool:
+   35|         return self._is_tty
+   36| 
+   37| 
+   38| @contextmanager
+   39| def _patched_stdin(data):
+   40|     """Replace ``sys.stdin`` with a fake stream and isatty() result."""
+   41|     stream = _FakeStdin("" if data is None else data, is_tty=data is None)
+   42|     with mock.patch.object(sys, "stdin", stream):
+   43|         yield
+   44| 
+   45| 
+   46| class CLIAutoDetectTests(unittest.TestCase):
+   47|     def test_autodetect_encodes_unicode_input(self):
+   48|         rc, out, err = run_cli("пример.рф")
+   49|         self.assertEqual(rc, 0)
+   50|         self.assertEqual(out.strip(), "xn--e1afmkfd.xn--p1ai")
+   51|         self.assertEqual(err, "")
+   52| 
+   53|     def test_autodetect_decodes_alabel(self):
+   54|         rc, out, _ = run_cli("xn--e1afmkfd.xn--p1ai")
+   55|         self.assertEqual(rc, 0)
+   56|         self.assertEqual(out.strip(), "пример.рф")
+   57| 
+   58|     def test_autodetect_decodes_when_any_label_is_alabel(self):
+   59|         # Mixed label: at least one xn-- label triggers decode mode.
+   60|         rc, out, _ = run_cli("xn--11b5bs3a9aj6g.example")
+   61|         self.assertEqual(rc, 0)
+   62|         self.assertEqual(out.strip(), "परीक्षा.example")
+   63| 
+   64|     def test_autodetect_encodes_plain_ascii_input(self):
+   65|         rc, out, _ = run_cli("example.com")
+   66|         self.assertEqual(rc, 0)
+   67|         self.assertEqual(out.strip(), "example.com")
+   68| 
+   69|     def test_looks_like_alabel_is_case_insensitive(self):
+   70|         self.assertTrue(cli._looks_like_alabel("XN--ZCKZAH"))
+   71|         self.assertTrue(cli._looks_like_alabel("foo.Xn--ZcKzAh"))
+   72|         self.assertFalse(cli._looks_like_alabel("example.com"))
+   73|         self.assertFalse(cli._looks_like_alabel("xnfoo.example"))
+   74| 
+   75|     def test_looks_like_alabel_handles_unicode_dots(self):
+   76|         # IDEOGRAPHIC FULL STOP should split labels for the purpose of
+   77|         # spotting an A-label, matching the behavior of idna.encode/decode.
+   78|         self.assertTrue(cli._looks_like_alabel("foo。xn--zckzah"))
+   79| 
+   80| 
+   81| class CLIExplicitModeTests(unittest.TestCase):
+   82|     def test_encode_flag_forces_encode(self):
+   83|         rc, out, _ = run_cli("-e", "παράδειγμα")
+   84|         self.assertEqual(rc, 0)
+   85|         self.assertEqual(out.strip(), "xn--hxajbheg2az3al")
+   86| 
+   87|     def test_long_encode_flag_forces_encode(self):
+   88|         rc, out, _ = run_cli("--encode", "한국")
+   89|         self.assertEqual(rc, 0)
+   90|         self.assertEqual(out.strip(), "xn--3e0b707e")
+   91| 
+   92|     def test_decode_flag_forces_decode(self):
+   93|         rc, out, _ = run_cli("-d", "xn--hxajbheg2az3al")
+   94|         self.assertEqual(rc, 0)
+   95|         self.assertEqual(out.strip(), "παράδειγμα")
+   96| 
+   97|     def test_long_decode_flag_forces_decode(self):
+   98|         rc, out, _ = run_cli("--decode", "xn--3e0b707e")
+   99|         self.assertEqual(rc, 0)
+  100|         self.assertEqual(out.strip(), "한국")
+  101| 
+  102|     def test_encode_and_decode_are_mutually_exclusive(self):
+  103|         # argparse exits via SystemExit (code 2) for mutually-exclusive errors.
+  104|         with self.assertRaises(SystemExit) as ctx, redirect_stderr(io.StringIO()):
+  105|             cli.main(["-e", "-d", "example.com"])
+  106|         self.assertEqual(ctx.exception.code, 2)
+  107| 
+  108| 
+  109| class CLIUTS46Tests(unittest.TestCase):
+  110|     def test_uts46_is_applied_by_default(self):
+  111|         # Uppercase Greek is not PVALID under IDNA 2008 alone; UTS #46
+  112|         # case-folds it so encoding succeeds.
+  113|         rc, out, _ = run_cli("ΠΑΡΆΔΕΙΓΜΑ.ΕΛ")
+  114|         self.assertEqual(rc, 0)
+  115|         self.assertEqual(out.strip(), "xn--hxajbheg2az3al.xn--qxam")
+  116| 
+  117|     def test_strict_disables_uts46(self):
+  118|         rc, out, err = run_cli("--strict", "ΠΑΡΆΔΕΙΓΜΑ.ΕΛ")
+  119|         self.assertEqual(rc, 1)
+  120|         self.assertEqual(out, "")
+  121|         self.assertIn("encode failed", err)
+  122|         self.assertIn("U+03A0", err)
+  123| 
+  124|     def test_strict_does_not_affect_valid_inputs(self):
+  125|         rc, out, _ = run_cli("--strict", "пример.рф")
+  126|         self.assertEqual(rc, 0)
+  127|         self.assertEqual(out.strip(), "xn--e1afmkfd.xn--p1ai")
+  128| 
+  129|     def test_uts46_applies_to_explicit_decode(self):
+  130|         # Trailing FULLWIDTH FULL STOP (U+FF0E) is mapped to "." by UTS #46
+  131|         # so the input still decodes as a single A-label.
+  132|         rc, out, _ = run_cli("-d", "xn--zckzah．")
+  133|         self.assertEqual(rc, 0)
+  134|         self.assertEqual(out.strip(), "テスト.")
+  135| 
+  136| 
+  137| class CLIErrorHandlingTests(unittest.TestCase):
+  138|     def test_invalid_input_returns_nonzero_and_writes_to_stderr(self):
+  139|         rc, out, err = run_cli("foo_bar")
+  140|         self.assertEqual(rc, 1)
+  141|         self.assertEqual(out, "")
+  142|         self.assertTrue(err.startswith("idna: encode failed for 'foo_bar':"))
+  143| 
+  144|     def test_invalid_alabel_decode_returns_nonzero(self):
+  145|         # Trailing hyphen after the xn-- prefix is rejected by ulabel().
+  146|         rc, out, err = run_cli("-d", "xn--")
+  147|         self.assertEqual(rc, 1)
+  148|         self.assertEqual(out, "")
+  149|         self.assertIn("decode failed", err)
+  150| 
+  151|     def test_missing_argument_with_tty_stdin_is_an_argparse_error(self):
+  152|         # Interactive shell (no piped stdin) and no domain arg → argparse exits 2.
+  153|         with self.assertRaises(SystemExit) as ctx, redirect_stderr(io.StringIO()), _patched_stdin(None):
+  154|             cli.main([])
+  155|         self.assertEqual(ctx.exception.code, 2)
+  156| 
+  157| 
+  158| class CLIVersionTests(unittest.TestCase):
+  159|     def test_version_flag(self):
+  160|         buf = io.StringIO()
+  161|         with self.assertRaises(SystemExit) as ctx, redirect_stdout(buf):
+  162|             cli.main(["--version"])
+  163|         self.assertEqual(ctx.exception.code, 0)
+  164|         self.assertIn(__version__, buf.getvalue())
+  165| 
+  166| 
+  167| class CLIMultipleDomainsTests(unittest.TestCase):
+  168|     def test_multiple_unicode_positional_domains_are_all_encoded(self):
+  169|         rc, out, _ = run_cli("пример.рф", "παράδειγμα", "한국")
+  170|         self.assertEqual(rc, 0)
+  171|         self.assertEqual(
+  172|             out.splitlines(),
+  173|             ["xn--e1afmkfd.xn--p1ai", "xn--hxajbheg2az3al", "xn--3e0b707e"],
+  174|         )
+  175| 
+  176|     def test_multiple_alabel_positional_domains_are_all_decoded(self):
+  177|         rc, out, _ = run_cli("xn--e1afmkfd.xn--p1ai", "xn--hxajbheg2az3al", "xn--3e0b707e")
+  178|         self.assertEqual(rc, 0)
+  179|         self.assertEqual(out.splitlines(), ["пример.рф", "παράδειγμα", "한국"])
+  180| 
+  181|     def test_mode_flag_applies_to_every_positional_domain(self):
+  182|         rc, out, _ = run_cli("-e", "한국", "παράδειγμα")
+  183|         self.assertEqual(rc, 0)
+  184|         self.assertEqual(
+  185|             out.splitlines(),
+  186|             ["xn--3e0b707e", "xn--hxajbheg2az3al"],
+  187|         )
+  188| 
+  189|     def test_failures_are_reported_per_domain_and_processing_continues(self):
+  190|         rc, out, err = run_cli("пример.рф", "foo_bar", "παράδειγμα")
+  191|         self.assertEqual(rc, 1)
+  192|         self.assertEqual(
+  193|             out.splitlines(),
+  194|             ["xn--e1afmkfd.xn--p1ai", "xn--hxajbheg2az3al"],
+  195|         )
+  196|         self.assertIn("encode failed for 'foo_bar'", err)
+  197| 
+  198| 
+  199| class CLIModeLockTests(unittest.TestCase):
+  200|     """The first input picks the mode; the rest of the stream follows."""
+  201| 
+  202|     def test_first_unicode_input_locks_subsequent_inputs_to_encode(self):
+  203|         # 'foo_bar' is invalid in either direction; the stderr mode word
+  204|         # reveals which mode the second input was processed in.
+  205|         rc, out, err = run_cli("пример.рф", "foo_bar")
+  206|         self.assertEqual(rc, 1)
+  207|         self.assertEqual(out.splitlines(), ["xn--e1afmkfd.xn--p1ai"])
+  208|         self.assertIn("encode failed for 'foo_bar'", err)
+  209| 
+  210|     def test_first_alabel_input_locks_subsequent_inputs_to_decode(self):
+  211|         rc, out, err = run_cli("xn--zckzah", "foo_bar")
+  212|         self.assertEqual(rc, 1)
+  213|         self.assertEqual(out.splitlines(), ["テスト"])
+  214|         self.assertIn("decode failed for 'foo_bar'", err)
+  215| 
+  216|     def test_explicit_mode_flag_overrides_first_input_heuristic(self):
+  217|         # First input looks like an A-label but -e forces encode for everything.
+  218|         rc, out, err = run_cli("-e", "xn--zckzah", "foo_bar")
+  219|         self.assertEqual(rc, 1)
+  220|         self.assertEqual(out.splitlines(), ["xn--zckzah"])
+  221|         self.assertIn("encode failed for 'foo_bar'", err)
+  222| 
+  223|     def test_stdin_first_line_locks_mode_for_the_stream(self):
+  224|         rc, out, err = run_cli(stdin="xn--zckzah\nfoo_bar\n")
+  225|         self.assertEqual(rc, 1)
+  226|         self.assertEqual(out.splitlines(), ["テスト"])
+  227|         self.assertIn("decode failed for 'foo_bar'", err)
+  228| 
+  229| 
+  230| class CLIStdinTests(unittest.TestCase):
+  231|     def test_reads_one_domain_per_line_from_piped_stdin(self):
+  232|         rc, out, _ = run_cli(stdin="пример.рф\nπαράδειγμα\n한국\n")
+  233|         self.assertEqual(rc, 0)
+  234|         self.assertEqual(
+  235|             out.splitlines(),
+  236|             ["xn--e1afmkfd.xn--p1ai", "xn--hxajbheg2az3al", "xn--3e0b707e"],
+  237|         )
+  238| 
+  239|     def test_blank_lines_in_stdin_are_skipped(self):
+  240|         rc, out, _ = run_cli(stdin="\nпример.рф\n\n   \nπαράδειγμα\n")
+  241|         self.assertEqual(rc, 0)
+  242|         self.assertEqual(
+  243|             out.splitlines(),
+  244|             ["xn--e1afmkfd.xn--p1ai", "xn--hxajbheg2az3al"],
+  245|         )
+  246| 
+  247|     def test_empty_stdin_exits_cleanly_with_no_output(self):
+  248|         rc, out, err = run_cli(stdin="")
+  249|         self.assertEqual(rc, 0)
+  250|         self.assertEqual(out, "")
+  251|         self.assertEqual(err, "")
+  252| 
+  253|     def test_positional_domains_take_precedence_over_piped_stdin(self):
+  254|         rc, out, _ = run_cli("example.com", stdin="ignored.example\n")
+  255|         self.assertEqual(rc, 0)
+  256|         self.assertEqual(out.splitlines(), ["example.com"])
+  257| 
+  258|     def test_stdin_errors_continue_processing_and_set_exit_code(self):
+  259|         rc, out, err = run_cli(stdin="пример.рф\nfoo_bar\nπαράδειγμα\n")
+  260|         self.assertEqual(rc, 1)
+  261|         self.assertEqual(
+  262|             out.splitlines(),
+  263|             ["xn--e1afmkfd.xn--p1ai", "xn--hxajbheg2az3al"],
+  264|         )
+  265|         self.assertIn("encode failed for 'foo_bar'", err)
+  266| 
+  267|     def test_decode_flag_applies_to_every_stdin_line(self):
+  268|         rc, out, _ = run_cli("-d", stdin="xn--hxajbheg2az3al\nxn--3e0b707e\n")
+  269|         self.assertEqual(rc, 0)
+  270|         self.assertEqual(out.splitlines(), ["παράδειγμα", "한국"])
+  271| 
+  272| 
+  273| class CLIModuleEntryTests(unittest.TestCase):
+  274|     def test_python_dash_m_idna_runs_cli(self):
+  275|         # End-to-end: spawn ``python -m idna`` and check the round trip.
+  276|         result = subprocess.run(
+  277|             [sys.executable, "-m", "idna", "xn--zckzah"],
+  278|             check=False,
+  279|             capture_output=True,
+  280|             text=True,
+  281|         )
+  282|         self.assertEqual(result.returncode, 0)
+  283|         self.assertEqual(result.stdout.strip(), "テスト")
+  284|         self.assertEqual(result.stderr, "")
+  285| 
+  286|     def test_python_dash_m_idna_reads_piped_stdin(self):
+  287|         # End-to-end: pipe a list of A-labels and confirm they all decode.
+  288|         result = subprocess.run(
+  289|             [sys.executable, "-m", "idna"],
+  290|             input="xn--e1afmkfd.xn--p1ai\nxn--zckzah\n",
+  291|             check=False,
+  292|             capture_output=True,
+  293|             text=True,
+  294|         )
+  295|         self.assertEqual(result.returncode, 0)
+  296|         self.assertEqual(
+  297|             result.stdout.splitlines(),
+  298|             ["пример.рф", "テスト"],
+  299|         )
+  300|         self.assertEqual(result.stderr, "")
+  301| 
+  302|     def test_python_dash_m_idna_reports_errors(self):
+  303|         result = subprocess.run(
+  304|             [sys.executable, "-m", "idna", "foo_bar"],
+  305|             check=False,
+  306|             capture_output=True,
+  307|             text=True,
+  308|         )
+  309|         self.assertEqual(result.returncode, 1)
+  310|         self.assertEqual(result.stdout, "")
+  311|         self.assertIn("encode failed", result.stderr)
+  312| 
+  313| 
+  314| if __name__ == "__main__":
+  315|     unittest.main()
+
+FILE idna/package_data.py:
+    1| __version__ = "3.18"
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-idna-contains-35",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_idna_cli.py::CLIStdinTests.test_blank_lines_in_stdin_are_skipped",
+      "tests/test_idna_cli.py::CLIStdinTests.test_decode_flag_applies_to_every_stdin_line",
+      "tests/test_idna_cli.py::CLIStdinTests.test_empty_stdin_exits_cleanly_with_no_output",
+      "tests/test_idna_cli.py::CLIStdinTests.test_positional_domains_take_precedence_over_piped_stdin",
+      "tests/test_idna_cli.py::CLIStdinTests.test_reads_one_domain_per_line_from_piped_stdin",
+      "tests/test_idna_cli.py::CLIStdinTests.test_stdin_errors_continue_processing_and_set_exit_code"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-idna-contains-8",
+    "answerable_static": true,
+    "gold": [
+      "idna/package_data.py::__version__"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  }
+]
+tokens used
+9,085

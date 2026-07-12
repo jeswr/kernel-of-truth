@@ -1,0 +1,47 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [
+    "ext:platform",
+    "ext:pytest",
+    "ext:pytest.collect",
+    "ext:subprocess"
+   ],
+   "gold": [
+    "ext:os",
+    "ext:pathlib",
+    "ext:platform",
+    "ext:pytest",
+    "ext:pytest.collect",
+    "ext:re",
+    "ext:subprocess",
+    "ext:sys",
+    "ext:warnings"
+   ],
+   "notes": "All import targets are external; pytest alternatives are conditional, while platform and subprocess are imported inside a function.",
+   "query_id": "g1q-wrapt-imports_of-20"
+  },
+  {
+   "answerable_static": true,
+   "conditional_flags": [
+    "ext:colorsys"
+   ],
+   "gold": [
+    "ext:colorsys",
+    "ext:sys",
+    "ext:unittest",
+    "repo:src/wrapt/__init__.py",
+    "repo:src/wrapt/importer.py"
+   ],
+   "notes": "wrapt and wrapt.importer resolve within the repository; colorsys imports occur inside methods.",
+   "query_id": "g1q-wrapt-imports_of-37"
+  }
+ ],
+ "attempts": 1,
+ "batch": "wrapt--imports_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

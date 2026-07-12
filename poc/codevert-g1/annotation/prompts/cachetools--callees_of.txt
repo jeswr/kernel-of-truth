@@ -1,0 +1,706 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: cachetools ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/cachetools/__init__.py
+src/cachetools/_cached.py
+src/cachetools/_cachedmethod.py
+src/cachetools/func.py
+src/cachetools/keys.py
+tests/__init__.py
+tests/test_cache.py
+tests/test_cached.py
+tests/test_cachedmethod.py
+tests/test_classmethod.py
+tests/test_fifo.py
+tests/test_func.py
+tests/test_keys.py
+tests/test_lfu.py
+tests/test_lru.py
+tests/test_rr.py
+tests/test_threading.py
+tests/test_tlru.py
+tests/test_ttl.py
+
+=== QUERIES (2) ===
+QUERY g1q-cachetools-callees_of-343: family=callees_of target=tests/test_func.py::DecoratorTestMixin.test_decorator_needs_rlock.RecursiveEquals.__eq__
+QUERY g1q-cachetools-callees_of-174: family=callees_of target=src/cachetools/_cachedmethod.py::_unlocked.Descriptor.Wrapper.__call__
+
+=== CONTEXT ===
+
+FILE tests/test_func.py:
+    1| import unittest
+    2| from typing import Any, Callable
+    3| 
+    4| import cachetools.func
+    5| 
+    6| from . import _TestCaseProtocol
+    7| 
+    8| 
+    9| class DecoratorTestMixin(_TestCaseProtocol):
+   10|     DECORATOR: Callable[..., Any]
+   11| 
+   12|     def decorator(self, maxsize, **kwargs):
+   13|         return self.DECORATOR(maxsize, **kwargs)
+   14| 
+   15|     def test_decorator(self):
+   16|         cached = self.decorator(maxsize=2)(lambda n: n)
+   17|         self.assertEqual(cached.cache_parameters(), {"maxsize": 2, "typed": False})
+   18|         self.assertEqual(cached.cache_info(), (0, 0, 2, 0))
+   19|         self.assertEqual(cached(1), 1)
+   20|         self.assertEqual(cached.cache_info(), (0, 1, 2, 1))
+   21|         self.assertEqual(cached(1), 1)
+   22|         self.assertEqual(cached.cache_info(), (1, 1, 2, 1))
+   23|         self.assertEqual(cached(1.0), 1.0)
+   24|         self.assertEqual(cached.cache_info(), (2, 1, 2, 1))
+   25| 
+   26|     def test_decorator_clear(self):
+   27|         cached = self.decorator(maxsize=2)(lambda n: n)
+   28|         self.assertEqual(cached.cache_parameters(), {"maxsize": 2, "typed": False})
+   29|         self.assertEqual(cached.cache_info(), (0, 0, 2, 0))
+   30|         self.assertEqual(cached(1), 1)
+   31|         self.assertEqual(cached.cache_info(), (0, 1, 2, 1))
+   32|         cached.cache_clear()
+   33|         self.assertEqual(cached.cache_info(), (0, 0, 2, 0))
+   34|         self.assertEqual(cached(1), 1)
+   35|         self.assertEqual(cached.cache_info(), (0, 1, 2, 1))
+   36| 
+   37|     def test_decorator_nocache(self):
+   38|         cached = self.decorator(maxsize=0)(lambda n: n)
+   39|         self.assertEqual(cached.cache_parameters(), {"maxsize": 0, "typed": False})
+   40|         self.assertEqual(cached.cache_info(), (0, 0, 0, 0))
+   41|         self.assertEqual(cached(1), 1)
+   42|         self.assertEqual(cached.cache_info(), (0, 1, 0, 0))
+   43|         self.assertEqual(cached(1), 1)
+   44|         self.assertEqual(cached.cache_info(), (0, 2, 0, 0))
+   45|         self.assertEqual(cached(1.0), 1.0)
+   46|         self.assertEqual(cached.cache_info(), (0, 3, 0, 0))
+   47| 
+   48|     def test_decorator_unbound(self):
+   49|         cached = self.decorator(maxsize=None)(lambda n: n)
+   50|         self.assertEqual(cached.cache_parameters(), {"maxsize": None, "typed": False})
+   51|         self.assertEqual(cached.cache_info(), (0, 0, None, 0))
+   52|         self.assertEqual(cached(1), 1)
+   53|         self.assertEqual(cached.cache_info(), (0, 1, None, 1))
+   54|         self.assertEqual(cached(1), 1)
+   55|         self.assertEqual(cached.cache_info(), (1, 1, None, 1))
+   56|         self.assertEqual(cached(1.0), 1.0)
+   57|         self.assertEqual(cached.cache_info(), (2, 1, None, 1))
+   58| 
+   59|     def test_decorator_typed(self):
+   60|         cached = self.decorator(maxsize=2, typed=True)(lambda n: n)
+   61|         self.assertEqual(cached.cache_parameters(), {"maxsize": 2, "typed": True})
+   62|         self.assertEqual(cached.cache_info(), (0, 0, 2, 0))
+   63|         self.assertEqual(cached(1), 1)
+   64|         self.assertEqual(cached.cache_info(), (0, 1, 2, 1))
+   65|         self.assertEqual(cached(1), 1)
+   66|         self.assertEqual(cached.cache_info(), (1, 1, 2, 1))
+   67|         self.assertEqual(cached(1.0), 1.0)
+   68|         self.assertEqual(cached.cache_info(), (1, 2, 2, 2))
+   69|         self.assertEqual(cached(1.0), 1.0)
+   70|         self.assertEqual(cached.cache_info(), (2, 2, 2, 2))
+   71| 
+   72|     def test_decorator_user_function(self):
+   73|         cached = self.decorator(lambda n: n)
+   74|         self.assertEqual(cached.cache_parameters(), {"maxsize": 128, "typed": False})
+   75|         self.assertEqual(cached.cache_info(), (0, 0, 128, 0))
+   76|         self.assertEqual(cached(1), 1)
+   77|         self.assertEqual(cached.cache_info(), (0, 1, 128, 1))
+   78|         self.assertEqual(cached(1), 1)
+   79|         self.assertEqual(cached.cache_info(), (1, 1, 128, 1))
+   80|         self.assertEqual(cached(1.0), 1.0)
+   81|         self.assertEqual(cached.cache_info(), (2, 1, 128, 1))
+   82| 
+   83|     def test_decorator_needs_rlock(self):
+   84|         """This will deadlock on a cache that uses a regular lock.
+   85|         https://github.com/python/cpython/blob/3.13/Lib/test/test_functools.py#L1791
+   86| 
+   87|         """
+   88| 
+   89|         cached = self.decorator(lambda n: n)
+   90| 
+   91|         class RecursiveEquals:
+   92|             def __init__(self, use_cache):
+   93|                 self._use_cache = use_cache
+   94| 
+   95|             def __hash__(self):
+   96|                 return hash(self._use_cache)
+   97| 
+   98|             def __eq__(self, other):
+   99|                 if self._use_cache:
+  100|                     # This call will happen while the cache-lock is held,
+  101|                     # requiring a reentrant lock to avoid deadlock.
+  102|                     cached(self)
+  103|                 return self._use_cache == other._use_cache
+  104| 
+  105|         # Prime the cache.
+  106|         cached(RecursiveEquals(False))
+  107|         cached(RecursiveEquals(True))
+  108|         # Then do a call which will cause a deadlock with a non-reentrant lock.
+  109|         self.assertEqual(cached(RecursiveEquals(True)), RecursiveEquals(True))
+  110| 
+  111| 
+  112| class FIFODecoratorTest(unittest.TestCase, DecoratorTestMixin):
+  113|     DECORATOR = staticmethod(cachetools.func.fifo_cache)
+  114| 
+  115| 
+  116| class LFUDecoratorTest(unittest.TestCase, DecoratorTestMixin):
+  117|     DECORATOR = staticmethod(cachetools.func.lfu_cache)
+  118| 
+  119| 
+  120| class LRUDecoratorTest(unittest.TestCase, DecoratorTestMixin):
+  121|     DECORATOR = staticmethod(cachetools.func.lru_cache)
+  122| 
+  123| 
+  124| class RRDecoratorTest(unittest.TestCase, DecoratorTestMixin):
+  125|     DECORATOR = staticmethod(cachetools.func.rr_cache)
+  126| 
+  127| 
+  128| class TTLDecoratorTest(unittest.TestCase, DecoratorTestMixin):
+  129|     DECORATOR = staticmethod(cachetools.func.ttl_cache)
+  130| 
+  131|     def test_ttl_datetime(self):
+  132|         from datetime import datetime, timedelta
+  133| 
+  134|         cached = self.decorator(maxsize=2, ttl=timedelta(days=1), timer=datetime.now)(
+  135|             lambda n: n
+  136|         )
+  137|         self.assertEqual(cached.cache_parameters(), {"maxsize": 2, "typed": False})
+  138|         self.assertEqual(cached.cache_info(), (0, 0, 2, 0))
+  139|         self.assertEqual(cached(1), 1)
+  140|         self.assertEqual(cached.cache_info(), (0, 1, 2, 1))
+  141|         self.assertEqual(cached(1), 1)
+  142|         self.assertEqual(cached.cache_info(), (1, 1, 2, 1))
+  143|         self.assertEqual(cached(1.0), 1.0)
+  144|         self.assertEqual(cached.cache_info(), (2, 1, 2, 1))
+
+FILE src/cachetools/_cachedmethod.py:
+    1| """Method decorator helpers."""
+    2| 
+    3| __all__ = ()
+    4| 
+    5| import functools
+    6| import warnings
+    7| import weakref
+    8| 
+    9| 
+   10| def _warn_classmethod(stacklevel):
+   11|     warnings.warn(
+   12|         "decorating class methods with @cachedmethod is deprecated",
+   13|         DeprecationWarning,
+   14|         stacklevel=stacklevel,
+   15|     )
+   16| 
+   17| 
+   18| def _warn_instance_dict(msg, stacklevel):
+   19|     warnings.warn(
+   20|         msg,
+   21|         DeprecationWarning,
+   22|         stacklevel=stacklevel,
+   23|     )
+   24| 
+   25| 
+   26| def _none(_):
+   27|     return None
+   28| 
+   29| 
+   30| class _WrapperBase:
+   31|     """Wrapper base class providing default implementations for properties."""
+   32| 
+   33|     def __init__(self, obj, method, cache, key, lock=None, cond=None):
+   34|         if isinstance(obj, type):
+   35|             _warn_classmethod(stacklevel=5)
+   36|         functools.update_wrapper(self, method)
+   37|         self._obj = obj  # protected
+   38|         self.__cache = cache
+   39|         self.__key = functools.partial(key, obj)
+   40|         self.__lock = lock if lock is not None else _none
+   41|         self.__cond = cond if cond is not None else _none
+   42| 
+   43|     def __call__(self, *args, **kwargs):
+   44|         raise NotImplementedError()  # pragma: no cover
+   45| 
+   46|     def cache_clear(self):
+   47|         raise NotImplementedError()  # pragma: no cover
+   48| 
+   49|     @property
+   50|     def cache(self):
+   51|         return self.__cache(self._obj)
+   52| 
+   53|     @property
+   54|     def cache_key(self):
+   55|         return self.__key  # self._obj passed via functools.partial
+   56| 
+   57|     @property
+   58|     def cache_lock(self):
+   59|         return self.__lock(self._obj)
+   60| 
+   61|     @property
+   62|     def cache_condition(self):
+   63|         return self.__cond(self._obj)
+   64| 
+   65| 
+   66| class _DescriptorBase:
+   67|     """Descriptor base class implementing the basic descriptor protocol."""
+   68| 
+   69|     def __init__(self, deprecated=False):
+   70|         self.__attrname = None
+   71|         self.__deprecated = deprecated
+   72| 
+   73|     def __set_name__(self, owner, name):
+   74|         if self.__attrname is None:
+   75|             self.__attrname = name
+   76|         elif name != self.__attrname:
+   77|             raise TypeError(
+   78|                 "Cannot assign the same @cachedmethod to two different names "
+   79|                 f"({self.__attrname!r} and {name!r})."
+   80|             )
+   81| 
+   82|     def __get__(self, obj, objtype=None):
+   83|         wrapper = self.Wrapper(obj)  # type: ignore
+   84|         if obj is None:
+   85|             # Return the wrapper itself without modification when accessed
+   86|             # through the class to support class-level introspection, such
+   87|             # as for mocking with autospec=True in unittest.mock.
+   88|             pass
+   89|         elif self.__attrname is not None:
+   90|             # replace descriptor instance with wrapper in instance dict
+   91|             try:
+   92|                 # In case of a race condition where another thread already replaced
+   93|                 # the descriptor, prefer the initial wrapper.
+   94|                 wrapper = obj.__dict__.setdefault(self.__attrname, wrapper)
+   95|             except AttributeError:
+   96|                 # not all objects have __dict__ (e.g. class defines slots)
+   97|                 msg = (
+   98|                     f"No '__dict__' attribute on {type(obj).__name__!r} "
+   99|                     f"instance to cache {self.__attrname!r} property."
+  100|                 )
+  101|                 if self.__deprecated:
+  102|                     _warn_instance_dict(msg, 3)
+  103|                 else:
+  104|                     raise TypeError(msg) from None
+  105|             except TypeError:
+  106|                 msg = (
+  107|                     f"The '__dict__' attribute on {type(obj).__name__!r} "
+  108|                     f"instance does not support item assignment for "
+  109|                     f"caching {self.__attrname!r} property."
+  110|                 )
+  111|                 if self.__deprecated:
+  112|                     _warn_instance_dict(msg, 3)
+  113|                 else:
+  114|                     raise TypeError(msg) from None
+  115|         elif self.__deprecated:
+  116|             pass  # deprecated @classmethod, warning already raised elsewhere
+  117|         else:
+  118|             msg = "Cannot use @cachedmethod instance without calling __set_name__ on it"
+  119|             raise TypeError(msg) from None
+  120|         return wrapper
+  121| 
+  122| 
+  123| class _DeprecatedDescriptorBase(_DescriptorBase):
+  124|     """Descriptor base class supporting deprecated @classmethod use."""
+  125| 
+  126|     def __init__(self, wrapper, cache_clear):
+  127|         super().__init__(deprecated=True)
+  128|         self.__wrapper = wrapper
+  129|         self.__cache_clear = cache_clear
+  130| 
+  131|     # called for @classmethod with Python >= 3.13
+  132|     def __call__(self, *args, **kwargs):
+  133|         _warn_classmethod(stacklevel=3)
+  134|         return self.__wrapper(*args, **kwargs)
+  135| 
+  136|     # backward-compatible @classmethod handling with Python >= 3.13
+  137|     def cache_clear(self, objtype):
+  138|         _warn_classmethod(stacklevel=3)
+  139|         return self.__cache_clear(objtype)
+  140| 
+  141| 
+  142| # At least for now, the implementation prefers clarity and performance
+  143| # over ease of maintenance, thus providing separate descriptors for
+  144| # all valid combinations of decorator parameters lock, condition and
+  145| # info.
+  146| 
+  147| 
+  148| def _condition_info(method, cache, key, lock, cond, info):
+  149|     class Descriptor(_DescriptorBase):
+  150|         class Wrapper(_WrapperBase):
+  151|             def __init__(self, obj):
+  152|                 super().__init__(obj, method, cache, key, lock, cond)
+  153|                 self.__hits = self.__misses = 0
+  154|                 self.__pending = set()
+  155| 
+  156|             def __call__(self, *args, **kwargs):
+  157|                 cache = self.cache
+  158|                 lock = self.cache_lock
+  159|                 cond = self.cache_condition
+  160|                 key = self.cache_key(*args, **kwargs)
+  161| 
+  162|                 with lock:
+  163|                     cond.wait_for(lambda: key not in self.__pending)
+  164|                     try:
+  165|                         result = cache[key]
+  166|                         self.__hits += 1
+  167|                         return result
+  168|                     except KeyError:
+  169|                         self.__pending.add(key)
+  170|                         self.__misses += 1
+  171|                 try:
+  172|                     val = method(self._obj, *args, **kwargs)
+  173|                     with lock:
+  174|                         try:
+  175|                             cache[key] = val
+  176|                         except ValueError:
+  177|                             pass  # value too large
+  178|                         return val
+  179|                 finally:
+  180|                     with lock:
+  181|                         self.__pending.remove(key)
+  182|                         cond.notify_all()
+  183| 
+  184|             def cache_clear(self):
+  185|                 with self.cache_lock:
+  186|                     self.cache.clear()
+  187|                     self.__hits = self.__misses = 0
+  188| 
+  189|             def cache_info(self):
+  190|                 with self.cache_lock:
+  191|                     return info(self.cache, self.__hits, self.__misses)
+  192| 
+  193|     return Descriptor()
+  194| 
+  195| 
+  196| def _locked_info(method, cache, key, lock, info):
+  197|     class Descriptor(_DescriptorBase):
+  198|         class Wrapper(_WrapperBase):
+  199|             def __init__(self, obj):
+  200|                 super().__init__(obj, method, cache, key, lock)
+  201|                 self.__hits = self.__misses = 0
+  202| 
+  203|             def __call__(self, *args, **kwargs):
+  204|                 cache = self.cache
+  205|                 lock = self.cache_lock
+  206|                 key = self.cache_key(*args, **kwargs)
+  207|                 with lock:
+  208|                     try:
+  209|                         result = cache[key]
+  210|                         self.__hits += 1
+  211|                         return result
+  212|                     except KeyError:
+  213|                         self.__misses += 1
+  214|                 val = method(self._obj, *args, **kwargs)
+  215|                 with lock:
+  216|                     try:
+  217|                         # In case of a race condition, i.e. if another thread
+  218|                         # stored a value for this key while we were calling
+  219|                         # method(), prefer the cached value.
+  220|                         return cache.setdefault(key, val)
+  221|                     except ValueError:
+  222|                         return val  # value too large
+  223| 
+  224|             def cache_clear(self):
+  225|                 with self.cache_lock:
+  226|                     self.cache.clear()
+  227|                     self.__hits = self.__misses = 0
+  228| 
+  229|             def cache_info(self):
+  230|                 with self.cache_lock:
+  231|                     return info(self.cache, self.__hits, self.__misses)
+  232| 
+  233|     return Descriptor()
+  234| 
+  235| 
+  236| def _unlocked_info(method, cache, key, info):
+  237|     class Descriptor(_DescriptorBase):
+  238|         class Wrapper(_WrapperBase):
+  239|             def __init__(self, obj):
+  240|                 super().__init__(obj, method, cache, key)
+  241|                 self.__hits = self.__misses = 0
+  242| 
+  243|             def __call__(self, *args, **kwargs):
+  244|                 cache = self.cache
+  245|                 key = self.cache_key(*args, **kwargs)
+  246|                 try:
+  247|                     result = cache[key]
+  248|                     self.__hits += 1
+  249|                     return result
+  250|                 except KeyError:
+  251|                     self.__misses += 1
+  252|                 val = method(self._obj, *args, **kwargs)
+  253|                 try:
+  254|                     cache[key] = val
+  255|                 except ValueError:
+  256|                     pass  # value too large
+  257|                 return val
+  258| 
+  259|             def cache_clear(self):
+  260|                 self.cache.clear()
+  261|                 self.__hits = self.__misses = 0
+  262| 
+  263|             def cache_info(self):
+  264|                 return info(self.cache, self.__hits, self.__misses)
+  265| 
+  266|     return Descriptor()
+  267| 
+  268| 
+  269| def _condition(method, cache, key, lock, cond):
+  270|     # backward-compatible weakref dictionary for Python >= 3.13
+  271|     pending = weakref.WeakKeyDictionary()
+  272| 
+  273|     def wrapper(self, pending, *args, **kwargs):
+  274|         c = cache(self)
+  275|         k = key(self, *args, **kwargs)
+  276|         with lock(self):
+  277|             cond(self).wait_for(lambda: k not in pending)
+  278|             try:
+  279|                 return c[k]
+  280|             except KeyError:
+  281|                 pending.add(k)
+  282|         try:
+  283|             v = method(self, *args, **kwargs)
+  284|             with lock(self):
+  285|                 try:
+  286|                     c[k] = v
+  287|                 except ValueError:
+  288|                     pass  # value too large
+  289|                 return v
+  290|         finally:
+  291|             with lock(self):
+  292|                 pending.remove(k)
+  293|                 cond(self).notify_all()
+  294| 
+  295|     def cache_clear(self):
+  296|         c = cache(self)
+  297|         with lock(self):
+  298|             c.clear()
+  299| 
+  300|     def classmethod_wrapper(self, *args, **kwargs):
+  301|         p = pending.setdefault(self, set())
+  302|         return wrapper(self, p, *args, **kwargs)
+  303| 
+  304|     class Descriptor(_DeprecatedDescriptorBase):
+  305|         class Wrapper(_WrapperBase):
+  306|             def __init__(self, obj):
+  307|                 super().__init__(obj, method, cache, key, lock, cond)
+  308|                 self.__pending = set()
+  309| 
+  310|             def __call__(self, *args, **kwargs):
+  311|                 return wrapper(self._obj, self.__pending, *args, **kwargs)
+  312| 
+  313|             # objtype: backward-compatible @classmethod handling with Python < 3.13
+  314|             def cache_clear(self, _objtype=None):
+  315|                 return cache_clear(self._obj)
+  316| 
+  317|     return Descriptor(classmethod_wrapper, cache_clear)
+  318| 
+  319| 
+  320| def _locked(method, cache, key, lock):
+  321|     def wrapper(self, *args, **kwargs):
+  322|         c = cache(self)
+  323|         k = key(self, *args, **kwargs)
+  324|         with lock(self):
+  325|             try:
+  326|                 return c[k]
+  327|             except KeyError:
+  328|                 pass  # key not found
+  329|         v = method(self, *args, **kwargs)
+  330|         with lock(self):
+  331|             try:
+  332|                 # In case of a race condition, i.e. if another thread
+  333|                 # stored a value for this key while we were calling
+  334|                 # method(), prefer the cached value.
+  335|                 return c.setdefault(k, v)
+  336|             except ValueError:
+  337|                 return v  # value too large
+  338| 
+  339|     def cache_clear(self):
+  340|         c = cache(self)
+  341|         with lock(self):
+  342|             c.clear()
+  343| 
+  344|     class Descriptor(_DeprecatedDescriptorBase):
+  345|         class Wrapper(_WrapperBase):
+  346|             def __init__(self, obj):
+  347|                 super().__init__(obj, method, cache, key, lock)
+  348| 
+  349|             def __call__(self, *args, **kwargs):
+  350|                 return wrapper(self._obj, *args, **kwargs)
+  351| 
+  352|             # objtype: backward-compatible @classmethod handling with Python < 3.13
+  353|             def cache_clear(self, _objtype=None):
+  354|                 return cache_clear(self._obj)
+  355| 
+  356|     return Descriptor(wrapper, cache_clear)
+  357| 
+  358| 
+  359| def _unlocked(method, cache, key):
+  360|     def wrapper(self, *args, **kwargs):
+  361|         c = cache(self)
+  362|         k = key(self, *args, **kwargs)
+  363|         try:
+  364|             return c[k]
+  365|         except KeyError:
+  366|             pass  # key not found
+  367|         v = method(self, *args, **kwargs)
+  368|         try:
+  369|             c[k] = v
+  370|         except ValueError:
+  371|             pass  # value too large
+  372|         return v
+  373| 
+  374|     def cache_clear(self):
+  375|         c = cache(self)
+  376|         c.clear()
+  377| 
+  378|     class Descriptor(_DeprecatedDescriptorBase):
+  379|         class Wrapper(_WrapperBase):
+  380|             def __init__(self, obj):
+  381|                 super().__init__(obj, method, cache, key)
+  382| 
+  383|             def __call__(self, *args, **kwargs):
+  384|                 return wrapper(self._obj, *args, **kwargs)
+  385| 
+  386|             # objtype: backward-compatible @classmethod handling with Python < 3.13
+  387|             def cache_clear(self, _objtype=None):
+  388|                 return cache_clear(self._obj)
+  389| 
+  390|     return Descriptor(wrapper, cache_clear)
+  391| 
+  392| 
+  393| def _wrapper(method, cache, key, lock=None, cond=None, info=None):
+  394|     if info is not None:
+  395|         if cond is not None and lock is not None:
+  396|             wrapper = _condition_info(method, cache, key, lock, cond, info)
+  397|         elif cond is not None:
+  398|             wrapper = _condition_info(method, cache, key, cond, cond, info)
+  399|         elif lock is not None:
+  400|             wrapper = _locked_info(method, cache, key, lock, info)
+  401|         else:
+  402|             wrapper = _unlocked_info(method, cache, key, info)
+  403|     else:
+  404|         if cond is not None and lock is not None:
+  405|             wrapper = _condition(method, cache, key, lock, cond)
+  406|         elif cond is not None:
+  407|             wrapper = _condition(method, cache, key, cond, cond)
+  408|         elif lock is not None:
+  409|             wrapper = _locked(method, cache, key, lock)
+  410|         else:
+  411|             wrapper = _unlocked(method, cache, key)
+  412| 
+  413|     # backward-compatible properties for deprecated @classmethod use
+  414|     wrapper.cache = cache  # type: ignore
+  415|     wrapper.cache_key = key  # type: ignore
+  416|     wrapper.cache_lock = lock if lock is not None else cond  # type: ignore
+  417|     wrapper.cache_condition = cond  # type: ignore
+  418| 
+  419|     # functools.update_wrapper() will not accept descriptor (decorator) as wrapper
+  420|     # https://github.com/python/typeshed/issues/9846
+  421|     return functools.update_wrapper(wrapper, method)  # type: ignore
+
+Answer now with ONE JSON array containing one object per query, in query order.

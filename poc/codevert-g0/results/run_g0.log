@@ -1,0 +1,76 @@
+bottle edges=6815 (proved 3220 / unknown 3595) store=1380352B {'callees_of': 0.106, 'imports_of': 0.645, 'contains': 1.0, 'contained_in': 1.0, 'callers_of': 0.0, 'imported_by': 0.0, 'where_defined': 0.0, 'instance_of': 0.0}
+click edges=9035 (proved 5795 / unknown 3240) store=1974272B {'callees_of': 0.404, 'imports_of': 0.761, 'contains': 1.0, 'contained_in': 1.0, 'callers_of': 0.0, 'imported_by': 0.0, 'where_defined': 0.0, 'instance_of': 0.0}
+more-itertools edges=7214 (proved 4923 / unknown 2291) store=1626112B {'callees_of': 0.158, 'imports_of': 0.375, 'contains': 1.0, 'contained_in': 1.0, 'callers_of': 0.0, 'imported_by': 0.625, 'where_defined': 1.0, 'instance_of': 0.0}
+python-tabulate edges=2841 (proved 2027 / unknown 814) store=614400B {'callees_of': 0.165, 'imports_of': 0.3, 'contains': 1.0, 'contained_in': 1.0, 'callers_of': 0.0, 'imported_by': 0.9, 'where_defined': 1.0, 'instance_of': 0.0}
+six edges=1535 (proved 969 / unknown 566) store=266240B {'callees_of': 0.219, 'imports_of': 0.25, 'contains': 1.0, 'contained_in': 1.0, 'callers_of': 0.0, 'imported_by': 0.0, 'where_defined': 0.0, 'instance_of': 0.0}
+toml edges=930 (proved 556 / unknown 374) store=192512B {'callees_of': 0.241, 'imports_of': 0.556, 'contains': 1.0, 'contained_in': 1.0, 'callers_of': 0.0, 'imported_by': 0.667, 'where_defined': 1.0, 'instance_of': 0.0}
+{
+ "kappa_q_indep_query_pooled": 0.4361,
+ "kappa_q_indep_query_pooled_ci95_repo_cluster_bootstrap": [
+  0.361,
+  0.5364
+ ],
+ "kappa_q_indep_family_macro": 0.4286,
+ "kappa_q_indep_family_macro_ci95_repo_cluster_bootstrap": [
+  0.3712,
+  0.5168
+ ],
+ "kappa_by_family_pooled": {
+  "callees_of": 0.2326,
+  "imports_of": 0.6466,
+  "contains": 1.0,
+  "contained_in": 1.0,
+  "callers_of": 0.0,
+  "imported_by": 0.1504,
+  "where_defined": 0.3994,
+  "instance_of": 0.0
+ },
+ "kappa_forward_families_pooled": 0.7198,
+ "kappa_inverse_families_pooled": 0.1374,
+ "n_census_queries_total": 16722,
+ "bootstrap": {
+  "seed": 20260711,
+  "resamples": 10000,
+  "clusters": 6,
+  "note": "repo-level cluster bootstrap; n=6 clusters -> wide CI, honest"
+ },
+ "edges": {
+  "total": 28370,
+  "proved": 17490,
+  "unknown": 10880,
+  "disproved": 0,
+  "conflict": 0,
+  "unknown_share": 0.3835
+ },
+ "unknown_by_reason": {
+  "CALL_ATTR_RECEIVER_UNTYPED": 3902,
+  "CALL_MRO_UNRESOLVED": 2270,
+  "CALL_ATTR_MODULE_MEMBER_UNRESOLVED": 1436,
+  "CALL_MODULE_BINDING_UNRESOLVED": 1076,
+  "CALL_NONNAME_CALLEE": 902,
+  "CALL_LOCAL_VALUE": 473,
+  "CALL_VALUE_ESCAPE": 338,
+  "IMPORT_CONDITIONAL": 321,
+  "CALL_MRO_HAZARD": 117,
+  "BIND_SETATTR": 17,
+  "TAINT_EXEC": 12,
+  "CALL_GETATTR": 8,
+  "IMPORT_DYNAMIC": 6,
+  "IMPORT_STAR": 2
+ },
+ "unknown_by_relation": {
+  "call": 10408,
+  "import": 332,
+  "binding": 20,
+  "instantiate": 120
+ },
+ "unrestricted_unknowns_by_relation": {
+  "call": 1682,
+  "import": 8,
+  "binding": 20,
+  "instantiate": 3
+ },
+ "store_bytes_total": 6053888,
+ "bytes_per_edge_pooled": 213.4
+}
+peak RSS MB: 82.2

@@ -1,0 +1,1082 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.6872f80a"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.ry1s66d1
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c3-1652-7523-ba0b-b2d0b81bd323
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: boltons ===
+PY FILE LISTING (repo-root-relative; authoritative):
+boltons/__init__.py
+boltons/cacheutils.py
+boltons/debugutils.py
+boltons/deprutils.py
+boltons/dictutils.py
+boltons/easterutils.py
+boltons/ecoutils.py
+boltons/excutils.py
+boltons/fileutils.py
+boltons/formatutils.py
+boltons/funcutils.py
+boltons/gcutils.py
+boltons/ioutils.py
+boltons/iterutils.py
+boltons/jsonutils.py
+boltons/listutils.py
+boltons/mathutils.py
+boltons/mboxutils.py
+boltons/namedutils.py
+boltons/pathutils.py
+boltons/queueutils.py
+boltons/setutils.py
+boltons/socketutils.py
+boltons/statsutils.py
+boltons/strutils.py
+boltons/tableutils.py
+boltons/tbutils.py
+boltons/timeutils.py
+boltons/typeutils.py
+boltons/urlutils.py
+docs/conf.py
+misc/bench_omd.py
+misc/linkify_changelog.py
+misc/table_html_app.py
+tests/__init__.py
+tests/conftest.py
+tests/test_cacheutils.py
+tests/test_debugutils_trace.py
+tests/test_dictutils.py
+tests/test_ecoutils.py
+tests/test_fileutils.py
+tests/test_formatutils.py
+tests/test_funcutils.py
+tests/test_funcutils_fb.py
+tests/test_funcutils_fb_py3.py
+tests/test_gcutils.py
+tests/test_ioutils.py
+tests/test_iterutils.py
+tests/test_jsonutils.py
+tests/test_listutils.py
+tests/test_mathutils.py
+tests/test_namedutils.py
+tests/test_queueutils.py
+tests/test_setutils.py
+tests/test_socketutils.py
+tests/test_statsutils.py
+tests/test_statsutils_histogram.py
+tests/test_strutils.py
+tests/test_tableutils.py
+tests/test_tbutils.py
+tests/test_tbutils_parsed_exc.py
+tests/test_timeutils.py
+tests/test_typeutils.py
+tests/test_urlutils.py
+
+=== QUERIES (2) ===
+QUERY g1q-boltons-contained_in-804: family=contained_in target=boltons/tableutils.py::NamedTupleInputType.check_type
+QUERY g1q-boltons-contained_in-1432: family=contained_in target=tests/test_strutils.py::test_parse_int_list
+
+=== CONTEXT ===
+
+FILE boltons/tableutils.py:
+    1| # Copyright (c) 2013, Mahmoud Hashemi
+    2| #
+    3| # Redistribution and use in source and binary forms, with or without
+    4| # modification, are permitted provided that the following conditions are
+    5| # met:
+    6| #
+    7| #    * Redistributions of source code must retain the above copyright
+    8| #      notice, this list of conditions and the following disclaimer.
+    9| #
+   10| #    * Redistributions in binary form must reproduce the above
+   11| #      copyright notice, this list of conditions and the following
+   12| #      disclaimer in the documentation and/or other materials provided
+   13| #      with the distribution.
+   14| #
+   15| #    * The names of the contributors may not be used to endorse or
+   16| #      promote products derived from this software without specific
+   17| #      prior written permission.
+   18| #
+   19| # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   20| # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   21| # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   22| # A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   23| # OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   24| # SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   25| # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   26| # DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   27| # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   28| # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   29| # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   30| 
+   31| """If there is one recurring theme in ``boltons``, it is that Python
+   32| has excellent datastructures that constitute a good foundation for
+   33| most quick manipulations, as well as building applications. However,
+   34| Python usage has grown much faster than builtin data structure
+   35| power. Python has a growing need for more advanced general-purpose
+   36| data structures which behave intuitively.
+   37| 
+   38| The :class:`Table` class is one example. When handed one- or
+   39| two-dimensional data, it can provide useful, if basic, text and HTML
+   40| renditions of small to medium sized data. It also heuristically
+   41| handles recursive data of various formats (lists, dicts, namedtuples,
+   42| objects).
+   43| 
+   44| For more advanced :class:`Table`-style manipulation check out the
+   45| `pandas`_ DataFrame.
+   46| 
+   47| .. _pandas: http://pandas.pydata.org/
+   48| 
+   49| """
+   50| 
+   51| 
+   52| from html import escape as html_escape
+   53| import types
+   54| from itertools import islice
+   55| from collections.abc import Sequence, Mapping, MutableSequence
+   56| 
+   57| try:
+   58|     from .typeutils import make_sentinel
+   59|     _MISSING = make_sentinel(var_name='_MISSING')
+   60| except ImportError:
+   61|     _MISSING = object()
+   62| 
+   63| """
+   64| Some idle feature thoughts:
+   65| 
+   66| * shift around column order without rearranging data
+   67| * gotta make it so you can add additional items, not just initialize with
+   68| * maybe a shortcut would be to allow adding of Tables to other Tables
+   69| * what's the perf of preallocating lists and overwriting items versus
+   70|   starting from empty?
+   71| * is it possible to effectively tell the difference between when a
+   72|   Table is from_data()'d with a single row (list) or with a list of lists?
+   73| * CSS: white-space pre-line or pre-wrap maybe?
+   74| * Would be nice to support different backends (currently uses lists
+   75|   exclusively). Sometimes large datasets come in list-of-dicts and
+   76|   list-of-tuples format and it's desirable to cut down processing overhead.
+   77| 
+   78| TODO: make iterable on rows?
+   79| """
+   80| 
+   81| __all__ = ['Table']
+   82| 
+   83| 
+   84| def to_text(obj, maxlen=None):
+   85|     try:
+   86|         text = str(obj)
+   87|     except Exception:
+   88|         try:
+   89|             text = str(repr(obj))
+   90|         except Exception:
+   91|             text = str(object.__repr__(obj))
+   92|     if maxlen and len(text) > maxlen:
+   93|         text = text[:maxlen - 3] + '...'
+   94|         # TODO: inverse of ljust/rjust/center
+   95|     return text
+   96| 
+   97| 
+   98| def escape_html(obj, maxlen=None):
+   99|     text = to_text(obj, maxlen=maxlen)
+  100|     return html_escape(text, quote=True)
+  101| 
+  102| 
+  103| _DNR = {type(None), bool, complex, float, type(NotImplemented), slice,
+  104|         str, bytes, int,
+  105|         types.FunctionType, types.MethodType,
+  106|         types.BuiltinFunctionType, types.GeneratorType}
+  107| 
+  108| 
+  109| class UnsupportedData(TypeError):
+  110|     pass
+  111| 
+  112| 
+  113| class InputType:
+  114|     def __init__(self, *a, **kw):
+  115|         pass
+  116| 
+  117|     def get_entry_seq(self, data_seq, headers):
+  118|         return [self.get_entry(entry, headers) for entry in data_seq]
+  119| 
+  120| 
+  121| class DictInputType(InputType):
+  122|     def check_type(self, obj):
+  123|         return isinstance(obj, Mapping)
+  124| 
+  125|     def guess_headers(self, obj):
+  126|         return sorted(obj.keys())
+  127| 
+  128|     def get_entry(self, obj, headers):
+  129|         return [obj.get(h) for h in headers]
+  130| 
+  131|     def get_entry_seq(self, obj, headers):
+  132|         return [[ci.get(h) for h in headers] for ci in obj]
+  133| 
+  134| 
+  135| class ObjectInputType(InputType):
+  136|     def check_type(self, obj):
+  137|         return type(obj) not in _DNR and hasattr(obj, '__class__')
+  138| 
+  139|     def guess_headers(self, obj):
+  140|         headers = []
+  141|         for attr in dir(obj):
+  142|             # an object's __dict__ could technically have non-string keys
+  143|             try:
+  144|                 val = getattr(obj, attr)
+  145|             except Exception:
+  146|                 # seen on greenlet: `run` shows in dir() but raises
+  147|                 # AttributeError. Also properties misbehave.
+  148|                 continue
+  149|             if callable(val):
+  150|                 continue
+  151|             headers.append(attr)
+  152|         return headers
+  153| 
+  154|     def get_entry(self, obj, headers):
+  155|         values = []
+  156|         for h in headers:
+  157|             try:
+  158|                 values.append(getattr(obj, h))
+  159|             except Exception:
+  160|                 values.append(None)
+  161|         return values
+  162| 
+  163| 
+  164| # might be better to hardcode list support since it's so close to the
+  165| # core or might be better to make this the copy-style from_* importer
+  166| # and have the non-copy style be hardcoded in __init__
+  167| class ListInputType(InputType):
+  168|     def check_type(self, obj):
+  169|         return isinstance(obj, MutableSequence)
+  170| 
+  171|     def guess_headers(self, obj):
+  172|         return None
+  173| 
+  174|     def get_entry(self, obj, headers):
+  175|         return obj
+  176| 
+  177|     def get_entry_seq(self, obj_seq, headers):
+  178|         return obj_seq
+  179| 
+  180| 
+  181| class TupleInputType(InputType):
+  182|     def check_type(self, obj):
+  183|         return isinstance(obj, tuple)
+  184| 
+  185|     def guess_headers(self, obj):
+  186|         return None
+  187| 
+  188|     def get_entry(self, obj, headers):
+  189|         return list(obj)
+  190| 
+  191|     def get_entry_seq(self, obj_seq, headers):
+  192|         return [list(t) for t in obj_seq]
+  193| 
+  194| 
+  195| class NamedTupleInputType(InputType):
+  196|     def check_type(self, obj):
+  197|         return hasattr(obj, '_fields') and isinstance(obj, tuple)
+  198| 
+  199|     def guess_headers(self, obj):
+  200|         return list(obj._fields)
+  201| 
+  202|     def get_entry(self, obj, headers):
+  203|         return [getattr(obj, h, None) for h in headers]
+  204| 
+  205|     def get_entry_seq(self, obj_seq, headers):
+  206|         return [[getattr(obj, h, None) for h in headers] for obj in obj_seq]
+  207| 
+  208| 
+  209| class Table:
+  210|     """
+  211|     This Table class is meant to be simple, low-overhead, and extensible. Its
+  212|     most common use would be for translation between in-memory data
+  213|     structures and serialization formats, such as HTML and console-ready text.
+  214| 
+  215|     As such, it stores data in list-of-lists format, and *does not* copy
+  216|     lists passed in. It also reserves the right to modify those lists in a
+  217|     "filling" process, whereby short lists are extended to the width of
+  218|     the table (usually determined by number of headers). This greatly
+  219|     reduces overhead and processing/validation that would have to occur
+  220|     otherwise.
+  221| 
+  222|     General description of headers behavior:
+  223| 
+  224|     Headers describe the columns, but are not part of the data, however,
+  225|     if the *headers* argument is omitted, Table tries to infer header
+  226|     names from the data. It is possible to have a table with no headers,
+  227|     just pass in ``headers=None``.
+  228| 
+  229|     Supported inputs:
+  230| 
+  231|     * :class:`list` of :class:`list` objects
+  232|     * :class:`dict` (list/single)
+  233|     * :class:`object` (list/single)
+  234|     * :class:`collections.namedtuple` (list/single)
+  235|     * TODO: DB API cursor?
+  236|     * TODO: json
+  237| 
+  238|     Supported outputs:
+  239| 
+  240|     * HTML
+  241|     * Pretty text (also usable as GF Markdown)
+  242|     * TODO: CSV
+  243|     * TODO: json
+  244|     * TODO: json lines
+  245| 
+  246|     To minimize resident size, the Table data is stored as a list of lists.
+  247|     """
+  248| 
+  249|     # order definitely matters here
+  250|     _input_types = [DictInputType(), ListInputType(),
+  251|                     NamedTupleInputType(), TupleInputType(),
+  252|                     ObjectInputType()]
+  253| 
+  254|     _html_tr, _html_tr_close = '<tr>', '</tr>'
+  255|     _html_th, _html_th_close = '<th>', '</th>'
+  256|     _html_td, _html_td_close = '<td>', '</td>'
+  257|     _html_thead, _html_thead_close = '<thead>', '</thead>'
+  258|     _html_tbody, _html_tbody_close = '<tbody>', '</tbody>'
+  259| 
+  260|     # _html_tfoot, _html_tfoot_close = '<tfoot>', '</tfoot>'
+  261|     _html_table_tag, _html_table_tag_close = '<table>', '</table>'
+  262| 
+  263|     def __init__(self, data=None, headers=_MISSING, metadata=None):
+  264|         if headers is _MISSING:
+  265|             headers = []
+  266|             if data:
+  267|                 headers, data = list(data[0]), islice(data, 1, None)
+  268|         self.headers = headers or []
+  269|         self.metadata = metadata or {}
+  270|         self._data = []
+  271|         self._width = 0
+  272| 
+  273|         self.extend(data)
+  274| 
+  275|     def extend(self, data):
+  276|         """
+  277|         Append the given data to the end of the Table.
+  278|         """
+  279|         if not data:
+  280|             return
+  281|         self._data.extend(data)
+  282|         self._set_width()
+  283|         self._fill()
+  284| 
+  285|     def _set_width(self, reset=False):
+  286|         if reset:
+  287|             self._width = 0
+  288|         if self._width:
+  289|             return
+  290|         if self.headers:
+  291|             self._width = len(self.headers)
+  292|             return
+  293|         self._width = max([len(d) for d in self._data])
+  294| 
+  295|     def _fill(self):
+  296|         width, filler = self._width, [None]
+  297|         if not width:
+  298|             return
+  299|         for d in self._data:
+  300|             rem = width - len(d)
+  301|             if rem > 0:
+  302|                 d.extend(filler * rem)
+  303|         return
+  304| 
+  305|     @classmethod
+  306|     def from_dict(cls, data, headers=_MISSING, max_depth=1, metadata=None):
+  307|         """Create a Table from a :class:`dict`. Operates the same as
+  308|         :meth:`from_data`, but forces interpretation of the data as a
+  309|         Mapping.
+  310|         """
+  311|         return cls.from_data(data=data, headers=headers,
+  312|                              max_depth=max_depth, _data_type=DictInputType(),
+  313|                              metadata=metadata)
+  314| 
+  315|     @classmethod
+  316|     def from_list(cls, data, headers=_MISSING, max_depth=1, metadata=None):
+  317|         """Create a Table from a :class:`list`. Operates the same as
+  318|         :meth:`from_data`, but forces the interpretation of the data
+  319|         as a Sequence.
+  320|         """
+  321|         return cls.from_data(data=data, headers=headers,
+  322|                              max_depth=max_depth, _data_type=ListInputType(),
+  323|                              metadata=metadata)
+  324| 
+  325|     @classmethod
+  326|     def from_object(cls, data, headers=_MISSING, max_depth=1, metadata=None):
+  327|         """Create a Table from an :class:`object`. Operates the same as
+  328|         :meth:`from_data`, but forces the interpretation of the data
+  329|         as an object. May be useful for some :class:`dict` and
+  330|         :class:`list` subtypes.
+  331|         """
+  332|         return cls.from_data(data=data, headers=headers,
+  333|                              max_depth=max_depth, _data_type=ObjectInputType(),
+  334|                              metadata=metadata)
+  335| 
+  336|     @classmethod
+  337|     def from_data(cls, data, headers=_MISSING, max_depth=1, **kwargs):
+  338| 
+  339|         """Create a Table from any supported data, heuristically
+  340|         selecting how to represent the data in Table format.
+  341| 
+  342|         Args:
+  343|             data (object): Any object or iterable with data to be
+  344|                 imported to the Table.
+  345| 
+  346|             headers (iterable): An iterable of headers to be matched
+  347|                 to the data. If not explicitly passed, headers will be
+  348|                 guessed for certain datatypes.
+  349| 
+  350|             max_depth (int): The level to which nested Tables should
+  351|                 be created (default: 1).
+  352| 
+  353|             _data_type (InputType subclass): For advanced use cases,
+  354|                 do not guess the type of the input data, use this data
+  355|                 type instead.
+  356|         """
+  357|         # TODO: seen/cycle detection/reuse ?
+  358|         # maxdepth follows the same behavior as find command
+  359|         # i.e., it doesn't work if max_depth=0 is passed in
+  360|         metadata = kwargs.pop('metadata', None)
+  361|         _data_type = kwargs.pop('_data_type', None)
+  362| 
+  363|         if max_depth < 1:
+  364|             # return data instead?
+  365|             return cls(headers=headers, metadata=metadata)
+  366|         is_seq = isinstance(data, Sequence)
+  367|         if is_seq:
+  368|             if not data:
+  369|                 return cls(headers=headers, metadata=metadata)
+  370|             to_check = data[0]
+  371|             if not _data_type:
+  372|                 for it in cls._input_types:
+  373|                     if it.check_type(to_check):
+  374|                         _data_type = it
+  375|                         break
+  376|                 else:
+  377|                     # not particularly happy about this rewind-y approach
+  378|                     is_seq = False
+  379|                     to_check = data
+  380|         else:
+  381|             if type(data) in _DNR:
+  382|                 # hmm, got scalar data.
+  383|                 # raise an exception or make an exception, nahmsayn?
+  384|                 return cls([[data]], headers=headers, metadata=metadata)
+  385|             to_check = data
+  386|         if not _data_type:
+  387|             for it in cls._input_types:
+  388|                 if it.check_type(to_check):
+  389|                     _data_type = it
+  390|                     break
+  391|             else:
+  392|                 raise UnsupportedData('unsupported data type %r'
+  393|                                       % type(data))
+  394|         if headers is _MISSING:
+  395|             headers = _data_type.guess_headers(to_check)
+  396|         if is_seq:
+  397|             entries = _data_type.get_entry_seq(data, headers)
+  398|         else:
+  399|             entries = [_data_type.get_entry(data, headers)]
+  400|         if max_depth > 1:
+  401|             new_max_depth = max_depth - 1
+  402|             for i, entry in enumerate(entries):
+  403|                 for j, cell in enumerate(entry):
+  404|                     if type(cell) in _DNR:
+  405|                         # optimization to avoid function overhead
+  406|                         continue
+  407|                     try:
+  408|                         entries[i][j] = cls.from_data(cell,
+  409|                                                       max_depth=new_max_depth)
+  410|                     except UnsupportedData:
+  411|                         continue
+  412|         return cls(entries, headers=headers, metadata=metadata)
+  413| 
+  414|     def __len__(self):
+  415|         return len(self._data)
+  416| 
+  417|     def __getitem__(self, idx):
+  418|         return self._data[idx]
+  419| 
+  420|     def __repr__(self):
+  421|         cn = self.__class__.__name__
+  422|         if self.headers:
+  423|             return f'{cn}(headers={self.headers!r}, data={self._data!r})'
+  424|         else:
+  425|             return f'{cn}({self._data!r})'
+  426| 
+  427|     def to_html(self, orientation=None, wrapped=True,
+  428|                 with_headers=True, with_newlines=True,
+  429|                 with_metadata=False, max_depth=1):
+  430|         """Render this Table to HTML. Configure the structure of Table
+  431|         HTML by subclassing and overriding ``_html_*`` class
+  432|         attributes.
+  433| 
+  434|         Args:
+  435|             orientation (str): one of 'auto', 'horizontal', or
+  436|                 'vertical' (or the first letter of any of
+  437|                 those). Default 'auto'.
+  438|             wrapped (bool): whether or not to include the wrapping
+  439|                 '<table></table>' tags. Default ``True``, set to
+  440|                 ``False`` if appending multiple Table outputs or an
+  441|                 otherwise customized HTML wrapping tag is needed.
+  442|             with_newlines (bool): Set to ``True`` if output should
+  443|                 include added newlines to make the HTML more
+  444|                 readable. Default ``False``.
+  445|             with_metadata (bool/str): Set to ``True`` if output should
+  446|                 be preceded with a Table of preset metadata, if it
+  447|                 exists. Set to special value ``'bottom'`` if the
+  448|                 metadata Table HTML should come *after* the main HTML output.
+  449|             max_depth (int): Indicate how deeply to nest HTML tables
+  450|                 before simply reverting to :func:`repr`-ing the nested
+  451|                 data.
+  452| 
+  453|         Returns:
+  454|             A text string of the HTML of the rendered table.
+  455| 
+  456|         """
+  457|         lines = []
+  458|         headers = []
+  459|         if with_metadata and self.metadata:
+  460|             metadata_table = Table.from_data(self.metadata,
+  461|                                              max_depth=max_depth)
+  462|             metadata_html = metadata_table.to_html(with_headers=True,
+  463|                                                    with_newlines=with_newlines,
+  464|                                                    with_metadata=False,
+  465|                                                    max_depth=max_depth)
+  466|             if with_metadata != 'bottom':
+  467|                 lines.append(metadata_html)
+  468|                 lines.append('<br />')
+  469| 
+  470|         if with_headers and self.headers:
+  471|             headers.extend(self.headers)
+  472|             headers.extend([None] * (self._width - len(self.headers)))
+  473|         if wrapped:
+  474|             lines.append(self._html_table_tag)
+  475|         orientation = orientation or 'auto'
+  476|         ol = orientation[0].lower()
+  477|         if ol == 'a':
+  478|             ol = 'h' if len(self) > 1 else 'v'
+  479|         if ol == 'h':
+  480|             self._add_horizontal_html_lines(lines, headers=headers,
+  481|                                             max_depth=max_depth)
+  482|         elif ol == 'v':
+  483|             self._add_vertical_html_lines(lines, headers=headers,
+  484|                                           max_depth=max_depth)
+  485|         else:
+  486|             raise ValueError("expected one of 'auto', 'vertical', or"
+  487|                              " 'horizontal', not %r" % orientation)
+  488|         if with_metadata and self.metadata and with_metadata == 'bottom':
+  489|             lines.append('<br />')
+  490|             lines.append(metadata_html)
+  491| 
+  492|         if wrapped:
+  493|             lines.append(self._html_table_tag_close)
+  494|         sep = '\n' if with_newlines else ''
+  495|         return sep.join(lines)
+  496| 
+  497|     def get_cell_html(self, value):
+  498|         """Called on each value in an HTML table. By default it simply escapes
+  499|         the HTML. Override this method to add additional conditions
+  500|         and behaviors, but take care to ensure the final output is
+  501|         HTML escaped.
+  502|         """
+  503|         return escape_html(value)
+  504| 
+  505|     def _add_horizontal_html_lines(self, lines, headers, max_depth):
+  506|         esc = self.get_cell_html
+  507|         new_depth = max_depth - 1 if max_depth > 1 else max_depth
+  508|         if max_depth > 1:
+  509|             new_depth = max_depth - 1
+  510|         if headers:
+  511|             _thth = self._html_th_close + self._html_th
+  512|             lines.append(self._html_thead)
+  513|             lines.append(self._html_tr + self._html_th +
+  514|                          _thth.join([esc(h) for h in headers]) +
+  515|                          self._html_th_close + self._html_tr_close)
+  516|             lines.append(self._html_thead_close)
+  517|         trtd, _tdtd, _td_tr = (self._html_tr + self._html_td,
+  518|                                self._html_td_close + self._html_td,
+  519|                                self._html_td_close + self._html_tr_close)
+  520|         lines.append(self._html_tbody)
+  521|         for row in self._data:
+  522|             if max_depth > 1:
+  523|                 _fill_parts = []
+  524|                 for cell in row:
+  525|                     if isinstance(cell, Table):
+  526|                         _fill_parts.append(cell.to_html(max_depth=new_depth))
+  527|                     else:
+  528|                         _fill_parts.append(esc(cell))
+  529|             else:
+  530|                 _fill_parts = [esc(c) for c in row]
+  531|             lines.append(''.join([trtd, _tdtd.join(_fill_parts), _td_tr]))
+  532|         lines.append(self._html_tbody_close)
+  533| 
+  534|     def _add_vertical_html_lines(self, lines, headers, max_depth):
+  535|         esc = self.get_cell_html
+  536|         new_depth = max_depth - 1 if max_depth > 1 else max_depth
+  537|         tr, th, _th = self._html_tr, self._html_th, self._html_th_close
+  538|         td, _tdtd = self._html_td, self._html_td_close + self._html_td
+  539|         _td_tr = self._html_td_close + self._html_tr_close
+  540|         for i in range(self._width):
+  541|             line_parts = [tr]
+  542|             if headers:
+  543|                 line_parts.extend([th, esc(headers[i]), _th])
+  544|             if max_depth > 1:
+  545|                 new_depth = max_depth - 1
+  546|                 _fill_parts = []
+  547|                 for row in self._data:
+  548|                     cell = row[i]
+  549|                     if isinstance(cell, Table):
+  550|                         _fill_parts.append(cell.to_html(max_depth=new_depth))
+  551|                     else:
+  552|                         _fill_parts.append(esc(row[i]))
+  553|             else:
+  554|                 _fill_parts = [esc(row[i]) for row in self._data]
+  555|             line_parts.extend([td, _tdtd.join(_fill_parts), _td_tr])
+  556|             lines.append(''.join(line_parts))
+  557| 
+  558|     def to_text(self, with_headers=True, maxlen=None):
+  559|         """Get the Table's textual representation. Only works well
+  560|         for Tables with non-recursive data.
+  561| 
+  562|         Args:
+  563|             with_headers (bool): Whether to include a header row at the top.
+  564|             maxlen (int): Max length of data in each cell.
+  565|         """
+  566|         lines = []
+  567|         widths = []
+  568|         headers = list(self.headers)
+  569|         text_data = [[to_text(cell, maxlen=maxlen) for cell in row]
+  570|                      for row in self._data]
+  571|         for idx in range(self._width):
+  572|             cur_widths = [len(row[idx]) for row in text_data]
+  573|             if with_headers:
+  574|                 cur_widths.append(len(to_text(headers[idx], maxlen=maxlen)))
+  575|             widths.append(max(cur_widths))
+  576|         if with_headers:
+  577|             lines.append(' | '.join([h.center(widths[i])
+  578|                                      for i, h in enumerate(headers)]))
+  579|             lines.append('-|-'.join(['-' * w for w in widths]))
+  580|         for row in text_data:
+  581|             lines.append(' | '.join([cell.center(widths[j])
+  582|                                      for j, cell in enumerate(row)]))
+  583|         return '\n'.join(lines)
+
+FILE tests/test_strutils.py:
+    1| import re
+    2| import uuid
+    3| from unittest import TestCase
+    4| 
+    5| from boltons import strutils
+    6| 
+    7| 
+    8| def test_strip_ansi():
+    9|     assert strutils.strip_ansi(
+   10|         '\x1b[0m\x1b[1;36mart\x1b[46;34m\xdc') == 'art\xdc'
+   11|     assert strutils.strip_ansi(
+   12|         '\x1b[0m\x1b[1;36mart\x1b[46;34m\xdc') == 'artÜ'
+   13|     assert strutils.strip_ansi(
+   14|         '╒══════╕\n│ \x1b[1mCell\x1b[0m │\n╘══════╛') == (
+   15|             '╒══════╕\n'
+   16|             '│ Cell │\n'
+   17|             '╘══════╛')
+   18|     assert strutils.strip_ansi(
+   19|         'ls\r\n\x1B[00m\x1b[01;31mfile.zip\x1b[00m\r\n\x1b[01;31m') == \
+   20|         'ls\r\nfile.zip\r\n'
+   21|     assert strutils.strip_ansi(
+   22|         '\t\u001b[0;35mIP\u001b[0m\t\u001b[0;36m192.1.0.2\u001b[0m') == \
+   23|         '\tIP\t192.1.0.2'
+   24|     assert strutils.strip_ansi('(╯°□°)╯︵ \x1b[1m┻━┻\x1b[0m') == (
+   25|         '(╯°□°)╯︵ ┻━┻')
+   26|     assert strutils.strip_ansi('(╯°□°)╯︵ \x1b[1m┻━┻\x1b[0m') == (
+   27|         '(╯°□°)╯︵ ┻━┻')
+   28|     assert strutils.strip_ansi(
+   29|         b'(\xe2\x95\xaf\xc2\xb0\xe2\x96\xa1\xc2\xb0)\xe2\x95\xaf\xef\xb8'
+   30|         b'\xb5 \x1b[1m\xe2\x94\xbb\xe2\x94\x81\xe2\x94\xbb\x1b[0m') == (
+   31|             b'(\xe2\x95\xaf\xc2\xb0\xe2\x96\xa1\xc2\xb0)\xe2\x95\xaf\xef\xb8'
+   32|             b'\xb5 \xe2\x94\xbb\xe2\x94\x81\xe2\x94\xbb')
+   33|     assert strutils.strip_ansi(
+   34|         bytearray('(╯°□°)╯︵ \x1b[1m┻━┻\x1b[0m', 'utf-8')) == \
+   35|         bytearray(
+   36|             b'(\xe2\x95\xaf\xc2\xb0\xe2\x96\xa1\xc2\xb0)\xe2\x95\xaf\xef\xb8'
+   37|             b'\xb5 \xe2\x94\xbb\xe2\x94\x81\xe2\x94\xbb')
+   38| 
+   39| 
+   40| def test_asciify():
+   41|     ref = 'Beyoncé'
+   42|     b = strutils.asciify(ref)
+   43|     assert len(b) == len(b)
+   44|     assert b[-1:].decode('ascii') == 'e'
+   45| 
+   46| 
+   47| def test_indent():
+   48|     to_indent = '\nabc\ndef\n\nxyz\n'
+   49|     ref = '\n  abc\n  def\n\n  xyz\n'
+   50|     assert strutils.indent(to_indent, '  ') == ref
+   51| 
+   52| 
+   53| def test_is_uuid():
+   54|     assert strutils.is_uuid(uuid.uuid4()) == True
+   55|     assert strutils.is_uuid(uuid.uuid4(), version=1) == False
+   56|     assert strutils.is_uuid(str(uuid.uuid4())) == True
+   57|     assert strutils.is_uuid(str(uuid.uuid4()), version=1) == False
+   58|     assert strutils.is_uuid(set('garbage')) == False
+   59| 
+   60| 
+   61| def test_parse_int_list():
+   62|     assert strutils.parse_int_list("1,3,5-8,10-11,15") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   63| 
+   64|     assert strutils.parse_int_list("1,3,5-8,10-11,15,") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   65|     assert strutils.parse_int_list(",1,3,5-8,10-11,15") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   66|     assert strutils.parse_int_list(" 1, 3 ,5-8,10-11,15 ") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   67|     assert strutils.parse_int_list("3,1,5-8,10-11,15") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   68| 
+   69|     assert strutils.parse_int_list("5-8") == [5, 6, 7, 8]
+   70|     assert strutils.parse_int_list("8-5") == [5, 6, 7, 8]
+   71| 
+   72| def test_format_int_list():
+   73|     assert strutils.format_int_list([1, 3, 5, 6, 7, 8, 10, 11, 15]) == '1,3,5-8,10-11,15'
+   74|     assert strutils.format_int_list([5, 6, 7, 8]) == '5-8'
+   75| 
+   76|     assert strutils.format_int_list([1, 3, 5, 6, 7, 8, 10, 11, 15], delim_space=True) == '1, 3, 5-8, 10-11, 15'
+   77|     assert strutils.format_int_list([5, 6, 7, 8], delim_space=True) == '5-8'
+   78| 
+   79| 
+   80| class TestMultiReplace(TestCase):
+   81| 
+   82|     def test_simple_substitutions(self):
+   83|         """Test replacing multiple values."""
+   84|         m = strutils.MultiReplace({r'cat': 'kedi', r'purple': 'mor', })
+   85|         self.assertEqual(m.sub('The cat is purple'), 'The kedi is mor')
+   86| 
+   87|     def test_shortcut_function(self):
+   88|         """Test replacing multiple values."""
+   89|         self.assertEqual(
+   90|             strutils.multi_replace(
+   91|                 'The cat is purple',
+   92|                 {r'cat': 'kedi', r'purple': 'mor', }
+   93|             ),
+   94|             'The kedi is mor'
+   95|         )
+   96| 
+   97|     def test_substitutions_in_word(self):
+   98|         """Test replacing multiple values that are substrings of a word."""
+   99|         m = strutils.MultiReplace({r'cat': 'kedi', r'purple': 'mor', })
+  100|         self.assertEqual(m.sub('Thecatispurple'), 'Thekediismor')
+  101| 
+  102|     def test_sub_with_regex(self):
+  103|         """Test substitutions with a regular expression."""
+  104|         m = strutils.MultiReplace({
+  105|             r'cat': 'kedi',
+  106|             r'purple': 'mor',
+  107|             r'q\w+?t': 'dinglehopper'
+  108|         }, regex=True)
+  109|         self.assertEqual(
+  110|             m.sub('The purple cat ate a quart of jelly'),
+  111|             'The mor kedi ate a dinglehopper of jelly'
+  112|         )
+  113| 
+  114|     def test_sub_with_list(self):
+  115|         """Test substitutions from an iterable instead of a dictionary."""
+  116|         m = strutils.MultiReplace([
+  117|             (r'cat', 'kedi'),
+  118|             (r'purple', 'mor'),
+  119|             (r'q\w+?t', 'dinglehopper'),
+  120|         ], regex=True)
+  121|         self.assertEqual(
+  122|             m.sub('The purple cat ate a quart of jelly'),
+  123|             'The mor kedi ate a dinglehopper of jelly'
+  124|         )
+  125| 
+  126|     def test_sub_with_compiled_regex(self):
+  127|         """Test substitutions where some regular expressiosn are compiled."""
+  128|         exp = re.compile(r'q\w+?t')
+  129|         m = strutils.MultiReplace([
+  130|             (r'cat', 'kedi'),
+  131|             (r'purple', 'mor'),
+  132|             (exp, 'dinglehopper'),
+  133|         ])
+  134|         self.assertEqual(
+  135|             m.sub('The purple cat ate a quart of jelly'),
+  136|             'The mor kedi ate a dinglehopper of jelly'
+  137|         )
+  138| 
+  139|     def test_substitutions_with_regex_chars(self):
+  140|         """Test replacing values that have special regex characters."""
+  141|         m = strutils.MultiReplace({'cat.+': 'kedi', r'purple': 'mor', })
+  142|         self.assertEqual(m.sub('The cat.+ is purple'), 'The kedi is mor')
+  143| 
+  144| 
+  145| def test_human_readable_list():
+  146|     """Test the human_readable_list function with various inputs."""
+  147|     
+  148|     # Test empty list
+  149|     assert strutils.human_readable_list([]) == ''
+  150|     
+  151|     # Test single item
+  152|     assert strutils.human_readable_list(['apple']) == 'apple'
+  153|     
+  154|     # Test two items (no Oxford comma applies)
+  155|     assert strutils.human_readable_list(['apple', 'banana']) == 'apple and banana'
+  156|     
+  157|     # Test three items with Oxford comma (default)
+  158|     assert strutils.human_readable_list(['apple', 'banana', 'cherry']) == 'apple, banana, and cherry'
+  159|     
+  160|     # Test three items without Oxford comma
+  161|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], oxford=False) == 'apple, banana and cherry'
+  162|     
+  163|     # Test four items with Oxford comma
+  164|     assert strutils.human_readable_list(['apple', 'banana', 'cherry', 'date']) == 'apple, banana, cherry, and date'
+  165|     
+  166|     # Test four items without Oxford comma
+  167|     assert strutils.human_readable_list(['apple', 'banana', 'cherry', 'date'], oxford=False) == 'apple, banana, cherry and date'
+  168|     
+  169|     # Test custom delimiter
+  170|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter=';') == 'apple; banana; and cherry'
+  171|     
+  172|     # Test custom conjunction
+  173|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction='or') == 'apple, banana, or cherry'
+  174|     
+  175|     # Test custom delimiter and conjunction
+  176|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter='|', conjunction='plus') == 'apple| banana| plus cherry'
+  177|     
+  178|     # Test custom conjunction without Oxford comma
+  179|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction='or', oxford=False) == 'apple, banana or cherry'
+  180|     
+  181|     # Test delimiter with extra spaces (should be stripped)
+  182|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter=' , ') == 'apple, banana, and cherry'
+  183|     
+  184|     # Test conjunction with extra spaces (should be stripped)
+  185|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction=' or ') == 'apple, banana, or cherry'
+  186|     
+  187|     # Test with empty strings in the list
+  188|     assert strutils.human_readable_list(['apple', '', 'cherry']) == 'apple, , and cherry'
+  189|     
+  190|     # Test with whitespace strings
+  191|     assert strutils.human_readable_list(['apple', '  ', 'cherry']) == 'apple,   , and cherry'
+  192|     
+  193|     # Test with special characters
+  194|     assert strutils.human_readable_list(['apple & pear', 'banana/plantain', 'cherry-bomb']) == 'apple & pear, banana/plantain, and cherry-bomb'
+  195|     
+  196|     # Test with unicode characters
+  197|     assert strutils.human_readable_list(['🍎', '🍌', '🍒']) == '🍎, 🍌, and 🍒'
+  198|     
+  199|     # Test with numbers as strings
+  200|     assert strutils.human_readable_list(['1', '2', '3']) == '1, 2, and 3'
+  201|     
+  202|     # Test edge case with only delimiter character as items
+  203|     assert strutils.human_readable_list([',', ',', ',']) == ',, ,, and ,'
+  204|     
+  205|     # Test long list to ensure pattern consistency
+  206|     long_list = ['a', 'b', 'c', 'd', 'e', 'f']
+  207|     assert strutils.human_readable_list(long_list) == 'a, b, c, d, e, and f'
+  208|     assert strutils.human_readable_list(long_list, oxford=False) == 'a, b, c, d, e and f'
+  209| 
+  210|     # Edge cases
+  211|     # Test with empty delimiter
+  212|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter='') == 'applebananaand cherry'
+  213|     
+  214|     # Test with empty conjunction
+  215|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction='') == 'apple, banana,  cherry'
+  216|     
+  217|     # Test two items with custom delimiter and conjunction
+  218|     assert strutils.human_readable_list(['apple', 'banana'], delimiter=';', conjunction='or') == 'apple or banana'
+  219|     
+  220|     # Test single item with custom parameters (should ignore them)
+  221|     assert strutils.human_readable_list(['apple'], delimiter='|', conjunction='plus', oxford=False) == 'apple'
+  222|     
+  223|     # Test very long strings
+  224|     long_item1 = 'a' * 100
+  225|     long_item2 = 'b' * 100
+  226|     result = strutils.human_readable_list([long_item1, long_item2])
+  227|     assert result == f'{long_item1} and {long_item2}'
+  228| 
+  229| 
+  230| def test_human_readable_list_type_annotations():
+  231|     """Test that the function works with different sequence types."""
+  232|     
+  233|     # Test with tuple
+  234|     assert strutils.human_readable_list(('apple', 'banana', 'cherry')) == 'apple, banana, and cherry'
+  235|     
+  236|     # Test with list (already tested above, but for completeness)
+  237|     assert strutils.human_readable_list(['apple', 'banana', 'cherry']) == 'apple, banana, and cherry'
+  238|     
+  239|     # Test with generator (converted to list for the test)
+  240|     def fruit_generator():
+  241|         yield 'apple'
+  242|         yield 'banana' 
+  243|         yield 'cherry'
+  244|     
+  245|     # Convert generator to list since the function expects a Sequence
+  246|     fruits = list(fruit_generator())
+  247|     assert strutils.human_readable_list(fruits) == 'apple, banana, and cherry'
+  248| 
+  249| 
+  250| def test_roundzip():
+  251|     aaa = b'a' * 10000
+  252|     assert strutils.gunzip_bytes(strutils.gzip_bytes(aaa)) == aaa
+  253| 
+  254|     assert strutils.gunzip_bytes(strutils.gzip_bytes(b'')) == b''
+  255| 
+  256| 
+  257| def test_bytes2human():
+  258|     b2h = strutils.bytes2human
+  259|     # Exact powers of 1024 must roll over to the next unit, not show the
+  260|     # previous unit times 1024.
+  261|     assert b2h(1024) == '1K'
+  262|     assert b2h(1024 ** 2) == '1M'
+  263|     assert b2h(1024 ** 3) == '1G'
+  264|     assert b2h(1024 ** 4) == '1T'
+  265|     # Just below a boundary stays in the smaller unit.
+  266|     assert b2h(1023) == '1023B'
+  267|     assert b2h(1024 ** 2 - 1, 1) == '1024.0K'
+  268|     # Ordinary mid-range values are unaffected.
+  269|     assert b2h(0) == '0B'
+  270|     assert b2h(2048) == '2K'
+  271|     assert b2h(128991) == '126K'
+  272|     # Sign is preserved and negative magnitudes scale like positives.
+  273|     assert b2h(-1024) == '-1K'
+  274|     assert b2h(-(1024 ** 2)) == '-1M'
+  275|     # ndigits controls the fractional part.
+  276|     assert b2h(1024, 2) == '1.00K'
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-boltons-contained_in-804",
+    "answerable_static": true,
+    "gold": [
+      "boltons/tableutils.py::NamedTupleInputType"
+    ],
+    "conditional_flags": [],
+    "notes": "The method is defined directly in NamedTupleInputType."
+  },
+  {
+    "query_id": "g1q-boltons-contained_in-1432",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_strutils.py"
+    ],
+    "conditional_flags": [],
+    "notes": "The function is defined at module level."
+  }
+]
+tokens used
+16,528

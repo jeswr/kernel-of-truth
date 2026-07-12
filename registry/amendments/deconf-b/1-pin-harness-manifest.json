@@ -1,0 +1,17 @@
+{
+    "author": "coordinator-1",
+    "date": "2026-07-11T20:33:00Z",
+    "experiment": "deconf-b",
+    "kind": "ops",
+    "patch": [
+        {
+            "op": "replace",
+            "path": "/pins/harness_manifest",
+            "value": "abd4fd36b22d787bc8e89f983f4c43a59b8459d3ae4beb3f1472548573ef7574"
+        }
+    ],
+    "rationale": "Input pin only (P2 P-9): a PINNED-AT-INPUTS placeholder completed by ops amendment before the final-phase run; no design field is touched. The Stage-B GPU runner was built under poc/deconf-b/ (stageb_runner.py importing the pinned f2b/f2bt machinery + A1 GSAVerifier at their frozen shas, adding stdlib BM25, the query-fn + fail-closed ERR_QUERY_LEAK prompt-byte re-derivation, and the GR-D-lite candidate+3-probe loop keyed by deconfb-detu/1) implementing the frozen arms exactly with runner_constraints.kernel_arm=reinstate (A1 not registered -> ASM-1105 fallback). This resolves the harness_manifest placeholder to the staged-bytes manifest sha printed by the modal wrapper (poc/deconf-b/modal_deconfb.py --print-manifest; 163 staged files); the in-container staged-bytes assert fails closed (ERR_PIN) on any mismatch. reuse-check --gate is GREEN (0 blocking, 3 covered by reuse_overrides, 4 fresh). One-shot pin discipline: any change to poc/deconf-b/ bytes before the run invalidates this value and requires a pre-run correction record.",
+    "schema_version": "kot-amend/1",
+    "seq": 1,
+    "unblinding_state_at_write": "pre"
+}

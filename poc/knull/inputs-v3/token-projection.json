@@ -1,0 +1,55 @@
+{
+ "gloss_level_measured": {
+  "kernel": {
+   "max_tokens": 67,
+   "mean_tokens": 40.21,
+   "min_tokens": 12
+  },
+  "plain_padded_projected": {
+   "max_tokens": 59,
+   "mean_tokens": 35.4,
+   "min_tokens": 11,
+   "ratio_vs_kernel": 0.8804
+  },
+  "plain_v2": {
+   "max_tokens": 60,
+   "mean_tokens": 38.67,
+   "min_tokens": 16,
+   "ratio_vs_kernel": 0.9617
+  },
+  "plain_v3": {
+   "max_tokens": 23,
+   "mean_tokens": 12.43,
+   "min_tokens": 5,
+   "ratio_vs_kernel": 0.3091
+  }
+ },
+ "padded_feasibility": {
+  "all_feasible": true,
+  "failures": [],
+  "n_feasible": 108,
+  "n_total": 108,
+  "rule": "own-segment cyclic whole-segment repetition into the kernel word band [0.75*wc, max(1.25*wc, wc+8)]; fail-closed",
+  "status_counts": {
+   "DEGENERATE_NO_PAD": 2,
+   "PADDED": 106
+  }
+ },
+ "prompt_level": {
+  "_epistemic": "PROJECTED pre-freeze evidence only; the binding number is the G-3 artifact of the actual v3 build",
+  "_method": "substitution of v3 glosses (and index-mapped v3 claim segments) into the byte-identical v2 plain item schedule, re-rendered with the pinned f2b build_prompt; kernel/opaque arms unchanged from the v2 G-3 artifact",
+  "kernel_measured_v2": 110.47,
+  "opaque_measured_v2": 110.94,
+  "plain_padded_projected": 102.87,
+  "plain_padded_projected_ratio_vs_kernel": 0.9312,
+  "plain_v2_measured": 110.54,
+  "plain_v3_projected": 69.14,
+  "plain_v3_projected_ratio_vs_kernel": 0.6259
+ },
+ "schema": "kot-knull-optionb-tokenproj/1",
+ "store_v3": {
+  "path": "poc/knull/inputs-v3/plain-authored.json",
+  "sha256": "8812f91e708f7cd5b0905bf5c95af1affcf83504f503225dcd0d8dbc0c774b1d"
+ },
+ "tokenizer_json_sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c"
+}

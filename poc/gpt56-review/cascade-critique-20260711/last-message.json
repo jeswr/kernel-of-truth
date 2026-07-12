@@ -1,0 +1,97 @@
+The architecture is intellectually honest about M2 being load-bearing, but it still gives M2 far more credit than the evidence warrants and CASC-0 does not identify it. My bottom-line judgement: keep CASC as a speculative architecture family, but do not bead CASC-0 as “decisive” in its current form. The present experiment can manufacture an oracle-structured win without showing that structured reasoning permits reasoner shrinkage.
+
+1. M2 is unsupported, with the adjacent evidence leaning negative.
+
+The f2b result supports M4—cheap verify/retry against an aligned deterministic answer key—not M2. It does not show that a small model reasons better in Option-A, nor that Option-A permits model shrinkage. DECONF-A1 makes that distinction sharper: the measured effect survives with only the projected answer key; kernel runtime structure is inert.
+
+The newer f2b-transfer result, still PASS-PENDING-AUDIT, is especially important. It finds a real +0.2507 external-gold lift over the 135M model alone, but `noninferiority_vs_r3` is FALSE. Thus the closest honest-gold measurement gave the shrink headline a live test and did not establish it. That is not a formal refutation of H-CN—there was no internal structured medium—but it is negative evidence against the exact “small plus checking matches large” premise.
+
+nsk1 is also not a direct test, but its 0.76→0.43 result is the only adjacent “supply kernel text to the model” measurement, and it points strongly the wrong way. The fair summary is therefore:
+
+> M2 is untested directly; the verifier mechanism is positive, while both the honest-gold size comparison and the closest text-delivery experiment are adverse.
+
+The design currently presents a roughly balanced uncertainty. The measured balance is not balanced.
+
+The cost model is honest in including F and R, but its arithmetic is wrong. From its own identity and worked assumptions:
+
+- L=1.7B, L′=360M, S=135M, ρ=1.4, γ=0.3, r=0.3, equal input/output lengths gives approximately 0.34× MONO, not 0.25×.
+- Setting L′=L gives approximately 1.04×, not 1.14×.
+
+More importantly, “net-negative without M2” is only true at that worked point, not algebraically in general; sufficiently short cores could make M3 carry a saving. It should publish the break-even inequality rather than a categorical statement.
+
+Even that diagnostic understates practical cost. Parameter ratio is not a reliable wall-clock or energy ratio across three serial, poorly batched models. F/R constrained decoding, calibration, retries, training, dialect adaptation, model loading, KV traffic and lifecycle amortisation can easily move rather than remove cost. The full ledger promises to measure these, which is good, but no planning saving should be quoted before that measurement.
+
+2. The boundary-tax product is not a valid identity with the quantities defined.
+
+`ret_F × acc_core × fid_R` is at best the probability of one clean path under strong conditional-independence assumptions. NLB retention is not simply “probability that CASC’s IR-soft dialect preserves the input”; it is retained covered exactness for a particular closed grammar and execution endpoint. NLB explicitly says its pass is not transferable to a consumer with a different output space or distribution. CASC’s open-vocabulary IR-soft gloss is such a different output space.
+
+A proper decomposition needs conditional terms and an off-path residue, for example:
+
+`P(surface correct) = P(F_ok) × P(core correct | F_ok) × P(surface correct | core correct, F_ok) + rescue/error-cancellation terms.`
+
+The correlations are likely large: hard or ambiguous items will jointly hurt F, L′ and R. Conversely, a non-exact F rendering may still preserve enough semantics for the core to answer correctly. Consequently:
+
+- The claimed 14.5% tax is a planning scenario, not a derived architecture handicap.
+- The measured 0.42–0.48 means the existing pinned front-ends are unusable for their tested closed tasks. It does not establish an H-CN end-to-end ceiling of 0.42–0.48.
+- CASC is correctly blocked on a new front end, but “dead regardless of every other mechanism” is too strong outside those pins and distributions.
+
+3. The outbound gate is conceptually valuable but not yet measurable as specified.
+
+Making rendering fidelity and unsupported rendering first-class is one of the design’s best contributions. But “mechanically diffed against the core’s claim set” only works for IR-hard closed claims and shallow answer extraction. It cannot determine whether fluent IR-soft prose adds an unsupported implication, changes quantification, weakens a condition, or attributes a claim incorrectly. That requires semantic entailment, independent parsing or human adjudication—the very NL problem the mechanical wording appears to avoid.
+
+The gate also needs to evaluate dangerous rendering unconditionally and stratified by core correctness. A renderer may behave well on correct, simple cores and hallucinate most when the core is incomplete or wrong. `fid_R | core correct` misses that deployment-relevant case.
+
+Keep the outbound analogue, but define separate endpoints:
+
+- completeness and contradiction on correct cores;
+- unsupported-claim rate over all rendered outputs;
+- behaviour on deliberately incomplete, conflicting and erroneous cores;
+- exact mechanical scoring for IR-hard claims;
+- independent semantic adjudication for IR-soft claims, with inter-rater resolution.
+
+The proposed 0.90/0.02 thresholds are stipulations, not decisive naturalisation criteria. K2 also leaves a broad inconclusive region: the co-primary demands LB≥0.90 and UB<0.02, while the kill only fires below 0.85 or when the dangerous-render LB reaches 0.02.
+
+4. CASC-0 is neither decisive nor properly matched.
+
+Its oracle-inbound label makes it formally NL-wall-compliant as a diagnostic. It does not make it fair or decisive about the cascade.
+
+The central comparison changes too many variables simultaneously:
+
+- A2: 1.7B, NL input, NL output, TTC.
+- A3: oracle Option-A input, 360M, verifier, short core, renderer.
+
+A3−A2 therefore mixes model scale, input representation, oracle canonicalisation, checking, output allocation and rendering. A4 removes checking, but still does not isolate the representation-by-scale interaction that constitutes M2. MONO-S is merely co-reported; it does not repair the confounding.
+
+The matched-cost contract is also arithmetically infeasible. A2 is “1.7B plus TTC” at cost equal to A3, while the primary requires `cost(A3) ≤ cost(A1)`, where A1 is one 1.7B pass. Because A2 cannot cost less than A1, these constraints can coexist only at equality with effectively no extra TTC. The purported strong baseline disappears.
+
+The procedural CLUTRR-shaped corpus further flatters A3. Gold dialect inputs generated from covered records, with engine-derivable intermediate structure, are almost the ideal environment for a structured checker cascade. Held-out compositions control memorisation, not the oracle representation, backward authoring, or record-addressing advantage.
+
+Finally, ≤15 GPU-hours is believable for inference, but not for a serious comparison if the 360M reasoner and 135M renderer require dialect training, renderer tuning and symmetric baseline tuning. The document itself calls R untuned and treats a bad result as only a floor. An experiment whose central component can fail without killing anything is not decisive.
+
+5. The unification claim exceeds the evidence.
+
+f2b fits only as an answer-grain aligned-key verify/retry precedent. Moving that mechanism to intermediate reasoning steps assumes that intermediate claims are extractable, addressable, correct-keyed and engine-checkable. None is measured.
+
+NLB supplies design discipline, not literally the same F. Its frozen front end emits a closed grammar; CASC F emits an open IR-soft dialect with IR-hard islands. NLB’s own compatibility rule denies automatic transfer.
+
+CODEVERT is even less supportive: it is explicitly a kernel-free calibrated-parser plus exact-store architecture. Its G0 coverage says something about code extraction and executable substrate, not about Option-A as a neural reasoning language or reasoner shrinkage.
+
+knull may supply a dialect control or prose material, but its scholarly-quality question does not decide whether a dialect is an efficient internal neural representation.
+
+These lines can be interfaces or controls around CASC. They do not jointly constitute evidence for CASC.
+
+6. Issue #12 is only renamed, not answered.
+
+The document admits this, then rhetorically softens it by saying DECONF-A1 “fits” the medium story. That fit is not evidence. An aligned answer key is an external verification target; an internal reasoning language is a computational substrate. Showing the former sufficient at one checker seam says nothing about the latter.
+
+If anything, DECONF-A1 strengthens the generic-dialect/null hypothesis: kernel-specific structure contributed no measured checker decision semantics, and generic typed representations remain viable. “The kernel is non-optional because we define it to be the internal language” resolves optionality by architecture choice, not empirical necessity. The real issue remains whether kernel structure beats a plain canonical dialect after authoring and consumption costs. The current evidence supports no “medium” claim—not even a medium-strength one.
+
+KEEP: the explicit separation of V-C2/V-DEC/V-LL; deferral of invasive variants; the statement that M2 is load-bearing; total-system and lifecycle accounting; the outbound safety seam; the kernel-versus-plain-dialect control; and the G2-oracle/G3-natural/G4-full-frame distinction.
+
+DROP: “CASC-0 is decisive”; the current 14.5% boundary-tax claim; the incorrect worked ratios; “F literally is NLB-FE/1”; the cross-corpus G1 “saving_max” obtained by multiplying CODEVERT/m0b routing shares by f2b’s 0.103 cost ratio; and any suggestion that DECONF-A1 supports kernel-as-internal-language.
+
+CHANGE: update the evidence register with f2b-transfer’s pending-audit result and its failed noninferiority; make the boundary model conditional rather than multiplicative; redesign dangerous-render evaluation for IR-soft semantics; replace the infeasible A2 budget; and describe CODEVERT/f2b/NLB as adjacent components with unmeasured transfer assumptions, not one converged architecture.
+
+The single most important fix is to replace CASC-0 with a factorial M2 isolator. Before testing the whole cascade, run model size `{360M, 1.7B}` × medium `{content-matched NL, Option-A, plain typed dialect}`, score the structured core before any renderer, and separately cross verifier `{off,on}` where affordable. M2 requires a positive size×medium interaction—not merely A3 beating an incomparable NL system—and the 360M structured arm must approach the 1.7B NL arm at lower measured cost. Test R separately afterward. If ≤15 GPU-hours cannot support that identification, call CASC-0 an informative screen, not a decisive experiment.
+
+Epistemically: CASC is plausible enough to retain as a hypothesis. It is not presently evidence-backed enough to promote as the programme’s efficiency architecture, and today’s evidence gives M4 a positive prior, M2 a negative-to-weak prior, and kernel-specific attribution a strongly deflationary prior.

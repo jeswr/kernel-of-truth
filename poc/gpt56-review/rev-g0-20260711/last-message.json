@@ -1,0 +1,71 @@
+The 0.4361 point estimate is reproducible and the `*`-driven collapse is real under PY-STAT/1 semantics. But the package is not audit-clean enough to support the stronger claims that the freeze was proven, the soundness probe passed, or the instrument is validated. I would retain it as a strong exploratory cheap-kill signal, not as formal verdict evidence.
+
+Specific findings:
+
+1. Anti-circularity is structurally credible but not proven.
+
+The census code has no extractor dependency and constructs targets only from repository syntax; the saved generator and census hashes match the manifest. Filesystem times are consistent with the claimed sequence: census and manifest around 17:50, inventory at 17:53, engine at 17:58, and final extractor later.
+
+However, everything is currently untracked. The freeze manifest merely asserts that the extractor did not yet exist; hashes prove content identity, not temporal ordering. There is no pre-extractor Git object, append-only event, signed timestamp, or preserved initial commit. Therefore “frozen before any extractor code existed” in [RESULT.md](/home/ec2-user/css/kernel/kernel-of-truth/poc/codevert-g0/RESULT.md:28) is plausible but not independently auditable.
+
+There is also a census-definition mismatch. Although [census.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/codevert-g0/census.py:6) says it enumerates attribute-access names and import-statement targets, those values are collected only as diagnostics; the actual universes at [census.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/codevert-g0/census.py:157) use only function/class definitions, modules, and definition/assignment names. This is consistent with the later ASM-1053 narrowing, but not the literal broader ASM-1030 description. That operationalization must be explicitly accepted before treating the denominator as canonical.
+
+2. The headline arithmetic is correct; the CI needs narrower interpretation.
+
+The saved counts give exactly:
+
+`7,292 / 16,722 = 0.436073…`, hence 0.4361.
+
+The repository-resampling code at [run_g0.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/codevert-g0/run_g0.py:156) correctly preserves repository clusters and reproduces `[0.3610, 0.5364]` with the pinned seed. This is not a definitional or coding artifact.
+
+But that interval is not a defensible generalization CI for Python repositories: the six repositories were agent-selected, not sampled from a defined population. Cluster bootstrapping cannot repair selection bias, especially at `n=6`. It is best described as a resampling sensitivity band across these six clusters, not inferential evidence about the G1 population.
+
+The package-source result is materially weaker than presented. The code deletes the entire `where_defined` family because it cannot file-stratify it ([run_g0.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/codevert-g0/run_g0.py:110)). Thus 0.4537 and its below-floor CI cover seven families and only 4,878 queries—not the registered full-eight-family universe. The claim that this CI establishes a below-floor full-distribution sensitivity slice should be withdrawn.
+
+There are also reporting errors:
+
+- “forward 4 pooled = 0.7198” is a family macro-average, not query-pooled κ. Query pooling gives `5,888 / 8,838 = 0.6662`.
+- The inverse family macro is 0.1374, not 0.1412; query pooling gives 0.1781.
+- The corpus contains 133 analyzed Python modules, not 129.
+- The current metrics sum to 2.907 seconds extraction, not the reported 2.83 seconds; Click alone is 1.067 seconds, contradicting the stated 0.09–0.89 range.
+
+These do not overturn 0.4361 but need correction.
+
+3. The unrestricted-edge collapse is genuine.
+
+The engine’s completeness rule is implemented correctly: an unrestricted call unknown blocks every `callers_of` target, and `instance_of` deliberately quantifies over unresolved calls because such a call may instantiate the target class. Each repository has 22–869 unrestricted call unknowns, so callers-of is necessarily 0/3,783 and instance-of 0/503 under these semantics.
+
+I independently reconstructed the ablation from the extractor output while removing only `*` from the preconditions. Every saved value reproduced exactly, including callers-of 0.5422–0.9241. This strongly supports the causal claim: the all-zero result is caused by unrestricted unknowns, not an engine indexing bug.
+
+The proper scope is “a structural property of PY-STAT/1 + §2.2 on these six repositories.” “Inevitable on real Python” is too broad. The ablation is also intentionally unsound without additional dataflow, as the report correctly acknowledges.
+
+4. The parent-package fix is legitimate, but the soundness probe did not pass.
+
+Closing `import a.b.c` over `a` and `a.b` is correct Python import semantics, including possible self-edges. The implementation is reasonable.
+
+What is not established is the historical fix-once sequence: no before-fix checker artifact, diff, or initial violation output is preserved. The current artifacts only prove the final state.
+
+More importantly, ASM-1030’s soundness endpoint says every observed edge must appear in proved or compatible unknown. The current checker reports:
+
+- 104 non-generator call misses;
+- 1 intra-repository import miss;
+- 89 unmatched generator resumptions;
+- 617 unmapped callees excluded from scoring.
+
+The advertised `0/5,718` is a different, substantially weaker predicate. At [probe_check.py](/home/ec2-user/css/kernel/kernel-of-truth/poc/codevert-g0/probe_check.py:178), an observation passes whenever the corresponding inverse query is already `unknown`; unrestricted `*` edges therefore make this almost vacuous. It checks `callers_of`/`instance_of`, not completeness of proved `callees_of` answers. Consequently, the report’s statement that “the live checks are … the forward families” is incorrect.
+
+The 104 records classified by the checker itself as `miss`, plus the import miss, mean the registered dynamic soundness endpoint has not passed. Some may warrant legitimate domain exclusions, but those exclusions must be pinned before rerunning, not reclassified narratively afterward. “Instrument buildable and sound” and “re-run once → clean” are overclaims.
+
+5. The major epistemic gaps are otherwise honestly stated.
+
+The report correctly says:
+
+- human-gold precision is unmeasured;
+- human-gold `R_q` is unmeasured;
+- six repositories are insufficient and the CI is wide;
+- this pool is not the G1 pinned-before-looking 20–30-repository pool;
+- no G1 verdict follows directly.
+
+The conditional “if the pinned G1 pool behaves likewise, the G1 κ kill fires” is logically correct. But CODEVERT §7-G0 also says the engineering spike is non-scored and no κ number is quoted as a spike result. Calling this a “verdict input” conflicts with that governance unless the protocol is explicitly amended; ASM-1050 still describes it as non-scored.
+
+Bottom line: preserve 0.4361 as a compelling diagnostic and design-warning. The inverse collapse and ablation are defensible. Do not present the package as validated verdict input until the freeze has durable evidence, the census universe is reconciled with ASM-1030, the source-only claim is corrected, and the dynamic probe either reaches zero genuine misses or records pre-pinned exclusions. The likely practical conclusion—G1 is at serious risk of killing PY-STAT/1—is sound; the current claim that G0 has already validated the instrument and exercised a clean fix-once path is not.

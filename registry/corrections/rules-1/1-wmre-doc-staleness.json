@@ -1,0 +1,68 @@
+{
+  "kind": "pinned-doc-staleness-erratum",
+  "experiment": "rules-1",
+  "seq": 1,
+  "author": "writer-2",
+  "author_session_note": "Fable doc-correction role, session 2026-07-11, executing the review-gate correction bundle (poc/gpt56-review/review-gate-docs/last-message.json items 2). Pseudonym writer-2 per RT-14 closed record-role list (precedent: registry/corrections/f2b-replicate/3-claims-language-erratum.json).",
+  "authorized_by": "pre-commit review-gate finding set poc/gpt56-review/review-gate-docs/last-message.json section 2 (world-model-rules-engine.md HIGH/MEDIUM findings) + the freeze governance of registry/experiments/rules-1.json, which pins the document's exact sha and therefore forbids in-place repair",
+  "date": "2026-07-11",
+
+  "frozen_objects_untouched": [
+    "docs/next/arch/world-model-rules-engine.md (sha256 dd85778421b024c9d1ccf3da82166e4f4f8b3cbe8c6075494a92279f0a72653a, verified byte-identical to the prereg_doc pin at correction time)",
+    "registry/experiments/rules-1.json (status FROZEN, frozen_at 2026-07-11T22:50:43Z, frozen_sha256 0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c)",
+    "poc/rules-1/results/certificate-result.json (pinned in rules-1.json artifact_hashes)",
+    "poc/rules-1/RESULT.md"
+  ],
+
+  "why_not_edited": "registry/experiments/rules-1.json prereg_doc pins docs/next/arch/world-model-rules-engine.md at sha256 dd85778421b024c9d1ccf3da82166e4f4f8b3cbe8c6075494a92279f0a72653a. Editing the document would break the FROZEN registration's pin. The document is therefore retained byte-identical as a TEMPORAL SNAPSHOT of the pre-RULES-1 design state, intentionally not edited; this correction record supplies the binding current reading (append-never-edit).",
+
+  "corrections": [
+    {
+      "id": "S1",
+      "finding": "review-gate HIGH: section 1 (world-model-rules-engine.md:16, :19, :27) states 'The kernel's formal machinery does nothing', names 'the root cause', and asserts 'Nothing in the estate materialises entailments' together with a list of missing components ('a parent relation, a person class, a covering axiom, a materialisation pass').",
+      "phrase_superseded": "'nothing in the estate materialises entailments' and the missing-components list, read as current repo-state claims; and the untagged causal 'root cause' framing read beyond DECONF-A1's scope",
+      "binding_reading": "These sentences were true when drafted (the doc is the RULES-1 preregistration input and PREDATES the RULES-1 build) and are SUPERSEDED as repo-state claims by the frozen RULES-1 build: data/axioms-kinship-v1/ exists (8 axiom records: chain-grandfather, chain-grandmother, chain-grandparent, class-person, cover-parent, rel-parent, sub-father-parent, sub-mother-parent; plus 5 concept records: grandfather, grandmother, grandparent, parent, person), a materializer is present (sparq-reason closure engine + poc/rules-1/certificate.py, twin_engine.py, rules1_runner.py), and registry/experiments/rules-1.json is FROZEN with the CPU certificate rerun pinned (stated C_dec 1.0 = 1716/1716; entailed C_dec 0.0 = 0/3680 stated-projection-reproducible; CLUTRR 858/858, Wilson-LB95 0.9955). Separately, DECONF-A1 establishes extensional decision-equivalence only for its pinned answer-check-resample topology and read-set; it does not establish that all formal machinery does nothing, nor causally establish engine absence as 'the root cause' - the machinery-does-nothing sentence is bounded to the audit's mechanical sense and the root-cause sentence is design-level interpretation, not a measured causal claim.",
+      "applies_to": [
+        "docs/next/arch/world-model-rules-engine.md section 1 (lines 16-27) as read forward",
+        "all forward narration quoting the 'machinery does nothing' / 'root cause' / 'nothing materialises entailments' framing"
+      ],
+      "basis": "MEASURED: data/axioms-kinship-v1/ directory listing; registry/experiments/rules-1.json status=FROZEN + artifact_hashes; poc/rules-1/results/certificate-result.json; poc/gpt56-review/review-gate-docs/last-message.json section 2"
+    },
+    {
+      "id": "S2",
+      "finding": "review-gate HIGH: the governing-looking body, diagram, arms table, freezability text, and Appendix A still present arm A6 and ASM-1130's depth-<=2 semantic bound as ACTIVE (examples at lines 59, 190, 226, 411), contradicting the in-doc amendment.",
+      "phrase_superseded": "all body/diagram/arms-table/appendix language presenting A6 as an MVE arm and PROPOSED-ASM-1130's depth bound as current",
+      "binding_reading": "The document's own Amendment notice (line 7) governs: A6 was DROPPED from the MVE, ASM-1130's depth bound was SUPERSEDED (PROPOSED-ASM-1160 supersedes PROPOSED-ASM-1130 on registration, per the Appendix A registration note at line 351), MD-5 was flipped, and arm A7 + control c6 were added. Wherever the retained first-draft body conflicts with the Cross-model synthesis (GPT-5.6 fold-in) section, the fold-in's new value governs. The frozen RULES-1 registration was built from the amended reading; the contradictory body text is part of the intentionally retained first-draft snapshot and must not be quoted as the active design.",
+      "applies_to": [
+        "docs/next/arch/world-model-rules-engine.md lines 59, 190, 226, 411 and any other body/appendix statement presenting A6/ASM-1130 as active",
+        "all forward narration of the RULES-1 arm set and depth bound"
+      ],
+      "basis": "MEASURED: world-model-rules-engine.md line 7 amendment notice + line 351 registration note; registry/experiments/rules-1.json (frozen design reflects the amended arm set); poc/gpt56-review/review-gate-docs/last-message.json section 2"
+    },
+    {
+      "id": "S3",
+      "finding": "review-gate MEDIUM: sections 2.1/4.1 (lines 69, 161) say axioms-kinship-v1 'must be minted' and describe approximately six records.",
+      "phrase_superseded": "'must be minted' and the approximately-six-records description of axioms-kinship-v1",
+      "binding_reading": "axioms-kinship-v1 EXISTS: 8 axiom records plus 5 concept records, explicator-endorsed pending the recorded governance conditions. The 'must be minted' language is the preregistration-time plan, retained as snapshot; the module's current state is read from data/axioms-kinship-v1/manifest.json and the frozen registration's corpus pins, never from the pinned doc.",
+      "applies_to": [
+        "docs/next/arch/world-model-rules-engine.md lines 69, 161 as read forward",
+        "all forward narration of the kinship module's existence and size"
+      ],
+      "basis": "MEASURED: data/axioms-kinship-v1/ listing (8 axiom + 5 concept records) verified 2026-07-11; poc/gpt56-review/review-gate-docs/last-message.json section 2"
+    }
+  ],
+
+  "temporal_snapshot_ruling": "DECISION: docs/next/arch/world-model-rules-engine.md is ruled a TEMPORAL SNAPSHOT - the preregistration-time design record whose exact bytes the FROZEN rules-1.json pins. It is intentionally NOT edited (no conspicuous inline markings added), because any byte change breaks the prereg_doc sha pin of a FROZEN registration. Readers obtain the current state from: (1) the doc's own amendment notice for design deltas, (2) this correction record for repo-state staleness, (3) registry/experiments/rules-1.json + poc/rules-1/ artifacts for the built system. Successor architecture documents must cite the doc AS a snapshot with this record alongside.",
+
+  "non_retroactivity": "No frozen record, verdict, certificate, results log, or registered assumption changes. The RULES-1 freeze, its pins, and its claim caps (machinery non-inertness only; kernel-specific value, host lift, NL reach, and efficiency all pending) are untouched. This record narrows forward READING only.",
+
+  "refs": {
+    "review_gate": "poc/gpt56-review/review-gate-docs/last-message.json (section 2)",
+    "pinned_doc": "docs/next/arch/world-model-rules-engine.md (sha256 dd85778421b024c9d1ccf3da82166e4f4f8b3cbe8c6075494a92279f0a72653a)",
+    "frozen_record": "registry/experiments/rules-1.json (frozen_sha256 0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c)",
+    "kinship_module": "data/axioms-kinship-v1/ (manifest.json + 8 axiom records + concepts/ 5 records)",
+    "certificate": "poc/rules-1/results/certificate-result.json (sha256 e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379, per rules-1.json artifact_hashes)",
+    "synthesis_context": "docs/next/feasibility-synthesis-v4.md section 1.5 (RULES-1 claim cap)"
+  },
+  "schema_version": "kot-correction/1"
+}

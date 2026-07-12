@@ -1,0 +1,541 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.2pjv30g_"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.iere0k_s
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c3-88eb-7333-9ec8-3a4dcd49b11a
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: charset_normalizer ===
+PY FILE LISTING (repo-root-relative; authoritative):
+noxfile.py
+setup.py
+_mypyc_hook/__init__.py
+_mypyc_hook/backend.py
+bin/bc.py
+bin/coverage.py
+bin/performance.py
+docs/conf.py
+src/charset_normalizer/__init__.py
+src/charset_normalizer/__main__.py
+src/charset_normalizer/api.py
+src/charset_normalizer/cd.py
+src/charset_normalizer/constant.py
+src/charset_normalizer/legacy.py
+src/charset_normalizer/md.py
+src/charset_normalizer/models.py
+src/charset_normalizer/utils.py
+src/charset_normalizer/version.py
+src/charset_normalizer/cli/__init__.py
+src/charset_normalizer/cli/__main__.py
+tests/__init__.py
+tests/test_base_detection.py
+tests/test_cli.py
+tests/test_coherence_detection.py
+tests/test_detect_legacy.py
+tests/test_edge_case.py
+tests/test_full_detection.py
+tests/test_isbinary.py
+tests/test_large_payload.py
+tests/test_logging.py
+tests/test_mess_detection.py
+tests/test_preemptive_detection.py
+tests/test_thread_safety.py
+tests/test_utils.py
+
+=== QUERIES (2) ===
+QUERY g1q-charset_normalizer-callees_of-160: family=callees_of target=tests/test_cli.py::TestCommandLineInterface.test_simple_yes_input
+QUERY g1q-charset_normalizer-callees_of-5: family=callees_of target=bin/performance.py::calc_percentile
+
+=== CONTEXT ===
+
+FILE tests/test_cli.py:
+    1| from __future__ import annotations
+    2| 
+    3| import unittest
+    4| from os import pardir, path, remove
+    5| from os.path import exists
+    6| from unittest.mock import patch
+    7| 
+    8| from charset_normalizer.cli import cli_detect, query_yes_no
+    9| 
+   10| DIR_PATH = path.join(path.dirname(path.realpath(__file__)), pardir)
+   11| 
+   12| 
+   13| class TestCommandLineInterface(unittest.TestCase):
+   14|     @patch("builtins.input", lambda *args: "y")
+   15|     def test_simple_yes_input(self):
+   16|         self.assertTrue(query_yes_no("Are u willing to chill a little bit ?"))
+   17| 
+   18|     @patch("builtins.input", lambda *args: "N")
+   19|     def test_simple_no_input(self):
+   20|         self.assertFalse(query_yes_no("Are u willing to chill a little bit ?"))
+   21| 
+   22|     def test_single_file(self):
+   23|         self.assertEqual(0, cli_detect([DIR_PATH + "/data/sample-arabic-1.txt"]))
+   24| 
+   25|     def test_version_output_success(self):
+   26|         with self.assertRaises(SystemExit):
+   27|             cli_detect(["--version"])
+   28| 
+   29|     def test_single_file_normalize(self):
+   30|         self.assertEqual(
+   31|             0, cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--normalize"])
+   32|         )
+   33| 
+   34|         self.assertTrue(exists(DIR_PATH + "/data/sample-arabic-1.cp1256.txt"))
+   35| 
+   36|         try:
+   37|             remove(DIR_PATH + "/data/sample-arabic-1.cp1256.txt")
+   38|         except:
+   39|             pass
+   40| 
+   41|     def test_single_verbose_file(self):
+   42|         self.assertEqual(
+   43|             0, cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--verbose"])
+   44|         )
+   45| 
+   46|     def test_multiple_file(self):
+   47|         self.assertEqual(
+   48|             0,
+   49|             cli_detect(
+   50|                 [
+   51|                     DIR_PATH + "/data/sample-arabic-1.txt",
+   52|                     DIR_PATH + "/data/sample-french.txt",
+   53|                     DIR_PATH + "/data/sample-chinese.txt",
+   54|                 ]
+   55|             ),
+   56|         )
+   57| 
+   58|     def test_with_alternative(self):
+   59|         self.assertEqual(
+   60|             0,
+   61|             cli_detect(
+   62|                 [
+   63|                     "-a",
+   64|                     DIR_PATH + "/data/sample-arabic-1.txt",
+   65|                     DIR_PATH + "/data/sample-french.txt",
+   66|                     DIR_PATH + "/data/sample-chinese.txt",
+   67|                 ]
+   68|             ),
+   69|         )
+   70| 
+   71|     def test_with_minimal_output(self):
+   72|         self.assertEqual(
+   73|             0,
+   74|             cli_detect(
+   75|                 [
+   76|                     "-m",
+   77|                     DIR_PATH + "/data/sample-arabic-1.txt",
+   78|                     DIR_PATH + "/data/sample-french.txt",
+   79|                     DIR_PATH + "/data/sample-chinese.txt",
+   80|                 ]
+   81|             ),
+   82|         )
+   83| 
+   84|     def test_with_minimal_and_alt(self):
+   85|         self.assertEqual(
+   86|             0,
+   87|             cli_detect(
+   88|                 [
+   89|                     "-m",
+   90|                     "-a",
+   91|                     DIR_PATH + "/data/sample-arabic-1.txt",
+   92|                     DIR_PATH + "/data/sample-french.txt",
+   93|                     DIR_PATH + "/data/sample-chinese.txt",
+   94|                 ]
+   95|             ),
+   96|         )
+   97| 
+   98|     def test_multiple_file_normalize(self):
+   99|         """Ensure --normalize with multiple files writes each output to the
+  100|         correct path and sets unicode_path on the corresponding result entry
+  101|         (not always on the first entry). Regression test for GH-702."""
+  102|         arabic_path = DIR_PATH + "/data/sample-arabic-1.txt"
+  103|         turkish_path = DIR_PATH + "/data/sample-turkish.txt"
+  104| 
+  105|         self.assertEqual(0, cli_detect([arabic_path, turkish_path, "--normalize"]))
+  106| 
+  107|         arabic_out = DIR_PATH + "/data/sample-arabic-1.cp1256.txt"
+  108|         turkish_out = DIR_PATH + "/data/sample-turkish.cp1254.txt"
+  109| 
+  110|         try:
+  111|             self.assertTrue(
+  112|                 exists(arabic_out),
+  113|                 "Normalized output for first file should exist",
+  114|             )
+  115|             self.assertTrue(
+  116|                 exists(turkish_out),
+  117|                 "Normalized output for second file should exist",
+  118|             )
+  119| 
+  120|             # Verify each file contains distinct, non-empty content that
+  121|             # matches what from_fp would produce for that specific input.
+  122|             with open(arabic_out, "rb") as fp:
+  123|                 arabic_content = fp.read()
+  124|             with open(turkish_out, "rb") as fp:
+  125|                 turkish_content = fp.read()
+  126| 
+  127|             self.assertGreater(len(arabic_content), 0)
+  128|             self.assertGreater(len(turkish_content), 0)
+  129|             self.assertNotEqual(
+  130|                 arabic_content,
+  131|                 turkish_content,
+  132|                 "Each file must receive its own normalized content",
+  133|             )
+  134|         finally:
+  135|             for p in (arabic_out, turkish_out):
+  136|                 try:
+  137|                     remove(p)
+  138|                 except OSError:
+  139|                     pass
+  140| 
+  141|     def test_multiple_file_normalize_with_alternatives(self):
+  142|         """Same as above but with --with-alternative, ensuring that
+  143|         alternative entries appended between files do not confuse the
+  144|         unicode_path assignment."""
+  145|         arabic_path = DIR_PATH + "/data/sample-arabic-1.txt"
+  146|         turkish_path = DIR_PATH + "/data/sample-turkish.txt"
+  147| 
+  148|         self.assertEqual(
+  149|             0, cli_detect([arabic_path, turkish_path, "--normalize", "-a"])
+  150|         )
+  151| 
+  152|         arabic_out = DIR_PATH + "/data/sample-arabic-1.cp1256.txt"
+  153|         turkish_out = DIR_PATH + "/data/sample-turkish.cp1254.txt"
+  154| 
+  155|         try:
+  156|             self.assertTrue(
+  157|                 exists(arabic_out),
+  158|                 "Normalized output for first file should exist",
+  159|             )
+  160|             self.assertTrue(
+  161|                 exists(turkish_out),
+  162|                 "Normalized output for second file should exist",
+  163|             )
+  164|         finally:
+  165|             for p in (arabic_out, turkish_out):
+  166|                 try:
+  167|                     remove(p)
+  168|                 except OSError:
+  169|                     pass
+  170| 
+  171|     def test_non_existent_file(self):
+  172|         with self.assertRaises(SystemExit) as cm:
+  173|             cli_detect([DIR_PATH + "/data/not_found_data.txt"])
+  174| 
+  175|         self.assertEqual(cm.exception.code, 2)
+  176| 
+  177|     def test_replace_without_normalize(self):
+  178|         self.assertEqual(
+  179|             cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--replace"]), 1
+  180|         )
+  181| 
+  182|     def test_force_replace_without_replace(self):
+  183|         self.assertEqual(
+  184|             cli_detect([DIR_PATH + "/data/sample-arabic-1.txt", "--force"]), 1
+  185|         )
+  186| 
+  187| 
+  188| if __name__ == "__main__":
+  189|     unittest.main()
+
+FILE bin/performance.py:
+    1| from __future__ import annotations
+    2| 
+    3| import argparse
+    4| from glob import glob
+    5| from math import ceil
+    6| from os.path import isdir
+    7| from statistics import mean, stdev
+    8| from sys import argv
+    9| from time import perf_counter_ns
+   10| 
+   11| from chardet import detect as chardet_detect
+   12| 
+   13| from charset_normalizer import detect
+   14| 
+   15| 
+   16| def calc_percentile(data, percentile):
+   17|     n = len(data)
+   18|     p = n * percentile / 100
+   19|     sorted_data = sorted(data)
+   20| 
+   21|     return sorted_data[int(p)] if p.is_integer() else sorted_data[int(ceil(p)) - 1]
+   22| 
+   23| 
+   24| def performance_compare(arguments):
+   25|     parser = argparse.ArgumentParser(
+   26|         description="Performance CI/CD check for Charset-Normalizer"
+   27|     )
+   28| 
+   29|     parser.add_argument(
+   30|         "-s",
+   31|         "--size-increase",
+   32|         action="store",
+   33|         default=1,
+   34|         type=int,
+   35|         dest="size_coeff",
+   36|         help="Apply artificial size increase to challenge the detection mechanism further",
+   37|     )
+   38| 
+   39|     args = parser.parse_args(arguments)
+   40| 
+   41|     if not isdir("./char-dataset"):
+   42|         print(
+   43|             "This script require https://github.com/Ousret/char-dataset to be cloned on package root directory"
+   44|         )
+   45|         exit(1)
+   46| 
+   47|     chardet_results = []
+   48|     charset_normalizer_results = []
+   49| 
+   50|     file_list = sorted(glob("./char-dataset/**/*.*"))
+   51|     total_files = len(file_list)
+   52| 
+   53|     for idx, tbt_path in enumerate(file_list):
+   54|         with open(tbt_path, "rb") as fp:
+   55|             content = fp.read() * args.size_coeff
+   56| 
+   57|         before = perf_counter_ns()
+   58|         chardet_detect(content)
+   59|         chardet_time = round((perf_counter_ns() - before) / 1000000000, 5)
+   60|         chardet_results.append(chardet_time)
+   61| 
+   62|         before = perf_counter_ns()
+   63|         detect(content)
+   64|         charset_normalizer_time = round((perf_counter_ns() - before) / 1000000000, 5)
+   65|         charset_normalizer_results.append(charset_normalizer_time)
+   66| 
+   67|         charset_normalizer_time = charset_normalizer_time or 0.000005
+   68|         cn_faster = (chardet_time / charset_normalizer_time) * 100 - 100
+   69|         print(
+   70|             f"{idx + 1:>3}/{total_files} {tbt_path:<82} C:{chardet_time:.5f}  "
+   71|             f"CN:{charset_normalizer_time:.5f}  {cn_faster:.1f} %"
+   72|         )
+   73| 
+   74|     # Print the top 10 rows with the slowest execution time
+   75|     print(
+   76|         f"\n{'-' * 102}\nTop 10 rows with the slowest execution time of charset_normalizer:\n"
+   77|     )
+   78|     sorted_results = sorted(
+   79|         enumerate(charset_normalizer_results), key=lambda x: x[1], reverse=True
+   80|     )
+   81|     for idx, time in sorted_results[:10]:
+   82|         tbt_path = file_list[idx]
+   83|         print(f"{idx + 1:>3}/{total_files} {tbt_path:<82}  CN:{time:.5f}")
+   84| 
+   85|     # Print charset normalizer statistics
+   86|     min_time = min(charset_normalizer_results)
+   87|     max_time = max(charset_normalizer_results)
+   88|     stdev_time = stdev(charset_normalizer_results)
+   89|     mean_time = mean(charset_normalizer_results)
+   90|     cv = (stdev_time / mean_time) * 100  # Coefficient of variation
+   91|     print(f"\n{'-' * 102}\nCharset Normalizer statistics:\n")
+   92|     print(f"Minimum Execution Time: {min_time:.5f} seconds")
+   93|     print(f"Maximum Execution Time: {max_time:.5f} seconds")
+   94|     print(f"Mean Execution Time: {mean_time:.5f} seconds")
+   95|     print(f"Standard Deviation: {stdev_time:.5f} seconds")
+   96|     print(f"Coefficient of Variation (CV): {cv:.1f} %")
+   97| 
+   98|     # Print comparison statistics for chardet and charset normalizer
+   99|     chardet_avg_delay = round(mean(chardet_results) * 1000)
+  100|     chardet_99p = round(calc_percentile(chardet_results, 99) * 1000)
+  101|     chardet_95p = round(calc_percentile(chardet_results, 95) * 1000)
+  102|     chardet_50p = round(calc_percentile(chardet_results, 50) * 1000)
+  103| 
+  104|     charset_normalizer_avg_delay = round(mean(charset_normalizer_results) * 1000)
+  105|     charset_normalizer_99p = round(
+  106|         calc_percentile(charset_normalizer_results, 99) * 1000
+  107|     )
+  108|     charset_normalizer_95p = round(
+  109|         calc_percentile(charset_normalizer_results, 95) * 1000
+  110|     )
+  111|     charset_normalizer_50p = round(
+  112|         calc_percentile(charset_normalizer_results, 50) * 1000
+  113|     )
+  114| 
+  115|     # mypyc can offer performance ~1ms in the 50p. When eq to 0 assume 1 due to imprecise nature of this test.
+  116|     if charset_normalizer_50p == 0:
+  117|         charset_normalizer_50p = 1
+  118| 
+  119|     print(f"\n{'-' * 102}\nCharset Normalizer vs Chardet statistics:\n")
+  120| 
+  121|     print("------------------------------")
+  122|     print("--> Chardet Conclusions")
+  123|     print("   --> Avg: " + str(chardet_avg_delay) + "ms")
+  124|     print("   --> 99th: " + str(chardet_99p) + "ms")
+  125|     print("   --> 95th: " + str(chardet_95p) + "ms")
+  126|     print("   --> 50th: " + str(chardet_50p) + "ms")
+  127| 
+  128|     print("------------------------------")
+  129|     print("--> Charset-Normalizer Conclusions")
+  130|     print("   --> Avg: " + str(charset_normalizer_avg_delay) + "ms")
+  131|     print("   --> 99th: " + str(charset_normalizer_99p) + "ms")
+  132|     print("   --> 95th: " + str(charset_normalizer_95p) + "ms")
+  133|     print("   --> 50th: " + str(charset_normalizer_50p) + "ms")
+  134| 
+  135|     # print("------------------------------")
+  136|     # print("--> Charset-Normalizer / Chardet: Performance Сomparison")
+  137|     # print(
+  138|     #     "   --> Avg: x"
+  139|     #     + str(round(chardet_avg_delay / charset_normalizer_avg_delay, 2))
+  140|     # )
+  141|     # print("   --> 99th: x" + str(round(chardet_99p / charset_normalizer_99p, 2)))
+  142|     # print("   --> 95th: x" + str(round(chardet_95p / charset_normalizer_95p, 2)))
+  143|     # print("   --> 50th: x" + str(round(chardet_50p / charset_normalizer_50p, 2)))
+  144| 
+  145|     # return (
+  146|     #     0
+  147|     #     if chardet_avg_delay > charset_normalizer_avg_delay
+  148|     #     and chardet_99p > charset_normalizer_99p
+  149|     #     else 1
+  150|     # )
+  151| 
+  152|     return 0
+  153| 
+  154| 
+  155| if __name__ == "__main__":
+  156|     exit(performance_compare(argv[1:]))
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-charset_normalizer-callees_of-160",
+    "answerable_static": false,
+    "gold": [
+      "ext:unittest.TestCase.assertTrue"
+    ],
+    "conditional_flags": [],
+    "notes": "The definition of imported query_yes_no is not shown, so its exact repository qualpath cannot be confirmed."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-callees_of-5",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.int",
+      "ext:builtins.len",
+      "ext:builtins.sorted",
+      "ext:math.ceil"
+    ],
+    "conditional_flags": [],
+    "notes": "The p.is_integer call uses dynamic attribute dispatch, so its runtime callee cannot be fully determined from the shown source."
+  }
+]
+tokens used
+9,194

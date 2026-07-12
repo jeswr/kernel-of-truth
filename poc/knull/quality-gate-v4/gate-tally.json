@@ -1,0 +1,65 @@
+{
+ "schema": "kot-knull-quality-gate-tally/1",
+ "status": "PROVISIONAL readout - MEASURED gate result; no freeze action; coordinator/maintainer disposition pending (maintainer issue 17)",
+ "gate": "ASM-0703 maintainer-ratified two-part rule (zero hard-defect-class findings AND blind naturalness >= 5/10, BOTH judge families)",
+ "store": {
+  "path": "poc/knull/inputs-v4/plain-authored.json",
+  "version": "4.0.0",
+  "note": "option-A frame-variation retry of the v3 Option-B concise store (definition wording only; same 108 concepts, same relaxed contract)",
+  "sha256": "97609abe17f87e10a384950a5d69d4e579e40935109573eaf782095bcb43c0d2",
+  "lint": "poc/knull/lint_plain_store_v4.py PASS 108/108 (L-3 dropped, L-4 >=1 segment; all other G-1 clauses enforced); report poc/knull/inputs-v4/g1-lint-report.json"
+ },
+ "instrument": {
+  "prompt": "poc/knull/quality-gate-v4/prompt.new108.txt",
+  "prompt_sha256": "feb8867fbb00e594c37385ec47e40c519c4ec394fb8fb4c1e54e43d015537c9b",
+  "prompt_chars": 10044,
+  "v3_prompt_chars": 9248,
+  "header_and_rubric": "byte-identical to poc/knull/quality-gate-v2 and -v3 build_gate_prompt.py (only the store path differs; unified diff of the builders shows the path lines and docstring only)",
+  "order_map": "prompt.new108.order.json - byte-identical to the v2/v3 pinned map (same 108 labels, deterministic ascending-label order)",
+  "blindness": "headwords withheld; definition texts only; no project/NSM/experiment context; judges never told a comparison set or gate exists; blinding grep (kernel|nsm|truthstyle|f2b|knull) zero hits on prompt and both raw outputs"
+ },
+ "judges": {
+  "gpt56": {
+   "model": "gpt-5.6-sol",
+   "interface": "npx -y @openai/codex@0.144.1 exec, effort high, -s read-only, --ignore-user-config --skip-git-repo-check --ephemeral --disable memories --disable standalone_web_search, empty out-of-repo workdir (/tmp/gatewd-gpt56-108v4.*)",
+   "tripwires": "zero tool/command events in the --json event stream (thread.started, turn.started, item.completed, turn.completed only); exit 0",
+   "raw": "gate.new108.gpt56.raw.md",
+   "raw_sha256": "fcf299c8345f2db7334f38aa3b008d4a0a3a81dbcbd0b30fed5584436a22f7cc"
+  },
+  "haiku": {
+   "model": "claude-haiku-4-5-20251001",
+   "interface": "headless claude -p per poc/truthstyle-2x2/judges-invocation.md 4.3 + 4.3.1 (MAX_THINKING_TOKENS=0, --tools '', --setting-sources '', --strict-mcp-config, --no-session-persistence, subscription auth env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN), empty out-of-repo workdir (/tmp/gatewd-haiku-108v4.*), claude-code 2.1.201",
+   "tripwires": "init tools==[] AND mcp_servers==[]; apiKeySource none; single text block (no thinking); num_turns 1; permission_denials []; modelUsage keys == [claude-haiku-4-5-20251001]; exit 0",
+   "raw": "gate.new108.haiku.raw.md",
+   "raw_sha256": "0cf9c763a8bba6083a2ed8b36e8ea687257784aa95e6996110b18cdcb3dbb498",
+   "events_sha256": "b1f15d0f58b9981053bcab39f460ad2f9716817e6e811f312893707f7a8ec4a7"
+  }
+ },
+ "measured": {
+  "naturalness": {"gpt56": 4, "haiku": 3, "floor": 5, "v3": {"gpt56": 8, "haiku": 4}, "v2_final": {"gpt56": 4, "haiku": 3}, "old108_baseline_gpt56": 3},
+  "defect_classes": {
+   "register_word_choice_residual_nits_nonblocking_per_v2_tally": {
+    "gpt56": 15, "gpt56_entries": [2, 5, 13, 19, 21, 30, 37, 41, 42, 46, 50, 59, 63, 82, 95],
+    "haiku": 7, "haiku_entries": [4, 7, 23, 31, 50, 71, 87],
+    "v3_counts": {"gpt56": 4, "haiku": 4}
+   },
+   "anaphoric_renaming": {"gpt56": 0, "haiku": 2, "haiku_entries": [31, 37], "note": "haiku's two findings ('a full round', 'one of some note') read the placeholder-noun class broadly; GPT-5.6 explicitly cleared the class ('uses of thing ... do not vaguely rename the headword'); reported unedited as measured"},
+   "staged_observers": {"gpt56": 0, "haiku": 4, "haiku_entries": [27, 38, 67, 104], "note": "haiku flags 'the eye' / 'organ of sight' / 'the naked eye' as staged observers; GPT-5.6 explicitly cleared the same entries ('references to the eye in 27 and 67 describe visual perception as part of the meaning; they do not invent generic onlookers'); direct inter-family contradiction on the same bytes, reported unedited"},
+   "non_definitional_material": {"gpt56": 1, "gpt56_entries": [62], "haiku": 8, "haiku_entries": [11, 15, 21, 28, 47, 83, 88, 103], "note": "haiku's eight findings treat standard lexicographic function/context clauses (e.g. box 'used for holding or carrying goods', condolence 'addressed to the bereaved') as non-definitional; GPT-5.6's single finding is the permanence clause of entry 62 (kind)"}
+  },
+  "internal_consistency_observations": [
+   "haiku lists entry 31 (day) among the MOST natural entries and simultaneously among the LEAST natural entries in the same answer",
+   "the two families contradict each other outright on staged observers (haiku 4 findings, GPT-5.6 explicit none on the same entries)"
+  ]
+ },
+ "verdict": {
+  "gate_met": false,
+  "part1_defect_audit": "NOT clean: GPT-5.6 one non-definitional finding (entry 62 permanence clause); Haiku findings in all three hard classes (2 anaphoric, 4 staged-observer, 8 non-definitional), many arguably class misapplications per the notes above, but the gate is blind and the counts stand as MEASURED",
+  "part2_naturalness_floor": "NOT met by EITHER family: GPT-5.6 4/10 (v3: 8/10), Haiku 3/10 (v3: 4/10)",
+  "why": "the frame-variation retry eliminated the v3 set-level template monotony (neither judge reports rigid parallelism or semicolon-paraphrase templates; entry 62 kind, the v3 consensus-worst, draws zero register findings) but the varied framing itself reads to both families as an 'old-fashioned pseudo-lexicographic voice' (GPT-5.6) / 'theatrically formal' register (Haiku); the failure mode INVERTED from too-uniform (v3) to too-mannered (v4), and the GPT-5.6 score moved 8 -> 4 on wording changes alone",
+  "instrument_observation": "across v3 and v4 the two-family instrument is unstable at set level on the same underlying content: v3 measured 8/4, v4 measures 4/3, with mutually contradictory set-level diagnoses; per ASM-0706 this is evidence relevant to the maintainer's option (B) (accept-as-control) or an instrument re-ruling, not something this session may adjudicate",
+  "disposition": "freeze precondition NOT met by v4; both stores (v3, v4) and both gate readouts go to the maintainer under issue 17 with the sample-responses evidence; no freeze action taken by this session"
+ },
+ "run_date": "2026-07-11",
+ "run_by": "Fable agent session, maintainer issue 17 (ASM-0703 re-run on v4 store; MEASURED, first valid answer final, no re-rolls)"
+}

@@ -1,0 +1,115 @@
+[
+  {
+    "query_id": "g1q-attrs-contains-614",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_slots.py::A.b",
+      "tests/test_slots.py::A.c",
+      "tests/test_slots.py::A.x"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level class A (line 1147) has three class-body assignments: x (1148), b (1149), c (1150). No defs or nested classes."
+  },
+  {
+    "query_id": "g1q-attrs-contains-613",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_slots.py::test_slots_cached_properties_work_independently.A.f_1",
+      "tests/test_slots.py::test_slots_cached_properties_work_independently.A.f_2",
+      "tests/test_slots.py::test_slots_cached_properties_work_independently.A.x"
+    ],
+    "conditional_flags": [],
+    "notes": "Class A nested in the test function (line 1129) has assignment x (1130) and defs f_1 (1133) and f_2 (1137)."
+  },
+  {
+    "query_id": "g1q-attrs-contained_in-1041",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_make.py::TestMakeClass"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_bases (line 1478) is a direct method of class TestMakeClass (line 1385)."
+  },
+  {
+    "query_id": "g1q-attrs-contained_in-187",
+    "answerable_static": true,
+    "gold": [
+      "src/attr/converters.py::optional"
+    ],
+    "conditional_flags": [],
+    "notes": "optional_converter is defined at two sites (lines 38 and 45) inside an if/else, but both are directly inside function optional; the direct lexical parent is the same."
+  },
+  {
+    "query_id": "g1q-attrs-imports_of-2",
+    "answerable_static": true,
+    "gold": [
+      "ext:functools",
+      "ext:importlib.metadata",
+      "ext:typing",
+      "repo:src/attr/__init__.py",
+      "repo:src/attr/_cmp.py",
+      "repo:src/attr/_config.py",
+      "repo:src/attr/_funcs.py",
+      "repo:src/attr/_make.py",
+      "repo:src/attr/_next_gen.py",
+      "repo:src/attr/_version_info.py",
+      "repo:src/attr/converters.py",
+      "repo:src/attr/exceptions.py",
+      "repo:src/attr/filters.py",
+      "repo:src/attr/setters.py",
+      "repo:src/attr/validators.py"
+    ],
+    "conditional_flags": [
+      "ext:importlib.metadata"
+    ],
+    "notes": "Relative imports resolve against package attr (src/attr): from . import converters/exceptions/filters/setters/validators (line 10) and from ._cmp/._config/._funcs/._make/._next_gen/._version_info (lines 11-29); ancestor package __init__ (src/attr/__init__.py) included per import semantics. functools (7) and typing (8) are external. from importlib.metadata import metadata (line 92) is inside a nested function, hence flagged."
+  },
+  {
+    "query_id": "g1q-attrs-imports_of-39",
+    "answerable_static": true,
+    "gold": [
+      "repo:tests/__init__.py",
+      "repo:tests/attr_import_star.py"
+    ],
+    "conditional_flags": [
+      "repo:tests/__init__.py",
+      "repo:tests/attr_import_star.py"
+    ],
+    "notes": "Single import: from . import attr_import_star (line 11), inside a method body, resolving against package tests -> tests/attr_import_star.py plus ancestor tests/__init__.py; both flagged as non-top-level."
+  },
+  {
+    "query_id": "g1q-attrs-where_defined-1273",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_next_gen.py:569"
+    ],
+    "conditional_flags": [],
+    "notes": "Only definition site is def test_validators inside class TestImports (tests/test_next_gen.py line 569). The file tests/test_validators.py is a module name, not an identifier binding."
+  },
+  {
+    "query_id": "g1q-attrs-where_defined-478",
+    "answerable_static": true,
+    "gold": [
+      "src/attr/_funcs.py:382"
+    ],
+    "conditional_flags": [],
+    "notes": "Only definition site is def assoc at src/attr/_funcs.py:382. Occurrences in src/attr/__init__.py:13, src/attrs/__init__.py:11 and tests/test_funcs.py:19 are import bindings (excluded); the remaining lines are strings, docstrings, or call sites."
+  },
+  {
+    "query_id": "g1q-attrs-callees_of-851",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "takes_all body (lines 114-118) contains only a nonlocal statement, a tuple assignment, and a return; no call expressions, so the callee set is positively empty."
+  },
+  {
+    "query_id": "g1q-attrs-callees_of-488",
+    "answerable_static": true,
+    "gold": [
+      "ext:typing.TypeVar",
+      "src/attr/_funcs.py::has"
+    ],
+    "conditional_flags": [],
+    "notes": "Calls: TypeVar('T') from typing (external) and has(A)/has(A[str]) x2. has is imported from attr, and src/attr/__init__.py imports has from ._funcs, so the called def is src/attr/_funcs.py::has. class A(Generic[T]) and A[str] subscription are not call expressions."
+  }
+]

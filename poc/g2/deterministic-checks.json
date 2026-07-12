@@ -1,0 +1,88 @@
+{
+ "litmus_promise_recovered": 1,
+ "n_pi_axioms_judged": 84,
+ "n_pi_axioms_total": 102,
+ "partition_axioms_recovered": 0,
+ "per_constraint": [
+  {
+   "conflict": false,
+   "evidence": "Pi emits no cardinality form; no Pi cardinality claims => conflict channel vacuous",
+   "kind": "cardinality",
+   "recovered": false,
+   "sidecar_record": "class-bookmark.json",
+   "subject": "urn:kernel-v0:bookmark",
+   "target": "urn:kernel-v0:maker-of"
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi emits no disjointWith form (forms=['domain', 'existential', 'range', 'references', 'subClassOf']); no Pi subsumption chain relates urn:molecule-v0:man / urn:molecule-v0:woman",
+   "kind": "disjointWith",
+   "recovered": false,
+   "sidecar_record": "class-man.json",
+   "subject": "urn:molecule-v0:man",
+   "target": "urn:molecule-v0:woman"
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi emits no functional/global-role form; no cardinality claims => conflict channel vacuous",
+   "kind": "functional",
+   "recovered": false,
+   "sidecar_record": "rel-father.json",
+   "subject": "urn:molecule-v0:father",
+   "target": null
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi asserts no range for urn:molecule-v0:father",
+   "kind": "range",
+   "recovered": false,
+   "sidecar_record": "rel-father.json",
+   "subject": "urn:molecule-v0:father",
+   "target": "urn:molecule-v0:man"
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi range(urn:kernel-v0:maker-of)=Thing-sort (sort-granularity); sidecar target urn:kernel-v0:bookmark sort=Thing-sort => compatible (no conflict)",
+   "kind": "range",
+   "recovered": false,
+   "sidecar_record": "rel-maker-of.json",
+   "subject": "urn:kernel-v0:maker-of",
+   "target": "urn:kernel-v0:bookmark"
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi emits no functional/global-role form; no cardinality claims => conflict channel vacuous",
+   "kind": "functional",
+   "recovered": false,
+   "sidecar_record": "rel-mother.json",
+   "subject": "urn:molecule-v0:mother",
+   "target": null
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi asserts no range for urn:molecule-v0:mother",
+   "kind": "range",
+   "recovered": false,
+   "sidecar_record": "rel-mother.json",
+   "subject": "urn:molecule-v0:mother",
+   "target": "urn:molecule-v0:woman"
+  },
+  {
+   "conflict": false,
+   "evidence": "Pi R6 emitted no inverse pair for urn:kernel-v0:part-of (swap-1-2 structural comparison found no match)",
+   "kind": "inverseOf",
+   "recovered": false,
+   "sidecar_record": "rel-part-of.json",
+   "subject": "urn:kernel-v0:part-of",
+   "target": "urn:kernel-v0:has-part"
+  }
+ ],
+ "pi_output_forms": [
+  "domain",
+  "existential",
+  "range",
+  "references",
+  "subClassOf"
+ ],
+ "sidecar_conflicts": 0
+}

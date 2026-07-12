@@ -1,0 +1,756 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: pluggy ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/toy-example.py
+docs/examples/eggsample/setup.py
+docs/examples/eggsample/eggsample/__init__.py
+docs/examples/eggsample/eggsample/hookspecs.py
+docs/examples/eggsample/eggsample/host.py
+docs/examples/eggsample/eggsample/lib.py
+docs/examples/eggsample-spam/eggsample_spam.py
+docs/examples/eggsample-spam/setup.py
+downstream/run_downstream.py
+scripts/release.py
+scripts/towncrier-draft-to-file.py
+src/pluggy/__init__.py
+src/pluggy/_callers.py
+src/pluggy/_hooks.py
+src/pluggy/_manager.py
+src/pluggy/_result.py
+src/pluggy/_tracing.py
+src/pluggy/_warnings.py
+testing/benchmark.py
+testing/conftest.py
+testing/test_details.py
+testing/test_helpers.py
+testing/test_hookcaller.py
+testing/test_invocations.py
+testing/test_multicall.py
+testing/test_pluginmanager.py
+testing/test_result.py
+testing/test_tracer.py
+testing/test_warnings.py
+
+=== QUERIES (2) ===
+QUERY g1q-pluggy-contains-23: family=contains target=testing/test_hookcaller.py
+QUERY g1q-pluggy-contains-209: family=contains target=testing/test_warnings.py::test_teardown_raised_warning.Api
+
+=== CONTEXT ===
+
+FILE testing/test_hookcaller.py:
+    1| from collections.abc import Callable
+    2| from collections.abc import Generator
+    3| from collections.abc import Sequence
+    4| from typing import TypeVar
+    5| 
+    6| import pytest
+    7| 
+    8| from pluggy import HookimplMarker
+    9| from pluggy import HookspecMarker
+   10| from pluggy import PluginManager
+   11| from pluggy import PluginValidationError
+   12| from pluggy._hooks import HookCaller
+   13| from pluggy._hooks import HookImpl
+   14| 
+   15| 
+   16| hookspec = HookspecMarker("example")
+   17| hookimpl = HookimplMarker("example")
+   18| 
+   19| 
+   20| @pytest.fixture
+   21| def hc(pm: PluginManager) -> HookCaller:
+   22|     class Hooks:
+   23|         @hookspec
+   24|         def he_method1(self, arg: object) -> None:
+   25|             pass
+   26| 
+   27|     pm.add_hookspecs(Hooks)
+   28|     return pm.hook.he_method1
+   29| 
+   30| 
+   31| FuncT = TypeVar("FuncT", bound=Callable[..., object])
+   32| 
+   33| 
+   34| class AddMeth:
+   35|     def __init__(self, hc: HookCaller) -> None:
+   36|         self.hc = hc
+   37| 
+   38|     def __call__(
+   39|         self,
+   40|         tryfirst: bool = False,
+   41|         trylast: bool = False,
+   42|         hookwrapper: bool = False,
+   43|         wrapper: bool = False,
+   44|     ) -> Callable[[FuncT], FuncT]:
+   45|         def wrap(func: FuncT) -> FuncT:
+   46|             hookimpl(
+   47|                 tryfirst=tryfirst,
+   48|                 trylast=trylast,
+   49|                 hookwrapper=hookwrapper,
+   50|                 wrapper=wrapper,
+   51|             )(func)
+   52|             self.hc._add_hookimpl(
+   53|                 HookImpl(None, "<temp>", func, func.example_impl),  # type: ignore[attr-defined]
+   54|             )
+   55|             return func
+   56| 
+   57|         return wrap
+   58| 
+   59| 
+   60| @pytest.fixture
+   61| def addmeth(hc: HookCaller) -> AddMeth:
+   62|     return AddMeth(hc)
+   63| 
+   64| 
+   65| def funcs(hookmethods: Sequence[HookImpl]) -> list[Callable[..., object]]:
+   66|     return [hookmethod.function for hookmethod in hookmethods]
+   67| 
+   68| 
+   69| def test_adding_nonwrappers(hc: HookCaller, addmeth: AddMeth) -> None:
+   70|     @addmeth()
+   71|     def he_method1() -> None:
+   72|         pass
+   73| 
+   74|     @addmeth()
+   75|     def he_method2() -> None:
+   76|         pass
+   77| 
+   78|     @addmeth()
+   79|     def he_method3() -> None:
+   80|         pass
+   81| 
+   82|     assert funcs(hc.get_hookimpls()) == [he_method1, he_method2, he_method3]
+   83| 
+   84| 
+   85| def test_adding_nonwrappers_trylast(hc: HookCaller, addmeth: AddMeth) -> None:
+   86|     @addmeth()
+   87|     def he_method1_middle() -> None:
+   88|         pass
+   89| 
+   90|     @addmeth(trylast=True)
+   91|     def he_method1() -> None:
+   92|         pass
+   93| 
+   94|     @addmeth()
+   95|     def he_method1_b() -> None:
+   96|         pass
+   97| 
+   98|     assert funcs(hc.get_hookimpls()) == [he_method1, he_method1_middle, he_method1_b]
+   99| 
+  100| 
+  101| def test_adding_nonwrappers_trylast3(hc: HookCaller, addmeth: AddMeth) -> None:
+  102|     @addmeth()
+  103|     def he_method1_a() -> None:
+  104|         pass
+  105| 
+  106|     @addmeth(trylast=True)
+  107|     def he_method1_b() -> None:
+  108|         pass
+  109| 
+  110|     @addmeth()
+  111|     def he_method1_c() -> None:
+  112|         pass
+  113| 
+  114|     @addmeth(trylast=True)
+  115|     def he_method1_d() -> None:
+  116|         pass
+  117| 
+  118|     assert funcs(hc.get_hookimpls()) == [
+  119|         he_method1_d,
+  120|         he_method1_b,
+  121|         he_method1_a,
+  122|         he_method1_c,
+  123|     ]
+  124| 
+  125| 
+  126| def test_adding_nonwrappers_trylast2(hc: HookCaller, addmeth: AddMeth) -> None:
+  127|     @addmeth()
+  128|     def he_method1_middle() -> None:
+  129|         pass
+  130| 
+  131|     @addmeth()
+  132|     def he_method1_b() -> None:
+  133|         pass
+  134| 
+  135|     @addmeth(trylast=True)
+  136|     def he_method1() -> None:
+  137|         pass
+  138| 
+  139|     assert funcs(hc.get_hookimpls()) == [he_method1, he_method1_middle, he_method1_b]
+  140| 
+  141| 
+  142| def test_adding_nonwrappers_tryfirst(hc: HookCaller, addmeth: AddMeth) -> None:
+  143|     @addmeth(tryfirst=True)
+  144|     def he_method1() -> None:
+  145|         pass
+  146| 
+  147|     @addmeth()
+  148|     def he_method1_middle() -> None:
+  149|         pass
+  150| 
+  151|     @addmeth()
+  152|     def he_method1_b() -> None:
+  153|         pass
+  154| 
+  155|     assert funcs(hc.get_hookimpls()) == [he_method1_middle, he_method1_b, he_method1]
+  156| 
+  157| 
+  158| def test_adding_wrappers_ordering(hc: HookCaller, addmeth: AddMeth) -> None:
+  159|     @addmeth(hookwrapper=True)
+  160|     def he_method1():
+  161|         yield  # pragma: no cover
+  162| 
+  163|     @addmeth(wrapper=True)
+  164|     def he_method1_fun():
+  165|         yield  # pragma: no cover
+  166| 
+  167|     @addmeth()
+  168|     def he_method1_middle():
+  169|         return  # pragma: no cover
+  170| 
+  171|     @addmeth(hookwrapper=True)
+  172|     def he_method3_fun():
+  173|         yield  # pragma: no cover
+  174| 
+  175|     @addmeth(hookwrapper=True)
+  176|     def he_method3():
+  177|         yield  # pragma: no cover
+  178| 
+  179|     assert funcs(hc.get_hookimpls()) == [
+  180|         he_method1_middle,
+  181|         he_method1,
+  182|         he_method1_fun,
+  183|         he_method3_fun,
+  184|         he_method3,
+  185|     ]
+  186| 
+  187| 
+  188| def test_adding_wrappers_ordering_tryfirst(hc: HookCaller, addmeth: AddMeth) -> None:
+  189|     @addmeth(hookwrapper=True, tryfirst=True)
+  190|     def he_method1():
+  191|         yield  # pragma: no cover
+  192| 
+  193|     @addmeth(hookwrapper=True)
+  194|     def he_method2():
+  195|         yield  # pragma: no cover
+  196| 
+  197|     @addmeth(wrapper=True, tryfirst=True)
+  198|     def he_method3():
+  199|         yield  # pragma: no cover
+  200| 
+  201|     assert funcs(hc.get_hookimpls()) == [he_method2, he_method1, he_method3]
+  202| 
+  203| 
+  204| def test_adding_wrappers_complex(hc: HookCaller, addmeth: AddMeth) -> None:
+  205|     assert funcs(hc.get_hookimpls()) == []
+  206| 
+  207|     @addmeth(hookwrapper=True, trylast=True)
+  208|     def m1():
+  209|         yield  # pragma: no cover
+  210| 
+  211|     assert funcs(hc.get_hookimpls()) == [m1]
+  212| 
+  213|     @addmeth()
+  214|     def m2() -> None: ...
+  215| 
+  216|     assert funcs(hc.get_hookimpls()) == [m2, m1]
+  217| 
+  218|     @addmeth(trylast=True)
+  219|     def m3() -> None: ...
+  220| 
+  221|     assert funcs(hc.get_hookimpls()) == [m3, m2, m1]
+  222| 
+  223|     @addmeth(hookwrapper=True)
+  224|     def m4() -> None: ...
+  225| 
+  226|     assert funcs(hc.get_hookimpls()) == [m3, m2, m1, m4]
+  227| 
+  228|     @addmeth(wrapper=True, tryfirst=True)
+  229|     def m5():
+  230|         yield  # pragma: no cover
+  231| 
+  232|     assert funcs(hc.get_hookimpls()) == [m3, m2, m1, m4, m5]
+  233| 
+  234|     @addmeth(tryfirst=True)
+  235|     def m6() -> None: ...
+  236| 
+  237|     assert funcs(hc.get_hookimpls()) == [m3, m2, m6, m1, m4, m5]
+  238| 
+  239|     @addmeth()
+  240|     def m7() -> None: ...
+  241| 
+  242|     assert funcs(hc.get_hookimpls()) == [m3, m2, m7, m6, m1, m4, m5]
+  243| 
+  244|     @addmeth(wrapper=True)
+  245|     def m8():
+  246|         yield  # pragma: no cover
+  247| 
+  248|     assert funcs(hc.get_hookimpls()) == [m3, m2, m7, m6, m1, m4, m8, m5]
+  249| 
+  250|     @addmeth(trylast=True)
+  251|     def m9() -> None: ...
+  252| 
+  253|     assert funcs(hc.get_hookimpls()) == [m9, m3, m2, m7, m6, m1, m4, m8, m5]
+  254| 
+  255|     @addmeth(tryfirst=True)
+  256|     def m10() -> None: ...
+  257| 
+  258|     assert funcs(hc.get_hookimpls()) == [m9, m3, m2, m7, m6, m10, m1, m4, m8, m5]
+  259| 
+  260|     @addmeth(hookwrapper=True, trylast=True)
+  261|     def m11() -> None: ...
+  262| 
+  263|     assert funcs(hc.get_hookimpls()) == [m9, m3, m2, m7, m6, m10, m11, m1, m4, m8, m5]
+  264| 
+  265|     @addmeth(wrapper=True)
+  266|     def m12():
+  267|         yield  # pragma: no cover
+  268| 
+  269|     assert funcs(hc.get_hookimpls()) == [
+  270|         m9,
+  271|         m3,
+  272|         m2,
+  273|         m7,
+  274|         m6,
+  275|         m10,
+  276|         m11,
+  277|         m1,
+  278|         m4,
+  279|         m8,
+  280|         m12,
+  281|         m5,
+  282|     ]
+  283| 
+  284|     @addmeth()
+  285|     def m13() -> None: ...
+  286| 
+  287|     assert funcs(hc.get_hookimpls()) == [
+  288|         m9,
+  289|         m3,
+  290|         m2,
+  291|         m7,
+  292|         m13,
+  293|         m6,
+  294|         m10,
+  295|         m11,
+  296|         m1,
+  297|         m4,
+  298|         m8,
+  299|         m12,
+  300|         m5,
+  301|     ]
+  302| 
+  303| 
+  304| def test_hookspec(pm: PluginManager) -> None:
+  305|     class HookSpec:
+  306|         @hookspec()
+  307|         def he_myhook1(self, arg1) -> None:
+  308|             pass
+  309| 
+  310|         @hookspec(firstresult=True)
+  311|         def he_myhook2(self, arg1) -> None:
+  312|             pass
+  313| 
+  314|         @hookspec(firstresult=False)
+  315|         def he_myhook3(self, arg1) -> None:
+  316|             pass
+  317| 
+  318|     pm.add_hookspecs(HookSpec)
+  319|     assert pm.hook.he_myhook1.spec is not None
+  320|     assert not pm.hook.he_myhook1.spec.opts["firstresult"]
+  321|     assert pm.hook.he_myhook2.spec is not None
+  322|     assert pm.hook.he_myhook2.spec.opts["firstresult"]
+  323|     assert pm.hook.he_myhook3.spec is not None
+  324|     assert not pm.hook.he_myhook3.spec.opts["firstresult"]
+  325| 
+  326| 
+  327| @pytest.mark.parametrize("name", ["hookwrapper", "optionalhook", "tryfirst", "trylast"])
+  328| @pytest.mark.parametrize("val", [True, False])
+  329| def test_hookimpl(name: str, val: bool) -> None:
+  330|     @hookimpl(**{name: val})  # type: ignore[untyped-decorator,call-overload]
+  331|     def he_myhook1(arg1) -> None:
+  332|         pass
+  333| 
+  334|     if val:
+  335|         assert he_myhook1.example_impl.get(name)
+  336|     else:
+  337|         assert not hasattr(he_myhook1, name)
+  338| 
+  339| 
+  340| def test_hookrelay_registry(pm: PluginManager) -> None:
+  341|     """Verify hook caller instances are registered by name onto the relay
+  342|     and can be likewise unregistered."""
+  343| 
+  344|     class Api:
+  345|         @hookspec
+  346|         def hello(self, arg: object) -> None:
+  347|             "api hook 1"
+  348| 
+  349|     pm.add_hookspecs(Api)
+  350|     hook = pm.hook
+  351|     assert hasattr(hook, "hello")
+  352|     assert repr(hook.hello).find("hello") != -1
+  353| 
+  354|     class Plugin:
+  355|         @hookimpl
+  356|         def hello(self, arg):
+  357|             return arg + 1
+  358| 
+  359|     plugin = Plugin()
+  360|     pm.register(plugin)
+  361|     out = hook.hello(arg=3)
+  362|     assert out == [4]
+  363|     assert not hasattr(hook, "world")
+  364|     pm.unregister(plugin)
+  365|     assert hook.hello(arg=3) == []
+  366| 
+  367| 
+  368| def test_hookrelay_registration_by_specname(pm: PluginManager) -> None:
+  369|     """Verify hook caller instances may also be registered by specifying a
+  370|     specname option to the hookimpl"""
+  371| 
+  372|     class Api:
+  373|         @hookspec
+  374|         def hello(self, arg: object) -> None:
+  375|             "api hook 1"
+  376| 
+  377|     pm.add_hookspecs(Api)
+  378|     hook = pm.hook
+  379|     assert hasattr(hook, "hello")
+  380|     assert len(pm.hook.hello.get_hookimpls()) == 0
+  381| 
+  382|     class Plugin:
+  383|         @hookimpl(specname="hello")
+  384|         def foo(self, arg: int) -> int:
+  385|             return arg + 1
+  386| 
+  387|     plugin = Plugin()
+  388|     pm.register(plugin)
+  389|     out = hook.hello(arg=3)
+  390|     assert out == [4]
+  391| 
+  392| 
+  393| def test_hookrelay_registration_by_specname_raises(pm: PluginManager) -> None:
+  394|     """Verify using specname still raises the types of errors during registration as it
+  395|     would have without using specname."""
+  396| 
+  397|     class Api:
+  398|         @hookspec
+  399|         def hello(self, arg: object) -> None:
+  400|             "api hook 1"
+  401| 
+  402|     pm.add_hookspecs(Api)
+  403| 
+  404|     # make sure a bad signature still raises an error when using specname
+  405|     class Plugin:
+  406|         @hookimpl(specname="hello")
+  407|         def foo(self, arg: int, too, many, args) -> int:
+  408|             return arg + 1  # pragma: no cover
+  409| 
+  410|     with pytest.raises(PluginValidationError):
+  411|         pm.register(Plugin())
+  412| 
+  413|     # make sure check_pending still fails if specname doesn't have a
+  414|     # corresponding spec.  EVEN if the function name matches one.
+  415|     class Plugin2:
+  416|         @hookimpl(specname="bar")
+  417|         def hello(self, arg: int) -> int:
+  418|             return arg + 1  # pragma: no cover
+  419| 
+  420|     pm.register(Plugin2())
+  421|     with pytest.raises(PluginValidationError):
+  422|         pm.check_pending()
+  423| 
+  424| 
+  425| def test_hook_conflict(pm: PluginManager) -> None:
+  426|     class Api1:
+  427|         @hookspec
+  428|         def conflict(self) -> None:
+  429|             """Api1 hook"""
+  430| 
+  431|     class Api2:
+  432|         @hookspec
+  433|         def conflict(self) -> None:
+  434|             """Api2 hook"""
+  435| 
+  436|     pm.add_hookspecs(Api1)
+  437|     with pytest.raises(ValueError) as exc:
+  438|         pm.add_hookspecs(Api2)
+  439|     assert str(exc.value) == (
+  440|         "Hook 'conflict' is already registered within namespace "
+  441|         "<class 'test_hookcaller.test_hook_conflict.<locals>.Api1'>"
+  442|     )
+  443| 
+  444| 
+  445| def test_call_extra_hook_order(hc: HookCaller, addmeth: AddMeth) -> None:
+  446|     """Ensure that call_extra is calling hooks in the right order."""
+  447|     order = []
+  448| 
+  449|     @addmeth(tryfirst=True)
+  450|     def method1() -> str:
+  451|         order.append("1")
+  452|         return "1"
+  453| 
+  454|     @addmeth()
+  455|     def method2() -> str:
+  456|         order.append("2")
+  457|         return "2"
+  458| 
+  459|     @addmeth(trylast=True)
+  460|     def method3() -> str:
+  461|         order.append("3")
+  462|         return "3"
+  463| 
+  464|     @addmeth(wrapper=True, tryfirst=True)
+  465|     def method4() -> Generator[None, str, str]:
+  466|         order.append("4pre")
+  467|         result = yield
+  468|         order.append("4post")
+  469|         return result
+  470| 
+  471|     @addmeth(wrapper=True)
+  472|     def method5() -> Generator[None, str, str]:
+  473|         order.append("5pre")
+  474|         result = yield
+  475|         order.append("5post")
+  476|         return result
+  477| 
+  478|     @addmeth(wrapper=True, trylast=True)
+  479|     def method6() -> Generator[None, str, str]:
+  480|         order.append("6pre")
+  481|         result = yield
+  482|         order.append("6post")
+  483|         return result
+  484| 
+  485|     def extra1() -> str:
+  486|         order.append("extra1")
+  487|         return "extra1"
+  488| 
+  489|     def extra2() -> str:
+  490|         order.append("extra2")
+  491|         return "extra2"
+  492| 
+  493|     result = hc.call_extra([extra1, extra2], {"arg": "test"})
+  494|     assert order == [
+  495|         "4pre",
+  496|         "5pre",
+  497|         "6pre",
+  498|         "1",
+  499|         "extra2",
+  500|         "extra1",
+  501|         "2",
+  502|         "3",
+  503|         "6post",
+  504|         "5post",
+  505|         "4post",
+  506|     ]
+  507|     assert result == [
+  508|         "1",
+  509|         "extra2",
+  510|         "extra1",
+  511|         "2",
+  512|         "3",
+  513|     ]
+
+FILE testing/test_warnings.py:
+    1| from pathlib import Path
+    2| import warnings
+    3| 
+    4| import pytest
+    5| 
+    6| from pluggy import HookimplMarker
+    7| from pluggy import HookspecMarker
+    8| from pluggy import PluggyTeardownRaisedWarning
+    9| from pluggy import PluginManager
+   10| 
+   11| 
+   12| hookspec = HookspecMarker("example")
+   13| hookimpl = HookimplMarker("example")
+   14| 
+   15| 
+   16| def test_teardown_raised_warning(pm: PluginManager) -> None:
+   17|     class Api:
+   18|         @hookspec
+   19|         def my_hook(self):
+   20|             raise NotImplementedError()
+   21| 
+   22|     pm.add_hookspecs(Api)
+   23| 
+   24|     class Plugin1:
+   25|         @hookimpl
+   26|         def my_hook(self):
+   27|             pass
+   28| 
+   29|     class Plugin2:
+   30|         @hookimpl(hookwrapper=True)
+   31|         def my_hook(self):
+   32|             yield
+   33|             1 / 0
+   34| 
+   35|     class Plugin3:
+   36|         @hookimpl(hookwrapper=True)
+   37|         def my_hook(self):
+   38|             yield
+   39| 
+   40|     pm.register(Plugin1(), "plugin1")
+   41|     pm.register(Plugin2(), "plugin2")
+   42|     pm.register(Plugin3(), "plugin3")
+   43|     with pytest.warns(
+   44|         PluggyTeardownRaisedWarning,
+   45|         match=r"\bplugin2\b.*\bmy_hook\b.*\n.*ZeroDivisionError",
+   46|     ) as wc:
+   47|         with pytest.raises(ZeroDivisionError):
+   48|             pm.hook.my_hook()
+   49|     assert len(wc.list) == 1
+   50|     assert Path(wc.list[0].filename).name == "test_warnings.py"
+   51| 
+   52| 
+   53| def test_hookspec_missing_self_warns(pm: PluginManager) -> None:
+   54|     """A hookspec defined as a method without ``self`` emits a DeprecationWarning."""
+   55| 
+   56|     class Api:
+   57|         @hookspec
+   58|         def my_hook(item, extra):
+   59|             pass
+   60| 
+   61|     with pytest.warns(
+   62|         DeprecationWarning,
+   63|         match=r"is a method but its first parameter 'item' is not 'self'",
+   64|     ):
+   65|         pm.add_hookspecs(Api)
+   66| 
+   67| 
+   68| def test_hookspec_with_self_no_warning(pm: PluginManager) -> None:
+   69|     """A hookspec with ``self`` does not emit a DeprecationWarning."""
+   70| 
+   71|     class Api:
+   72|         @hookspec
+   73|         def my_hook(self, item, extra):
+   74|             pass
+   75| 
+   76|     with warnings.catch_warnings():
+   77|         warnings.simplefilter("error")
+   78|         pm.add_hookspecs(Api)
+   79| 
+   80| 
+   81| def test_hookspec_staticmethod_no_warning(pm: PluginManager) -> None:
+   82|     """A hookspec using @staticmethod does not emit a DeprecationWarning."""
+   83| 
+   84|     class Api:
+   85|         @staticmethod
+   86|         @hookspec
+   87|         def my_hook(item, extra) -> None:
+   88|             pass
+   89| 
+   90|     with warnings.catch_warnings():
+   91|         warnings.simplefilter("error")
+   92|         pm.add_hookspecs(Api)
+
+Answer now with ONE JSON array containing one object per query, in query order.

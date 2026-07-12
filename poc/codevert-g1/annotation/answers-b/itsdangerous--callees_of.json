@@ -1,0 +1,26 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [],
+   "notes": "Calls through the signer_factory parameter and the resulting signer value cannot be resolved statically.",
+   "query_id": "g1q-itsdangerous-callees_of-96"
+  },
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [
+    "ext:hmac.compare_digest"
+   ],
+   "notes": "The self.get_signature call uses dynamic method dispatch, so its runtime callee cannot be determined fully.",
+   "query_id": "g1q-itsdangerous-callees_of-35"
+  }
+ ],
+ "attempts": 1,
+ "batch": "itsdangerous--callees_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

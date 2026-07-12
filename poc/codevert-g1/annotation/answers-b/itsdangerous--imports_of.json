@@ -1,0 +1,43 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "repo:src/itsdangerous/__init__.py",
+    "repo:src/itsdangerous/encoding.py",
+    "repo:src/itsdangerous/exc.py",
+    "repo:src/itsdangerous/serializer.py",
+    "repo:src/itsdangerous/signer.py",
+    "repo:src/itsdangerous/timed.py",
+    "repo:src/itsdangerous/url_safe.py"
+   ],
+   "notes": "All imports resolve to sibling repository modules and their ancestor package initializer.",
+   "query_id": "g1q-itsdangerous-imports_of-1"
+  },
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "ext:functools",
+    "ext:hashlib",
+    "ext:io",
+    "ext:pickle",
+    "ext:pytest",
+    "ext:typing",
+    "repo:src/itsdangerous/__init__.py",
+    "repo:src/itsdangerous/exc.py",
+    "repo:src/itsdangerous/serializer.py",
+    "repo:src/itsdangerous/signer.py"
+   ],
+   "notes": "All import statements are top-level; itsdangerous imports resolve to repository modules and their ancestor package initializer.",
+   "query_id": "g1q-itsdangerous-imports_of-11"
+  }
+ ],
+ "attempts": 1,
+ "batch": "itsdangerous--imports_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

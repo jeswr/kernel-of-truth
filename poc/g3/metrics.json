@@ -1,0 +1,222 @@
+{
+ "hybrid_cannot_say": {
+  "gpt_q2_cs": 0,
+  "human_q1_cs": 8,
+  "n_hybrid_decisive": 192
+ },
+ "hybrid_decisive_only": {
+  "necessity": {
+   "n": 192,
+   "rate": 0.239583,
+   "violations": 46,
+   "wilson_lb": 0.192754,
+   "wilson_ub": 0.293651
+  },
+  "sufficiency": {
+   "n": 192,
+   "rate": 0.09375,
+   "violations": 18,
+   "wilson_lb": 0.064573,
+   "wilson_ub": 0.134219
+  }
+ },
+ "hybrid_haiku_q2_n200": {
+  "necessity": {
+   "n": 200,
+   "rate": 0.325,
+   "violations": 65,
+   "wilson_lb": 0.27317,
+   "wilson_ub": 0.381503
+  },
+  "sufficiency": {
+   "n": 200,
+   "rate": 0.075,
+   "violations": 15
+  }
+ },
+ "hybrid_proposal_n200": {
+  "necessity": {
+   "n": 200,
+   "rate": 0.23,
+   "violations": 46,
+   "wilson_lb": 0.184848,
+   "wilson_ub": 0.282361
+  },
+  "sufficiency": {
+   "n": 200,
+   "rate": 0.09,
+   "violations": 18,
+   "wilson_lb": 0.061958,
+   "wilson_ub": 0.128989
+  }
+ },
+ "hybrid_violation_ids": {
+  "necessity": [
+   "g3-afraid-01",
+   "g3-afraid-02",
+   "g3-afraid-09",
+   "g3-angry-02",
+   "g3-angry-08",
+   "g3-archived-01",
+   "g3-archived-08",
+   "g3-archived-09",
+   "g3-believe-02",
+   "g3-believe-03",
+   "g3-believe-05",
+   "g3-birth-07",
+   "g3-birth-08",
+   "g3-bookmark-02",
+   "g3-bookmark-08",
+   "g3-broken-01",
+   "g3-broken-02",
+   "g3-broken-09",
+   "g3-death-10",
+   "g3-end-01",
+   "g3-end-09",
+   "g3-find-03",
+   "g3-find-10",
+   "g3-friend-06",
+   "g3-friend-07",
+   "g3-friend-09",
+   "g3-lie-02",
+   "g3-lie-06",
+   "g3-lie-09",
+   "g3-lost-01",
+   "g3-lost-05",
+   "g3-lost-08",
+   "g3-make-08",
+   "g3-promise-02",
+   "g3-promise-09",
+   "g3-reminder-01",
+   "g3-reminder-02",
+   "g3-reminder-04",
+   "g3-reminder-05",
+   "g3-reminder-07",
+   "g3-reminder-09",
+   "g3-repair-01",
+   "g3-useful-01",
+   "g3-useful-02",
+   "g3-useful-06",
+   "g3-useful-10"
+  ],
+  "sufficiency": [
+   "g3-afraid-03",
+   "g3-afraid-04",
+   "g3-angry-01",
+   "g3-angry-05",
+   "g3-angry-07",
+   "g3-archived-02",
+   "g3-begin-04",
+   "g3-birth-04",
+   "g3-birth-05",
+   "g3-birth-06",
+   "g3-bookmark-01",
+   "g3-bookmark-04",
+   "g3-bookmark-06",
+   "g3-friend-05",
+   "g3-friend-10",
+   "g3-make-10",
+   "g3-promise-08",
+   "g3-repair-03"
+  ]
+ },
+ "nec_2x2_hybrid_vs_gpt56": {
+  "a_no_b_yes": 6,
+  "a_yes_b_no": 3,
+  "both_no": 148,
+  "both_yes": 43,
+  "caveat": "shares q2_gpt between annotators; kappa structurally inflated",
+  "kappa": 0.8758
+ },
+ "nec_2x2_hybrid_vs_haiku": {
+  "a_no_b_yes": 25,
+  "a_yes_b_no": 12,
+  "both_no": 129,
+  "both_yes": 34,
+  "caveat": "independent q2 sources (gpt56 vs haiku); q1 human vs haiku",
+  "kappa": 0.5248
+ },
+ "proxy_gpt56": {
+  "necessity": {
+   "n_decisive": 199,
+   "rate": 0.246231,
+   "violations": 49,
+   "wilson_lb": 0.19962,
+   "wilson_ub": 0.299651
+  },
+  "sufficiency": {
+   "rate": 0.105528,
+   "violations": 21
+  }
+ },
+ "proxy_haiku": {
+  "necessity": {
+   "n_decisive": 195,
+   "rate": 0.302564,
+   "violations": 59,
+   "wilson_lb": 0.251456,
+   "wilson_ub": 0.359077
+  },
+  "sufficiency": {
+   "rate": 0.082051,
+   "violations": 16
+  }
+ },
+ "q1_agreement_human_vs_gpt56": {
+  "disagree_ids": [
+   "g3-afraid-04",
+   "g3-believe-05",
+   "g3-believe-09",
+   "g3-death-10",
+   "g3-end-03",
+   "g3-find-05",
+   "g3-give-05",
+   "g3-give-10",
+   "g3-lost-10",
+   "g3-make-10",
+   "g3-promise-05",
+   "g3-reminder-08"
+  ],
+  "exact_3way": 179,
+  "exact_3way_pct": 0.895,
+  "kappa": 0.7561,
+  "n_both_decisive": 191,
+  "pct_agree_decisive": 0.9372,
+  "table": {
+   "both_no": 23,
+   "both_yes": 156,
+   "h_no_p_yes": 6,
+   "h_yes_p_no": 6
+  }
+ },
+ "q1_agreement_human_vs_haiku": {
+  "disagree_ids": [
+   "g3-afraid-03",
+   "g3-afraid-04",
+   "g3-archived-01",
+   "g3-begin-03",
+   "g3-believe-09",
+   "g3-death-10",
+   "g3-find-05",
+   "g3-lie-07",
+   "g3-lie-10",
+   "g3-lost-06",
+   "g3-lost-10",
+   "g3-promise-05",
+   "g3-promise-09",
+   "g3-repair-03",
+   "g3-repair-05"
+  ],
+  "exact_3way": 174,
+  "exact_3way_pct": 0.87,
+  "kappa": 0.7069,
+  "n_both_decisive": 188,
+  "pct_agree_decisive": 0.9202,
+  "table": {
+   "both_no": 23,
+   "both_yes": 150,
+   "h_no_p_yes": 5,
+   "h_yes_p_no": 10
+  }
+ }
+}

@@ -1,0 +1,510 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: markupsafe ===
+PY FILE LISTING (repo-root-relative; authoritative):
+bench.py
+setup.py
+docs/conf.py
+src/markupsafe/__init__.py
+src/markupsafe/_native.py
+tests/__init__.py
+tests/conftest.py
+tests/test_escape.py
+tests/test_exception_custom_html.py
+tests/test_ext_init.py
+tests/test_leak.py
+tests/test_markupsafe.py
+
+=== QUERIES (2) ===
+QUERY g1q-markupsafe-callees_of-51: family=callees_of target=src/markupsafe/__init__.py::_MarkupEscapeHelper.__getitem__
+QUERY g1q-markupsafe-callees_of-23: family=callees_of target=src/markupsafe/__init__.py::Markup.escape
+
+=== CONTEXT ===
+
+FILE src/markupsafe/__init__.py:
+    1| from __future__ import annotations
+    2| 
+    3| import collections.abc as cabc
+    4| import string
+    5| import typing as t
+    6| 
+    7| try:
+    8|     from ._speedups import _escape_inner
+    9| except ImportError:
+   10|     from ._native import _escape_inner
+   11| 
+   12| if t.TYPE_CHECKING:
+   13|     import typing_extensions as te
+   14| 
+   15| 
+   16| class _HasHTML(t.Protocol):
+   17|     def __html__(self, /) -> str: ...
+   18| 
+   19| 
+   20| class _TPEscape(t.Protocol):
+   21|     def __call__(self, s: t.Any, /) -> Markup: ...
+   22| 
+   23| 
+   24| def escape(s: t.Any, /) -> Markup:
+   25|     """Replace the characters ``&``, ``<``, ``>``, ``'``, and ``"`` in
+   26|     the string with HTML-safe sequences. Use this if you need to display
+   27|     text that might contain such characters in HTML.
+   28| 
+   29|     If the object has an ``__html__`` method, it is called and the
+   30|     return value is assumed to already be safe for HTML.
+   31| 
+   32|     :param s: An object to be converted to a string and escaped.
+   33|     :return: A :class:`Markup` string with the escaped text.
+   34|     """
+   35|     # If the object is already a plain string, skip __html__ check and string
+   36|     # conversion. This is the most common use case.
+   37|     # Use type(s) instead of s.__class__ because a proxy object may be reporting
+   38|     # the __class__ of the proxied value.
+   39|     if type(s) is str:
+   40|         return Markup(_escape_inner(s))
+   41| 
+   42|     if hasattr(s, "__html__"):
+   43|         return Markup(s.__html__())
+   44| 
+   45|     return Markup(_escape_inner(str(s)))
+   46| 
+   47| 
+   48| def escape_silent(s: t.Any | None, /) -> Markup:
+   49|     """Like :func:`escape` but treats ``None`` as the empty string.
+   50|     Useful with optional values, as otherwise you get the string
+   51|     ``'None'`` when the value is ``None``.
+   52| 
+   53|     >>> escape(None)
+   54|     Markup('None')
+   55|     >>> escape_silent(None)
+   56|     Markup('')
+   57|     """
+   58|     if s is None:
+   59|         return Markup()
+   60| 
+   61|     return escape(s)
+   62| 
+   63| 
+   64| def soft_str(s: t.Any, /) -> str:
+   65|     """Convert an object to a string if it isn't already. This preserves
+   66|     a :class:`Markup` string rather than converting it back to a basic
+   67|     string, so it will still be marked as safe and won't be escaped
+   68|     again.
+   69| 
+   70|     >>> value = escape("<User 1>")
+   71|     >>> value
+   72|     Markup('&lt;User 1&gt;')
+   73|     >>> escape(str(value))
+   74|     Markup('&amp;lt;User 1&amp;gt;')
+   75|     >>> escape(soft_str(value))
+   76|     Markup('&lt;User 1&gt;')
+   77|     """
+   78|     if not isinstance(s, str):
+   79|         return str(s)
+   80| 
+   81|     return s
+   82| 
+   83| 
+   84| class Markup(str):
+   85|     """A string that is ready to be safely inserted into an HTML or XML
+   86|     document, either because it was escaped or because it was marked
+   87|     safe.
+   88| 
+   89|     Passing an object to the constructor converts it to text and wraps
+   90|     it to mark it safe without escaping. To escape the text, use the
+   91|     :meth:`escape` class method instead.
+   92| 
+   93|     >>> Markup("Hello, <em>World</em>!")
+   94|     Markup('Hello, <em>World</em>!')
+   95|     >>> Markup(42)
+   96|     Markup('42')
+   97|     >>> Markup.escape("Hello, <em>World</em>!")
+   98|     Markup('Hello &lt;em&gt;World&lt;/em&gt;!')
+   99| 
+  100|     This implements the ``__html__()`` interface that some frameworks
+  101|     use. Passing an object that implements ``__html__()`` will wrap the
+  102|     output of that method, marking it safe.
+  103| 
+  104|     >>> class Foo:
+  105|     ...     def __html__(self):
+  106|     ...         return '<a href="/foo">foo</a>'
+  107|     ...
+  108|     >>> Markup(Foo())
+  109|     Markup('<a href="/foo">foo</a>')
+  110| 
+  111|     This is a subclass of :class:`str`. It has the same methods, but
+  112|     escapes their arguments and returns a ``Markup`` instance.
+  113| 
+  114|     >>> Markup("<em>%s</em>") % ("foo & bar",)
+  115|     Markup('<em>foo &amp; bar</em>')
+  116|     >>> Markup("<em>Hello</em> ") + "<foo>"
+  117|     Markup('<em>Hello</em> &lt;foo&gt;')
+  118|     """
+  119| 
+  120|     __slots__ = ()
+  121| 
+  122|     def __new__(
+  123|         cls, object: t.Any = "", encoding: str | None = None, errors: str = "strict"
+  124|     ) -> te.Self:
+  125|         if hasattr(object, "__html__"):
+  126|             object = object.__html__()
+  127| 
+  128|         if encoding is None:
+  129|             return super().__new__(cls, object)
+  130| 
+  131|         return super().__new__(cls, object, encoding, errors)
+  132| 
+  133|     def __html__(self, /) -> te.Self:
+  134|         return self
+  135| 
+  136|     def __add__(self, value: str | _HasHTML, /) -> te.Self:
+  137|         if isinstance(value, str) or hasattr(value, "__html__"):
+  138|             return self.__class__(super().__add__(self.escape(value)))
+  139| 
+  140|         return NotImplemented
+  141| 
+  142|     def __radd__(self, value: str | _HasHTML, /) -> te.Self:
+  143|         if isinstance(value, str) or hasattr(value, "__html__"):
+  144|             return self.escape(value).__add__(self)
+  145| 
+  146|         return NotImplemented
+  147| 
+  148|     def __mul__(self, value: t.SupportsIndex, /) -> te.Self:
+  149|         return self.__class__(super().__mul__(value))
+  150| 
+  151|     def __rmul__(self, value: t.SupportsIndex, /) -> te.Self:
+  152|         return self.__class__(super().__mul__(value))
+  153| 
+  154|     def __mod__(self, value: t.Any, /) -> te.Self:
+  155|         if isinstance(value, tuple):
+  156|             # a tuple of arguments, each wrapped
+  157|             value = tuple(_MarkupEscapeHelper(x, self.escape) for x in value)
+  158|         elif hasattr(type(value), "__getitem__") and not isinstance(value, str):
+  159|             # a mapping of arguments, wrapped
+  160|             value = _MarkupEscapeHelper(value, self.escape)
+  161|         else:
+  162|             # a single argument, wrapped with the helper and a tuple
+  163|             value = (_MarkupEscapeHelper(value, self.escape),)
+  164| 
+  165|         return self.__class__(super().__mod__(value))
+  166| 
+  167|     def __repr__(self, /) -> str:
+  168|         return f"{self.__class__.__name__}({super().__repr__()})"
+  169| 
+  170|     def join(self, iterable: cabc.Iterable[str | _HasHTML], /) -> te.Self:
+  171|         return self.__class__(super().join(map(self.escape, iterable)))
+  172| 
+  173|     def split(  # type: ignore[override]
+  174|         self, /, sep: str | None = None, maxsplit: t.SupportsIndex = -1
+  175|     ) -> list[te.Self]:
+  176|         return [self.__class__(v) for v in super().split(sep, maxsplit)]
+  177| 
+  178|     def rsplit(  # type: ignore[override]
+  179|         self, /, sep: str | None = None, maxsplit: t.SupportsIndex = -1
+  180|     ) -> list[te.Self]:
+  181|         return [self.__class__(v) for v in super().rsplit(sep, maxsplit)]
+  182| 
+  183|     def splitlines(  # type: ignore[override]
+  184|         self, /, keepends: bool = False
+  185|     ) -> list[te.Self]:
+  186|         return [self.__class__(v) for v in super().splitlines(keepends)]
+  187| 
+  188|     def unescape(self, /) -> str:
+  189|         """Convert escaped markup back into a text string. This replaces
+  190|         HTML entities with the characters they represent.
+  191| 
+  192|         >>> Markup("Main &raquo; <em>About</em>").unescape()
+  193|         'Main » <em>About</em>'
+  194|         """
+  195|         from html import unescape
+  196| 
+  197|         return unescape(str(self))
+  198| 
+  199|     def striptags(self, /) -> str:
+  200|         """:meth:`unescape` the markup, remove tags, and normalize
+  201|         whitespace to single spaces.
+  202| 
+  203|         >>> Markup("Main &raquo;\t<em>About</em>").striptags()
+  204|         'Main » About'
+  205|         """
+  206|         value = str(self)
+  207| 
+  208|         # Look for comments then tags separately. Otherwise, a comment that
+  209|         # contains a tag would end early, leaving some of the comment behind.
+  210| 
+  211|         # keep finding comment start marks
+  212|         while (start := value.find("<!--")) != -1:
+  213|             # find a comment end mark beyond the start, otherwise stop
+  214|             if (end := value.find("-->", start)) == -1:
+  215|                 break
+  216| 
+  217|             value = f"{value[:start]}{value[end + 3 :]}"
+  218| 
+  219|         # remove tags using the same method
+  220|         while (start := value.find("<")) != -1:
+  221|             if (end := value.find(">", start)) == -1:
+  222|                 break
+  223| 
+  224|             value = f"{value[:start]}{value[end + 1 :]}"
+  225| 
+  226|         # collapse spaces
+  227|         value = " ".join(value.split())
+  228|         return self.__class__(value).unescape()
+  229| 
+  230|     @classmethod
+  231|     def escape(cls, s: t.Any, /) -> te.Self:
+  232|         """Escape a string. Calls :func:`escape` and ensures that for
+  233|         subclasses the correct type is returned.
+  234|         """
+  235|         rv = escape(s)
+  236| 
+  237|         if rv.__class__ is not cls:
+  238|             return cls(rv)
+  239| 
+  240|         return rv  # type: ignore[return-value]
+  241| 
+  242|     def __getitem__(self, key: t.SupportsIndex | slice, /) -> te.Self:
+  243|         return self.__class__(super().__getitem__(key))
+  244| 
+  245|     def capitalize(self, /) -> te.Self:
+  246|         return self.__class__(super().capitalize())
+  247| 
+  248|     def title(self, /) -> te.Self:
+  249|         return self.__class__(super().title())
+  250| 
+  251|     def lower(self, /) -> te.Self:
+  252|         return self.__class__(super().lower())
+  253| 
+  254|     def upper(self, /) -> te.Self:
+  255|         return self.__class__(super().upper())
+  256| 
+  257|     def replace(self, old: str, new: str, count: t.SupportsIndex = -1, /) -> te.Self:
+  258|         return self.__class__(super().replace(old, self.escape(new), count))
+  259| 
+  260|     def ljust(self, width: t.SupportsIndex, fillchar: str = " ", /) -> te.Self:
+  261|         return self.__class__(super().ljust(width, self.escape(fillchar)))
+  262| 
+  263|     def rjust(self, width: t.SupportsIndex, fillchar: str = " ", /) -> te.Self:
+  264|         return self.__class__(super().rjust(width, self.escape(fillchar)))
+  265| 
+  266|     def lstrip(self, chars: str | None = None, /) -> te.Self:
+  267|         return self.__class__(super().lstrip(chars))
+  268| 
+  269|     def rstrip(self, chars: str | None = None, /) -> te.Self:
+  270|         return self.__class__(super().rstrip(chars))
+  271| 
+  272|     def center(self, width: t.SupportsIndex, fillchar: str = " ", /) -> te.Self:
+  273|         return self.__class__(super().center(width, self.escape(fillchar)))
+  274| 
+  275|     def strip(self, chars: str | None = None, /) -> te.Self:
+  276|         return self.__class__(super().strip(chars))
+  277| 
+  278|     def translate(
+  279|         self,
+  280|         table: cabc.Mapping[int, str | int | None],  # type: ignore[override]
+  281|         /,
+  282|     ) -> str:
+  283|         return self.__class__(super().translate(table))
+  284| 
+  285|     def expandtabs(self, /, tabsize: t.SupportsIndex = 8) -> te.Self:
+  286|         return self.__class__(super().expandtabs(tabsize))
+  287| 
+  288|     def swapcase(self, /) -> te.Self:
+  289|         return self.__class__(super().swapcase())
+  290| 
+  291|     def zfill(self, width: t.SupportsIndex, /) -> te.Self:
+  292|         return self.__class__(super().zfill(width))
+  293| 
+  294|     def casefold(self, /) -> te.Self:
+  295|         return self.__class__(super().casefold())
+  296| 
+  297|     def removeprefix(self, prefix: str, /) -> te.Self:
+  298|         return self.__class__(super().removeprefix(prefix))
+  299| 
+  300|     def removesuffix(self, suffix: str) -> te.Self:
+  301|         return self.__class__(super().removesuffix(suffix))
+  302| 
+  303|     def partition(self, sep: str, /) -> tuple[te.Self, te.Self, te.Self]:
+  304|         left, sep, right = super().partition(sep)
+  305|         cls = self.__class__
+  306|         return cls(left), cls(sep), cls(right)
+  307| 
+  308|     def rpartition(self, sep: str, /) -> tuple[te.Self, te.Self, te.Self]:
+  309|         left, sep, right = super().rpartition(sep)
+  310|         cls = self.__class__
+  311|         return cls(left), cls(sep), cls(right)
+  312| 
+  313|     def format(self, *args: t.Any, **kwargs: t.Any) -> te.Self:
+  314|         formatter = EscapeFormatter(self.escape)
+  315|         return self.__class__(formatter.vformat(self, args, kwargs))
+  316| 
+  317|     def format_map(
+  318|         self,
+  319|         mapping: cabc.Mapping[str, t.Any],  # type: ignore[override]
+  320|         /,
+  321|     ) -> te.Self:
+  322|         formatter = EscapeFormatter(self.escape)
+  323|         return self.__class__(formatter.vformat(self, (), mapping))
+  324| 
+  325|     def __html_format__(self, format_spec: str, /) -> te.Self:
+  326|         if format_spec:
+  327|             raise ValueError("Unsupported format specification for Markup.")
+  328| 
+  329|         return self
+  330| 
+  331| 
+  332| class EscapeFormatter(string.Formatter):
+  333|     __slots__ = ("escape",)
+  334| 
+  335|     def __init__(self, escape: _TPEscape) -> None:
+  336|         self.escape: _TPEscape = escape
+  337|         super().__init__()
+  338| 
+  339|     def format_field(self, value: t.Any, format_spec: str) -> str:
+  340|         if hasattr(value, "__html_format__"):
+  341|             rv = value.__html_format__(format_spec)
+  342|         elif hasattr(value, "__html__"):
+  343|             if format_spec:
+  344|                 raise ValueError(
+  345|                     f"Format specifier {format_spec} given, but {type(value)} does not"
+  346|                     " define __html_format__. A class that defines __html__ must define"
+  347|                     " __html_format__ to work with format specifiers."
+  348|                 )
+  349|             rv = value.__html__()
+  350|         else:
+  351|             # We need to make sure the format spec is str here as
+  352|             # otherwise the wrong callback methods are invoked.
+  353|             rv = super().format_field(value, str(format_spec))
+  354|         return str(self.escape(rv))
+  355| 
+  356| 
+  357| class _MarkupEscapeHelper:
+  358|     """Helper for :meth:`Markup.__mod__`."""
+  359| 
+  360|     __slots__ = ("obj", "escape")
+  361| 
+  362|     def __init__(self, obj: t.Any, escape: _TPEscape) -> None:
+  363|         self.obj: t.Any = obj
+  364|         self.escape: _TPEscape = escape
+  365| 
+  366|     def __getitem__(self, key: t.Any, /) -> te.Self:
+  367|         return self.__class__(self.obj[key], self.escape)
+  368| 
+  369|     def __str__(self, /) -> str:
+  370|         return str(self.escape(self.obj))
+  371| 
+  372|     def __repr__(self, /) -> str:
+  373|         return str(self.escape(repr(self.obj)))
+  374| 
+  375|     def __int__(self, /) -> int:
+  376|         return int(self.obj)
+  377| 
+  378|     def __float__(self, /) -> float:
+  379|         return float(self.obj)
+
+Answer now with ONE JSON array containing one object per query, in query order.

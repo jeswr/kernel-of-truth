@@ -1,0 +1,18 @@
+[
+  {
+    "query_id": "g1q-itsdangerous-callees_of-96",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Calls through the signer_factory parameter and the resulting signer value cannot be resolved statically."
+  },
+  {
+    "query_id": "g1q-itsdangerous-callees_of-35",
+    "answerable_static": false,
+    "gold": [
+      "ext:hmac.compare_digest"
+    ],
+    "conditional_flags": [],
+    "notes": "The self.get_signature call uses dynamic method dispatch, so its runtime callee cannot be determined fully."
+  }
+]

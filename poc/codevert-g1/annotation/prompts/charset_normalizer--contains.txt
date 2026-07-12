@@ -1,0 +1,1210 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: charset_normalizer ===
+PY FILE LISTING (repo-root-relative; authoritative):
+noxfile.py
+setup.py
+_mypyc_hook/__init__.py
+_mypyc_hook/backend.py
+bin/bc.py
+bin/coverage.py
+bin/performance.py
+docs/conf.py
+src/charset_normalizer/__init__.py
+src/charset_normalizer/__main__.py
+src/charset_normalizer/api.py
+src/charset_normalizer/cd.py
+src/charset_normalizer/constant.py
+src/charset_normalizer/legacy.py
+src/charset_normalizer/md.py
+src/charset_normalizer/models.py
+src/charset_normalizer/utils.py
+src/charset_normalizer/version.py
+src/charset_normalizer/cli/__init__.py
+src/charset_normalizer/cli/__main__.py
+tests/__init__.py
+tests/test_base_detection.py
+tests/test_cli.py
+tests/test_coherence_detection.py
+tests/test_detect_legacy.py
+tests/test_edge_case.py
+tests/test_full_detection.py
+tests/test_isbinary.py
+tests/test_large_payload.py
+tests/test_logging.py
+tests/test_mess_detection.py
+tests/test_preemptive_detection.py
+tests/test_thread_safety.py
+tests/test_utils.py
+
+=== QUERIES (2) ===
+QUERY g1q-charset_normalizer-contains-36: family=contains target=src/charset_normalizer/md.py::CharInfo
+QUERY g1q-charset_normalizer-contains-52: family=contains target=tests/test_logging.py::TestLogBehaviorClass
+
+=== CONTEXT ===
+
+FILE src/charset_normalizer/md.py:
+    1| from __future__ import annotations
+    2| 
+    3| import sys
+    4| from functools import lru_cache
+    5| from logging import getLogger
+    6| 
+    7| if sys.version_info >= (3, 8):
+    8|     from typing import final
+    9| else:
+   10|     try:
+   11|         from typing_extensions import final
+   12|     except ImportError:
+   13| 
+   14|         def final(cls):  # type: ignore[misc,no-untyped-def]
+   15|             return cls
+   16| 
+   17| 
+   18| from .constant import (
+   19|     COMMON_CJK_CHARACTERS,
+   20|     COMMON_SAFE_ASCII_CHARACTERS,
+   21|     TRACE,
+   22|     UNICODE_SECONDARY_RANGE_KEYWORD,
+   23|     _ACCENTUATED,
+   24|     _ARABIC,
+   25|     _ARABIC_ISOLATED_FORM,
+   26|     _CJK,
+   27|     _HANGUL,
+   28|     _HIRAGANA,
+   29|     _KATAKANA,
+   30|     _LATIN,
+   31|     _THAI,
+   32| )
+   33| from .utils import (
+   34|     _character_flags,
+   35|     is_emoticon,
+   36|     is_punctuation,
+   37|     is_separator,
+   38|     is_symbol,
+   39|     remove_accent,
+   40|     unicode_range,
+   41| )
+   42| 
+   43| # Combined bitmask for CJK/Hangul/Katakana/Hiragana/Thai glyph detection.
+   44| _GLYPH_MASK: int = _CJK | _HANGUL | _KATAKANA | _HIRAGANA | _THAI
+   45| 
+   46| 
+   47| @final
+   48| class CharInfo:
+   49|     """Pre-computed character properties shared across all detectors."""
+   50| 
+   51|     __slots__ = (
+   52|         "character",
+   53|         "printable",
+   54|         "alpha",
+   55|         "upper",
+   56|         "lower",
+   57|         "space",
+   58|         "digit",
+   59|         "is_ascii",
+   60|         "case_variable",
+   61|         "flags",
+   62|         "accentuated",
+   63|         "latin",
+   64|         "is_cjk",
+   65|         "is_arabic",
+   66|         "is_glyph",
+   67|         "punct",
+   68|         "sym",
+   69|         "range",
+   70|         "sep",
+   71|         "emoticon",
+   72|         "safe",
+   73|         "common_cjk",
+   74|     )
+   75| 
+   76|     character: str
+   77|     printable: bool
+   78|     alpha: bool
+   79|     upper: bool
+   80|     lower: bool
+   81|     space: bool
+   82|     digit: bool
+   83|     is_ascii: bool
+   84|     case_variable: bool
+   85|     flags: int
+   86|     accentuated: bool
+   87|     latin: bool
+   88|     is_cjk: bool
+   89|     is_arabic: bool
+   90|     is_glyph: bool
+   91|     punct: bool
+   92|     sym: bool
+   93|     range: str | None
+   94|     sep: bool
+   95|     emoticon: bool
+   96|     safe: bool
+   97|     common_cjk: bool
+   98| 
+   99|     def __init__(self, character: str) -> None:
+  100|         """Compute all properties for *character* (built once per codepoint,
+  101|         every branch assigns every slot)."""
+  102|         self.character = character
+  103| 
+  104|         # ASCII fast-path: for characters with ord < 128, we can skip
+  105|         # _character_flags() entirely and derive most properties from ord.
+  106|         o: int = ord(character)
+  107|         if o < 128:
+  108|             self.is_ascii = True
+  109|             self.accentuated = False
+  110|             self.is_cjk = False
+  111|             self.is_arabic = False
+  112|             self.is_glyph = False
+  113|             # ASCII alpha: a-z (97-122) or A-Z (65-90)
+  114|             if 65 <= o <= 90:
+  115|                 # Uppercase ASCII letter
+  116|                 self.alpha = True
+  117|                 self.upper = True
+  118|                 self.lower = False
+  119|                 self.space = False
+  120|                 self.digit = False
+  121|                 self.printable = True
+  122|                 self.case_variable = True
+  123|                 self.flags = _LATIN
+  124|                 self.latin = True
+  125|                 self.punct = False
+  126|                 self.sym = False
+  127|             elif 97 <= o <= 122:
+  128|                 # Lowercase ASCII letter
+  129|                 self.alpha = True
+  130|                 self.upper = False
+  131|                 self.lower = True
+  132|                 self.space = False
+  133|                 self.digit = False
+  134|                 self.printable = True
+  135|                 self.case_variable = True
+  136|                 self.flags = _LATIN
+  137|                 self.latin = True
+  138|                 self.punct = False
+  139|                 self.sym = False
+  140|             elif 48 <= o <= 57:
+  141|                 # ASCII digit 0-9
+  142|                 self.alpha = False
+  143|                 self.upper = False
+  144|                 self.lower = False
+  145|                 self.space = False
+  146|                 self.digit = True
+  147|                 self.printable = True
+  148|                 self.case_variable = False
+  149|                 self.flags = 0
+  150|                 self.latin = False
+  151|                 self.punct = False
+  152|                 self.sym = False
+  153|             elif o == 32 or (9 <= o <= 13):
+  154|                 # Space, tab, newline, etc.
+  155|                 self.alpha = False
+  156|                 self.upper = False
+  157|                 self.lower = False
+  158|                 self.space = True
+  159|                 self.digit = False
+  160|                 self.printable = o == 32
+  161|                 self.case_variable = False
+  162|                 self.flags = 0
+  163|                 self.latin = False
+  164|                 self.punct = False
+  165|                 self.sym = False
+  166|             else:
+  167|                 # Other ASCII (punctuation, symbols, control chars)
+  168|                 self.printable = character.isprintable()
+  169|                 self.alpha = False
+  170|                 self.upper = False
+  171|                 self.lower = False
+  172|                 self.space = False
+  173|                 self.digit = False
+  174|                 self.case_variable = False
+  175|                 self.flags = 0
+  176|                 self.latin = False
+  177|                 self.punct = is_punctuation(character) if self.printable else False
+  178|                 self.sym = is_symbol(character) if self.printable else False
+  179|         else:
+  180|             # Non-ASCII path
+  181|             self.is_ascii = False
+  182|             self.printable = character.isprintable()
+  183|             self.alpha = character.isalpha()
+  184|             self.upper = character.isupper()
+  185|             self.lower = character.islower()
+  186|             self.space = character.isspace()
+  187|             self.digit = character.isdigit()
+  188|             self.case_variable = self.lower != self.upper
+  189| 
+  190|             # Flag-based classification (single unicodedata.name() call, lru-cached)
+  191|             flags: int
+  192|             if self.alpha:
+  193|                 flags = _character_flags(character)
+  194|             else:
+  195|                 flags = 0
+  196|             self.flags = flags
+  197|             self.accentuated = bool(flags & _ACCENTUATED)
+  198|             self.latin = bool(flags & _LATIN)
+  199|             self.is_cjk = bool(flags & _CJK)
+  200|             self.is_arabic = bool(flags & _ARABIC)
+  201|             self.is_glyph = bool(flags & _GLYPH_MASK)
+  202| 
+  203|             # Eagerly compute punct and sym (avoids property dispatch overhead
+  204|             # on 300K+ accesses in the hot loop).
+  205|             self.punct = is_punctuation(character) if self.printable else False
+  206|             self.sym = is_symbol(character) if self.printable else False
+  207| 
+  208|         self.range = unicode_range(character)
+  209|         self.sep = is_separator(character)
+  210|         self.emoticon = is_emoticon(character)
+  211|         self.safe = character in COMMON_SAFE_ASCII_CHARACTERS
+  212|         self.common_cjk = character in COMMON_CJK_CHARACTERS
+  213| 
+  214| 
+  215| # Per-codepoint cache of CharInfo instances
+  216| # At most UTF-8 size allocated.
+  217| @lru_cache(maxsize=None)
+  218| def _char_info(character: str) -> CharInfo:
+  219|     """Build (once per codepoint) and cache the CharInfo for *character*."""
+  220|     return CharInfo(character)
+  221| 
+  222| 
+  223| # ASCII table indexed by codepoint.
+  224| _ASCII_CHAR_INFO: list[CharInfo] = [
+  225|     CharInfo(chr(_codepoint)) for _codepoint in range(128)
+  226| ]
+  227| 
+  228| 
+  229| class MessDetectorPlugin:
+  230|     """
+  231|     Base abstract class used for mess detection plugins.
+  232|     All detectors MUST extend and implement given methods.
+  233|     """
+  234| 
+  235|     __slots__ = ()
+  236| 
+  237|     def feed_info(self, character: str, info: CharInfo) -> None:
+  238|         """
+  239|         The main routine to be executed upon character.
+  240|         Insert the logic in witch the text would be considered chaotic.
+  241|         """
+  242|         raise NotImplementedError  # Defensive:
+  243| 
+  244|     def reset(self) -> None:  # Defensive:
+  245|         """
+  246|         Permit to reset the plugin to the initial state.
+  247|         """
+  248|         raise NotImplementedError
+  249| 
+  250|     @property
+  251|     def ratio(self) -> float:
+  252|         """
+  253|         Compute the chaos ratio based on what your feed() has seen.
+  254|         Must NOT be lower than 0.; No restriction gt 0.
+  255|         """
+  256|         raise NotImplementedError  # Defensive:
+  257| 
+  258| 
+  259| @final
+  260| class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
+  261|     __slots__ = (
+  262|         "_punctuation_count",
+  263|         "_symbol_count",
+  264|         "_character_count",
+  265|         "_last_printable_char",
+  266|         "_frenzy_symbol_in_word",
+  267|     )
+  268| 
+  269|     def __init__(self) -> None:
+  270|         self._punctuation_count: int = 0
+  271|         self._symbol_count: int = 0
+  272|         self._character_count: int = 0
+  273| 
+  274|         self._last_printable_char: str | None = None
+  275|         self._frenzy_symbol_in_word: bool = False
+  276| 
+  277|     def feed_info(self, character: str, info: CharInfo) -> None:
+  278|         """Optimized feed using pre-computed character info."""
+  279|         self._character_count += 1
+  280| 
+  281|         if character != self._last_printable_char and not info.safe:
+  282|             if info.punct:
+  283|                 self._punctuation_count += 1
+  284|             elif not info.digit and info.sym and not info.emoticon:
+  285|                 self._symbol_count += 2
+  286| 
+  287|         self._last_printable_char = character
+  288| 
+  289|     def reset(self) -> None:  # Abstract
+  290|         self._punctuation_count = 0
+  291|         self._character_count = 0
+  292|         self._symbol_count = 0
+  293| 
+  294|     @property
+  295|     def ratio(self) -> float:
+  296|         if self._character_count == 0:
+  297|             return 0.0
+  298| 
+  299|         ratio_of_punctuation: float = (
+  300|             self._punctuation_count + self._symbol_count
+  301|         ) / self._character_count
+  302| 
+  303|         return ratio_of_punctuation if ratio_of_punctuation >= 0.3 else 0.0
+  304| 
+  305| 
+  306| @final
+  307| class TooManyAccentuatedPlugin(MessDetectorPlugin):
+  308|     __slots__ = ("_character_count", "_accentuated_count")
+  309| 
+  310|     def __init__(self) -> None:
+  311|         self._character_count: int = 0
+  312|         self._accentuated_count: int = 0
+  313| 
+  314|     def feed_info(self, character: str, info: CharInfo) -> None:
+  315|         """Optimized feed using pre-computed character info."""
+  316|         self._character_count += 1
+  317| 
+  318|         if info.accentuated:
+  319|             self._accentuated_count += 1
+  320| 
+  321|     def reset(self) -> None:  # Abstract
+  322|         self._character_count = 0
+  323|         self._accentuated_count = 0
+  324| 
+  325|     @property
+  326|     def ratio(self) -> float:
+  327|         if self._character_count < 8:
+  328|             return 0.0
+  329| 
+  330|         ratio_of_accentuation: float = self._accentuated_count / self._character_count
+  331|         return ratio_of_accentuation if ratio_of_accentuation >= 0.35 else 0.0
+  332| 
+  333| 
+  334| @final
+  335| class UnprintablePlugin(MessDetectorPlugin):
+  336|     __slots__ = ("_unprintable_count", "_character_count")
+  337| 
+  338|     def __init__(self) -> None:
+  339|         self._unprintable_count: int = 0
+  340|         self._character_count: int = 0
+  341| 
+  342|     def feed_info(self, character: str, info: CharInfo) -> None:
+  343|         """Optimized feed using pre-computed character info."""
+  344|         if (
+  345|             not info.space
+  346|             and not info.printable
+  347|             and character != "\x1a"
+  348|             and character != "\ufeff"
+  349|         ):
+  350|             self._unprintable_count += 1
+  351|         self._character_count += 1
+  352| 
+  353|     def reset(self) -> None:  # Abstract
+  354|         self._unprintable_count = 0
+  355| 
+  356|     @property
+  357|     def ratio(self) -> float:
+  358|         if self._character_count == 0:  # Defensive:
+  359|             return 0.0
+  360| 
+  361|         return (self._unprintable_count * 8) / self._character_count
+  362| 
+  363| 
+  364| @final
+  365| class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
+  366|     __slots__ = (
+  367|         "_successive_count",
+  368|         "_character_count",
+  369|         "_last_latin_character",
+  370|         "_last_was_accentuated",
+  371|     )
+  372| 
+  373|     def __init__(self) -> None:
+  374|         self._successive_count: int = 0
+  375|         self._character_count: int = 0
+  376| 
+  377|         self._last_latin_character: str | None = None
+  378|         self._last_was_accentuated: bool = False
+  379| 
+  380|     def feed_info(self, character: str, info: CharInfo) -> None:
+  381|         """Optimized feed using pre-computed character info."""
+  382|         self._character_count += 1
+  383|         if (
+  384|             self._last_latin_character is not None
+  385|             and info.accentuated
+  386|             and self._last_was_accentuated
+  387|         ):
+  388|             if info.upper and self._last_latin_character.isupper():
+  389|                 self._successive_count += 1
+  390|             if remove_accent(character) == remove_accent(self._last_latin_character):
+  391|                 self._successive_count += 1
+  392|         self._last_latin_character = character
+  393|         self._last_was_accentuated = info.accentuated
+  394| 
+  395|     def reset(self) -> None:  # Abstract
+  396|         self._successive_count = 0
+  397|         self._character_count = 0
+  398|         self._last_latin_character = None
+  399|         self._last_was_accentuated = False
+  400| 
+  401|     @property
+  402|     def ratio(self) -> float:
+  403|         if self._character_count == 0:
+  404|             return 0.0
+  405| 
+  406|         return (self._successive_count * 2) / self._character_count
+  407| 
+  408| 
+  409| @final
+  410| class SuspiciousRange(MessDetectorPlugin):
+  411|     __slots__ = (
+  412|         "_suspicious_successive_range_count",
+  413|         "_character_count",
+  414|         "_last_printable_seen",
+  415|         "_last_printable_range",
+  416|     )
+  417| 
+  418|     def __init__(self) -> None:
+  419|         self._suspicious_successive_range_count: int = 0
+  420|         self._character_count: int = 0
+  421|         self._last_printable_seen: str | None = None
+  422|         self._last_printable_range: str | None = None
+  423| 
+  424|     def feed_info(self, character: str, info: CharInfo) -> None:
+  425|         """Optimized feed using pre-computed character info."""
+  426|         self._character_count += 1
+  427| 
+  428|         if info.space or info.punct or info.safe:
+  429|             self._last_printable_seen = None
+  430|             self._last_printable_range = None
+  431|             return
+  432| 
+  433|         if self._last_printable_seen is None:
+  434|             self._last_printable_seen = character
+  435|             self._last_printable_range = info.range
+  436|             return
+  437| 
+  438|         unicode_range_a: str | None = self._last_printable_range
+  439|         unicode_range_b: str | None = info.range
+  440| 
+  441|         # Identical non-None ranges can never be suspicious.
+  442|         if unicode_range_a != unicode_range_b or unicode_range_a is None:
+  443|             if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
+  444|                 self._suspicious_successive_range_count += 1
+  445| 
+  446|         self._last_printable_seen = character
+  447|         self._last_printable_range = unicode_range_b
+  448| 
+  449|     def reset(self) -> None:  # Abstract
+  450|         self._character_count = 0
+  451|         self._suspicious_successive_range_count = 0
+  452|         self._last_printable_seen = None
+  453|         self._last_printable_range = None
+  454| 
+  455|     @property
+  456|     def ratio(self) -> float:
+  457|         if self._character_count <= 13:
+  458|             return 0.0
+  459| 
+  460|         ratio_of_suspicious_range_usage: float = (
+  461|             self._suspicious_successive_range_count * 2
+  462|         ) / self._character_count
+  463| 
+  464|         return ratio_of_suspicious_range_usage
+  465| 
+  466| 
+  467| @final
+  468| class SuperWeirdWordPlugin(MessDetectorPlugin):
+  469|     __slots__ = (
+  470|         "_word_count",
+  471|         "_bad_word_count",
+  472|         "_foreign_long_count",
+  473|         "_is_current_word_bad",
+  474|         "_foreign_long_watch",
+  475|         "_character_count",
+  476|         "_bad_character_count",
+  477|         "_buffer_length",
+  478|         "_buffer_last_char",
+  479|         "_buffer_last_char_accentuated",
+  480|         "_buffer_accent_count",
+  481|         "_buffer_glyph_count",
+  482|         "_buffer_upper_count",
+  483|         "_buffer_first_lower",
+  484|         "_buffer_has_non_ascii",
+  485|     )
+  486| 
+  487|     def __init__(self) -> None:
+  488|         self._word_count: int = 0
+  489|         self._bad_word_count: int = 0
+  490|         self._foreign_long_count: int = 0
+  491| 
+  492|         self._is_current_word_bad: bool = False
+  493|         self._foreign_long_watch: bool = False
+  494| 
+  495|         self._character_count: int = 0
+  496|         self._bad_character_count: int = 0
+  497| 
+  498|         self._buffer_length: int = 0
+  499|         self._buffer_last_char: str | None = None
+  500|         self._buffer_last_char_accentuated: bool = False
+  501|         self._buffer_accent_count: int = 0
+  502|         self._buffer_glyph_count: int = 0
+  503|         self._buffer_upper_count: int = 0
+  504|         self._buffer_first_lower: bool = False
+  505|         self._buffer_has_non_ascii: bool = False
+  506| 
+  507|     def feed_info(self, character: str, info: CharInfo) -> None:
+  508|         """Optimized feed using pre-computed character info."""
+  509|         if info.alpha:
+  510|             if self._buffer_length == 0:
+  511|                 self._buffer_first_lower = info.lower
+  512|             self._buffer_length += 1
+  513|             self._buffer_last_char = character
+  514| 
+  515|             if info.upper:
+  516|                 self._buffer_upper_count += 1
+  517|             if not info.is_ascii:
+  518|                 self._buffer_has_non_ascii = True
+  519| 
+  520|             self._buffer_last_char_accentuated = info.accentuated
+  521| 
+  522|             if info.accentuated:
+  523|                 self._buffer_accent_count += 1
+  524|             if (
+  525|                 not self._foreign_long_watch
+  526|                 and (not info.latin or info.accentuated)
+  527|                 and not info.is_glyph
+  528|             ):
+  529|                 self._foreign_long_watch = True
+  530|             if info.is_glyph:
+  531|                 self._buffer_glyph_count += 1
+  532|             return
+  533|         if not self._buffer_length:
+  534|             return
+  535|         if info.space or info.punct or info.sep:
+  536|             self._word_count += 1
+  537|             buffer_length: int = self._buffer_length
+  538| 
+  539|             self._character_count += buffer_length
+  540| 
+  541|             if buffer_length >= 4:
+  542|                 if self._buffer_accent_count / buffer_length >= 0.5:
+  543|                     self._is_current_word_bad = True
+  544|                 elif (
+  545|                     self._buffer_last_char_accentuated
+  546|                     and self._buffer_last_char.isupper()  # type: ignore[union-attr]
+  547|                     and self._buffer_upper_count != buffer_length
+  548|                 ):
+  549|                     self._foreign_long_count += 1
+  550|                     self._is_current_word_bad = True
+  551|                 elif self._buffer_glyph_count == 1:
+  552|                     self._is_current_word_bad = True
+  553|                     self._foreign_long_count += 1
+  554|                 elif (
+  555|                     self._buffer_has_non_ascii
+  556|                     and self._buffer_first_lower
+  557|                     and self._buffer_upper_count == buffer_length - 1
+  558|                 ):
+  559|                     # Inverse capitalization detector.
+  560|                     # No natural writing produces such words.
+  561|                     # see https://github.com/jawah/charset_normalizer/issues/731
+  562|                     self._foreign_long_count += 1
+  563|                     self._is_current_word_bad = True
+  564|             if buffer_length >= 24 and self._foreign_long_watch:
+  565|                 probable_camel_cased: bool = (
+  566|                     self._buffer_upper_count > 0
+  567|                     and self._buffer_upper_count / buffer_length <= 0.3
+  568|                 )
+  569| 
+  570|                 if not probable_camel_cased:
+  571|                     self._foreign_long_count += 1
+  572|                     self._is_current_word_bad = True
+  573| 
+  574|             if self._is_current_word_bad:
+  575|                 self._bad_word_count += 1
+  576|                 self._bad_character_count += buffer_length
+  577|                 self._is_current_word_bad = False
+  578| 
+  579|             self._foreign_long_watch = False
+  580|             self._buffer_length = 0
+  581|             self._buffer_last_char = None
+  582|             self._buffer_last_char_accentuated = False
+  583|             self._buffer_accent_count = 0
+  584|             self._buffer_glyph_count = 0
+  585|             self._buffer_upper_count = 0
+  586|             self._buffer_first_lower = False
+  587|             self._buffer_has_non_ascii = False
+  588|         elif (
+  589|             character not in {"<", ">", "-", "=", "~", "|", "_"}
+  590|             and not info.digit
+  591|             and info.sym
+  592|         ):
+  593|             self._is_current_word_bad = True
+  594|             self._buffer_length += 1
+  595|             self._buffer_last_char = character
+  596|             self._buffer_last_char_accentuated = False
+  597| 
+  598|     def reset(self) -> None:  # Abstract
+  599|         self._buffer_length = 0
+  600|         self._buffer_last_char = None
+  601|         self._buffer_last_char_accentuated = False
+  602|         self._is_current_word_bad = False
+  603|         self._foreign_long_watch = False
+  604|         self._bad_word_count = 0
+  605|         self._word_count = 0
+  606|         self._character_count = 0
+  607|         self._bad_character_count = 0
+  608|         self._foreign_long_count = 0
+  609|         self._buffer_accent_count = 0
+  610|         self._buffer_glyph_count = 0
+  611|         self._buffer_upper_count = 0
+  612|         self._buffer_first_lower = False
+  613|         self._buffer_has_non_ascii = False
+  614| 
+  615|     @property
+  616|     def ratio(self) -> float:
+  617|         if self._word_count <= 10 and self._foreign_long_count == 0:
+  618|             return 0.0
+  619| 
+  620|         return self._bad_character_count / self._character_count
+  621| 
+  622| 
+  623| @final
+  624| class CjkUncommonPlugin(MessDetectorPlugin):
+  625|     """
+  626|     Detect messy CJK text that probably means nothing.
+  627|     """
+  628| 
+  629|     __slots__ = ("_character_count", "_uncommon_count")
+  630| 
+  631|     def __init__(self) -> None:
+  632|         self._character_count: int = 0
+  633|         self._uncommon_count: int = 0
+  634| 
+  635|     def feed_info(self, character: str, info: CharInfo) -> None:
+  636|         """Optimized feed using pre-computed character info."""
+  637|         self._character_count += 1
+  638| 
+  639|         if not info.common_cjk:
+  640|             self._uncommon_count += 1
+  641| 
+  642|     def reset(self) -> None:  # Abstract
+  643|         self._character_count = 0
+  644|         self._uncommon_count = 0
+  645| 
+  646|     @property
+  647|     def ratio(self) -> float:
+  648|         if self._character_count < 8:
+  649|             return 0.0
+  650| 
+  651|         uncommon_form_usage: float = self._uncommon_count / self._character_count
+  652| 
+  653|         # we can be pretty sure it's garbage when uncommon characters are widely
+  654|         # used. otherwise it could just be traditional chinese for example.
+  655|         return uncommon_form_usage / 10 if uncommon_form_usage > 0.5 else 0.0
+  656| 
+  657| 
+  658| @final
+  659| class ArchaicUpperLowerPlugin(MessDetectorPlugin):
+  660|     __slots__ = (
+  661|         "_buf",
+  662|         "_character_count_since_last_sep",
+  663|         "_successive_upper_lower_count",
+  664|         "_successive_upper_lower_count_final",
+  665|         "_character_count",
+  666|         "_last_alpha_seen",
+  667|         "_last_alpha_seen_upper",
+  668|         "_last_alpha_seen_lower",
+  669|         "_current_ascii_only",
+  670|     )
+  671| 
+  672|     def __init__(self) -> None:
+  673|         self._buf: bool = False
+  674| 
+  675|         self._character_count_since_last_sep: int = 0
+  676| 
+  677|         self._successive_upper_lower_count: int = 0
+  678|         self._successive_upper_lower_count_final: int = 0
+  679| 
+  680|         self._character_count: int = 0
+  681| 
+  682|         self._last_alpha_seen: str | None = None
+  683|         self._last_alpha_seen_upper: bool = False
+  684|         self._last_alpha_seen_lower: bool = False
+  685|         self._current_ascii_only: bool = True
+  686| 
+  687|     def feed_info(self, character: str, info: CharInfo) -> None:
+  688|         """Optimized feed using pre-computed character info."""
+  689|         is_concerned: bool = info.alpha and info.case_variable
+  690|         chunk_sep: bool = not is_concerned
+  691| 
+  692|         if chunk_sep and self._character_count_since_last_sep > 0:
+  693|             if (
+  694|                 self._character_count_since_last_sep <= 64
+  695|                 and not info.digit
+  696|                 and not self._current_ascii_only
+  697|             ):
+  698|                 self._successive_upper_lower_count_final += (
+  699|                     self._successive_upper_lower_count
+  700|                 )
+  701| 
+  702|             self._successive_upper_lower_count = 0
+  703|             self._character_count_since_last_sep = 0
+  704|             self._last_alpha_seen = None
+  705|             self._buf = False
+  706|             self._character_count += 1
+  707|             self._current_ascii_only = True
+  708| 
+  709|             return
+  710| 
+  711|         if self._current_ascii_only and not info.is_ascii:
+  712|             self._current_ascii_only = False
+  713| 
+  714|         if self._last_alpha_seen is not None:
+  715|             if (info.upper and self._last_alpha_seen_lower) or (
+  716|                 info.lower and self._last_alpha_seen_upper
+  717|             ):
+  718|                 if self._buf:
+  719|                     self._successive_upper_lower_count += 2
+  720|                     self._buf = False
+  721|                 else:
+  722|                     self._buf = True
+  723|             else:
+  724|                 self._buf = False
+  725| 
+  726|         self._character_count += 1
+  727|         self._character_count_since_last_sep += 1
+  728|         self._last_alpha_seen = character
+  729|         self._last_alpha_seen_upper = info.upper
+  730|         self._last_alpha_seen_lower = info.lower
+  731| 
+  732|     def reset(self) -> None:  # Abstract
+  733|         self._character_count = 0
+  734|         self._character_count_since_last_sep = 0
+  735|         self._successive_upper_lower_count = 0
+  736|         self._successive_upper_lower_count_final = 0
+  737|         self._last_alpha_seen = None
+  738|         self._last_alpha_seen_upper = False
+  739|         self._last_alpha_seen_lower = False
+  740|         self._buf = False
+  741|         self._current_ascii_only = True
+  742| 
+  743|     @property
+  744|     def ratio(self) -> float:
+  745|         if self._character_count == 0:  # Defensive:
+  746|             return 0.0
+  747| 
+  748|         return self._successive_upper_lower_count_final / self._character_count
+  749| 
+  750| 
+  751| @final
+  752| class ArabicIsolatedFormPlugin(MessDetectorPlugin):
+  753|     __slots__ = ("_character_count", "_isolated_form_count")
+  754| 
+  755|     def __init__(self) -> None:
+  756|         self._character_count: int = 0
+  757|         self._isolated_form_count: int = 0
+  758| 
+  759|     def reset(self) -> None:  # Abstract
+  760|         self._character_count = 0
+  761|         self._isolated_form_count = 0
+  762| 
+  763|     def feed_info(self, character: str, info: CharInfo) -> None:
+  764|         """Optimized feed using pre-computed character info."""
+  765|         self._character_count += 1
+  766| 
+  767|         if info.flags & _ARABIC_ISOLATED_FORM:
+  768|             self._isolated_form_count += 1
+  769| 
+  770|     @property
+  771|     def ratio(self) -> float:
+  772|         if self._character_count < 8:
+  773|             return 0.0
+  774| 
+  775|         isolated_form_usage: float = self._isolated_form_count / self._character_count
+  776| 
+  777|         return isolated_form_usage
+  778| 
+  779| 
+  780| @lru_cache(maxsize=1024)
+  781| def is_suspiciously_successive_range(
+  782|     unicode_range_a: str | None, unicode_range_b: str | None
+  783| ) -> bool:
+  784|     """
+  785|     Determine if two Unicode range seen next to each other can be considered as suspicious.
+  786|     """
+  787|     if unicode_range_a is None or unicode_range_b is None:
+  788|         return True
+  789| 
+  790|     if unicode_range_a == unicode_range_b:
+  791|         return False
+  792| 
+  793|     if "Latin" in unicode_range_a and "Latin" in unicode_range_b:
+  794|         return False
+  795| 
+  796|     if "Emoticons" in unicode_range_a or "Emoticons" in unicode_range_b:
+  797|         return False
+  798| 
+  799|     # Latin characters can be accompanied with a combining diacritical mark
+  800|     # eg. Vietnamese.
+  801|     if ("Latin" in unicode_range_a or "Latin" in unicode_range_b) and (
+  802|         "Combining" in unicode_range_a or "Combining" in unicode_range_b
+  803|     ):
+  804|         return False
+  805| 
+  806|     keywords_range_a, keywords_range_b = (
+  807|         unicode_range_a.split(" "),
+  808|         unicode_range_b.split(" "),
+  809|     )
+  810| 
+  811|     for el in keywords_range_a:
+  812|         if el in UNICODE_SECONDARY_RANGE_KEYWORD:
+  813|             continue
+  814|         if el in keywords_range_b:
+  815|             return False
+  816| 
+  817|     # Japanese Exception
+  818|     range_a_jp_chars, range_b_jp_chars = (
+  819|         unicode_range_a
+  820|         in (
+  821|             "Hiragana",
+  822|             "Katakana",
+  823|         ),
+  824|         unicode_range_b in ("Hiragana", "Katakana"),
+  825|     )
+  826|     if (range_a_jp_chars or range_b_jp_chars) and (
+  827|         "CJK" in unicode_range_a or "CJK" in unicode_range_b
+  828|     ):
+  829|         return False
+  830|     if range_a_jp_chars and range_b_jp_chars:
+  831|         return False
+  832| 
+  833|     if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
+  834|         if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
+  835|             return False
+  836|         if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
+  837|             return False
+  838| 
+  839|     # Chinese/Japanese use dedicated range for punctuation and/or separators.
+  840|     if ("CJK" in unicode_range_a or "CJK" in unicode_range_b) or (
+  841|         unicode_range_a in ["Katakana", "Hiragana"]
+  842|         and unicode_range_b in ["Katakana", "Hiragana"]
+  843|     ):
+  844|         if "Punctuation" in unicode_range_a or "Punctuation" in unicode_range_b:
+  845|             return False
+  846|         if "Forms" in unicode_range_a or "Forms" in unicode_range_b:
+  847|             return False
+  848|         if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
+  849|             return False
+  850| 
+  851|     return True
+  852| 
+  853| 
+  854| def mess_ratio(
+  855|     decoded_sequence: str, maximum_threshold: float = 0.2, debug: bool = False
+  856| ) -> float:
+  857|     """
+  858|     Compute a mess ratio given a decoded bytes sequence. The maximum threshold does stop the computation earlier.
+  859|     """
+  860| 
+  861|     seq_len: int = len(decoded_sequence)
+  862| 
+  863|     if seq_len < 511:
+  864|         step: int = 32
+  865|     elif seq_len < 1024:
+  866|         step = 64
+  867|     else:
+  868|         step = 128
+  869| 
+  870|     # str.isascii() is O(1) (the flag lives in the str header). Six of the
+  871|     # nine detectors provably keep a 0.0 ratio on ASCII-only input and are
+  872|     # therefore not fed at all.
+  873|     is_pure_ascii: bool = decoded_sequence.isascii()
+  874| 
+  875|     # Cached per-codepoint character properties (see CharInfo). ASCII
+  876|     # characters resolve through the immutable import-time table; anything
+  877|     # else goes through the lru_cache-backed slow path.
+  878|     ascii_info = _ASCII_CHAR_INFO
+  879|     char_info = _char_info
+  880| 
+  881|     mean_mess_ratio: float
+  882|     info: CharInfo
+  883| 
+  884|     # Create each detector as a named local variable (unrolled from the generic loop).
+  885|     # This eliminates per-character iteration over the detector list and
+  886|     # per-character eligible() virtual dispatch, while keeping every plugin class
+  887|     # intact and fully readable.
+  888|     d_sp: TooManySymbolOrPunctuationPlugin = TooManySymbolOrPunctuationPlugin()
+  889|     d_ta: TooManyAccentuatedPlugin = TooManyAccentuatedPlugin()
+  890|     d_up: UnprintablePlugin = UnprintablePlugin()
+  891|     d_sda: SuspiciousDuplicateAccentPlugin = SuspiciousDuplicateAccentPlugin()
+  892|     d_sr: SuspiciousRange = SuspiciousRange()
+  893|     d_sw: SuperWeirdWordPlugin = SuperWeirdWordPlugin()
+  894|     d_cu: CjkUncommonPlugin = CjkUncommonPlugin()
+  895|     d_au: ArchaicUpperLowerPlugin = ArchaicUpperLowerPlugin()
+  896|     d_ai: ArabicIsolatedFormPlugin = ArabicIsolatedFormPlugin()
+  897| 
+  898|     # Local references for feed_info methods called in the hot loop.
+  899|     d_sp_feed = d_sp.feed_info
+  900|     d_ta_feed = d_ta.feed_info
+  901|     d_up_feed = d_up.feed_info
+  902|     d_sda_feed = d_sda.feed_info
+  903|     d_sr_feed = d_sr.feed_info
+  904|     d_sw_feed = d_sw.feed_info
+  905|     d_cu_feed = d_cu.feed_info
+  906|     d_au_feed = d_au.feed_info
+  907|     d_ai_feed = d_ai.feed_info
+  908| 
+  909|     for block_start in range(0, seq_len, step):
+  910|         for character in decoded_sequence[block_start : block_start + step]:
+  911|             # Character properties computed once per distinct codepoint
+  912|             # (shared across all plugins and all mess_ratio calls).
+  913|             # ord() doubles as the ASCII table index and, unlike
+  914|             # str.isascii(), lowers to a mypyc primitive.
+  915|             codepoint: int = ord(character)
+  916|             if codepoint < 128:
+  917|                 info = ascii_info[codepoint]
+  918|             else:
+  919|                 info = char_info(character)
+  920| 
+  921|             # Detectors with eligible() == always True
+  922|             d_up_feed(character, info)
+  923|             d_sw_feed(character, info)
+  924| 
+  925|             if is_pure_ascii:
+  926|                 # The six remaining detectors provably stay at 0.0 (see above).
+  927|                 if info.printable:
+  928|                     d_sp_feed(character, info)
+  929|                 continue
+  930| 
+  931|             d_au_feed(character, info)
+  932| 
+  933|             # Detectors with eligible() == isprintable
+  934|             if info.printable:
+  935|                 d_sp_feed(character, info)
+  936|                 d_sr_feed(character, info)
+  937| 
+  938|             # Detectors with eligible() == isalpha
+  939|             if info.alpha:
+  940|                 d_ta_feed(character, info)
+  941|                 # SuspiciousDuplicateAccent: isalpha() and is_latin()
+  942|                 if info.latin:
+  943|                     d_sda_feed(character, info)
+  944|                 # CjkUncommon: is_cjk()
+  945|                 if info.is_cjk:
+  946|                     d_cu_feed(character, info)
+  947|                 # ArabicIsolatedForm: is_arabic()
+  948|                 if info.is_arabic:
+  949|                     d_ai_feed(character, info)
+  950| 
+  951|         mean_mess_ratio = (
+  952|             d_sp.ratio
+  953|             + d_ta.ratio
+  954|             + d_up.ratio
+  955|             + d_sda.ratio
+  956|             + d_sr.ratio
+  957|             + d_sw.ratio
+  958|             + d_cu.ratio
+  959|             + d_au.ratio
+  960|             + d_ai.ratio
+  961|         )
+  962| 
+  963|         if mean_mess_ratio >= maximum_threshold:
+  964|             break
+  965|     else:
+  966|         # Flush last word buffer in SuperWeirdWordPlugin via trailing newline.
+  967|         nl_info = ascii_info[10]  # "\n"
+  968|         d_sw_feed("\n", nl_info)
+  969|         if not is_pure_ascii:
+  970|             d_au_feed("\n", nl_info)
+  971|         d_up_feed("\n", nl_info)
+  972| 
+  973|         mean_mess_ratio = (
+  974|             d_sp.ratio
+  975|             + d_ta.ratio
+  976|             + d_up.ratio
+  977|             + d_sda.ratio
+  978|             + d_sr.ratio
+  979|             + d_sw.ratio
+  980|             + d_cu.ratio
+  981|             + d_au.ratio
+  982|             + d_ai.ratio
+  983|         )
+  984| 
+  985|     if debug:  # Defensive:
+  986|         logger = getLogger("charset_normalizer")
+  987| 
+  988|         logger.log(
+  989|             TRACE,
+  990|             "Mess-detector extended-analysis start. "
+  991|             f"intermediary_mean_mess_ratio_calc={step} mean_mess_ratio={mean_mess_ratio} "
+  992|             f"maximum_threshold={maximum_threshold}",
+  993|         )
+  994| 
+  995|         if seq_len > 16:
+  996|             logger.log(TRACE, f"Starting with: {decoded_sequence[:16]}")
+  997|             logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
+  998| 
+  999|         for dt in [d_sp, d_ta, d_up, d_sda, d_sr, d_sw, d_cu, d_au, d_ai]:
+ 1000|             logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
+ 1001| 
+ 1002|     return round(mean_mess_ratio, 3)
+
+FILE tests/test_logging.py:
+    1| from __future__ import annotations
+    2| 
+    3| import logging
+    4| 
+    5| import pytest
+    6| 
+    7| from charset_normalizer.api import explain_handler, from_bytes
+    8| from charset_normalizer.constant import TRACE
+    9| from charset_normalizer.utils import set_logging_handler
+   10| 
+   11| 
+   12| class TestLogBehaviorClass:
+   13|     def setup_method(self):
+   14|         self.logger = logging.getLogger("charset_normalizer")
+   15|         self.logger.handlers.clear()
+   16|         self.logger.addHandler(logging.NullHandler())
+   17|         self.logger.level = logging.WARNING
+   18| 
+   19|     def test_explain_true_behavior(self, caplog):
+   20|         test_sequence = b"This is a test sequence of bytes that should be sufficient"
+   21|         from_bytes(test_sequence, steps=1, chunk_size=50, explain=True)
+   22|         assert explain_handler not in self.logger.handlers
+   23|         for record in caplog.records:
+   24|             assert record.levelname in ["Level 5", "DEBUG"]
+   25| 
+   26|     def test_explain_false_handler_set_behavior(self, caplog):
+   27|         test_sequence = b"This is a test sequence of bytes that should be sufficient"
+   28|         set_logging_handler(level=TRACE, format_string="%(message)s")
+   29|         from_bytes(test_sequence, steps=1, chunk_size=50, explain=False)
+   30|         assert any(
+   31|             isinstance(hdl, logging.StreamHandler) for hdl in self.logger.handlers
+   32|         )
+   33|         for record in caplog.records:
+   34|             assert record.levelname in ["Level 5", "DEBUG"]
+   35|         assert "Encoding detection: ascii is most likely the one." in caplog.text
+   36| 
+   37|     def test_set_stream_handler(self, caplog):
+   38|         set_logging_handler("charset_normalizer", level=logging.DEBUG)
+   39|         self.logger.debug("log content should log with default format")
+   40|         for record in caplog.records:
+   41|             assert record.levelname in ["Level 5", "DEBUG"]
+   42|         assert "log content should log with default format" in caplog.text
+   43| 
+   44|     def test_set_stream_handler_format(self, caplog):
+   45|         set_logging_handler("charset_normalizer", format_string="%(message)s")
+   46|         self.logger.info("log content should only be this message")
+   47|         assert caplog.record_tuples == [
+   48|             (
+   49|                 "charset_normalizer",
+   50|                 logging.INFO,
+   51|                 "log content should only be this message",
+   52|             )
+   53|         ]
+
+Answer now with ONE JSON array containing one object per query, in query order.

@@ -1,0 +1,107 @@
+[
+  {
+    "query_id": "g1q-charset_normalizer-contains-36",
+    "answerable_static": true,
+    "gold": [
+      "src/charset_normalizer/md.py::CharInfo.__init__",
+      "src/charset_normalizer/md.py::CharInfo.__slots__"
+    ],
+    "conditional_flags": [],
+    "notes": "Direct children of class CharInfo: the __slots__ assignment (line 51) and def __init__ (line 99). Lines 76-97 are annotation-only statements (name: type with no value); they are not assignments and bind nothing, so excluded."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-contains-52",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_logging.py::TestLogBehaviorClass.setup_method",
+      "tests/test_logging.py::TestLogBehaviorClass.test_explain_false_handler_set_behavior",
+      "tests/test_logging.py::TestLogBehaviorClass.test_explain_true_behavior",
+      "tests/test_logging.py::TestLogBehaviorClass.test_set_stream_handler",
+      "tests/test_logging.py::TestLogBehaviorClass.test_set_stream_handler_format"
+    ],
+    "conditional_flags": [],
+    "notes": "Five def statements directly in the class body (lines 13, 19, 26, 37, 44); no class-body assignments."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-contained_in-29",
+    "answerable_static": true,
+    "gold": [
+      "src/charset_normalizer/cd.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def characters_popularity_compare (line 193) is a top-level function of cd.py; its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-contained_in-205",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_edge_case.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_regression_gh771_fallback_entry_on_undecodable_payload (line 62) is top-level in the module."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-imports_of-25",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:platform",
+      "ext:pytest",
+      "repo:src/charset_normalizer/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": "All four imports are unconditional top-level statements. 'from charset_normalizer import from_bytes' resolves to the repo package src/charset_normalizer/__init__.py (src/ resolution root); from_bytes is a symbol of that package, no further ancestor packages exist."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-imports_of-18",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "repo:src/charset_normalizer/__init__.py",
+      "repo:src/charset_normalizer/cli/__init__.py",
+      "repo:src/charset_normalizer/cli/__main__.py"
+    ],
+    "conditional_flags": [],
+    "notes": "'from .__main__ import cli_detect, query_yes_no' resolves relatively to src/charset_normalizer/cli/__main__.py; ancestor package __init__.py files (cli and charset_normalizer) included per import semantics. Both imports unconditional top-level."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-where_defined-0",
+    "answerable_static": true,
+    "gold": [
+      "src/charset_normalizer/md.py:752"
+    ],
+    "conditional_flags": [],
+    "notes": "Class statement at md.py:752 is the only definition site. Line 896 is a function-local annotated assignment inside mess_ratio, excluded."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-where_defined-48",
+    "answerable_static": true,
+    "gold": [
+      "src/charset_normalizer/version.py:8"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level assignment in version.py:8. __init__.py:30 is an import binding (excluded); __init__.py:41 is a string literal inside __all__, not a binding."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-callees_of-160",
+    "answerable_static": false,
+    "gold": [
+      "ext:unittest.TestCase.assertTrue"
+    ],
+    "conditional_flags": [],
+    "notes": "Body calls self.assertTrue (inherited from unittest.TestCase, external) and query_yes_no. query_yes_no is imported from the repo package charset_normalizer.cli, but the source of that package (cli/__init__.py / cli/__main__.py) is not shown here, so the precise repo-internal def symbol for query_yes_no cannot be determined; not inventing an element. The @patch decorator call is outside the method's body block and not counted."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-callees_of-5",
+    "answerable_static": true,
+    "gold": [
+      "ext:builtins.int",
+      "ext:builtins.len",
+      "ext:builtins.sorted",
+      "ext:float.is_integer",
+      "ext:math.ceil"
+    ],
+    "conditional_flags": [],
+    "notes": "Calls: len(data), sorted(data), int(...) twice, ceil(p) (from math import), and p.is_integer() where p = n*percentile/100 is a float (true division), best-effort ext:float.is_integer. No repo-internal callees."
+  }
+]

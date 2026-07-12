@@ -1,0 +1,108 @@
+[
+  {
+    "query_id": "g1q-arrow-contains-236",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_parser.py::TestDateTimeParserMonthOrdinalDay.test_english",
+      "tests/test_parser.py::TestDateTimeParserMonthOrdinalDay.test_french",
+      "tests/test_parser.py::TestDateTimeParserMonthOrdinalDay.test_italian",
+      "tests/test_parser.py::TestDateTimeParserMonthOrdinalDay.test_spanish"
+    ],
+    "conditional_flags": [],
+    "notes": "Class body (lines 1456-1519) holds exactly four test methods; no class-level assignments."
+  },
+  {
+    "query_id": "g1q-arrow-contains-15",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_factory.py::TestGet",
+      "tests/test_factory.py::TestNow",
+      "tests/test_factory.py::TestUtcNow"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level children are three classes; imports (including the try/except ZoneInfo import) are excluded and there are no module-level simple-name assignments."
+  },
+  {
+    "query_id": "g1q-arrow-contained_in-42",
+    "answerable_static": true,
+    "gold": [
+      "arrow/arrow.py::Arrow"
+    ],
+    "conditional_flags": [],
+    "notes": "def to (line 1057) is a direct method of class Arrow."
+  },
+  {
+    "query_id": "g1q-arrow-contained_in-581",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_factory.py::TestGet"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_locale_with_tzinfo (line 370) is a direct method of class TestGet."
+  },
+  {
+    "query_id": "g1q-arrow-imports_of-9",
+    "answerable_static": true,
+    "gold": [
+      "ext:datetime",
+      "ext:dateutil.rrule",
+      "ext:typing",
+      "repo:arrow/__init__.py",
+      "repo:arrow/constants.py"
+    ],
+    "conditional_flags": [],
+    "notes": "from arrow.constants import ... resolves to repo module arrow/constants.py plus ancestor package arrow/__init__.py; datetime, typing, dateutil.rrule are external. All imports are top-level and unconditional."
+  },
+  {
+    "query_id": "g1q-arrow-imports_of-6",
+    "answerable_static": true,
+    "gold": [
+      "ext:datetime",
+      "ext:re",
+      "ext:typing",
+      "repo:arrow/__init__.py",
+      "repo:arrow/constants.py",
+      "repo:arrow/locales.py"
+    ],
+    "conditional_flags": [],
+    "notes": "from arrow import locales resolves to repo module arrow/locales.py; from arrow.constants import DEFAULT_LOCALE resolves to arrow/constants.py; both add ancestor arrow/__init__.py. re, datetime, typing are external. All imports top-level and unconditional."
+  },
+  {
+    "query_id": "g1q-arrow-where_defined-458",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_arrow.py:599"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def statement (method of TestArrowConversion); no other definition sites and no dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-arrow-where_defined-42",
+    "answerable_static": true,
+    "gold": [
+      "arrow/formatter.py:20"
+    ],
+    "conditional_flags": [],
+    "notes": "Only binding assignment is the module-level annotated assignment in arrow/formatter.py. arrow/__init__.py:16 and tests/test_formatter.py:22 are bare-name continuation lines with no '=' (import-list elements), arrow/__init__.py:39 is a string in __all__, and tests/test_formatter.py:276 is a use inside a function; all excluded."
+  },
+  {
+    "query_id": "g1q-arrow-callees_of-77",
+    "answerable_static": true,
+    "gold": [
+      "ext:builtins.ValueError",
+      "ext:str.join"
+    ],
+    "conditional_flags": [],
+    "notes": "Body (lines 1855-1880) contains only two call expressions: ', '.join(...) and ValueError(...). Membership tests, slicing and f-strings are not calls; no repo-internal callees."
+  },
+  {
+    "query_id": "g1q-arrow-callees_of-453",
+    "answerable_static": false,
+    "gold": [
+      "ext:datetime.datetime",
+      "ext:dateutil.tz.tzutc"
+    ],
+    "conditional_flags": [],
+    "notes": "self.factory.get(...) at line 305 cannot be resolved statically: self.factory is injected by the 'arrow_factory' pytest fixture (defined in tests/conftest.py) and arrow/factory.py is not shown, so the runtime callee of .get is undetermined. datetime(...) and tz.tzutc() resolve to external callees."
+  }
+]

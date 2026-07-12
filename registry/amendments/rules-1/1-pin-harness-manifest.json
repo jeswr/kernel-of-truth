@@ -1,0 +1,17 @@
+{
+    "author": "coordinator-1",
+    "date": "2026-07-11T23:32:00Z",
+    "experiment": "rules-1",
+    "kind": "ops",
+    "patch": [
+        {
+            "op": "replace",
+            "path": "/pins/harness_manifest",
+            "value": "6e47676852926b95dacdfbd43787163337fc9f2a955105b33964570064e21803"
+        }
+    ],
+    "rationale": "Input pin only (P2 P-9): the PINNED-AT-INPUTS harness_manifest placeholder resolved to the staged-bytes manifest sha printed by poc/rules-1/modal/modal_rules1.py --print-manifest (40 staged files) after the GPU-arm runner (rules1_runner.py A1/A3/A5/A7 + c1 reusing the frozen f2b/deconf-b bytes byte-identical) was built. The staged set INCLUDES poc/rules-1/inputs/rules1-manifest.json, which pins the model revisions R1=SmolLM2-135M-Instruct@12fd25f77366fa6b3b4b768ec3050bf629380bac and R3=SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674 (cited from the FROZEN f2b-replicate/f2b-transfer pins.model_revisions carriers — same Instruct family nsk1 exercised). NOTE: registry/experiments/rules-1.json pins.model_revisions is a descriptive dict (not a bare-hex PINNED-AT-INPUTS placeholder), so it is NOT independently ops-amendable under PIN_VALUE_RE; the model revisions are pinned transitively via this harness_manifest over rules1-manifest.json + the in-container staged-bytes assert (fail-closed ERR_PIN). certificate precondition e0071e9e already pinned; dry-run was DRY-RUN-OK. One-shot: any poc/rules-1 byte change before the run invalidates this value.",
+    "schema_version": "kot-amend/1",
+    "seq": 1,
+    "unblinding_state_at_write": "pre"
+}

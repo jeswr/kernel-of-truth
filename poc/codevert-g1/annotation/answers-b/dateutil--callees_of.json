@@ -1,0 +1,37 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "src/dateutil/tz/tz.py::datetime_ambiguous",
+    "tests/test_tz.py::DatetimeAmbiguousTest._get_ambig_error_tzinfo",
+    "ext:datetime.datetime",
+    "ext:unittest.TestCase.assertFalse"
+   ],
+   "notes": "",
+   "query_id": "g1q-dateutil-callees_of-1411"
+  },
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [
+    "tests/test_tz.py::TzFoldMixin._get_tzname",
+    "ext:datetime.datetime",
+    "ext:datetime.datetime.astimezone",
+    "ext:datetime.datetime.replace",
+    "ext:datetime.datetime.utcoffset",
+    "ext:datetime.timedelta",
+    "ext:unittest.TestCase.assertEqual"
+   ],
+   "notes": "Runtime dispatch for self._gettz_context and self.gettz depends on the concrete subclass, so their callees cannot be fully determined statically.",
+   "query_id": "g1q-dateutil-callees_of-1173"
+  }
+ ],
+ "attempts": 1,
+ "batch": "dateutil--callees_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

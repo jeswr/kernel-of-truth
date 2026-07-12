@@ -1,0 +1,27 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [
+    "ext:unittest.TestCase.assertEqual",
+    "tests/test_asyncio.py::TestContextManager.test_retry_with_async_result_and.test"
+   ],
+   "notes": "The definitions behind tasyncio.retry_if_result, retry_if_result, and tasyncio.AsyncRetrying are not shown, and the runtime callees of attempt.retry_state.set_result cannot be determined statically.",
+   "query_id": "g1q-tenacity-callees_of-227"
+  },
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [],
+   "notes": "The sole call is thing.go(), whose runtime callee cannot be determined because thing is a parameter.",
+   "query_id": "g1q-tenacity-callees_of-393"
+  }
+ ],
+ "attempts": 1,
+ "batch": "tenacity--callees_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

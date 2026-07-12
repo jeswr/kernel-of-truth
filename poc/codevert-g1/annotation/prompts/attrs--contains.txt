@@ -1,0 +1,1389 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: attrs ===
+PY FILE LISTING (repo-root-relative; authoritative):
+bench/test_benchmarks.py
+docs/conf.py
+src/attr/__init__.py
+src/attr/_cmp.py
+src/attr/_compat.py
+src/attr/_config.py
+src/attr/_funcs.py
+src/attr/_make.py
+src/attr/_next_gen.py
+src/attr/_version_info.py
+src/attr/converters.py
+src/attr/exceptions.py
+src/attr/filters.py
+src/attr/setters.py
+src/attr/validators.py
+src/attrs/__init__.py
+src/attrs/converters.py
+src/attrs/exceptions.py
+src/attrs/filters.py
+src/attrs/setters.py
+src/attrs/validators.py
+tests/__init__.py
+tests/attr_import_star.py
+tests/conftest.py
+tests/dataclass_transform_example.py
+tests/strategies.py
+tests/test_3rd_party.py
+tests/test_abc.py
+tests/test_annotations.py
+tests/test_cmp.py
+tests/test_compat.py
+tests/test_config.py
+tests/test_converters.py
+tests/test_dunders.py
+tests/test_filters.py
+tests/test_forward_references.py
+tests/test_funcs.py
+tests/test_functional.py
+tests/test_hooks.py
+tests/test_import.py
+tests/test_init_subclass.py
+tests/test_make.py
+tests/test_next_gen.py
+tests/test_packaging.py
+tests/test_pattern_matching.py
+tests/test_pyright.py
+tests/test_setattr.py
+tests/test_slots.py
+tests/test_utils.py
+tests/test_validators.py
+tests/test_version_info.py
+tests/utils.py
+typing-examples/baseline.py
+typing-examples/mypy.py
+
+=== QUERIES (2) ===
+QUERY g1q-attrs-contains-614: family=contains target=tests/test_slots.py::A
+QUERY g1q-attrs-contains-613: family=contains target=tests/test_slots.py::test_slots_cached_properties_work_independently.A
+
+=== CONTEXT ===
+
+FILE tests/test_slots.py:
+    1| # SPDX-License-Identifier: MIT
+    2| 
+    3| """
+    4| Unit tests for slots-related functionality.
+    5| """
+    6| 
+    7| import functools
+    8| import pickle
+    9| import weakref
+   10| 
+   11| from unittest import mock
+   12| 
+   13| import pytest
+   14| 
+   15| import attr
+   16| import attrs
+   17| 
+   18| from attr._compat import PY_3_14_PLUS, PYPY
+   19| 
+   20| 
+   21| # Pympler doesn't work on PyPy.
+   22| try:
+   23|     from pympler.asizeof import asizeof
+   24| 
+   25|     has_pympler = True
+   26| except BaseException:  # Won't be an import error.  # noqa: BLE001
+   27|     has_pympler = False
+   28| 
+   29| 
+   30| @attr.s
+   31| class C1:
+   32|     x = attr.ib(validator=attr.validators.instance_of(int))
+   33|     y = attr.ib()
+   34| 
+   35|     def method(self):
+   36|         return self.x
+   37| 
+   38|     @classmethod
+   39|     def classmethod(cls):
+   40|         return "clsmethod"
+   41| 
+   42|     @staticmethod
+   43|     def staticmethod():
+   44|         return "staticmethod"
+   45| 
+   46|     def my_class(self):
+   47|         return __class__
+   48| 
+   49|     def my_super(self):
+   50|         """Just to test out the no-arg super."""
+   51|         return super().__repr__()
+   52| 
+   53| 
+   54| @attr.s(slots=True, unsafe_hash=True)
+   55| class C1Slots:
+   56|     x = attr.ib(validator=attr.validators.instance_of(int))
+   57|     y = attr.ib()
+   58| 
+   59|     def method(self):
+   60|         return self.x
+   61| 
+   62|     @classmethod
+   63|     def classmethod(cls):
+   64|         return "clsmethod"
+   65| 
+   66|     @staticmethod
+   67|     def staticmethod():
+   68|         return "staticmethod"
+   69| 
+   70|     def my_class(self):
+   71|         return __class__
+   72| 
+   73|     def my_super(self):
+   74|         """Just to test out the no-arg super."""
+   75|         return super().__repr__()
+   76| 
+   77| 
+   78| def test_slots_being_used():
+   79|     """
+   80|     The class is really using __slots__.
+   81|     """
+   82|     non_slot_instance = C1(x=1, y="test")
+   83|     slot_instance = C1Slots(x=1, y="test")
+   84| 
+   85|     assert "__dict__" not in dir(slot_instance)
+   86|     assert "__slots__" in dir(slot_instance)
+   87| 
+   88|     assert "__dict__" in dir(non_slot_instance)
+   89|     assert "__slots__" not in dir(non_slot_instance)
+   90| 
+   91|     assert {"__weakref__", "x", "y"} == set(slot_instance.__slots__)
+   92| 
+   93|     if has_pympler:
+   94|         assert asizeof(slot_instance) < asizeof(non_slot_instance)
+   95| 
+   96|     non_slot_instance.t = "test"
+   97|     with pytest.raises(AttributeError):
+   98|         slot_instance.t = "test"
+   99| 
+  100|     assert 1 == non_slot_instance.method()
+  101|     assert 1 == slot_instance.method()
+  102| 
+  103|     assert attr.fields(C1Slots) == attr.fields(C1)
+  104|     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
+  105| 
+  106| 
+  107| def test_slots_base_of_slotted():
+  108|     """
+  109|     The (hopefully gc'ed) temporary base class of a slotted class contains a
+  110|     reference to the slotted class.
+  111|     """
+  112| 
+  113|     class Base:
+  114|         pass
+  115| 
+  116|     Slotted = attr.s(slots=True)(Base)
+  117| 
+  118|     assert Slotted is Base.__attrs_base_of_slotted__()
+  119| 
+  120| 
+  121| def test_basic_attr_funcs():
+  122|     """
+  123|     Comparison, `__eq__`, `__hash__`, `__repr__`, `attrs.asdict` work.
+  124|     """
+  125|     a = C1Slots(x=1, y=2)
+  126|     b = C1Slots(x=1, y=3)
+  127|     a_ = C1Slots(x=1, y=2)
+  128| 
+  129|     # Comparison.
+  130|     assert b > a
+  131| 
+  132|     assert a_ == a
+  133| 
+  134|     # Hashing.
+  135|     hash(b)  # Just to assert it doesn't raise.
+  136| 
+  137|     # Repr.
+  138|     assert "C1Slots(x=1, y=2)" == repr(a)
+  139| 
+  140|     assert {"x": 1, "y": 2} == attr.asdict(a)
+  141| 
+  142| 
+  143| def test_inheritance_from_nonslots():
+  144|     """
+  145|     Inheritance from a non-slotted class works.
+  146| 
+  147|     Note that a slotted class inheriting from an ordinary class loses most of
+  148|     the benefits of slotted classes, but it should still work.
+  149|     """
+  150| 
+  151|     @attr.s(slots=True, unsafe_hash=True)
+  152|     class C2Slots(C1):
+  153|         z = attr.ib()
+  154| 
+  155|     c2 = C2Slots(x=1, y=2, z="test")
+  156| 
+  157|     assert 1 == c2.x
+  158|     assert 2 == c2.y
+  159|     assert "test" == c2.z
+  160| 
+  161|     c2.t = "test"  # This will work, using the base class.
+  162| 
+  163|     assert "test" == c2.t
+  164| 
+  165|     assert 1 == c2.method()
+  166|     assert "clsmethod" == c2.classmethod()
+  167|     assert "staticmethod" == c2.staticmethod()
+  168| 
+  169|     assert {"z"} == set(C2Slots.__slots__)
+  170| 
+  171|     c3 = C2Slots(x=1, y=3, z="test")
+  172| 
+  173|     assert c3 > c2
+  174| 
+  175|     c2_ = C2Slots(x=1, y=2, z="test")
+  176| 
+  177|     assert c2 == c2_
+  178| 
+  179|     assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
+  180| 
+  181|     hash(c2)  # Just to assert it doesn't raise.
+  182| 
+  183|     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
+  184| 
+  185| 
+  186| def test_nonslots_these():
+  187|     """
+  188|     Enhancing a dict class using 'these' works.
+  189| 
+  190|     This will actually *replace* the class with another one, using slots.
+  191|     """
+  192| 
+  193|     class SimpleOrdinaryClass:
+  194|         def __init__(self, x, y, z):
+  195|             self.x = x
+  196|             self.y = y
+  197|             self.z = z
+  198| 
+  199|         def method(self):
+  200|             return self.x
+  201| 
+  202|         @classmethod
+  203|         def classmethod(cls):
+  204|             return "clsmethod"
+  205| 
+  206|         @staticmethod
+  207|         def staticmethod():
+  208|             return "staticmethod"
+  209| 
+  210|     C2Slots = attr.s(
+  211|         these={"x": attr.ib(), "y": attr.ib(), "z": attr.ib()},
+  212|         init=False,
+  213|         slots=True,
+  214|         unsafe_hash=True,
+  215|     )(SimpleOrdinaryClass)
+  216| 
+  217|     c2 = C2Slots(x=1, y=2, z="test")
+  218|     assert 1 == c2.x
+  219|     assert 2 == c2.y
+  220|     assert "test" == c2.z
+  221|     with pytest.raises(AttributeError):
+  222|         c2.t = "test"  # We have slots now.
+  223| 
+  224|     assert 1 == c2.method()
+  225|     assert "clsmethod" == c2.classmethod()
+  226|     assert "staticmethod" == c2.staticmethod()
+  227| 
+  228|     assert {"__weakref__", "x", "y", "z"} == set(C2Slots.__slots__)
+  229| 
+  230|     c3 = C2Slots(x=1, y=3, z="test")
+  231|     assert c3 > c2
+  232|     c2_ = C2Slots(x=1, y=2, z="test")
+  233|     assert c2 == c2_
+  234| 
+  235|     assert "SimpleOrdinaryClass(x=1, y=2, z='test')" == repr(c2)
+  236| 
+  237|     hash(c2)  # Just to assert it doesn't raise.
+  238| 
+  239|     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
+  240| 
+  241| 
+  242| def test_inheritance_from_slots():
+  243|     """
+  244|     Inheriting from an attrs slotted class works.
+  245|     """
+  246| 
+  247|     @attr.s(slots=True, unsafe_hash=True)
+  248|     class C2Slots(C1Slots):
+  249|         z = attr.ib()
+  250| 
+  251|     @attr.s(slots=True, unsafe_hash=True)
+  252|     class C2(C1):
+  253|         z = attr.ib()
+  254| 
+  255|     c2 = C2Slots(x=1, y=2, z="test")
+  256|     assert 1 == c2.x
+  257|     assert 2 == c2.y
+  258|     assert "test" == c2.z
+  259| 
+  260|     assert {"z"} == set(C2Slots.__slots__)
+  261| 
+  262|     assert 1 == c2.method()
+  263|     assert "clsmethod" == c2.classmethod()
+  264|     assert "staticmethod" == c2.staticmethod()
+  265| 
+  266|     with pytest.raises(AttributeError):
+  267|         c2.t = "test"
+  268| 
+  269|     non_slot_instance = C2(x=1, y=2, z="test")
+  270|     if has_pympler:
+  271|         assert asizeof(c2) < asizeof(non_slot_instance)
+  272| 
+  273|     c3 = C2Slots(x=1, y=3, z="test")
+  274|     assert c3 > c2
+  275|     c2_ = C2Slots(x=1, y=2, z="test")
+  276|     assert c2 == c2_
+  277| 
+  278|     assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
+  279| 
+  280|     hash(c2)  # Just to assert it doesn't raise.
+  281| 
+  282|     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
+  283| 
+  284| 
+  285| def test_inheritance_from_slots_with_attribute_override():
+  286|     """
+  287|     Inheriting from a slotted class doesn't re-create existing slots
+  288|     """
+  289| 
+  290|     class HasXSlot:
+  291|         __slots__ = ("x",)
+  292| 
+  293|     @attr.s(slots=True, unsafe_hash=True)
+  294|     class C2Slots(C1Slots):
+  295|         # y re-defined here but it shouldn't get a slot
+  296|         y = attr.ib()
+  297|         z = attr.ib()
+  298| 
+  299|     @attr.s(slots=True, unsafe_hash=True)
+  300|     class NonAttrsChild(HasXSlot):
+  301|         # Parent class has slot for "x" already, so we skip it
+  302|         x = attr.ib()
+  303|         y = attr.ib()
+  304|         z = attr.ib()
+  305| 
+  306|     c2 = C2Slots(1, 2, "test")
+  307|     assert 1 == c2.x
+  308|     assert 2 == c2.y
+  309|     assert "test" == c2.z
+  310| 
+  311|     assert {"z"} == set(C2Slots.__slots__)
+  312| 
+  313|     na = NonAttrsChild(1, 2, "test")
+  314|     assert 1 == na.x
+  315|     assert 2 == na.y
+  316|     assert "test" == na.z
+  317| 
+  318|     assert {"__weakref__", "y", "z"} == set(NonAttrsChild.__slots__)
+  319| 
+  320| 
+  321| def test_inherited_slot_reuses_slot_descriptor():
+  322|     """
+  323|     We reuse slot descriptor for an attr.ib defined in a slotted attr.s
+  324|     """
+  325| 
+  326|     class HasXSlot:
+  327|         __slots__ = ("x",)
+  328| 
+  329|     class OverridesX(HasXSlot):
+  330|         @property
+  331|         def x(self):
+  332|             return None
+  333| 
+  334|     @attr.s(slots=True)
+  335|     class Child(OverridesX):
+  336|         x = attr.ib()
+  337| 
+  338|     assert Child.x is not OverridesX.x
+  339|     assert Child.x is HasXSlot.x
+  340| 
+  341|     c = Child(1)
+  342|     assert 1 == c.x
+  343|     assert set() == set(Child.__slots__)
+  344| 
+  345|     ox = OverridesX()
+  346|     assert ox.x is None
+  347| 
+  348| 
+  349| def test_bare_inheritance_from_slots():
+  350|     """
+  351|     Inheriting from a bare attrs slotted class works.
+  352|     """
+  353| 
+  354|     @attr.s(
+  355|         init=False,
+  356|         eq=False,
+  357|         order=False,
+  358|         unsafe_hash=False,
+  359|         repr=False,
+  360|         slots=True,
+  361|     )
+  362|     class C1BareSlots:
+  363|         x = attr.ib(validator=attr.validators.instance_of(int))
+  364|         y = attr.ib()
+  365| 
+  366|         def method(self):
+  367|             return self.x
+  368| 
+  369|         @classmethod
+  370|         def classmethod(cls):
+  371|             return "clsmethod"
+  372| 
+  373|         @staticmethod
+  374|         def staticmethod():
+  375|             return "staticmethod"
+  376| 
+  377|     @attr.s(init=False, eq=False, order=False, unsafe_hash=False, repr=False)
+  378|     class C1Bare:
+  379|         x = attr.ib(validator=attr.validators.instance_of(int))
+  380|         y = attr.ib()
+  381| 
+  382|         def method(self):
+  383|             return self.x
+  384| 
+  385|         @classmethod
+  386|         def classmethod(cls):
+  387|             return "clsmethod"
+  388| 
+  389|         @staticmethod
+  390|         def staticmethod():
+  391|             return "staticmethod"
+  392| 
+  393|     @attr.s(slots=True, unsafe_hash=True)
+  394|     class C2Slots(C1BareSlots):
+  395|         z = attr.ib()
+  396| 
+  397|     @attr.s(slots=True, unsafe_hash=True)
+  398|     class C2(C1Bare):
+  399|         z = attr.ib()
+  400| 
+  401|     c2 = C2Slots(x=1, y=2, z="test")
+  402|     assert 1 == c2.x
+  403|     assert 2 == c2.y
+  404|     assert "test" == c2.z
+  405| 
+  406|     assert 1 == c2.method()
+  407|     assert "clsmethod" == c2.classmethod()
+  408|     assert "staticmethod" == c2.staticmethod()
+  409| 
+  410|     with pytest.raises(AttributeError):
+  411|         c2.t = "test"
+  412| 
+  413|     non_slot_instance = C2(x=1, y=2, z="test")
+  414|     if has_pympler:
+  415|         assert asizeof(c2) < asizeof(non_slot_instance)
+  416| 
+  417|     c3 = C2Slots(x=1, y=3, z="test")
+  418|     assert c3 > c2
+  419|     c2_ = C2Slots(x=1, y=2, z="test")
+  420|     assert c2 == c2_
+  421| 
+  422|     assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
+  423| 
+  424|     hash(c2)  # Just to assert it doesn't raise.
+  425| 
+  426|     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
+  427| 
+  428| 
+  429| class TestClosureCellRewriting:
+  430|     def test_closure_cell_rewriting(self):
+  431|         """
+  432|         Slotted classes support proper closure cell rewriting.
+  433| 
+  434|         This affects features like `__class__` and the no-arg super().
+  435|         """
+  436|         non_slot_instance = C1(x=1, y="test")
+  437|         slot_instance = C1Slots(x=1, y="test")
+  438| 
+  439|         assert non_slot_instance.my_class() is C1
+  440|         assert slot_instance.my_class() is C1Slots
+  441| 
+  442|         # Just assert they return something, and not an exception.
+  443|         assert non_slot_instance.my_super()
+  444|         assert slot_instance.my_super()
+  445| 
+  446|     def test_inheritance(self):
+  447|         """
+  448|         Slotted classes support proper closure cell rewriting when inheriting.
+  449| 
+  450|         This affects features like `__class__` and the no-arg super().
+  451|         """
+  452| 
+  453|         @attr.s
+  454|         class C2(C1):
+  455|             def my_subclass(self):
+  456|                 return __class__
+  457| 
+  458|         @attr.s
+  459|         class C2Slots(C1Slots):
+  460|             def my_subclass(self):
+  461|                 return __class__
+  462| 
+  463|         non_slot_instance = C2(x=1, y="test")
+  464|         slot_instance = C2Slots(x=1, y="test")
+  465| 
+  466|         assert non_slot_instance.my_class() is C1
+  467|         assert slot_instance.my_class() is C1Slots
+  468| 
+  469|         # Just assert they return something, and not an exception.
+  470|         assert non_slot_instance.my_super()
+  471|         assert slot_instance.my_super()
+  472| 
+  473|         assert non_slot_instance.my_subclass() is C2
+  474|         assert slot_instance.my_subclass() is C2Slots
+  475| 
+  476|     def test_cls_static(self, slots):
+  477|         """
+  478|         Slotted classes support proper closure cell rewriting for class- and
+  479|         static methods.
+  480|         """
+  481|         # Python can reuse closure cells, so we create new classes just for
+  482|         # this test.
+  483| 
+  484|         @attr.s(slots=slots)
+  485|         class C:
+  486|             @classmethod
+  487|             def clsmethod(cls):
+  488|                 return __class__
+  489| 
+  490|         assert C.clsmethod() is C
+  491| 
+  492|         @attr.s(slots=slots)
+  493|         class D:
+  494|             @staticmethod
+  495|             def statmethod():
+  496|                 return __class__
+  497| 
+  498|         assert D.statmethod() is D
+  499| 
+  500| 
+  501| @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
+  502| def test_not_weakrefable():
+  503|     """
+  504|     Instance is not weak-referenceable when `weakref_slot=False` in CPython.
+  505|     """
+  506| 
+  507|     @attr.s(slots=True, weakref_slot=False)
+  508|     class C:
+  509|         pass
+  510| 
+  511|     c = C()
+  512| 
+  513|     with pytest.raises(TypeError):
+  514|         weakref.ref(c)
+  515| 
+  516| 
+  517| @pytest.mark.skipif(
+  518|     not PYPY, reason="slots without weakref_slot should only work on PyPy"
+  519| )
+  520| def test_implicitly_weakrefable():
+  521|     """
+  522|     Instance is weak-referenceable even when `weakref_slot=False` in PyPy.
+  523|     """
+  524| 
+  525|     @attr.s(slots=True, weakref_slot=False)
+  526|     class C:
+  527|         pass
+  528| 
+  529|     c = C()
+  530|     w = weakref.ref(c)
+  531| 
+  532|     assert c is w()
+  533| 
+  534| 
+  535| def test_weakrefable():
+  536|     """
+  537|     Instance is weak-referenceable when `weakref_slot=True`.
+  538|     """
+  539| 
+  540|     @attr.s(slots=True, weakref_slot=True)
+  541|     class C:
+  542|         pass
+  543| 
+  544|     c = C()
+  545|     w = weakref.ref(c)
+  546| 
+  547|     assert c is w()
+  548| 
+  549| 
+  550| def test_weakref_does_not_add_a_field():
+  551|     """
+  552|     `weakref_slot=True` does not add a field to the class.
+  553|     """
+  554| 
+  555|     @attr.s(slots=True, weakref_slot=True)
+  556|     class C:
+  557|         field = attr.ib()
+  558| 
+  559|     assert [f.name for f in attr.fields(C)] == ["field"]
+  560| 
+  561| 
+  562| def tests_weakref_does_not_add_when_inheriting_with_weakref():
+  563|     """
+  564|     `weakref_slot=True` does not add a new __weakref__ slot when inheriting
+  565|     one.
+  566|     """
+  567| 
+  568|     @attr.s(slots=True, weakref_slot=True)
+  569|     class C:
+  570|         pass
+  571| 
+  572|     @attr.s(slots=True, weakref_slot=True)
+  573|     class D(C):
+  574|         pass
+  575| 
+  576|     d = D()
+  577|     w = weakref.ref(d)
+  578| 
+  579|     assert d is w()
+  580| 
+  581| 
+  582| def tests_weakref_does_not_add_with_weakref_attribute():
+  583|     """
+  584|     `weakref_slot=True` does not add a new __weakref__ slot when an attribute
+  585|     of that name exists.
+  586|     """
+  587| 
+  588|     @attr.s(slots=True, weakref_slot=True)
+  589|     class C:
+  590|         __weakref__ = attr.ib(
+  591|             init=False, hash=False, repr=False, eq=False, order=False
+  592|         )
+  593| 
+  594|     c = C()
+  595|     w = weakref.ref(c)
+  596| 
+  597|     assert c is w()
+  598| 
+  599| 
+  600| def test_slots_empty_cell():
+  601|     """
+  602|     Tests that no `ValueError: Cell is empty` exception is raised when
+  603|     closure cells are present with no contents in a `slots=True` class.
+  604|     (issue https://github.com/python-attrs/attrs/issues/589)
+  605| 
+  606|     If a method mentions `__class__` or uses the no-arg `super()`, the compiler
+  607|     will bake a reference to the class in the method itself as
+  608|     `method.__closure__`. Since `attrs` replaces the class with a clone,
+  609|     `_ClassBuilder._create_slots_class(self)` will rewrite these references so
+  610|     it keeps working. This method was not properly covering the edge case where
+  611|     the closure cell was empty, we fixed it and this is the non-regression
+  612|     test.
+  613|     """
+  614| 
+  615|     @attr.s(slots=True)
+  616|     class C:
+  617|         field = attr.ib()
+  618| 
+  619|         def f(self, a):
+  620|             super(C, self).__init__()  # noqa: UP008
+  621| 
+  622|     C(field=1)
+  623| 
+  624| 
+  625| @attr.s(getstate_setstate=True)
+  626| class C2:
+  627|     x = attr.ib()
+  628| 
+  629| 
+  630| @attr.s(slots=True, getstate_setstate=True)
+  631| class C2Slots:
+  632|     x = attr.ib()
+  633| 
+  634| 
+  635| class TestPickle:
+  636|     @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL))
+  637|     def test_pickleable_by_default(self, protocol):
+  638|         """
+  639|         If nothing else is passed, slotted classes can be pickled and
+  640|         unpickled with all supported protocols.
+  641|         """
+  642|         i1 = C1Slots(1, 2)
+  643|         i2 = pickle.loads(pickle.dumps(i1, protocol))
+  644| 
+  645|         assert i1 == i2
+  646|         assert i1 is not i2
+  647| 
+  648|     def test_no_getstate_setstate_for_dict_classes(self):
+  649|         """
+  650|         As long as getstate_setstate is None, nothing is done to dict
+  651|         classes.
+  652|         """
+  653|         assert getattr(object, "__getstate__", None) is getattr(
+  654|             C1, "__getstate__", None
+  655|         )
+  656|         assert getattr(object, "__setstate__", None) is getattr(
+  657|             C1, "__setstate__", None
+  658|         )
+  659| 
+  660|     def test_no_getstate_setstate_if_option_false(self):
+  661|         """
+  662|         Don't add getstate/setstate if getstate_setstate is False.
+  663|         """
+  664| 
+  665|         @attr.s(slots=True, getstate_setstate=False)
+  666|         class C:
+  667|             x = attr.ib()
+  668| 
+  669|         assert getattr(object, "__getstate__", None) is getattr(
+  670|             C, "__getstate__", None
+  671|         )
+  672|         assert getattr(object, "__setstate__", None) is getattr(
+  673|             C, "__setstate__", None
+  674|         )
+  675| 
+  676|     @pytest.mark.parametrize("cls", [C2(1), C2Slots(1)])
+  677|     def test_getstate_set_state_force_true(self, cls):
+  678|         """
+  679|         If getstate_setstate is True, add them unconditionally.
+  680|         """
+  681|         assert None is not getattr(cls, "__getstate__", None)
+  682|         assert None is not getattr(cls, "__setstate__", None)
+  683| 
+  684| 
+  685| def test_slots_super_property_get():
+  686|     """
+  687|     Both `super()` and `super(self.__class__, self)` work.
+  688|     """
+  689| 
+  690|     @attr.s(slots=True)
+  691|     class A:
+  692|         x = attr.ib()
+  693| 
+  694|         @property
+  695|         def f(self):
+  696|             return self.x
+  697| 
+  698|     @attr.s(slots=True)
+  699|     class B(A):
+  700|         @property
+  701|         def f(self):
+  702|             return super().f ** 2
+  703| 
+  704|     @attr.s(slots=True)
+  705|     class C(A):
+  706|         @property
+  707|         def f(self):
+  708|             return super(C, self).f ** 2  # noqa: UP008
+  709| 
+  710|     assert B(11).f == 121
+  711|     assert B(17).f == 289
+  712|     assert C(11).f == 121
+  713|     assert C(17).f == 289
+  714| 
+  715| 
+  716| def test_slots_super_property_get_shortcut():
+  717|     """
+  718|     The `super()` shortcut is allowed.
+  719|     """
+  720| 
+  721|     @attr.s(slots=True)
+  722|     class A:
+  723|         x = attr.ib()
+  724| 
+  725|         @property
+  726|         def f(self):
+  727|             return self.x
+  728| 
+  729|     @attr.s(slots=True)
+  730|     class B(A):
+  731|         @property
+  732|         def f(self):
+  733|             return super().f ** 2
+  734| 
+  735|     assert B(11).f == 121
+  736|     assert B(17).f == 289
+  737| 
+  738| 
+  739| def test_slots_cached_property_allows_call():
+  740|     """
+  741|     cached_property in slotted class allows call.
+  742|     """
+  743| 
+  744|     @attr.s(slots=True)
+  745|     class A:
+  746|         x = attr.ib()
+  747| 
+  748|         @functools.cached_property
+  749|         def f(self):
+  750|             return self.x
+  751| 
+  752|     assert A(11).f == 11
+  753| 
+  754| 
+  755| def test_slots_cached_property_class_does_not_have__dict__():
+  756|     """
+  757|     slotted class with cached property has no __dict__ attribute.
+  758|     """
+  759| 
+  760|     @attr.s(slots=True)
+  761|     class A:
+  762|         x = attr.ib()
+  763| 
+  764|         @functools.cached_property
+  765|         def f(self):
+  766|             return self.x
+  767| 
+  768|     assert set(A.__slots__) == {"x", "f", "__weakref__"}
+  769|     assert "__dict__" not in dir(A)
+  770| 
+  771| 
+  772| def test_slots_cached_property_works_on_frozen_instances():
+  773|     """
+  774|     Infers type of cached property.
+  775|     """
+  776| 
+  777|     @attrs.frozen(slots=True)
+  778|     class A:
+  779|         x: int
+  780| 
+  781|         @functools.cached_property
+  782|         def f(self) -> int:
+  783|             return self.x
+  784| 
+  785|     assert A(x=1).f == 1
+  786| 
+  787| 
+  788| @pytest.mark.xfail(
+  789|     PY_3_14_PLUS, reason="3.14 does not infer the type anymore."
+  790| )
+  791| def test_slots_cached_property_infers_type():
+  792|     """
+  793|     Infers type of cached property on Python 3.13 and earlier.
+  794| 
+  795|     See also #1431.
+  796|     """
+  797| 
+  798|     @attrs.frozen(slots=True)
+  799|     class A:
+  800|         x: int
+  801| 
+  802|         @functools.cached_property
+  803|         def f(self) -> int:
+  804|             return self.x
+  805| 
+  806|     assert A.__annotations__ == {"x": int, "f": int}
+  807| 
+  808| 
+  809| def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requested():
+  810|     """
+  811|     Ensures error information is not lost.
+  812|     """
+  813| 
+  814|     @attr.s(slots=True)
+  815|     class A:
+  816|         x = attr.ib()
+  817| 
+  818|         @functools.cached_property
+  819|         def f(self):
+  820|             return self.x
+  821| 
+  822|     a = A(1)
+  823|     with pytest.raises(
+  824|         AttributeError, match="'A' object has no attribute 'z'"
+  825|     ):
+  826|         a.z
+  827| 
+  828| 
+  829| def test_slots_cached_property_raising_attributeerror():
+  830|     """
+  831|     Ensures AttributeError raised by a property is preserved by __getattr__()
+  832|     implementation.
+  833| 
+  834|     Regression test for issue https://github.com/python-attrs/attrs/issues/1230
+  835|     """
+  836| 
+  837|     @attr.s(slots=True)
+  838|     class A:
+  839|         x = attr.ib()
+  840| 
+  841|         @functools.cached_property
+  842|         def f(self):
+  843|             return self.p
+  844| 
+  845|         @property
+  846|         def p(self):
+  847|             raise AttributeError("I am a property")
+  848| 
+  849|         @functools.cached_property
+  850|         def g(self):
+  851|             return self.q
+  852| 
+  853|         @property
+  854|         def q(self):
+  855|             return 2
+  856| 
+  857|     a = A(1)
+  858|     with pytest.raises(AttributeError, match=r"^I am a property$"):
+  859|         a.p
+  860|     with pytest.raises(AttributeError, match=r"^I am a property$"):
+  861|         a.f
+  862| 
+  863|     assert a.g == 2
+  864|     assert a.q == 2
+  865| 
+  866| 
+  867| def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes():
+  868|     """
+  869|     Ensure __getattr__ implementation is maintained for non cached_properties.
+  870|     """
+  871| 
+  872|     @attr.s(slots=True)
+  873|     class A:
+  874|         x = attr.ib()
+  875| 
+  876|         @functools.cached_property
+  877|         def f(self):
+  878|             return self.x
+  879| 
+  880|         def __getattr__(self, item):
+  881|             return item
+  882| 
+  883|     a = A(1)
+  884|     assert a.f == 1
+  885|     assert a.z == "z"
+  886| 
+  887| 
+  888| def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
+  889|     """
+  890|     Ensure __getattr__ implementation is maintained in subclass.
+  891|     """
+  892| 
+  893|     @attr.s(slots=True)
+  894|     class A:
+  895|         x = attr.ib()
+  896| 
+  897|         def __getattr__(self, item):
+  898|             return item
+  899| 
+  900|     @attr.s(slots=True)
+  901|     class B(A):
+  902|         @functools.cached_property
+  903|         def f(self):
+  904|             return self.x
+  905| 
+  906|     b = B(1)
+  907|     assert b.f == 1
+  908|     assert b.z == "z"
+  909| 
+  910| 
+  911| def test_slots_getattr_in_subclass_gets_superclass_cached_property():
+  912|     """
+  913|     Ensure super() in __getattr__ is not broken through cached_property re-write.
+  914|     """
+  915| 
+  916|     @attr.s(slots=True)
+  917|     class A:
+  918|         x = attr.ib()
+  919| 
+  920|         @functools.cached_property
+  921|         def f(self):
+  922|             return self.x
+  923| 
+  924|         def __getattr__(self, item):
+  925|             return item
+  926| 
+  927|     @attr.s(slots=True)
+  928|     class B(A):
+  929|         @functools.cached_property
+  930|         def g(self):
+  931|             return self.x
+  932| 
+  933|         def __getattr__(self, item):
+  934|             return super().__getattr__(item)
+  935| 
+  936|     b = B(1)
+  937|     assert b.f == 1
+  938|     assert b.z == "z"
+  939| 
+  940| 
+  941| def test_slots_sub_class_with_independent_cached_properties_both_work():
+  942|     """
+  943|     Subclassing shouldn't break cached properties.
+  944|     """
+  945| 
+  946|     @attr.s(slots=True)
+  947|     class A:
+  948|         x = attr.ib()
+  949| 
+  950|         @functools.cached_property
+  951|         def f(self):
+  952|             return self.x
+  953| 
+  954|     @attr.s(slots=True)
+  955|     class B(A):
+  956|         @functools.cached_property
+  957|         def g(self):
+  958|             return self.x * 2
+  959| 
+  960|     assert B(1).f == 1
+  961|     assert B(1).g == 2
+  962| 
+  963| 
+  964| def test_slots_with_multiple_cached_property_subclasses_works():
+  965|     """
+  966|     Multiple sub-classes shouldn't break cached properties.
+  967|     """
+  968| 
+  969|     @attr.s(slots=True)
+  970|     class A:
+  971|         x = attr.ib(kw_only=True)
+  972| 
+  973|         @functools.cached_property
+  974|         def f(self):
+  975|             return self.x
+  976| 
+  977|     @attr.s(slots=False)
+  978|     class B:
+  979|         @functools.cached_property
+  980|         def g(self):
+  981|             return self.x * 2
+  982| 
+  983|         def __getattr__(self, item):
+  984|             if hasattr(super(), "__getattr__"):
+  985|                 return super().__getattr__(item)
+  986|             return item
+  987| 
+  988|     @attr.s(slots=True)
+  989|     class AB(A, B):
+  990|         pass
+  991| 
+  992|     ab = AB(x=1)
+  993| 
+  994|     assert ab.f == 1
+  995|     assert ab.g == 2
+  996|     assert ab.h == "h"
+  997| 
+  998| 
+  999| def test_slotted_cached_property_can_access_super():
+ 1000|     """
+ 1001|     Multiple sub-classes shouldn't break cached properties.
+ 1002|     """
+ 1003| 
+ 1004|     @attr.s(slots=True)
+ 1005|     class A:
+ 1006|         x = attr.ib(kw_only=True)
+ 1007| 
+ 1008|     @attr.s(slots=True)
+ 1009|     class B(A):
+ 1010|         @functools.cached_property
+ 1011|         def f(self):
+ 1012|             return super().x * 2
+ 1013| 
+ 1014|     assert B(x=1).f == 2
+ 1015| 
+ 1016| 
+ 1017| def test_slots_sub_class_avoids_duplicated_slots():
+ 1018|     """
+ 1019|     Duplicating the slots is a waste of memory.
+ 1020|     """
+ 1021| 
+ 1022|     @attr.s(slots=True)
+ 1023|     class A:
+ 1024|         x = attr.ib()
+ 1025| 
+ 1026|         @functools.cached_property
+ 1027|         def f(self):
+ 1028|             return self.x
+ 1029| 
+ 1030|     @attr.s(slots=True)
+ 1031|     class B(A):
+ 1032|         @functools.cached_property
+ 1033|         def f(self):
+ 1034|             return self.x * 2
+ 1035| 
+ 1036|     assert B(1).f == 2
+ 1037|     assert B.__slots__ == ()
+ 1038| 
+ 1039| 
+ 1040| def test_slots_sub_class_with_actual_slot():
+ 1041|     """
+ 1042|     A sub-class can have an explicit attrs field that replaces a cached property.
+ 1043|     """
+ 1044| 
+ 1045|     @attr.s(slots=True)
+ 1046|     class A:  # slots : (x, f)
+ 1047|         x = attr.ib()
+ 1048| 
+ 1049|         @functools.cached_property
+ 1050|         def f(self):
+ 1051|             return self.x
+ 1052| 
+ 1053|     @attr.s(slots=True)
+ 1054|     class B(A):
+ 1055|         f: int = attr.ib()
+ 1056| 
+ 1057|     assert B(1, 2).f == 2
+ 1058|     assert B.__slots__ == ()
+ 1059| 
+ 1060| 
+ 1061| def test_slots_cached_property_is_not_called_at_construction():
+ 1062|     """
+ 1063|     A cached property function should only be called at property access point.
+ 1064|     """
+ 1065|     call_count = 0
+ 1066| 
+ 1067|     @attr.s(slots=True)
+ 1068|     class A:
+ 1069|         x = attr.ib()
+ 1070| 
+ 1071|         @functools.cached_property
+ 1072|         def f(self):
+ 1073|             nonlocal call_count
+ 1074|             call_count += 1
+ 1075|             return self.x
+ 1076| 
+ 1077|     A(1)
+ 1078|     assert call_count == 0
+ 1079| 
+ 1080| 
+ 1081| def test_slots_cached_property_repeat_call_only_once():
+ 1082|     """
+ 1083|     A cached property function should be called only once, on repeated attribute access.
+ 1084|     """
+ 1085|     call_count = 0
+ 1086| 
+ 1087|     @attr.s(slots=True)
+ 1088|     class A:
+ 1089|         x = attr.ib()
+ 1090| 
+ 1091|         @functools.cached_property
+ 1092|         def f(self):
+ 1093|             nonlocal call_count
+ 1094|             call_count += 1
+ 1095|             return self.x
+ 1096| 
+ 1097|     obj = A(1)
+ 1098|     obj.f
+ 1099|     obj.f
+ 1100|     assert call_count == 1
+ 1101| 
+ 1102| 
+ 1103| def test_slots_cached_property_called_independent_across_instances():
+ 1104|     """
+ 1105|     A cached property value should be specific to the given instance.
+ 1106|     """
+ 1107| 
+ 1108|     @attr.s(slots=True)
+ 1109|     class A:
+ 1110|         x = attr.ib()
+ 1111| 
+ 1112|         @functools.cached_property
+ 1113|         def f(self):
+ 1114|             return self.x
+ 1115| 
+ 1116|     obj_1 = A(1)
+ 1117|     obj_2 = A(2)
+ 1118| 
+ 1119|     assert obj_1.f == 1
+ 1120|     assert obj_2.f == 2
+ 1121| 
+ 1122| 
+ 1123| def test_slots_cached_properties_work_independently():
+ 1124|     """
+ 1125|     Multiple cached properties should work independently.
+ 1126|     """
+ 1127| 
+ 1128|     @attr.s(slots=True)
+ 1129|     class A:
+ 1130|         x = attr.ib()
+ 1131| 
+ 1132|         @functools.cached_property
+ 1133|         def f_1(self):
+ 1134|             return self.x
+ 1135| 
+ 1136|         @functools.cached_property
+ 1137|         def f_2(self):
+ 1138|             return self.x * 2
+ 1139| 
+ 1140|     obj = A(1)
+ 1141| 
+ 1142|     assert obj.f_1 == 1
+ 1143|     assert obj.f_2 == 2
+ 1144| 
+ 1145| 
+ 1146| @attr.s(slots=True)
+ 1147| class A:
+ 1148|     x = attr.ib()
+ 1149|     b = attr.ib()
+ 1150|     c = attr.ib()
+ 1151| 
+ 1152| 
+ 1153| def test_slots_unpickle_after_attr_removed():
+ 1154|     """
+ 1155|     We don't assign attributes we don't have anymore if the class has
+ 1156|     removed it.
+ 1157|     """
+ 1158|     a = A(1, 2, 3)
+ 1159|     a_pickled = pickle.dumps(a)
+ 1160|     a_unpickled = pickle.loads(a_pickled)
+ 1161|     assert a_unpickled == a
+ 1162| 
+ 1163|     @attr.s(slots=True)
+ 1164|     class NEW_A:
+ 1165|         x = attr.ib()
+ 1166|         c = attr.ib()
+ 1167| 
+ 1168|     with mock.patch(f"{__name__}.A", NEW_A):
+ 1169|         new_a = pickle.loads(a_pickled)
+ 1170| 
+ 1171|         assert new_a.x == 1
+ 1172|         assert new_a.c == 3
+ 1173|         assert not hasattr(new_a, "b")
+ 1174| 
+ 1175| 
+ 1176| def test_slots_unpickle_after_attr_added(frozen):
+ 1177|     """
+ 1178|     We don't assign attribute we haven't had before if the class has one added.
+ 1179|     """
+ 1180|     a = A(1, 2, 3)
+ 1181|     a_pickled = pickle.dumps(a)
+ 1182|     a_unpickled = pickle.loads(a_pickled)
+ 1183| 
+ 1184|     assert a_unpickled == a
+ 1185| 
+ 1186|     @attr.s(slots=True, frozen=frozen)
+ 1187|     class NEW_A:
+ 1188|         x = attr.ib()
+ 1189|         b = attr.ib()
+ 1190|         d = attr.ib()
+ 1191|         c = attr.ib()
+ 1192| 
+ 1193|     with mock.patch(f"{__name__}.A", NEW_A):
+ 1194|         new_a = pickle.loads(a_pickled)
+ 1195| 
+ 1196|         assert new_a.x == 1
+ 1197|         assert new_a.b == 2
+ 1198|         assert new_a.c == 3
+ 1199|         assert not hasattr(new_a, "d")
+ 1200| 
+ 1201| 
+ 1202| def test_slots_unpickle_is_backward_compatible(frozen):
+ 1203|     """
+ 1204|     Ensure object pickled before v22.2.0 can still be unpickled.
+ 1205|     """
+ 1206|     a = A(1, 2, 3)
+ 1207| 
+ 1208|     a_pickled = (
+ 1209|         b"\x80\x04\x95&\x00\x00\x00\x00\x00\x00\x00\x8c\x10"
+ 1210|         + a.__module__.encode()
+ 1211|         + b"\x94\x8c\x01A\x94\x93\x94)\x81\x94K\x01K\x02K\x03\x87\x94b."
+ 1212|     )
+ 1213| 
+ 1214|     a_unpickled = pickle.loads(a_pickled)
+ 1215| 
+ 1216|     assert a_unpickled == a
+
+Answer now with ONE JSON array containing one object per query, in query order.

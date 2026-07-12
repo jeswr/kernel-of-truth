@@ -1,0 +1,927 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: cachetools ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/cachetools/__init__.py
+src/cachetools/_cached.py
+src/cachetools/_cachedmethod.py
+src/cachetools/func.py
+src/cachetools/keys.py
+tests/__init__.py
+tests/test_cache.py
+tests/test_cached.py
+tests/test_cachedmethod.py
+tests/test_classmethod.py
+tests/test_fifo.py
+tests/test_func.py
+tests/test_keys.py
+tests/test_lfu.py
+tests/test_lru.py
+tests/test_rr.py
+tests/test_threading.py
+tests/test_tlru.py
+tests/test_ttl.py
+
+=== QUERIES (2) ===
+QUERY g1q-cachetools-contains-53: family=contains target=tests/__init__.py::CacheTestMixin.test_missing_getsizeof.DefaultCache
+QUERY g1q-cachetools-contains-92: family=contains target=tests/test_tlru.py::TLRUTestCache
+
+=== CONTEXT ===
+
+FILE tests/__init__.py:
+    1| from collections.abc import Container, Iterable
+    2| from typing import Any, Protocol
+    3| 
+    4| import cachetools
+    5| 
+    6| 
+    7| class _TestCaseProtocol(Protocol):
+    8|     def assertEqual(self, first: Any, second: Any, msg: Any = None) -> None: ...
+    9|     def assertNotEqual(self, first: Any, second: Any, msg: Any = None) -> None: ...
+   10|     def assertTrue(self, expr: Any, msg: Any = None) -> None: ...
+   11|     def assertFalse(self, expr: Any, msg: Any = None) -> None: ...
+   12|     def assertIs(self, expr1: object, expr2: object, msg: Any = None) -> None: ...
+   13|     def assertIsNot(self, expr1: object, expr2: object, msg: Any = None) -> None: ...
+   14|     def assertIsNone(self, obj: object, msg: Any = None) -> None: ...
+   15| 
+   16|     def assertIn(
+   17|         self, member: Any, container: Iterable[Any] | Container[Any], msg: Any = None
+   18|     ) -> None: ...
+   19| 
+   20|     def assertNotIn(
+   21|         self, member: Any, container: Iterable[Any] | Container[Any], msg: Any = None
+   22|     ) -> None: ...
+   23| 
+   24|     def assertRaises(self, expected_exception: type[BaseException]) -> Any: ...
+   25| 
+   26|     def assertRaisesRegex(
+   27|         self, expected_exception: type[BaseException], expected_regex: str
+   28|     ) -> Any: ...
+   29| 
+   30| 
+   31| class CacheTestMixin(_TestCaseProtocol):
+   32|     Cache: type[cachetools.Cache]
+   33| 
+   34|     def test_defaults(self):
+   35|         cache = self.Cache(maxsize=1)
+   36|         self.assertEqual(0, len(cache))
+   37|         self.assertEqual(1, cache.maxsize)
+   38|         self.assertEqual(0, cache.currsize)
+   39|         self.assertEqual(1, cache.getsizeof(None))
+   40|         self.assertEqual(1, cache.getsizeof(""))
+   41|         self.assertEqual(1, cache.getsizeof(0))
+   42|         self.assertTrue(repr(cache).startswith(cache.__class__.__name__))
+   43| 
+   44|     def test_insert(self):
+   45|         cache = self.Cache(maxsize=2)
+   46| 
+   47|         cache.update({1: 1, 2: 2})
+   48|         self.assertEqual(2, len(cache))
+   49|         self.assertEqual(1, cache[1])
+   50|         self.assertEqual(2, cache[2])
+   51| 
+   52|         cache[3] = 3
+   53|         self.assertEqual(2, len(cache))
+   54|         self.assertEqual(3, cache[3])
+   55|         self.assertTrue(1 in cache or 2 in cache)
+   56| 
+   57|         cache[4] = 4
+   58|         self.assertEqual(2, len(cache))
+   59|         self.assertEqual(4, cache[4])
+   60|         self.assertTrue(1 in cache or 2 in cache or 3 in cache)
+   61| 
+   62|     def test_update(self):
+   63|         cache = self.Cache(maxsize=2)
+   64| 
+   65|         cache.update({1: 1, 2: 2})
+   66|         self.assertEqual(2, len(cache))
+   67|         self.assertEqual(1, cache[1])
+   68|         self.assertEqual(2, cache[2])
+   69| 
+   70|         cache.update({1: 1, 2: 2})
+   71|         self.assertEqual(2, len(cache))
+   72|         self.assertEqual(1, cache[1])
+   73|         self.assertEqual(2, cache[2])
+   74| 
+   75|         cache.update({1: "a", 2: "b"})
+   76|         self.assertEqual(2, len(cache))
+   77|         self.assertEqual("a", cache[1])
+   78|         self.assertEqual("b", cache[2])
+   79| 
+   80|     def test_delete(self):
+   81|         cache = self.Cache(maxsize=2)
+   82| 
+   83|         cache.update({1: 1, 2: 2})
+   84|         self.assertEqual(2, len(cache))
+   85|         self.assertEqual(1, cache[1])
+   86|         self.assertEqual(2, cache[2])
+   87| 
+   88|         del cache[2]
+   89|         self.assertEqual(1, len(cache))
+   90|         self.assertEqual(1, cache[1])
+   91|         self.assertNotIn(2, cache)
+   92| 
+   93|         del cache[1]
+   94|         self.assertEqual(0, len(cache))
+   95|         self.assertNotIn(1, cache)
+   96|         self.assertNotIn(2, cache)
+   97| 
+   98|         with self.assertRaises(KeyError):
+   99|             del cache[1]
+  100|         self.assertEqual(0, len(cache))
+  101|         self.assertNotIn(1, cache)
+  102|         self.assertNotIn(2, cache)
+  103| 
+  104|     def test_pop(self):
+  105|         cache = self.Cache(maxsize=2)
+  106| 
+  107|         cache.update({1: 1, 2: 2})
+  108|         self.assertEqual(2, cache.pop(2))
+  109|         self.assertEqual(1, len(cache))
+  110|         self.assertEqual(1, cache.pop(1))
+  111|         self.assertEqual(0, len(cache))
+  112| 
+  113|         with self.assertRaises(KeyError):
+  114|             cache.pop(2)
+  115|         with self.assertRaises(KeyError):
+  116|             cache.pop(1)
+  117|         with self.assertRaises(KeyError):
+  118|             cache.pop(0)
+  119| 
+  120|         self.assertEqual(None, cache.pop(2, None))
+  121|         self.assertEqual(None, cache.pop(1, None))
+  122|         self.assertEqual(None, cache.pop(0, None))
+  123| 
+  124|     def test_popitem(self):
+  125|         cache = self.Cache(maxsize=2)
+  126| 
+  127|         cache.update({1: 1, 2: 2})
+  128| 
+  129|         key, _ = cache.popitem()
+  130|         self.assertIn(key, {1, 2})
+  131|         self.assertEqual(1, len(cache))
+  132|         key, _ = cache.popitem()
+  133|         self.assertIn(key, {1, 2})
+  134|         self.assertEqual(0, len(cache))
+  135| 
+  136|         with self.assertRaises(KeyError):
+  137|             cache.popitem()
+  138| 
+  139|     def test_popitem_exception_context(self):
+  140|         # since Python 3.7, MutableMapping.popitem() suppresses
+  141|         # exception context as implementation detail
+  142|         with self.assertRaises(KeyError) as cm:
+  143|             self.Cache(maxsize=2).popitem()
+  144|         e = cm.exception
+  145|         self.assertIsNone(e.__cause__)
+  146|         self.assertTrue(e.__suppress_context__)
+  147| 
+  148|     def test_missing(self):
+  149|         class DefaultCache(self.Cache):
+  150|             def __missing__(self, key):
+  151|                 self[key] = key
+  152|                 return key
+  153| 
+  154|         cache = DefaultCache(maxsize=2)
+  155| 
+  156|         self.assertEqual(0, cache.currsize)
+  157|         self.assertEqual(2, cache.maxsize)
+  158|         self.assertEqual(0, len(cache))
+  159|         self.assertEqual(1, cache[1])
+  160|         self.assertEqual(2, cache[2])
+  161|         self.assertEqual(2, len(cache))
+  162|         self.assertTrue(1 in cache and 2 in cache)
+  163| 
+  164|         self.assertEqual(3, cache[3])
+  165|         self.assertEqual(2, len(cache))
+  166|         self.assertTrue(3 in cache)
+  167|         self.assertTrue(1 in cache or 2 in cache)
+  168|         self.assertTrue(1 not in cache or 2 not in cache)
+  169| 
+  170|         self.assertEqual(4, cache[4])
+  171|         self.assertEqual(2, len(cache))
+  172|         self.assertTrue(4 in cache)
+  173|         self.assertTrue(1 in cache or 2 in cache or 3 in cache)
+  174| 
+  175|         # verify __missing__() is *not* called for any operations
+  176|         # besides __getitem__()
+  177| 
+  178|         self.assertEqual(4, cache.get(4))
+  179|         self.assertEqual(None, cache.get(5))
+  180|         self.assertEqual(5 * 5, cache.get(5, 5 * 5))
+  181|         self.assertEqual(2, len(cache))
+  182| 
+  183|         self.assertEqual(4, cache.pop(4))
+  184|         with self.assertRaises(KeyError):
+  185|             cache.pop(5)
+  186|         self.assertEqual(None, cache.pop(5, None))
+  187|         self.assertEqual(5 * 5, cache.pop(5, 5 * 5))
+  188|         self.assertEqual(1, len(cache))
+  189| 
+  190|         cache.clear()
+  191|         cache[1] = 1 + 1
+  192|         self.assertEqual(1 + 1, cache.setdefault(1))
+  193|         self.assertEqual(1 + 1, cache.setdefault(1, 1))
+  194|         self.assertEqual(1 + 1, cache[1])
+  195|         self.assertEqual(2 + 2, cache.setdefault(2, 2 + 2))
+  196|         self.assertEqual(2 + 2, cache.setdefault(2, None))
+  197|         self.assertEqual(2 + 2, cache.setdefault(2))
+  198|         self.assertEqual(2 + 2, cache[2])
+  199|         self.assertEqual(2, len(cache))
+  200|         self.assertTrue(1 in cache and 2 in cache)
+  201|         self.assertEqual(None, cache.setdefault(3))
+  202|         self.assertEqual(2, len(cache))
+  203|         self.assertTrue(3 in cache)
+  204|         self.assertTrue(1 in cache or 2 in cache)
+  205|         self.assertTrue(1 not in cache or 2 not in cache)
+  206| 
+  207|     def test_missing_getsizeof(self):
+  208|         class DefaultCache(self.Cache):
+  209|             def __missing__(self, key):
+  210|                 try:
+  211|                     self[key] = key
+  212|                 except ValueError:
+  213|                     pass  # not stored
+  214|                 return key
+  215| 
+  216|         cache = DefaultCache(maxsize=2, getsizeof=lambda x: x)
+  217| 
+  218|         self.assertEqual(0, cache.currsize)
+  219|         self.assertEqual(2, cache.maxsize)
+  220| 
+  221|         self.assertEqual(1, cache[1])
+  222|         self.assertEqual(1, len(cache))
+  223|         self.assertEqual(1, cache.currsize)
+  224|         self.assertIn(1, cache)
+  225| 
+  226|         self.assertEqual(2, cache[2])
+  227|         self.assertEqual(1, len(cache))
+  228|         self.assertEqual(2, cache.currsize)
+  229|         self.assertNotIn(1, cache)
+  230|         self.assertIn(2, cache)
+  231| 
+  232|         self.assertEqual(3, cache[3])  # not stored
+  233|         self.assertEqual(1, len(cache))
+  234|         self.assertEqual(2, cache.currsize)
+  235|         self.assertEqual(1, cache[1])
+  236|         self.assertEqual(1, len(cache))
+  237|         self.assertEqual(1, cache.currsize)
+  238|         self.assertEqual((1, 1), cache.popitem())
+  239| 
+  240|     def _test_getsizeof(self, cache):
+  241|         self.assertEqual(0, cache.currsize)
+  242|         self.assertEqual(3, cache.maxsize)
+  243|         self.assertEqual(1, cache.getsizeof(1))
+  244|         self.assertEqual(2, cache.getsizeof(2))
+  245|         self.assertEqual(3, cache.getsizeof(3))
+  246| 
+  247|         cache.update({1: 1, 2: 2})
+  248|         self.assertEqual(2, len(cache))
+  249|         self.assertEqual(3, cache.currsize)
+  250|         self.assertEqual(1, cache[1])
+  251|         self.assertEqual(2, cache[2])
+  252| 
+  253|         cache[1] = 2
+  254|         self.assertEqual(1, len(cache))
+  255|         self.assertEqual(2, cache.currsize)
+  256|         self.assertEqual(2, cache[1])
+  257|         self.assertNotIn(2, cache)
+  258| 
+  259|         cache.update({1: 1, 2: 2})
+  260|         self.assertEqual(2, len(cache))
+  261|         self.assertEqual(3, cache.currsize)
+  262|         self.assertEqual(1, cache[1])
+  263|         self.assertEqual(2, cache[2])
+  264| 
+  265|         cache[3] = 3
+  266|         self.assertEqual(1, len(cache))
+  267|         self.assertEqual(3, cache.currsize)
+  268|         self.assertEqual(3, cache[3])
+  269|         self.assertNotIn(1, cache)
+  270|         self.assertNotIn(2, cache)
+  271| 
+  272|         with self.assertRaises(ValueError):
+  273|             cache[3] = 4
+  274|         self.assertEqual(1, len(cache))
+  275|         self.assertEqual(3, cache.currsize)
+  276|         self.assertEqual(3, cache[3])
+  277| 
+  278|         with self.assertRaises(ValueError):
+  279|             cache[4] = 4
+  280|         self.assertEqual(1, len(cache))
+  281|         self.assertEqual(3, cache.currsize)
+  282|         self.assertEqual(3, cache[3])
+  283| 
+  284|     def test_getsizeof_param(self):
+  285|         self._test_getsizeof(self.Cache(maxsize=3, getsizeof=lambda x: x))
+  286| 
+  287|     def test_getsizeof_subclass(self):
+  288|         class Cache(self.Cache):
+  289|             @staticmethod
+  290|             def getsizeof(value):
+  291|                 return value
+  292| 
+  293|         self._test_getsizeof(Cache(maxsize=3))
+  294| 
+  295|     def test_clear(self):
+  296|         cache = self.Cache(maxsize=2)
+  297|         cache.update({1: 1, 2: 2})
+  298| 
+  299|         self.assertEqual(2, len(cache))
+  300|         self.assertEqual(2, cache.currsize)
+  301| 
+  302|         cache.clear()
+  303| 
+  304|         self.assertEqual(0, len(cache))
+  305|         self.assertEqual(0, cache.currsize)
+  306|         self.assertNotIn(1, cache)
+  307|         self.assertNotIn(2, cache)
+  308| 
+  309|         # verify cache can be reused after clear
+  310|         cache[3] = 3
+  311|         cache[4] = 4
+  312|         self.assertEqual(2, len(cache))
+  313|         self.assertEqual(3, cache[3])
+  314|         self.assertEqual(4, cache[4])
+  315| 
+  316|         # verify eviction still works after clear
+  317|         cache[5] = 5
+  318|         self.assertEqual(2, len(cache))
+  319|         self.assertIn(5, cache)
+  320| 
+  321|     def test_clear_empty(self):
+  322|         cache = self.Cache(maxsize=2)
+  323|         cache.clear()  # should not raise
+  324|         self.assertEqual(0, len(cache))
+  325|         self.assertEqual(0, cache.currsize)
+  326| 
+  327|     def test_clear_getsizeof(self):
+  328|         cache = self.Cache(maxsize=10, getsizeof=lambda x: x)
+  329|         cache[1] = 1
+  330|         cache[2] = 2
+  331|         cache[3] = 3
+  332| 
+  333|         self.assertEqual(3, len(cache))
+  334|         self.assertEqual(6, cache.currsize)
+  335| 
+  336|         cache.clear()
+  337| 
+  338|         self.assertEqual(0, len(cache))
+  339|         self.assertEqual(0, cache.currsize)
+  340| 
+  341|         # verify cache can be reused with getsizeof after clear
+  342|         cache[4] = 4
+  343|         self.assertEqual(1, len(cache))
+  344|         self.assertEqual(4, cache.currsize)
+  345| 
+  346|     def test_pickle(self):
+  347|         import pickle
+  348| 
+  349|         source = self.Cache(maxsize=2)
+  350|         source.update({1: 1, 2: 2})
+  351| 
+  352|         cache = pickle.loads(pickle.dumps(source))
+  353|         self.assertEqual(source, cache)
+  354| 
+  355|         self.assertEqual(2, len(cache))
+  356|         self.assertEqual(1, cache[1])
+  357|         self.assertEqual(2, cache[2])
+  358| 
+  359|         cache[3] = 3
+  360|         self.assertEqual(2, len(cache))
+  361|         self.assertEqual(3, cache[3])
+  362|         self.assertTrue(1 in cache or 2 in cache)
+  363| 
+  364|         cache[4] = 4
+  365|         self.assertEqual(2, len(cache))
+  366|         self.assertEqual(4, cache[4])
+  367|         self.assertTrue(1 in cache or 2 in cache or 3 in cache)
+  368| 
+  369|         self.assertEqual(cache, pickle.loads(pickle.dumps(cache)))
+  370| 
+  371|     def test_pickle_maxsize(self):
+  372|         import pickle
+  373|         import sys
+  374| 
+  375|         # test empty cache, single element, large cache (recursion limit)
+  376|         for n in [0, 1, sys.getrecursionlimit() * 2]:
+  377|             source = self.Cache(maxsize=n)
+  378|             source.update((i, i) for i in range(n))
+  379|             cache = pickle.loads(pickle.dumps(source))
+  380|             self.assertEqual(n, len(cache))
+  381|             self.assertEqual(source, cache)
+  382| 
+  383| 
+  384| class CountedLock:
+  385|     def __init__(self):
+  386|         self.count = 0
+  387| 
+  388|     def __enter__(self):
+  389|         self.count += 1
+  390| 
+  391|     def __exit__(self, *exc):
+  392|         pass
+  393| 
+  394| 
+  395| class CountedCondition(CountedLock):
+  396|     def __init__(self):
+  397|         super().__init__()
+  398|         self.wait_count = 0
+  399|         self.notify_count = 0
+  400| 
+  401|     # only wait_for() and notify_all() are currently used, but wait()
+  402|     # and notify() are also required according to the docs...
+  403| 
+  404|     def wait(self, timeout=None):
+  405|         self.wait_count += 1
+  406|         return True
+  407| 
+  408|     def wait_for(self, predicate, timeout=None):
+  409|         res = predicate()
+  410|         self.wait_count += 1
+  411|         return res
+  412| 
+  413|     def notify(self, n=1):
+  414|         self.notify_count += 1
+  415| 
+  416|     def notify_all(self):
+  417|         self.notify_count += 1
+
+FILE tests/test_tlru.py:
+    1| import math
+    2| import unittest
+    3| 
+    4| from cachetools import TLRUCache
+    5| 
+    6| from . import CacheTestMixin
+    7| 
+    8| 
+    9| def default_ttu(_key, _value, _time):
+   10|     return math.inf
+   11| 
+   12| 
+   13| class Timer:
+   14|     def __init__(self, auto=False):
+   15|         self.auto = auto
+   16|         self.time = 0
+   17| 
+   18|     def __call__(self):
+   19|         if self.auto:
+   20|             self.time += 1
+   21|         return self.time
+   22| 
+   23|     def tick(self):
+   24|         self.time += 1
+   25| 
+   26| 
+   27| class TLRUTestCache(TLRUCache):
+   28|     def __init__(self, maxsize, ttu=default_ttu, **kwargs):
+   29|         TLRUCache.__init__(self, maxsize, ttu, timer=Timer(), **kwargs)
+   30| 
+   31| 
+   32| class TLRUCacheTest(unittest.TestCase, CacheTestMixin):
+   33|     Cache = TLRUTestCache
+   34| 
+   35|     def test_ttu(self):
+   36|         cache = TLRUCache[int, int, int](
+   37|             maxsize=6, ttu=lambda _, v, t: t + v + 1, timer=Timer()
+   38|         )
+   39|         self.assertEqual(0, cache.timer())
+   40|         self.assertEqual(3, cache.ttu(0, 1, 1))
+   41| 
+   42|         cache[1] = 1
+   43|         self.assertEqual(1, cache[1])
+   44|         self.assertEqual(1, len(cache))
+   45|         self.assertEqual({1}, set(cache))
+   46| 
+   47|         cache.timer.tick()
+   48|         self.assertEqual(1, cache[1])
+   49|         self.assertEqual(1, len(cache))
+   50|         self.assertEqual({1}, set(cache))
+   51| 
+   52|         cache[2] = 2
+   53|         self.assertEqual(1, cache[1])
+   54|         self.assertEqual(2, cache[2])
+   55|         self.assertEqual(2, len(cache))
+   56|         self.assertEqual({1, 2}, set(cache))
+   57| 
+   58|         cache.timer.tick()
+   59|         self.assertNotIn(1, cache)
+   60|         self.assertEqual(2, cache[2])
+   61|         self.assertEqual(1, len(cache))
+   62|         self.assertEqual({2}, set(cache))
+   63| 
+   64|         cache[3] = 3
+   65|         self.assertNotIn(1, cache)
+   66|         self.assertEqual(2, cache[2])
+   67|         self.assertEqual(3, cache[3])
+   68|         self.assertEqual(2, len(cache))
+   69|         self.assertEqual({2, 3}, set(cache))
+   70| 
+   71|         cache.timer.tick()
+   72|         self.assertNotIn(1, cache)
+   73|         self.assertEqual(2, cache[2])
+   74|         self.assertEqual(3, cache[3])
+   75|         self.assertEqual(2, len(cache))
+   76|         self.assertEqual({2, 3}, set(cache))
+   77| 
+   78|         cache[1] = 1
+   79|         self.assertEqual(1, cache[1])
+   80|         self.assertEqual(2, cache[2])
+   81|         self.assertEqual(3, cache[3])
+   82|         self.assertEqual(3, len(cache))
+   83|         self.assertEqual({1, 2, 3}, set(cache))
+   84| 
+   85|         cache.timer.tick()
+   86|         self.assertEqual(1, cache[1])
+   87|         self.assertNotIn(2, cache)
+   88|         self.assertEqual(3, cache[3])
+   89|         self.assertEqual(2, len(cache))
+   90|         self.assertEqual({1, 3}, set(cache))
+   91| 
+   92|         cache.timer.tick()
+   93|         self.assertNotIn(1, cache)
+   94|         self.assertNotIn(2, cache)
+   95|         self.assertEqual(3, cache[3])
+   96|         self.assertEqual(1, len(cache))
+   97|         self.assertEqual({3}, set(cache))
+   98| 
+   99|         cache.timer.tick()
+  100|         self.assertNotIn(1, cache)
+  101|         self.assertNotIn(2, cache)
+  102|         self.assertNotIn(3, cache)
+  103| 
+  104|         with self.assertRaises(KeyError):
+  105|             del cache[1]
+  106|         with self.assertRaises(KeyError):
+  107|             cache.pop(2)
+  108|         with self.assertRaises(KeyError):
+  109|             del cache[3]
+  110| 
+  111|         self.assertEqual(0, len(cache))
+  112|         self.assertEqual(set(), set(cache))
+  113| 
+  114|     def test_ttu_lru(self):
+  115|         def ttu(_k, _v, t):
+  116|             return t + 1
+  117| 
+  118|         cache = TLRUCache[int, int, int](maxsize=2, ttu=ttu, timer=Timer())
+  119|         self.assertEqual(0, cache.timer())
+  120|         self.assertEqual(2, cache.ttu(0, 0, 1))
+  121| 
+  122|         cache[1] = 1
+  123|         cache[2] = 2
+  124|         cache[3] = 3
+  125| 
+  126|         self.assertEqual(len(cache), 2)
+  127|         self.assertNotIn(1, cache)
+  128|         self.assertEqual(cache[2], 2)
+  129|         self.assertEqual(cache[3], 3)
+  130| 
+  131|         cache[2]
+  132|         cache[4] = 4
+  133|         self.assertEqual(len(cache), 2)
+  134|         self.assertNotIn(1, cache)
+  135|         self.assertEqual(cache[2], 2)
+  136|         self.assertNotIn(3, cache)
+  137|         self.assertEqual(cache[4], 4)
+  138| 
+  139|         cache[5] = 5
+  140|         self.assertEqual(len(cache), 2)
+  141|         self.assertNotIn(1, cache)
+  142|         self.assertNotIn(2, cache)
+  143|         self.assertNotIn(3, cache)
+  144|         self.assertEqual(cache[4], 4)
+  145|         self.assertEqual(cache[5], 5)
+  146| 
+  147|     def test_ttu_expire(self):
+  148|         def ttu(_k, _v, t):
+  149|             return t + 3
+  150| 
+  151|         cache = TLRUCache[int, int, int](maxsize=3, ttu=ttu, timer=Timer())
+  152|         with cache.timer as time:
+  153|             self.assertEqual(time, cache.timer())
+  154| 
+  155|         cache[1] = 1
+  156|         cache.timer.tick()
+  157|         cache[2] = 2
+  158|         cache.timer.tick()
+  159|         cache[3] = 3
+  160|         self.assertEqual(2, cache.timer())
+  161| 
+  162|         self.assertEqual({1, 2, 3}, set(cache))
+  163|         self.assertEqual(3, len(cache))
+  164|         self.assertEqual(1, cache[1])
+  165|         self.assertEqual(2, cache[2])
+  166|         self.assertEqual(3, cache[3])
+  167| 
+  168|         items = cache.expire()
+  169|         self.assertEqual(set(), set(items))
+  170|         self.assertEqual({1, 2, 3}, set(cache))
+  171|         self.assertEqual(3, len(cache))
+  172|         self.assertEqual(1, cache[1])
+  173|         self.assertEqual(2, cache[2])
+  174|         self.assertEqual(3, cache[3])
+  175| 
+  176|         items = cache.expire(3)
+  177|         self.assertEqual({(1, 1)}, set(items))
+  178|         self.assertEqual({2, 3}, set(cache))
+  179|         self.assertEqual(2, len(cache))
+  180|         self.assertNotIn(1, cache)
+  181|         self.assertEqual(2, cache[2])
+  182|         self.assertEqual(3, cache[3])
+  183| 
+  184|         items = cache.expire(4)
+  185|         self.assertEqual({(2, 2)}, set(items))
+  186|         self.assertEqual({3}, set(cache))
+  187|         self.assertEqual(1, len(cache))
+  188|         self.assertNotIn(1, cache)
+  189|         self.assertNotIn(2, cache)
+  190|         self.assertEqual(3, cache[3])
+  191| 
+  192|         items = cache.expire(5)
+  193|         self.assertEqual({(3, 3)}, set(items))
+  194|         self.assertEqual(set(), set(cache))
+  195|         self.assertEqual(0, len(cache))
+  196|         self.assertNotIn(1, cache)
+  197|         self.assertNotIn(2, cache)
+  198|         self.assertNotIn(3, cache)
+  199| 
+  200|     def test_ttu_expired(self):
+  201|         cache = TLRUCache[int, None, int](
+  202|             maxsize=1, ttu=lambda k, _, t: t + k, timer=Timer()
+  203|         )
+  204|         cache[1] = None
+  205|         self.assertEqual(cache[1], None)
+  206|         self.assertEqual(1, len(cache))
+  207|         cache[0] = None
+  208|         self.assertNotIn(0, cache)
+  209|         self.assertEqual(cache[1], None)
+  210|         self.assertEqual(1, len(cache))
+  211|         cache[-1] = None
+  212|         self.assertNotIn(-1, cache)
+  213|         self.assertNotIn(0, cache)
+  214|         self.assertEqual(cache[1], None)
+  215|         self.assertEqual(1, len(cache))
+  216| 
+  217|     def test_ttu_atomic(self):
+  218|         cache = TLRUCache[int, int, int](
+  219|             maxsize=1, ttu=lambda k, v, t: t + 2, timer=Timer(auto=True)
+  220|         )
+  221|         cache[1] = 1
+  222|         self.assertEqual(1, cache[1])
+  223|         cache[1] = 1
+  224|         self.assertEqual(1, cache.get(1))
+  225|         cache[1] = 1
+  226|         self.assertEqual(1, cache.pop(1))
+  227|         cache[1] = 1
+  228|         self.assertEqual(1, cache.setdefault(1))
+  229|         cache[1] = 1
+  230|         cache.clear()
+  231|         self.assertEqual(0, len(cache))
+  232| 
+  233|     def test_ttu_tuple_key(self):
+  234|         cache = TLRUCache[tuple[int, ...], int, int](
+  235|             maxsize=1, ttu=lambda k, v, t: t + 1, timer=Timer()
+  236|         )
+  237| 
+  238|         cache[(1, 2, 3)] = 42
+  239|         self.assertEqual(42, cache[(1, 2, 3)])
+  240|         cache.timer.tick()
+  241|         with self.assertRaises(KeyError):
+  242|             cache[(1, 2, 3)]
+  243|         self.assertNotIn((1, 2, 3), cache)
+  244| 
+  245|     def test_ttu_reverse_insert(self):
+  246|         def ttu(_k, v, t):
+  247|             return t + v
+  248| 
+  249|         cache = TLRUCache[int, int, int](maxsize=4, ttu=ttu, timer=Timer())
+  250|         self.assertEqual(0, cache.timer())
+  251| 
+  252|         cache[3] = 3
+  253|         cache[2] = 2
+  254|         cache[1] = 1
+  255|         cache[0] = 0
+  256| 
+  257|         self.assertEqual({1, 2, 3}, set(cache))
+  258|         self.assertEqual(3, len(cache))
+  259|         self.assertNotIn(0, cache)
+  260|         self.assertEqual(1, cache[1])
+  261|         self.assertEqual(2, cache[2])
+  262|         self.assertEqual(3, cache[3])
+  263| 
+  264|         cache.timer.tick()
+  265| 
+  266|         self.assertEqual({2, 3}, set(cache))
+  267|         self.assertEqual(2, len(cache))
+  268|         self.assertNotIn(0, cache)
+  269|         self.assertNotIn(1, cache)
+  270|         self.assertEqual(2, cache[2])
+  271|         self.assertEqual(3, cache[3])
+  272| 
+  273|         cache.timer.tick()
+  274| 
+  275|         self.assertEqual({3}, set(cache))
+  276|         self.assertEqual(1, len(cache))
+  277|         self.assertNotIn(0, cache)
+  278|         self.assertNotIn(1, cache)
+  279|         self.assertNotIn(2, cache)
+  280|         self.assertEqual(3, cache[3])
+  281| 
+  282|         cache.timer.tick()
+  283| 
+  284|         self.assertEqual(set(), set(cache))
+  285|         self.assertEqual(0, len(cache))
+  286|         self.assertNotIn(0, cache)
+  287|         self.assertNotIn(1, cache)
+  288|         self.assertNotIn(2, cache)
+  289|         self.assertNotIn(3, cache)
+  290| 
+  291|     def test_ttu_heap_cleanup(self):
+  292|         def ttu(_k, _v, t):
+  293|             return t + 1
+  294| 
+  295|         cache = TLRUCache[int, int, int](maxsize=4, ttu=ttu, timer=Timer())
+  296|         self.assertEqual(0, cache.timer())
+  297| 
+  298|         cache[1] = 1
+  299|         cache[2] = 2
+  300| 
+  301|         # replace items to accumulate removed entries in the internal heap
+  302|         for i in range(5):
+  303|             cache[1] = 10 + i
+  304|             cache[2] = 20 + i
+  305| 
+  306|         # this should compact the internal heap
+  307|         expired = cache.expire()
+  308|         self.assertEqual([], expired)
+  309| 
+  310|         # verify cache is functional after cleanup
+  311|         self.assertEqual(2, len(cache))
+  312|         self.assertEqual(14, cache[1])
+  313|         self.assertEqual(24, cache[2])
+  314|         cache[3] = 3
+  315|         cache[4] = 4
+  316|         self.assertEqual(4, len(cache))
+  317| 
+  318|         cache.timer.tick()
+  319|         expired = cache.expire()
+  320|         self.assertEqual(4, len(expired))
+  321|         self.assertEqual(0, len(cache))
+  322| 
+  323|     def test_tlru_datetime(self):
+  324|         from datetime import datetime, timedelta
+  325| 
+  326|         def ttu(_k, _v, t):
+  327|             return t + timedelta(days=1)
+  328| 
+  329|         cache = TLRUCache[int, int, datetime](maxsize=1, ttu=ttu, timer=datetime.now)
+  330| 
+  331|         cache[1] = 1
+  332|         self.assertEqual(1, len(cache))
+  333|         items = cache.expire(datetime.now())
+  334|         self.assertEqual([], list(items))
+  335|         self.assertEqual(1, len(cache))
+  336|         items = cache.expire(datetime.now() + timedelta(days=1))
+  337|         self.assertEqual([(1, 1)], list(items))
+  338|         self.assertEqual(0, len(cache))
+  339| 
+  340|     def test_tlru_clear(self):
+  341|         def ttu(_k, _v, t):
+  342|             return t + 2
+  343| 
+  344|         cache = TLRUCache[int, int, int](maxsize=2, ttu=ttu, timer=Timer())
+  345| 
+  346|         cache[1] = 1
+  347|         cache[2] = 2
+  348|         cache.clear()
+  349| 
+  350|         self.assertEqual(0, len(cache))
+  351|         self.assertEqual(0, cache.currsize)
+  352| 
+  353|         # verify LRU eviction order is reset after clear
+  354|         cache[3] = 3
+  355|         cache[4] = 4
+  356|         cache[3]  # access 3 to make it most recently used
+  357|         cache[5] = 5  # should evict 4 (least recently used)
+  358| 
+  359|         self.assertEqual(2, len(cache))
+  360|         self.assertIn(3, cache)
+  361|         self.assertIn(5, cache)
+  362|         self.assertNotIn(4, cache)
+  363| 
+  364|         # verify TLRU expiry still works after clear
+  365|         cache[42] = 42
+  366|         cache.timer.tick()
+  367|         cache.timer.tick()
+  368|         cache.timer.tick()  # past TTL
+  369|         self.assertNotIn(42, cache)
+
+Answer now with ONE JSON array containing one object per query, in query order.

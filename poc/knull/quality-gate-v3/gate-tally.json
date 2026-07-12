@@ -1,0 +1,54 @@
+{
+ "schema": "kot-knull-quality-gate-tally/1",
+ "gate": "ASM-0703 maintainer-ratified two-part rule (zero hard-defect-class findings AND blind naturalness >= 5/10, BOTH judge families)",
+ "store": {
+  "path": "poc/knull/inputs-v3/plain-authored.json",
+  "version": "3.0.0",
+  "sha256": "8812f91e708f7cd5b0905bf5c95af1affcf83504f503225dcd0d8dbc0c774b1d"
+ },
+ "instrument": {
+  "prompt": "poc/knull/quality-gate-v3/prompt.new108.txt",
+  "prompt_sha256": "c27a223b3221c3d12b5433a1f9c858c5a4584aef5d06498445152fb118ac8870",
+  "prompt_chars": 9248,
+  "v2_prompt_chars": 22414,
+  "header_and_rubric": "byte-identical to poc/knull/quality-gate-v2/build_gate_prompt.py (only the store path differs)",
+  "order_map": "prompt.new108.order.json — byte-identical to the v2 pinned map (same 108 labels, deterministic ascending-label order)",
+  "blindness": "headwords withheld; definition texts only; no project/NSM/experiment context; judges never told a comparison set or gate exists; blinding grep (kernel|nsm|truthstyle|f2b|knull) zero hits on prompt and both raw outputs"
+ },
+ "judges": {
+  "gpt56": {
+   "model": "gpt-5.6-sol",
+   "interface": "npx -y @openai/codex@0.144.1 exec, effort high, -s read-only, --ignore-user-config --ephemeral --disable memories --disable standalone_web_search, empty out-of-repo workdir (/tmp/gatewd-gpt56-108.yBOWgL)",
+   "version_banner": "OpenAI Codex v0.144.1",
+   "tripwires": "zero tool/command events in transcript; exit 0",
+   "raw": "gate.new108.gpt56.raw.md",
+   "raw_sha256": "408ad0b4176fee8182ca776c8fd24afceb849f46acf6d70e214b23dc66a5e115"
+  },
+  "haiku": {
+   "model": "claude-haiku-4-5-20251001",
+   "interface": "headless claude -p per poc/truthstyle-2x2/judges-invocation.md 4.3 + 4.3.1 (MAX_THINKING_TOKENS=0, --tools '', --setting-sources '', --strict-mcp-config, --no-session-persistence, subscription auth env -u ANTHROPIC_API_KEY), empty out-of-repo workdir (/tmp/gatewd-haiku-108.*), claude-code 2.1.201",
+   "tripwires": "init tools==[] AND mcp_servers==[]; apiKeySource none; single text block (no thinking); num_turns 1; permission_denials []; modelUsage keys == [claude-haiku-4-5-20251001]; exit 0",
+   "raw": "gate.new108.haiku.raw.md",
+   "raw_sha256": "310ffb74223f60dade664e683f9b102b1a9595e2d47f0dcea65a46f89610767d",
+   "events_sha256": "37f29b5edde40cc864968bad7ee24c330aec6c7c6f722ed726f4577b2486bffa"
+  }
+ },
+ "measured": {
+  "naturalness": {"gpt56": 8, "haiku": 4, "floor": 5, "v2_final": {"gpt56": 4, "haiku": 3}, "old108_baseline_gpt56": 3},
+  "defect_classes": {
+   "anaphoric_renaming": {"gpt56": 0, "haiku": 1, "haiku_finding": "entry 87 (reminder): 'a matter' — NOTE: refers to the thing recalled, not a re-reference to the definiendum; reported as measured, unedited"},
+   "staged_observers": {"gpt56": 0, "haiku": 0},
+   "non_definitional_material_exemplification_consequence": {"gpt56": 0, "haiku": 0},
+   "register_word_choice_residual_nits_nonblocking_per_v2_tally": {"gpt56": 4, "gpt56_entries": [29, 62, 71, 80], "haiku": 4, "haiku_entries": [5, 26, 62, 103], "v2r4_gpt56_count": 12}
+  }
+ },
+ "verdict": {
+  "gate_met": false,
+  "part1_defect_audit": "NOT clean as-stated: one anaphoric-renaming finding (Haiku, entry 87); staged observers and non-definitional material zero from BOTH families; GPT-5.6 zero in all three hard classes",
+  "part2_naturalness_floor": "NOT met: GPT-5.6 8/10 PASS (>=5), Haiku 4/10 FAIL (<5); the floor requires BOTH families",
+  "why": "Haiku attributes the residual unnaturalness to template uniformity across the set ('rigid parallelism and repetitive syntactic templates', 'algorithmic or template-driven composition'), no longer to entry length (v2's diagnosis); both judges independently name entry 62 (kind, gufo:Kind) least natural",
+  "disposition": "freeze precondition NOT met; escalate to maintainer (ASM-0706 pattern) — coordinator does not freeze"
+ },
+ "run_date": "2026-07-11",
+ "run_by": "Fable coordinator session (ASM-0703 re-run on v3 store; MEASURED, first valid answer final, no re-rolls)"
+}

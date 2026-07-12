@@ -1,0 +1,32 @@
+[
+  {
+    "query_id": "g1q-pluggy-imports_of-10",
+    "answerable_static": true,
+    "gold": [
+      "ext:argparse",
+      "ext:colorama",
+      "ext:git",
+      "ext:subprocess",
+      "ext:sys"
+    ],
+    "conditional_flags": [],
+    "notes": "All imports are top-level external modules."
+  },
+  {
+    "query_id": "g1q-pluggy-imports_of-22",
+    "answerable_static": true,
+    "gold": [
+      "ext:collections.abc",
+      "ext:functools",
+      "ext:typing",
+      "ext:warnings",
+      "repo:src/pluggy/__init__.py",
+      "repo:src/pluggy/_hooks.py",
+      "repo:src/pluggy/_manager.py"
+    ],
+    "conditional_flags": [
+      "ext:warnings"
+    ],
+    "notes": "The warnings imports occur inside function bodies; repository imports resolve through the pluggy package."
+  }
+]

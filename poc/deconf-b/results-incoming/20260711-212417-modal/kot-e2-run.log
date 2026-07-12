@@ -1,0 +1,34 @@
+$ /usr/local/bin/python /root/kot/poc/deconf-b/stageb_runner.py --inputs-dir /root/kot/poc/deconf-b/inputs --dqat-dir /root/kot/data/d-qa-t --dadjt-dir /root/kot/data/d-adj-t --dqa-dir /root/kot/data/d-qa --dxif-dir /root/kot/data/d-xif --records-root /root/kot --out-dir /tmp/deconfb-results --device cuda --gpu-class A100 --kernel-arm reinstate
+[deconfb     0.0s] mode=FULL device=cuda eval_items=333 (ALL resolved-gold_ext d-qa-t items in pinned rank order) kernel_arm=reinstate
+[deconfb     0.0s] BM25 store: 108 docs, corpus sha 4ef60a28f107…, index sha 1429b7a1eb2b…, build 0.003s, index 70544 bytes
+[deconfb     9.1s] retrieval built: zero-hit 0/333, hit@j 318/333, mean docs 9.80, mean ctx tokens 487.3 (leak check passed on every item)
+[deconfb    39.2s] cell model-alone R1 k=0 seed=0 done (30.0s)
+[deconfb    68.3s] cell model-alone R1 k=0 seed=1 done (29.2s)
+[deconfb    97.7s] cell model-alone R1 k=0 seed=2 done (29.3s)
+[deconfb   126.9s] cell model-alone R1 k=0 seed=3 done (29.2s)
+[deconfb   156.3s] cell model-alone R1 k=0 seed=4 done (29.3s)
+[deconfb   243.6s] cell gsa-verify-retry R1 k=4 seed=0 done (87.3s)
+[deconfb   347.7s] cell gsa-verify-retry R1 k=4 seed=1 done (104.1s)
+[deconfb   431.4s] cell gsa-verify-retry R1 k=4 seed=2 done (83.7s)
+[deconfb   509.0s] cell gsa-verify-retry R1 k=4 seed=3 done (77.6s)
+[deconfb   603.9s] cell gsa-verify-retry R1 k=4 seed=4 done (94.9s)
+[deconfb   634.1s] cell gr-a-lite R1 k=0 seed=0 done (30.2s)
+[deconfb   664.5s] cell gr-a-lite R1 k=0 seed=1 done (30.5s)
+[deconfb   694.7s] cell gr-a-lite R1 k=0 seed=2 done (30.1s)
+[deconfb   725.1s] cell gr-a-lite R1 k=0 seed=3 done (30.5s)
+[deconfb   755.4s] cell gr-a-lite R1 k=0 seed=4 done (30.3s)
+[deconfb  1099.7s] cell gr-d-lite R1 k=4 seed=0 done (344.3s)
+[deconfb  1273.6s] cell gr-d-lite R1 k=4 seed=1 done (174.0s)
+[deconfb  1475.4s] cell gr-d-lite R1 k=4 seed=2 done (201.7s)
+[deconfb  1961.2s] cell gr-d-lite R1 k=4 seed=3 done (485.8s)
+[deconfb  2416.7s] cell gr-d-lite R1 k=4 seed=4 done (455.5s)
+[deconfb  2503.1s] cell kernel-verify-retry R1 k=4 seed=0 done (86.4s)
+[deconfb  2606.9s] cell kernel-verify-retry R1 k=4 seed=1 done (103.9s)
+[deconfb  2690.1s] cell kernel-verify-retry R1 k=4 seed=2 done (83.2s)
+[deconfb  2767.8s] cell kernel-verify-retry R1 k=4 seed=3 done (77.7s)
+[deconfb  2862.0s] cell kernel-verify-retry R1 k=4 seed=4 done (94.3s)
+[deconfb  2862.1s] cell extraction-instrument R1 k=0 seed=0 done (0.0s)
+[deconfb  2862.1s] iface gate: 500 labelled, 0 extraction failures
+[deconfb] query-fn source sha256: 4beb075d451c28718cb195149d310d8ca1124fec0a968801915c6b091bf1866f
+[deconfb] OUTCOME: HARNESS-COMPLETE (27 run-record bodies in /tmp/deconfb-results/run-records-deconfb.jsonl)
+[runner exit rc=0]

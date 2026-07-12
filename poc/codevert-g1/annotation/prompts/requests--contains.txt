@@ -1,0 +1,450 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: requests ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+docs/conf.py
+docs/_themes/flask_theme_support.py
+src/requests/__init__.py
+src/requests/__version__.py
+src/requests/_internal_utils.py
+src/requests/_types.py
+src/requests/adapters.py
+src/requests/api.py
+src/requests/auth.py
+src/requests/certs.py
+src/requests/compat.py
+src/requests/cookies.py
+src/requests/exceptions.py
+src/requests/help.py
+src/requests/hooks.py
+src/requests/models.py
+src/requests/packages.py
+src/requests/sessions.py
+src/requests/status_codes.py
+src/requests/structures.py
+src/requests/utils.py
+tests/__init__.py
+tests/compat.py
+tests/conftest.py
+tests/test_adapters.py
+tests/test_help.py
+tests/test_hooks.py
+tests/test_lowlevel.py
+tests/test_packages.py
+tests/test_requests.py
+tests/test_structures.py
+tests/test_testserver.py
+tests/test_utils.py
+tests/utils.py
+tests/testserver/__init__.py
+tests/testserver/server.py
+
+=== QUERIES (2) ===
+QUERY g1q-requests-contains-76: family=contains target=src/requests/exceptions.py::RetryError
+QUERY g1q-requests-contains-89: family=contains target=src/requests/structures.py::LookupDict
+
+=== CONTEXT ===
+
+FILE src/requests/exceptions.py:
+    1| """
+    2| requests.exceptions
+    3| ~~~~~~~~~~~~~~~~~~~
+    4| 
+    5| This module contains the set of Requests' exceptions.
+    6| """
+    7| 
+    8| from __future__ import annotations
+    9| 
+   10| from typing import TYPE_CHECKING, Any
+   11| 
+   12| from urllib3.exceptions import HTTPError as BaseHTTPError
+   13| 
+   14| from .compat import JSONDecodeError as CompatJSONDecodeError
+   15| 
+   16| if TYPE_CHECKING:
+   17|     from .models import PreparedRequest, Request, Response
+   18| 
+   19| 
+   20| class RequestException(IOError):
+   21|     """There was an ambiguous exception that occurred while handling your
+   22|     request.
+   23|     """
+   24| 
+   25|     response: Response | None
+   26|     request: Request | PreparedRequest | None
+   27| 
+   28|     def __init__(self, *args: Any, **kwargs: Any) -> None:
+   29|         """Initialize RequestException with `request` and `response` objects."""
+   30|         response: Response | None = kwargs.pop("response", None)
+   31|         self.response = response
+   32|         self.request = kwargs.pop("request", None)
+   33|         if response is not None and not self.request and hasattr(response, "request"):
+   34|             self.request = response.request
+   35|         super().__init__(*args, **kwargs)
+   36| 
+   37| 
+   38| class InvalidJSONError(RequestException):
+   39|     """A JSON error occurred."""
+   40| 
+   41| 
+   42| class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
+   43|     """Couldn't decode the text into json"""
+   44| 
+   45|     def __init__(self, *args: Any, **kwargs: Any) -> None:
+   46|         """
+   47|         Construct the JSONDecodeError instance first with all
+   48|         args. Then use it's args to construct the IOError so that
+   49|         the json specific args aren't used as IOError specific args
+   50|         and the error message from JSONDecodeError is preserved.
+   51|         """
+   52|         CompatJSONDecodeError.__init__(self, *args)
+   53|         InvalidJSONError.__init__(self, *self.args, **kwargs)
+   54| 
+   55|     def __reduce__(self) -> tuple[Any, ...] | str:
+   56|         """
+   57|         The __reduce__ method called when pickling the object must
+   58|         be the one from the JSONDecodeError (be it json/simplejson)
+   59|         as it expects all the arguments for instantiation, not just
+   60|         one like the IOError, and the MRO would by default call the
+   61|         __reduce__ method from the IOError due to the inheritance order.
+   62|         """
+   63|         return CompatJSONDecodeError.__reduce__(self)
+   64| 
+   65| 
+   66| class HTTPError(RequestException):
+   67|     """An HTTP error occurred."""
+   68| 
+   69| 
+   70| class ConnectionError(RequestException):
+   71|     """A Connection error occurred."""
+   72| 
+   73| 
+   74| class ProxyError(ConnectionError):
+   75|     """A proxy error occurred."""
+   76| 
+   77| 
+   78| class SSLError(ConnectionError):
+   79|     """An SSL error occurred."""
+   80| 
+   81| 
+   82| class Timeout(RequestException):
+   83|     """The request timed out.
+   84| 
+   85|     Catching this error will catch both
+   86|     :exc:`~requests.exceptions.ConnectTimeout` and
+   87|     :exc:`~requests.exceptions.ReadTimeout` errors.
+   88|     """
+   89| 
+   90| 
+   91| class ConnectTimeout(ConnectionError, Timeout):
+   92|     """The request timed out while trying to connect to the remote server.
+   93| 
+   94|     Requests that produced this error are safe to retry.
+   95|     """
+   96| 
+   97| 
+   98| class ReadTimeout(Timeout):
+   99|     """The server did not send any data in the allotted amount of time."""
+  100| 
+  101| 
+  102| class URLRequired(RequestException):
+  103|     """A valid URL is required to make a request."""
+  104| 
+  105| 
+  106| class TooManyRedirects(RequestException):
+  107|     """Too many redirects."""
+  108| 
+  109| 
+  110| class MissingSchema(RequestException, ValueError):
+  111|     """The URL scheme (e.g. http or https) is missing."""
+  112| 
+  113| 
+  114| class InvalidSchema(RequestException, ValueError):
+  115|     """The URL scheme provided is either invalid or unsupported."""
+  116| 
+  117| 
+  118| class InvalidURL(RequestException, ValueError):
+  119|     """The URL provided was somehow invalid."""
+  120| 
+  121| 
+  122| class InvalidHeader(RequestException, ValueError):
+  123|     """The header value provided was somehow invalid."""
+  124| 
+  125| 
+  126| class InvalidProxyURL(InvalidURL):
+  127|     """The proxy URL provided is invalid."""
+  128| 
+  129| 
+  130| class ChunkedEncodingError(RequestException):
+  131|     """The server declared chunked encoding but sent an invalid chunk."""
+  132| 
+  133| 
+  134| class ContentDecodingError(RequestException, BaseHTTPError):
+  135|     """Failed to decode response content."""
+  136| 
+  137| 
+  138| class StreamConsumedError(RequestException, TypeError):
+  139|     """The content for this response was already consumed."""
+  140| 
+  141| 
+  142| class RetryError(RequestException):
+  143|     """Custom retries logic failed"""
+  144| 
+  145| 
+  146| class UnrewindableBodyError(RequestException):
+  147|     """Requests encountered an error when trying to rewind a body."""
+  148| 
+  149| 
+  150| # Warnings
+  151| 
+  152| 
+  153| class RequestsWarning(Warning):
+  154|     """Base warning for Requests."""
+  155| 
+  156| 
+  157| class FileModeWarning(RequestsWarning, DeprecationWarning):
+  158|     """A file was opened in text mode, but Requests determined its binary length."""
+  159| 
+  160| 
+  161| class RequestsDependencyWarning(RequestsWarning):
+  162|     """An imported dependency doesn't match the expected version range."""
+
+FILE src/requests/structures.py:
+    1| """
+    2| requests.structures
+    3| ~~~~~~~~~~~~~~~~~~~
+    4| 
+    5| Data structures that power Requests.
+    6| """
+    7| 
+    8| from __future__ import annotations
+    9| 
+   10| from collections import OrderedDict
+   11| from collections.abc import Iterable, Iterator, Mapping
+   12| from typing import Any, Generic, TypeVar, overload
+   13| 
+   14| from .compat import MutableMapping
+   15| 
+   16| _VT = TypeVar("_VT")
+   17| _D = TypeVar("_D")
+   18| 
+   19| 
+   20| class CaseInsensitiveDict(MutableMapping[str, _VT], Generic[_VT]):
+   21|     """A case-insensitive ``dict``-like object.
+   22| 
+   23|     Implements all methods and operations of
+   24|     ``MutableMapping`` as well as dict's ``copy``. Also
+   25|     provides ``lower_items``.
+   26| 
+   27|     All keys are expected to be strings. The structure remembers the
+   28|     case of the last key to be set, and ``iter(instance)``,
+   29|     ``keys()``, ``items()``, ``iterkeys()``, and ``iteritems()``
+   30|     will contain case-sensitive keys. However, querying and contains
+   31|     testing is case insensitive::
+   32| 
+   33|         cid = CaseInsensitiveDict()
+   34|         cid['Accept'] = 'application/json'
+   35|         cid['aCCEPT'] == 'application/json'  # True
+   36|         list(cid) == ['Accept']  # True
+   37| 
+   38|     For example, ``headers['content-encoding']`` will return the
+   39|     value of a ``'Content-Encoding'`` response header, regardless
+   40|     of how the header name was originally stored.
+   41| 
+   42|     If the constructor, ``.update``, or equality comparison
+   43|     operations are given keys that have equal ``.lower()``s, the
+   44|     behavior is undefined.
+   45|     """
+   46| 
+   47|     _store: OrderedDict[str, tuple[str, _VT]]
+   48| 
+   49|     def __init__(
+   50|         self,
+   51|         data: Mapping[str, _VT] | Iterable[tuple[str, _VT]] | None = None,
+   52|         **kwargs: _VT,
+   53|     ) -> None:
+   54|         self._store = OrderedDict()
+   55|         if data is None:
+   56|             data = {}
+   57|         self.update(data, **kwargs)
+   58| 
+   59|     def __setitem__(self, key: str, value: _VT) -> None:
+   60|         # Use the lowercased key for lookups, but store the actual
+   61|         # key alongside the value.
+   62|         self._store[key.lower()] = (key, value)
+   63| 
+   64|     def __getitem__(self, key: str) -> _VT:
+   65|         return self._store[key.lower()][1]
+   66| 
+   67|     def __delitem__(self, key: str) -> None:
+   68|         del self._store[key.lower()]
+   69| 
+   70|     def __iter__(self) -> Iterator[str]:
+   71|         return (casedkey for casedkey, _ in self._store.values())
+   72| 
+   73|     def __len__(self) -> int:
+   74|         return len(self._store)
+   75| 
+   76|     def lower_items(self) -> Iterator[tuple[str, _VT]]:
+   77|         """Like iteritems(), but with all lowercase keys."""
+   78|         return ((lowerkey, keyval[1]) for (lowerkey, keyval) in self._store.items())
+   79| 
+   80|     def __eq__(self, other: object) -> bool:
+   81|         if isinstance(other, Mapping):
+   82|             other_dict: CaseInsensitiveDict[Any] = CaseInsensitiveDict(other)  # type: ignore[reportUnknownArgumentType]
+   83|         else:
+   84|             return NotImplemented
+   85|         # Compare insensitively
+   86|         return dict(self.lower_items()) == dict(other_dict.lower_items())
+   87| 
+   88|     # Copy is required
+   89|     def copy(self) -> CaseInsensitiveDict[_VT]:
+   90|         return CaseInsensitiveDict(self._store.values())
+   91| 
+   92|     def __repr__(self) -> str:
+   93|         return str(dict(self.items()))
+   94| 
+   95| 
+   96| class LookupDict(dict[str, _VT]):
+   97|     """Dictionary lookup object."""
+   98| 
+   99|     name: Any
+  100| 
+  101|     def __init__(self, name: Any = None) -> None:
+  102|         self.name = name
+  103|         super().__init__()
+  104| 
+  105|     def __repr__(self) -> str:
+  106|         return f"<lookup '{self.name}'>"
+  107| 
+  108|     def __getattr__(self, key: str) -> _VT | None:
+  109|         # We need this for type checkers to infer typing
+  110|         # on attribute access with status_codes.py
+  111|         if key in self.__dict__:
+  112|             return self.__dict__[key]
+  113|         else:
+  114|             raise AttributeError(
+  115|                 f"'{type(self).__name__}' object has no attribute '{key}'"
+  116|             )
+  117| 
+  118|     def __getitem__(self, key: str) -> _VT | None:  # type: ignore[override]
+  119|         # We allow fall-through here, so values default to None
+  120| 
+  121|         return self.__dict__.get(key, None)
+  122| 
+  123|     @overload
+  124|     def get(self, key: str, default: None = None) -> _VT | None: ...
+  125| 
+  126|     @overload
+  127|     def get(self, key: str, default: _D | _VT) -> _D | _VT: ...
+  128| 
+  129|     def get(self, key: str, default: _D | None = None) -> _VT | _D | None:
+  130|         return self.__dict__.get(key, default)
+
+Answer now with ONE JSON array containing one object per query, in query order.

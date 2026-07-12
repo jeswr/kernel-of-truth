@@ -1,0 +1,3589 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.7k4k1mht"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.bayrp6ni
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c2-a2cd-7d32-a792-141872d91fbd
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: attrs ===
+PY FILE LISTING (repo-root-relative; authoritative):
+bench/test_benchmarks.py
+docs/conf.py
+src/attr/__init__.py
+src/attr/_cmp.py
+src/attr/_compat.py
+src/attr/_config.py
+src/attr/_funcs.py
+src/attr/_make.py
+src/attr/_next_gen.py
+src/attr/_version_info.py
+src/attr/converters.py
+src/attr/exceptions.py
+src/attr/filters.py
+src/attr/setters.py
+src/attr/validators.py
+src/attrs/__init__.py
+src/attrs/converters.py
+src/attrs/exceptions.py
+src/attrs/filters.py
+src/attrs/setters.py
+src/attrs/validators.py
+tests/__init__.py
+tests/attr_import_star.py
+tests/conftest.py
+tests/dataclass_transform_example.py
+tests/strategies.py
+tests/test_3rd_party.py
+tests/test_abc.py
+tests/test_annotations.py
+tests/test_cmp.py
+tests/test_compat.py
+tests/test_config.py
+tests/test_converters.py
+tests/test_dunders.py
+tests/test_filters.py
+tests/test_forward_references.py
+tests/test_funcs.py
+tests/test_functional.py
+tests/test_hooks.py
+tests/test_import.py
+tests/test_init_subclass.py
+tests/test_make.py
+tests/test_next_gen.py
+tests/test_packaging.py
+tests/test_pattern_matching.py
+tests/test_pyright.py
+tests/test_setattr.py
+tests/test_slots.py
+tests/test_utils.py
+tests/test_validators.py
+tests/test_version_info.py
+tests/utils.py
+typing-examples/baseline.py
+typing-examples/mypy.py
+
+=== QUERIES (2) ===
+QUERY g1q-attrs-contained_in-1041: family=contained_in target=tests/test_make.py::TestMakeClass.test_bases
+QUERY g1q-attrs-contained_in-187: family=contained_in target=src/attr/converters.py::optional.optional_converter
+
+=== CONTEXT ===
+
+FILE tests/test_make.py:
+    1| # SPDX-License-Identifier: MIT
+    2| 
+    3| """
+    4| Tests for `attr._make`.
+    5| """
+    6| 
+    7| import copy
+    8| import functools
+    9| import gc
+   10| import inspect
+   11| import itertools
+   12| import pickle
+   13| import sys
+   14| import types
+   15| import unicodedata
+   16| 
+   17| from operator import attrgetter
+   18| from typing import Generic, TypeVar
+   19| 
+   20| import pytest
+   21| 
+   22| from hypothesis import assume, given
+   23| from hypothesis.strategies import booleans, integers, lists, sampled_from, text
+   24| 
+   25| import attr
+   26| import attrs
+   27| 
+   28| from attr import _config
+   29| from attr._compat import PY_3_10_PLUS
+   30| from attr._make import (
+   31|     Attribute,
+   32|     ClassProps,
+   33|     Factory,
+   34|     _AndValidator,
+   35|     _Attributes,
+   36|     _ClassBuilder,
+   37|     _CountingAttr,
+   38|     _determine_attrib_eq_order,
+   39|     _determine_attrs_eq_order,
+   40|     _determine_whether_to_implement,
+   41|     _transform_attrs,
+   42|     and_,
+   43|     fields,
+   44|     fields_dict,
+   45|     make_class,
+   46|     validate,
+   47| )
+   48| from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
+   49| 
+   50| from .strategies import (
+   51|     gen_attr_names,
+   52|     list_of_attrs,
+   53|     optional_bool,
+   54|     simple_attrs,
+   55|     simple_attrs_with_metadata,
+   56|     simple_attrs_without_metadata,
+   57|     simple_classes,
+   58| )
+   59| from .utils import simple_attr
+   60| 
+   61| 
+   62| attrs_st = simple_attrs.map(
+   63|     lambda c: Attribute.from_counting_attr("name", c, False)
+   64| )
+   65| 
+   66| 
+   67| @pytest.fixture(name="with_and_without_validation", params=[True, False])
+   68| def _with_and_without_validation(request):
+   69|     """
+   70|     Run tests with and without validation enabled.
+   71|     """
+   72|     attr.validators.set_disabled(request.param)
+   73| 
+   74|     try:
+   75|         yield
+   76|     finally:
+   77|         attr.validators.set_disabled(False)
+   78| 
+   79| 
+   80| class TestCountingAttr:
+   81|     """
+   82|     Tests for `attr`.
+   83|     """
+   84| 
+   85|     def test_returns_Attr(self):
+   86|         """
+   87|         Returns an instance of _CountingAttr.
+   88|         """
+   89|         a = attr.ib()
+   90| 
+   91|         assert isinstance(a, _CountingAttr)
+   92| 
+   93|     def test_validators_lists_to_wrapped_tuples(self):
+   94|         """
+   95|         If a list is passed as validator, it's just converted to a tuple.
+   96|         """
+   97| 
+   98|         def v1(_, __):
+   99|             pass
+  100| 
+  101|         def v2(_, __):
+  102|             pass
+  103| 
+  104|         a = attr.ib(validator=[v1, v2])
+  105| 
+  106|         assert _AndValidator((v1, v2)) == a._validator
+  107| 
+  108|     def test_validator_decorator_single(self):
+  109|         """
+  110|         If _CountingAttr.validator is used as a decorator and there is no
+  111|         decorator set, the decorated method is used as the validator.
+  112|         """
+  113|         a = attr.ib()
+  114| 
+  115|         @a.validator
+  116|         def v():
+  117|             pass
+  118| 
+  119|         assert v == a._validator
+  120| 
+  121|     @pytest.mark.parametrize("wrap", [lambda v: v, lambda v: [v], and_])
+  122|     def test_validator_decorator(self, wrap):
+  123|         """
+  124|         If _CountingAttr.validator is used as a decorator and there is already
+  125|         a decorator set, the decorators are composed using `and_`.
+  126|         """
+  127| 
+  128|         def v(_, __):
+  129|             pass
+  130| 
+  131|         a = attr.ib(validator=wrap(v))
+  132| 
+  133|         @a.validator
+  134|         def v2(self, _, __):
+  135|             pass
+  136| 
+  137|         assert _AndValidator((v, v2)) == a._validator
+  138| 
+  139|     def test_converter_decorator_single(self):
+  140|         """
+  141|         If _CountingAttr.converter is used as a decorator and there is no
+  142|         decorator set, the decorated method is used as the converter.
+  143|         """
+  144|         a = attr.ib()
+  145| 
+  146|         @a.converter
+  147|         def v(self, value, field):
+  148|             pass
+  149| 
+  150|         assert isinstance(a._converter, attr.Converter)
+  151|         assert a._converter.takes_self
+  152|         assert a._converter.takes_field
+  153| 
+  154|     @pytest.mark.parametrize(
+  155|         "wrap", [lambda v: v, lambda v: [v], attr.converters.pipe]
+  156|     )
+  157|     def test_converter_decorator(self, wrap):
+  158|         """
+  159|         If _CountingAttr.converter is used as a decorator and there is already
+  160|         a decorator set, the decorators are composed using `pipe`.
+  161|         """
+  162| 
+  163|         def v(_):
+  164|             pass
+  165| 
+  166|         a = attr.ib(converter=wrap(v))
+  167| 
+  168|         @a.converter
+  169|         def v2(self, value, field):
+  170|             pass
+  171| 
+  172|         assert isinstance(a._converter, attr.Converter)
+  173|         assert a._converter.takes_self
+  174|         assert a._converter.takes_field
+  175| 
+  176|     def test_default_decorator_already_set(self):
+  177|         """
+  178|         Raise DefaultAlreadySetError if the decorator is used after a default
+  179|         has been set.
+  180|         """
+  181|         a = attr.ib(default=42)
+  182| 
+  183|         with pytest.raises(DefaultAlreadySetError):
+  184| 
+  185|             @a.default
+  186|             def f(self):
+  187|                 pass
+  188| 
+  189|     def test_default_decorator_sets(self):
+  190|         """
+  191|         Decorator wraps the method in a Factory with pass_self=True and sets
+  192|         the default.
+  193|         """
+  194|         a = attr.ib()
+  195| 
+  196|         @a.default
+  197|         def f(self):
+  198|             pass
+  199| 
+  200|         assert Factory(f, True) == a._default
+  201| 
+  202| 
+  203| def make_tc():
+  204|     class TransformC:
+  205|         z = attr.ib()
+  206|         y = attr.ib()
+  207|         x = attr.ib()
+  208|         a = 42
+  209| 
+  210|     return TransformC
+  211| 
+  212| 
+  213| class TestTransformAttrs:
+  214|     """
+  215|     Tests for `_transform_attrs`.
+  216|     """
+  217| 
+  218|     def test_no_modifications(self):
+  219|         """
+  220|         Does not attach __attrs_attrs__ to the class.
+  221|         """
+  222|         C = make_tc()
+  223|         _transform_attrs(C, None, False, ClassProps.KeywordOnly.NO, True, None)
+  224| 
+  225|         assert None is getattr(C, "__attrs_attrs__", None)
+  226| 
+  227|     def test_normal(self):
+  228|         """
+  229|         Transforms every `_CountingAttr` and leaves others (a) be.
+  230|         """
+  231|         C = make_tc()
+  232|         attrs, _, _ = _transform_attrs(
+  233|             C, None, False, ClassProps.KeywordOnly.NO, True, None
+  234|         )
+  235| 
+  236|         assert ["z", "y", "x"] == [a.name for a in attrs]
+  237| 
+  238|     def test_empty(self):
+  239|         """
+  240|         No attributes works as expected.
+  241|         """
+  242| 
+  243|         @attr.s
+  244|         class C:
+  245|             pass
+  246| 
+  247|         assert _Attributes((), [], {}) == _transform_attrs(
+  248|             C, None, False, ClassProps.KeywordOnly.NO, True, None
+  249|         )
+  250| 
+  251|     def test_transforms_to_attribute(self):
+  252|         """
+  253|         All `_CountingAttr`s are transformed into `Attribute`s.
+  254|         """
+  255|         C = make_tc()
+  256|         attrs, base_attrs, _ = _transform_attrs(
+  257|             C, None, False, ClassProps.KeywordOnly.NO, True, None
+  258|         )
+  259| 
+  260|         assert [] == base_attrs
+  261|         assert 3 == len(attrs)
+  262|         assert all(isinstance(a, Attribute) for a in attrs)
+  263| 
+  264|     def test_conflicting_defaults(self):
+  265|         """
+  266|         Raises `ValueError` if attributes with defaults are followed by
+  267|         mandatory attributes.
+  268|         """
+  269| 
+  270|         class C:
+  271|             x = attr.ib(default=None)
+  272|             y = attr.ib()
+  273| 
+  274|         with pytest.raises(ValueError) as e:
+  275|             _transform_attrs(
+  276|                 C, None, False, ClassProps.KeywordOnly.NO, True, None
+  277|             )
+  278|         assert (
+  279|             "No mandatory attributes allowed after an attribute with a "
+  280|             "default value or factory.  Attribute in question: Attribute"
+  281|             "(name='y', default=NOTHING, validator=None, repr=True, "
+  282|             "eq=True, eq_key=None, order=True, order_key=None, "
+  283|             "hash=None, init=True, "
+  284|             "metadata=mappingproxy({}), type=None, converter=None, "
+  285|             "kw_only=False, inherited=False, on_setattr=None, alias='y')",
+  286|         ) == e.value.args
+  287| 
+  288|     def test_kw_only(self):
+  289|         """
+  290|         Converts all attributes in the current class if `kw_only` is provided.
+  291|         Base class attributes are **not** affected.
+  292|         """
+  293| 
+  294|         @attr.s
+  295|         class B:
+  296|             b = attr.ib()
+  297| 
+  298|         for b_a in B.__attrs_attrs__:
+  299|             assert b_a.kw_only is False
+  300| 
+  301|         class C(B):
+  302|             x = attr.ib(default=None)
+  303|             y = attr.ib()
+  304| 
+  305|         attrs, base_attrs, _ = _transform_attrs(
+  306|             C, None, False, ClassProps.KeywordOnly.YES, True, None
+  307|         )
+  308| 
+  309|         assert len(attrs) == 3
+  310|         assert len(base_attrs) == 1
+  311| 
+  312|         for a in attrs:
+  313|             if a.name == "b":
+  314|                 assert a.kw_only is False
+  315|             else:
+  316|                 assert a.kw_only is True
+  317| 
+  318|         attrs, base_attrs, _ = _transform_attrs(
+  319|             C,
+  320|             None,
+  321|             False,
+  322|             ClassProps.KeywordOnly.FORCE,
+  323|             True,
+  324|             None,
+  325|         )
+  326| 
+  327|         assert len(attrs) == 3
+  328|         assert len(base_attrs) == 1
+  329| 
+  330|         for a in attrs:
+  331|             assert a.kw_only is True
+  332| 
+  333|         for b_a in B.__attrs_attrs__:
+  334|             assert b_a.kw_only is False
+  335| 
+  336|     def test_these(self):
+  337|         """
+  338|         If these is passed, use it and ignore body and base classes.
+  339|         """
+  340| 
+  341|         class Base:
+  342|             z = attr.ib()
+  343| 
+  344|         class C(Base):
+  345|             y = attr.ib()
+  346| 
+  347|         attrs, base_attrs, _ = _transform_attrs(
+  348|             C, {"x": attr.ib()}, False, ClassProps.KeywordOnly.NO, True, None
+  349|         )
+  350| 
+  351|         assert [] == base_attrs
+  352|         assert (simple_attr("x"),) == attrs
+  353| 
+  354|     def test_these_leave_body(self):
+  355|         """
+  356|         If these is passed, no attributes are removed from the body.
+  357|         """
+  358| 
+  359|         @attr.s(init=False, these={"x": attr.ib()})
+  360|         class C:
+  361|             x = 5
+  362| 
+  363|         assert 5 == C().x
+  364|         assert "C(x=5)" == repr(C())
+  365| 
+  366|     def test_these_ordered(self):
+  367|         """
+  368|         If these is passed ordered attrs, their order respect instead of the
+  369|         counter.
+  370|         """
+  371|         b = attr.ib(default=2)
+  372|         a = attr.ib(default=1)
+  373| 
+  374|         @attr.s(these={"a": a, "b": b})
+  375|         class C:
+  376|             pass
+  377| 
+  378|         assert "C(a=1, b=2)" == repr(C())
+  379| 
+  380|     def test_multiple_inheritance_old(self):
+  381|         """
+  382|         Old multiple inheritance attribute collection behavior is retained.
+  383| 
+  384|         See #285
+  385|         """
+  386| 
+  387|         @attr.s
+  388|         class A:
+  389|             a1 = attr.ib(default="a1")
+  390|             a2 = attr.ib(default="a2")
+  391| 
+  392|         @attr.s
+  393|         class B(A):
+  394|             b1 = attr.ib(default="b1")
+  395|             b2 = attr.ib(default="b2")
+  396| 
+  397|         @attr.s
+  398|         class C(B, A):
+  399|             c1 = attr.ib(default="c1")
+  400|             c2 = attr.ib(default="c2")
+  401| 
+  402|         @attr.s
+  403|         class D(A):
+  404|             d1 = attr.ib(default="d1")
+  405|             d2 = attr.ib(default="d2")
+  406| 
+  407|         @attr.s
+  408|         class E(C, D):
+  409|             e1 = attr.ib(default="e1")
+  410|             e2 = attr.ib(default="e2")
+  411| 
+  412|         assert (
+  413|             "E(a1='a1', a2='a2', b1='b1', b2='b2', c1='c1', c2='c2', d1='d1', "
+  414|             "d2='d2', e1='e1', e2='e2')"
+  415|         ) == repr(E())
+  416| 
+  417|     def test_overwrite_proper_mro(self):
+  418|         """
+  419|         The proper MRO path works single overwrites too.
+  420|         """
+  421| 
+  422|         @attr.s(collect_by_mro=True)
+  423|         class C:
+  424|             x = attr.ib(default=1)
+  425| 
+  426|         @attr.s(collect_by_mro=True)
+  427|         class D(C):
+  428|             x = attr.ib(default=2)
+  429| 
+  430|         assert "D(x=2)" == repr(D())
+  431| 
+  432|     def test_multiple_inheritance_proper_mro(self):
+  433|         """
+  434|         Attributes are collected according to the MRO.
+  435| 
+  436|         See #428
+  437|         """
+  438| 
+  439|         @attr.s
+  440|         class A:
+  441|             a1 = attr.ib(default="a1")
+  442|             a2 = attr.ib(default="a2")
+  443| 
+  444|         @attr.s
+  445|         class B(A):
+  446|             b1 = attr.ib(default="b1")
+  447|             b2 = attr.ib(default="b2")
+  448| 
+  449|         @attr.s
+  450|         class C(B, A):
+  451|             c1 = attr.ib(default="c1")
+  452|             c2 = attr.ib(default="c2")
+  453| 
+  454|         @attr.s
+  455|         class D(A):
+  456|             d1 = attr.ib(default="d1")
+  457|             d2 = attr.ib(default="d2")
+  458| 
+  459|         @attr.s(collect_by_mro=True)
+  460|         class E(C, D):
+  461|             e1 = attr.ib(default="e1")
+  462|             e2 = attr.ib(default="e2")
+  463| 
+  464|         assert (
+  465|             "E(a1='a1', a2='a2', d1='d1', d2='d2', b1='b1', b2='b2', c1='c1', "
+  466|             "c2='c2', e1='e1', e2='e2')"
+  467|         ) == repr(E())
+  468| 
+  469|     def test_mro(self):
+  470|         """
+  471|         Attributes and methods are looked up the same way.
+  472| 
+  473|         See #428
+  474|         """
+  475| 
+  476|         @attr.s(collect_by_mro=True)
+  477|         class A:
+  478|             x = attr.ib(10)
+  479| 
+  480|             def xx(self):
+  481|                 return 10
+  482| 
+  483|         @attr.s(collect_by_mro=True)
+  484|         class B(A):
+  485|             y = attr.ib(20)
+  486| 
+  487|         @attr.s(collect_by_mro=True)
+  488|         class C(A):
+  489|             x = attr.ib(50)
+  490| 
+  491|             def xx(self):
+  492|                 return 50
+  493| 
+  494|         @attr.s(collect_by_mro=True)
+  495|         class D(B, C):
+  496|             pass
+  497| 
+  498|         d = D()
+  499| 
+  500|         assert d.x == d.xx()
+  501| 
+  502|     def test_inherited(self):
+  503|         """
+  504|         Inherited Attributes have `.inherited` True, otherwise False.
+  505|         """
+  506| 
+  507|         @attr.s
+  508|         class A:
+  509|             a = attr.ib()
+  510| 
+  511|         @attr.s
+  512|         class B(A):
+  513|             b = attr.ib()
+  514| 
+  515|         @attr.s
+  516|         class C(B):
+  517|             a = attr.ib()
+  518|             c = attr.ib()
+  519| 
+  520|         f = attr.fields
+  521| 
+  522|         assert False is f(A).a.inherited
+  523| 
+  524|         assert True is f(B).a.inherited
+  525|         assert False is f(B).b.inherited
+  526| 
+  527|         assert False is f(C).a.inherited
+  528|         assert True is f(C).b.inherited
+  529|         assert False is f(C).c.inherited
+  530| 
+  531| 
+  532| class TestAttributes:
+  533|     """
+  534|     Tests for the `attrs`/`attr.s` class decorator.
+  535|     """
+  536| 
+  537|     def test_sets_attrs(self):
+  538|         """
+  539|         Sets the `__attrs_attrs__` class attribute with a list of `Attribute`s.
+  540|         """
+  541| 
+  542|         @attr.s
+  543|         class C:
+  544|             x = attr.ib()
+  545| 
+  546|         assert "x" == C.__attrs_attrs__[0].name
+  547|         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
+  548| 
+  549|     def test_sets_attrs_props(self):
+  550|         """
+  551|         Sets the `__attrs_props__` class attribute with the effective decorator
+  552|         properties.
+  553|         """
+  554| 
+  555|         @attr.s(
+  556|             slots=True,
+  557|             frozen=True,
+  558|             repr=True,
+  559|             eq=True,
+  560|             order=True,
+  561|             unsafe_hash=True,
+  562|             init=True,
+  563|             match_args=False,
+  564|             kw_only=True,
+  565|             auto_attribs=True,
+  566|             cache_hash=True,
+  567|             str=True,
+  568|         )
+  569|         class C:
+  570|             x: int = attr.ib()
+  571| 
+  572|         assert ClassProps(
+  573|             is_exception=False,
+  574|             is_slotted=True,
+  575|             is_frozen=True,
+  576|             added_init=True,
+  577|             added_repr=True,
+  578|             added_eq=True,
+  579|             added_ordering=True,
+  580|             hashability=ClassProps.Hashability.HASHABLE_CACHED,
+  581|             added_match_args=False,
+  582|             kw_only=ClassProps.KeywordOnly.FORCE,
+  583|             has_weakref_slot=True,
+  584|             collected_fields_by_mro=False,
+  585|             added_str=True,
+  586|             added_pickling=True,
+  587|             on_setattr_hook=None,
+  588|             field_transformer=None,
+  589|         ) == attrs.inspect(C)
+  590| 
+  591|     def test_sets_attrs_props_defaults(self):
+  592|         """
+  593|         Default values are derived in `__attrs_props__` when not specified in
+  594|         the decorator.
+  595|         """
+  596| 
+  597|         @attr.s
+  598|         class CDef:
+  599|             x = attr.ib()
+  600| 
+  601|         assert ClassProps(
+  602|             is_exception=False,
+  603|             is_slotted=False,
+  604|             is_frozen=False,
+  605|             added_init=True,
+  606|             added_repr=True,
+  607|             added_eq=True,
+  608|             added_ordering=True,
+  609|             hashability=ClassProps.Hashability.UNHASHABLE,
+  610|             added_match_args=True,
+  611|             kw_only=ClassProps.KeywordOnly.NO,
+  612|             has_weakref_slot=True,
+  613|             collected_fields_by_mro=False,
+  614|             added_str=False,
+  615|             added_pickling=False,
+  616|             on_setattr_hook=None,
+  617|             field_transformer=None,
+  618|         ) == attrs.inspect(CDef)
+  619| 
+  620|     def test_empty(self):
+  621|         """
+  622|         No attributes, no problems.
+  623|         """
+  624| 
+  625|         @attr.s
+  626|         class C3:
+  627|             pass
+  628| 
+  629|         assert "C3()" == repr(C3())
+  630|         assert C3() == C3()
+  631| 
+  632|     @given(attr=attrs_st, attr_name=sampled_from(Attribute.__slots__))
+  633|     def test_immutable(self, attr, attr_name):
+  634|         """
+  635|         Attribute instances are immutable.
+  636|         """
+  637|         with pytest.raises(AttributeError):
+  638|             setattr(attr, attr_name, 1)
+  639| 
+  640|     @pytest.mark.parametrize(
+  641|         "method_name", ["__repr__", "__eq__", "__hash__", "__init__"]
+  642|     )
+  643|     def test_adds_all_by_default(self, method_name):
+  644|         """
+  645|         If no further arguments are supplied, all add_XXX functions except
+  646|         add_hash are applied.  __hash__ is set to None.
+  647|         """
+  648|         # Set the method name to a sentinel and check whether it has been
+  649|         # overwritten afterwards.
+  650|         sentinel = object()
+  651| 
+  652|         class C:
+  653|             x = attr.ib()
+  654| 
+  655|         setattr(C, method_name, sentinel)
+  656| 
+  657|         C = attr.s(C)
+  658|         meth = getattr(C, method_name)
+  659| 
+  660|         assert sentinel != meth
+  661|         if method_name == "__hash__":
+  662|             assert meth is None
+  663| 
+  664|     @pytest.mark.parametrize(
+  665|         ("arg_name", "method_name"),
+  666|         [
+  667|             ("repr", "__repr__"),
+  668|             ("eq", "__eq__"),
+  669|             ("order", "__le__"),
+  670|             ("unsafe_hash", "__hash__"),
+  671|             ("init", "__init__"),
+  672|         ],
+  673|     )
+  674|     def test_respects_add_arguments(self, arg_name, method_name):
+  675|         """
+  676|         If a certain `XXX` is `False`, `__XXX__` is not added to the class.
+  677|         """
+  678|         # Set the method name to a sentinel and check whether it has been
+  679|         # overwritten afterwards.
+  680|         sentinel = object()
+  681| 
+  682|         am_args = {
+  683|             "repr": True,
+  684|             "eq": True,
+  685|             "order": True,
+  686|             "unsafe_hash": True,
+  687|             "init": True,
+  688|         }
+  689|         am_args[arg_name] = False
+  690|         if arg_name == "eq":
+  691|             am_args["order"] = False
+  692| 
+  693|         class C:
+  694|             x = attr.ib()
+  695| 
+  696|         setattr(C, method_name, sentinel)
+  697| 
+  698|         C = attr.s(**am_args)(C)
+  699| 
+  700|         assert sentinel == getattr(C, method_name)
+  701| 
+  702|     @pytest.mark.parametrize("init", [True, False])
+  703|     def test_respects_init_attrs_init(self, init):
+  704|         """
+  705|         If init=False, adds __attrs_init__ to the class.
+  706|         Otherwise, it does not.
+  707|         """
+  708| 
+  709|         class C:
+  710|             x = attr.ib()
+  711| 
+  712|         C = attr.s(init=init)(C)
+  713|         assert hasattr(C, "__attrs_init__") != init
+  714| 
+  715|     @given(slots_outer=booleans(), slots_inner=booleans())
+  716|     def test_repr_qualname(self, slots_outer, slots_inner):
+  717|         """
+  718|         The name in repr is the __qualname__.
+  719|         """
+  720| 
+  721|         @attr.s(slots=slots_outer)
+  722|         class C:
+  723|             @attr.s(slots=slots_inner)
+  724|             class D:
+  725|                 pass
+  726| 
+  727|         assert "C.D()" == repr(C.D())
+  728|         assert "GC.D()" == repr(GC.D())
+  729| 
+  730|     @given(slots_outer=booleans(), slots_inner=booleans())
+  731|     def test_repr_fake_qualname(self, slots_outer, slots_inner):
+  732|         """
+  733|         Setting repr_ns overrides a potentially guessed namespace.
+  734|         """
+  735| 
+  736|         with pytest.deprecated_call(match="The `repr_ns` argument"):
+  737| 
+  738|             @attr.s(slots=slots_outer)
+  739|             class C:
+  740|                 @attr.s(repr_ns="C", slots=slots_inner)
+  741|                 class D:
+  742|                     pass
+  743| 
+  744|         assert "C.D()" == repr(C.D())
+  745| 
+  746|     @given(slots_outer=booleans(), slots_inner=booleans())
+  747|     def test_name_not_overridden(self, slots_outer, slots_inner):
+  748|         """
+  749|         __name__ is different from __qualname__.
+  750|         """
+  751| 
+  752|         @attr.s(slots=slots_outer)
+  753|         class C:
+  754|             @attr.s(slots=slots_inner)
+  755|             class D:
+  756|                 pass
+  757| 
+  758|         assert C.D.__name__ == "D"
+  759|         assert C.D.__qualname__ == C.__qualname__ + ".D"
+  760| 
+  761|     @pytest.mark.usefixtures("with_and_without_validation")
+  762|     def test_pre_init(self):
+  763|         """
+  764|         Verify that __attrs_pre_init__ gets called if defined.
+  765|         """
+  766| 
+  767|         @attr.s
+  768|         class C:
+  769|             def __attrs_pre_init__(self2):
+  770|                 self2.z = 30
+  771| 
+  772|         c = C()
+  773| 
+  774|         assert 30 == getattr(c, "z", None)
+  775| 
+  776|     @pytest.mark.usefixtures("with_and_without_validation")
+  777|     def test_pre_init_args(self):
+  778|         """
+  779|         Verify that __attrs_pre_init__ gets called with extra args if defined.
+  780|         """
+  781| 
+  782|         @attr.s
+  783|         class C:
+  784|             x = attr.ib()
+  785| 
+  786|             def __attrs_pre_init__(self2, x):
+  787|                 self2.z = x + 1
+  788| 
+  789|         c = C(x=10)
+  790| 
+  791|         assert 11 == getattr(c, "z", None)
+  792| 
+  793|     @pytest.mark.usefixtures("with_and_without_validation")
+  794|     def test_pre_init_kwargs(self):
+  795|         """
+  796|         Verify that __attrs_pre_init__ gets called with extra args and kwargs
+  797|         if defined.
+  798|         """
+  799| 
+  800|         @attr.s
+  801|         class C:
+  802|             x = attr.ib()
+  803|             y = attr.field(kw_only=True)
+  804| 
+  805|             def __attrs_pre_init__(self2, x, y):
+  806|                 self2.z = x + y + 1
+  807| 
+  808|         c = C(10, y=11)
+  809| 
+  810|         assert 22 == getattr(c, "z", None)
+  811| 
+  812|     @pytest.mark.usefixtures("with_and_without_validation")
+  813|     def test_pre_init_kwargs_only(self):
+  814|         """
+  815|         Verify that __attrs_pre_init__ gets called with extra kwargs only if
+  816|         defined.
+  817|         """
+  818| 
+  819|         @attr.s
+  820|         class C:
+  821|             y = attr.field(kw_only=True)
+  822| 
+  823|             def __attrs_pre_init__(self2, y):
+  824|                 self2.z = y + 1
+  825| 
+  826|         c = C(y=11)
+  827| 
+  828|         assert 12 == getattr(c, "z", None)
+  829| 
+  830|     @pytest.mark.usefixtures("with_and_without_validation")
+  831|     def test_pre_init_kw_only_work_with_defaults(self):
+  832|         """
+  833|         Default values together with kw_only don't break __attrs__pre_init__.
+  834|         """
+  835|         val = None
+  836| 
+  837|         @attr.define
+  838|         class KWOnlyAndDefault:
+  839|             kw_and_default: int = attr.field(kw_only=True, default=3)
+  840| 
+  841|             def __attrs_pre_init__(self, *, kw_and_default):
+  842|                 nonlocal val
+  843|                 val = kw_and_default
+  844| 
+  845|         inst = KWOnlyAndDefault()
+  846| 
+  847|         assert 3 == val == inst.kw_and_default
+  848| 
+  849|     @pytest.mark.usefixtures("with_and_without_validation")
+  850|     def test_pre_init_with_mixture_of_defaults_and_kw_only(self):
+  851|         """
+  852|         Attrs should properly handle a mixture of positional, positional with
+  853|         default, keyword-only, and keyword-only with default attributes when
+  854|         passing values to __attrs_pre_init__.
+  855|         """
+  856|         g_val1 = None
+  857|         g_val2 = None
+  858|         g_val3 = None
+  859|         g_val4 = None
+  860|         g_val5 = None
+  861|         g_val6 = None
+  862| 
+  863|         @attr.define
+  864|         class MixtureClass:
+  865|             val1: int
+  866|             val2: int = 100
+  867|             val3: int = attr.field(factory=int)
+  868|             val4: int = attr.field(kw_only=True)
+  869|             val5: int = attr.field(default=100, kw_only=True)
+  870|             val6: int = attr.field(factory=int, kw_only=True)
+  871| 
+  872|             def __attrs_pre_init__(self, val1, val2, val3, val4, val5, val6):
+  873|                 nonlocal g_val1, g_val2, g_val3, g_val4, g_val5, g_val6
+  874|                 g_val1 = val1
+  875|                 g_val2 = val2
+  876|                 g_val3 = val3
+  877|                 g_val4 = val4
+  878|                 g_val5 = val5
+  879|                 g_val6 = val6
+  880| 
+  881|         inst = MixtureClass(
+  882|             val1=200, val2=200, val3=200, val4=200, val5=200, val6=200
+  883|         )
+  884| 
+  885|         assert 200 == g_val1 == inst.val1
+  886|         assert 200 == g_val2 == inst.val2
+  887|         assert 200 == g_val3 == inst.val3
+  888|         assert 200 == g_val4 == inst.val4
+  889|         assert 200 == g_val5 == inst.val5
+  890|         assert 200 == g_val6 == inst.val6
+  891| 
+  892|     @pytest.mark.usefixtures("with_and_without_validation")
+  893|     def test_post_init(self):
+  894|         """
+  895|         Verify that __attrs_post_init__ gets called if defined.
+  896|         """
+  897| 
+  898|         @attr.s
+  899|         class C:
+  900|             x = attr.ib()
+  901|             y = attr.ib()
+  902| 
+  903|             def __attrs_post_init__(self2):
+  904|                 self2.z = self2.x + self2.y
+  905| 
+  906|         c = C(x=10, y=20)
+  907| 
+  908|         assert 30 == getattr(c, "z", None)
+  909| 
+  910|     @pytest.mark.usefixtures("with_and_without_validation")
+  911|     def test_pre_post_init_order(self):
+  912|         """
+  913|         Verify that __attrs_post_init__ gets called if defined.
+  914|         """
+  915| 
+  916|         @attr.s
+  917|         class C:
+  918|             x = attr.ib()
+  919| 
+  920|             def __attrs_pre_init__(self2):
+  921|                 self2.z = 30
+  922| 
+  923|             def __attrs_post_init__(self2):
+  924|                 self2.z += self2.x
+  925| 
+  926|         c = C(x=10)
+  927| 
+  928|         assert 40 == getattr(c, "z", None)
+  929| 
+  930|     def test_types(self):
+  931|         """
+  932|         Sets the `Attribute.type` attr from type argument.
+  933|         """
+  934| 
+  935|         @attr.s
+  936|         class C:
+  937|             x = attr.ib(type=int)
+  938|             y = attr.ib(type=str)
+  939|             z = attr.ib()
+  940| 
+  941|         assert int is fields(C).x.type
+  942|         assert str is fields(C).y.type
+  943|         assert None is fields(C).z.type
+  944| 
+  945|     def test_clean_class(self, slots):
+  946|         """
+  947|         Attribute definitions do not appear on the class body after @attr.s.
+  948|         """
+  949| 
+  950|         @attr.s(slots=slots)
+  951|         class C:
+  952|             x = attr.ib()
+  953| 
+  954|         x = getattr(C, "x", None)
+  955| 
+  956|         assert not isinstance(x, _CountingAttr)
+  957| 
+  958|     def test_factory_sugar(self):
+  959|         """
+  960|         Passing factory=f is syntactic sugar for passing default=Factory(f).
+  961|         """
+  962| 
+  963|         @attr.s
+  964|         class C:
+  965|             x = attr.ib(factory=list)
+  966| 
+  967|         assert Factory(list) == attr.fields(C).x.default
+  968| 
+  969|     def test_sugar_factory_mutex(self):
+  970|         """
+  971|         Passing both default and factory raises ValueError.
+  972|         """
+  973|         with pytest.raises(ValueError, match="mutually exclusive"):
+  974| 
+  975|             @attr.s
+  976|             class C:
+  977|                 x = attr.ib(factory=list, default=Factory(list))
+  978| 
+  979|     def test_sugar_callable(self):
+  980|         """
+  981|         Factory has to be a callable to prevent people from passing Factory
+  982|         into it.
+  983|         """
+  984|         with pytest.raises(ValueError, match="must be a callable"):
+  985| 
+  986|             @attr.s
+  987|             class C:
+  988|                 x = attr.ib(factory=Factory(list))
+  989| 
+  990|     def test_inherited_does_not_affect_hashing_and_equality(self):
+  991|         """
+  992|         Whether or not an Attribute has been inherited doesn't affect how it's
+  993|         hashed and compared.
+  994|         """
+  995| 
+  996|         @attr.s
+  997|         class BaseClass:
+  998|             x = attr.ib()
+  999| 
+ 1000|         @attr.s
+ 1001|         class SubClass(BaseClass):
+ 1002|             pass
+ 1003| 
+ 1004|         ba = attr.fields(BaseClass)[0]
+ 1005|         sa = attr.fields(SubClass)[0]
+ 1006| 
+ 1007|         assert ba == sa
+ 1008|         assert hash(ba) == hash(sa)
+ 1009| 
+ 1010| 
+ 1011| class TestKeywordOnlyAttributes:
+ 1012|     """
+ 1013|     Tests for keyword-only attributes.
+ 1014|     """
+ 1015| 
+ 1016|     def test_adds_keyword_only_arguments(self):
+ 1017|         """
+ 1018|         Attributes can be added as keyword-only.
+ 1019|         """
+ 1020| 
+ 1021|         @attr.s
+ 1022|         class C:
+ 1023|             a = attr.ib()
+ 1024|             b = attr.ib(default=2, kw_only=True)
+ 1025|             c = attr.ib(kw_only=True)
+ 1026|             d = attr.ib(default=attr.Factory(lambda: 4), kw_only=True)
+ 1027| 
+ 1028|         c = C(1, c=3)
+ 1029| 
+ 1030|         assert c.a == 1
+ 1031|         assert c.b == 2
+ 1032|         assert c.c == 3
+ 1033|         assert c.d == 4
+ 1034| 
+ 1035|     def test_ignores_kw_only_when_init_is_false(self):
+ 1036|         """
+ 1037|         Specifying ``kw_only=True`` when ``init=False`` is essentially a no-op.
+ 1038|         """
+ 1039| 
+ 1040|         @attr.s
+ 1041|         class C:
+ 1042|             x = attr.ib(init=False, default=0, kw_only=True)
+ 1043|             y = attr.ib()
+ 1044| 
+ 1045|         c = C(1)
+ 1046| 
+ 1047|         assert c.x == 0
+ 1048|         assert c.y == 1
+ 1049| 
+ 1050|     def test_keyword_only_attributes_presence(self):
+ 1051|         """
+ 1052|         Raises `TypeError` when keyword-only arguments are
+ 1053|         not specified.
+ 1054|         """
+ 1055| 
+ 1056|         @attr.s
+ 1057|         class C:
+ 1058|             x = attr.ib(kw_only=True)
+ 1059| 
+ 1060|         with pytest.raises(TypeError) as e:
+ 1061|             C()
+ 1062| 
+ 1063|         assert (
+ 1064|             "missing 1 required keyword-only argument: 'x'"
+ 1065|         ) in e.value.args[0]
+ 1066| 
+ 1067|     def test_keyword_only_attributes_unexpected(self):
+ 1068|         """
+ 1069|         Raises `TypeError` when unexpected keyword argument passed.
+ 1070|         """
+ 1071| 
+ 1072|         @attr.s
+ 1073|         class C:
+ 1074|             x = attr.ib(kw_only=True)
+ 1075| 
+ 1076|         with pytest.raises(TypeError) as e:
+ 1077|             C(x=5, y=10)
+ 1078| 
+ 1079|         assert "got an unexpected keyword argument 'y'" in e.value.args[0]
+ 1080| 
+ 1081|     def test_keyword_only_attributes_can_come_in_any_order(self):
+ 1082|         """
+ 1083|         Mandatory vs non-mandatory attr order only matters when they are part
+ 1084|         of the __init__ signature and when they aren't kw_only (which are
+ 1085|         moved to the end and can be mandatory or non-mandatory in any order,
+ 1086|         as they will be specified as keyword args anyway).
+ 1087|         """
+ 1088| 
+ 1089|         @attr.s
+ 1090|         class C:
+ 1091|             a = attr.ib(kw_only=True)
+ 1092|             b = attr.ib(kw_only=True, default="b")
+ 1093|             c = attr.ib(kw_only=True)
+ 1094|             d = attr.ib()
+ 1095|             e = attr.ib(default="e")
+ 1096|             f = attr.ib(kw_only=True)
+ 1097|             g = attr.ib(kw_only=True, default="g")
+ 1098|             h = attr.ib(kw_only=True)
+ 1099|             i = attr.ib(init=False)
+ 1100| 
+ 1101|         c = C("d", a="a", c="c", f="f", h="h")
+ 1102| 
+ 1103|         assert c.a == "a"
+ 1104|         assert c.b == "b"
+ 1105|         assert c.c == "c"
+ 1106|         assert c.d == "d"
+ 1107|         assert c.e == "e"
+ 1108|         assert c.f == "f"
+ 1109|         assert c.g == "g"
+ 1110|         assert c.h == "h"
+ 1111| 
+ 1112|     def test_keyword_only_attributes_allow_subclassing(self):
+ 1113|         """
+ 1114|         Subclass can define keyword-only attributed without defaults,
+ 1115|         when the base class has attributes with defaults.
+ 1116|         """
+ 1117| 
+ 1118|         @attr.s
+ 1119|         class Base:
+ 1120|             x = attr.ib(default=0)
+ 1121| 
+ 1122|         @attr.s
+ 1123|         class C(Base):
+ 1124|             y = attr.ib(kw_only=True)
+ 1125| 
+ 1126|         c = C(y=1)
+ 1127| 
+ 1128|         assert c.x == 0
+ 1129|         assert c.y == 1
+ 1130| 
+ 1131|     def test_keyword_only_class_level(self):
+ 1132|         """
+ 1133|         `kw_only` can be provided at the attr.s level, converting all
+ 1134|         attributes to `kw_only.`
+ 1135|         """
+ 1136| 
+ 1137|         @attr.s(kw_only=True)
+ 1138|         class C:
+ 1139|             x = attr.ib()
+ 1140|             y = attr.ib(kw_only=True)
+ 1141| 
+ 1142|         with pytest.raises(TypeError):
+ 1143|             C(0, y=1)
+ 1144| 
+ 1145|         c = C(x=0, y=1)
+ 1146| 
+ 1147|         assert c.x == 0
+ 1148|         assert c.y == 1
+ 1149| 
+ 1150|     def test_keyword_only_class_level_subclassing(self):
+ 1151|         """
+ 1152|         When `force_kw_only=True`, subclass `kw_only` propagates to attrs
+ 1153|         inherited from the base, allowing non-default following default.
+ 1154|         """
+ 1155| 
+ 1156|         @attr.s
+ 1157|         class Base:
+ 1158|             x = attr.ib(default=0)
+ 1159| 
+ 1160|         @attr.s(kw_only=True)
+ 1161|         class C(Base):
+ 1162|             y = attr.ib()
+ 1163| 
+ 1164|         with pytest.raises(TypeError):
+ 1165|             C(1)
+ 1166|         with pytest.raises(TypeError):
+ 1167|             C(0, y=1)
+ 1168| 
+ 1169|         c = C(x=0, y=1)
+ 1170| 
+ 1171|         assert c.x == 0
+ 1172|         assert c.y == 1
+ 1173| 
+ 1174|         @attr.s(kw_only=True, force_kw_only=False)
+ 1175|         class C(Base):
+ 1176|             y = attr.ib()
+ 1177| 
+ 1178|         c = C(0, y=1)
+ 1179| 
+ 1180|         assert c.x == 0
+ 1181|         assert c.y == 1
+ 1182| 
+ 1183|     def test_init_false_attribute_after_keyword_attribute(self):
+ 1184|         """
+ 1185|         A positional attribute cannot follow a `kw_only` attribute,
+ 1186|         but an `init=False` attribute can because it won't appear
+ 1187|         in `__init__`
+ 1188|         """
+ 1189| 
+ 1190|         @attr.s
+ 1191|         class KwArgBeforeInitFalse:
+ 1192|             kwarg = attr.ib(kw_only=True)
+ 1193|             non_init_function_default = attr.ib(init=False)
+ 1194|             non_init_keyword_default = attr.ib(
+ 1195|                 init=False, default="default-by-keyword"
+ 1196|             )
+ 1197| 
+ 1198|             @non_init_function_default.default
+ 1199|             def _init_to_init(self):
+ 1200|                 return self.kwarg + "b"
+ 1201| 
+ 1202|         c = KwArgBeforeInitFalse(kwarg="a")
+ 1203| 
+ 1204|         assert c.kwarg == "a"
+ 1205|         assert c.non_init_function_default == "ab"
+ 1206|         assert c.non_init_keyword_default == "default-by-keyword"
+ 1207| 
+ 1208|     def test_init_false_attribute_after_keyword_attribute_with_inheritance(
+ 1209|         self,
+ 1210|     ):
+ 1211|         """
+ 1212|         A positional attribute cannot follow a `kw_only` attribute,
+ 1213|         but an `init=False` attribute can because it won't appear
+ 1214|         in `__init__`. This test checks that we allow this
+ 1215|         even when the `kw_only` attribute appears in a parent class
+ 1216|         """
+ 1217| 
+ 1218|         @attr.s
+ 1219|         class KwArgBeforeInitFalseParent:
+ 1220|             kwarg = attr.ib(kw_only=True)
+ 1221| 
+ 1222|         @attr.s
+ 1223|         class KwArgBeforeInitFalseChild(KwArgBeforeInitFalseParent):
+ 1224|             non_init_function_default = attr.ib(init=False)
+ 1225|             non_init_keyword_default = attr.ib(
+ 1226|                 init=False, default="default-by-keyword"
+ 1227|             )
+ 1228| 
+ 1229|             @non_init_function_default.default
+ 1230|             def _init_to_init(self):
+ 1231|                 return self.kwarg + "b"
+ 1232| 
+ 1233|         c = KwArgBeforeInitFalseChild(kwarg="a")
+ 1234| 
+ 1235|         assert c.kwarg == "a"
+ 1236|         assert c.non_init_function_default == "ab"
+ 1237|         assert c.non_init_keyword_default == "default-by-keyword"
+ 1238| 
+ 1239|     def test_attr_level_kw_only_and_class_level_kw_only(self):
+ 1240|         """
+ 1241|         If a field explicitly sets 'kw_only=False', it should not be made
+ 1242|         keyword-only even if the class sets 'kw_only=True'.
+ 1243|         """
+ 1244| 
+ 1245|         @attr.s(kw_only=True)
+ 1246|         class OldClassOldBehavior:
+ 1247|             yes = attr.ib()
+ 1248|             no = attr.ib(kw_only=False)
+ 1249| 
+ 1250|         @attr.s(kw_only=True, force_kw_only=False)
+ 1251|         class OldClassNewBehavior:
+ 1252|             yes = attr.ib()
+ 1253|             no = attr.ib(kw_only=False)
+ 1254| 
+ 1255|         @attr.define(kw_only=True, force_kw_only=True)
+ 1256|         class NewClassOldBehavior:
+ 1257|             yes = attr.field()
+ 1258|             no = attr.field(kw_only=False)
+ 1259| 
+ 1260|         @attr.define(kw_only=True)
+ 1261|         class NewClassNewBehavior:
+ 1262|             yes = attr.field()
+ 1263|             no = attr.field(kw_only=False)
+ 1264| 
+ 1265|         for cls in [OldClassNewBehavior, NewClassNewBehavior]:
+ 1266|             fs = fields_dict(cls)
+ 1267|             assert fs["yes"].kw_only is True
+ 1268|             assert fs["no"].kw_only is False
+ 1269| 
+ 1270|         for cls in [OldClassOldBehavior, NewClassOldBehavior]:
+ 1271|             fs = fields_dict(cls)
+ 1272| 
+ 1273|             assert fs["yes"].kw_only is True
+ 1274|             assert fs["no"].kw_only is True
+ 1275| 
+ 1276|     def test_kw_only_inheritance(self):
+ 1277|         """
+ 1278|         Comprehensive test about how `kw_only` works when there's multiple
+ 1279|         levels of inheritance with different `kw_only` settings.
+ 1280|         """
+ 1281| 
+ 1282|         @attr.define()
+ 1283|         class A:
+ 1284|             a = attr.field()
+ 1285|             a_t = attr.field(kw_only=True)
+ 1286|             a_f = attr.field(kw_only=False)
+ 1287| 
+ 1288|         @attr.define(kw_only=True)
+ 1289|         class B(A):
+ 1290|             b = attr.field()
+ 1291|             b_t = attr.field(kw_only=True)
+ 1292|             b_f = attr.field(kw_only=False)
+ 1293| 
+ 1294|         @attr.define(kw_only=False)
+ 1295|         class C(B):
+ 1296|             c = attr.field()
+ 1297|             c_t = attr.field(kw_only=True)
+ 1298|             c_f = attr.field(kw_only=False)
+ 1299| 
+ 1300|         fs = fields_dict(A)
+ 1301| 
+ 1302|         assert fs["a"].kw_only is False
+ 1303|         assert fs["a_t"].kw_only is True
+ 1304|         assert fs["a_f"].kw_only is False
+ 1305| 
+ 1306|         fs = fields_dict(B)
+ 1307| 
+ 1308|         assert fs["a"].kw_only is False
+ 1309|         assert fs["a_t"].kw_only is True
+ 1310|         assert fs["a_f"].kw_only is False
+ 1311|         assert fs["b"].kw_only is True
+ 1312|         assert fs["b_t"].kw_only is True
+ 1313|         assert fs["b_f"].kw_only is False
+ 1314| 
+ 1315|         fs = fields_dict(C)
+ 1316| 
+ 1317|         assert fs["a"].kw_only is False
+ 1318|         assert fs["a_t"].kw_only is True
+ 1319|         assert fs["a_f"].kw_only is False
+ 1320|         assert fs["b"].kw_only is True
+ 1321|         assert fs["b_t"].kw_only is True
+ 1322|         assert fs["b_f"].kw_only is False
+ 1323|         assert fs["c"].kw_only is False
+ 1324|         assert fs["c_t"].kw_only is True
+ 1325|         assert fs["c_f"].kw_only is False
+ 1326| 
+ 1327|     def test_kw_only_inheritance_force_kw_only(self):
+ 1328|         """
+ 1329|         Similar to above, but when `force_kw_only` (pre-25.3.0 behavior).
+ 1330|         """
+ 1331| 
+ 1332|         @attr.define(force_kw_only=True)
+ 1333|         class A:
+ 1334|             a = attr.field()
+ 1335|             a_t = attr.field(kw_only=True)
+ 1336|             a_f = attr.field(kw_only=False)
+ 1337| 
+ 1338|         @attr.define(kw_only=True, force_kw_only=True)
+ 1339|         class B(A):
+ 1340|             b = attr.field()
+ 1341|             b_t = attr.field(kw_only=True)
+ 1342|             b_f = attr.field(kw_only=False)
+ 1343| 
+ 1344|         @attr.define(kw_only=False, force_kw_only=True)
+ 1345|         class C(B):
+ 1346|             c = attr.field()
+ 1347|             c_t = attr.field(kw_only=True)
+ 1348|             c_f = attr.field(kw_only=False)
+ 1349| 
+ 1350|         fs = fields_dict(A)
+ 1351| 
+ 1352|         assert fs["a"].kw_only is False
+ 1353|         assert fs["a_t"].kw_only is True
+ 1354|         assert fs["a_f"].kw_only is False
+ 1355| 
+ 1356|         fs = fields_dict(B)
+ 1357| 
+ 1358|         assert fs["a"].kw_only is True
+ 1359|         assert fs["a_t"].kw_only is True
+ 1360|         assert fs["a_f"].kw_only is True
+ 1361|         assert fs["b"].kw_only is True
+ 1362|         assert fs["b_t"].kw_only is True
+ 1363|         assert fs["b_f"].kw_only is True
+ 1364| 
+ 1365|         fs = fields_dict(C)
+ 1366| 
+ 1367|         assert fs["a"].kw_only is False
+ 1368|         assert fs["a_t"].kw_only is True
+ 1369|         assert fs["a_f"].kw_only is False
+ 1370|         assert fs["b"].kw_only is True
+ 1371|         assert fs["b_t"].kw_only is True
+ 1372|         assert fs["b_f"].kw_only is True
+ 1373|         assert fs["c"].kw_only is False
+ 1374|         assert fs["c_t"].kw_only is True
+ 1375|         assert fs["c_f"].kw_only is False
+ 1376| 
+ 1377| 
+ 1378| @attr.s
+ 1379| class GC:
+ 1380|     @attr.s
+ 1381|     class D:
+ 1382|         pass
+ 1383| 
+ 1384| 
+ 1385| class TestMakeClass:
+ 1386|     """
+ 1387|     Tests for `make_class`.
+ 1388|     """
+ 1389| 
+ 1390|     @pytest.mark.parametrize("ls", [list, tuple])
+ 1391|     def test_simple(self, ls):
+ 1392|         """
+ 1393|         Passing a list of strings creates attributes with default args.
+ 1394|         """
+ 1395|         C1 = make_class("C1", ls(["a", "b"]))
+ 1396| 
+ 1397|         @attr.s
+ 1398|         class C2:
+ 1399|             a = attr.ib()
+ 1400|             b = attr.ib()
+ 1401| 
+ 1402|         assert C1.__attrs_attrs__ == C2.__attrs_attrs__
+ 1403| 
+ 1404|     def test_dict(self):
+ 1405|         """
+ 1406|         Passing a dict of name: _CountingAttr creates an equivalent class.
+ 1407|         """
+ 1408|         C1 = make_class(
+ 1409|             "C1", {"a": attr.ib(default=42), "b": attr.ib(default=None)}
+ 1410|         )
+ 1411| 
+ 1412|         @attr.s
+ 1413|         class C2:
+ 1414|             a = attr.ib(default=42)
+ 1415|             b = attr.ib(default=None)
+ 1416| 
+ 1417|         assert C1.__attrs_attrs__ == C2.__attrs_attrs__
+ 1418| 
+ 1419|     def test_attr_args(self):
+ 1420|         """
+ 1421|         attributes_arguments are passed to attributes
+ 1422|         """
+ 1423|         C = make_class("C", ["x"], repr=False)
+ 1424| 
+ 1425|         assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
+ 1426| 
+ 1427|     def test_normalized_unicode_attr_args(self):
+ 1428|         """
+ 1429|         Unicode identifiers are valid in Python.
+ 1430|         """
+ 1431|         clsname = "ü"
+ 1432| 
+ 1433|         assert clsname == unicodedata.normalize("NFKC", clsname)
+ 1434| 
+ 1435|         attrname = "ß"
+ 1436| 
+ 1437|         assert attrname == unicodedata.normalize("NFKC", attrname)
+ 1438| 
+ 1439|         C = make_class(clsname, [attrname], repr=False)
+ 1440| 
+ 1441|         assert repr(C(1)).startswith("<tests.test_make.ü object at 0x")
+ 1442| 
+ 1443|         kwargs = {"ß": 1}
+ 1444|         c = C(**kwargs)
+ 1445| 
+ 1446|         assert 1 == c.ß
+ 1447| 
+ 1448|     def test_unnormalized_unicode_attr_args(self):
+ 1449|         """
+ 1450|         Unicode identifiers are normalized to NFKC form in Python.
+ 1451|         """
+ 1452| 
+ 1453|         clsname = "Ŀ"
+ 1454| 
+ 1455|         assert clsname != unicodedata.normalize("NFKC", clsname)
+ 1456| 
+ 1457|         attrname = "ㅁ"
+ 1458| 
+ 1459|         assert attrname != unicodedata.normalize("NFKC", attrname)
+ 1460| 
+ 1461|         C = make_class(clsname, [attrname], repr=False)
+ 1462|         assert repr(C(1)).startswith("<tests.test_make.L· object at 0x")
+ 1463| 
+ 1464|         kwargs = {unicodedata.normalize("NFKC", attrname): 1}
+ 1465|         c = C(**kwargs)
+ 1466| 
+ 1467|         assert 1 == c.ㅁ
+ 1468| 
+ 1469|     def test_catches_wrong_attrs_type(self):
+ 1470|         """
+ 1471|         Raise `TypeError` if an invalid type for attrs is passed.
+ 1472|         """
+ 1473|         with pytest.raises(TypeError) as e:
+ 1474|             make_class("C", object())
+ 1475| 
+ 1476|         assert ("attrs argument must be a dict or a list.",) == e.value.args
+ 1477| 
+ 1478|     def test_bases(self):
+ 1479|         """
+ 1480|         Parameter bases default to (object,) and subclasses correctly
+ 1481|         """
+ 1482| 
+ 1483|         class D:
+ 1484|             pass
+ 1485| 
+ 1486|         cls = make_class("C", {})
+ 1487| 
+ 1488|         assert cls.__mro__[-1] is object
+ 1489| 
+ 1490|         cls = make_class("C", {}, bases=(D,))
+ 1491| 
+ 1492|         assert D in cls.__mro__
+ 1493|         assert isinstance(cls(), D)
+ 1494| 
+ 1495|     def test_additional_class_body(self):
+ 1496|         """
+ 1497|         Additional class_body is added to newly created class.
+ 1498|         """
+ 1499| 
+ 1500|         def echo_func(cls, *args):
+ 1501|             return args
+ 1502| 
+ 1503|         cls = make_class("C", {}, class_body={"echo": classmethod(echo_func)})
+ 1504| 
+ 1505|         assert ("a", "b") == cls.echo("a", "b")
+ 1506| 
+ 1507|     def test_clean_class(self, slots):
+ 1508|         """
+ 1509|         Attribute definitions do not appear on the class body.
+ 1510|         """
+ 1511|         C = make_class("C", ["x"], slots=slots)
+ 1512| 
+ 1513|         x = getattr(C, "x", None)
+ 1514| 
+ 1515|         assert not isinstance(x, _CountingAttr)
+ 1516| 
+ 1517|     def test_missing_sys_getframe(self, monkeypatch):
+ 1518|         """
+ 1519|         `make_class()` does not fail when `sys._getframe()` is not available.
+ 1520|         """
+ 1521|         monkeypatch.delattr(sys, "_getframe")
+ 1522|         C = make_class("C", ["x"])
+ 1523| 
+ 1524|         assert 1 == len(C.__attrs_attrs__)
+ 1525| 
+ 1526|     def test_make_class_ordered(self):
+ 1527|         """
+ 1528|         If `make_class()` is passed ordered attrs, their order is respected
+ 1529|         instead of the counter.
+ 1530|         """
+ 1531|         b = attr.ib(default=2)
+ 1532|         a = attr.ib(default=1)
+ 1533| 
+ 1534|         C = attr.make_class("C", {"a": a, "b": b})
+ 1535| 
+ 1536|         assert "C(a=1, b=2)" == repr(C())
+ 1537| 
+ 1538|     def test_generic_dynamic_class(self):
+ 1539|         """
+ 1540|         make_class can create generic dynamic classes.
+ 1541| 
+ 1542|         https://github.com/python-attrs/attrs/issues/756
+ 1543|         https://bugs.python.org/issue33188
+ 1544|         """
+ 1545|         from types import new_class
+ 1546|         from typing import Generic, TypeVar
+ 1547| 
+ 1548|         MyTypeVar = TypeVar("MyTypeVar")
+ 1549|         MyParent = new_class("MyParent", (Generic[MyTypeVar],), {})
+ 1550| 
+ 1551|         attr.make_class("test", {"id": attr.ib(type=str)}, (MyParent[int],))
+ 1552| 
+ 1553|     def test_annotations(self):
+ 1554|         """
+ 1555|         make_class fills the __annotations__ dict for attributes with a known
+ 1556|         type.
+ 1557|         """
+ 1558|         a = attr.ib(type=bool)
+ 1559|         b = attr.ib(
+ 1560|             type=None
+ 1561|         )  # Won't be added to ann. b/c of unfavorable default
+ 1562|         c = attr.ib()
+ 1563| 
+ 1564|         C = attr.make_class("C", {"a": a, "b": b, "c": c})
+ 1565|         C = attr.resolve_types(C)
+ 1566| 
+ 1567|         assert {"a": bool} == C.__annotations__
+ 1568| 
+ 1569|     def test_annotations_resolve(self):
+ 1570|         """
+ 1571|         resolve_types() resolves the annotations added by make_class().
+ 1572|         """
+ 1573|         a = attr.ib(type="bool")
+ 1574| 
+ 1575|         C = attr.make_class("C", {"a": a})
+ 1576|         C = attr.resolve_types(C)
+ 1577| 
+ 1578|         assert attr.fields(C).a.type is bool
+ 1579|         assert {"a": "bool"} == C.__annotations__
+ 1580| 
+ 1581| 
+ 1582| class TestFields:
+ 1583|     """
+ 1584|     Tests for `fields`.
+ 1585|     """
+ 1586| 
+ 1587|     @given(simple_classes())
+ 1588|     def test_instance(self, C):
+ 1589|         """
+ 1590|         Returns the class fields for *attrs* instances too.
+ 1591|         """
+ 1592|         assert fields(C()) is fields(C)
+ 1593| 
+ 1594|     def test_handler_non_attrs_instance(self):
+ 1595|         """
+ 1596|         Raises `TypeError` on non-*attrs* instances.
+ 1597|         """
+ 1598|         with pytest.raises(
+ 1599|             TypeError,
+ 1600|             match=r"Passed object must be a class or attrs instance\.",
+ 1601|         ):
+ 1602|             fields(object())
+ 1603| 
+ 1604|     def test_handler_non_attrs_class(self):
+ 1605|         """
+ 1606|         Raises `ValueError` if passed a non-*attrs* instance.
+ 1607|         """
+ 1608|         with pytest.raises(NotAnAttrsClassError) as e:
+ 1609|             fields(object)
+ 1610| 
+ 1611|         assert (
+ 1612|             f"{object!r} is not an attrs-decorated class."
+ 1613|         ) == e.value.args[0]
+ 1614| 
+ 1615|     def test_handler_non_attrs_generic_class(self):
+ 1616|         """
+ 1617|         Raises `ValueError` if passed a non-*attrs* generic class.
+ 1618|         """
+ 1619|         T = TypeVar("T")
+ 1620| 
+ 1621|         class B(Generic[T]):
+ 1622|             pass
+ 1623| 
+ 1624|         with pytest.raises(NotAnAttrsClassError) as e:
+ 1625|             fields(B[str])
+ 1626| 
+ 1627|         assert (
+ 1628|             f"{B[str]!r} is not an attrs-decorated class."
+ 1629|         ) == e.value.args[0]
+ 1630| 
+ 1631|     @given(simple_classes())
+ 1632|     def test_fields(self, C):
+ 1633|         """
+ 1634|         Returns a list of `Attribute`a.
+ 1635|         """
+ 1636|         assert all(isinstance(a, Attribute) for a in fields(C))
+ 1637| 
+ 1638|     @given(simple_classes())
+ 1639|     def test_fields_properties(self, C):
+ 1640|         """
+ 1641|         Fields returns a tuple with properties.
+ 1642|         """
+ 1643|         for attribute in fields(C):
+ 1644|             assert getattr(fields(C), attribute.name) is attribute
+ 1645| 
+ 1646|     def test_generics(self):
+ 1647|         """
+ 1648|         Fields work with generic classes.
+ 1649|         """
+ 1650|         T = TypeVar("T")
+ 1651| 
+ 1652|         @attr.define
+ 1653|         class A(Generic[T]):
+ 1654|             a: T
+ 1655| 
+ 1656|         assert len(fields(A)) == 1
+ 1657|         assert fields(A).a.name == "a"
+ 1658|         assert fields(A).a.default is attr.NOTHING
+ 1659| 
+ 1660|         assert len(fields(A[str])) == 1
+ 1661|         assert fields(A[str]).a.name == "a"
+ 1662|         assert fields(A[str]).a.default is attr.NOTHING
+ 1663| 
+ 1664| 
+ 1665| class TestFieldsDict:
+ 1666|     """
+ 1667|     Tests for `fields_dict`.
+ 1668|     """
+ 1669| 
+ 1670|     @given(simple_classes())
+ 1671|     def test_instance(self, C):
+ 1672|         """
+ 1673|         Raises `TypeError` on non-classes.
+ 1674|         """
+ 1675|         with pytest.raises(TypeError) as e:
+ 1676|             fields_dict(C())
+ 1677| 
+ 1678|         assert "Passed object must be a class." == e.value.args[0]
+ 1679| 
+ 1680|     def test_handler_non_attrs_class(self):
+ 1681|         """
+ 1682|         Raises `ValueError` if passed a non-*attrs* instance.
+ 1683|         """
+ 1684|         with pytest.raises(NotAnAttrsClassError) as e:
+ 1685|             fields_dict(object)
+ 1686| 
+ 1687|         assert (
+ 1688|             f"{object!r} is not an attrs-decorated class."
+ 1689|         ) == e.value.args[0]
+ 1690| 
+ 1691|     @given(simple_classes())
+ 1692|     def test_fields_dict(self, C):
+ 1693|         """
+ 1694|         Returns an ordered dict of ``{attribute_name: Attribute}``.
+ 1695|         """
+ 1696|         d = fields_dict(C)
+ 1697| 
+ 1698|         assert isinstance(d, dict)
+ 1699|         assert list(fields(C)) == list(d.values())
+ 1700|         assert [a.name for a in fields(C)] == list(d)
+ 1701| 
+ 1702| 
+ 1703| class TestConverter:
+ 1704|     """
+ 1705|     Tests for attribute conversion.
+ 1706|     """
+ 1707| 
+ 1708|     def test_converter(self):
+ 1709|         """
+ 1710|         Return value of converter is used as the attribute's value.
+ 1711|         """
+ 1712|         C = make_class(
+ 1713|             "C", {"x": attr.ib(converter=lambda v: v + 1), "y": attr.ib()}
+ 1714|         )
+ 1715|         c = C(1, 2)
+ 1716| 
+ 1717|         assert c.x == 2
+ 1718|         assert c.y == 2
+ 1719| 
+ 1720|     def test_converter_wrapped_takes_self(self):
+ 1721|         """
+ 1722|         When wrapped and passed `takes_self`, the converter receives the
+ 1723|         instance that's being initializes -- and the return value is used as
+ 1724|         the field's value.
+ 1725|         """
+ 1726| 
+ 1727|         def converter_with_self(v, self_):
+ 1728|             return v * self_.y
+ 1729| 
+ 1730|         @attr.define
+ 1731|         class C:
+ 1732|             x: int = attr.field(
+ 1733|                 converter=attr.Converter(converter_with_self, takes_self=True)
+ 1734|             )
+ 1735|             y = 42
+ 1736| 
+ 1737|         assert 84 == C(2).x
+ 1738| 
+ 1739|     def test_converter_wrapped_takes_field(self):
+ 1740|         """
+ 1741|         When wrapped and passed `takes_field`, the converter receives the field
+ 1742|         definition -- and the return value is used as the field's value.
+ 1743|         """
+ 1744| 
+ 1745|         def converter_with_field(v, field):
+ 1746|             assert isinstance(field, attr.Attribute)
+ 1747|             return v * field.metadata["x"]
+ 1748| 
+ 1749|         @attr.define
+ 1750|         class C:
+ 1751|             x: int = attr.field(
+ 1752|                 converter=attr.Converter(
+ 1753|                     converter_with_field, takes_field=True
+ 1754|                 ),
+ 1755|                 metadata={"x": 42},
+ 1756|             )
+ 1757| 
+ 1758|         assert 84 == C(2).x
+ 1759| 
+ 1760|     def test_converter_decorated(self):
+ 1761|         """
+ 1762|         Same as Converter with both `takes_field` and `takes_self`
+ 1763|         """
+ 1764| 
+ 1765|         @attr.define
+ 1766|         class C:
+ 1767|             factor: int = 5
+ 1768|             x: int = attr.field(default=0, metadata={"offset": 200})
+ 1769| 
+ 1770|             @x.converter
+ 1771|             def _convert_x(self, field, value):
+ 1772|                 assert isinstance(field, attr.Attribute)
+ 1773|                 return int(value) * self.factor + field.metadata["offset"]
+ 1774| 
+ 1775|         assert 410 == C(x="42").x
+ 1776| 
+ 1777|     @given(integers(), booleans())
+ 1778|     def test_convert_property(self, val, init):
+ 1779|         """
+ 1780|         Property tests for attributes using converter.
+ 1781|         """
+ 1782|         C = make_class(
+ 1783|             "C",
+ 1784|             {
+ 1785|                 "y": attr.ib(),
+ 1786|                 "x": attr.ib(
+ 1787|                     init=init, default=val, converter=lambda v: v + 1
+ 1788|                 ),
+ 1789|             },
+ 1790|         )
+ 1791|         c = C(2)
+ 1792| 
+ 1793|         assert c.x == val + 1
+ 1794|         assert c.y == 2
+ 1795| 
+ 1796|     @given(integers(), booleans())
+ 1797|     def test_converter_factory_property(self, val, init):
+ 1798|         """
+ 1799|         Property tests for attributes with converter, and a factory default.
+ 1800|         """
+ 1801|         C = make_class(
+ 1802|             "C",
+ 1803|             {
+ 1804|                 "y": attr.ib(),
+ 1805|                 "x": attr.ib(
+ 1806|                     init=init,
+ 1807|                     default=Factory(lambda: val),
+ 1808|                     converter=lambda v: v + 1,
+ 1809|                 ),
+ 1810|             },
+ 1811|         )
+ 1812|         c = C(2)
+ 1813| 
+ 1814|         assert c.x == val + 1
+ 1815|         assert c.y == 2
+ 1816| 
+ 1817|     def test_convert_before_validate(self):
+ 1818|         """
+ 1819|         Validation happens after conversion.
+ 1820|         """
+ 1821| 
+ 1822|         def validator(inst, attr, val):
+ 1823|             raise RuntimeError("foo")
+ 1824| 
+ 1825|         C = make_class(
+ 1826|             "C",
+ 1827|             {
+ 1828|                 "x": attr.ib(validator=validator, converter=lambda v: 1 / 0),
+ 1829|                 "y": attr.ib(),
+ 1830|             },
+ 1831|         )
+ 1832|         with pytest.raises(ZeroDivisionError):
+ 1833|             C(1, 2)
+ 1834| 
+ 1835|     def test_frozen(self):
+ 1836|         """
+ 1837|         Converters circumvent immutability.
+ 1838|         """
+ 1839|         C = make_class("C", {"x": attr.ib(converter=int)}, frozen=True)
+ 1840|         C("1")
+ 1841| 
+ 1842| 
+ 1843| class TestValidate:
+ 1844|     """
+ 1845|     Tests for `validate`.
+ 1846|     """
+ 1847| 
+ 1848|     def test_success(self):
+ 1849|         """
+ 1850|         If the validator succeeds, nothing gets raised.
+ 1851|         """
+ 1852|         C = make_class(
+ 1853|             "C", {"x": attr.ib(validator=lambda *a: None), "y": attr.ib()}
+ 1854|         )
+ 1855|         validate(C(1, 2))
+ 1856| 
+ 1857|     def test_propagates(self):
+ 1858|         """
+ 1859|         The exception of the validator is handed through.
+ 1860|         """
+ 1861| 
+ 1862|         def raiser(_, __, value):
+ 1863|             if value == 42:
+ 1864|                 raise FloatingPointError
+ 1865| 
+ 1866|         C = make_class("C", {"x": attr.ib(validator=raiser)})
+ 1867|         i = C(1)
+ 1868|         i.x = 42
+ 1869| 
+ 1870|         with pytest.raises(FloatingPointError):
+ 1871|             validate(i)
+ 1872| 
+ 1873|     def test_run_validators(self):
+ 1874|         """
+ 1875|         Setting `_run_validators` to False prevents validators from running.
+ 1876|         """
+ 1877|         _config._run_validators = False
+ 1878|         obj = object()
+ 1879| 
+ 1880|         def raiser(_, __, ___):
+ 1881|             raise Exception(obj)
+ 1882| 
+ 1883|         C = make_class("C", {"x": attr.ib(validator=raiser)})
+ 1884|         c = C(1)
+ 1885|         validate(c)
+ 1886|         assert 1 == c.x
+ 1887|         _config._run_validators = True
+ 1888| 
+ 1889|         with pytest.raises(Exception):
+ 1890|             validate(c)
+ 1891| 
+ 1892|         with pytest.raises(Exception) as e:
+ 1893|             C(1)
+ 1894|         assert (obj,) == e.value.args
+ 1895| 
+ 1896|     def test_multiple_validators(self):
+ 1897|         """
+ 1898|         If a list is passed as a validator, all of its items are treated as one
+ 1899|         and must pass.
+ 1900|         """
+ 1901| 
+ 1902|         def v1(_, __, value):
+ 1903|             if value == 23:
+ 1904|                 raise TypeError("omg")
+ 1905| 
+ 1906|         def v2(_, __, value):
+ 1907|             if value == 42:
+ 1908|                 raise ValueError("omg")
+ 1909| 
+ 1910|         C = make_class("C", {"x": attr.ib(validator=[v1, v2])})
+ 1911| 
+ 1912|         validate(C(1))
+ 1913| 
+ 1914|         with pytest.raises(TypeError) as e:
+ 1915|             C(23)
+ 1916| 
+ 1917|         assert "omg" == e.value.args[0]
+ 1918| 
+ 1919|         with pytest.raises(ValueError) as e:
+ 1920|             C(42)
+ 1921| 
+ 1922|         assert "omg" == e.value.args[0]
+ 1923| 
+ 1924|     def test_multiple_empty(self):
+ 1925|         """
+ 1926|         Empty list/tuple for validator is the same as None.
+ 1927|         """
+ 1928|         C1 = make_class("C", {"x": attr.ib(validator=[])})
+ 1929|         C2 = make_class("C", {"x": attr.ib(validator=None)})
+ 1930| 
+ 1931|         assert inspect.getsource(C1.__init__) == inspect.getsource(C2.__init__)
+ 1932| 
+ 1933| 
+ 1934| # Hypothesis seems to cache values, so the lists of attributes come out
+ 1935| # unsorted.
+ 1936| sorted_lists_of_attrs = list_of_attrs.map(
+ 1937|     lambda ln: sorted(ln, key=attrgetter("counter"))
+ 1938| )
+ 1939| 
+ 1940| 
+ 1941| class TestMetadata:
+ 1942|     """
+ 1943|     Tests for metadata handling.
+ 1944|     """
+ 1945| 
+ 1946|     @given(sorted_lists_of_attrs)
+ 1947|     def test_metadata_present(self, list_of_attrs):
+ 1948|         """
+ 1949|         Assert dictionaries are copied and present.
+ 1950|         """
+ 1951|         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+ 1952| 
+ 1953|         for hyp_attr, class_attr in zip(list_of_attrs, fields(C)):
+ 1954|             if hyp_attr.metadata is None:
+ 1955|                 # The default is a singleton empty dict.
+ 1956|                 assert class_attr.metadata is not None
+ 1957|                 assert len(class_attr.metadata) == 0
+ 1958|             else:
+ 1959|                 assert hyp_attr.metadata == class_attr.metadata
+ 1960| 
+ 1961|                 # Once more, just to assert getting items and iteration.
+ 1962|                 for k in class_attr.metadata:
+ 1963|                     assert hyp_attr.metadata[k] == class_attr.metadata[k]
+ 1964|                     assert hyp_attr.metadata.get(k) == class_attr.metadata.get(
+ 1965|                         k
+ 1966|                     )
+ 1967| 
+ 1968|     @given(simple_classes(), text())
+ 1969|     def test_metadata_immutability(self, C, string):
+ 1970|         """
+ 1971|         The metadata dict should be best-effort immutable.
+ 1972|         """
+ 1973|         for a in fields(C):
+ 1974|             with pytest.raises(TypeError):
+ 1975|                 a.metadata[string] = string
+ 1976|             with pytest.raises(AttributeError):
+ 1977|                 a.metadata.update({string: string})
+ 1978|             with pytest.raises(AttributeError):
+ 1979|                 a.metadata.clear()
+ 1980|             with pytest.raises(AttributeError):
+ 1981|                 a.metadata.setdefault(string, string)
+ 1982| 
+ 1983|             for k in a.metadata:
+ 1984|                 # For some reason, MappingProxyType throws an IndexError for
+ 1985|                 # deletes on a large integer key.
+ 1986|                 with pytest.raises((TypeError, IndexError)):
+ 1987|                     del a.metadata[k]
+ 1988|                 with pytest.raises(AttributeError):
+ 1989|                     a.metadata.pop(k)
+ 1990|             with pytest.raises(AttributeError):
+ 1991|                 a.metadata.popitem()
+ 1992| 
+ 1993|     @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+ 1994|     def test_empty_metadata_singleton(self, list_of_attrs):
+ 1995|         """
+ 1996|         All empty metadata attributes share the same empty metadata dict.
+ 1997|         """
+ 1998|         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+ 1999|         for a in fields(C)[1:]:
+ 2000|             assert a.metadata is fields(C)[0].metadata
+ 2001| 
+ 2002|     @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+ 2003|     def test_empty_countingattr_metadata_independent(self, list_of_attrs):
+ 2004|         """
+ 2005|         All empty metadata attributes are independent before ``@attr.s``.
+ 2006|         """
+ 2007|         for x, y in itertools.combinations(list_of_attrs, 2):
+ 2008|             assert x.metadata is not y.metadata
+ 2009| 
+ 2010|     @given(lists(simple_attrs_with_metadata(), min_size=2, max_size=5))
+ 2011|     def test_not_none_metadata(self, list_of_attrs):
+ 2012|         """
+ 2013|         Non-empty metadata attributes exist as fields after ``@attr.s``.
+ 2014|         """
+ 2015|         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+ 2016| 
+ 2017|         assert len(fields(C)) > 0
+ 2018| 
+ 2019|         for cls_a, raw_a in zip(fields(C), list_of_attrs):
+ 2020|             assert cls_a.metadata != {}
+ 2021|             assert cls_a.metadata == raw_a.metadata
+ 2022| 
+ 2023|     def test_metadata(self):
+ 2024|         """
+ 2025|         If metadata that is not None is passed, it is used.
+ 2026| 
+ 2027|         This is necessary for coverage because the previous test is
+ 2028|         hypothesis-based.
+ 2029|         """
+ 2030|         md = {}
+ 2031|         a = attr.ib(metadata=md)
+ 2032| 
+ 2033|         assert md is a.metadata
+ 2034| 
+ 2035| 
+ 2036| class TestClassBuilder:
+ 2037|     """
+ 2038|     Tests for `_ClassBuilder`.
+ 2039|     """
+ 2040| 
+ 2041|     def test_repr_str(self):
+ 2042|         """
+ 2043|         Trying to add a `__str__` without having a `__repr__` raises a
+ 2044|         ValueError.
+ 2045|         """
+ 2046|         with pytest.raises(ValueError) as ei:
+ 2047|             make_class("C", {}, repr=False, str=True)
+ 2048| 
+ 2049|         assert (
+ 2050|             "__str__ can only be generated if a __repr__ exists.",
+ 2051|         ) == ei.value.args
+ 2052| 
+ 2053|     def test_repr(self):
+ 2054|         """
+ 2055|         repr of builder itself makes sense.
+ 2056|         """
+ 2057| 
+ 2058|         class C:
+ 2059|             pass
+ 2060| 
+ 2061|         b = _ClassBuilder(
+ 2062|             C,
+ 2063|             None,
+ 2064|             True,
+ 2065|             ClassProps(
+ 2066|                 is_exception=False,
+ 2067|                 is_slotted=True,
+ 2068|                 is_frozen=True,
+ 2069|                 added_init=True,
+ 2070|                 added_repr=True,
+ 2071|                 added_eq=True,
+ 2072|                 added_ordering=False,
+ 2073|                 hashability=ClassProps.Hashability.UNHASHABLE,
+ 2074|                 added_match_args=True,
+ 2075|                 kw_only=ClassProps.KeywordOnly.NO,
+ 2076|                 has_weakref_slot=False,
+ 2077|                 collected_fields_by_mro=True,
+ 2078|                 added_str=False,
+ 2079|                 added_pickling=True,
+ 2080|                 on_setattr_hook=None,
+ 2081|                 field_transformer=None,
+ 2082|             ),
+ 2083|             has_custom_setattr=False,
+ 2084|         )
+ 2085| 
+ 2086|         assert "<_ClassBuilder(cls=C)>" == repr(b)
+ 2087| 
+ 2088|     def test_returns_self(self):
+ 2089|         """
+ 2090|         All methods return the builder for chaining.
+ 2091|         """
+ 2092| 
+ 2093|         class C:
+ 2094|             x = attr.ib()
+ 2095| 
+ 2096|         b = _ClassBuilder(
+ 2097|             C,
+ 2098|             None,
+ 2099|             False,
+ 2100|             ClassProps(
+ 2101|                 is_exception=False,
+ 2102|                 is_slotted=True,
+ 2103|                 is_frozen=True,
+ 2104|                 added_init=True,
+ 2105|                 added_repr=True,
+ 2106|                 added_eq=True,
+ 2107|                 added_ordering=False,
+ 2108|                 hashability=ClassProps.Hashability.UNHASHABLE,
+ 2109|                 added_match_args=True,
+ 2110|                 kw_only=ClassProps.KeywordOnly.NO,
+ 2111|                 has_weakref_slot=False,
+ 2112|                 collected_fields_by_mro=True,
+ 2113|                 added_str=False,
+ 2114|                 added_pickling=True,
+ 2115|                 on_setattr_hook=None,
+ 2116|                 field_transformer=None,
+ 2117|             ),
+ 2118|             has_custom_setattr=False,
+ 2119|         )
+ 2120| 
+ 2121|         cls = (
+ 2122|             b.add_eq()
+ 2123|             .add_order()
+ 2124|             .add_hash()
+ 2125|             .add_init()
+ 2126|             .add_attrs_init()
+ 2127|             .add_repr("ns")
+ 2128|             .add_str()
+ 2129|             .build_class()
+ 2130|         )
+ 2131| 
+ 2132|         assert "ns.C(x=1)" == repr(cls(1))
+ 2133| 
+ 2134|     @pytest.mark.parametrize(
+ 2135|         "meth_name",
+ 2136|         [
+ 2137|             "__init__",
+ 2138|             "__hash__",
+ 2139|             "__repr__",
+ 2140|             "__str__",
+ 2141|             "__eq__",
+ 2142|             "__lt__",
+ 2143|             "__le__",
+ 2144|             "__gt__",
+ 2145|             "__ge__",
+ 2146|         ],
+ 2147|     )
+ 2148|     def test_attaches_meta_dunders(self, meth_name):
+ 2149|         """
+ 2150|         Generated methods have correct __module__, __name__, and __qualname__
+ 2151|         attributes.
+ 2152|         """
+ 2153| 
+ 2154|         @attr.s(unsafe_hash=True, str=True)
+ 2155|         class C:
+ 2156|             def organic(self):
+ 2157|                 pass
+ 2158| 
+ 2159|         @attr.s(unsafe_hash=True, str=True)
+ 2160|         class D:
+ 2161|             pass
+ 2162| 
+ 2163|         meth_C = getattr(C, meth_name)
+ 2164|         meth_D = getattr(D, meth_name)
+ 2165| 
+ 2166|         assert meth_name == meth_C.__name__ == meth_D.__name__
+ 2167|         assert C.organic.__module__ == meth_C.__module__ == meth_D.__module__
+ 2168|         # This is assertion that would fail if a single __ne__ instance
+ 2169|         # was reused across multiple _make_eq calls.
+ 2170|         organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
+ 2171|         assert organic_prefix + "." + meth_name == meth_C.__qualname__
+ 2172| 
+ 2173|     def test_handles_missing_meta_on_class(
+ 2174|         self, monkeypatch: pytest.MonkeyPatch
+ 2175|     ):
+ 2176|         """
+ 2177|         If the class hasn't a __module__ or __qualname__, the method hasn't
+ 2178|         either.
+ 2179|         """
+ 2180| 
+ 2181|         class C:
+ 2182|             pass
+ 2183| 
+ 2184|         orig_hasattr = __builtins__["hasattr"]
+ 2185| 
+ 2186|         def our_hasattr(obj, name, /) -> bool:
+ 2187|             if name in ("__module__", "__qualname__"):
+ 2188|                 return False
+ 2189|             return orig_hasattr(obj, name)
+ 2190| 
+ 2191|         monkeypatch.setitem(
+ 2192|             _ClassBuilder.__init__.__globals__["__builtins__"],
+ 2193|             "hasattr",
+ 2194|             our_hasattr,
+ 2195|         )
+ 2196| 
+ 2197|         b = _ClassBuilder(
+ 2198|             C,
+ 2199|             these=None,
+ 2200|             auto_attribs=False,
+ 2201|             props=ClassProps(
+ 2202|                 is_exception=False,
+ 2203|                 is_slotted=False,
+ 2204|                 is_frozen=False,
+ 2205|                 added_init=True,
+ 2206|                 added_repr=True,
+ 2207|                 added_eq=True,
+ 2208|                 added_ordering=False,
+ 2209|                 hashability=ClassProps.Hashability.UNHASHABLE,
+ 2210|                 added_match_args=True,
+ 2211|                 kw_only=ClassProps.KeywordOnly.NO,
+ 2212|                 has_weakref_slot=True,
+ 2213|                 collected_fields_by_mro=True,
+ 2214|                 added_str=False,
+ 2215|                 added_pickling=True,
+ 2216|                 on_setattr_hook=None,
+ 2217|                 field_transformer=None,
+ 2218|             ),
+ 2219|             has_custom_setattr=False,
+ 2220|         )
+ 2221| 
+ 2222|         def fake_meth(self):
+ 2223|             pass
+ 2224| 
+ 2225|         fake_meth.__module__ = "42"
+ 2226|         fake_meth.__qualname__ = "23"
+ 2227| 
+ 2228|         b._cls = {}  # No module and qualname
+ 2229| 
+ 2230|         rv = b._add_method_dunders(fake_meth)
+ 2231| 
+ 2232|         assert "42" == rv.__module__ == fake_meth.__module__
+ 2233|         assert "23" == rv.__qualname__ == fake_meth.__qualname__
+ 2234| 
+ 2235|     def test_weakref_setstate(self):
+ 2236|         """
+ 2237|         __weakref__ is not set on in setstate because it's not writable in
+ 2238|         slotted classes.
+ 2239|         """
+ 2240| 
+ 2241|         @attr.s(slots=True)
+ 2242|         class C:
+ 2243|             __weakref__ = attr.ib(
+ 2244|                 init=False, hash=False, repr=False, eq=False, order=False
+ 2245|             )
+ 2246| 
+ 2247|         assert C() == copy.deepcopy(C())
+ 2248| 
+ 2249|     def test_no_references_to_original(self):
+ 2250|         """
+ 2251|         When subclassing a slotted class, there are no stray references to the
+ 2252|         original class.
+ 2253|         """
+ 2254| 
+ 2255|         @attr.s(slots=True)
+ 2256|         class C:
+ 2257|             pass
+ 2258| 
+ 2259|         @attr.s(slots=True)
+ 2260|         class C2(C):
+ 2261|             pass
+ 2262| 
+ 2263|         # The original C2 is in a reference cycle, so force a collect:
+ 2264|         gc.collect()
+ 2265| 
+ 2266|         assert [C2] == C.__subclasses__()
+ 2267| 
+ 2268|     def test_no_references_to_original_when_using_cached_property(self):
+ 2269|         """
+ 2270|         When subclassing a slotted class and using cached property, there are
+ 2271|         no stray references to the original class.
+ 2272|         """
+ 2273| 
+ 2274|         @attr.s(slots=True)
+ 2275|         class C:
+ 2276|             pass
+ 2277| 
+ 2278|         @attr.s(slots=True)
+ 2279|         class C2(C):
+ 2280|             @functools.cached_property
+ 2281|             def value(self) -> int:
+ 2282|                 return 0
+ 2283| 
+ 2284|         # The original C2 is in a reference cycle, so force a collect:
+ 2285|         gc.collect()
+ 2286| 
+ 2287|         assert [C2] == C.__subclasses__()
+ 2288| 
+ 2289|     def _get_copy_kwargs(include_slots=True):
+ 2290|         """
+ 2291|         Generate a list of compatible attr.s arguments for the `copy` tests.
+ 2292|         """
+ 2293|         options = ["frozen", "unsafe_hash", "cache_hash"]
+ 2294| 
+ 2295|         if include_slots:
+ 2296|             options.extend(["slots", "weakref_slot"])
+ 2297| 
+ 2298|         out_kwargs = []
+ 2299|         for args in itertools.product([True, False], repeat=len(options)):
+ 2300|             kwargs = dict(zip(options, args))
+ 2301| 
+ 2302|             kwargs["unsafe_hash"] = kwargs["unsafe_hash"] or None
+ 2303| 
+ 2304|             if kwargs["cache_hash"] and not (
+ 2305|                 kwargs["frozen"] or kwargs["unsafe_hash"]
+ 2306|             ):
+ 2307|                 continue
+ 2308| 
+ 2309|             out_kwargs.append(kwargs)
+ 2310| 
+ 2311|         return out_kwargs
+ 2312| 
+ 2313|     @pytest.mark.parametrize("kwargs", _get_copy_kwargs())
+ 2314|     def test_copy(self, kwargs):
+ 2315|         """
+ 2316|         Ensure that an attrs class can be copied successfully.
+ 2317|         """
+ 2318| 
+ 2319|         @attr.s(eq=True, **kwargs)
+ 2320|         class C:
+ 2321|             x = attr.ib()
+ 2322| 
+ 2323|         a = C(1)
+ 2324|         b = copy.deepcopy(a)
+ 2325| 
+ 2326|         assert a == b
+ 2327| 
+ 2328|     @pytest.mark.parametrize("kwargs", _get_copy_kwargs(include_slots=False))
+ 2329|     def test_copy_custom_setstate(self, kwargs):
+ 2330|         """
+ 2331|         Ensure that non-slots classes respect a custom __setstate__.
+ 2332|         """
+ 2333| 
+ 2334|         @attr.s(eq=True, **kwargs)
+ 2335|         class C:
+ 2336|             x = attr.ib()
+ 2337| 
+ 2338|             def __getstate__(self):
+ 2339|                 return self.__dict__
+ 2340| 
+ 2341|             def __setstate__(self, state):
+ 2342|                 state["x"] *= 5
+ 2343|                 self.__dict__.update(state)
+ 2344| 
+ 2345|         expected = C(25)
+ 2346|         actual = copy.copy(C(5))
+ 2347| 
+ 2348|         assert actual == expected
+ 2349| 
+ 2350| 
+ 2351| class TestInitAlias:
+ 2352|     """
+ 2353|     Tests for Attribute alias handling.
+ 2354|     """
+ 2355| 
+ 2356|     def test_default_and_specify(self):
+ 2357|         """
+ 2358|         alias is present on the Attributes returned from attr.fields.
+ 2359| 
+ 2360|         If left unspecified, it defaults to standard private-attribute
+ 2361|         handling.  If specified, it passes through the explicit alias.
+ 2362|         """
+ 2363| 
+ 2364|         # alias is None by default on _CountingAttr
+ 2365|         default_counting = attr.ib()
+ 2366|         assert default_counting.alias is None
+ 2367| 
+ 2368|         override_counting = attr.ib(alias="specified")
+ 2369|         assert override_counting.alias == "specified"
+ 2370| 
+ 2371|         @attr.s
+ 2372|         class Cases:
+ 2373|             public_default = attr.ib()
+ 2374|             _private_default = attr.ib()
+ 2375|             __dunder_default__ = attr.ib()
+ 2376| 
+ 2377|             public_override = attr.ib(alias="public")
+ 2378|             _private_override = attr.ib(alias="_private")
+ 2379|             __dunder_override__ = attr.ib(alias="__dunder__")
+ 2380| 
+ 2381|         cases = attr.fields_dict(Cases)
+ 2382| 
+ 2383|         # Default applies private-name mangling logic
+ 2384|         assert cases["public_default"].name == "public_default"
+ 2385|         assert cases["public_default"].alias == "public_default"
+ 2386| 
+ 2387|         assert cases["_private_default"].name == "_private_default"
+ 2388|         assert cases["_private_default"].alias == "private_default"
+ 2389| 
+ 2390|         assert cases["__dunder_default__"].name == "__dunder_default__"
+ 2391|         assert cases["__dunder_default__"].alias == "dunder_default__"
+ 2392| 
+ 2393|         # Override is passed through
+ 2394|         assert cases["public_override"].name == "public_override"
+ 2395|         assert cases["public_override"].alias == "public"
+ 2396| 
+ 2397|         assert cases["_private_override"].name == "_private_override"
+ 2398|         assert cases["_private_override"].alias == "_private"
+ 2399| 
+ 2400|         assert cases["__dunder_override__"].name == "__dunder_override__"
+ 2401|         assert cases["__dunder_override__"].alias == "__dunder__"
+ 2402| 
+ 2403|         # And aliases are applied to the __init__ signature
+ 2404|         example = Cases(
+ 2405|             public_default=1,
+ 2406|             private_default=2,
+ 2407|             dunder_default__=3,
+ 2408|             public=4,
+ 2409|             _private=5,
+ 2410|             __dunder__=6,
+ 2411|         )
+ 2412| 
+ 2413|         assert example.public_default == 1
+ 2414|         assert example._private_default == 2
+ 2415|         assert example.__dunder_default__ == 3
+ 2416|         assert example.public_override == 4
+ 2417|         assert example._private_override == 5
+ 2418|         assert example.__dunder_override__ == 6
+ 2419| 
+ 2420|     def test_evolve(self):
+ 2421|         """
+ 2422|         attr.evolve uses Attribute.alias to determine parameter names.
+ 2423|         """
+ 2424| 
+ 2425|         @attr.s
+ 2426|         class EvolveCase:
+ 2427|             _override = attr.ib(alias="_override")
+ 2428|             __mangled = attr.ib()
+ 2429|             __dunder__ = attr.ib()
+ 2430| 
+ 2431|         org = EvolveCase(1, 2, 3)
+ 2432| 
+ 2433|         # Previous behavior of evolve as broken for double-underscore
+ 2434|         # passthrough, and would raise here due to mis-mapping the __dunder__
+ 2435|         # alias
+ 2436|         assert attr.evolve(org) == org
+ 2437| 
+ 2438|         # evolve uses the alias to match __init__ signature
+ 2439|         assert attr.evolve(
+ 2440|             org,
+ 2441|             _override=0,
+ 2442|         ) == EvolveCase(0, 2, 3)
+ 2443| 
+ 2444|         # and properly passes through dunders and mangles
+ 2445|         assert attr.evolve(
+ 2446|             org,
+ 2447|             EvolveCase__mangled=4,
+ 2448|             dunder__=5,
+ 2449|         ) == EvolveCase(1, 4, 5)
+ 2450| 
+ 2451|     def test_alias_is_default(self):
+ 2452|         """
+ 2453|         alias_is_default is True for auto-generated aliases and False for
+ 2454|         explicitly provided ones -- even if the explicit value matches the
+ 2455|         auto-generated default.
+ 2456|         """
+ 2457| 
+ 2458|         @attrs.define
+ 2459|         class C:
+ 2460|             auto: int
+ 2461|             _private_auto: int
+ 2462|             explicit: int = attrs.field(alias="custom")
+ 2463|             _matches_default: int = attrs.field(alias="matches_default")
+ 2464| 
+ 2465|         fields = attr.fields_dict(C)
+ 2466| 
+ 2467|         assert fields["auto"].alias_is_default is True
+ 2468|         assert fields["_private_auto"].alias_is_default is True
+ 2469|         assert fields["explicit"].alias_is_default is False
+ 2470|         assert fields["_matches_default"].alias_is_default is False
+ 2471| 
+ 2472|     def test_alias_is_default_pickle_roundtrip(self):
+ 2473|         """
+ 2474|         alias_is_default survives pickle round-tripping.
+ 2475|         """
+ 2476| 
+ 2477|         @attrs.define
+ 2478|         class C:
+ 2479|             auto: int
+ 2480|             explicit: int = attrs.field(alias="custom")
+ 2481| 
+ 2482|         fields = attr.fields(C)
+ 2483| 
+ 2484|         for a in fields:
+ 2485|             restored = pickle.loads(pickle.dumps(a))
+ 2486| 
+ 2487|             assert a.alias == restored.alias
+ 2488|             assert a.alias_is_default == restored.alias_is_default
+ 2489| 
+ 2490|     X = (
+ 2491|         b"\x80\x05\x95_\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+ 2492|         b"ute\x94\x93\x94)\x81\x94(\x8c\x01x\x94h\x00\x8c\x08_Nothing\x94\x93"
+ 2493|         b"\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins\x94"
+ 2494|         b"\x8c\x03int\x94\x93\x94N\x89\x89Nh\x04t\x94b."
+ 2495|     )
+ 2496|     Y = (
+ 2497|         b"\x80\x05\x95b\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+ 2498|         b"ute\x94\x93\x94)\x81\x94(\x8c\x02_y\x94h\x00\x8c\x08_Nothing\x94"
+ 2499|         b"\x93\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins"
+ 2500|         b"\x94\x8c\x03int\x94\x93\x94N\x89\x89N\x8c\x01y\x94t\x94b."
+ 2501|     )
+ 2502|     Z = (
+ 2503|         b"\x80\x05\x95c\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+ 2504|         b"ute\x94\x93\x94)\x81\x94(\x8c\x01z\x94h\x00\x8c\x08_Nothing\x94\x93"
+ 2505|         b"\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins\x94"
+ 2506|         b"\x8c\x03int\x94\x93\x94N\x89\x89N\x8c\x03_z_\x94t\x94b."
+ 2507|     )
+ 2508| 
+ 2509|     @pytest.mark.parametrize(
+ 2510|         ("pickle_data", "name", "alias", "alias_is_default"),
+ 2511|         [
+ 2512|             (X, "x", "x", True),
+ 2513|             (Y, "_y", "y", True),
+ 2514|             (Z, "z", "_z_", False),
+ 2515|         ],
+ 2516|     )
+ 2517|     def test_can_unpickle_25_3_attributes(
+ 2518|         self, pickle_data, name, alias, alias_is_default
+ 2519|     ):
+ 2520|         """
+ 2521|         Can unpickle attributes created in 25.3.
+ 2522|         """
+ 2523| 
+ 2524|         assert Attribute(
+ 2525|             name=name,
+ 2526|             alias=alias,
+ 2527|             alias_is_default=alias_is_default,
+ 2528|             default=attrs.NOTHING,
+ 2529|             validator=None,
+ 2530|             repr=True,
+ 2531|             cmp=None,
+ 2532|             eq=True,
+ 2533|             eq_key=None,
+ 2534|             order=True,
+ 2535|             order_key=None,
+ 2536|             hash=None,
+ 2537|             init=True,
+ 2538|             metadata=types.MappingProxyType({}),
+ 2539|             type=int,
+ 2540|             converter=None,
+ 2541|             kw_only=False,
+ 2542|             inherited=False,
+ 2543|             on_setattr=None,
+ 2544|         ) == pickle.loads(pickle_data)
+ 2545| 
+ 2546| 
+ 2547| class TestMakeOrder:
+ 2548|     """
+ 2549|     Tests for _make_order().
+ 2550|     """
+ 2551| 
+ 2552|     def test_subclasses_cannot_be_compared(self):
+ 2553|         """
+ 2554|         Calling comparison methods on subclasses raises a TypeError.
+ 2555| 
+ 2556|         We use the actual operation so we get an error raised.
+ 2557|         """
+ 2558| 
+ 2559|         @attr.s
+ 2560|         class A:
+ 2561|             a = attr.ib()
+ 2562| 
+ 2563|         @attr.s
+ 2564|         class B(A):
+ 2565|             pass
+ 2566| 
+ 2567|         a = A(42)
+ 2568|         b = B(42)
+ 2569| 
+ 2570|         assert a <= a
+ 2571|         assert a >= a
+ 2572|         assert not a < a
+ 2573|         assert not a > a
+ 2574| 
+ 2575|         assert (
+ 2576|             NotImplemented
+ 2577|             == a.__lt__(b)
+ 2578|             == a.__le__(b)
+ 2579|             == a.__gt__(b)
+ 2580|             == a.__ge__(b)
+ 2581|         )
+ 2582| 
+ 2583|         with pytest.raises(TypeError):
+ 2584|             a <= b
+ 2585| 
+ 2586|         with pytest.raises(TypeError):
+ 2587|             a >= b
+ 2588| 
+ 2589|         with pytest.raises(TypeError):
+ 2590|             a < b
+ 2591| 
+ 2592|         with pytest.raises(TypeError):
+ 2593|             a > b
+ 2594| 
+ 2595| 
+ 2596| class TestDetermineAttrsEqOrder:
+ 2597|     def test_default(self):
+ 2598|         """
+ 2599|         If all are set to None, set both eq and order to the passed default.
+ 2600|         """
+ 2601|         assert (42, 42) == _determine_attrs_eq_order(None, None, None, 42)
+ 2602| 
+ 2603|     @pytest.mark.parametrize("eq", [True, False])
+ 2604|     def test_order_mirrors_eq_by_default(self, eq):
+ 2605|         """
+ 2606|         If order is None, it mirrors eq.
+ 2607|         """
+ 2608|         assert (eq, eq) == _determine_attrs_eq_order(None, eq, None, True)
+ 2609| 
+ 2610|     def test_order_without_eq(self):
+ 2611|         """
+ 2612|         eq=False, order=True raises a meaningful ValueError.
+ 2613|         """
+ 2614|         with pytest.raises(
+ 2615|             ValueError, match="`order` can only be True if `eq` is True too"
+ 2616|         ):
+ 2617|             _determine_attrs_eq_order(None, False, True, True)
+ 2618| 
+ 2619|     @given(cmp=booleans(), eq=optional_bool, order=optional_bool)
+ 2620|     def test_mix(self, cmp, eq, order):
+ 2621|         """
+ 2622|         If cmp is not None, eq and order must be None and vice versa.
+ 2623|         """
+ 2624|         assume(eq is not None or order is not None)
+ 2625| 
+ 2626|         with pytest.raises(
+ 2627|             ValueError, match="Don't mix `cmp` with `eq' and `order`"
+ 2628|         ):
+ 2629|             _determine_attrs_eq_order(cmp, eq, order, True)
+ 2630| 
+ 2631| 
+ 2632| class TestDetermineAttribEqOrder:
+ 2633|     def test_default(self):
+ 2634|         """
+ 2635|         If all are set to None, set both eq and order to the passed default.
+ 2636|         """
+ 2637|         assert (42, None, 42, None) == _determine_attrib_eq_order(
+ 2638|             None, None, None, 42
+ 2639|         )
+ 2640| 
+ 2641|     def test_eq_callable_order_boolean(self):
+ 2642|         """
+ 2643|         eq=callable or order=callable need to transformed into eq/eq_key
+ 2644|         or order/order_key.
+ 2645|         """
+ 2646|         assert (True, str.lower, False, None) == _determine_attrib_eq_order(
+ 2647|             None, str.lower, False, True
+ 2648|         )
+ 2649| 
+ 2650|     def test_eq_callable_order_callable(self):
+ 2651|         """
+ 2652|         eq=callable or order=callable need to transformed into eq/eq_key
+ 2653|         or order/order_key.
+ 2654|         """
+ 2655|         assert (True, str.lower, True, abs) == _determine_attrib_eq_order(
+ 2656|             None, str.lower, abs, True
+ 2657|         )
+ 2658| 
+ 2659|     def test_eq_boolean_order_callable(self):
+ 2660|         """
+ 2661|         eq=callable or order=callable need to transformed into eq/eq_key
+ 2662|         or order/order_key.
+ 2663|         """
+ 2664|         assert (True, None, True, str.lower) == _determine_attrib_eq_order(
+ 2665|             None, True, str.lower, True
+ 2666|         )
+ 2667| 
+ 2668|     @pytest.mark.parametrize("eq", [True, False])
+ 2669|     def test_order_mirrors_eq_by_default(self, eq):
+ 2670|         """
+ 2671|         If order is None, it mirrors eq.
+ 2672|         """
+ 2673|         assert (eq, None, eq, None) == _determine_attrib_eq_order(
+ 2674|             None, eq, None, True
+ 2675|         )
+ 2676| 
+ 2677|     def test_order_without_eq(self):
+ 2678|         """
+ 2679|         eq=False, order=True raises a meaningful ValueError.
+ 2680|         """
+ 2681|         with pytest.raises(
+ 2682|             ValueError, match="`order` can only be True if `eq` is True too"
+ 2683|         ):
+ 2684|             _determine_attrib_eq_order(None, False, True, True)
+ 2685| 
+ 2686|     @given(cmp=booleans(), eq=optional_bool, order=optional_bool)
+ 2687|     def test_mix(self, cmp, eq, order):
+ 2688|         """
+ 2689|         If cmp is not None, eq and order must be None and vice versa.
+ 2690|         """
+ 2691|         assume(eq is not None or order is not None)
+ 2692| 
+ 2693|         with pytest.raises(
+ 2694|             ValueError, match="Don't mix `cmp` with `eq' and `order`"
+ 2695|         ):
+ 2696|             _determine_attrib_eq_order(cmp, eq, order, True)
+ 2697| 
+ 2698| 
+ 2699| class TestDocs:
+ 2700|     @pytest.mark.parametrize(
+ 2701|         "meth_name",
+ 2702|         [
+ 2703|             "__init__",
+ 2704|             "__repr__",
+ 2705|             "__eq__",
+ 2706|             "__lt__",
+ 2707|             "__le__",
+ 2708|             "__gt__",
+ 2709|             "__ge__",
+ 2710|         ],
+ 2711|     )
+ 2712|     def test_docs(self, meth_name):
+ 2713|         """
+ 2714|         Tests the presence and correctness of the documentation
+ 2715|         for the generated methods
+ 2716|         """
+ 2717| 
+ 2718|         @attr.s
+ 2719|         class A:
+ 2720|             pass
+ 2721| 
+ 2722|         if hasattr(A, "__qualname__"):
+ 2723|             method = getattr(A, meth_name)
+ 2724|             expected = f"Method generated by attrs for class {A.__qualname__}."
+ 2725|             assert expected == method.__doc__
+ 2726| 
+ 2727| 
+ 2728| class BareC:
+ 2729|     pass
+ 2730| 
+ 2731| 
+ 2732| class BareSlottedC:
+ 2733|     __slots__ = ()
+ 2734| 
+ 2735| 
+ 2736| class TestAutoDetect:
+ 2737|     @pytest.mark.parametrize("C", [BareC, BareSlottedC])
+ 2738|     def test_determine_detects_non_presence_correctly(self, C):
+ 2739|         """
+ 2740|         On an empty class, nothing should be detected.
+ 2741|         """
+ 2742|         assert True is _determine_whether_to_implement(
+ 2743|             C, None, True, ("__init__",)
+ 2744|         )
+ 2745|         assert True is _determine_whether_to_implement(
+ 2746|             C, None, True, ("__repr__",)
+ 2747|         )
+ 2748|         assert True is _determine_whether_to_implement(
+ 2749|             C, None, True, ("__eq__", "__ne__")
+ 2750|         )
+ 2751|         assert True is _determine_whether_to_implement(
+ 2752|             C, None, True, ("__le__", "__lt__", "__ge__", "__gt__")
+ 2753|         )
+ 2754| 
+ 2755|     def test_make_all_by_default(self, slots, frozen):
+ 2756|         """
+ 2757|         If nothing is there to be detected, imply init=True, repr=True,
+ 2758|         unsafe_hash=None, eq=True, order=True.
+ 2759|         """
+ 2760| 
+ 2761|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2762|         class C:
+ 2763|             x = attr.ib()
+ 2764| 
+ 2765|         i = C(1)
+ 2766|         o = object()
+ 2767| 
+ 2768|         assert i.__init__ is not o.__init__
+ 2769|         assert i.__repr__ is not o.__repr__
+ 2770|         assert i.__eq__ is not o.__eq__
+ 2771|         assert i.__ne__ is not o.__ne__
+ 2772|         assert i.__le__ is not o.__le__
+ 2773|         assert i.__lt__ is not o.__lt__
+ 2774|         assert i.__ge__ is not o.__ge__
+ 2775|         assert i.__gt__ is not o.__gt__
+ 2776| 
+ 2777|     def test_detect_auto_init(self, slots, frozen):
+ 2778|         """
+ 2779|         If auto_detect=True and an __init__ exists, don't write one.
+ 2780|         """
+ 2781| 
+ 2782|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2783|         class CI:
+ 2784|             x = attr.ib()
+ 2785| 
+ 2786|             def __init__(self):
+ 2787|                 object.__setattr__(self, "x", 42)
+ 2788| 
+ 2789|         assert 42 == CI().x
+ 2790| 
+ 2791|     def test_detect_auto_repr(self, slots, frozen):
+ 2792|         """
+ 2793|         If auto_detect=True and an __repr__ exists, don't write one.
+ 2794|         """
+ 2795| 
+ 2796|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2797|         class C:
+ 2798|             x = attr.ib()
+ 2799| 
+ 2800|             def __repr__(self):
+ 2801|                 return "hi"
+ 2802| 
+ 2803|         assert "hi" == repr(C(42))
+ 2804| 
+ 2805|     def test_hash_uses_eq(self, slots, frozen):
+ 2806|         """
+ 2807|         If eq is passed in, then __hash__ should use the eq callable
+ 2808|         to generate the hash code.
+ 2809|         """
+ 2810| 
+ 2811|         @attr.s(slots=slots, frozen=frozen, unsafe_hash=True)
+ 2812|         class C:
+ 2813|             x = attr.ib(eq=str)
+ 2814| 
+ 2815|         @attr.s(slots=slots, frozen=frozen, unsafe_hash=True)
+ 2816|         class D:
+ 2817|             x = attr.ib()
+ 2818| 
+ 2819|         # These hashes should be the same because 1 is turned into
+ 2820|         # string before hashing.
+ 2821|         assert hash(C("1")) == hash(C(1))
+ 2822|         assert hash(D("1")) != hash(D(1))
+ 2823| 
+ 2824|     def test_detect_auto_hash(self, slots, frozen):
+ 2825|         """
+ 2826|         If auto_detect=True and an __hash__ exists, don't write one.
+ 2827|         """
+ 2828| 
+ 2829|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2830|         class C:
+ 2831|             x = attr.ib()
+ 2832| 
+ 2833|             def __hash__(self):
+ 2834|                 return 0xC0FFEE
+ 2835| 
+ 2836|         assert 0xC0FFEE == hash(C(42))
+ 2837| 
+ 2838|     def test_detect_auto_eq(self, slots, frozen):
+ 2839|         """
+ 2840|         If auto_detect=True and an __eq__ or an __ne__, exist, don't write one.
+ 2841|         """
+ 2842| 
+ 2843|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2844|         class C:
+ 2845|             x = attr.ib()
+ 2846| 
+ 2847|             def __eq__(self, o):
+ 2848|                 raise ValueError("worked")
+ 2849| 
+ 2850|         with pytest.raises(ValueError, match="worked"):
+ 2851|             C(1) == C(1)
+ 2852| 
+ 2853|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2854|         class D:
+ 2855|             x = attr.ib()
+ 2856| 
+ 2857|             def __ne__(self, o):
+ 2858|                 raise ValueError("worked")
+ 2859| 
+ 2860|         with pytest.raises(ValueError, match="worked"):
+ 2861|             D(1) != D(1)
+ 2862| 
+ 2863|     def test_detect_auto_order(self, slots, frozen):
+ 2864|         """
+ 2865|         If auto_detect=True and an __ge__, __gt__, __le__, or and __lt__ exist,
+ 2866|         don't write one.
+ 2867| 
+ 2868|         It's surprisingly difficult to test this programmatically, so we do it
+ 2869|         by hand.
+ 2870|         """
+ 2871| 
+ 2872|         def assert_not_set(cls, ex, meth_name):
+ 2873|             __tracebackhide__ = True
+ 2874| 
+ 2875|             a = getattr(cls, meth_name)
+ 2876|             if meth_name == ex:
+ 2877|                 assert a == 42
+ 2878|             else:
+ 2879|                 assert a is getattr(object, meth_name)
+ 2880| 
+ 2881|         def assert_none_set(cls, ex):
+ 2882|             __tracebackhide__ = True
+ 2883| 
+ 2884|             for m in ("le", "lt", "ge", "gt"):
+ 2885|                 assert_not_set(cls, ex, "__" + m + "__")
+ 2886| 
+ 2887|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2888|         class LE:
+ 2889|             __le__ = 42
+ 2890| 
+ 2891|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2892|         class LT:
+ 2893|             __lt__ = 42
+ 2894| 
+ 2895|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2896|         class GE:
+ 2897|             __ge__ = 42
+ 2898| 
+ 2899|         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+ 2900|         class GT:
+ 2901|             __gt__ = 42
+ 2902| 
+ 2903|         assert_none_set(LE, "__le__")
+ 2904|         assert_none_set(LT, "__lt__")
+ 2905|         assert_none_set(GE, "__ge__")
+ 2906|         assert_none_set(GT, "__gt__")
+ 2907| 
+ 2908|     def test_override_init(self, slots, frozen):
+ 2909|         """
+ 2910|         If init=True is passed, ignore __init__.
+ 2911|         """
+ 2912| 
+ 2913|         @attr.s(init=True, auto_detect=True, slots=slots, frozen=frozen)
+ 2914|         class C:
+ 2915|             x = attr.ib()
+ 2916| 
+ 2917|             def __init__(self):
+ 2918|                 pytest.fail("should not be called")
+ 2919| 
+ 2920|         assert C(1) == C(1)
+ 2921| 
+ 2922|     def test_override_repr(self, slots, frozen):
+ 2923|         """
+ 2924|         If repr=True is passed, ignore __repr__.
+ 2925|         """
+ 2926| 
+ 2927|         @attr.s(repr=True, auto_detect=True, slots=slots, frozen=frozen)
+ 2928|         class C:
+ 2929|             x = attr.ib()
+ 2930| 
+ 2931|             def __repr__(self):
+ 2932|                 pytest.fail("should not be called")
+ 2933| 
+ 2934|         assert "C(x=1)" == repr(C(1))
+ 2935| 
+ 2936|     def test_override_hash(self, slots, frozen):
+ 2937|         """
+ 2938|         If unsafe_hash=True is passed, ignore __hash__.
+ 2939|         """
+ 2940| 
+ 2941|         @attr.s(unsafe_hash=True, auto_detect=True, slots=slots, frozen=frozen)
+ 2942|         class C:
+ 2943|             x = attr.ib()
+ 2944| 
+ 2945|             def __hash__(self):
+ 2946|                 pytest.fail("should not be called")
+ 2947| 
+ 2948|         assert hash(C(1))
+ 2949| 
+ 2950|     def test_override_eq(self, slots, frozen):
+ 2951|         """
+ 2952|         If eq=True is passed, ignore __eq__ and __ne__.
+ 2953|         """
+ 2954| 
+ 2955|         @attr.s(eq=True, auto_detect=True, slots=slots, frozen=frozen)
+ 2956|         class C:
+ 2957|             x = attr.ib()
+ 2958| 
+ 2959|             def __eq__(self, o):
+ 2960|                 pytest.fail("should not be called")
+ 2961| 
+ 2962|             def __ne__(self, o):
+ 2963|                 pytest.fail("should not be called")
+ 2964| 
+ 2965|         assert C(1) == C(1)
+ 2966| 
+ 2967|     @pytest.mark.parametrize(
+ 2968|         ("eq", "order", "cmp"),
+ 2969|         [
+ 2970|             (True, None, None),
+ 2971|             (True, True, None),
+ 2972|             (None, True, None),
+ 2973|             (None, None, True),
+ 2974|         ],
+ 2975|     )
+ 2976|     def test_override_order(self, slots, frozen, eq, order, cmp):
+ 2977|         """
+ 2978|         If order=True is passed, ignore __le__, __lt__, __gt__, __ge__.
+ 2979| 
+ 2980|         eq=True and cmp=True both imply order=True so test it too.
+ 2981|         """
+ 2982| 
+ 2983|         def meth(self, o):
+ 2984|             pytest.fail("should not be called")
+ 2985| 
+ 2986|         @attr.s(
+ 2987|             cmp=cmp,
+ 2988|             order=order,
+ 2989|             eq=eq,
+ 2990|             auto_detect=True,
+ 2991|             slots=slots,
+ 2992|             frozen=frozen,
+ 2993|         )
+ 2994|         class C:
+ 2995|             x = attr.ib()
+ 2996|             __le__ = __lt__ = __gt__ = __ge__ = meth
+ 2997| 
+ 2998|         assert C(1) < C(2)
+ 2999|         assert C(1) <= C(2)
+ 3000|         assert C(2) > C(1)
+ 3001|         assert C(2) >= C(1)
+ 3002| 
+ 3003|     @pytest.mark.parametrize("first", [True, False])
+ 3004|     def test_total_ordering(self, slots, first):
+ 3005|         """
+ 3006|         functools.total_ordering works as expected if an order method and an eq
+ 3007|         method are detected.
+ 3008| 
+ 3009|         Ensure the order doesn't matter.
+ 3010|         """
+ 3011| 
+ 3012|         class C:
+ 3013|             x = attr.ib()
+ 3014|             own_eq_called = attr.ib(default=False)
+ 3015|             own_le_called = attr.ib(default=False)
+ 3016| 
+ 3017|             def __eq__(self, o):
+ 3018|                 self.own_eq_called = True
+ 3019|                 return self.x == o.x
+ 3020| 
+ 3021|             def __le__(self, o):
+ 3022|                 self.own_le_called = True
+ 3023|                 return self.x <= o.x
+ 3024| 
+ 3025|         if first:
+ 3026|             C = functools.total_ordering(
+ 3027|                 attr.s(auto_detect=True, slots=slots)(C)
+ 3028|             )
+ 3029|         else:
+ 3030|             C = attr.s(auto_detect=True, slots=slots)(
+ 3031|                 functools.total_ordering(C)
+ 3032|             )
+ 3033| 
+ 3034|         c1, c2 = C(1), C(2)
+ 3035| 
+ 3036|         assert c1 < c2
+ 3037|         assert c1.own_le_called
+ 3038| 
+ 3039|         c1, c2 = C(1), C(2)
+ 3040| 
+ 3041|         assert c2 > c1
+ 3042|         assert c2.own_le_called
+ 3043| 
+ 3044|         c1, c2 = C(1), C(2)
+ 3045| 
+ 3046|         assert c2 != c1
+ 3047|         assert c1 == c1
+ 3048| 
+ 3049|         assert c1.own_eq_called
+ 3050| 
+ 3051|     def test_detects_setstate_getstate(self, slots):
+ 3052|         """
+ 3053|         __getstate__ and __setstate__ are not overwritten if either is present.
+ 3054|         """
+ 3055| 
+ 3056|         @attr.s(slots=slots, auto_detect=True)
+ 3057|         class C:
+ 3058|             def __getstate__(self):
+ 3059|                 return ("hi",)
+ 3060| 
+ 3061|         assert getattr(object, "__setstate__", None) is getattr(
+ 3062|             C, "__setstate__", None
+ 3063|         )
+ 3064| 
+ 3065|         @attr.s(slots=slots, auto_detect=True)
+ 3066|         class C:
+ 3067|             called = attr.ib(False)
+ 3068| 
+ 3069|             def __setstate__(self, state):
+ 3070|                 self.called = True
+ 3071| 
+ 3072|         i = C()
+ 3073| 
+ 3074|         assert False is i.called
+ 3075| 
+ 3076|         i.__setstate__(())
+ 3077| 
+ 3078|         assert True is i.called
+ 3079|         assert getattr(object, "__getstate__", None) is getattr(
+ 3080|             C, "__getstate__", None
+ 3081|         )
+ 3082| 
+ 3083|     @pytest.mark.skipif(PY_3_10_PLUS, reason="Pre-3.10 only.")
+ 3084|     def test_match_args_pre_310(self):
+ 3085|         """
+ 3086|         __match_args__ is not created on Python versions older than 3.10.
+ 3087|         """
+ 3088| 
+ 3089|         @attr.s
+ 3090|         class C:
+ 3091|             a = attr.ib()
+ 3092| 
+ 3093|         assert None is getattr(C, "__match_args__", None)
+ 3094| 
+ 3095| 
+ 3096| @pytest.mark.skipif(
+ 3097|     not PY_3_10_PLUS, reason="Structural pattern matching is 3.10+"
+ 3098| )
+ 3099| class TestMatchArgs:
+ 3100|     """
+ 3101|     Tests for match_args and __match_args__ generation.
+ 3102|     """
+ 3103| 
+ 3104|     def test_match_args(self):
+ 3105|         """
+ 3106|         __match_args__ is created by default on Python 3.10.
+ 3107|         """
+ 3108| 
+ 3109|         @attr.define
+ 3110|         class C:
+ 3111|             a = attr.field()
+ 3112| 
+ 3113|         assert ("a",) == C.__match_args__
+ 3114| 
+ 3115|     def test_explicit_match_args(self):
+ 3116|         """
+ 3117|         A custom __match_args__ set is not overwritten.
+ 3118|         """
+ 3119| 
+ 3120|         ma = ()
+ 3121| 
+ 3122|         @attr.define
+ 3123|         class C:
+ 3124|             a = attr.field()
+ 3125|             __match_args__ = ma
+ 3126| 
+ 3127|         assert C(42).__match_args__ is ma
+ 3128| 
+ 3129|     @pytest.mark.parametrize("match_args", [True, False])
+ 3130|     def test_match_args_attr_set(self, match_args):
+ 3131|         """
+ 3132|         __match_args__ is set depending on match_args.
+ 3133|         """
+ 3134| 
+ 3135|         @attr.define(match_args=match_args)
+ 3136|         class C:
+ 3137|             a = attr.field()
+ 3138| 
+ 3139|         if match_args:
+ 3140|             assert hasattr(C, "__match_args__")
+ 3141|         else:
+ 3142|             assert not hasattr(C, "__match_args__")
+ 3143| 
+ 3144|     def test_match_args_kw_only(self):
+ 3145|         """
+ 3146|         kw_only classes don't generate __match_args__.
+ 3147|         kw_only fields are not included in __match_args__.
+ 3148|         """
+ 3149| 
+ 3150|         @attr.define
+ 3151|         class C:
+ 3152|             a = attr.field(kw_only=True)
+ 3153|             b = attr.field()
+ 3154| 
+ 3155|         assert C.__match_args__ == ("b",)
+ 3156| 
+ 3157|         @attr.define(kw_only=True)
+ 3158|         class C:
+ 3159|             a = attr.field()
+ 3160|             b = attr.field()
+ 3161| 
+ 3162|         assert C.__match_args__ == ()
+ 3163| 
+ 3164|     def test_match_args_argument(self):
+ 3165|         """
+ 3166|         match_args being False with inheritance.
+ 3167|         """
+ 3168| 
+ 3169|         @attr.define(match_args=False)
+ 3170|         class X:
+ 3171|             a = attr.field()
+ 3172| 
+ 3173|         assert "__match_args__" not in X.__dict__
+ 3174| 
+ 3175|         @attr.define(match_args=False)
+ 3176|         class Y:
+ 3177|             a = attr.field()
+ 3178|             __match_args__ = ("b",)
+ 3179| 
+ 3180|         assert Y.__match_args__ == ("b",)
+ 3181| 
+ 3182|         @attr.define(match_args=False)
+ 3183|         class Z(Y):
+ 3184|             z = attr.field()
+ 3185| 
+ 3186|         assert Z.__match_args__ == ("b",)
+ 3187| 
+ 3188|         @attr.define
+ 3189|         class A:
+ 3190|             a = attr.field()
+ 3191|             z = attr.field()
+ 3192| 
+ 3193|         @attr.define(match_args=False)
+ 3194|         class B(A):
+ 3195|             b = attr.field()
+ 3196| 
+ 3197|         assert B.__match_args__ == ("a", "z")
+ 3198| 
+ 3199|     def test_make_class(self):
+ 3200|         """
+ 3201|         match_args generation with make_class.
+ 3202|         """
+ 3203| 
+ 3204|         C1 = make_class("C1", ["a", "b"])
+ 3205|         assert ("a", "b") == C1.__match_args__
+ 3206| 
+ 3207|         C1 = make_class("C1", ["a", "b"], match_args=False)
+ 3208|         assert not hasattr(C1, "__match_args__")
+ 3209| 
+ 3210|         C1 = make_class("C1", ["a", "b"], kw_only=True)
+ 3211|         assert () == C1.__match_args__
+ 3212| 
+ 3213|         C1 = make_class("C1", {"a": attr.ib(kw_only=True), "b": attr.ib()})
+ 3214|         assert ("b",) == C1.__match_args__
+
+FILE src/attr/converters.py:
+    1| # SPDX-License-Identifier: MIT
+    2| 
+    3| """
+    4| Commonly useful converters.
+    5| """
+    6| 
+    7| import typing
+    8| 
+    9| from ._compat import _AnnotationExtractor
+   10| from ._make import NOTHING, Converter, Factory, pipe
+   11| 
+   12| 
+   13| __all__ = [
+   14|     "default_if_none",
+   15|     "optional",
+   16|     "pipe",
+   17|     "to_bool",
+   18| ]
+   19| 
+   20| 
+   21| def optional(converter):
+   22|     """
+   23|     A converter that allows an attribute to be optional. An optional attribute
+   24|     is one which can be set to `None`.
+   25| 
+   26|     Type annotations will be inferred from the wrapped converter's, if it has
+   27|     any.
+   28| 
+   29|     Args:
+   30|         converter (typing.Callable):
+   31|             the converter that is used for non-`None` values.
+   32| 
+   33|     .. versionadded:: 17.1.0
+   34|     """
+   35| 
+   36|     if isinstance(converter, Converter):
+   37| 
+   38|         def optional_converter(val, inst, field):
+   39|             if val is None:
+   40|                 return None
+   41|             return converter(val, inst, field)
+   42| 
+   43|     else:
+   44| 
+   45|         def optional_converter(val):
+   46|             if val is None:
+   47|                 return None
+   48|             return converter(val)
+   49| 
+   50|     xtr = _AnnotationExtractor(converter)
+   51| 
+   52|     t = xtr.get_first_param_type()
+   53|     if t:
+   54|         optional_converter.__annotations__["val"] = typing.Optional[t]
+   55| 
+   56|     rt = xtr.get_return_type()
+   57|     if rt:
+   58|         optional_converter.__annotations__["return"] = typing.Optional[rt]
+   59| 
+   60|     if isinstance(converter, Converter):
+   61|         return Converter(optional_converter, takes_self=True, takes_field=True)
+   62| 
+   63|     return optional_converter
+   64| 
+   65| 
+   66| def default_if_none(default=NOTHING, factory=None):
+   67|     """
+   68|     A converter that allows to replace `None` values by *default* or the result
+   69|     of *factory*.
+   70| 
+   71|     Args:
+   72|         default:
+   73|             Value to be used if `None` is passed. Passing an instance of
+   74|             `attrs.Factory` is supported, however the ``takes_self`` option is
+   75|             *not*.
+   76| 
+   77|         factory (typing.Callable):
+   78|             A callable that takes no parameters whose result is used if `None`
+   79|             is passed.
+   80| 
+   81|     Raises:
+   82|         TypeError: If **neither** *default* or *factory* is passed.
+   83| 
+   84|         TypeError: If **both** *default* and *factory* are passed.
+   85| 
+   86|         ValueError:
+   87|             If an instance of `attrs.Factory` is passed with
+   88|             ``takes_self=True``.
+   89| 
+   90|     .. versionadded:: 18.2.0
+   91|     """
+   92|     if default is NOTHING and factory is None:
+   93|         msg = "Must pass either `default` or `factory`."
+   94|         raise TypeError(msg)
+   95| 
+   96|     if default is not NOTHING and factory is not None:
+   97|         msg = "Must pass either `default` or `factory` but not both."
+   98|         raise TypeError(msg)
+   99| 
+  100|     if factory is not None:
+  101|         default = Factory(factory)
+  102| 
+  103|     if isinstance(default, Factory):
+  104|         if default.takes_self:
+  105|             msg = "`takes_self` is not supported by default_if_none."
+  106|             raise ValueError(msg)
+  107| 
+  108|         def default_if_none_converter(val):
+  109|             if val is not None:
+  110|                 return val
+  111| 
+  112|             return default.factory()
+  113| 
+  114|     else:
+  115| 
+  116|         def default_if_none_converter(val):
+  117|             if val is not None:
+  118|                 return val
+  119| 
+  120|             return default
+  121| 
+  122|     return default_if_none_converter
+  123| 
+  124| 
+  125| def to_bool(val):
+  126|     """
+  127|     Convert "boolean" strings (for example, from environment variables) to real
+  128|     booleans.
+  129| 
+  130|     Values mapping to `True`:
+  131| 
+  132|     - ``True``
+  133|     - ``"true"`` / ``"t"``
+  134|     - ``"yes"`` / ``"y"``
+  135|     - ``"on"``
+  136|     - ``"1"``
+  137|     - ``1``
+  138| 
+  139|     Values mapping to `False`:
+  140| 
+  141|     - ``False``
+  142|     - ``"false"`` / ``"f"``
+  143|     - ``"no"`` / ``"n"``
+  144|     - ``"off"``
+  145|     - ``"0"``
+  146|     - ``0``
+  147| 
+  148|     Raises:
+  149|         ValueError: For any other value.
+  150| 
+  151|     .. versionadded:: 21.3.0
+  152|     """
+  153|     if isinstance(val, str):
+  154|         val = val.lower()
+  155| 
+  156|     if val in (True, "true", "t", "yes", "y", "on", "1", 1):
+  157|         return True
+  158|     if val in (False, "false", "f", "no", "n", "off", "0", 0):
+  159|         return False
+  160| 
+  161|     msg = f"Cannot convert value to bool: {val!r}"
+  162|     raise ValueError(msg)
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-attrs-contained_in-1041",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_make.py::TestMakeClass"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-attrs-contained_in-187",
+    "answerable_static": true,
+    "gold": [
+      "src/attr/converters.py::optional"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  }
+]
+tokens used
+40,271

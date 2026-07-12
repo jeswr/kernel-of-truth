@@ -1,0 +1,26 @@
+Verification found no numerical discrepancies, but several wording/tagging issues need correction.
+
+- [g3-humangold.md:143](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:143) calls the result a “genuine negative” and says the claim “does not survive contact” unconditionally. This must remain explicitly conditional on Pass B and tagged `PROVISIONAL-ON-LLM-PROXY`.
+
+- [g3-humangold.md:85](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:85) treats the 18/20 spread as merely measured/derived, although the violation set depends on proxy q2. The same problem recurs at [line 189](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:189), where the document unconditionally says the formalism “over-claims” and records “over-claim worse than others.” Both need the provisional tag or Pass-B conditional framing.
+
+- [g3-humangold.md:209](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:209) says, without a provisional qualification, that the pins “err on the side of OVER-strength” and “demand too much.” Those conclusions depend entirely on proxy q2.
+
+- [g3-humangold.md:255](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:255) correctly denies that q1 validation settles near-threshold verdicts, but its reasoning then transfers the approximately 10% q1 disagreement magnitude into a q2 uncertainty budget. The statement at lines 261–263 that errors “of this size” are unlikely to alter necessity is not licensed: no human q2 error rate has been measured. The safe conclusion is simply that κ=0.756 supplies no quantitative calibration for q2, near-band or otherwise.
+
+- The composite is correctly headed and framed as a conditional implication at [line 265](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:265), but [line 300](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:300) says “each component MEASURED.” That is false for the g3 evidentiary leg; it remains `PROVISIONAL-ON-LLM-PROXY`. The composite’s local closing tag should preserve all three distinct statuses.
+
+- [g3-humangold.md:274](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/g3-humangold.md:274) labels DECONF’s inertness reading as purely `MEASURED`. DECONF itself says `C_dec = 1.0` is measured, while “runtime-inert” is the stipulated/derived extensional interpretation and remains exploratory pending registration. The prose is substantively scoped to decisions, but the epistemic tag is too strong.
+
+Everything else requested checks out:
+
+- 46/200 = 0.230; Wilson LB 0.1848.
+- Sufficiency 18/200 = 0.090; LB 0.0620, UB 0.1290.
+- q1 κ = 0.7561.
+- Violations touch 18/20 concepts; only `begin` and `give` are untouched.
+- No human-gold verdict is issued.
+- The composite does not conflate strict-necessity failure with downstream content necessity; knull/Δ_align is explicitly reserved.
+- Both theses remain `INCONCLUSIVE-PENDING`.
+- ASM-0553 quarantine is prominent and repeated.
+
+Overall: numerically sound and structurally disciplined, but not yet compliant with the “PROVISIONAL everywhere” requirement because of the unconditional negative passages above. No files were changed.

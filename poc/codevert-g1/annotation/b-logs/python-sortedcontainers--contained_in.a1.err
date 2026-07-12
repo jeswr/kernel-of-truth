@@ -1,0 +1,1417 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.7x_k8wee"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.k2b_oeo0
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c6-877e-7523-9b62-8543de166674
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: python-sortedcontainers ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/sortedcontainers/__init__.py
+src/sortedcontainers/sorteddict.py
+src/sortedcontainers/sortedlist.py
+src/sortedcontainers/sortedset.py
+tests/__init__.py
+tests/benchmark.py
+tests/benchmark_plot.py
+tests/benchmark_scale.py
+tests/benchmark_sorteddict.py
+tests/benchmark_sortedlist.py
+tests/benchmark_sortedset.py
+tests/benchmark_splits_fill.py
+tests/issue_147.py
+tests/plot_lengths_histogram_add.py
+tests/plot_lengths_histogram_delitem.py
+tests/sortedcollection.py
+tests/test_coverage_sorteddict.py
+tests/test_coverage_sortedkeylist_modulo.py
+tests/test_coverage_sortedkeylist_negate.py
+tests/test_coverage_sortedlist.py
+tests/test_coverage_sortedset.py
+tests/test_stress_sorteddict.py
+tests/test_stress_sortedkeylist.py
+tests/test_stress_sortedlist.py
+tests/test_stress_sortedset.py
+
+=== QUERIES (2) ===
+QUERY g1q-python-sortedcontainers-contained_in-114: family=contained_in target=src/sortedcontainers/sortedset.py::SortedSet.__make_cmp
+QUERY g1q-python-sortedcontainers-contained_in-564: family=contained_in target=tests/test_coverage_sortedset.py::test_delitem_slice
+
+=== CONTEXT ===
+
+FILE src/sortedcontainers/sortedset.py:
+    1| """Sorted Set
+    2| =============
+    3| 
+    4| :doc:`Sorted Containers<index>` is an Apache2 licensed Python sorted
+    5| collections library, written in pure-Python, and fast as C-extensions. The
+    6| :doc:`introduction<introduction>` is the best way to get started.
+    7| 
+    8| Sorted set implementations:
+    9| 
+   10| .. currentmodule:: sortedcontainers
+   11| 
+   12| * :class:`SortedSet`
+   13| 
+   14| """
+   15| 
+   16| from collections.abc import MutableSet, Sequence, Set
+   17| from itertools import chain
+   18| from operator import eq, ge, gt, le, lt, ne
+   19| from textwrap import dedent
+   20| 
+   21| from .sortedlist import SortedList, recursive_repr
+   22| 
+   23| 
+   24| class SortedSet(MutableSet, Sequence):
+   25|     """Sorted set is a sorted mutable set.
+   26| 
+   27|     Sorted set values are maintained in sorted order. The design of sorted set
+   28|     is simple: sorted set uses a set for set-operations and maintains a sorted
+   29|     list of values.
+   30| 
+   31|     Sorted set values must be hashable and comparable. The hash and total
+   32|     ordering of values must not change while they are stored in the sorted set.
+   33| 
+   34|     Mutable set methods:
+   35| 
+   36|     * :func:`SortedSet.__contains__`
+   37|     * :func:`SortedSet.__iter__`
+   38|     * :func:`SortedSet.__len__`
+   39|     * :func:`SortedSet.add`
+   40|     * :func:`SortedSet.discard`
+   41| 
+   42|     Sequence methods:
+   43| 
+   44|     * :func:`SortedSet.__getitem__`
+   45|     * :func:`SortedSet.__delitem__`
+   46|     * :func:`SortedSet.__reversed__`
+   47| 
+   48|     Methods for removing values:
+   49| 
+   50|     * :func:`SortedSet.clear`
+   51|     * :func:`SortedSet.pop`
+   52|     * :func:`SortedSet.remove`
+   53| 
+   54|     Set-operation methods:
+   55| 
+   56|     * :func:`SortedSet.difference`
+   57|     * :func:`SortedSet.difference_update`
+   58|     * :func:`SortedSet.intersection`
+   59|     * :func:`SortedSet.intersection_update`
+   60|     * :func:`SortedSet.symmetric_difference`
+   61|     * :func:`SortedSet.symmetric_difference_update`
+   62|     * :func:`SortedSet.union`
+   63|     * :func:`SortedSet.update`
+   64| 
+   65|     Methods for miscellany:
+   66| 
+   67|     * :func:`SortedSet.copy`
+   68|     * :func:`SortedSet.count`
+   69|     * :func:`SortedSet.__repr__`
+   70|     * :func:`SortedSet._check`
+   71| 
+   72|     Sorted list methods available:
+   73| 
+   74|     * :func:`SortedList.bisect_left`
+   75|     * :func:`SortedList.bisect_right`
+   76|     * :func:`SortedList.index`
+   77|     * :func:`SortedList.irange`
+   78|     * :func:`SortedList.islice`
+   79|     * :func:`SortedList._reset`
+   80| 
+   81|     Additional sorted list methods available, if key-function used:
+   82| 
+   83|     * :func:`SortedKeyList.bisect_key_left`
+   84|     * :func:`SortedKeyList.bisect_key_right`
+   85|     * :func:`SortedKeyList.irange_key`
+   86| 
+   87|     Sorted set comparisons use subset and superset relations. Two sorted sets
+   88|     are equal if and only if every element of each sorted set is contained in
+   89|     the other (each is a subset of the other). A sorted set is less than
+   90|     another sorted set if and only if the first sorted set is a proper subset
+   91|     of the second sorted set (is a subset, but is not equal). A sorted set is
+   92|     greater than another sorted set if and only if the first sorted set is a
+   93|     proper superset of the second sorted set (is a superset, but is not equal).
+   94| 
+   95|     """
+   96| 
+   97|     def __init__(self, iterable=None, key=None):
+   98|         """Initialize sorted set instance.
+   99| 
+  100|         Optional `iterable` argument provides an initial iterable of values to
+  101|         initialize the sorted set.
+  102| 
+  103|         Optional `key` argument defines a callable that, like the `key`
+  104|         argument to Python's `sorted` function, extracts a comparison key from
+  105|         each value. The default, none, compares values directly.
+  106| 
+  107|         Runtime complexity: `O(n*log(n))`
+  108| 
+  109|         >>> ss = SortedSet([3, 1, 2, 5, 4])
+  110|         >>> ss
+  111|         SortedSet([1, 2, 3, 4, 5])
+  112|         >>> from operator import neg
+  113|         >>> ss = SortedSet([3, 1, 2, 5, 4], neg)
+  114|         >>> ss
+  115|         SortedSet([5, 4, 3, 2, 1], key=<built-in function neg>)
+  116| 
+  117|         :param iterable: initial values (optional)
+  118|         :param key: function used to extract comparison key (optional)
+  119| 
+  120|         """
+  121|         self._key = key
+  122| 
+  123|         # SortedSet._fromset calls SortedSet.__init__ after initializing the
+  124|         # _set attribute. So only create a new set if the _set attribute is not
+  125|         # already present.
+  126| 
+  127|         if not hasattr(self, '_set'):
+  128|             self._set = set()
+  129| 
+  130|         self._list = SortedList(self._set, key=key)
+  131| 
+  132|         # Expose some set methods publicly.
+  133| 
+  134|         _set = self._set
+  135|         self.isdisjoint = _set.isdisjoint
+  136|         self.issubset = _set.issubset
+  137|         self.issuperset = _set.issuperset
+  138| 
+  139|         # Expose some sorted list methods publicly.
+  140| 
+  141|         _list = self._list
+  142|         self.bisect_left = _list.bisect_left
+  143|         self.bisect = _list.bisect
+  144|         self.bisect_right = _list.bisect_right
+  145|         self.index = _list.index
+  146|         self.irange = _list.irange
+  147|         self.islice = _list.islice
+  148|         self._reset = _list._reset
+  149| 
+  150|         if key is not None:
+  151|             self.bisect_key_left = _list.bisect_key_left
+  152|             self.bisect_key_right = _list.bisect_key_right
+  153|             self.bisect_key = _list.bisect_key
+  154|             self.irange_key = _list.irange_key
+  155| 
+  156|         if iterable is not None:
+  157|             self._update(iterable)
+  158| 
+  159|     @classmethod
+  160|     def _fromset(cls, values, key=None):
+  161|         """Initialize sorted set from existing set.
+  162| 
+  163|         Used internally by set operations that return a new set.
+  164| 
+  165|         """
+  166|         sorted_set = object.__new__(cls)
+  167|         sorted_set._set = values
+  168|         sorted_set.__init__(key=key)
+  169|         return sorted_set
+  170| 
+  171|     @property
+  172|     def key(self):
+  173|         """Function used to extract comparison key from values.
+  174| 
+  175|         Sorted set compares values directly when the key function is none.
+  176| 
+  177|         """
+  178|         return self._key
+  179| 
+  180|     def __contains__(self, value):
+  181|         """Return true if `value` is an element of the sorted set.
+  182| 
+  183|         ``ss.__contains__(value)`` <==> ``value in ss``
+  184| 
+  185|         Runtime complexity: `O(1)`
+  186| 
+  187|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  188|         >>> 3 in ss
+  189|         True
+  190| 
+  191|         :param value: search for value in sorted set
+  192|         :return: true if `value` in sorted set
+  193| 
+  194|         """
+  195|         return value in self._set
+  196| 
+  197|     def __getitem__(self, index):
+  198|         """Lookup value at `index` in sorted set.
+  199| 
+  200|         ``ss.__getitem__(index)`` <==> ``ss[index]``
+  201| 
+  202|         Supports slicing.
+  203| 
+  204|         Runtime complexity: `O(log(n))` -- approximate.
+  205| 
+  206|         >>> ss = SortedSet('abcde')
+  207|         >>> ss[2]
+  208|         'c'
+  209|         >>> ss[-1]
+  210|         'e'
+  211|         >>> ss[2:5]
+  212|         ['c', 'd', 'e']
+  213| 
+  214|         :param index: integer or slice for indexing
+  215|         :return: value or list of values
+  216|         :raises IndexError: if index out of range
+  217| 
+  218|         """
+  219|         return self._list[index]
+  220| 
+  221|     def __delitem__(self, index):
+  222|         """Remove value at `index` from sorted set.
+  223| 
+  224|         ``ss.__delitem__(index)`` <==> ``del ss[index]``
+  225| 
+  226|         Supports slicing.
+  227| 
+  228|         Runtime complexity: `O(log(n))` -- approximate.
+  229| 
+  230|         >>> ss = SortedSet('abcde')
+  231|         >>> del ss[2]
+  232|         >>> ss
+  233|         SortedSet(['a', 'b', 'd', 'e'])
+  234|         >>> del ss[:2]
+  235|         >>> ss
+  236|         SortedSet(['d', 'e'])
+  237| 
+  238|         :param index: integer or slice for indexing
+  239|         :raises IndexError: if index out of range
+  240| 
+  241|         """
+  242|         _set = self._set
+  243|         _list = self._list
+  244|         if isinstance(index, slice):
+  245|             values = _list[index]
+  246|             _set.difference_update(values)
+  247|         else:
+  248|             value = _list[index]
+  249|             _set.remove(value)
+  250|         del _list[index]
+  251| 
+  252|     def __make_cmp(set_op, symbol, doc):
+  253|         "Make comparator method."
+  254| 
+  255|         def comparer(self, other):
+  256|             "Compare method for sorted set and set."
+  257|             if isinstance(other, SortedSet):
+  258|                 return set_op(self._set, other._set)
+  259|             elif isinstance(other, Set):
+  260|                 return set_op(self._set, other)
+  261|             return NotImplemented
+  262| 
+  263|         set_op_name = set_op.__name__
+  264|         comparer.__name__ = f'__{set_op_name}__'
+  265|         doc_str = """Return true if and only if sorted set is {0} `other`.
+  266| 
+  267|         ``ss.__{1}__(other)`` <==> ``ss {2} other``
+  268| 
+  269|         Comparisons use subset and superset semantics as with sets.
+  270| 
+  271|         Runtime complexity: `O(n)`
+  272| 
+  273|         :param other: `other` set
+  274|         :return: true if sorted set is {0} `other`
+  275| 
+  276|         """
+  277|         comparer.__doc__ = dedent(doc_str.format(doc, set_op_name, symbol))
+  278|         return comparer
+  279| 
+  280|     __eq__ = __make_cmp(eq, '==', 'equal to')
+  281|     __ne__ = __make_cmp(ne, '!=', 'not equal to')
+  282|     __lt__ = __make_cmp(lt, '<', 'a proper subset of')
+  283|     __gt__ = __make_cmp(gt, '>', 'a proper superset of')
+  284|     __le__ = __make_cmp(le, '<=', 'a subset of')
+  285|     __ge__ = __make_cmp(ge, '>=', 'a superset of')
+  286|     __make_cmp = staticmethod(__make_cmp)
+  287| 
+  288|     def __len__(self):
+  289|         """Return the size of the sorted set.
+  290| 
+  291|         ``ss.__len__()`` <==> ``len(ss)``
+  292| 
+  293|         :return: size of sorted set
+  294| 
+  295|         """
+  296|         return len(self._set)
+  297| 
+  298|     def __iter__(self):
+  299|         """Return an iterator over the sorted set.
+  300| 
+  301|         ``ss.__iter__()`` <==> ``iter(ss)``
+  302| 
+  303|         Iterating the sorted set while adding or deleting values may raise a
+  304|         :exc:`RuntimeError` or fail to iterate over all values.
+  305| 
+  306|         """
+  307|         return iter(self._list)
+  308| 
+  309|     def __reversed__(self):
+  310|         """Return a reverse iterator over the sorted set.
+  311| 
+  312|         ``ss.__reversed__()`` <==> ``reversed(ss)``
+  313| 
+  314|         Iterating the sorted set while adding or deleting values may raise a
+  315|         :exc:`RuntimeError` or fail to iterate over all values.
+  316| 
+  317|         """
+  318|         return reversed(self._list)
+  319| 
+  320|     def add(self, value):
+  321|         """Add `value` to sorted set.
+  322| 
+  323|         Runtime complexity: `O(log(n))` -- approximate.
+  324| 
+  325|         >>> ss = SortedSet()
+  326|         >>> ss.add(3)
+  327|         >>> ss.add(1)
+  328|         >>> ss.add(2)
+  329|         >>> ss
+  330|         SortedSet([1, 2, 3])
+  331| 
+  332|         :param value: value to add to sorted set
+  333| 
+  334|         """
+  335|         _set = self._set
+  336|         if value not in _set:
+  337|             _set.add(value)
+  338|             self._list.add(value)
+  339| 
+  340|     _add = add
+  341| 
+  342|     def clear(self):
+  343|         """Remove all values from sorted set.
+  344| 
+  345|         Runtime complexity: `O(n)`
+  346| 
+  347|         """
+  348|         self._set.clear()
+  349|         self._list.clear()
+  350| 
+  351|     def copy(self):
+  352|         """Return a shallow copy of the sorted set.
+  353| 
+  354|         Runtime complexity: `O(n)`
+  355| 
+  356|         :return: new sorted set
+  357| 
+  358|         """
+  359|         return self._fromset(set(self._set), key=self._key)
+  360| 
+  361|     __copy__ = copy
+  362| 
+  363|     def count(self, value):
+  364|         """Return number of occurrences of `value` in the sorted set.
+  365| 
+  366|         Runtime complexity: `O(1)`
+  367| 
+  368|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  369|         >>> ss.count(3)
+  370|         1
+  371| 
+  372|         :param value: value to count in sorted set
+  373|         :return: count
+  374| 
+  375|         """
+  376|         return 1 if value in self._set else 0
+  377| 
+  378|     def discard(self, value):
+  379|         """Remove `value` from sorted set if it is a member.
+  380| 
+  381|         If `value` is not a member, do nothing.
+  382| 
+  383|         Runtime complexity: `O(log(n))` -- approximate.
+  384| 
+  385|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  386|         >>> ss.discard(5)
+  387|         >>> ss.discard(0)
+  388|         >>> ss == set([1, 2, 3, 4])
+  389|         True
+  390| 
+  391|         :param value: `value` to discard from sorted set
+  392| 
+  393|         """
+  394|         _set = self._set
+  395|         if value in _set:
+  396|             _set.remove(value)
+  397|             self._list.remove(value)
+  398| 
+  399|     _discard = discard
+  400| 
+  401|     def pop(self, index=-1):
+  402|         """Remove and return value at `index` in sorted set.
+  403| 
+  404|         Raise :exc:`IndexError` if the sorted set is empty or index is out of
+  405|         range.
+  406| 
+  407|         Negative indices are supported.
+  408| 
+  409|         Runtime complexity: `O(log(n))` -- approximate.
+  410| 
+  411|         >>> ss = SortedSet('abcde')
+  412|         >>> ss.pop()
+  413|         'e'
+  414|         >>> ss.pop(2)
+  415|         'c'
+  416|         >>> ss
+  417|         SortedSet(['a', 'b', 'd'])
+  418| 
+  419|         :param int index: index of value (default -1)
+  420|         :return: value
+  421|         :raises IndexError: if index is out of range
+  422| 
+  423|         """
+  424|         # pylint: disable=arguments-differ
+  425|         value = self._list.pop(index)
+  426|         self._set.remove(value)
+  427|         return value
+  428| 
+  429|     def remove(self, value):
+  430|         """Remove `value` from sorted set; `value` must be a member.
+  431| 
+  432|         If `value` is not a member, raise :exc:`KeyError`.
+  433| 
+  434|         Runtime complexity: `O(log(n))` -- approximate.
+  435| 
+  436|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  437|         >>> ss.remove(5)
+  438|         >>> ss == set([1, 2, 3, 4])
+  439|         True
+  440|         >>> ss.remove(0)
+  441|         Traceback (most recent call last):
+  442|           ...
+  443|         KeyError: 0
+  444| 
+  445|         :param value: `value` to remove from sorted set
+  446|         :raises KeyError: if `value` is not in sorted set
+  447| 
+  448|         """
+  449|         self._set.remove(value)
+  450|         self._list.remove(value)
+  451| 
+  452|     def difference(self, *iterables):
+  453|         """Return the difference of two or more sets as a new sorted set.
+  454| 
+  455|         The `difference` method also corresponds to operator ``-``.
+  456| 
+  457|         ``ss.__sub__(iterable)`` <==> ``ss - iterable``
+  458| 
+  459|         The difference is all values that are in this sorted set but not the
+  460|         other `iterables`.
+  461| 
+  462|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  463|         >>> ss.difference([4, 5, 6, 7])
+  464|         SortedSet([1, 2, 3])
+  465| 
+  466|         :param iterables: iterable arguments
+  467|         :return: new sorted set
+  468| 
+  469|         """
+  470|         diff = self._set.difference(*iterables)
+  471|         return self._fromset(diff, key=self._key)
+  472| 
+  473|     __sub__ = difference
+  474| 
+  475|     def difference_update(self, *iterables):
+  476|         """Remove all values of `iterables` from this sorted set.
+  477| 
+  478|         The `difference_update` method also corresponds to operator ``-=``.
+  479| 
+  480|         ``ss.__isub__(iterable)`` <==> ``ss -= iterable``
+  481| 
+  482|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  483|         >>> _ = ss.difference_update([4, 5, 6, 7])
+  484|         >>> ss
+  485|         SortedSet([1, 2, 3])
+  486| 
+  487|         :param iterables: iterable arguments
+  488|         :return: itself
+  489| 
+  490|         """
+  491|         _set = self._set
+  492|         _list = self._list
+  493|         values = set(chain(*iterables))
+  494|         if (4 * len(values)) > len(_set):
+  495|             _set.difference_update(values)
+  496|             _list.clear()
+  497|             _list.update(_set)
+  498|         else:
+  499|             _discard = self._discard
+  500|             for value in values:
+  501|                 _discard(value)
+  502|         return self
+  503| 
+  504|     __isub__ = difference_update
+  505| 
+  506|     def intersection(self, *iterables):
+  507|         """Return the intersection of two or more sets as a new sorted set.
+  508| 
+  509|         The `intersection` method also corresponds to operator ``&``.
+  510| 
+  511|         ``ss.__and__(iterable)`` <==> ``ss & iterable``
+  512| 
+  513|         The intersection is all values that are in this sorted set and each of
+  514|         the other `iterables`.
+  515| 
+  516|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  517|         >>> ss.intersection([4, 5, 6, 7])
+  518|         SortedSet([4, 5])
+  519| 
+  520|         :param iterables: iterable arguments
+  521|         :return: new sorted set
+  522| 
+  523|         """
+  524|         intersect = self._set.intersection(*iterables)
+  525|         return self._fromset(intersect, key=self._key)
+  526| 
+  527|     __and__ = intersection
+  528|     __rand__ = __and__
+  529| 
+  530|     def intersection_update(self, *iterables):
+  531|         """Update the sorted set with the intersection of `iterables`.
+  532| 
+  533|         The `intersection_update` method also corresponds to operator ``&=``.
+  534| 
+  535|         ``ss.__iand__(iterable)`` <==> ``ss &= iterable``
+  536| 
+  537|         Keep only values found in itself and all `iterables`.
+  538| 
+  539|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  540|         >>> _ = ss.intersection_update([4, 5, 6, 7])
+  541|         >>> ss
+  542|         SortedSet([4, 5])
+  543| 
+  544|         :param iterables: iterable arguments
+  545|         :return: itself
+  546| 
+  547|         """
+  548|         _set = self._set
+  549|         _list = self._list
+  550|         _set.intersection_update(*iterables)
+  551|         _list.clear()
+  552|         _list.update(_set)
+  553|         return self
+  554| 
+  555|     __iand__ = intersection_update
+  556| 
+  557|     def symmetric_difference(self, other):
+  558|         """Return the symmetric difference with `other` as a new sorted set.
+  559| 
+  560|         The `symmetric_difference` method also corresponds to operator ``^``.
+  561| 
+  562|         ``ss.__xor__(other)`` <==> ``ss ^ other``
+  563| 
+  564|         The symmetric difference is all values tha are in exactly one of the
+  565|         sets.
+  566| 
+  567|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  568|         >>> ss.symmetric_difference([4, 5, 6, 7])
+  569|         SortedSet([1, 2, 3, 6, 7])
+  570| 
+  571|         :param other: `other` iterable
+  572|         :return: new sorted set
+  573| 
+  574|         """
+  575|         diff = self._set.symmetric_difference(other)
+  576|         return self._fromset(diff, key=self._key)
+  577| 
+  578|     __xor__ = symmetric_difference
+  579|     __rxor__ = __xor__
+  580| 
+  581|     def symmetric_difference_update(self, other):
+  582|         """Update the sorted set with the symmetric difference with `other`.
+  583| 
+  584|         The `symmetric_difference_update` method also corresponds to operator
+  585|         ``^=``.
+  586| 
+  587|         ``ss.__ixor__(other)`` <==> ``ss ^= other``
+  588| 
+  589|         Keep only values found in exactly one of itself and `other`.
+  590| 
+  591|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  592|         >>> _ = ss.symmetric_difference_update([4, 5, 6, 7])
+  593|         >>> ss
+  594|         SortedSet([1, 2, 3, 6, 7])
+  595| 
+  596|         :param other: `other` iterable
+  597|         :return: itself
+  598| 
+  599|         """
+  600|         _set = self._set
+  601|         _list = self._list
+  602|         _set.symmetric_difference_update(other)
+  603|         _list.clear()
+  604|         _list.update(_set)
+  605|         return self
+  606| 
+  607|     __ixor__ = symmetric_difference_update
+  608| 
+  609|     def union(self, *iterables):
+  610|         """Return new sorted set with values from itself and all `iterables`.
+  611| 
+  612|         The `union` method also corresponds to operator ``|``.
+  613| 
+  614|         ``ss.__or__(iterable)`` <==> ``ss | iterable``
+  615| 
+  616|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  617|         >>> ss.union([4, 5, 6, 7])
+  618|         SortedSet([1, 2, 3, 4, 5, 6, 7])
+  619| 
+  620|         :param iterables: iterable arguments
+  621|         :return: new sorted set
+  622| 
+  623|         """
+  624|         return self.__class__(chain(iter(self), *iterables), key=self._key)
+  625| 
+  626|     __or__ = union
+  627|     __ror__ = __or__
+  628| 
+  629|     def update(self, *iterables):
+  630|         """Update the sorted set adding values from all `iterables`.
+  631| 
+  632|         The `update` method also corresponds to operator ``|=``.
+  633| 
+  634|         ``ss.__ior__(iterable)`` <==> ``ss |= iterable``
+  635| 
+  636|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  637|         >>> _ = ss.update([4, 5, 6, 7])
+  638|         >>> ss
+  639|         SortedSet([1, 2, 3, 4, 5, 6, 7])
+  640| 
+  641|         :param iterables: iterable arguments
+  642|         :return: itself
+  643| 
+  644|         """
+  645|         _set = self._set
+  646|         _list = self._list
+  647|         values = set(chain(*iterables))
+  648|         if (4 * len(values)) > len(_set):
+  649|             _list = self._list
+  650|             _set.update(values)
+  651|             _list.clear()
+  652|             _list.update(_set)
+  653|         else:
+  654|             _add = self._add
+  655|             for value in values:
+  656|                 _add(value)
+  657|         return self
+  658| 
+  659|     __ior__ = update
+  660|     _update = update
+  661| 
+  662|     def __reduce__(self):
+  663|         """Support for pickle.
+  664| 
+  665|         The tricks played with exposing methods in :func:`SortedSet.__init__`
+  666|         confuse pickle so customize the reducer.
+  667| 
+  668|         """
+  669|         return (type(self), (self._set, self._key))
+  670| 
+  671|     @recursive_repr()
+  672|     def __repr__(self):
+  673|         """Return string representation of sorted set.
+  674| 
+  675|         ``ss.__repr__()`` <==> ``repr(ss)``
+  676| 
+  677|         :return: string representation
+  678| 
+  679|         """
+  680|         _key = self._key
+  681|         key = '' if _key is None else f', key={_key!r}'
+  682|         type_name = type(self).__name__
+  683|         return f'{type_name}({list(self)!r}{key})'
+  684| 
+  685|     def _check(self):
+  686|         """Check invariants of sorted set.
+  687| 
+  688|         Runtime complexity: `O(n)`
+  689| 
+  690|         """
+  691|         _set = self._set
+  692|         _list = self._list
+  693|         _list._check()
+  694|         assert len(_set) == len(_list)
+  695|         assert all(value in _set for value in _list)
+
+FILE tests/test_coverage_sortedset.py:
+    1| from sortedcontainers import SortedSet
+    2| 
+    3| 
+    4| def negate(value):
+    5|     return -value
+    6| 
+    7| 
+    8| def modulo(value):
+    9|     return value % 10
+   10| 
+   11| 
+   12| def test_init():
+   13|     temp = SortedSet(range(100))
+   14|     assert temp.key is None
+   15|     temp._reset(7)
+   16|     temp._check()
+   17|     assert all(val == temp[val] for val in temp)
+   18| 
+   19| 
+   20| def test_init_key():
+   21|     temp = SortedSet(range(100), key=negate)
+   22|     assert temp.key == negate
+   23| 
+   24| 
+   25| def test_contains():
+   26|     temp = SortedSet(range(100))
+   27|     temp._reset(7)
+   28|     assert all(val in temp for val in range(100))
+   29|     assert all(val not in temp for val in range(100, 200))
+   30| 
+   31| 
+   32| def test_getitem():
+   33|     temp = SortedSet(range(100))
+   34|     temp._reset(7)
+   35|     assert all(val == temp[val] for val in temp)
+   36| 
+   37| 
+   38| def test_getitem_slice():
+   39|     vals = list(range(100))
+   40|     temp = SortedSet(vals)
+   41|     temp._reset(7)
+   42|     assert temp[20:30] == vals[20:30]
+   43| 
+   44| 
+   45| def test_getitem_key():
+   46|     temp = SortedSet(range(100), key=negate)
+   47|     temp._reset(7)
+   48|     assert all(temp[val] == (99 - val) for val in range(100))
+   49| 
+   50| 
+   51| def test_delitem():
+   52|     temp = SortedSet(range(100))
+   53|     temp._reset(7)
+   54|     for val in reversed(range(50)):
+   55|         del temp[val]
+   56|     assert all(temp[pos] == (pos + 50) for pos in range(50))
+   57| 
+   58| 
+   59| def test_delitem_slice():
+   60|     vals = list(range(100))
+   61|     temp = SortedSet(vals)
+   62|     temp._reset(7)
+   63|     del vals[20:40:2]
+   64|     del temp[20:40:2]
+   65|     assert temp == set(vals)
+   66| 
+   67| 
+   68| def test_delitem_key():
+   69|     temp = SortedSet(range(100), key=modulo)
+   70|     temp._reset(7)
+   71|     values = sorted(range(100), key=modulo)
+   72|     for val in range(10):
+   73|         del temp[val]
+   74|         del values[val]
+   75|     assert list(temp) == list(values)
+   76| 
+   77| 
+   78| def test_eq():
+   79|     alpha = SortedSet(range(100))
+   80|     alpha._reset(7)
+   81|     beta = SortedSet(range(100))
+   82|     beta._reset(17)
+   83|     assert alpha == beta
+   84|     assert alpha == beta._set
+   85|     beta.add(101)
+   86|     assert not (alpha == beta)
+   87| 
+   88| 
+   89| def test_ne():
+   90|     alpha = SortedSet(range(100))
+   91|     alpha._reset(7)
+   92|     beta = SortedSet(range(99))
+   93|     beta._reset(17)
+   94|     assert alpha != beta
+   95|     beta.add(100)
+   96|     assert alpha != beta
+   97|     assert alpha != beta._set
+   98|     assert alpha != list(range(101))
+   99| 
+  100| 
+  101| def test_lt_gt():
+  102|     temp = SortedSet(range(100))
+  103|     temp._reset(7)
+  104|     that = SortedSet(range(25, 75))
+  105|     that._reset(9)
+  106|     assert that < temp
+  107|     assert not (temp < that)
+  108|     assert that < temp._set
+  109|     assert temp > that
+  110|     assert not (that > temp)
+  111|     assert temp > that._set
+  112| 
+  113| 
+  114| def test_le_ge():
+  115|     alpha = SortedSet(range(100))
+  116|     alpha._reset(7)
+  117|     beta = SortedSet(range(101))
+  118|     beta._reset(17)
+  119|     assert alpha <= beta
+  120|     assert not (beta <= alpha)
+  121|     assert alpha <= beta._set
+  122|     assert beta >= alpha
+  123|     assert not (alpha >= beta)
+  124|     assert beta >= alpha._set
+  125| 
+  126| 
+  127| def test_iter():
+  128|     temp = SortedSet(range(100))
+  129|     temp._reset(7)
+  130|     assert all(val == temp[val] for val in iter(temp))
+  131| 
+  132| 
+  133| def test_reversed():
+  134|     temp = SortedSet(range(100))
+  135|     temp._reset(7)
+  136|     assert all(val == temp[val] for val in reversed(temp))
+  137| 
+  138| 
+  139| def test_islice():
+  140|     ss = SortedSet()
+  141|     ss._reset(7)
+  142| 
+  143|     assert [] == list(ss.islice())
+  144| 
+  145|     values = list(range(53))
+  146|     ss.update(values)
+  147| 
+  148|     for start in range(53):
+  149|         for stop in range(53):
+  150|             assert list(ss.islice(start, stop)) == values[start:stop]
+  151| 
+  152|     for start in range(53):
+  153|         for stop in range(53):
+  154|             assert (
+  155|                 list(ss.islice(start, stop, reverse=True)) == values[start:stop][::-1]
+  156|             )
+  157| 
+  158|     for start in range(53):
+  159|         assert list(ss.islice(start=start)) == values[start:]
+  160|         assert list(ss.islice(start=start, reverse=True)) == values[start:][::-1]
+  161| 
+  162|     for stop in range(53):
+  163|         assert list(ss.islice(stop=stop)) == values[:stop]
+  164|         assert list(ss.islice(stop=stop, reverse=True)) == values[:stop][::-1]
+  165| 
+  166| 
+  167| def test_irange():
+  168|     ss = SortedSet()
+  169|     ss._reset(7)
+  170| 
+  171|     assert [] == list(ss.irange())
+  172| 
+  173|     values = list(range(53))
+  174|     ss.update(values)
+  175| 
+  176|     for start in range(53):
+  177|         for end in range(start, 53):
+  178|             assert list(ss.irange(start, end)) == values[start : (end + 1)]
+  179|             assert (
+  180|                 list(ss.irange(start, end, reverse=True))
+  181|                 == values[start : (end + 1)][::-1]
+  182|             )
+  183| 
+  184|     for start in range(53):
+  185|         for end in range(start, 53):
+  186|             assert list(range(start, end)) == list(ss.irange(start, end, (True, False)))
+  187| 
+  188|     for start in range(53):
+  189|         for end in range(start, 53):
+  190|             assert list(range(start + 1, end + 1)) == list(
+  191|                 ss.irange(start, end, (False, True))
+  192|             )
+  193| 
+  194|     for start in range(53):
+  195|         for end in range(start, 53):
+  196|             assert list(range(start + 1, end)) == list(
+  197|                 ss.irange(start, end, (False, False))
+  198|             )
+  199| 
+  200|     for start in range(53):
+  201|         assert list(range(start, 53)) == list(ss.irange(start))
+  202| 
+  203|     for end in range(53):
+  204|         assert list(range(0, end)) == list(ss.irange(None, end, (True, False)))
+  205| 
+  206|     assert values == list(ss.irange(inclusive=(False, False)))
+  207| 
+  208|     assert [] == list(ss.irange(53))
+  209|     assert values == list(ss.irange(None, 53, (True, False)))
+  210| 
+  211| 
+  212| def test_irange_key():
+  213|     values = sorted(range(100), key=modulo)
+  214| 
+  215|     for load in range(5, 16):
+  216|         ss = SortedSet(range(100), key=modulo)
+  217|         ss._reset(load)
+  218| 
+  219|         for start in range(10):
+  220|             for end in range(start, 10):
+  221|                 temp = list(ss.irange_key(start, end))
+  222|                 assert temp == values[(start * 10) : ((end + 1) * 10)]
+  223| 
+  224|                 temp = list(ss.irange_key(start, end, reverse=True))
+  225|                 assert temp == values[(start * 10) : ((end + 1) * 10)][::-1]
+  226| 
+  227|         for start in range(10):
+  228|             for end in range(start, 10):
+  229|                 temp = list(ss.irange_key(start, end, inclusive=(True, False)))
+  230|                 assert temp == values[(start * 10) : (end * 10)]
+  231| 
+  232|         for start in range(10):
+  233|             for end in range(start, 10):
+  234|                 temp = list(ss.irange_key(start, end, (False, True)))
+  235|                 assert temp == values[((start + 1) * 10) : ((end + 1) * 10)]
+  236| 
+  237|         for start in range(10):
+  238|             for end in range(start, 10):
+  239|                 temp = list(ss.irange_key(start, end, inclusive=(False, False)))
+  240|                 assert temp == values[((start + 1) * 10) : (end * 10)]
+  241| 
+  242|         for start in range(10):
+  243|             temp = list(ss.irange_key(min_key=start))
+  244|             assert temp == values[(start * 10) :]
+  245| 
+  246|         for end in range(10):
+  247|             temp = list(ss.irange_key(max_key=end))
+  248|             assert temp == values[: (end + 1) * 10]
+  249| 
+  250| 
+  251| def test_len():
+  252|     temp = SortedSet(range(100))
+  253|     temp._reset(7)
+  254|     assert len(temp) == 100
+  255| 
+  256| 
+  257| def test_add():
+  258|     temp = SortedSet(range(100))
+  259|     temp._reset(7)
+  260|     temp.add(100)
+  261|     temp.add(90)
+  262|     temp._check()
+  263|     assert all(val == temp[val] for val in range(101))
+  264| 
+  265| 
+  266| def test_bisect():
+  267|     temp = SortedSet(range(100))
+  268|     temp._reset(7)
+  269|     assert all(temp.bisect_left(val) == val for val in range(100))
+  270|     assert all(temp.bisect(val) == (val + 1) for val in range(100))
+  271|     assert all(temp.bisect_right(val) == (val + 1) for val in range(100))
+  272| 
+  273| 
+  274| def test_bisect_key():
+  275|     temp = SortedSet(range(100), key=lambda val: val)
+  276|     temp._reset(7)
+  277|     assert all(temp.bisect_key_left(val) == val for val in range(100))
+  278|     assert all(temp.bisect_key(val) == (val + 1) for val in range(100))
+  279|     assert all(temp.bisect_key_right(val) == (val + 1) for val in range(100))
+  280| 
+  281| 
+  282| def test_clear():
+  283|     temp = SortedSet(range(100))
+  284|     temp._reset(7)
+  285|     temp.clear()
+  286|     temp._check()
+  287|     assert len(temp) == 0
+  288| 
+  289| 
+  290| def test_copy():
+  291|     temp = SortedSet(range(100))
+  292|     temp._reset(7)
+  293|     that = temp.copy()
+  294|     that.add(1000)
+  295|     assert len(temp) == 100
+  296|     assert len(that) == 101
+  297| 
+  298| 
+  299| def test_copy_copy():
+  300|     import copy
+  301| 
+  302|     temp = SortedSet(range(100))
+  303|     temp._reset(7)
+  304|     that = copy.copy(temp)
+  305|     that.add(1000)
+  306|     assert len(temp) == 100
+  307|     assert len(that) == 101
+  308| 
+  309| 
+  310| def test_count():
+  311|     temp = SortedSet(range(100))
+  312|     temp._reset(7)
+  313|     assert all(temp.count(val) == 1 for val in range(100))
+  314|     assert temp.count(100) == 0
+  315|     assert temp.count(0) == 1
+  316|     temp.add(0)
+  317|     assert temp.count(0) == 1
+  318|     temp._check()
+  319| 
+  320| 
+  321| def test_sub():
+  322|     temp = SortedSet(range(100))
+  323|     temp._reset(7)
+  324|     that = temp - range(0, 10) - range(10, 20)
+  325|     assert all(val == temp[val] for val in range(100))
+  326|     assert all((val + 20) == that[val] for val in range(80))
+  327| 
+  328| 
+  329| def test_difference():
+  330|     temp = SortedSet(range(100))
+  331|     temp._reset(7)
+  332|     that = temp.difference(range(0, 10), range(10, 20))
+  333|     assert all(val == temp[val] for val in range(100))
+  334|     assert all((val + 20) == that[val] for val in range(80))
+  335| 
+  336| 
+  337| def test_difference_update():
+  338|     temp = SortedSet(range(100))
+  339|     temp._reset(7)
+  340|     temp.difference_update(range(0, 10), range(10, 20))
+  341|     assert all((val + 20) == temp[val] for val in range(80))
+  342| 
+  343| 
+  344| def test_isub():
+  345|     temp = SortedSet(range(100))
+  346|     temp._reset(7)
+  347|     temp -= range(0, 10)
+  348|     temp -= range(10, 20)
+  349|     assert all((val + 20) == temp[val] for val in range(80))
+  350| 
+  351| 
+  352| def test_discard():
+  353|     temp = SortedSet(range(100))
+  354|     temp._reset(7)
+  355|     temp.discard(0)
+  356|     temp.discard(99)
+  357|     temp.discard(50)
+  358|     temp.discard(1000)
+  359|     temp._check()
+  360|     assert len(temp) == 97
+  361| 
+  362| 
+  363| def test_index():
+  364|     temp = SortedSet(range(100))
+  365|     temp._reset(7)
+  366|     assert all(temp.index(val) == val for val in range(100))
+  367| 
+  368| 
+  369| def test_and():
+  370|     temp = SortedSet(range(100))
+  371|     temp._reset(7)
+  372|     that = temp & range(20) & range(10, 30)
+  373|     assert all(that[val] == (val + 10) for val in range(10))
+  374|     assert all(temp[val] == val for val in range(100))
+  375| 
+  376| 
+  377| def test_intersection():
+  378|     temp = SortedSet(range(100))
+  379|     temp._reset(7)
+  380|     that = temp.intersection(range(0, 20), range(10, 30))
+  381|     assert all(that[val] == (val + 10) for val in range(10))
+  382|     assert all(temp[val] == val for val in range(100))
+  383| 
+  384| 
+  385| def test_intersection_update():
+  386|     temp = SortedSet(range(100))
+  387|     temp._reset(7)
+  388|     temp &= range(0, 20)
+  389|     temp &= range(10, 30)
+  390|     assert all(temp[val] == (val + 10) for val in range(10))
+  391| 
+  392| 
+  393| def test_isdisjoint():
+  394|     temp = SortedSet(range(100))
+  395|     temp._reset(7)
+  396|     that = SortedSet(range(100, 200))
+  397|     that._reset(9)
+  398|     assert temp.isdisjoint(that)
+  399| 
+  400| 
+  401| def test_issubset():
+  402|     temp = SortedSet(range(100))
+  403|     temp._reset(7)
+  404|     that = SortedSet(range(25, 75))
+  405|     that._reset(9)
+  406|     assert that.issubset(temp)
+  407| 
+  408| 
+  409| def test_issuperset():
+  410|     temp = SortedSet(range(100))
+  411|     temp._reset(7)
+  412|     that = SortedSet(range(25, 75))
+  413|     that._reset(9)
+  414|     assert temp.issuperset(that)
+  415| 
+  416| 
+  417| def test_xor():
+  418|     temp = SortedSet(range(0, 75))
+  419|     temp._reset(7)
+  420|     that = SortedSet(range(25, 100))
+  421|     that._reset(9)
+  422|     result = temp ^ that
+  423|     assert all(result[val] == val for val in range(25))
+  424|     assert all(result[val + 25] == (val + 75) for val in range(25))
+  425|     assert all(temp[val] == val for val in range(75))
+  426|     assert all(that[val] == (val + 25) for val in range(75))
+  427| 
+  428| 
+  429| def test_symmetric_difference():
+  430|     temp = SortedSet(range(0, 75))
+  431|     temp._reset(7)
+  432|     that = SortedSet(range(25, 100))
+  433|     that._reset(9)
+  434|     result = temp.symmetric_difference(that)
+  435|     assert all(result[val] == val for val in range(25))
+  436|     assert all(result[val + 25] == (val + 75) for val in range(25))
+  437|     assert all(temp[val] == val for val in range(75))
+  438|     assert all(that[val] == (val + 25) for val in range(75))
+  439| 
+  440| 
+  441| def test_symmetric_difference_update():
+  442|     temp = SortedSet(range(0, 75))
+  443|     temp._reset(7)
+  444|     that = SortedSet(range(25, 100))
+  445|     that._reset(9)
+  446|     temp ^= that
+  447|     assert all(temp[val] == val for val in range(25))
+  448|     assert all(temp[val + 25] == (val + 75) for val in range(25))
+  449| 
+  450| 
+  451| def test_pop():
+  452|     temp = SortedSet(range(0, 100))
+  453|     temp._reset(7)
+  454|     temp.pop()
+  455|     temp.pop(0)
+  456|     assert all(temp[val] == (val + 1) for val in range(98))
+  457| 
+  458| 
+  459| def test_remove():
+  460|     temp = SortedSet(range(0, 100))
+  461|     temp._reset(7)
+  462|     temp.remove(50)
+  463| 
+  464| 
+  465| def test_or():
+  466|     temp = SortedSet(range(0, 50))
+  467|     temp._reset(7)
+  468|     that = SortedSet(range(50, 100))
+  469|     that._reset(9)
+  470|     result = temp | that
+  471|     assert all(result[val] == val for val in range(100))
+  472|     assert all(temp[val] == val for val in range(50))
+  473|     assert all(that[val] == (val + 50) for val in range(50))
+  474| 
+  475| 
+  476| def test_union():
+  477|     temp = SortedSet(range(0, 50))
+  478|     temp._reset(7)
+  479|     that = SortedSet(range(50, 100))
+  480|     that._reset(9)
+  481|     result = temp.union(that)
+  482|     assert all(result[val] == val for val in range(100))
+  483|     assert all(temp[val] == val for val in range(50))
+  484|     assert all(that[val] == (val + 50) for val in range(50))
+  485| 
+  486| 
+  487| def test_update():
+  488|     temp = SortedSet(range(0, 80))
+  489|     temp._reset(7)
+  490|     temp.update(range(80, 90), range(90, 100))
+  491|     assert all(temp[val] == val for val in range(100))
+  492| 
+  493| 
+  494| def test_ior():
+  495|     temp = SortedSet(range(0, 80))
+  496|     temp._reset(7)
+  497|     temp |= range(80, 90)
+  498|     temp |= range(90, 100)
+  499|     assert all(temp[val] == val for val in range(100))
+  500| 
+  501| 
+  502| class Identity:
+  503|     def __call__(self, value):
+  504|         return value
+  505| 
+  506|     def __repr__(self):
+  507|         return 'identity'
+  508| 
+  509| 
+  510| def test_repr():
+  511|     temp = SortedSet(range(0, 10), key=Identity())
+  512|     temp._reset(7)
+  513|     assert repr(temp) == 'SortedSet([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], key=identity)'
+  514| 
+  515| 
+  516| def test_repr_recursion():
+  517|     class HashableSortedSet(SortedSet):
+  518|         def __hash__(self):
+  519|             return hash(tuple(self))
+  520| 
+  521|     temp = HashableSortedSet([HashableSortedSet([1]), HashableSortedSet([1, 2])])
+  522|     temp.add(temp)
+  523|     assert (
+  524|         repr(temp)
+  525|         == 'HashableSortedSet([HashableSortedSet([1]), HashableSortedSet([1, 2]), ...])'
+  526|     )
+  527| 
+  528| 
+  529| def test_pickle():
+  530|     import pickle
+  531| 
+  532|     alpha = SortedSet(range(10000), key=negate)
+  533|     alpha._reset(500)
+  534|     data = pickle.dumps(alpha)
+  535|     beta = pickle.loads(data)
+  536|     assert alpha == beta
+  537|     assert alpha._key == beta._key
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-python-sortedcontainers-contained_in-114",
+    "answerable_static": true,
+    "gold": [
+      "src/sortedcontainers/sortedset.py::SortedSet"
+    ],
+    "conditional_flags": [],
+    "notes": "The method is defined directly in the SortedSet class body."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-contained_in-564",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_coverage_sortedset.py"
+    ],
+    "conditional_flags": [],
+    "notes": "The function is defined at module level."
+  }
+]
+tokens used
+18,785

@@ -1,0 +1,36 @@
+The recommended resolution is statistically sound, but the document is not fully clean enough to call sound as written. I found several correctable epistemic/tagging overstatements.
+
+## Concrete findings
+
+1. **§1.2 and §2 incorrectly say both blind annotators verified the AnnAssign defect.**  
+   [codevert-g1.md:91](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:91) and [codevert-g1.md:172](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:172) say “both blind annotators” agreed. The raw annotation artifacts show the opposite: the three AnnAssign cases were disagreements; annotator B included those names, and adjudication selected annotator A’s interpretation. The defect remains supported by adjudicated proxy gold and source verification, but should be described as such—not as blind replication.
+
+2. **“Zero wrong answers” is broader than the scored measurement.**  
+   At [codevert-g1.md:101](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:101), [codevert-g1.md:246](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:246), and [codevert-g1.md:407](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:407), the supported result is:
+
+   - all 37 R_q failures had `UNKNOWN-INCOMPLETE` status;
+   - no additional incorrect **proved/scored** answer was found beyond the AnnAssign false elements.
+
+   Precision is computed only over proved queries; unknown partial listings are not precision-scored. Therefore “zero wrong answers” should be narrowed to “zero wrong proved answers beyond the AnnAssign defect” or “all R_q misses were explicit abstentions.”
+
+3. **§1.2 applies the proxy tag too broadly to the gold-free κ row.**  
+   The umbrella tag at [codevert-g1.md:77](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:77) appears to cover the whole table, including κ, even though the κ row is explicitly gold-free. The surrounding prose correctly says κ is unqualified `[MEASURED]`. For consistency, tag that row separately as `[MEASURED, gold-free]`, and apply `[MEASURED + PROVISIONAL-ON-LLM-PROXY]` only to precision, R_q, negative validity, agreement, and adjudication claims.
+
+4. **Agreement does not statistically “bound” common-mode proxy-gold error.**  
+   [codevert-g1.md:133](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:133) says agreement 0.915 “bounds” the proxy risk. Inter-annotator agreement measures disagreement between the two proxies; without human truth it does not bound shared or correlated error. “Characterizes observable disagreement but does not address common-mode error” would be statistically defensible.
+
+5. **The structural-ceiling wording needs its measured scope.**  
+   The careful version in §5 limits the result to D1–D3-class candidate mechanics on the six-repo G0 spike. But the heading, summary, and phrases such as “the cheap repair route is closed” at [codevert-g1.md:414](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:414) can read as a general impossibility claim. The measurement supports “structural under the registered all-or-nothing §2.2 endpoint and the tested bounded D1–D3 approach,” not an unrestricted structural ceiling over all engineering approaches.
+
+6. **A few empirical statements lack local or umbrella tags.**  
+   In particular, §7.3’s freeze-ordering status and §7.6’s where-defined bimodality at [codevert-g1.md:364](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:364) and [codevert-g1.md:374](/home/ec2-user/css/kernel/kernel-of-truth/docs/next/interpretations/codevert-g1.md:374) are empirical claims without explicit tags. The title also contains multiple empirical/causal claims without tags. This makes the self-check assertion that every empirical claim is tagged too strong.
+
+## Requested determinations
+
+- **Recommended resolution:** Sound. Recording the original, as-written mechanical kill and separately authorizing a version-bumped AnnAssign rerun preserves the preregistered result and does not double-count, provided the rerun is recorded as a new extractor version with paired side-by-side results. Reusing the same proxy-gold sample is suitable for repair verification, but the resulting precision is adaptive/in-sample—not independent replication or fresh generalization evidence.
+
+- **FL-4 band above the floor:** Supported. The reported lower endpoint is 0.6072, which is strictly above 0.5. “Entire reported sensitivity band above the floor” is correct. Calling it a sensitivity band rather than a generalization CI is also correct.
+
+- **R_q maintainer flag:** Correctly characterized. The alternatives change the endpoint or product semantics and require an unmeasured utility judgment. There is no unique mechanical completion.
+
+Overall: the numerical comparisons and proposed routing are sound, but the document needs the above wording and tag corrections before it can be considered statistically clean.

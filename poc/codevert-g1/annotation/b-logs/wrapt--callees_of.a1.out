@@ -1,0 +1,20 @@
+[
+  {
+    "query_id": "g1q-wrapt-callees_of-1731",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.str",
+      "ext:re.match",
+      "tests/core/test_object_proxy.py::TestArgumentUnpackingPartial.test_self_keyword_argument_on_class_init_2a.Object"
+    ],
+    "conditional_flags": [],
+    "notes": "Calls through self.assertRaises, self.assertNotEqual, and wrapper cannot be resolved statically; the definition site of wrapt.partial is not shown."
+  },
+  {
+    "query_id": "g1q-wrapt-callees_of-558",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The method body contains no call expressions."
+  }
+]

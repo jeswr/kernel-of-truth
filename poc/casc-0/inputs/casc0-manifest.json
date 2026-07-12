@@ -1,0 +1,173 @@
+{
+  "spec": "CASC-0' harness RunSpec — the STATIC-CASE / M2-isolator factorial (size x medium x verifier) from docs/next/arch/cascade-synthesis.md section 3, developed for registry/experiments/casc-0.json (DRAFT at authoring; the frozen record, once frozen, is authoritative for every design constant restated here). This manifest pins harness INPUTS only; it may not change any design field or threshold. PINNING DIRECTION: the record's pins.harness_manifest is a declared PINNED-AT-INPUTS placeholder filled by ops amendment with the staged-bytes manifest sha printed by poc/casc-0/modal/modal_casc0.py BEFORE any final-phase run; this file must NOT contain that sha (circular).",
+  "schema": "kot-casc0-runspec/1",
+  "experiment": "casc-0",
+  "prereg": {
+    "registry_record": "registry/experiments/casc-0.json",
+    "prereg_doc": "poc/casc-0/design.md",
+    "analysis_script": {"path": "analysis/casc_0.py", "sha256": "PINNED-IN-REGISTRY-RECORD"}
+  },
+  "pins": {
+    "dcasc0ItemsSha256": "5363da55602ac71a91150ad55b7261e7e47cba92d7f297bdbd048e7170f82e65",
+    "dcasc0ExemplarsSha256": "4187c471f9f03fe442aeb1bd5a4792fcc592cfa41246035655c771c29a1d0e5f",
+    "dcasc0StoreSha256": "6bf1beb78d6af24a20aecdb269ee8683bbfc6e13b5662717e626cfbb757d1e6f",
+    "dcasc0TableSha256": "8861504ed9bdcfb9b2ba0d7df93b9a9748a0e27cb94619f0fe01b663d51e279b",
+    "dcasc0CorpusKotHash": "2d464c22ee537984fea814ec51736416c1323d1e450ca5165327164027d73454",
+    "dcasc0ManifestNote": "file-level sha256s of the committed d-casc0 bytes (builder data/d-casc0/build-dcasc0.py, generator seed dcasc0/1|casc-0|20260711, single-draw rule); the corpus-level kot-corpus-hash/1 digest is pinned in the registry record pins.corpus_hashes and the runner recomputes BOTH levels fail-closed (ERR_PIN)",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "kernelPinsNote": "kernel-v0 / molecules-v0 pinned VERBATIM from registry/experiments/f2b-transfer.json pins.corpus_hashes — the kernel instance whose AUTHORED content the kernel-gloss (raw-kernel Option-A) medium's authoring style naturalises; the d-casc0 relation records themselves are SELF-AUTHORED in the casc0: namespace (rider); the ASM-1158 pre-freeze explicator check was EXECUTED 2026-07-11 (poc/casc-0/kernel-coverage.md): mapping FAILED (0/7 core relation types kernel-record-backed in the relational sense; only the gendered surfaces mother/father map, to urn:molecule-v0:mother / urn:molecule-v0:father), so the rider clause is 'kernel-STYLE', never 'kernel-covered'; kernel-v0/molecules-v0 stay pinned as the gloss medium's authoring-STYLE anchor only"
+  },
+  "models": {
+    "R2": {
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "pinned_by": "same revision as the a5-llm R2 pin (docs/design-a5-llm.md); in-programme R-2 rung anchor (programme section 4)"
+    },
+    "R3": {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "revision": "31b70e2e869a7173562077fd711b654946d38674",
+      "pinned_by": "VERBATIM reuse of registry/experiments/f2b-transfer.json pins.model_revisions (same revision as f2b-replicate; backend Modal-smoked there)"
+    },
+    "tuning": "ALL CELLS STOCK — no fine-tuning on any side (PROPOSED-ASM-1150; ASM-0852 tuning symmetry satisfied trivially at T_k=0); if tuning is ever added the run is re-labelled an informative screen in the prereg itself (cascade-synthesis section 3, adopted verbatim)"
+  },
+  "modal_image": {
+    "image_object_id": "im-6uXR6RyVQV15h2B3gtpOG2",
+    "requirements": "poc/modal/requirements-image.txt",
+    "note": "REUSE of the pinned f2b/f2b-transfer Modal image (PROPOSED-ASM-1153): same requirements-image.txt bytes, no new dependency, no new image build intended; the modal wrapper rebuilds from the identical pinned requirements so the digest recorded in provenance must be compared to this pin at collection"
+  },
+  "eval_set": {
+    "rule": "EVAL SET = the first per_arm_items (300) items of data/d-casc0/items/eval.jsonl in pinned rank order (rank-interleaved depths, so the prefix keeps the 100/150/150 depth mix at 75/113/112); deterministic prefix, no sampling; floor eval_floor (250), below which the runner refuses (ERR_EVAL_FLOOR)",
+    "scoring": "item_correct = final constrained answer key == the item's ENGINE-derived gold key; gold is engine-derived by construction (SELF-AUTHORED / kernel-STYLE / engine-derived-gold rider on every verdict sentence — 'kernel-STYLE' per the executed ASM-1158 mapping, poc/casc-0/kernel-coverage.md; NO external adjudication in this probe — PROPOSED-ASM-1157); the runner RE-DERIVES every item's cumulative relation states from facts + composition-table and fail-closes on any mismatch with the committed states_core (ERR_ENGINE_GOLD)"
+  },
+  "design_constants_from_registry_record": {
+    "note": "copied from registry/experiments/casc-0.json (DRAFT) for runner convenience; the record is authoritative once frozen",
+    "seeds": [0, 1, 2],
+    "retry_budget_verifier_on": 2,
+    "per_arm_items": 300,
+    "eval_floor": 250,
+    "rungs": ["R2", "R3"],
+    "mediums": ["nl", "gloss", "plain"],
+    "medium_aliases": {"nl": "naturalised-prose (content-matched NL)", "gloss": "raw-kernel (Option-A structured kernel gloss)", "plain": "distilled (knull-grade plain typed dialect)"},
+    "verifier_levels_note": "verifier on ONLY for structured mediums (gloss, plain) — NL has no IR-hard islands (cascade-synthesis section 3, PROPOSED-ASM-1145); verifier checks INTERMEDIATE cumulative relations only, NEVER the final answer (anti-oracle rule, PROPOSED-ASM-1144)",
+    "engagement_gate": {"decidable_fraction_min": 0.70, "attempt0_reject_rate_range": [0.05, 0.95], "final_differs_attempt0_min": 1, "note": "decidable = items with >=1 intermediate hop (depth>=3; 225/300 = 0.75 by the prefix mix); RT-7a made structural, INSTRUMENT-INVALID on failure; the runner only EMITS the block"},
+    "headroom_max": 0.85,
+    "separation_min": 0.05,
+    "ni_margin": 0.05,
+    "tost_attr_margin": 0.05,
+    "tost_m2_null_margin": 0.05,
+    "ttc": {"reference_cell": "R2/gloss/verifier-on (fixed pre-registered reference — the raw-kernel Option-A medium, the maintainer's primary; never post-hoc 'best')", "n_min": 2, "n_max": 9, "match_band_rel": 0.30, "protocol": "self-consistency majority vote over N fresh samples at temperature 1.0, N = clamp(round(ref_flops_per_item / nl_flops_per_item), n_min, n_max) from the SAME run's measured cells; ties broken by pinned option order; /gates/ttc_match_valid requires |flops(ttc cell) - flops(ref cell)| / flops(ref cell) <= match_band_rel"},
+    "budget": {"gpu_hours_cap": 15, "usd_cap": 30, "wall_clock_cap_hours": 36, "tier_cap_usd": 80},
+    "runner_constraints": {"concurrency_cap": 5, "foreground_gates": true, "hardware": "single GPU (A100-40GB or A10G)"}
+  },
+  "deranged_control": {
+    "perm_seed": 20260711,
+    "algorithm": "Sattolo cyclic permutation over the sorted 3 ATOMIC relation types via random.Random(perm_seed) — a derangement by construction; every store fact's rel_core is mapped through it before the verifier's closure is derived; the realized map + sha are written to deranged-map.json and emitted on every deranged-control record",
+    "note": "house control on ONE verifier-on cell (R2/gloss/verifier-on topology): identical retry topology and cost, closure content decoupled from items; expected collapse of the verifier benefit; REPORTED-ONLY, never verdict-bearing (PROPOSED-ASM-1152)"
+  },
+  "arm_plan": {
+    "arms": {
+      "factorial": "2 sizes x 3 mediums verifier-off + 2 sizes x 2 structured mediums verifier-on = 10 cells x 3 seeds",
+      "ttc-deflator": "R2/nl + self-consistency TTC cost-matched to the fixed reference cell (K2' instrument) x 3 seeds",
+      "deranged-control": "R2/gloss/verifier-on with the deranged closure x 3 seeds"
+    },
+    "protocol": "IDENTICAL elicitation protocol in every cell: for each item, the model asserts each intermediate cumulative relation rel(X0,Xt), t=2..depth-1, as a constrained choice over the item's 7-option gendered label set, each asserted claim is appended to the context in the CELL'S OWN medium rendering, then the final relation is a constrained choice over the same option set; cells differ ONLY in (model size, medium rendering, verifier on/off). Verifier-on: each asserted intermediate is checked against the engine closure (surface -> core via the subject's gender, compared to the derived state); ANY rejected intermediate => reject attempt => resample the whole item (fresh per-attempt sampling), max retry_budget retries; final answer = last attempt (pre-declared, no post-hoc pick); the FINAL relation is NEVER checked (anti-oracle)",
+    "resample_temperature": 1.0,
+    "attempt0_decoding": "argmax over option sequence-logprobs; retries and TTC samples: seeded multinomial over option softmax (carried from f2b HFLM.choose)",
+    "extraction_note": "P10-style extraction gate NOT APPLICABLE: answers are constrained selections over pinned option keys, so extraction failure is structurally impossible; the instrument gates here are engagement + headroom + separation + ttc-match (PROPOSED-ASM-1156)"
+  },
+  "prompt_frames": {
+    "shared": {
+      "option_line": "{key}. {text}",
+      "answer_cue": "\nAnswer: ",
+      "exemplar_answer": "\nAnswer: {key}\n\n"
+    },
+    "nl": {
+      "qa_prefix": "Read the family facts, then answer the relationship question.\n\n",
+      "fact_line": "{subj} is the {rel_surface} of {obj}.\n",
+      "claim_line": "{subj} is the {rel_surface} of {obj}.\n",
+      "intermediate_question": "\nBased only on the facts above, how is {subj} related to {obj}?\n",
+      "final_question": "\nBased only on the facts above, how is {subj} related to {obj}?\n"
+    },
+    "gloss": {
+      "qa_prefix": "Kinship claim records follow, one per line: a typed head (type, surface, agent, patient, direction), then a gloss clause that reads the head in plain words. Answer each relation query from these records.\n\n",
+      "fact_line": {
+        "mother": "[claim kinship/1] type: casc0:rel/parent | surface: \"mother\" | agent: {subj} ({subj_urn}) | patient: {obj} ({obj_urn}) | direction: agent-to-patient | gloss: {subj} is a woman; {subj} is a parent of {obj}.\n",
+        "father": "[claim kinship/1] type: casc0:rel/parent | surface: \"father\" | agent: {subj} ({subj_urn}) | patient: {obj} ({obj_urn}) | direction: agent-to-patient | gloss: {subj} is a man; {subj} is a parent of {obj}.\n",
+        "daughter": "[claim kinship/1] type: casc0:rel/child | surface: \"daughter\" | agent: {subj} ({subj_urn}) | patient: {obj} ({obj_urn}) | direction: agent-to-patient | gloss: {subj} is a child of {obj}; {subj} is female.\n",
+        "son": "[claim kinship/1] type: casc0:rel/child | surface: \"son\" | agent: {subj} ({subj_urn}) | patient: {obj} ({obj_urn}) | direction: agent-to-patient | gloss: {subj} is a child of {obj}; {subj} is male.\n",
+        "sister": "[claim kinship/1] type: casc0:rel/sibling | surface: \"sister\" | agent: {subj} ({subj_urn}) | patient: {obj} ({obj_urn}) | direction: symmetric | gloss: {subj} and {obj} are siblings; {subj} is female.\n",
+        "brother": "[claim kinship/1] type: casc0:rel/sibling | surface: \"brother\" | agent: {subj} ({subj_urn}) | patient: {obj} ({obj_urn}) | direction: symmetric | gloss: {subj} and {obj} are siblings; {subj} is male.\n"
+      },
+      "claim_line": {
+        "mother": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/parent | surface: \"mother\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a woman; {subj} is a parent of {obj}.\n",
+        "father": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/parent | surface: \"father\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a man; {subj} is a parent of {obj}.\n",
+        "daughter": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/child | surface: \"daughter\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a child of {obj}; {subj} is female.\n",
+        "son": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/child | surface: \"son\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a child of {obj}; {subj} is male.\n",
+        "sister": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/sibling | surface: \"sister\" | agent: {subj} | patient: {obj} | direction: symmetric | gloss: {subj} and {obj} are siblings; {subj} is female.\n",
+        "brother": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/sibling | surface: \"brother\" | agent: {subj} | patient: {obj} | direction: symmetric | gloss: {subj} and {obj} are siblings; {subj} is male.\n",
+        "grandmother": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/grandparent | surface: \"grandmother\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a woman; {subj} is a grandparent of {obj}.\n",
+        "grandfather": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/grandparent | surface: \"grandfather\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a man; {subj} is a grandparent of {obj}.\n",
+        "granddaughter": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/grandchild | surface: \"granddaughter\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a grandchild of {obj}; {subj} is female.\n",
+        "grandson": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/grandchild | surface: \"grandson\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a grandchild of {obj}; {subj} is male.\n",
+        "aunt": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/pibling | surface: \"aunt\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is an aunt of {obj}.\n",
+        "uncle": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/pibling | surface: \"uncle\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is an uncle of {obj}.\n",
+        "niece": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/nibling | surface: \"niece\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a niece of {obj}.\n",
+        "nephew": "[derived kinship/1] status: asserted-by-reasoner | type: casc0:rel/nibling | surface: \"nephew\" | agent: {subj} | patient: {obj} | direction: agent-to-patient | gloss: {subj} is a nephew of {obj}.\n"
+      },
+      "intermediate_question": "\n[query kinship/1] type: ? | agent: {subj} | patient: {obj} | direction: agent-to-patient | task: using only the records above, select the relation of {subj} (agent) to {obj} (patient).\n",
+      "final_question": "\n[query kinship/1] type: ? | agent: {subj} | patient: {obj} | direction: agent-to-patient | task: using only the records above, select the relation of {subj} (agent) to {obj} (patient).\n",
+      "gloss_authoring_note": "Explicator-authored raw-kernel Option-A records (ASM-1158 pre-freeze upgrade, 2026-07-11; authoring record + kernel-coverage mapping: poc/casc-0/kernel-coverage.md). Per-relation entries keyed by rel_surface (dict frames; the runner fail-closes ERR_FRAME on a missing key). Canonical head one field per claim: kind, type (casc0:rel/<core> — SELF-AUTHORED namespace, mapping to kernel-v0/molecules-v0 FAILED so the medium is kernel-STYLE, not kernel-covered), surface, agent, patient, direction (symmetric for sibling — the one relation whose direction field would otherwise mislead). Gloss clause varies by relation family on semantic grounds, never cosmetically: parent/grandparent glosses lead with the sex clause in adult terms (woman/man) then the core relation; child/grandchild glosses lead with the relation and mark sex age-neutrally (female/male); sibling glosses state the symmetric two-party fact; pibling/nibling glosses stay at the natural gendered surface (aunt/uncle/niece/nephew — English has no everyday neutral term) with no redundant sex clause. ANALYTIC-CONTENT BOUNDARY (content-matching discipline): every head field and gloss clause is a function of the single fact/claim triple (subj, surface term, obj) — core type, agent sex, direction/symmetry are lexical content of the surface word the content-matched nl sentence already carries; NO converse restatements, NO generation counts, NO decompositions (never 'an aunt is a parent's sister'), NO composition-table content, NO molecule explication bodies (birth semantics excluded — consistent with the kernel-STYLE rider)."
+    },
+    "plain": {
+      "qa_prefix": "Facts, then a relation query.\n\n",
+      "fact_line": "{rel_core}({subj}, {obj}); {gender_atom}({subj}).\n",
+      "claim_line": "asserted: {rel_surface}({subj}, {obj}).\n",
+      "intermediate_question": "\n? = rel({subj}, {obj})\n",
+      "final_question": "\n? = rel({subj}, {obj})\n"
+    },
+    "frames_note": "CONTENT-MATCHED across mediums: same facts, same entities, same question, same 7-option gendered answer surface; per-medium token counts are MEASURED per cell (rho_in becomes MEASURED, converting the CASC/1 ESTIMATED ledger entry); NL phrasings produced by the same pinned template protocol as the dialect renderings so NL cells are not disadvantaged by authoring quality (cascade-synthesis section 3); gloss templates are EXPLICATOR-AUTHORED kernel-STYLE Option-A per-relation records (ASM-1142/1158 pre-freeze open item DISCHARGED 2026-07-11; per-relation dict frames keyed by rel_surface, runner fail-closes ERR_FRAME; authoring record + kernel-coverage mapping in poc/casc-0/kernel-coverage.md — mapping FAILED 0/7 core relation types, so the rider clause is kernel-STYLE, never kernel-covered); nl and plain templates untouched: the gloss additions (core type, agent sex, direction/symmetry) are analytic content of the surface word each nl sentence already carries, so information parity holds by construction"
+  },
+  "flop_accounting": {
+    "formula": "F0 section 3.3: FLOPs = 2*N_active*T_total + 2*L*T^2*d_attn per sequence; prefill and decode metered separately; T measured with the arm's own tokenizer",
+    "cpu_flops_per_s_pinned": 5.0e10,
+    "cpu_note": "CPU-side verifier/engine work metered as measured wall-clock seconds converted at this pinned rate ONLY for the aggregate figure; wall-clock reported separately",
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10, "A100": 2.10},
+    "usd_note": "Modal list prices for planning + $-per-query conversion; actual billing reconciled from the dashboard"
+  },
+  "planning": {
+    "note": "dry-plan ESTIMATES only — never emitted as measurements",
+    "throughput_tok_per_s": {
+      "A100": {"R2": 9000, "R3": 2600},
+      "A10G": {"R2": 6500, "R3": 1800},
+      "T4": {"R2": 2200, "R3": 600}
+    },
+    "chars_per_token_estimate": 4.0,
+    "overhead_factor": 2.0,
+    "retry_inflation_verifier_on": 1.5,
+    "ttc_n_planning": 4,
+    "n_params": {"R2": 3.6e8, "R3": 1.7e9}
+  },
+  "mock": {
+    "note": "SYNTHETIC mechanics-only stub LM (no torch); every number labelled MOCK, never a measurement; the engine, verifier (true AND deranged), eval-set construction, engagement accounting, TTC cost-matching, flop-meter and emitter code paths are the REAL ones. The planted skill surface (base + medium bonus + verifier bonus, larger at R2 than R3) exists ONLY so the analysis contract's gates and contrasts resolve during mock validation.",
+    "n_eval_items": 24,
+    "seeds": [0, 1],
+    "stub_skill": {"R2": 0.45, "R3": 0.72},
+    "stub_medium_bonus": {
+      "nl": {"R2": 0.0, "R3": 0.0},
+      "gloss": {"R2": 0.25, "R3": 0.06},
+      "plain": {"R2": 0.2, "R3": 0.05}
+    },
+    "stub_verifier_bonus": {"R2": 0.1, "R3": 0.03},
+    "stub_intermediate_skill": 0.7,
+    "stub_ttc_bonus": 0.05,
+    "stub_dims": {
+      "R2": {"n_active": 2000000, "layers": 2, "d_attn": 64},
+      "R3": {"n_active": 8000000, "layers": 2, "d_attn": 64}
+    }
+  },
+  "inputs_status": {
+    "d-casc0": "BUILT + pinned pre-freeze (data/d-casc0/build-dcasc0.py, generator seed dcasc0/1|casc-0|20260711, single-draw rule): 400 CLUTRR-shaped depth-2/3/4 relation-composition items with ENGINE-derivable gold, held-out compositions (eval depth-2 paths hash-disjoint from exemplar paths) and held-out depths (exemplars depth-2 only); the runner evaluates the deterministic rank prefix (per_arm_items=300)",
+    "kernel-v0 / molecules-v0": "pinned verbatim from f2b-transfer for the gloss medium's authoring-style anchor; NOT read by the runner (the casc0 store is self-contained) — retained in the pin block so the record's medium claim is anchored to the same kernel instance the f2b line measured"
+  }
+}

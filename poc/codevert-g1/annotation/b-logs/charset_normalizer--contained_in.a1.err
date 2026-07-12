@@ -1,0 +1,734 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.9wcpczjr"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.rgqoh7t9
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c3-936b-7a83-879d-0f4509ed1cff
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: charset_normalizer ===
+PY FILE LISTING (repo-root-relative; authoritative):
+noxfile.py
+setup.py
+_mypyc_hook/__init__.py
+_mypyc_hook/backend.py
+bin/bc.py
+bin/coverage.py
+bin/performance.py
+docs/conf.py
+src/charset_normalizer/__init__.py
+src/charset_normalizer/__main__.py
+src/charset_normalizer/api.py
+src/charset_normalizer/cd.py
+src/charset_normalizer/constant.py
+src/charset_normalizer/legacy.py
+src/charset_normalizer/md.py
+src/charset_normalizer/models.py
+src/charset_normalizer/utils.py
+src/charset_normalizer/version.py
+src/charset_normalizer/cli/__init__.py
+src/charset_normalizer/cli/__main__.py
+tests/__init__.py
+tests/test_base_detection.py
+tests/test_cli.py
+tests/test_coherence_detection.py
+tests/test_detect_legacy.py
+tests/test_edge_case.py
+tests/test_full_detection.py
+tests/test_isbinary.py
+tests/test_large_payload.py
+tests/test_logging.py
+tests/test_mess_detection.py
+tests/test_preemptive_detection.py
+tests/test_thread_safety.py
+tests/test_utils.py
+
+=== QUERIES (2) ===
+QUERY g1q-charset_normalizer-contained_in-29: family=contained_in target=src/charset_normalizer/cd.py::characters_popularity_compare
+QUERY g1q-charset_normalizer-contained_in-205: family=contained_in target=tests/test_edge_case.py::test_regression_gh771_fallback_entry_on_undecodable_payload
+
+=== CONTEXT ===
+
+FILE src/charset_normalizer/cd.py:
+    1| from __future__ import annotations
+    2| 
+    3| import importlib
+    4| from codecs import IncrementalDecoder
+    5| from functools import lru_cache
+    6| 
+    7| from .constant import (
+    8|     FREQUENCIES,
+    9|     KO_NAMES,
+   10|     LANGUAGE_SUPPORTED_COUNT,
+   11|     TOO_SMALL_SEQUENCE,
+   12|     ZH_NAMES,
+   13|     _FREQUENCIES_SET,
+   14|     _FREQUENCIES_RANK,
+   15| )
+   16| from .md import _ASCII_CHAR_INFO, _char_info, is_suspiciously_successive_range
+   17| from .models import CoherenceMatches
+   18| from .utils import (
+   19|     is_multi_byte_encoding,
+   20|     is_unicode_range_secondary,
+   21| )
+   22| 
+   23| 
+   24| def encoding_unicode_range(iana_name: str) -> list[str]:
+   25|     """
+   26|     Return associated unicode ranges in a single byte code page.
+   27|     """
+   28|     if is_multi_byte_encoding(iana_name):
+   29|         raise OSError(  # Defensive:
+   30|             "Function not supported on multi-byte code page"
+   31|         )
+   32| 
+   33|     decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalDecoder
+   34| 
+   35|     p: IncrementalDecoder = decoder(errors="ignore")
+   36|     seen_ranges: dict[str, int] = {}
+   37|     character_count: int = 0
+   38| 
+   39|     for i in range(0x40, 0xFF):
+   40|         chunk: str = p.decode(bytes([i]))
+   41| 
+   42|         if chunk:
+   43|             chunk_codepoint = ord(chunk)
+   44|             character_range: str | None = (
+   45|                 _ASCII_CHAR_INFO[chunk_codepoint].range
+   46|                 if chunk_codepoint < 128
+   47|                 else _char_info(chunk).range
+   48|             )
+   49| 
+   50|             if character_range is None:
+   51|                 continue
+   52| 
+   53|             if not is_unicode_range_secondary(character_range):
+   54|                 if character_range not in seen_ranges:
+   55|                     seen_ranges[character_range] = 0
+   56|                 seen_ranges[character_range] += 1
+   57|                 character_count += 1
+   58| 
+   59|     return sorted(
+   60|         [
+   61|             character_range
+   62|             for character_range in seen_ranges
+   63|             if seen_ranges[character_range] / character_count >= 0.15
+   64|         ]
+   65|     )
+   66| 
+   67| 
+   68| def unicode_range_languages(primary_range: str) -> list[str]:
+   69|     """
+   70|     Return inferred languages used with a unicode range.
+   71|     """
+   72|     languages: list[str] = []
+   73| 
+   74|     for language, characters in FREQUENCIES.items():
+   75|         for character in characters:
+   76|             codepoint = ord(character)
+   77|             info = (
+   78|                 _ASCII_CHAR_INFO[codepoint]
+   79|                 if codepoint < 128
+   80|                 else _char_info(character)
+   81|             )
+   82|             if info.range == primary_range:
+   83|                 languages.append(language)
+   84|                 break
+   85| 
+   86|     return languages
+   87| 
+   88| 
+   89| @lru_cache()
+   90| def encoding_languages(iana_name: str) -> list[str]:
+   91|     """
+   92|     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
+   93|     This function does the correspondence.
+   94|     """
+   95|     try:
+   96|         unicode_ranges: list[str] = encoding_unicode_range(iana_name)
+   97|     except ImportError:  # Defensive: encoding unavailable on this build.
+   98|         return []
+   99| 
+  100|     primary_range: str | None = None
+  101| 
+  102|     for specified_range in unicode_ranges:
+  103|         if "Latin" not in specified_range:
+  104|             primary_range = specified_range
+  105|             break
+  106| 
+  107|     if primary_range is None:
+  108|         return ["Latin Based"]
+  109| 
+  110|     return unicode_range_languages(primary_range)
+  111| 
+  112| 
+  113| @lru_cache()
+  114| def mb_encoding_languages(iana_name: str) -> list[str]:
+  115|     """
+  116|     Multi-byte encoding language association. Some code page are heavily linked to particular language(s).
+  117|     This function does the correspondence.
+  118|     """
+  119|     if (
+  120|         iana_name.startswith("shift_")
+  121|         or iana_name.startswith("iso2022_jp")
+  122|         or iana_name.startswith("euc_j")
+  123|         or iana_name == "cp932"
+  124|     ):
+  125|         return ["Japanese"]
+  126|     if iana_name.startswith("gb") or iana_name in ZH_NAMES:
+  127|         return ["Chinese"]
+  128|     if iana_name.startswith("iso2022_kr") or iana_name in KO_NAMES:
+  129|         return ["Korean"]
+  130| 
+  131|     return []
+  132| 
+  133| 
+  134| @lru_cache(maxsize=LANGUAGE_SUPPORTED_COUNT)
+  135| def get_target_features(language: str) -> tuple[bool, bool]:
+  136|     """
+  137|     Determine main aspects from a supported language if it contains accents and if is pure Latin.
+  138|     """
+  139|     target_have_accents: bool = False
+  140|     target_pure_latin: bool = True
+  141| 
+  142|     for character in FREQUENCIES[language]:
+  143|         codepoint = ord(character)
+  144|         info = _ASCII_CHAR_INFO[codepoint] if codepoint < 128 else _char_info(character)
+  145|         if not target_have_accents and info.accentuated:
+  146|             target_have_accents = True
+  147|         if target_pure_latin and not info.latin:
+  148|             target_pure_latin = False
+  149| 
+  150|     return target_have_accents, target_pure_latin
+  151| 
+  152| 
+  153| def alphabet_languages(
+  154|     characters: list[str], ignore_non_latin: bool = False
+  155| ) -> list[str]:
+  156|     """
+  157|     Return associated languages associated to given characters.
+  158|     """
+  159|     languages: list[tuple[str, float]] = []
+  160| 
+  161|     characters_set: frozenset[str] = frozenset(characters)
+  162|     source_have_accents = False
+  163|     for character in characters:
+  164|         codepoint = ord(character)
+  165|         info = _ASCII_CHAR_INFO[codepoint] if codepoint < 128 else _char_info(character)
+  166|         if info.accentuated:
+  167|             source_have_accents = True
+  168|             break
+  169| 
+  170|     for language, language_characters in FREQUENCIES.items():
+  171|         target_have_accents, target_pure_latin = get_target_features(language)
+  172| 
+  173|         if ignore_non_latin and not target_pure_latin:
+  174|             continue
+  175| 
+  176|         if not target_have_accents and source_have_accents:
+  177|             continue
+  178| 
+  179|         character_count: int = len(language_characters)
+  180| 
+  181|         character_match_count: int = len(_FREQUENCIES_SET[language] & characters_set)
+  182| 
+  183|         ratio: float = character_match_count / character_count
+  184| 
+  185|         if ratio >= 0.2:
+  186|             languages.append((language, ratio))
+  187| 
+  188|     languages = sorted(languages, key=lambda x: x[1], reverse=True)
+  189| 
+  190|     return [compatible_language[0] for compatible_language in languages]
+  191| 
+  192| 
+  193| def characters_popularity_compare(
+  194|     language: str, ordered_characters: list[str]
+  195| ) -> float:
+  196|     """
+  197|     Determine if a ordered characters list (by occurrence from most appearance to rarest) match a particular language.
+  198|     The result is a ratio between 0. (absolutely no correspondence) and 1. (near perfect fit).
+  199|     Beware that is function is not strict on the match in order to ease the detection. (Meaning close match is 1.)
+  200|     """
+  201|     if language not in FREQUENCIES:
+  202|         raise ValueError(f"{language} not available")  # Defensive:
+  203| 
+  204|     character_approved_count: int = 0
+  205|     lang_rank: dict[str, int] = _FREQUENCIES_RANK[language]
+  206| 
+  207|     ordered_characters_count: int = len(ordered_characters)
+  208|     target_language_characters_count: int = len(FREQUENCIES[language])
+  209| 
+  210|     large_alphabet: bool = target_language_characters_count > 26
+  211|     large_alphabet_threshold: float = target_language_characters_count / 3
+  212| 
+  213|     expected_projection_ratio: float = (
+  214|         target_language_characters_count / ordered_characters_count
+  215|     )
+  216| 
+  217|     # Single pass: characters present in the language vocabulary, as
+  218|     # (language rank, popularity rank) pairs. The scoring below only ever
+  219|     # needs ranks, never the characters themselves.
+  220|     common_lr: list[int] = []
+  221|     common_orr: list[int] = []
+  222|     for popularity_rank, character in enumerate(ordered_characters):
+  223|         language_rank = lang_rank.get(character)
+  224|         if language_rank is not None:
+  225|             common_lr.append(language_rank)
+  226|             common_orr.append(popularity_rank)
+  227| 
+  228|     for character_rank_in_language, character_rank in zip(common_lr, common_orr):
+  229|         character_rank_projection: int = int(character_rank * expected_projection_ratio)
+  230| 
+  231|         if (
+  232|             not large_alphabet
+  233|             and abs(character_rank_projection - character_rank_in_language) > 4
+  234|         ):
+  235|             continue
+  236| 
+  237|         if (
+  238|             large_alphabet
+  239|             and abs(character_rank_projection - character_rank_in_language)
+  240|             < large_alphabet_threshold
+  241|         ):
+  242|             character_approved_count += 1
+  243|             continue
+  244| 
+  245|         if character_rank_in_language == 0:
+  246|             # before_match_count is structurally 0 here (no pair can have a
+  247|             # smaller language rank): the historic "before <= 4" acceptance
+  248|             # always holds. (The symmetric "after_len == 0" case is
+  249|             # impossible: language ranks are strictly below the language
+  250|             # character count, hence after_len >= 1.)
+  251|             character_approved_count += 1
+  252|             continue
+  253| 
+  254|         after_len: int = target_language_characters_count - character_rank_in_language
+  255| 
+  256|         # Count how many characters appear "before" in both orderings, and
+  257|         # how many appear "at or after" in both orderings. Both counts grow
+  258|         # monotonically and the approval thresholds
+  259|         # (before / rank >= 0.4 or after / after_len >= 0.4) are known
+  260|         # upfront, expressed below as exact integer comparisons: exit as
+  261|         # soon as one is crossed.
+  262|         before_match_count: int = 0
+  263|         after_match_count: int = 0
+  264| 
+  265|         for lr_i, orr_i in zip(common_lr, common_orr):
+  266|             if lr_i < character_rank_in_language:
+  267|                 if orr_i < character_rank:
+  268|                     before_match_count += 1
+  269|                     if 5 * before_match_count >= 2 * character_rank_in_language:
+  270|                         character_approved_count += 1
+  271|                         break
+  272|             else:
+  273|                 if orr_i >= character_rank:
+  274|                     after_match_count += 1
+  275|                     if 5 * after_match_count >= 2 * after_len:
+  276|                         character_approved_count += 1
+  277|                         break
+  278| 
+  279|     return character_approved_count / len(ordered_characters)
+  280| 
+  281| 
+  282| def alpha_unicode_split(decoded_sequence: str) -> list[str]:
+  283|     """
+  284|     Given a decoded text sequence, return a list of str. Unicode range / alphabet separation.
+  285|     Ex. a text containing English/Latin with a bit a Hebrew will return two items in the resulting list;
+  286|     One containing the latin letters and the other hebrew.
+  287|     """
+  288|     layers: dict[str, list[str]] = {}
+  289| 
+  290|     # Fast path: track single-layer key to skip dict iteration for single-script text.
+  291|     single_layer_key: str | None = None
+  292|     multi_layer: bool = False
+  293| 
+  294|     # Cache the last character_range and its resolved layer to avoid repeated
+  295|     # is_suspiciously_successive_range calls for consecutive same-range chars.
+  296|     prev_character_range: str | None = None
+  297|     prev_layer_target: str | None = None
+  298| 
+  299|     for character in decoded_sequence:
+  300|         # Reuse the per-codepoint CharInfo cache: info.alpha and info.range
+  301|         # are computed with the very same str.isalpha() / unicode_range()
+  302|         # calls this loop historically made per character occurrence.
+  303|         codepoint: int = ord(character)
+  304|         if codepoint < 128:
+  305|             info = _ASCII_CHAR_INFO[codepoint]
+  306|         else:
+  307|             info = _char_info(character)
+  308| 
+  309|         if not info.alpha:
+  310|             continue
+  311| 
+  312|         character_range: str | None = info.range
+  313| 
+  314|         if character_range is None:
+  315|             continue
+  316| 
+  317|         # Fast path: same range as previous character → reuse cached layer target.
+  318|         if character_range == prev_character_range:
+  319|             if prev_layer_target is not None:
+  320|                 layers[prev_layer_target].append(character)
+  321|             continue
+  322| 
+  323|         layer_target_range: str | None = None
+  324| 
+  325|         if multi_layer:
+  326|             for discovered_range in layers:
+  327|                 if not is_suspiciously_successive_range(
+  328|                     discovered_range, character_range
+  329|                 ):
+  330|                     layer_target_range = discovered_range
+  331|                     break
+  332|         elif single_layer_key is not None:
+  333|             if not is_suspiciously_successive_range(single_layer_key, character_range):
+  334|                 layer_target_range = single_layer_key
+  335| 
+  336|         if layer_target_range is None:
+  337|             layer_target_range = character_range
+  338| 
+  339|         if layer_target_range not in layers:
+  340|             layers[layer_target_range] = []
+  341|             if single_layer_key is None:
+  342|                 single_layer_key = layer_target_range
+  343|             else:
+  344|                 multi_layer = True
+  345| 
+  346|         layers[layer_target_range].append(character)
+  347| 
+  348|         # Cache for next iteration
+  349|         prev_character_range = character_range
+  350|         prev_layer_target = layer_target_range
+  351| 
+  352|     return ["".join(chars).lower() for chars in layers.values()]
+  353| 
+  354| 
+  355| def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
+  356|     """
+  357|     This function merge results previously given by the function coherence_ratio.
+  358|     The return type is the same as coherence_ratio.
+  359|     """
+  360|     per_language_ratios: dict[str, list[float]] = {}
+  361|     for result in results:
+  362|         for sub_result in result:
+  363|             language, ratio = sub_result
+  364|             if language not in per_language_ratios:
+  365|                 per_language_ratios[language] = [ratio]
+  366|                 continue
+  367|             per_language_ratios[language].append(ratio)
+  368| 
+  369|     merge = [
+  370|         (
+  371|             language,
+  372|             round(
+  373|                 sum(per_language_ratios[language]) / len(per_language_ratios[language]),
+  374|                 4,
+  375|             ),
+  376|         )
+  377|         for language in per_language_ratios
+  378|     ]
+  379| 
+  380|     return sorted(merge, key=lambda x: x[1], reverse=True)
+  381| 
+  382| 
+  383| def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
+  384|     """
+  385|     We shall NOT return "English—" in CoherenceMatches because it is an alternative
+  386|     of "English". This function only keeps the best match and remove the em-dash in it.
+  387|     """
+  388|     index_results: dict[str, list[float]] = dict()
+  389| 
+  390|     for result in results:
+  391|         language, ratio = result
+  392|         no_em_name: str = language.replace("—", "")
+  393| 
+  394|         if no_em_name not in index_results:
+  395|             index_results[no_em_name] = []
+  396| 
+  397|         index_results[no_em_name].append(ratio)
+  398| 
+  399|     if any(len(index_results[e]) > 1 for e in index_results):
+  400|         filtered_results: CoherenceMatches = []
+  401| 
+  402|         for language in index_results:
+  403|             filtered_results.append((language, max(index_results[language])))
+  404| 
+  405|         return filtered_results
+  406| 
+  407|     return results
+  408| 
+  409| 
+  410| def coherence_ratio(
+  411|     decoded_sequence: str, threshold: float = 0.1, lg_inclusion: str | None = None
+  412| ) -> CoherenceMatches:
+  413|     """
+  414|     Detect ANY language that can be identified in given sequence. The sequence will be analysed by layers.
+  415|     A layer = Character extraction by alphabets/ranges.
+  416|     """
+  417| 
+  418|     results: list[tuple[str, float]] = []
+  419|     ignore_non_latin: bool = False
+  420| 
+  421|     sufficient_match_count: int = 0
+  422| 
+  423|     lg_inclusion_list = lg_inclusion.split(",") if lg_inclusion is not None else []
+  424|     if "Latin Based" in lg_inclusion_list:
+  425|         ignore_non_latin = True
+  426|         lg_inclusion_list.remove("Latin Based")
+  427| 
+  428|     for layer in alpha_unicode_split(decoded_sequence):
+  429|         # Native counting + stable sort reproduce Counter.most_common()
+  430|         # ordering exactly (ties keep first-appearance order) without the
+  431|         # interpreted Counter machinery in the compiled hot path.
+  432|         char_counts: dict[str, int] = {}
+  433|         for layer_character in layer:
+  434|             char_counts[layer_character] = char_counts.get(layer_character, 0) + 1
+  435| 
+  436|         character_count: int = len(layer)
+  437| 
+  438|         if character_count <= TOO_SMALL_SEQUENCE:
+  439|             continue
+  440| 
+  441|         popular_character_ordered: list[str] = [
+  442|             item[0]
+  443|             for item in sorted(
+  444|                 char_counts.items(), key=lambda item: item[1], reverse=True
+  445|             )
+  446|         ]
+  447| 
+  448|         for language in lg_inclusion_list or alphabet_languages(
+  449|             popular_character_ordered, ignore_non_latin
+  450|         ):
+  451|             ratio: float = characters_popularity_compare(
+  452|                 language, popular_character_ordered
+  453|             )
+  454| 
+  455|             if ratio < threshold:
+  456|                 continue
+  457|             elif ratio >= 0.8:
+  458|                 sufficient_match_count += 1
+  459| 
+  460|             results.append((language, round(ratio, 4)))
+  461| 
+  462|             if sufficient_match_count >= 3:
+  463|                 break
+  464| 
+  465|     return sorted(
+  466|         filter_alt_coherence_matches(results), key=lambda x: x[1], reverse=True
+  467|     )
+
+FILE tests/test_edge_case.py:
+    1| from __future__ import annotations
+    2| 
+    3| import platform
+    4| 
+    5| import pytest
+    6| 
+    7| from charset_normalizer import from_bytes
+    8| 
+    9| 
+   10| @pytest.mark.xfail(
+   11|     platform.python_version_tuple()[0] == "3"
+   12|     and platform.python_version_tuple()[1] == "7",
+   13|     reason="Unicode database is too old for this case (Python 3.7)",
+   14| )
+   15| def test_unicode_edge_case():
+   16|     payload = b"\xef\xbb\xbf\xf0\x9f\xa9\xb3"
+   17| 
+   18|     best_guess = from_bytes(payload).best()
+   19| 
+   20|     assert (
+   21|         best_guess is not None
+   22|     ), "Payload should have given something, detection failure"
+   23|     assert best_guess.encoding == "utf_8", "UTF-8 payload wrongly detected"
+   24| 
+   25| 
+   26| def test_issue_gh520():
+   27|     """Verify that minorities does not strip basic latin characters!"""
+   28|     payload = b"/includes/webform.compon\xd2\xaants.inc/"
+   29| 
+   30|     best_guess = from_bytes(payload).best()
+   31| 
+   32|     assert (
+   33|         best_guess is not None
+   34|     ), "Payload should have given something, detection failure"
+   35|     assert "Basic Latin" in best_guess.alphabets
+   36| 
+   37| 
+   38| def test_issue_gh509():
+   39|     """Two common ASCII punctuations should render as-is."""
+   40|     payload = b");"
+   41| 
+   42|     best_guess = from_bytes(payload).best()
+   43| 
+   44|     assert (
+   45|         best_guess is not None
+   46|     ), "Payload should have given something, detection failure"
+   47|     assert "ascii" == best_guess.encoding
+   48| 
+   49| 
+   50| def test_issue_gh498():
+   51|     """This case was mistaken for utf-16-le, this should never happen again."""
+   52|     payload = b"\x84\xae\xaa\xe3\xac\xa5\xad\xe2 Microsoft Word.docx"
+   53| 
+   54|     best_guess = from_bytes(payload).best()
+   55| 
+   56|     assert (
+   57|         best_guess is not None
+   58|     ), "Payload should have given something, detection failure"
+   59|     assert "Cyrillic" in best_guess.alphabets
+   60| 
+   61| 
+   62| def test_regression_gh771_fallback_entry_on_undecodable_payload():
+   63|     chaos = b'=][;:!?*&^%$#@ (){}<>~|_+ "quoted" ' * 90
+   64|     gap_position = 512 + (len(chaos) // 5 - 512) // 2
+   65|     payload = chaos[:gap_position] + "\u00e9".encode() + chaos[gap_position:]
+   66| 
+   67|     results = from_bytes(payload)  # must not raise
+   68|     best_guess = results.best()
+   69| 
+   70|     assert best_guess is not None, "fallback machinery gave no result at all"
+   71|     assert best_guess.encoding == "utf_8", (
+   72|         f"expected the utf_8 fallback, got {best_guess.encoding}"
+   73|     )
+   74|     assert str(best_guess), "best match must decode without error"
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-charset_normalizer-contained_in-29",
+    "answerable_static": true,
+    "gold": [
+      "src/charset_normalizer/cd.py"
+    ],
+    "conditional_flags": [],
+    "notes": "The function is defined at module level."
+  },
+  {
+    "query_id": "g1q-charset_normalizer-contained_in-205",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_edge_case.py"
+    ],
+    "conditional_flags": [],
+    "notes": "The function is defined at module level."
+  }
+]
+tokens used
+10,847

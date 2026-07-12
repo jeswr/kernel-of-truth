@@ -1,0 +1,64 @@
+{
+ "asm": [
+  "PROPOSED-ASM-1120",
+  "PROPOSED-ASM-1121",
+  "PROPOSED-ASM-1126",
+  "PROPOSED-ASM-1190"
+ ],
+ "axiom_records": {
+  "chain-grandfather": "a21946b0ec7bb441e5cddc982172b9627eeb0992d95ed4296c1f08c7468e5185",
+  "chain-grandmother": "0b8cb0f6295267acd84c6ae9fae917a2c31f9552b57f289ec1ef0c06012f4f20",
+  "chain-grandparent": "4a3e26155e64909bcb4acf002dc39f4de1297f897b8eef62f7e5470387509942",
+  "class-person": "52097ae129195188098b8d1330ac982a41171d6ce889acd0c900994b65039c85",
+  "cover-parent": "fc275860af8a364b384d453913acffef5e337e3f7c11eb2855a48474fe1420ac",
+  "rel-parent": "32719461a1304e60e25de87f430226ddbe55d87d9a2a7d72f589788caa91571e",
+  "sub-father-parent": "6fc1c695b05d4226274c37057bf1b6e3e030f7918bd75d03c616050a4fa1dd0e",
+  "sub-mother-parent": "4ef2095f64934e8d4d0e8d1df0220e8beb91f23ac264676c210221c552d5f0a0"
+ },
+ "concept_records": {
+  "grandfather": {
+   "file": "concepts/grandfather.json",
+   "sha256": "ea3c636545be23554cb9cb348bb2c9a8e063a6a87c94e0882a1b1860f3e9f973",
+   "urn": "urn:kot:bciqaodboazc2mg3avtd6i64zljzdps4qvtdjrj5agyjx6yvw6on3cbq"
+  },
+  "grandmother": {
+   "file": "concepts/grandmother.json",
+   "sha256": "6021418cc2db49fd8f81f8e51bfd1d0a1aee4c1648a69986b9f6e8845b1757dd",
+   "urn": "urn:kot:bciqi2ktwiigqk27exlkukdm6h7sxmdyrglzwirpzr2gb4blltn7t2mi"
+  },
+  "grandparent": {
+   "file": "concepts/grandparent.json",
+   "sha256": "52725e9b7b6304d76728928fc197e5f6cbd9543cf502ad9456587d98e1c2a524",
+   "urn": "urn:kot:bciqobx6ivvuntsotdxrxovep5uvhabut2rfu3s53tv4caztkeykwpya"
+  },
+  "parent": {
+   "file": "concepts/parent.json",
+   "sha256": "605084322c1e7bb23decdec9758cb0c0717c9f6b2a6717ae7da949b64b7d5cf2",
+   "urn": "urn:kot:bciqdqrvkbq47xy2vgwjgutwoikbpldzvwxbscyg7mjok6n2r67qvxvi"
+  },
+  "person": {
+   "file": "concepts/person.json",
+   "sha256": "bf46c4df1ad5c7b34edf7c335188c2b1636a0ce2c3b2c5f96e6d5d2df7da4d66",
+   "urn": "urn:kot:bciqpwmx56agwtjsqnaegzxfie5ugijjeqtigvjawphcxcbl4mw76raa"
+  }
+ },
+ "corpus": "axioms-kinship-v1",
+ "design_anchor": "docs/next/arch/world-model-rules-engine.md §2.1/§4.1",
+ "epistemic_status": "PROVISIONAL AUTHORED CONTENT — explicator loop COMPLETED 2026-07-11: parent, person, grandfather, grandmother endorsed unchanged; grandparent groundingNote revised ('the parent' -> 'a parent', removing a false uniqueness implicature) and re-minted, with the dependent axiom records regenerated. All 8 kot-axiom/1 records endorsed sound and correctly scoped (UNA PROPOSED-ASM-1120 and covering PROPOSED-ASM-1121 disclosed stipulations). Pending maintainer endorsement + freeze re-pin (PROPOSED-ASM-1190; re-run corpus-pin.py). Deterministic re-mint: poc/rules-1/mint_kinship.py.",
+ "extension_kinds": [
+  "subPropertyOf",
+  "coveredBy",
+  "propertyChain",
+  "domain",
+  "classDeclaration"
+ ],
+ "extension_note": "These kinds extend kot-axiom/1 per PROPOSED-ASM-1126; the frozen tools/axiom/kot_axiom.py refuses them (ERR_AXIOM_UNIMPLEMENTED) — only the RULES-1 engine (poc/rules-1/twin_engine.py) implements them. Frozen kinds functional/range/disjointWith continue to come from data/axioms-v0 unchanged.",
+ "identityNote": "Concept URNs content-addressed by MEANING under the molecules-v0 algorithm: profile 'kot-mol/1', identity payload {semanticStatus, flag, groundingNote, groundingRefs, moleculeDepth, axioms, partialExplication}, JCS/NFC, sha2-256 multihash multibase32. Mint self-check reproduced the committed mother/father/man/woman URNs byte-exactly before minting.",
+ "minted_urns": {
+  "grandfather": "urn:kot:bciqaodboazc2mg3avtd6i64zljzdps4qvtdjrj5agyjx6yvw6on3cbq",
+  "grandmother": "urn:kot:bciqi2ktwiigqk27exlkukdm6h7sxmdyrglzwirpzr2gb4blltn7t2mi",
+  "grandparent": "urn:kot:bciqobx6ivvuntsotdxrxovep5uvhabut2rfu3s53tv4caztkeykwpya",
+  "parent": "urn:kot:bciqdqrvkbq47xy2vgwjgutwoikbpldzvwxbscyg7mjok6n2r67qvxvi",
+  "person": "urn:kot:bciqpwmx56agwtjsqnaegzxfie5ugijjeqtigvjawphcxcbl4mw76raa"
+ }
+}

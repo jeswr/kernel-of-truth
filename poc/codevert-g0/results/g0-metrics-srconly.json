@@ -1,0 +1,896 @@
+{
+ "candidate_set_growth": {
+  "max_same_name_defs": 49,
+  "n_distinct_unknown_call_candidates": 744,
+  "share_matching_ge1_repo_def": 0.539,
+  "share_matching_ge2_repo_defs": 0.1089,
+  "top10": [
+   [
+    "click",
+    "__init__",
+    49
+   ],
+   [
+    "bottle",
+    "__init__",
+    28
+   ],
+   [
+    "bottle",
+    "run",
+    23
+   ],
+   [
+    "click",
+    "convert",
+    15
+   ],
+   [
+    "click",
+    "to_info_dict",
+    14
+   ],
+   [
+    "toml",
+    "__init__",
+    12
+   ],
+   [
+    "more-itertools",
+    "__init__",
+    10
+   ],
+   [
+    "click",
+    "shell_complete",
+    9
+   ],
+   [
+    "bottle",
+    "prepare",
+    6
+   ],
+   [
+    "bottle",
+    "__setitem__",
+    6
+   ]
+  ]
+ },
+ "latency_python_reference_engine": {
+  "callees_of": {
+   "max_ms": 0.407,
+   "n": 1396,
+   "p50_us": 4.4,
+   "p95_us": 16.5
+  },
+  "callers_of": {
+   "max_ms": 0.282,
+   "n": 1396,
+   "p50_us": 4.0,
+   "p95_us": 5.9
+  },
+  "contained_in": {
+   "max_ms": 0.021,
+   "n": 1583,
+   "p50_us": 2.4,
+   "p95_us": 3.2
+  },
+  "contains": {
+   "max_ms": 0.3,
+   "n": 230,
+   "p50_us": 5.1,
+   "p95_us": 18.5
+  },
+  "imported_by": {
+   "max_ms": 0.048,
+   "n": 43,
+   "p50_us": 5.1,
+   "p95_us": 13.3
+  },
+  "imports_of": {
+   "max_ms": 0.022,
+   "n": 43,
+   "p50_us": 4.8,
+   "p95_us": 13.3
+  },
+  "instance_of": {
+   "max_ms": 0.024,
+   "n": 187,
+   "p50_us": 4.1,
+   "p95_us": 7.5
+  }
+ },
+ "peak_rss_mb": 50.8,
+ "pooled": {
+  "bootstrap": {
+   "clusters": 6,
+   "note": "repo-level cluster bootstrap; n=6 clusters -> wide CI, honest",
+   "resamples": 10000,
+   "seed": 20260711
+  },
+  "bytes_per_edge_pooled": 196.7,
+  "edges": {
+   "conflict": 0,
+   "disproved": 0,
+   "proved": 7427,
+   "total": 11247,
+   "unknown": 3820,
+   "unknown_share": 0.3396
+  },
+  "kappa_by_family_pooled": {
+   "callees_of": 0.2679,
+   "callers_of": 0.0,
+   "contained_in": 1.0,
+   "contains": 1.0,
+   "imported_by": 0.1395,
+   "imports_of": 0.4651,
+   "instance_of": 0.0
+  },
+  "kappa_forward_families_pooled": 0.6833,
+  "kappa_inverse_families_pooled": 0.0465,
+  "kappa_q_indep_family_macro": 0.4104,
+  "kappa_q_indep_family_macro_ci95_repo_cluster_bootstrap": [
+   0.374,
+   0.4758
+  ],
+  "kappa_q_indep_query_pooled": 0.4537,
+  "kappa_q_indep_query_pooled_ci95_repo_cluster_bootstrap": [
+   0.3986,
+   0.4912
+  ],
+  "n_census_queries_total": 4878,
+  "store_bytes_total": 2211840,
+  "unknown_by_reason": {
+   "BIND_SETATTR": 15,
+   "CALL_ATTR_MODULE_MEMBER_UNRESOLVED": 13,
+   "CALL_ATTR_RECEIVER_UNTYPED": 1908,
+   "CALL_GETATTR": 5,
+   "CALL_LOCAL_VALUE": 275,
+   "CALL_MODULE_BINDING_UNRESOLVED": 736,
+   "CALL_MRO_HAZARD": 73,
+   "CALL_MRO_UNRESOLVED": 178,
+   "CALL_NONNAME_CALLEE": 158,
+   "CALL_VALUE_ESCAPE": 236,
+   "IMPORT_CONDITIONAL": 208,
+   "IMPORT_DYNAMIC": 5,
+   "IMPORT_STAR": 2,
+   "TAINT_EXEC": 8
+  },
+  "unknown_by_relation": {
+   "binding": 17,
+   "call": 3511,
+   "import": 217,
+   "instantiate": 75
+  },
+  "unrestricted_unknowns_by_relation": {
+   "binding": 17,
+   "call": 716,
+   "import": 6,
+   "instantiate": 2
+  }
+ },
+ "repos": {
+  "bottle": {
+   "bytes_per_edge": 166.8,
+   "edges_proved": 1435,
+   "edges_total": 2726,
+   "edges_unknown": 1291,
+   "exec_tainted_modules": [
+    "bottle.py"
+   ],
+   "extract_wall_s": 0.158,
+   "extractor_stats": {
+    "attr_load_untracked": 772,
+    "name_load_untracked": 3644,
+    "value_escape_edges": 0
+   },
+   "families": {
+    "callees_of": {
+     "kappa": 0.0,
+     "n": 368,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 368
+     }
+    },
+    "callers_of": {
+     "kappa": 0.0,
+     "n": 368,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 368
+     }
+    },
+    "contained_in": {
+     "kappa": 1.0,
+     "n": 439,
+     "proved": 439,
+     "statuses": {
+      "proved": 439,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "contains": {
+     "kappa": 1.0,
+     "n": 72,
+     "proved": 72,
+     "statuses": {
+      "proved": 72,
+      "proved_empty": 9,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imported_by": {
+     "kappa": 0.0,
+     "n": 1,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 1
+     }
+    },
+    "imports_of": {
+     "kappa": 0.0,
+     "n": 1,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 1
+     }
+    },
+    "instance_of": {
+     "kappa": 0.0,
+     "n": 71,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 71
+     }
+    },
+    "where_defined": {
+     "kappa": 0.0,
+     "n": 0,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    }
+   },
+   "n_modules": 1,
+   "n_parsed": 1,
+   "sqlite_bytes": 454656,
+   "star_import_modules": [],
+   "unknown_reasons": {
+    "BIND_SETATTR": 3,
+    "CALL_ATTR_RECEIVER_UNTYPED": 708,
+    "CALL_GETATTR": 1,
+    "CALL_LOCAL_VALUE": 86,
+    "CALL_MODULE_BINDING_UNRESOLVED": 305,
+    "CALL_MRO_UNRESOLVED": 75,
+    "CALL_NONNAME_CALLEE": 20,
+    "IMPORT_CONDITIONAL": 87,
+    "IMPORT_DYNAMIC": 2,
+    "TAINT_EXEC": 4
+   }
+  },
+  "click": {
+   "bytes_per_edge": 207.9,
+   "edges_proved": 3141,
+   "edges_total": 4532,
+   "edges_unknown": 1391,
+   "exec_tainted_modules": [],
+   "extract_wall_s": 0.54,
+   "extractor_stats": {
+    "attr_load_untracked": 1341,
+    "name_load_untracked": 4489,
+    "value_escape_edges": 142
+   },
+   "families": {
+    "callees_of": {
+     "kappa": 0.36348408710217756,
+     "n": 597,
+     "proved": 217,
+     "statuses": {
+      "proved": 217,
+      "proved_empty": 108,
+      "target_not_found": 0,
+      "unknown_incomplete": 380
+     }
+    },
+    "callers_of": {
+     "kappa": 0.0,
+     "n": 597,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 597
+     }
+    },
+    "contained_in": {
+     "kappa": 1.0,
+     "n": 669,
+     "proved": 669,
+     "statuses": {
+      "proved": 669,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "contains": {
+     "kappa": 1.0,
+     "n": 102,
+     "proved": 102,
+     "statuses": {
+      "proved": 102,
+      "proved_empty": 4,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imported_by": {
+     "kappa": 0.0,
+     "n": 30,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 30
+     }
+    },
+    "imports_of": {
+     "kappa": 0.5,
+     "n": 30,
+     "proved": 15,
+     "statuses": {
+      "proved": 15,
+      "proved_empty": 2,
+      "target_not_found": 0,
+      "unknown_incomplete": 15
+     }
+    },
+    "instance_of": {
+     "kappa": 0.0,
+     "n": 72,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 72
+     }
+    },
+    "where_defined": {
+     "kappa": 0.0,
+     "n": 0,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    }
+   },
+   "n_modules": 30,
+   "n_parsed": 30,
+   "sqlite_bytes": 942080,
+   "star_import_modules": [],
+   "unknown_reasons": {
+    "CALL_ATTR_MODULE_MEMBER_UNRESOLVED": 13,
+    "CALL_ATTR_RECEIVER_UNTYPED": 751,
+    "CALL_LOCAL_VALUE": 82,
+    "CALL_MODULE_BINDING_UNRESOLVED": 58,
+    "CALL_MRO_HAZARD": 46,
+    "CALL_MRO_UNRESOLVED": 65,
+    "CALL_NONNAME_CALLEE": 131,
+    "CALL_VALUE_ESCAPE": 142,
+    "IMPORT_CONDITIONAL": 102,
+    "IMPORT_DYNAMIC": 1
+   }
+  },
+  "more-itertools": {
+   "bytes_per_edge": 215.1,
+   "edges_proved": 1412,
+   "edges_total": 1638,
+   "edges_unknown": 226,
+   "exec_tainted_modules": [],
+   "extract_wall_s": 0.13,
+   "extractor_stats": {
+    "attr_load_untracked": 203,
+    "name_load_untracked": 2118,
+    "value_escape_edges": 13
+   },
+   "families": {
+    "callees_of": {
+     "kappa": 0.5191489361702127,
+     "n": 235,
+     "proved": 122,
+     "statuses": {
+      "proved": 122,
+      "proved_empty": 18,
+      "target_not_found": 0,
+      "unknown_incomplete": 113
+     }
+    },
+    "callers_of": {
+     "kappa": 0.0,
+     "n": 235,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 235
+     }
+    },
+    "contained_in": {
+     "kappa": 1.0,
+     "n": 247,
+     "proved": 247,
+     "statuses": {
+      "proved": 247,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "contains": {
+     "kappa": 1.0,
+     "n": 15,
+     "proved": 15,
+     "statuses": {
+      "proved": 15,
+      "proved_empty": 1,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imported_by": {
+     "kappa": 0.3333333333333333,
+     "n": 3,
+     "proved": 1,
+     "statuses": {
+      "proved": 1,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 2
+     }
+    },
+    "imports_of": {
+     "kappa": 0.0,
+     "n": 3,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 3
+     }
+    },
+    "instance_of": {
+     "kappa": 0.0,
+     "n": 12,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 12
+     }
+    },
+    "where_defined": {
+     "kappa": 0.0,
+     "n": 0,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    }
+   },
+   "n_modules": 3,
+   "n_parsed": 3,
+   "sqlite_bytes": 352256,
+   "star_import_modules": [
+    "more_itertools/__init__.py"
+   ],
+   "unknown_reasons": {
+    "CALL_ATTR_RECEIVER_UNTYPED": 94,
+    "CALL_LOCAL_VALUE": 73,
+    "CALL_MODULE_BINDING_UNRESOLVED": 18,
+    "CALL_MRO_HAZARD": 6,
+    "CALL_MRO_UNRESOLVED": 12,
+    "CALL_NONNAME_CALLEE": 5,
+    "CALL_VALUE_ESCAPE": 13,
+    "IMPORT_CONDITIONAL": 2,
+    "IMPORT_DYNAMIC": 1,
+    "IMPORT_STAR": 2
+   }
+  },
+  "python-tabulate": {
+   "bytes_per_edge": 209.2,
+   "edges_proved": 585,
+   "edges_total": 979,
+   "edges_unknown": 394,
+   "exec_tainted_modules": [],
+   "extract_wall_s": 0.1,
+   "extractor_stats": {
+    "attr_load_untracked": 88,
+    "name_load_untracked": 1111,
+    "value_escape_edges": 43
+   },
+   "families": {
+    "callees_of": {
+     "kappa": 0.2535211267605634,
+     "n": 71,
+     "proved": 18,
+     "statuses": {
+      "proved": 18,
+      "proved_empty": 6,
+      "target_not_found": 0,
+      "unknown_incomplete": 53
+     }
+    },
+    "callers_of": {
+     "kappa": 0.0,
+     "n": 71,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 71
+     }
+    },
+    "contained_in": {
+     "kappa": 1.0,
+     "n": 73,
+     "proved": 73,
+     "statuses": {
+      "proved": 73,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "contains": {
+     "kappa": 1.0,
+     "n": 4,
+     "proved": 4,
+     "statuses": {
+      "proved": 4,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imported_by": {
+     "kappa": 1.0,
+     "n": 2,
+     "proved": 2,
+     "statuses": {
+      "proved": 2,
+      "proved_empty": 1,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imports_of": {
+     "kappa": 0.5,
+     "n": 2,
+     "proved": 1,
+     "statuses": {
+      "proved": 1,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 1
+     }
+    },
+    "instance_of": {
+     "kappa": 0.0,
+     "n": 2,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 2
+     }
+    },
+    "where_defined": {
+     "kappa": 0.0,
+     "n": 0,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    }
+   },
+   "n_modules": 2,
+   "n_parsed": 2,
+   "sqlite_bytes": 204800,
+   "star_import_modules": [],
+   "unknown_reasons": {
+    "CALL_ATTR_RECEIVER_UNTYPED": 125,
+    "CALL_LOCAL_VALUE": 24,
+    "CALL_MODULE_BINDING_UNRESOLVED": 179,
+    "CALL_MRO_HAZARD": 2,
+    "CALL_MRO_UNRESOLVED": 15,
+    "CALL_NONNAME_CALLEE": 1,
+    "CALL_VALUE_ESCAPE": 43,
+    "IMPORT_CONDITIONAL": 5
+   }
+  },
+  "six": {
+   "bytes_per_edge": 165.2,
+   "edges_proved": 445,
+   "edges_total": 719,
+   "edges_unknown": 274,
+   "exec_tainted_modules": [
+    "six.py"
+   ],
+   "extract_wall_s": 0.049,
+   "extractor_stats": {
+    "attr_load_untracked": 93,
+    "name_load_untracked": 527,
+    "value_escape_edges": 0
+   },
+   "families": {
+    "callees_of": {
+     "kappa": 0.0,
+     "n": 69,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 69
+     }
+    },
+    "callers_of": {
+     "kappa": 0.0,
+     "n": 69,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 69
+     }
+    },
+    "contained_in": {
+     "kappa": 1.0,
+     "n": 84,
+     "proved": 84,
+     "statuses": {
+      "proved": 84,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "contains": {
+     "kappa": 1.0,
+     "n": 17,
+     "proved": 17,
+     "statuses": {
+      "proved": 17,
+      "proved_empty": 5,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imported_by": {
+     "kappa": 0.0,
+     "n": 2,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 2
+     }
+    },
+    "imports_of": {
+     "kappa": 0.5,
+     "n": 2,
+     "proved": 1,
+     "statuses": {
+      "proved": 1,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 1
+     }
+    },
+    "instance_of": {
+     "kappa": 0.0,
+     "n": 15,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 15
+     }
+    },
+    "where_defined": {
+     "kappa": 0.0,
+     "n": 0,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    }
+   },
+   "n_modules": 2,
+   "n_parsed": 2,
+   "sqlite_bytes": 118784,
+   "star_import_modules": [],
+   "unknown_reasons": {
+    "BIND_SETATTR": 12,
+    "CALL_ATTR_RECEIVER_UNTYPED": 80,
+    "CALL_GETATTR": 4,
+    "CALL_LOCAL_VALUE": 6,
+    "CALL_MODULE_BINDING_UNRESOLVED": 161,
+    "CALL_MRO_UNRESOLVED": 2,
+    "IMPORT_CONDITIONAL": 4,
+    "IMPORT_DYNAMIC": 1,
+    "TAINT_EXEC": 4
+   }
+  },
+  "toml": {
+   "bytes_per_edge": 213.3,
+   "edges_proved": 409,
+   "edges_total": 653,
+   "edges_unknown": 244,
+   "exec_tainted_modules": [],
+   "extract_wall_s": 0.254,
+   "extractor_stats": {
+    "attr_load_untracked": 55,
+    "name_load_untracked": 1220,
+    "value_escape_edges": 38
+   },
+   "families": {
+    "callees_of": {
+     "kappa": 0.30357142857142855,
+     "n": 56,
+     "proved": 17,
+     "statuses": {
+      "proved": 17,
+      "proved_empty": 8,
+      "target_not_found": 0,
+      "unknown_incomplete": 39
+     }
+    },
+    "callers_of": {
+     "kappa": 0.0,
+     "n": 56,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 56
+     }
+    },
+    "contained_in": {
+     "kappa": 1.0,
+     "n": 71,
+     "proved": 71,
+     "statuses": {
+      "proved": 71,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "contains": {
+     "kappa": 1.0,
+     "n": 20,
+     "proved": 20,
+     "statuses": {
+      "proved": 20,
+      "proved_empty": 2,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    },
+    "imported_by": {
+     "kappa": 0.6,
+     "n": 5,
+     "proved": 3,
+     "statuses": {
+      "proved": 3,
+      "proved_empty": 1,
+      "target_not_found": 0,
+      "unknown_incomplete": 2
+     }
+    },
+    "imports_of": {
+     "kappa": 0.6,
+     "n": 5,
+     "proved": 3,
+     "statuses": {
+      "proved": 3,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 2
+     }
+    },
+    "instance_of": {
+     "kappa": 0.0,
+     "n": 15,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 15
+     }
+    },
+    "where_defined": {
+     "kappa": 0.0,
+     "n": 0,
+     "proved": 0,
+     "statuses": {
+      "proved": 0,
+      "proved_empty": 0,
+      "target_not_found": 0,
+      "unknown_incomplete": 0
+     }
+    }
+   },
+   "n_modules": 5,
+   "n_parsed": 5,
+   "sqlite_bytes": 139264,
+   "star_import_modules": [],
+   "unknown_reasons": {
+    "CALL_ATTR_RECEIVER_UNTYPED": 150,
+    "CALL_LOCAL_VALUE": 4,
+    "CALL_MODULE_BINDING_UNRESOLVED": 15,
+    "CALL_MRO_HAZARD": 19,
+    "CALL_MRO_UNRESOLVED": 9,
+    "CALL_NONNAME_CALLEE": 1,
+    "CALL_VALUE_ESCAPE": 38,
+    "IMPORT_CONDITIONAL": 8
+   }
+  }
+ },
+ "rig": {
+  "host": "2 shared vCPU EC2 (programme pinned box)",
+  "nice": 10,
+  "note": "latency is for THIS Python dict-index reference engine, not the measured 5.29-7.82us compiled a5 engine; comparable only to itself",
+  "python": "3.9.25"
+ }
+}

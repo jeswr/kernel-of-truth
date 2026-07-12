@@ -1,0 +1,320 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.67am7bcu"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.1nzfqlj1
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c4-9bb2-7ce3-959a-5bc20042b284
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: humanize ===
+PY FILE LISTING (repo-root-relative; authoritative):
+src/humanize/__init__.py
+src/humanize/filesize.py
+src/humanize/i18n.py
+src/humanize/lists.py
+src/humanize/number.py
+src/humanize/time.py
+tests/__init__.py
+tests/test_benchmarks.py
+tests/test_filesize.py
+tests/test_i18n.py
+tests/test_lists.py
+tests/test_number.py
+tests/test_time.py
+
+=== QUERIES (2) ===
+QUERY g1q-humanize-imports_of-3: family=imports_of module=src/humanize/lists.py
+QUERY g1q-humanize-imports_of-8: family=imports_of module=tests/test_filesize.py
+
+=== CONTEXT ===
+
+FILE src/humanize/lists.py:
+    1| """Lists related humanization."""
+    2| 
+    3| from __future__ import annotations
+    4| 
+    5| TYPE_CHECKING = False
+    6| if TYPE_CHECKING:
+    7|     from typing import Any
+    8| 
+    9| __all__ = ["natural_list"]
+   10| 
+   11| 
+   12| def natural_list(items: list[Any]) -> str:
+   13|     """Natural list.
+   14| 
+   15|     Convert a list of items into a human-readable string with commas and 'and'.
+   16| 
+   17|     Examples:
+   18|         >>> natural_list(["one", "two", "three"])
+   19|         'one, two and three'
+   20|         >>> natural_list(["one", "two"])
+   21|         'one and two'
+   22|         >>> natural_list(["one"])
+   23|         'one'
+   24| 
+   25|     Args:
+   26|         items (list): An iterable of items.
+   27| 
+   28|     Returns:
+   29|         str: A string with commas and 'and' in the right places.
+   30|     """
+   31|     if not items:
+   32|         return ""
+   33|     if len(items) == 1:
+   34|         return str(items[0])
+   35|     elif len(items) == 2:
+   36|         return f"{str(items[0])} and {str(items[1])}"
+   37|     else:
+   38|         return ", ".join([str(item) for item in items[:-1]]) + f" and {str(items[-1])}"
+
+FILE tests/test_filesize.py:
+    1| #!/usr/bin/env python
+    2| 
+    3| """Tests for filesize humanizing."""
+    4| 
+    5| from __future__ import annotations
+    6| 
+    7| import pytest
+    8| 
+    9| import humanize
+   10| 
+   11| 
+   12| @pytest.mark.parametrize(
+   13|     "test_args, expected",
+   14|     [
+   15|         ([300], "300 Bytes"),
+   16|         (["1000"], "1.0 kB"),
+   17|         ([10**3], "1.0 kB"),
+   18|         ([10**6], "1.0 MB"),
+   19|         ([10**9], "1.0 GB"),
+   20|         ([10**12], "1.0 TB"),
+   21|         ([10**15], "1.0 PB"),
+   22|         ([10**18], "1.0 EB"),
+   23|         ([10**21], "1.0 ZB"),
+   24|         ([10**24], "1.0 YB"),
+   25|         ([10**27], "1.0 RB"),
+   26|         ([10**30], "1.0 QB"),
+   27|         ([1000**1 * 31], "31.0 kB"),
+   28|         ([1000**2 * 32], "32.0 MB"),
+   29|         ([1000**3 * 33], "33.0 GB"),
+   30|         ([1000**4 * 34], "34.0 TB"),
+   31|         ([1000**5 * 35], "35.0 PB"),
+   32|         ([1000**6 * 36], "36.0 EB"),
+   33|         ([1000**7 * 37], "37.0 ZB"),
+   34|         ([1000**8 * 38], "38.0 YB"),
+   35|         ([1000**9 * 39], "39.0 RB"),
+   36|         ([1000**10 * 40], "40.0 QB"),
+   37|         ([300, True], "300 Bytes"),
+   38|         ([1024**1 * 31, True], "31.0 KiB"),
+   39|         ([1024**2 * 32, True], "32.0 MiB"),
+   40|         ([1024**3 * 33, True], "33.0 GiB"),
+   41|         ([1024**4 * 34, True], "34.0 TiB"),
+   42|         ([1024**5 * 35, True], "35.0 PiB"),
+   43|         ([1024**6 * 36, True], "36.0 EiB"),
+   44|         ([1024**7 * 37, True], "37.0 ZiB"),
+   45|         ([1024**8 * 38, True], "38.0 YiB"),
+   46|         ([1024**9 * 39, True], "39.0 RiB"),
+   47|         ([1024**10 * 40, True], "40.0 QiB"),
+   48|         ([1000**1 * 31, True], "30.3 KiB"),
+   49|         ([1000**2 * 32, True], "30.5 MiB"),
+   50|         ([1000**3 * 33, True], "30.7 GiB"),
+   51|         ([1000**4 * 34, True], "30.9 TiB"),
+   52|         ([1000**5 * 35, True], "31.1 PiB"),
+   53|         ([1000**6 * 36, True], "31.2 EiB"),
+   54|         ([1000**7 * 37, True], "31.3 ZiB"),
+   55|         ([1000**8 * 38, True], "31.4 YiB"),
+   56|         ([1000**9 * 39, True], "31.5 RiB"),
+   57|         ([1000**10 * 40, True], "31.6 QiB"),
+   58|         ([1000**1 * 31, False, True], "30.3K"),
+   59|         ([1000**2 * 32, False, True], "30.5M"),
+   60|         ([1000**3 * 33, False, True], "30.7G"),
+   61|         ([1000**4 * 34, False, True], "30.9T"),
+   62|         ([1000**5 * 35, False, True], "31.1P"),
+   63|         ([1000**6 * 36, False, True], "31.2E"),
+   64|         ([1000**7 * 37, False, True], "31.3Z"),
+   65|         ([1000**8 * 38, False, True], "31.4Y"),
+   66|         ([1000**9 * 39, False, True], "31.5R"),
+   67|         ([1000**10 * 40, False, True], "31.6Q"),
+   68|         ([300, False, True], "300B"),
+   69|         ([3000, False, True], "2.9K"),
+   70|         ([3000000, False, True], "2.9M"),
+   71|         ([1024, False, True], "1.0K"),
+   72|         ([1, False, False], "1 Byte"),
+   73|         ([1.0, False, False], "1 Byte"),
+   74|         (["1", False, False], "1 Byte"),
+   75|         ([3141592, False, False, "%.2f"], "3.14 MB"),
+   76|         ([3000, False, True, "%.3f"], "2.930K"),
+   77|         ([3000000000, False, True, "%.0f"], "3G"),
+   78|         ([10**26 * 30, True, False, "%.3f"], "2.423 RiB"),
+   79|         ([1.123456789], "1 Bytes"),
+   80|         ([1.123456789 * 10**3], "1.1 kB"),
+   81|         ([1.123456789 * 10**6], "1.1 MB"),
+   82|         ([1.123456789, False, True], "1B"),
+   83|         ([1.123456789 * 10**3, False, True], "1.1K"),
+   84|         ([1.123456789 * 10**6, False, True], "1.1M"),
+   85|         # Rounding must not leave the mantissa at the base while a larger suffix
+   86|         # is available: 999999 is 999.999 kB, which the "%.1f" format rounds to
+   87|         # 1000.0 and must carry into 1.0 MB rather than render as "1000.0 kB".
+   88|         ([999999], "1.0 MB"),
+   89|         ([999999999], "1.0 GB"),
+   90|         ([999999999999], "1.0 TB"),
+   91|         ([1024**2 - 1, True], "1.0 MiB"),
+   92|         ([1024**3 - 1, True], "1.0 GiB"),
+   93|         ([1024**2 - 1, False, True], "1.0M"),
+   94|     ],
+   95| )
+   96| def test_naturalsize(test_args: list[int] | list[int | bool], expected: str) -> None:
+   97|     assert humanize.naturalsize(*test_args) == expected
+   98| 
+   99|     # Retest with negative input
+  100|     if isinstance(test_args[0], int):
+  101|         test_args[0] *= -1
+  102|     else:
+  103|         test_args[0] = f"-{test_args[0]}"
+  104| 
+  105|     assert humanize.naturalsize(*test_args) == "-" + expected
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-humanize-imports_of-3",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:typing"
+    ],
+    "conditional_flags": [
+      "ext:typing"
+    ],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-humanize-imports_of-8",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:pytest",
+      "repo:src/humanize/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  }
+]
+tokens used
+6,790

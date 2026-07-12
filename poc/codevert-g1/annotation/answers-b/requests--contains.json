@@ -1,0 +1,31 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [],
+   "notes": "RetryError has no direct lexical children.",
+   "query_id": "g1q-requests-contains-76"
+  },
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "src/requests/structures.py::LookupDict.__getattr__",
+    "src/requests/structures.py::LookupDict.__getitem__",
+    "src/requests/structures.py::LookupDict.__init__",
+    "src/requests/structures.py::LookupDict.__repr__",
+    "src/requests/structures.py::LookupDict.get",
+    "src/requests/structures.py::LookupDict.name"
+   ],
+   "notes": "LookupDict directly contains one class-body assignment and its methods; repeated overload definitions of get normalize to one set element.",
+   "query_id": "g1q-requests-contains-89"
+  }
+ ],
+ "attempts": 1,
+ "batch": "requests--contains.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

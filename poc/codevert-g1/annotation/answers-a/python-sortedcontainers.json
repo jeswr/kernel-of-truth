@@ -1,0 +1,144 @@
+[
+  {
+    "query_id": "g1q-python-sortedcontainers-contains-25",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_stress_sortedset.py::actions",
+      "tests/test_stress_sortedset.py::actor",
+      "tests/test_stress_sortedset.py::num",
+      "tests/test_stress_sortedset.py::pea",
+      "tests/test_stress_sortedset.py::start",
+      "tests/test_stress_sortedset.py::stress_add",
+      "tests/test_stress_sortedset.py::stress_contains",
+      "tests/test_stress_sortedset.py::stress_count",
+      "tests/test_stress_sortedset.py::stress_delitem",
+      "tests/test_stress_sortedset.py::stress_difference",
+      "tests/test_stress_sortedset.py::stress_discard",
+      "tests/test_stress_sortedset.py::stress_getitem",
+      "tests/test_stress_sortedset.py::stress_index",
+      "tests/test_stress_sortedset.py::stress_intersection",
+      "tests/test_stress_sortedset.py::stress_isdisjoint",
+      "tests/test_stress_sortedset.py::stress_issubset",
+      "tests/test_stress_sortedset.py::stress_issuperset",
+      "tests/test_stress_sortedset.py::stress_operator",
+      "tests/test_stress_sortedset.py::stress_pop",
+      "tests/test_stress_sortedset.py::stress_remove",
+      "tests/test_stress_sortedset.py::stress_reversed",
+      "tests/test_stress_sortedset.py::stress_symmetric_difference",
+      "tests/test_stress_sortedset.py::stress_update",
+      "tests/test_stress_sortedset.py::test_init",
+      "tests/test_stress_sortedset.py::test_stress"
+    ],
+    "conditional_flags": [
+      "tests/test_stress_sortedset.py::num",
+      "tests/test_stress_sortedset.py::pea",
+      "tests/test_stress_sortedset.py::start"
+    ],
+    "notes": "22 module-level defs (lines 9-170, decorated defs count) plus module-level assignments: actions (line 6), and start/num/pea bound inside the `if __name__ == '__main__'` block (lines 199, 204/208, 211) — conditional sites, flagged. Imports (lines 1-2, 196-197) excluded. random.seed(0) at line 5 is a call, not a binding."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-contains-9",
+    "answerable_static": true,
+    "gold": [
+      "tests/benchmark_sorteddict.py::contains",
+      "tests/benchmark_sorteddict.py::delitem",
+      "tests/benchmark_sorteddict.py::do_nothing",
+      "tests/benchmark_sorteddict.py::fill_values",
+      "tests/benchmark_sorteddict.py::getitem",
+      "tests/benchmark_sorteddict.py::init",
+      "tests/benchmark_sorteddict.py::iter",
+      "tests/benchmark_sorteddict.py::setitem",
+      "tests/benchmark_sorteddict.py::setitem_existing"
+    ],
+    "conditional_flags": [],
+    "notes": "Nine module-level defs (decorated defs count). All other module-level bindings are subscript assignments (kinds[...]=..., impls[...][...]=...), which do not bind a simple name, or imports (excluded). for-loop targets (name, kind at lines 116, 119, 129, ...) are loop targets, not assignment statements, so not counted as children."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-contained_in-114",
+    "answerable_static": true,
+    "gold": [
+      "src/sortedcontainers/sortedset.py::SortedSet"
+    ],
+    "conditional_flags": [],
+    "notes": "def __make_cmp at line 252 (and its rebinding __make_cmp = staticmethod(__make_cmp) at line 286) sits directly in the SortedSet class body."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-contained_in-564",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_coverage_sortedset.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_delitem_slice at line 59 is a top-level function of the module."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-imports_of-4",
+    "answerable_static": true,
+    "gold": [
+      "ext:collections.abc",
+      "ext:itertools",
+      "ext:operator",
+      "ext:textwrap",
+      "repo:src/sortedcontainers/__init__.py",
+      "repo:src/sortedcontainers/sortedlist.py"
+    ],
+    "conditional_flags": [],
+    "notes": "Top-level imports only (lines 16-19, 21). `from .sortedlist import SortedList, recursive_repr` resolves relative to the sortedcontainers package -> src/sortedcontainers/sortedlist.py plus ancestor package src/sortedcontainers/__init__.py. Doctest lines (e.g. `>>> from operator import neg`) are string content, not import statements."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-imports_of-3",
+    "answerable_static": true,
+    "gold": [
+      "ext:bisect",
+      "ext:collections.abc",
+      "ext:functools",
+      "ext:itertools",
+      "ext:math",
+      "ext:operator",
+      "ext:reprlib",
+      "ext:sys",
+      "ext:textwrap",
+      "ext:traceback"
+    ],
+    "conditional_flags": [],
+    "notes": "All imports are top-level (lines 18-27); the entire module (2673 lines) contains no nested or conditional imports. All targets are standard-library modules; nothing resolves into the repo. Doctest `>>> from operator import neg` lines are docstring text, not imports."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-where_defined-107",
+    "answerable_static": true,
+    "gold": [
+      "src/sortedcontainers/sorteddict.py:277"
+    ],
+    "conditional_flags": [],
+    "notes": "Class-body assignment `_setitem = __setitem__` in SortedDict (line 277). Line 516 is an attribute call (self._setitem), not a binding."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-where_defined-122",
+    "answerable_static": true,
+    "gold": [
+      "tests/benchmark_scale.py:247"
+    ],
+    "conditional_flags": [],
+    "notes": "def benchmark_del at line 247. Lines 327 and 331 bind `benchmarks`, merely referencing benchmark_del, so they are not definition sites of this name."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-callees_of-35",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "SortedList.clear body (lines 185-189) contains only assignments and del statements; no call expressions, so the callee set is positively empty."
+  },
+  {
+    "query_id": "g1q-python-sortedcontainers-callees_of-242",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.len",
+      "ext:builtins.xrange",
+      "ext:numpy.array",
+      "ext:numpy.histogram",
+      "ext:random.randrange"
+    ],
+    "conditional_flags": [],
+    "notes": "hist_line.set_data(...) at line 27 is a method call on a module-level object produced by ax.plot() (matplotlib), whose runtime type cannot be resolved from the shown source; that call site blocks a full answer. xrange (line 23) is bound nowhere in the module or repo (Python-2 builtin), listed best-effort as ext:builtins.xrange. No repo-internal callees."
+  }
+]

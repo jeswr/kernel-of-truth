@@ -1,0 +1,133 @@
+{
+ "agreement_table": {
+  "a_no_b_yes": 5,
+  "a_yes_b_no": 9,
+  "both_no": 46,
+  "both_yes": 24
+ },
+ "constructions": {
+  "pair_concordant": {
+   "annot_a_no_b_yes": 5,
+   "annot_a_yes_b_no": 9,
+   "annot_both_no": 46,
+   "annot_both_yes": 24,
+   "litmus_promise_recovered": 1,
+   "n_derived_correct": 24,
+   "n_gold": 84,
+   "partition_axioms_recovered": 0,
+   "sidecar_conflicts": 0
+  },
+  "pair_union": {
+   "annot_a_no_b_yes": 5,
+   "annot_a_yes_b_no": 9,
+   "annot_both_no": 46,
+   "annot_both_yes": 24,
+   "litmus_promise_recovered": 1,
+   "n_derived_correct": 38,
+   "n_gold": 84,
+   "partition_axioms_recovered": 0,
+   "sidecar_conflicts": 0
+  },
+  "primary_gpt56_standin": {
+   "annot_a_no_b_yes": 5,
+   "annot_a_yes_b_no": 9,
+   "annot_both_no": 46,
+   "annot_both_yes": 24,
+   "litmus_promise_recovered": 1,
+   "n_derived_correct": 33,
+   "n_gold": 84,
+   "partition_axioms_recovered": 0,
+   "sidecar_conflicts": 0
+  }
+ },
+ "deterministic_checks": {
+  "litmus_promise_recovered": 1,
+  "partition_axioms_recovered": 0,
+  "sidecar_conflicts": 0
+ },
+ "disclosure": "STAND-IN, NOT THE FROZEN g2.gold: a cross-family blind LLM pair (judge-pA GPT-5.6-Sol = the task-named primary stand-in; judge-pB Claude Haiku 4.5, vendor-family overlap with the materials' authoring agents DISCLOSED, never sole gold) fills the two-human n=500 GATE-H role over the FULL Pi dump (n=84 -- the frozen n_planned=500 is unattainable from kernel-v0; the frozen instrument gate n_gold>=500 therefore CANNOT pass on the pinned corpus, human or LLM). kappa is pair stability, never human-agreement evidence. The human g2.gold path stays open and solely adjudicating; reconcile + re-run when it arrives.",
+ "frozen_experiment": "g2",
+ "frozen_sha256": "f66337ef70e4d6b90fc5d83f32d1e368e2f7a4c2528d4f143e0539287ea36061",
+ "judge_pA_decisive": 84,
+ "judge_pA_yes": 33,
+ "judge_pB_decisive": 84,
+ "judge_pB_yes": 29,
+ "labels_sha256": "93a124478b8dba411bfd1a9fd07cbc96e874def8e6ac819202c54c1b121754b3",
+ "n_dual_decisive": 84,
+ "n_items": 84,
+ "pinned_analysis_outputs": {
+  "pair_concordant": {
+   "_estimation_two_sided_wilson95": [
+    0.20014898610655452,
+    0.3900224133215068
+   ],
+   "analysis": {
+    "kappa": 0.6429872495446267,
+    "litmus_promise_recovered": true,
+    "n_gold": 84,
+    "partition_residue_ok": true,
+    "precision": 0.2857142857142857,
+    "sidecar_conflict": false,
+    "wilson_lb": 0.21231484209256557,
+    "wilson_ub": 0.37248909742605496
+   },
+   "gates": {
+    "instrument_valid": false
+   }
+  },
+  "pair_union": {
+   "_estimation_two_sided_wilson95": [
+    0.3503554445205683,
+    0.5585715331301119
+   ],
+   "analysis": {
+    "kappa": 0.6429872495446267,
+    "litmus_promise_recovered": true,
+    "n_gold": 84,
+    "partition_residue_ok": true,
+    "precision": 0.4523809523809524,
+    "sidecar_conflict": false,
+    "wilson_lb": 0.3659254330571022,
+    "wilson_ub": 0.5418087757248135
+   },
+   "gates": {
+    "instrument_valid": false
+   }
+  },
+  "primary_gpt56_standin": {
+   "_estimation_two_sided_wilson95": [
+    0.2953018006281275,
+    0.49978389908590315
+   ],
+   "analysis": {
+    "kappa": 0.6429872495446267,
+    "litmus_promise_recovered": true,
+    "n_gold": 84,
+    "partition_residue_ok": true,
+    "precision": 0.39285714285714285,
+    "sidecar_conflict": false,
+    "wilson_lb": 0.3098574237770816,
+    "wilson_ub": 0.4825445459822287
+   },
+   "gates": {
+    "instrument_valid": false
+   }
+  }
+ },
+ "probe_stats": {
+  "pA": {
+   "false_sat_rate": 0.0,
+   "instrument_ok": true,
+   "n_false_sat": 0,
+   "n_labelled": 20
+  },
+  "pB": {
+   "false_sat_rate": 0.0,
+   "instrument_ok": true,
+   "n_false_sat": 0,
+   "n_labelled": 20
+  }
+ },
+ "schema": "g2lp-result/1",
+ "status": "PROVISIONAL-ON-LLM-PROXY"
+}

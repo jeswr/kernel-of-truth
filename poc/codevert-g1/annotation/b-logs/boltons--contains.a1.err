@@ -1,0 +1,1304 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.o6umwb5x"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.pjavq5pb
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c3-1e51-7940-be87-fa4787fd54b3
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: boltons ===
+PY FILE LISTING (repo-root-relative; authoritative):
+boltons/__init__.py
+boltons/cacheutils.py
+boltons/debugutils.py
+boltons/deprutils.py
+boltons/dictutils.py
+boltons/easterutils.py
+boltons/ecoutils.py
+boltons/excutils.py
+boltons/fileutils.py
+boltons/formatutils.py
+boltons/funcutils.py
+boltons/gcutils.py
+boltons/ioutils.py
+boltons/iterutils.py
+boltons/jsonutils.py
+boltons/listutils.py
+boltons/mathutils.py
+boltons/mboxutils.py
+boltons/namedutils.py
+boltons/pathutils.py
+boltons/queueutils.py
+boltons/setutils.py
+boltons/socketutils.py
+boltons/statsutils.py
+boltons/strutils.py
+boltons/tableutils.py
+boltons/tbutils.py
+boltons/timeutils.py
+boltons/typeutils.py
+boltons/urlutils.py
+docs/conf.py
+misc/bench_omd.py
+misc/linkify_changelog.py
+misc/table_html_app.py
+tests/__init__.py
+tests/conftest.py
+tests/test_cacheutils.py
+tests/test_debugutils_trace.py
+tests/test_dictutils.py
+tests/test_ecoutils.py
+tests/test_fileutils.py
+tests/test_formatutils.py
+tests/test_funcutils.py
+tests/test_funcutils_fb.py
+tests/test_funcutils_fb_py3.py
+tests/test_gcutils.py
+tests/test_ioutils.py
+tests/test_iterutils.py
+tests/test_jsonutils.py
+tests/test_listutils.py
+tests/test_mathutils.py
+tests/test_namedutils.py
+tests/test_queueutils.py
+tests/test_setutils.py
+tests/test_socketutils.py
+tests/test_statsutils.py
+tests/test_statsutils_histogram.py
+tests/test_strutils.py
+tests/test_tableutils.py
+tests/test_tbutils.py
+tests/test_tbutils_parsed_exc.py
+tests/test_timeutils.py
+tests/test_typeutils.py
+tests/test_urlutils.py
+
+=== QUERIES (2) ===
+QUERY g1q-boltons-contains-51: family=contains target=tests/test_namedutils.py
+QUERY g1q-boltons-contains-93: family=contains target=boltons/funcutils.py::MissingArgument
+
+=== CONTEXT ===
+
+FILE tests/test_namedutils.py:
+    1| from pickle import loads, dumps
+    2| 
+    3| from boltons.namedutils import namedlist, namedtuple
+    4| 
+    5| Point = namedtuple('Point', 'x, y', rename=True)
+    6| MutablePoint = namedlist('MutablePoint', 'x, y', rename=True)
+    7| 
+    8| 
+    9| def test_namedlist():
+   10|     p = MutablePoint(x=10, y=20)
+   11| 
+   12|     assert p == [10, 20]
+   13|     p[0] = 11
+   14|     assert p == [11, 20]
+   15|     p.x = 12
+   16|     assert p == [12, 20]
+   17| 
+   18| 
+   19| def test_namedlist_pickle():
+   20|     p = MutablePoint(x=10, y=20)
+   21|     assert p == loads(dumps(p))
+   22| 
+   23| 
+   24| def test_namedtuple_pickle():
+   25|     p = Point(x=10, y=20)
+   26|     assert p == loads(dumps(p))
+
+FILE boltons/funcutils.py:
+    1| # Copyright (c) 2013, Mahmoud Hashemi
+    2| #
+    3| # Redistribution and use in source and binary forms, with or without
+    4| # modification, are permitted provided that the following conditions are
+    5| # met:
+    6| #
+    7| #    * Redistributions of source code must retain the above copyright
+    8| #      notice, this list of conditions and the following disclaimer.
+    9| #
+   10| #    * Redistributions in binary form must reproduce the above
+   11| #      copyright notice, this list of conditions and the following
+   12| #      disclaimer in the documentation and/or other materials provided
+   13| #      with the distribution.
+   14| #
+   15| #    * The names of the contributors may not be used to endorse or
+   16| #      promote products derived from this software without specific
+   17| #      prior written permission.
+   18| #
+   19| # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   20| # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   21| # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   22| # A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   23| # OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   24| # SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   25| # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   26| # DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   27| # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   28| # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   29| # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   30| 
+   31| """Python's built-in :mod:`functools` module builds several useful
+   32| utilities on top of Python's first-class function
+   33| support. ``funcutils`` generally stays in the same vein, adding to and
+   34| correcting Python's standard metaprogramming facilities.
+   35| """
+   36| 
+   37| import sys
+   38| import re
+   39| import inspect
+   40| import functools
+   41| import itertools
+   42| import threading
+   43| from inspect import formatannotation
+   44| from types import FunctionType, MethodType
+   45| 
+   46| # For legacy compatibility.
+   47| # boltons used to offer an implementation of total_ordering for Python <2.7
+   48| from functools import total_ordering as total_ordering
+   49| 
+   50| try:
+   51|     from .typeutils import make_sentinel
+   52|     NO_DEFAULT = make_sentinel(var_name='NO_DEFAULT')
+   53| except ImportError:
+   54|     NO_DEFAULT = object()
+   55| 
+   56| 
+   57| def inspect_formatargspec(
+   58|         args, varargs=None, varkw=None, defaults=None,
+   59|         kwonlyargs=(), kwonlydefaults={}, annotations={},
+   60|         formatarg=str,
+   61|         formatvarargs=lambda name: '*' + name,
+   62|         formatvarkw=lambda name: '**' + name,
+   63|         formatvalue=lambda value: '=' + repr(value),
+   64|         formatreturns=lambda text: ' -> ' + text,
+   65|         formatannotation=formatannotation):
+   66|     """Copy formatargspec from python 3.7 standard library.
+   67|     Python 3 has deprecated formatargspec and requested that Signature
+   68|     be used instead, however this requires a full reimplementation
+   69|     of formatargspec() in terms of creating Parameter objects and such.
+   70|     Instead of introducing all the object-creation overhead and having
+   71|     to reinvent from scratch, just copy their compatibility routine.
+   72|     """
+   73| 
+   74|     def formatargandannotation(arg):
+   75|         result = formatarg(arg)
+   76|         if arg in annotations:
+   77|             result += ': ' + formatannotation(annotations[arg])
+   78|         return result
+   79|     specs = []
+   80|     if defaults:
+   81|         firstdefault = len(args) - len(defaults)
+   82|     for i, arg in enumerate(args):
+   83|         spec = formatargandannotation(arg)
+   84|         if defaults and i >= firstdefault:
+   85|             spec = spec + formatvalue(defaults[i - firstdefault])
+   86|         specs.append(spec)
+   87|     if varargs is not None:
+   88|         specs.append(formatvarargs(formatargandannotation(varargs)))
+   89|     else:
+   90|         if kwonlyargs:
+   91|             specs.append('*')
+   92|     if kwonlyargs:
+   93|         for kwonlyarg in kwonlyargs:
+   94|             spec = formatargandannotation(kwonlyarg)
+   95|             if kwonlydefaults and kwonlyarg in kwonlydefaults:
+   96|                 spec += formatvalue(kwonlydefaults[kwonlyarg])
+   97|             specs.append(spec)
+   98|     if varkw is not None:
+   99|         specs.append(formatvarkw(formatargandannotation(varkw)))
+  100|     result = '(' + ', '.join(specs) + ')'
+  101|     if 'return' in annotations:
+  102|         result += formatreturns(formatannotation(annotations['return']))
+  103|     return result
+  104| 
+  105| 
+  106| def get_module_callables(mod, ignore=None):
+  107|     """Returns two maps of (*types*, *funcs*) from *mod*, optionally
+  108|     ignoring based on the :class:`bool` return value of the *ignore*
+  109|     callable. *mod* can be a string name of a module in
+  110|     :data:`sys.modules` or the module instance itself.
+  111|     """
+  112|     if isinstance(mod, str):
+  113|         mod = sys.modules[mod]
+  114|     types, funcs = {}, {}
+  115|     for attr_name in dir(mod):
+  116|         if ignore and ignore(attr_name):
+  117|             continue
+  118|         try:
+  119|             attr = getattr(mod, attr_name)
+  120|         except Exception:
+  121|             continue
+  122|         try:
+  123|             attr_mod_name = attr.__module__
+  124|         except AttributeError:
+  125|             continue
+  126|         if attr_mod_name != mod.__name__:
+  127|             continue
+  128|         if isinstance(attr, type):
+  129|             types[attr_name] = attr
+  130|         elif callable(attr):
+  131|             funcs[attr_name] = attr
+  132|     return types, funcs
+  133| 
+  134| 
+  135| def mro_items(type_obj):
+  136|     """Takes a type and returns an iterator over all class variables
+  137|     throughout the type hierarchy (respecting the MRO).
+  138| 
+  139|     >>> sorted(set([k for k, v in mro_items(int) if not k.startswith('__') and 'bytes' not in k and not callable(v)]))
+  140|     ['denominator', 'imag', 'numerator', 'real']
+  141|     """
+  142|     # TODO: handle slots?
+  143|     return itertools.chain.from_iterable(ct.__dict__.items()
+  144|                                          for ct in type_obj.__mro__)
+  145| 
+  146| 
+  147| def dir_dict(obj, raise_exc=False):
+  148|     """Return a dictionary of attribute names to values for a given
+  149|     object. Unlike ``obj.__dict__``, this function returns all
+  150|     attributes on the object, including ones on parent classes.
+  151|     """
+  152|     # TODO: separate function for handling descriptors on types?
+  153|     ret = {}
+  154|     for k in dir(obj):
+  155|         try:
+  156|             ret[k] = getattr(obj, k)
+  157|         except Exception:
+  158|             if raise_exc:
+  159|                 raise
+  160|     return ret
+  161| 
+  162| 
+  163| def copy_function(orig, copy_dict=True):
+  164|     """Returns a shallow copy of the function, including code object,
+  165|     globals, closure, etc.
+  166| 
+  167|     >>> func = lambda: func
+  168|     >>> func() is func
+  169|     True
+  170|     >>> func_copy = copy_function(func)
+  171|     >>> func_copy() is func
+  172|     True
+  173|     >>> func_copy is not func
+  174|     True
+  175| 
+  176|     Args:
+  177|         orig (function): The function to be copied. Must be a
+  178|             function, not just any method or callable.
+  179|         copy_dict (bool): Also copy any attributes set on the function
+  180|             instance. Defaults to ``True``.
+  181|     """
+  182|     ret = FunctionType(orig.__code__,
+  183|                        orig.__globals__,
+  184|                        name=orig.__name__,
+  185|                        argdefs=getattr(orig, "__defaults__", None),
+  186|                        closure=getattr(orig, "__closure__", None))
+  187|     if hasattr(orig, "__kwdefaults__"):
+  188|         ret.__kwdefaults__ = orig.__kwdefaults__
+  189|     if copy_dict:
+  190|         ret.__dict__.update(orig.__dict__)
+  191|     return ret
+  192| 
+  193| 
+  194| def partial_ordering(cls):
+  195|     """Class decorator, similar to :func:`functools.total_ordering`,
+  196|     except it is used to define `partial orderings`_ (i.e., it is
+  197|     possible that *x* is neither greater than, equal to, or less than
+  198|     *y*). It assumes the presence of the ``__le__()`` and ``__ge__()``
+  199|     method, but nothing else. It will not override any existing
+  200|     additional comparison methods.
+  201| 
+  202|     .. _partial orderings: https://en.wikipedia.org/wiki/Partially_ordered_set
+  203| 
+  204|     >>> @partial_ordering
+  205|     ... class MySet(set):
+  206|     ...     def __le__(self, other):
+  207|     ...         return self.issubset(other)
+  208|     ...     def __ge__(self, other):
+  209|     ...         return self.issuperset(other)
+  210|     ...
+  211|     >>> a = MySet([1,2,3])
+  212|     >>> b = MySet([1,2])
+  213|     >>> c = MySet([1,2,4])
+  214|     >>> b < a
+  215|     True
+  216|     >>> b > a
+  217|     False
+  218|     >>> b < c
+  219|     True
+  220|     >>> a < c
+  221|     False
+  222|     >>> c > a
+  223|     False
+  224|     """
+  225|     def __lt__(self, other): return self <= other and not self >= other
+  226|     def __gt__(self, other): return self >= other and not self <= other
+  227|     def __eq__(self, other): return self >= other and self <= other
+  228| 
+  229|     if not hasattr(cls, '__lt__'): cls.__lt__ = __lt__
+  230|     if not hasattr(cls, '__gt__'): cls.__gt__ = __gt__
+  231|     if not hasattr(cls, '__eq__'): cls.__eq__ = __eq__
+  232| 
+  233|     return cls
+  234| 
+  235| 
+  236| class InstancePartial(functools.partial):
+  237|     """:class:`functools.partial` is a huge convenience for anyone
+  238|     working with Python's great first-class functions. It allows
+  239|     developers to curry arguments and incrementally create simpler
+  240|     callables for a variety of use cases.
+  241| 
+  242|     Unfortunately there's one big gap in its usefulness:
+  243|     methods. Partials just don't get bound as methods and
+  244|     automatically handed a reference to ``self``. The
+  245|     ``InstancePartial`` type remedies this by inheriting from
+  246|     :class:`functools.partial` and implementing the necessary
+  247|     descriptor protocol. There are no other differences in
+  248|     implementation or usage. :class:`CachedInstancePartial`, below,
+  249|     has the same ability, but is slightly more efficient.
+  250| 
+  251|     """
+  252|     @property
+  253|     def _partialmethod(self):
+  254|         # py3.13 switched from _partialmethod to __partialmethod__, this is kept for backwards compat <=py3.12
+  255|         return self.__partialmethod__
+  256|     
+  257|     @property
+  258|     def __partialmethod__(self):
+  259|         return functools.partialmethod(self.func, *self.args, **self.keywords)
+  260| 
+  261|     def __get__(self, obj, obj_type):
+  262|         return MethodType(self, obj)
+  263| 
+  264| 
+  265| 
+  266| class CachedInstancePartial(functools.partial):
+  267|     """The ``CachedInstancePartial`` is virtually the same as
+  268|     :class:`InstancePartial`, adding support for method-usage to
+  269|     :class:`functools.partial`, except that upon first access, it
+  270|     caches the bound method on the associated object, speeding it up
+  271|     for future accesses, and bringing the method call overhead to
+  272|     about the same as non-``partial`` methods.
+  273| 
+  274|     See the :class:`InstancePartial` docstring for more details.
+  275|     """
+  276|     @property
+  277|     def _partialmethod(self):
+  278|         # py3.13 switched from _partialmethod to __partialmethod__, this is kept for backwards compat <=py3.12
+  279|         return self.__partialmethod__
+  280|     
+  281|     @property
+  282|     def __partialmethod__(self):
+  283|         return functools.partialmethod(self.func, *self.args, **self.keywords)
+  284| 
+  285|     def __set_name__(self, obj_type, name):
+  286|         self.__name__ = name
+  287| 
+  288|     def __get__(self, obj, obj_type):
+  289|         # These assignments could've been in __init__, but there was
+  290|         # no simple way to do it without breaking one of PyPy or Py3.
+  291|         self.__name__ = getattr(self, "__name__", None)
+  292|         self.__doc__ = self.func.__doc__
+  293|         self.__module__ = self.func.__module__
+  294| 
+  295|         name = self.__name__
+  296| 
+  297|         if obj is None:
+  298|             return MethodType(self, obj)
+  299|         try:
+  300|             # since this is a data descriptor, this block
+  301|             # is probably only hit once (per object)
+  302|             return obj.__dict__[name]
+  303|         except KeyError:
+  304|             obj.__dict__[name] = ret = MethodType(self, obj)
+  305|             return ret
+  306| 
+  307| 
+  308| partial = CachedInstancePartial
+  309| 
+  310| 
+  311| def format_invocation(name='', args=(), kwargs=None, **kw):
+  312|     """Given a name, positional arguments, and keyword arguments, format
+  313|     a basic Python-style function call.
+  314| 
+  315|     >>> print(format_invocation('func', args=(1, 2), kwargs={'c': 3}))
+  316|     func(1, 2, c=3)
+  317|     >>> print(format_invocation('a_func', args=(1,)))
+  318|     a_func(1)
+  319|     >>> print(format_invocation('kw_func', kwargs=[('a', 1), ('b', 2)]))
+  320|     kw_func(a=1, b=2)
+  321| 
+  322|     """
+  323|     _repr = kw.pop('repr', repr)
+  324|     if kw:
+  325|         raise TypeError('unexpected keyword args: %r' % ', '.join(kw.keys()))
+  326|     kwargs = kwargs or {}
+  327|     a_text = ', '.join([_repr(a) for a in args])
+  328|     if isinstance(kwargs, dict):
+  329|         kwarg_items = [(k, kwargs[k]) for k in sorted(kwargs)]
+  330|     else:
+  331|         kwarg_items = kwargs
+  332|     kw_text = ', '.join([f'{k}={_repr(v)}' for k, v in kwarg_items])
+  333| 
+  334|     all_args_text = a_text
+  335|     if all_args_text and kw_text:
+  336|         all_args_text += ', '
+  337|     all_args_text += kw_text
+  338| 
+  339|     return f'{name}({all_args_text})'
+  340| 
+  341| 
+  342| def format_exp_repr(obj, pos_names, req_names=None, opt_names=None, opt_key=None):
+  343|     """Render an expression-style repr of an object, based on attribute
+  344|     names, which are assumed to line up with arguments to an initializer.
+  345| 
+  346|     >>> class Flag(object):
+  347|     ...    def __init__(self, length, width, depth=None):
+  348|     ...        self.length = length
+  349|     ...        self.width = width
+  350|     ...        self.depth = depth
+  351|     ...
+  352| 
+  353|     That's our Flag object, here are some example reprs for it:
+  354| 
+  355|     >>> flag = Flag(5, 10)
+  356|     >>> print(format_exp_repr(flag, ['length', 'width'], [], ['depth']))
+  357|     Flag(5, 10)
+  358|     >>> flag2 = Flag(5, 15, 2)
+  359|     >>> print(format_exp_repr(flag2, ['length'], ['width', 'depth']))
+  360|     Flag(5, width=15, depth=2)
+  361| 
+  362|     By picking the pos_names, req_names, opt_names, and opt_key, you
+  363|     can fine-tune how you want the repr to look.
+  364| 
+  365|     Args:
+  366|        obj (object): The object whose type name will be used and
+  367|           attributes will be checked
+  368|        pos_names (list): Required list of attribute names which will be
+  369|           rendered as positional arguments in the output repr.
+  370|        req_names (list): List of attribute names which will always
+  371|           appear in the keyword arguments in the output repr. Defaults to None.
+  372|        opt_names (list): List of attribute names which may appear in
+  373|           the keyword arguments in the output repr, provided they pass
+  374|           the *opt_key* check. Defaults to None.
+  375|        opt_key (callable): A function or callable which checks whether
+  376|           an opt_name should be in the repr. Defaults to a
+  377|           ``None``-check.
+  378| 
+  379|     """
+  380|     cn = type(obj).__name__
+  381|     req_names = req_names or []
+  382|     opt_names = opt_names or []
+  383|     uniq_names, all_names = set(), []
+  384|     for name in req_names + opt_names:
+  385|         if name in uniq_names:
+  386|             continue
+  387|         uniq_names.add(name)
+  388|         all_names.append(name)
+  389| 
+  390|     if opt_key is None:
+  391|         opt_key = lambda v: v is None
+  392|     assert callable(opt_key)
+  393| 
+  394|     args = [getattr(obj, name, None) for name in pos_names]
+  395| 
+  396|     kw_items = [(name, getattr(obj, name, None)) for name in all_names]
+  397|     kw_items = [(name, val) for name, val in kw_items
+  398|                 if not (name in opt_names and opt_key(val))]
+  399| 
+  400|     return format_invocation(cn, args, kw_items)
+  401| 
+  402| 
+  403| def format_nonexp_repr(obj, req_names=None, opt_names=None, opt_key=None):
+  404|     """Format a non-expression-style repr
+  405| 
+  406|     Some object reprs look like object instantiation, e.g., App(r=[], mw=[]).
+  407| 
+  408|     This makes sense for smaller, lower-level objects whose state
+  409|     roundtrips. But a lot of objects contain values that don't
+  410|     roundtrip, like types and functions.
+  411| 
+  412|     For those objects, there is the non-expression style repr, which
+  413|     mimic's Python's default style to make a repr like so:
+  414| 
+  415|     >>> class Flag(object):
+  416|     ...    def __init__(self, length, width, depth=None):
+  417|     ...        self.length = length
+  418|     ...        self.width = width
+  419|     ...        self.depth = depth
+  420|     ...
+  421|     >>> flag = Flag(5, 10)
+  422|     >>> print(format_nonexp_repr(flag, ['length', 'width'], ['depth']))
+  423|     <Flag length=5 width=10>
+  424| 
+  425|     If no attributes are specified or set, utilizes the id, not unlike Python's
+  426|     built-in behavior.
+  427| 
+  428|     >>> print(format_nonexp_repr(flag))
+  429|     <Flag id=...>
+  430|     """
+  431|     cn = obj.__class__.__name__
+  432|     req_names = req_names or []
+  433|     opt_names = opt_names or []
+  434|     uniq_names, all_names = set(), []
+  435|     for name in req_names + opt_names:
+  436|         if name in uniq_names:
+  437|             continue
+  438|         uniq_names.add(name)
+  439|         all_names.append(name)
+  440| 
+  441|     if opt_key is None:
+  442|         opt_key = lambda v: v is None
+  443|     assert callable(opt_key)
+  444| 
+  445|     items = [(name, getattr(obj, name, None)) for name in all_names]
+  446|     labels = [f'{name}={val!r}' for name, val in items
+  447|               if not (name in opt_names and opt_key(val))]
+  448|     if not labels:
+  449|         labels = ['id=%s' % id(obj)]
+  450|     ret = '<{} {}>'.format(cn, ' '.join(labels))
+  451|     return ret
+  452| 
+  453| 
+  454| 
+  455| # # #
+  456| # # # Function builder
+  457| # # #
+  458| 
+  459| 
+  460| def wraps(func, injected=None, expected=None, **kw):
+  461|     """Decorator factory to apply update_wrapper() to a wrapper function.
+  462| 
+  463|     Modeled after built-in :func:`functools.wraps`. Returns a decorator
+  464|     that invokes update_wrapper() with the decorated function as the wrapper
+  465|     argument and the arguments to wraps() as the remaining arguments.
+  466|     Default arguments are as for update_wrapper(). This is a convenience
+  467|     function to simplify applying partial() to update_wrapper().
+  468| 
+  469|     Same example as in update_wrapper's doc but with wraps:
+  470| 
+  471|         >>> from boltons.funcutils import wraps
+  472|         >>>
+  473|         >>> def print_return(func):
+  474|         ...     @wraps(func)
+  475|         ...     def wrapper(*args, **kwargs):
+  476|         ...         ret = func(*args, **kwargs)
+  477|         ...         print(ret)
+  478|         ...         return ret
+  479|         ...     return wrapper
+  480|         ...
+  481|         >>> @print_return
+  482|         ... def example():
+  483|         ...     '''docstring'''
+  484|         ...     return 'example return value'
+  485|         >>>
+  486|         >>> val = example()
+  487|         example return value
+  488|         >>> example.__name__
+  489|         'example'
+  490|         >>> example.__doc__
+  491|         'docstring'
+  492|     """
+  493|     return partial(update_wrapper, func=func, build_from=None,
+  494|                    injected=injected, expected=expected, **kw)
+  495| 
+  496| 
+  497| def update_wrapper(wrapper, func, injected=None, expected=None, build_from=None, **kw):
+  498|     """Modeled after the built-in :func:`functools.update_wrapper`,
+  499|     this function is used to make your wrapper function reflect the
+  500|     wrapped function's:
+  501| 
+  502|       * Name
+  503|       * Documentation
+  504|       * Module
+  505|       * Signature
+  506| 
+  507|     The built-in :func:`functools.update_wrapper` copies the first three, but
+  508|     does not copy the signature. This version of ``update_wrapper`` can copy
+  509|     the inner function's signature exactly, allowing seamless usage
+  510|     and :mod:`introspection <inspect>`. Usage is identical to the
+  511|     built-in version::
+  512| 
+  513|         >>> from boltons.funcutils import update_wrapper
+  514|         >>>
+  515|         >>> def print_return(func):
+  516|         ...     def wrapper(*args, **kwargs):
+  517|         ...         ret = func(*args, **kwargs)
+  518|         ...         print(ret)
+  519|         ...         return ret
+  520|         ...     return update_wrapper(wrapper, func)
+  521|         ...
+  522|         >>> @print_return
+  523|         ... def example():
+  524|         ...     '''docstring'''
+  525|         ...     return 'example return value'
+  526|         >>>
+  527|         >>> val = example()
+  528|         example return value
+  529|         >>> example.__name__
+  530|         'example'
+  531|         >>> example.__doc__
+  532|         'docstring'
+  533| 
+  534|     In addition, the boltons version of update_wrapper supports
+  535|     modifying the outer signature. By passing a list of
+  536|     *injected* argument names, those arguments will be removed from
+  537|     the outer wrapper's signature, allowing your decorator to provide
+  538|     arguments that aren't passed in.
+  539| 
+  540|     Args:
+  541| 
+  542|         wrapper (function) : The callable to which the attributes of
+  543|             *func* are to be copied.
+  544|         func (function): The callable whose attributes are to be copied.
+  545|         injected (list): An optional list of argument names which
+  546|             should not appear in the new wrapper's signature.
+  547|         expected (list): An optional list of argument names (or (name,
+  548|             default) pairs) representing new arguments introduced by
+  549|             the wrapper (the opposite of *injected*). See
+  550|             :meth:`FunctionBuilder.add_arg()` for more details.
+  551|         build_from (function): The callable from which the new wrapper
+  552|             is built. Defaults to *func*, unless *wrapper* is partial object
+  553|             built from *func*, in which case it defaults to *wrapper*.
+  554|             Useful in some specific cases where *wrapper* and *func* have the
+  555|             same arguments but differ on which are keyword-only and positional-only.
+  556|         update_dict (bool): Whether to copy other, non-standard
+  557|             attributes of *func* over to the wrapper. Defaults to True.
+  558|         inject_to_varkw (bool): Ignore missing arguments when a
+  559|             ``**kwargs``-type catch-all is present. Defaults to True.
+  560|         hide_wrapped (bool): Remove reference to the wrapped function(s)
+  561|             in the updated function.
+  562| 
+  563|     In opposition to the built-in :func:`functools.update_wrapper` bolton's
+  564|     version returns a copy of the function and does not modify anything in place.
+  565|     For more in-depth wrapping of functions, see the
+  566|     :class:`FunctionBuilder` type, on which update_wrapper was built.
+  567|     """
+  568|     if injected is None:
+  569|         injected = []
+  570|     elif isinstance(injected, str):
+  571|         injected = [injected]
+  572|     else:
+  573|         injected = list(injected)
+  574| 
+  575|     expected_items = _parse_wraps_expected(expected)
+  576| 
+  577|     if isinstance(func, (classmethod, staticmethod)):
+  578|         raise TypeError('wraps does not support wrapping classmethods and'
+  579|                         ' staticmethods, change the order of wrapping to'
+  580|                         ' wrap the underlying function: %r'
+  581|                         % (getattr(func, '__func__', None),))
+  582| 
+  583|     update_dict = kw.pop('update_dict', True)
+  584|     inject_to_varkw = kw.pop('inject_to_varkw', True)
+  585|     hide_wrapped = kw.pop('hide_wrapped', False)
+  586|     if kw:
+  587|         raise TypeError('unexpected kwargs: %r' % kw.keys())
+  588| 
+  589|     if isinstance(wrapper, functools.partial) and func is wrapper.func:
+  590|         build_from = build_from or wrapper
+  591| 
+  592|     fb = FunctionBuilder.from_func(build_from or func)
+  593| 
+  594|     for arg in injected:
+  595|         try:
+  596|             fb.remove_arg(arg)
+  597|         except MissingArgument:
+  598|             if inject_to_varkw and fb.varkw is not None:
+  599|                 continue  # keyword arg will be caught by the varkw
+  600|             raise
+  601| 
+  602|     for arg, default in expected_items:
+  603|         fb.add_arg(arg, default)  # may raise ExistingArgument
+  604| 
+  605|     if fb.is_async:
+  606|         fb.body = 'return await _call(%s)' % fb.get_invocation_str()
+  607|     else:
+  608|         fb.body = 'return _call(%s)' % fb.get_invocation_str()
+  609| 
+  610|     execdict = dict(_call=wrapper, _func=func)
+  611|     fully_wrapped = fb.get_func(execdict, with_dict=update_dict)
+  612| 
+  613|     if hide_wrapped and hasattr(fully_wrapped, '__wrapped__'):
+  614|         del fully_wrapped.__dict__['__wrapped__']
+  615|     elif not hide_wrapped:
+  616|         fully_wrapped.__wrapped__ = func  # ref to the original function (#115)
+  617| 
+  618|     return fully_wrapped
+  619| 
+  620| 
+  621| def _parse_wraps_expected(expected):
+  622|     # expected takes a pretty powerful argument, it's processed
+  623|     # here. admittedly this would be less trouble if I relied on
+  624|     # OrderedDict (there's an impl of that in the commit history if
+  625|     # you look
+  626|     if expected is None:
+  627|         expected = []
+  628|     elif isinstance(expected, str):
+  629|         expected = [(expected, NO_DEFAULT)]
+  630| 
+  631|     expected_items = []
+  632|     try:
+  633|         expected_iter = iter(expected)
+  634|     except TypeError as e:
+  635|         raise ValueError('"expected" takes string name, sequence of string names,'
+  636|                          ' iterable of (name, default) pairs, or a mapping of '
+  637|                          ' {name: default}, not %r (got: %r)' % (expected, e))
+  638|     for argname in expected_iter:
+  639|         if isinstance(argname, str):
+  640|             # dict keys and bare strings
+  641|             try:
+  642|                 default = expected[argname]
+  643|             except TypeError:
+  644|                 default = NO_DEFAULT
+  645|         else:
+  646|             # pairs
+  647|             try:
+  648|                 argname, default = argname
+  649|             except (TypeError, ValueError):
+  650|                 raise ValueError('"expected" takes string name, sequence of string names,'
+  651|                                  ' iterable of (name, default) pairs, or a mapping of '
+  652|                                  ' {name: default}, not %r')
+  653|         if not isinstance(argname, str):
+  654|             raise ValueError(f'all "expected" argnames must be strings, not {argname!r}')
+  655| 
+  656|         expected_items.append((argname, default))
+  657| 
+  658|     return expected_items
+  659| 
+  660| 
+  661| class FunctionBuilder:
+  662|     """The FunctionBuilder type provides an interface for programmatically
+  663|     creating new functions, either based on existing functions or from
+  664|     scratch.
+  665| 
+  666|     Values are passed in at construction or set as attributes on the
+  667|     instance. For creating a new function based of an existing one,
+  668|     see the :meth:`~FunctionBuilder.from_func` classmethod. At any
+  669|     point, :meth:`~FunctionBuilder.get_func` can be called to get a
+  670|     newly compiled function, based on the values configured.
+  671| 
+  672|     >>> fb = FunctionBuilder('return_five', doc='returns the integer 5',
+  673|     ...                      body='return 5')
+  674|     >>> f = fb.get_func()
+  675|     >>> f()
+  676|     5
+  677|     >>> fb.varkw = 'kw'
+  678|     >>> f_kw = fb.get_func()
+  679|     >>> f_kw(ignored_arg='ignored_val')
+  680|     5
+  681| 
+  682|     Note that function signatures themselves changed quite a bit in
+  683|     Python 3, so several arguments are only applicable to
+  684|     FunctionBuilder in Python 3. Except for *name*, all arguments to
+  685|     the constructor are keyword arguments.
+  686| 
+  687|     Args:
+  688|         name (str): Name of the function.
+  689|         doc (str): `Docstring`_ for the function, defaults to empty.
+  690|         module (str): Name of the module from which this function was
+  691|             imported. Defaults to None.
+  692|         body (str): String version of the code representing the body
+  693|             of the function. Defaults to ``'pass'``, which will result
+  694|             in a function which does nothing and returns ``None``.
+  695|         args (list): List of argument names, defaults to empty list,
+  696|             denoting no arguments.
+  697|         varargs (str): Name of the catch-all variable for positional
+  698|             arguments. E.g., "args" if the resultant function is to have
+  699|             ``*args`` in the signature. Defaults to None.
+  700|         varkw (str): Name of the catch-all variable for keyword
+  701|             arguments. E.g., "kwargs" if the resultant function is to have
+  702|             ``**kwargs`` in the signature. Defaults to None.
+  703|         defaults (tuple): A tuple containing default argument values for
+  704|             those arguments that have defaults.
+  705|         kwonlyargs (list): Argument names which are only valid as
+  706|             keyword arguments. **Python 3 only.**
+  707|         kwonlydefaults (dict): A mapping, same as normal *defaults*,
+  708|             but only for the *kwonlyargs*. **Python 3 only.**
+  709|         annotations (dict): Mapping of type hints and so
+  710|             forth. **Python 3 only.**
+  711|         filename (str): The filename that will appear in
+  712|             tracebacks. Defaults to "boltons.funcutils.FunctionBuilder".
+  713|         indent (int): Number of spaces with which to indent the
+  714|             function *body*. Values less than 1 will result in an error.
+  715|         dict (dict): Any other attributes which should be added to the
+  716|             functions compiled with this FunctionBuilder.
+  717| 
+  718|     All of these arguments are also made available as attributes which
+  719|     can be mutated as necessary.
+  720| 
+  721|     .. _Docstring: https://en.wikipedia.org/wiki/Docstring#Python
+  722| 
+  723|     """
+  724| 
+  725|     _argspec_defaults = {'args': list,
+  726|                          'varargs': lambda: None,
+  727|                          'varkw': lambda: None,
+  728|                          'defaults': lambda: None,
+  729|                          'kwonlyargs': list,
+  730|                          'kwonlydefaults': dict,
+  731|                          'annotations': dict}
+  732| 
+  733|     @classmethod
+  734|     def _argspec_to_dict(cls, f):
+  735|         argspec = inspect.getfullargspec(f)
+  736|         return {attr: getattr(argspec, attr)
+  737|                     for attr in cls._argspec_defaults}
+  738| 
+  739|     _defaults = {'doc': str,
+  740|                  'dict': dict,
+  741|                  'is_async': lambda: False,
+  742|                  'module': lambda: None,
+  743|                  'body': lambda: 'pass',
+  744|                  'indent': lambda: 4,
+  745|                  "annotations": dict,
+  746|                  'filename': lambda: 'boltons.funcutils.FunctionBuilder'}
+  747| 
+  748|     _defaults.update(_argspec_defaults)
+  749| 
+  750|     _compile_count = itertools.count()
+  751| 
+  752|     def __init__(self, name, **kw):
+  753|         self.name = name
+  754|         for a, default_factory in self._defaults.items():
+  755|             val = kw.pop(a, None)
+  756|             if val is None:
+  757|                 val = default_factory()
+  758|             setattr(self, a, val)
+  759| 
+  760|         if kw:
+  761|             raise TypeError('unexpected kwargs: %r' % kw.keys())
+  762|         return
+  763| 
+  764|     # def get_argspec(self):  # TODO
+  765| 
+  766|     def get_sig_str(self, with_annotations=True):
+  767|         """Return function signature as a string.
+  768| 
+  769|         with_annotations is ignored on Python 2.  On Python 3 signature
+  770|         will omit annotations if it is set to False.
+  771|         """
+  772|         if with_annotations:
+  773|             annotations = self.annotations
+  774|         else:
+  775|             annotations = {}
+  776| 
+  777|         return inspect_formatargspec(self.args,
+  778|                                      self.varargs,
+  779|                                      self.varkw,
+  780|                                      [],
+  781|                                      self.kwonlyargs,
+  782|                                      {},
+  783|                                      annotations)
+  784| 
+  785|     _KWONLY_MARKER = re.compile(r"""
+  786|     \*     # a star
+  787|     \s*    # followed by any amount of whitespace
+  788|     ,      # followed by a comma
+  789|     \s*    # followed by any amount of whitespace
+  790|     """, re.VERBOSE)
+  791| 
+  792|     def get_invocation_str(self):
+  793|         kwonly_pairs = None
+  794|         formatters = {}
+  795|         if self.kwonlyargs:
+  796|             kwonly_pairs = {arg: arg
+  797|                                 for arg in self.kwonlyargs}
+  798|             formatters['formatvalue'] = lambda value: '=' + value
+  799| 
+  800|         sig = inspect_formatargspec(self.args,
+  801|                                     self.varargs,
+  802|                                     self.varkw,
+  803|                                     [],
+  804|                                     kwonly_pairs,
+  805|                                     kwonly_pairs,
+  806|                                     {},
+  807|                                     **formatters)
+  808|         sig = self._KWONLY_MARKER.sub('', sig)
+  809|         return sig[1:-1]
+  810| 
+  811|     @classmethod
+  812|     def from_func(cls, func):
+  813|         """Create a new FunctionBuilder instance based on an existing
+  814|         function. The original function will not be stored or
+  815|         modified.
+  816|         """
+  817|         # TODO: copy_body? gonna need a good signature regex.
+  818|         # TODO: might worry about __closure__?
+  819|         if not callable(func):
+  820|             raise TypeError(f'expected callable object, not {func!r}')
+  821| 
+  822|         if isinstance(func, functools.partial):
+  823|             kwargs = {'name': func.func.__name__,
+  824|                       'doc': func.func.__doc__,
+  825|                       'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor
+  826|                       'annotations': getattr(func.func, "__annotations__", {}),
+  827|                       'dict': getattr(func.func, '__dict__', {})}
+  828|         else:
+  829|             kwargs = {'name': func.__name__,
+  830|                       'doc': func.__doc__,
+  831|                       'module': getattr(func, '__module__', None),  # e.g., method_descriptor
+  832|                       'annotations': getattr(func, "__annotations__", {}),
+  833|                       'dict': getattr(func, '__dict__', {})}
+  834| 
+  835|         kwargs.update(cls._argspec_to_dict(func))
+  836| 
+  837|         if inspect.iscoroutinefunction(func):
+  838|             kwargs['is_async'] = True
+  839| 
+  840|         return cls(**kwargs)
+  841| 
+  842|     def get_func(self, execdict=None, add_source=True, with_dict=True):
+  843|         """Compile and return a new function based on the current values of
+  844|         the FunctionBuilder.
+  845| 
+  846|         Args:
+  847|             execdict (dict): The dictionary representing the scope in
+  848|                 which the compilation should take place. Defaults to an empty
+  849|                 dict.
+  850|             add_source (bool): Whether to add the source used to a
+  851|                 special ``__source__`` attribute on the resulting
+  852|                 function. Defaults to True.
+  853|             with_dict (bool): Add any custom attributes, if
+  854|                 applicable. Defaults to True.
+  855| 
+  856|         To see an example of usage, see the implementation of
+  857|         :func:`~boltons.funcutils.wraps`.
+  858|         """
+  859|         execdict = execdict or {}
+  860|         body = self.body or self._default_body
+  861| 
+  862|         tmpl = 'def {name}{sig_str}:'
+  863|         tmpl += '\n{body}'
+  864| 
+  865|         if self.is_async:
+  866|             tmpl = 'async ' + tmpl
+  867| 
+  868|         body = _indent(self.body, ' ' * self.indent)
+  869| 
+  870|         name = self.name.replace('<', '_').replace('>', '_')  # lambdas
+  871|         src = tmpl.format(name=name, sig_str=self.get_sig_str(with_annotations=False),
+  872|                           doc=self.doc, body=body)
+  873|         self._compile(src, execdict)
+  874|         func = execdict[name]
+  875| 
+  876|         func.__name__ = self.name
+  877|         func.__doc__ = self.doc
+  878|         func.__defaults__ = self.defaults
+  879|         func.__kwdefaults__ = self.kwonlydefaults
+  880|         func.__annotations__ = self.annotations
+  881| 
+  882|         if with_dict:
+  883|             func.__dict__.update(self.dict)
+  884|         func.__module__ = self.module
+  885|         # TODO: caller module fallback?
+  886| 
+  887|         if add_source:
+  888|             func.__source__ = src
+  889| 
+  890|         return func
+  891| 
+  892|     def get_defaults_dict(self):
+  893|         """Get a dictionary of function arguments with defaults and the
+  894|         respective values.
+  895|         """
+  896|         ret = dict(reversed(list(zip(reversed(self.args),
+  897|                                      reversed(self.defaults or [])))))
+  898|         kwonlydefaults = getattr(self, 'kwonlydefaults', None)
+  899|         if kwonlydefaults:
+  900|             ret.update(kwonlydefaults)
+  901|         return ret
+  902| 
+  903|     def get_arg_names(self, only_required=False):
+  904|         arg_names = tuple(self.args) + tuple(getattr(self, 'kwonlyargs', ()))
+  905|         if only_required:
+  906|             defaults_dict = self.get_defaults_dict()
+  907|             arg_names = tuple([an for an in arg_names if an not in defaults_dict])
+  908|         return arg_names
+  909| 
+  910|     def add_arg(self, arg_name, default=NO_DEFAULT, kwonly=False):
+  911|         """Add an argument with optional *default* (defaults to
+  912|         ``funcutils.NO_DEFAULT``). Pass *kwonly=True* to add a
+  913|         keyword-only argument
+  914|         """
+  915|         if arg_name in self.args:
+  916|             raise ExistingArgument(f'arg {arg_name!r} already in func {self.name} arg list')
+  917|         if arg_name in self.kwonlyargs:
+  918|             raise ExistingArgument(f'arg {arg_name!r} already in func {self.name} kwonly arg list')
+  919|         if not kwonly:
+  920|             self.args.append(arg_name)
+  921|             if default is not NO_DEFAULT:
+  922|                 self.defaults = (self.defaults or ()) + (default,)
+  923|         else:
+  924|             self.kwonlyargs.append(arg_name)
+  925|             if default is not NO_DEFAULT:
+  926|                 self.kwonlydefaults[arg_name] = default
+  927| 
+  928|     def remove_arg(self, arg_name):
+  929|         """Remove an argument from this FunctionBuilder's argument list. The
+  930|         resulting function will have one less argument per call to
+  931|         this function.
+  932| 
+  933|         Args:
+  934|             arg_name (str): The name of the argument to remove.
+  935| 
+  936|         Raises a :exc:`ValueError` if the argument is not present.
+  937| 
+  938|         """
+  939|         args = self.args
+  940|         d_dict = self.get_defaults_dict()
+  941|         try:
+  942|             args.remove(arg_name)
+  943|         except ValueError:
+  944|             try:
+  945|                 self.kwonlyargs.remove(arg_name)
+  946|             except (AttributeError, ValueError):
+  947|                 # missing from both
+  948|                 exc = MissingArgument('arg %r not found in %s argument list:'
+  949|                                       ' %r' % (arg_name, self.name, args))
+  950|                 exc.arg_name = arg_name
+  951|                 raise exc
+  952|             else:
+  953|                 self.kwonlydefaults.pop(arg_name, None)
+  954|         else:
+  955|             d_dict.pop(arg_name, None)
+  956|             self.defaults = tuple([d_dict[a] for a in args if a in d_dict])
+  957|         return
+  958| 
+  959|     def _compile(self, src, execdict):
+  960| 
+  961|         filename = ('<%s-%d>'
+  962|                     % (self.filename, next(self._compile_count),))
+  963|         try:
+  964|             code = compile(src, filename, 'single')
+  965|             exec(code, execdict)
+  966|         except Exception:
+  967|             raise
+  968|         return execdict
+  969| 
+  970| 
+  971| class MissingArgument(ValueError):
+  972|     pass
+  973| 
+  974| 
+  975| class ExistingArgument(ValueError):
+  976|     pass
+  977| 
+  978| 
+  979| def _indent(text, margin, newline='\n', key=bool):
+  980|     "based on boltons.strutils.indent"
+  981|     indented_lines = [(margin + line if key(line) else line)
+  982|                       for line in text.splitlines()]
+  983|     return newline.join(indented_lines)
+  984| 
+  985| 
+  986| def noop(*args, **kwargs):
+  987|     """
+  988|     Simple function that should be used when no effect is desired.
+  989|     An alternative to checking for  an optional function type parameter.
+  990| 
+  991|     e.g.
+  992|     def decorate(func, pre_func=None, post_func=None):
+  993|         if pre_func:
+  994|             pre_func()
+  995|         func()
+  996|         if post_func:
+  997|             post_func()
+  998| 
+  999|     vs
+ 1000| 
+ 1001|     def decorate(func, pre_func=noop, post_func=noop):
+ 1002|         pre_func()
+ 1003|         func()
+ 1004|         post_func()
+ 1005|     """
+ 1006|     return None
+ 1007| 
+ 1008| 
+ 1009| 
+ 1010| 
+ 1011| 
+ 1012| def once(func):
+ 1013|     """Decorator that ensures a function is only executed once, caching
+ 1014|     the result for all subsequent calls. Thread-safe: concurrent callers
+ 1015|     block until the first execution completes, then all receive the
+ 1016|     cached result.
+ 1017| 
+ 1018|     This is especially useful in cases like logging, where multiple
+ 1019|     initializations can cause problems.
+ 1020| 
+ 1021|     The decorated function must take no arguments.
+ 1022| 
+ 1023|     >>> call_count = 0
+ 1024|     >>> @once
+ 1025|     ... def expensive_setup():
+ 1026|     ...     global call_count
+ 1027|     ...     call_count += 1
+ 1028|     ...     return 'initialized'
+ 1029|     >>> expensive_setup()
+ 1030|     'initialized'
+ 1031|     >>> expensive_setup()
+ 1032|     'initialized'
+ 1033|     >>> call_count
+ 1034|     1
+ 1035|     """
+ 1036|     _UNSET = object()
+ 1037|     lock = threading.Lock()
+ 1038|     result = _UNSET
+ 1039| 
+ 1040|     @functools.wraps(func)
+ 1041|     def wrapper():
+ 1042|         nonlocal result
+ 1043|         if result is not _UNSET:
+ 1044|             return result
+ 1045|         with lock:
+ 1046|             if result is not _UNSET:
+ 1047|                 return result
+ 1048|             result = func()
+ 1049|             return result
+ 1050| 
+ 1051|     return wrapper
+ 1052| 
+ 1053| # end funcutils.py
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-boltons-contains-51",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_namedutils.py::MutablePoint",
+      "tests/test_namedutils.py::Point",
+      "tests/test_namedutils.py::test_namedlist",
+      "tests/test_namedutils.py::test_namedlist_pickle",
+      "tests/test_namedutils.py::test_namedtuple_pickle"
+    ],
+    "conditional_flags": [],
+    "notes": "All direct module-level definitions and simple-name assignments are shown."
+  },
+  {
+    "query_id": "g1q-boltons-contains-93",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "MissingArgument has no direct lexical children."
+  }
+]
+tokens used
+17,898

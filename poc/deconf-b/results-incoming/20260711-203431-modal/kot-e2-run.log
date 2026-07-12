@@ -1,0 +1,19 @@
+$ /usr/local/bin/python /root/kot/poc/deconf-b/stageb_runner.py --inputs-dir /root/kot/poc/deconf-b/inputs --dqat-dir /root/kot/data/d-qa-t --dadjt-dir /root/kot/data/d-adj-t --dqa-dir /root/kot/data/d-qa --dxif-dir /root/kot/data/d-xif --records-root /root/kot --out-dir /tmp/deconfb-results --device cpu --gpu-class A100 --kernel-arm reinstate --mock
+[deconfb     0.1s] mode=MOCK device=cpu eval_items=16 (ALL resolved-gold_ext d-qa-t items in pinned rank order) kernel_arm=reinstate
+[deconfb     0.1s] BM25 store: 108 docs, corpus sha 4ef60a28f107…, index sha 1429b7a1eb2b…, build 0.004s, index 70544 bytes
+[deconfb     0.1s] retrieval built: zero-hit 0/16, hit@j 16/16, mean docs 12.19, mean ctx tokens 487.6 (leak check passed on every item)
+[deconfb     8.5s] cell model-alone R1 k=0 seed=0 done (8.4s)
+[deconfb     8.5s] cell model-alone R1 k=0 seed=1 done (0.0s)
+[deconfb     8.5s] cell gsa-verify-retry R1 k=4 seed=0 done (0.0s)
+[deconfb     8.5s] cell gsa-verify-retry R1 k=4 seed=1 done (0.0s)
+[deconfb     8.5s] cell gr-a-lite R1 k=0 seed=0 done (0.0s)
+[deconfb     8.5s] cell gr-a-lite R1 k=0 seed=1 done (0.0s)
+[deconfb     8.5s] cell gr-d-lite R1 k=4 seed=0 done (0.0s)
+[deconfb     8.5s] cell gr-d-lite R1 k=4 seed=1 done (0.0s)
+[deconfb     8.5s] cell kernel-verify-retry R1 k=4 seed=0 done (0.0s)
+[deconfb     8.5s] cell kernel-verify-retry R1 k=4 seed=1 done (0.0s)
+[deconfb     8.5s] cell extraction-instrument R1 k=0 seed=0 done (0.0s)
+[deconfb     8.5s] iface gate: 300 labelled, 3 extraction failures
+[deconfb] query-fn source sha256: 4beb075d451c28718cb195149d310d8ca1124fec0a968801915c6b091bf1866f
+[deconfb] OUTCOME: MOCK-HARNESS-COMPLETE (12 run-record bodies in /tmp/deconfb-results/run-records-deconfb-mock.jsonl)
+[runner exit rc=0]

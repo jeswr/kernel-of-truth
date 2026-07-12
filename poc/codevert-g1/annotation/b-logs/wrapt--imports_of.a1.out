@@ -1,0 +1,39 @@
+[
+  {
+    "query_id": "g1q-wrapt-imports_of-20",
+    "answerable_static": true,
+    "gold": [
+      "ext:os",
+      "ext:pathlib",
+      "ext:platform",
+      "ext:pytest",
+      "ext:pytest.collect",
+      "ext:re",
+      "ext:subprocess",
+      "ext:sys",
+      "ext:warnings"
+    ],
+    "conditional_flags": [
+      "ext:platform",
+      "ext:pytest",
+      "ext:pytest.collect",
+      "ext:subprocess"
+    ],
+    "notes": "All import targets are external; pytest alternatives are conditional, while platform and subprocess are imported inside a function."
+  },
+  {
+    "query_id": "g1q-wrapt-imports_of-37",
+    "answerable_static": true,
+    "gold": [
+      "ext:colorsys",
+      "ext:sys",
+      "ext:unittest",
+      "repo:src/wrapt/__init__.py",
+      "repo:src/wrapt/importer.py"
+    ],
+    "conditional_flags": [
+      "ext:colorsys"
+    ],
+    "notes": "wrapt and wrapt.importer resolve within the repository; colorsys imports occur inside methods."
+  }
+]

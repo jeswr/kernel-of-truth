@@ -1,0 +1,140 @@
+[
+  {
+    "query_id": "g1q-jinja-contains-33",
+    "answerable_static": true,
+    "gold": [
+      "src/jinja2/tests.py::TESTS",
+      "src/jinja2/tests.py::test_boolean",
+      "src/jinja2/tests.py::test_defined",
+      "src/jinja2/tests.py::test_divisibleby",
+      "src/jinja2/tests.py::test_escaped",
+      "src/jinja2/tests.py::test_even",
+      "src/jinja2/tests.py::test_false",
+      "src/jinja2/tests.py::test_filter",
+      "src/jinja2/tests.py::test_float",
+      "src/jinja2/tests.py::test_in",
+      "src/jinja2/tests.py::test_integer",
+      "src/jinja2/tests.py::test_iterable",
+      "src/jinja2/tests.py::test_lower",
+      "src/jinja2/tests.py::test_mapping",
+      "src/jinja2/tests.py::test_none",
+      "src/jinja2/tests.py::test_number",
+      "src/jinja2/tests.py::test_odd",
+      "src/jinja2/tests.py::test_sameas",
+      "src/jinja2/tests.py::test_sequence",
+      "src/jinja2/tests.py::test_string",
+      "src/jinja2/tests.py::test_test",
+      "src/jinja2/tests.py::test_true",
+      "src/jinja2/tests.py::test_undefined",
+      "src/jinja2/tests.py::test_upper"
+    ],
+    "conditional_flags": [],
+    "notes": "23 module-level defs plus the TESTS dict assignment (line 216). The if t.TYPE_CHECKING block contains only an import, which is excluded."
+  },
+  {
+    "query_id": "g1q-jinja-contains-77",
+    "answerable_static": true,
+    "gold": [
+      "src/jinja2/environment.py::Template.__new__",
+      "src/jinja2/environment.py::Template.__repr__",
+      "src/jinja2/environment.py::Template._from_namespace",
+      "src/jinja2/environment.py::Template._get_default_module",
+      "src/jinja2/environment.py::Template._get_default_module_async",
+      "src/jinja2/environment.py::Template.debug_info",
+      "src/jinja2/environment.py::Template.environment_class",
+      "src/jinja2/environment.py::Template.from_code",
+      "src/jinja2/environment.py::Template.from_module_dict",
+      "src/jinja2/environment.py::Template.generate",
+      "src/jinja2/environment.py::Template.generate_async",
+      "src/jinja2/environment.py::Template.get_corresponding_lineno",
+      "src/jinja2/environment.py::Template.is_up_to_date",
+      "src/jinja2/environment.py::Template.make_module",
+      "src/jinja2/environment.py::Template.make_module_async",
+      "src/jinja2/environment.py::Template.module",
+      "src/jinja2/environment.py::Template.new_context",
+      "src/jinja2/environment.py::Template.render",
+      "src/jinja2/environment.py::Template.render_async",
+      "src/jinja2/environment.py::Template.stream"
+    ],
+    "conditional_flags": [],
+    "notes": "19 direct defs plus the environment_class assignment (line 1152). Annotation-only declarations at lines 1154-1162 (environment, globals, name, filename, blocks, root_render_func, _module, _debug_info, _uptodate) have no value and bind no name, so they are excluded. Environment.template_class = Template at line 1666 is an attribute assignment outside the class body, not a child."
+  },
+  {
+    "query_id": "g1q-jinja-contained_in-1056",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_async.py::TestAsyncForLoop"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_recursive_depth0 at line 407 sits directly inside class TestAsyncForLoop (line 295)."
+  },
+  {
+    "query_id": "g1q-jinja-contained_in-1461",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_inheritance.py::TestInheritance"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_level2_required at line 249 sits directly inside class TestInheritance (line 77)."
+  },
+  {
+    "query_id": "g1q-jinja-imports_of-57",
+    "answerable_static": true,
+    "gold": [
+      "ext:markupsafe",
+      "ext:pytest",
+      "repo:src/jinja2/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": "Three 'from jinja2 import ...' statements import symbols of the repo package jinja2, resolving (via the src/ root) to its __init__.py; jinja2 has no ancestor packages in the repo. pytest and markupsafe are external. All imports are top-level and unconditional."
+  },
+  {
+    "query_id": "g1q-jinja-imports_of-20",
+    "answerable_static": true,
+    "gold": [
+      "ext:typing",
+      "repo:src/jinja2/__init__.py",
+      "repo:src/jinja2/runtime.py"
+    ],
+    "conditional_flags": [
+      "repo:src/jinja2/__init__.py",
+      "repo:src/jinja2/runtime.py"
+    ],
+    "notes": "import typing as t is top-level. 'from .runtime import Undefined' appears three times, all conditional/non-top-level: inside if t.TYPE_CHECKING (line 4) and inside method bodies under 'if message is None' (lines 38 and 71); it resolves to src/jinja2/runtime.py with ancestor package src/jinja2/__init__.py."
+  },
+  {
+    "query_id": "g1q-jinja-where_defined-498",
+    "answerable_static": true,
+    "gold": [
+      "src/jinja2/filters.py:108",
+      "src/jinja2/filters.py:71"
+    ],
+    "conditional_flags": [],
+    "notes": "Two nested 'def attrgetter' statements inside make_attrgetter (line 71) and make_multi_attrgetter (line 108); the other token occurrences are return statements, not definitions."
+  },
+  {
+    "query_id": "g1q-jinja-where_defined-542",
+    "answerable_static": true,
+    "gold": [
+      "src/jinja2/environment.py:772"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def site: Environment.compile_expression at line 772. All other occurrences are call sites or docstring text."
+  },
+  {
+    "query_id": "g1q-jinja-callees_of-329",
+    "answerable_static": true,
+    "gold": [
+      "ext:builtins.float"
+    ],
+    "conditional_flags": [],
+    "notes": "Body contains a single call expression, float(value); the except path only returns the default parameter."
+  },
+  {
+    "query_id": "g1q-jinja-callees_of-669",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Undefined.__iter__ (runtime.py line 898) is 'yield from ()' only; no call expressions anywhere in its body, so the callee set is positively empty."
+  }
+]

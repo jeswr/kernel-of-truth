@@ -1,0 +1,53 @@
+{
+ "repo": "python-tabulate",
+ "pytest_exit": 0,
+ "n_observed_call_edges": 701,
+ "n_observed_import_events": 67,
+ "call_soundness": {
+  "confirmed_proved": 549,
+  "confirmed_instantiation": 2,
+  "unknown_compatible": 57,
+  "miss": 2,
+  "protocol_dispatch": 4,
+  "descriptor_or_decorated": 4,
+  "class_body_exec": 4,
+  "unmapped_callee": 75,
+  "resumption_total": 5,
+  "resumption_unmatched": 4
+ },
+ "call_query_level": {
+  "covered": 617,
+  "violation": 0
+ },
+ "call_miss_examples": [
+  {
+   "caller": "tabulate/__init__.py::_align_column_multiline_width",
+   "callee": "tabulate/__init__.py::_visible_width",
+   "caller_frame": [
+    "tabulate/__init__.py",
+    "_align_column_multiline_width",
+    1089
+   ],
+   "callee_line": 1004
+  },
+  {
+   "caller": "tabulate/__init__.py::_multiline_width",
+   "callee": "tabulate/__init__.py::_visible_width",
+   "caller_frame": [
+    "tabulate/__init__.py",
+    "_multiline_width",
+    1029
+   ],
+   "callee_line": 1004
+  }
+ ],
+ "import_soundness": {
+  "confirmed": 16,
+  "unknown_compatible": 0,
+  "miss": 0,
+  "external": 51
+ },
+ "import_miss_examples": [],
+ "validity_violations": [],
+ "n_validity_violations": 0
+}

@@ -1,0 +1,237 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.x_rwr__2"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.ddu8ukk2
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c2-c6ba-74a1-b24f-2925e343e397
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: attrs ===
+PY FILE LISTING (repo-root-relative; authoritative):
+bench/test_benchmarks.py
+docs/conf.py
+src/attr/__init__.py
+src/attr/_cmp.py
+src/attr/_compat.py
+src/attr/_config.py
+src/attr/_funcs.py
+src/attr/_make.py
+src/attr/_next_gen.py
+src/attr/_version_info.py
+src/attr/converters.py
+src/attr/exceptions.py
+src/attr/filters.py
+src/attr/setters.py
+src/attr/validators.py
+src/attrs/__init__.py
+src/attrs/converters.py
+src/attrs/exceptions.py
+src/attrs/filters.py
+src/attrs/setters.py
+src/attrs/validators.py
+tests/__init__.py
+tests/attr_import_star.py
+tests/conftest.py
+tests/dataclass_transform_example.py
+tests/strategies.py
+tests/test_3rd_party.py
+tests/test_abc.py
+tests/test_annotations.py
+tests/test_cmp.py
+tests/test_compat.py
+tests/test_config.py
+tests/test_converters.py
+tests/test_dunders.py
+tests/test_filters.py
+tests/test_forward_references.py
+tests/test_funcs.py
+tests/test_functional.py
+tests/test_hooks.py
+tests/test_import.py
+tests/test_init_subclass.py
+tests/test_make.py
+tests/test_next_gen.py
+tests/test_packaging.py
+tests/test_pattern_matching.py
+tests/test_pyright.py
+tests/test_setattr.py
+tests/test_slots.py
+tests/test_utils.py
+tests/test_validators.py
+tests/test_version_info.py
+tests/utils.py
+typing-examples/baseline.py
+typing-examples/mypy.py
+
+=== QUERIES (2) ===
+QUERY g1q-attrs-where_defined-1273: family=where_defined name=test_validators
+QUERY g1q-attrs-where_defined-478: family=where_defined name=assoc
+
+=== CONTEXT ===
+
+WHERE-DEFINED EXCERPTS for token 'test_validators' — every line in every .py file that contains the token, with line numbers and the enclosing def/class scope. [scope] marks the syntactic context: module-level = not inside any def/class; enclosing=X(kind) = the line sits inside X; HEADER-LINE-OF=X = the line IS the def/class header of X.
+
+FILE tests/test_next_gen.py (all lines containing the token):
+  line 569 [HEADER-LINE-OF=TestImports.test_validators]:     def test_validators(self):
+
+WHERE-DEFINED EXCERPTS for token 'assoc' — every line in every .py file that contains the token, with line numbers and the enclosing def/class scope. [scope] marks the syntactic context: module-level = not inside any def/class; enclosing=X(kind) = the line sits inside X; HEADER-LINE-OF=X = the line IS the def/class header of X.
+
+FILE src/attr/__init__.py (all lines containing the token):
+  line 13 [module-level]: from ._funcs import asdict, assoc, astuple, has, resolve_types
+  line 51 [module-level]:     "assoc",
+
+FILE src/attr/_funcs.py (all lines containing the token):
+  line 382 [HEADER-LINE-OF=assoc]: def assoc(inst, **changes):
+  line 390 [enclosing=assoc(FunctionDef)]:     doesn't work. Therefore `assoc` is deprecated, but will not be removed.
+
+FILE src/attrs/__init__.py (all lines containing the token):
+  line 11 [module-level]:     assoc,
+  line 50 [module-level]:     "assoc",
+
+FILE tests/test_funcs.py (all lines containing the token):
+  line 19 [module-level]: from attr import asdict, assoc, astuple, evolve, fields, has
+  line 582 [enclosing=TestAssoc(ClassDef)]:     Tests for `assoc`.
+  line 596 [enclosing=TestAssoc.test_empty(FunctionDef)]:         i2 = assoc(i1)
+  line 607 [enclosing=TestAssoc.test_no_changes(FunctionDef)]:         i2 = assoc(i1)
+  line 624 [enclosing=TestAssoc.test_change(FunctionDef)]:         changed = assoc(original, **change_dict)
+  line 637 [enclosing=TestAssoc.test_unknown(FunctionDef)]:             assoc(C(), aaaa=2)
+  line 651 [enclosing=TestAssoc.test_frozen(FunctionDef)]:         assert C(3, 2) == assoc(C(1, 2), x=3)
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-attrs-where_defined-1273",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_next_gen.py:569"
+    ],
+    "conditional_flags": [],
+    "notes": "The only definition site is the method TestImports.test_validators."
+  },
+  {
+    "query_id": "g1q-attrs-where_defined-478",
+    "answerable_static": true,
+    "gold": [
+      "src/attr/_funcs.py:382"
+    ],
+    "conditional_flags": [],
+    "notes": "The other occurrences are import bindings, exports, documentation, or calls, which are excluded."
+  }
+]
+tokens used
+5,187

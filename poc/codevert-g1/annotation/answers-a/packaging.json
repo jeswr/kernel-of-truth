@@ -1,0 +1,141 @@
+[
+  {
+    "query_id": "g1q-packaging-contains-72",
+    "answerable_static": true,
+    "gold": [
+      "tests/property/test_version_releases.py::DEV_POOL",
+      "tests/property/test_version_releases.py::EPOCH_POOL",
+      "tests/property/test_version_releases.py::FINAL_POOL",
+      "tests/property/test_version_releases.py::POST_POOL",
+      "tests/property/test_version_releases.py::PRE_POOL",
+      "tests/property/test_version_releases.py::TestCEquivalentToRc",
+      "tests/property/test_version_releases.py::TestCVersionEquivalence",
+      "tests/property/test_version_releases.py::TestDateBasedReleases",
+      "tests/property/test_version_releases.py::TestDevReleaseDefinition",
+      "tests/property/test_version_releases.py::TestDevReleaseIndicator",
+      "tests/property/test_version_releases.py::TestDevReleaseOrdering",
+      "tests/property/test_version_releases.py::TestDevReleasesArePreReleases",
+      "tests/property/test_version_releases.py::TestDevReleasesOfPreAndPost",
+      "tests/property/test_version_releases.py::TestEpochFormat",
+      "tests/property/test_version_releases.py::TestEpochMotivation",
+      "tests/property/test_version_releases.py::TestEpochReorderingExample",
+      "tests/property/test_version_releases.py::TestFinalReleaseDefinition",
+      "tests/property/test_version_releases.py::TestFinalReleaseExampleOrdering",
+      "tests/property/test_version_releases.py::TestImplicitEpochZero",
+      "tests/property/test_version_releases.py::TestPostReleaseDefinition",
+      "tests/property/test_version_releases.py::TestPostReleaseIndicator",
+      "tests/property/test_version_releases.py::TestPostReleaseOrdering",
+      "tests/property/test_version_releases.py::TestPostReleasesOfPreReleases",
+      "tests/property/test_version_releases.py::TestPreReleaseDefinition",
+      "tests/property/test_version_releases.py::TestPreReleaseIndicators",
+      "tests/property/test_version_releases.py::TestPreReleasePhaseOrdering",
+      "tests/property/test_version_releases.py::TestReleaseSegmentComparison",
+      "tests/property/test_version_releases.py::TestReleaseSegmentFormat",
+      "tests/property/test_version_releases.py::TestXYEqualsXY0",
+      "tests/property/test_version_releases.py::dev_release_versions",
+      "tests/property/test_version_releases.py::final_versions",
+      "tests/property/test_version_releases.py::post_release_versions",
+      "tests/property/test_version_releases.py::pre_release_versions",
+      "tests/property/test_version_releases.py::pytestmark"
+    ],
+    "conditional_flags": [],
+    "notes": "Full module shown. 4 module-level defs (decorated), 24 classes, 6 module-level assignments (pytestmark plus 5 pool lists); imports excluded."
+  },
+  {
+    "query_id": "g1q-packaging-contains-74",
+    "answerable_static": true,
+    "gold": [
+      "benchmarks/requirement.py::TimeRequirementSuite.rounds",
+      "benchmarks/requirement.py::TimeRequirementSuite.setup",
+      "benchmarks/requirement.py::TimeRequirementSuite.time_constructor"
+    ],
+    "conditional_flags": [],
+    "notes": "Class body has one class-level assignment (rounds) and two methods; time_constructor is decorated but still a direct def child."
+  },
+  {
+    "query_id": "g1q-packaging-contained_in-1875",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_tags.py::TestParseTag"
+    ],
+    "conditional_flags": [],
+    "notes": "test_multi_platform (line 153) is a direct method of class TestParseTag (line 143)."
+  },
+  {
+    "query_id": "g1q-packaging-contained_in-28",
+    "answerable_static": true,
+    "gold": [
+      "benchmarks/version.py::TimeVersionSuite"
+    ],
+    "conditional_flags": [],
+    "notes": "setup (line 22) is a direct method of class TimeVersionSuite (line 19)."
+  },
+  {
+    "query_id": "g1q-packaging-imports_of-23",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:collections.abc",
+      "ext:enum",
+      "ext:typing",
+      "repo:src/packaging/__init__.py",
+      "repo:src/packaging/_ranges.py",
+      "repo:src/packaging/specifiers.py",
+      "repo:src/packaging/version.py"
+    ],
+    "conditional_flags": [
+      "ext:collections.abc",
+      "repo:src/packaging/specifiers.py"
+    ],
+    "notes": "Relative imports ._ranges/.version resolve within src/packaging; ancestor package __init__.py included. collections.abc, ._ranges (Interval) and .specifiers imports sit under `if TYPE_CHECKING:`; _ranges and __init__ also imported unconditionally at top level so only collections.abc and specifiers are flagged. Two `typing` imports collapse to one element."
+  },
+  {
+    "query_id": "g1q-packaging-imports_of-56",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:pytest",
+      "repo:src/packaging/__init__.py",
+      "repo:src/packaging/tags.py",
+      "repo:src/packaging/utils.py",
+      "repo:src/packaging/version.py"
+    ],
+    "conditional_flags": [],
+    "notes": "All imports top-level and unconditional; packaging.* resolves under src/, ancestor src/packaging/__init__.py included once."
+  },
+  {
+    "query_id": "g1q-packaging-where_defined-1202",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_ranges.py:549"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def header inside TestPrereleaseRegion; no other occurrences of the token in the repo."
+  },
+  {
+    "query_id": "g1q-packaging-where_defined-1897",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_tags.py:1249"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def header inside TestCPythonTags; no other occurrences of the token in the repo."
+  },
+  {
+    "query_id": "g1q-packaging-callees_of-223",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Body (lines 567-568) contains only attribute assignments and a dict subscript _RAW_TO_EMAIL_MAPPING[name]; no call expressions."
+  },
+  {
+    "query_id": "g1q-packaging-callees_of-55",
+    "answerable_static": true,
+    "gold": [
+      "src/packaging/_manylinux.py::_glibc_version_string_confstr",
+      "src/packaging/_manylinux.py::_glibc_version_string_ctypes"
+    ],
+    "conditional_flags": [],
+    "notes": "Body is one return with two calls chained by `or`; the ctypes call short-circuits but is still a lexical call site in the body."
+  }
+]

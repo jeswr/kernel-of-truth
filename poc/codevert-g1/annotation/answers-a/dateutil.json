@@ -1,0 +1,139 @@
+[
+  {
+    "query_id": "g1q-dateutil-contains-107",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "rdChildClass (tests/test_relativedelta.py lines 20-21) has a body consisting only of 'pass'; no def/class/assignment children."
+  },
+  {
+    "query_id": "g1q-dateutil-contains-30",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_parser.py::IS_WIN",
+      "tests/test_parser.py::PARSER_DEFAULT_TEST_CASES",
+      "tests/test_parser.py::PARSER_TEST_CASES",
+      "tests/test_parser.py::PLATFORM_HAS_DASH_D",
+      "tests/test_parser.py::ParserTest",
+      "tests/test_parser.py::TestFormat",
+      "tests/test_parser.py::TestInputTypes",
+      "tests/test_parser.py::TestOutOfBounds",
+      "tests/test_parser.py::TestParseUnimplementedCases",
+      "tests/test_parser.py::TestTZVar",
+      "tests/test_parser.py::TestTzinfoInputTypes",
+      "tests/test_parser.py::_brsttz",
+      "tests/test_parser.py::fuzzy",
+      "tests/test_parser.py::test_decimal_error",
+      "tests/test_parser.py::test_parse_dayfirst",
+      "tests/test_parser.py::test_parse_ignoretz",
+      "tests/test_parser.py::test_parse_tzinfos_fold",
+      "tests/test_parser.py::test_parse_with_tzoffset",
+      "tests/test_parser.py::test_parse_yearfirst",
+      "tests/test_parser.py::test_parser",
+      "tests/test_parser.py::test_parser_default",
+      "tests/test_parser.py::test_parsererror_repr",
+      "tests/test_parser.py::test_rounding_floatlike_strings"
+    ],
+    "conditional_flags": [],
+    "notes": "Full module shown (964 lines). PLATFORM_HAS_DASH_D also rebound at line 28 inside try/if, but the line-25 site is unconditional so the element is not flagged. Module-level 'assert' statements (lines 105, 162) bind nothing."
+  },
+  {
+    "query_id": "g1q-dateutil-contained_in-476",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_parser.py::TestInputTypes"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_none_invalid (line 299) sits directly in class TestInputTypes (line 294)."
+  },
+  {
+    "query_id": "g1q-dateutil-contained_in-459",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_isoparser.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_parse_isodate_error_text (line 398) is a top-level function; parent is the module."
+  },
+  {
+    "query_id": "g1q-dateutil-imports_of-19",
+    "answerable_static": true,
+    "gold": [
+      "ext:ctypes",
+      "ext:datetime",
+      "ext:six",
+      "ext:six.moves",
+      "ext:struct",
+      "repo:src/dateutil/__init__.py",
+      "repo:src/dateutil/tz/__init__.py",
+      "repo:src/dateutil/tz/_common.py"
+    ],
+    "conditional_flags": [
+      "ext:ctypes"
+    ],
+    "notes": "'import ctypes' and 'from ctypes import wintypes' (lines 17-18) are inside a try/except, both normalize to ext:ctypes (flagged). 'from ._common import tzrangebase' resolves to src/dateutil/tz/_common.py with package ancestors dateutil.tz and dateutil."
+  },
+  {
+    "query_id": "g1q-dateutil-imports_of-28",
+    "answerable_static": true,
+    "gold": [
+      "ext:pytest",
+      "ext:sys",
+      "ext:warnings",
+      "repo:src/dateutil/__init__.py",
+      "repo:src/dateutil/parser/__init__.py",
+      "repo:src/dateutil/parser/_parser.py",
+      "repo:src/dateutil/tz/__init__.py"
+    ],
+    "conditional_flags": [
+      "repo:src/dateutil/parser/__init__.py"
+    ],
+    "notes": "Top-level: sys, pytest, warnings, dateutil.parser._parser (line 14), dateutil.tz (line 15). Function-level imports in test_parser_private_warns (lines 51-52) target dateutil.parser's __init__ symbols (flagged: only imported inside a function); lines 66-67 re-import _parser.py, already unconditional via line 14."
+  },
+  {
+    "query_id": "g1q-dateutil-where_defined-624",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_rrule.py:1458"
+    ],
+    "conditional_flags": [],
+    "notes": "Single definition site: def header of RRuleTest.testHourlyByMonthAndMonthDayAndWeekDay; no other occurrences of the token repo-wide."
+  },
+  {
+    "query_id": "g1q-dateutil-where_defined-1447",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_internals.py:50"
+    ],
+    "conditional_flags": [],
+    "notes": "Single definition site: top-level def test_parser_private_warns; no other occurrences of the token repo-wide."
+  },
+  {
+    "query_id": "g1q-dateutil-callees_of-1411",
+    "answerable_static": false,
+    "gold": [
+      "ext:datetime.datetime",
+      "ext:unittest.TestCase.assertFalse",
+      "tests/test_tz.py::DatetimeAmbiguousTest._get_ambig_error_tzinfo"
+    ],
+    "conditional_flags": [],
+    "notes": "tz.datetime_ambiguous (line 2586) is repo-internal (from dateutil import tz) but the dateutil.tz source is not shown, so its defining file/qualpath cannot be determined; that call site blocks a full answer. self._get_ambig_error_tzinfo resolves to the method defined at line 2552 in the same class."
+  },
+  {
+    "query_id": "g1q-dateutil-callees_of-1173",
+    "answerable_static": false,
+    "gold": [
+      "ext:datetime.datetime",
+      "ext:datetime.datetime.astimezone",
+      "ext:datetime.datetime.replace",
+      "ext:datetime.datetime.utcoffset",
+      "ext:datetime.timedelta",
+      "ext:unittest.TestCase.assertEqual",
+      "tests/test_tz.py::TzFoldMixin._get_tzname",
+      "tests/test_tz.py::TzFoldMixin._gettz_context",
+      "tests/test_tz.py::TzFoldMixin.gettz"
+    ],
+    "conditional_flags": [],
+    "notes": "TzFoldMixin is a mix-in: self.gettz (a NotImplementedError stub here), self._get_tzname and self._gettz_context are overridden in subclasses (TzLocalNixTest, GettzTest, ZoneInfoGettzTest, TZRangeTest, TZStrTest, TZICalTest), so runtime callees depend on dynamic dispatch; the lexical mixin defs are listed. tz.UTC is an attribute access, not a call."
+  }
+]

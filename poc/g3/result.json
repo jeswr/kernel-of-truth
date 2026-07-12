@@ -1,0 +1,339 @@
+{
+ "_quarantine": "ASM-0553: contains proxy-derived quantities; do NOT expose to the g3 human annotator before their Pass B (and A2's full round) is complete",
+ "annotation_state": {
+  "consequence": "the frozen two-human instrument cannot yet be computed from human data alone; q2 and the second annotator seat are filled by the pinned llmproxy-v3 stand-ins per the weak-proxy stand-in policy (ASM-0550/ASM-0530; task brief calls this the issue-#11 rule \u2014 NO in-repo mirror of an issue #11 exists, flag for coordinator)",
+  "human_A1_passA": "COMPLETE (200/200 q1; 163 yes / 29 no / 8 cannot-say = 4.0% cannot-say, under the protocol's 5% re-examination trigger)",
+  "human_A1_passB": "NOT DONE (q2 absent)",
+  "human_A2": "NOT STARTED (both passes)"
+ },
+ "epistemic_tags": {
+  "MEASURED": "human A1 q1 labels; GPT-5.6-Sol and Haiku-4.5 proxy labels (pinned llmproxy-v3 run, labels sha256 685ce118... verified); every agreement statistic; all rates AS COMPUTED on their stated label sources",
+  "PROVISIONAL": "every necessity/sufficiency VIOLATION quantity (rests on proxy q2 \u2014 human Pass B absent); the g3 verdict-input direction",
+  "STIPULATED": "input mappings A1/A2/A3 (cannot-say = neither violation nor satisfaction per the protocol's own proposal; decisive-only sensitivity per llmproxy-v3 ASM-0533 precedent); choice of 2x2 annotator pairing (both variants reported)",
+  "authority": "the human-annotated g3 remains the sole HS3 adjudicator; nothing here consumes the open two-human combination rule"
+ },
+ "experiment": "g3 (FROZEN record registry/experiments/g3.json, frozen_sha256 ef9608c6...; run is FAITHFUL to the frozen analysis pin analysis/g3.py sha256 eac8fd81... verified on disk; selftest OK)",
+ "files": {
+  "doc": "docs/next/analysis/g3-result.md",
+  "human_gold": "poc/g3/human-passA-a1-q1.json",
+  "joined_labels": "poc/g3/joined-labels.jsonl",
+  "metrics": "poc/g3/metrics.json",
+  "pinned_analysis_inputs": "poc/g3/analysis-input-records.jsonl",
+  "pinned_analysis_outputs": "poc/g3/analysis-output.json"
+ },
+ "metrics_snapshot": {
+  "hybrid_cannot_say": {
+   "gpt_q2_cs": 0,
+   "human_q1_cs": 8,
+   "n_hybrid_decisive": 192
+  },
+  "hybrid_decisive_only": {
+   "necessity": {
+    "n": 192,
+    "rate": 0.239583,
+    "violations": 46,
+    "wilson_lb": 0.192754,
+    "wilson_ub": 0.293651
+   },
+   "sufficiency": {
+    "n": 192,
+    "rate": 0.09375,
+    "violations": 18,
+    "wilson_lb": 0.064573,
+    "wilson_ub": 0.134219
+   }
+  },
+  "hybrid_haiku_q2_n200": {
+   "necessity": {
+    "n": 200,
+    "rate": 0.325,
+    "violations": 65,
+    "wilson_lb": 0.27317,
+    "wilson_ub": 0.381503
+   },
+   "sufficiency": {
+    "n": 200,
+    "rate": 0.075,
+    "violations": 15
+   }
+  },
+  "hybrid_proposal_n200": {
+   "necessity": {
+    "n": 200,
+    "rate": 0.23,
+    "violations": 46,
+    "wilson_lb": 0.184848,
+    "wilson_ub": 0.282361
+   },
+   "sufficiency": {
+    "n": 200,
+    "rate": 0.09,
+    "violations": 18,
+    "wilson_lb": 0.061958,
+    "wilson_ub": 0.128989
+   }
+  },
+  "hybrid_violation_ids": {
+   "necessity": [
+    "g3-afraid-01",
+    "g3-afraid-02",
+    "g3-afraid-09",
+    "g3-angry-02",
+    "g3-angry-08",
+    "g3-archived-01",
+    "g3-archived-08",
+    "g3-archived-09",
+    "g3-believe-02",
+    "g3-believe-03",
+    "g3-believe-05",
+    "g3-birth-07",
+    "g3-birth-08",
+    "g3-bookmark-02",
+    "g3-bookmark-08",
+    "g3-broken-01",
+    "g3-broken-02",
+    "g3-broken-09",
+    "g3-death-10",
+    "g3-end-01",
+    "g3-end-09",
+    "g3-find-03",
+    "g3-find-10",
+    "g3-friend-06",
+    "g3-friend-07",
+    "g3-friend-09",
+    "g3-lie-02",
+    "g3-lie-06",
+    "g3-lie-09",
+    "g3-lost-01",
+    "g3-lost-05",
+    "g3-lost-08",
+    "g3-make-08",
+    "g3-promise-02",
+    "g3-promise-09",
+    "g3-reminder-01",
+    "g3-reminder-02",
+    "g3-reminder-04",
+    "g3-reminder-05",
+    "g3-reminder-07",
+    "g3-reminder-09",
+    "g3-repair-01",
+    "g3-useful-01",
+    "g3-useful-02",
+    "g3-useful-06",
+    "g3-useful-10"
+   ],
+   "sufficiency": [
+    "g3-afraid-03",
+    "g3-afraid-04",
+    "g3-angry-01",
+    "g3-angry-05",
+    "g3-angry-07",
+    "g3-archived-02",
+    "g3-begin-04",
+    "g3-birth-04",
+    "g3-birth-05",
+    "g3-birth-06",
+    "g3-bookmark-01",
+    "g3-bookmark-04",
+    "g3-bookmark-06",
+    "g3-friend-05",
+    "g3-friend-10",
+    "g3-make-10",
+    "g3-promise-08",
+    "g3-repair-03"
+   ]
+  },
+  "nec_2x2_hybrid_vs_gpt56": {
+   "a_no_b_yes": 6,
+   "a_yes_b_no": 3,
+   "both_no": 148,
+   "both_yes": 43,
+   "caveat": "shares q2_gpt between annotators; kappa structurally inflated",
+   "kappa": 0.8758
+  },
+  "nec_2x2_hybrid_vs_haiku": {
+   "a_no_b_yes": 25,
+   "a_yes_b_no": 12,
+   "both_no": 129,
+   "both_yes": 34,
+   "caveat": "independent q2 sources (gpt56 vs haiku); q1 human vs haiku",
+   "kappa": 0.5248
+  },
+  "proxy_gpt56": {
+   "necessity": {
+    "n_decisive": 199,
+    "rate": 0.246231,
+    "violations": 49,
+    "wilson_lb": 0.19962,
+    "wilson_ub": 0.299651
+   },
+   "sufficiency": {
+    "rate": 0.105528,
+    "violations": 21
+   }
+  },
+  "proxy_haiku": {
+   "necessity": {
+    "n_decisive": 195,
+    "rate": 0.302564,
+    "violations": 59,
+    "wilson_lb": 0.251456,
+    "wilson_ub": 0.359077
+   },
+   "sufficiency": {
+    "rate": 0.082051,
+    "violations": 16
+   }
+  },
+  "q1_agreement_human_vs_gpt56": {
+   "disagree_ids": [
+    "g3-afraid-04",
+    "g3-believe-05",
+    "g3-believe-09",
+    "g3-death-10",
+    "g3-end-03",
+    "g3-find-05",
+    "g3-give-05",
+    "g3-give-10",
+    "g3-lost-10",
+    "g3-make-10",
+    "g3-promise-05",
+    "g3-reminder-08"
+   ],
+   "exact_3way": 179,
+   "exact_3way_pct": 0.895,
+   "kappa": 0.7561,
+   "n_both_decisive": 191,
+   "pct_agree_decisive": 0.9372,
+   "table": {
+    "both_no": 23,
+    "both_yes": 156,
+    "h_no_p_yes": 6,
+    "h_yes_p_no": 6
+   }
+  },
+  "q1_agreement_human_vs_haiku": {
+   "disagree_ids": [
+    "g3-afraid-03",
+    "g3-afraid-04",
+    "g3-archived-01",
+    "g3-begin-03",
+    "g3-believe-09",
+    "g3-death-10",
+    "g3-find-05",
+    "g3-lie-07",
+    "g3-lie-10",
+    "g3-lost-06",
+    "g3-lost-10",
+    "g3-promise-05",
+    "g3-promise-09",
+    "g3-repair-03",
+    "g3-repair-05"
+   ],
+   "exact_3way": 174,
+   "exact_3way_pct": 0.87,
+   "kappa": 0.7069,
+   "n_both_decisive": 188,
+   "pct_agree_decisive": 0.9202,
+   "table": {
+    "both_no": 23,
+    "both_yes": 150,
+    "h_no_p_yes": 5,
+    "h_yes_p_no": 10
+   }
+  }
+ },
+ "pinned_analysis_outputs": {
+  "A1-proposal-n200-2x2-gpt56": {
+   "analysis": {
+    "kappa": 0.8757935412641457,
+    "n_judgments": 200,
+    "necessity_rate": 0.23,
+    "necessity_wilson_lb": 0.18484794399084645,
+    "necessity_wilson_ub": 0.28236078845802876,
+    "sufficiency_equivalence_survives": false,
+    "sufficiency_rate": 0.09,
+    "sufficiency_wilson_lb": 0.06195790636596083,
+    "sufficiency_wilson_ub": 0.12898868735270147
+   },
+   "gates": {
+    "instrument_valid": true
+   }
+  },
+  "A2-proposal-n200-2x2-haiku": {
+   "analysis": {
+    "kappa": 0.524788081171333,
+    "n_judgments": 200,
+    "necessity_rate": 0.23,
+    "necessity_wilson_lb": 0.18484794399084645,
+    "necessity_wilson_ub": 0.28236078845802876,
+    "sufficiency_equivalence_survives": false,
+    "sufficiency_rate": 0.09,
+    "sufficiency_wilson_lb": 0.06195790636596083,
+    "sufficiency_wilson_ub": 0.12898868735270147
+   },
+   "gates": {
+    "instrument_valid": true
+   }
+  },
+  "A3-decisive-n192-2x2-haiku": {
+   "analysis": {
+    "kappa": 0.5276107162383816,
+    "n_judgments": 192,
+    "necessity_rate": 0.23958333333333334,
+    "necessity_wilson_lb": 0.19275380622512914,
+    "necessity_wilson_ub": 0.2936514038858575,
+    "sufficiency_equivalence_survives": false,
+    "sufficiency_rate": 0.09375,
+    "sufficiency_wilson_lb": 0.06457271774111839,
+    "sufficiency_wilson_ub": 0.13421941003202065
+   },
+   "gates": {
+    "instrument_valid": false
+   }
+  }
+ },
+ "proxy_validation": {
+  "human_vs_gpt56_q1": {
+   "disagreements": 12,
+   "exact_3way_pct": 0.895,
+   "kappa": 0.7561,
+   "n_both_decisive": 191,
+   "pct_agree_decisive": 0.9372
+  },
+  "human_vs_haiku_q1": {
+   "disagreements": 15,
+   "exact_3way_pct": 0.87,
+   "kappa": 0.7069,
+   "n_both_decisive": 188,
+   "pct_agree_decisive": 0.9202
+  },
+  "proxy_leg_provenance": "REUSED pinned llmproxy-v3 labels (data/g3-annot-llmproxy-v3/labels-proxy.jsonl, run 20260711T090450Z, byte-identical materials) \u2014 no new judge invocation; a fresh unpinned codex run would have added nondeterminism, not information",
+  "reading": "substantial (0.6-0.8 band) human-proxy agreement on the concept judgment; GPT-5.6 slightly closer to the human than Haiku; supports (does not prove) the proxy for the legs where human gold is absent"
+ },
+ "run_date": "2026-07-11",
+ "runner": "fable-experiment-agent (g3 human-gold + proxy-stand-in run)",
+ "verdict_input": {
+  "primary_endpoint_necessity": {
+   "frozen_rule_match": "necessity_wilson_lb 0.1848 > 0.10 -> the FAIL row of the frozen verdict_rules matches (kill side decidable); instrument_valid TRUE under both 2x2 pairings on n=200",
+   "headline": "hybrid (human q1 x GPT-5.6 q2), protocol-proposal mapping, n=200: 46 violations, rate 0.230, Wilson LB 0.1848, UB 0.2824",
+   "robustness": [
+    "decisive-only n=192: rate 0.2396, LB 0.1928 (same direction; instrument gate false only via the n>=200 mapping artifact)",
+    "haiku q2 substituted: 65/200, LB 0.2732 (same direction, stronger)",
+    "pure GPT-5.6 proxy: 49/199, LB 0.1996 (same direction)",
+    "pinned llmproxy-v3 frozen verdict: FAIL-analog (concordant 36/195, LB 0.1433)"
+   ],
+   "status": "PROVISIONAL (proxy q2) \u2014 but FAIL-direction is invariant across two cross-family q2 sources and both pure-proxy legs"
+  },
+  "secondary_kappa": {
+   "gate": "both >= 0.4 -> no INSTRUMENT-INVALID trip on n=200 mappings; the true two-HUMAN kappa remains unmeasured",
+   "hybrid_vs_gpt56_shared_q2_inflated": 0.8758,
+   "hybrid_vs_haiku_independent_sources": 0.5248
+  },
+  "secondary_sufficiency": {
+   "frozen_rule_match": "UB 0.1290 > 0.10 -> equivalence does NOT survive; LB 0.0620 <= 0.10 -> kill side NOT decidable -> INCONCLUSIVE band (buys more annotations)",
+   "headline": "hybrid n=200: 18 violations, rate 0.090, Wilson LB 0.0620, UB 0.1290",
+   "status": "PROVISIONAL (proxy q2)"
+  }
+ }
+}

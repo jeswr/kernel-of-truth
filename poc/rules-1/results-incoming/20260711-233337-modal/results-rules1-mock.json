@@ -1,0 +1,68 @@
+{
+  "arms": [
+    "A1",
+    "A3",
+    "A5",
+    "A7",
+    "c1"
+  ],
+  "certificate_precondition": {
+    "gates_asm_1163_all_pass": true,
+    "kill_a_fired": false,
+    "sha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "success_asm_1131": true
+  },
+  "date": "2026-07-11T23:33:28Z",
+  "decision_sha256": "eb8fdfc2cfd9a1d6f5e277d41b4538e306583454178e99d5089a3cb96a1debde",
+  "decision_sha_note": "double-run comparator for the frozen repeat_byte_identical gate (rows with the volatile engine_us timing stripped; pass two of THESE to analysis/rules_1.py --repeat-sha-a/-b)",
+  "device": "cpu",
+  "engine_outcome_ledger": {
+    "c1_deranged_tbox_covered": {
+      "ERR_CONFLICT": 44,
+      "ERR_INSUFFICIENT_PREMISES": 16
+    },
+    "note": "c1 DISCLOSURE (PROPOSED-ASM-1129 operationalisation): every Sattolo derangement of this tightly-typed 6-property module fail-closes the engine on covered items, so the c1 oracle licenses no rejections \u2014 the lift channel is absent by construction, which is the content-destruction result s1 measures",
+    "true_tbox_control": {
+      "ERR_INSUFFICIENT_PREMISES": 10
+    },
+    "true_tbox_covered": {
+      "answered": 60
+    }
+  },
+  "experiment": "rules-1",
+  "gpu_class_assumed_for_usd": "A10G",
+  "k_retry": 4,
+  "mode": "MOCK",
+  "models": {
+    "note": "MOCK \u2014 synthetic stub LM, no models loaded"
+  },
+  "n_control": 10,
+  "n_covered": 60,
+  "n_rows": 640,
+  "outcome": "MOCK-HARNESS-COMPLETE",
+  "outcome_note": "NOT a hypothesis verdict \u2014 raw run-record rows only; the verdict is computed by the pinned analysis/rules_1.py + tools/registry/verdict-gen.py under run-vs-audit separation",
+  "pins": {
+    "_pin_notes": "corpus hashes verbatim from the FROZEN record pins.corpus_hashes (kot-corpus-hash/1); twin-engine + certificate-result verbatim from pins.artifact_hashes; f2bt runner pinned so the A3 loop's reused bytes (HFLM forced-choice scorer, seeded retry sampler SEED_BASE 20260710, CellGuard) are byte-identical to the f2b-transfer FULL-run harness; poc/f2b + poc/f2b-transfer + poc/deconf-b trees are NOT modified by this build (new module only).",
+    "analysisRules1PySha256": "6c62f8bde0b6cb770343f00b3e7e5b465f8021fcd1ae2f20ebb84f966e5e4870",
+    "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+    "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+    "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+    "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+    "imageRequirementsSha256": "0fac7243f1cd5747258bb13bde30f15eb0231a15426bb1fe4465aec68ff6636e",
+    "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+    "twinEnginePySha256": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+  },
+  "records_file": "run-records-rules1-mock.jsonl",
+  "records_sha256": "c53eea586c65752d6ef0fef5bfb3536927c4016812e93af1e7f02b2daa86c55e",
+  "seeds": [
+    0,
+    1
+  ],
+  "shuffle": {
+    "map_file": "shuffle-map-rules1.json",
+    "map_sha256": "4cb83cceeb83dc03d06cb0f111d4fb1ffa11315bf9fb21d1e032b4ac9c0fdb52",
+    "perm_seed": 20260711
+  },
+  "wallClockHours": 0.00010666661792331272
+}

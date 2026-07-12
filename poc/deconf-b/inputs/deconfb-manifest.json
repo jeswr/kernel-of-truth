@@ -1,0 +1,125 @@
+{
+  "spec": "DECONF/1 Stage-B harness RunSpec — the aligned-generic-store deconfound at matched budget through the identical retry topology (DRAFT registry record: registry/experiments/deconf-b.json; freeze-ready spec docs/next/design/deconf-stageb-spec.md; design DECONF.md rev-B §5). This manifest pins the harness INPUTS only; it may not change any design field or threshold. PINNING DIRECTION: the record's pins.harness_manifest is a declared PINNED-AT-INPUTS placeholder filled by ops amendment with the staged-bytes manifest sha printed by poc/deconf-b/modal_deconfb.py BEFORE any final-phase run; this file must NOT contain that sha (circular).",
+  "schema": "kot-deconfb-runspec/1",
+  "experiment": "deconf-b",
+  "rider": "self-authored items, kernel-covered slice, oracle-addressed store; external adjudication removes membership-gold circularity, not item-generation or store-addressing circularity (PROPOSED-ASM-1017 / ASM-1017)",
+  "prereg": {
+    "registry_record": "registry/experiments/deconf-b.json (DRAFT until the experiment-designer role freezes it after green mock + skeptic pass)",
+    "prereg_doc": "docs/next/design/deconf-stageb-spec.md",
+    "analysis_script": {
+      "path": "analysis/deconf_b.py",
+      "sha256": "PINNED-IN-REGISTRY-RECORD (the record is authoritative; prereg-freeze re-verifies)"
+    }
+  },
+  "pins": {
+    "dqatCorpusKotHash": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+    "dqatCoveredItemsSha256": "fa8ad6e74e5e1f2732a8076109c7ab2d6893dbebb3ccfdb6ae0e37bd4dfe80fb",
+    "dqatManifestSha256": "67eb160a1f300bb39539fd0aab2bfd66a225b9551c222f870bdc37eb82262c20",
+    "dadjtCorpusKotHash": "a4baa36fbcbbfe2b51fa1dbdd0589c3c461caf190cfc5b67c65e4a5bda9b53bc",
+    "dadjtLabelsSha256": "a0ffe09b0402e71f8e542d9f40a24f8d6f63d48cf6cba5d343bbb03753191c47",
+    "dadjtSummarySha256": "54820db326794be085c471fa80db5d5ed4f2412fcaa9b651653e069f336d509a",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "dxifOutputsR1Sha256": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "dxifManifestSha256": "ad7bfa6bea2a19dd69e2d04265f6c20bec8e2e2cd9afe8a213ef893e08fb773f",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "gsaStoreSha256": "4a28f7fae59c85d27fa4bc7d0c7d15d9856f0527fdc0492b00162af7dd41e9d5",
+    "gsaManifestSha256": "87b78193ad70f6ba06a483f3a72d66288bc4949a7c9a257475320e0dd0cf3d26",
+    "f2bRunnerSha256": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
+    "f2btRunnerSha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+    "a1AuditSha256": "91f9ed0e60077ed9e69d61391819351fd9f47177bfd2d4fa64366e64fc2ac7b1",
+    "evalItemIdsSha256": "480cc9ab95c6844bdd91ffdd00bd6ba366cbf783a9455229bb8897ea7ce6457d",
+    "bm25CorpusSha256": "4ef60a28f1071c6f5678e6aa854f61066f8587cb1eaebbe7063140abad47de54",
+    "bm25IndexSha256": "1429b7a1eb2b9bbff3d7f44e90ffd4ea20d783d4e165cdae5f91d9a1b79a29c5",
+    "queryFnSourceSha256": "4beb075d451c28718cb195149d310d8ca1124fec0a968801915c6b091bf1866f",
+    "pinSources": "dqat/dadjt/dqa/dxif/kernel/molecules pins = the f2b-transfer stage-2 pins verbatim (frozen record + its d-adj-t ops amendment; PROPOSED-ASM-1106 asset reuse); gsaStoreSha256 = the A1-built GS-A store as-built, no rebuild; f2bRunnerSha256 = the A1-verified harness pin (PROPOSED-ASM-1108 — byte-identical, any edit voids the A1 lemma); f2btRunnerSha256 = the stage-2 staged-bytes runner sha (provenance-modal.json, 20260711-184448-modal); a1AuditSha256 = poc/deconf-a1/audit_a1.py at the complete-certificate commit; evalItemIdsSha256 = sha256 over one item id per '\\n'-terminated line, ALL 333 resolved-gold_ext d-qa-t items in pinned rank order; bm25CorpusSha256/bm25IndexSha256 = canonical serialisations computed by stageb_runner.py (deconfb-bm25/1) and asserted at every run; queryFnSourceSha256 = sha256 over the concatenated source of query_of_item/query_from_prompt/bm25_tokens/BM25Index/render_corpus/build_retrieval (function-granularity freeze check)",
+    "perItemRecordSha256": "every d-qa-t item carries record_path + record_sha256; the fallback kernel arm's verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN); the GS-A arm consumes the sha-pinned gs-a.jsonl projection instead (no record files at check time, by construction)",
+    "adjInternalConsistency": "the runner fail-closes on: summary.json labels_sha256 != sha256(labels.jsonl) (ERR_ADJ_PIN); resolved gold_ext count != summary n_ext_labelled (ERR_ADJ_COUNTS); eval-set size != the pre-registered n_items 333 (ERR_EVAL_N); item-id-list sha != evalItemIdsSha256 (ERR_EVAL_IDS); any d-qa-t id missing from labels.jsonl (ERR_LABELS_MISSING); any eval item off the DQA-type/kernel_checkable surface (ERR_ITEM_CHECKABLE) or gold_ext off the answer surface (ERR_GOLD_SURFACE)"
+  },
+  "models": {
+    "R1": {
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+      "pinned_by": "f2b-replicate / f2b-transfer pins.model_revisions (same revision, already cached on the kot-hf-cache volume; PROPOSED-ASM-1106)"
+    },
+    "R3": "NO R3 ARM IN THIS DESIGN (DECONF §5.3: the efficiency non-inferiority against R3 on external gold is f2b-transfer's frozen endpoint, not re-litigated here)"
+  },
+  "eval_set": {
+    "rule": "EVAL SET (PROPOSED-ASM-1100) = ALL 333 resolved-gold_ext items of data/d-qa-t/items/covered.jsonl in pinned rank order (labels.jsonl gold_ext != null; the 27 unresolved-disagreement items are EXCLUDED by the issue-#9 rule). NOT the stage-2 250-prefix: Stage B is a fresh prereg and pins the full resolved set at ZERO new adjudication; the A1 complete certificate enumerated the full 360-item d-qa-t grid, so GS-A<->kernel decision concordance is measured on every eval item. The runner REFUSES on any count/id drift (ERR_EVAL_N/ERR_EVAL_IDS).",
+    "dual_scoring": "every arm cell scores EVERY eval item BOTH ways on the SAME final answers: item_correct_ext against gold_ext (every endpoint) AND item_correct_mem against the item's membership answer field (descriptive only; never an endpoint)"
+  },
+  "design_constants": {
+    "note": "instantiates DECONF.md rev-B §5 as sized by deconf-stageb-spec.md §1 (PROPOSED-ASM-1100); the DRAFT registry record is authoritative at freeze",
+    "seeds": [0, 1, 2, 3, 4],
+    "n_items": 333,
+    "retry_k": 4,
+    "probes_m": 3,
+    "accept_threshold": "2/3",
+    "retrieved_token_cap": 512,
+    "arms": ["model-alone", "gsa-verify-retry", "gr-a-lite", "gr-d-lite"],
+    "kernel_arm_fallback": "PROPOSED-ASM-1105: the kernel-verify-retry arm is OMITTED iff the A1 registration + registered runner-role re-run land before/with the Stage-B freeze; otherwise the runner is launched with --kernel-arm reinstate (+~0.45 GPU-h worst case, still <= 3 total) and GS-A==kernel identity becomes a measured diagnostic of the run",
+    "iface_gate": {"n_min_per_rung": 300, "failure_wilson_lb_max": 0.10},
+    "engagement_gate": {"decidable_fraction_min": 0.95, "attempt0_reject_rate_range": [0.05, 0.95], "final_differs_attempt0_min": 1, "note": "RT-7a structural gate over the gsa-verify-retry cells' verifier_engagement blocks; the runner only EMITS, the pinned analysis gates"},
+    "budget": {"gpu_hours_cap": 3, "usd_cap": 25, "wall_clock_cap_hours": 12},
+    "bm25": {"k1": 1.2, "b": 0.75, "tokenizer": "lowercase \\w+", "idf": "ln(1 + (N - df + 0.5)/(df + 0.5)) (non-negative Lucene form, pinned)", "corpus": "one document per GS-A row, '<label>: <canonical_text>' from the projection's own columns (ASM-0922 serialisation; zero new prose)", "ties": "lexicographic document-id", "zero_hit": "EMPTY context, no fallback, count disclosed", "cap_rule": "prefix rule — docs added in score order while cumulative rendered-line tokens <= cap; stop at the first overflow"},
+    "detu_schema": "deconfb-detu/1: lm.choose(item, keys, gold, seed, attempt_code) with attempt_code = attempt*(m+1) + probe_index, m=3; probe_index 0 = candidate; (attempt=0, probe_index=0) greedy argmax (IF-C attempt-0 semantics); all other codes sample via torch.Generator(SEED_BASE*10000 + seed*100 + attempt_code), SEED_BASE=20260710 (imported pinned f2bt module constant)",
+    "bootstrap": {"prng_seed": 20260711, "B": 10000, "machinery": "paired item-level BCa, seed-averaged per-item means (RAGC §8.4 / PROPOSED-ASM-1013)"},
+    "holm_family": "four named one-sided contrasts (PROPOSED-ASM-1107): {delta_align > 0.05; bridge lift (gsa - alone) > 0.05; gr-d-lite - gr-a-lite > 0; gsa-verify-retry - gr-a-lite > 0}; the primary's verdict branch fires on its Holm-ADJUSTED p; unadjusted LCB95 + 90% TOST CI co-reported"
+  },
+  "arm_plan": {
+    "resample_temperature": 1.0,
+    "retry_final_answer": "last attempt (accepted or budget-exhausted); pre-declared, no post-hoc pick; identical rule for gsa-verify-retry, gr-d-lite and the fallback kernel arm (run_verify_retry semantics mirrored verbatim in the GR-D-lite loop)",
+    "shared_affordance": "P10 IF-C constrained decoding for EVERY arm: answers by constrained selection over the pinned option set (A-D or yes/no) via sequence logprob; arms differ ONLY in evidence slot (context docs) and acceptance instrument",
+    "evidence_budget_parity": "the 512-token cap is the allowed evidence budget binding gr-a-lite and gr-d-lite; model-alone and the answer-key-verifier arms retrieve zero tokens BY DESIGN (PROPOSED-ASM-1012 wording)",
+    "acceptance": "gr-d-lite acceptance = RAGC frozen-menu item (i) self-consistency at pinned threshold 2/3 over m=3 probes of the arm's OWN answer prompt with the SAME retrieved docs; exact-key agreement; ONE signal, no sweeps, calibration table mandatory (plain adoption of ASM-0924/0955 — no amendment made or claimed; the rev-A gloss-self-check stays WITHDRAWN, the it['urn'] oracle leak named at source)"
+  },
+  "prompt_frames": {
+    "qa_prefix": "Answer the following question about the meaning of a word.\n\n",
+    "context_prefix": "Definitions you may use:\n",
+    "context_suffix": "\n\n",
+    "option_line": "{key}. {text}",
+    "answer_cue": "\nAnswer: ",
+    "self_verify_frame": "Definition of \"{term}\": {gloss}\n\nQuestion: {question}\nProposed answer: {answer}\nIs the proposed answer correct according to the definition above? Answer yes or no.\nAnswer: ",
+    "frames_note": "byte-identical to poc/f2b-transfer/inputs/f2bt-manifest.json prompt_frames (itself byte-identical to poc/f2b) — the instrument is carried over unchanged; the context_prefix/context_suffix/option context path IS used here by the retrieval arms; self_verify_frame retained for frame parity though no arm uses it"
+  },
+  "flop_accounting": {
+    "formula": "F0 section 3.3: FLOPs = 2*N_active*T_total + 2*L*T^2*d_attn per sequence; prefill and decode metered separately; T measured with the arm's own tokenizer",
+    "cpu_flops_per_s_pinned": 5.0e10,
+    "cpu_note": "CPU-side verifier/index work is metered as measured wall-clock seconds and converted at this pinned rate ONLY for the aggregate figure; wall-clock reported separately",
+    "usd_per_hour": {"T4": 0.59, "A10G": 1.10, "A100": 2.10},
+    "usd_note": "Modal list prices for planning + $-per-query conversion; actual billing reconciled from the dashboard at run time"
+  },
+  "planning": {
+    "note": "dry-plan ESTIMATES only — never emitted as measurements; anchors MEASURED from the stage-2 run records (R1 option-scoring p50 ~107-109 ms at ~403 prefill tokens, A100), context factor STIPULATED (deconf-stageb-spec.md §4.1)",
+    "throughput_tok_per_s": {
+      "A100": {"R1": 16000},
+      "A10G": {"R1": 12000},
+      "T4": {"R1": 4000}
+    },
+    "chars_per_token_estimate": 4.0,
+    "context_prompt_extra_tokens": 512,
+    "overhead_factor": 2.0,
+    "n_params": {"R1": 1.35e8}
+  },
+  "mock": {
+    "note": "SYNTHETIC mechanics-only stub LM (no torch needed); every number it produces is labelled MOCK and never a measurement; the GS-A verifier, BM25 index + retrieval + ERR_QUERY_LEAK check (over the REAL pinned items), GR-D-lite loop, dual scoring, engagement + calibration accounting, eval-set construction, flop-meter and emitter code paths are the REAL ones.",
+    "n_eval_items": 16,
+    "seeds": [0, 1],
+    "iface_n_labelled": 300,
+    "stub_skill": {"R1": 0.4},
+    "stub_context_bonus": 0.35,
+    "stub_self_check_skill": 0.75,
+    "stub_extraction_fail_rate": 0.02,
+    "stub_dims": {
+      "R1": {"n_active": 1000000, "layers": 2, "d_attn": 64}
+    }
+  },
+  "inputs_status": {
+    "d-qa-t": "reused at the stage-2 pins verbatim (PROPOSED-ASM-1106); the eval set is the FULL 333-item resolved-gold_ext set, not the 250-prefix",
+    "d-adj-t": "the pinned blind-adjudication labels as-is — ZERO new adjudication",
+    "gs-a": "poc/deconf-a1/gs-a.jsonl consumed as-built (A1 complete certificate C_dec = 1.0 over 40,576/40,576; EXPLORATORY pre-registration, its §3 replay-substitution disclosure riding every citation)",
+    "d-qa": "ONE purpose: the original covered items the pinned d-xif labelled outputs reference (P10 gate); NO d-qa item is scored",
+    "d-xif": "unchanged P10 gate: 500 covered real R1 outputs re-verified mechanically through this harness's extraction machinery"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "PY-STAT/1-g0",
+  "spec_source": "docs/next/design/CODEVERT.md §2.2 [PROPOSED-ASM: ASM-1031]; G0 operationalizations tagged ASM-1050..ASM-1059 (PROPOSED, listed in docs/next/analysis/codevert-g0.md; registry untouched)",
+  "parse_dialect": "CPython 3.9 ast + symtable",
+  "relations": ["call", "import", "binding", "contains", "instantiate"],
+  "fact_states": ["proved", "unknown", "disproved", "conflict"],
+  "note_states": "v0 emits proved and unknown only; disproved/conflict are schema states with zero emission sites (reported honestly as zeros)",
+  "proved_inventory": [
+    "P1 static import / from-import statements that are DIRECT children of the module body (unconditional top-level), resolved by the pinned resolver (roots: repo_root, repo_root/src; dotted path mapping; relative imports resolved against the importing module's package)",
+    "P2 lexical containment (module>def/class/assign, class>member, def>nested def) — purely syntactic, proved for every parsed module; dynamic member injection is OUT of this relation's definition [ASM-1053]",
+    "P3 binding sites: every def/class statement at any nesting, plus module-level and class-level simple-name assignments (Assign/AnnAssign/AugAssign, tuple unpacking) and global-stmt assignments; SITES are syntactic and proved regardless of execution conditionality [ASM-1053]; import bindings tracked for resolution but excluded from the where-defined answer domain",
+    "P4 bare-name calls f() where symtable classifies the name as module-scope and the module binds it by EXACTLY ONE top-level unconditional def/class/import record (star-import-free, exec-free module); import bindings resolve through the pinned resolver into fully-analyzed repo modules' unique unconditional module-level def/class, or to an external dotted symbol",
+    "P5 module-attribute calls mod.f() where mod is a top-level unconditional import: repo module -> unique unconditional module-level def/class (target module exec-free, star-free, no module-level __getattr__); external module -> proved external edge",
+    "P6 builtin bare-name calls (symtable global, unbound in module, name in builtins) -> proved external:builtins.*",
+    "P7 literal class instantiation C(...) via P4/P5 resolution to a repo class -> proved instantiate edge, provided the class chain is hazard-free (single inheritance, all bases analyzed repo classes or object, no metaclass kwarg, no class decorators, no __getattr__/__getattribute__/__setattr__/__init_subclass__/__new__ hooks in chain)",
+    "P8 single-inheritance static attribute resolution for receivers: self (param 0 of a method), ClassName, mod.ClassName, and directly-chained literal instantiation C().m(): MRO walk over the fully-analyzed hazard-free chain to a unique unconditional def with allowlisted-only decorators; VOIDED to unknown if any analyzed repo subclass of the chain overrides the member (repo-internal devirtualization check [ASM-1054]; out-of-repo subclassing is a disclosed residual)"
+  ],
+  "decorator_allowlist": ["staticmethod", "classmethod", "abstractmethod", "abc.abstractmethod", "functools.wraps", "functools.lru_cache", "functools.cache", "typing.final", "final"],
+  "unknown_inventory_reason_codes": {
+    "CALL_LOCAL_VALUE": "bare-name call of a local/param/free/cell variable (value untracked)",
+    "CALL_MODULE_BINDING_UNRESOLVED": "bare-name call, module binding multiple/conditional/assign-bound/unresolved",
+    "CALL_ATTR_RECEIVER_UNTYPED": "x.y() on an untracked receiver (candidate {y})",
+    "CALL_ATTR_MODULE_MEMBER_UNRESOLVED": "mod.y(), member not a unique unconditional module-level def/class or module tainted",
+    "CALL_MRO_UNRESOLVED": "self./ClassName. member not resolvable in the analyzed chain",
+    "CALL_MRO_HAZARD": "chain has unanalyzed base, multiple inheritance, metaclass, class decorator, attr hooks, or repo-subclass override",
+    "CALL_DECORATED_TARGET": "resolved target def transformed by a non-allowlisted decorator",
+    "CALL_NONNAME_CALLEE": "callee is subscript/call-result/lambda/expression (candidate * = unrestricted)",
+    "CALL_GETATTR": "getattr(...)() — candidate = literal string arg else *",
+    "CALL_STARIMPORT_TAINT": "module contains star import; module-scope name resolution voided (candidate {name})",
+    "IMPORT_CONDITIONAL": "import statement nested under any compound statement (candidate = resolved target)",
+    "IMPORT_STAR": "from m import * (unknown import edge, candidate = resolved target; plus module name-resolution taint)",
+    "IMPORT_DYNAMIC": "__import__/importlib.import_module (candidate = literal else *)",
+    "BIND_SETATTR": "setattr/delattr with literal name (candidate {literal}) else *",
+    "BIND_DYNAMIC_NS": "globals()/locals()/vars() subscript-write (candidate *)",
+    "TAINT_EXEC": "exec/eval/compile call in module -> one unrestricted unknown edge of EACH of call/import/binding/instantiate for that module (H4-analog, module-scoped [ASM-1055])",
+    "MODULE_UNPARSED": "file failed to parse -> unrestricted unknown edge of each relation"
+  },
+  "unknown_candidate_semantics": "each unknown edge carries a candidate-name set where syntactically derivable; '*' = unrestricted (potentially targets everything) per CODEVERT §2.2",
+  "query_completeness_semantics": {
+    "forward": "callees-of/imports-of require zero unknown edges of the relation kind with src = the queried scope; contains/contained-in require only a parsed module (lexical relations)",
+    "inverse_exhaustive": "callers-of(t)/imported-by(m)/where-defined(n)/instance-of(C) return proved ONLY if every listed edge is proved AND no unknown edge of the relevant kind(s) exists anywhere in the analyzed scope whose candidate set contains the target's name (or is unrestricted); otherwise UNKNOWN-INCOMPLETE(partial_lower_bound, blocking_unknown_count). instance-of additionally quantifies over unknown call edges (an unresolved call could instantiate). proved-EMPTY negative answers require the same precondition.",
+    "target_not_found": "a census target the extractor cannot locate counts NOT-proved (TARGET-NOT-FOUND), never silently dropped"
+  }
+}

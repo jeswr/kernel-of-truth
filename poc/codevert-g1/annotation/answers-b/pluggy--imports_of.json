@@ -1,0 +1,40 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "ext:argparse",
+    "ext:colorama",
+    "ext:git",
+    "ext:subprocess",
+    "ext:sys"
+   ],
+   "notes": "All imports are top-level external modules.",
+   "query_id": "g1q-pluggy-imports_of-10"
+  },
+  {
+   "answerable_static": true,
+   "conditional_flags": [
+    "ext:warnings"
+   ],
+   "gold": [
+    "ext:collections.abc",
+    "ext:functools",
+    "ext:typing",
+    "ext:warnings",
+    "repo:src/pluggy/__init__.py",
+    "repo:src/pluggy/_hooks.py",
+    "repo:src/pluggy/_manager.py"
+   ],
+   "notes": "The warnings imports occur inside function bodies; repository imports resolve through the pluggy package.",
+   "query_id": "g1q-pluggy-imports_of-22"
+  }
+ ],
+ "attempts": 1,
+ "batch": "pluggy--imports_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

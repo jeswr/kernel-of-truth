@@ -1,0 +1,113 @@
+[
+  {
+    "query_id": "g1q-tenacity-contains-118",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Class body at tests/test_tenacity.py:1957-1958 is only 'pass'; no def/class/assignment children."
+  },
+  {
+    "query_id": "g1q-tenacity-contains-7",
+    "answerable_static": true,
+    "gold": [
+      "tenacity/retry.py::RetryBaseT",
+      "tenacity/retry.py::_retry_always",
+      "tenacity/retry.py::_retry_never",
+      "tenacity/retry.py::retry_all",
+      "tenacity/retry.py::retry_always",
+      "tenacity/retry.py::retry_any",
+      "tenacity/retry.py::retry_base",
+      "tenacity/retry.py::retry_if_exception",
+      "tenacity/retry.py::retry_if_exception_cause_type",
+      "tenacity/retry.py::retry_if_exception_message",
+      "tenacity/retry.py::retry_if_exception_type",
+      "tenacity/retry.py::retry_if_not_exception_message",
+      "tenacity/retry.py::retry_if_not_exception_type",
+      "tenacity/retry.py::retry_if_not_result",
+      "tenacity/retry.py::retry_if_result",
+      "tenacity/retry.py::retry_never",
+      "tenacity/retry.py::retry_unless_exception_type"
+    ],
+    "conditional_flags": [],
+    "notes": "14 top-level classes plus module-level assignments RetryBaseT (l.61), retry_never (l.71), retry_always (l.81); TYPE_CHECKING block contains only an import (excluded)."
+  },
+  {
+    "query_id": "g1q-tenacity-contained_in-579",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_tenacity.py::TestInvokeAsCallable"
+    ],
+    "conditional_flags": [],
+    "notes": "invoke is a staticmethod (l.2001) directly in class TestInvokeAsCallable (l.1997)."
+  },
+  {
+    "query_id": "g1q-tenacity-contained_in-256",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_asyncio.py"
+    ],
+    "conditional_flags": [],
+    "notes": "class TestAsyncEnabled (l.163) is at module top level of tests/test_asyncio.py."
+  },
+  {
+    "query_id": "g1q-tenacity-imports_of-4",
+    "answerable_static": true,
+    "gold": [
+      "ext:typing",
+      "repo:tenacity/__init__.py",
+      "repo:tenacity/_utils.py"
+    ],
+    "conditional_flags": [],
+    "notes": "import typing (l.17); from tenacity import _utils (l.19) -> tenacity/_utils.py plus ancestor tenacity/__init__.py; from tenacity import RetryCallState inside if typing.TYPE_CHECKING (l.22) maps to repo:tenacity/__init__.py which is already unconditionally imported via l.19, so not flagged."
+  },
+  {
+    "query_id": "g1q-tenacity-imports_of-16",
+    "answerable_static": true,
+    "gold": [
+      "ext:asyncio",
+      "ext:functools",
+      "ext:typing",
+      "ext:unittest",
+      "repo:tenacity/__init__.py",
+      "repo:tenacity/retry.py"
+    ],
+    "conditional_flags": [],
+    "notes": "All imports top-level. 'from tenacity import RetryCallState, retry': RetryCallState is a symbol of package tenacity -> repo:tenacity/__init__.py; 'retry' names the module file tenacity/retry.py in the package -> repo:tenacity/retry.py plus ancestor __init__. 'import asyncio' does not resolve to repo tenacity/asyncio (no top-level asyncio package at any resolution root) -> external."
+  },
+  {
+    "query_id": "g1q-tenacity-where_defined-431",
+    "answerable_static": true,
+    "gold": [
+      "doc/source/conf.py:23"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level assignment 'version = ...' at conf.py:23. Line 18 is an import binding pkg_version, not 'version' (excluded)."
+  },
+  {
+    "query_id": "g1q-tenacity-where_defined-179",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_issue_478.py:102",
+      "tests/test_issue_478.py:54"
+    ],
+    "conditional_flags": [],
+    "notes": "def do_fix_work (l.54, inside TestIssue478.test_issue) and async def do_fix_work (l.102, inside TestIssue478.test_async); lines 39 and 87 are call sites, not definitions."
+  },
+  {
+    "query_id": "g1q-tenacity-callees_of-227",
+    "answerable_static": false,
+    "gold": [
+      "ext:unittest.TestCase.assertEqual",
+      "tests/test_asyncio.py::TestContextManager.test_retry_with_async_result_and.test"
+    ],
+    "conditional_flags": [],
+    "notes": "Unresolvable call sites: tasyncio.retry_if_result(lt_3) and tasyncio.AsyncRetrying(...) (tenacity/asyncio/__init__.py source not shown), retry_if_result(gt_0) (imported from package tenacity; tenacity/__init__.py source not shown, cannot bind to a defining def), and attempt.retry_state.set_result(attempts) (dynamic attribute dispatch on iterator-produced object). Resolvable: await test() -> nested def test; self.assertEqual -> unittest."
+  },
+  {
+    "query_id": "g1q-tenacity-callees_of-393",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Body (l.1246) is only 'return thing.go()'; 'thing' is a parameter (typing.Any), so the runtime callee of thing.go() cannot be determined statically (multiple *AfterCount/*UntilCount classes define go()). Decorator calls are outside the body block."
+  }
+]

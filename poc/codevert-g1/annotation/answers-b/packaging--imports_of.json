@@ -1,0 +1,43 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [
+    "ext:collections.abc",
+    "repo:src/packaging/specifiers.py"
+   ],
+   "gold": [
+    "ext:__future__",
+    "ext:collections.abc",
+    "ext:enum",
+    "ext:typing",
+    "repo:src/packaging/__init__.py",
+    "repo:src/packaging/_ranges.py",
+    "repo:src/packaging/specifiers.py",
+    "repo:src/packaging/version.py"
+   ],
+   "notes": "All import statements and their targets are statically resolvable; TYPE_CHECKING-only imports are conditional.",
+   "query_id": "g1q-packaging-imports_of-23"
+  },
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "ext:__future__",
+    "ext:pytest",
+    "repo:src/packaging/__init__.py",
+    "repo:src/packaging/tags.py",
+    "repo:src/packaging/utils.py",
+    "repo:src/packaging/version.py"
+   ],
+   "notes": "All imports are top-level and statically resolvable.",
+   "query_id": "g1q-packaging-imports_of-56"
+  }
+ ],
+ "attempts": 1,
+ "batch": "packaging--imports_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

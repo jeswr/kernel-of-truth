@@ -1,0 +1,125 @@
+[
+  {
+    "query_id": "g1q-pluggy-contains-23",
+    "answerable_static": true,
+    "gold": [
+      "testing/test_hookcaller.py::AddMeth",
+      "testing/test_hookcaller.py::FuncT",
+      "testing/test_hookcaller.py::addmeth",
+      "testing/test_hookcaller.py::funcs",
+      "testing/test_hookcaller.py::hc",
+      "testing/test_hookcaller.py::hookimpl",
+      "testing/test_hookcaller.py::hookspec",
+      "testing/test_hookcaller.py::test_adding_nonwrappers",
+      "testing/test_hookcaller.py::test_adding_nonwrappers_tryfirst",
+      "testing/test_hookcaller.py::test_adding_nonwrappers_trylast",
+      "testing/test_hookcaller.py::test_adding_nonwrappers_trylast2",
+      "testing/test_hookcaller.py::test_adding_nonwrappers_trylast3",
+      "testing/test_hookcaller.py::test_adding_wrappers_complex",
+      "testing/test_hookcaller.py::test_adding_wrappers_ordering",
+      "testing/test_hookcaller.py::test_adding_wrappers_ordering_tryfirst",
+      "testing/test_hookcaller.py::test_call_extra_hook_order",
+      "testing/test_hookcaller.py::test_hook_conflict",
+      "testing/test_hookcaller.py::test_hookimpl",
+      "testing/test_hookcaller.py::test_hookrelay_registration_by_specname",
+      "testing/test_hookcaller.py::test_hookrelay_registration_by_specname_raises",
+      "testing/test_hookcaller.py::test_hookrelay_registry",
+      "testing/test_hookcaller.py::test_hookspec"
+    ],
+    "conditional_flags": [],
+    "notes": "Full module source shown. Module-level children: 2 marker assignments (hookspec l16, hookimpl l17), 1 TypeVar assignment (FuncT l31), class AddMeth l34, defs hc l21, addmeth l61, funcs l65, and 15 top-level test functions. Imports excluded; nothing conditional."
+  },
+  {
+    "query_id": "g1q-pluggy-contains-209",
+    "answerable_static": true,
+    "gold": [
+      "testing/test_warnings.py::test_teardown_raised_warning.Api.my_hook"
+    ],
+    "conditional_flags": [],
+    "notes": "Class Api (testing/test_warnings.py lines 17-20) has a single class-body child: def my_hook (line 19)."
+  },
+  {
+    "query_id": "g1q-pluggy-contained_in-462",
+    "answerable_static": true,
+    "gold": [
+      "testing/test_invocations.py::test_wrappers_yield_twice_fails.Plugin"
+    ],
+    "conditional_flags": [],
+    "notes": "def wrap (line 342) is directly inside class Plugin (line 340), which is inside test_wrappers_yield_twice_fails."
+  },
+  {
+    "query_id": "g1q-pluggy-contained_in-704",
+    "answerable_static": true,
+    "gold": [
+      "testing/test_tracer.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_indent (line 24) is a top-level function of testing/test_tracer.py; parent is the module."
+  },
+  {
+    "query_id": "g1q-pluggy-imports_of-10",
+    "answerable_static": true,
+    "gold": [
+      "ext:argparse",
+      "ext:colorama",
+      "ext:git",
+      "ext:subprocess",
+      "ext:sys"
+    ],
+    "conditional_flags": [],
+    "notes": "Five top-level import statements (lines 5-12); colorama and git are not in the repo file listing, so all targets are external. No nested or conditional imports."
+  },
+  {
+    "query_id": "g1q-pluggy-imports_of-22",
+    "answerable_static": true,
+    "gold": [
+      "ext:collections.abc",
+      "ext:functools",
+      "ext:typing",
+      "ext:warnings",
+      "repo:src/pluggy/__init__.py",
+      "repo:src/pluggy/_hooks.py",
+      "repo:src/pluggy/_manager.py"
+    ],
+    "conditional_flags": [
+      "ext:warnings"
+    ],
+    "notes": "Top-level: collections.abc, functools, typing (external); pluggy._hooks and pluggy._manager resolve under src/ to repo files, ancestor package src/pluggy/__init__.py included. 'import warnings' appears only inside function bodies (lines 193, 210, 225, 240), hence flagged."
+  },
+  {
+    "query_id": "g1q-pluggy-where_defined-75",
+    "answerable_static": true,
+    "gold": [
+      "src/pluggy/_hooks.py:619"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence: module-level assignment '_HookCaller = HookCaller' at src/pluggy/_hooks.py line 619. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-pluggy-where_defined-401",
+    "answerable_static": true,
+    "gold": [
+      "testing/test_multicall.py:378"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence: def header of test_unwind_inner_wrapper_teardown_exc at testing/test_multicall.py line 378."
+  },
+  {
+    "query_id": "g1q-pluggy-callees_of-14",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Body is a single subscript assignment (condiments[\"mint sauce\"] = 1); no call expressions inside the function body. The @eggsample.hookimpl decorator is on the target itself, not in its body."
+  },
+  {
+    "query_id": "g1q-pluggy-callees_of-211",
+    "answerable_static": true,
+    "gold": [
+      "ext:builtins.staticmethod",
+      "src/pluggy/_hooks.py::varnames",
+      "testing/test_helpers.py::test_varnames_staticmethod.MyClass"
+    ],
+    "conditional_flags": [],
+    "notes": "Calls in body: @staticmethod decorator on nested def sm (counts as a call), varnames(...) twice (imported from pluggy._hooks -> repo module src/pluggy/_hooks.py), and MyClass() instantiation of the nested class."
+  }
+]

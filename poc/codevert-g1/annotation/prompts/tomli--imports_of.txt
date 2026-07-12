@@ -1,0 +1,333 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: tomli ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+benchmark/run.py
+fuzzer/fuzz.py
+profiler/profiler_script.py
+scripts/use_setuptools.py
+src/tomli/__init__.py
+src/tomli/_parser.py
+src/tomli/_re.py
+src/tomli/_types.py
+tests/__init__.py
+tests/burntsushi.py
+tests/test_data.py
+tests/test_error.py
+tests/test_misc.py
+
+=== QUERIES (2) ===
+QUERY g1q-tomli-imports_of-2: family=imports_of module=fuzzer/fuzz.py
+QUERY g1q-tomli-imports_of-7: family=imports_of module=src/tomli/_re.py
+
+=== CONTEXT ===
+
+FILE fuzzer/fuzz.py:
+    1| import atheris
+    2| 
+    3| with atheris.instrument_imports():
+    4|     from math import isnan
+    5|     import sys
+    6|     import warnings
+    7| 
+    8|     import tomli_w
+    9| 
+   10|     import tomli
+   11| 
+   12| # Disable any caching used so that the same lines of code run
+   13| # on a given input consistently.
+   14| tomli._re.cached_tz = tomli._re.cached_tz.__wrapped__
+   15| 
+   16| # Suppress all warnings.
+   17| warnings.simplefilter("ignore")
+   18| 
+   19| 
+   20| def test_one_input(input_bytes: bytes) -> None:
+   21|     # We need a Unicode string, not bytes
+   22|     fdp = atheris.FuzzedDataProvider(input_bytes)
+   23|     data = fdp.ConsumeUnicode(sys.maxsize)
+   24| 
+   25|     try:
+   26|         toml_obj = tomli.loads(data)
+   27|     except (tomli.TOMLDecodeError, RecursionError):
+   28|         return
+   29|     except BaseException:
+   30|         print_err(data)
+   31|         raise
+   32| 
+   33|     try:
+   34|         recovered_data = tomli_w.dumps(toml_obj)
+   35|     except RecursionError:
+   36|         return
+   37|     except BaseException:
+   38|         print_err(data)
+   39|         raise
+   40| 
+   41|     roundtripped_obj = tomli.loads(recovered_data)
+   42|     normalize_toml_obj(roundtripped_obj)
+   43|     normalize_toml_obj(toml_obj)
+   44|     if roundtripped_obj != toml_obj:
+   45|         sys.stderr.write(
+   46|             f"Original dict:\n{toml_obj}\nRoundtripped dict:\n{roundtripped_obj}\n"
+   47|         )
+   48|         sys.stderr.flush()
+   49|         print_err(data)
+   50|         raise Exception("Dicts not equal after roundtrip")
+   51| 
+   52| 
+   53| def print_err(data):
+   54|     codepoints = [hex(ord(x)) for x in data]
+   55|     sys.stderr.write(f"Input was {type(data)}:\n{data}\nCodepoints:\n{codepoints}\n")
+   56|     sys.stderr.flush()
+   57| 
+   58| 
+   59| def normalize_toml_obj(toml_obj: dict) -> None:
+   60|     """Make NaNs equal when compared (without using recursion)."""
+   61|     to_process = [toml_obj]
+   62|     while to_process:
+   63|         cont = to_process.pop()
+   64|         for k, v in cont.items() if isinstance(cont, dict) else enumerate(cont):
+   65|             if isinstance(v, float) and isnan(v):
+   66|                 cont[k] = "nan"
+   67|             elif isinstance(v, (dict, list)):
+   68|                 to_process.append(v)
+   69| 
+   70| 
+   71| def main():
+   72|     # For possible options, see https://llvm.org/docs/LibFuzzer.html#options
+   73|     fuzzer_options = sys.argv
+   74|     atheris.Setup(fuzzer_options, test_one_input)
+   75|     atheris.Fuzz()
+   76| 
+   77| 
+   78| if __name__ == "__main__":
+   79|     main()
+
+FILE src/tomli/_re.py:
+    1| # SPDX-License-Identifier: MIT
+    2| # SPDX-FileCopyrightText: 2021 Taneli Hukkinen
+    3| # Licensed to PSF under a Contributor Agreement.
+    4| 
+    5| from __future__ import annotations
+    6| 
+    7| from datetime import date, datetime, time, timedelta, timezone, tzinfo
+    8| from functools import lru_cache
+    9| import re
+   10| 
+   11| TYPE_CHECKING = False
+   12| if TYPE_CHECKING:
+   13|     from typing import Any, Final
+   14| 
+   15|     from ._types import ParseFloat
+   16| 
+   17| _TIME_RE_STR: Final = r"""
+   18| ([01][0-9]|2[0-3])             # hours
+   19| :([0-5][0-9])                  # minutes
+   20| (?:
+   21|     :([0-5][0-9])              # optional seconds
+   22|     (?:\.([0-9]{1,6})[0-9]*)?  # optional fractions of a second
+   23| )?
+   24| """
+   25| 
+   26| RE_NUMBER: Final = re.compile(
+   27|     r"""
+   28| 0
+   29| (?:
+   30|     x[0-9A-Fa-f](?:_?[0-9A-Fa-f])*   # hex
+   31|     |
+   32|     b[01](?:_?[01])*                 # bin
+   33|     |
+   34|     o[0-7](?:_?[0-7])*               # oct
+   35| )
+   36| |
+   37| [+-]?(?:0|[1-9](?:_?[0-9])*)         # dec, integer part
+   38| (?P<floatpart>
+   39|     (?:\.[0-9](?:_?[0-9])*)?         # optional fractional part
+   40|     (?:[eE][+-]?[0-9](?:_?[0-9])*)?  # optional exponent part
+   41| )
+   42| """,
+   43|     flags=re.VERBOSE,
+   44| )
+   45| RE_LOCALTIME: Final = re.compile(_TIME_RE_STR, flags=re.VERBOSE)
+   46| RE_DATETIME: Final = re.compile(
+   47|     rf"""
+   48| ([0-9]{{4}})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])  # date, e.g. 1988-10-27
+   49| (?:
+   50|     [Tt ]
+   51|     {_TIME_RE_STR}
+   52|     (?:([Zz])|([+-])([01][0-9]|2[0-3]):([0-5][0-9]))?  # optional time offset
+   53| )?
+   54| """,
+   55|     flags=re.VERBOSE,
+   56| )
+   57| 
+   58| 
+   59| def match_to_datetime(match: re.Match[str]) -> datetime | date:
+   60|     """Convert a `RE_DATETIME` match to `datetime.datetime` or `datetime.date`.
+   61| 
+   62|     Raises ValueError if the match does not correspond to a valid date
+   63|     or datetime.
+   64|     """
+   65|     (
+   66|         year_str,
+   67|         month_str,
+   68|         day_str,
+   69|         hour_str,
+   70|         minute_str,
+   71|         sec_str,
+   72|         micros_str,
+   73|         zulu_time,
+   74|         offset_sign_str,
+   75|         offset_hour_str,
+   76|         offset_minute_str,
+   77|     ) = match.groups()
+   78|     year, month, day = int(year_str), int(month_str), int(day_str)
+   79|     if hour_str is None:
+   80|         return date(year, month, day)
+   81|     hour, minute = int(hour_str), int(minute_str)
+   82|     sec = int(sec_str) if sec_str else 0
+   83|     micros = int(micros_str.ljust(6, "0")) if micros_str else 0
+   84|     if offset_sign_str:
+   85|         tz: tzinfo | None = cached_tz(
+   86|             offset_hour_str, offset_minute_str, offset_sign_str
+   87|         )
+   88|     elif zulu_time:
+   89|         tz = timezone.utc
+   90|     else:  # local date-time
+   91|         tz = None
+   92|     return datetime(year, month, day, hour, minute, sec, micros, tzinfo=tz)
+   93| 
+   94| 
+   95| # No need to limit cache size. This is only ever called on input
+   96| # that matched RE_DATETIME, so there is an implicit bound of
+   97| # 24 (hours) * 60 (minutes) * 2 (offset direction) = 2880.
+   98| @lru_cache(maxsize=None)
+   99| def cached_tz(hour_str: str, minute_str: str, sign_str: str) -> timezone:
+  100|     sign = 1 if sign_str == "+" else -1
+  101|     return timezone(
+  102|         timedelta(
+  103|             hours=sign * int(hour_str),
+  104|             minutes=sign * int(minute_str),
+  105|         )
+  106|     )
+  107| 
+  108| 
+  109| def match_to_localtime(match: re.Match[str]) -> time:
+  110|     hour_str, minute_str, sec_str, micros_str = match.groups()
+  111|     sec = int(sec_str) if sec_str else 0
+  112|     micros = int(micros_str.ljust(6, "0")) if micros_str else 0
+  113|     return time(int(hour_str), int(minute_str), sec, micros)
+  114| 
+  115| 
+  116| def match_to_number(match: re.Match[str], parse_float: ParseFloat) -> Any:
+  117|     if match.group("floatpart"):
+  118|         return parse_float(match.group())
+  119|     return int(match.group(), 0)
+
+Answer now with ONE JSON array containing one object per query, in query order.

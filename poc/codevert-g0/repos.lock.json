@@ -1,0 +1,14 @@
+{
+  "comment": "G0 pinned corpus. Small, self-contained, permissively-licensed real Python repos. [STIPULATED: PROPOSED-ASM ASM-1050 — G0 repo pool choice; NOT the G1 pool, which must be pinned-before-looking per ASM-1004/1030. These repos were selected by the G0 agent for the NON-SCORED spike only; no G1/G4 number may be quoted from them.]",
+  "pinned_utc": "2026-07-11T17:47:00Z",
+  "repos": [
+    {"name": "six",            "url": "https://github.com/benjaminp/six",              "tag": "1.17.0",  "sha": "ebd9b3af90247b8858d415a05e96e9ee61e48d07", "license": "MIT"},
+    {"name": "toml",           "url": "https://github.com/uiri/toml",                  "tag": "0.10.2",  "sha": "3f637dba5f68db63d4b30967fedda51c82459471", "license": "MIT"},
+    {"name": "python-tabulate","url": "https://github.com/astanin/python-tabulate",    "tag": "v0.9.0",  "sha": "bf58e37e6b35e3cc9a0bd740f752abfd32b6e6f8", "license": "MIT"},
+    {"name": "bottle",         "url": "https://github.com/bottlepy/bottle",            "tag": "0.13.2",  "sha": "ab49e0c22491f8acfcb02e4a7b8c648843268233", "license": "MIT"},
+    {"name": "more-itertools", "url": "https://github.com/more-itertools/more-itertools","tag": "v10.5.0","sha": "4998a257373f36e91edef7324572ed8df10f39d1", "license": "MIT"},
+    {"name": "click",          "url": "https://github.com/pallets/click",              "tag": "8.1.7",   "sha": "874ca2bc1c30d93a4ac6e36a15ed685eafe89097", "license": "BSD-3-Clause"}
+  ],
+  "analyzed_scope": "all *.py files under the repo root (tests INCLUDED — fail-closed, no denominator shrinking); a package-source-only secondary stratum (paths containing /test/, /tests/, test_*.py, *_test.py, conftest.py, setup.py, docs/ excluded) is co-reported as a disclosed sensitivity slice [STIPULATED: PROPOSED-ASM ASM-1051]",
+  "python_runtime": "CPython 3.9.25 (parse dialect for ast/symtable; files failing to parse under 3.9 are counted parse_failure and treated fail-closed as fully-unknown modules)"
+}

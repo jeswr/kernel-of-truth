@@ -1,0 +1,102 @@
+[
+  {
+    "query_id": "g1q-boltons-contains-51",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_namedutils.py::MutablePoint",
+      "tests/test_namedutils.py::Point",
+      "tests/test_namedutils.py::test_namedlist",
+      "tests/test_namedutils.py::test_namedlist_pickle",
+      "tests/test_namedutils.py::test_namedtuple_pickle"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level children: assignments Point (line 5) and MutablePoint (line 6), plus three top-level defs. Imports excluded."
+  },
+  {
+    "query_id": "g1q-boltons-contains-93",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Class body of MissingArgument (lines 971-972) contains only 'pass'; no def/class/assignment children."
+  },
+  {
+    "query_id": "g1q-boltons-contained_in-804",
+    "answerable_static": true,
+    "gold": [
+      "boltons/tableutils.py::NamedTupleInputType"
+    ],
+    "conditional_flags": [],
+    "notes": "check_type (line 196) is a method defined directly in class NamedTupleInputType (line 195)."
+  },
+  {
+    "query_id": "g1q-boltons-contained_in-1432",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_strutils.py"
+    ],
+    "conditional_flags": [],
+    "notes": "test_parse_int_list (line 61) is a top-level def; parent is the module."
+  },
+  {
+    "query_id": "g1q-boltons-imports_of-26",
+    "answerable_static": true,
+    "gold": [
+      "ext:linecache",
+      "ext:re",
+      "ext:sys"
+    ],
+    "conditional_flags": [],
+    "notes": "Three top-level unconditional imports (lines 53-55), all standard-library/external; no repo-internal imports."
+  },
+  {
+    "query_id": "g1q-boltons-imports_of-57",
+    "answerable_static": true,
+    "gold": [
+      "ext:re",
+      "ext:unittest",
+      "ext:uuid",
+      "repo:boltons/__init__.py",
+      "repo:boltons/strutils.py"
+    ],
+    "conditional_flags": [],
+    "notes": "'from boltons import strutils' resolves to repo module boltons/strutils.py plus ancestor package boltons/__init__.py; re, uuid, unittest external. All top-level unconditional."
+  },
+  {
+    "query_id": "g1q-boltons-where_defined-255",
+    "answerable_static": true,
+    "gold": [
+      "boltons/urlutils.py:227"
+    ],
+    "conditional_flags": [],
+    "notes": "Single module-level assignment at boltons/urlutils.py:227; lines 248-249 are function-internal usages, not bindings."
+  },
+  {
+    "query_id": "g1q-boltons-where_defined-623",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_iterutils.py:197",
+      "tests/test_iterutils.py:247",
+      "tests/test_iterutils.py:301"
+    ],
+    "conditional_flags": [],
+    "notes": "Three nested 'def exit' statements in tests/test_iterutils.py (defs count at any depth). All other excerpt lines are docstring/comment text, parameter defaults, or keyword-argument usages, which are not definition sites; no dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-boltons-callees_of-781",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Body (line 440) is a single f-string return with no call expressions."
+  },
+  {
+    "query_id": "g1q-boltons-callees_of-541",
+    "answerable_static": true,
+    "gold": [
+      "boltons/setutils.py::IndexedSet.from_iterable",
+      "boltons/setutils.py::IndexedSet.iter_difference",
+      "ext:builtins.len"
+    ],
+    "conditional_flags": [],
+    "notes": "Body lines 321-326: len(others); self.from_iterable(...) twice and self.iter_difference(*others), both resolving to IndexedSet methods in the shown source. Generator-expression membership tests are not call expressions."
+  }
+]

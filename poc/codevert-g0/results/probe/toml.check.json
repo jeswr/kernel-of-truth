@@ -1,0 +1,63 @@
+{
+ "repo": "toml",
+ "pytest_exit": 1,
+ "n_observed_call_edges": 123,
+ "n_observed_import_events": 42,
+ "call_soundness": {
+  "confirmed_proved": 24,
+  "confirmed_instantiation": 5,
+  "unknown_compatible": 66,
+  "miss": 3,
+  "protocol_dispatch": 0,
+  "descriptor_or_decorated": 0,
+  "class_body_exec": 19,
+  "unmapped_callee": 6,
+  "resumption_total": 0,
+  "resumption_unmatched": 0
+ },
+ "call_query_level": {
+  "covered": 98,
+  "violation": 0
+ },
+ "call_miss_examples": [
+  {
+   "caller": "tests/test_api.py::test_deepcopy_timezone",
+   "callee": "toml/tz.py::TomlTz.utcoffset",
+   "caller_frame": [
+    "tests/test_api.py",
+    "test_deepcopy_timezone",
+    276
+   ],
+   "callee_line": 20
+  },
+  {
+   "caller": "tests/test_api.py::test_pathlib",
+   "callee": "toml/encoder.py::TomlEncoder.__init__",
+   "caller_frame": [
+    "tests/test_api.py",
+    "test_pathlib",
+    235
+   ],
+   "callee_line": 131
+  },
+  {
+   "caller": "toml/tz.py::TomlTz.__deepcopy__",
+   "callee": "toml/tz.py::TomlTz.__init__",
+   "caller_frame": [
+    "toml/tz.py",
+    "__deepcopy__",
+    14
+   ],
+   "callee_line": 5
+  }
+ ],
+ "import_soundness": {
+  "confirmed": 13,
+  "unknown_compatible": 1,
+  "miss": 0,
+  "external": 31
+ },
+ "import_miss_examples": [],
+ "validity_violations": [],
+ "n_validity_violations": 0
+}

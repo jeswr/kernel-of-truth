@@ -1,0 +1,653 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.f0tiv2zl"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.hb3k6l8z
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c7-d84c-7ce0-9af1-c2fc24f37a1e
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: wrapt ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+docs/benchmarks.py
+docs/conf.py
+examples/call_tracker.py
+examples/dill_decorator.py
+examples/dill_proxy.py
+examples/pickling_proxy.py
+examples/type_checker.py
+src/wrapt/__init__.py
+src/wrapt/__wrapt__.py
+src/wrapt/arguments.py
+src/wrapt/caching.py
+src/wrapt/decorators.py
+src/wrapt/importer.py
+src/wrapt/patches.py
+src/wrapt/proxies.py
+src/wrapt/signature.py
+src/wrapt/synchronization.py
+src/wrapt/weakrefs.py
+src/wrapt/wrappers.py
+tests/conftest.py
+tests/core/compat.py
+tests/core/module1.py
+tests/core/module2.py
+tests/core/test_adapter.py
+tests/core/test_adapter_annotations.py
+tests/core/test_adapter_kwonly.py
+tests/core/test_annotations.py
+tests/core/test_attribute_wrapper.py
+tests/core/test_auto_object_proxy.py
+tests/core/test_callable_binding_no_args.py
+tests/core/test_callable_object_proxy.py
+tests/core/test_class.py
+tests/core/test_class_mro_entries.py
+tests/core/test_copy.py
+tests/core/test_decorator_state.py
+tests/core/test_decorators.py
+tests/core/test_deferred_patching.py
+tests/core/test_descriptor_get_class_access.py
+tests/core/test_descriptors.py
+tests/core/test_enabled_bool_error.py
+tests/core/test_entry_points.py
+tests/core/test_formatargspec.py
+tests/core/test_function.py
+tests/core/test_function_wrapper.py
+tests/core/test_inheritance.py
+tests/core/test_inner_classmethod.py
+tests/core/test_inner_staticmethod.py
+tests/core/test_inplace_operators.py
+tests/core/test_instancemethod.py
+tests/core/test_lazy_object_proxy.py
+tests/core/test_lru_cache.py
+tests/core/test_memoize.py
+tests/core/test_monkey_patching.py
+tests/core/test_nested_function.py
+tests/core/test_object_proxy.py
+tests/core/test_object_proxy_hook.py
+tests/core/test_object_proxy_self_dict.py
+tests/core/test_object_proxy_type_checks.py
+tests/core/test_outer_classmethod.py
+tests/core/test_outer_staticmethod.py
+tests/core/test_pickle.py
+tests/core/test_post_import_hooks.py
+tests/core/test_pyerr_clear_propagation.py
+tests/core/test_resolve_path.py
+tests/core/test_runtime_type_hints.py
+tests/core/test_synchronized_async.py
+tests/core/test_synchronized_lock.py
+tests/core/test_synchronized_markers.py
+tests/core/test_type_module_attribute.py
+tests/core/test_update_attributes.py
+tests/core/test_weak_function_proxy.py
+tests/core/test_with_signature.py
+tests/mypy/mypy_auto_object_proxy_t1.py
+tests/mypy/mypy_decorator_t1.py
+tests/mypy/mypy_function_wrapper_cls_t1.py
+tests/mypy/mypy_function_wrapper_cls_t2.py
+tests/mypy/mypy_function_wrapper_cls_t3.py
+tests/mypy/mypy_function_wrapper_cls_t4.py
+tests/mypy/mypy_function_wrapper_cls_t5.py
+tests/mypy/mypy_function_wrapper_cls_t6.py
+tests/mypy/mypy_function_wrapper_cls_t7.py
+tests/mypy/mypy_function_wrapper_cls_t8.py
+tests/mypy/mypy_function_wrapper_fn_t1.py
+tests/mypy/mypy_function_wrapper_fn_t2.py
+tests/mypy/mypy_function_wrapper_fn_t3.py
+tests/mypy/mypy_function_wrapper_fn_t4.py
+tests/mypy/mypy_function_wrapper_fn_t5.py
+tests/mypy/mypy_function_wrapper_fn_t6.py
+tests/mypy/mypy_function_wrapper_fn_t7.py
+tests/mypy/mypy_object_proxy_arithmetic_t1.py
+tests/mypy/mypy_object_proxy_container_t1.py
+tests/mypy/mypy_object_proxy_context_t1.py
+tests/mypy/mypy_partial_callable_t1.py
+tests/mypy/mypy_patch_function_wrapper_t1.py
+tests/mypy/mypy_patching_primitives_t1.py
+tests/mypy/mypy_post_import_hooks_t1.py
+tests/mypy/mypy_synchronized_lock_t1.py
+tests/mypy/mypy_transient_function_wrapper_t1.py
+tests/mypy/mypy_weak_function_proxy_t1.py
+tests/mypy/mypy_wrap_function_wrapper_t1.py
+tests/mypy/mypy_wrap_function_wrapper_t2.py
+tests/mypy/mypy_wrap_function_wrapper_t3.py
+tests/mypy/mypy_wrap_function_wrapper_t4.py
+tests/mypy/mypy_wrap_function_wrapper_t5.py
+tests/mypy/mypy_wrap_function_wrapper_t6.py
+tests/mypy/mypy_wrap_function_wrapper_t7.py
+tests/mypy/mypy_wrap_function_wrapper_t8.py
+
+=== QUERIES (2) ===
+QUERY g1q-wrapt-imports_of-20: family=imports_of module=tests/conftest.py
+QUERY g1q-wrapt-imports_of-37: family=imports_of module=tests/core/test_deferred_patching.py
+
+=== CONTEXT ===
+
+FILE tests/conftest.py:
+    1| import os
+    2| import pathlib
+    3| import re
+    4| import sys
+    5| import warnings
+    6| 
+    7| import pytest
+    8| 
+    9| try:
+   10|     from pytest import File as FileCollector
+   11| except ImportError:
+   12|     from pytest.collect import File as FileCollector
+   13| 
+   14| version = tuple(sys.version_info[:2])
+   15| 
+   16| 
+   17| # Set MYPYPATH to the src directory relative to this conftest.py file. This
+   18| # allows mypy to find the source code for type checking.
+   19| _conftest_dir = pathlib.Path(__file__).parent
+   20| _src_dir = _conftest_dir.parent / "src"
+   21| os.environ["MYPYPATH"] = str(_src_dir)
+   22| 
+   23| 
+   24| class DummyCollector(FileCollector):
+   25|     def collect(self):
+   26|         return []
+   27| 
+   28| 
+   29| def construct_dummy(path, parent):
+   30|     if hasattr(DummyCollector, "from_parent"):
+   31|         item = DummyCollector.from_parent(parent, path=path)
+   32|         return item
+   33|     else:
+   34|         return DummyCollector(path, parent=parent)
+   35| 
+   36| 
+   37| def pytest_pycollect_makemodule(module_path, parent):
+   38|     basename = module_path.name
+   39| 
+   40|     # Handle specific Python version cases using regex
+   41|     # Match patterns like "_py310", "_py312", etc.
+   42|     version_match = re.search(r"_py(\d)(\d*)", basename)
+   43|     if version_match:
+   44|         major = int(version_match.group(1))
+   45|         minor_str = version_match.group(2)
+   46|         minor = int(minor_str) if minor_str else 0
+   47| 
+   48|         # Check if current version is less than the required version
+   49|         if version < (major, minor):
+   50|             return construct_dummy(module_path, parent)
+   51| 
+   52|     return None
+   53| 
+   54| 
+   55| # -----------------------------
+   56| # Custom mypy_*.py + .out tests
+   57| # -----------------------------
+   58| 
+   59| 
+   60| def run_custom_action(py_file: pathlib.Path) -> str:
+   61|     """
+   62|     Run mypy on the given file with the current interpreter's major.minor version
+   63|     and return the combined stdout/stderr output as text.
+   64|     """
+   65|     import platform
+   66|     import subprocess
+   67| 
+   68|     major, minor = version
+   69|     cmd = [
+   70|         "mypy",
+   71|         "--strict",
+   72|         "--show-error-codes",
+   73|         "--python-version",
+   74|         f"{major}.{minor}",
+   75|         str(py_file),
+   76|     ]
+   77|     proc = subprocess.run(
+   78|         cmd,
+   79|         stdout=subprocess.PIPE,
+   80|         stderr=subprocess.STDOUT,
+   81|         text=True,
+   82|         check=False,
+   83|     )
+   84|     output = proc.stdout
+   85| 
+   86|     # On Windows, convert backslash paths to forward slashes for consistency
+   87|     # with .out files
+   88|     if platform.system() == "Windows":
+   89|         output = re.sub(r"\btests\\mypy\\", "tests/mypy/", output)
+   90| 
+   91|     return output
+   92| 
+   93| 
+   94| class MypyPairItem(pytest.Item):
+   95|     def __init__(self, name, parent, py_path: pathlib.Path, out_path: pathlib.Path):
+   96|         super().__init__(name, parent)
+   97|         self.py_path = py_path
+   98|         self.out_path = out_path
+   99| 
+  100|     def runtest(self):
+  101|         # Try to run mypy; if it's not found, skip the test
+  102|         try:
+  103|             actual_output = run_custom_action(self.py_path)
+  104|         except FileNotFoundError:
+  105|             warnings.warn(
+  106|                 f"mypy not found; skipping test {self.py_path.name}",
+  107|                 UserWarning,
+  108|                 stacklevel=2,
+  109|             )
+  110|             pytest.skip("mypy command not found")
+  111| 
+  112|         expected_output = self.out_path.read_text(encoding="utf-8")
+  113| 
+  114|         # Normalize line endings to avoid platform discrepancies
+  115|         if actual_output.replace("\r\n", "\n") != expected_output.replace("\r\n", "\n"):
+  116|             raise AssertionError(
+  117|                 f"Output did not match expected for {self.py_path.name}\n"
+  118|                 f"Expected (from {self.out_path.name}):\n{expected_output}\n"
+  119|                 f"Actual:\n{actual_output}"
+  120|             )
+  121| 
+  122|     def reportinfo(self):
+  123|         return self.py_path, 0, f"mypy-pair: {self.py_path.name}"
+  124| 
+  125| 
+  126| class MypyPairCollector(pytest.File):
+  127|     """
+  128|     A collector that discovers mypy*.py files with corresponding .out files in
+  129|     the same directory and creates test items for them.
+  130|     """
+  131| 
+  132|     def collect(self):
+  133|         # Only run this custom collection on Python 3.10+
+  134|         if version < (3, 10):
+  135|             return
+  136| 
+  137|         # Skip mypy tests if running on PyPy
+  138|         if sys.implementation.name == "pypy":
+  139|             return
+  140| 
+  141|         path = pathlib.Path(str(self.fspath))
+  142|         # Only operate in a tests directory context
+  143|         if path.name != "conftest.py":
+  144|             return
+  145| 
+  146|         tests_dir = path.parent
+  147| 
+  148|         for py_file in sorted(tests_dir.glob("mypy/mypy_*.py")):
+  149|             out_file = py_file.with_suffix(".out")
+  150|             if out_file.exists():
+  151|                 name = f"{py_file.stem}"
+  152|                 # Create a test item for the pair
+  153|                 yield MypyPairItem.from_parent(
+  154|                     parent=self, name=name, py_path=py_file, out_path=out_file
+  155|                 )
+  156| 
+  157| 
+  158| def pytest_collect_file(file_path, parent):
+  159|     """
+  160|     Hook that allows adding our MypyPairCollector when pytest collects files.
+  161|     We attach the collector to tests/conftest.py so the discovery runs once per tests session.
+  162|     """
+  163|     # Guard early so we don't attach the collector on older Pythons
+  164|     if version < (3, 10):
+  165|         return
+  166| 
+  167|     # Newer pytest passes pathlib.Path-like objects; ensure we can get a string/Path
+  168|     try:
+  169|         p = pathlib.Path(str(file_path))
+  170|     except Exception:
+  171|         p = pathlib.Path(getattr(file_path, "strpath", str(file_path)))
+  172| 
+  173|     # Only hook our collector on the tests/conftest.py file to avoid multiple runs
+  174|     if p.name == "conftest.py" and p.parent.name == "tests":
+  175|         if hasattr(MypyPairCollector, "from_parent"):
+  176|             return MypyPairCollector.from_parent(parent, path=file_path)
+  177|         else:
+  178|             # Fallback for very old pytest versions
+  179|             return MypyPairCollector(file_path, parent=parent)
+
+FILE tests/core/test_deferred_patching.py:
+    1| import unittest
+    2| import sys
+    3| 
+    4| import wrapt
+    5| from wrapt.importer import _post_import_hooks
+    6| 
+    7| 
+    8| class TestDeferredWrapFunctionWrapper(unittest.TestCase):
+    9| 
+   10|     def setUp(self):
+   11|         super(TestDeferredWrapFunctionWrapper, self).setUp()
+   12| 
+   13|         sys.modules.pop("colorsys", None)
+   14|         _post_import_hooks.pop("colorsys", None)
+   15| 
+   16|     def test_deferred_wrap_before_import(self):
+   17|         called = []
+   18| 
+   19|         def wrapper(wrapped, instance, args, kwargs):
+   20|             called.append(True)
+   21|             return wrapped(*args, **kwargs)
+   22| 
+   23|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   24| 
+   25|         self.assertIsNone(result)
+   26|         self.assertEqual(len(called), 0)
+   27| 
+   28|         import colorsys
+   29| 
+   30|         # The wrapper should now be applied.
+   31| 
+   32|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+   33| 
+   34|         self.assertEqual(len(called), 1)
+   35| 
+   36|     def test_deferred_wrap_after_import(self):
+   37|         import colorsys
+   38| 
+   39|         called = []
+   40| 
+   41|         def wrapper(wrapped, instance, args, kwargs):
+   42|             called.append(True)
+   43|             return wrapped(*args, **kwargs)
+   44| 
+   45|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   46| 
+   47|         # Module already imported, should wrap immediately.
+   48| 
+   49|         self.assertIsNotNone(result)
+   50| 
+   51|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+   52| 
+   53|         self.assertEqual(len(called), 1)
+   54| 
+   55|     def test_deferred_wrap_returns_none(self):
+   56|         def wrapper(wrapped, instance, args, kwargs):
+   57|             return wrapped(*args, **kwargs)
+   58| 
+   59|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   60| 
+   61|         self.assertIsNone(result)
+   62| 
+   63|     def test_immediate_wrap_returns_wrapper(self):
+   64|         import colorsys
+   65| 
+   66|         def wrapper(wrapped, instance, args, kwargs):
+   67|             return wrapped(*args, **kwargs)
+   68| 
+   69|         result = wrapt.wrap_function_wrapper("colorsys?", "rgb_to_hsv", wrapper)
+   70| 
+   71|         self.assertIsNotNone(result)
+   72| 
+   73|     def test_without_question_mark_imports_immediately(self):
+   74|         self.assertNotIn("colorsys", sys.modules)
+   75| 
+   76|         def wrapper(wrapped, instance, args, kwargs):
+   77|             return wrapped(*args, **kwargs)
+   78| 
+   79|         wrapt.wrap_function_wrapper("colorsys", "rgb_to_hsv", wrapper)
+   80| 
+   81|         # Module should have been imported immediately.
+   82| 
+   83|         self.assertIn("colorsys", sys.modules)
+   84| 
+   85| 
+   86| class TestDeferredPatchFunctionWrapper(unittest.TestCase):
+   87| 
+   88|     def setUp(self):
+   89|         super(TestDeferredPatchFunctionWrapper, self).setUp()
+   90| 
+   91|         sys.modules.pop("colorsys", None)
+   92|         _post_import_hooks.pop("colorsys", None)
+   93| 
+   94|     def test_deferred_patch_before_import(self):
+   95|         called = []
+   96| 
+   97|         @wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")
+   98|         def wrapper(wrapped, instance, args, kwargs):
+   99|             called.append(True)
+  100|             return wrapped(*args, **kwargs)
+  101| 
+  102|         self.assertEqual(len(called), 0)
+  103| 
+  104|         import colorsys
+  105| 
+  106|         # The wrapper should now be applied.
+  107| 
+  108|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  109| 
+  110|         self.assertEqual(len(called), 1)
+  111| 
+  112|     def test_deferred_patch_after_import(self):
+  113|         import colorsys
+  114| 
+  115|         called = []
+  116| 
+  117|         @wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")
+  118|         def wrapper(wrapped, instance, args, kwargs):
+  119|             called.append(True)
+  120|             return wrapped(*args, **kwargs)
+  121| 
+  122|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  123| 
+  124|         self.assertEqual(len(called), 1)
+  125| 
+  126|     def test_deferred_patch_returns_wrapper_function(self):
+  127|         # When deferred, the decorator should return the original wrapper
+  128|         # function so it remains usable.
+  129| 
+  130|         def _wrapper(wrapped, instance, args, kwargs):
+  131|             return wrapped(*args, **kwargs)
+  132| 
+  133|         wrapper = wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")(_wrapper)
+  134| 
+  135|         self.assertIs(wrapper, _wrapper)
+  136| 
+  137|     def test_immediate_patch_returns_wrapper_function(self):
+  138|         # When applied immediately, the decorator should also return the
+  139|         # original wrapper function.
+  140| 
+  141|         import colorsys
+  142| 
+  143|         def _wrapper(wrapped, instance, args, kwargs):
+  144|             return wrapped(*args, **kwargs)
+  145| 
+  146|         wrapper = wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv")(_wrapper)
+  147| 
+  148|         self.assertIs(wrapper, _wrapper)
+  149| 
+  150|     def test_deferred_patch_with_enabled(self):
+  151|         called = []
+  152| 
+  153|         enable = False
+  154| 
+  155|         def enabled():
+  156|             return enable
+  157| 
+  158|         @wrapt.patch_function_wrapper("colorsys?", "rgb_to_hsv", enabled=enabled)
+  159|         def wrapper(wrapped, instance, args, kwargs):
+  160|             called.append(True)
+  161|             return wrapped(*args, **kwargs)
+  162| 
+  163|         import colorsys
+  164| 
+  165|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  166| 
+  167|         self.assertEqual(len(called), 0)
+  168| 
+  169|         enable = True
+  170| 
+  171|         colorsys.rgb_to_hsv(0.2, 0.4, 0.6)
+  172| 
+  173|         self.assertEqual(len(called), 1)
+  174| 
+  175|     def test_without_question_mark_imports_immediately(self):
+  176|         self.assertNotIn("colorsys", sys.modules)
+  177| 
+  178|         @wrapt.patch_function_wrapper("colorsys", "rgb_to_hsv")
+  179|         def wrapper(wrapped, instance, args, kwargs):
+  180|             return wrapped(*args, **kwargs)
+  181| 
+  182|         # Module should have been imported immediately.
+  183| 
+  184|         self.assertIn("colorsys", sys.modules)
+  185| 
+  186| 
+  187| if __name__ == "__main__":
+  188|     unittest.main()
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-wrapt-imports_of-20",
+    "answerable_static": true,
+    "gold": [
+      "ext:os",
+      "ext:pathlib",
+      "ext:platform",
+      "ext:pytest",
+      "ext:pytest.collect",
+      "ext:re",
+      "ext:subprocess",
+      "ext:sys",
+      "ext:warnings"
+    ],
+    "conditional_flags": [
+      "ext:platform",
+      "ext:pytest",
+      "ext:pytest.collect",
+      "ext:subprocess"
+    ],
+    "notes": "All import targets are external; pytest alternatives are conditional, while platform and subprocess are imported inside a function."
+  },
+  {
+    "query_id": "g1q-wrapt-imports_of-37",
+    "answerable_static": true,
+    "gold": [
+      "ext:colorsys",
+      "ext:sys",
+      "ext:unittest",
+      "repo:src/wrapt/__init__.py",
+      "repo:src/wrapt/importer.py"
+    ],
+    "conditional_flags": [
+      "ext:colorsys"
+    ],
+    "notes": "wrapt and wrapt.importer resolve within the repository; colorsys imports occur inside methods."
+  }
+]
+tokens used
+9,592

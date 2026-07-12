@@ -1,0 +1,29 @@
+[
+  {
+    "query_id": "g1q-dateutil-callees_of-1411",
+    "answerable_static": true,
+    "gold": [
+      "src/dateutil/tz/tz.py::datetime_ambiguous",
+      "tests/test_tz.py::DatetimeAmbiguousTest._get_ambig_error_tzinfo",
+      "ext:datetime.datetime",
+      "ext:unittest.TestCase.assertFalse"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-dateutil-callees_of-1173",
+    "answerable_static": false,
+    "gold": [
+      "tests/test_tz.py::TzFoldMixin._get_tzname",
+      "ext:datetime.datetime",
+      "ext:datetime.datetime.astimezone",
+      "ext:datetime.datetime.replace",
+      "ext:datetime.datetime.utcoffset",
+      "ext:datetime.timedelta",
+      "ext:unittest.TestCase.assertEqual"
+    ],
+    "conditional_flags": [],
+    "notes": "Runtime dispatch for self._gettz_context and self.gettz depends on the concrete subclass, so their callees cannot be fully determined statically."
+  }
+]

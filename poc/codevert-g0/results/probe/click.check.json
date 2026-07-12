@@ -1,0 +1,233 @@
+{
+ "repo": "click",
+ "pytest_exit": 1,
+ "n_observed_call_edges": 2700,
+ "n_observed_import_events": 390,
+ "call_soundness": {
+  "confirmed_proved": 508,
+  "confirmed_instantiation": 229,
+  "unknown_compatible": 1665,
+  "miss": 20,
+  "protocol_dispatch": 70,
+  "descriptor_or_decorated": 32,
+  "class_body_exec": 96,
+  "unmapped_callee": 73,
+  "resumption_total": 15,
+  "resumption_unmatched": 7
+ },
+ "call_query_level": {
+  "covered": 2516,
+  "violation": 0
+ },
+ "call_miss_examples": [
+  {
+   "caller": "src/click/_compat.py::_NonClosingTextIOWrapper.__init__",
+   "callee": "src/click/_compat.py::_FixupStream.readable",
+   "caller_frame": [
+    "src/click/_compat.py",
+    "__init__",
+    53
+   ],
+   "callee_line": 109
+  },
+  {
+   "caller": "src/click/_compat.py::_NonClosingTextIOWrapper.__init__",
+   "callee": "src/click/_compat.py::_FixupStream.seekable",
+   "caller_frame": [
+    "src/click/_compat.py",
+    "__init__",
+    53
+   ],
+   "callee_line": 136
+  },
+  {
+   "caller": "src/click/_compat.py::_NonClosingTextIOWrapper.__init__",
+   "callee": "src/click/_compat.py::_FixupStream.writable",
+   "caller_frame": [
+    "src/click/_compat.py",
+    "__init__",
+    53
+   ],
+   "callee_line": 121
+  },
+  {
+   "caller": "src/click/_termui_impl.py::ProgressBar.make_step",
+   "callee": "tests/test_termui.py::FakeClock.time",
+   "caller_frame": [
+    "src/click/_termui_impl.py",
+    "make_step",
+    273
+   ],
+   "callee_line": 17
+  },
+  {
+   "caller": "src/click/_termui_impl.py::pager",
+   "callee": "src/click/_compat.py::_make_cached_stream_func.func",
+   "caller_frame": [
+    "src/click/_termui_impl.py",
+    "pager",
+    360
+   ],
+   "callee_line": 584
+  },
+  {
+   "caller": "src/click/core.py::iter_params_for_processing",
+   "callee": "src/click/core.py::iter_params_for_processing.sort_key",
+   "caller_frame": [
+    "src/click/core.py",
+    "iter_params_for_processing",
+    114
+   ],
+   "callee_line": 123
+  },
+  {
+   "caller": "src/click/core.py::BaseCommand.make_context",
+   "callee": "src/click/core.py::Context.__init__",
+   "caller_frame": [
+    "src/click/core.py",
+    "make_context",
+    907
+   ],
+   "callee_line": 260
+  },
+  {
+   "caller": "src/click/core.py::Context.make_formatter",
+   "callee": "src/click/formatting.py::HelpFormatter.__init__",
+   "caller_frame": [
+    "src/click/core.py",
+    "make_formatter",
+    535
+   ],
+   "callee_line": 114
+  },
+  {
+   "caller": "src/click/core.py::Parameter.process_value",
+   "callee": "src/click/core.py::Command.get_help_option.show_help",
+   "caller_frame": [
+    "src/click/core.py",
+    "process_value",
+    2355
+   ],
+   "callee_line": 1298
+  },
+  {
+   "caller": "src/click/core.py::Parameter.process_value",
+   "callee": "tests/test_basic.py::test_evaluation_order.memo",
+   "caller_frame": [
+    "src/click/core.py",
+    "process_value",
+    2355
+   ],
+   "callee_line": 458
+  },
+  {
+   "caller": "src/click/core.py::Parameter.process_value",
+   "callee": "tests/test_options.py::test_callback_validates_prompt.validate",
+   "caller_frame": [
+    "src/click/core.py",
+    "process_value",
+    2355
+   ],
+   "callee_line": 453
+  },
+  {
+   "caller": "src/click/core.py::Parameter.process_value",
+   "callee": "tests/test_options.py::test_custom_validation.validate_pos_int",
+   "caller_frame": [
+    "src/click/core.py",
+    "process_value",
+    2355
+   ],
+   "callee_line": 435
+  },
+  {
+   "caller": "src/click/parser.py::Argument.process",
+   "callee": "src/click/exceptions.py::UsageError.__init__",
+   "caller_frame": [
+    "src/click/parser.py",
+    "process",
+    219
+   ],
+   "callee_line": 58
+  },
+  {
+   "caller": "src/click/testing.py::CliRunner.isolation._getchar",
+   "callee": "src/click/testing.py::EchoingStdin.read1",
+   "caller_frame": [
+    "src/click/testing.py",
+    "_getchar",
+    291
+   ],
+   "callee_line": 38
+  },
+  {
+   "caller": "src/click/testing.py::CliRunner.isolation.hidden_input",
+   "callee": "src/click/testing.py::EchoingStdin.read1",
+   "caller_frame": [
+    "src/click/testing.py",
+    "hidden_input",
+    285
+   ],
+   "callee_line": 38
+  },
+  {
+   "caller": "src/click/testing.py::CliRunner.isolation.visible_input",
+   "callee": "src/click/testing.py::EchoingStdin.read1",
+   "caller_frame": [
+    "src/click/testing.py",
+    "visible_input",
+    277
+   ],
+   "callee_line": 38
+  },
+  {
+   "caller": "src/click/types.py::Path.convert",
+   "callee": "tests/test_types.py::test_path_surrogates.no_access",
+   "caller_frame": [
+    "src/click/types.py",
+    "convert",
+    853
+   ],
+   "callee_line": 185
+  },
+  {
+   "caller": "src/click/utils.py::echo",
+   "callee": "src/click/_compat.py::_make_cached_stream_func.func",
+   "caller_frame": [
+    "src/click/utils.py",
+    "echo",
+    219
+   ],
+   "callee_line": 584
+  },
+  {
+   "caller": "src/click/utils.py::echo",
+   "callee": "src/click/testing.py::CliRunner.isolation.should_strip_ansi",
+   "caller_frame": [
+    "src/click/utils.py",
+    "echo",
+    219
+   ],
+   "callee_line": 303
+  },
+  {
+   "caller": "tests/test_testing.py::test_echo_stdin_prompts.test_python_input",
+   "callee": "src/click/testing.py::EchoingStdin.read1",
+   "caller_frame": [
+    "tests/test_testing.py",
+    "test_python_input",
+    49
+   ],
+   "callee_line": 38
+  }
+ ],
+ "import_soundness": {
+  "confirmed": 201,
+  "unknown_compatible": 10,
+  "miss": 0,
+  "external": 183
+ },
+ "import_miss_examples": [],
+ "validity_violations": [],
+ "n_validity_violations": 0
+}

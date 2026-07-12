@@ -1,0 +1,54 @@
+## Audit outcome: PASS CONFIRMED
+
+The `PASS-PENDING-AUDIT` verdict reproduces exactly from the current frozen record, amendments, and chained log. I found no statistical-integrity or preregistration defect.
+
+Reproduction used the actual `verdict-gen.py` execution path with its output writes intercepted in memory. With `computed_at=2026-07-11T18:47:00Z`, the generated verdict object and analysis output were byte-for-byte identical to the on-disk files:
+
+- Verdict: `PASS-PENDING-AUDIT`
+- Fired rule: index 4, `primary_reject AND shuffled_low_recovery AND beats_gloss_self_verify`
+- Analysis SHA-256: `637cc767348823ebb8d958f1b23854af817199b937b92180e072984c3e052afa`
+- Eligible runs: 17; exclusions: none
+- Log tail: `1ebcf7fe9a6e5f4c790d043351c06dbeadf2846541d7bd5ed664f2469cc36119`
+
+The reproduced object matches [registry/verdicts/f2b-transfer.json](/home/ec2-user/css/kernel/kernel-of-truth/registry/verdicts/f2b-transfer.json:1).
+
+The canonical frozen-record hash independently recomputes to `b341a0901e12023d3c56bdc196be0b9c492c7d348f988416d7e9c43aade20879`, matching both the record and frozen index. The overlay’s only two changes are:
+
+- `/pins/corpus_hashes/d-adj-t`: placeholder → `a4baa36f…`; the corpus hash independently recomputes to the same value. See [amendment 1](/home/ec2-user/css/kernel/kernel-of-truth/registry/amendments/f2b-transfer/1-pin-d-adj-t-corpus.json:8).
+- `/pins/harness_manifest`: placeholder → `ef3e72e6…`. See [amendment 2](/home/ec2-user/css/kernel/kernel-of-truth/registry/amendments/f2b-transfer/2-pin-harness-manifest.json:8).
+
+No `/design`, endpoint, threshold, verdict-rule, hypothesis, analysis-script, or freeze field changed. The effective amended-record SHA-256 is `fcd1992508601be065ba1de7f59a8ec472e07b8eb5815fc21039aed6d509f763`.
+
+The results log contains exactly 18 chained records: one stage-1 adjudication run, one unblind marker, and sixteen stage-2 rows. The chain, sequence numbers, `prev_sha256`, preregistration hashes, and all `config_sha256` values verify. The rows are:
+
+- Line 1: adjudication instrument.
+- Line 2: verdict-gen unblind marker.
+- Lines 3–8: model-alone R1/R3 × seeds 0–2.
+- Lines 9–11: kernel-verify-retry R1, k=4 × seeds.
+- Lines 12–14: shuffled-kernel-verify-retry R1, k=4 × seeds.
+- Lines 15–17: gloss-self-verify-retry R1, k=4 × seeds.
+- Line 18: extraction instrument.
+
+Every arm, rung, retry budget, escalation budget, and seed is a declared level in the frozen design. Every scoring arm supplies 250 external- and membership-scoring observations. See [results-log/f2b-transfer.jsonl](/home/ec2-user/css/kernel/kernel-of-truth/results-log/f2b-transfer.jsonl:1).
+
+The frozen analysis script itself matches its pin, `85a8fde6…`. Its reproduced findings are:
+
+- Primary: external-gold accuracy `0.646667 − 0.396000 = 0.250667`; one-sided 95% BCa lower bound `0.220000 > 0`, so `primary_reject=true`. The implementation is at [analysis/f2b_transfer.py:392](/home/ec2-user/css/kernel/kernel-of-truth/analysis/f2b_transfer.py:392).
+- H-STRUCT: shuffled recovery `0.026596`, with one-sided 95% BCa upper bound `0.061453 < 0.30`; Holm-adjusted result is true (`p≈0.00009999`). See [analysis/f2b_transfer.py:405](/home/ec2-user/css/kernel/kernel-of-truth/analysis/f2b_transfer.py:405).
+- RT-2: kernel accuracy `0.646667` versus gloss-self `0.400000`; Holm result is true (`p≈0.00009999`). Holm construction is at [analysis/f2b_transfer.py:428](/home/ec2-user/css/kernel/kernel-of-truth/analysis/f2b_transfer.py:428).
+
+All gates are VALID:
+
+- Adjudication: 360 adjudicated; 27/360 = 7.5% unresolved; raw agreement 324/359 = 0.9025. See [analysis/f2b_transfer.py:235](/home/ec2-user/css/kernel/kernel-of-truth/analysis/f2b_transfer.py:235).
+- Engagement: decidable fraction `1.0`, attempt-0 rejection rate `0.628`, 203 final answers changed. See [analysis/f2b_transfer.py:282](/home/ec2-user/css/kernel/kernel-of-truth/analysis/f2b_transfer.py:282).
+- Headroom: R1-alone `0.396 ≤ 0.85`.
+- Separation: gap `0.228`, one-sided BCa lower bound `0.180 > 0`.
+- Extraction instrument: 500 labelled outputs and zero failures.
+
+The dual-scoring contrast is `lift_mem 0.256000 − lift_ext 0.250667 = 0.005333`. It is explicitly computed outside the Holm family and marked descriptive, never verdict-bearing, at [analysis/f2b_transfer.py:423](/home/ec2-user/css/kernel/kernel-of-truth/analysis/f2b_transfer.py:423).
+
+The harness manifest also checks out. Re-running `--print-manifest` found 159 staged files and reproduced `ef3e72e68af1eac2eb03870d56cc5b9165785f6678bcd69b7a5ea8907692ae4b`. The remote/local staged-byte comparison fails closed at [modal_f2bt.py:185](/home/ec2-user/css/kernel/kernel-of-truth/poc/f2b-transfer/modal/modal_f2bt.py:185), and the completed run records `local_manifest_matched=true` at [provenance-modal.json:5](/home/ec2-user/css/kernel/kernel-of-truth/poc/f2b-transfer/results-incoming/20260711-184448-modal/provenance-modal.json:5).
+
+Finally, I independently reconstructed the evaluation prefix: 360 generated items, 333 with non-null external labels, and exactly the first 250 resolved items in pinned rank order. All 250 are externally labelled and kernel-checkable. The fail-closed selection logic is at [f2bt_runner.py:873](/home/ec2-user/css/kernel/kernel-of-truth/poc/f2b-transfer/runner/f2bt_runner.py:873).
+
+One operational caveat: amendment 2 and the incoming GPU artifacts are currently untracked, while the log, analysis output, and verdict are modified but uncommitted. Thus this confirmation applies to the current working-tree snapshot; a clean checkout of repository `HEAD` does not yet contain the complete evidence package. This is a persistence/repository-state issue, not a defect in the reproduced statistical verdict.

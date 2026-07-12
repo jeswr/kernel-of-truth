@@ -1,0 +1,35 @@
+{
+ "annotator": "gpt56-b",
+ "answers": [
+  {
+   "answerable_static": true,
+   "conditional_flags": [],
+   "gold": [
+    "src/requests/api.py::request"
+   ],
+   "notes": "",
+   "query_id": "g1q-requests-callees_of-29"
+  },
+  {
+   "answerable_static": false,
+   "conditional_flags": [],
+   "gold": [
+    "ext:builtins.any",
+    "ext:builtins.dict.update",
+    "ext:builtins.isinstance",
+    "ext:builtins.len",
+    "ext:typing.cast",
+    "src/requests/auth.py::HTTPBasicAuth",
+    "src/requests/models.py::PreparedRequest.prepare_content_length",
+    "src/requests/utils.py::get_auth_from_url"
+   ],
+   "notes": "The auth_handler(self) call may invoke an arbitrary callable supplied through the auth parameter, so its runtime callee cannot be fully determined statically.",
+   "query_id": "g1q-requests-callees_of-143"
+  }
+ ],
+ "attempts": 1,
+ "batch": "requests--callees_of.txt",
+ "effort": "medium",
+ "model": "gpt-5.6-sol",
+ "no_label": false
+}

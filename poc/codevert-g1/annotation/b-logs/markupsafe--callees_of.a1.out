@@ -1,0 +1,18 @@
+[
+  {
+    "query_id": "g1q-markupsafe-callees_of-51",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The call through self.__class__ is dynamically dispatched and its runtime callee cannot be fully determined."
+  },
+  {
+    "query_id": "g1q-markupsafe-callees_of-23",
+    "answerable_static": false,
+    "gold": [
+      "src/markupsafe/__init__.py::escape"
+    ],
+    "conditional_flags": [],
+    "notes": "escape resolves statically, but the conditional call cls(rv) invokes the runtime class passed as cls and cannot be fully determined."
+  }
+]

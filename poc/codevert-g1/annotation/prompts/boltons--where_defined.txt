@@ -1,0 +1,224 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: boltons ===
+PY FILE LISTING (repo-root-relative; authoritative):
+boltons/__init__.py
+boltons/cacheutils.py
+boltons/debugutils.py
+boltons/deprutils.py
+boltons/dictutils.py
+boltons/easterutils.py
+boltons/ecoutils.py
+boltons/excutils.py
+boltons/fileutils.py
+boltons/formatutils.py
+boltons/funcutils.py
+boltons/gcutils.py
+boltons/ioutils.py
+boltons/iterutils.py
+boltons/jsonutils.py
+boltons/listutils.py
+boltons/mathutils.py
+boltons/mboxutils.py
+boltons/namedutils.py
+boltons/pathutils.py
+boltons/queueutils.py
+boltons/setutils.py
+boltons/socketutils.py
+boltons/statsutils.py
+boltons/strutils.py
+boltons/tableutils.py
+boltons/tbutils.py
+boltons/timeutils.py
+boltons/typeutils.py
+boltons/urlutils.py
+docs/conf.py
+misc/bench_omd.py
+misc/linkify_changelog.py
+misc/table_html_app.py
+tests/__init__.py
+tests/conftest.py
+tests/test_cacheutils.py
+tests/test_debugutils_trace.py
+tests/test_dictutils.py
+tests/test_ecoutils.py
+tests/test_fileutils.py
+tests/test_formatutils.py
+tests/test_funcutils.py
+tests/test_funcutils_fb.py
+tests/test_funcutils_fb_py3.py
+tests/test_gcutils.py
+tests/test_ioutils.py
+tests/test_iterutils.py
+tests/test_jsonutils.py
+tests/test_listutils.py
+tests/test_mathutils.py
+tests/test_namedutils.py
+tests/test_queueutils.py
+tests/test_setutils.py
+tests/test_socketutils.py
+tests/test_statsutils.py
+tests/test_statsutils_histogram.py
+tests/test_strutils.py
+tests/test_tableutils.py
+tests/test_tbutils.py
+tests/test_tbutils_parsed_exc.py
+tests/test_timeutils.py
+tests/test_typeutils.py
+tests/test_urlutils.py
+
+=== QUERIES (2) ===
+QUERY g1q-boltons-where_defined-255: family=where_defined name=_QUERY_PART_QUOTE_MAP
+QUERY g1q-boltons-where_defined-623: family=where_defined name=exit
+
+=== CONTEXT ===
+
+WHERE-DEFINED EXCERPTS for token '_QUERY_PART_QUOTE_MAP' — every line in every .py file that contains the token, with line numbers and the enclosing def/class scope. [scope] marks the syntactic context: module-level = not inside any def/class; enclosing=X(kind) = the line sits inside X; HEADER-LINE-OF=X = the line IS the def/class header of X.
+
+FILE boltons/urlutils.py (all lines containing the token):
+  line 227 [module-level]: _QUERY_PART_QUOTE_MAP = _make_quote_map(_QUERY_SAFE)
+  line 248 [enclosing=quote_query_part(FunctionDef)]:         return ''.join([_QUERY_PART_QUOTE_MAP[b] for b in bytestr])
+  line 249 [enclosing=quote_query_part(FunctionDef)]:     return ''.join([_QUERY_PART_QUOTE_MAP[t] if t in _QUERY_DELIMS else t
+
+WHERE-DEFINED EXCERPTS for token 'exit' — every line in every .py file that contains the token, with line numbers and the enclosing def/class scope. [scope] marks the syntactic context: module-level = not inside any def/class; enclosing=X(kind) = the line sits inside X; HEADER-LINE-OF=X = the line IS the def/class header of X.
+
+FILE boltons/gcutils.py (all lines containing the token):
+  line 135 [enclosing=GCToggler(ClassDef)]:       re-enables at exit
+
+FILE boltons/ioutils.py (all lines containing the token):
+  line 274 [enclosing=SpooledIOBase.__del__(FunctionDef)]:         """Can fail when called at program exit so suppress traceback."""
+
+FILE boltons/iterutils.py (all lines containing the token):
+  line 1069 [enclosing=default_exit(FunctionDef)]:     # print('exit(%r, %r, %r, %r, %r)'
+  line 1095 [enclosing=remap(FunctionDef)]:         exit=default_exit,
+  line 1157 [enclosing=remap(FunctionDef)]:         exit (callable): This function determines how to handle items
+  line 1164 [enclosing=remap(FunctionDef)]:             Like *enter*, the *exit* function is only called once per
+  line 1165 [enclosing=remap(FunctionDef)]:             unique value. The default exit behavior is to simply add
+  line 1182 [enclosing=remap(FunctionDef)]:             or ``'exit'`` to print only the selected events.
+  line 1189 [enclosing=remap(FunctionDef)]:     When passing *enter* and *exit*, it's common and easiest to build
+  line 1191 [enclosing=remap(FunctionDef)]:     default_enter`` (or ``default_exit``), and have your enter/exit
+  line 1208 [enclosing=remap(FunctionDef)]:     if not callable(exit):
+  line 1209 [enclosing=remap(FunctionDef)]:         raise TypeError('exit expected callable, not: %r' % exit)
+  line 1213 [enclosing=remap(FunctionDef)]:         trace = ('visit', 'enter', 'exit')
+  line 1218 [enclosing=remap(FunctionDef)]:     trace_enter, trace_exit, trace_visit = 'enter' in trace, 'exit' in trace, 'visit' in trace
+  line 1233 [enclosing=remap(FunctionDef)]:                 print(' .. remap exit:', path, '-', key, '-',
+  line 1235 [enclosing=remap(FunctionDef)]:             value = exit(path, key, old_parent, new_parent, new_items)
+  line 1237 [enclosing=remap(FunctionDef)]:                 print(' .. remap exit result:', value)
+
+FILE tests/test_iterutils.py (all lines containing the token):
+  line 110 [enclosing=TestRemap.test_noncallables(FunctionDef)]:             remap([], exit='test')
+  line 146 [enclosing=TestRemap.test_namedtuple(FunctionDef)]:         placeholder, creating a new one at exit-time from the value's
+  line 192 [enclosing=TestRemap.test_path(FunctionDef)]:         # test exit's path
+  line 197 [HEADER-LINE-OF=TestRemap.test_path.exit]:         def exit(path, key, old_parent, new_parent, new_items):
+  line 202 [enclosing=TestRemap.test_path(FunctionDef)]:         remapped = remap(orig, exit=exit)
+  line 247 [HEADER-LINE-OF=TestRemap.test_sort_all_lists.exit]:         def exit(path, key, old_parent, new_parent, new_items):
+  line 272 [enclosing=TestRemap.test_sort_all_lists(FunctionDef)]:         remapped = remap(orig, exit=exit)
+  line 301 [HEADER-LINE-OF=TestRemap.test_add_length.exit]:         def exit(path, key, old_parent, new_parent, new_items):
+  line 320 [enclosing=TestRemap.test_add_length(FunctionDef)]:         remapped = remap(orig, exit=exit)
+
+Answer now with ONE JSON array containing one object per query, in query order.

@@ -1,0 +1,652 @@
+{
+ "aggregates": {
+  "n_covered": 855,
+  "n_covered_answered_wrong": 43,
+  "n_covered_exact": 356,
+  "n_covered_refused_engine": 0,
+  "n_covered_refused_parse": 456,
+  "parse_stage_breakdown": {
+   "frame-miss": 468,
+   "gazetteer-miss": 24
+  }
+ },
+ "identity_check": "PASS (all recomputed counters == frozen results-log mapper-parse final row)",
+ "pin_report": {
+  "code_layer(kot_code.py)": {
+   "frozen": "9fbe2a50dcd80e100a8a32ffb5d455e9ce993424fbf0bd293b8143aef96bb99a",
+   "match": true,
+   "observed": "9fbe2a50dcd80e100a8a32ffb5d455e9ce993424fbf0bd293b8143aef96bb99a"
+  },
+  "corpus_file_eval.jsonl": {
+   "frozen": "746b202d27239cc1b49aa611696387080313a7116c48a8ce5cad2f963d3489c6",
+   "match": true,
+   "observed": "746b202d27239cc1b49aa611696387080313a7116c48a8ce5cad2f963d3489c6"
+  },
+  "engine(kot_axiom.py)": {
+   "frozen": "d26408815238cd9f73b50bb2c4b1f659c8a783ff6a5f16e27357eb2071bb3d08",
+   "match": true,
+   "observed": "d26408815238cd9f73b50bb2c4b1f659c8a783ff6a5f16e27357eb2071bb3d08"
+  },
+  "nlb_frontend.py": {
+   "frozen": "590377760ed5067688ddc0dd859c1a1cfa955e640b3a07c0f75e91d3bc908ea0",
+   "match": true,
+   "observed": "590377760ed5067688ddc0dd859c1a1cfa955e640b3a07c0f75e91d3bc908ea0"
+  },
+  "nlb_map.mjs": {
+   "frozen": "6256fc019cd4be8e64708565475976c90237bf25cd46908379c25ee7fa3d7084",
+   "match": true,
+   "observed": "6256fc019cd4be8e64708565475976c90237bf25cd46908379c25ee7fa3d7084"
+  }
+ },
+ "schema": "nlb0a-baseline/1",
+ "status": "OK",
+ "wrong_bucket_counts": {
+  "op-flip:contained-in->where-defined": 24,
+  "op-flip:contains->where-defined": 1,
+  "op-flip:where-defined->contained-in": 18
+ },
+ "wrong_items": [
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-gen-l3a-corpora--build--q",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-gen-l3a-corpora--build--q",
+    "op": "contained-in"
+   },
+   "qid": "a0163",
+   "text": "Which file contains code-fn-gen-l3a-corpora--build--q?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--engine----init--",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--engine----init--",
+    "op": "contained-in"
+   },
+   "qid": "a0170",
+   "text": "Which file contains code-fn-kot-axiom--engine----init--?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--engine---layer-license",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--engine---layer-license",
+    "op": "contained-in"
+   },
+   "qid": "a0174",
+   "text": "Which module contains code-fn-kot-axiom--engine---layer-license?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--kotaxiomerror----init--",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--kotaxiomerror----init--",
+    "op": "contained-in"
+   },
+   "qid": "a0180",
+   "text": "Which file contains code-fn-kot-axiom--kotaxiomerror----init--?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common---eval-val",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common---eval-val",
+    "op": "contained-in"
+   },
+   "qid": "a0184",
+   "text": "Which file contains code-fn-kot-common---eval-val?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--account-lint",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--account-lint",
+    "op": "contained-in"
+   },
+   "qid": "a0188",
+   "text": "Which file contains code-fn-kot-common--account-lint?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--chainerror----init--",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--chainerror----init--",
+    "op": "contained-in"
+   },
+   "qid": "a0192",
+   "text": "Which file contains code-fn-kot-common--chainerror----init--?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--corpus-hash",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--corpus-hash",
+    "op": "contained-in"
+   },
+   "qid": "a0196",
+   "text": "Which file contains code-fn-kot-common--corpus-hash?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--json-patch-apply",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--json-patch-apply",
+    "op": "contained-in"
+   },
+   "qid": "a0200",
+   "text": "Which file contains code-fn-kot-common--json-patch-apply?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-l3a--wilson",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-l3a--wilson",
+    "op": "contained-in"
+   },
+   "qid": "a0216",
+   "text": "Which file contains code-fn-l3a--wilson?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-log-append--main",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-log-append--main",
+    "op": "contained-in"
+   },
+   "qid": "a0224",
+   "text": "What file contains code-fn-log-append--main?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-prereg-freeze--check-record",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-prereg-freeze--check-record",
+    "op": "contained-in"
+   },
+   "qid": "a0229",
+   "text": "Which module contains code-fn-prereg-freeze--check-record?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-registry-check--findings--err",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-registry-check--findings--err",
+    "op": "contained-in"
+   },
+   "qid": "a0243",
+   "text": "What module contains code-fn-registry-check--findings--err?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--spinefixture--base-record",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--spinefixture--base-record",
+    "op": "contained-in"
+   },
+   "qid": "a0255",
+   "text": "Which file contains code-fn-test-fixtures--spinefixture--base-record?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcanonicalhash--test-canonical-hash-determinism",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcanonicalhash--test-canonical-hash-determinism",
+    "op": "contained-in"
+   },
+   "qid": "a0268",
+   "text": "What file contains code-fn-test-fixtures--testcanonicalhash--test-canonical-hash-determinism?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcoveragesource--test-unconfirmed-source-audit-fails-closed",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcoveragesource--test-unconfirmed-source-audit-fails-closed",
+    "op": "contained-in"
+   },
+   "qid": "a0292",
+   "text": "What file contains code-fn-test-fixtures--testcoveragesource--test-unconfirmed-source-audit-fails-closed?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testpreregpause--test-dry-run-prints-pause-but-writes-nothing",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testpreregpause--test-dry-run-prints-pause-but-writes-nothing",
+    "op": "contained-in"
+   },
+   "qid": "a0303",
+   "text": "What file contains code-fn-test-fixtures--testpreregpause--test-dry-run-prints-pause-but-writes-nothing?"
+  },
+  {
+   "bucket": "op-flip:where-defined->contained-in",
+   "family": "where-defined",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-verdict-gen--fail",
+    "op": "where-defined"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-verdict-gen--fail",
+    "op": "contained-in"
+   },
+   "qid": "a0318",
+   "text": "Which module contains code-fn-verdict-gen--fail?"
+  },
+  {
+   "bucket": "op-flip:contains->where-defined",
+   "family": "contains",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-gen-l3a-corpora--build",
+    "op": "contains"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-gen-l3a-corpora--build",
+    "op": "where-defined"
+   },
+   "qid": "a0383",
+   "text": "What does the function code-fn-gen-l3a-corpora--build contain or define?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--engine---layer-license",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-axiom--engine---layer-license",
+    "op": "where-defined"
+   },
+   "qid": "a0427",
+   "text": "In which parent is code-fn-kot-axiom--engine---layer-license defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--canonical-sha256",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--canonical-sha256",
+    "op": "where-defined"
+   },
+   "qid": "a0444",
+   "text": "Where is code-fn-kot-common--canonical-sha256 defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--log-tail-sha256",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-kot-common--log-tail-sha256",
+    "op": "where-defined"
+   },
+   "qid": "a0455",
+   "text": "In which structure is code-fn-kot-common--log-tail-sha256 defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-l3a--analyze--rate",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-l3a--analyze--rate",
+    "op": "where-defined"
+   },
+   "qid": "a0467",
+   "text": "In what scope is code-fn-l3a--analyze--rate defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-log-append--fail",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-log-append--fail",
+    "op": "where-defined"
+   },
+   "qid": "a0476",
+   "text": "In what structure is code-fn-log-append--fail defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-prereg-freeze--file-sha256",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-prereg-freeze--file-sha256",
+    "op": "where-defined"
+   },
+   "qid": "a0484",
+   "text": "In what parent is code-fn-prereg-freeze--file-sha256 defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-registry-check--findings----init--",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-registry-check--findings----init--",
+    "op": "where-defined"
+   },
+   "qid": "a0495",
+   "text": "Where is code-fn-registry-check--findings----init-- defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-report-gen--load-json",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-report-gen--load-json",
+    "op": "where-defined"
+   },
+   "qid": "a0501",
+   "text": "In which module is code-fn-report-gen--load-json defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--spinefixture--append-run",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--spinefixture--append-run",
+    "op": "where-defined"
+   },
+   "qid": "a0507",
+   "text": "Which module defines code-fn-test-fixtures--spinefixture--append-run?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--spinefixture--setup",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--spinefixture--setup",
+    "op": "where-defined"
+   },
+   "qid": "a0513",
+   "text": "Where is code-fn-test-fixtures--spinefixture--setup defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testaccountstrings--test-non-pseudonym-identity-refused",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testaccountstrings--test-non-pseudonym-identity-refused",
+    "op": "where-defined"
+   },
+   "qid": "a0517",
+   "text": "Which module defines code-fn-test-fixtures--testaccountstrings--test-non-pseudonym-identity-refused?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcanonicalhash--test-freeze-is-reproducible",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcanonicalhash--test-freeze-is-reproducible",
+    "op": "where-defined"
+   },
+   "qid": "a0522",
+   "text": "code-fn-test-fixtures--testcanonicalhash--test-freeze-is-reproducible is defined in which module?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testclaimscheck--test-loadbearing-extrapolation-refused",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testclaimscheck--test-loadbearing-extrapolation-refused",
+    "op": "where-defined"
+   },
+   "qid": "a0528",
+   "text": "What module defines code-fn-test-fixtures--testclaimscheck--test-loadbearing-extrapolation-refused?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testclaimscheck--write-register",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testclaimscheck--write-register",
+    "op": "where-defined"
+   },
+   "qid": "a0535",
+   "text": "In which module is code-fn-test-fixtures--testclaimscheck--write-register defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcorpuspins--test-wrong-digest-refused-at-freeze",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcorpuspins--test-wrong-digest-refused-at-freeze",
+    "op": "where-defined"
+   },
+   "qid": "a0539",
+   "text": "Which module defines code-fn-test-fixtures--testcorpuspins--test-wrong-digest-refused-at-freeze?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcoveragesource--write-source-verdict",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testcoveragesource--write-source-verdict",
+    "op": "where-defined"
+   },
+   "qid": "a0546",
+   "text": "Which module defines code-fn-test-fixtures--testcoveragesource--write-source-verdict?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testfreezelints--test-missing-catchall-refused",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testfreezelints--test-missing-catchall-refused",
+    "op": "where-defined"
+   },
+   "qid": "a0550",
+   "text": "In which module is code-fn-test-fixtures--testfreezelints--test-missing-catchall-refused defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testpreregpause--test-prereg-doc-citation-also-pauses",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testpreregpause--test-prereg-doc-citation-also-pauses",
+    "op": "where-defined"
+   },
+   "qid": "a0558",
+   "text": "What module defines code-fn-test-fixtures--testpreregpause--test-prereg-doc-citation-also-pauses?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testreportgen--test-report-refuses-drifted-record",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-test-fixtures--testreportgen--test-report-refuses-drifted-record",
+    "op": "where-defined"
+   },
+   "qid": "a0565",
+   "text": "In which module is code-fn-test-fixtures--testreportgen--test-report-refuses-drifted-record defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-fn-verdict-gen--confirmed-audit",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-fn-verdict-gen--confirmed-audit",
+    "op": "where-defined"
+   },
+   "qid": "a0570",
+   "text": "Which module defines code-fn-verdict-gen--confirmed-audit?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-cls-claims-check--findings",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-cls-claims-check--findings",
+    "op": "where-defined"
+   },
+   "qid": "a0579",
+   "text": "In which module is code-cls-claims-check--findings defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-cls-test-fixtures--testaccountstrings",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-cls-test-fixtures--testaccountstrings",
+    "op": "where-defined"
+   },
+   "qid": "a0587",
+   "text": "In which module is code-cls-test-fixtures--testaccountstrings defined?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-cls-test-fixtures--testclaimscheck",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-cls-test-fixtures--testclaimscheck",
+    "op": "where-defined"
+   },
+   "qid": "a0591",
+   "text": "Which module defines code-cls-test-fixtures--testclaimscheck?"
+  },
+  {
+   "bucket": "op-flip:contained-in->where-defined",
+   "family": "contained-in",
+   "gold_query": {
+    "of": "urn:kotw:v0:code-cls-test-fixtures--testverdictgrammar",
+    "op": "contained-in"
+   },
+   "parsed_query": {
+    "of": "urn:kotw:v0:code-cls-test-fixtures--testverdictgrammar",
+    "op": "where-defined"
+   },
+   "qid": "a0601",
+   "text": "In which module or package is code-cls-test-fixtures--testverdictgrammar defined?"
+  }
+ ]
+}

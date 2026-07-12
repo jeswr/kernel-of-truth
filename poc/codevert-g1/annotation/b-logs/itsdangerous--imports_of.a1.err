@@ -1,0 +1,402 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.u5i4ofjv"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.5y_e87yk
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c5-23fc-7d43-a39c-ea877eb2498d
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: itsdangerous ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/itsdangerous/__init__.py
+src/itsdangerous/_json.py
+src/itsdangerous/encoding.py
+src/itsdangerous/exc.py
+src/itsdangerous/serializer.py
+src/itsdangerous/signer.py
+src/itsdangerous/timed.py
+src/itsdangerous/url_safe.py
+tests/test_itsdangerous/__init__.py
+tests/test_itsdangerous/test_encoding.py
+tests/test_itsdangerous/test_serializer.py
+tests/test_itsdangerous/test_signer.py
+tests/test_itsdangerous/test_timed.py
+tests/test_itsdangerous/test_url_safe.py
+
+=== QUERIES (2) ===
+QUERY g1q-itsdangerous-imports_of-1: family=imports_of module=src/itsdangerous/__init__.py
+QUERY g1q-itsdangerous-imports_of-11: family=imports_of module=tests/test_itsdangerous/test_serializer.py
+
+=== CONTEXT ===
+
+FILE src/itsdangerous/__init__.py:
+    1| from .encoding import base64_decode as base64_decode
+    2| from .encoding import base64_encode as base64_encode
+    3| from .encoding import want_bytes as want_bytes
+    4| from .exc import BadData as BadData
+    5| from .exc import BadHeader as BadHeader
+    6| from .exc import BadPayload as BadPayload
+    7| from .exc import BadSignature as BadSignature
+    8| from .exc import BadTimeSignature as BadTimeSignature
+    9| from .exc import SignatureExpired as SignatureExpired
+   10| from .serializer import Serializer as Serializer
+   11| from .signer import HMACAlgorithm as HMACAlgorithm
+   12| from .signer import NoneAlgorithm as NoneAlgorithm
+   13| from .signer import Signer as Signer
+   14| from .timed import TimedSerializer as TimedSerializer
+   15| from .timed import TimestampSigner as TimestampSigner
+   16| from .url_safe import URLSafeSerializer as URLSafeSerializer
+   17| from .url_safe import URLSafeTimedSerializer as URLSafeTimedSerializer
+
+FILE tests/test_itsdangerous/test_serializer.py:
+    1| import hashlib
+    2| import pickle
+    3| from functools import partial
+    4| from io import BytesIO
+    5| from io import StringIO
+    6| from typing import Any
+    7| from typing import cast
+    8| from typing import IO
+    9| from typing import overload
+   10| 
+   11| import pytest
+   12| 
+   13| from itsdangerous.exc import BadPayload
+   14| from itsdangerous.exc import BadSignature
+   15| from itsdangerous.serializer import Serializer
+   16| from itsdangerous.signer import _lazy_sha1
+   17| from itsdangerous.signer import Signer
+   18| 
+   19| 
+   20| @overload
+   21| def coerce_str(ref: str, s: str) -> str: ...
+   22| 
+   23| 
+   24| @overload
+   25| def coerce_str(ref: bytes, s: str) -> bytes: ...
+   26| 
+   27| 
+   28| def coerce_str(ref: str | bytes, s: str) -> str | bytes:
+   29|     if isinstance(ref, bytes):
+   30|         return s.encode("utf8")
+   31| 
+   32|     return s
+   33| 
+   34| 
+   35| class TestSerializer:
+   36|     @pytest.fixture(params=(Serializer, partial(Serializer, serializer=pickle)))
+   37|     def serializer_factory(self, request):
+   38|         return partial(request.param, secret_key="secret_key")
+   39| 
+   40|     @pytest.fixture()
+   41|     def serializer(self, serializer_factory):
+   42|         return serializer_factory()
+   43| 
+   44|     @pytest.fixture()
+   45|     def value(self):
+   46|         return {"id": 42}
+   47| 
+   48|     @pytest.mark.parametrize(
+   49|         "value", (None, True, "str", "text", [1, 2, 3], {"id": 42})
+   50|     )
+   51|     def test_serializer(self, serializer: Serializer, value: Any):
+   52|         assert serializer.loads(serializer.dumps(value)) == value
+   53| 
+   54|     @pytest.mark.parametrize(
+   55|         "transform",
+   56|         (
+   57|             lambda s: s.upper(),
+   58|             lambda s: s + coerce_str(s, "a"),
+   59|             lambda s: coerce_str(s, "a") + s[1:],
+   60|             lambda s: s.replace(coerce_str(s, "."), coerce_str(s, "")),
+   61|         ),
+   62|     )
+   63|     def test_changed_value(self, serializer: Serializer, value: Any, transform):
+   64|         signed = serializer.dumps(value)
+   65|         assert serializer.loads(signed) == value
+   66|         changed = transform(signed)
+   67| 
+   68|         with pytest.raises(BadSignature):
+   69|             serializer.loads(changed)
+   70| 
+   71|     def test_bad_signature_exception(self, serializer: Serializer, value: Any):
+   72|         bad_signed = serializer.dumps(value)[:-1]
+   73| 
+   74|         with pytest.raises(BadSignature) as exc_info:
+   75|             serializer.loads(bad_signed)
+   76| 
+   77|         payload = cast(bytes, exc_info.value.payload)
+   78|         assert serializer.load_payload(payload) == value
+   79| 
+   80|     def test_bad_payload_exception(self, serializer: Serializer, value: Any):
+   81|         original = serializer.dumps(value)
+   82|         payload = original.rsplit(coerce_str(original, "."), 1)[0]  # type: ignore
+   83|         bad = serializer.make_signer().sign(payload[:-1])
+   84| 
+   85|         with pytest.raises(BadPayload) as exc_info:
+   86|             serializer.loads(bad)
+   87| 
+   88|         assert exc_info.value.original_error is not None
+   89| 
+   90|     def test_loads_unsafe(self, serializer: Serializer, value: Any):
+   91|         signed = serializer.dumps(value)
+   92|         assert serializer.loads_unsafe(signed) == (True, value)
+   93| 
+   94|         bad_signed = signed[:-1]
+   95|         assert serializer.loads_unsafe(bad_signed) == (False, value)
+   96| 
+   97|         payload = signed.rsplit(coerce_str(signed, "."), 1)[0]  # type: ignore
+   98|         bad_payload = serializer.make_signer().sign(payload[:-1])[:-1]
+   99|         assert serializer.loads_unsafe(bad_payload) == (False, None)
+  100| 
+  101|         class BadUnsign(serializer.signer):  # type: ignore
+  102|             def unsign(self, signed_value, *args, **kwargs):
+  103|                 try:
+  104|                     return super().unsign(signed_value, *args, **kwargs)
+  105|                 except BadSignature as e:
+  106|                     e.payload = None
+  107|                     raise
+  108| 
+  109|         serializer.signer = BadUnsign
+  110|         assert serializer.loads_unsafe(bad_signed) == (False, None)
+  111| 
+  112|     def test_file(self, serializer: Serializer, value: Any):
+  113|         f = cast(
+  114|             IO, BytesIO() if isinstance(serializer.dumps(value), bytes) else StringIO()
+  115|         )
+  116|         serializer.dump(value, f)
+  117|         f.seek(0)
+  118|         assert serializer.load(f) == value
+  119|         f.seek(0)
+  120|         assert serializer.load_unsafe(f) == (True, value)
+  121| 
+  122|     def test_alt_salt(self, serializer: Serializer, value: Any):
+  123|         signed = serializer.dumps(value, salt="other")
+  124| 
+  125|         with pytest.raises(BadSignature):
+  126|             serializer.loads(signed)
+  127| 
+  128|         assert serializer.loads(signed, salt="other") == value
+  129| 
+  130|     def test_signer_cls(self, serializer_factory, serializer: Serializer, value: Any):
+  131|         class Other(serializer.signer):  # type: ignore
+  132|             default_key_derivation = "hmac"
+  133| 
+  134|         other = serializer_factory(signer=Other)
+  135|         assert other.loads(other.dumps(value)) == value
+  136|         assert other.dumps(value) != serializer.dumps(value)
+  137| 
+  138|     def test_signer_kwargs(
+  139|         self, serializer_factory, serializer: Serializer, value: Any
+  140|     ):
+  141|         other = serializer_factory(signer_kwargs={"key_derivation": "hmac"})
+  142|         assert other.loads(other.dumps(value)) == value
+  143|         assert other.dumps("value") != serializer.dumps("value")
+  144| 
+  145|     def test_serializer_kwargs(self, serializer_factory):
+  146|         serializer = serializer_factory(serializer_kwargs={"skipkeys": True})
+  147| 
+  148|         try:
+  149|             serializer.serializer.dumps(None, skipkeys=True)
+  150|         except TypeError:
+  151|             return
+  152| 
+  153|         assert serializer.loads(serializer.dumps({(): 1})) == {}
+  154| 
+  155|     def test_fallback_signers(self, serializer_factory, value: Any):
+  156|         serializer = serializer_factory(signer_kwargs={"digest_method": hashlib.sha256})
+  157|         signed = serializer.dumps(value)
+  158| 
+  159|         fallback_serializer = serializer_factory(
+  160|             signer_kwargs={"digest_method": hashlib.sha1},
+  161|             fallback_signers=[{"digest_method": hashlib.sha256}],
+  162|         )
+  163| 
+  164|         assert fallback_serializer.loads(signed) == value
+  165| 
+  166|     def test_iter_unsigners(self, serializer: Serializer, serializer_factory):
+  167|         class Signer256(serializer.signer):  # type: ignore
+  168|             default_digest_method = hashlib.sha256
+  169| 
+  170|         serializer = serializer_factory(
+  171|             secret_key="secret_key",
+  172|             fallback_signers=[
+  173|                 {"digest_method": hashlib.sha256},
+  174|                 (Signer, {"digest_method": hashlib.sha256}),
+  175|                 Signer256,
+  176|             ],
+  177|         )
+  178| 
+  179|         unsigners = serializer.iter_unsigners()
+  180|         assert next(unsigners).digest_method == _lazy_sha1
+  181| 
+  182|         for signer in unsigners:
+  183|             assert signer.digest_method == hashlib.sha256
+  184| 
+  185| 
+  186| def test_digests():
+  187|     factory = partial(Serializer, secret_key="dev key", salt="dev salt")
+  188|     default_value = factory(signer_kwargs={}).dumps([42])
+  189|     sha1_value = factory(signer_kwargs={"digest_method": hashlib.sha1}).dumps([42])
+  190|     sha512_value = factory(signer_kwargs={"digest_method": hashlib.sha512}).dumps([42])
+  191|     assert default_value == sha1_value
+  192|     assert sha1_value == "[42].-9cNi0CxsSB3hZPNCe9a2eEs1ZM"
+  193|     assert sha512_value == (
+  194|         "[42].MKCz_0nXQqv7wKpfHZcRtJRmpT2T5uvs9YQsJEhJimqxc"
+  195|         "9bCLxG31QzS5uC8OVBI1i6jyOLAFNoKaF5ckO9L5Q"
+  196|     )
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-itsdangerous-imports_of-1",
+    "answerable_static": true,
+    "gold": [
+      "repo:src/itsdangerous/__init__.py",
+      "repo:src/itsdangerous/encoding.py",
+      "repo:src/itsdangerous/exc.py",
+      "repo:src/itsdangerous/serializer.py",
+      "repo:src/itsdangerous/signer.py",
+      "repo:src/itsdangerous/timed.py",
+      "repo:src/itsdangerous/url_safe.py"
+    ],
+    "conditional_flags": [],
+    "notes": "All imports resolve to sibling repository modules and their ancestor package initializer."
+  },
+  {
+    "query_id": "g1q-itsdangerous-imports_of-11",
+    "answerable_static": true,
+    "gold": [
+      "ext:functools",
+      "ext:hashlib",
+      "ext:io",
+      "ext:pickle",
+      "ext:pytest",
+      "ext:typing",
+      "repo:src/itsdangerous/__init__.py",
+      "repo:src/itsdangerous/exc.py",
+      "repo:src/itsdangerous/serializer.py",
+      "repo:src/itsdangerous/signer.py"
+    ],
+    "conditional_flags": [],
+    "notes": "All import statements are top-level; itsdangerous imports resolve to repository modules and their ancestor package initializer."
+  }
+]
+tokens used
+7,433

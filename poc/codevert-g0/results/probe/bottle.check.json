@@ -1,0 +1,433 @@
+{
+ "repo": "bottle",
+ "pytest_exit": 0,
+ "n_observed_call_edges": 1885,
+ "n_observed_import_events": 220,
+ "call_soundness": {
+  "confirmed_proved": 32,
+  "confirmed_instantiation": 20,
+  "unknown_compatible": 1350,
+  "miss": 54,
+  "protocol_dispatch": 124,
+  "descriptor_or_decorated": 67,
+  "class_body_exec": 122,
+  "unmapped_callee": 87,
+  "resumption_total": 43,
+  "resumption_unmatched": 7
+ },
+ "call_query_level": {
+  "covered": 1611,
+  "violation": 0
+ },
+ "call_miss_examples": [
+  {
+   "caller": "test/test_contextlocals.py::TestThreadLocals.test_request",
+   "callee": "bottle.py::BaseRequest.__init__",
+   "caller_frame": [
+    "test/test_contextlocals.py",
+    "test_request",
+    17
+   ],
+   "callee_line": 1166
+  },
+  {
+   "caller": "test/test_contextlocals.py::TestThreadLocals.test_response",
+   "callee": "bottle.py::BaseResponse.__init__",
+   "caller_frame": [
+    "test/test_contextlocals.py",
+    "test_response",
+    30
+   ],
+   "callee_line": 1656
+  },
+  {
+   "caller": "test/test_environ.py::TestRedirect.assertRedirect",
+   "callee": "bottle.py::BaseRequest.__init__",
+   "caller_frame": [
+    "test/test_environ.py",
+    "assertRedirect",
+    781
+   ],
+   "callee_line": 1166
+  },
+  {
+   "caller": "test/test_environ.py::TestRedirect.assertRedirect",
+   "callee": "bottle.py::BaseResponse.__init__",
+   "caller_frame": [
+    "test/test_environ.py",
+    "assertRedirect",
+    781
+   ],
+   "callee_line": 1656
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test",
+    534
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test",
+    540
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status.test",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test",
+    561
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status.test",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test",
+    567
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status.test",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test",
+    573
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status.test",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test",
+    579
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_environ.py::TestRedirect.test_redirect_preserve_cookies",
+   "callee": "bottle.py::BaseRequest.__init__",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test_redirect_preserve_cookies",
+    875
+   ],
+   "callee_line": 1166
+  },
+  {
+   "caller": "test/test_environ.py::TestRedirect.test_redirect_preserve_cookies",
+   "callee": "bottle.py::BaseResponse.__init__",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test_redirect_preserve_cookies",
+    875
+   ],
+   "callee_line": 1656
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status",
+   "callee": "bottle.py::BaseResponse._get_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test_set_status",
+    516
+   ],
+   "callee_line": 1726
+  },
+  {
+   "caller": "test/test_environ.py::TestResponse.test_set_status",
+   "callee": "bottle.py::BaseResponse._set_status",
+   "caller_frame": [
+    "test/test_environ.py",
+    "test_set_status",
+    516
+   ],
+   "callee_line": 1711
+  },
+  {
+   "caller": "test/test_formsdict.py::TestFormsDict.test_attr_access",
+   "callee": "bottle.py::MultiDict.__init__",
+   "caller_frame": [
+    "test/test_formsdict.py",
+    "test_attr_access",
+    8
+   ],
+   "callee_line": 2117
+  },
+  {
+   "caller": "test/test_formsdict.py::TestFormsDict.test_attr_missing",
+   "callee": "bottle.py::MultiDict.__init__",
+   "caller_frame": [
+    "test/test_formsdict.py",
+    "test_attr_missing",
+    14
+   ],
+   "callee_line": 2117
+  },
+  {
+   "caller": "test/test_formsdict.py::TestFormsDict.test_attr_unicode_error",
+   "callee": "bottle.py::MultiDict.__init__",
+   "caller_frame": [
+    "test/test_formsdict.py",
+    "test_attr_unicode_error",
+    19
+   ],
+   "callee_line": 2117
+  },
+  {
+   "caller": "test/test_formsdict.py::TestFormsDict.test_decode_method",
+   "callee": "bottle.py::MultiDict.__init__",
+   "caller_frame": [
+    "test/test_formsdict.py",
+    "test_decode_method",
+    26
+   ],
+   "callee_line": 2117
+  },
+  {
+   "caller": "test/test_mdict.py::TestMultiDict.test_isheader",
+   "callee": "bottle.py::MultiDict.allitems",
+   "caller_frame": [
+    "test/test_mdict.py",
+    "test_isheader",
+    32
+   ],
+   "callee_line": 2149
+  },
+  {
+   "caller": "test/test_mdict.py::TestMultiDict.test_ismulti",
+   "callee": "bottle.py::MultiDict.allitems",
+   "caller_frame": [
+    "test/test_mdict.py",
+    "test_ismulti",
+    24
+   ],
+   "callee_line": 2149
+  },
+  {
+   "caller": "test/test_mount.py::TestAppMounting.test_mount_get_url.route",
+   "callee": "bottle.py::make_default_app_wrapper.wrapper",
+   "caller_frame": [
+    "test/test_mount.py",
+    "route",
+    106
+   ],
+   "callee_line": 3190
+  },
+  {
+   "caller": "test/test_securecookies.py::TestSignedCookies.setUp",
+   "callee": "bottle.py::BaseResponse.__init__",
+   "caller_frame": [
+    "test/test_securecookies.py",
+    "setUp",
+    10
+   ],
+   "callee_line": 1656
+  },
+  {
+   "caller": "test/test_securecookies.py::TestSignedCookies.set_pairs",
+   "callee": "bottle.py::BaseRequest.__init__",
+   "caller_frame": [
+    "test/test_securecookies.py",
+    "set_pairs",
+    25
+   ],
+   "callee_line": 1166
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.setUp",
+   "callee": "bottle.py::BaseRequest.__init__",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "setUp",
+    47
+   ],
+   "callee_line": 1166
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.setUp",
+   "callee": "bottle.py::BaseResponse.__init__",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "setUp",
+    47
+   ],
+   "callee_line": 1656
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.test_download",
+   "callee": "bottle.py::_local_property.fget",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "test_download",
+    133
+   ],
+   "callee_line": 1913
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.test_etag",
+   "callee": "bottle.py::_local_property.fget",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "test_etag",
+    114
+   ],
+   "callee_line": 1913
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.test_ims",
+   "callee": "bottle.py::_local_property.fget",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "test_ims",
+    99
+   ],
+   "callee_line": 1913
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.test_ims_empty",
+   "callee": "bottle.py::_local_property.fget",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "test_ims_empty",
+    109
+   ],
+   "callee_line": 1913
+  },
+  {
+   "caller": "test/test_sendfile.py::TestSendFile.test_range",
+   "callee": "bottle.py::_local_property.fget",
+   "caller_frame": [
+    "test/test_sendfile.py",
+    "test_range",
+    145
+   ],
+   "callee_line": 1913
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_error",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "<lambda>",
+    186
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.assertRenders",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "assertRenders",
+    11
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSTPLDir.assertRenders",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "assertRenders",
+    252
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_commentonly",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_commentonly",
+    200
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_data",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_data",
+    48
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_dedentbug",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_dedentbug",
+    105
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_error",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_error",
+    184
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_file",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_file",
+    23
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_global_config",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_global_config",
+    226
+   ],
+   "callee_line": 4053
+  },
+  {
+   "caller": "test/test_stpl.py::TestSimpleTemplate.test_include",
+   "callee": "bottle.py::BaseTemplate.__init__",
+   "caller_frame": [
+    "test/test_stpl.py",
+    "test_include",
+    154
+   ],
+   "callee_line": 4053
+  }
+ ],
+ "import_soundness": {
+  "confirmed": 54,
+  "unknown_compatible": 1,
+  "miss": 0,
+  "external": 167
+ },
+ "import_miss_examples": [],
+ "validity_violations": [],
+ "n_validity_violations": 0
+}

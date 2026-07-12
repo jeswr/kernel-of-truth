@@ -1,0 +1,660 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.hczg5g5d"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.0ypsqxnc
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c7-e155-72b2-ac72-3c9171dca9d4
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: wrapt ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+docs/benchmarks.py
+docs/conf.py
+examples/call_tracker.py
+examples/dill_decorator.py
+examples/dill_proxy.py
+examples/pickling_proxy.py
+examples/type_checker.py
+src/wrapt/__init__.py
+src/wrapt/__wrapt__.py
+src/wrapt/arguments.py
+src/wrapt/caching.py
+src/wrapt/decorators.py
+src/wrapt/importer.py
+src/wrapt/patches.py
+src/wrapt/proxies.py
+src/wrapt/signature.py
+src/wrapt/synchronization.py
+src/wrapt/weakrefs.py
+src/wrapt/wrappers.py
+tests/conftest.py
+tests/core/compat.py
+tests/core/module1.py
+tests/core/module2.py
+tests/core/test_adapter.py
+tests/core/test_adapter_annotations.py
+tests/core/test_adapter_kwonly.py
+tests/core/test_annotations.py
+tests/core/test_attribute_wrapper.py
+tests/core/test_auto_object_proxy.py
+tests/core/test_callable_binding_no_args.py
+tests/core/test_callable_object_proxy.py
+tests/core/test_class.py
+tests/core/test_class_mro_entries.py
+tests/core/test_copy.py
+tests/core/test_decorator_state.py
+tests/core/test_decorators.py
+tests/core/test_deferred_patching.py
+tests/core/test_descriptor_get_class_access.py
+tests/core/test_descriptors.py
+tests/core/test_enabled_bool_error.py
+tests/core/test_entry_points.py
+tests/core/test_formatargspec.py
+tests/core/test_function.py
+tests/core/test_function_wrapper.py
+tests/core/test_inheritance.py
+tests/core/test_inner_classmethod.py
+tests/core/test_inner_staticmethod.py
+tests/core/test_inplace_operators.py
+tests/core/test_instancemethod.py
+tests/core/test_lazy_object_proxy.py
+tests/core/test_lru_cache.py
+tests/core/test_memoize.py
+tests/core/test_monkey_patching.py
+tests/core/test_nested_function.py
+tests/core/test_object_proxy.py
+tests/core/test_object_proxy_hook.py
+tests/core/test_object_proxy_self_dict.py
+tests/core/test_object_proxy_type_checks.py
+tests/core/test_outer_classmethod.py
+tests/core/test_outer_staticmethod.py
+tests/core/test_pickle.py
+tests/core/test_post_import_hooks.py
+tests/core/test_pyerr_clear_propagation.py
+tests/core/test_resolve_path.py
+tests/core/test_runtime_type_hints.py
+tests/core/test_synchronized_async.py
+tests/core/test_synchronized_lock.py
+tests/core/test_synchronized_markers.py
+tests/core/test_type_module_attribute.py
+tests/core/test_update_attributes.py
+tests/core/test_weak_function_proxy.py
+tests/core/test_with_signature.py
+tests/mypy/mypy_auto_object_proxy_t1.py
+tests/mypy/mypy_decorator_t1.py
+tests/mypy/mypy_function_wrapper_cls_t1.py
+tests/mypy/mypy_function_wrapper_cls_t2.py
+tests/mypy/mypy_function_wrapper_cls_t3.py
+tests/mypy/mypy_function_wrapper_cls_t4.py
+tests/mypy/mypy_function_wrapper_cls_t5.py
+tests/mypy/mypy_function_wrapper_cls_t6.py
+tests/mypy/mypy_function_wrapper_cls_t7.py
+tests/mypy/mypy_function_wrapper_cls_t8.py
+tests/mypy/mypy_function_wrapper_fn_t1.py
+tests/mypy/mypy_function_wrapper_fn_t2.py
+tests/mypy/mypy_function_wrapper_fn_t3.py
+tests/mypy/mypy_function_wrapper_fn_t4.py
+tests/mypy/mypy_function_wrapper_fn_t5.py
+tests/mypy/mypy_function_wrapper_fn_t6.py
+tests/mypy/mypy_function_wrapper_fn_t7.py
+tests/mypy/mypy_object_proxy_arithmetic_t1.py
+tests/mypy/mypy_object_proxy_container_t1.py
+tests/mypy/mypy_object_proxy_context_t1.py
+tests/mypy/mypy_partial_callable_t1.py
+tests/mypy/mypy_patch_function_wrapper_t1.py
+tests/mypy/mypy_patching_primitives_t1.py
+tests/mypy/mypy_post_import_hooks_t1.py
+tests/mypy/mypy_synchronized_lock_t1.py
+tests/mypy/mypy_transient_function_wrapper_t1.py
+tests/mypy/mypy_weak_function_proxy_t1.py
+tests/mypy/mypy_wrap_function_wrapper_t1.py
+tests/mypy/mypy_wrap_function_wrapper_t2.py
+tests/mypy/mypy_wrap_function_wrapper_t3.py
+tests/mypy/mypy_wrap_function_wrapper_t4.py
+tests/mypy/mypy_wrap_function_wrapper_t5.py
+tests/mypy/mypy_wrap_function_wrapper_t6.py
+tests/mypy/mypy_wrap_function_wrapper_t7.py
+tests/mypy/mypy_wrap_function_wrapper_t8.py
+
+=== QUERIES (2) ===
+QUERY g1q-wrapt-where_defined-1307: family=where_defined name=test_inplace_or_integer
+QUERY g1q-wrapt-where_defined-47: family=where_defined name=Class
+
+=== CONTEXT ===
+
+WHERE-DEFINED EXCERPTS for token 'test_inplace_or_integer' — every line in every .py file that contains the token, with line numbers and the enclosing def/class scope. [scope] marks the syntactic context: module-level = not inside any def/class; enclosing=X(kind) = the line sits inside X; HEADER-LINE-OF=X = the line IS the def/class header of X.
+
+FILE tests/core/test_inplace_operators.py (all lines containing the token):
+  line 705 [HEADER-LINE-OF=InplaceOperatorsTests.test_inplace_or_integer]:     def test_inplace_or_integer(self):
+
+WHERE-DEFINED EXCERPTS for token 'Class' — every line in every .py file that contains the token, with line numbers and the enclosing def/class scope. [scope] marks the syntactic context: module-level = not inside any def/class; enclosing=X(kind) = the line sits inside X; HEADER-LINE-OF=X = the line IS the def/class header of X.
+
+FILE docs/benchmarks.py (all lines containing the token):
+  line 32 [HEADER-LINE-OF=Class]: class Class:
+
+FILE examples/call_tracker.py (all lines containing the token):
+  line 319 [enclosing=test_version(FunctionDef)]:     # Class method
+  line 371 [enclosing=test_version4(FunctionDef)]:     # Class method
+  line 422 [enclosing=test_version5(FunctionDef)]:     # Class method
+
+FILE examples/type_checker.py (all lines containing the token):
+  line 190 [enclosing=test_type_checker(FunctionDef)]:     # Class method (via class and via instance)
+
+FILE tests/core/test_attribute_wrapper.py (all lines containing the token):
+  line 6 [HEADER-LINE-OF=Class]: class Class:
+  line 14 [enclosing=TestAttributeProxy.test_wrap_attribute(FunctionDef)]:         wrapt.wrap_object_attribute(__name__, "Class.value", wrapt.ObjectProxy)
+  line 16 [enclosing=TestAttributeProxy.test_wrap_attribute(FunctionDef)]:         instance = Class(1)
+
+FILE tests/core/test_descriptor_get_class_access.py (all lines containing the token):
+  line 144 [enclosing=TestGetSetDescriptor.test_class_level_get(FunctionDef)]:         # Class-level access must return the descriptor itself rather than
+  line 173 [enclosing=TestProperty(ClassDef)]:     # attributes. Class-level access returns the property object itself
+
+FILE tests/core/test_enabled_bool_error.py (all lines containing the token):
+  line 128 [HEADER-LINE-OF=TestEnabledBoolErrorBoundFunctionWrapper.test_callable_enabled_returning_object_whose_bool_raises.Class]:         class Class:
+  line 133 [enclosing=TestEnabledBoolErrorBoundFunctionWrapper.test_callable_enabled_returning_object_whose_bool_raises(FunctionDef)]:         instance = Class()
+  line 152 [HEADER-LINE-OF=TestEnabledBoolErrorBoundFunctionWrapper.test_noncallable_enabled_whose_bool_raises.Class]:         class Class:
+  line 157 [enclosing=TestEnabledBoolErrorBoundFunctionWrapper.test_noncallable_enabled_whose_bool_raises(FunctionDef)]:         instance = Class()
+
+FILE tests/core/test_function_wrapper.py (all lines containing the token):
+  line 25 [HEADER-LINE-OF=TestClassInheritence.test_instancemethod_type_inheritence.Class]:         class Class:
+  line 33 [enclosing=TestClassInheritence.test_instancemethod_type_inheritence(FunctionDef)]:         instance = Class()
+  line 43 [HEADER-LINE-OF=TestClassInheritence.test_classmethod_type_inheritence.Class]:         class Class:
+  line 52 [enclosing=TestClassInheritence.test_classmethod_type_inheritence(FunctionDef)]:         instance = Class()
+  line 62 [HEADER-LINE-OF=TestClassInheritence.test_staticmethod_type_inheritence.Class]:         class Class:
+  line 71 [enclosing=TestClassInheritence.test_staticmethod_type_inheritence(FunctionDef)]:         instance = Class()
+  line 100 [HEADER-LINE-OF=TestAttributeAccess.test_instancemethod_attributes.Class]:         class Class:
+  line 110 [enclosing=TestAttributeAccess.test_instancemethod_attributes(FunctionDef)]:         instance = Class()
+  line 122 [HEADER-LINE-OF=TestAttributeAccess.test_classmethod_attributes.Class]:         class Class:
+  line 133 [enclosing=TestAttributeAccess.test_classmethod_attributes(FunctionDef)]:         instance = Class()
+  line 145 [HEADER-LINE-OF=TestAttributeAccess.test_staticmethod_attributes.Class]:         class Class:
+  line 162 [HEADER-LINE-OF=TestAttributeAccess.test_instancemethod_attributes_external_class.Class]:         class Class:
+  line 166 [enclosing=TestAttributeAccess.test_instancemethod_attributes_external_class(FunctionDef)]:         function2 = decorator2(Class.function1)
+  line 182 [HEADER-LINE-OF=TestAttributeAccess.test_classmethod_attributes_external_class.Class]:         class Class:
+  line 187 [enclosing=TestAttributeAccess.test_classmethod_attributes_external_class(FunctionDef)]:         function2 = decorator2(Class.function1)
+  line 198 [HEADER-LINE-OF=TestAttributeAccess.test_staticmethod_attributes_external_class.Class]:         class Class:
+  line 203 [enclosing=TestAttributeAccess.test_staticmethod_attributes_external_class(FunctionDef)]:         function2 = decorator2(Class.function1)
+  line 218 [HEADER-LINE-OF=TestAttributeAccess.test_instancemethod_attributes_external_instance.Class]:         class Class:
+  line 222 [enclosing=TestAttributeAccess.test_instancemethod_attributes_external_instance(FunctionDef)]:         function2 = decorator2(Class().function1)
+  line 234 [HEADER-LINE-OF=TestAttributeAccess.test_classmethod_attributes_external_instance.Class]:         class Class:
+  line 239 [enclosing=TestAttributeAccess.test_classmethod_attributes_external_instance(FunctionDef)]:         function2 = decorator2(Class().function1)
+  line 250 [HEADER-LINE-OF=TestAttributeAccess.test_staticmethod_attributes_external_instance.Class]:         class Class:
+  line 255 [enclosing=TestAttributeAccess.test_staticmethod_attributes_external_instance(FunctionDef)]:         function2 = decorator2(Class().function1)
+  line 284 [HEADER-LINE-OF=TestParentReference.test_class_decorator.Class]:         class Class:
+  line 287 [enclosing=TestParentReference.test_class_decorator(FunctionDef)]:         self.assertEqual(Class._self_parent, None)
+  line 294 [HEADER-LINE-OF=TestParentReference.test_nested_class_decorator.Class]:         class Class:
+  line 299 [enclosing=TestParentReference.test_nested_class_decorator(FunctionDef)]:         self.assertEqual(Class.Nested._self_parent, None)
+  line 306 [HEADER-LINE-OF=TestParentReference.test_instancemethod.Class]:         class Class:
+  line 311 [enclosing=TestParentReference.test_instancemethod(FunctionDef)]:         c = Class()
+  line 314 [enclosing=TestParentReference.test_instancemethod(FunctionDef)]:         self.assertNotEqual(Class.function_im._self_parent, None)
+  line 321 [HEADER-LINE-OF=TestParentReference.test_classmethod.Class]:         class Class:
+  line 327 [enclosing=TestParentReference.test_classmethod(FunctionDef)]:         self.assertNotEqual(Class.function_cm._self_parent, None)
+  line 334 [HEADER-LINE-OF=TestParentReference.test_staticmethod_inner.Class]:         class Class:
+  line 340 [enclosing=TestParentReference.test_staticmethod_inner(FunctionDef)]:         self.assertNotEqual(Class.function_sm_inner._self_parent, None)
+  line 445 [HEADER-LINE-OF=TestGuardArgument.test_guard_on_instancemethod.Class]:         class Class:
+  line 450 [enclosing=TestGuardArgument.test_guard_on_instancemethod(FunctionDef)]:         c = Class()
+  line 586 [HEADER-LINE-OF=TestInvalidCalling.test_missing_self_via_class.Class]:         class Class:
+  line 592 [enclosing=TestInvalidCalling.test_missing_self_via_class.run(FunctionDef)]:             Class.method()
+
+FILE tests/core/test_inner_classmethod.py (all lines containing the token):
+  line 19 [HEADER-LINE-OF=Class]: class Class:
+  line 26 [module-level]: Original = Class
+  line 29 [HEADER-LINE-OF=Class]: class Class:
+  line 42 [enclosing=TestNamingInnerClassMethod.test_class_object_name(FunctionDef)]:         self.assertEqual(Class.function.__name__, Original.function.__name__)
+  line 47 [enclosing=TestNamingInnerClassMethod.test_instance_object_name(FunctionDef)]:         self.assertEqual(Class().function.__name__, Original().function.__name__)
+  line 57 [enclosing=TestNamingInnerClassMethod.test_class_object_qualname(FunctionDef)]:             self.assertEqual(Class.function.__qualname__, __qualname__)
+  line 67 [enclosing=TestNamingInnerClassMethod.test_instance_object_qualname(FunctionDef)]:             self.assertEqual(Class().function.__qualname__, __qualname__)
+  line 72 [enclosing=TestNamingInnerClassMethod.test_class_module_name(FunctionDef)]:         self.assertEqual(Class.function.__module__, Original.function.__module__)
+  line 77 [enclosing=TestNamingInnerClassMethod.test_instance_module_name(FunctionDef)]:         self.assertEqual(Class().function.__module__, Original().function.__module__)
+  line 82 [enclosing=TestNamingInnerClassMethod.test_class_doc_string(FunctionDef)]:         self.assertEqual(Class.function.__doc__, Original.function.__doc__)
+  line 87 [enclosing=TestNamingInnerClassMethod.test_instance_doc_string(FunctionDef)]:         self.assertEqual(Class().function.__doc__, Original().function.__doc__)
+  line 93 [enclosing=TestNamingInnerClassMethod.test_class_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class.function)
+  line 100 [enclosing=TestNamingInnerClassMethod.test_instance_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class().function)
+  line 106 [enclosing=TestNamingInnerClassMethod.test_class_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class.function, type(Original.function)))
+  line 111 [enclosing=TestNamingInnerClassMethod.test_instance_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class().function, type(Original().function)))
+  line 124 [enclosing=TestCallingInnerClassMethod.test_class_call_function._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 133 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_class_call_function.Class]:         class Class:
+  line 139 [enclosing=TestCallingInnerClassMethod.test_class_call_function(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 151 [enclosing=TestCallingInnerClassMethod.test_instance_call_function._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 160 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_instance_call_function.Class]:         class Class:
+  line 166 [enclosing=TestCallingInnerClassMethod.test_instance_call_function(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 178 [enclosing=TestCallingInnerClassMethod.test_class_call_function_nested_decorators._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 187 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_class_call_function_nested_decorators.Class]:         class Class:
+  line 194 [enclosing=TestCallingInnerClassMethod.test_class_call_function_nested_decorators(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 206 [enclosing=TestCallingInnerClassMethod.test_instance_call_function_nested_decorators._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 215 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_instance_call_function_nested_decorators.Class]:         class Class:
+  line 222 [enclosing=TestCallingInnerClassMethod.test_instance_call_function_nested_decorators(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 234 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_class_externally_applied_wrapper.Class]:         class Class:
+  line 240 [enclosing=TestCallingInnerClassMethod.test_class_externally_applied_wrapper._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 245 [enclosing=TestCallingInnerClassMethod.test_class_externally_applied_wrapper(FunctionDef)]:         wrapt.wrap_function_wrapper(Class, "_function", _decorator)
+  line 247 [enclosing=TestCallingInnerClassMethod.test_class_externally_applied_wrapper(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 259 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_instance_externally_applied_wrapper.Class]:         class Class:
+  line 265 [enclosing=TestCallingInnerClassMethod.test_instance_externally_applied_wrapper._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 270 [enclosing=TestCallingInnerClassMethod.test_instance_externally_applied_wrapper(FunctionDef)]:         wrapt.wrap_function_wrapper(Class, "_function", _decorator)
+  line 272 [enclosing=TestCallingInnerClassMethod.test_instance_externally_applied_wrapper(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 284 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_class_externally_passed_wrapper.Class]:         class Class:
+  line 291 [enclosing=TestCallingInnerClassMethod.test_class_externally_passed_wrapper._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 296 [enclosing=TestCallingInnerClassMethod.test_class_externally_passed_wrapper(FunctionDef)]:         _function = _decorator(Class._function)
+  line 310 [HEADER-LINE-OF=TestCallingInnerClassMethod.test_instance_externally_passed_wrapper.Class]:         class Class:
+  line 317 [enclosing=TestCallingInnerClassMethod.test_instance_externally_passed_wrapper._decorator(FunctionDef)]:             self.assertEqual(instance, Class)
+  line 322 [enclosing=TestCallingInnerClassMethod.test_instance_externally_passed_wrapper(FunctionDef)]:         _function = _decorator(Class()._function)
+
+FILE tests/core/test_inner_staticmethod.py (all lines containing the token):
+  line 19 [HEADER-LINE-OF=Class]: class Class:
+  line 26 [module-level]: Original = Class
+  line 29 [HEADER-LINE-OF=Class]: class Class:
+  line 42 [enclosing=TestNamingInnerStaticMethod.test_class_object_name(FunctionDef)]:         self.assertEqual(Class.function.__name__, Original.function.__name__)
+  line 47 [enclosing=TestNamingInnerStaticMethod.test_instance_object_name(FunctionDef)]:         self.assertEqual(Class().function.__name__, Original().function.__name__)
+  line 52 [enclosing=TestNamingInnerStaticMethod.test_class_module_name(FunctionDef)]:         self.assertEqual(Class.function.__module__, Original.function.__module__)
+  line 62 [enclosing=TestNamingInnerStaticMethod.test_class_object_qualname(FunctionDef)]:             self.assertEqual(Class.function.__qualname__, __qualname__)
+  line 72 [enclosing=TestNamingInnerStaticMethod.test_instance_object_qualname(FunctionDef)]:             self.assertEqual(Class().function.__qualname__, __qualname__)
+  line 77 [enclosing=TestNamingInnerStaticMethod.test_instance_module_name(FunctionDef)]:         self.assertEqual(Class().function.__module__, Original().function.__module__)
+  line 82 [enclosing=TestNamingInnerStaticMethod.test_class_doc_string(FunctionDef)]:         self.assertEqual(Class.function.__doc__, Original.function.__doc__)
+  line 87 [enclosing=TestNamingInnerStaticMethod.test_instance_doc_string(FunctionDef)]:         self.assertEqual(Class().function.__doc__, Original().function.__doc__)
+  line 93 [enclosing=TestNamingInnerStaticMethod.test_class_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class.function)
+  line 100 [enclosing=TestNamingInnerStaticMethod.test_instance_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class().function)
+  line 106 [enclosing=TestNamingInnerStaticMethod.test_class_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class.function, type(Original.function)))
+  line 111 [enclosing=TestNamingInnerStaticMethod.test_instance_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class().function, type(Original().function)))
+  line 133 [HEADER-LINE-OF=TestCallingInnerStaticMethod.test_class_call_function.Class]:         class Class:
+  line 139 [enclosing=TestCallingInnerStaticMethod.test_class_call_function(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 160 [HEADER-LINE-OF=TestCallingInnerStaticMethod.test_instance_call_function.Class]:         class Class:
+  line 166 [enclosing=TestCallingInnerStaticMethod.test_instance_call_function(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 187 [HEADER-LINE-OF=TestCallingInnerStaticMethod.test_class_call_function_nested_decorator.Class]:         class Class:
+  line 194 [enclosing=TestCallingInnerStaticMethod.test_class_call_function_nested_decorator(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 215 [HEADER-LINE-OF=TestCallingInnerStaticMethod.test_instance_call_function_nested_decorator.Class]:         class Class:
+  line 222 [enclosing=TestCallingInnerStaticMethod.test_instance_call_function_nested_decorator(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 240 [HEADER-LINE-OF=TestCallingInnerStaticMethod.test_class_externally_applied_wrapper.Class]:         class Class:
+  line 245 [enclosing=TestCallingInnerStaticMethod.test_class_externally_applied_wrapper(FunctionDef)]:         wrapt.wrap_function_wrapper(Class, "_function", _decorator)
+  line 247 [enclosing=TestCallingInnerStaticMethod.test_class_externally_applied_wrapper(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 265 [HEADER-LINE-OF=TestCallingInnerStaticMethod.test_instance_externally_applied_wrapper.Class]:         class Class:
+  line 270 [enclosing=TestCallingInnerStaticMethod.test_instance_externally_applied_wrapper(FunctionDef)]:         wrapt.wrap_function_wrapper(Class, "_function", _decorator)
+  line 272 [enclosing=TestCallingInnerStaticMethod.test_instance_externally_applied_wrapper(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+
+FILE tests/core/test_instancemethod.py (all lines containing the token):
+  line 241 [HEADER-LINE-OF=TestCallingInstanceMethodOldStyle.test_class_call_function.Class]:         class Class:
+  line 246 [enclosing=TestCallingInstanceMethodOldStyle.test_class_call_function(FunctionDef)]:         result = Class._function(*((Class(),) + _args), **_kwargs)
+  line 269 [HEADER-LINE-OF=TestCallingInstanceMethodOldStyle.test_instance_call_function.Class]:         class Class:
+  line 274 [enclosing=TestCallingInstanceMethodOldStyle.test_instance_call_function(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 298 [HEADER-LINE-OF=TestCallingInstanceMethodOldStyle.test_class_call_function_nested.Class]:         class Class:
+  line 304 [enclosing=TestCallingInstanceMethodOldStyle.test_class_call_function_nested(FunctionDef)]:         result = Class._function(*((Class(),) + _args), **_kwargs)
+  line 327 [HEADER-LINE-OF=TestCallingInstanceMethodOldStyle.test_instance_call_function_nested.Class]:         class Class:
+  line 333 [enclosing=TestCallingInstanceMethodOldStyle.test_instance_call_function_nested(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 360 [HEADER-LINE-OF=TestCallingInstanceMethodNewStyle.test_class_call_function.Class]:         class Class:
+  line 365 [enclosing=TestCallingInstanceMethodNewStyle.test_class_call_function(FunctionDef)]:         result = Class._function(Class(), *_args, **_kwargs)
+  line 388 [HEADER-LINE-OF=TestCallingInstanceMethodNewStyle.test_instance_call_function.Class]:         class Class:
+  line 393 [enclosing=TestCallingInstanceMethodNewStyle.test_instance_call_function(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+  line 417 [HEADER-LINE-OF=TestCallingInstanceMethodNewStyle.test_class_call_function_nested.Class]:         class Class:
+  line 423 [enclosing=TestCallingInstanceMethodNewStyle.test_class_call_function_nested(FunctionDef)]:         result = Class._function(Class(), *_args, **_kwargs)
+  line 446 [HEADER-LINE-OF=TestCallingInstanceMethodNewStyle.test_instance_call_function_nested.Class]:         class Class:
+  line 452 [enclosing=TestCallingInstanceMethodNewStyle.test_instance_call_function_nested(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+
+FILE tests/core/test_monkey_patching.py (all lines containing the token):
+  line 478 [HEADER-LINE-OF=TestExplicitMonkeyPatching.test_patch_instance_method_class.Class]:         class Class:
+  line 482 [enclosing=TestExplicitMonkeyPatching.test_patch_instance_method_class(FunctionDef)]:         Class.function = wrapper(Class.function)
+  line 484 [enclosing=TestExplicitMonkeyPatching.test_patch_instance_method_class(FunctionDef)]:         _instance = Class()
+  line 506 [HEADER-LINE-OF=TestExplicitMonkeyPatching.test_patch_instance_method_dict.Class]:         class Class:
+  line 510 [enclosing=TestExplicitMonkeyPatching.test_patch_instance_method_dict(FunctionDef)]:         Class.function = wrapper(vars(Class)["function"])
+  line 512 [enclosing=TestExplicitMonkeyPatching.test_patch_instance_method_dict(FunctionDef)]:         _instance = Class()
+  line 534 [HEADER-LINE-OF=TestExplicitMonkeyPatching.test_patch_instance_method_instance.Class]:         class Class:
+  line 538 [enclosing=TestExplicitMonkeyPatching.test_patch_instance_method_instance(FunctionDef)]:         _instance = Class()
+  line 562 [HEADER-LINE-OF=TestExplicitMonkeyPatching.test_patch_instance_method_extracted.Class]:         class Class:
+  line 566 [enclosing=TestExplicitMonkeyPatching.test_patch_instance_method_extracted(FunctionDef)]:         _instance = Class()
+
+FILE tests/core/test_object_proxy.py (all lines containing the token):
+  line 473 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_no_args.Class]:         class Class:
+  line 477 [enclosing=TestCallingObject.test_instancemethod_no_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 487 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_args.Class]:         class Class:
+  line 491 [enclosing=TestCallingObject.test_instancemethod_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 501 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_kwargs.Class]:         class Class:
+  line 505 [enclosing=TestCallingObject.test_instancemethod_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 515 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_args_plus_kwargs.Class]:         class Class:
+  line 519 [enclosing=TestCallingObject.test_instancemethod_args_plus_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 529 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_via_class_no_args.Class]:         class Class:
+  line 533 [enclosing=TestCallingObject.test_instancemethod_via_class_no_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 535 [enclosing=TestCallingObject.test_instancemethod_via_class_no_args(FunctionDef)]:         result = wrapper(Class())
+  line 543 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_via_class_args.Class]:         class Class:
+  line 547 [enclosing=TestCallingObject.test_instancemethod_via_class_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 549 [enclosing=TestCallingObject.test_instancemethod_via_class_args(FunctionDef)]:         result = wrapper(Class(), *_args)
+  line 557 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_via_class_kwargs.Class]:         class Class:
+  line 561 [enclosing=TestCallingObject.test_instancemethod_via_class_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 563 [enclosing=TestCallingObject.test_instancemethod_via_class_kwargs(FunctionDef)]:         result = wrapper(Class(), **_kwargs)
+  line 571 [HEADER-LINE-OF=TestCallingObject.test_instancemethod_via_class_args_plus_kwargs.Class]:         class Class:
+  line 575 [enclosing=TestCallingObject.test_instancemethod_via_class_args_plus_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 577 [enclosing=TestCallingObject.test_instancemethod_via_class_args_plus_kwargs(FunctionDef)]:         result = wrapper(Class(), *_args, **_kwargs)
+  line 585 [HEADER-LINE-OF=TestCallingObject.test_classmethod_no_args.Class]:         class Class:
+  line 590 [enclosing=TestCallingObject.test_classmethod_no_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 600 [HEADER-LINE-OF=TestCallingObject.test_classmethod_args.Class]:         class Class:
+  line 605 [enclosing=TestCallingObject.test_classmethod_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 615 [HEADER-LINE-OF=TestCallingObject.test_classmethod_kwargs.Class]:         class Class:
+  line 620 [enclosing=TestCallingObject.test_classmethod_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 630 [HEADER-LINE-OF=TestCallingObject.test_classmethod_args_plus_kwargs.Class]:         class Class:
+  line 635 [enclosing=TestCallingObject.test_classmethod_args_plus_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 645 [HEADER-LINE-OF=TestCallingObject.test_classmethod_via_class_no_args.Class]:         class Class:
+  line 650 [enclosing=TestCallingObject.test_classmethod_via_class_no_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 660 [HEADER-LINE-OF=TestCallingObject.test_classmethod_via_class_args.Class]:         class Class:
+  line 665 [enclosing=TestCallingObject.test_classmethod_via_class_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 675 [HEADER-LINE-OF=TestCallingObject.test_classmethod_via_class_kwargs.Class]:         class Class:
+  line 680 [enclosing=TestCallingObject.test_classmethod_via_class_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 690 [HEADER-LINE-OF=TestCallingObject.test_classmethod_via_class_args_plus_kwargs.Class]:         class Class:
+  line 695 [enclosing=TestCallingObject.test_classmethod_via_class_args_plus_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 705 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_no_args.Class]:         class Class:
+  line 710 [enclosing=TestCallingObject.test_staticmethod_no_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 720 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_args.Class]:         class Class:
+  line 725 [enclosing=TestCallingObject.test_staticmethod_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 735 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_kwargs.Class]:         class Class:
+  line 740 [enclosing=TestCallingObject.test_staticmethod_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 750 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_args_plus_kwargs.Class]:         class Class:
+  line 755 [enclosing=TestCallingObject.test_staticmethod_args_plus_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class().function)
+  line 765 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_via_class_no_args.Class]:         class Class:
+  line 770 [enclosing=TestCallingObject.test_staticmethod_via_class_no_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 780 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_via_class_args.Class]:         class Class:
+  line 785 [enclosing=TestCallingObject.test_staticmethod_via_class_args(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 795 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_via_class_kwargs.Class]:         class Class:
+  line 800 [enclosing=TestCallingObject.test_staticmethod_via_class_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 810 [HEADER-LINE-OF=TestCallingObject.test_staticmethod_via_class_args_plus_kwargs.Class]:         class Class:
+  line 815 [enclosing=TestCallingObject.test_staticmethod_via_class_args_plus_kwargs(FunctionDef)]:         wrapper = wrapt.CallableObjectProxy(Class.function)
+  line 855 [HEADER-LINE-OF=TestContextManagerObjectProxy.test_context_manager.Class]:         class Class:
+  line 862 [enclosing=TestContextManagerObjectProxy.test_context_manager(FunctionDef)]:         instance = Class()
+  line 870 [HEADER-LINE-OF=TestContextManagerObjectProxy.test_async_context_manager.Class]:         class Class:
+  line 877 [enclosing=TestContextManagerObjectProxy.test_async_context_manager(FunctionDef)]:         instance = Class()
+  line 1569 [HEADER-LINE-OF=TestAsNumberObjectProxy.test_index.Class]:         class Class:
+  line 1573 [enclosing=TestAsNumberObjectProxy.test_index(FunctionDef)]:         value = wrapt.ObjectProxy(Class())
+  line 1925 [HEADER-LINE-OF=SpecialMethods.test_class_bytes.Class]:         class Class:
+  line 1929 [enclosing=SpecialMethods.test_class_bytes(FunctionDef)]:         instance = Class()
+
+FILE tests/core/test_outer_classmethod.py (all lines containing the token):
+  line 21 [HEADER-LINE-OF=Class]: class Class:
+  line 28 [module-level]: Original = Class
+  line 31 [HEADER-LINE-OF=Class]: class Class:
+  line 44 [enclosing=TestNamingOuterClassMethod.test_class_object_name(FunctionDef)]:         self.assertEqual(Class.function.__name__, Original.function.__name__)
+  line 49 [enclosing=TestNamingOuterClassMethod.test_instance_object_name(FunctionDef)]:         self.assertEqual(Class().function.__name__, Original().function.__name__)
+  line 59 [enclosing=TestNamingOuterClassMethod.test_class_object_qualname(FunctionDef)]:             self.assertEqual(Class.function.__qualname__, __qualname__)
+  line 69 [enclosing=TestNamingOuterClassMethod.test_instance_object_qualname(FunctionDef)]:             self.assertEqual(Class().function.__qualname__, __qualname__)
+  line 74 [enclosing=TestNamingOuterClassMethod.test_class_module_name(FunctionDef)]:         self.assertEqual(Class.function.__module__, Original.function.__module__)
+  line 79 [enclosing=TestNamingOuterClassMethod.test_instance_module_name(FunctionDef)]:         self.assertEqual(Class().function.__module__, Original().function.__module__)
+  line 84 [enclosing=TestNamingOuterClassMethod.test_class_doc_string(FunctionDef)]:         self.assertEqual(Class.function.__doc__, Original.function.__doc__)
+  line 89 [enclosing=TestNamingOuterClassMethod.test_instance_doc_string(FunctionDef)]:         self.assertEqual(Class().function.__doc__, Original().function.__doc__)
+  line 95 [enclosing=TestNamingOuterClassMethod.test_class_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class.function)
+  line 102 [enclosing=TestNamingOuterClassMethod.test_instance_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class().function)
+  line 108 [enclosing=TestNamingOuterClassMethod.test_class_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class.function, type(Original.function)))
+  line 113 [enclosing=TestNamingOuterClassMethod.test_instance_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class().function, type(Original().function)))
+  line 136 [enclosing=TestCallingOuterClassMethod.test_class_call_function._decorator(FunctionDef)]:                 self.assertEqual(instance, Class)
+  line 140 [enclosing=TestCallingOuterClassMethod.test_class_call_function._decorator(FunctionDef)]:                 self.assertEqual(args, (Class,) + _args)
+  line 152 [HEADER-LINE-OF=TestCallingOuterClassMethod.test_class_call_function.Class]:         class Class:
+  line 158 [enclosing=TestCallingOuterClassMethod.test_class_call_function(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 178 [enclosing=TestCallingOuterClassMethod.test_instance_call_function._decorator(FunctionDef)]:                 self.assertEqual(instance, Class)
+  line 182 [enclosing=TestCallingOuterClassMethod.test_instance_call_function._decorator(FunctionDef)]:                 self.assertEqual(args, (Class,) + _args)
+  line 194 [HEADER-LINE-OF=TestCallingOuterClassMethod.test_instance_call_function.Class]:         class Class:
+  line 200 [enclosing=TestCallingOuterClassMethod.test_instance_call_function(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+
+FILE tests/core/test_outer_staticmethod.py (all lines containing the token):
+  line 19 [HEADER-LINE-OF=Class]: class Class:
+  line 26 [module-level]: Original = Class
+  line 29 [HEADER-LINE-OF=Class]: class Class:
+  line 42 [enclosing=TestNamingOuterStaticMethod.test_class_object_name(FunctionDef)]:         self.assertEqual(Class.function.__name__, Original.function.__name__)
+  line 47 [enclosing=TestNamingOuterStaticMethod.test_instance_object_name(FunctionDef)]:         self.assertEqual(Class().function.__name__, Original().function.__name__)
+  line 57 [enclosing=TestNamingOuterStaticMethod.test_class_object_qualname(FunctionDef)]:             self.assertEqual(Class.function.__qualname__, __qualname__)
+  line 67 [enclosing=TestNamingOuterStaticMethod.test_instance_object_qualname(FunctionDef)]:             self.assertEqual(Class().function.__qualname__, __qualname__)
+  line 72 [enclosing=TestNamingOuterStaticMethod.test_class_module_name(FunctionDef)]:         self.assertEqual(Class.function.__module__, Original.function.__module__)
+  line 77 [enclosing=TestNamingOuterStaticMethod.test_instance_module_name(FunctionDef)]:         self.assertEqual(Class().function.__module__, Original().function.__module__)
+  line 82 [enclosing=TestNamingOuterStaticMethod.test_class_doc_string(FunctionDef)]:         self.assertEqual(Class.function.__doc__, Original.function.__doc__)
+  line 87 [enclosing=TestNamingOuterStaticMethod.test_instance_doc_string(FunctionDef)]:         self.assertEqual(Class().function.__doc__, Original().function.__doc__)
+  line 93 [enclosing=TestNamingOuterStaticMethod.test_class_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class.function)
+  line 100 [enclosing=TestNamingOuterStaticMethod.test_instance_argspec(FunctionDef)]:         function_argspec = inspect.getfullargspec(Class().function)
+  line 106 [enclosing=TestNamingOuterStaticMethod.test_class_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class.function, type(Original.function)))
+  line 111 [enclosing=TestNamingOuterStaticMethod.test_instance_isinstance(FunctionDef)]:         self.assertTrue(isinstance(Class().function, type(Original().function)))
+  line 136 [HEADER-LINE-OF=TestCallingOuterStaticMethod.test_class_call_function.Class]:         class Class:
+  line 142 [enclosing=TestCallingOuterStaticMethod.test_class_call_function(FunctionDef)]:         result = Class._function(*_args, **_kwargs)
+  line 167 [HEADER-LINE-OF=TestCallingOuterStaticMethod.test_instance_call_function.Class]:         class Class:
+  line 173 [enclosing=TestCallingOuterStaticMethod.test_instance_call_function(FunctionDef)]:         result = Class()._function(*_args, **_kwargs)
+
+FILE tests/core/test_weak_function_proxy.py (all lines containing the token):
+  line 64 [HEADER-LINE-OF=TestWeakFunctionProxy.test_instancemethod_delete_instance.Class]:         class Class:
+  line 73 [enclosing=TestWeakFunctionProxy.test_instancemethod_delete_instance(FunctionDef)]:         c = Class()
+  line 89 [HEADER-LINE-OF=TestWeakFunctionProxy.test_instancemethod_delete_function.Class]:         class Class:
+  line 98 [enclosing=TestWeakFunctionProxy.test_instancemethod_delete_function(FunctionDef)]:         c = Class()
+  line 105 [enclosing=TestWeakFunctionProxy.test_instancemethod_delete_function(FunctionDef)]:         del Class.function
+  line 115 [HEADER-LINE-OF=TestWeakFunctionProxy.test_instancemethod_delete_function_and_instance.Class]:         class Class:
+  line 124 [enclosing=TestWeakFunctionProxy.test_instancemethod_delete_function_and_instance(FunctionDef)]:         c = Class()
+  line 131 [enclosing=TestWeakFunctionProxy.test_instancemethod_delete_function_and_instance(FunctionDef)]:         del Class.function
+  line 141 [HEADER-LINE-OF=TestWeakFunctionProxy.test_classmethod.Class]:         class Class:
+  line 144 [enclosing=TestWeakFunctionProxy.test_classmethod.Class.function(FunctionDef)]:                 self.assertEqual(cls, Class)
+  line 152 [enclosing=TestWeakFunctionProxy.test_classmethod(FunctionDef)]:         proxy = wrapt.WeakFunctionProxy(Class.function, callback)
+  line 156 [enclosing=TestWeakFunctionProxy.test_classmethod(FunctionDef)]:         Class.function = None
+  line 157 [enclosing=TestWeakFunctionProxy.test_classmethod(FunctionDef)]:         Class = None
+  line 167 [HEADER-LINE-OF=TestWeakFunctionProxy.test_staticmethod.Class]:         class Class:
+  line 177 [enclosing=TestWeakFunctionProxy.test_staticmethod(FunctionDef)]:         proxy = wrapt.WeakFunctionProxy(Class.function, callback)
+  line 181 [enclosing=TestWeakFunctionProxy.test_staticmethod(FunctionDef)]:         Class.function = None
+  line 182 [enclosing=TestWeakFunctionProxy.test_staticmethod(FunctionDef)]:         Class = None
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-wrapt-where_defined-1307",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_inplace_operators.py:705"
+    ],
+    "conditional_flags": [],
+    "notes": "The excerpt identifies one function definition with this name."
+  },
+  {
+    "query_id": "g1q-wrapt-where_defined-47",
+    "answerable_static": true,
+    "gold": [
+      "docs/benchmarks.py:32",
+      "tests/core/test_attribute_wrapper.py:6",
+      "tests/core/test_enabled_bool_error.py:128",
+      "tests/core/test_enabled_bool_error.py:152",
+      "tests/core/test_function_wrapper.py:100",
+      "tests/core/test_function_wrapper.py:122",
+      "tests/core/test_function_wrapper.py:145",
+      "tests/core/test_function_wrapper.py:162",
+      "tests/core/test_function_wrapper.py:182",
+      "tests/core/test_function_wrapper.py:198",
+      "tests/core/test_function_wrapper.py:218",
+      "tests/core/test_function_wrapper.py:234",
+      "tests/core/test_function_wrapper.py:25",
+      "tests/core/test_function_wrapper.py:250",
+      "tests/core/test_function_wrapper.py:284",
+      "tests/core/test_function_wrapper.py:294",
+      "tests/core/test_function_wrapper.py:306",
+      "tests/core/test_function_wrapper.py:321",
+      "tests/core/test_function_wrapper.py:334",
+      "tests/core/test_function_wrapper.py:43",
+      "tests/core/test_function_wrapper.py:445",
+      "tests/core/test_function_wrapper.py:586",
+      "tests/core/test_function_wrapper.py:62",
+      "tests/core/test_inner_classmethod.py:133",
+      "tests/core/test_inner_classmethod.py:160",
+      "tests/core/test_inner_classmethod.py:187",
+      "tests/core/test_inner_classmethod.py:19",
+      "tests/core/test_inner_classmethod.py:215",
+      "tests/core/test_inner_classmethod.py:234",
+      "tests/core/test_inner_classmethod.py:259",
+      "tests/core/test_inner_classmethod.py:284",
+      "tests/core/test_inner_classmethod.py:29",
+      "tests/core/test_inner_classmethod.py:310",
+      "tests/core/test_inner_staticmethod.py:133",
+      "tests/core/test_inner_staticmethod.py:160",
+      "tests/core/test_inner_staticmethod.py:187",
+      "tests/core/test_inner_staticmethod.py:19",
+      "tests/core/test_inner_staticmethod.py:215",
+      "tests/core/test_inner_staticmethod.py:240",
+      "tests/core/test_inner_staticmethod.py:265",
+      "tests/core/test_inner_staticmethod.py:29",
+      "tests/core/test_instancemethod.py:241",
+      "tests/core/test_instancemethod.py:269",
+      "tests/core/test_instancemethod.py:298",
+      "tests/core/test_instancemethod.py:327",
+      "tests/core/test_instancemethod.py:360",
+      "tests/core/test_instancemethod.py:388",
+      "tests/core/test_instancemethod.py:417",
+      "tests/core/test_instancemethod.py:446",
+      "tests/core/test_monkey_patching.py:478",
+      "tests/core/test_monkey_patching.py:506",
+      "tests/core/test_monkey_patching.py:534",
+      "tests/core/test_monkey_patching.py:562",
+      "tests/core/test_object_proxy.py:1569",
+      "tests/core/test_object_proxy.py:1925",
+      "tests/core/test_object_proxy.py:473",
+      "tests/core/test_object_proxy.py:487",
+      "tests/core/test_object_proxy.py:501",
+      "tests/core/test_object_proxy.py:515",
+      "tests/core/test_object_proxy.py:529",
+      "tests/core/test_object_proxy.py:543",
+      "tests/core/test_object_proxy.py:557",
+      "tests/core/test_object_proxy.py:571",
+      "tests/core/test_object_proxy.py:585",
+      "tests/core/test_object_proxy.py:600",
+      "tests/core/test_object_proxy.py:615",
+      "tests/core/test_object_proxy.py:630",
+      "tests/core/test_object_proxy.py:645",
+      "tests/core/test_object_proxy.py:660",
+      "tests/core/test_object_proxy.py:675",
+      "tests/core/test_object_proxy.py:690",
+      "tests/core/test_object_proxy.py:705",
+      "tests/core/test_object_proxy.py:720",
+      "tests/core/test_object_proxy.py:735",
+      "tests/core/test_object_proxy.py:750",
+      "tests/core/test_object_proxy.py:765",
+      "tests/core/test_object_proxy.py:780",
+      "tests/core/test_object_proxy.py:795",
+      "tests/core/test_object_proxy.py:810",
+      "tests/core/test_object_proxy.py:855",
+      "tests/core/test_object_proxy.py:870",
+      "tests/core/test_outer_classmethod.py:152",
+      "tests/core/test_outer_classmethod.py:194",
+      "tests/core/test_outer_classmethod.py:21",
+      "tests/core/test_outer_classmethod.py:31",
+      "tests/core/test_outer_staticmethod.py:136",
+      "tests/core/test_outer_staticmethod.py:167",
+      "tests/core/test_outer_staticmethod.py:19",
+      "tests/core/test_outer_staticmethod.py:29",
+      "tests/core/test_weak_function_proxy.py:115",
+      "tests/core/test_weak_function_proxy.py:141",
+      "tests/core/test_weak_function_proxy.py:167",
+      "tests/core/test_weak_function_proxy.py:64",
+      "tests/core/test_weak_function_proxy.py:89"
+    ],
+    "conditional_flags": [],
+    "notes": "All listed elements are class definition headers; references, comments, and function-local assignments were excluded."
+  }
+]
+tokens used
+15,468

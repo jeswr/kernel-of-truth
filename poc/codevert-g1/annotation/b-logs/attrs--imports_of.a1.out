@@ -1,0 +1,40 @@
+[
+  {
+    "query_id": "g1q-attrs-imports_of-2",
+    "answerable_static": true,
+    "gold": [
+      "ext:functools",
+      "ext:importlib.metadata",
+      "ext:typing",
+      "repo:src/attr/__init__.py",
+      "repo:src/attr/_cmp.py",
+      "repo:src/attr/_config.py",
+      "repo:src/attr/_funcs.py",
+      "repo:src/attr/_make.py",
+      "repo:src/attr/_next_gen.py",
+      "repo:src/attr/_version_info.py",
+      "repo:src/attr/converters.py",
+      "repo:src/attr/exceptions.py",
+      "repo:src/attr/filters.py",
+      "repo:src/attr/setters.py",
+      "repo:src/attr/validators.py"
+    ],
+    "conditional_flags": [
+      "ext:importlib.metadata"
+    ],
+    "notes": "All import targets resolve statically; importlib.metadata is imported inside a nested function."
+  },
+  {
+    "query_id": "g1q-attrs-imports_of-39",
+    "answerable_static": true,
+    "gold": [
+      "repo:tests/__init__.py",
+      "repo:tests/attr_import_star.py"
+    ],
+    "conditional_flags": [
+      "repo:tests/__init__.py",
+      "repo:tests/attr_import_star.py"
+    ],
+    "notes": "The relative import occurs inside a method, so its resolved module and ancestor package are flagged."
+  }
+]

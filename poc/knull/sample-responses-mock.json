@@ -1,0 +1,147 @@
+{
+ "schema": "kot-knull-sample-responses/1",
+ "status": "MOCK TRANSPORT SMOKE - stub outputs, no model loaded, NOT generations",
+ "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+ "model_revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+ "decode": {
+  "strategy": "MOCK (no decoding performed)",
+  "max_new_tokens": 200,
+  "dtype": "float32",
+  "device": "cpu",
+  "torch_manual_seed": 0,
+  "seed": "torch_manual_seed=0 (greedy: seed inert)"
+ },
+ "context_design": "per-prompt fixed label set, identical across arms; store entries rendered as a reference list in the system message; headwords shown (usage illustration, not the blind gate)",
+ "stores": {
+  "v3": {
+   "path": "poc/knull/inputs-v3/plain-authored.json",
+   "sha256": "8812f91e708f7cd5b0905bf5c95af1affcf83504f503225dcd0d8dbc0c774b1d"
+  },
+  "v4": {
+   "path": "poc/knull/inputs-v4/plain-authored.json",
+   "sha256": "97609abe17f87e10a384950a5d69d4e579e40935109573eaf782095bcb43c0d2"
+  }
+ },
+ "harness": "poc/knull/modal/modal_knull_samples.py via Modal CPU (prompt set + context design single-sourced from run_sample_responses.py; image from the pinned f2b requirements, reuse pin im-6uXR6RyVQV15h2B3gtpOG2)",
+ "date": "2026-07-11",
+ "results": [
+  {
+   "id": "condolence",
+   "question": "My friend's father just died. What should I say to her?",
+   "labels": [
+    "condolence (the words)",
+    "grieving",
+    "death (the event)",
+    "friend (X is a friend of Y)",
+    "father",
+    "sad"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (549 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (562 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "lie-vs-promise",
+   "question": "What is the difference between a lie and a promise?",
+   "labels": [
+    "lie (the words)",
+    "promise (the words)",
+    "liar",
+    "trustworthy",
+    "believe (X believes Y)"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (431 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (520 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "fish-animal",
+   "question": "Is a fish an animal? Explain briefly.",
+   "labels": [
+    "fish",
+    "animal",
+    "alive",
+    "water"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (432 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (432 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "archived-bookmark",
+   "question": "I archived a bookmark by accident. Is it gone forever?",
+   "labels": [
+    "archived (bookmark boolean property)",
+    "bookmark",
+    "lost",
+    "find (X finds Y)"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (411 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (457 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "cat-kind",
+   "question": "Could my cat have been a dog instead? What kind of thing is a cat?",
+   "labels": [
+    "kind (gufo:Kind, sortal type)",
+    "cat",
+    "dog",
+    "animal",
+    "change (the event)"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (612 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (628 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "run-vs-walk",
+   "question": "How is running different from walking?",
+   "labels": [
+    "run",
+    "walk",
+    "jump",
+    "ground"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (358 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (416 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "celebrate-birth",
+   "question": "Why do people celebrate when a baby is born?",
+   "labels": [
+    "celebration",
+    "birth (the event)",
+    "happy",
+    "gift",
+    "event"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (456 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (502 chars) but no model was loaded]"
+   }
+  },
+  {
+   "id": "good-teacher",
+   "question": "What makes someone a good teacher?",
+   "labels": [
+    "teacher",
+    "learn (X learns Y)",
+    "help (X helps Y)",
+    "helpful (of a someone)",
+    "remember (X remembers Y)"
+   ],
+   "outputs": {
+    "v3": "[MOCK transport smoke - NOT a model generation; context was built from the real v3 store (479 chars) but no model was loaded]",
+    "v4": "[MOCK transport smoke - NOT a model generation; context was built from the real v4 store (552 chars) but no model was loaded]"
+   }
+  }
+ ]
+}

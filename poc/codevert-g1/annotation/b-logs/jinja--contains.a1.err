@@ -1,0 +1,2192 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.91fuwvp6"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.190cepto
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c5-5d5d-7c12-9516-97428458dfe6
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: jinja ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/cache_extension.py
+docs/examples/inline_gettext_extension.py
+examples/basic/cycle.py
+examples/basic/debugger.py
+examples/basic/inheritance.py
+examples/basic/test.py
+examples/basic/test_filter_and_linestatements.py
+examples/basic/test_loop_filter.py
+examples/basic/translate.py
+scripts/generate_identifier_pattern.py
+src/jinja2/__init__.py
+src/jinja2/_identifier.py
+src/jinja2/async_utils.py
+src/jinja2/bccache.py
+src/jinja2/compiler.py
+src/jinja2/constants.py
+src/jinja2/debug.py
+src/jinja2/defaults.py
+src/jinja2/environment.py
+src/jinja2/exceptions.py
+src/jinja2/ext.py
+src/jinja2/filters.py
+src/jinja2/idtracking.py
+src/jinja2/lexer.py
+src/jinja2/loaders.py
+src/jinja2/meta.py
+src/jinja2/nativetypes.py
+src/jinja2/nodes.py
+src/jinja2/optimizer.py
+src/jinja2/parser.py
+src/jinja2/runtime.py
+src/jinja2/sandbox.py
+src/jinja2/tests.py
+src/jinja2/utils.py
+src/jinja2/visitor.py
+tests/conftest.py
+tests/test_api.py
+tests/test_async.py
+tests/test_async_filters.py
+tests/test_bytecode_cache.py
+tests/test_compile.py
+tests/test_core_tags.py
+tests/test_debug.py
+tests/test_ext.py
+tests/test_filters.py
+tests/test_idtracking.py
+tests/test_imports.py
+tests/test_inheritance.py
+tests/test_lexnparse.py
+tests/test_loader.py
+tests/test_nativetypes.py
+tests/test_nodes.py
+tests/test_pickle.py
+tests/test_regression.py
+tests/test_runtime.py
+tests/test_security.py
+tests/test_tests.py
+tests/test_utils.py
+tests/res/__init__.py
+
+=== QUERIES (2) ===
+QUERY g1q-jinja-contains-33: family=contains target=src/jinja2/tests.py
+QUERY g1q-jinja-contains-77: family=contains target=src/jinja2/environment.py::Template
+
+=== CONTEXT ===
+
+FILE src/jinja2/tests.py:
+    1| """Built-in template tests used with the ``is`` operator."""
+    2| 
+    3| import operator
+    4| import typing as t
+    5| from collections import abc
+    6| from numbers import Number
+    7| 
+    8| from .runtime import Undefined
+    9| from .utils import pass_environment
+   10| 
+   11| if t.TYPE_CHECKING:
+   12|     from .environment import Environment
+   13| 
+   14| 
+   15| def test_odd(value: int) -> bool:
+   16|     """Return true if the variable is odd."""
+   17|     return value % 2 == 1
+   18| 
+   19| 
+   20| def test_even(value: int) -> bool:
+   21|     """Return true if the variable is even."""
+   22|     return value % 2 == 0
+   23| 
+   24| 
+   25| def test_divisibleby(value: int, num: int) -> bool:
+   26|     """Check if a variable is divisible by a number."""
+   27|     return value % num == 0
+   28| 
+   29| 
+   30| def test_defined(value: t.Any) -> bool:
+   31|     """Return true if the variable is defined:
+   32| 
+   33|     .. sourcecode:: jinja
+   34| 
+   35|         {% if variable is defined %}
+   36|             value of variable: {{ variable }}
+   37|         {% else %}
+   38|             variable is not defined
+   39|         {% endif %}
+   40| 
+   41|     See the :func:`default` filter for a simple way to set undefined
+   42|     variables.
+   43|     """
+   44|     return not isinstance(value, Undefined)
+   45| 
+   46| 
+   47| def test_undefined(value: t.Any) -> bool:
+   48|     """Like :func:`defined` but the other way round."""
+   49|     return isinstance(value, Undefined)
+   50| 
+   51| 
+   52| @pass_environment
+   53| def test_filter(env: "Environment", value: str) -> bool:
+   54|     """Check if a filter exists by name. Useful if a filter may be
+   55|     optionally available.
+   56| 
+   57|     .. code-block:: jinja
+   58| 
+   59|         {% if 'markdown' is filter %}
+   60|             {{ value | markdown }}
+   61|         {% else %}
+   62|             {{ value }}
+   63|         {% endif %}
+   64| 
+   65|     .. versionadded:: 3.0
+   66|     """
+   67|     return value in env.filters
+   68| 
+   69| 
+   70| @pass_environment
+   71| def test_test(env: "Environment", value: str) -> bool:
+   72|     """Check if a test exists by name. Useful if a test may be
+   73|     optionally available.
+   74| 
+   75|     .. code-block:: jinja
+   76| 
+   77|         {% if 'loud' is test %}
+   78|             {% if value is loud %}
+   79|                 {{ value|upper }}
+   80|             {% else %}
+   81|                 {{ value|lower }}
+   82|             {% endif %}
+   83|         {% else %}
+   84|             {{ value }}
+   85|         {% endif %}
+   86| 
+   87|     .. versionadded:: 3.0
+   88|     """
+   89|     return value in env.tests
+   90| 
+   91| 
+   92| def test_none(value: t.Any) -> bool:
+   93|     """Return true if the variable is none."""
+   94|     return value is None
+   95| 
+   96| 
+   97| def test_boolean(value: t.Any) -> bool:
+   98|     """Return true if the object is a boolean value.
+   99| 
+  100|     .. versionadded:: 2.11
+  101|     """
+  102|     return value is True or value is False
+  103| 
+  104| 
+  105| def test_false(value: t.Any) -> bool:
+  106|     """Return true if the object is False.
+  107| 
+  108|     .. versionadded:: 2.11
+  109|     """
+  110|     return value is False
+  111| 
+  112| 
+  113| def test_true(value: t.Any) -> bool:
+  114|     """Return true if the object is True.
+  115| 
+  116|     .. versionadded:: 2.11
+  117|     """
+  118|     return value is True
+  119| 
+  120| 
+  121| # NOTE: The existing 'number' test matches booleans and floats
+  122| def test_integer(value: t.Any) -> bool:
+  123|     """Return true if the object is an integer.
+  124| 
+  125|     .. versionadded:: 2.11
+  126|     """
+  127|     return isinstance(value, int) and value is not True and value is not False
+  128| 
+  129| 
+  130| # NOTE: The existing 'number' test matches booleans and integers
+  131| def test_float(value: t.Any) -> bool:
+  132|     """Return true if the object is a float.
+  133| 
+  134|     .. versionadded:: 2.11
+  135|     """
+  136|     return isinstance(value, float)
+  137| 
+  138| 
+  139| def test_lower(value: str) -> bool:
+  140|     """Return true if the variable is lowercased."""
+  141|     return str(value).islower()
+  142| 
+  143| 
+  144| def test_upper(value: str) -> bool:
+  145|     """Return true if the variable is uppercased."""
+  146|     return str(value).isupper()
+  147| 
+  148| 
+  149| def test_string(value: t.Any) -> bool:
+  150|     """Return true if the object is a string."""
+  151|     return isinstance(value, str)
+  152| 
+  153| 
+  154| def test_mapping(value: t.Any) -> bool:
+  155|     """Return true if the object is a mapping (dict etc.).
+  156| 
+  157|     .. versionadded:: 2.6
+  158|     """
+  159|     return isinstance(value, abc.Mapping)
+  160| 
+  161| 
+  162| def test_number(value: t.Any) -> bool:
+  163|     """Return true if the variable is a number."""
+  164|     return isinstance(value, Number)
+  165| 
+  166| 
+  167| def test_sequence(value: t.Any) -> bool:
+  168|     """Return true if the variable is a sequence. Sequences are variables
+  169|     that are iterable.
+  170|     """
+  171|     try:
+  172|         len(value)
+  173|         value.__getitem__  # noqa B018
+  174|     except Exception:
+  175|         return False
+  176| 
+  177|     return True
+  178| 
+  179| 
+  180| def test_sameas(value: t.Any, other: t.Any) -> bool:
+  181|     """Check if an object points to the same memory address than another
+  182|     object:
+  183| 
+  184|     .. sourcecode:: jinja
+  185| 
+  186|         {% if foo.attribute is sameas false %}
+  187|             the foo attribute really is the `False` singleton
+  188|         {% endif %}
+  189|     """
+  190|     return value is other
+  191| 
+  192| 
+  193| def test_iterable(value: t.Any) -> bool:
+  194|     """Check if it's possible to iterate over an object."""
+  195|     try:
+  196|         iter(value)
+  197|     except TypeError:
+  198|         return False
+  199| 
+  200|     return True
+  201| 
+  202| 
+  203| def test_escaped(value: t.Any) -> bool:
+  204|     """Check if the value is escaped."""
+  205|     return hasattr(value, "__html__")
+  206| 
+  207| 
+  208| def test_in(value: t.Any, seq: t.Container[t.Any]) -> bool:
+  209|     """Check if value is in seq.
+  210| 
+  211|     .. versionadded:: 2.10
+  212|     """
+  213|     return value in seq
+  214| 
+  215| 
+  216| TESTS = {
+  217|     "odd": test_odd,
+  218|     "even": test_even,
+  219|     "divisibleby": test_divisibleby,
+  220|     "defined": test_defined,
+  221|     "undefined": test_undefined,
+  222|     "filter": test_filter,
+  223|     "test": test_test,
+  224|     "none": test_none,
+  225|     "boolean": test_boolean,
+  226|     "false": test_false,
+  227|     "true": test_true,
+  228|     "integer": test_integer,
+  229|     "float": test_float,
+  230|     "lower": test_lower,
+  231|     "upper": test_upper,
+  232|     "string": test_string,
+  233|     "mapping": test_mapping,
+  234|     "number": test_number,
+  235|     "sequence": test_sequence,
+  236|     "iterable": test_iterable,
+  237|     "callable": callable,
+  238|     "sameas": test_sameas,
+  239|     "escaped": test_escaped,
+  240|     "in": test_in,
+  241|     "==": operator.eq,
+  242|     "eq": operator.eq,
+  243|     "equalto": operator.eq,
+  244|     "!=": operator.ne,
+  245|     "ne": operator.ne,
+  246|     ">": operator.gt,
+  247|     "gt": operator.gt,
+  248|     "greaterthan": operator.gt,
+  249|     "ge": operator.ge,
+  250|     ">=": operator.ge,
+  251|     "<": operator.lt,
+  252|     "lt": operator.lt,
+  253|     "lessthan": operator.lt,
+  254|     "<=": operator.le,
+  255|     "le": operator.le,
+  256| }
+
+FILE src/jinja2/environment.py:
+    1| """Classes for managing templates and their runtime and compile time
+    2| options.
+    3| """
+    4| 
+    5| import os
+    6| import typing
+    7| import typing as t
+    8| import weakref
+    9| from collections import ChainMap
+   10| from contextlib import aclosing
+   11| from functools import lru_cache
+   12| from functools import partial
+   13| from functools import reduce
+   14| from types import CodeType
+   15| 
+   16| from markupsafe import Markup
+   17| 
+   18| from . import nodes
+   19| from .compiler import CodeGenerator
+   20| from .compiler import generate
+   21| from .defaults import BLOCK_END_STRING
+   22| from .defaults import BLOCK_START_STRING
+   23| from .defaults import COMMENT_END_STRING
+   24| from .defaults import COMMENT_START_STRING
+   25| from .defaults import DEFAULT_FILTERS  # type: ignore[attr-defined]
+   26| from .defaults import DEFAULT_NAMESPACE
+   27| from .defaults import DEFAULT_POLICIES
+   28| from .defaults import DEFAULT_TESTS  # type: ignore[attr-defined]
+   29| from .defaults import KEEP_TRAILING_NEWLINE
+   30| from .defaults import LINE_COMMENT_PREFIX
+   31| from .defaults import LINE_STATEMENT_PREFIX
+   32| from .defaults import LSTRIP_BLOCKS
+   33| from .defaults import NEWLINE_SEQUENCE
+   34| from .defaults import TRIM_BLOCKS
+   35| from .defaults import VARIABLE_END_STRING
+   36| from .defaults import VARIABLE_START_STRING
+   37| from .exceptions import TemplateNotFound
+   38| from .exceptions import TemplateRuntimeError
+   39| from .exceptions import TemplatesNotFound
+   40| from .exceptions import TemplateSyntaxError
+   41| from .exceptions import UndefinedError
+   42| from .lexer import get_lexer
+   43| from .lexer import Lexer
+   44| from .lexer import TokenStream
+   45| from .nodes import EvalContext
+   46| from .parser import Parser
+   47| from .runtime import Context
+   48| from .runtime import new_context
+   49| from .runtime import Undefined
+   50| from .utils import _PassArg
+   51| from .utils import concat
+   52| from .utils import consume
+   53| from .utils import import_string
+   54| from .utils import internalcode
+   55| from .utils import LRUCache
+   56| from .utils import missing
+   57| 
+   58| if t.TYPE_CHECKING:
+   59|     import typing_extensions as te
+   60| 
+   61|     from .bccache import BytecodeCache
+   62|     from .ext import Extension
+   63|     from .loaders import BaseLoader
+   64| 
+   65| _env_bound = t.TypeVar("_env_bound", bound="Environment")
+   66| 
+   67| 
+   68| # for direct template usage we have up to ten living environments
+   69| @lru_cache(maxsize=10)
+   70| def get_spontaneous_environment(cls: type[_env_bound], *args: t.Any) -> _env_bound:
+   71|     """Return a new spontaneous environment. A spontaneous environment
+   72|     is used for templates created directly rather than through an
+   73|     existing environment.
+   74| 
+   75|     :param cls: Environment class to create.
+   76|     :param args: Positional arguments passed to environment.
+   77|     """
+   78|     env = cls(*args)
+   79|     env.shared = True
+   80|     return env
+   81| 
+   82| 
+   83| def create_cache(
+   84|     size: int,
+   85| ) -> t.MutableMapping[tuple["weakref.ref[BaseLoader]", str], "Template"] | None:
+   86|     """Return the cache class for the given size."""
+   87|     if size == 0:
+   88|         return None
+   89| 
+   90|     if size < 0:
+   91|         return {}
+   92| 
+   93|     return LRUCache(size)  # type: ignore
+   94| 
+   95| 
+   96| def copy_cache(
+   97|     cache: t.MutableMapping[tuple["weakref.ref[BaseLoader]", str], "Template"] | None,
+   98| ) -> t.MutableMapping[tuple["weakref.ref[BaseLoader]", str], "Template"] | None:
+   99|     """Create an empty copy of the given cache."""
+  100|     if cache is None:
+  101|         return None
+  102| 
+  103|     if type(cache) is dict:  # noqa E721
+  104|         return {}
+  105| 
+  106|     return LRUCache(cache.capacity)  # type: ignore
+  107| 
+  108| 
+  109| def load_extensions(
+  110|     environment: "Environment",
+  111|     extensions: t.Sequence[str | type["Extension"]],
+  112| ) -> dict[str, "Extension"]:
+  113|     """Load the extensions from the list and bind it to the environment.
+  114|     Returns a dict of instantiated extensions.
+  115|     """
+  116|     result = {}
+  117| 
+  118|     for extension in extensions:
+  119|         if isinstance(extension, str):
+  120|             extension = t.cast(type["Extension"], import_string(extension))
+  121| 
+  122|         result[extension.identifier] = extension(environment)
+  123| 
+  124|     return result
+  125| 
+  126| 
+  127| def _environment_config_check(environment: _env_bound) -> _env_bound:
+  128|     """Perform a sanity check on the environment."""
+  129|     assert issubclass(environment.undefined, Undefined), (
+  130|         "'undefined' must be a subclass of 'jinja2.Undefined'."
+  131|     )
+  132|     assert (
+  133|         environment.block_start_string
+  134|         != environment.variable_start_string
+  135|         != environment.comment_start_string
+  136|     ), "block, variable and comment start strings must be different."
+  137|     assert environment.newline_sequence in {
+  138|         "\r",
+  139|         "\r\n",
+  140|         "\n",
+  141|     }, "'newline_sequence' must be one of '\\n', '\\r\\n', or '\\r'."
+  142|     return environment
+  143| 
+  144| 
+  145| class Environment:
+  146|     r"""The core component of Jinja is the `Environment`.  It contains
+  147|     important shared variables like configuration, filters, tests,
+  148|     globals and others.  Instances of this class may be modified if
+  149|     they are not shared and if no template was loaded so far.
+  150|     Modifications on environments after the first template was loaded
+  151|     will lead to surprising effects and undefined behavior.
+  152| 
+  153|     Here are the possible initialization parameters:
+  154| 
+  155|         `block_start_string`
+  156|             The string marking the beginning of a block.  Defaults to ``'{%'``.
+  157| 
+  158|         `block_end_string`
+  159|             The string marking the end of a block.  Defaults to ``'%}'``.
+  160| 
+  161|         `variable_start_string`
+  162|             The string marking the beginning of a print statement.
+  163|             Defaults to ``'{{'``.
+  164| 
+  165|         `variable_end_string`
+  166|             The string marking the end of a print statement.  Defaults to
+  167|             ``'}}'``.
+  168| 
+  169|         `comment_start_string`
+  170|             The string marking the beginning of a comment.  Defaults to ``'{#'``.
+  171| 
+  172|         `comment_end_string`
+  173|             The string marking the end of a comment.  Defaults to ``'#}'``.
+  174| 
+  175|         `line_statement_prefix`
+  176|             If given and a string, this will be used as prefix for line based
+  177|             statements.  See also :ref:`line-statements`.
+  178| 
+  179|         `line_comment_prefix`
+  180|             If given and a string, this will be used as prefix for line based
+  181|             comments.  See also :ref:`line-statements`.
+  182| 
+  183|             .. versionadded:: 2.2
+  184| 
+  185|         `trim_blocks`
+  186|             If this is set to ``True`` the first newline after a block is
+  187|             removed (block, not variable tag!).  Defaults to `False`.
+  188| 
+  189|         `lstrip_blocks`
+  190|             If this is set to ``True`` leading spaces and tabs are stripped
+  191|             from the start of a line to a block.  Defaults to `False`.
+  192| 
+  193|         `newline_sequence`
+  194|             The sequence that starts a newline.  Must be one of ``'\r'``,
+  195|             ``'\n'`` or ``'\r\n'``.  The default is ``'\n'`` which is a
+  196|             useful default for Linux and OS X systems as well as web
+  197|             applications.
+  198| 
+  199|         `keep_trailing_newline`
+  200|             Preserve the trailing newline when rendering templates.
+  201|             The default is ``False``, which causes a single newline,
+  202|             if present, to be stripped from the end of the template.
+  203| 
+  204|             .. versionadded:: 2.7
+  205| 
+  206|         `extensions`
+  207|             List of Jinja extensions to use.  This can either be import paths
+  208|             as strings or extension classes.  For more information have a
+  209|             look at :ref:`the extensions documentation <jinja-extensions>`.
+  210| 
+  211|         `optimized`
+  212|             should the optimizer be enabled?  Default is ``True``.
+  213| 
+  214|         `undefined`
+  215|             :class:`Undefined` or a subclass of it that is used to represent
+  216|             undefined values in the template.
+  217| 
+  218|         `finalize`
+  219|             A callable that can be used to process the result of a variable
+  220|             expression before it is output.  For example one can convert
+  221|             ``None`` implicitly into an empty string here.
+  222| 
+  223|         `autoescape`
+  224|             If set to ``True`` the XML/HTML autoescaping feature is enabled by
+  225|             default.  For more details about autoescaping see
+  226|             :class:`~markupsafe.Markup`.  As of Jinja 2.4 this can also
+  227|             be a callable that is passed the template name and has to
+  228|             return ``True`` or ``False`` depending on autoescape should be
+  229|             enabled by default.
+  230| 
+  231|             .. versionchanged:: 2.4
+  232|                `autoescape` can now be a function
+  233| 
+  234|         `loader`
+  235|             The template loader for this environment.
+  236| 
+  237|         `cache_size`
+  238|             The size of the cache.  Per default this is ``400`` which means
+  239|             that if more than 400 templates are loaded the loader will clean
+  240|             out the least recently used template.  If the cache size is set to
+  241|             ``0`` templates are recompiled all the time, if the cache size is
+  242|             ``-1`` the cache will not be cleaned.
+  243| 
+  244|             .. versionchanged:: 2.8
+  245|                The cache size was increased to 400 from a low 50.
+  246| 
+  247|         `auto_reload`
+  248|             Some loaders load templates from locations where the template
+  249|             sources may change (ie: file system or database).  If
+  250|             ``auto_reload`` is set to ``True`` (default) every time a template is
+  251|             requested the loader checks if the source changed and if yes, it
+  252|             will reload the template.  For higher performance it's possible to
+  253|             disable that.
+  254| 
+  255|         `bytecode_cache`
+  256|             If set to a bytecode cache object, this object will provide a
+  257|             cache for the internal Jinja bytecode so that templates don't
+  258|             have to be parsed if they were not changed.
+  259| 
+  260|             See :ref:`bytecode-cache` for more information.
+  261| 
+  262|         `enable_async`
+  263|             If set to true this enables async template execution which
+  264|             allows using async functions and generators.
+  265|     """
+  266| 
+  267|     #: if this environment is sandboxed.  Modifying this variable won't make
+  268|     #: the environment sandboxed though.  For a real sandboxed environment
+  269|     #: have a look at jinja2.sandbox.  This flag alone controls the code
+  270|     #: generation by the compiler.
+  271|     sandboxed = False
+  272| 
+  273|     #: True if the environment is just an overlay
+  274|     overlayed = False
+  275| 
+  276|     #: the environment this environment is linked to if it is an overlay
+  277|     linked_to: t.Optional["Environment"] = None
+  278| 
+  279|     #: shared environments have this set to `True`.  A shared environment
+  280|     #: must not be modified
+  281|     shared = False
+  282| 
+  283|     #: the class that is used for code generation.  See
+  284|     #: :class:`~jinja2.compiler.CodeGenerator` for more information.
+  285|     code_generator_class: type["CodeGenerator"] = CodeGenerator
+  286| 
+  287|     concat = "".join
+  288| 
+  289|     #: the context class that is used for templates.  See
+  290|     #: :class:`~jinja2.runtime.Context` for more information.
+  291|     context_class: type[Context] = Context
+  292| 
+  293|     template_class: type["Template"]
+  294| 
+  295|     def __init__(
+  296|         self,
+  297|         block_start_string: str = BLOCK_START_STRING,
+  298|         block_end_string: str = BLOCK_END_STRING,
+  299|         variable_start_string: str = VARIABLE_START_STRING,
+  300|         variable_end_string: str = VARIABLE_END_STRING,
+  301|         comment_start_string: str = COMMENT_START_STRING,
+  302|         comment_end_string: str = COMMENT_END_STRING,
+  303|         line_statement_prefix: str | None = LINE_STATEMENT_PREFIX,
+  304|         line_comment_prefix: str | None = LINE_COMMENT_PREFIX,
+  305|         trim_blocks: bool = TRIM_BLOCKS,
+  306|         lstrip_blocks: bool = LSTRIP_BLOCKS,
+  307|         newline_sequence: "te.Literal['\\n', '\\r\\n', '\\r']" = NEWLINE_SEQUENCE,
+  308|         keep_trailing_newline: bool = KEEP_TRAILING_NEWLINE,
+  309|         extensions: t.Sequence[str | type["Extension"]] = (),
+  310|         optimized: bool = True,
+  311|         undefined: type[Undefined] = Undefined,
+  312|         finalize: t.Callable[..., t.Any] | None = None,
+  313|         autoescape: bool | t.Callable[[str | None], bool] = False,
+  314|         loader: t.Optional["BaseLoader"] = None,
+  315|         cache_size: int = 400,
+  316|         auto_reload: bool = True,
+  317|         bytecode_cache: t.Optional["BytecodeCache"] = None,
+  318|         enable_async: bool = False,
+  319|     ):
+  320|         # !!Important notice!!
+  321|         #   The constructor accepts quite a few arguments that should be
+  322|         #   passed by keyword rather than position.  However it's important to
+  323|         #   not change the order of arguments because it's used at least
+  324|         #   internally in those cases:
+  325|         #       -   spontaneous environments (i18n extension and Template)
+  326|         #       -   unittests
+  327|         #   If parameter changes are required only add parameters at the end
+  328|         #   and don't change the arguments (or the defaults!) of the arguments
+  329|         #   existing already.
+  330| 
+  331|         # lexer / parser information
+  332|         self.block_start_string = block_start_string
+  333|         self.block_end_string = block_end_string
+  334|         self.variable_start_string = variable_start_string
+  335|         self.variable_end_string = variable_end_string
+  336|         self.comment_start_string = comment_start_string
+  337|         self.comment_end_string = comment_end_string
+  338|         self.line_statement_prefix = line_statement_prefix
+  339|         self.line_comment_prefix = line_comment_prefix
+  340|         self.trim_blocks = trim_blocks
+  341|         self.lstrip_blocks = lstrip_blocks
+  342|         self.newline_sequence = newline_sequence
+  343|         self.keep_trailing_newline = keep_trailing_newline
+  344| 
+  345|         # runtime information
+  346|         self.undefined: type[Undefined] = undefined
+  347|         self.optimized = optimized
+  348|         self.finalize = finalize
+  349|         self.autoescape = autoescape
+  350| 
+  351|         # defaults
+  352|         self.filters = DEFAULT_FILTERS.copy()
+  353|         self.tests = DEFAULT_TESTS.copy()
+  354|         self.globals = DEFAULT_NAMESPACE.copy()
+  355| 
+  356|         # set the loader provided
+  357|         self.loader = loader
+  358|         self.cache = create_cache(cache_size)
+  359|         self.bytecode_cache = bytecode_cache
+  360|         self.auto_reload = auto_reload
+  361| 
+  362|         # configurable policies
+  363|         self.policies = DEFAULT_POLICIES.copy()
+  364| 
+  365|         # load extensions
+  366|         self.extensions = load_extensions(self, extensions)
+  367| 
+  368|         self.is_async = enable_async
+  369|         _environment_config_check(self)
+  370| 
+  371|     def add_extension(self, extension: str | type["Extension"]) -> None:
+  372|         """Adds an extension after the environment was created.
+  373| 
+  374|         .. versionadded:: 2.5
+  375|         """
+  376|         self.extensions.update(load_extensions(self, [extension]))
+  377| 
+  378|     def extend(self, **attributes: t.Any) -> None:
+  379|         """Add the items to the instance of the environment if they do not exist
+  380|         yet.  This is used by :ref:`extensions <writing-extensions>` to register
+  381|         callbacks and configuration values without breaking inheritance.
+  382|         """
+  383|         for key, value in attributes.items():
+  384|             if not hasattr(self, key):
+  385|                 setattr(self, key, value)
+  386| 
+  387|     def overlay(
+  388|         self,
+  389|         block_start_string: str = missing,
+  390|         block_end_string: str = missing,
+  391|         variable_start_string: str = missing,
+  392|         variable_end_string: str = missing,
+  393|         comment_start_string: str = missing,
+  394|         comment_end_string: str = missing,
+  395|         line_statement_prefix: str | None = missing,
+  396|         line_comment_prefix: str | None = missing,
+  397|         trim_blocks: bool = missing,
+  398|         lstrip_blocks: bool = missing,
+  399|         newline_sequence: "te.Literal['\\n', '\\r\\n', '\\r']" = missing,
+  400|         keep_trailing_newline: bool = missing,
+  401|         extensions: t.Sequence[str | type["Extension"]] = missing,
+  402|         optimized: bool = missing,
+  403|         undefined: type[Undefined] = missing,
+  404|         finalize: t.Callable[..., t.Any] | None = missing,
+  405|         autoescape: bool | t.Callable[[str | None], bool] = missing,
+  406|         loader: t.Optional["BaseLoader"] = missing,
+  407|         cache_size: int = missing,
+  408|         auto_reload: bool = missing,
+  409|         bytecode_cache: t.Optional["BytecodeCache"] = missing,
+  410|         enable_async: bool = missing,
+  411|     ) -> "te.Self":
+  412|         """Create a new overlay environment that shares all the data with the
+  413|         current environment except for cache and the overridden attributes.
+  414|         Extensions cannot be removed for an overlayed environment.  An overlayed
+  415|         environment automatically gets all the extensions of the environment it
+  416|         is linked to plus optional extra extensions.
+  417| 
+  418|         Creating overlays should happen after the initial environment was set
+  419|         up completely.  Not all attributes are truly linked, some are just
+  420|         copied over so modifications on the original environment may not shine
+  421|         through.
+  422| 
+  423|         .. versionchanged:: 3.1.5
+  424|             ``enable_async`` is applied correctly.
+  425| 
+  426|         .. versionchanged:: 3.1.2
+  427|             Added the ``newline_sequence``, ``keep_trailing_newline``,
+  428|             and ``enable_async`` parameters to match ``__init__``.
+  429|         """
+  430|         args = dict(locals())
+  431|         del args["self"], args["cache_size"], args["extensions"], args["enable_async"]
+  432| 
+  433|         rv = object.__new__(self.__class__)
+  434|         rv.__dict__.update(self.__dict__)
+  435|         rv.overlayed = True
+  436|         rv.linked_to = self
+  437| 
+  438|         for key, value in args.items():
+  439|             if value is not missing:
+  440|                 setattr(rv, key, value)
+  441| 
+  442|         if cache_size is not missing:
+  443|             rv.cache = create_cache(cache_size)
+  444|         else:
+  445|             rv.cache = copy_cache(self.cache)
+  446| 
+  447|         rv.extensions = {}
+  448|         for key, value in self.extensions.items():
+  449|             rv.extensions[key] = value.bind(rv)
+  450|         if extensions is not missing:
+  451|             rv.extensions.update(load_extensions(rv, extensions))
+  452| 
+  453|         if enable_async is not missing:
+  454|             rv.is_async = enable_async
+  455| 
+  456|         return _environment_config_check(rv)
+  457| 
+  458|     @property
+  459|     def lexer(self) -> Lexer:
+  460|         """The lexer for this environment."""
+  461|         return get_lexer(self)
+  462| 
+  463|     def iter_extensions(self) -> t.Iterator["Extension"]:
+  464|         """Iterates over the extensions by priority."""
+  465|         return iter(sorted(self.extensions.values(), key=lambda x: x.priority))
+  466| 
+  467|     def getitem(self, obj: t.Any, argument: str | t.Any) -> t.Any | Undefined:
+  468|         """Get an item or attribute of an object but prefer the item."""
+  469|         try:
+  470|             return obj[argument]
+  471|         except (AttributeError, TypeError, LookupError):
+  472|             if isinstance(argument, str):
+  473|                 try:
+  474|                     attr = str(argument)
+  475|                 except Exception:
+  476|                     pass
+  477|                 else:
+  478|                     try:
+  479|                         return getattr(obj, attr)
+  480|                     except AttributeError:
+  481|                         pass
+  482|             return self.undefined(obj=obj, name=argument)
+  483| 
+  484|     def getattr(self, obj: t.Any, attribute: str) -> t.Any:
+  485|         """Get an item or attribute of an object but prefer the attribute.
+  486|         Unlike :meth:`getitem` the attribute *must* be a string.
+  487|         """
+  488|         try:
+  489|             return getattr(obj, attribute)
+  490|         except AttributeError:
+  491|             pass
+  492|         try:
+  493|             return obj[attribute]
+  494|         except (TypeError, LookupError, AttributeError):
+  495|             return self.undefined(obj=obj, name=attribute)
+  496| 
+  497|     def _filter_test_common(
+  498|         self,
+  499|         name: str | Undefined,
+  500|         value: t.Any,
+  501|         args: t.Sequence[t.Any] | None,
+  502|         kwargs: t.Mapping[str, t.Any] | None,
+  503|         context: Context | None,
+  504|         eval_ctx: EvalContext | None,
+  505|         is_filter: bool,
+  506|     ) -> t.Any:
+  507|         if is_filter:
+  508|             env_map = self.filters
+  509|             type_name = "filter"
+  510|         else:
+  511|             env_map = self.tests
+  512|             type_name = "test"
+  513| 
+  514|         func = env_map.get(name)  # type: ignore
+  515| 
+  516|         if func is None:
+  517|             msg = f"No {type_name} named {name!r}."
+  518| 
+  519|             if isinstance(name, Undefined):
+  520|                 try:
+  521|                     name._fail_with_undefined_error()
+  522|                 except Exception as e:
+  523|                     msg = f"{msg} ({e}; did you forget to quote the callable name?)"
+  524| 
+  525|             raise TemplateRuntimeError(msg)
+  526| 
+  527|         args = [value, *(args if args is not None else ())]
+  528|         kwargs = kwargs if kwargs is not None else {}
+  529|         pass_arg = _PassArg.from_obj(func)
+  530| 
+  531|         if pass_arg is _PassArg.context:
+  532|             if context is None:
+  533|                 raise TemplateRuntimeError(
+  534|                     f"Attempted to invoke a context {type_name} without context."
+  535|                 )
+  536| 
+  537|             args.insert(0, context)
+  538|         elif pass_arg is _PassArg.eval_context:
+  539|             if eval_ctx is None:
+  540|                 if context is not None:
+  541|                     eval_ctx = context.eval_ctx
+  542|                 else:
+  543|                     eval_ctx = EvalContext(self)
+  544| 
+  545|             args.insert(0, eval_ctx)
+  546|         elif pass_arg is _PassArg.environment:
+  547|             args.insert(0, self)
+  548| 
+  549|         return func(*args, **kwargs)
+  550| 
+  551|     def call_filter(
+  552|         self,
+  553|         name: str,
+  554|         value: t.Any,
+  555|         args: t.Sequence[t.Any] | None = None,
+  556|         kwargs: t.Mapping[str, t.Any] | None = None,
+  557|         context: Context | None = None,
+  558|         eval_ctx: EvalContext | None = None,
+  559|     ) -> t.Any:
+  560|         """Invoke a filter on a value the same way the compiler does.
+  561| 
+  562|         This might return a coroutine if the filter is running from an
+  563|         environment in async mode and the filter supports async
+  564|         execution. It's your responsibility to await this if needed.
+  565| 
+  566|         .. versionadded:: 2.7
+  567|         """
+  568|         return self._filter_test_common(
+  569|             name, value, args, kwargs, context, eval_ctx, True
+  570|         )
+  571| 
+  572|     def call_test(
+  573|         self,
+  574|         name: str,
+  575|         value: t.Any,
+  576|         args: t.Sequence[t.Any] | None = None,
+  577|         kwargs: t.Mapping[str, t.Any] | None = None,
+  578|         context: Context | None = None,
+  579|         eval_ctx: EvalContext | None = None,
+  580|     ) -> t.Any:
+  581|         """Invoke a test on a value the same way the compiler does.
+  582| 
+  583|         This might return a coroutine if the test is running from an
+  584|         environment in async mode and the test supports async execution.
+  585|         It's your responsibility to await this if needed.
+  586| 
+  587|         .. versionchanged:: 3.0
+  588|             Tests support ``@pass_context``, etc. decorators. Added
+  589|             the ``context`` and ``eval_ctx`` parameters.
+  590| 
+  591|         .. versionadded:: 2.7
+  592|         """
+  593|         return self._filter_test_common(
+  594|             name, value, args, kwargs, context, eval_ctx, False
+  595|         )
+  596| 
+  597|     @internalcode
+  598|     def parse(
+  599|         self,
+  600|         source: str,
+  601|         name: str | None = None,
+  602|         filename: str | None = None,
+  603|     ) -> nodes.Template:
+  604|         """Parse the sourcecode and return the abstract syntax tree.  This
+  605|         tree of nodes is used by the compiler to convert the template into
+  606|         executable source- or bytecode.  This is useful for debugging or to
+  607|         extract information from templates.
+  608| 
+  609|         If you are :ref:`developing Jinja extensions <writing-extensions>`
+  610|         this gives you a good overview of the node tree generated.
+  611|         """
+  612|         try:
+  613|             return self._parse(source, name, filename)
+  614|         except TemplateSyntaxError:
+  615|             self.handle_exception(source=source)
+  616| 
+  617|     def _parse(
+  618|         self, source: str, name: str | None, filename: str | None
+  619|     ) -> nodes.Template:
+  620|         """Internal parsing function used by `parse` and `compile`."""
+  621|         return Parser(self, source, name, filename).parse()
+  622| 
+  623|     def lex(
+  624|         self,
+  625|         source: str,
+  626|         name: str | None = None,
+  627|         filename: str | None = None,
+  628|     ) -> t.Iterator[tuple[int, str, str]]:
+  629|         """Lex the given sourcecode and return a generator that yields
+  630|         tokens as tuples in the form ``(lineno, token_type, value)``.
+  631|         This can be useful for :ref:`extension development <writing-extensions>`
+  632|         and debugging templates.
+  633| 
+  634|         This does not perform preprocessing.  If you want the preprocessing
+  635|         of the extensions to be applied you have to filter source through
+  636|         the :meth:`preprocess` method.
+  637|         """
+  638|         source = str(source)
+  639|         try:
+  640|             return self.lexer.tokeniter(source, name, filename)
+  641|         except TemplateSyntaxError:
+  642|             self.handle_exception(source=source)
+  643| 
+  644|     def preprocess(
+  645|         self,
+  646|         source: str,
+  647|         name: str | None = None,
+  648|         filename: str | None = None,
+  649|     ) -> str:
+  650|         """Preprocesses the source with all extensions.  This is automatically
+  651|         called for all parsing and compiling methods but *not* for :meth:`lex`
+  652|         because there you usually only want the actual source tokenized.
+  653|         """
+  654|         return reduce(
+  655|             lambda s, e: e.preprocess(s, name, filename),
+  656|             self.iter_extensions(),
+  657|             str(source),
+  658|         )
+  659| 
+  660|     def _tokenize(
+  661|         self,
+  662|         source: str,
+  663|         name: str | None,
+  664|         filename: str | None = None,
+  665|         state: str | None = None,
+  666|     ) -> TokenStream:
+  667|         """Called by the parser to do the preprocessing and filtering
+  668|         for all the extensions.  Returns a :class:`~jinja2.lexer.TokenStream`.
+  669|         """
+  670|         source = self.preprocess(source, name, filename)
+  671|         stream = self.lexer.tokenize(source, name, filename, state)
+  672| 
+  673|         for ext in self.iter_extensions():
+  674|             stream = ext.filter_stream(stream)  # type: ignore
+  675| 
+  676|             if not isinstance(stream, TokenStream):
+  677|                 stream = TokenStream(stream, name, filename)
+  678| 
+  679|         return stream
+  680| 
+  681|     def _generate(
+  682|         self,
+  683|         source: nodes.Template,
+  684|         name: str | None,
+  685|         filename: str | None,
+  686|         defer_init: bool = False,
+  687|     ) -> str:
+  688|         """Internal hook that can be overridden to hook a different generate
+  689|         method in.
+  690| 
+  691|         .. versionadded:: 2.5
+  692|         """
+  693|         return generate(  # type: ignore
+  694|             source,
+  695|             self,
+  696|             name,
+  697|             filename,
+  698|             defer_init=defer_init,
+  699|             optimized=self.optimized,
+  700|         )
+  701| 
+  702|     def _compile(self, source: str, filename: str) -> CodeType:
+  703|         """Internal hook that can be overridden to hook a different compile
+  704|         method in.
+  705| 
+  706|         .. versionadded:: 2.5
+  707|         """
+  708|         return compile(source, filename, "exec")
+  709| 
+  710|     @typing.overload
+  711|     def compile(
+  712|         self,
+  713|         source: str | nodes.Template,
+  714|         name: str | None = None,
+  715|         filename: str | None = None,
+  716|         raw: "te.Literal[False]" = False,
+  717|         defer_init: bool = False,
+  718|     ) -> CodeType: ...
+  719| 
+  720|     @typing.overload
+  721|     def compile(
+  722|         self,
+  723|         source: str | nodes.Template,
+  724|         name: str | None = None,
+  725|         filename: str | None = None,
+  726|         raw: "te.Literal[True]" = ...,
+  727|         defer_init: bool = False,
+  728|     ) -> str: ...
+  729| 
+  730|     @internalcode
+  731|     def compile(
+  732|         self,
+  733|         source: str | nodes.Template,
+  734|         name: str | None = None,
+  735|         filename: str | None = None,
+  736|         raw: bool = False,
+  737|         defer_init: bool = False,
+  738|     ) -> str | CodeType:
+  739|         """Compile a node or template source code.  The `name` parameter is
+  740|         the load name of the template after it was joined using
+  741|         :meth:`join_path` if necessary, not the filename on the file system.
+  742|         the `filename` parameter is the estimated filename of the template on
+  743|         the file system.  If the template came from a database or memory this
+  744|         can be omitted.
+  745| 
+  746|         The return value of this method is a python code object.  If the `raw`
+  747|         parameter is `True` the return value will be a string with python
+  748|         code equivalent to the bytecode returned otherwise.  This method is
+  749|         mainly used internally.
+  750| 
+  751|         `defer_init` is use internally to aid the module code generator.  This
+  752|         causes the generated code to be able to import without the global
+  753|         environment variable to be set.
+  754| 
+  755|         .. versionadded:: 2.4
+  756|            `defer_init` parameter added.
+  757|         """
+  758|         source_hint = None
+  759|         try:
+  760|             if isinstance(source, str):
+  761|                 source_hint = source
+  762|                 source = self._parse(source, name, filename)
+  763|             source = self._generate(source, name, filename, defer_init=defer_init)
+  764|             if raw:
+  765|                 return source
+  766|             if filename is None:
+  767|                 filename = "<template>"
+  768|             return self._compile(source, filename)
+  769|         except TemplateSyntaxError:
+  770|             self.handle_exception(source=source_hint)
+  771| 
+  772|     def compile_expression(
+  773|         self, source: str, undefined_to_none: bool = True
+  774|     ) -> "TemplateExpression":
+  775|         """A handy helper method that returns a callable that accepts keyword
+  776|         arguments that appear as variables in the expression.  If called it
+  777|         returns the result of the expression.
+  778| 
+  779|         This is useful if applications want to use the same rules as Jinja
+  780|         in template "configuration files" or similar situations.
+  781| 
+  782|         Example usage:
+  783| 
+  784|         >>> env = Environment()
+  785|         >>> expr = env.compile_expression('foo == 42')
+  786|         >>> expr(foo=23)
+  787|         False
+  788|         >>> expr(foo=42)
+  789|         True
+  790| 
+  791|         Per default the return value is converted to `None` if the
+  792|         expression returns an undefined value.  This can be changed
+  793|         by setting `undefined_to_none` to `False`.
+  794| 
+  795|         >>> env.compile_expression('var')() is None
+  796|         True
+  797|         >>> env.compile_expression('var', undefined_to_none=False)()
+  798|         Undefined
+  799| 
+  800|         .. versionadded:: 2.1
+  801|         """
+  802|         parser = Parser(self, source, state="variable")
+  803|         try:
+  804|             expr = parser.parse_expression()
+  805|             if not parser.stream.eos:
+  806|                 raise TemplateSyntaxError(
+  807|                     "chunk after expression", parser.stream.current.lineno, None, None
+  808|                 )
+  809|             expr.set_environment(self)
+  810|         except TemplateSyntaxError:
+  811|             self.handle_exception(source=source)
+  812| 
+  813|         body = [nodes.Assign(nodes.Name("result", "store"), expr, lineno=1)]
+  814|         template = self.from_string(nodes.Template(body, lineno=1))
+  815|         return TemplateExpression(template, undefined_to_none)
+  816| 
+  817|     def compile_templates(
+  818|         self,
+  819|         target: t.Union[str, "os.PathLike[str]"],
+  820|         extensions: t.Collection[str] | None = None,
+  821|         filter_func: t.Callable[[str], bool] | None = None,
+  822|         zip: str | None = "deflated",
+  823|         log_function: t.Callable[[str], None] | None = None,
+  824|         ignore_errors: bool = True,
+  825|     ) -> None:
+  826|         """Finds all the templates the loader can find, compiles them
+  827|         and stores them in `target`.  If `zip` is `None`, instead of in a
+  828|         zipfile, the templates will be stored in a directory.
+  829|         By default a deflate zip algorithm is used. To switch to
+  830|         the stored algorithm, `zip` can be set to ``'stored'``.
+  831| 
+  832|         `extensions` and `filter_func` are passed to :meth:`list_templates`.
+  833|         Each template returned will be compiled to the target folder or
+  834|         zipfile.
+  835| 
+  836|         By default template compilation errors are ignored.  In case a
+  837|         log function is provided, errors are logged.  If you want template
+  838|         syntax errors to abort the compilation you can set `ignore_errors`
+  839|         to `False` and you will get an exception on syntax errors.
+  840| 
+  841|         .. versionadded:: 2.4
+  842|         """
+  843|         from .loaders import ModuleLoader
+  844| 
+  845|         if log_function is None:
+  846| 
+  847|             def log_function(x: str) -> None:
+  848|                 pass
+  849| 
+  850|         assert log_function is not None
+  851|         assert self.loader is not None, "No loader configured."
+  852| 
+  853|         def write_file(filename: str, data: str) -> None:
+  854|             if zip:
+  855|                 info = ZipInfo(filename)
+  856|                 info.external_attr = 0o755 << 16
+  857|                 zip_file.writestr(info, data)
+  858|             else:
+  859|                 with open(os.path.join(target, filename), "wb") as f:
+  860|                     f.write(data.encode("utf8"))
+  861| 
+  862|         if zip is not None:
+  863|             from zipfile import ZIP_DEFLATED
+  864|             from zipfile import ZIP_STORED
+  865|             from zipfile import ZipFile
+  866|             from zipfile import ZipInfo
+  867| 
+  868|             zip_file = ZipFile(
+  869|                 target, "w", dict(deflated=ZIP_DEFLATED, stored=ZIP_STORED)[zip]
+  870|             )
+  871|             log_function(f"Compiling into Zip archive {target!r}")
+  872|         else:
+  873|             if not os.path.isdir(target):
+  874|                 os.makedirs(target)
+  875|             log_function(f"Compiling into folder {target!r}")
+  876| 
+  877|         try:
+  878|             for name in self.list_templates(extensions, filter_func):
+  879|                 source, filename, _ = self.loader.get_source(self, name)
+  880|                 try:
+  881|                     code = self.compile(source, name, filename, True, True)
+  882|                 except TemplateSyntaxError as e:
+  883|                     if not ignore_errors:
+  884|                         raise
+  885|                     log_function(f'Could not compile "{name}": {e}')
+  886|                     continue
+  887| 
+  888|                 filename = ModuleLoader.get_module_filename(name)
+  889| 
+  890|                 write_file(filename, code)
+  891|                 log_function(f'Compiled "{name}" as {filename}')
+  892|         finally:
+  893|             if zip:
+  894|                 zip_file.close()
+  895| 
+  896|         log_function("Finished compiling templates")
+  897| 
+  898|     def list_templates(
+  899|         self,
+  900|         extensions: t.Collection[str] | None = None,
+  901|         filter_func: t.Callable[[str], bool] | None = None,
+  902|     ) -> list[str]:
+  903|         """Returns a list of templates for this environment.  This requires
+  904|         that the loader supports the loader's
+  905|         :meth:`~BaseLoader.list_templates` method.
+  906| 
+  907|         If there are other files in the template folder besides the
+  908|         actual templates, the returned list can be filtered.  There are two
+  909|         ways: either `extensions` is set to a list of file extensions for
+  910|         templates, or a `filter_func` can be provided which is a callable that
+  911|         is passed a template name and should return `True` if it should end up
+  912|         in the result list.
+  913| 
+  914|         If the loader does not support that, a :exc:`TypeError` is raised.
+  915| 
+  916|         .. versionadded:: 2.4
+  917|         """
+  918|         assert self.loader is not None, "No loader configured."
+  919|         names = self.loader.list_templates()
+  920| 
+  921|         if extensions is not None:
+  922|             if filter_func is not None:
+  923|                 raise TypeError(
+  924|                     "either extensions or filter_func can be passed, but not both"
+  925|                 )
+  926| 
+  927|             def filter_func(x: str) -> bool:
+  928|                 return "." in x and x.rsplit(".", 1)[1] in extensions
+  929| 
+  930|         if filter_func is not None:
+  931|             names = [name for name in names if filter_func(name)]
+  932| 
+  933|         return names
+  934| 
+  935|     def handle_exception(self, source: str | None = None) -> "te.NoReturn":
+  936|         """Exception handling helper.  This is used internally to either raise
+  937|         rewritten exceptions or return a rendered traceback for the template.
+  938|         """
+  939|         from .debug import rewrite_traceback_stack
+  940| 
+  941|         raise rewrite_traceback_stack(source=source)
+  942| 
+  943|     def join_path(self, template: str, parent: str) -> str:
+  944|         """Join a template with the parent.  By default all the lookups are
+  945|         relative to the loader root so this method returns the `template`
+  946|         parameter unchanged, but if the paths should be relative to the
+  947|         parent template, this function can be used to calculate the real
+  948|         template name.
+  949| 
+  950|         Subclasses may override this method and implement template path
+  951|         joining here.
+  952|         """
+  953|         return template
+  954| 
+  955|     @internalcode
+  956|     def _load_template(
+  957|         self, name: str, globals: t.MutableMapping[str, t.Any] | None
+  958|     ) -> "Template":
+  959|         if self.loader is None:
+  960|             raise TypeError("no loader for this environment specified")
+  961|         cache_key = (weakref.ref(self.loader), name)
+  962|         if self.cache is not None:
+  963|             template = self.cache.get(cache_key)
+  964|             if template is not None and (
+  965|                 not self.auto_reload or template.is_up_to_date
+  966|             ):
+  967|                 # template.globals is a ChainMap, modifying it will only
+  968|                 # affect the template, not the environment globals.
+  969|                 if globals:
+  970|                     template.globals.update(globals)
+  971| 
+  972|                 return template
+  973| 
+  974|         template = self.loader.load(self, name, self.make_globals(globals))
+  975| 
+  976|         if self.cache is not None:
+  977|             self.cache[cache_key] = template
+  978|         return template
+  979| 
+  980|     @internalcode
+  981|     def get_template(
+  982|         self,
+  983|         name: t.Union[str, "Template"],
+  984|         parent: str | None = None,
+  985|         globals: t.MutableMapping[str, t.Any] | None = None,
+  986|     ) -> "Template":
+  987|         """Load a template by name with :attr:`loader` and return a
+  988|         :class:`Template`. If the template does not exist a
+  989|         :exc:`TemplateNotFound` exception is raised.
+  990| 
+  991|         :param name: Name of the template to load. When loading
+  992|             templates from the filesystem, "/" is used as the path
+  993|             separator, even on Windows.
+  994|         :param parent: The name of the parent template importing this
+  995|             template. :meth:`join_path` can be used to implement name
+  996|             transformations with this.
+  997|         :param globals: Extend the environment :attr:`globals` with
+  998|             these extra variables available for all renders of this
+  999|             template. If the template has already been loaded and
+ 1000|             cached, its globals are updated with any new items.
+ 1001| 
+ 1002|         .. versionchanged:: 3.0
+ 1003|             If a template is loaded from cache, ``globals`` will update
+ 1004|             the template's globals instead of ignoring the new values.
+ 1005| 
+ 1006|         .. versionchanged:: 2.4
+ 1007|             If ``name`` is a :class:`Template` object it is returned
+ 1008|             unchanged.
+ 1009|         """
+ 1010|         if isinstance(name, Template):
+ 1011|             return name
+ 1012|         if parent is not None:
+ 1013|             name = self.join_path(name, parent)
+ 1014| 
+ 1015|         return self._load_template(name, globals)
+ 1016| 
+ 1017|     @internalcode
+ 1018|     def select_template(
+ 1019|         self,
+ 1020|         names: t.Iterable[t.Union[str, "Template"]],
+ 1021|         parent: str | None = None,
+ 1022|         globals: t.MutableMapping[str, t.Any] | None = None,
+ 1023|     ) -> "Template":
+ 1024|         """Like :meth:`get_template`, but tries loading multiple names.
+ 1025|         If none of the names can be loaded a :exc:`TemplatesNotFound`
+ 1026|         exception is raised.
+ 1027| 
+ 1028|         :param names: List of template names to try loading in order.
+ 1029|         :param parent: The name of the parent template importing this
+ 1030|             template. :meth:`join_path` can be used to implement name
+ 1031|             transformations with this.
+ 1032|         :param globals: Extend the environment :attr:`globals` with
+ 1033|             these extra variables available for all renders of this
+ 1034|             template. If the template has already been loaded and
+ 1035|             cached, its globals are updated with any new items.
+ 1036| 
+ 1037|         .. versionchanged:: 3.0
+ 1038|             If a template is loaded from cache, ``globals`` will update
+ 1039|             the template's globals instead of ignoring the new values.
+ 1040| 
+ 1041|         .. versionchanged:: 2.11
+ 1042|             If ``names`` is :class:`Undefined`, an :exc:`UndefinedError`
+ 1043|             is raised instead. If no templates were found and ``names``
+ 1044|             contains :class:`Undefined`, the message is more helpful.
+ 1045| 
+ 1046|         .. versionchanged:: 2.4
+ 1047|             If ``names`` contains a :class:`Template` object it is
+ 1048|             returned unchanged.
+ 1049| 
+ 1050|         .. versionadded:: 2.3
+ 1051|         """
+ 1052|         if isinstance(names, Undefined):
+ 1053|             names._fail_with_undefined_error()
+ 1054| 
+ 1055|         if not names:
+ 1056|             raise TemplatesNotFound(
+ 1057|                 message="Tried to select from an empty list of templates."
+ 1058|             )
+ 1059| 
+ 1060|         for name in names:
+ 1061|             if isinstance(name, Template):
+ 1062|                 return name
+ 1063|             if parent is not None:
+ 1064|                 name = self.join_path(name, parent)
+ 1065|             try:
+ 1066|                 return self._load_template(name, globals)
+ 1067|             except (TemplateNotFound, UndefinedError):
+ 1068|                 pass
+ 1069|         raise TemplatesNotFound(names)  # type: ignore
+ 1070| 
+ 1071|     @internalcode
+ 1072|     def get_or_select_template(
+ 1073|         self,
+ 1074|         template_name_or_list: t.Union[str, "Template", list[t.Union[str, "Template"]]],
+ 1075|         parent: str | None = None,
+ 1076|         globals: t.MutableMapping[str, t.Any] | None = None,
+ 1077|     ) -> "Template":
+ 1078|         """Use :meth:`select_template` if an iterable of template names
+ 1079|         is given, or :meth:`get_template` if one name is given.
+ 1080| 
+ 1081|         .. versionadded:: 2.3
+ 1082|         """
+ 1083|         if isinstance(template_name_or_list, (str, Undefined)):
+ 1084|             return self.get_template(template_name_or_list, parent, globals)
+ 1085|         elif isinstance(template_name_or_list, Template):
+ 1086|             return template_name_or_list
+ 1087|         return self.select_template(template_name_or_list, parent, globals)
+ 1088| 
+ 1089|     def from_string(
+ 1090|         self,
+ 1091|         source: str | nodes.Template,
+ 1092|         globals: t.MutableMapping[str, t.Any] | None = None,
+ 1093|         template_class: type["Template"] | None = None,
+ 1094|     ) -> "Template":
+ 1095|         """Load a template from a source string without using
+ 1096|         :attr:`loader`.
+ 1097| 
+ 1098|         :param source: Jinja source to compile into a template.
+ 1099|         :param globals: Extend the environment :attr:`globals` with
+ 1100|             these extra variables available for all renders of this
+ 1101|             template. If the template has already been loaded and
+ 1102|             cached, its globals are updated with any new items.
+ 1103|         :param template_class: Return an instance of this
+ 1104|             :class:`Template` class.
+ 1105|         """
+ 1106|         gs = self.make_globals(globals)
+ 1107|         cls = template_class or self.template_class
+ 1108|         return cls.from_code(self, self.compile(source), gs, None)
+ 1109| 
+ 1110|     def make_globals(
+ 1111|         self, d: t.MutableMapping[str, t.Any] | None
+ 1112|     ) -> t.MutableMapping[str, t.Any]:
+ 1113|         """Make the globals map for a template. Any given template
+ 1114|         globals overlay the environment :attr:`globals`.
+ 1115| 
+ 1116|         Returns a :class:`collections.ChainMap`. This allows any changes
+ 1117|         to a template's globals to only affect that template, while
+ 1118|         changes to the environment's globals are still reflected.
+ 1119|         However, avoid modifying any globals after a template is loaded.
+ 1120| 
+ 1121|         :param d: Dict of template-specific globals.
+ 1122| 
+ 1123|         .. versionchanged:: 3.0
+ 1124|             Use :class:`collections.ChainMap` to always prevent mutating
+ 1125|             environment globals.
+ 1126|         """
+ 1127|         if d is None:
+ 1128|             d = {}
+ 1129| 
+ 1130|         return ChainMap(d, self.globals)
+ 1131| 
+ 1132| 
+ 1133| class Template:
+ 1134|     """A compiled template that can be rendered.
+ 1135| 
+ 1136|     Use the methods on :class:`Environment` to create or load templates.
+ 1137|     The environment is used to configure how templates are compiled and
+ 1138|     behave.
+ 1139| 
+ 1140|     It is also possible to create a template object directly. This is
+ 1141|     not usually recommended. The constructor takes most of the same
+ 1142|     arguments as :class:`Environment`. All templates created with the
+ 1143|     same environment arguments share the same ephemeral ``Environment``
+ 1144|     instance behind the scenes.
+ 1145| 
+ 1146|     A template object should be considered immutable. Modifications on
+ 1147|     the object are not supported.
+ 1148|     """
+ 1149| 
+ 1150|     #: Type of environment to create when creating a template directly
+ 1151|     #: rather than through an existing environment.
+ 1152|     environment_class: type[Environment] = Environment
+ 1153| 
+ 1154|     environment: Environment
+ 1155|     globals: t.MutableMapping[str, t.Any]
+ 1156|     name: str | None
+ 1157|     filename: str | None
+ 1158|     blocks: dict[str, t.Callable[[Context], t.Iterator[str]]]
+ 1159|     root_render_func: t.Callable[[Context], t.Iterator[str]]
+ 1160|     _module: t.Optional["TemplateModule"]
+ 1161|     _debug_info: str
+ 1162|     _uptodate: t.Callable[[], bool] | None
+ 1163| 
+ 1164|     def __new__(
+ 1165|         cls,
+ 1166|         source: str | nodes.Template,
+ 1167|         block_start_string: str = BLOCK_START_STRING,
+ 1168|         block_end_string: str = BLOCK_END_STRING,
+ 1169|         variable_start_string: str = VARIABLE_START_STRING,
+ 1170|         variable_end_string: str = VARIABLE_END_STRING,
+ 1171|         comment_start_string: str = COMMENT_START_STRING,
+ 1172|         comment_end_string: str = COMMENT_END_STRING,
+ 1173|         line_statement_prefix: str | None = LINE_STATEMENT_PREFIX,
+ 1174|         line_comment_prefix: str | None = LINE_COMMENT_PREFIX,
+ 1175|         trim_blocks: bool = TRIM_BLOCKS,
+ 1176|         lstrip_blocks: bool = LSTRIP_BLOCKS,
+ 1177|         newline_sequence: "te.Literal['\\n', '\\r\\n', '\\r']" = NEWLINE_SEQUENCE,
+ 1178|         keep_trailing_newline: bool = KEEP_TRAILING_NEWLINE,
+ 1179|         extensions: t.Sequence[str | type["Extension"]] = (),
+ 1180|         optimized: bool = True,
+ 1181|         undefined: type[Undefined] = Undefined,
+ 1182|         finalize: t.Callable[..., t.Any] | None = None,
+ 1183|         autoescape: bool | t.Callable[[str | None], bool] = False,
+ 1184|         enable_async: bool = False,
+ 1185|     ) -> t.Any:  # it returns a `Template`, but this breaks the sphinx build...
+ 1186|         env = get_spontaneous_environment(
+ 1187|             cls.environment_class,  # type: ignore
+ 1188|             block_start_string,
+ 1189|             block_end_string,
+ 1190|             variable_start_string,
+ 1191|             variable_end_string,
+ 1192|             comment_start_string,
+ 1193|             comment_end_string,
+ 1194|             line_statement_prefix,
+ 1195|             line_comment_prefix,
+ 1196|             trim_blocks,
+ 1197|             lstrip_blocks,
+ 1198|             newline_sequence,
+ 1199|             keep_trailing_newline,
+ 1200|             frozenset(extensions),
+ 1201|             optimized,
+ 1202|             undefined,  # type: ignore
+ 1203|             finalize,
+ 1204|             autoescape,
+ 1205|             None,
+ 1206|             0,
+ 1207|             False,
+ 1208|             None,
+ 1209|             enable_async,
+ 1210|         )
+ 1211|         return env.from_string(source, template_class=cls)
+ 1212| 
+ 1213|     @classmethod
+ 1214|     def from_code(
+ 1215|         cls,
+ 1216|         environment: Environment,
+ 1217|         code: CodeType,
+ 1218|         globals: t.MutableMapping[str, t.Any],
+ 1219|         uptodate: t.Callable[[], bool] | None = None,
+ 1220|     ) -> "Template":
+ 1221|         """Creates a template object from compiled code and the globals.  This
+ 1222|         is used by the loaders and environment to create a template object.
+ 1223|         """
+ 1224|         namespace = {"environment": environment, "__file__": code.co_filename}
+ 1225|         exec(code, namespace)
+ 1226|         rv = cls._from_namespace(environment, namespace, globals)
+ 1227|         rv._uptodate = uptodate
+ 1228|         return rv
+ 1229| 
+ 1230|     @classmethod
+ 1231|     def from_module_dict(
+ 1232|         cls,
+ 1233|         environment: Environment,
+ 1234|         module_dict: t.MutableMapping[str, t.Any],
+ 1235|         globals: t.MutableMapping[str, t.Any],
+ 1236|     ) -> "Template":
+ 1237|         """Creates a template object from a module.  This is used by the
+ 1238|         module loader to create a template object.
+ 1239| 
+ 1240|         .. versionadded:: 2.4
+ 1241|         """
+ 1242|         return cls._from_namespace(environment, module_dict, globals)
+ 1243| 
+ 1244|     @classmethod
+ 1245|     def _from_namespace(
+ 1246|         cls,
+ 1247|         environment: Environment,
+ 1248|         namespace: t.MutableMapping[str, t.Any],
+ 1249|         globals: t.MutableMapping[str, t.Any],
+ 1250|     ) -> "Template":
+ 1251|         t: Template = object.__new__(cls)
+ 1252|         t.environment = environment
+ 1253|         t.globals = globals
+ 1254|         t.name = namespace["name"]
+ 1255|         t.filename = namespace["__file__"]
+ 1256|         t.blocks = namespace["blocks"]
+ 1257| 
+ 1258|         # render function and module
+ 1259|         t.root_render_func = namespace["root"]
+ 1260|         t._module = None
+ 1261| 
+ 1262|         # debug and loader helpers
+ 1263|         t._debug_info = namespace["debug_info"]
+ 1264|         t._uptodate = None
+ 1265| 
+ 1266|         # store the reference
+ 1267|         namespace["environment"] = environment
+ 1268|         namespace["__jinja_template__"] = t
+ 1269| 
+ 1270|         return t
+ 1271| 
+ 1272|     def render(self, *args: t.Any, **kwargs: t.Any) -> str:
+ 1273|         """This method accepts the same arguments as the `dict` constructor:
+ 1274|         A dict, a dict subclass or some keyword arguments.  If no arguments
+ 1275|         are given the context will be empty.  These two calls do the same::
+ 1276| 
+ 1277|             template.render(knights='that say nih')
+ 1278|             template.render({'knights': 'that say nih'})
+ 1279| 
+ 1280|         This will return the rendered template as a string.
+ 1281|         """
+ 1282|         if self.environment.is_async:
+ 1283|             import asyncio
+ 1284| 
+ 1285|             return asyncio.run(self.render_async(*args, **kwargs))
+ 1286| 
+ 1287|         ctx = self.new_context(dict(*args, **kwargs))
+ 1288| 
+ 1289|         try:
+ 1290|             return self.environment.concat(self.root_render_func(ctx))  # type: ignore
+ 1291|         except Exception:
+ 1292|             self.environment.handle_exception()
+ 1293| 
+ 1294|     async def render_async(self, *args: t.Any, **kwargs: t.Any) -> str:
+ 1295|         """This works similar to :meth:`render` but returns a coroutine
+ 1296|         that when awaited returns the entire rendered template string.  This
+ 1297|         requires the async feature to be enabled.
+ 1298| 
+ 1299|         Example usage::
+ 1300| 
+ 1301|             await template.render_async(knights='that say nih; asynchronously')
+ 1302|         """
+ 1303|         if not self.environment.is_async:
+ 1304|             raise RuntimeError(
+ 1305|                 "The environment was not created with async mode enabled."
+ 1306|             )
+ 1307| 
+ 1308|         ctx = self.new_context(dict(*args, **kwargs))
+ 1309| 
+ 1310|         try:
+ 1311|             return self.environment.concat(  # type: ignore
+ 1312|                 [n async for n in self.root_render_func(ctx)]  # type: ignore
+ 1313|             )
+ 1314|         except Exception:
+ 1315|             return self.environment.handle_exception()
+ 1316| 
+ 1317|     def stream(self, *args: t.Any, **kwargs: t.Any) -> "TemplateStream":
+ 1318|         """Works exactly like :meth:`generate` but returns a
+ 1319|         :class:`TemplateStream`.
+ 1320|         """
+ 1321|         return TemplateStream(self.generate(*args, **kwargs))
+ 1322| 
+ 1323|     def generate(self, *args: t.Any, **kwargs: t.Any) -> t.Iterator[str]:
+ 1324|         """For very large templates it can be useful to not render the whole
+ 1325|         template at once but evaluate each statement after another and yield
+ 1326|         piece for piece.  This method basically does exactly that and returns
+ 1327|         a generator that yields one item after another as strings.
+ 1328| 
+ 1329|         It accepts the same arguments as :meth:`render`.
+ 1330|         """
+ 1331|         if self.environment.is_async:
+ 1332|             import asyncio
+ 1333| 
+ 1334|             async def to_list() -> list[str]:
+ 1335|                 return [x async for x in self.generate_async(*args, **kwargs)]
+ 1336| 
+ 1337|             yield from asyncio.run(to_list())
+ 1338|             return
+ 1339| 
+ 1340|         ctx = self.new_context(dict(*args, **kwargs))
+ 1341| 
+ 1342|         try:
+ 1343|             yield from self.root_render_func(ctx)
+ 1344|         except Exception:
+ 1345|             yield self.environment.handle_exception()
+ 1346| 
+ 1347|     async def generate_async(
+ 1348|         self, *args: t.Any, **kwargs: t.Any
+ 1349|     ) -> t.AsyncGenerator[str, object]:
+ 1350|         """An async version of :meth:`generate`.  Works very similarly but
+ 1351|         returns an async iterator instead.
+ 1352|         """
+ 1353|         if not self.environment.is_async:
+ 1354|             raise RuntimeError(
+ 1355|                 "The environment was not created with async mode enabled."
+ 1356|             )
+ 1357| 
+ 1358|         ctx = self.new_context(dict(*args, **kwargs))
+ 1359| 
+ 1360|         try:
+ 1361|             agen: t.AsyncGenerator[str, None] = self.root_render_func(ctx)  # type: ignore[assignment]
+ 1362| 
+ 1363|             async with aclosing(agen):
+ 1364|                 async for event in agen:
+ 1365|                     yield event
+ 1366|         except Exception:
+ 1367|             yield self.environment.handle_exception()
+ 1368| 
+ 1369|     def new_context(
+ 1370|         self,
+ 1371|         vars: dict[str, t.Any] | None = None,
+ 1372|         shared: bool = False,
+ 1373|         locals: t.Mapping[str, t.Any] | None = None,
+ 1374|     ) -> Context:
+ 1375|         """Create a new :class:`Context` for this template.  The vars
+ 1376|         provided will be passed to the template.  Per default the globals
+ 1377|         are added to the context.  If shared is set to `True` the data
+ 1378|         is passed as is to the context without adding the globals.
+ 1379| 
+ 1380|         `locals` can be a dict of local variables for internal usage.
+ 1381|         """
+ 1382|         return new_context(
+ 1383|             self.environment, self.name, self.blocks, vars, shared, self.globals, locals
+ 1384|         )
+ 1385| 
+ 1386|     def make_module(
+ 1387|         self,
+ 1388|         vars: dict[str, t.Any] | None = None,
+ 1389|         shared: bool = False,
+ 1390|         locals: t.Mapping[str, t.Any] | None = None,
+ 1391|     ) -> "TemplateModule":
+ 1392|         """This method works like the :attr:`module` attribute when called
+ 1393|         without arguments but it will evaluate the template on every call
+ 1394|         rather than caching it.  It's also possible to provide
+ 1395|         a dict which is then used as context.  The arguments are the same
+ 1396|         as for the :meth:`new_context` method.
+ 1397|         """
+ 1398|         ctx = self.new_context(vars, shared, locals)
+ 1399|         return TemplateModule(self, ctx)
+ 1400| 
+ 1401|     async def make_module_async(
+ 1402|         self,
+ 1403|         vars: dict[str, t.Any] | None = None,
+ 1404|         shared: bool = False,
+ 1405|         locals: t.Mapping[str, t.Any] | None = None,
+ 1406|     ) -> "TemplateModule":
+ 1407|         """As template module creation can invoke template code for
+ 1408|         asynchronous executions this method must be used instead of the
+ 1409|         normal :meth:`make_module` one.  Likewise the module attribute
+ 1410|         becomes unavailable in async mode.
+ 1411|         """
+ 1412|         ctx = self.new_context(vars, shared, locals)
+ 1413|         return TemplateModule(
+ 1414|             self,
+ 1415|             ctx,
+ 1416|             [x async for x in self.root_render_func(ctx)],  # type: ignore
+ 1417|         )
+ 1418| 
+ 1419|     @internalcode
+ 1420|     def _get_default_module(self, ctx: Context | None = None) -> "TemplateModule":
+ 1421|         """If a context is passed in, this means that the template was
+ 1422|         imported. Imported templates have access to the current
+ 1423|         template's globals by default, but they can only be accessed via
+ 1424|         the context during runtime.
+ 1425| 
+ 1426|         If there are new globals, we need to create a new module because
+ 1427|         the cached module is already rendered and will not have access
+ 1428|         to globals from the current context. This new module is not
+ 1429|         cached because the template can be imported elsewhere, and it
+ 1430|         should have access to only the current template's globals.
+ 1431|         """
+ 1432|         if self.environment.is_async:
+ 1433|             raise RuntimeError("Module is not available in async mode.")
+ 1434| 
+ 1435|         if ctx is not None:
+ 1436|             keys = ctx.globals_keys - self.globals.keys()
+ 1437| 
+ 1438|             if keys:
+ 1439|                 return self.make_module({k: ctx.parent[k] for k in keys})
+ 1440| 
+ 1441|         if self._module is None:
+ 1442|             self._module = self.make_module()
+ 1443| 
+ 1444|         return self._module
+ 1445| 
+ 1446|     async def _get_default_module_async(
+ 1447|         self, ctx: Context | None = None
+ 1448|     ) -> "TemplateModule":
+ 1449|         if ctx is not None:
+ 1450|             keys = ctx.globals_keys - self.globals.keys()
+ 1451| 
+ 1452|             if keys:
+ 1453|                 return await self.make_module_async({k: ctx.parent[k] for k in keys})
+ 1454| 
+ 1455|         if self._module is None:
+ 1456|             self._module = await self.make_module_async()
+ 1457| 
+ 1458|         return self._module
+ 1459| 
+ 1460|     @property
+ 1461|     def module(self) -> "TemplateModule":
+ 1462|         """The template as module.  This is used for imports in the
+ 1463|         template runtime but is also useful if one wants to access
+ 1464|         exported template variables from the Python layer:
+ 1465| 
+ 1466|         >>> t = Template('{% macro foo() %}42{% endmacro %}23')
+ 1467|         >>> str(t.module)
+ 1468|         '23'
+ 1469|         >>> t.module.foo() == u'42'
+ 1470|         True
+ 1471| 
+ 1472|         This attribute is not available if async mode is enabled.
+ 1473|         """
+ 1474|         return self._get_default_module()
+ 1475| 
+ 1476|     def get_corresponding_lineno(self, lineno: int) -> int:
+ 1477|         """Return the source line number of a line number in the
+ 1478|         generated bytecode as they are not in sync.
+ 1479|         """
+ 1480|         for template_line, code_line in reversed(self.debug_info):
+ 1481|             if code_line <= lineno:
+ 1482|                 return template_line
+ 1483|         return 1
+ 1484| 
+ 1485|     @property
+ 1486|     def is_up_to_date(self) -> bool:
+ 1487|         """If this variable is `False` there is a newer version available."""
+ 1488|         if self._uptodate is None:
+ 1489|             return True
+ 1490|         return self._uptodate()
+ 1491| 
+ 1492|     @property
+ 1493|     def debug_info(self) -> list[tuple[int, int]]:
+ 1494|         """The debug info mapping."""
+ 1495|         if self._debug_info:
+ 1496|             return [
+ 1497|                 tuple(map(int, x.split("=")))  # type: ignore
+ 1498|                 for x in self._debug_info.split("&")
+ 1499|             ]
+ 1500| 
+ 1501|         return []
+ 1502| 
+ 1503|     def __repr__(self) -> str:
+ 1504|         if self.name is None:
+ 1505|             name = f"memory:{id(self):x}"
+ 1506|         else:
+ 1507|             name = repr(self.name)
+ 1508|         return f"<{type(self).__name__} {name}>"
+ 1509| 
+ 1510| 
+ 1511| class TemplateModule:
+ 1512|     """Represents an imported template.  All the exported names of the
+ 1513|     template are available as attributes on this object.  Additionally
+ 1514|     converting it into a string renders the contents.
+ 1515|     """
+ 1516| 
+ 1517|     def __init__(
+ 1518|         self,
+ 1519|         template: Template,
+ 1520|         context: Context,
+ 1521|         body_stream: t.Iterable[str] | None = None,
+ 1522|     ) -> None:
+ 1523|         if body_stream is None:
+ 1524|             if context.environment.is_async:
+ 1525|                 raise RuntimeError(
+ 1526|                     "Async mode requires a body stream to be passed to"
+ 1527|                     " a template module. Use the async methods of the"
+ 1528|                     " API you are using."
+ 1529|                 )
+ 1530| 
+ 1531|             body_stream = list(template.root_render_func(context))
+ 1532| 
+ 1533|         self._body_stream = body_stream
+ 1534|         self.__dict__.update(context.get_exported())
+ 1535|         self.__name__ = template.name
+ 1536| 
+ 1537|     def __html__(self) -> Markup:
+ 1538|         return Markup(concat(self._body_stream))
+ 1539| 
+ 1540|     def __str__(self) -> str:
+ 1541|         return concat(self._body_stream)
+ 1542| 
+ 1543|     def __repr__(self) -> str:
+ 1544|         if self.__name__ is None:
+ 1545|             name = f"memory:{id(self):x}"
+ 1546|         else:
+ 1547|             name = repr(self.__name__)
+ 1548|         return f"<{type(self).__name__} {name}>"
+ 1549| 
+ 1550| 
+ 1551| class TemplateExpression:
+ 1552|     """The :meth:`jinja2.Environment.compile_expression` method returns an
+ 1553|     instance of this object.  It encapsulates the expression-like access
+ 1554|     to the template with an expression it wraps.
+ 1555|     """
+ 1556| 
+ 1557|     def __init__(self, template: Template, undefined_to_none: bool) -> None:
+ 1558|         self._template = template
+ 1559|         self._undefined_to_none = undefined_to_none
+ 1560| 
+ 1561|     def __call__(self, *args: t.Any, **kwargs: t.Any) -> t.Any | None:
+ 1562|         context = self._template.new_context(dict(*args, **kwargs))
+ 1563|         consume(self._template.root_render_func(context))
+ 1564|         rv = context.vars["result"]
+ 1565|         if self._undefined_to_none and isinstance(rv, Undefined):
+ 1566|             rv = None
+ 1567|         return rv
+ 1568| 
+ 1569| 
+ 1570| class TemplateStream:
+ 1571|     """A template stream works pretty much like an ordinary python generator
+ 1572|     but it can buffer multiple items to reduce the number of total iterations.
+ 1573|     Per default the output is unbuffered which means that for every unbuffered
+ 1574|     instruction in the template one string is yielded.
+ 1575| 
+ 1576|     If buffering is enabled with a buffer size of 5, five items are combined
+ 1577|     into a new string.  This is mainly useful if you are streaming
+ 1578|     big templates to a client via WSGI which flushes after each iteration.
+ 1579|     """
+ 1580| 
+ 1581|     def __init__(self, gen: t.Iterator[str]) -> None:
+ 1582|         self._gen = gen
+ 1583|         self.disable_buffering()
+ 1584| 
+ 1585|     def dump(
+ 1586|         self,
+ 1587|         fp: str | t.IO[bytes],
+ 1588|         encoding: str | None = None,
+ 1589|         errors: str | None = "strict",
+ 1590|     ) -> None:
+ 1591|         """Dump the complete stream into a file or file-like object.
+ 1592|         Per default strings are written, if you want to encode
+ 1593|         before writing specify an `encoding`.
+ 1594| 
+ 1595|         Example usage::
+ 1596| 
+ 1597|             Template('Hello {{ name }}!').stream(name='foo').dump('hello.html')
+ 1598|         """
+ 1599|         close = False
+ 1600| 
+ 1601|         if isinstance(fp, str):
+ 1602|             if encoding is None:
+ 1603|                 encoding = "utf-8"
+ 1604| 
+ 1605|             real_fp: t.IO[bytes] = open(fp, "wb")
+ 1606|             close = True
+ 1607|         else:
+ 1608|             real_fp = fp
+ 1609| 
+ 1610|         try:
+ 1611|             if encoding is not None:
+ 1612|                 iterable = (x.encode(encoding, errors) for x in self)  # type: ignore
+ 1613|             else:
+ 1614|                 iterable = self  # type: ignore
+ 1615| 
+ 1616|             if hasattr(real_fp, "writelines"):
+ 1617|                 real_fp.writelines(iterable)
+ 1618|             else:
+ 1619|                 for item in iterable:
+ 1620|                     real_fp.write(item)
+ 1621|         finally:
+ 1622|             if close:
+ 1623|                 real_fp.close()
+ 1624| 
+ 1625|     def disable_buffering(self) -> None:
+ 1626|         """Disable the output buffering."""
+ 1627|         self._next = partial(next, self._gen)
+ 1628|         self.buffered = False
+ 1629| 
+ 1630|     def _buffered_generator(self, size: int) -> t.Iterator[str]:
+ 1631|         buf: list[str] = []
+ 1632|         c_size = 0
+ 1633|         push = buf.append
+ 1634| 
+ 1635|         while True:
+ 1636|             try:
+ 1637|                 while c_size < size:
+ 1638|                     c = next(self._gen)
+ 1639|                     push(c)
+ 1640|                     if c:
+ 1641|                         c_size += 1
+ 1642|             except StopIteration:
+ 1643|                 if not c_size:
+ 1644|                     return
+ 1645|             yield concat(buf)
+ 1646|             del buf[:]
+ 1647|             c_size = 0
+ 1648| 
+ 1649|     def enable_buffering(self, size: int = 5) -> None:
+ 1650|         """Enable buffering.  Buffer `size` items before yielding them."""
+ 1651|         if size <= 1:
+ 1652|             raise ValueError("buffer size too small")
+ 1653| 
+ 1654|         self.buffered = True
+ 1655|         self._next = partial(next, self._buffered_generator(size))
+ 1656| 
+ 1657|     def __iter__(self) -> "TemplateStream":
+ 1658|         return self
+ 1659| 
+ 1660|     def __next__(self) -> str:
+ 1661|         return self._next()  # type: ignore
+ 1662| 
+ 1663| 
+ 1664| # hook in default template class.  if anyone reads this comment: ignore that
+ 1665| # it's possible to use custom templates ;-)
+ 1666| Environment.template_class = Template
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-jinja-contains-33",
+    "answerable_static": true,
+    "gold": [
+      "src/jinja2/tests.py::TESTS",
+      "src/jinja2/tests.py::test_boolean",
+      "src/jinja2/tests.py::test_defined",
+      "src/jinja2/tests.py::test_divisibleby",
+      "src/jinja2/tests.py::test_escaped",
+      "src/jinja2/tests.py::test_even",
+      "src/jinja2/tests.py::test_false",
+      "src/jinja2/tests.py::test_filter",
+      "src/jinja2/tests.py::test_float",
+      "src/jinja2/tests.py::test_in",
+      "src/jinja2/tests.py::test_integer",
+      "src/jinja2/tests.py::test_iterable",
+      "src/jinja2/tests.py::test_lower",
+      "src/jinja2/tests.py::test_mapping",
+      "src/jinja2/tests.py::test_none",
+      "src/jinja2/tests.py::test_number",
+      "src/jinja2/tests.py::test_odd",
+      "src/jinja2/tests.py::test_sameas",
+      "src/jinja2/tests.py::test_sequence",
+      "src/jinja2/tests.py::test_string",
+      "src/jinja2/tests.py::test_test",
+      "src/jinja2/tests.py::test_true",
+      "src/jinja2/tests.py::test_undefined",
+      "src/jinja2/tests.py::test_upper"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-jinja-contains-77",
+    "answerable_static": true,
+    "gold": [
+      "src/jinja2/environment.py::Template.__new__",
+      "src/jinja2/environment.py::Template.__repr__",
+      "src/jinja2/environment.py::Template._debug_info",
+      "src/jinja2/environment.py::Template._from_namespace",
+      "src/jinja2/environment.py::Template._get_default_module",
+      "src/jinja2/environment.py::Template._get_default_module_async",
+      "src/jinja2/environment.py::Template._module",
+      "src/jinja2/environment.py::Template._uptodate",
+      "src/jinja2/environment.py::Template.blocks",
+      "src/jinja2/environment.py::Template.debug_info",
+      "src/jinja2/environment.py::Template.environment",
+      "src/jinja2/environment.py::Template.environment_class",
+      "src/jinja2/environment.py::Template.filename",
+      "src/jinja2/environment.py::Template.from_code",
+      "src/jinja2/environment.py::Template.from_module_dict",
+      "src/jinja2/environment.py::Template.generate",
+      "src/jinja2/environment.py::Template.generate_async",
+      "src/jinja2/environment.py::Template.get_corresponding_lineno",
+      "src/jinja2/environment.py::Template.globals",
+      "src/jinja2/environment.py::Template.is_up_to_date",
+      "src/jinja2/environment.py::Template.make_module",
+      "src/jinja2/environment.py::Template.make_module_async",
+      "src/jinja2/environment.py::Template.module",
+      "src/jinja2/environment.py::Template.name",
+      "src/jinja2/environment.py::Template.new_context",
+      "src/jinja2/environment.py::Template.render",
+      "src/jinja2/environment.py::Template.render_async",
+      "src/jinja2/environment.py::Template.root_render_func",
+      "src/jinja2/environment.py::Template.stream"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  }
+]
+tokens used
+28,215

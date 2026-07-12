@@ -1,0 +1,47 @@
+{
+  "date": "2026-07-11T18:24:53Z",
+  "device": "cpu",
+  "experiment": "f2b-transfer",
+  "gpu_class_assumed_for_usd": "A100",
+  "mode": "MOCK",
+  "models": {
+    "note": "MOCK \u2014 synthetic stub LM, no models loaded"
+  },
+  "n_eval_items": 16,
+  "n_records": 12,
+  "outcome": "MOCK-HARNESS-COMPLETE",
+  "outcome_note": "NOT a hypothesis verdict \u2014 raw run-records only; the verdict is computed by the pinned analysis/f2b_transfer.py + tools/registry/verdict-gen.py under run-vs-audit separation (the REAL stage-1 adjudication record is already in the results log and is not re-emitted by a real run)",
+  "pins": {
+    "adjInternalConsistency": "the runner additionally fail-closes on: summary.json labels_sha256 != sha256(labels.jsonl) (ERR_ADJ_PIN); count of resolved gold_ext lines != summary n_ext_labelled (ERR_ADJ_COUNTS); eval-prefix length != summary n_eval_items on real runs (ERR_ADJ_COUNTS); any d-qa-t item id missing from labels.jsonl (ERR_LABELS_MISSING)",
+    "dadjtCorpusKotHash": "a4baa36fbcbbfe2b51fa1dbdd0589c3c461caf190cfc5b67c65e4a5bda9b53bc",
+    "dadjtLabelsSha256": "a0ffe09b0402e71f8e542d9f40a24f8d6f63d48cf6cba5d343bbb03753191c47",
+    "dadjtSummarySha256": "54820db326794be085c471fa80db5d5ed4f2412fcaa9b651653e069f336d509a",
+    "dqaCoveredItemsSha256": "e96ad76694a60e91be38dc60d3608c013dba3e0e5c471094595cfe2ac7f2940a",
+    "dqaGlossCorpusSha256": "87a984b94b0b03f457aa2c6c8ee2b97000bd2dbf58ad781cb52a4c865856c815",
+    "dqaManifestSha256": "3e8c15b761a4205e48b21597982c8d45f9529cf844b5d52f229a28bc08545744",
+    "dqatCorpusKotHash": "7179ee6791bd0af643c410872925ff594945c29b563192f6d7c4a872397cee27",
+    "dqatCoveredItemsSha256": "fa8ad6e74e5e1f2732a8076109c7ab2d6893dbebb3ccfdb6ae0e37bd4dfe80fb",
+    "dqatManifestSha256": "67eb160a1f300bb39539fd0aab2bfd66a225b9551c222f870bdc37eb82262c20",
+    "dxifCorpusKotHash": "8c9aded603b236a79cb555d3ad3e8e072b772a7723bd06673ed53e216826adfa",
+    "dxifManifestSha256": "ad7bfa6bea2a19dd69e2d04265f6c20bec8e2e2cd9afe8a213ef893e08fb773f",
+    "dxifOutputsR1Sha256": "133abf1f93ba60d35fdf240ade1161a96882de6def501106fbec24910e3b737c",
+    "kernelV0KotHash": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "moleculesV0KotHash": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4",
+    "perItemRecordSha256": "every d-qa-t item carries record_path + record_sha256; the verifier re-hashes the canonical record file at use and fails closed (ERR_RECORD_PIN) on mismatch \u2014 the shuffled verifier verifies the PERMUTED record's pin the same way",
+    "pinSources": "dqatCorpusKotHash / dxifCorpusKotHash / kernelV0KotHash / moleculesV0KotHash = frozen record pins.corpus_hashes verbatim; dadjtCorpusKotHash = registry/amendments/f2b-transfer/1-pin-d-adj-t-corpus.json (the ops amendment that filled the declared PINNED-AT-INPUTS placeholder); file-level shas computed from the committed bytes those corpus digests cover (sha256sum, 2026-07-11)"
+  },
+  "records_file": "run-records-f2bt-mock.jsonl",
+  "retry_sweep": [
+    4
+  ],
+  "seeds": [
+    0,
+    1
+  ],
+  "shuffle": {
+    "map_file": "shuffle-map.json",
+    "perm_seed": 20260710
+  },
+  "stage": 2,
+  "wallClockHours": 0.000862029062377082
+}

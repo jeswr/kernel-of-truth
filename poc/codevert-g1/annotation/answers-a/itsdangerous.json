@@ -1,0 +1,113 @@
+[
+  {
+    "query_id": "g1q-itsdangerous-contains-4",
+    "answerable_static": true,
+    "gold": [
+      "src/itsdangerous/exc.py::BadData",
+      "src/itsdangerous/exc.py::BadHeader",
+      "src/itsdangerous/exc.py::BadPayload",
+      "src/itsdangerous/exc.py::BadSignature",
+      "src/itsdangerous/exc.py::BadTimeSignature",
+      "src/itsdangerous/exc.py::SignatureExpired"
+    ],
+    "conditional_flags": [],
+    "notes": "Six top-level class statements; imports excluded; no module-level simple-name assignments."
+  },
+  {
+    "query_id": "g1q-itsdangerous-contains-13",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_itsdangerous/test_timed.py::FreezeMixin",
+      "tests/test_itsdangerous/test_timed.py::TestTimedSerializer",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner"
+    ],
+    "conditional_flags": [],
+    "notes": "Three top-level class statements; imports excluded; no module-level assignments or defs."
+  },
+  {
+    "query_id": "g1q-itsdangerous-contained_in-29",
+    "answerable_static": true,
+    "gold": [
+      "src/itsdangerous/serializer.py::Serializer"
+    ],
+    "conditional_flags": [],
+    "notes": "Serializer.__init__ (implementation def at line 190, plus its overload defs) sits directly in class Serializer."
+  },
+  {
+    "query_id": "g1q-itsdangerous-contained_in-142",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_itsdangerous/test_url_safe.py"
+    ],
+    "conditional_flags": [],
+    "notes": "TestURLSafeTimedSerializer is a top-level class of the module (line 21)."
+  },
+  {
+    "query_id": "g1q-itsdangerous-imports_of-1",
+    "answerable_static": true,
+    "gold": [
+      "repo:src/itsdangerous/__init__.py",
+      "repo:src/itsdangerous/encoding.py",
+      "repo:src/itsdangerous/exc.py",
+      "repo:src/itsdangerous/serializer.py",
+      "repo:src/itsdangerous/signer.py",
+      "repo:src/itsdangerous/timed.py",
+      "repo:src/itsdangerous/url_safe.py"
+    ],
+    "conditional_flags": [],
+    "notes": "All imports are top-level relative symbol imports from sibling repo modules; ancestor package __init__ (itsdangerous) included per closure rule (it is this module itself)."
+  },
+  {
+    "query_id": "g1q-itsdangerous-imports_of-11",
+    "answerable_static": true,
+    "gold": [
+      "ext:functools",
+      "ext:hashlib",
+      "ext:io",
+      "ext:pickle",
+      "ext:pytest",
+      "ext:typing",
+      "repo:src/itsdangerous/__init__.py",
+      "repo:src/itsdangerous/exc.py",
+      "repo:src/itsdangerous/serializer.py",
+      "repo:src/itsdangerous/signer.py"
+    ],
+    "conditional_flags": [],
+    "notes": "itsdangerous.exc/serializer/signer resolve under src/; ancestor package src/itsdangerous/__init__.py included. All imports top-level and unconditional."
+  },
+  {
+    "query_id": "g1q-itsdangerous-where_defined-125",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_itsdangerous/test_timed.py:49"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def header inside class TestTimestampSigner; no other occurrences."
+  },
+  {
+    "query_id": "g1q-itsdangerous-where_defined-133",
+    "answerable_static": true,
+    "gold": [
+      "docs/conf.py:9"
+    ],
+    "conditional_flags": [],
+    "notes": "Module-level tuple assignment binds 'version' at docs/conf.py:9. Other occurrences are a use (docs/conf.py:54) and docstring text; no dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-itsdangerous-callees_of-96",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "All three body call sites are unresolvable statically: signer_factory(algorithm=algorithm) calls a fixture-injected parameter (a partial whose target class can also be overridden in subclasses), and signer.sign(...)/signer.unsign(...) dispatch on that factory's return value. Decorator calls (pytest.mark.parametrize with NoneAlgorithm()/HMACAlgorithm()/_ReverseAlgorithm()) are outside the body block."
+  },
+  {
+    "query_id": "g1q-itsdangerous-callees_of-35",
+    "answerable_static": true,
+    "gold": [
+      "ext:hmac.compare_digest",
+      "src/itsdangerous/signer.py::SigningAlgorithm.get_signature"
+    ],
+    "conditional_flags": [],
+    "notes": "self.get_signature resolves lexically to the method defined on SigningAlgorithm (line 20); subclass overrides (NoneAlgorithm/HMACAlgorithm/_ReverseAlgorithm) may receive the dispatch at runtime."
+  }
+]

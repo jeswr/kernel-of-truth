@@ -1,0 +1,677 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.f841yzfv"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.c2eu4fdr
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c3-f3e1-7061-b80c-2e372120b956
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: dateutil ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+updatezinfo.py
+ci_tools/make_zonefile_metadata.py
+docs/conf.py
+docs/exercises/solutions/mlk_day_rrule_solution.py
+src/dateutil/__init__.py
+src/dateutil/_common.py
+src/dateutil/easter.py
+src/dateutil/relativedelta.py
+src/dateutil/rrule.py
+src/dateutil/tzwin.py
+src/dateutil/utils.py
+src/dateutil/parser/__init__.py
+src/dateutil/parser/_parser.py
+src/dateutil/parser/isoparser.py
+src/dateutil/tz/__init__.py
+src/dateutil/tz/_common.py
+src/dateutil/tz/_factories.py
+src/dateutil/tz/tz.py
+src/dateutil/tz/win.py
+src/dateutil/zoneinfo/__init__.py
+src/dateutil/zoneinfo/rebuild.py
+tests/__init__.py
+tests/_common.py
+tests/conftest.py
+tests/test_easter.py
+tests/test_import_star.py
+tests/test_imports.py
+tests/test_internals.py
+tests/test_isoparser.py
+tests/test_parser.py
+tests/test_relativedelta.py
+tests/test_rrule.py
+tests/test_tz.py
+tests/test_utils.py
+tests/property/test_isoparse_prop.py
+tests/property/test_parser_prop.py
+tests/property/test_tz_prop.py
+
+=== QUERIES (2) ===
+QUERY g1q-dateutil-imports_of-19: family=imports_of module=src/dateutil/tz/win.py
+QUERY g1q-dateutil-imports_of-28: family=imports_of module=tests/test_internals.py
+
+=== CONTEXT ===
+
+FILE src/dateutil/tz/win.py:
+    1| # -*- coding: utf-8 -*-
+    2| """
+    3| This module provides an interface to the native time zone data on Windows,
+    4| including :py:class:`datetime.tzinfo` implementations.
+    5| 
+    6| Attempting to import this module on a non-Windows platform will raise an
+    7| :py:obj:`ImportError`.
+    8| """
+    9| # This code was originally contributed by Jeffrey Harris.
+   10| import datetime
+   11| import struct
+   12| 
+   13| from six.moves import winreg
+   14| from six import text_type
+   15| 
+   16| try:
+   17|     import ctypes
+   18|     from ctypes import wintypes
+   19| except ValueError:
+   20|     # ValueError is raised on non-Windows systems for some horrible reason.
+   21|     raise ImportError("Running tzwin on non-Windows system")
+   22| 
+   23| from ._common import tzrangebase
+   24| 
+   25| __all__ = ["tzwin", "tzwinlocal", "tzres"]
+   26| 
+   27| ONEWEEK = datetime.timedelta(7)
+   28| 
+   29| TZKEYNAMENT = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Time Zones"
+   30| TZKEYNAME9X = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Time Zones"
+   31| TZLOCALKEYNAME = r"SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
+   32| 
+   33| 
+   34| def _settzkeyname():
+   35|     handle = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
+   36|     try:
+   37|         winreg.OpenKey(handle, TZKEYNAMENT).Close()
+   38|         TZKEYNAME = TZKEYNAMENT
+   39|     except WindowsError:
+   40|         TZKEYNAME = TZKEYNAME9X
+   41|     handle.Close()
+   42|     return TZKEYNAME
+   43| 
+   44| 
+   45| TZKEYNAME = _settzkeyname()
+   46| 
+   47| 
+   48| class tzres(object):
+   49|     """
+   50|     Class for accessing ``tzres.dll``, which contains timezone name related
+   51|     resources.
+   52| 
+   53|     .. versionadded:: 2.5.0
+   54|     """
+   55|     p_wchar = ctypes.POINTER(wintypes.WCHAR)        # Pointer to a wide char
+   56| 
+   57|     def __init__(self, tzres_loc='tzres.dll'):
+   58|         # Load the user32 DLL so we can load strings from tzres
+   59|         user32 = ctypes.WinDLL('user32')
+   60| 
+   61|         # Specify the LoadStringW function
+   62|         user32.LoadStringW.argtypes = (wintypes.HINSTANCE,
+   63|                                        wintypes.UINT,
+   64|                                        wintypes.LPWSTR,
+   65|                                        ctypes.c_int)
+   66| 
+   67|         self.LoadStringW = user32.LoadStringW
+   68|         self._tzres = ctypes.WinDLL(tzres_loc)
+   69|         self.tzres_loc = tzres_loc
+   70| 
+   71|     def load_name(self, offset):
+   72|         """
+   73|         Load a timezone name from a DLL offset (integer).
+   74| 
+   75|         >>> from dateutil.tzwin import tzres
+   76|         >>> tzr = tzres()
+   77|         >>> print(tzr.load_name(112))
+   78|         'Eastern Standard Time'
+   79| 
+   80|         :param offset:
+   81|             A positive integer value referring to a string from the tzres dll.
+   82| 
+   83|         .. note::
+   84| 
+   85|             Offsets found in the registry are generally of the form
+   86|             ``@tzres.dll,-114``. The offset in this case is 114, not -114.
+   87| 
+   88|         """
+   89|         resource = self.p_wchar()
+   90|         lpBuffer = ctypes.cast(ctypes.byref(resource), wintypes.LPWSTR)
+   91|         nchar = self.LoadStringW(self._tzres._handle, offset, lpBuffer, 0)
+   92|         return resource[:nchar]
+   93| 
+   94|     def name_from_string(self, tzname_str):
+   95|         """
+   96|         Parse strings as returned from the Windows registry into the time zone
+   97|         name as defined in the registry.
+   98| 
+   99|         >>> from dateutil.tzwin import tzres
+  100|         >>> tzr = tzres()
+  101|         >>> print(tzr.name_from_string('@tzres.dll,-251'))
+  102|         'Dateline Daylight Time'
+  103|         >>> print(tzr.name_from_string('Eastern Standard Time'))
+  104|         'Eastern Standard Time'
+  105| 
+  106|         :param tzname_str:
+  107|             A timezone name string as returned from a Windows registry key.
+  108| 
+  109|         :return:
+  110|             Returns the localized timezone string from tzres.dll if the string
+  111|             is of the form `@tzres.dll,-offset`, else returns the input string.
+  112|         """
+  113|         if not tzname_str.startswith('@'):
+  114|             return tzname_str
+  115| 
+  116|         name_splt = tzname_str.split(',-')
+  117|         try:
+  118|             offset = int(name_splt[1])
+  119|         except:
+  120|             raise ValueError("Malformed timezone string.")
+  121| 
+  122|         return self.load_name(offset)
+  123| 
+  124| 
+  125| class tzwinbase(tzrangebase):
+  126|     """tzinfo class based on win32's timezones available in the registry."""
+  127|     def __init__(self):
+  128|         raise NotImplementedError('tzwinbase is an abstract base class')
+  129| 
+  130|     def __eq__(self, other):
+  131|         # Compare on all relevant dimensions, including name.
+  132|         if not isinstance(other, tzwinbase):
+  133|             return NotImplemented
+  134| 
+  135|         return  (self._std_offset == other._std_offset and
+  136|                  self._dst_offset == other._dst_offset and
+  137|                  self._stddayofweek == other._stddayofweek and
+  138|                  self._dstdayofweek == other._dstdayofweek and
+  139|                  self._stdweeknumber == other._stdweeknumber and
+  140|                  self._dstweeknumber == other._dstweeknumber and
+  141|                  self._stdhour == other._stdhour and
+  142|                  self._dsthour == other._dsthour and
+  143|                  self._stdminute == other._stdminute and
+  144|                  self._dstminute == other._dstminute and
+  145|                  self._std_abbr == other._std_abbr and
+  146|                  self._dst_abbr == other._dst_abbr)
+  147| 
+  148|     @staticmethod
+  149|     def list():
+  150|         """Return a list of all time zones known to the system."""
+  151|         with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as handle:
+  152|             with winreg.OpenKey(handle, TZKEYNAME) as tzkey:
+  153|                 result = [winreg.EnumKey(tzkey, i)
+  154|                           for i in range(winreg.QueryInfoKey(tzkey)[0])]
+  155|         return result
+  156| 
+  157|     def display(self):
+  158|         """
+  159|         Return the display name of the time zone.
+  160|         """
+  161|         return self._display
+  162| 
+  163|     def transitions(self, year):
+  164|         """
+  165|         For a given year, get the DST on and off transition times, expressed
+  166|         always on the standard time side. For zones with no transitions, this
+  167|         function returns ``None``.
+  168| 
+  169|         :param year:
+  170|             The year whose transitions you would like to query.
+  171| 
+  172|         :return:
+  173|             Returns a :class:`tuple` of :class:`datetime.datetime` objects,
+  174|             ``(dston, dstoff)`` for zones with an annual DST transition, or
+  175|             ``None`` for fixed offset zones.
+  176|         """
+  177| 
+  178|         if not self.hasdst:
+  179|             return None
+  180| 
+  181|         dston = picknthweekday(year, self._dstmonth, self._dstdayofweek,
+  182|                                self._dsthour, self._dstminute,
+  183|                                self._dstweeknumber)
+  184| 
+  185|         dstoff = picknthweekday(year, self._stdmonth, self._stddayofweek,
+  186|                                 self._stdhour, self._stdminute,
+  187|                                 self._stdweeknumber)
+  188| 
+  189|         # Ambiguous dates default to the STD side
+  190|         dstoff -= self._dst_base_offset
+  191| 
+  192|         return dston, dstoff
+  193| 
+  194|     def _get_hasdst(self):
+  195|         return self._dstmonth != 0
+  196| 
+  197|     @property
+  198|     def _dst_base_offset(self):
+  199|         return self._dst_base_offset_
+  200| 
+  201| 
+  202| class tzwin(tzwinbase):
+  203|     """
+  204|     Time zone object created from the zone info in the Windows registry
+  205| 
+  206|     These are similar to :py:class:`dateutil.tz.tzrange` objects in that
+  207|     the time zone data is provided in the format of a single offset rule
+  208|     for either 0 or 2 time zone transitions per year.
+  209| 
+  210|     :param: name
+  211|         The name of a Windows time zone key, e.g. "Eastern Standard Time".
+  212|         The full list of keys can be retrieved with :func:`tzwin.list`.
+  213|     """
+  214| 
+  215|     def __init__(self, name):
+  216|         self._name = name
+  217| 
+  218|         with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as handle:
+  219|             tzkeyname = text_type("{kn}\\{name}").format(kn=TZKEYNAME, name=name)
+  220|             with winreg.OpenKey(handle, tzkeyname) as tzkey:
+  221|                 keydict = valuestodict(tzkey)
+  222| 
+  223|         self._std_abbr = keydict["Std"]
+  224|         self._dst_abbr = keydict["Dlt"]
+  225| 
+  226|         self._display = keydict["Display"]
+  227| 
+  228|         # See http://ww_winreg.jsiinc.com/SUBA/tip0300/rh0398.htm
+  229|         tup = struct.unpack("=3l16h", keydict["TZI"])
+  230|         stdoffset = -tup[0]-tup[1]          # Bias + StandardBias * -1
+  231|         dstoffset = stdoffset-tup[2]        # + DaylightBias * -1
+  232|         self._std_offset = datetime.timedelta(minutes=stdoffset)
+  233|         self._dst_offset = datetime.timedelta(minutes=dstoffset)
+  234| 
+  235|         # for the meaning see the win32 TIME_ZONE_INFORMATION structure docs
+  236|         # http://msdn.microsoft.com/en-us/library/windows/desktop/ms725481(v=vs.85).aspx
+  237|         (self._stdmonth,
+  238|          self._stddayofweek,   # Sunday = 0
+  239|          self._stdweeknumber,  # Last = 5
+  240|          self._stdhour,
+  241|          self._stdminute) = tup[4:9]
+  242| 
+  243|         (self._dstmonth,
+  244|          self._dstdayofweek,   # Sunday = 0
+  245|          self._dstweeknumber,  # Last = 5
+  246|          self._dsthour,
+  247|          self._dstminute) = tup[12:17]
+  248| 
+  249|         self._dst_base_offset_ = self._dst_offset - self._std_offset
+  250|         self.hasdst = self._get_hasdst()
+  251| 
+  252|     def __repr__(self):
+  253|         return "tzwin(%s)" % repr(self._name)
+  254| 
+  255|     def __reduce__(self):
+  256|         return (self.__class__, (self._name,))
+  257| 
+  258| 
+  259| class tzwinlocal(tzwinbase):
+  260|     """
+  261|     Class representing the local time zone information in the Windows registry
+  262| 
+  263|     While :class:`dateutil.tz.tzlocal` makes system calls (via the :mod:`time`
+  264|     module) to retrieve time zone information, ``tzwinlocal`` retrieves the
+  265|     rules directly from the Windows registry and creates an object like
+  266|     :class:`dateutil.tz.tzwin`.
+  267| 
+  268|     Because Windows does not have an equivalent of :func:`time.tzset`, on
+  269|     Windows, :class:`dateutil.tz.tzlocal` instances will always reflect the
+  270|     time zone settings *at the time that the process was started*, meaning
+  271|     changes to the machine's time zone settings during the run of a program
+  272|     on Windows will **not** be reflected by :class:`dateutil.tz.tzlocal`.
+  273|     Because ``tzwinlocal`` reads the registry directly, it is unaffected by
+  274|     this issue.
+  275|     """
+  276|     def __init__(self):
+  277|         with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as handle:
+  278|             with winreg.OpenKey(handle, TZLOCALKEYNAME) as tzlocalkey:
+  279|                 keydict = valuestodict(tzlocalkey)
+  280| 
+  281|             self._std_abbr = keydict["StandardName"]
+  282|             self._dst_abbr = keydict["DaylightName"]
+  283| 
+  284|             try:
+  285|                 tzkeyname = text_type('{kn}\\{sn}').format(kn=TZKEYNAME,
+  286|                                                           sn=self._std_abbr)
+  287|                 with winreg.OpenKey(handle, tzkeyname) as tzkey:
+  288|                     _keydict = valuestodict(tzkey)
+  289|                     self._display = _keydict["Display"]
+  290|             except OSError:
+  291|                 self._display = None
+  292| 
+  293|         stdoffset = -keydict["Bias"]-keydict["StandardBias"]
+  294|         dstoffset = stdoffset-keydict["DaylightBias"]
+  295| 
+  296|         self._std_offset = datetime.timedelta(minutes=stdoffset)
+  297|         self._dst_offset = datetime.timedelta(minutes=dstoffset)
+  298| 
+  299|         # For reasons unclear, in this particular key, the day of week has been
+  300|         # moved to the END of the SYSTEMTIME structure.
+  301|         tup = struct.unpack("=8h", keydict["StandardStart"])
+  302| 
+  303|         (self._stdmonth,
+  304|          self._stdweeknumber,  # Last = 5
+  305|          self._stdhour,
+  306|          self._stdminute) = tup[1:5]
+  307| 
+  308|         self._stddayofweek = tup[7]
+  309| 
+  310|         tup = struct.unpack("=8h", keydict["DaylightStart"])
+  311| 
+  312|         (self._dstmonth,
+  313|          self._dstweeknumber,  # Last = 5
+  314|          self._dsthour,
+  315|          self._dstminute) = tup[1:5]
+  316| 
+  317|         self._dstdayofweek = tup[7]
+  318| 
+  319|         self._dst_base_offset_ = self._dst_offset - self._std_offset
+  320|         self.hasdst = self._get_hasdst()
+  321| 
+  322|     def __repr__(self):
+  323|         return "tzwinlocal()"
+  324| 
+  325|     def __str__(self):
+  326|         # str will return the standard name, not the daylight name.
+  327|         return "tzwinlocal(%s)" % repr(self._std_abbr)
+  328| 
+  329|     def __reduce__(self):
+  330|         return (self.__class__, ())
+  331| 
+  332| 
+  333| def picknthweekday(year, month, dayofweek, hour, minute, whichweek):
+  334|     """ dayofweek == 0 means Sunday, whichweek 5 means last instance """
+  335|     first = datetime.datetime(year, month, 1, hour, minute)
+  336| 
+  337|     # This will work if dayofweek is ISO weekday (1-7) or Microsoft-style (0-6),
+  338|     # Because 7 % 7 = 0
+  339|     weekdayone = first.replace(day=((dayofweek - first.isoweekday()) % 7) + 1)
+  340|     wd = weekdayone + ((whichweek - 1) * ONEWEEK)
+  341|     if (wd.month != month):
+  342|         wd -= ONEWEEK
+  343| 
+  344|     return wd
+  345| 
+  346| 
+  347| def valuestodict(key):
+  348|     """Convert a registry key's values to a dictionary."""
+  349|     dout = {}
+  350|     size = winreg.QueryInfoKey(key)[1]
+  351|     tz_res = None
+  352| 
+  353|     for i in range(size):
+  354|         key_name, value, dtype = winreg.EnumValue(key, i)
+  355|         if dtype == winreg.REG_DWORD or dtype == winreg.REG_DWORD_LITTLE_ENDIAN:
+  356|             # If it's a DWORD (32-bit integer), it's stored as unsigned - convert
+  357|             # that to a proper signed integer
+  358|             if value & (1 << 31):
+  359|                 value = value - (1 << 32)
+  360|         elif dtype == winreg.REG_SZ:
+  361|             # If it's a reference to the tzres DLL, load the actual string
+  362|             if value.startswith('@tzres'):
+  363|                 tz_res = tz_res or tzres()
+  364|                 value = tz_res.name_from_string(value)
+  365| 
+  366|             value = value.rstrip('\x00')    # Remove trailing nulls
+  367| 
+  368|         dout[key_name] = value
+  369| 
+  370|     return dout
+
+FILE tests/test_internals.py:
+    1| # -*- coding: utf-8 -*-
+    2| """
+    3| Tests for implementation details, not necessarily part of the user-facing
+    4| API.
+    5| 
+    6| The motivating case for these tests is #483, where we want to smoke-test
+    7| code that may be difficult to reach through the standard API calls.
+    8| """
+    9| 
+   10| import sys
+   11| import pytest
+   12| import warnings
+   13| 
+   14| from dateutil.parser._parser import _ymd
+   15| from dateutil import tz
+   16| 
+   17| IS_PY32 = sys.version_info[0:2] == (3, 2)
+   18| 
+   19| 
+   20| @pytest.mark.smoke
+   21| def test_YMD_could_be_day():
+   22|     ymd = _ymd('foo bar 124 baz')
+   23| 
+   24|     ymd.append(2, 'M')
+   25|     assert ymd.has_month
+   26|     assert not ymd.has_year
+   27|     assert ymd.could_be_day(4)
+   28|     assert not ymd.could_be_day(-6)
+   29|     assert not ymd.could_be_day(32)
+   30| 
+   31|     # Assumes leap year
+   32|     assert ymd.could_be_day(29)
+   33| 
+   34|     ymd.append(1999)
+   35|     assert ymd.has_year
+   36|     assert not ymd.could_be_day(29)
+   37| 
+   38|     ymd.append(16, 'D')
+   39|     assert ymd.has_day
+   40|     assert not ymd.could_be_day(1)
+   41| 
+   42|     ymd = _ymd('foo bar 124 baz')
+   43|     ymd.append(1999)
+   44|     assert ymd.could_be_day(31)
+   45| 
+   46| 
+   47| ###
+   48| # Test that private interfaces in _parser are deprecated properly
+   49| @pytest.mark.skipif(IS_PY32, reason='pytest.warns not supported on Python 3.2')
+   50| def test_parser_private_warns():
+   51|     from dateutil.parser import _timelex, _tzparser
+   52|     from dateutil.parser import _parsetz
+   53| 
+   54|     with pytest.warns(DeprecationWarning):
+   55|         _tzparser()
+   56| 
+   57|     with pytest.warns(DeprecationWarning):
+   58|         _timelex('2014-03-03')
+   59| 
+   60|     with pytest.warns(DeprecationWarning):
+   61|         _parsetz('+05:00')
+   62| 
+   63| 
+   64| @pytest.mark.skipif(IS_PY32, reason='pytest.warns not supported on Python 3.2')
+   65| def test_parser_parser_private_not_warns():
+   66|     from dateutil.parser._parser import _timelex, _tzparser
+   67|     from dateutil.parser._parser import _parsetz
+   68| 
+   69|     with warnings.catch_warnings():
+   70|         warnings.simplefilter("error")
+   71|         _tzparser()
+   72| 
+   73|     with warnings.catch_warnings():
+   74|         warnings.simplefilter("error")
+   75|         _timelex('2014-03-03')
+   76| 
+   77|     with warnings.catch_warnings():
+   78|         warnings.simplefilter("error")
+   79|         _parsetz('+05:00')
+   80| 
+   81| 
+   82| @pytest.mark.tzstr
+   83| def test_tzstr_internal_timedeltas():
+   84|     with pytest.warns(tz.DeprecatedTzFormatWarning):
+   85|         tz1 = tz.tzstr("EST5EDT,5,4,0,7200,11,-3,0,7200")
+   86| 
+   87|     with pytest.warns(tz.DeprecatedTzFormatWarning):
+   88|         tz2 = tz.tzstr("EST5EDT,4,1,0,7200,10,-1,0,7200")
+   89| 
+   90|     assert tz1._start_delta != tz2._start_delta
+   91|     assert tz1._end_delta != tz2._end_delta
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-dateutil-imports_of-19",
+    "answerable_static": true,
+    "gold": [
+      "ext:ctypes",
+      "ext:datetime",
+      "ext:six",
+      "ext:six.moves",
+      "ext:struct",
+      "repo:src/dateutil/__init__.py",
+      "repo:src/dateutil/tz/__init__.py",
+      "repo:src/dateutil/tz/_common.py"
+    ],
+    "conditional_flags": [
+      "ext:ctypes"
+    ],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-dateutil-imports_of-28",
+    "answerable_static": true,
+    "gold": [
+      "ext:pytest",
+      "ext:sys",
+      "ext:warnings",
+      "repo:src/dateutil/__init__.py",
+      "repo:src/dateutil/parser/__init__.py",
+      "repo:src/dateutil/parser/_parser.py",
+      "repo:src/dateutil/tz/__init__.py"
+    ],
+    "conditional_flags": [
+      "repo:src/dateutil/__init__.py",
+      "repo:src/dateutil/parser/__init__.py",
+      "repo:src/dateutil/parser/_parser.py"
+    ],
+    "notes": ""
+  }
+]
+tokens used
+10,823

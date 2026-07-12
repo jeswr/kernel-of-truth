@@ -1,0 +1,263 @@
+{
+ "repo": "more-itertools",
+ "pytest_exit": 0,
+ "n_observed_call_edges": 1625,
+ "n_observed_import_events": 69,
+ "call_soundness": {
+  "confirmed_proved": 41,
+  "confirmed_instantiation": 2,
+  "unknown_compatible": 811,
+  "miss": 22,
+  "protocol_dispatch": 138,
+  "descriptor_or_decorated": 6,
+  "class_body_exec": 171,
+  "unmapped_callee": 363,
+  "resumption_total": 331,
+  "resumption_unmatched": 71
+ },
+ "call_query_level": {
+  "covered": 760,
+  "violation": 0
+ },
+ "call_miss_examples": [
+  {
+   "caller": "more_itertools/more.py::chunked.ret",
+   "callee": "more_itertools/recipes.py::take",
+   "caller_frame": [
+    "more_itertools/more.py",
+    "ret",
+    186
+   ],
+   "callee_line": 98
+  },
+  {
+   "caller": "more_itertools/more.py::windowed",
+   "callee": "tests/test_more.py::AdjacentTests.test_call_once.predicate",
+   "caller_frame": [
+    "more_itertools/more.py",
+    "windowed",
+    870
+   ],
+   "callee_line": 2412
+  },
+  {
+   "caller": "tests/test_more.py::GroupByTransformTests.assertAllGroupsEqual",
+   "callee": "tests/test_more.py::GroupByTransformTests.test_no_valuefunc.key",
+   "caller_frame": [
+    "tests/test_more.py",
+    "assertAllGroupsEqual",
+    2423
+   ],
+   "callee_line": 2468
+  },
+  {
+   "caller": "tests/test_more.py::ChunkedTests.test_even",
+   "callee": "more_itertools/recipes.py::take",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_even",
+    47
+   ],
+   "callee_line": 98
+  },
+  {
+   "caller": "tests/test_more.py::UnzipTests.test_improperly_zipped",
+   "callee": "more_itertools/more.py::unzip.itemgetter.getter",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_improperly_zipped",
+    2027
+   ],
+   "callee_line": 1895
+  },
+  {
+   "caller": "tests/test_more.py::UnzipTests.test_increasingly_zipped",
+   "callee": "more_itertools/more.py::unzip.itemgetter.getter",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_increasingly_zipped",
+    2034
+   ],
+   "callee_line": 1895
+  },
+  {
+   "caller": "tests/test_more.py::UnzipTests.test_length_one_iterable",
+   "callee": "more_itertools/more.py::unzip.itemgetter.getter",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_length_one_iterable",
+    2013
+   ],
+   "callee_line": 1895
+  },
+  {
+   "caller": "tests/test_more.py::IntersperseTest.test_n",
+   "callee": "more_itertools/recipes.py::take",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_n",
+    681
+   ],
+   "callee_line": 98
+  },
+  {
+   "caller": "tests/test_more.py::ChunkedTests.test_none",
+   "callee": "more_itertools/recipes.py::take",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_none",
+    62
+   ],
+   "callee_line": 98
+  },
+  {
+   "caller": "tests/test_more.py::UnzipTests.test_normal_case",
+   "callee": "more_itertools/more.py::unzip.itemgetter.getter",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_normal_case",
+    2019
+   ],
+   "callee_line": 1895
+  },
+  {
+   "caller": "tests/test_more.py::ChunkedTests.test_odd",
+   "callee": "more_itertools/recipes.py::take",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_odd",
+    53
+   ],
+   "callee_line": 98
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_passthrough",
+   "callee": "more_itertools/more.py::peekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_passthrough",
+    200
+   ],
+   "callee_line": 329
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_passthrough",
+   "callee": "more_itertools/more.py::seekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_passthrough",
+    200
+   ],
+   "callee_line": 2888
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_peek_default",
+   "callee": "more_itertools/more.py::peekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_peek_default",
+    208
+   ],
+   "callee_line": 329
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_peek_default",
+   "callee": "more_itertools/more.py::seekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_peek_default",
+    208
+   ],
+   "callee_line": 2888
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_simple_peeking",
+   "callee": "more_itertools/more.py::peekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_simple_peeking",
+    224
+   ],
+   "callee_line": 329
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_simple_peeking",
+   "callee": "more_itertools/more.py::seekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_simple_peeking",
+    224
+   ],
+   "callee_line": 2888
+  },
+  {
+   "caller": "tests/test_more.py::ChunkedTests.test_strict_false",
+   "callee": "more_itertools/recipes.py::take",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_strict_false",
+    68
+   ],
+   "callee_line": 98
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_truthiness",
+   "callee": "more_itertools/more.py::peekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_truthiness",
+    213
+   ],
+   "callee_line": 329
+  },
+  {
+   "caller": "tests/test_more.py::PeekableMixinTests.test_truthiness",
+   "callee": "more_itertools/more.py::seekable.__init__",
+   "caller_frame": [
+    "tests/test_more.py",
+    "test_truthiness",
+    213
+   ],
+   "callee_line": 2888
+  },
+  {
+   "caller": "tests/test_recipes.py::PairwiseTests.test_base_case",
+   "callee": "more_itertools/recipes.py::_pairwise",
+   "caller_frame": [
+    "tests/test_recipes.py",
+    "test_base_case",
+    275
+   ],
+   "callee_line": 315
+  },
+  {
+   "caller": "tests/test_recipes.py::PairwiseTests.test_short_case",
+   "callee": "more_itertools/recipes.py::_pairwise",
+   "caller_frame": [
+    "tests/test_recipes.py",
+    "test_short_case",
+    280
+   ],
+   "callee_line": 315
+  }
+ ],
+ "import_soundness": {
+  "confirmed": 4,
+  "unknown_compatible": 3,
+  "miss": 1,
+  "external": 62
+ },
+ "import_miss_examples": [
+  {
+   "importer": "tests/test_more.py",
+   "target": "more_itertools/more.py",
+   "stmt": [
+    "more_itertools.more",
+    0,
+    []
+   ]
+  }
+ ],
+ "validity_violations": [],
+ "n_validity_violations": 0
+}

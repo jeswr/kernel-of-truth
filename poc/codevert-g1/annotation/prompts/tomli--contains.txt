@@ -1,0 +1,391 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: tomli ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+benchmark/run.py
+fuzzer/fuzz.py
+profiler/profiler_script.py
+scripts/use_setuptools.py
+src/tomli/__init__.py
+src/tomli/_parser.py
+src/tomli/_re.py
+src/tomli/_types.py
+tests/__init__.py
+tests/burntsushi.py
+tests/test_data.py
+tests/test_error.py
+tests/test_misc.py
+
+=== QUERIES (2) ===
+QUERY g1q-tomli-contains-2: family=contains target=fuzzer/fuzz.py
+QUERY g1q-tomli-contains-13: family=contains target=tests/test_misc.py
+
+=== CONTEXT ===
+
+FILE fuzzer/fuzz.py:
+    1| import atheris
+    2| 
+    3| with atheris.instrument_imports():
+    4|     from math import isnan
+    5|     import sys
+    6|     import warnings
+    7| 
+    8|     import tomli_w
+    9| 
+   10|     import tomli
+   11| 
+   12| # Disable any caching used so that the same lines of code run
+   13| # on a given input consistently.
+   14| tomli._re.cached_tz = tomli._re.cached_tz.__wrapped__
+   15| 
+   16| # Suppress all warnings.
+   17| warnings.simplefilter("ignore")
+   18| 
+   19| 
+   20| def test_one_input(input_bytes: bytes) -> None:
+   21|     # We need a Unicode string, not bytes
+   22|     fdp = atheris.FuzzedDataProvider(input_bytes)
+   23|     data = fdp.ConsumeUnicode(sys.maxsize)
+   24| 
+   25|     try:
+   26|         toml_obj = tomli.loads(data)
+   27|     except (tomli.TOMLDecodeError, RecursionError):
+   28|         return
+   29|     except BaseException:
+   30|         print_err(data)
+   31|         raise
+   32| 
+   33|     try:
+   34|         recovered_data = tomli_w.dumps(toml_obj)
+   35|     except RecursionError:
+   36|         return
+   37|     except BaseException:
+   38|         print_err(data)
+   39|         raise
+   40| 
+   41|     roundtripped_obj = tomli.loads(recovered_data)
+   42|     normalize_toml_obj(roundtripped_obj)
+   43|     normalize_toml_obj(toml_obj)
+   44|     if roundtripped_obj != toml_obj:
+   45|         sys.stderr.write(
+   46|             f"Original dict:\n{toml_obj}\nRoundtripped dict:\n{roundtripped_obj}\n"
+   47|         )
+   48|         sys.stderr.flush()
+   49|         print_err(data)
+   50|         raise Exception("Dicts not equal after roundtrip")
+   51| 
+   52| 
+   53| def print_err(data):
+   54|     codepoints = [hex(ord(x)) for x in data]
+   55|     sys.stderr.write(f"Input was {type(data)}:\n{data}\nCodepoints:\n{codepoints}\n")
+   56|     sys.stderr.flush()
+   57| 
+   58| 
+   59| def normalize_toml_obj(toml_obj: dict) -> None:
+   60|     """Make NaNs equal when compared (without using recursion)."""
+   61|     to_process = [toml_obj]
+   62|     while to_process:
+   63|         cont = to_process.pop()
+   64|         for k, v in cont.items() if isinstance(cont, dict) else enumerate(cont):
+   65|             if isinstance(v, float) and isnan(v):
+   66|                 cont[k] = "nan"
+   67|             elif isinstance(v, (dict, list)):
+   68|                 to_process.append(v)
+   69| 
+   70| 
+   71| def main():
+   72|     # For possible options, see https://llvm.org/docs/LibFuzzer.html#options
+   73|     fuzzer_options = sys.argv
+   74|     atheris.Setup(fuzzer_options, test_one_input)
+   75|     atheris.Fuzz()
+   76| 
+   77| 
+   78| if __name__ == "__main__":
+   79|     main()
+
+FILE tests/test_misc.py:
+    1| # SPDX-License-Identifier: MIT
+    2| # SPDX-FileCopyrightText: 2021 Taneli Hukkinen
+    3| # Licensed to PSF under a Contributor Agreement.
+    4| 
+    5| import copy
+    6| import datetime
+    7| from decimal import Decimal as D
+    8| import importlib
+    9| from pathlib import Path
+   10| import subprocess
+   11| import sys
+   12| import tempfile
+   13| import textwrap
+   14| import unittest
+   15| 
+   16| from . import tomllib
+   17| 
+   18| 
+   19| class TestMiscellaneous(unittest.TestCase):
+   20|     def test_load(self):
+   21|         content = "one=1 \n two='two' \n arr=[]"
+   22|         expected = {"one": 1, "two": "two", "arr": []}
+   23|         with tempfile.TemporaryDirectory() as tmp_dir_path:
+   24|             file_path = Path(tmp_dir_path) / "test.toml"
+   25|             file_path.write_text(content)
+   26| 
+   27|             with open(file_path, "rb") as bin_f:
+   28|                 actual = tomllib.load(bin_f)
+   29|         self.assertEqual(actual, expected)
+   30| 
+   31|     def test_incorrect_load(self):
+   32|         content = "one=1"
+   33|         with tempfile.TemporaryDirectory() as tmp_dir_path:
+   34|             file_path = Path(tmp_dir_path) / "test.toml"
+   35|             file_path.write_text(content)
+   36| 
+   37|             with open(file_path, "r") as txt_f:
+   38|                 with self.assertRaises(TypeError) as exc_info:
+   39|                     tomllib.load(txt_f)  # type: ignore[arg-type]
+   40|             # Mypyc extension leads to different message than pure Python
+   41|             self.assertIn(
+   42|                 str(exc_info.exception),
+   43|                 (
+   44|                     "File must be opened in binary mode, e.g. use `open('foo.toml', 'rb')`",  # noqa: E501
+   45|                     "bytes object expected; got str",
+   46|                 ),
+   47|             )
+   48| 
+   49|     def test_parse_float(self):
+   50|         doc = """
+   51|               val=0.1
+   52|               biggest1=inf
+   53|               biggest2=+inf
+   54|               smallest=-inf
+   55|               notnum1=nan
+   56|               notnum2=-nan
+   57|               notnum3=+nan
+   58|               """
+   59|         obj = tomllib.loads(doc, parse_float=D)
+   60|         expected = {
+   61|             "val": D("0.1"),
+   62|             "biggest1": D("inf"),
+   63|             "biggest2": D("inf"),
+   64|             "smallest": D("-inf"),
+   65|             "notnum1": D("nan"),
+   66|             "notnum2": D("-nan"),
+   67|             "notnum3": D("nan"),
+   68|         }
+   69|         for k, expected_val in expected.items():
+   70|             actual_val = obj[k]
+   71|             self.assertIsInstance(actual_val, D)
+   72|             if actual_val.is_nan():
+   73|                 self.assertTrue(expected_val.is_nan())
+   74|             else:
+   75|                 self.assertEqual(actual_val, expected_val)
+   76| 
+   77|     def test_deepcopy(self):
+   78|         doc = """
+   79|               [bliibaa.diibaa]
+   80|               offsettime=[1979-05-27T00:32:00.999999-07:00]
+   81|               """
+   82|         obj = tomllib.loads(doc)
+   83|         obj_copy = copy.deepcopy(obj)
+   84|         self.assertEqual(obj_copy, obj)
+   85|         expected_obj = {
+   86|             "bliibaa": {
+   87|                 "diibaa": {
+   88|                     "offsettime": [
+   89|                         datetime.datetime(
+   90|                             1979,
+   91|                             5,
+   92|                             27,
+   93|                             0,
+   94|                             32,
+   95|                             0,
+   96|                             999999,
+   97|                             tzinfo=datetime.timezone(datetime.timedelta(hours=-7)),
+   98|                         )
+   99|                     ]
+  100|                 }
+  101|             }
+  102|         }
+  103|         self.assertEqual(obj_copy, expected_obj)
+  104| 
+  105|     def test_inline_array_recursion_limit(self):
+  106|         nest_count = 470
+  107|         recursive_array_toml = "arr = " + nest_count * "[" + nest_count * "]"
+  108|         tomllib.loads(recursive_array_toml)
+  109| 
+  110|         nest_count = sys.getrecursionlimit() + 2
+  111|         recursive_array_toml = "arr = " + nest_count * "[" + nest_count * "]"
+  112|         with self.assertRaisesRegex(
+  113|             RecursionError,
+  114|             r"maximum recursion depth exceeded"
+  115|             r"|"
+  116|             r"TOML inline arrays/tables are nested more than the allowed [0-9]+ levels",
+  117|         ):
+  118|             tomllib.loads(recursive_array_toml)
+  119| 
+  120|     def test_inline_table_recursion_limit(self):
+  121|         nest_count = 310
+  122|         recursive_table_toml = nest_count * "key = {" + nest_count * "}"
+  123|         tomllib.loads(recursive_table_toml)
+  124| 
+  125|         nest_count = sys.getrecursionlimit() + 2
+  126|         recursive_table_toml = nest_count * "key = {" + nest_count * "}"
+  127|         with self.assertRaisesRegex(
+  128|             RecursionError,
+  129|             r"maximum recursion depth exceeded"
+  130|             r"|"
+  131|             r"TOML inline arrays/tables are nested more than the allowed [0-9]+ levels",
+  132|         ):
+  133|             tomllib.loads(recursive_table_toml)
+  134| 
+  135|     def test_key_recursion_limit(self):
+  136|         nest_count = 310
+  137|         nested_key_toml = "a." * nest_count + "a = 1"
+  138|         tomllib.loads(nested_key_toml)
+  139| 
+  140|         nest_count = sys.getrecursionlimit() - 2
+  141|         nested_key_toml = "a." * nest_count + "a = 1"
+  142|         tomllib.loads(nested_key_toml)
+  143| 
+  144|         nest_count = sys.getrecursionlimit() + 2
+  145|         nested_key_toml = "a." * nest_count + "a = 1"
+  146|         with self.assertRaisesRegex(
+  147|             RecursionError,
+  148|             r"TOML key has more than the allowed [0-9]+ parts",
+  149|         ):
+  150|             tomllib.loads(nested_key_toml)
+  151| 
+  152|     def test_types_import(self):
+  153|         """Test that `_types` module runs.
+  154| 
+  155|         The module is for type annotations only, so it is otherwise
+  156|         never imported by tests.
+  157|         """
+  158|         importlib.import_module(f"{tomllib.__name__}._types")
+  159| 
+  160|     @unittest.skipUnless(sys.version_info >= (3, 15), "need Python 3.15+")
+  161|     def test_lazy_import(self):
+  162|         # Test the TOML file can be parsed without importing regular
+  163|         # expressions (tomli._re)
+  164|         code = textwrap.dedent("""
+  165|             import sys, tomli, textwrap
+  166|             document = textwrap.dedent('''
+  167|                 [metadata]
+  168|                 key = "text"
+  169|                 array = ["array", "of", "text"]
+  170|                 booleans = [true, false]
+  171|             ''')
+  172|             tomli.loads(document)
+  173|             print("lazy import?", 'tomli._re' not in sys.modules)
+  174|         """)
+  175|         cmd = [sys.executable, "-c", code]
+  176|         proc = subprocess.run(cmd, check=True, capture_output=True)
+  177|         self.assertIn(b"lazy import? True", proc.stdout.rstrip())
+
+Answer now with ONE JSON array containing one object per query, in query order.

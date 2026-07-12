@@ -1,0 +1,2376 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: packaging ===
+PY FILE LISTING (repo-root-relative; authoritative):
+noxfile.py
+benchmarks/__init__.py
+benchmarks/markers.py
+benchmarks/requirement.py
+benchmarks/resolver.py
+benchmarks/specifiers.py
+benchmarks/utils.py
+benchmarks/version.py
+docs/conf.py
+src/packaging/__init__.py
+src/packaging/_elffile.py
+src/packaging/_manylinux.py
+src/packaging/_musllinux.py
+src/packaging/_parser.py
+src/packaging/_ranges.py
+src/packaging/_structures.py
+src/packaging/_tokenizer.py
+src/packaging/dependency_groups.py
+src/packaging/direct_url.py
+src/packaging/errors.py
+src/packaging/markers.py
+src/packaging/metadata.py
+src/packaging/pylock.py
+src/packaging/ranges.py
+src/packaging/requirements.py
+src/packaging/specifiers.py
+src/packaging/tags.py
+src/packaging/utils.py
+src/packaging/version.py
+src/packaging/licenses/__init__.py
+src/packaging/licenses/_spdx.py
+tasks/__init__.py
+tasks/check_frozen_revs.py
+tasks/licenses.py
+tasks/paths.py
+tasks/pickle_compat.py
+tasks/select_pypi_dist.py
+tasks/select_pypi_specs.py
+tasks/select_pypi_versions.py
+tests/__init__.py
+tests/conftest.py
+tests/test_dependency_groups.py
+tests/test_direct_url.py
+tests/test_elffile.py
+tests/test_errors.py
+tests/test_licenses.py
+tests/test_manylinux.py
+tests/test_markers.py
+tests/test_metadata.py
+tests/test_musllinux.py
+tests/test_pylock.py
+tests/test_pylock_select.py
+tests/test_ranges.py
+tests/test_requirements.py
+tests/test_specifiers.py
+tests/test_tags.py
+tests/test_utils.py
+tests/test_version.py
+tests/property/__init__.py
+tests/property/strategies.py
+tests/property/test_ranges_cross_epoch.py
+tests/property/test_ranges_pep440_extended.py
+tests/property/test_ranges_pubgrub.py
+tests/property/test_ranges_set_algebra.py
+tests/property/test_ranges_set_relations.py
+tests/property/test_specifier_comparison.py
+tests/property/test_specifier_extended.py
+tests/property/test_specifier_implied.py
+tests/property/test_specifier_matching.py
+tests/property/test_version_format.py
+tests/property/test_version_normalization.py
+tests/property/test_version_ordering.py
+tests/property/test_version_releases.py
+
+=== QUERIES (2) ===
+QUERY g1q-packaging-contained_in-1875: family=contained_in target=tests/test_tags.py::TestParseTag.test_multi_platform
+QUERY g1q-packaging-contained_in-28: family=contained_in target=benchmarks/version.py::TimeVersionSuite.setup
+
+=== CONTEXT ===
+
+FILE tests/test_tags.py:
+    1| # This file is dual licensed under the terms of the Apache License, Version
+    2| # 2.0, and the BSD License. See the LICENSE file in the root of this repository
+    3| # for complete details.
+    4| 
+    5| from __future__ import annotations
+    6| 
+    7| import collections.abc
+    8| import subprocess
+    9| 
+   10| try:
+   11|     import ctypes
+   12| except ImportError:
+   13|     ctypes = None  # type: ignore[assignment]
+   14| import os
+   15| import pathlib
+   16| import pickle
+   17| import platform
+   18| import struct
+   19| import sys
+   20| import sysconfig
+   21| import types
+   22| import typing
+   23| 
+   24| import pretend
+   25| import pytest
+   26| 
+   27| from packaging import tags
+   28| from packaging._manylinux import _GLibCVersion
+   29| from packaging._musllinux import _MuslVersion
+   30| 
+   31| if typing.TYPE_CHECKING:
+   32|     from collections.abc import Callable
+   33| 
+   34| 
+   35| class AndroidVer(typing.NamedTuple):
+   36|     release: str
+   37|     api_level: int
+   38|     manufacturer: str
+   39|     model: str
+   40|     device: str
+   41|     is_emulator: bool
+   42| 
+   43| 
+   44| @pytest.fixture
+   45| def example_tag() -> tags.Tag:
+   46|     return tags.Tag("py3", "none", "any")
+   47| 
+   48| 
+   49| @pytest.fixture
+   50| def manylinux_module(monkeypatch: pytest.MonkeyPatch) -> types.ModuleType:
+   51|     monkeypatch.setattr(tags._manylinux, "_get_glibc_version", lambda *args: (2, 20))  # type: ignore[attr-defined]
+   52|     module_name = "_manylinux"
+   53|     module = types.ModuleType(module_name)
+   54|     monkeypatch.setitem(sys.modules, module_name, module)
+   55|     return module
+   56| 
+   57| 
+   58| @pytest.fixture
+   59| def mock_interpreter_name(monkeypatch: pytest.MonkeyPatch) -> Callable[[str], bool]:
+   60|     def mock(name: str) -> bool:
+   61|         name = name.lower()
+   62|         if sys.implementation.name != name:
+   63|             monkeypatch.setattr(sys.implementation, "name", name)
+   64|             return True
+   65|         return False
+   66| 
+   67|     return mock
+   68| 
+   69| 
+   70| @pytest.fixture
+   71| def mock_ios(monkeypatch: pytest.MonkeyPatch) -> None:
+   72|     # Monkeypatch the platform to be iOS
+   73|     monkeypatch.setattr(sys, "platform", "ios")
+   74| 
+   75|     # Mock a fake architecture that will fit the expected pattern, but
+   76|     # won't actually be a legal multiarch.
+   77|     monkeypatch.setattr(
+   78|         sys.implementation,
+   79|         "_multiarch",
+   80|         "gothic-iphoneos",
+   81|         raising=False,
+   82|     )
+   83| 
+   84|     # Mock the return value of platform.ios_ver.
+   85|     def mock_ios_ver(*args: object) -> tuple[str, str, str, bool]:
+   86|         return ("iOS", "13.2", "iPhone15,2", False)
+   87| 
+   88|     if sys.version_info < (3, 13):
+   89|         platform.ios_ver = mock_ios_ver  # type: ignore[attr-defined]
+   90|     else:
+   91|         monkeypatch.setattr(platform, "ios_ver", mock_ios_ver)
+   92| 
+   93| 
+   94| @pytest.fixture
+   95| def mock_android(monkeypatch: pytest.MonkeyPatch) -> None:
+   96|     monkeypatch.setattr(sys, "platform", "android")
+   97|     monkeypatch.setattr(platform, "system", lambda: "Android")
+   98|     monkeypatch.setattr(sysconfig, "get_platform", lambda: "android-21-arm64_v8a")
+   99| 
+  100|     monkeypatch.setattr(
+  101|         platform,
+  102|         "android_ver",
+  103|         lambda: AndroidVer("5.0", 21, "Google", "sdk_gphone64_arm64", "emu64a", True),
+  104|         raising=False,  # This function was added in Python 3.13.
+  105|     )
+  106| 
+  107| 
+  108| class TestTag:
+  109|     def test_lowercasing(self) -> None:
+  110|         tag = tags.Tag("PY3", "None", "ANY")
+  111|         assert tag.interpreter == "py3"
+  112|         assert tag.abi == "none"
+  113|         assert tag.platform == "any"
+  114| 
+  115|     def test_equality(self) -> None:
+  116|         args = "py3", "none", "any"
+  117|         assert tags.Tag(*args) == tags.Tag(*args)
+  118| 
+  119|     def test_equality_fails_with_non_tag(self) -> None:
+  120|         assert not tags.Tag("py3", "none", "any") == "non-tag"
+  121| 
+  122|     def test_hashing(self, example_tag: tags.Tag) -> None:
+  123|         tags = {example_tag}  # Should not raise TypeError.
+  124|         assert example_tag in tags
+  125| 
+  126|     def test_hash_equality(self, example_tag: tags.Tag) -> None:
+  127|         equal_tag = tags.Tag("py3", "none", "any")
+  128|         assert example_tag == equal_tag  # Sanity check.
+  129|         assert example_tag.__hash__() == equal_tag.__hash__()
+  130| 
+  131|     def test_str(self, example_tag: tags.Tag) -> None:
+  132|         assert str(example_tag) == "py3-none-any"
+  133| 
+  134|     def test_repr(self, example_tag: tags.Tag) -> None:
+  135|         assert repr(example_tag) == f"<py3-none-any @ {id(example_tag)}>"
+  136| 
+  137|     def test_attribute_access(self, example_tag: tags.Tag) -> None:
+  138|         assert example_tag.interpreter == "py3"
+  139|         assert example_tag.abi == "none"
+  140|         assert example_tag.platform == "any"
+  141| 
+  142| 
+  143| class TestParseTag:
+  144|     def test_simple(self, example_tag: tags.Tag) -> None:
+  145|         parsed_tags = tags.parse_tag(str(example_tag))
+  146|         assert parsed_tags == {example_tag}
+  147| 
+  148|     def test_multi_interpreter(self, example_tag: tags.Tag) -> None:
+  149|         expected = {example_tag, tags.Tag("py2", "none", "any")}
+  150|         given = tags.parse_tag("py2.py3-none-any")
+  151|         assert given == expected
+  152| 
+  153|     def test_multi_platform(self) -> None:
+  154|         expected = {
+  155|             tags.Tag("cp37", "cp37m", platform)
+  156|             for platform in (
+  157|                 "macosx_10_6_intel",
+  158|                 "macosx_10_9_intel",
+  159|                 "macosx_10_9_x86_64",
+  160|                 "macosx_10_10_intel",
+  161|                 "macosx_10_10_x86_64",
+  162|             )
+  163|         }
+  164|         given = tags.parse_tag(
+  165|             "cp37-cp37m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
+  166|             "macosx_10_10_intel.macosx_10_10_x86_64"
+  167|         )
+  168|         assert given == expected
+  169| 
+  170|     def test_limit_allows_exact_number_of_tags(self) -> None:
+  171|         expected = {tags.Tag("py2", "none", "any"), tags.Tag("py3", "none", "any")}
+  172|         given = tags.parse_tag("py2.py3-none-any", limit=2)
+  173|         assert given == expected
+  174| 
+  175|     def test_limit_raises_when_exceeded(self) -> None:
+  176|         with pytest.raises(tags.TooManyTagsError, match="would generate 2 tags"):
+  177|             tags.parse_tag("py2.py3-none-any", limit=1)
+  178| 
+  179|     def test_limit_counts_cartesian_product_entries(self) -> None:
+  180|         # "py3.py3" generates two entries, even though both collapse to the
+  181|         # same Tag in the returned frozenset.
+  182|         with pytest.raises(tags.TooManyTagsError, match="would generate 2 tags"):
+  183|             tags.parse_tag("py3.py3-none-any", limit=1)
+  184| 
+  185|     def test_limit_rejects_negative_value(self) -> None:
+  186|         with pytest.raises(ValueError, match="limit must be non-negative"):
+  187|             tags.parse_tag("py3-none-any", limit=-1)
+  188| 
+  189|     def test_limit_can_be_combined_with_validate_order(self) -> None:
+  190|         with pytest.raises(ValueError, match="not in sorted order"):
+  191|             tags.parse_tag("py3.py2-none-any", validate_order=True, limit=2)
+  192| 
+  193|     def test_unsorted_interpreter_parses_by_default(self) -> None:
+  194|         # Unsorted tags should parse fine without validate_order
+  195|         result = tags.parse_tag("py3.py2-none-any")
+  196|         assert tags.Tag("py3", "none", "any") in result
+  197|         assert tags.Tag("py2", "none", "any") in result
+  198| 
+  199|     def test_unsorted_interpreter_raises_with_validate(self) -> None:
+  200|         with pytest.raises(ValueError, match="not in sorted order"):
+  201|             tags.parse_tag("py3.py2-none-any", validate_order=True)
+  202| 
+  203|     def test_unsorted_platform_parses_by_default(self) -> None:
+  204|         result = tags.parse_tag(
+  205|             "cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64"
+  206|         )
+  207|         assert len(result) == 2
+  208| 
+  209|     def test_unsorted_platform_raises_with_validate(self) -> None:
+  210|         with pytest.raises(ValueError, match="not in sorted order"):
+  211|             tags.parse_tag(
+  212|                 "cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64",
+  213|                 validate_order=True,
+  214|             )
+  215| 
+  216|     def test_sorted_multi_interpreter_valid(self) -> None:
+  217|         # py2 < py3 alphabetically — should not raise even with validation
+  218|         result = tags.parse_tag("py2.py3-none-any", validate_order=True)
+  219|         assert tags.Tag("py2", "none", "any") in result
+  220|         assert tags.Tag("py3", "none", "any") in result
+  221| 
+  222|     @pytest.mark.parametrize(
+  223|         "tag",
+  224|         [
+  225|             "-none-any",  # Empty interpreter
+  226|             "py3--any",  # Empty ABI
+  227|             "py3-none-",  # Empty platform
+  228|             "py3.-none-any",  # Empty member of a compressed interpreter set
+  229|             "py3-none-any.",  # Empty member of a compressed platform set
+  230|             "--",  # All empty
+  231|         ],
+  232|     )
+  233|     def test_empty_component_raises(self, tag: str) -> None:
+  234|         with pytest.raises(tags.InvalidTag, match="empty component"):
+  235|             tags.parse_tag(tag)
+  236| 
+  237|     @pytest.mark.parametrize(
+  238|         "tag",
+  239|         [
+  240|             "py3-none",
+  241|             "py3-none-any-extra",
+  242|         ],
+  243|     )
+  244|     def test_invalid_component_count_raises(self, tag: str) -> None:
+  245|         with pytest.raises(tags.InvalidTag, match="exactly three components"):
+  246|             tags.parse_tag(tag)
+  247| 
+  248| 
+  249| class TestInterpreterName:
+  250|     def test_sys_implementation_name(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  251|         class MockImplementation:
+  252|             pass
+  253| 
+  254|         mock_implementation = MockImplementation()
+  255|         mock_implementation.name = "sillywalk"  # type: ignore[attr-defined]
+  256|         monkeypatch.setattr(sys, "implementation", mock_implementation, raising=False)
+  257|         assert tags.interpreter_name() == "sillywalk"
+  258| 
+  259|     def test_interpreter_short_names(
+  260|         self, mock_interpreter_name: Callable[[str], bool]
+  261|     ) -> None:
+  262|         mock_interpreter_name("cpython")
+  263|         assert tags.interpreter_name() == "cp"
+  264| 
+  265| 
+  266| class TestInterpreterVersion:
+  267|     def test_warn(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  268|         class MockConfigVar:
+  269|             def __init__(self, return_: str) -> None:
+  270|                 self.warn: bool | None = None
+  271|                 self._return = return_
+  272| 
+  273|             def __call__(self, _name: str, warn: bool = False) -> str:
+  274|                 self.warn = warn
+  275|                 return self._return
+  276| 
+  277|         mock_config_var = MockConfigVar("38")
+  278|         monkeypatch.setattr(tags, "_get_config_var", mock_config_var)
+  279|         tags.interpreter_version(warn=True)
+  280|         assert mock_config_var.warn
+  281| 
+  282|     def test_python_version_nodot(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  283|         monkeypatch.setattr(tags, "_get_config_var", lambda _var, warn: "NN")  # noqa: ARG005
+  284|         assert tags.interpreter_version() == "NN"
+  285| 
+  286|     @pytest.mark.parametrize(
+  287|         ("version_info", "version_str"),
+  288|         [
+  289|             ((1, 2, 3), "12"),
+  290|             ((1, 12, 3), "112"),
+  291|             ((11, 2, 3), "112"),
+  292|             ((11, 12, 3), "1112"),
+  293|             ((1, 2, 13), "12"),
+  294|         ],
+  295|     )
+  296|     def test_sys_version_info(
+  297|         self,
+  298|         version_info: tuple[int, int, int],
+  299|         version_str: str,
+  300|         monkeypatch: pytest.MonkeyPatch,
+  301|     ) -> None:
+  302|         monkeypatch.setattr(tags, "_get_config_var", lambda *args, **kwargs: None)
+  303|         monkeypatch.setattr(sys, "version_info", version_info)
+  304|         assert tags.interpreter_version() == version_str
+  305| 
+  306| 
+  307| class TestMacOSPlatforms:
+  308|     @pytest.mark.parametrize(
+  309|         ("arch", "is_32bit", "expected"),
+  310|         [
+  311|             ("i386", True, "i386"),
+  312|             ("ppc", True, "ppc"),
+  313|             ("x86_64", False, "x86_64"),
+  314|             ("x86_64", True, "i386"),
+  315|             ("ppc64", False, "ppc64"),
+  316|             ("ppc64", True, "ppc"),
+  317|         ],
+  318|     )
+  319|     def test_architectures(self, arch: str, is_32bit: bool, expected: str) -> None:
+  320|         assert tags._mac_arch(arch, is_32bit=is_32bit) == expected
+  321| 
+  322|     @pytest.mark.parametrize(
+  323|         ("version", "arch", "expected"),
+  324|         [
+  325|             (
+  326|                 (10, 15),
+  327|                 "x86_64",
+  328|                 ["x86_64", "intel", "fat64", "fat3", "universal2", "universal"],
+  329|             ),
+  330|             (
+  331|                 (10, 4),
+  332|                 "x86_64",
+  333|                 ["x86_64", "intel", "fat64", "fat3", "universal2", "universal"],
+  334|             ),
+  335|             ((10, 3), "x86_64", []),
+  336|             ((10, 15), "i386", ["i386", "intel", "fat3", "fat", "universal"]),
+  337|             ((10, 4), "i386", ["i386", "intel", "fat3", "fat", "universal"]),
+  338|             ((10, 3), "intel", ["intel", "universal"]),
+  339|             ((10, 5), "intel", ["intel", "universal"]),
+  340|             ((10, 15), "intel", ["intel", "universal"]),
+  341|             ((10, 3), "i386", []),
+  342|             ((10, 15), "ppc64", []),
+  343|             ((10, 6), "ppc64", []),
+  344|             ((10, 5), "ppc64", ["ppc64", "fat64", "universal"]),
+  345|             ((10, 3), "ppc64", []),
+  346|             ((10, 15), "ppc", []),
+  347|             ((10, 7), "ppc", []),
+  348|             ((10, 6), "ppc", ["ppc", "fat3", "fat", "universal"]),
+  349|             ((10, 0), "ppc", ["ppc", "fat3", "fat", "universal"]),
+  350|             ((11, 0), "riscv", ["riscv"]),
+  351|             (
+  352|                 (11, 0),
+  353|                 "x86_64",
+  354|                 ["x86_64", "intel", "fat64", "fat3", "universal2", "universal"],
+  355|             ),
+  356|             ((11, 0), "arm64", ["arm64", "universal2"]),
+  357|             ((11, 1), "arm64", ["arm64", "universal2"]),
+  358|             ((12, 0), "arm64", ["arm64", "universal2"]),
+  359|         ],
+  360|     )
+  361|     def test_binary_formats(
+  362|         self, version: tuple[int, int], arch: str, expected: list[str]
+  363|     ) -> None:
+  364|         assert tags._mac_binary_formats(version, arch) == expected
+  365| 
+  366|     def test_version_detection(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  367|         if platform.system() != "Darwin":
+  368|             monkeypatch.setattr(
+  369|                 platform, "mac_ver", lambda: ("10.14", ("", "", ""), "x86_64")
+  370|             )
+  371|         version = platform.mac_ver()[0].split(".")
+  372|         major = version[0]
+  373|         minor = version[1] if major == "10" else "0"
+  374| 
+  375|         platforms = list(tags.mac_platforms(arch="x86_64"))
+  376|         if (major, minor) == ("10", "16"):
+  377|             # For 10.16, the real version is at least 11.0.
+  378|             prefix, major, minor, _ = platforms[0].split("_", maxsplit=3)
+  379|             assert prefix == "macosx"
+  380|             assert int(major) >= 11
+  381|             assert minor == "0"
+  382|         else:
+  383|             expected = f"macosx_{major}_{minor}_"
+  384|             assert platforms[0].startswith(expected)
+  385| 
+  386|     def test_version_detection_10_15(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  387|         monkeypatch.setattr(
+  388|             platform, "mac_ver", lambda: ("10.15", ("", "", ""), "x86_64")
+  389|         )
+  390|         expected = "macosx_10_15_"
+  391| 
+  392|         platforms = list(tags.mac_platforms(arch="x86_64"))
+  393|         assert platforms[0].startswith(expected)
+  394| 
+  395|     def test_version_detection_compatibility(
+  396|         self, monkeypatch: pytest.MonkeyPatch
+  397|     ) -> None:
+  398|         if platform.system() != "Darwin":
+  399|             monkeypatch.setattr(
+  400|                 subprocess,
+  401|                 "run",
+  402|                 lambda *args, **kwargs: subprocess.CompletedProcess(
+  403|                     [], 0, stdout="10.15"
+  404|                 ),
+  405|             )
+  406|         monkeypatch.setattr(
+  407|             platform, "mac_ver", lambda: ("10.16", ("", "", ""), "x86_64")
+  408|         )
+  409|         unexpected = "macosx_10_16_"
+  410| 
+  411|         platforms = list(tags.mac_platforms(arch="x86_64"))
+  412|         assert not platforms[0].startswith(unexpected)
+  413| 
+  414|     @pytest.mark.parametrize("arch", ["x86_64", "i386"])
+  415|     def test_arch_detection(self, arch: str, monkeypatch: pytest.MonkeyPatch) -> None:
+  416|         if platform.system() != "Darwin" or platform.mac_ver()[2] != arch:
+  417|             monkeypatch.setattr(
+  418|                 platform, "mac_ver", lambda: ("10.14", ("", "", ""), arch)
+  419|             )
+  420|             monkeypatch.setattr(tags, "_mac_arch", lambda *args: arch)
+  421|         assert next(tags.mac_platforms((10, 14))).endswith(arch)
+  422| 
+  423|     def test_mac_platforms(self) -> None:
+  424|         platforms = list(tags.mac_platforms((10, 5), "x86_64"))
+  425|         assert platforms == [
+  426|             "macosx_10_5_x86_64",
+  427|             "macosx_10_5_intel",
+  428|             "macosx_10_5_fat64",
+  429|             "macosx_10_5_fat3",
+  430|             "macosx_10_5_universal2",
+  431|             "macosx_10_5_universal",
+  432|             "macosx_10_4_x86_64",
+  433|             "macosx_10_4_intel",
+  434|             "macosx_10_4_fat64",
+  435|             "macosx_10_4_fat3",
+  436|             "macosx_10_4_universal2",
+  437|             "macosx_10_4_universal",
+  438|         ]
+  439| 
+  440|         assert len(list(tags.mac_platforms((10, 17), "x86_64"))) == 14 * 6
+  441| 
+  442|         assert not list(tags.mac_platforms((10, 0), "x86_64"))
+  443| 
+  444|     @pytest.mark.parametrize(("major", "minor"), [(11, 0), (11, 3), (12, 0), (12, 3)])
+  445|     def test_macos_11(self, major: int, minor: int) -> None:
+  446|         platforms = list(tags.mac_platforms((major, minor), "x86_64"))
+  447|         assert "macosx_11_0_arm64" not in platforms
+  448|         assert "macosx_11_0_x86_64" in platforms
+  449|         assert "macosx_11_3_x86_64" not in platforms
+  450|         assert "macosx_11_0_universal" in platforms
+  451|         assert "macosx_11_0_universal2" in platforms
+  452|         # Mac OS "10.16" is the version number that binaries compiled against an old
+  453|         # (pre 11.0) SDK will see.   It can also be enabled explicitly for a process
+  454|         # with the environment variable SYSTEM_VERSION_COMPAT=1.
+  455|         assert "macosx_10_16_x86_64" in platforms
+  456|         assert "macosx_10_15_x86_64" in platforms
+  457|         assert "macosx_10_15_universal2" in platforms
+  458|         assert "macosx_10_4_x86_64" in platforms
+  459|         assert "macosx_10_3_x86_64" not in platforms
+  460|         if major >= 12:
+  461|             assert "macosx_12_0_x86_64" in platforms
+  462|             assert "macosx_12_0_universal" in platforms
+  463|             assert "macosx_12_0_universal2" in platforms
+  464| 
+  465|         platforms = list(tags.mac_platforms((major, minor), "arm64"))
+  466|         assert "macosx_11_0_arm64" in platforms
+  467|         assert "macosx_11_3_arm64" not in platforms
+  468|         assert "macosx_11_0_universal" not in platforms
+  469|         assert "macosx_11_0_universal2" in platforms
+  470|         assert "macosx_10_15_universal2" in platforms
+  471|         assert "macosx_10_15_x86_64" not in platforms
+  472|         assert "macosx_10_4_x86_64" not in platforms
+  473|         assert "macosx_10_3_x86_64" not in platforms
+  474|         if major >= 12:
+  475|             assert "macosx_12_0_arm64" in platforms
+  476|             assert "macosx_12_0_universal2" in platforms
+  477| 
+  478|     def test_no_mac_ver_when_both_args_given(
+  479|         self, monkeypatch: pytest.MonkeyPatch
+  480|     ) -> None:
+  481|         # When both version and arch are explicitly provided, platform.mac_ver()
+  482|         # must not be called — it reads from the system and is irrelevant for
+  483|         # cross-targeting use cases.
+  484|         mac_ver_stub = pretend.call_recorder(
+  485|             pretend.raiser(AssertionError("platform.mac_ver() must not be called"))
+  486|         )
+  487|         monkeypatch.setattr(platform, "mac_ver", mac_ver_stub)
+  488|         list(tags.mac_platforms(version=(11, 0), arch="x86_64"))
+  489|         assert mac_ver_stub.calls == []
+  490| 
+  491| 
+  492| class TestIOSPlatforms:
+  493|     @pytest.mark.usefixtures("mock_ios")
+  494|     def test_version_detection(self) -> None:
+  495|         platforms = list(tags.ios_platforms(multiarch="arm64-iphoneos"))
+  496|         assert platforms == [
+  497|             "ios_13_2_arm64_iphoneos",
+  498|             "ios_13_1_arm64_iphoneos",
+  499|             "ios_13_0_arm64_iphoneos",
+  500|             "ios_12_9_arm64_iphoneos",
+  501|             "ios_12_8_arm64_iphoneos",
+  502|             "ios_12_7_arm64_iphoneos",
+  503|             "ios_12_6_arm64_iphoneos",
+  504|             "ios_12_5_arm64_iphoneos",
+  505|             "ios_12_4_arm64_iphoneos",
+  506|             "ios_12_3_arm64_iphoneos",
+  507|             "ios_12_2_arm64_iphoneos",
+  508|             "ios_12_1_arm64_iphoneos",
+  509|             "ios_12_0_arm64_iphoneos",
+  510|         ]
+  511| 
+  512|     @pytest.mark.usefixtures("mock_ios")
+  513|     def test_multiarch_detection(self) -> None:
+  514|         platforms = list(tags.ios_platforms(version=(12, 0)))
+  515|         assert platforms == ["ios_12_0_gothic_iphoneos"]
+  516| 
+  517|     @pytest.mark.usefixtures("mock_ios")
+  518|     def test_ios_platforms(self) -> None:
+  519|         # Pre-iOS 12.0 releases won't match anything
+  520|         platforms = list(tags.ios_platforms((7, 0), "arm64-iphoneos"))
+  521|         assert platforms == []
+  522| 
+  523|         # iOS 12.0 returns exactly 1 match
+  524|         platforms = list(tags.ios_platforms((12, 0), "arm64-iphoneos"))
+  525|         assert platforms == ["ios_12_0_arm64_iphoneos"]
+  526| 
+  527|         # iOS 13.0 returns a match for 13.0, plus every 12.X
+  528|         platforms = list(tags.ios_platforms((13, 0), "x86_64-iphonesimulator"))
+  529|         assert platforms == [
+  530|             "ios_13_0_x86_64_iphonesimulator",
+  531|             "ios_12_9_x86_64_iphonesimulator",
+  532|             "ios_12_8_x86_64_iphonesimulator",
+  533|             "ios_12_7_x86_64_iphonesimulator",
+  534|             "ios_12_6_x86_64_iphonesimulator",
+  535|             "ios_12_5_x86_64_iphonesimulator",
+  536|             "ios_12_4_x86_64_iphonesimulator",
+  537|             "ios_12_3_x86_64_iphonesimulator",
+  538|             "ios_12_2_x86_64_iphonesimulator",
+  539|             "ios_12_1_x86_64_iphonesimulator",
+  540|             "ios_12_0_x86_64_iphonesimulator",
+  541|         ]
+  542| 
+  543|         # iOS 14.3 returns a match for 14.3-14.0, plus every 13.X and every 12.X
+  544|         platforms = list(tags.ios_platforms((14, 3), "arm64-iphoneos"))
+  545|         assert platforms == [
+  546|             "ios_14_3_arm64_iphoneos",
+  547|             "ios_14_2_arm64_iphoneos",
+  548|             "ios_14_1_arm64_iphoneos",
+  549|             "ios_14_0_arm64_iphoneos",
+  550|             "ios_13_9_arm64_iphoneos",
+  551|             "ios_13_8_arm64_iphoneos",
+  552|             "ios_13_7_arm64_iphoneos",
+  553|             "ios_13_6_arm64_iphoneos",
+  554|             "ios_13_5_arm64_iphoneos",
+  555|             "ios_13_4_arm64_iphoneos",
+  556|             "ios_13_3_arm64_iphoneos",
+  557|             "ios_13_2_arm64_iphoneos",
+  558|             "ios_13_1_arm64_iphoneos",
+  559|             "ios_13_0_arm64_iphoneos",
+  560|             "ios_12_9_arm64_iphoneos",
+  561|             "ios_12_8_arm64_iphoneos",
+  562|             "ios_12_7_arm64_iphoneos",
+  563|             "ios_12_6_arm64_iphoneos",
+  564|             "ios_12_5_arm64_iphoneos",
+  565|             "ios_12_4_arm64_iphoneos",
+  566|             "ios_12_3_arm64_iphoneos",
+  567|             "ios_12_2_arm64_iphoneos",
+  568|             "ios_12_1_arm64_iphoneos",
+  569|             "ios_12_0_arm64_iphoneos",
+  570|         ]
+  571| 
+  572| 
+  573| class TestAndroidPlatforms:
+  574|     def test_non_android(self) -> None:
+  575|         non_android_error = pytest.raises(TypeError)
+  576|         with non_android_error:
+  577|             list(tags.android_platforms())
+  578|         with non_android_error:
+  579|             list(tags.android_platforms(api_level=18))
+  580|         with non_android_error:
+  581|             list(tags.android_platforms(abi="x86_64"))
+  582| 
+  583|         # The function can only be called on non-Android platforms if both arguments are
+  584|         # provided.
+  585|         assert list(tags.android_platforms(api_level=18, abi="x86_64")) == [
+  586|             "android_18_x86_64",
+  587|             "android_17_x86_64",
+  588|             "android_16_x86_64",
+  589|         ]
+  590| 
+  591|     @pytest.mark.usefixtures("mock_android")
+  592|     def test_detection(self) -> None:
+  593|         assert list(tags.android_platforms()) == [
+  594|             "android_21_arm64_v8a",
+  595|             "android_20_arm64_v8a",
+  596|             "android_19_arm64_v8a",
+  597|             "android_18_arm64_v8a",
+  598|             "android_17_arm64_v8a",
+  599|             "android_16_arm64_v8a",
+  600|         ]
+  601| 
+  602|     def test_api_level(self) -> None:
+  603|         # API levels below the minimum should return nothing.
+  604|         assert list(tags.android_platforms(api_level=14, abi="x86")) == []
+  605|         assert list(tags.android_platforms(api_level=15, abi="x86")) == []
+  606| 
+  607|         assert list(tags.android_platforms(api_level=16, abi="x86")) == [
+  608|             "android_16_x86",
+  609|         ]
+  610|         assert list(tags.android_platforms(api_level=17, abi="x86")) == [
+  611|             "android_17_x86",
+  612|             "android_16_x86",
+  613|         ]
+  614|         assert list(tags.android_platforms(api_level=18, abi="x86")) == [
+  615|             "android_18_x86",
+  616|             "android_17_x86",
+  617|             "android_16_x86",
+  618|         ]
+  619| 
+  620|     def test_abi(self) -> None:
+  621|         # Real ABI, normalized.
+  622|         assert list(tags.android_platforms(api_level=16, abi="armeabi_v7a")) == [
+  623|             "android_16_armeabi_v7a",
+  624|         ]
+  625| 
+  626|         # Real ABI, not normalized.
+  627|         assert list(tags.android_platforms(api_level=16, abi="armeabi-v7a")) == [
+  628|             "android_16_armeabi_v7a",
+  629|         ]
+  630| 
+  631|         # Nonexistent ABIs should still be accepted and normalized.
+  632|         assert list(tags.android_platforms(api_level=16, abi="myarch-4.2")) == [
+  633|             "android_16_myarch_4_2",
+  634|         ]
+  635| 
+  636| 
+  637| @pytest.fixture
+  638| def _disable_musl_detection(monkeypatch: pytest.MonkeyPatch) -> None:
+  639|     # The manylinux platform tests assert exact tag lists and do not expect
+  640|     # musllinux_* entries. On a musl host (e.g. Alpine), ``_get_musl_version()``
+  641|     # returns a real version and those tags leak into ``_linux_platforms()`` /
+  642|     # ``sys_tags()``, breaking the assertions. Neutralize musl detection by
+  643|     # default; tests that exercise musllinux re-patch ``_get_musl_version``.
+  644|     monkeypatch.setattr(tags._musllinux, "_get_musl_version", lambda _: None)  # type: ignore[attr-defined]
+  645| 
+  646| 
+  647| @pytest.mark.usefixtures("_disable_musl_detection")
+  648| class TestManylinuxPlatform:
+  649|     def teardown_method(self) -> None:
+  650|         # Clear the version and module caches
+  651|         tags._manylinux._get_glibc_version.cache_clear()  # type: ignore[attr-defined]
+  652|         tags._manylinux._get_manylinux_module.cache_clear()  # type: ignore[attr-defined]
+  653| 
+  654|     def test_get_config_var_does_not_log(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  655|         debug = pretend.call_recorder(lambda *a: None)
+  656|         monkeypatch.setattr(tags.logger, "debug", debug)
+  657|         tags._get_config_var("missing")
+  658|         assert debug.calls == []
+  659| 
+  660|     def test_get_config_var_does_log(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  661|         debug = pretend.call_recorder(lambda *a: None)
+  662|         monkeypatch.setattr(tags.logger, "debug", debug)
+  663|         tags._get_config_var("missing", warn=True)
+  664|         assert debug.calls == [
+  665|             pretend.call(
+  666|                 "Config variable '%s' is unset, Python ABI tag may be incorrect",
+  667|                 "missing",
+  668|             )
+  669|         ]
+  670| 
+  671|     @pytest.mark.parametrize(
+  672|         ("arch", "is_32bit", "expected"),
+  673|         [
+  674|             ("linux-x86_64", False, ["linux_x86_64"]),
+  675|             ("linux-x86_64", True, ["linux_i686"]),
+  676|             ("linux-aarch64", False, ["linux_aarch64"]),
+  677|             ("linux-aarch64", True, ["linux_armv8l", "linux_armv7l"]),
+  678|         ],
+  679|     )
+  680|     def test_linux_platforms_32_64bit_on_64bit_os(
+  681|         self,
+  682|         arch: str,
+  683|         is_32bit: bool,
+  684|         expected: list[str],
+  685|         monkeypatch: pytest.MonkeyPatch,
+  686|     ) -> None:
+  687|         monkeypatch.setattr(sysconfig, "get_platform", lambda: arch)
+  688|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.20", raising=False)
+  689|         monkeypatch.setattr(tags._manylinux, "_is_compatible", lambda *args: False)  # type: ignore[attr-defined]
+  690|         linux_platform = list(tags._linux_platforms(is_32bit=is_32bit))[: len(expected)]
+  691|         assert linux_platform == expected
+  692| 
+  693|     def test_linux_platforms_manylinux_unsupported(
+  694|         self, monkeypatch: pytest.MonkeyPatch
+  695|     ) -> None:
+  696|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_x86_64")
+  697|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.20", raising=False)
+  698|         monkeypatch.setattr(tags._manylinux, "_is_compatible", lambda *args: False)  # type: ignore[attr-defined]
+  699|         linux_platform = list(tags._linux_platforms(is_32bit=False))
+  700|         assert linux_platform == ["linux_x86_64"]
+  701| 
+  702|     def test_linux_platforms_manylinux1(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  703|         monkeypatch.setattr(
+  704|             tags._manylinux,  # type: ignore[attr-defined]
+  705|             "_is_compatible",
+  706|             lambda _, glibc_version: glibc_version == _GLibCVersion(2, 5),
+  707|         )
+  708|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_x86_64")
+  709|         monkeypatch.setattr(platform, "machine", lambda: "x86_64")
+  710|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.20", raising=False)
+  711|         platforms = list(tags._linux_platforms(is_32bit=False))
+  712|         assert platforms == [
+  713|             "linux_x86_64",
+  714|             "manylinux_2_5_x86_64",
+  715|             "manylinux1_x86_64",
+  716|         ]
+  717| 
+  718|     def test_linux_platforms_manylinux2010(
+  719|         self, monkeypatch: pytest.MonkeyPatch
+  720|     ) -> None:
+  721|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_x86_64")
+  722|         monkeypatch.setattr(platform, "machine", lambda: "x86_64")
+  723|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.12", raising=False)
+  724|         platforms = list(tags._linux_platforms(is_32bit=False))
+  725|         expected = [
+  726|             "linux_x86_64",
+  727|             "manylinux_2_12_x86_64",
+  728|             "manylinux2010_x86_64",
+  729|             "manylinux_2_11_x86_64",
+  730|             "manylinux_2_10_x86_64",
+  731|             "manylinux_2_9_x86_64",
+  732|             "manylinux_2_8_x86_64",
+  733|             "manylinux_2_7_x86_64",
+  734|             "manylinux_2_6_x86_64",
+  735|             "manylinux_2_5_x86_64",
+  736|             "manylinux1_x86_64",
+  737|         ]
+  738|         assert platforms == expected
+  739| 
+  740|     def test_linux_platforms_manylinux2014(
+  741|         self, monkeypatch: pytest.MonkeyPatch
+  742|     ) -> None:
+  743|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_x86_64")
+  744|         monkeypatch.setattr(platform, "machine", lambda: "x86_64")
+  745|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.17", raising=False)
+  746|         platforms = list(tags._linux_platforms(is_32bit=False))
+  747|         arch = platform.machine()
+  748|         expected = [
+  749|             "linux_" + arch,
+  750|             "manylinux_2_17_" + arch,
+  751|             "manylinux2014_" + arch,
+  752|             "manylinux_2_16_" + arch,
+  753|             "manylinux_2_15_" + arch,
+  754|             "manylinux_2_14_" + arch,
+  755|             "manylinux_2_13_" + arch,
+  756|             "manylinux_2_12_" + arch,
+  757|             "manylinux2010_" + arch,
+  758|             "manylinux_2_11_" + arch,
+  759|             "manylinux_2_10_" + arch,
+  760|             "manylinux_2_9_" + arch,
+  761|             "manylinux_2_8_" + arch,
+  762|             "manylinux_2_7_" + arch,
+  763|             "manylinux_2_6_" + arch,
+  764|             "manylinux_2_5_" + arch,
+  765|             "manylinux1_" + arch,
+  766|         ]
+  767|         assert platforms == expected
+  768| 
+  769|     @pytest.mark.parametrize(
+  770|         ("native_arch", "cross_arch"),
+  771|         [("armv7l", "armv7l"), ("armv8l", "armv8l"), ("aarch64", "armv8l")],
+  772|     )
+  773|     def test_linux_platforms_manylinux2014_armhf_abi(
+  774|         self, native_arch: str, cross_arch: str, monkeypatch: pytest.MonkeyPatch
+  775|     ) -> None:
+  776|         monkeypatch.setattr(tags._manylinux, "_glibc_version_string", lambda: "2.30")  # type: ignore[attr-defined]
+  777|         monkeypatch.setattr(
+  778|             tags._manylinux,  # type: ignore[attr-defined]
+  779|             "_is_compatible",
+  780|             lambda _, glibc_version: glibc_version == _GLibCVersion(2, 17),
+  781|         )
+  782|         monkeypatch.setattr(sysconfig, "get_platform", lambda: f"linux_{native_arch}")
+  783|         monkeypatch.setattr(
+  784|             sys,
+  785|             "executable",
+  786|             os.path.join(
+  787|                 os.path.dirname(__file__),
+  788|                 "manylinux",
+  789|                 "hello-world-armv7l-armhf",
+  790|             ),
+  791|         )
+  792|         platforms = list(tags._linux_platforms(is_32bit=True))
+  793|         archs = {"armv8l": ["armv8l", "armv7l"]}.get(cross_arch, [cross_arch])
+  794|         expected = [f"linux_{arch}" for arch in archs]
+  795|         for arch in archs:
+  796|             expected.extend([f"manylinux_2_17_{arch}", f"manylinux2014_{arch}"])
+  797|         assert platforms == expected
+  798| 
+  799|     def test_linux_platforms_manylinux2014_i386_abi(
+  800|         self, monkeypatch: pytest.MonkeyPatch
+  801|     ) -> None:
+  802|         monkeypatch.setattr(tags._manylinux, "_glibc_version_string", lambda: "2.17")  # type: ignore[attr-defined]
+  803|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_x86_64")
+  804|         monkeypatch.setattr(
+  805|             sys,
+  806|             "executable",
+  807|             os.path.join(
+  808|                 os.path.dirname(__file__),
+  809|                 "manylinux",
+  810|                 "hello-world-x86_64-i386",
+  811|             ),
+  812|         )
+  813|         platforms = list(tags._linux_platforms(is_32bit=True))
+  814|         expected = [
+  815|             "linux_i686",
+  816|             "manylinux_2_17_i686",
+  817|             "manylinux2014_i686",
+  818|             "manylinux_2_16_i686",
+  819|             "manylinux_2_15_i686",
+  820|             "manylinux_2_14_i686",
+  821|             "manylinux_2_13_i686",
+  822|             "manylinux_2_12_i686",
+  823|             "manylinux2010_i686",
+  824|             "manylinux_2_11_i686",
+  825|             "manylinux_2_10_i686",
+  826|             "manylinux_2_9_i686",
+  827|             "manylinux_2_8_i686",
+  828|             "manylinux_2_7_i686",
+  829|             "manylinux_2_6_i686",
+  830|             "manylinux_2_5_i686",
+  831|             "manylinux1_i686",
+  832|         ]
+  833|         assert platforms == expected
+  834| 
+  835|     def test_linux_platforms_manylinux_glibc3(
+  836|         self, monkeypatch: pytest.MonkeyPatch
+  837|     ) -> None:
+  838|         # test for a future glic 3.x version
+  839|         monkeypatch.setattr(tags._manylinux, "_glibc_version_string", lambda: "3.2")  # type: ignore[attr-defined]
+  840|         monkeypatch.setattr(tags._manylinux, "_is_compatible", lambda *args: True)  # type: ignore[attr-defined]
+  841|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_aarch64")
+  842|         monkeypatch.setattr(
+  843|             sys,
+  844|             "executable",
+  845|             os.path.join(
+  846|                 os.path.dirname(__file__),
+  847|                 "manylinux",
+  848|                 "hello-world-aarch64",
+  849|             ),
+  850|         )
+  851|         platforms = list(tags._linux_platforms(is_32bit=False))
+  852|         expected = (
+  853|             [
+  854|                 "linux_aarch64",
+  855|                 "manylinux_3_2_aarch64",
+  856|                 "manylinux_3_1_aarch64",
+  857|                 "manylinux_3_0_aarch64",
+  858|             ]
+  859|             + [f"manylinux_2_{i}_aarch64" for i in range(50, 16, -1)]
+  860|             + ["manylinux2014_aarch64"]
+  861|         )
+  862|         assert platforms == expected
+  863| 
+  864|     @pytest.mark.parametrize(
+  865|         ("native_arch", "cross32_arch", "musl_version"),
+  866|         [
+  867|             ("armv7l", "armv7l", _MuslVersion(1, 1)),
+  868|             ("aarch64", "armv8l", _MuslVersion(1, 1)),
+  869|             ("i386", "i386", _MuslVersion(1, 2)),
+  870|             ("x86_64", "i686", _MuslVersion(1, 2)),
+  871|         ],
+  872|     )
+  873|     @pytest.mark.parametrize("cross32", [True, False], ids=["cross", "native"])
+  874|     def test_linux_platforms_musllinux(
+  875|         self,
+  876|         monkeypatch: pytest.MonkeyPatch,
+  877|         native_arch: str,
+  878|         cross32_arch: str,
+  879|         musl_version: _MuslVersion,
+  880|         cross32: bool,
+  881|     ) -> None:
+  882|         fake_executable = str(
+  883|             pathlib.Path(__file__)
+  884|             .parent.joinpath("musllinux", f"musl-{native_arch}")
+  885|             .resolve()
+  886|         )
+  887|         monkeypatch.setattr(tags._musllinux.sys, "executable", fake_executable)  # type: ignore[attr-defined]
+  888|         monkeypatch.setattr(sysconfig, "get_platform", lambda: f"linux_{native_arch}")
+  889|         monkeypatch.setattr(tags._manylinux, "platform_tags", lambda *_: ())  # type: ignore[attr-defined]
+  890| 
+  891|         recorder = pretend.call_recorder(lambda _: musl_version)
+  892|         monkeypatch.setattr(tags._musllinux, "_get_musl_version", recorder)  # type: ignore[attr-defined]
+  893| 
+  894|         platforms = list(tags._linux_platforms(is_32bit=cross32))
+  895|         target_arch = cross32_arch if cross32 else native_arch
+  896|         archs = {"armv8l": ["armv8l", "armv7l"]}.get(target_arch, [target_arch])
+  897|         expected = [f"linux_{arch}" for arch in archs]
+  898|         for arch in archs:
+  899|             expected.extend(
+  900|                 f"musllinux_{musl_version[0]}_{minor}_{arch}"
+  901|                 for minor in range(musl_version[1], -1, -1)
+  902|             )
+  903|         assert platforms == expected
+  904| 
+  905|         assert recorder.calls == [pretend.call(fake_executable)]
+  906| 
+  907|     def test_linux_platforms_manylinux2014_armv6l(
+  908|         self, monkeypatch: pytest.MonkeyPatch
+  909|     ) -> None:
+  910|         monkeypatch.setattr(
+  911|             tags._manylinux,  # type: ignore[attr-defined]
+  912|             "_is_compatible",
+  913|             lambda _, glibc_version: glibc_version == _GLibCVersion(2, 17),
+  914|         )
+  915|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_armv6l")
+  916|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.20", raising=False)
+  917|         platforms = list(tags._linux_platforms(is_32bit=True))
+  918|         expected = ["linux_armv6l"]
+  919|         assert platforms == expected
+  920| 
+  921|     @pytest.mark.parametrize(
+  922|         ("machine", "abi", "alt_machine"),
+  923|         [("x86_64", "x32", "i686"), ("armv7l", "armel", "armv7l")],
+  924|     )
+  925|     def test_linux_platforms_not_manylinux_abi(
+  926|         self, monkeypatch: pytest.MonkeyPatch, machine: str, abi: str, alt_machine: str
+  927|     ) -> None:
+  928|         monkeypatch.setattr(tags._manylinux, "_is_compatible", lambda *args: False)  # type: ignore[attr-defined]
+  929|         monkeypatch.setattr(sysconfig, "get_platform", lambda: f"linux_{machine}")
+  930|         monkeypatch.setattr(
+  931|             sys,
+  932|             "executable",
+  933|             os.path.join(
+  934|                 os.path.dirname(__file__),
+  935|                 "manylinux",
+  936|                 f"hello-world-{machine}-{abi}",
+  937|             ),
+  938|         )
+  939|         platforms = list(tags._linux_platforms(is_32bit=True))
+  940|         expected = [f"linux_{alt_machine}"]
+  941|         assert platforms == expected
+  942| 
+  943|     def test_linux_not_linux(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  944|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "not_linux_x86_64")
+  945|         monkeypatch.setattr(platform, "machine", lambda: "x86_64")
+  946|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.17", raising=False)
+  947|         platforms = list(tags._linux_platforms(is_32bit=False))
+  948|         assert platforms == ["not_linux_x86_64"]
+  949| 
+  950| 
+  951| @pytest.mark.parametrize(
+  952|     ("platform_name", "dispatch_func"),
+  953|     [
+  954|         ("Darwin", "mac_platforms"),
+  955|         ("iOS", "ios_platforms"),
+  956|         ("Android", "android_platforms"),
+  957|         ("Linux", "_linux_platforms"),
+  958|         ("Generic", "_generic_platforms"),
+  959|     ],
+  960| )
+  961| def test_platform_tags(
+  962|     platform_name: str, dispatch_func: str, monkeypatch: pytest.MonkeyPatch
+  963| ) -> None:
+  964|     expected = ["sillywalk"]
+  965|     monkeypatch.setattr(platform, "system", lambda: platform_name)
+  966|     monkeypatch.setattr(tags, dispatch_func, lambda: expected)
+  967|     assert list(tags.platform_tags()) == expected
+  968| 
+  969| 
+  970| def test_platform_tags_space(monkeypatch: pytest.MonkeyPatch) -> None:
+  971|     """Ensure spaces in platform tags are normalized to underscores."""
+  972|     monkeypatch.setattr(platform, "system", lambda: "Isilon OneFS")
+  973|     monkeypatch.setattr(sysconfig, "get_platform", lambda: "isilon onefs")
+  974|     assert list(tags.platform_tags()) == ["isilon_onefs"]
+  975| 
+  976| 
+  977| class TestCPythonABI:
+  978|     @pytest.mark.parametrize(
+  979|         ("py_debug", "gettotalrefcount", "result"),
+  980|         [(1, False, True), (0, False, False), (None, True, True)],
+  981|     )
+  982|     def test_debug(
+  983|         self,
+  984|         py_debug: int | None,
+  985|         gettotalrefcount: bool,
+  986|         result: bool,
+  987|         monkeypatch: pytest.MonkeyPatch,
+  988|     ) -> None:
+  989|         config = {"Py_DEBUG": py_debug, "WITH_PYMALLOC": 0, "Py_UNICODE_SIZE": 2}
+  990|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+  991|         if gettotalrefcount:
+  992|             monkeypatch.setattr(sys, "gettotalrefcount", 1, raising=False)
+  993|         expected = ["cp37d" if result else "cp37"]
+  994|         assert tags._cpython_abis((3, 7)) == expected
+  995| 
+  996|     def test_debug_file_extension(self, monkeypatch: pytest.MonkeyPatch) -> None:
+  997|         config = {"Py_DEBUG": None}
+  998|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+  999|         monkeypatch.delattr(sys, "gettotalrefcount", raising=False)
+ 1000|         monkeypatch.setattr(tags, "EXTENSION_SUFFIXES", {"_d.pyd"})
+ 1001|         assert tags._cpython_abis((3, 8)) == ["cp38d", "cp38"]
+ 1002| 
+ 1003|     @pytest.mark.parametrize(
+ 1004|         ("debug", "expected"), [(True, ["cp38d", "cp38"]), (False, ["cp38"])]
+ 1005|     )
+ 1006|     def test__debug_cp38(
+ 1007|         self, debug: int | None, expected: list[str], monkeypatch: pytest.MonkeyPatch
+ 1008|     ) -> None:
+ 1009|         config = {"Py_DEBUG": debug}
+ 1010|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1011|         assert tags._cpython_abis((3, 8)) == expected
+ 1012| 
+ 1013|     @pytest.mark.parametrize(
+ 1014|         ("pymalloc", "version", "result"),
+ 1015|         [
+ 1016|             (1, (3, 7), True),
+ 1017|             (0, (3, 7), False),
+ 1018|             (None, (3, 7), True),
+ 1019|             (1, (3, 8), False),
+ 1020|         ],
+ 1021|     )
+ 1022|     def test_pymalloc(
+ 1023|         self,
+ 1024|         pymalloc: int | None,
+ 1025|         version: tuple[int, int],
+ 1026|         result: bool,
+ 1027|         monkeypatch: pytest.MonkeyPatch,
+ 1028|     ) -> None:
+ 1029|         config = {"Py_DEBUG": 0, "WITH_PYMALLOC": pymalloc, "Py_UNICODE_SIZE": 2}
+ 1030|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1031|         base_abi = f"cp{version[0]}{version[1]}"
+ 1032|         expected = [base_abi + "m" if result else base_abi]
+ 1033|         assert tags._cpython_abis(version) == expected
+ 1034| 
+ 1035|     @pytest.mark.parametrize(
+ 1036|         ("unicode_size", "maxunicode", "version", "result"),
+ 1037|         [
+ 1038|             (4, 0x10FFFF, (3, 2), True),
+ 1039|             (2, 0xFFFF, (3, 2), False),
+ 1040|             (None, 0x10FFFF, (3, 2), True),
+ 1041|             (None, 0xFFFF, (3, 2), False),
+ 1042|             (4, 0x10FFFF, (3, 3), False),
+ 1043|         ],
+ 1044|     )
+ 1045|     def test_wide_unicode(
+ 1046|         self,
+ 1047|         unicode_size: int | None,
+ 1048|         maxunicode: int,
+ 1049|         version: tuple[int, int],
+ 1050|         result: bool,
+ 1051|         monkeypatch: pytest.MonkeyPatch,
+ 1052|     ) -> None:
+ 1053|         config = {"Py_DEBUG": 0, "WITH_PYMALLOC": 0, "Py_UNICODE_SIZE": unicode_size}
+ 1054|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1055|         monkeypatch.setattr(sys, "maxunicode", maxunicode)
+ 1056|         base_abi = "cp" + tags._version_nodot(version)
+ 1057|         expected = [base_abi + "u" if result else base_abi]
+ 1058|         assert tags._cpython_abis(version) == expected
+ 1059| 
+ 1060| 
+ 1061| class TestCPythonTags:
+ 1062|     def test_iterator_returned(self) -> None:
+ 1063|         result_iterator = tags.cpython_tags(
+ 1064|             (3, 8), ["cp38d", "cp38"], ["plat1", "plat2"]
+ 1065|         )
+ 1066|         assert isinstance(result_iterator, collections.abc.Iterator)
+ 1067| 
+ 1068|     def test_all_args(self) -> None:
+ 1069|         result_iterator = tags.cpython_tags(
+ 1070|             (3, 11), ["cp311d", "cp311"], ["plat1", "plat2"]
+ 1071|         )
+ 1072|         result = list(result_iterator)
+ 1073|         assert result == [
+ 1074|             tags.Tag("cp311", "cp311d", "plat1"),
+ 1075|             tags.Tag("cp311", "cp311d", "plat2"),
+ 1076|             tags.Tag("cp311", "cp311", "plat1"),
+ 1077|             tags.Tag("cp311", "cp311", "plat2"),
+ 1078|             tags.Tag("cp311", "abi3", "plat1"),
+ 1079|             tags.Tag("cp311", "abi3", "plat2"),
+ 1080|             tags.Tag("cp311", "none", "plat1"),
+ 1081|             tags.Tag("cp311", "none", "plat2"),
+ 1082|             tags.Tag("cp310", "abi3", "plat1"),
+ 1083|             tags.Tag("cp310", "abi3", "plat2"),
+ 1084|             tags.Tag("cp39", "abi3", "plat1"),
+ 1085|             tags.Tag("cp39", "abi3", "plat2"),
+ 1086|             tags.Tag("cp38", "abi3", "plat1"),
+ 1087|             tags.Tag("cp38", "abi3", "plat2"),
+ 1088|             tags.Tag("cp37", "abi3", "plat1"),
+ 1089|             tags.Tag("cp37", "abi3", "plat2"),
+ 1090|             tags.Tag("cp36", "abi3", "plat1"),
+ 1091|             tags.Tag("cp36", "abi3", "plat2"),
+ 1092|             tags.Tag("cp35", "abi3", "plat1"),
+ 1093|             tags.Tag("cp35", "abi3", "plat2"),
+ 1094|             tags.Tag("cp34", "abi3", "plat1"),
+ 1095|             tags.Tag("cp34", "abi3", "plat2"),
+ 1096|             tags.Tag("cp33", "abi3", "plat1"),
+ 1097|             tags.Tag("cp33", "abi3", "plat2"),
+ 1098|             tags.Tag("cp32", "abi3", "plat1"),
+ 1099|             tags.Tag("cp32", "abi3", "plat2"),
+ 1100|         ]
+ 1101|         result_iterator = tags.cpython_tags(
+ 1102|             (3, 8), ["cp38d", "cp38"], ["plat1", "plat2"]
+ 1103|         )
+ 1104|         result = list(result_iterator)
+ 1105|         assert result == [
+ 1106|             tags.Tag("cp38", "cp38d", "plat1"),
+ 1107|             tags.Tag("cp38", "cp38d", "plat2"),
+ 1108|             tags.Tag("cp38", "cp38", "plat1"),
+ 1109|             tags.Tag("cp38", "cp38", "plat2"),
+ 1110|             tags.Tag("cp38", "abi3", "plat1"),
+ 1111|             tags.Tag("cp38", "abi3", "plat2"),
+ 1112|             tags.Tag("cp38", "none", "plat1"),
+ 1113|             tags.Tag("cp38", "none", "plat2"),
+ 1114|             tags.Tag("cp37", "abi3", "plat1"),
+ 1115|             tags.Tag("cp37", "abi3", "plat2"),
+ 1116|             tags.Tag("cp36", "abi3", "plat1"),
+ 1117|             tags.Tag("cp36", "abi3", "plat2"),
+ 1118|             tags.Tag("cp35", "abi3", "plat1"),
+ 1119|             tags.Tag("cp35", "abi3", "plat2"),
+ 1120|             tags.Tag("cp34", "abi3", "plat1"),
+ 1121|             tags.Tag("cp34", "abi3", "plat2"),
+ 1122|             tags.Tag("cp33", "abi3", "plat1"),
+ 1123|             tags.Tag("cp33", "abi3", "plat2"),
+ 1124|             tags.Tag("cp32", "abi3", "plat1"),
+ 1125|             tags.Tag("cp32", "abi3", "plat2"),
+ 1126|         ]
+ 1127| 
+ 1128|         result = list(tags.cpython_tags((3, 3), ["cp33m"], ["plat1", "plat2"]))
+ 1129|         assert result == [
+ 1130|             tags.Tag("cp33", "cp33m", "plat1"),
+ 1131|             tags.Tag("cp33", "cp33m", "plat2"),
+ 1132|             tags.Tag("cp33", "abi3", "plat1"),
+ 1133|             tags.Tag("cp33", "abi3", "plat2"),
+ 1134|             tags.Tag("cp33", "none", "plat1"),
+ 1135|             tags.Tag("cp33", "none", "plat2"),
+ 1136|             tags.Tag("cp32", "abi3", "plat1"),
+ 1137|             tags.Tag("cp32", "abi3", "plat2"),
+ 1138|         ]
+ 1139| 
+ 1140|         result = list(tags.cpython_tags((3, 13), ["cp313t"], ["plat1", "plat2"]))
+ 1141|         assert result == [
+ 1142|             tags.Tag("cp313", "cp313t", "plat1"),
+ 1143|             tags.Tag("cp313", "cp313t", "plat2"),
+ 1144|             tags.Tag("cp313", "abi3t", "plat1"),
+ 1145|             tags.Tag("cp313", "abi3t", "plat2"),
+ 1146|             tags.Tag("cp313", "none", "plat1"),
+ 1147|             tags.Tag("cp313", "none", "plat2"),
+ 1148|             tags.Tag("cp312", "abi3t", "plat1"),
+ 1149|             tags.Tag("cp312", "abi3t", "plat2"),
+ 1150|             tags.Tag("cp311", "abi3t", "plat1"),
+ 1151|             tags.Tag("cp311", "abi3t", "plat2"),
+ 1152|             tags.Tag("cp310", "abi3t", "plat1"),
+ 1153|             tags.Tag("cp310", "abi3t", "plat2"),
+ 1154|             tags.Tag("cp39", "abi3t", "plat1"),
+ 1155|             tags.Tag("cp39", "abi3t", "plat2"),
+ 1156|             tags.Tag("cp38", "abi3t", "plat1"),
+ 1157|             tags.Tag("cp38", "abi3t", "plat2"),
+ 1158|             tags.Tag("cp37", "abi3t", "plat1"),
+ 1159|             tags.Tag("cp37", "abi3t", "plat2"),
+ 1160|             tags.Tag("cp36", "abi3t", "plat1"),
+ 1161|             tags.Tag("cp36", "abi3t", "plat2"),
+ 1162|             tags.Tag("cp35", "abi3t", "plat1"),
+ 1163|             tags.Tag("cp35", "abi3t", "plat2"),
+ 1164|             tags.Tag("cp34", "abi3t", "plat1"),
+ 1165|             tags.Tag("cp34", "abi3t", "plat2"),
+ 1166|             tags.Tag("cp33", "abi3t", "plat1"),
+ 1167|             tags.Tag("cp33", "abi3t", "plat2"),
+ 1168|             tags.Tag("cp32", "abi3t", "plat1"),
+ 1169|             tags.Tag("cp32", "abi3t", "plat2"),
+ 1170|         ]
+ 1171| 
+ 1172|         result = list(tags.cpython_tags((3, 15), ["cp315t"], ["platform"]))
+ 1173|         assert result == [
+ 1174|             tags.Tag("cp315", "cp315t", "platform"),
+ 1175|             tags.Tag("cp315", "abi3t", "platform"),
+ 1176|             tags.Tag("cp315", "none", "platform"),
+ 1177|             tags.Tag("cp314", "abi3t", "platform"),
+ 1178|             tags.Tag("cp313", "abi3t", "platform"),
+ 1179|             tags.Tag("cp312", "abi3t", "platform"),
+ 1180|             tags.Tag("cp311", "abi3t", "platform"),
+ 1181|             tags.Tag("cp310", "abi3t", "platform"),
+ 1182|             tags.Tag("cp39", "abi3t", "platform"),
+ 1183|             tags.Tag("cp38", "abi3t", "platform"),
+ 1184|             tags.Tag("cp37", "abi3t", "platform"),
+ 1185|             tags.Tag("cp36", "abi3t", "platform"),
+ 1186|             tags.Tag("cp35", "abi3t", "platform"),
+ 1187|             tags.Tag("cp34", "abi3t", "platform"),
+ 1188|             tags.Tag("cp33", "abi3t", "platform"),
+ 1189|             tags.Tag("cp32", "abi3t", "platform"),
+ 1190|         ]
+ 1191| 
+ 1192|         result = list(tags.cpython_tags((3, 15), ["cp315t", "abi3t"], ["platform"]))
+ 1193|         assert result == [
+ 1194|             tags.Tag("cp315", "cp315t", "platform"),
+ 1195|             tags.Tag("cp315", "abi3t", "platform"),
+ 1196|             tags.Tag("cp315", "none", "platform"),
+ 1197|         ] + [tags.Tag(f"cp3{minor}", "abi3t", "platform") for minor in range(14, 1, -1)]
+ 1198| 
+ 1199|         result = list(tags.cpython_tags((3, 16), ["cp316t"], ["platform"]))
+ 1200|         assert result == [
+ 1201|             tags.Tag("cp316", "cp316t", "platform"),
+ 1202|             tags.Tag("cp316", "abi3t", "platform"),
+ 1203|             tags.Tag("cp316", "none", "platform"),
+ 1204|             tags.Tag("cp315", "abi3t", "platform"),
+ 1205|             tags.Tag("cp314", "abi3t", "platform"),
+ 1206|             tags.Tag("cp313", "abi3t", "platform"),
+ 1207|             tags.Tag("cp312", "abi3t", "platform"),
+ 1208|             tags.Tag("cp311", "abi3t", "platform"),
+ 1209|             tags.Tag("cp310", "abi3t", "platform"),
+ 1210|             tags.Tag("cp39", "abi3t", "platform"),
+ 1211|             tags.Tag("cp38", "abi3t", "platform"),
+ 1212|             tags.Tag("cp37", "abi3t", "platform"),
+ 1213|             tags.Tag("cp36", "abi3t", "platform"),
+ 1214|             tags.Tag("cp35", "abi3t", "platform"),
+ 1215|             tags.Tag("cp34", "abi3t", "platform"),
+ 1216|             tags.Tag("cp33", "abi3t", "platform"),
+ 1217|             tags.Tag("cp32", "abi3t", "platform"),
+ 1218|         ]
+ 1219| 
+ 1220|         result = list(tags.cpython_tags((3, 16), ["cp316"], ["platform"]))
+ 1221|         assert result == [
+ 1222|             tags.Tag("cp316", "cp316", "platform"),
+ 1223|             tags.Tag("cp316", "abi3", "platform"),
+ 1224|             tags.Tag("cp316", "none", "platform"),
+ 1225|             tags.Tag("cp315", "abi3", "platform"),
+ 1226|             tags.Tag("cp314", "abi3", "platform"),
+ 1227|             tags.Tag("cp313", "abi3", "platform"),
+ 1228|             tags.Tag("cp312", "abi3", "platform"),
+ 1229|             tags.Tag("cp311", "abi3", "platform"),
+ 1230|             tags.Tag("cp310", "abi3", "platform"),
+ 1231|             tags.Tag("cp39", "abi3", "platform"),
+ 1232|             tags.Tag("cp38", "abi3", "platform"),
+ 1233|             tags.Tag("cp37", "abi3", "platform"),
+ 1234|             tags.Tag("cp36", "abi3", "platform"),
+ 1235|             tags.Tag("cp35", "abi3", "platform"),
+ 1236|             tags.Tag("cp34", "abi3", "platform"),
+ 1237|             tags.Tag("cp33", "abi3", "platform"),
+ 1238|             tags.Tag("cp32", "abi3", "platform"),
+ 1239|         ]
+ 1240| 
+ 1241|     def test_no_abi3t_in_non_threaded_interpreter(self) -> None:
+ 1242|         result = list(tags.cpython_tags((3, 16), ["cp316"], ["platform"]))
+ 1243|         assert all(t.abi in ("cp316", "none", "abi3") for t in result)
+ 1244| 
+ 1245|     def test_no_abi3_in_threaded_interpreter(self) -> None:
+ 1246|         result = list(tags.cpython_tags((3, 16), ["cp316t"], ["platform"]))
+ 1247|         assert all(t.abi in ("cp316t", "none", "abi3t") for t in result)
+ 1248| 
+ 1249|     def test_python_version_defaults(self) -> None:
+ 1250|         tag = next(tags.cpython_tags(abis=["abi3"], platforms=["any"]))
+ 1251|         interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+ 1252|         assert interpreter == tag.interpreter
+ 1253| 
+ 1254|     def test_abi_defaults(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1255|         monkeypatch.setattr(tags, "_cpython_abis", lambda _1, _2: ["cp38"])
+ 1256|         result = list(tags.cpython_tags((3, 8), platforms=["any"]))
+ 1257|         assert tags.Tag("cp38", "cp38", "any") in result
+ 1258|         assert tags.Tag("cp38", "abi3", "any") in result
+ 1259|         assert tags.Tag("cp38", "none", "any") in result
+ 1260| 
+ 1261|     def test_abi_defaults_needs_underscore(
+ 1262|         self, monkeypatch: pytest.MonkeyPatch
+ 1263|     ) -> None:
+ 1264|         monkeypatch.setattr(tags, "_cpython_abis", lambda _1, _2: ["cp311"])
+ 1265|         result = list(tags.cpython_tags((3, 11), platforms=["any"]))
+ 1266|         assert tags.Tag("cp311", "cp311", "any") in result
+ 1267|         assert tags.Tag("cp311", "abi3", "any") in result
+ 1268|         assert tags.Tag("cp311", "none", "any") in result
+ 1269| 
+ 1270|     def test_platforms_defaults(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1271|         monkeypatch.setattr(tags, "platform_tags", lambda: ["plat1"])
+ 1272|         result = list(tags.cpython_tags((3, 8), abis=["whatever"]))
+ 1273|         assert tags.Tag("cp38", "whatever", "plat1") in result
+ 1274| 
+ 1275|     def test_platforms_defaults_needs_underscore(
+ 1276|         self, monkeypatch: pytest.MonkeyPatch
+ 1277|     ) -> None:
+ 1278|         monkeypatch.setattr(tags, "platform_tags", lambda: ["plat1"])
+ 1279|         result = list(tags.cpython_tags((3, 11), abis=["whatever"]))
+ 1280|         assert tags.Tag("cp311", "whatever", "plat1") in result
+ 1281| 
+ 1282|     def test_platform_name_space_normalization(
+ 1283|         self, monkeypatch: pytest.MonkeyPatch
+ 1284|     ) -> None:
+ 1285|         """Ensure that spaces are translated to underscores in platform names."""
+ 1286|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "isilon onefs")
+ 1287|         for tag in tags.cpython_tags():
+ 1288|             assert " " not in tag.platform
+ 1289| 
+ 1290|     def test_major_only_python_version(self) -> None:
+ 1291|         result = list(tags.cpython_tags((3,), ["abi"], ["plat"]))
+ 1292|         assert result == [
+ 1293|             tags.Tag("cp3", "abi", "plat"),
+ 1294|             tags.Tag("cp3", "none", "plat"),
+ 1295|         ]
+ 1296| 
+ 1297|     def test_major_only_python_version_with_default_abis(self) -> None:
+ 1298|         result = list(tags.cpython_tags((3,), platforms=["plat"]))
+ 1299|         assert result == [tags.Tag("cp3", "none", "plat")]
+ 1300| 
+ 1301|     @pytest.mark.parametrize("abis", [[], ["abi3"], ["none"]])
+ 1302|     def test_skip_redundant_abis(self, abis: list[str]) -> None:
+ 1303|         results = list(tags.cpython_tags((3, 0), abis=abis, platforms=["any"]))
+ 1304|         assert results == [tags.Tag("cp30", "none", "any")]
+ 1305| 
+ 1306|     def test_abi3_python33(self) -> None:
+ 1307|         results = list(tags.cpython_tags((3, 3), abis=["cp33"], platforms=["plat"]))
+ 1308|         assert results == [
+ 1309|             tags.Tag("cp33", "cp33", "plat"),
+ 1310|             tags.Tag("cp33", "abi3", "plat"),
+ 1311|             tags.Tag("cp33", "none", "plat"),
+ 1312|             tags.Tag("cp32", "abi3", "plat"),
+ 1313|         ]
+ 1314| 
+ 1315|     def test_no_excess_abi3_python32(self) -> None:
+ 1316|         results = list(tags.cpython_tags((3, 2), abis=["cp32"], platforms=["plat"]))
+ 1317|         assert results == [
+ 1318|             tags.Tag("cp32", "cp32", "plat"),
+ 1319|             tags.Tag("cp32", "abi3", "plat"),
+ 1320|             tags.Tag("cp32", "none", "plat"),
+ 1321|         ]
+ 1322| 
+ 1323|     def test_no_abi3_python31(self) -> None:
+ 1324|         results = list(tags.cpython_tags((3, 1), abis=["cp31"], platforms=["plat"]))
+ 1325|         assert results == [
+ 1326|             tags.Tag("cp31", "cp31", "plat"),
+ 1327|             tags.Tag("cp31", "none", "plat"),
+ 1328|         ]
+ 1329| 
+ 1330|     def test_no_abi3_python27(self) -> None:
+ 1331|         results = list(tags.cpython_tags((2, 7), abis=["cp27"], platforms=["plat"]))
+ 1332|         assert results == [
+ 1333|             tags.Tag("cp27", "cp27", "plat"),
+ 1334|             tags.Tag("cp27", "none", "plat"),
+ 1335|         ]
+ 1336| 
+ 1337| 
+ 1338| class TestGenericTags:
+ 1339|     def test__generic_abi_macos(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1340|         monkeypatch.setattr(
+ 1341|             sysconfig, "get_config_var", lambda _: ".cpython-37m-darwin.so"
+ 1342|         )
+ 1343|         monkeypatch.setattr(tags, "interpreter_name", lambda: "cp")
+ 1344|         assert tags._generic_abi() == ["cp37m"]
+ 1345| 
+ 1346|     def test__generic_abi_linux_cpython(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1347|         config = {
+ 1348|             "Py_DEBUG": False,
+ 1349|             "WITH_PYMALLOC": True,
+ 1350|             "EXT_SUFFIX": ".cpython-37m-x86_64-linux-gnu.so",
+ 1351|         }
+ 1352|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1353|         monkeypatch.setattr(tags, "interpreter_name", lambda: "cp")
+ 1354|         # They are identical
+ 1355|         assert tags._cpython_abis((3, 7)) == ["cp37m"]
+ 1356|         assert tags._generic_abi() == ["cp37m"]
+ 1357| 
+ 1358|     def test__generic_abi_jp(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1359|         config = {"EXT_SUFFIX": ".return_exactly_this.so"}
+ 1360|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1361|         assert tags._generic_abi() == ["return_exactly_this"]
+ 1362| 
+ 1363|     def test__generic_abi_graal(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1364|         config = {"EXT_SUFFIX": ".graalpy-38-native-x86_64-darwin.so"}
+ 1365|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1366|         assert tags._generic_abi() == ["graalpy_38_native"]
+ 1367| 
+ 1368|     def test__generic_abi_disable_gil(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1369|         config = {
+ 1370|             "Py_DEBUG": False,
+ 1371|             "EXT_SUFFIX": ".cpython-313t-x86_64-linux-gnu.so",
+ 1372|             "WITH_PYMALLOC": 0,
+ 1373|             "Py_GIL_DISABLED": 1,
+ 1374|         }
+ 1375|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1376|         assert tags._generic_abi() == ["cp313t"]
+ 1377|         assert tags._generic_abi() == tags._cpython_abis((3, 13))
+ 1378| 
+ 1379|     def test__generic_abi_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1380|         config = {"EXT_SUFFIX": "..so"}
+ 1381|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1382|         assert tags._generic_abi() == []
+ 1383| 
+ 1384|     @pytest.mark.parametrize("ext_suffix", ["invalid", "", None])
+ 1385|     def test__generic_abi_error(
+ 1386|         self, ext_suffix: str | None, monkeypatch: pytest.MonkeyPatch
+ 1387|     ) -> None:
+ 1388|         config = {"EXT_SUFFIX": ext_suffix}
+ 1389|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1390|         with pytest.raises(SystemError) as e:
+ 1391|             tags._generic_abi()
+ 1392|         assert "EXT_SUFFIX" in str(e.value)
+ 1393| 
+ 1394|     # ".cpython.so" has no version component at all (would raise IndexError);
+ 1395|     # ".cpython-.so" has a dash but an empty version (would build an invalid
+ 1396|     # "cp" ABI). Both are malformed cpython soabis that should surface the same
+ 1397|     # actionable SystemError as the other malformed EXT_SUFFIX cases.
+ 1398|     @pytest.mark.parametrize("ext_suffix", [".cpython.so", ".cpython-.so"])
+ 1399|     def test__generic_abi_cpython_missing_version(
+ 1400|         self, ext_suffix: str, monkeypatch: pytest.MonkeyPatch
+ 1401|     ) -> None:
+ 1402|         config = {"EXT_SUFFIX": ext_suffix}
+ 1403|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1404|         with pytest.raises(SystemError) as e:
+ 1405|             tags._generic_abi()
+ 1406|         assert "EXT_SUFFIX" in str(e.value)
+ 1407| 
+ 1408|     def test__generic_abi_linux_pypy(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1409|         # issue gh-606
+ 1410|         config = {
+ 1411|             "Py_DEBUG": False,
+ 1412|             "EXT_SUFFIX": ".pypy39-pp73-x86_64-linux-gnu.so",
+ 1413|         }
+ 1414|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1415|         monkeypatch.setattr(tags, "interpreter_name", lambda: "pp")
+ 1416|         assert tags._generic_abi() == ["pypy39_pp73"]
+ 1417| 
+ 1418|     def test__generic_abi_old_windows(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1419|         config = {
+ 1420|             "EXT_SUFFIX": ".pyd",
+ 1421|             "Py_DEBUG": 0,
+ 1422|             "WITH_PYMALLOC": 0,
+ 1423|             "Py_GIL_DISABLED": 0,
+ 1424|         }
+ 1425|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1426|         assert tags._generic_abi() == tags._cpython_abis(sys.version_info[:2])
+ 1427| 
+ 1428|     def test__generic_abi_windows(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1429|         config = {
+ 1430|             "EXT_SUFFIX": ".cp310-win_amd64.pyd",
+ 1431|         }
+ 1432|         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+ 1433|         assert tags._generic_abi() == ["cp310"]
+ 1434| 
+ 1435|     @pytest.mark.skipif(sys.implementation.name != "cpython", reason="CPython-only")
+ 1436|     def test__generic_abi_agree(self) -> None:
+ 1437|         """Test that the two methods of finding the abi tag agree"""
+ 1438|         assert tags._generic_abi() == tags._cpython_abis(sys.version_info[:2])
+ 1439| 
+ 1440|     def test_generic_platforms(self) -> None:
+ 1441|         platform = sysconfig.get_platform().replace("-", "_")
+ 1442|         platform = platform.replace(".", "_")
+ 1443|         assert list(tags._generic_platforms()) == [platform]
+ 1444| 
+ 1445|     def test_generic_platforms_space(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1446|         """Ensure platform tags normalize spaces to underscores."""
+ 1447|         platform_ = "isilon onefs"
+ 1448|         monkeypatch.setattr(sysconfig, "get_platform", lambda: platform_)
+ 1449|         assert list(tags._generic_platforms()) == [platform_.replace(" ", "_")]
+ 1450| 
+ 1451|     def test_iterator_returned(self) -> None:
+ 1452|         result_iterator = tags.generic_tags("sillywalk33", ["abi"], ["plat1", "plat2"])
+ 1453|         assert isinstance(result_iterator, collections.abc.Iterator)
+ 1454| 
+ 1455|     def test_all_args(self) -> None:
+ 1456|         result_iterator = tags.generic_tags("sillywalk33", ["abi"], ["plat1", "plat2"])
+ 1457|         result = list(result_iterator)
+ 1458|         assert result == [
+ 1459|             tags.Tag("sillywalk33", "abi", "plat1"),
+ 1460|             tags.Tag("sillywalk33", "abi", "plat2"),
+ 1461|             tags.Tag("sillywalk33", "none", "plat1"),
+ 1462|             tags.Tag("sillywalk33", "none", "plat2"),
+ 1463|         ]
+ 1464| 
+ 1465|     @pytest.mark.parametrize("abi", [[], ["none"]])
+ 1466|     def test_abi_unspecified(self, abi: list[str]) -> None:
+ 1467|         no_abi = list(tags.generic_tags("sillywalk34", abi, ["plat1", "plat2"]))
+ 1468|         assert no_abi == [
+ 1469|             tags.Tag("sillywalk34", "none", "plat1"),
+ 1470|             tags.Tag("sillywalk34", "none", "plat2"),
+ 1471|         ]
+ 1472| 
+ 1473|     def test_interpreter_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1474|         monkeypatch.setattr(tags, "interpreter_name", lambda: "sillywalk")
+ 1475|         monkeypatch.setattr(tags, "interpreter_version", lambda warn: "NN")  # noqa: ARG005
+ 1476|         result = list(tags.generic_tags(abis=["none"], platforms=["any"]))
+ 1477|         assert result == [tags.Tag("sillywalkNN", "none", "any")]
+ 1478| 
+ 1479|     def test_abis_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1480|         monkeypatch.setattr(tags, "_generic_abi", lambda: ["abi"])
+ 1481|         result = list(tags.generic_tags(interpreter="sillywalk", platforms=["any"]))
+ 1482|         assert result == [
+ 1483|             tags.Tag("sillywalk", "abi", "any"),
+ 1484|             tags.Tag("sillywalk", "none", "any"),
+ 1485|         ]
+ 1486| 
+ 1487|     def test_platforms_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1488|         monkeypatch.setattr(tags, "platform_tags", lambda: ["plat"])
+ 1489|         result = list(tags.generic_tags(interpreter="sillywalk", abis=["none"]))
+ 1490|         assert result == [tags.Tag("sillywalk", "none", "plat")]
+ 1491| 
+ 1492| 
+ 1493| class TestCompatibleTags:
+ 1494|     def test_all_args(self) -> None:
+ 1495|         result = list(tags.compatible_tags((3, 3), "cp33", ["plat1", "plat2"]))
+ 1496|         assert result == [
+ 1497|             tags.Tag("py33", "none", "plat1"),
+ 1498|             tags.Tag("py33", "none", "plat2"),
+ 1499|             tags.Tag("py3", "none", "plat1"),
+ 1500|             tags.Tag("py3", "none", "plat2"),
+ 1501|             tags.Tag("py32", "none", "plat1"),
+ 1502|             tags.Tag("py32", "none", "plat2"),
+ 1503|             tags.Tag("py31", "none", "plat1"),
+ 1504|             tags.Tag("py31", "none", "plat2"),
+ 1505|             tags.Tag("py30", "none", "plat1"),
+ 1506|             tags.Tag("py30", "none", "plat2"),
+ 1507|             tags.Tag("cp33", "none", "any"),
+ 1508|             tags.Tag("py33", "none", "any"),
+ 1509|             tags.Tag("py3", "none", "any"),
+ 1510|             tags.Tag("py32", "none", "any"),
+ 1511|             tags.Tag("py31", "none", "any"),
+ 1512|             tags.Tag("py30", "none", "any"),
+ 1513|         ]
+ 1514| 
+ 1515|     def test_all_args_needs_underscore(self) -> None:
+ 1516|         result = list(tags.compatible_tags((3, 11), "cp311", ["plat1", "plat2"]))
+ 1517|         assert result == [
+ 1518|             tags.Tag("py311", "none", "plat1"),
+ 1519|             tags.Tag("py311", "none", "plat2"),
+ 1520|             tags.Tag("py3", "none", "plat1"),
+ 1521|             tags.Tag("py3", "none", "plat2"),
+ 1522|             tags.Tag("py310", "none", "plat1"),
+ 1523|             tags.Tag("py310", "none", "plat2"),
+ 1524|             tags.Tag("py39", "none", "plat1"),
+ 1525|             tags.Tag("py39", "none", "plat2"),
+ 1526|             tags.Tag("py38", "none", "plat1"),
+ 1527|             tags.Tag("py38", "none", "plat2"),
+ 1528|             tags.Tag("py37", "none", "plat1"),
+ 1529|             tags.Tag("py37", "none", "plat2"),
+ 1530|             tags.Tag("py36", "none", "plat1"),
+ 1531|             tags.Tag("py36", "none", "plat2"),
+ 1532|             tags.Tag("py35", "none", "plat1"),
+ 1533|             tags.Tag("py35", "none", "plat2"),
+ 1534|             tags.Tag("py34", "none", "plat1"),
+ 1535|             tags.Tag("py34", "none", "plat2"),
+ 1536|             tags.Tag("py33", "none", "plat1"),
+ 1537|             tags.Tag("py33", "none", "plat2"),
+ 1538|             tags.Tag("py32", "none", "plat1"),
+ 1539|             tags.Tag("py32", "none", "plat2"),
+ 1540|             tags.Tag("py31", "none", "plat1"),
+ 1541|             tags.Tag("py31", "none", "plat2"),
+ 1542|             tags.Tag("py30", "none", "plat1"),
+ 1543|             tags.Tag("py30", "none", "plat2"),
+ 1544|             tags.Tag("cp311", "none", "any"),
+ 1545|             tags.Tag("py311", "none", "any"),
+ 1546|             tags.Tag("py3", "none", "any"),
+ 1547|             tags.Tag("py310", "none", "any"),
+ 1548|             tags.Tag("py39", "none", "any"),
+ 1549|             tags.Tag("py38", "none", "any"),
+ 1550|             tags.Tag("py37", "none", "any"),
+ 1551|             tags.Tag("py36", "none", "any"),
+ 1552|             tags.Tag("py35", "none", "any"),
+ 1553|             tags.Tag("py34", "none", "any"),
+ 1554|             tags.Tag("py33", "none", "any"),
+ 1555|             tags.Tag("py32", "none", "any"),
+ 1556|             tags.Tag("py31", "none", "any"),
+ 1557|             tags.Tag("py30", "none", "any"),
+ 1558|         ]
+ 1559| 
+ 1560|     def test_major_only_python_version(self) -> None:
+ 1561|         result = list(tags.compatible_tags((3,), "cp33", ["plat"]))
+ 1562|         assert result == [
+ 1563|             tags.Tag("py3", "none", "plat"),
+ 1564|             tags.Tag("cp33", "none", "any"),
+ 1565|             tags.Tag("py3", "none", "any"),
+ 1566|         ]
+ 1567| 
+ 1568|     def test_default_python_version(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1569|         monkeypatch.setattr(sys, "version_info", (3, 1))
+ 1570|         result = list(tags.compatible_tags(interpreter="cp31", platforms=["plat"]))
+ 1571|         assert result == [
+ 1572|             tags.Tag("py31", "none", "plat"),
+ 1573|             tags.Tag("py3", "none", "plat"),
+ 1574|             tags.Tag("py30", "none", "plat"),
+ 1575|             tags.Tag("cp31", "none", "any"),
+ 1576|             tags.Tag("py31", "none", "any"),
+ 1577|             tags.Tag("py3", "none", "any"),
+ 1578|             tags.Tag("py30", "none", "any"),
+ 1579|         ]
+ 1580| 
+ 1581|     def test_default_python_version_needs_underscore(
+ 1582|         self, monkeypatch: pytest.MonkeyPatch
+ 1583|     ) -> None:
+ 1584|         monkeypatch.setattr(sys, "version_info", (3, 11))
+ 1585|         result = list(tags.compatible_tags(interpreter="cp311", platforms=["plat"]))
+ 1586|         assert result == [
+ 1587|             tags.Tag("py311", "none", "plat"),
+ 1588|             tags.Tag("py3", "none", "plat"),
+ 1589|             tags.Tag("py310", "none", "plat"),
+ 1590|             tags.Tag("py39", "none", "plat"),
+ 1591|             tags.Tag("py38", "none", "plat"),
+ 1592|             tags.Tag("py37", "none", "plat"),
+ 1593|             tags.Tag("py36", "none", "plat"),
+ 1594|             tags.Tag("py35", "none", "plat"),
+ 1595|             tags.Tag("py34", "none", "plat"),
+ 1596|             tags.Tag("py33", "none", "plat"),
+ 1597|             tags.Tag("py32", "none", "plat"),
+ 1598|             tags.Tag("py31", "none", "plat"),
+ 1599|             tags.Tag("py30", "none", "plat"),
+ 1600|             tags.Tag("cp311", "none", "any"),
+ 1601|             tags.Tag("py311", "none", "any"),
+ 1602|             tags.Tag("py3", "none", "any"),
+ 1603|             tags.Tag("py310", "none", "any"),
+ 1604|             tags.Tag("py39", "none", "any"),
+ 1605|             tags.Tag("py38", "none", "any"),
+ 1606|             tags.Tag("py37", "none", "any"),
+ 1607|             tags.Tag("py36", "none", "any"),
+ 1608|             tags.Tag("py35", "none", "any"),
+ 1609|             tags.Tag("py34", "none", "any"),
+ 1610|             tags.Tag("py33", "none", "any"),
+ 1611|             tags.Tag("py32", "none", "any"),
+ 1612|             tags.Tag("py31", "none", "any"),
+ 1613|             tags.Tag("py30", "none", "any"),
+ 1614|         ]
+ 1615| 
+ 1616|     def test_default_interpreter(self) -> None:
+ 1617|         result = list(tags.compatible_tags((3, 1), platforms=["plat"]))
+ 1618|         assert result == [
+ 1619|             tags.Tag("py31", "none", "plat"),
+ 1620|             tags.Tag("py3", "none", "plat"),
+ 1621|             tags.Tag("py30", "none", "plat"),
+ 1622|             tags.Tag("py31", "none", "any"),
+ 1623|             tags.Tag("py3", "none", "any"),
+ 1624|             tags.Tag("py30", "none", "any"),
+ 1625|         ]
+ 1626| 
+ 1627|     def test_default_platforms(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1628|         monkeypatch.setattr(tags, "platform_tags", lambda: iter(["plat", "plat2"]))
+ 1629|         result = list(tags.compatible_tags((3, 1), "cp31"))
+ 1630|         assert result == [
+ 1631|             tags.Tag("py31", "none", "plat"),
+ 1632|             tags.Tag("py31", "none", "plat2"),
+ 1633|             tags.Tag("py3", "none", "plat"),
+ 1634|             tags.Tag("py3", "none", "plat2"),
+ 1635|             tags.Tag("py30", "none", "plat"),
+ 1636|             tags.Tag("py30", "none", "plat2"),
+ 1637|             tags.Tag("cp31", "none", "any"),
+ 1638|             tags.Tag("py31", "none", "any"),
+ 1639|             tags.Tag("py3", "none", "any"),
+ 1640|             tags.Tag("py30", "none", "any"),
+ 1641|         ]
+ 1642| 
+ 1643| 
+ 1644| @pytest.mark.usefixtures("_disable_musl_detection")
+ 1645| class TestSysTags:
+ 1646|     def teardown_method(self) -> None:
+ 1647|         # Clear the version cache
+ 1648|         tags._glibc_version = []  # type: ignore[attr-defined]
+ 1649|         tags._manylinux._get_manylinux_module.cache_clear()  # type: ignore[attr-defined]
+ 1650| 
+ 1651|     @pytest.mark.parametrize(
+ 1652|         ("name", "expected"),
+ 1653|         [("CPython", "cp"), ("PyPy", "pp"), ("Jython", "jy"), ("IronPython", "ip")],
+ 1654|     )
+ 1655|     def test_interpreter_name(
+ 1656|         self, name: str, expected: str, mock_interpreter_name: Callable[[str], bool]
+ 1657|     ) -> None:
+ 1658|         mock_interpreter_name(name)
+ 1659|         assert tags.interpreter_name() == expected
+ 1660| 
+ 1661|     def test_iterator(self) -> None:
+ 1662|         assert isinstance(tags.sys_tags(), collections.abc.Iterator)
+ 1663| 
+ 1664|     def test_mac_cpython(
+ 1665|         self,
+ 1666|         mock_interpreter_name: Callable[[str], bool],
+ 1667|         monkeypatch: pytest.MonkeyPatch,
+ 1668|     ) -> None:
+ 1669|         if mock_interpreter_name("CPython"):
+ 1670|             monkeypatch.setattr(tags, "_cpython_abis", lambda *a: ["cp33m"])
+ 1671|         if platform.system() != "Darwin":
+ 1672|             monkeypatch.setattr(platform, "system", lambda: "Darwin")
+ 1673|             monkeypatch.setattr(tags, "mac_platforms", lambda: ["macosx_10_5_x86_64"])
+ 1674|         abis = tags._cpython_abis(sys.version_info[:2])
+ 1675|         platforms = list(tags.mac_platforms())
+ 1676|         result = list(tags.sys_tags())
+ 1677|         assert len(abis) == 1
+ 1678|         assert result[0] == tags.Tag(
+ 1679|             "cp" + tags._version_nodot(sys.version_info[:2]), abis[0], platforms[0]
+ 1680|         )
+ 1681|         assert result[-1] == tags.Tag(
+ 1682|             "py" + tags._version_nodot((sys.version_info[0], 0)), "none", "any"
+ 1683|         )
+ 1684| 
+ 1685|     def test_windows_cpython(
+ 1686|         self,
+ 1687|         mock_interpreter_name: Callable[[str], bool],
+ 1688|         monkeypatch: pytest.MonkeyPatch,
+ 1689|     ) -> None:
+ 1690|         if mock_interpreter_name("CPython"):
+ 1691|             monkeypatch.setattr(tags, "_cpython_abis", lambda *a: ["cp33m"])
+ 1692|         if platform.system() != "Windows":
+ 1693|             monkeypatch.setattr(platform, "system", lambda: "Windows")
+ 1694|             monkeypatch.setattr(tags, "_generic_platforms", lambda: ["win_amd64"])
+ 1695|         abis = list(tags._cpython_abis(sys.version_info[:2]))
+ 1696|         platforms = list(tags._generic_platforms())
+ 1697|         result = list(tags.sys_tags())
+ 1698|         interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+ 1699|         assert len(abis) == 1
+ 1700|         expected = tags.Tag(interpreter, abis[0], platforms[0])
+ 1701|         assert result[0] == expected
+ 1702|         expected = tags.Tag(
+ 1703|             "py" + tags._version_nodot((sys.version_info[0], 0)), "none", "any"
+ 1704|         )
+ 1705|         assert result[-1] == expected
+ 1706| 
+ 1707|     def test_linux_cpython(
+ 1708|         self,
+ 1709|         mock_interpreter_name: Callable[[str], bool],
+ 1710|         monkeypatch: pytest.MonkeyPatch,
+ 1711|     ) -> None:
+ 1712|         if mock_interpreter_name("CPython"):
+ 1713|             monkeypatch.setattr(tags, "_cpython_abis", lambda *a: ["cp33m"])
+ 1714|         if platform.system() != "Linux":
+ 1715|             monkeypatch.setattr(platform, "system", lambda: "Linux")
+ 1716|             monkeypatch.setattr(tags, "_linux_platforms", lambda: ["linux_x86_64"])
+ 1717|         abis = list(tags._cpython_abis(sys.version_info[:2]))
+ 1718|         platforms = list(tags._linux_platforms())
+ 1719|         result = list(tags.sys_tags())
+ 1720|         expected_interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+ 1721|         assert len(abis) == 1
+ 1722|         assert result[0] == tags.Tag(expected_interpreter, abis[0], platforms[0])
+ 1723|         expected = tags.Tag(
+ 1724|             "py" + tags._version_nodot((sys.version_info[0], 0)), "none", "any"
+ 1725|         )
+ 1726|         assert result[-1] == expected
+ 1727| 
+ 1728|     def test_generic(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1729|         monkeypatch.setattr(platform, "system", lambda: "Generic")
+ 1730|         monkeypatch.setattr(tags, "interpreter_name", lambda: "generic")
+ 1731| 
+ 1732|         result = list(tags.sys_tags())
+ 1733|         expected = tags.Tag(
+ 1734|             "py" + tags._version_nodot((sys.version_info[0], 0)), "none", "any"
+ 1735|         )
+ 1736|         assert result[-1] == expected
+ 1737| 
+ 1738|     def test_warn_forwarded_to_generic_tags(
+ 1739|         self, monkeypatch: pytest.MonkeyPatch
+ 1740|     ) -> None:
+ 1741|         # On non-CPython interpreters ``generic_tags()`` is the primary tag
+ 1742|         # source, so ``sys_tags(warn=...)`` must forward the flag to it.
+ 1743|         class MockGenericTags:
+ 1744|             def __init__(self) -> None:
+ 1745|                 self.warn: bool | None = None
+ 1746| 
+ 1747|             def __call__(
+ 1748|                 self, *, warn: bool = False
+ 1749|             ) -> collections.abc.Iterator[tags.Tag]:
+ 1750|                 self.warn = warn
+ 1751|                 return iter(())
+ 1752| 
+ 1753|         mock_generic_tags = MockGenericTags()
+ 1754|         monkeypatch.setattr(tags, "interpreter_name", lambda: "generic")
+ 1755|         monkeypatch.setattr(tags, "generic_tags", mock_generic_tags)
+ 1756|         list(tags.sys_tags(warn=True))
+ 1757|         assert mock_generic_tags.warn
+ 1758| 
+ 1759|     @pytest.mark.usefixtures("manylinux_module")
+ 1760|     def test_linux_platforms_manylinux2014_armv6l(
+ 1761|         self, monkeypatch: pytest.MonkeyPatch
+ 1762|     ) -> None:
+ 1763|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_armv6l")
+ 1764|         monkeypatch.setattr(os, "confstr", lambda _: "glibc 2.20", raising=False)
+ 1765|         platforms = list(tags._linux_platforms(is_32bit=True))
+ 1766|         expected = ["linux_armv6l"]
+ 1767|         assert platforms == expected
+ 1768| 
+ 1769|     def test_skip_manylinux_2014(
+ 1770|         self, monkeypatch: pytest.MonkeyPatch, manylinux_module: types.ModuleType
+ 1771|     ) -> None:
+ 1772|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_ppc64")
+ 1773|         monkeypatch.setattr(tags._manylinux, "_get_glibc_version", lambda: (2, 20))  # type: ignore[attr-defined]
+ 1774|         monkeypatch.setattr(
+ 1775|             manylinux_module, "manylinux2014_compatible", False, raising=False
+ 1776|         )
+ 1777|         expected = [
+ 1778|             "linux_ppc64",
+ 1779|             "manylinux_2_20_ppc64",
+ 1780|             "manylinux_2_19_ppc64",
+ 1781|             "manylinux_2_18_ppc64",
+ 1782|             # "manylinux2014_ppc64",  # this one is skipped
+ 1783|             # "manylinux_2_17_ppc64", # this one is also skipped
+ 1784|         ]
+ 1785|         platforms = list(tags._linux_platforms())
+ 1786|         assert platforms == expected
+ 1787| 
+ 1788|     @pytest.mark.usefixtures("manylinux_module")
+ 1789|     @pytest.mark.parametrize(
+ 1790|         ("machine", "abi", "alt_machine"),
+ 1791|         [("x86_64", "x32", "i686"), ("armv7l", "armel", "armv7l")],
+ 1792|     )
+ 1793|     def test_linux_platforms_not_manylinux_abi(
+ 1794|         self, monkeypatch: pytest.MonkeyPatch, machine: str, abi: str, alt_machine: str
+ 1795|     ) -> None:
+ 1796|         monkeypatch.setattr(sysconfig, "get_platform", lambda: f"linux_{machine}")
+ 1797|         monkeypatch.setattr(
+ 1798|             sys,
+ 1799|             "executable",
+ 1800|             os.path.join(
+ 1801|                 os.path.dirname(__file__),
+ 1802|                 "manylinux",
+ 1803|                 f"hello-world-{machine}-{abi}",
+ 1804|             ),
+ 1805|         )
+ 1806|         platforms = list(tags._linux_platforms(is_32bit=True))
+ 1807|         expected = [f"linux_{alt_machine}"]
+ 1808|         assert platforms == expected
+ 1809| 
+ 1810|     @pytest.mark.parametrize(
+ 1811|         ("machine", "major", "minor", "tf"),
+ 1812|         [("x86_64", 2, 20, False), ("s390x", 2, 22, True)],
+ 1813|     )
+ 1814|     def test_linux_use_manylinux_compatible(
+ 1815|         self,
+ 1816|         monkeypatch: pytest.MonkeyPatch,
+ 1817|         manylinux_module: types.ModuleType,
+ 1818|         machine: str,
+ 1819|         major: int,
+ 1820|         minor: int,
+ 1821|         tf: bool,
+ 1822|     ) -> None:
+ 1823|         def manylinux_compatible(tag_major: int, tag_minor: int, tag_arch: str) -> bool:
+ 1824|             if tag_major == 2 and tag_minor == 22:
+ 1825|                 return tag_arch == "s390x"
+ 1826|             return False
+ 1827| 
+ 1828|         monkeypatch.setattr(
+ 1829|             tags._manylinux,  # type: ignore[attr-defined]
+ 1830|             "_get_glibc_version",
+ 1831|             lambda: (major, minor),
+ 1832|         )
+ 1833|         monkeypatch.setattr(sysconfig, "get_platform", lambda: f"linux_{machine}")
+ 1834|         monkeypatch.setattr(
+ 1835|             manylinux_module,
+ 1836|             "manylinux_compatible",
+ 1837|             manylinux_compatible,
+ 1838|             raising=False,
+ 1839|         )
+ 1840|         platforms = list(tags._linux_platforms(is_32bit=False))
+ 1841|         expected = [f"linux_{machine}"]
+ 1842|         if tf:
+ 1843|             expected.append(f"manylinux_2_22_{machine}")
+ 1844|         assert platforms == expected
+ 1845| 
+ 1846|     def test_linux_use_manylinux_compatible_none(
+ 1847|         self, monkeypatch: pytest.MonkeyPatch, manylinux_module: types.ModuleType
+ 1848|     ) -> None:
+ 1849|         def manylinux_compatible(
+ 1850|             tag_major: int,
+ 1851|             tag_minor: int,
+ 1852|             tag_arch: str,  # noqa: ARG001
+ 1853|         ) -> bool | None:
+ 1854|             if tag_major == 2 and tag_minor < 25:
+ 1855|                 return False
+ 1856|             return None
+ 1857| 
+ 1858|         monkeypatch.setattr(tags._manylinux, "_get_glibc_version", lambda: (2, 30))  # type: ignore[attr-defined]
+ 1859|         monkeypatch.setattr(sysconfig, "get_platform", lambda: "linux_x86_64")
+ 1860|         monkeypatch.setattr(
+ 1861|             manylinux_module,
+ 1862|             "manylinux_compatible",
+ 1863|             manylinux_compatible,
+ 1864|             raising=False,
+ 1865|         )
+ 1866|         platforms = list(tags._linux_platforms(is_32bit=False))
+ 1867|         expected = [
+ 1868|             "linux_x86_64",
+ 1869|             "manylinux_2_30_x86_64",
+ 1870|             "manylinux_2_29_x86_64",
+ 1871|             "manylinux_2_28_x86_64",
+ 1872|             "manylinux_2_27_x86_64",
+ 1873|             "manylinux_2_26_x86_64",
+ 1874|             "manylinux_2_25_x86_64",
+ 1875|         ]
+ 1876|         assert platforms == expected
+ 1877| 
+ 1878|     def test_pypy_first_none_any_tag(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1879|         # When building the complete list of pypy tags, make sure the first
+ 1880|         # <interpreter>-none-any one is pp3-none-any
+ 1881|         monkeypatch.setattr(tags, "interpreter_name", lambda: "pp")
+ 1882| 
+ 1883|         for tag in tags.sys_tags():
+ 1884|             if tag.abi == "none" and tag.platform == "any":
+ 1885|                 break
+ 1886| 
+ 1887|         assert tag == tags.Tag("pp3", "none", "any")
+ 1888| 
+ 1889|     def test_cpython_first_none_any_tag(self, monkeypatch: pytest.MonkeyPatch) -> None:
+ 1890|         # When building the complete list of cpython tags, make sure the first
+ 1891|         # <interpreter>-none-any one is cpxx-none-any
+ 1892|         monkeypatch.setattr(tags, "interpreter_name", lambda: "cp")
+ 1893| 
+ 1894|         # Find the first tag that is ABI- and platform-agnostic.
+ 1895|         for tag in tags.sys_tags():
+ 1896|             if tag.abi == "none" and tag.platform == "any":
+ 1897|                 break
+ 1898| 
+ 1899|         interpreter = f"cp{tags.interpreter_version()}"
+ 1900|         assert tag == tags.Tag(interpreter, "none", "any")
+ 1901| 
+ 1902|     def test_emscripten(
+ 1903|         self,
+ 1904|         mock_interpreter_name: Callable[[str], bool],
+ 1905|         monkeypatch: pytest.MonkeyPatch,
+ 1906|     ) -> None:
+ 1907|         expected_interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+ 1908|         if mock_interpreter_name("CPython"):
+ 1909|             monkeypatch.setattr(
+ 1910|                 tags, "_cpython_abis", lambda _1, _2: [expected_interpreter]
+ 1911|             )
+ 1912|         config = {
+ 1913|             "Py_GIL_DISABLED": 0,
+ 1914|         }
+ 1915| 
+ 1916|         monkeypatch.setattr(sysconfig, "get_config_var", config.get)
+ 1917|         monkeypatch.setattr(platform, "system", lambda: "Emscripten")
+ 1918|         monkeypatch.setattr(
+ 1919|             sysconfig, "get_platform", lambda: "emscripten-5.0.3-wasm32"
+ 1920|         )
+ 1921|         assert list(tags.platform_tags()) == ["emscripten_5_0_3_wasm32"]
+ 1922|         result = list(tags.sys_tags())
+ 1923|         assert result[0] == tags.Tag(
+ 1924|             expected_interpreter, expected_interpreter, "emscripten_5_0_3_wasm32"
+ 1925|         )
+ 1926| 
+ 1927|     def test_pyemscripten(
+ 1928|         self,
+ 1929|         mock_interpreter_name: Callable[[str], bool],
+ 1930|         monkeypatch: pytest.MonkeyPatch,
+ 1931|     ) -> None:
+ 1932|         expected_interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+ 1933|         config = {
+ 1934|             "PYEMSCRIPTEN_PLATFORM_VERSION": "2026_0",
+ 1935|         }
+ 1936| 
+ 1937|         monkeypatch.setattr(sysconfig, "get_config_var", config.get)
+ 1938|         if mock_interpreter_name("CPython"):
+ 1939|             monkeypatch.setattr(
+ 1940|                 tags, "_cpython_abis", lambda _1, _2: [expected_interpreter]
+ 1941|             )
+ 1942|         monkeypatch.setattr(platform, "system", lambda: "Emscripten")
+ 1943|         monkeypatch.setattr(
+ 1944|             sysconfig, "get_platform", lambda: "emscripten-5.0.3-wasm32"
+ 1945|         )
+ 1946|         assert list(tags.platform_tags()) == [
+ 1947|             "pyemscripten_2026_0_wasm32",
+ 1948|             "emscripten_5_0_3_wasm32",
+ 1949|         ]
+ 1950|         result = list(tags.sys_tags())
+ 1951|         assert result[0] == tags.Tag(
+ 1952|             expected_interpreter, expected_interpreter, "pyemscripten_2026_0_wasm32"
+ 1953|         )
+ 1954| 
+ 1955| 
+ 1956| class TestBitness:
+ 1957|     @pytest.mark.parametrize(
+ 1958|         ("maxsize", "sizeof_voidp", "expected"),
+ 1959|         [
+ 1960|             # 64-bit
+ 1961|             (9223372036854775807, 8, False),
+ 1962|             # 32-bit
+ 1963|             (2147483647, 4, True),
+ 1964|             # 64-bit w/ 32-bit sys.maxsize: GraalPy, IronPython, Jython
+ 1965|             (2147483647, 8, False),
+ 1966|         ],
+ 1967|     )
+ 1968|     def test_32bit_interpreter(
+ 1969|         self,
+ 1970|         maxsize: int,
+ 1971|         sizeof_voidp: int,
+ 1972|         expected: bool,
+ 1973|         monkeypatch: pytest.MonkeyPatch,
+ 1974|     ) -> None:
+ 1975|         def _calcsize(fmt: str) -> int:
+ 1976|             assert fmt == "P"
+ 1977|             return sizeof_voidp
+ 1978| 
+ 1979|         monkeypatch.setattr(sys, "maxsize", maxsize)
+ 1980|         monkeypatch.setattr(struct, "calcsize", _calcsize)
+ 1981|         assert expected == tags._compute_32_bit_interpreter()
+ 1982| 
+ 1983| 
+ 1984| def test_pickle() -> None:
+ 1985|     # Make sure equality works between a pickle/unpickle round trip.
+ 1986|     tag = tags.Tag("py3", "none", "any")
+ 1987|     assert pickle.loads(pickle.dumps(tag)) == tag
+ 1988| 
+ 1989| 
+ 1990| @pytest.mark.parametrize(
+ 1991|     ("interpreter", "abi", "platform"),
+ 1992|     [
+ 1993|         ("py3", "none", "any"),
+ 1994|         ("cp39", "cp39", "linux_x86_64"),
+ 1995|         ("cp312", "cp312", "win_amd64"),
+ 1996|         ("pp310", "pypy310_pp73", "manylinux_2_17_x86_64"),
+ 1997|     ],
+ 1998| )
+ 1999| def test_pickle_tag_roundtrip(interpreter: str, abi: str, platform: str) -> None:
+ 2000|     # Make sure equality, str(), and hash() work between a pickle/unpickle round trip.
+ 2001|     t = tags.Tag(interpreter, abi, platform)
+ 2002|     loaded = pickle.loads(pickle.dumps(t))
+ 2003|     assert loaded == t
+ 2004|     assert str(loaded) == str(t)
+ 2005|     assert hash(loaded) == hash(t)
+ 2006| 
+ 2007| 
+ 2008| def test_pickle_tag_setstate_rejects_invalid_state() -> None:
+ 2009|     # Cover the TypeError branches in __setstate__ for invalid input.
+ 2010|     t = tags.Tag.__new__(tags.Tag)
+ 2011|     with pytest.raises(TypeError, match="Cannot restore Tag"):
+ 2012|         t.__setstate__(12345)
+ 2013|     with pytest.raises(TypeError, match="Cannot restore Tag"):
+ 2014|         t.__setstate__((1, 2, 3))  # Wrong types, not all strings
+ 2015|     with pytest.raises(TypeError, match="Cannot restore Tag"):
+ 2016|         t.__setstate__((None, {"_interpreter": "cp39", "_abi": "cp39"}))
+ 2017|     with pytest.raises(TypeError, match="Cannot restore Tag"):
+ 2018|         t.__setstate__(
+ 2019|             (None, {"_interpreter": 123, "_abi": "cp39", "_platform": "linux_x86_64"})
+ 2020|         )
+ 2021|     with pytest.raises(TypeError, match="Cannot restore Tag"):
+ 2022|         t.__setstate__((1, 2))  # len==2 but second element not a dict
+ 2023|     with pytest.raises(TypeError, match="Cannot restore Tag"):
+ 2024|         t.__setstate__((1, 2, 3, 4))  # tuple length not 2 or 3
+ 2025| 
+ 2026| 
+ 2027| # Pickle bytes generated with packaging==26.1, Python 3.13.1, pickle protocol 2.
+ 2028| # Format: __slots__ (no __getstate__), state is (None, {slot: value}). The
+ 2029| # _hash slot contains a pre-computed integer that must be discarded on load.
+ 2030| _PACKAGING_26_1_PICKLE_TAG_CP39 = (
+ 2031|     b"\x80\x02cpackaging.tags\nTag\nq\x00)\x81q\x01N}q\x02(X\x04\x00\x00"
+ 2032|     b"\x00_abiq\x03X\x04\x00\x00\x00cp39q\x04X\x05\x00\x00\x00_hashq\x05"
+ 2033|     b"\x8a\x08)\xb1\xe8\x9d\x90\xf8tFX\x0c\x00\x00\x00_interpreterq\x06X"
+ 2034|     b"\x04\x00\x00\x00cp39q\x07X\t\x00\x00\x00_platformq\x08X\x0c\x00\x00"
+ 2035|     b"\x00linux_x86_64q\tu\x86q\nb."
+ 2036| )
+ 2037| 
+ 2038| 
+ 2039| # Pickle bytes generated with packaging==26.0, Python 3.13.1, pickle protocol 2.
+ 2040| # Format: __slots__ (no __getstate__), state is (None, {slot: value}).
+ 2041| _PACKAGING_26_0_PICKLE_TAG_CP39 = (
+ 2042|     b"\x80\x02cpackaging.tags\nTag\nq\x00)\x81q\x01N}q\x02(X\x04\x00\x00"
+ 2043|     b"\x00_abiq\x03X\x04\x00\x00\x00cp39q\x04X\x05\x00\x00\x00_hashq\x05"
+ 2044|     b"\x8a\x08\xc1\xdb\xa0\xe5]7z\x87X\x0c\x00\x00\x00_interpreterq\x06X"
+ 2045|     b"\x04\x00\x00\x00cp39q\x07X\t\x00\x00\x00_platformq\x08X\x0c\x00\x00"
+ 2046|     b"\x00linux_x86_64q\tu\x86q\nb."
+ 2047| )
+ 2048| 
+ 2049| 
+ 2050| # Pickle bytes generated with packaging==25.0, Python 3.13.1, pickle protocol 2.
+ 2051| # Format: plain __dict__ (no __slots__).
+ 2052| _PACKAGING_25_0_PICKLE_TAG_CP39 = (
+ 2053|     b"\x80\x02cpackaging.tags\nTag\nq\x00)\x81q\x01N}q\x02(X\x04\x00\x00\x00"
+ 2054|     b"_abiq\x03X\x04\x00\x00\x00cp39q\x04X\x05\x00\x00\x00_hashq\x05\x8a\x08"
+ 2055|     b"\xea\xa5X\x92\xa5\xc9\x11\x0cX\x0c\x00\x00\x00_interpreterq\x06X\x04"
+ 2056|     b"\x00\x00\x00cp39q\x07X\t\x00\x00\x00_platformq\x08X\x0c\x00\x00\x00"
+ 2057|     b"linux_x86_64q\tu\x86q\nb."
+ 2058| )
+ 2059| 
+ 2060| 
+ 2061| def test_pickle_tag_old_format_loads() -> None:
+ 2062|     # Verify that Tag pickles created with packaging <= 26.1 (__slots__,
+ 2063|     # no __getstate__) can be loaded and produce correct Tag objects.
+ 2064|     t = pickle.loads(_PACKAGING_26_1_PICKLE_TAG_CP39)
+ 2065|     assert isinstance(t, tags.Tag)
+ 2066|     assert str(t) == "cp39-cp39-linux_x86_64"
+ 2067|     assert t == tags.Tag("cp39", "cp39", "linux_x86_64")
+ 2068|     assert t.interpreter == "cp39"
+ 2069|     assert t.abi == "cp39"
+ 2070|     assert t.platform == "linux_x86_64"
+ 2071|     assert t._hash == hash(("cp39", "cp39", "linux_x86_64"))
+ 2072| 
+ 2073| 
+ 2074| def test_pickle_tag_26_0_format_loads() -> None:
+ 2075|     # Verify that Tag pickles created with packaging 26.0 (__slots__,
+ 2076|     # no __getstate__) can be loaded and produce correct Tag objects.
+ 2077|     t = pickle.loads(_PACKAGING_26_0_PICKLE_TAG_CP39)
+ 2078|     assert isinstance(t, tags.Tag)
+ 2079|     assert str(t) == "cp39-cp39-linux_x86_64"
+ 2080|     assert t == tags.Tag("cp39", "cp39", "linux_x86_64")
+ 2081|     assert t._hash == hash(("cp39", "cp39", "linux_x86_64"))
+ 2082| 
+ 2083| 
+ 2084| def test_pickle_tag_25_0_format_loads() -> None:
+ 2085|     # Verify that Tag pickles created with packaging 25.0 (plain __dict__)
+ 2086|     # can be loaded and produce correct Tag objects.
+ 2087|     t = pickle.loads(_PACKAGING_25_0_PICKLE_TAG_CP39)
+ 2088|     assert isinstance(t, tags.Tag)
+ 2089|     assert str(t) == "cp39-cp39-linux_x86_64"
+ 2090|     assert t == tags.Tag("cp39", "cp39", "linux_x86_64")
+ 2091|     assert t._hash == hash(("cp39", "cp39", "linux_x86_64"))
+ 2092| 
+ 2093| 
+ 2094| @pytest.mark.parametrize(
+ 2095|     ("supported", "things", "expected"),
+ 2096|     [
+ 2097|         (["t1", "t2"], ["t1", "t2"], ["t1", "t2"]),
+ 2098|         (["t1", "t2"], ["t3", "t4"], []),
+ 2099|         (["t1", "t2"], ["t2", "t1"], ["t1", "t2"]),
+ 2100|         (["t1", "t2", "t1"], ["t2", "t1"], ["t1", "t2"]),
+ 2101|         (["t1", "t3"], ["t2", "t1"], ["t1"]),
+ 2102|         (["t1", "t3"], ["t2.t3", "t1"], ["t1", "t2.t3"]),
+ 2103|         (["t1"], ["t2", "t1"], ["t1"]),
+ 2104|     ],
+ 2105| )
+ 2106| def test_create_compatible_tags_selector(
+ 2107|     supported: list[str], things: list[str], expected: list[str]
+ 2108| ) -> None:
+ 2109|     def t_to_tag(t: str) -> tags.Tag:
+ 2110|         return tags.Tag("py3", "none", t)
+ 2111| 
+ 2112|     def t_to_tags(t: str) -> frozenset[tags.Tag]:
+ 2113|         return tags.parse_tag(f"py3-none-{t}")
+ 2114| 
+ 2115|     selector = tags.create_compatible_tags_selector([t_to_tag(t) for t in supported])
+ 2116|     assert list(selector([(t, t_to_tags(t)) for t in things])) == expected
+
+FILE benchmarks/version.py:
+    1| from __future__ import annotations
+    2| 
+    3| from pathlib import Path
+    4| 
+    5| from packaging.version import InvalidVersion, Version
+    6| 
+    7| from . import add_attributes
+    8| 
+    9| DIR = Path(__file__).parent.resolve()
+   10| 
+   11| 
+   12| def valid_version(v: str) -> Version | None:
+   13|     try:
+   14|         return Version(v)
+   15|     except InvalidVersion:
+   16|         return None
+   17| 
+   18| 
+   19| class TimeVersionSuite:
+   20|     rounds = 4
+   21| 
+   22|     def setup(self) -> None:
+   23|         with (DIR / "version_sample.txt").open() as f:
+   24|             self.versions = [v.strip() for v in f.readlines()]
+   25|         self.valid_versions = [v for v in self.versions if valid_version(v)]
+   26|         self.version_objects_cold = [Version(v) for v in self.valid_versions]
+   27|         self.version_objects_warm = [Version(v) for v in self.valid_versions]
+   28|         for v in self.version_objects_warm:
+   29|             _ = v._key
+   30| 
+   31|     @add_attributes(pretty_name="Version constructor")
+   32|     def time_constructor(self) -> None:
+   33|         for v in self.versions:
+   34|             try:
+   35|                 Version(v)
+   36|             except InvalidVersion:  # noqa: PERF203
+   37|                 pass
+   38| 
+   39|     @add_attributes(pretty_name="Version hash")
+   40|     def time_hash(self) -> None:
+   41|         for v in self.valid_versions:
+   42|             hash(Version(v))
+   43| 
+   44|     @add_attributes(pretty_name="Version hash (warm cache)")
+   45|     def time_hash_warm(self) -> None:
+   46|         for v in self.version_objects_warm:
+   47|             hash(v)
+   48| 
+   49|     @add_attributes(pretty_name="Version __str__")
+   50|     def time_str(self) -> None:
+   51|         for version in self.valid_versions:
+   52|             str(Version(version))
+   53| 
+   54|     @add_attributes(pretty_name="Version sorting (cold cache)")
+   55|     def time_sort_cold(self) -> None:
+   56|         """Sorting when _key needs to be calculated during comparison."""
+   57|         for v in self.version_objects_cold:
+   58|             v._key_cache = None
+   59|             if hasattr(v, "_hash_cache"):
+   60|                 v._hash_cache = None
+   61|         sorted(self.version_objects_cold)
+   62| 
+   63|     @add_attributes(pretty_name="Version sorting (warm cache)")
+   64|     def time_sort_warm(self) -> None:
+   65|         """Sorting when _key is already cached."""
+   66|         sorted(self.version_objects_warm)
+
+Answer now with ONE JSON array containing one object per query, in query order.

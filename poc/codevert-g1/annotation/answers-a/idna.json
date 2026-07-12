@@ -1,0 +1,113 @@
+[
+  {
+    "query_id": "g1q-idna-contains-35",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_idna_cli.py::CLIStdinTests.test_blank_lines_in_stdin_are_skipped",
+      "tests/test_idna_cli.py::CLIStdinTests.test_decode_flag_applies_to_every_stdin_line",
+      "tests/test_idna_cli.py::CLIStdinTests.test_empty_stdin_exits_cleanly_with_no_output",
+      "tests/test_idna_cli.py::CLIStdinTests.test_positional_domains_take_precedence_over_piped_stdin",
+      "tests/test_idna_cli.py::CLIStdinTests.test_reads_one_domain_per_line_from_piped_stdin",
+      "tests/test_idna_cli.py::CLIStdinTests.test_stdin_errors_continue_processing_and_set_exit_code"
+    ],
+    "conditional_flags": [],
+    "notes": "Class body (lines 230-270) contains exactly six def statements and no class-level assignments."
+  },
+  {
+    "query_id": "g1q-idna-contains-8",
+    "answerable_static": true,
+    "gold": [
+      "idna/package_data.py::__version__"
+    ],
+    "conditional_flags": [],
+    "notes": "Module has a single top-level assignment __version__ = \"3.18\" and nothing else."
+  },
+  {
+    "query_id": "g1q-idna-contained_in-6469",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_intranges.py"
+    ],
+    "conditional_flags": [],
+    "notes": "class IntrangeContainsTests (line 51) is a top-level class; its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-idna-contained_in-18",
+    "answerable_static": true,
+    "gold": [
+      "idna/core.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def _joining_type (line 28) is a top-level function; its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-idna-imports_of-0",
+    "answerable_static": true,
+    "gold": [
+      "repo:idna/__init__.py",
+      "repo:idna/core.py",
+      "repo:idna/intranges.py",
+      "repo:idna/package_data.py"
+    ],
+    "conditional_flags": [],
+    "notes": "Three top-level relative imports: .core, .intranges, .package_data, all repo modules in package idna. Ancestor-package closure of each target adds repo:idna/__init__.py (the module itself)."
+  },
+  {
+    "query_id": "g1q-idna-imports_of-1",
+    "answerable_static": true,
+    "gold": [
+      "ext:sys",
+      "repo:idna/__init__.py",
+      "repo:idna/cli.py"
+    ],
+    "conditional_flags": [],
+    "notes": "import sys is external; from .cli import main resolves to repo module idna/cli.py, whose ancestor package __init__ is idna/__init__.py. Both imports are top-level and unconditional."
+  },
+  {
+    "query_id": "g1q-idna-where_defined-666",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_idna_uts46.py:5378"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence in the repo: the def header of UTS46Tests.test_uts46_1492 at line 5378. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-idna-where_defined-3216",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_idna_uts46.py:14686"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence in the repo: the def header of UTS46Tests.test_uts46_3829 at line 14686. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-idna-callees_of-16",
+    "answerable_static": true,
+    "gold": [
+      "ext:str.encode"
+    ],
+    "conditional_flags": [],
+    "notes": "Body is a single call s.encode(\"punycode\"); s is annotated str, so the callee is the built-in str.encode method. No repo-internal callees."
+  },
+  {
+    "query_id": "g1q-idna-callees_of-30",
+    "answerable_static": true,
+    "gold": [
+      "ext:builtins.isinstance",
+      "ext:builtins.len",
+      "ext:builtins.str",
+      "ext:bytes.join",
+      "ext:list.append",
+      "ext:re.Pattern.split",
+      "ext:str.split",
+      "ext:warnings.warn",
+      "idna/core.py::IDNAError",
+      "idna/core.py::alabel",
+      "idna/core.py::uts46_remap",
+      "idna/core.py::valid_string_length"
+    ],
+    "conditional_flags": [],
+    "notes": "All method receivers are locally typed: s is str when s.split is called, result = [] is a list (result.append), _unicode_dots_re is a module-level re.compile pattern (re.Pattern.split), b\".\" is bytes (bytes.join). str(s, \"ascii\") is the builtin str constructor; IDNAError instantiation is a repo-internal class call."
+  }
+]

@@ -1,0 +1,1282 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: boltons ===
+PY FILE LISTING (repo-root-relative; authoritative):
+boltons/__init__.py
+boltons/cacheutils.py
+boltons/debugutils.py
+boltons/deprutils.py
+boltons/dictutils.py
+boltons/easterutils.py
+boltons/ecoutils.py
+boltons/excutils.py
+boltons/fileutils.py
+boltons/formatutils.py
+boltons/funcutils.py
+boltons/gcutils.py
+boltons/ioutils.py
+boltons/iterutils.py
+boltons/jsonutils.py
+boltons/listutils.py
+boltons/mathutils.py
+boltons/mboxutils.py
+boltons/namedutils.py
+boltons/pathutils.py
+boltons/queueutils.py
+boltons/setutils.py
+boltons/socketutils.py
+boltons/statsutils.py
+boltons/strutils.py
+boltons/tableutils.py
+boltons/tbutils.py
+boltons/timeutils.py
+boltons/typeutils.py
+boltons/urlutils.py
+docs/conf.py
+misc/bench_omd.py
+misc/linkify_changelog.py
+misc/table_html_app.py
+tests/__init__.py
+tests/conftest.py
+tests/test_cacheutils.py
+tests/test_debugutils_trace.py
+tests/test_dictutils.py
+tests/test_ecoutils.py
+tests/test_fileutils.py
+tests/test_formatutils.py
+tests/test_funcutils.py
+tests/test_funcutils_fb.py
+tests/test_funcutils_fb_py3.py
+tests/test_gcutils.py
+tests/test_ioutils.py
+tests/test_iterutils.py
+tests/test_jsonutils.py
+tests/test_listutils.py
+tests/test_mathutils.py
+tests/test_namedutils.py
+tests/test_queueutils.py
+tests/test_setutils.py
+tests/test_socketutils.py
+tests/test_statsutils.py
+tests/test_statsutils_histogram.py
+tests/test_strutils.py
+tests/test_tableutils.py
+tests/test_tbutils.py
+tests/test_tbutils_parsed_exc.py
+tests/test_timeutils.py
+tests/test_typeutils.py
+tests/test_urlutils.py
+
+=== QUERIES (2) ===
+QUERY g1q-boltons-imports_of-26: family=imports_of module=boltons/tbutils.py
+QUERY g1q-boltons-imports_of-57: family=imports_of module=tests/test_strutils.py
+
+=== CONTEXT ===
+
+FILE boltons/tbutils.py:
+    1| # Copyright (c) 2013, Mahmoud Hashemi
+    2| #
+    3| # Redistribution and use in source and binary forms, with or without
+    4| # modification, are permitted provided that the following conditions are
+    5| # met:
+    6| #
+    7| #    * Redistributions of source code must retain the above copyright
+    8| #      notice, this list of conditions and the following disclaimer.
+    9| #
+   10| #    * Redistributions in binary form must reproduce the above
+   11| #      copyright notice, this list of conditions and the following
+   12| #      disclaimer in the documentation and/or other materials provided
+   13| #      with the distribution.
+   14| #
+   15| #    * The names of the contributors may not be used to endorse or
+   16| #      promote products derived from this software without specific
+   17| #      prior written permission.
+   18| #
+   19| # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   20| # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   21| # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   22| # A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   23| # OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   24| # SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   25| # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   26| # DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   27| # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   28| # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   29| # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   30| 
+   31| """One of the oft-cited tenets of Python is that it is better to ask
+   32| forgiveness than permission. That is, there are many cases where it is
+   33| more inclusive and correct to handle exceptions than spend extra lines
+   34| and execution time checking for conditions. This philosophy makes good
+   35| exception handling features all the more important. Unfortunately
+   36| Python's :mod:`traceback` module is woefully behind the times.
+   37| 
+   38| The ``tbutils`` module provides two disparate but complementary featuresets:
+   39| 
+   40|   1. With :class:`ExceptionInfo` and :class:`TracebackInfo`, the
+   41|      ability to extract, construct, manipulate, format, and serialize
+   42|      exceptions, tracebacks, and callstacks.
+   43|   2. With :class:`ParsedException`, the ability to find and parse tracebacks
+   44|      from captured output such as logs and stdout.
+   45| 
+   46| There is also the :class:`ContextualTracebackInfo` variant of
+   47| :class:`TracebackInfo`, which includes much more information from each
+   48| frame of the callstack, including values of locals and neighboring
+   49| lines of code.
+   50| """
+   51| 
+   52| 
+   53| import re
+   54| import sys
+   55| import linecache
+   56| 
+   57| 
+   58| # TODO: chaining primitives?  what are real use cases where these help?
+   59| 
+   60| # TODO: print_* for backwards compatibility
+   61| # __all__ = ['extract_stack', 'extract_tb', 'format_exception',
+   62| #            'format_exception_only', 'format_list', 'format_stack',
+   63| #            'format_tb', 'print_exc', 'format_exc', 'print_exception',
+   64| #            'print_last', 'print_stack', 'print_tb']
+   65| 
+   66| 
+   67| __all__ = ['ExceptionInfo', 'TracebackInfo', 'Callpoint',
+   68|            'ContextualExceptionInfo', 'ContextualTracebackInfo',
+   69|            'ContextualCallpoint', 'print_exception', 'ParsedException']
+   70| 
+   71| 
+   72| class Callpoint:
+   73|     """The Callpoint is a lightweight object used to represent a single
+   74|     entry in the code of a call stack. It stores the code-related
+   75|     metadata of a given frame. Available attributes are the same as
+   76|     the parameters below.
+   77| 
+   78|     Args:
+   79|         func_name (str): the function name
+   80|         lineno (int): the line number
+   81|         module_name (str): the module name
+   82|         module_path (str): the filesystem path of the module
+   83|         lasti (int): the index of bytecode execution
+   84|         line (str): the single-line code content (if available)
+   85| 
+   86|     """
+   87|     __slots__ = ('func_name', 'lineno', 'module_name', 'module_path', 'lasti',
+   88|                  'line')
+   89| 
+   90|     def __init__(self, module_name, module_path, func_name,
+   91|                  lineno, lasti, line=None):
+   92|         self.func_name = func_name
+   93|         self.lineno = lineno
+   94|         self.module_name = module_name
+   95|         self.module_path = module_path
+   96|         self.lasti = lasti
+   97|         self.line = line
+   98| 
+   99|     def to_dict(self):
+  100|         "Get a :class:`dict` copy of the Callpoint. Useful for serialization."
+  101|         ret = {}
+  102|         for slot in self.__slots__:
+  103|             try:
+  104|                 val = getattr(self, slot)
+  105|             except AttributeError:
+  106|                 pass
+  107|             else:
+  108|                 ret[slot] = str(val) if isinstance(val, _DeferredLine) else val
+  109|         return ret
+  110| 
+  111|     @classmethod
+  112|     def from_current(cls, level=1):
+  113|         "Creates a Callpoint from the location of the calling function."
+  114|         frame = sys._getframe(level)
+  115|         return cls.from_frame(frame)
+  116| 
+  117|     @classmethod
+  118|     def from_frame(cls, frame):
+  119|         "Create a Callpoint object from data extracted from the given frame."
+  120|         func_name = frame.f_code.co_name
+  121|         lineno = frame.f_lineno
+  122|         module_name = frame.f_globals.get('__name__', '')
+  123|         module_path = frame.f_code.co_filename
+  124|         lasti = frame.f_lasti
+  125|         line = _DeferredLine(module_path, lineno, frame.f_globals)
+  126|         return cls(module_name, module_path, func_name,
+  127|                    lineno, lasti, line=line)
+  128| 
+  129|     @classmethod
+  130|     def from_tb(cls, tb):
+  131|         """Create a Callpoint from the traceback of the current
+  132|         exception. Main difference with :meth:`from_frame` is that
+  133|         ``lineno`` and ``lasti`` come from the traceback, which is to
+  134|         say the line that failed in the try block, not the line
+  135|         currently being executed (in the except block).
+  136|         """
+  137|         func_name = tb.tb_frame.f_code.co_name
+  138|         lineno = tb.tb_lineno
+  139|         lasti = tb.tb_lasti
+  140|         module_name = tb.tb_frame.f_globals.get('__name__', '')
+  141|         module_path = tb.tb_frame.f_code.co_filename
+  142|         line = _DeferredLine(module_path, lineno, tb.tb_frame.f_globals)
+  143|         return cls(module_name, module_path, func_name,
+  144|                    lineno, lasti, line=line)
+  145| 
+  146|     def __repr__(self):
+  147|         cn = self.__class__.__name__
+  148|         args = [getattr(self, s, None) for s in self.__slots__]
+  149|         if not any(args):
+  150|             return super().__repr__()
+  151|         else:
+  152|             return '{}({})'.format(cn, ', '.join([repr(a) for a in args]))
+  153| 
+  154|     def tb_frame_str(self):
+  155|         """Render the Callpoint as it would appear in a standard printed
+  156|         Python traceback. Returns a string with filename, line number,
+  157|         function name, and the actual code line of the error on up to
+  158|         two lines.
+  159|         """
+  160|         ret = '  File "{}", line {}, in {}\n'.format(self.module_path,
+  161|                                                  self.lineno,
+  162|                                                  self.func_name)
+  163|         if self.line:
+  164|             ret += f'    {str(self.line).strip()}\n'
+  165|         return ret
+  166| 
+  167| 
+  168| class _DeferredLine:
+  169|     """The _DeferredLine type allows Callpoints and TracebackInfos to be
+  170|     constructed without potentially hitting the filesystem, as is the
+  171|     normal behavior of the standard Python :mod:`traceback` and
+  172|     :mod:`linecache` modules. Calling :func:`str` fetches and caches
+  173|     the line.
+  174| 
+  175|     Args:
+  176|         filename (str): the path of the file containing the line
+  177|         lineno (int): the number of the line in question
+  178|         module_globals (dict): an optional dict of module globals,
+  179|             used to handle advanced use cases using custom module loaders.
+  180| 
+  181|     """
+  182|     __slots__ = ('filename', 'lineno', '_line', '_mod_name', '_mod_loader')
+  183| 
+  184|     def __init__(self, filename, lineno, module_globals=None):
+  185|         self.filename = filename
+  186|         self.lineno = lineno
+  187|         if module_globals is None:
+  188|             self._mod_name = None
+  189|             self._mod_loader = None
+  190|         else:
+  191|             self._mod_name = module_globals.get('__name__')
+  192|             self._mod_loader = module_globals.get('__loader__')
+  193| 
+  194|     def __eq__(self, other):
+  195|         return (self.lineno, self.filename) == (other.lineno, other.filename)
+  196| 
+  197|     def __ne__(self, other):
+  198|         return not self == other
+  199| 
+  200|     def __str__(self):
+  201|         ret = getattr(self, '_line', None)
+  202|         if ret is not None:
+  203|             return ret
+  204|         try:
+  205|             linecache.checkcache(self.filename)
+  206|             mod_globals = {'__name__': self._mod_name,
+  207|                            '__loader__': self._mod_loader}
+  208|             line = linecache.getline(self.filename,
+  209|                                      self.lineno,
+  210|                                      mod_globals)
+  211|             line = line.rstrip()
+  212|         except KeyError:
+  213|             line = ''
+  214|         self._line = line
+  215|         return line
+  216| 
+  217|     def __repr__(self):
+  218|         return repr(str(self))
+  219| 
+  220|     def __len__(self):
+  221|         return len(str(self))
+  222| 
+  223| 
+  224| # TODO: dedup frames, look at __eq__ on _DeferredLine
+  225| class TracebackInfo:
+  226|     """The TracebackInfo class provides a basic representation of a stack
+  227|     trace, be it from an exception being handled or just part of
+  228|     normal execution. It is basically a wrapper around a list of
+  229|     :class:`Callpoint` objects representing frames.
+  230| 
+  231|     Args:
+  232|         frames (list): A list of frame objects in the stack.
+  233| 
+  234|     .. note ::
+  235| 
+  236|       ``TracebackInfo`` can represent both exception tracebacks and
+  237|       non-exception tracebacks (aka stack traces). As a result, there
+  238|       is no ``TracebackInfo.from_current()``, as that would be
+  239|       ambiguous. Instead, call :meth:`TracebackInfo.from_frame`
+  240|       without the *frame* argument for a stack trace, or
+  241|       :meth:`TracebackInfo.from_traceback` without the *tb* argument
+  242|       for an exception traceback.
+  243|     """
+  244|     callpoint_type = Callpoint
+  245| 
+  246|     def __init__(self, frames):
+  247|         self.frames = frames
+  248| 
+  249|     @classmethod
+  250|     def from_frame(cls, frame=None, level=1, limit=None):
+  251|         """Create a new TracebackInfo *frame* by recurring up in the stack a
+  252|         max of *limit* times. If *frame* is unset, get the frame from
+  253|         :func:`sys._getframe` using *level*.
+  254| 
+  255|         Args:
+  256|             frame (types.FrameType): frame object from
+  257|                 :func:`sys._getframe` or elsewhere. Defaults to result
+  258|                 of :func:`sys.get_frame`.
+  259|             level (int): If *frame* is unset, the desired frame is
+  260|                 this many levels up the stack from the invocation of
+  261|                 this method. Default ``1`` (i.e., caller of this method).
+  262|             limit (int): max number of parent frames to extract
+  263|                 (defaults to :data:`sys.tracebacklimit`)
+  264| 
+  265|         """
+  266|         ret = []
+  267|         if frame is None:
+  268|             frame = sys._getframe(level)
+  269|         if limit is None:
+  270|             limit = getattr(sys, 'tracebacklimit', 1000)
+  271|         n = 0
+  272|         while frame is not None and n < limit:
+  273|             item = cls.callpoint_type.from_frame(frame)
+  274|             ret.append(item)
+  275|             frame = frame.f_back
+  276|             n += 1
+  277|         ret.reverse()
+  278|         return cls(ret)
+  279| 
+  280|     @classmethod
+  281|     def from_traceback(cls, tb=None, limit=None):
+  282|         """Create a new TracebackInfo from the traceback *tb* by recurring
+  283|         up in the stack a max of *limit* times. If *tb* is unset, get
+  284|         the traceback from the currently handled exception. If no
+  285|         exception is being handled, raise a :exc:`ValueError`.
+  286| 
+  287|         Args:
+  288| 
+  289|             frame (types.TracebackType): traceback object from
+  290|                 :func:`sys.exc_info` or elsewhere. If absent or set to
+  291|                 ``None``, defaults to ``sys.exc_info()[2]``, and
+  292|                 raises a :exc:`ValueError` if no exception is
+  293|                 currently being handled.
+  294|             limit (int): max number of parent frames to extract
+  295|                 (defaults to :data:`sys.tracebacklimit`)
+  296| 
+  297|         """
+  298|         ret = []
+  299|         if tb is None:
+  300|             tb = sys.exc_info()[2]
+  301|             if tb is None:
+  302|                 raise ValueError('no tb set and no exception being handled')
+  303|         if limit is None:
+  304|             limit = getattr(sys, 'tracebacklimit', 1000)
+  305|         n = 0
+  306|         while tb is not None and n < limit:
+  307|             item = cls.callpoint_type.from_tb(tb)
+  308|             ret.append(item)
+  309|             tb = tb.tb_next
+  310|             n += 1
+  311|         return cls(ret)
+  312| 
+  313|     @classmethod
+  314|     def from_dict(cls, d):
+  315|         "Complements :meth:`TracebackInfo.to_dict`."
+  316|         # TODO: check this.
+  317|         return cls(d['frames'])
+  318| 
+  319|     def to_dict(self):
+  320|         """Returns a dict with a list of :class:`Callpoint` frames converted
+  321|         to dicts.
+  322|         """
+  323|         return {'frames': [f.to_dict() for f in self.frames]}
+  324| 
+  325|     def __len__(self):
+  326|         return len(self.frames)
+  327| 
+  328|     def __iter__(self):
+  329|         return iter(self.frames)
+  330| 
+  331|     def __repr__(self):
+  332|         cn = self.__class__.__name__
+  333| 
+  334|         if self.frames:
+  335|             frame_part = f' last={self.frames[-1]!r}'
+  336|         else:
+  337|             frame_part = ''
+  338| 
+  339|         return f'<{cn} frames={len(self.frames)}{frame_part}>'
+  340| 
+  341|     def __str__(self):
+  342|         return self.get_formatted()
+  343| 
+  344|     def get_formatted(self):
+  345|         """Returns a string as formatted in the traditional Python
+  346|         built-in style observable when an exception is not caught. In
+  347|         other words, mimics :func:`traceback.format_tb` and
+  348|         :func:`traceback.format_stack`.
+  349|         """
+  350|         ret = 'Traceback (most recent call last):\n'
+  351|         ret += ''.join([f.tb_frame_str() for f in self.frames])
+  352|         return ret
+  353| 
+  354| 
+  355| class ExceptionInfo:
+  356|     """An ExceptionInfo object ties together three main fields suitable
+  357|     for representing an instance of an exception: The exception type
+  358|     name, a string representation of the exception itself (the
+  359|     exception message), and information about the traceback (stored as
+  360|     a :class:`TracebackInfo` object).
+  361| 
+  362|     These fields line up with :func:`sys.exc_info`, but unlike the
+  363|     values returned by that function, ExceptionInfo does not hold any
+  364|     references to the real exception or traceback. This property makes
+  365|     it suitable for serialization or long-term retention, without
+  366|     worrying about formatting pitfalls, circular references, or leaking memory.
+  367| 
+  368|     Args:
+  369| 
+  370|         exc_type (str): The exception type name.
+  371|         exc_msg (str): String representation of the exception value.
+  372|         tb_info (TracebackInfo): Information about the stack trace of the
+  373|             exception.
+  374| 
+  375|     Like the :class:`TracebackInfo`, ExceptionInfo is most commonly
+  376|     instantiated from one of its classmethods: :meth:`from_exc_info`
+  377|     or :meth:`from_current`.
+  378|     """
+  379| 
+  380|     #: Override this in inherited types to control the TracebackInfo type used
+  381|     tb_info_type = TracebackInfo
+  382| 
+  383|     def __init__(self, exc_type, exc_msg, tb_info):
+  384|         # TODO: additional fields for SyntaxErrors
+  385|         self.exc_type = exc_type
+  386|         self.exc_msg = exc_msg
+  387|         self.tb_info = tb_info
+  388| 
+  389|     @classmethod
+  390|     def from_exc_info(cls, exc_type, exc_value, traceback):
+  391|         """Create an :class:`ExceptionInfo` object from the exception's type,
+  392|         value, and traceback, as returned by :func:`sys.exc_info`. See
+  393|         also :meth:`from_current`.
+  394|         """
+  395|         type_str = exc_type.__name__
+  396|         type_mod = exc_type.__module__
+  397|         if type_mod not in ("__main__", "__builtin__", "exceptions", "builtins"):
+  398|             type_str = f'{type_mod}.{type_str}'
+  399|         val_str = _some_str(exc_value)
+  400|         tb_info = cls.tb_info_type.from_traceback(traceback)
+  401|         return cls(type_str, val_str, tb_info)
+  402| 
+  403|     @classmethod
+  404|     def from_current(cls):
+  405|         """Create an :class:`ExceptionInfo` object from the current exception
+  406|         being handled, by way of :func:`sys.exc_info`. Will raise an
+  407|         exception if no exception is currently being handled.
+  408|         """
+  409|         return cls.from_exc_info(*sys.exc_info())
+  410| 
+  411|     def to_dict(self):
+  412|         """Get a :class:`dict` representation of the ExceptionInfo, suitable
+  413|         for JSON serialization.
+  414|         """
+  415|         return {'exc_type': self.exc_type,
+  416|                 'exc_msg': self.exc_msg,
+  417|                 'exc_tb': self.tb_info.to_dict()}
+  418| 
+  419|     def __repr__(self):
+  420|         cn = self.__class__.__name__
+  421|         try:
+  422|             len_frames = len(self.tb_info.frames)
+  423|             last_frame = f', last={self.tb_info.frames[-1]!r}'
+  424|         except Exception:
+  425|             len_frames = 0
+  426|             last_frame = ''
+  427|         args = (cn, self.exc_type, self.exc_msg, len_frames, last_frame)
+  428|         return '<%s [%s: %s] (%s frames%s)>' % args
+  429| 
+  430|     def get_formatted(self):
+  431|         """Returns a string formatted in the traditional Python
+  432|         built-in style observable when an exception is not caught. In
+  433|         other words, mimics :func:`traceback.format_exception`.
+  434|         """
+  435|         # TODO: add SyntaxError formatting
+  436|         tb_str = self.tb_info.get_formatted()
+  437|         return ''.join([tb_str, f'{self.exc_type}: {self.exc_msg}'])
+  438| 
+  439|     def get_formatted_exception_only(self):
+  440|         return f'{self.exc_type}: {self.exc_msg}'
+  441| 
+  442| 
+  443| class ContextualCallpoint(Callpoint):
+  444|     """The ContextualCallpoint is a :class:`Callpoint` subtype with the
+  445|     exact same API and storing two additional values:
+  446| 
+  447|       1. :func:`repr` outputs for local variables from the Callpoint's scope
+  448|       2. A number of lines before and after the Callpoint's line of code
+  449| 
+  450|     The ContextualCallpoint is used by the :class:`ContextualTracebackInfo`.
+  451|     """
+  452|     def __init__(self, *a, **kw):
+  453|         self.local_reprs = kw.pop('local_reprs', {})
+  454|         self.pre_lines = kw.pop('pre_lines', [])
+  455|         self.post_lines = kw.pop('post_lines', [])
+  456|         super().__init__(*a, **kw)
+  457| 
+  458|     @classmethod
+  459|     def from_frame(cls, frame):
+  460|         "Identical to :meth:`Callpoint.from_frame`"
+  461|         ret = super().from_frame(frame)
+  462|         ret._populate_local_reprs(frame.f_locals)
+  463|         ret._populate_context_lines()
+  464|         return ret
+  465| 
+  466|     @classmethod
+  467|     def from_tb(cls, tb):
+  468|         "Identical to :meth:`Callpoint.from_tb`"
+  469|         ret = super().from_tb(tb)
+  470|         ret._populate_local_reprs(tb.tb_frame.f_locals)
+  471|         ret._populate_context_lines()
+  472|         return ret
+  473| 
+  474|     def _populate_context_lines(self, pivot=8):
+  475|         DL, lineno = _DeferredLine, self.lineno
+  476|         try:
+  477|             module_globals = self.line.module_globals
+  478|         except AttributeError:
+  479|             module_globals = None
+  480|         start_line = max(0, lineno - pivot)
+  481|         pre_lines = [DL(self.module_path, ln, module_globals)
+  482|                      for ln in range(start_line, lineno)]
+  483|         self.pre_lines[:] = pre_lines
+  484|         post_lines = [DL(self.module_path, ln, module_globals)
+  485|                       for ln in range(lineno + 1, lineno + 1 + pivot)]
+  486|         self.post_lines[:] = post_lines
+  487|         return
+  488| 
+  489|     def _populate_local_reprs(self, f_locals):
+  490|         local_reprs = self.local_reprs
+  491|         for k, v in f_locals.items():
+  492|             try:
+  493|                 local_reprs[k] = repr(v)
+  494|             except Exception:
+  495|                 surrogate = '<unprintable %s object>' % type(v).__name__
+  496|                 local_reprs[k] = surrogate
+  497|         return
+  498| 
+  499|     def to_dict(self):
+  500|         """
+  501|         Same principle as :meth:`Callpoint.to_dict`, but with the added
+  502|         contextual values. With ``ContextualCallpoint.to_dict()``,
+  503|         each frame will now be represented like::
+  504| 
+  505|           {'func_name': 'print_example',
+  506|            'lineno': 0,
+  507|            'module_name': 'example_module',
+  508|            'module_path': '/home/example/example_module.pyc',
+  509|            'lasti': 0,
+  510|            'line': 'print "example"',
+  511|            'locals': {'variable': '"value"'},
+  512|            'pre_lines': ['variable = "value"'],
+  513|            'post_lines': []}
+  514| 
+  515|         The locals dictionary and line lists are copies and can be mutated
+  516|         freely.
+  517|         """
+  518|         ret = super().to_dict()
+  519|         ret['locals'] = dict(self.local_reprs)
+  520| 
+  521|         # get the line numbers and textual lines
+  522|         # without assuming DeferredLines
+  523|         start_line = self.lineno - len(self.pre_lines)
+  524|         pre_lines = [{'lineno': start_line + i, 'line': str(l)}
+  525|                      for i, l in enumerate(self.pre_lines)]
+  526|         # trim off leading empty lines
+  527|         for i, item in enumerate(pre_lines):
+  528|             if item['line']:
+  529|                 break
+  530|         if i:
+  531|             pre_lines = pre_lines[i:]
+  532|         ret['pre_lines'] = pre_lines
+  533| 
+  534|         # now post_lines
+  535|         post_lines = [{'lineno': self.lineno + i, 'line': str(l)}
+  536|                       for i, l in enumerate(self.post_lines)]
+  537|         _last = 0
+  538|         for i, item in enumerate(post_lines):
+  539|             if item['line']:
+  540|                 _last = i
+  541|         post_lines = post_lines[:_last + 1]
+  542|         ret['post_lines'] = post_lines
+  543|         return ret
+  544| 
+  545| 
+  546| class ContextualTracebackInfo(TracebackInfo):
+  547|     """The ContextualTracebackInfo type is a :class:`TracebackInfo`
+  548|     subtype that is used by :class:`ContextualExceptionInfo` and uses
+  549|     the :class:`ContextualCallpoint` as its frame-representing
+  550|     primitive.
+  551|     """
+  552|     callpoint_type = ContextualCallpoint
+  553| 
+  554| 
+  555| class ContextualExceptionInfo(ExceptionInfo):
+  556|     """The ContextualTracebackInfo type is a :class:`TracebackInfo`
+  557|     subtype that uses the :class:`ContextualCallpoint` as its
+  558|     frame-representing primitive.
+  559| 
+  560|     It carries with it most of the exception information required to
+  561|     recreate the widely recognizable "500" page for debugging Django
+  562|     applications.
+  563|     """
+  564|     tb_info_type = ContextualTracebackInfo
+  565| 
+  566| 
+  567| # TODO: clean up & reimplement -- specifically for syntax errors
+  568| def format_exception_only(etype, value):
+  569|     """Format the exception part of a traceback.
+  570| 
+  571|     The arguments are the exception type and value such as given by
+  572|     sys.last_type and sys.last_value. The return value is a list of
+  573|     strings, each ending in a newline.
+  574| 
+  575|     Normally, the list contains a single string; however, for
+  576|     SyntaxError exceptions, it contains several lines that (when
+  577|     printed) display detailed information about where the syntax
+  578|     error occurred.
+  579| 
+  580|     The message indicating which exception occurred is always the last
+  581|     string in the list.
+  582| 
+  583|     """
+  584|     # Gracefully handle (the way Python 2.4 and earlier did) the case of
+  585|     # being called with (None, None).
+  586|     if etype is None:
+  587|         return [_format_final_exc_line(etype, value)]
+  588| 
+  589|     stype = etype.__name__
+  590|     smod = etype.__module__
+  591|     if smod not in ("__main__", "builtins", "exceptions"):
+  592|         stype = smod + '.' + stype
+  593| 
+  594|     if not issubclass(etype, SyntaxError):
+  595|         return [_format_final_exc_line(stype, value)]
+  596| 
+  597|     # It was a syntax error; show exactly where the problem was found.
+  598|     lines = []
+  599|     filename = value.filename or "<string>"
+  600|     lineno = str(value.lineno) or '?'
+  601|     lines.append(f'  File "{filename}", line {lineno}\n')
+  602|     badline = value.text
+  603|     offset = value.offset
+  604|     if badline is not None:
+  605|         lines.append('    %s\n' % badline.strip())
+  606|         if offset is not None:
+  607|             caretspace = badline.rstrip('\n')[:offset].lstrip()
+  608|             # non-space whitespace (likes tabs) must be kept for alignment
+  609|             caretspace = ((c.isspace() and c or ' ') for c in caretspace)
+  610|             # only three spaces to account for offset1 == pos 0
+  611|             lines.append('   %s^\n' % ''.join(caretspace))
+  612|     msg = value.msg or "<no detail available>"
+  613|     lines.append(f"{stype}: {msg}\n")
+  614|     return lines
+  615| 
+  616| 
+  617| # TODO: use asciify, improved if necessary
+  618| def _some_str(value):
+  619|     try:
+  620|         return str(value)
+  621|     except Exception:
+  622|         pass
+  623|     return '<unprintable %s object>' % type(value).__name__
+  624| 
+  625| 
+  626| def _format_final_exc_line(etype, value):
+  627|     valuestr = _some_str(value)
+  628|     if value is None or not valuestr:
+  629|         line = "%s\n" % etype
+  630|     else:
+  631|         line = f"{etype}: {valuestr}\n"
+  632|     return line
+  633| 
+  634| 
+  635| def print_exception(etype, value, tb, limit=None, file=None):
+  636|     """Print exception up to 'limit' stack trace entries from 'tb' to 'file'.
+  637| 
+  638|     This differs from print_tb() in the following ways: (1) if
+  639|     traceback is not None, it prints a header "Traceback (most recent
+  640|     call last):"; (2) it prints the exception type and value after the
+  641|     stack trace; (3) if type is SyntaxError and value has the
+  642|     appropriate format, it prints the line where the syntax error
+  643|     occurred with a caret on the next line indicating the approximate
+  644|     position of the error.
+  645|     """
+  646| 
+  647|     if file is None:
+  648|         file = sys.stderr
+  649|     if tb:
+  650|         tbi = TracebackInfo.from_traceback(tb, limit)
+  651|         print(str(tbi), end='', file=file)
+  652| 
+  653|     for line in format_exception_only(etype, value):
+  654|         print(line, end='', file=file)
+  655| 
+  656| 
+  657| def fix_print_exception():
+  658|     """
+  659|     Sets the default exception hook :func:`sys.excepthook` to the
+  660|     :func:`tbutils.print_exception` that uses all the ``tbutils``
+  661|     facilities to provide a consistent output behavior.
+  662|     """
+  663|     sys.excepthook = print_exception
+  664| 
+  665| 
+  666| _frame_re = re.compile(r'^File "(?P<filepath>.+)", line (?P<lineno>\d+)'
+  667|                        r', in (?P<funcname>.+)$')
+  668| _se_frame_re = re.compile(r'^File "(?P<filepath>.+)", line (?P<lineno>\d+)')
+  669| _underline_re = re.compile(r'^[~^ ]*$')
+  670| 
+  671| # TODO: ParsedException generator over large bodies of text
+  672| 
+  673| class ParsedException:
+  674|     """Stores a parsed traceback and exception as would be typically
+  675|     output by :func:`sys.excepthook` or
+  676|     :func:`traceback.print_exception`.
+  677| 
+  678|     .. note:
+  679| 
+  680|        Does not currently store SyntaxError details such as column.
+  681| 
+  682|     """
+  683|     def __init__(self, exc_type_name, exc_msg, frames=None):
+  684|         self.exc_type = exc_type_name
+  685|         self.exc_msg = exc_msg
+  686|         self.frames = list(frames or [])
+  687| 
+  688|     @property
+  689|     def source_file(self):
+  690|         """
+  691|         The file path of module containing the function that raised the
+  692|         exception, or None if not available.
+  693|         """
+  694|         try:
+  695|             return self.frames[-1]['filepath']
+  696|         except IndexError:
+  697|             return None
+  698| 
+  699|     def to_dict(self):
+  700|         "Get a copy as a JSON-serializable :class:`dict`."
+  701|         return {'exc_type': self.exc_type,
+  702|                 'exc_msg': self.exc_msg,
+  703|                 'frames': list(self.frames)}
+  704| 
+  705|     def __repr__(self):
+  706|         cn = self.__class__.__name__
+  707|         return ('%s(%r, %r, frames=%r)'
+  708|                 % (cn, self.exc_type, self.exc_msg, self.frames))
+  709| 
+  710|     def to_string(self):
+  711|         """Formats the exception and its traceback into the standard format,
+  712|         as returned by the traceback module.
+  713| 
+  714|         ``ParsedException.from_string(text).to_string()`` should yield
+  715|         ``text``.
+  716| 
+  717|         .. note::
+  718| 
+  719|            Note that this method does not output "anchors" (e.g.,
+  720|            ``~~~~~^^``), as were added in Python 3.13. See the built-in
+  721|            ``traceback`` module if these are necessary.
+  722|         """
+  723|         lines = ['Traceback (most recent call last):']
+  724| 
+  725|         for frame in self.frames:
+  726|             lines.append('  File "{}", line {}, in {}'.format(frame['filepath'],
+  727|                                                            frame['lineno'],
+  728|                                                            frame['funcname']))
+  729|             source_line = frame.get('source_line')
+  730|             if source_line:
+  731|                 lines.append(f'    {source_line}')
+  732|         if self.exc_msg:
+  733|             lines.append(f'{self.exc_type}: {self.exc_msg}')
+  734|         else:
+  735|             lines.append(f'{self.exc_type}')
+  736|         return '\n'.join(lines)
+  737| 
+  738|     @classmethod
+  739|     def from_string(cls, tb_str):
+  740|         """Parse a traceback and exception from the text *tb_str*. This text
+  741|         is expected to have been decoded, otherwise it will be
+  742|         interpreted as UTF-8.
+  743| 
+  744|         This method does not search a larger body of text for
+  745|         tracebacks. If the first line of the text passed does not
+  746|         match one of the known patterns, a :exc:`ValueError` will be
+  747|         raised. This method will ignore trailing text after the end of
+  748|         the first traceback.
+  749| 
+  750|         Args:
+  751|             tb_str (str): The traceback text (:class:`unicode` or UTF-8 bytes)
+  752|         """
+  753|         if not isinstance(tb_str, str):
+  754|             tb_str = tb_str.decode('utf-8')
+  755|         tb_lines = tb_str.lstrip().splitlines()
+  756| 
+  757|         # First off, handle some ignored exceptions. These can be the
+  758|         # result of exceptions raised by __del__ during garbage
+  759|         # collection
+  760|         while tb_lines:
+  761|             cl = tb_lines[-1]
+  762|             if cl.startswith('Exception ') and cl.endswith('ignored'):
+  763|                 tb_lines.pop()
+  764|             else:
+  765|                 break
+  766|         if tb_lines and tb_lines[0].strip() == 'Traceback (most recent call last):':
+  767|             start_line = 1
+  768|             frame_re = _frame_re
+  769|         elif len(tb_lines) > 1 and tb_lines[-2].lstrip().startswith('^'):
+  770|             # This is to handle the slight formatting difference
+  771|             # associated with SyntaxErrors, which also don't really
+  772|             # have tracebacks
+  773|             start_line = 0
+  774|             frame_re = _se_frame_re
+  775|         else:
+  776|             raise ValueError('unrecognized traceback string format')
+  777| 
+  778|         frames = []
+  779|         line_no = start_line
+  780|         while line_no < len(tb_lines):
+  781|             frame_line = tb_lines[line_no].strip()
+  782|             frame_match = frame_re.match(frame_line)
+  783|             if frame_match:
+  784|                 frame_dict = frame_match.groupdict()
+  785|                 try:
+  786|                     next_line = tb_lines[line_no + 1]
+  787|                 except IndexError:
+  788|                     # We read what we could
+  789|                     next_line = ''
+  790|                 next_line_stripped = next_line.strip()
+  791|                 if (
+  792|                         frame_re.match(next_line_stripped) or
+  793|                         # The exception message will not be indented
+  794|                         # This check is to avoid overrunning on eval-like
+  795|                         # tracebacks where the last frame doesn't have source
+  796|                         # code in the traceback
+  797|                         not next_line.startswith(' ')
+  798|                 ):
+  799|                     frame_dict['source_line'] = ''
+  800|                 else:
+  801|                     frame_dict['source_line'] = next_line_stripped
+  802|                     line_no += 1
+  803|                     if (line_no + 1 < len(tb_lines)
+  804|                             and _underline_re.match(tb_lines[line_no + 1])):
+  805|                         # To deal with anchors
+  806|                         line_no += 1
+  807|             else:
+  808|                 break
+  809|             line_no += 1
+  810|             frames.append(frame_dict)
+  811| 
+  812|         try:
+  813|             exc_line = '\n'.join(tb_lines[line_no:])
+  814|             exc_type, _, exc_msg = exc_line.partition(': ')
+  815|         except Exception:
+  816|             exc_type, exc_msg = '', ''
+  817| 
+  818|         return cls(exc_type, exc_msg, frames)
+  819| 
+  820| 
+  821| ParsedTB = ParsedException  # legacy alias
+
+FILE tests/test_strutils.py:
+    1| import re
+    2| import uuid
+    3| from unittest import TestCase
+    4| 
+    5| from boltons import strutils
+    6| 
+    7| 
+    8| def test_strip_ansi():
+    9|     assert strutils.strip_ansi(
+   10|         '\x1b[0m\x1b[1;36mart\x1b[46;34m\xdc') == 'art\xdc'
+   11|     assert strutils.strip_ansi(
+   12|         '\x1b[0m\x1b[1;36mart\x1b[46;34m\xdc') == 'artÜ'
+   13|     assert strutils.strip_ansi(
+   14|         '╒══════╕\n│ \x1b[1mCell\x1b[0m │\n╘══════╛') == (
+   15|             '╒══════╕\n'
+   16|             '│ Cell │\n'
+   17|             '╘══════╛')
+   18|     assert strutils.strip_ansi(
+   19|         'ls\r\n\x1B[00m\x1b[01;31mfile.zip\x1b[00m\r\n\x1b[01;31m') == \
+   20|         'ls\r\nfile.zip\r\n'
+   21|     assert strutils.strip_ansi(
+   22|         '\t\u001b[0;35mIP\u001b[0m\t\u001b[0;36m192.1.0.2\u001b[0m') == \
+   23|         '\tIP\t192.1.0.2'
+   24|     assert strutils.strip_ansi('(╯°□°)╯︵ \x1b[1m┻━┻\x1b[0m') == (
+   25|         '(╯°□°)╯︵ ┻━┻')
+   26|     assert strutils.strip_ansi('(╯°□°)╯︵ \x1b[1m┻━┻\x1b[0m') == (
+   27|         '(╯°□°)╯︵ ┻━┻')
+   28|     assert strutils.strip_ansi(
+   29|         b'(\xe2\x95\xaf\xc2\xb0\xe2\x96\xa1\xc2\xb0)\xe2\x95\xaf\xef\xb8'
+   30|         b'\xb5 \x1b[1m\xe2\x94\xbb\xe2\x94\x81\xe2\x94\xbb\x1b[0m') == (
+   31|             b'(\xe2\x95\xaf\xc2\xb0\xe2\x96\xa1\xc2\xb0)\xe2\x95\xaf\xef\xb8'
+   32|             b'\xb5 \xe2\x94\xbb\xe2\x94\x81\xe2\x94\xbb')
+   33|     assert strutils.strip_ansi(
+   34|         bytearray('(╯°□°)╯︵ \x1b[1m┻━┻\x1b[0m', 'utf-8')) == \
+   35|         bytearray(
+   36|             b'(\xe2\x95\xaf\xc2\xb0\xe2\x96\xa1\xc2\xb0)\xe2\x95\xaf\xef\xb8'
+   37|             b'\xb5 \xe2\x94\xbb\xe2\x94\x81\xe2\x94\xbb')
+   38| 
+   39| 
+   40| def test_asciify():
+   41|     ref = 'Beyoncé'
+   42|     b = strutils.asciify(ref)
+   43|     assert len(b) == len(b)
+   44|     assert b[-1:].decode('ascii') == 'e'
+   45| 
+   46| 
+   47| def test_indent():
+   48|     to_indent = '\nabc\ndef\n\nxyz\n'
+   49|     ref = '\n  abc\n  def\n\n  xyz\n'
+   50|     assert strutils.indent(to_indent, '  ') == ref
+   51| 
+   52| 
+   53| def test_is_uuid():
+   54|     assert strutils.is_uuid(uuid.uuid4()) == True
+   55|     assert strutils.is_uuid(uuid.uuid4(), version=1) == False
+   56|     assert strutils.is_uuid(str(uuid.uuid4())) == True
+   57|     assert strutils.is_uuid(str(uuid.uuid4()), version=1) == False
+   58|     assert strutils.is_uuid(set('garbage')) == False
+   59| 
+   60| 
+   61| def test_parse_int_list():
+   62|     assert strutils.parse_int_list("1,3,5-8,10-11,15") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   63| 
+   64|     assert strutils.parse_int_list("1,3,5-8,10-11,15,") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   65|     assert strutils.parse_int_list(",1,3,5-8,10-11,15") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   66|     assert strutils.parse_int_list(" 1, 3 ,5-8,10-11,15 ") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   67|     assert strutils.parse_int_list("3,1,5-8,10-11,15") == [1, 3, 5, 6, 7, 8, 10, 11, 15]
+   68| 
+   69|     assert strutils.parse_int_list("5-8") == [5, 6, 7, 8]
+   70|     assert strutils.parse_int_list("8-5") == [5, 6, 7, 8]
+   71| 
+   72| def test_format_int_list():
+   73|     assert strutils.format_int_list([1, 3, 5, 6, 7, 8, 10, 11, 15]) == '1,3,5-8,10-11,15'
+   74|     assert strutils.format_int_list([5, 6, 7, 8]) == '5-8'
+   75| 
+   76|     assert strutils.format_int_list([1, 3, 5, 6, 7, 8, 10, 11, 15], delim_space=True) == '1, 3, 5-8, 10-11, 15'
+   77|     assert strutils.format_int_list([5, 6, 7, 8], delim_space=True) == '5-8'
+   78| 
+   79| 
+   80| class TestMultiReplace(TestCase):
+   81| 
+   82|     def test_simple_substitutions(self):
+   83|         """Test replacing multiple values."""
+   84|         m = strutils.MultiReplace({r'cat': 'kedi', r'purple': 'mor', })
+   85|         self.assertEqual(m.sub('The cat is purple'), 'The kedi is mor')
+   86| 
+   87|     def test_shortcut_function(self):
+   88|         """Test replacing multiple values."""
+   89|         self.assertEqual(
+   90|             strutils.multi_replace(
+   91|                 'The cat is purple',
+   92|                 {r'cat': 'kedi', r'purple': 'mor', }
+   93|             ),
+   94|             'The kedi is mor'
+   95|         )
+   96| 
+   97|     def test_substitutions_in_word(self):
+   98|         """Test replacing multiple values that are substrings of a word."""
+   99|         m = strutils.MultiReplace({r'cat': 'kedi', r'purple': 'mor', })
+  100|         self.assertEqual(m.sub('Thecatispurple'), 'Thekediismor')
+  101| 
+  102|     def test_sub_with_regex(self):
+  103|         """Test substitutions with a regular expression."""
+  104|         m = strutils.MultiReplace({
+  105|             r'cat': 'kedi',
+  106|             r'purple': 'mor',
+  107|             r'q\w+?t': 'dinglehopper'
+  108|         }, regex=True)
+  109|         self.assertEqual(
+  110|             m.sub('The purple cat ate a quart of jelly'),
+  111|             'The mor kedi ate a dinglehopper of jelly'
+  112|         )
+  113| 
+  114|     def test_sub_with_list(self):
+  115|         """Test substitutions from an iterable instead of a dictionary."""
+  116|         m = strutils.MultiReplace([
+  117|             (r'cat', 'kedi'),
+  118|             (r'purple', 'mor'),
+  119|             (r'q\w+?t', 'dinglehopper'),
+  120|         ], regex=True)
+  121|         self.assertEqual(
+  122|             m.sub('The purple cat ate a quart of jelly'),
+  123|             'The mor kedi ate a dinglehopper of jelly'
+  124|         )
+  125| 
+  126|     def test_sub_with_compiled_regex(self):
+  127|         """Test substitutions where some regular expressiosn are compiled."""
+  128|         exp = re.compile(r'q\w+?t')
+  129|         m = strutils.MultiReplace([
+  130|             (r'cat', 'kedi'),
+  131|             (r'purple', 'mor'),
+  132|             (exp, 'dinglehopper'),
+  133|         ])
+  134|         self.assertEqual(
+  135|             m.sub('The purple cat ate a quart of jelly'),
+  136|             'The mor kedi ate a dinglehopper of jelly'
+  137|         )
+  138| 
+  139|     def test_substitutions_with_regex_chars(self):
+  140|         """Test replacing values that have special regex characters."""
+  141|         m = strutils.MultiReplace({'cat.+': 'kedi', r'purple': 'mor', })
+  142|         self.assertEqual(m.sub('The cat.+ is purple'), 'The kedi is mor')
+  143| 
+  144| 
+  145| def test_human_readable_list():
+  146|     """Test the human_readable_list function with various inputs."""
+  147|     
+  148|     # Test empty list
+  149|     assert strutils.human_readable_list([]) == ''
+  150|     
+  151|     # Test single item
+  152|     assert strutils.human_readable_list(['apple']) == 'apple'
+  153|     
+  154|     # Test two items (no Oxford comma applies)
+  155|     assert strutils.human_readable_list(['apple', 'banana']) == 'apple and banana'
+  156|     
+  157|     # Test three items with Oxford comma (default)
+  158|     assert strutils.human_readable_list(['apple', 'banana', 'cherry']) == 'apple, banana, and cherry'
+  159|     
+  160|     # Test three items without Oxford comma
+  161|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], oxford=False) == 'apple, banana and cherry'
+  162|     
+  163|     # Test four items with Oxford comma
+  164|     assert strutils.human_readable_list(['apple', 'banana', 'cherry', 'date']) == 'apple, banana, cherry, and date'
+  165|     
+  166|     # Test four items without Oxford comma
+  167|     assert strutils.human_readable_list(['apple', 'banana', 'cherry', 'date'], oxford=False) == 'apple, banana, cherry and date'
+  168|     
+  169|     # Test custom delimiter
+  170|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter=';') == 'apple; banana; and cherry'
+  171|     
+  172|     # Test custom conjunction
+  173|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction='or') == 'apple, banana, or cherry'
+  174|     
+  175|     # Test custom delimiter and conjunction
+  176|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter='|', conjunction='plus') == 'apple| banana| plus cherry'
+  177|     
+  178|     # Test custom conjunction without Oxford comma
+  179|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction='or', oxford=False) == 'apple, banana or cherry'
+  180|     
+  181|     # Test delimiter with extra spaces (should be stripped)
+  182|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter=' , ') == 'apple, banana, and cherry'
+  183|     
+  184|     # Test conjunction with extra spaces (should be stripped)
+  185|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction=' or ') == 'apple, banana, or cherry'
+  186|     
+  187|     # Test with empty strings in the list
+  188|     assert strutils.human_readable_list(['apple', '', 'cherry']) == 'apple, , and cherry'
+  189|     
+  190|     # Test with whitespace strings
+  191|     assert strutils.human_readable_list(['apple', '  ', 'cherry']) == 'apple,   , and cherry'
+  192|     
+  193|     # Test with special characters
+  194|     assert strutils.human_readable_list(['apple & pear', 'banana/plantain', 'cherry-bomb']) == 'apple & pear, banana/plantain, and cherry-bomb'
+  195|     
+  196|     # Test with unicode characters
+  197|     assert strutils.human_readable_list(['🍎', '🍌', '🍒']) == '🍎, 🍌, and 🍒'
+  198|     
+  199|     # Test with numbers as strings
+  200|     assert strutils.human_readable_list(['1', '2', '3']) == '1, 2, and 3'
+  201|     
+  202|     # Test edge case with only delimiter character as items
+  203|     assert strutils.human_readable_list([',', ',', ',']) == ',, ,, and ,'
+  204|     
+  205|     # Test long list to ensure pattern consistency
+  206|     long_list = ['a', 'b', 'c', 'd', 'e', 'f']
+  207|     assert strutils.human_readable_list(long_list) == 'a, b, c, d, e, and f'
+  208|     assert strutils.human_readable_list(long_list, oxford=False) == 'a, b, c, d, e and f'
+  209| 
+  210|     # Edge cases
+  211|     # Test with empty delimiter
+  212|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], delimiter='') == 'applebananaand cherry'
+  213|     
+  214|     # Test with empty conjunction
+  215|     assert strutils.human_readable_list(['apple', 'banana', 'cherry'], conjunction='') == 'apple, banana,  cherry'
+  216|     
+  217|     # Test two items with custom delimiter and conjunction
+  218|     assert strutils.human_readable_list(['apple', 'banana'], delimiter=';', conjunction='or') == 'apple or banana'
+  219|     
+  220|     # Test single item with custom parameters (should ignore them)
+  221|     assert strutils.human_readable_list(['apple'], delimiter='|', conjunction='plus', oxford=False) == 'apple'
+  222|     
+  223|     # Test very long strings
+  224|     long_item1 = 'a' * 100
+  225|     long_item2 = 'b' * 100
+  226|     result = strutils.human_readable_list([long_item1, long_item2])
+  227|     assert result == f'{long_item1} and {long_item2}'
+  228| 
+  229| 
+  230| def test_human_readable_list_type_annotations():
+  231|     """Test that the function works with different sequence types."""
+  232|     
+  233|     # Test with tuple
+  234|     assert strutils.human_readable_list(('apple', 'banana', 'cherry')) == 'apple, banana, and cherry'
+  235|     
+  236|     # Test with list (already tested above, but for completeness)
+  237|     assert strutils.human_readable_list(['apple', 'banana', 'cherry']) == 'apple, banana, and cherry'
+  238|     
+  239|     # Test with generator (converted to list for the test)
+  240|     def fruit_generator():
+  241|         yield 'apple'
+  242|         yield 'banana' 
+  243|         yield 'cherry'
+  244|     
+  245|     # Convert generator to list since the function expects a Sequence
+  246|     fruits = list(fruit_generator())
+  247|     assert strutils.human_readable_list(fruits) == 'apple, banana, and cherry'
+  248| 
+  249| 
+  250| def test_roundzip():
+  251|     aaa = b'a' * 10000
+  252|     assert strutils.gunzip_bytes(strutils.gzip_bytes(aaa)) == aaa
+  253| 
+  254|     assert strutils.gunzip_bytes(strutils.gzip_bytes(b'')) == b''
+  255| 
+  256| 
+  257| def test_bytes2human():
+  258|     b2h = strutils.bytes2human
+  259|     # Exact powers of 1024 must roll over to the next unit, not show the
+  260|     # previous unit times 1024.
+  261|     assert b2h(1024) == '1K'
+  262|     assert b2h(1024 ** 2) == '1M'
+  263|     assert b2h(1024 ** 3) == '1G'
+  264|     assert b2h(1024 ** 4) == '1T'
+  265|     # Just below a boundary stays in the smaller unit.
+  266|     assert b2h(1023) == '1023B'
+  267|     assert b2h(1024 ** 2 - 1, 1) == '1024.0K'
+  268|     # Ordinary mid-range values are unaffected.
+  269|     assert b2h(0) == '0B'
+  270|     assert b2h(2048) == '2K'
+  271|     assert b2h(128991) == '126K'
+  272|     # Sign is preserved and negative magnitudes scale like positives.
+  273|     assert b2h(-1024) == '-1K'
+  274|     assert b2h(-(1024 ** 2)) == '-1M'
+  275|     # ndigits controls the fractional part.
+  276|     assert b2h(1024, 2) == '1.00K'
+
+Answer now with ONE JSON array containing one object per query, in query order.

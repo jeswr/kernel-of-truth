@@ -1,0 +1,204 @@
+[
+  {
+    "id": "PROPOSED-ASM-1360",
+    "tag": "STIPULATED",
+    "claim": "g2-import (ONT-TYPE-G2/1) is the issue-#20 go/no-go BUILD-AND-EXPERIMENT record only: it tests whether an imported SOFT foundational-ontology type layer beats the frozen g2 hard-typing soundness baseline on the same 84 slots; it states no feasibility conclusion, adopts nothing automatically, and final promotion remains a maintainer decision (plan sections 1, 9, 10).",
+    "backing_ref": "registry/experiments/g2-import.json; docs/next/design/ontology-import-plan.md#1-decisions-being-operationalised",
+    "rationale": "Separates the experiment authorization from any empirical or adoption conclusion.",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1361",
+    "tag": "MEASURED",
+    "claim": "The A0 baseline is the FROZEN g2 PROVISIONAL-ON-LLM-PROXY primary readout: 33/84 = 0.392857 sound on the judge-pA construction (poc/g2/labels-proxy.jsonl sha 93a124478b8dba411bfd1a9fd07cbc96e874def8e6ac819202c54c1b121754b3; poc/g2/result.json sha 96a23be5b85f1d20d3182c04af8928c34b66356ca10588ca141ebf34891ab94a); A0 is consumed as this pinned constant with ZERO new generation or adjudication (plan section 7.2), and its own estimation-only caveat (the frozen g2 n>=500 gate unattainable on this corpus) is inherited and restated in every readout.",
+    "backing_ref": "poc/g2/result.json; poc/g2/labels-proxy.jsonl; docs/next/design/ontology-import-plan.md#72-arms",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1362",
+    "tag": "STIPULATED",
+    "claim": "The unit and denominator are frozen: exactly the 84 g2 item IDs in poc/g2/materials/items.jsonl sha 7a4728840550227703338880a79f61491a3c93e5022f07215631f6caa7077008; every arm emits exactly one scored slot per ID; the harness refuses on any ID drift (ERR_ONTG2_IDS/ERR_ONT_SLOTS); abstention or sparsity can never shrink the denominator.",
+    "backing_ref": "poc/ontology-import-g2/build-softtype.py; poc/ontology-import-g2/run-ontg2.py; docs/next/design/ontology-import-plan.md#71-fixed-unit-and-estimand",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1363",
+    "tag": "STIPULATED",
+    "claim": "The primary gate resolves 'beat 0.39' as the exact integer rule sound_A3 >= 34/84 on the primary judge-pA construction — a maintainer-ratified point-estimate ENGINEERING gate; Wilson 95% intervals and exact paired McNemar (A3-A0, A2-A0) are mandatory co-reports and never verdict-bearing; no statistical-superiority claim is licensed even on PASS.",
+    "backing_ref": "docs/next/design/ontology-import-plan.md#75-primary-gate; registry/experiments/g2-import.json /endpoints/primary",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "maintainer",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1364",
+    "tag": "STIPULATED",
+    "claim": "The frozen arms are A0 (frozen baseline constant), A1 (BFO-only soft breadth control), A2 (BFO+SUMO soft typing), A3 (BFO+SUMO+FrameNet soft typing, the intended adoption arm); renderings are MONOTONE (A1 <= A2 <= A3: clauses appended only where pinned source evidence exists) and A1 can never authorize adoption regardless of score.",
+    "backing_ref": "poc/ontology-import-g2/materials/arm-a1-bfo.jsonl / arm-a2-bfo-sumo.jsonl / arm-a3-bfo-sumo-framenet.jsonl; docs/next/design/ontology-import-plan.md#72-arms",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "maintainer",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1365",
+    "tag": "STIPULATED",
+    "claim": "Gold reuses the maintainer-directive-#11 blind cross-family proxy protocol with FRESH labels and FRESH per-judge-per-arm-per-phase order seeds: stateless GPT-5.6-Sol primary (npx-pinned codex CLI 0.144.1 invocation family, verbatim from the audited poc/g2/run-g2lp.py) and Claude Haiku 4.5 sensitivity judge (vendor-family overlap with the materials' authoring agents DISCLOSED, never sole gold); the SAME frozen g2 rubric bytes; {yes,no,cannot-say}; first valid answer final; kappa is pair stability only; every result is PROVISIONAL-ON-LLM-PROXY and the later two-human adjudicated gold retains sole authority for permanent scientific adoption.",
+    "backing_ref": "poc/g2/gold-rescoring-handoff.md; poc/ontology-import-g2/run-ontg2.py; docs/next/design/ontology-import-plan.md#74-gold-protocol",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "maintainer",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1366",
+    "tag": "STIPULATED",
+    "claim": "Blinding is binding: judges never see arm identity, source ontologies, derivation rules, vacuity flags, bridge/soft records, the A0 baseline labels, or any statement that items come from a derivation or import system; the g3lp-v3 blinding scan runs on every call surface and any hit ABORTS the experiment (never silently retried).",
+    "backing_ref": "poc/ontology-import-g2/run-ontg2.py (do_attempt/AbortExperiment); analysis/g3_llmproxy_v3.py",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1367",
+    "tag": "STIPULATED",
+    "claim": "Instrument gates (failure => INSTRUMENT-INVALID, never FAIL/PASS/NULL): kappa >= 0.40 per new arm; each judge decisive on >= 90% of the 84 real items per arm (0.90 is the highest RT-4-decidable decisiveness bar at n=84: the Wilson 95% lower bound at the expected ~0.98 decisive rate is 0.936, so a 0.95 bar would be undecidable at the planned n); deranged-sort probe false-satisfaction <= 0.30 per judge per arm over 20 probes per arm; all pins match at every phase boundary; zero blinding hits; judge CLI version banners stable across each block.",
+    "backing_ref": "analysis/ontg2.py; docs/next/design/ontology-import-plan.md#76-instrument-and-informativeness-gates",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1368",
+    "tag": "STIPULATED",
+    "claim": "The probe instrument is 60 deranged-sort items (20 per arm) built by substituting each slot's anchor with a wrong-sort gloss while KEEPING the soft-hedge phrasing ('normally ...') — measuring precisely whether soft modality induces false satisfaction; expected answer 'no' by construction; probe items never enter the soundness count.",
+    "backing_ref": "poc/ontology-import-g2/materials/probes-a1.jsonl / -a2 / -a3; poc/ontology-import-g2/build-softtype.py (DERANGE table)",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1369",
+    "tag": "STIPULATED",
+    "claim": "Vacuity is operationalised mechanically: a slot is non-vacuous in an arm iff its BFO anchor is strictly below `entity` OR a source-specific SUMO/FrameNet preference is present in that arm; vacuous slots score 0 regardless of the judge label (scoring rule yes=1 else 0 rides on top); the informativeness guard requires >= 67/84 A3 non-vacuous AND >= 34/42 R3 non-vacuous, else the verdict is FAIL read as NO-GO-VACUOUS even above 0.39.",
+    "backing_ref": "data/onto-softtype/soft-type-candidates.jsonl (vacuous_by_arm); analysis/ontg2.py; docs/next/design/ontology-import-plan.md#73-slot-scoring,#76",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "maintainer",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1370",
+    "tag": "MEASURED",
+    "claim": "Build-time generation report: all 84 slots rendered in all arms; non-vacuous 67/84 (A1), 83/84 (A2), 83/84 (A3) with 42/42 R3 at A3 (guard satisfiable before spend); the five NSM-ontology pattern families cover the table (event-action 27, agent-intention-goal 25, generic-type-vs-kind 16, role-vs-phase 13, quality-vs-disposition 3); zero hard operational axioms emitted; 5 conflicts recorded, not resolved (4 alignment-divergence, 1 underdetermined `kind`).",
+    "backing_ref": "poc/ontology-import-g2/materials/generation-report.json; data/onto-softtype/conflicts.jsonl",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1371",
+    "tag": "STIPULATED",
+    "claim": "SOFT-only routing is machine-enforced at build: every kot-soft-type/1 record carries binding:false, regime:policy, authority:preference, effect:rank-only and the five forbidden_effects (assert-type, reject-world, derive-disjointness, mint-entity, close-domain); every kot-ont-bridge/1 record is identity_bearing:false authority:candidate; the build fails closed on any violation or any hard-law marker in a rendering; nothing enters D+/DT+ closure and no concept hash changes.",
+    "backing_ref": "poc/ontology-import-g2/build-softtype.py (validators); docs/next/design/ontology-import-plan.md#33-b2-soft-type-records,#34",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "maintainer",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1372",
+    "tag": "STIPULATED",
+    "claim": "Source closure: generation reads ONLY the pinned BFO (bfo.jsonl sha c8451264...), SUMO (terms 47d4d8be..., axioms d5ee964f...), FrameNet metadata (frames 08f4387f..., relations af881b75...) and the three frozen alignment-kernel-v0.json files (shas recorded in data/onto-softtype/manifest.json); no WordNet, no gUFO, no network fetch, no embedding retrieval, no model-generated external fact; FrameNet is frame METADATA — no empirical filler-distribution claim is made.",
+    "backing_ref": "data/onto-softtype/manifest.json (input_pins, alignment_pins); docs/next/design/ontology-import-plan.md#2-source-freeze,#43",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1373",
+    "tag": "STIPULATED",
+    "claim": "Where a frozen alignment-kernel-v0.json link exists for a concept, the bridge cites it; additions beyond the alignments are monotone evidence with full record-level provenance; divergences are RECORDED in conflicts.jsonl and never resolved by silently narrowing (plan combination rule); conflict or missing evidence yields underdetermined, not a forced type.",
+    "backing_ref": "data/onto-softtype/conflicts.jsonl; data/onto-softtype/bridge-candidates.jsonl (alignment_notes); docs/next/design/ontology-import-plan.md#44-combination-rule",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1374",
+    "tag": "STIPULATED",
+    "claim": "The 84-slot bridge table (build-softtype.py BRIDGE) is AUTHORED EXPERIMENT-ONLY content derived from the g2 failure MODE, the explication structures, and the pinned source evidence — NOT tuned to per-item baseline labels; the per-item A0 labels enter only the paired McNemar at analysis time; the pre-freeze skeptic pass must attack this claim by inspecting BRIDGE against labels-proxy.jsonl before freeze.",
+    "backing_ref": "poc/ontology-import-g2/build-softtype.py; registry/experiments/g2-import.json /design/n_planned/assumptions",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1375",
+    "tag": "STIPULATED",
+    "claim": "Every rendered candidate keeps the tested argument/relationship explicit and makes soft modality lexically explicit ('normally', 'typically', 'usually'); the original g2 rubric bytes are UNCHANGED (prompt-template sha d8724154...) — the judge evaluates the rendered statement as written under ordinary meaning; a statement omitting the tested position scores 0.",
+    "backing_ref": "poc/g2/materials/prompt-template.txt; poc/ontology-import-g2/materials/arm-a3-bfo-sumo-framenet.jsonl; docs/next/design/ontology-import-plan.md#72,#73",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1376",
+    "tag": "STIPULATED",
+    "claim": "Fresh-runs pre-commitment: no logged proxy row of any frozen record is consumed as an A1/A2/A3 output (all three arms are new statements never adjudicated anywhere); A0 is a pinned constant per PROPOSED-ASM-1361, not a reused run-row; the practice-5 reuse-check is still run and recorded pre-spend with this entry as the recorded decision.",
+    "backing_ref": "registry/experiments/g2-import.json /design/n_planned/assumptions; tools/registry/reuse-check.py",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1377",
+    "tag": "EXTRAPOLATION",
+    "claim": "Resource band: <= 628 stateless proxy calls (3 arms x (84+20) x 2 judges + 4 calibration; hard ceiling enforced in-harness), CPU-only build under one machine-hour, target cash $1-5 with the $10 budget.usd_cap as hard stop, wall-clock ~2-6 h at measured g2lp per-call latency; reaching any cap before complete labels stops WITHOUT partial scoring; the run ledger replaces these estimates.",
+    "backing_ref": "poc/ontology-import-g2/run-ontg2.py (_budget_check); docs/next/design/ontology-import-plan.md#8-cost-band",
+    "load_bearing": false,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12",
+    "resolution_path": "Replace with the run ledger after adjudication."
+  },
+  {
+    "id": "PROPOSED-ASM-1378",
+    "tag": "STIPULATED",
+    "claim": "Verdict-name mapping is pinned in the record: PASS == GO-BFO-SUMO-FRAMENET (go_combined) or GO-BFO-SUMO + NO-GO-FRAMENET-pending-redesign (go_bfo_sumo_only); FAIL == NO-GO-VACUOUS (informative gate failed) or NO-GO-ONTOLOGY-IMPORT (neither arm reaches 34/84); INSTRUMENT-INVALID == repair and mint a new frozen run; a GO licenses ONLY bounded promotion of the winning non-binding advisory shard — Pi-replacement-vs-coexistence, endorsement quorum, proxy-vs-human sufficiency, confidence-bound gating, any later hard promotion, and all gUFO decisions remain open maintainer decisions (plan section 10).",
+    "backing_ref": "registry/experiments/g2-import.json /design/n_planned/verdict_name_mapping; docs/next/design/ontology-import-plan.md#77-decision-table,#10",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "maintainer",
+    "date": "2026-07-12"
+  },
+  {
+    "id": "PROPOSED-ASM-1379",
+    "tag": "STIPULATED",
+    "claim": "Role separation for g2-import: the experiment-engineering role built the layer, harness, and DRAFT record to freeze-ready (green mock go/nogo/instrument, 2026-07-12); the coordinator registers this ASM block and prereg-freezes after the skeptic pass; the runner role executes the pinned harness only (never edits materials or the bridge table); the analyst grades via verdict-gen; the cross-vendor Codex audit confirms; no identity that authored the bridge table serves as a judge, and no outcome is a feasibility conclusion.",
+    "backing_ref": "registry/experiments/g2-import.json /runner_constraints/stage_discipline",
+    "load_bearing": true,
+    "status": "open",
+    "owner": "coordinator",
+    "date": "2026-07-12"
+  }
+]

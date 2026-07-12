@@ -1,0 +1,552 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: python-sortedcontainers ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/sortedcontainers/__init__.py
+src/sortedcontainers/sorteddict.py
+src/sortedcontainers/sortedlist.py
+src/sortedcontainers/sortedset.py
+tests/__init__.py
+tests/benchmark.py
+tests/benchmark_plot.py
+tests/benchmark_scale.py
+tests/benchmark_sorteddict.py
+tests/benchmark_sortedlist.py
+tests/benchmark_sortedset.py
+tests/benchmark_splits_fill.py
+tests/issue_147.py
+tests/plot_lengths_histogram_add.py
+tests/plot_lengths_histogram_delitem.py
+tests/sortedcollection.py
+tests/test_coverage_sorteddict.py
+tests/test_coverage_sortedkeylist_modulo.py
+tests/test_coverage_sortedkeylist_negate.py
+tests/test_coverage_sortedlist.py
+tests/test_coverage_sortedset.py
+tests/test_stress_sorteddict.py
+tests/test_stress_sortedkeylist.py
+tests/test_stress_sortedlist.py
+tests/test_stress_sortedset.py
+
+=== QUERIES (2) ===
+QUERY g1q-python-sortedcontainers-contains-25: family=contains target=tests/test_stress_sortedset.py
+QUERY g1q-python-sortedcontainers-contains-9: family=contains target=tests/benchmark_sorteddict.py
+
+=== CONTEXT ===
+
+FILE tests/test_stress_sortedset.py:
+    1| import random
+    2| from sortedcontainers import SortedSet
+    3| 
+    4| 
+    5| random.seed(0)
+    6| actions = []
+    7| 
+    8| 
+    9| def actor(func):
+   10|     actions.append(func)
+   11|     return func
+   12| 
+   13| 
+   14| def test_init():
+   15|     sst = SortedSet()
+   16|     sst._check()
+   17| 
+   18|     sst = SortedSet()
+   19|     sst._reset(10000)
+   20|     assert sst._list._load == 10000
+   21|     sst._check()
+   22| 
+   23|     sst = SortedSet(range(10000))
+   24|     assert all(tup[0] == tup[1] for tup in zip(sst, range(10000)))
+   25| 
+   26|     sst.clear()
+   27|     assert len(sst) == 0
+   28|     assert list(iter(sst)) == []
+   29|     sst._check()
+   30| 
+   31| 
+   32| @actor
+   33| def stress_contains(sst):
+   34|     values = list(sst)
+   35|     assert all((val in sst) for val in values)
+   36| 
+   37| 
+   38| @actor
+   39| def stress_delitem(sst):
+   40|     for rpt in range(100):
+   41|         pos = random.randrange(0, len(sst))
+   42|         del sst[pos]
+   43| 
+   44| 
+   45| @actor
+   46| def stress_operator(sst):
+   47|     other = SortedSet(sst)
+   48|     stress_delitem(other)
+   49|     assert other < sst
+   50|     assert sst > other
+   51| 
+   52| 
+   53| @actor
+   54| def stress_getitem(sst):
+   55|     other = list(sst)
+   56|     assert all(sst[pos] == other[pos] for pos in range(len(sst)))
+   57| 
+   58| 
+   59| @actor
+   60| def stress_reversed(sst):
+   61|     other = list(reversed(list(sst)))
+   62|     assert all(tup[0] == tup[1] for tup in zip(reversed(sst), other))
+   63| 
+   64| 
+   65| @actor
+   66| def stress_add(sst):
+   67|     for rpt in range(100):
+   68|         val = random.randrange(0, 1000)
+   69|         sst.add(val)
+   70| 
+   71| 
+   72| @actor
+   73| def stress_count(sst):
+   74|     for val in sst:
+   75|         assert sst.count(val) == 1
+   76| 
+   77| 
+   78| @actor
+   79| def stress_difference(sst):
+   80|     copy_one = sst.copy()
+   81|     stress_delitem(copy_one)
+   82|     copy_two = sst.copy()
+   83|     stress_delitem(copy_two)
+   84|     sst.difference_update(copy_one, copy_two)
+   85| 
+   86| 
+   87| @actor
+   88| def stress_discard(sst):
+   89|     for rpt in range(100):
+   90|         pos = random.randrange(0, len(sst))
+   91|         val = sst[pos]
+   92|         sst.discard(val)
+   93| 
+   94| 
+   95| @actor
+   96| def stress_index(sst):
+   97|     for rpt in range(100):
+   98|         pos = random.randrange(0, len(sst))
+   99|         val = sst[pos]
+  100|         assert pos == sst.index(val)
+  101| 
+  102| 
+  103| @actor
+  104| def stress_intersection(sst):
+  105|     copy_one = sst.copy()
+  106|     stress_delitem(copy_one)
+  107|     copy_two = sst.copy()
+  108|     stress_delitem(copy_two)
+  109|     sst.intersection_update(copy_one, copy_two)
+  110| 
+  111| 
+  112| @actor
+  113| def stress_symmetric_difference(sst):
+  114|     copy_one = sst.copy()
+  115|     stress_delitem(copy_one)
+  116|     sst.symmetric_difference_update(copy_one)
+  117| 
+  118| 
+  119| @actor
+  120| def stress_pop(sst):
+  121|     val = sst[-1]
+  122|     assert val == sst.pop()
+  123|     for rpt in range(100):
+  124|         pos = random.randrange(0, len(sst))
+  125|         val = sst[pos]
+  126|         assert val == sst.pop(pos)
+  127| 
+  128| 
+  129| @actor
+  130| def stress_remove(sst):
+  131|     for rpt in range(100):
+  132|         pos = random.randrange(0, len(sst))
+  133|         val = sst[pos]
+  134|         sst.remove(val)
+  135| 
+  136| 
+  137| @actor
+  138| def stress_update(sst):
+  139|     def iter_randomly(start, stop, count):
+  140|         for rpt in range(count):
+  141|             yield random.randrange(start, stop)
+  142| 
+  143|     sst.update(
+  144|         iter_randomly(0, 500, 100),
+  145|         iter_randomly(500, 1000, 100),
+  146|         iter_randomly(1000, 1500, 100),
+  147|         iter_randomly(1500, 2000, 100),
+  148|     )
+  149| 
+  150| 
+  151| @actor
+  152| def stress_isdisjoint(sst):
+  153|     values = [-1, -2, -3]
+  154|     assert sst.isdisjoint(values)
+  155| 
+  156| 
+  157| @actor
+  158| def stress_issubset(sst):
+  159|     that = SortedSet(sst)
+  160|     that.update(range(1000))
+  161|     assert sst.issubset(that)
+  162| 
+  163| 
+  164| @actor
+  165| def stress_issuperset(sst):
+  166|     that = SortedSet(sst)
+  167|     assert sst.issuperset(that)
+  168| 
+  169| 
+  170| def test_stress(repeat=1000):
+  171|     sst = SortedSet(range(1000))
+  172| 
+  173|     for rpt in range(repeat):
+  174|         action = random.choice(actions)
+  175|         action(sst)
+  176| 
+  177|         try:
+  178|             sst._check()
+  179|         except AssertionError:
+  180|             print(action)
+  181|             raise
+  182| 
+  183|         start_len = len(sst)
+  184| 
+  185|         while len(sst) < 500:
+  186|             sst.add(random.randrange(0, 2000))
+  187| 
+  188|         while len(sst) > 2000:
+  189|             del sst[random.randrange(0, len(sst))]
+  190| 
+  191|         if start_len != len(sst):
+  192|             sst._check()
+  193| 
+  194| 
+  195| if __name__ == '__main__':
+  196|     import sys
+  197|     from datetime import datetime
+  198| 
+  199|     start = datetime.now()
+  200| 
+  201|     print('Python', sys.version_info)
+  202| 
+  203|     try:
+  204|         num = int(sys.argv[1])
+  205|         print('Setting iterations to', num)
+  206|     except:
+  207|         print('Setting iterations to 1000 (default)')
+  208|         num = 1000
+  209| 
+  210|     try:
+  211|         pea = int(sys.argv[2])
+  212|         random.seed(pea)
+  213|         print('Setting seed to', pea)
+  214|     except:
+  215|         print('Setting seed to 0 (default)')
+  216|         random.seed(0)
+  217| 
+  218|     try:
+  219|         test_stress(num)
+  220|     except:
+  221|         raise
+  222|     finally:
+  223|         print('Exiting after', (datetime.now() - start))
+
+FILE tests/benchmark_sorteddict.py:
+    1| """
+    2| Benchmark Sorted Dictionary Datatypes
+    3| """
+    4| 
+    5| import warnings
+    6| from .benchmark import *
+    7| 
+    8| # Tests.
+    9| 
+   10| 
+   11| @register_test
+   12| def contains(func, size):
+   13|     for val in lists[size][::100]:
+   14|         assert func(val)
+   15| 
+   16| 
+   17| @register_test
+   18| def getitem(func, size):
+   19|     for val in lists[size][::100]:
+   20|         assert func(val) == -val
+   21| 
+   22| 
+   23| @register_test
+   24| def setitem(func, size):
+   25|     for val in lists[size][::100]:
+   26|         func(val, -val)
+   27| 
+   28| 
+   29| @register_test
+   30| def setitem_existing(func, size):
+   31|     for val in lists[size][::100]:
+   32|         func(val, -val)
+   33| 
+   34| 
+   35| @register_test
+   36| def delitem(func, size):
+   37|     for val in lists[size][::100]:
+   38|         func(val)
+   39| 
+   40| 
+   41| @register_test
+   42| def iter(func, size):
+   43|     assert all(idx == val for idx, val in enumerate(func()))
+   44| 
+   45| 
+   46| @register_test
+   47| def init(func, size):
+   48|     func((val, -val) for val in lists[size])
+   49| 
+   50| 
+   51| # Setups.
+   52| 
+   53| 
+   54| def do_nothing(obj, size):
+   55|     pass
+   56| 
+   57| 
+   58| def fill_values(obj, size):
+   59|     if hasattr(obj, 'update'):
+   60|         obj.update({val: -val for val in range(size)})
+   61|     else:
+   62|         for val in range(size):
+   63|             obj[val] = -val
+   64| 
+   65| 
+   66| # Implementation imports.
+   67| 
+   68| from sortedcontainers import SortedDict
+   69| 
+   70| kinds['SortedDict'] = SortedDict
+   71| 
+   72| try:
+   73|     from blist import sorteddict
+   74| 
+   75|     kinds['B-Tree'] = sorteddict
+   76| except ImportError:
+   77|     warnings.warn('No module named blist', ImportWarning)
+   78| 
+   79| try:
+   80|     from bintrees import FastAVLTree
+   81| 
+   82|     kinds['AVL-Tree'] = FastAVLTree
+   83| except ImportError:
+   84|     warnings.warn('No module named bintrees', ImportWarning)
+   85| 
+   86| try:
+   87|     from banyan import SortedDict as BanyanSortedDict
+   88| 
+   89|     kinds['RB-Tree'] = BanyanSortedDict
+   90| except ImportError:
+   91|     warnings.warn('No module named banyan', ImportWarning)
+   92| 
+   93| try:
+   94|     from skiplistcollections import SkipListDict
+   95| 
+   96|     kinds['Skip-List'] = SkipListDict
+   97| except ImportError:
+   98|     warnings.warn('No module named skiplistcollections', ImportWarning)
+   99| 
+  100| try:
+  101|     from sortedmap import sortedmap as CppSortedMap
+  102| 
+  103|     kinds['std::map'] = CppSortedMap
+  104| except ImportError:
+  105|     warnings.warn('No module named sortedmap', ImportWarning)
+  106| 
+  107| try:
+  108|     from treap import treap
+  109| 
+  110|     kinds['Treap'] = treap
+  111| except ImportError:
+  112|     warnings.warn('No module named treap', ImportWarning)
+  113| 
+  114| # Implementation configuration.
+  115| 
+  116| for name in tests:
+  117|     impls[name] = OrderedDict()
+  118| 
+  119| for name, kind in kinds.items():
+  120|     impls['contains'][name] = {
+  121|         'setup': fill_values,
+  122|         'ctor': kind,
+  123|         'func': '__contains__',
+  124|         'limit': 1000000,
+  125|     }
+  126| 
+  127| remove('contains', 'Treap')
+  128| 
+  129| for name, kind in kinds.items():
+  130|     impls['getitem'][name] = {
+  131|         'setup': fill_values,
+  132|         'ctor': kind,
+  133|         'func': '__getitem__',
+  134|         'limit': 1000000,
+  135|     }
+  136| 
+  137| for name, kind in kinds.items():
+  138|     impls['setitem'][name] = {
+  139|         'setup': do_nothing,
+  140|         'ctor': kind,
+  141|         'func': '__setitem__',
+  142|         'limit': 1000000,
+  143|     }
+  144| 
+  145| for name, kind in kinds.items():
+  146|     impls['setitem_existing'][name] = {
+  147|         'setup': fill_values,
+  148|         'ctor': kind,
+  149|         'func': '__setitem__',
+  150|         'limit': 1000000,
+  151|     }
+  152| 
+  153| for name, kind in kinds.items():
+  154|     impls['delitem'][name] = {
+  155|         'setup': fill_values,
+  156|         'ctor': kind,
+  157|         'func': '__delitem__',
+  158|         'limit': 1000000,
+  159|     }
+  160| 
+  161| for name, kind in kinds.items():
+  162|     impls['iter'][name] = {
+  163|         'setup': fill_values,
+  164|         'ctor': kind,
+  165|         'func': '__iter__',
+  166|         'limit': 1000000,
+  167|     }
+  168| 
+  169| for name, kind in kinds.items():
+  170|     impls['init'][name] = {
+  171|         'setup': do_nothing,
+  172|         'ctor': kind,
+  173|         'func': 'update',
+  174|         'limit': 1000000,
+  175|     }
+  176| 
+  177| remove('init', 'Treap')
+  178| limit('init', 'B-Tree', 100000)
+  179| limit('init', 'Skip-List', 100000)
+  180| 
+  181| if __name__ == '__main__':
+  182|     main('SortedDict')
+
+Answer now with ONE JSON array containing one object per query, in query order.

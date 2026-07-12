@@ -1,0 +1,221 @@
+{
+ "a5": {
+  "call": {
+   "keyword_gate": "\\b(?:call|calls|called|calling|caller|callers|callee|callees|invoke|invokes|invoked|invoking)\\b",
+   "orientations": {
+    "callees-of": [
+     {
+      "example": "what calls does @ make",
+      "pattern": "\\bcalls (?:does|did) @"
+     },
+     {
+      "example": "which routines does @ call",
+      "pattern": "\\b(?:does|did|do) @ (?:call|invoke)"
+     },
+     {
+      "example": "list the callees of the function @",
+      "pattern": "\\bcallees of (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     },
+     {
+      "example": "which functions are called by @",
+      "pattern": "\\b(?:called|invoked) (?:by|from) (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     }
+    ],
+    "callers-of": [
+     {
+      "example": "list the callers of the function @",
+      "pattern": "\\bcallers of (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     },
+     {
+      "example": "where @ is called",
+      "pattern": "@ (?:is|was|get|gets) (?:called|invoked)"
+     },
+     {
+      "example": "which functions make calls to @",
+      "pattern": "\\bcalls to (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     },
+     {
+      "example": "which routines call the function @",
+      "pattern": "\\b(?:call|calls|invoke|invokes|calling|invoking) (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     }
+    ]
+   },
+   "relation": "code-calls"
+  },
+  "contain-define": {
+   "keyword_gate": "\\b(?:contain|contains|contained|containing|hold|holds|held|inside|content|contents|defined|defines|define|definition)\\b",
+   "orientations": {
+    "container-ask": [
+     {
+      "example": "what is @ contained in",
+      "pattern": "@ (?:is |was )?(?:contained|held) in\\b(?! (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@)",
+      "verb": "contain"
+     },
+     {
+      "example": "which module is @ defined in",
+      "pattern": "@ (?:is |was )?defined in\\b(?! (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@)",
+      "verb": "define"
+     },
+     {
+      "example": "which module contains @",
+      "pattern": "\\b(?:contains|contain|holds|hold) (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "contain"
+     },
+     {
+      "example": "which module defines @",
+      "pattern": "\\b(?:defines|define|defined) (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "define"
+     },
+     {
+      "example": "what is the containing module of @",
+      "pattern": "\\bcontaining \\w+ of (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "contain"
+     },
+     {
+      "example": "where is @ defined",
+      "pattern": "\\b(?:is|was|are|were) (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@ defined\\b",
+      "verb": "define"
+     },
+     {
+      "example": "where does @ get defined",
+      "pattern": "@ (?:is|was|get|gets) defined\\b",
+      "verb": "define"
+     },
+     {
+      "example": "what module holds the definition of @",
+      "pattern": "\\bdefinition (?:\\w+ )?of (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "define"
+     },
+     {
+      "example": "where does @ s definition live",
+      "pattern": "@ s definition\\b",
+      "verb": "define"
+     }
+    ],
+    "contains": [
+     {
+      "example": "list the contents of the module @",
+      "pattern": "\\bcontents? of (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "contain"
+     },
+     {
+      "example": "what does @ contain",
+      "pattern": "\\b(?:does|did|do) @ (?:contain|hold)",
+      "verb": "contain"
+     },
+     {
+      "example": "what does @ define",
+      "pattern": "\\b(?:does|did|do) @ define",
+      "verb": "define"
+     },
+     {
+      "example": "what is contained in the module @",
+      "pattern": "\\b(?:contained|held) in (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "contain"
+     },
+     {
+      "example": "which functions are defined in @",
+      "pattern": "\\bdefined in (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "define"
+     },
+     {
+      "example": "what things are inside @",
+      "pattern": "\\binside (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@",
+      "verb": "contain"
+     }
+    ]
+   },
+   "relation": "part-of | code-defines"
+  },
+  "import": {
+   "keyword_gate": "\\b(?:import|imports|imported|importing)\\b",
+   "orientations": {
+    "imported-by": [
+     {
+      "example": "where @ is imported",
+      "pattern": "@ (?:is|was|get|gets) imported"
+     },
+     {
+      "example": "which modules import the module @",
+      "pattern": "\\b(?:import|imports|importing) (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     }
+    ],
+    "imports-of": [
+     {
+      "example": "which modules does @ import",
+      "pattern": "\\b(?:does|did|do) @ import"
+     },
+     {
+      "example": "list the imports of the module @",
+      "pattern": "\\bimports of (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     },
+     {
+      "example": "which modules are imported by @",
+      "pattern": "\\bimported by (?:the |a |an )?(?:function |functions |module |modules |class |classes |method |methods |routine |routines |file |files )?@"
+     }
+    ]
+   },
+   "relation": "code-imports"
+  }
+ },
+ "l3a": {
+  "imperative_starts": [
+   "list ",
+   "name ",
+   "find "
+  ],
+  "role_dir": {
+   "father": "forward",
+   "has-part": "forward",
+   "maker-of": "inverse",
+   "mother": "forward",
+   "part-of": "inverse"
+  },
+  "shapes": {
+   "flip": [
+    {
+     "example": "whose R is @",
+     "pattern": "whose LABEL is ART@"
+    },
+    {
+     "example": "@ as a R",
+     "pattern": "@ as/for LABEL"
+    },
+    {
+     "example": "who is @ the R of",
+     "pattern": "@ is ART LABEL of"
+    },
+    {
+     "example": "R by @",
+     "pattern": "LABEL by ART@"
+    },
+    {
+     "example": "what is @ part of",
+     "pattern": "@ ... LABEL(of-final)"
+    }
+   ],
+   "role": [
+    {
+     "example": "who is the R of @",
+     "pattern": "LABEL of ART@"
+    },
+    {
+     "example": "who is @ s R",
+     "pattern": "@ s LABEL"
+    },
+    {
+     "example": "who Rs @  (verb form)",
+     "pattern": "LABEL ART@"
+    },
+    {
+     "example": "R by whom",
+     "pattern": "LABEL by wh"
+    },
+    {
+     "example": "does @ R anything",
+     "pattern": "does @ LABEL"
+    }
+   ]
+  }
+ }
+}

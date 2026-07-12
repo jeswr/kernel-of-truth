@@ -1,0 +1,443 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.rg2nhr35"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.4wq2zou2
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c2-7fca-79f1-8139-9c996631585b
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: arrow ===
+PY FILE LISTING (repo-root-relative; authoritative):
+arrow/__init__.py
+arrow/_version.py
+arrow/api.py
+arrow/arrow.py
+arrow/constants.py
+arrow/factory.py
+arrow/formatter.py
+arrow/locales.py
+arrow/parser.py
+arrow/util.py
+docs/conf.py
+tests/__init__.py
+tests/conftest.py
+tests/test_api.py
+tests/test_arrow.py
+tests/test_factory.py
+tests/test_formatter.py
+tests/test_locales.py
+tests/test_parser.py
+tests/test_util.py
+tests/utils.py
+
+=== QUERIES (2) ===
+QUERY g1q-arrow-imports_of-9: family=imports_of module=arrow/util.py
+QUERY g1q-arrow-imports_of-6: family=imports_of module=arrow/formatter.py
+
+=== CONTEXT ===
+
+FILE arrow/util.py:
+    1| """Helpful functions used internally within arrow."""
+    2| 
+    3| import datetime
+    4| from typing import Any, Optional
+    5| 
+    6| from dateutil.rrule import WEEKLY, rrule
+    7| 
+    8| from arrow.constants import (
+    9|     MAX_ORDINAL,
+   10|     MAX_TIMESTAMP,
+   11|     MAX_TIMESTAMP_MS,
+   12|     MAX_TIMESTAMP_US,
+   13|     MIN_ORDINAL,
+   14| )
+   15| 
+   16| 
+   17| def next_weekday(
+   18|     start_date: Optional[datetime.date], weekday: int
+   19| ) -> datetime.datetime:
+   20|     """Get next weekday from the specified start date.
+   21| 
+   22|     :param start_date: Datetime object representing the start date.
+   23|     :param weekday: Next weekday to obtain. Can be a value between 0 (Monday) and 6 (Sunday).
+   24|     :return: Datetime object corresponding to the next weekday after start_date.
+   25| 
+   26|     Usage::
+   27| 
+   28|         # Get first Monday after epoch
+   29|         >>> next_weekday(datetime(1970, 1, 1), 0)
+   30|         1970-01-05 00:00:00
+   31| 
+   32|         # Get first Thursday after epoch
+   33|         >>> next_weekday(datetime(1970, 1, 1), 3)
+   34|         1970-01-01 00:00:00
+   35| 
+   36|         # Get first Sunday after epoch
+   37|         >>> next_weekday(datetime(1970, 1, 1), 6)
+   38|         1970-01-04 00:00:00
+   39|     """
+   40|     if weekday < 0 or weekday > 6:
+   41|         raise ValueError("Weekday must be between 0 (Monday) and 6 (Sunday).")
+   42|     return rrule(freq=WEEKLY, dtstart=start_date, byweekday=weekday, count=1)[0]
+   43| 
+   44| 
+   45| def is_timestamp(value: Any) -> bool:
+   46|     """Check if value is a valid timestamp."""
+   47|     if isinstance(value, bool):
+   48|         return False
+   49|     if not isinstance(value, (int, float, str)):
+   50|         return False
+   51|     try:
+   52|         float(value)
+   53|         return True
+   54|     except ValueError:
+   55|         return False
+   56| 
+   57| 
+   58| def validate_ordinal(value: Any) -> None:
+   59|     """Raise an exception if value is an invalid Gregorian ordinal.
+   60| 
+   61|     :param value: the input to be checked
+   62| 
+   63|     """
+   64|     if isinstance(value, bool) or not isinstance(value, int):
+   65|         raise TypeError(f"Ordinal must be an integer (got type {type(value)}).")
+   66|     if not (MIN_ORDINAL <= value <= MAX_ORDINAL):
+   67|         raise ValueError(f"Ordinal {value} is out of range.")
+   68| 
+   69| 
+   70| def normalize_timestamp(timestamp: float) -> float:
+   71|     """Normalize millisecond and microsecond timestamps into normal timestamps."""
+   72|     if timestamp > MAX_TIMESTAMP:
+   73|         if timestamp < MAX_TIMESTAMP_MS:
+   74|             timestamp /= 1000
+   75|         elif timestamp < MAX_TIMESTAMP_US:
+   76|             timestamp /= 1_000_000
+   77|         else:
+   78|             raise ValueError(f"The specified timestamp {timestamp!r} is too large.")
+   79|     return timestamp
+   80| 
+   81| 
+   82| # Credit to https://stackoverflow.com/a/1700069
+   83| def iso_to_gregorian(iso_year: int, iso_week: int, iso_day: int) -> datetime.date:
+   84|     """Converts an ISO week date into a datetime object.
+   85| 
+   86|     :param iso_year: the year
+   87|     :param iso_week: the week number, each year has either 52 or 53 weeks
+   88|     :param iso_day: the day numbered 1 through 7, beginning with Monday
+   89| 
+   90|     """
+   91| 
+   92|     if not 1 <= iso_week <= 53:
+   93|         raise ValueError("ISO Calendar week value must be between 1-53.")
+   94| 
+   95|     if not 1 <= iso_day <= 7:
+   96|         raise ValueError("ISO Calendar day value must be between 1-7")
+   97| 
+   98|     # The first week of the year always contains 4 Jan.
+   99|     fourth_jan = datetime.date(iso_year, 1, 4)
+  100|     delta = datetime.timedelta(fourth_jan.isoweekday() - 1)
+  101|     year_start = fourth_jan - delta
+  102|     gregorian = year_start + datetime.timedelta(days=iso_day - 1, weeks=iso_week - 1)
+  103| 
+  104|     return gregorian
+  105| 
+  106| 
+  107| def validate_bounds(bounds: str) -> None:
+  108|     if bounds != "()" and bounds != "(]" and bounds != "[)" and bounds != "[]":
+  109|         raise ValueError(
+  110|             "Invalid bounds. Please select between '()', '(]', '[)', or '[]'."
+  111|         )
+  112| 
+  113| 
+  114| __all__ = ["next_weekday", "is_timestamp", "validate_ordinal", "iso_to_gregorian"]
+
+FILE arrow/formatter.py:
+    1| """Provides the :class:`Arrow <arrow.formatter.DateTimeFormatter>` class, an improved formatter for datetimes."""
+    2| 
+    3| import re
+    4| from datetime import datetime, timedelta, timezone
+    5| from typing import Final, Optional, Pattern, cast
+    6| 
+    7| from arrow import locales
+    8| from arrow.constants import DEFAULT_LOCALE
+    9| 
+   10| FORMAT_ATOM: Final[str] = "YYYY-MM-DD HH:mm:ssZZ"
+   11| FORMAT_COOKIE: Final[str] = "dddd, DD-MMM-YYYY HH:mm:ss ZZZ"
+   12| FORMAT_RFC822: Final[str] = "ddd, DD MMM YY HH:mm:ss Z"
+   13| FORMAT_RFC850: Final[str] = "dddd, DD-MMM-YY HH:mm:ss ZZZ"
+   14| FORMAT_RFC1036: Final[str] = "ddd, DD MMM YY HH:mm:ss Z"
+   15| FORMAT_RFC1123: Final[str] = "ddd, DD MMM YYYY HH:mm:ss Z"
+   16| FORMAT_RFC2822: Final[str] = "ddd, DD MMM YYYY HH:mm:ss Z"
+   17| FORMAT_RFC3339: Final[str] = "YYYY-MM-DD HH:mm:ssZZ"
+   18| FORMAT_RFC3339_STRICT: Final[str] = "YYYY-MM-DDTHH:mm:ssZZ"
+   19| FORMAT_RSS: Final[str] = "ddd, DD MMM YYYY HH:mm:ss Z"
+   20| FORMAT_W3C: Final[str] = "YYYY-MM-DD HH:mm:ssZZ"
+   21| 
+   22| 
+   23| class DateTimeFormatter:
+   24|     # This pattern matches characters enclosed in square brackets are matched as
+   25|     # an atomic group. For more info on atomic groups and how to they are
+   26|     # emulated in Python's re library, see https://stackoverflow.com/a/13577411/2701578
+   27| 
+   28|     _FORMAT_RE: Final[Pattern[str]] = re.compile(
+   29|         r"(\[(?:(?=(?P<literal>[^]]))(?P=literal))*\]|YYY?Y?|MM?M?M?|Do|DD?D?D?|d?dd?d?|HH?|hh?|mm?|ss?|SS?S?S?S?S?|ZZ?Z?|a|A|X|x|W)"
+   30|     )
+   31| 
+   32|     locale: locales.Locale
+   33| 
+   34|     def __init__(self, locale: str = DEFAULT_LOCALE) -> None:
+   35|         self.locale = locales.get_locale(locale)
+   36| 
+   37|     def format(cls, dt: datetime, fmt: str) -> str:
+   38|         # FIXME: _format_token() is nullable
+   39|         return cls._FORMAT_RE.sub(
+   40|             lambda m: cast(str, cls._format_token(dt, m.group(0))), fmt
+   41|         )
+   42| 
+   43|     def _format_token(self, dt: datetime, token: Optional[str]) -> Optional[str]:
+   44|         if token and token.startswith("[") and token.endswith("]"):
+   45|             return token[1:-1]
+   46| 
+   47|         if token == "YYYY":
+   48|             return self.locale.year_full(dt.year)
+   49|         if token == "YY":
+   50|             return self.locale.year_abbreviation(dt.year)
+   51| 
+   52|         if token == "MMMM":
+   53|             return self.locale.month_name(dt.month)
+   54|         if token == "MMM":
+   55|             return self.locale.month_abbreviation(dt.month)
+   56|         if token == "MM":
+   57|             return f"{dt.month:02d}"
+   58|         if token == "M":
+   59|             return f"{dt.month}"
+   60| 
+   61|         if token == "DDDD":
+   62|             return f"{dt.timetuple().tm_yday:03d}"
+   63|         if token == "DDD":
+   64|             return f"{dt.timetuple().tm_yday}"
+   65|         if token == "DD":
+   66|             return f"{dt.day:02d}"
+   67|         if token == "D":
+   68|             return f"{dt.day}"
+   69| 
+   70|         if token == "Do":
+   71|             return self.locale.ordinal_number(dt.day)
+   72| 
+   73|         if token == "dddd":
+   74|             return self.locale.day_name(dt.isoweekday())
+   75|         if token == "ddd":
+   76|             return self.locale.day_abbreviation(dt.isoweekday())
+   77|         if token == "d":
+   78|             return f"{dt.isoweekday()}"
+   79| 
+   80|         if token == "HH":
+   81|             return f"{dt.hour:02d}"
+   82|         if token == "H":
+   83|             return f"{dt.hour}"
+   84|         if token == "hh":
+   85|             return f"{dt.hour if 0 < dt.hour < 13 else abs(dt.hour - 12):02d}"
+   86|         if token == "h":
+   87|             return f"{dt.hour if 0 < dt.hour < 13 else abs(dt.hour - 12)}"
+   88| 
+   89|         if token == "mm":
+   90|             return f"{dt.minute:02d}"
+   91|         if token == "m":
+   92|             return f"{dt.minute}"
+   93| 
+   94|         if token == "ss":
+   95|             return f"{dt.second:02d}"
+   96|         if token == "s":
+   97|             return f"{dt.second}"
+   98| 
+   99|         if token == "SSSSSS":
+  100|             return f"{dt.microsecond:06d}"
+  101|         if token == "SSSSS":
+  102|             return f"{dt.microsecond // 10:05d}"
+  103|         if token == "SSSS":
+  104|             return f"{dt.microsecond // 100:04d}"
+  105|         if token == "SSS":
+  106|             return f"{dt.microsecond // 1000:03d}"
+  107|         if token == "SS":
+  108|             return f"{dt.microsecond // 10000:02d}"
+  109|         if token == "S":
+  110|             return f"{dt.microsecond // 100000}"
+  111| 
+  112|         if token == "X":
+  113|             return f"{dt.timestamp()}"
+  114| 
+  115|         if token == "x":
+  116|             return f"{dt.timestamp() * 1_000_000:.0f}"
+  117| 
+  118|         if token == "ZZZ":
+  119|             return dt.tzname()
+  120| 
+  121|         if token in ["ZZ", "Z"]:
+  122|             separator = ":" if token == "ZZ" else ""
+  123|             tz = timezone.utc if dt.tzinfo is None else dt.tzinfo
+  124|             # `dt` must be aware object. Otherwise, this line will raise AttributeError
+  125|             # https://github.com/arrow-py/arrow/pull/883#discussion_r529866834
+  126|             # datetime awareness: https://docs.python.org/3/library/datetime.html#aware-and-naive-objects
+  127|             total_minutes = int(cast(timedelta, tz.utcoffset(dt)).total_seconds() / 60)
+  128| 
+  129|             sign = "+" if total_minutes >= 0 else "-"
+  130|             total_minutes = abs(total_minutes)
+  131|             hour, minute = divmod(total_minutes, 60)
+  132| 
+  133|             return f"{sign}{hour:02d}{separator}{minute:02d}"
+  134| 
+  135|         if token in ("a", "A"):
+  136|             return self.locale.meridian(dt.hour, token)
+  137| 
+  138|         if token == "W":
+  139|             year, week, day = dt.isocalendar()
+  140|             return f"{year}-W{week:02d}-{day}"
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-arrow-imports_of-9",
+    "answerable_static": true,
+    "gold": [
+      "ext:datetime",
+      "ext:dateutil.rrule",
+      "ext:typing",
+      "repo:arrow/__init__.py",
+      "repo:arrow/constants.py"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-arrow-imports_of-6",
+    "answerable_static": true,
+    "gold": [
+      "ext:datetime",
+      "ext:re",
+      "ext:typing",
+      "repo:arrow/__init__.py",
+      "repo:arrow/constants.py",
+      "repo:arrow/locales.py"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  }
+]
+tokens used
+7,899

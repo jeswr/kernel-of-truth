@@ -1,0 +1,547 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.zzut1jc3"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.1zbz7dgs
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c5-0664-7c61-8c76-e23ad82c79de
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: itsdangerous ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/itsdangerous/__init__.py
+src/itsdangerous/_json.py
+src/itsdangerous/encoding.py
+src/itsdangerous/exc.py
+src/itsdangerous/serializer.py
+src/itsdangerous/signer.py
+src/itsdangerous/timed.py
+src/itsdangerous/url_safe.py
+tests/test_itsdangerous/__init__.py
+tests/test_itsdangerous/test_encoding.py
+tests/test_itsdangerous/test_serializer.py
+tests/test_itsdangerous/test_signer.py
+tests/test_itsdangerous/test_timed.py
+tests/test_itsdangerous/test_url_safe.py
+
+=== QUERIES (2) ===
+QUERY g1q-itsdangerous-callees_of-96: family=callees_of target=tests/test_itsdangerous/test_signer.py::TestSigner.test_algorithm
+QUERY g1q-itsdangerous-callees_of-35: family=callees_of target=src/itsdangerous/signer.py::SigningAlgorithm.verify_signature
+
+=== CONTEXT ===
+
+FILE tests/test_itsdangerous/test_signer.py:
+    1| import hashlib
+    2| from functools import partial
+    3| 
+    4| import pytest
+    5| 
+    6| from itsdangerous.exc import BadSignature
+    7| from itsdangerous.signer import HMACAlgorithm
+    8| from itsdangerous.signer import NoneAlgorithm
+    9| from itsdangerous.signer import Signer
+   10| from itsdangerous.signer import SigningAlgorithm
+   11| 
+   12| 
+   13| class _ReverseAlgorithm(SigningAlgorithm):
+   14|     def get_signature(self, key, value):
+   15|         return (key + value)[::-1]
+   16| 
+   17| 
+   18| class TestSigner:
+   19|     @pytest.fixture()
+   20|     def signer_factory(self):
+   21|         return partial(Signer, secret_key="secret-key")
+   22| 
+   23|     @pytest.fixture()
+   24|     def signer(self, signer_factory):
+   25|         return signer_factory()
+   26| 
+   27|     def test_signer(self, signer):
+   28|         signed = signer.sign("my string")
+   29|         assert isinstance(signed, bytes)
+   30|         assert signer.validate(signed)
+   31|         out = signer.unsign(signed)
+   32|         assert out == b"my string"
+   33| 
+   34|     def test_no_separator(self, signer):
+   35|         signed = signer.sign("my string")
+   36|         signed = signed.replace(signer.sep, b"*", 1)
+   37|         assert not signer.validate(signed)
+   38| 
+   39|         with pytest.raises(BadSignature):
+   40|             signer.unsign(signed)
+   41| 
+   42|     def test_broken_signature(self, signer):
+   43|         signed = signer.sign("b")
+   44|         bad_signed = signed[:-1]
+   45|         bad_sig = bad_signed.rsplit(b".", 1)[1]
+   46|         assert not signer.verify_signature(b"b", bad_sig)
+   47| 
+   48|         with pytest.raises(BadSignature) as exc_info:
+   49|             signer.unsign(bad_signed)
+   50| 
+   51|         assert exc_info.value.payload == b"b"
+   52| 
+   53|     def test_changed_value(self, signer):
+   54|         signed = signer.sign("my string")
+   55|         signed = signed.replace(b"my", b"other", 1)
+   56|         assert not signer.validate(signed)
+   57| 
+   58|         with pytest.raises(BadSignature):
+   59|             signer.unsign(signed)
+   60| 
+   61|     def test_invalid_separator(self, signer_factory):
+   62|         with pytest.raises(ValueError) as exc_info:
+   63|             signer_factory(sep="-")
+   64| 
+   65|         assert "separator cannot be used" in str(exc_info.value)
+   66| 
+   67|     @pytest.mark.parametrize(
+   68|         "key_derivation", ("concat", "django-concat", "hmac", "none")
+   69|     )
+   70|     def test_key_derivation(self, signer_factory, key_derivation):
+   71|         signer = signer_factory(key_derivation=key_derivation)
+   72|         assert signer.unsign(signer.sign("value")) == b"value"
+   73| 
+   74|     def test_invalid_key_derivation(self, signer_factory):
+   75|         signer = signer_factory(key_derivation="invalid")
+   76| 
+   77|         with pytest.raises(TypeError):
+   78|             signer.derive_key()
+   79| 
+   80|     def test_digest_method(self, signer_factory):
+   81|         signer = signer_factory(digest_method=hashlib.md5)
+   82|         assert signer.unsign(signer.sign("value")) == b"value"
+   83| 
+   84|     @pytest.mark.parametrize(
+   85|         "algorithm", (None, NoneAlgorithm(), HMACAlgorithm(), _ReverseAlgorithm())
+   86|     )
+   87|     def test_algorithm(self, signer_factory, algorithm):
+   88|         signer = signer_factory(algorithm=algorithm)
+   89|         assert signer.unsign(signer.sign("value")) == b"value"
+   90| 
+   91|         if algorithm is None:
+   92|             assert signer.algorithm.digest_method == signer.digest_method
+   93| 
+   94|     def test_secret_keys(self):
+   95|         signer = Signer("a")
+   96|         signed = signer.sign("my string")
+   97|         assert isinstance(signed, bytes)
+   98| 
+   99|         signer = Signer(["a", "b"])
+  100|         assert signer.validate(signed)
+  101|         out = signer.unsign(signed)
+  102|         assert out == b"my string"
+  103| 
+  104| 
+  105| def test_abstract_algorithm():
+  106|     alg = SigningAlgorithm()
+  107| 
+  108|     with pytest.raises(NotImplementedError):
+  109|         alg.get_signature(b"a", b"b")
+
+FILE src/itsdangerous/signer.py:
+    1| from __future__ import annotations
+    2| 
+    3| import collections.abc as cabc
+    4| import hashlib
+    5| import hmac
+    6| import typing as t
+    7| 
+    8| from .encoding import _base64_alphabet
+    9| from .encoding import base64_decode
+   10| from .encoding import base64_encode
+   11| from .encoding import want_bytes
+   12| from .exc import BadSignature
+   13| 
+   14| 
+   15| class SigningAlgorithm:
+   16|     """Subclasses must implement :meth:`get_signature` to provide
+   17|     signature generation functionality.
+   18|     """
+   19| 
+   20|     def get_signature(self, key: bytes, value: bytes) -> bytes:
+   21|         """Returns the signature for the given key and value."""
+   22|         raise NotImplementedError()
+   23| 
+   24|     def verify_signature(self, key: bytes, value: bytes, sig: bytes) -> bool:
+   25|         """Verifies the given signature matches the expected
+   26|         signature.
+   27|         """
+   28|         return hmac.compare_digest(sig, self.get_signature(key, value))
+   29| 
+   30| 
+   31| class NoneAlgorithm(SigningAlgorithm):
+   32|     """Provides an algorithm that does not perform any signing and
+   33|     returns an empty signature.
+   34|     """
+   35| 
+   36|     def get_signature(self, key: bytes, value: bytes) -> bytes:
+   37|         return b""
+   38| 
+   39| 
+   40| def _lazy_sha1(string: bytes = b"") -> t.Any:
+   41|     """Don't access ``hashlib.sha1`` until runtime. FIPS builds may not include
+   42|     SHA-1, in which case the import and use as a default would fail before the
+   43|     developer can configure something else.
+   44|     """
+   45|     return hashlib.sha1(string)
+   46| 
+   47| 
+   48| class HMACAlgorithm(SigningAlgorithm):
+   49|     """Provides signature generation using HMACs."""
+   50| 
+   51|     #: The digest method to use with the MAC algorithm. This defaults to
+   52|     #: SHA1, but can be changed to any other function in the hashlib
+   53|     #: module.
+   54|     default_digest_method: t.Any = staticmethod(_lazy_sha1)
+   55| 
+   56|     def __init__(self, digest_method: t.Any = None):
+   57|         if digest_method is None:
+   58|             digest_method = self.default_digest_method
+   59| 
+   60|         self.digest_method: t.Any = digest_method
+   61| 
+   62|     def get_signature(self, key: bytes, value: bytes) -> bytes:
+   63|         mac = hmac.new(key, msg=value, digestmod=self.digest_method)
+   64|         return mac.digest()
+   65| 
+   66| 
+   67| def _make_keys_list(
+   68|     secret_key: str | bytes | cabc.Iterable[str] | cabc.Iterable[bytes],
+   69| ) -> list[bytes]:
+   70|     if isinstance(secret_key, (str, bytes)):
+   71|         return [want_bytes(secret_key)]
+   72| 
+   73|     return [want_bytes(s) for s in secret_key]  # pyright: ignore
+   74| 
+   75| 
+   76| class Signer:
+   77|     """A signer securely signs bytes, then unsigns them to verify that
+   78|     the value hasn't been changed.
+   79| 
+   80|     The secret key should be a random string of ``bytes`` and should not
+   81|     be saved to code or version control. Different salts should be used
+   82|     to distinguish signing in different contexts. See :doc:`/concepts`
+   83|     for information about the security of the secret key and salt.
+   84| 
+   85|     :param secret_key: The secret key to sign and verify with. Can be a
+   86|         list of keys, oldest to newest, to support key rotation.
+   87|     :param salt: Extra key to combine with ``secret_key`` to distinguish
+   88|         signatures in different contexts.
+   89|     :param sep: Separator between the signature and value.
+   90|     :param key_derivation: How to derive the signing key from the secret
+   91|         key and salt. Possible values are ``concat``, ``django-concat``,
+   92|         or ``hmac``. Defaults to :attr:`default_key_derivation`, which
+   93|         defaults to ``django-concat``.
+   94|     :param digest_method: Hash function to use when generating the HMAC
+   95|         signature. Defaults to :attr:`default_digest_method`, which
+   96|         defaults to :func:`hashlib.sha1`. Note that the security of the
+   97|         hash alone doesn't apply when used intermediately in HMAC.
+   98|     :param algorithm: A :class:`SigningAlgorithm` instance to use
+   99|         instead of building a default :class:`HMACAlgorithm` with the
+  100|         ``digest_method``.
+  101| 
+  102|     .. versionchanged:: 2.0
+  103|         Added support for key rotation by passing a list to
+  104|         ``secret_key``.
+  105| 
+  106|     .. versionchanged:: 0.18
+  107|         ``algorithm`` was added as an argument to the class constructor.
+  108| 
+  109|     .. versionchanged:: 0.14
+  110|         ``key_derivation`` and ``digest_method`` were added as arguments
+  111|         to the class constructor.
+  112|     """
+  113| 
+  114|     #: The default digest method to use for the signer. The default is
+  115|     #: :func:`hashlib.sha1`, but can be changed to any :mod:`hashlib` or
+  116|     #: compatible object. Note that the security of the hash alone
+  117|     #: doesn't apply when used intermediately in HMAC.
+  118|     #:
+  119|     #: .. versionadded:: 0.14
+  120|     default_digest_method: t.Any = staticmethod(_lazy_sha1)
+  121| 
+  122|     #: The default scheme to use to derive the signing key from the
+  123|     #: secret key and salt. The default is ``django-concat``. Possible
+  124|     #: values are ``concat``, ``django-concat``, and ``hmac``.
+  125|     #:
+  126|     #: .. versionadded:: 0.14
+  127|     default_key_derivation: str = "django-concat"
+  128| 
+  129|     def __init__(
+  130|         self,
+  131|         secret_key: str | bytes | cabc.Iterable[str] | cabc.Iterable[bytes],
+  132|         salt: str | bytes | None = b"itsdangerous.Signer",
+  133|         sep: str | bytes = b".",
+  134|         key_derivation: str | None = None,
+  135|         digest_method: t.Any | None = None,
+  136|         algorithm: SigningAlgorithm | None = None,
+  137|     ):
+  138|         #: The list of secret keys to try for verifying signatures, from
+  139|         #: oldest to newest. The newest (last) key is used for signing.
+  140|         #:
+  141|         #: This allows a key rotation system to keep a list of allowed
+  142|         #: keys and remove expired ones.
+  143|         self.secret_keys: list[bytes] = _make_keys_list(secret_key)
+  144|         self.sep: bytes = want_bytes(sep)
+  145| 
+  146|         if self.sep in _base64_alphabet:
+  147|             raise ValueError(
+  148|                 "The given separator cannot be used because it may be"
+  149|                 " contained in the signature itself. ASCII letters,"
+  150|                 " digits, and '-_=' must not be used."
+  151|             )
+  152| 
+  153|         if salt is not None:
+  154|             salt = want_bytes(salt)
+  155|         else:
+  156|             salt = b"itsdangerous.Signer"
+  157| 
+  158|         self.salt = salt
+  159| 
+  160|         if key_derivation is None:
+  161|             key_derivation = self.default_key_derivation
+  162| 
+  163|         self.key_derivation: str = key_derivation
+  164| 
+  165|         if digest_method is None:
+  166|             digest_method = self.default_digest_method
+  167| 
+  168|         self.digest_method: t.Any = digest_method
+  169| 
+  170|         if algorithm is None:
+  171|             algorithm = HMACAlgorithm(self.digest_method)
+  172| 
+  173|         self.algorithm: SigningAlgorithm = algorithm
+  174| 
+  175|     @property
+  176|     def secret_key(self) -> bytes:
+  177|         """The newest (last) entry in the :attr:`secret_keys` list. This
+  178|         is for compatibility from before key rotation support was added.
+  179|         """
+  180|         return self.secret_keys[-1]
+  181| 
+  182|     def derive_key(self, secret_key: str | bytes | None = None) -> bytes:
+  183|         """This method is called to derive the key. The default key
+  184|         derivation choices can be overridden here. Key derivation is not
+  185|         intended to be used as a security method to make a complex key
+  186|         out of a short password. Instead you should use large random
+  187|         secret keys.
+  188| 
+  189|         :param secret_key: A specific secret key to derive from.
+  190|             Defaults to the last item in :attr:`secret_keys`.
+  191| 
+  192|         .. versionchanged:: 2.0
+  193|             Added the ``secret_key`` parameter.
+  194|         """
+  195|         if secret_key is None:
+  196|             secret_key = self.secret_keys[-1]
+  197|         else:
+  198|             secret_key = want_bytes(secret_key)
+  199| 
+  200|         if self.key_derivation == "concat":
+  201|             return t.cast(bytes, self.digest_method(self.salt + secret_key).digest())
+  202|         elif self.key_derivation == "django-concat":
+  203|             return t.cast(
+  204|                 bytes, self.digest_method(self.salt + b"signer" + secret_key).digest()
+  205|             )
+  206|         elif self.key_derivation == "hmac":
+  207|             mac = hmac.new(secret_key, digestmod=self.digest_method)
+  208|             mac.update(self.salt)
+  209|             return mac.digest()
+  210|         elif self.key_derivation == "none":
+  211|             return secret_key
+  212|         else:
+  213|             raise TypeError("Unknown key derivation method")
+  214| 
+  215|     def get_signature(self, value: str | bytes) -> bytes:
+  216|         """Returns the signature for the given value."""
+  217|         value = want_bytes(value)
+  218|         key = self.derive_key()
+  219|         sig = self.algorithm.get_signature(key, value)
+  220|         return base64_encode(sig)
+  221| 
+  222|     def sign(self, value: str | bytes) -> bytes:
+  223|         """Signs the given string."""
+  224|         value = want_bytes(value)
+  225|         return value + self.sep + self.get_signature(value)
+  226| 
+  227|     def verify_signature(self, value: str | bytes, sig: str | bytes) -> bool:
+  228|         """Verifies the signature for the given value."""
+  229|         try:
+  230|             sig = base64_decode(sig)
+  231|         except Exception:
+  232|             return False
+  233| 
+  234|         value = want_bytes(value)
+  235| 
+  236|         for secret_key in reversed(self.secret_keys):
+  237|             key = self.derive_key(secret_key)
+  238| 
+  239|             if self.algorithm.verify_signature(key, value, sig):
+  240|                 return True
+  241| 
+  242|         return False
+  243| 
+  244|     def unsign(self, signed_value: str | bytes) -> bytes:
+  245|         """Unsigns the given string."""
+  246|         signed_value = want_bytes(signed_value)
+  247| 
+  248|         if self.sep not in signed_value:
+  249|             raise BadSignature(f"No {self.sep!r} found in value")
+  250| 
+  251|         value, sig = signed_value.rsplit(self.sep, 1)
+  252| 
+  253|         if self.verify_signature(value, sig):
+  254|             return value
+  255| 
+  256|         raise BadSignature(f"Signature {sig!r} does not match", payload=value)
+  257| 
+  258|     def validate(self, signed_value: str | bytes) -> bool:
+  259|         """Only validates the given signed value. Returns ``True`` if
+  260|         the signature exists and is valid.
+  261|         """
+  262|         try:
+  263|             self.unsign(signed_value)
+  264|             return True
+  265|         except BadSignature:
+  266|             return False
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-itsdangerous-callees_of-96",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Calls through the signer_factory parameter and the resulting signer value cannot be resolved statically."
+  },
+  {
+    "query_id": "g1q-itsdangerous-callees_of-35",
+    "answerable_static": false,
+    "gold": [
+      "ext:hmac.compare_digest"
+    ],
+    "conditional_flags": [],
+    "notes": "The self.get_signature call uses dynamic method dispatch, so its runtime callee cannot be determined fully."
+  }
+]
+tokens used
+9,350

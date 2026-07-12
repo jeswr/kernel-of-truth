@@ -1,0 +1,99 @@
+[
+  {
+    "query_id": "g1q-blinker-contains-7",
+    "answerable_static": true,
+    "gold": [
+      "src/blinker/_utilities.py::Symbol.__getnewargs__",
+      "src/blinker/_utilities.py::Symbol.__init__",
+      "src/blinker/_utilities.py::Symbol.__new__",
+      "src/blinker/_utilities.py::Symbol.__repr__",
+      "src/blinker/_utilities.py::Symbol.symbols"
+    ],
+    "conditional_flags": [],
+    "notes": "Class body of Symbol (lines 12-39): annotated class-level assignment symbols (line 22) and four methods __new__ (24), __init__ (32), __repr__ (35), __getnewargs__ (38). Docstring is not a binding."
+  },
+  {
+    "query_id": "g1q-blinker-contains-13",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "BaseFailure (tests/test_context.py lines 47-48) has a body of only `pass`; no def/class/assignment children."
+  },
+  {
+    "query_id": "g1q-blinker-contained_in-59",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_signals.py::test_weak_receiver"
+    ],
+    "conditional_flags": [],
+    "notes": "def received (line 222) is nested directly inside function test_weak_receiver (line 219)."
+  },
+  {
+    "query_id": "g1q-blinker-contained_in-65",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_signals.py::test_async_receiver"
+    ],
+    "conditional_flags": [],
+    "notes": "def wrapper (line 269) is nested directly inside async function test_async_receiver (line 260)."
+  },
+  {
+    "query_id": "g1q-blinker-imports_of-2",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:collections.abc",
+      "ext:inspect",
+      "ext:typing",
+      "ext:weakref"
+    ],
+    "conditional_flags": [],
+    "notes": "Five top-level import statements (lines 1-7); the two `from weakref import ...` statements dedupe to ext:weakref. All external; none conditional."
+  },
+  {
+    "query_id": "g1q-blinker-imports_of-6",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:pickle",
+      "repo:src/blinker/__init__.py",
+      "repo:src/blinker/_utilities.py"
+    ],
+    "conditional_flags": [],
+    "notes": "`from blinker._utilities import Symbol` resolves via src/ root to repo module src/blinker/_utilities.py; ancestor package src/blinker/__init__.py included. Other imports (__future__, pickle) are external. All top-level."
+  },
+  {
+    "query_id": "g1q-blinker-where_defined-17",
+    "answerable_static": true,
+    "gold": [
+      "src/blinker/_utilities.py:38"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence: def header of Symbol.__getnewargs__ at src/blinker/_utilities.py line 38. No dynamic definition machinery visible."
+  },
+  {
+    "query_id": "g1q-blinker-where_defined-46",
+    "answerable_static": true,
+    "gold": [
+      "docs/conf.py:32"
+    ],
+    "conditional_flags": [],
+    "notes": "Single occurrence: module-level assignment `html_sidebars = {` at docs/conf.py line 32."
+  },
+  {
+    "query_id": "g1q-blinker-callees_of-53",
+    "answerable_static": true,
+    "gold": [
+      "ext:builtins.list.append"
+    ],
+    "conditional_flags": [],
+    "notes": "Body (line 264) is sentinel.append(sender); sentinel is bound to a list literal in the enclosing function (line 261), so the callee is list.append. No repo-internal callees."
+  },
+  {
+    "query_id": "g1q-blinker-callees_of-3",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Body (line 39) is `return (self.name,)`: a tuple display and attribute access, no call expressions."
+  }
+]

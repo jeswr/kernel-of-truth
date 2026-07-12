@@ -1,0 +1,1948 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.sksrvc5p"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.ynggjzw8
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c3-e393-7033-8f7a-e37addfc83e6
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: dateutil ===
+PY FILE LISTING (repo-root-relative; authoritative):
+setup.py
+updatezinfo.py
+ci_tools/make_zonefile_metadata.py
+docs/conf.py
+docs/exercises/solutions/mlk_day_rrule_solution.py
+src/dateutil/__init__.py
+src/dateutil/_common.py
+src/dateutil/easter.py
+src/dateutil/relativedelta.py
+src/dateutil/rrule.py
+src/dateutil/tzwin.py
+src/dateutil/utils.py
+src/dateutil/parser/__init__.py
+src/dateutil/parser/_parser.py
+src/dateutil/parser/isoparser.py
+src/dateutil/tz/__init__.py
+src/dateutil/tz/_common.py
+src/dateutil/tz/_factories.py
+src/dateutil/tz/tz.py
+src/dateutil/tz/win.py
+src/dateutil/zoneinfo/__init__.py
+src/dateutil/zoneinfo/rebuild.py
+tests/__init__.py
+tests/_common.py
+tests/conftest.py
+tests/test_easter.py
+tests/test_import_star.py
+tests/test_imports.py
+tests/test_internals.py
+tests/test_isoparser.py
+tests/test_parser.py
+tests/test_relativedelta.py
+tests/test_rrule.py
+tests/test_tz.py
+tests/test_utils.py
+tests/property/test_isoparse_prop.py
+tests/property/test_parser_prop.py
+tests/property/test_tz_prop.py
+
+=== QUERIES (2) ===
+QUERY g1q-dateutil-contains-107: family=contains target=tests/test_relativedelta.py::RelativeDeltaTest.testInheritance.rdChildClass
+QUERY g1q-dateutil-contains-30: family=contains target=tests/test_parser.py
+
+=== CONTEXT ===
+
+FILE tests/test_relativedelta.py:
+    1| # -*- coding: utf-8 -*-
+    2| from __future__ import unicode_literals
+    3| from ._common import NotAValue
+    4| 
+    5| import calendar
+    6| from datetime import datetime, date, timedelta
+    7| import unittest
+    8| 
+    9| import pytest
+   10| 
+   11| from dateutil.relativedelta import relativedelta, MO, TU, WE, FR, SU
+   12| 
+   13| 
+   14| class RelativeDeltaTest(unittest.TestCase):
+   15|     now = datetime(2003, 9, 17, 20, 54, 47, 282310)
+   16|     today = date(2003, 9, 17)
+   17| 
+   18|     def testInheritance(self):
+   19|         # Ensure that relativedelta is inheritance-friendly.
+   20|         class rdChildClass(relativedelta):
+   21|             pass
+   22| 
+   23|         ccRD = rdChildClass(years=1, months=1, days=1, leapdays=1, weeks=1,
+   24|                             hours=1, minutes=1, seconds=1, microseconds=1)
+   25| 
+   26|         rd = relativedelta(years=1, months=1, days=1, leapdays=1, weeks=1,
+   27|                            hours=1, minutes=1, seconds=1, microseconds=1)
+   28| 
+   29|         self.assertEqual(type(ccRD + rd), type(ccRD),
+   30|                          msg='Addition does not inherit type.')
+   31| 
+   32|         self.assertEqual(type(ccRD - rd), type(ccRD),
+   33|                          msg='Subtraction does not inherit type.')
+   34| 
+   35|         self.assertEqual(type(-ccRD), type(ccRD),
+   36|                          msg='Negation does not inherit type.')
+   37| 
+   38|         self.assertEqual(type(ccRD * 5.0), type(ccRD),
+   39|                          msg='Multiplication does not inherit type.')
+   40| 
+   41|         self.assertEqual(type(ccRD / 5.0), type(ccRD),
+   42|                          msg='Division does not inherit type.')
+   43| 
+   44|     def testMonthEndMonthBeginning(self):
+   45|         self.assertEqual(relativedelta(datetime(2003, 1, 31, 23, 59, 59),
+   46|                                        datetime(2003, 3, 1, 0, 0, 0)),
+   47|                          relativedelta(months=-1, seconds=-1))
+   48| 
+   49|         self.assertEqual(relativedelta(datetime(2003, 3, 1, 0, 0, 0),
+   50|                                        datetime(2003, 1, 31, 23, 59, 59)),
+   51|                          relativedelta(months=1, seconds=1))
+   52| 
+   53|     def testMonthEndMonthBeginningLeapYear(self):
+   54|         self.assertEqual(relativedelta(datetime(2012, 1, 31, 23, 59, 59),
+   55|                                        datetime(2012, 3, 1, 0, 0, 0)),
+   56|                          relativedelta(months=-1, seconds=-1))
+   57| 
+   58|         self.assertEqual(relativedelta(datetime(2003, 3, 1, 0, 0, 0),
+   59|                                        datetime(2003, 1, 31, 23, 59, 59)),
+   60|                          relativedelta(months=1, seconds=1))
+   61| 
+   62|     def testNextMonth(self):
+   63|         self.assertEqual(self.now+relativedelta(months=+1),
+   64|                          datetime(2003, 10, 17, 20, 54, 47, 282310))
+   65| 
+   66|     def testNextMonthPlusOneWeek(self):
+   67|         self.assertEqual(self.now+relativedelta(months=+1, weeks=+1),
+   68|                          datetime(2003, 10, 24, 20, 54, 47, 282310))
+   69| 
+   70|     def testNextMonthPlusOneWeek10am(self):
+   71|         self.assertEqual(self.today +
+   72|                          relativedelta(months=+1, weeks=+1, hour=10),
+   73|                          datetime(2003, 10, 24, 10, 0))
+   74| 
+   75|     def testNextMonthPlusOneWeek10amDiff(self):
+   76|         self.assertEqual(relativedelta(datetime(2003, 10, 24, 10, 0),
+   77|                                        self.today),
+   78|                          relativedelta(months=+1, days=+7, hours=+10))
+   79| 
+   80|     def testOneMonthBeforeOneYear(self):
+   81|         self.assertEqual(self.now+relativedelta(years=+1, months=-1),
+   82|                          datetime(2004, 8, 17, 20, 54, 47, 282310))
+   83| 
+   84|     def testMonthsOfDiffNumOfDays(self):
+   85|         self.assertEqual(date(2003, 1, 27)+relativedelta(months=+1),
+   86|                          date(2003, 2, 27))
+   87|         self.assertEqual(date(2003, 1, 31)+relativedelta(months=+1),
+   88|                          date(2003, 2, 28))
+   89|         self.assertEqual(date(2003, 1, 31)+relativedelta(months=+2),
+   90|                          date(2003, 3, 31))
+   91| 
+   92|     def testMonthsOfDiffNumOfDaysWithYears(self):
+   93|         self.assertEqual(date(2000, 2, 28)+relativedelta(years=+1),
+   94|                          date(2001, 2, 28))
+   95|         self.assertEqual(date(2000, 2, 29)+relativedelta(years=+1),
+   96|                          date(2001, 2, 28))
+   97| 
+   98|         self.assertEqual(date(1999, 2, 28)+relativedelta(years=+1),
+   99|                          date(2000, 2, 28))
+  100|         self.assertEqual(date(1999, 3, 1)+relativedelta(years=+1),
+  101|                          date(2000, 3, 1))
+  102|         self.assertEqual(date(1999, 3, 1)+relativedelta(years=+1),
+  103|                          date(2000, 3, 1))
+  104| 
+  105|         self.assertEqual(date(2001, 2, 28)+relativedelta(years=-1),
+  106|                          date(2000, 2, 28))
+  107|         self.assertEqual(date(2001, 3, 1)+relativedelta(years=-1),
+  108|                          date(2000, 3, 1))
+  109| 
+  110|     def testNextFriday(self):
+  111|         self.assertEqual(self.today+relativedelta(weekday=FR),
+  112|                          date(2003, 9, 19))
+  113| 
+  114|     def testNextFridayInt(self):
+  115|         self.assertEqual(self.today+relativedelta(weekday=calendar.FRIDAY),
+  116|                          date(2003, 9, 19))
+  117| 
+  118|     def testLastFridayInThisMonth(self):
+  119|         self.assertEqual(self.today+relativedelta(day=31, weekday=FR(-1)),
+  120|                          date(2003, 9, 26))
+  121| 
+  122|     def testLastDayOfFebruary(self):
+  123|         self.assertEqual(date(2021, 2, 1) + relativedelta(day=31),
+  124|                          date(2021, 2, 28))
+  125| 
+  126|     def testLastDayOfFebruaryLeapYear(self):
+  127|         self.assertEqual(date(2020, 2, 1) + relativedelta(day=31),
+  128|                          date(2020, 2, 29))
+  129| 
+  130|     def testNextWednesdayIsToday(self):
+  131|         self.assertEqual(self.today+relativedelta(weekday=WE),
+  132|                          date(2003, 9, 17))
+  133| 
+  134|     def testNextWednesdayNotToday(self):
+  135|         self.assertEqual(self.today+relativedelta(days=+1, weekday=WE),
+  136|                          date(2003, 9, 24))
+  137| 
+  138|     def testAddMoreThan12Months(self):
+  139|         self.assertEqual(date(2003, 12, 1) + relativedelta(months=+13),
+  140|                          date(2005, 1, 1))
+  141| 
+  142|     def testAddNegativeMonths(self):
+  143|         self.assertEqual(date(2003, 1, 1) + relativedelta(months=-2),
+  144|                          date(2002, 11, 1))
+  145| 
+  146|     def test15thISOYearWeek(self):
+  147|         self.assertEqual(date(2003, 1, 1) +
+  148|                          relativedelta(day=4, weeks=+14, weekday=MO(-1)),
+  149|                          date(2003, 4, 7))
+  150| 
+  151|     def testMillenniumAge(self):
+  152|         self.assertEqual(relativedelta(self.now, date(2001, 1, 1)),
+  153|                          relativedelta(years=+2, months=+8, days=+16,
+  154|                                        hours=+20, minutes=+54, seconds=+47,
+  155|                                        microseconds=+282310))
+  156| 
+  157|     def testJohnAge(self):
+  158|         self.assertEqual(relativedelta(self.now,
+  159|                                        datetime(1978, 4, 5, 12, 0)),
+  160|                          relativedelta(years=+25, months=+5, days=+12,
+  161|                                        hours=+8, minutes=+54, seconds=+47,
+  162|                                        microseconds=+282310))
+  163| 
+  164|     def testJohnAgeWithDate(self):
+  165|         self.assertEqual(relativedelta(self.today,
+  166|                                        datetime(1978, 4, 5, 12, 0)),
+  167|                          relativedelta(years=+25, months=+5, days=+11,
+  168|                                        hours=+12))
+  169| 
+  170|     def testYearDay(self):
+  171|         self.assertEqual(date(2003, 1, 1)+relativedelta(yearday=260),
+  172|                          date(2003, 9, 17))
+  173|         self.assertEqual(date(2002, 1, 1)+relativedelta(yearday=260),
+  174|                          date(2002, 9, 17))
+  175|         self.assertEqual(date(2000, 1, 1)+relativedelta(yearday=260),
+  176|                          date(2000, 9, 16))
+  177|         self.assertEqual(self.today+relativedelta(yearday=261),
+  178|                          date(2003, 9, 18))
+  179| 
+  180|     def testYearDayBug(self):
+  181|         # Tests a problem reported by Adam Ryan.
+  182|         self.assertEqual(date(2010, 1, 1)+relativedelta(yearday=15),
+  183|                          date(2010, 1, 15))
+  184| 
+  185|     def testNonLeapYearDay(self):
+  186|         self.assertEqual(date(2003, 1, 1)+relativedelta(nlyearday=260),
+  187|                          date(2003, 9, 17))
+  188|         self.assertEqual(date(2002, 1, 1)+relativedelta(nlyearday=260),
+  189|                          date(2002, 9, 17))
+  190|         self.assertEqual(date(2000, 1, 1)+relativedelta(nlyearday=260),
+  191|                          date(2000, 9, 17))
+  192|         self.assertEqual(self.today+relativedelta(yearday=261),
+  193|                          date(2003, 9, 18))
+  194| 
+  195|     def testAddition(self):
+  196|         self.assertEqual(relativedelta(days=10) +
+  197|                          relativedelta(years=1, months=2, days=3, hours=4,
+  198|                                        minutes=5, microseconds=6),
+  199|                          relativedelta(years=1, months=2, days=13, hours=4,
+  200|                                        minutes=5, microseconds=6))
+  201| 
+  202|     def testAbsoluteAddition(self):
+  203|         self.assertEqual(relativedelta() + relativedelta(day=0, hour=0),
+  204|                          relativedelta(day=0, hour=0))
+  205|         self.assertEqual(relativedelta(day=0, hour=0) + relativedelta(),
+  206|                          relativedelta(day=0, hour=0))
+  207| 
+  208|     def testAdditionToDatetime(self):
+  209|         self.assertEqual(datetime(2000, 1, 1) + relativedelta(days=1),
+  210|                          datetime(2000, 1, 2))
+  211| 
+  212|     def testRightAdditionToDatetime(self):
+  213|         self.assertEqual(relativedelta(days=1) + datetime(2000, 1, 1),
+  214|                          datetime(2000, 1, 2))
+  215| 
+  216|     def testAdditionInvalidType(self):
+  217|         with self.assertRaises(TypeError):
+  218|             relativedelta(days=3) + 9
+  219| 
+  220|     def testAdditionUnsupportedType(self):
+  221|         # For unsupported types that define their own comparators, etc.
+  222|         self.assertIs(relativedelta(days=1) + NotAValue, NotAValue)
+  223| 
+  224|     def testAdditionFloatValue(self):
+  225|         self.assertEqual(datetime(2000, 1, 1) + relativedelta(days=float(1)),
+  226|                          datetime(2000, 1, 2))
+  227|         self.assertEqual(datetime(2000, 1, 1) + relativedelta(months=float(1)),
+  228|                          datetime(2000, 2, 1))
+  229|         self.assertEqual(datetime(2000, 1, 1) + relativedelta(years=float(1)),
+  230|                          datetime(2001, 1, 1))
+  231| 
+  232|     def testAdditionFloatFractionals(self):
+  233|         self.assertEqual(datetime(2000, 1, 1, 0) +
+  234|                          relativedelta(days=float(0.5)),
+  235|                          datetime(2000, 1, 1, 12))
+  236|         self.assertEqual(datetime(2000, 1, 1, 0, 0) +
+  237|                          relativedelta(hours=float(0.5)),
+  238|                          datetime(2000, 1, 1, 0, 30))
+  239|         self.assertEqual(datetime(2000, 1, 1, 0, 0, 0) +
+  240|                          relativedelta(minutes=float(0.5)),
+  241|                          datetime(2000, 1, 1, 0, 0, 30))
+  242|         self.assertEqual(datetime(2000, 1, 1, 0, 0, 0, 0) +
+  243|                          relativedelta(seconds=float(0.5)),
+  244|                          datetime(2000, 1, 1, 0, 0, 0, 500000))
+  245|         self.assertEqual(datetime(2000, 1, 1, 0, 0, 0, 0) +
+  246|                          relativedelta(microseconds=float(500000.25)),
+  247|                          datetime(2000, 1, 1, 0, 0, 0, 500000))
+  248| 
+  249|     def testSubtraction(self):
+  250|         self.assertEqual(relativedelta(days=10) -
+  251|                          relativedelta(years=1, months=2, days=3, hours=4,
+  252|                                        minutes=5, microseconds=6),
+  253|                          relativedelta(years=-1, months=-2, days=7, hours=-4,
+  254|                                        minutes=-5, microseconds=-6))
+  255| 
+  256|     def testRightSubtractionFromDatetime(self):
+  257|         self.assertEqual(datetime(2000, 1, 2) - relativedelta(days=1),
+  258|                          datetime(2000, 1, 1))
+  259| 
+  260|     def testSubractionWithDatetime(self):
+  261|         self.assertRaises(TypeError, lambda x, y: x - y,
+  262|                           (relativedelta(days=1), datetime(2000, 1, 1)))
+  263| 
+  264|     def testSubtractionInvalidType(self):
+  265|         with self.assertRaises(TypeError):
+  266|             relativedelta(hours=12) - 14
+  267| 
+  268|     def testSubtractionUnsupportedType(self):
+  269|         self.assertIs(relativedelta(days=1) + NotAValue, NotAValue)
+  270| 
+  271|     def testMultiplication(self):
+  272|         self.assertEqual(datetime(2000, 1, 1) + relativedelta(days=1) * 28,
+  273|                          datetime(2000, 1, 29))
+  274|         self.assertEqual(datetime(2000, 1, 1) + 28 * relativedelta(days=1),
+  275|                          datetime(2000, 1, 29))
+  276| 
+  277|     def testMultiplicationUnsupportedType(self):
+  278|         self.assertIs(relativedelta(days=1) * NotAValue, NotAValue)
+  279| 
+  280|     def testDivision(self):
+  281|         self.assertEqual(datetime(2000, 1, 1) + relativedelta(days=28) / 28,
+  282|                          datetime(2000, 1, 2))
+  283| 
+  284|     def testDivisionUnsupportedType(self):
+  285|         self.assertIs(relativedelta(days=1) / NotAValue, NotAValue)
+  286| 
+  287|     def testBoolean(self):
+  288|         self.assertFalse(relativedelta(days=0))
+  289|         self.assertTrue(relativedelta(days=1))
+  290| 
+  291|     def testAbsoluteValueNegative(self):
+  292|         rd_base = relativedelta(years=-1, months=-5, days=-2, hours=-3,
+  293|                                 minutes=-5, seconds=-2, microseconds=-12)
+  294|         rd_expected = relativedelta(years=1, months=5, days=2, hours=3,
+  295|                                     minutes=5, seconds=2, microseconds=12)
+  296|         self.assertEqual(abs(rd_base), rd_expected)
+  297| 
+  298|     def testAbsoluteValuePositive(self):
+  299|         rd_base = relativedelta(years=1, months=5, days=2, hours=3,
+  300|                                 minutes=5, seconds=2, microseconds=12)
+  301|         rd_expected = rd_base
+  302| 
+  303|         self.assertEqual(abs(rd_base), rd_expected)
+  304| 
+  305|     def testComparison(self):
+  306|         d1 = relativedelta(years=1, months=1, days=1, leapdays=0, hours=1,
+  307|                            minutes=1, seconds=1, microseconds=1)
+  308|         d2 = relativedelta(years=1, months=1, days=1, leapdays=0, hours=1,
+  309|                            minutes=1, seconds=1, microseconds=1)
+  310|         d3 = relativedelta(years=1, months=1, days=1, leapdays=0, hours=1,
+  311|                            minutes=1, seconds=1, microseconds=2)
+  312| 
+  313|         self.assertEqual(d1, d2)
+  314|         self.assertNotEqual(d1, d3)
+  315| 
+  316|     def testInequalityTypeMismatch(self):
+  317|         # Different type
+  318|         self.assertFalse(relativedelta(year=1) == 19)
+  319| 
+  320|     def testInequalityUnsupportedType(self):
+  321|         self.assertIs(relativedelta(hours=3) == NotAValue, NotAValue)
+  322| 
+  323|     def testInequalityWeekdays(self):
+  324|         # Different weekdays
+  325|         no_wday = relativedelta(year=1997, month=4)
+  326|         wday_mo_1 = relativedelta(year=1997, month=4, weekday=MO(+1))
+  327|         wday_mo_2 = relativedelta(year=1997, month=4, weekday=MO(+2))
+  328|         wday_tu = relativedelta(year=1997, month=4, weekday=TU)
+  329| 
+  330|         self.assertTrue(wday_mo_1 == wday_mo_1)
+  331| 
+  332|         self.assertFalse(no_wday == wday_mo_1)
+  333|         self.assertFalse(wday_mo_1 == no_wday)
+  334| 
+  335|         self.assertFalse(wday_mo_1 == wday_mo_2)
+  336|         self.assertFalse(wday_mo_2 == wday_mo_1)
+  337| 
+  338|         self.assertFalse(wday_mo_1 == wday_tu)
+  339|         self.assertFalse(wday_tu == wday_mo_1)
+  340| 
+  341|     def testMonthOverflow(self):
+  342|         self.assertEqual(relativedelta(months=273),
+  343|                          relativedelta(years=22, months=9))
+  344| 
+  345|     def testWeeks(self):
+  346|         # Test that the weeks property is working properly.
+  347|         rd = relativedelta(years=4, months=2, weeks=8, days=6)
+  348|         self.assertEqual((rd.weeks, rd.days), (8, 8 * 7 + 6))
+  349| 
+  350|         rd.weeks = 3
+  351|         self.assertEqual((rd.weeks, rd.days), (3, 3 * 7 + 6))
+  352| 
+  353|     def testRelativeDeltaRepr(self):
+  354|         self.assertEqual(repr(relativedelta(years=1, months=-1, days=15)),
+  355|                          'relativedelta(years=+1, months=-1, days=+15)')
+  356| 
+  357|         self.assertEqual(repr(relativedelta(months=14, seconds=-25)),
+  358|                          'relativedelta(years=+1, months=+2, seconds=-25)')
+  359| 
+  360|         self.assertEqual(repr(relativedelta(month=3, hour=3, weekday=SU(3))),
+  361|                          'relativedelta(month=3, weekday=SU(+3), hour=3)')
+  362| 
+  363|     def testRelativeDeltaFractionalYear(self):
+  364|         with self.assertRaises(ValueError):
+  365|             relativedelta(years=1.5)
+  366| 
+  367|     def testRelativeDeltaFractionalMonth(self):
+  368|         with self.assertRaises(ValueError):
+  369|             relativedelta(months=1.5)
+  370| 
+  371|     def testRelativeDeltaInvalidDatetimeObject(self):
+  372|         with self.assertRaises(TypeError):
+  373|             relativedelta(dt1='2018-01-01', dt2='2018-01-02')
+  374| 
+  375|         with self.assertRaises(TypeError):
+  376|             relativedelta(dt1=datetime(2018, 1, 1), dt2='2018-01-02')
+  377| 
+  378|         with self.assertRaises(TypeError):
+  379|             relativedelta(dt1='2018-01-01', dt2=datetime(2018, 1, 2))
+  380| 
+  381|     def testRelativeDeltaFractionalAbsolutes(self):
+  382|         # Fractional absolute values will soon be unsupported,
+  383|         # check for the deprecation warning.
+  384|         with pytest.warns(DeprecationWarning):
+  385|             relativedelta(year=2.86)
+  386| 
+  387|         with pytest.warns(DeprecationWarning):
+  388|             relativedelta(month=1.29)
+  389| 
+  390|         with pytest.warns(DeprecationWarning):
+  391|             relativedelta(day=0.44)
+  392| 
+  393|         with pytest.warns(DeprecationWarning):
+  394|             relativedelta(hour=23.98)
+  395| 
+  396|         with pytest.warns(DeprecationWarning):
+  397|             relativedelta(minute=45.21)
+  398| 
+  399|         with pytest.warns(DeprecationWarning):
+  400|             relativedelta(second=13.2)
+  401| 
+  402|         with pytest.warns(DeprecationWarning):
+  403|             relativedelta(microsecond=157221.93)
+  404| 
+  405|     def testRelativeDeltaFractionalRepr(self):
+  406|         rd = relativedelta(years=3, months=-2, days=1.25)
+  407| 
+  408|         self.assertEqual(repr(rd),
+  409|                          'relativedelta(years=+3, months=-2, days=+1.25)')
+  410| 
+  411|         rd = relativedelta(hours=0.5, seconds=9.22)
+  412|         self.assertEqual(repr(rd),
+  413|                          'relativedelta(hours=+0.5, seconds=+9.22)')
+  414| 
+  415|     def testRelativeDeltaFractionalWeeks(self):
+  416|         # Equivalent to days=8, hours=18
+  417|         rd = relativedelta(weeks=1.25)
+  418|         d1 = datetime(2009, 9, 3, 0, 0)
+  419|         self.assertEqual(d1 + rd,
+  420|                          datetime(2009, 9, 11, 18))
+  421| 
+  422|     def testRelativeDeltaFractionalDays(self):
+  423|         rd1 = relativedelta(days=1.48)
+  424| 
+  425|         d1 = datetime(2009, 9, 3, 0, 0)
+  426|         self.assertEqual(d1 + rd1,
+  427|                          datetime(2009, 9, 4, 11, 31, 12))
+  428| 
+  429|         rd2 = relativedelta(days=1.5)
+  430|         self.assertEqual(d1 + rd2,
+  431|                          datetime(2009, 9, 4, 12, 0, 0))
+  432| 
+  433|     def testRelativeDeltaFractionalHours(self):
+  434|         rd = relativedelta(days=1, hours=12.5)
+  435|         d1 = datetime(2009, 9, 3, 0, 0)
+  436|         self.assertEqual(d1 + rd,
+  437|                          datetime(2009, 9, 4, 12, 30, 0))
+  438| 
+  439|     def testRelativeDeltaFractionalMinutes(self):
+  440|         rd = relativedelta(hours=1, minutes=30.5)
+  441|         d1 = datetime(2009, 9, 3, 0, 0)
+  442|         self.assertEqual(d1 + rd,
+  443|                          datetime(2009, 9, 3, 1, 30, 30))
+  444| 
+  445|     def testRelativeDeltaFractionalSeconds(self):
+  446|         rd = relativedelta(hours=5, minutes=30, seconds=30.5)
+  447|         d1 = datetime(2009, 9, 3, 0, 0)
+  448|         self.assertEqual(d1 + rd,
+  449|                          datetime(2009, 9, 3, 5, 30, 30, 500000))
+  450| 
+  451|     def testRelativeDeltaFractionalPositiveOverflow(self):
+  452|         # Equivalent to (days=1, hours=14)
+  453|         rd1 = relativedelta(days=1.5, hours=2)
+  454|         d1 = datetime(2009, 9, 3, 0, 0)
+  455|         self.assertEqual(d1 + rd1,
+  456|                          datetime(2009, 9, 4, 14, 0, 0))
+  457| 
+  458|         # Equivalent to (days=1, hours=14, minutes=45)
+  459|         rd2 = relativedelta(days=1.5, hours=2.5, minutes=15)
+  460|         d1 = datetime(2009, 9, 3, 0, 0)
+  461|         self.assertEqual(d1 + rd2,
+  462|                          datetime(2009, 9, 4, 14, 45))
+  463| 
+  464|         # Carry back up - equivalent to (days=2, hours=2, minutes=0, seconds=1)
+  465|         rd3 = relativedelta(days=1.5, hours=13, minutes=59.5, seconds=31)
+  466|         self.assertEqual(d1 + rd3,
+  467|                          datetime(2009, 9, 5, 2, 0, 1))
+  468| 
+  469|     def testRelativeDeltaFractionalNegativeDays(self):
+  470|         # Equivalent to (days=-1, hours=-1)
+  471|         rd1 = relativedelta(days=-1.5, hours=11)
+  472|         d1 = datetime(2009, 9, 3, 12, 0)
+  473|         self.assertEqual(d1 + rd1,
+  474|                          datetime(2009, 9, 2, 11, 0, 0))
+  475| 
+  476|         # Equivalent to (days=-1, hours=-9)
+  477|         rd2 = relativedelta(days=-1.25, hours=-3)
+  478|         self.assertEqual(d1 + rd2,
+  479|             datetime(2009, 9, 2, 3))
+  480| 
+  481|     def testRelativeDeltaNormalizeFractionalDays(self):
+  482|         # Equivalent to (days=2, hours=18)
+  483|         rd1 = relativedelta(days=2.75)
+  484| 
+  485|         self.assertEqual(rd1.normalized(), relativedelta(days=2, hours=18))
+  486| 
+  487|         # Equivalent to (days=1, hours=11, minutes=31, seconds=12)
+  488|         rd2 = relativedelta(days=1.48)
+  489| 
+  490|         self.assertEqual(rd2.normalized(),
+  491|             relativedelta(days=1, hours=11, minutes=31, seconds=12))
+  492| 
+  493|     def testRelativeDeltaNormalizeFractionalDays2(self):
+  494|         # Equivalent to (hours=1, minutes=30)
+  495|         rd1 = relativedelta(hours=1.5)
+  496| 
+  497|         self.assertEqual(rd1.normalized(), relativedelta(hours=1, minutes=30))
+  498| 
+  499|         # Equivalent to (hours=3, minutes=17, seconds=5, microseconds=100)
+  500|         rd2 = relativedelta(hours=3.28472225)
+  501| 
+  502|         self.assertEqual(rd2.normalized(),
+  503|             relativedelta(hours=3, minutes=17, seconds=5, microseconds=100))
+  504| 
+  505|     def testRelativeDeltaNormalizeFractionalMinutes(self):
+  506|         # Equivalent to (minutes=15, seconds=36)
+  507|         rd1 = relativedelta(minutes=15.6)
+  508| 
+  509|         self.assertEqual(rd1.normalized(),
+  510|             relativedelta(minutes=15, seconds=36))
+  511| 
+  512|         # Equivalent to (minutes=25, seconds=20, microseconds=25000)
+  513|         rd2 = relativedelta(minutes=25.33375)
+  514| 
+  515|         self.assertEqual(rd2.normalized(),
+  516|             relativedelta(minutes=25, seconds=20, microseconds=25000))
+  517| 
+  518|     def testRelativeDeltaNormalizeFractionalSeconds(self):
+  519|         # Equivalent to (seconds=45, microseconds=25000)
+  520|         rd1 = relativedelta(seconds=45.025)
+  521|         self.assertEqual(rd1.normalized(),
+  522|             relativedelta(seconds=45, microseconds=25000))
+  523| 
+  524|     def testRelativeDeltaFractionalPositiveOverflow2(self):
+  525|         # Equivalent to (days=1, hours=14)
+  526|         rd1 = relativedelta(days=1.5, hours=2)
+  527|         self.assertEqual(rd1.normalized(),
+  528|             relativedelta(days=1, hours=14))
+  529| 
+  530|         # Equivalent to (days=1, hours=14, minutes=45)
+  531|         rd2 = relativedelta(days=1.5, hours=2.5, minutes=15)
+  532|         self.assertEqual(rd2.normalized(),
+  533|             relativedelta(days=1, hours=14, minutes=45))
+  534| 
+  535|         # Carry back up - equivalent to:
+  536|         # (days=2, hours=2, minutes=0, seconds=2, microseconds=3)
+  537|         rd3 = relativedelta(days=1.5, hours=13, minutes=59.50045,
+  538|                             seconds=31.473, microseconds=500003)
+  539|         self.assertEqual(rd3.normalized(),
+  540|             relativedelta(days=2, hours=2, minutes=0,
+  541|                           seconds=2, microseconds=3))
+  542| 
+  543|     def testRelativeDeltaFractionalNegativeOverflow(self):
+  544|         # Equivalent to (days=-1)
+  545|         rd1 = relativedelta(days=-0.5, hours=-12)
+  546|         self.assertEqual(rd1.normalized(),
+  547|             relativedelta(days=-1))
+  548| 
+  549|         # Equivalent to (days=-1)
+  550|         rd2 = relativedelta(days=-1.5, hours=12)
+  551|         self.assertEqual(rd2.normalized(),
+  552|             relativedelta(days=-1))
+  553| 
+  554|         # Equivalent to (days=-1, hours=-14, minutes=-45)
+  555|         rd3 = relativedelta(days=-1.5, hours=-2.5, minutes=-15)
+  556|         self.assertEqual(rd3.normalized(),
+  557|             relativedelta(days=-1, hours=-14, minutes=-45))
+  558| 
+  559|         # Equivalent to (days=-1, hours=-14, minutes=+15)
+  560|         rd4 = relativedelta(days=-1.5, hours=-2.5, minutes=45)
+  561|         self.assertEqual(rd4.normalized(),
+  562|             relativedelta(days=-1, hours=-14, minutes=+15))
+  563| 
+  564|         # Carry back up - equivalent to:
+  565|         # (days=-2, hours=-2, minutes=0, seconds=-2, microseconds=-3)
+  566|         rd3 = relativedelta(days=-1.5, hours=-13, minutes=-59.50045,
+  567|                             seconds=-31.473, microseconds=-500003)
+  568|         self.assertEqual(rd3.normalized(),
+  569|             relativedelta(days=-2, hours=-2, minutes=0,
+  570|                           seconds=-2, microseconds=-3))
+  571| 
+  572|     def testInvalidYearDay(self):
+  573|         with self.assertRaises(ValueError):
+  574|             relativedelta(yearday=367)
+  575| 
+  576|     def testAddTimedeltaToUnpopulatedRelativedelta(self):
+  577|         td = timedelta(
+  578|             days=1,
+  579|             seconds=1,
+  580|             microseconds=1,
+  581|             milliseconds=1,
+  582|             minutes=1,
+  583|             hours=1,
+  584|             weeks=1
+  585|         )
+  586| 
+  587|         expected = relativedelta(
+  588|             weeks=1,
+  589|             days=1,
+  590|             hours=1,
+  591|             minutes=1,
+  592|             seconds=1,
+  593|             microseconds=1001
+  594|         )
+  595| 
+  596|         self.assertEqual(expected, relativedelta() + td)
+  597| 
+  598|     def testAddTimedeltaToPopulatedRelativeDelta(self):
+  599|         td = timedelta(
+  600|             days=1,
+  601|             seconds=1,
+  602|             microseconds=1,
+  603|             milliseconds=1,
+  604|             minutes=1,
+  605|             hours=1,
+  606|             weeks=1
+  607|         )
+  608| 
+  609|         rd = relativedelta(
+  610|             year=1,
+  611|             month=1,
+  612|             day=1,
+  613|             hour=1,
+  614|             minute=1,
+  615|             second=1,
+  616|             microsecond=1,
+  617|             years=1,
+  618|             months=1,
+  619|             days=1,
+  620|             weeks=1,
+  621|             hours=1,
+  622|             minutes=1,
+  623|             seconds=1,
+  624|             microseconds=1
+  625|         )
+  626| 
+  627|         expected = relativedelta(
+  628|             year=1,
+  629|             month=1,
+  630|             day=1,
+  631|             hour=1,
+  632|             minute=1,
+  633|             second=1,
+  634|             microsecond=1,
+  635|             years=1,
+  636|             months=1,
+  637|             weeks=2,
+  638|             days=2,
+  639|             hours=2,
+  640|             minutes=2,
+  641|             seconds=2,
+  642|             microseconds=1002,
+  643|         )
+  644| 
+  645|         self.assertEqual(expected, rd + td)
+  646| 
+  647|     def testHashable(self):
+  648|         try:
+  649|             {relativedelta(minute=1): 'test'}
+  650|         except:
+  651|             self.fail("relativedelta() failed to hash!")
+  652| 
+  653|     def testDayOfMonthPlus(self):
+  654|         assert [
+  655|             date(2021, 1, 28) + relativedelta(months=1),
+  656|             date(2021, 2, 27) + relativedelta(months=1),
+  657|             date(2021, 4, 29) + relativedelta(months=1),
+  658|             date(2021, 5, 30) + relativedelta(months=1),
+  659|         ] == [
+  660|             date(2021, 2, 28),
+  661|             date(2021, 3, 27),
+  662|             date(2021, 5, 29),
+  663|             date(2021, 6, 30),
+  664|         ]
+  665| 
+  666|     def testLastDayOfMonthPlus(self):
+  667|         assert [
+  668|             date(2021, 1, 31) + relativedelta(months=1),
+  669|             date(2021, 1, 30) + relativedelta(months=1),
+  670|             date(2021, 1, 29) + relativedelta(months=1),
+  671|             date(2021, 1, 28) + relativedelta(months=1),
+  672|             date(2021, 2, 28) + relativedelta(months=1),
+  673|             date(2021, 4, 30) + relativedelta(months=1),
+  674|             date(2021, 5, 31) + relativedelta(months=1),
+  675|         ] == [
+  676|             date(2021, 2, 28),
+  677|             date(2021, 2, 28),
+  678|             date(2021, 2, 28),
+  679|             date(2021, 2, 28),
+  680|             date(2021, 3, 28),
+  681|             date(2021, 5, 30),
+  682|             date(2021, 6, 30),
+  683|         ]
+  684| 
+  685|     def testDayOfMonthMinus(self):
+  686|         assert [
+  687|            date(2021, 2, 27) - relativedelta(months=1),
+  688|            date(2021, 3, 30) - relativedelta(months=1),
+  689|            date(2021, 3, 29) - relativedelta(months=1),
+  690|            date(2021, 3, 28) - relativedelta(months=1),
+  691|            date(2021, 5, 30) - relativedelta(months=1),
+  692|            date(2021, 6, 29) - relativedelta(months=1),
+  693|         ] == [
+  694|             date(2021, 1, 27),
+  695|             date(2021, 2, 28),
+  696|             date(2021, 2, 28),
+  697|             date(2021, 2, 28),
+  698|             date(2021, 4, 30),
+  699|             date(2021, 5, 29),
+  700|         ]
+  701| 
+  702|     def testLastDayOfMonthMinus(self):
+  703|         assert [
+  704|             date(2021, 2, 28) - relativedelta(months=1),
+  705|             date(2021, 3, 31) - relativedelta(months=1),
+  706|             date(2021, 5, 31) - relativedelta(months=1),
+  707|             date(2021, 6, 30) - relativedelta(months=1),
+  708|         ] == [
+  709|             date(2021, 1, 28),
+  710|             date(2021, 2, 28),
+  711|             date(2021, 4, 30),
+  712|             date(2021, 5, 30),
+  713|         ]
+  714| 
+  715| class RelativeDeltaWeeksPropertyGetterTest(unittest.TestCase):
+  716|     """Test the weeks property getter"""
+  717| 
+  718|     def test_one_day(self):
+  719|         rd = relativedelta(days=1)
+  720|         self.assertEqual(rd.days, 1)
+  721|         self.assertEqual(rd.weeks, 0)
+  722| 
+  723|     def test_minus_one_day(self):
+  724|         rd = relativedelta(days=-1)
+  725|         self.assertEqual(rd.days, -1)
+  726|         self.assertEqual(rd.weeks, 0)
+  727| 
+  728|     def test_height_days(self):
+  729|         rd = relativedelta(days=8)
+  730|         self.assertEqual(rd.days, 8)
+  731|         self.assertEqual(rd.weeks, 1)
+  732| 
+  733|     def test_minus_height_days(self):
+  734|         rd = relativedelta(days=-8)
+  735|         self.assertEqual(rd.days, -8)
+  736|         self.assertEqual(rd.weeks, -1)
+  737| 
+  738| 
+  739| class RelativeDeltaWeeksPropertySetterTest(unittest.TestCase):
+  740|     """Test the weeks setter which makes a "smart" update of the days attribute"""
+  741| 
+  742|     def test_one_day_set_one_week(self):
+  743|         rd = relativedelta(days=1)
+  744|         rd.weeks = 1  # add 7 days
+  745|         self.assertEqual(rd.days, 8)
+  746|         self.assertEqual(rd.weeks, 1)
+  747| 
+  748|     def test_minus_one_day_set_one_week(self):
+  749|         rd = relativedelta(days=-1)
+  750|         rd.weeks = 1  # add 7 days
+  751|         self.assertEqual(rd.days, 6)
+  752|         self.assertEqual(rd.weeks, 0)
+  753| 
+  754|     def test_height_days_set_minus_one_week(self):
+  755|         rd = relativedelta(days=8)
+  756|         rd.weeks = -1  # change from 1 week, 1 day to -1 week, 1 day
+  757|         self.assertEqual(rd.days, -6)
+  758|         self.assertEqual(rd.weeks, 0)
+  759| 
+  760|     def test_minus_height_days_set_minus_one_week(self):
+  761|         rd = relativedelta(days=-8)
+  762|         rd.weeks = -1  # does not change anything
+  763|         self.assertEqual(rd.days, -8)
+  764|         self.assertEqual(rd.weeks, -1)
+  765| 
+  766| 
+  767| # vim:ts=4:sw=4:et
+
+FILE tests/test_parser.py:
+    1| # -*- coding: utf-8 -*-
+    2| from __future__ import unicode_literals
+    3| 
+    4| import itertools
+    5| from datetime import datetime, timedelta
+    6| import unittest
+    7| import sys
+    8| 
+    9| from dateutil import tz
+   10| from dateutil.tz import tzoffset
+   11| from dateutil.parser import parse, parserinfo
+   12| from dateutil.parser import ParserError
+   13| from dateutil.parser import UnknownTimezoneWarning
+   14| 
+   15| from ._common import TZEnvContext
+   16| 
+   17| from six import assertRaisesRegex, PY2
+   18| from io import StringIO
+   19| 
+   20| import pytest
+   21| 
+   22| # Platform info
+   23| IS_WIN = sys.platform.startswith('win')
+   24| 
+   25| PLATFORM_HAS_DASH_D = False
+   26| try:
+   27|     if datetime.now().strftime('%-d'):
+   28|         PLATFORM_HAS_DASH_D = True
+   29| except ValueError:
+   30|     pass
+   31| 
+   32| 
+   33| @pytest.fixture(params=[True, False])
+   34| def fuzzy(request):
+   35|     """Fixture to pass fuzzy=True or fuzzy=False to parse"""
+   36|     return request.param
+   37| 
+   38| 
+   39| # Parser test cases using no keyword arguments. Format: (parsable_text, expected_datetime, assertion_message)
+   40| PARSER_TEST_CASES = [
+   41|     ("Thu Sep 25 10:36:28 2003", datetime(2003, 9, 25, 10, 36, 28), "date command format strip"),
+   42|     ("Thu Sep 25 2003", datetime(2003, 9, 25), "date command format strip"),
+   43|     ("2003-09-25T10:49:41", datetime(2003, 9, 25, 10, 49, 41), "iso format strip"),
+   44|     ("2003-09-25T10:49", datetime(2003, 9, 25, 10, 49), "iso format strip"),
+   45|     ("2003-09-25T10", datetime(2003, 9, 25, 10), "iso format strip"),
+   46|     ("2003-09-25", datetime(2003, 9, 25), "iso format strip"),
+   47|     ("20030925T104941", datetime(2003, 9, 25, 10, 49, 41), "iso stripped format strip"),
+   48|     ("20030925T1049", datetime(2003, 9, 25, 10, 49, 0), "iso stripped format strip"),
+   49|     ("20030925T10", datetime(2003, 9, 25, 10), "iso stripped format strip"),
+   50|     ("20030925", datetime(2003, 9, 25), "iso stripped format strip"),
+   51|     ("2003-09-25 10:49:41,502", datetime(2003, 9, 25, 10, 49, 41, 502000), "python logger format"),
+   52|     ("199709020908", datetime(1997, 9, 2, 9, 8), "no separator"),
+   53|     ("19970902090807", datetime(1997, 9, 2, 9, 8, 7), "no separator"),
+   54|     ("09-25-2003", datetime(2003, 9, 25), "date with dash"),
+   55|     ("25-09-2003", datetime(2003, 9, 25), "date with dash"),
+   56|     ("10-09-2003", datetime(2003, 10, 9), "date with dash"),
+   57|     ("10-09-03", datetime(2003, 10, 9), "date with dash"),
+   58|     ("2003.09.25", datetime(2003, 9, 25), "date with dot"),
+   59|     ("09.25.2003", datetime(2003, 9, 25), "date with dot"),
+   60|     ("25.09.2003", datetime(2003, 9, 25), "date with dot"),
+   61|     ("10.09.2003", datetime(2003, 10, 9), "date with dot"),
+   62|     ("10.09.03", datetime(2003, 10, 9), "date with dot"),
+   63|     ("2003/09/25", datetime(2003, 9, 25), "date with slash"),
+   64|     ("09/25/2003", datetime(2003, 9, 25), "date with slash"),
+   65|     ("25/09/2003", datetime(2003, 9, 25), "date with slash"),
+   66|     ("10/09/2003", datetime(2003, 10, 9), "date with slash"),
+   67|     ("10/09/03", datetime(2003, 10, 9), "date with slash"),
+   68|     ("2003 09 25", datetime(2003, 9, 25), "date with space"),
+   69|     ("09 25 2003", datetime(2003, 9, 25), "date with space"),
+   70|     ("25 09 2003", datetime(2003, 9, 25), "date with space"),
+   71|     ("10 09 2003", datetime(2003, 10, 9), "date with space"),
+   72|     ("10 09 03", datetime(2003, 10, 9), "date with space"),
+   73|     ("25 09 03", datetime(2003, 9, 25), "date with space"),
+   74|     ("03 25 Sep", datetime(2003, 9, 25), "strangely ordered date"),
+   75|     ("25 03 Sep", datetime(2025, 9, 3), "strangely ordered date"),
+   76|     ("  July   4 ,  1976   12:01:02   am  ", datetime(1976, 7, 4, 0, 1, 2), "extra space"),
+   77|     ("Wed, July 10, '96", datetime(1996, 7, 10, 0, 0), "random format"),
+   78|     ("1996.July.10 AD 12:08 PM", datetime(1996, 7, 10, 12, 8), "random format"),
+   79|     ("July 4, 1976", datetime(1976, 7, 4), "random format"),
+   80|     ("7 4 1976", datetime(1976, 7, 4), "random format"),
+   81|     ("4 jul 1976", datetime(1976, 7, 4), "random format"),
+   82|     ("4 Jul 1976", datetime(1976, 7, 4), "'%-d %b %Y' format"),
+   83|     ("7-4-76", datetime(1976, 7, 4), "random format"),
+   84|     ("19760704", datetime(1976, 7, 4), "random format"),
+   85|     ("0:01:02 on July 4, 1976", datetime(1976, 7, 4, 0, 1, 2), "random format"),
+   86|     ("July 4, 1976 12:01:02 am", datetime(1976, 7, 4, 0, 1, 2), "random format"),
+   87|     ("Mon Jan  2 04:24:27 1995", datetime(1995, 1, 2, 4, 24, 27), "random format"),
+   88|     ("04.04.95 00:22", datetime(1995, 4, 4, 0, 22), "random format"),
+   89|     ("Jan 1 1999 11:23:34.578", datetime(1999, 1, 1, 11, 23, 34, 578000), "random format"),
+   90|     ("950404 122212", datetime(1995, 4, 4, 12, 22, 12), "random format"),
+   91|     ("3rd of May 2001", datetime(2001, 5, 3), "random format"),
+   92|     ("5th of March 2001", datetime(2001, 3, 5), "random format"),
+   93|     ("1st of May 2003", datetime(2003, 5, 1), "random format"),
+   94|     ('0099-01-01T00:00:00', datetime(99, 1, 1, 0, 0), "99 ad"),
+   95|     ('0031-01-01T00:00:00', datetime(31, 1, 1, 0, 0), "31 ad"),
+   96|     ("20080227T21:26:01.123456789", datetime(2008, 2, 27, 21, 26, 1, 123456), "high precision seconds"),
+   97|     ('13NOV2017', datetime(2017, 11, 13), "dBY (See GH360)"),
+   98|     ('0003-03-04', datetime(3, 3, 4), "pre 12 year same month (See GH PR #293)"),
+   99|     ('December.0031.30', datetime(31, 12, 30), "BYd corner case (GH#687)"),
+  100| 
+  101|     # Cases with legacy h/m/s format, candidates for deprecation (GH#886)
+  102|     ("2016-12-21 04.2h", datetime(2016, 12, 21, 4, 12), "Fractional Hours"),
+  103| ]
+  104| # Check that we don't have any duplicates
+  105| assert len(set([x[0] for x in PARSER_TEST_CASES])) == len(PARSER_TEST_CASES)
+  106| 
+  107| 
+  108| @pytest.mark.parametrize("parsable_text,expected_datetime,assertion_message", PARSER_TEST_CASES)
+  109| def test_parser(parsable_text, expected_datetime, assertion_message):
+  110|     assert parse(parsable_text) == expected_datetime, assertion_message
+  111| 
+  112| 
+  113| # Parser test cases using datetime(2003, 9, 25) as a default.
+  114| # Format: (parsable_text, expected_datetime, assertion_message)
+  115| PARSER_DEFAULT_TEST_CASES = [
+  116|     ("Thu Sep 25 10:36:28", datetime(2003, 9, 25, 10, 36, 28), "date command format strip"),
+  117|     ("Thu Sep 10:36:28", datetime(2003, 9, 25, 10, 36, 28), "date command format strip"),
+  118|     ("Thu 10:36:28", datetime(2003, 9, 25, 10, 36, 28), "date command format strip"),
+  119|     ("Sep 10:36:28", datetime(2003, 9, 25, 10, 36, 28), "date command format strip"),
+  120|     ("10:36:28", datetime(2003, 9, 25, 10, 36, 28), "date command format strip"),
+  121|     ("10:36", datetime(2003, 9, 25, 10, 36), "date command format strip"),
+  122|     ("Sep 2003", datetime(2003, 9, 25), "date command format strip"),
+  123|     ("Sep", datetime(2003, 9, 25), "date command format strip"),
+  124|     ("2003", datetime(2003, 9, 25), "date command format strip"),
+  125|     ("10h36m28.5s", datetime(2003, 9, 25, 10, 36, 28, 500000), "hour with letters"),
+  126|     ("10h36m28s", datetime(2003, 9, 25, 10, 36, 28), "hour with letters strip"),
+  127|     ("10h36m", datetime(2003, 9, 25, 10, 36), "hour with letters strip"),
+  128|     ("10h", datetime(2003, 9, 25, 10), "hour with letters strip"),
+  129|     ("10 h 36", datetime(2003, 9, 25, 10, 36), "hour with letters strip"),
+  130|     ("10 h 36.5", datetime(2003, 9, 25, 10, 36, 30), "hour with letter strip"),
+  131|     ("36 m 5", datetime(2003, 9, 25, 0, 36, 5), "hour with letters spaces"),
+  132|     ("36 m 5 s", datetime(2003, 9, 25, 0, 36, 5), "minute with letters spaces"),
+  133|     ("36 m 05", datetime(2003, 9, 25, 0, 36, 5), "minute with letters spaces"),
+  134|     ("36 m 05 s", datetime(2003, 9, 25, 0, 36, 5), "minutes with letters spaces"),
+  135|     ("10h am", datetime(2003, 9, 25, 10), "hour am pm"),
+  136|     ("10h pm", datetime(2003, 9, 25, 22), "hour am pm"),
+  137|     ("10am", datetime(2003, 9, 25, 10), "hour am pm"),
+  138|     ("10pm", datetime(2003, 9, 25, 22), "hour am pm"),
+  139|     ("10:00 am", datetime(2003, 9, 25, 10), "hour am pm"),
+  140|     ("10:00 pm", datetime(2003, 9, 25, 22), "hour am pm"),
+  141|     ("10:00am", datetime(2003, 9, 25, 10), "hour am pm"),
+  142|     ("10:00pm", datetime(2003, 9, 25, 22), "hour am pm"),
+  143|     ("10:00a.m", datetime(2003, 9, 25, 10), "hour am pm"),
+  144|     ("10:00p.m", datetime(2003, 9, 25, 22), "hour am pm"),
+  145|     ("10:00a.m.", datetime(2003, 9, 25, 10), "hour am pm"),
+  146|     ("10:00p.m.", datetime(2003, 9, 25, 22), "hour am pm"),
+  147|     ("Wed", datetime(2003, 10, 1), "weekday alone"),
+  148|     ("Wednesday", datetime(2003, 10, 1), "long weekday"),
+  149|     ("October", datetime(2003, 10, 25), "long month"),
+  150|     ("31-Dec-00", datetime(2000, 12, 31), "zero year"),
+  151|     ("0:01:02", datetime(2003, 9, 25, 0, 1, 2), "random format"),
+  152|     ("12h 01m02s am", datetime(2003, 9, 25, 0, 1, 2), "random format"),
+  153|     ("12:08 PM", datetime(2003, 9, 25, 12, 8), "random format"),
+  154|     ("01h02m03", datetime(2003, 9, 25, 1, 2, 3), "random format"),
+  155|     ("01h02", datetime(2003, 9, 25, 1, 2), "random format"),
+  156|     ("01h02s", datetime(2003, 9, 25, 1, 0, 2), "random format"),
+  157|     ("01m02", datetime(2003, 9, 25, 0, 1, 2), "random format"),
+  158|     ("01m02h", datetime(2003, 9, 25, 2, 1), "random format"),
+  159|     ("2004 10 Apr 11h30m", datetime(2004, 4, 10, 11, 30), "random format")
+  160| ]
+  161| # Check that we don't have any duplicates
+  162| assert len(set([x[0] for x in PARSER_DEFAULT_TEST_CASES])) == len(PARSER_DEFAULT_TEST_CASES)
+  163| 
+  164| 
+  165| @pytest.mark.parametrize("parsable_text,expected_datetime,assertion_message", PARSER_DEFAULT_TEST_CASES)
+  166| def test_parser_default(parsable_text, expected_datetime, assertion_message):
+  167|     assert parse(parsable_text, default=datetime(2003, 9, 25)) == expected_datetime, assertion_message
+  168| 
+  169| 
+  170| @pytest.mark.parametrize('sep', ['-', '.', '/', ' '])
+  171| def test_parse_dayfirst(sep):
+  172|     expected = datetime(2003, 9, 10)
+  173|     fmt = sep.join(['%d', '%m', '%Y'])
+  174|     dstr = expected.strftime(fmt)
+  175|     result = parse(dstr, dayfirst=True)
+  176|     assert result == expected
+  177| 
+  178| 
+  179| @pytest.mark.parametrize('sep', ['-', '.', '/', ' '])
+  180| def test_parse_yearfirst(sep):
+  181|     expected = datetime(2010, 9, 3)
+  182|     fmt = sep.join(['%Y', '%m', '%d'])
+  183|     dstr = expected.strftime(fmt)
+  184|     result = parse(dstr, yearfirst=True)
+  185|     assert result == expected
+  186| 
+  187| 
+  188| @pytest.mark.parametrize('dstr,expected', [
+  189|     ("Thu Sep 25 10:36:28 BRST 2003", datetime(2003, 9, 25, 10, 36, 28)),
+  190|     ("1996.07.10 AD at 15:08:56 PDT", datetime(1996, 7, 10, 15, 8, 56)),
+  191|     ("Tuesday, April 12, 1952 AD 3:30:42pm PST",
+  192|      datetime(1952, 4, 12, 15, 30, 42)),
+  193|     ("November 5, 1994, 8:15:30 am EST", datetime(1994, 11, 5, 8, 15, 30)),
+  194|     ("1994-11-05T08:15:30-05:00", datetime(1994, 11, 5, 8, 15, 30)),
+  195|     ("1994-11-05T08:15:30Z", datetime(1994, 11, 5, 8, 15, 30)),
+  196|     ("1976-07-04T00:01:02Z", datetime(1976, 7, 4, 0, 1, 2)),
+  197|     ("1986-07-05T08:15:30z", datetime(1986, 7, 5, 8, 15, 30)),
+  198|     ("Tue Apr 4 00:22:12 PDT 1995", datetime(1995, 4, 4, 0, 22, 12)),
+  199| ])
+  200| def test_parse_ignoretz(dstr, expected):
+  201|     result = parse(dstr, ignoretz=True)
+  202|     assert result == expected
+  203| 
+  204| 
+  205| _brsttz = tzoffset("BRST", -10800)
+  206| 
+  207| 
+  208| @pytest.mark.parametrize('dstr,expected', [
+  209|     ("20030925T104941-0300",
+  210|      datetime(2003, 9, 25, 10, 49, 41, tzinfo=_brsttz)),
+  211|     ("Thu, 25 Sep 2003 10:49:41 -0300",
+  212|      datetime(2003, 9, 25, 10, 49, 41, tzinfo=_brsttz)),
+  213|     ("2003-09-25T10:49:41.5-03:00",
+  214|      datetime(2003, 9, 25, 10, 49, 41, 500000, tzinfo=_brsttz)),
+  215|     ("2003-09-25T10:49:41-03:00",
+  216|      datetime(2003, 9, 25, 10, 49, 41, tzinfo=_brsttz)),
+  217|     ("20030925T104941.5-0300",
+  218|      datetime(2003, 9, 25, 10, 49, 41, 500000, tzinfo=_brsttz)),
+  219| ])
+  220| def test_parse_with_tzoffset(dstr, expected):
+  221|     # In these cases, we are _not_ passing a tzinfos arg
+  222|     result = parse(dstr)
+  223|     assert result == expected
+  224| 
+  225| 
+  226| class TestFormat(object):
+  227| 
+  228|     def test_ybd(self):
+  229|         # If we have a 4-digit year, a non-numeric month (abbreviated or not),
+  230|         # and a day (1 or 2 digits), then there is no ambiguity as to which
+  231|         # token is a year/month/day.  This holds regardless of what order the
+  232|         # terms are in and for each of the separators below.
+  233| 
+  234|         seps = ['-', ' ', '/', '.']
+  235| 
+  236|         year_tokens = ['%Y']
+  237|         month_tokens = ['%b', '%B']
+  238|         day_tokens = ['%d']
+  239|         if PLATFORM_HAS_DASH_D:
+  240|             day_tokens.append('%-d')
+  241| 
+  242|         prods = itertools.product(year_tokens, month_tokens, day_tokens)
+  243|         perms = [y for x in prods for y in itertools.permutations(x)]
+  244|         unambig_fmts = [sep.join(perm) for sep in seps for perm in perms]
+  245| 
+  246|         actual = datetime(2003, 9, 25)
+  247| 
+  248|         for fmt in unambig_fmts:
+  249|             dstr = actual.strftime(fmt)
+  250|             res = parse(dstr)
+  251|             assert res == actual
+  252| 
+  253|     # TODO: some redundancy with PARSER_TEST_CASES cases
+  254|     @pytest.mark.parametrize("fmt,dstr", [
+  255|         ("%a %b %d %Y", "Thu Sep 25 2003"),
+  256|         ("%b %d %Y", "Sep 25 2003"),
+  257|         ("%Y-%m-%d", "2003-09-25"),
+  258|         ("%Y%m%d", "20030925"),
+  259|         ("%Y-%b-%d", "2003-Sep-25"),
+  260|         ("%d-%b-%Y", "25-Sep-2003"),
+  261|         ("%b-%d-%Y", "Sep-25-2003"),
+  262|         ("%m-%d-%Y", "09-25-2003"),
+  263|         ("%d-%m-%Y", "25-09-2003"),
+  264|         ("%Y.%m.%d", "2003.09.25"),
+  265|         ("%Y.%b.%d", "2003.Sep.25"),
+  266|         ("%d.%b.%Y", "25.Sep.2003"),
+  267|         ("%b.%d.%Y", "Sep.25.2003"),
+  268|         ("%m.%d.%Y", "09.25.2003"),
+  269|         ("%d.%m.%Y", "25.09.2003"),
+  270|         ("%Y/%m/%d", "2003/09/25"),
+  271|         ("%Y/%b/%d", "2003/Sep/25"),
+  272|         ("%d/%b/%Y", "25/Sep/2003"),
+  273|         ("%b/%d/%Y", "Sep/25/2003"),
+  274|         ("%m/%d/%Y", "09/25/2003"),
+  275|         ("%d/%m/%Y", "25/09/2003"),
+  276|         ("%Y %m %d", "2003 09 25"),
+  277|         ("%Y %b %d", "2003 Sep 25"),
+  278|         ("%d %b %Y", "25 Sep 2003"),
+  279|         ("%m %d %Y", "09 25 2003"),
+  280|         ("%d %m %Y", "25 09 2003"),
+  281|         ("%y %d %b", "03 25 Sep",),
+  282|     ])
+  283|     def test_strftime_formats_2003Sep25(self, fmt, dstr):
+  284|         expected = datetime(2003, 9, 25)
+  285| 
+  286|         # First check that the format strings behave as expected
+  287|         #  (not strictly necessary, but nice to have)
+  288|         assert expected.strftime(fmt) == dstr
+  289| 
+  290|         res = parse(dstr)
+  291|         assert res == expected
+  292| 
+  293| 
+  294| class TestInputTypes(object):
+  295|     def test_empty_string_invalid(self):
+  296|         with pytest.raises(ParserError):
+  297|             parse('')
+  298| 
+  299|     def test_none_invalid(self):
+  300|         with pytest.raises(TypeError):
+  301|             parse(None)
+  302| 
+  303|     def test_int_invalid(self):
+  304|         with pytest.raises(TypeError):
+  305|             parse(13)
+  306| 
+  307|     def test_duck_typing(self):
+  308|         # We want to support arbitrary classes that implement the stream
+  309|         # interface.
+  310| 
+  311|         class StringPassThrough(object):
+  312|             def __init__(self, stream):
+  313|                 self.stream = stream
+  314| 
+  315|             def read(self, *args, **kwargs):
+  316|                 return self.stream.read(*args, **kwargs)
+  317| 
+  318|         dstr = StringPassThrough(StringIO('2014 January 19'))
+  319| 
+  320|         res = parse(dstr)
+  321|         expected = datetime(2014, 1, 19)
+  322|         assert res == expected
+  323| 
+  324|     def test_parse_stream(self):
+  325|         dstr = StringIO('2014 January 19')
+  326| 
+  327|         res = parse(dstr)
+  328|         expected = datetime(2014, 1, 19)
+  329|         assert res == expected
+  330| 
+  331|     def test_parse_str(self):
+  332|         # Parser should be able to handle bytestring and unicode
+  333|         uni_str = '2014-05-01 08:00:00'
+  334|         bytes_str = uni_str.encode()
+  335| 
+  336|         res = parse(bytes_str)
+  337|         expected = parse(uni_str)
+  338|         assert res == expected
+  339| 
+  340|     def test_parse_bytes(self):
+  341|         res = parse(b'2014 January 19')
+  342|         expected = datetime(2014, 1, 19)
+  343|         assert res == expected
+  344| 
+  345|     def test_parse_bytearray(self):
+  346|         # GH#417
+  347|         res = parse(bytearray(b'2014 January 19'))
+  348|         expected = datetime(2014, 1, 19)
+  349|         assert res == expected
+  350| 
+  351| 
+  352| class TestTzinfoInputTypes(object):
+  353|     def assert_equal_same_tz(self, dt1, dt2):
+  354|         assert dt1 == dt2
+  355|         assert dt1.tzinfo is dt2.tzinfo
+  356| 
+  357|     def test_tzinfo_dict_could_return_none(self):
+  358|         dstr = "2017-02-03 12:40 BRST"
+  359|         result = parse(dstr, tzinfos={"BRST": None})
+  360|         expected = datetime(2017, 2, 3, 12, 40)
+  361|         self.assert_equal_same_tz(result, expected)
+  362| 
+  363|     def test_tzinfos_callable_could_return_none(self):
+  364|         dstr = "2017-02-03 12:40 BRST"
+  365|         result = parse(dstr, tzinfos=lambda *args: None)
+  366|         expected = datetime(2017, 2, 3, 12, 40)
+  367|         self.assert_equal_same_tz(result, expected)
+  368| 
+  369|     def test_invalid_tzinfo_input(self):
+  370|         dstr = "2014 January 19 09:00 UTC"
+  371|         # Pass an absurd tzinfos object
+  372|         tzinfos = {"UTC": ValueError}
+  373|         with pytest.raises(TypeError):
+  374|             parse(dstr, tzinfos=tzinfos)
+  375| 
+  376|     def test_valid_tzinfo_tzinfo_input(self):
+  377|         dstr = "2014 January 19 09:00 UTC"
+  378|         tzinfos = {"UTC": tz.UTC}
+  379|         expected = datetime(2014, 1, 19, 9, tzinfo=tz.UTC)
+  380|         res = parse(dstr, tzinfos=tzinfos)
+  381|         self.assert_equal_same_tz(res, expected)
+  382| 
+  383|     def test_valid_tzinfo_unicode_input(self):
+  384|         dstr = "2014 January 19 09:00 UTC"
+  385|         tzinfos = {u"UTC": u"UTC+0"}
+  386|         expected = datetime(2014, 1, 19, 9, tzinfo=tz.tzstr("UTC+0"))
+  387|         res = parse(dstr, tzinfos=tzinfos)
+  388|         self.assert_equal_same_tz(res, expected)
+  389| 
+  390|     def test_valid_tzinfo_callable_input(self):
+  391|         dstr = "2014 January 19 09:00 UTC"
+  392| 
+  393|         def tzinfos(*args, **kwargs):
+  394|             return u"UTC+0"
+  395| 
+  396|         expected = datetime(2014, 1, 19, 9, tzinfo=tz.tzstr("UTC+0"))
+  397|         res = parse(dstr, tzinfos=tzinfos)
+  398|         self.assert_equal_same_tz(res, expected)
+  399| 
+  400|     def test_valid_tzinfo_int_input(self):
+  401|         dstr = "2014 January 19 09:00 UTC"
+  402|         tzinfos = {u"UTC": -28800}
+  403|         expected = datetime(2014, 1, 19, 9, tzinfo=tz.tzoffset(u"UTC", -28800))
+  404|         res = parse(dstr, tzinfos=tzinfos)
+  405|         self.assert_equal_same_tz(res, expected)
+  406| 
+  407| 
+  408| class ParserTest(unittest.TestCase):
+  409| 
+  410|     @classmethod
+  411|     def setup_class(cls):
+  412|         cls.tzinfos = {"BRST": -10800}
+  413|         cls.brsttz = tzoffset("BRST", -10800)
+  414|         cls.default = datetime(2003, 9, 25)
+  415| 
+  416|         # Parser should be able to handle bytestring and unicode
+  417|         cls.uni_str = '2014-05-01 08:00:00'
+  418|         cls.str_str = cls.uni_str.encode()
+  419| 
+  420|     def testParserParseStr(self):
+  421|         from dateutil.parser import parser
+  422| 
+  423|         assert parser().parse(self.str_str) == parser().parse(self.uni_str)
+  424| 
+  425|     def testParseUnicodeWords(self):
+  426| 
+  427|         class rus_parserinfo(parserinfo):
+  428|             MONTHS = [("янв", "Январь"),
+  429|                       ("фев", "Февраль"),
+  430|                       ("мар", "Март"),
+  431|                       ("апр", "Апрель"),
+  432|                       ("май", "Май"),
+  433|                       ("июн", "Июнь"),
+  434|                       ("июл", "Июль"),
+  435|                       ("авг", "Август"),
+  436|                       ("сен", "Сентябрь"),
+  437|                       ("окт", "Октябрь"),
+  438|                       ("ноя", "Ноябрь"),
+  439|                       ("дек", "Декабрь")]
+  440| 
+  441|         expected = datetime(2015, 9, 10, 10, 20)
+  442|         res = parse('10 Сентябрь 2015 10:20', parserinfo=rus_parserinfo())
+  443|         assert res  == expected
+  444| 
+  445|     def testParseWithNulls(self):
+  446|         # This relies on the from __future__ import unicode_literals, because
+  447|         # explicitly specifying a unicode literal is a syntax error in Py 3.2
+  448|         # May want to switch to u'...' if we ever drop Python 3.2 support.
+  449|         pstring = '\x00\x00August 29, 1924'
+  450| 
+  451|         assert parse(pstring) == datetime(1924, 8, 29)
+  452| 
+  453|     def testDateCommandFormat(self):
+  454|         self.assertEqual(parse("Thu Sep 25 10:36:28 BRST 2003",
+  455|                                tzinfos=self.tzinfos),
+  456|                          datetime(2003, 9, 25, 10, 36, 28,
+  457|                                   tzinfo=self.brsttz))
+  458| 
+  459|     def testDateCommandFormatReversed(self):
+  460|         self.assertEqual(parse("2003 10:36:28 BRST 25 Sep Thu",
+  461|                                tzinfos=self.tzinfos),
+  462|                          datetime(2003, 9, 25, 10, 36, 28,
+  463|                                   tzinfo=self.brsttz))
+  464| 
+  465|     def testDateCommandFormatWithLong(self):
+  466|         if PY2:
+  467|             self.assertEqual(parse("Thu Sep 25 10:36:28 BRST 2003",
+  468|                                    tzinfos={"BRST": long(-10800)}),
+  469|                              datetime(2003, 9, 25, 10, 36, 28,
+  470|                                       tzinfo=self.brsttz))
+  471| 
+  472|     def testISOFormatStrip2(self):
+  473|         self.assertEqual(parse("2003-09-25T10:49:41+03:00"),
+  474|                          datetime(2003, 9, 25, 10, 49, 41,
+  475|                                   tzinfo=tzoffset(None, 10800)))
+  476| 
+  477|     def testISOStrippedFormatStrip2(self):
+  478|         self.assertEqual(parse("20030925T104941+0300"),
+  479|                          datetime(2003, 9, 25, 10, 49, 41,
+  480|                                   tzinfo=tzoffset(None, 10800)))
+  481| 
+  482|     def testAMPMNoHour(self):
+  483|         with pytest.raises(ParserError):
+  484|             parse("AM")
+  485| 
+  486|         with pytest.raises(ParserError):
+  487|             parse("Jan 20, 2015 PM")
+  488| 
+  489|     def testAMPMRange(self):
+  490|         with pytest.raises(ParserError):
+  491|             parse("13:44 AM")
+  492| 
+  493|         with pytest.raises(ParserError):
+  494|             parse("January 25, 1921 23:13 PM")
+  495| 
+  496|     def testPertain(self):
+  497|         self.assertEqual(parse("Sep 03", default=self.default),
+  498|                          datetime(2003, 9, 3))
+  499|         self.assertEqual(parse("Sep of 03", default=self.default),
+  500|                          datetime(2003, 9, 25))
+  501| 
+  502|     def testFuzzy(self):
+  503|         s = "Today is 25 of September of 2003, exactly " \
+  504|             "at 10:49:41 with timezone -03:00."
+  505|         self.assertEqual(parse(s, fuzzy=True),
+  506|                          datetime(2003, 9, 25, 10, 49, 41,
+  507|                                   tzinfo=self.brsttz))
+  508| 
+  509|     def testFuzzyWithTokens(self):
+  510|         s1 = "Today is 25 of September of 2003, exactly " \
+  511|             "at 10:49:41 with timezone -03:00."
+  512|         self.assertEqual(parse(s1, fuzzy_with_tokens=True),
+  513|                          (datetime(2003, 9, 25, 10, 49, 41,
+  514|                                    tzinfo=self.brsttz),
+  515|                          ('Today is ', 'of ', ', exactly at ',
+  516|                           ' with timezone ', '.')))
+  517| 
+  518|         s2 = "http://biz.yahoo.com/ipo/p/600221.html"
+  519|         self.assertEqual(parse(s2, fuzzy_with_tokens=True),
+  520|                          (datetime(2060, 2, 21, 0, 0, 0),
+  521|                          ('http://biz.yahoo.com/ipo/p/', '.html')))
+  522| 
+  523|     def testFuzzyAMPMProblem(self):
+  524|         # Sometimes fuzzy parsing results in AM/PM flag being set without
+  525|         # hours - if it's fuzzy it should ignore that.
+  526|         s1 = "I have a meeting on March 1, 1974."
+  527|         s2 = "On June 8th, 2020, I am going to be the first man on Mars"
+  528| 
+  529|         # Also don't want any erroneous AM or PMs changing the parsed time
+  530|         s3 = "Meet me at the AM/PM on Sunset at 3:00 AM on December 3rd, 2003"
+  531|         s4 = "Meet me at 3:00AM on December 3rd, 2003 at the AM/PM on Sunset"
+  532| 
+  533|         self.assertEqual(parse(s1, fuzzy=True), datetime(1974, 3, 1))
+  534|         self.assertEqual(parse(s2, fuzzy=True), datetime(2020, 6, 8))
+  535|         self.assertEqual(parse(s3, fuzzy=True), datetime(2003, 12, 3, 3))
+  536|         self.assertEqual(parse(s4, fuzzy=True), datetime(2003, 12, 3, 3))
+  537| 
+  538|     def testFuzzyIgnoreAMPM(self):
+  539|         s1 = "Jan 29, 1945 14:45 AM I going to see you there?"
+  540|         with pytest.warns(UnknownTimezoneWarning):
+  541|             res = parse(s1, fuzzy=True)
+  542|         self.assertEqual(res, datetime(1945, 1, 29, 14, 45))
+  543| 
+  544|     def testRandomFormat24(self):
+  545|         self.assertEqual(parse("0:00 PM, PST", default=self.default,
+  546|                                ignoretz=True),
+  547|                          datetime(2003, 9, 25, 12, 0))
+  548| 
+  549|     def testRandomFormat26(self):
+  550|         with pytest.warns(UnknownTimezoneWarning):
+  551|             res = parse("5:50 A.M. on June 13, 1990")
+  552| 
+  553|         self.assertEqual(res, datetime(1990, 6, 13, 5, 50))
+  554| 
+  555|     def testUnspecifiedDayFallback(self):
+  556|         # Test that for an unspecified day, the fallback behavior is correct.
+  557|         self.assertEqual(parse("April 2009", default=datetime(2010, 1, 31)),
+  558|                          datetime(2009, 4, 30))
+  559| 
+  560|     def testUnspecifiedDayFallbackFebNoLeapYear(self):
+  561|         self.assertEqual(parse("Feb 2007", default=datetime(2010, 1, 31)),
+  562|                          datetime(2007, 2, 28))
+  563| 
+  564|     def testUnspecifiedDayFallbackFebLeapYear(self):
+  565|         self.assertEqual(parse("Feb 2008", default=datetime(2010, 1, 31)),
+  566|                          datetime(2008, 2, 29))
+  567| 
+  568|     def testErrorType01(self):
+  569|         with pytest.raises(ParserError):
+  570|             parse('shouldfail')
+  571| 
+  572|     def testCorrectErrorOnFuzzyWithTokens(self):
+  573|         assertRaisesRegex(self, ParserError, 'Unknown string format',
+  574|                           parse, '04/04/32/423', fuzzy_with_tokens=True)
+  575|         assertRaisesRegex(self, ParserError, 'Unknown string format',
+  576|                           parse, '04/04/04 +32423', fuzzy_with_tokens=True)
+  577|         assertRaisesRegex(self, ParserError, 'Unknown string format',
+  578|                           parse, '04/04/0d4', fuzzy_with_tokens=True)
+  579| 
+  580|     def testIncreasingCTime(self):
+  581|         # This test will check 200 different years, every month, every day,
+  582|         # every hour, every minute, every second, and every weekday, using
+  583|         # a delta of more or less 1 year, 1 month, 1 day, 1 minute and
+  584|         # 1 second.
+  585|         delta = timedelta(days=365+31+1, seconds=1+60+60*60)
+  586|         dt = datetime(1900, 1, 1, 0, 0, 0, 0)
+  587|         for i in range(200):
+  588|             assert parse(dt.ctime()) == dt
+  589|             dt += delta
+  590| 
+  591|     def testIncreasingISOFormat(self):
+  592|         delta = timedelta(days=365+31+1, seconds=1+60+60*60)
+  593|         dt = datetime(1900, 1, 1, 0, 0, 0, 0)
+  594|         for i in range(200):
+  595|             assert parse(dt.isoformat()) == dt
+  596|             dt += delta
+  597| 
+  598|     def testMicrosecondsPrecisionError(self):
+  599|         # Skip found out that sad precision problem. :-(
+  600|         dt1 = parse("00:11:25.01")
+  601|         dt2 = parse("00:12:10.01")
+  602|         assert dt1.microsecond == 10000
+  603|         assert dt2.microsecond == 10000
+  604| 
+  605|     def testMicrosecondPrecisionErrorReturns(self):
+  606|         # One more precision issue, discovered by Eric Brown.  This should
+  607|         # be the last one, as we're no longer using floating points.
+  608|         for ms in [100001, 100000, 99999, 99998,
+  609|                     10001,  10000,  9999,  9998,
+  610|                      1001,   1000,   999,   998,
+  611|                       101,    100,    99,    98]:
+  612|             dt = datetime(2008, 2, 27, 21, 26, 1, ms)
+  613|             assert parse(dt.isoformat()) == dt
+  614| 
+  615|     def testCustomParserInfo(self):
+  616|         # Custom parser info wasn't working, as Michael Elsdörfer discovered.
+  617|         from dateutil.parser import parserinfo, parser
+  618| 
+  619|         class myparserinfo(parserinfo):
+  620|             MONTHS = parserinfo.MONTHS[:]
+  621|             MONTHS[0] = ("Foo", "Foo")
+  622|         myparser = parser(myparserinfo())
+  623|         dt = myparser.parse("01/Foo/2007")
+  624|         assert dt == datetime(2007, 1, 1)
+  625| 
+  626|     def testCustomParserShortDaynames(self):
+  627|         # Horacio Hoyos discovered that day names shorter than 3 characters,
+  628|         # for example two letter German day name abbreviations, don't work:
+  629|         # https://github.com/dateutil/dateutil/issues/343
+  630|         from dateutil.parser import parserinfo, parser
+  631| 
+  632|         class GermanParserInfo(parserinfo):
+  633|             WEEKDAYS = [("Mo", "Montag"),
+  634|                         ("Di", "Dienstag"),
+  635|                         ("Mi", "Mittwoch"),
+  636|                         ("Do", "Donnerstag"),
+  637|                         ("Fr", "Freitag"),
+  638|                         ("Sa", "Samstag"),
+  639|                         ("So", "Sonntag")]
+  640| 
+  641|         myparser = parser(GermanParserInfo())
+  642|         dt = myparser.parse("Sa 21. Jan 2017")
+  643|         self.assertEqual(dt, datetime(2017, 1, 21))
+  644| 
+  645|     def testNoYearFirstNoDayFirst(self):
+  646|         dtstr = '090107'
+  647| 
+  648|         # Should be MMDDYY
+  649|         self.assertEqual(parse(dtstr),
+  650|                          datetime(2007, 9, 1))
+  651| 
+  652|         self.assertEqual(parse(dtstr, yearfirst=False, dayfirst=False),
+  653|                          datetime(2007, 9, 1))
+  654| 
+  655|     def testYearFirst(self):
+  656|         dtstr = '090107'
+  657| 
+  658|         # Should be MMDDYY
+  659|         self.assertEqual(parse(dtstr, yearfirst=True),
+  660|                          datetime(2009, 1, 7))
+  661| 
+  662|         self.assertEqual(parse(dtstr, yearfirst=True, dayfirst=False),
+  663|                          datetime(2009, 1, 7))
+  664| 
+  665|     def testDayFirst(self):
+  666|         dtstr = '090107'
+  667| 
+  668|         # Should be DDMMYY
+  669|         self.assertEqual(parse(dtstr, dayfirst=True),
+  670|                          datetime(2007, 1, 9))
+  671| 
+  672|         self.assertEqual(parse(dtstr, yearfirst=False, dayfirst=True),
+  673|                          datetime(2007, 1, 9))
+  674| 
+  675|     def testDayFirstYearFirst(self):
+  676|         dtstr = '090107'
+  677|         # Should be YYDDMM
+  678|         self.assertEqual(parse(dtstr, yearfirst=True, dayfirst=True),
+  679|                          datetime(2009, 7, 1))
+  680| 
+  681|     def testUnambiguousYearFirst(self):
+  682|         dtstr = '2015 09 25'
+  683|         self.assertEqual(parse(dtstr, yearfirst=True),
+  684|                          datetime(2015, 9, 25))
+  685| 
+  686|     def testUnambiguousDayFirst(self):
+  687|         dtstr = '2015 09 25'
+  688|         self.assertEqual(parse(dtstr, dayfirst=True),
+  689|                          datetime(2015, 9, 25))
+  690| 
+  691|     def testUnambiguousDayFirstYearFirst(self):
+  692|         dtstr = '2015 09 25'
+  693|         self.assertEqual(parse(dtstr, dayfirst=True, yearfirst=True),
+  694|                          datetime(2015, 9, 25))
+  695| 
+  696|     def test_mstridx(self):
+  697|         # See GH408
+  698|         dtstr = '2015-15-May'
+  699|         self.assertEqual(parse(dtstr),
+  700|                          datetime(2015, 5, 15))
+  701| 
+  702|     def test_idx_check(self):
+  703|         dtstr = '2017-07-17 06:15:'
+  704|         # Pre-PR, the trailing colon will cause an IndexError at 824-825
+  705|         # when checking `i < len_l` and then accessing `l[i+1]`
+  706|         res = parse(dtstr, fuzzy=True)
+  707|         assert res == datetime(2017, 7, 17, 6, 15)
+  708| 
+  709|     def test_hmBY(self):
+  710|         # See GH#483
+  711|         dtstr = '02:17NOV2017'
+  712|         res = parse(dtstr, default=self.default)
+  713|         assert res == datetime(2017, 11, self.default.day, 2, 17)
+  714| 
+  715|     def test_validate_hour(self):
+  716|         # See GH353
+  717|         invalid = "201A-01-01T23:58:39.239769+03:00"
+  718|         with pytest.raises(ParserError):
+  719|             parse(invalid)
+  720| 
+  721|     def test_era_trailing_year(self):
+  722|         dstr = 'AD2001'
+  723|         res = parse(dstr)
+  724|         assert res.year == 2001, res
+  725| 
+  726|     def test_includes_timestr(self):
+  727|         timestr = "2020-13-97T44:61:83"
+  728| 
+  729|         try:
+  730|             parse(timestr)
+  731|         except ParserError as e:
+  732|             assert e.args[1] == timestr
+  733|         else:
+  734|             pytest.fail("Failed to raise ParserError")
+  735| 
+  736| 
+  737| class TestOutOfBounds(object):
+  738| 
+  739|     def test_no_year_zero(self):
+  740|         with pytest.raises(ParserError):
+  741|             parse("0000 Jun 20")
+  742| 
+  743|     def test_out_of_bound_day(self):
+  744|         with pytest.raises(ParserError):
+  745|             parse("Feb 30, 2007")
+  746| 
+  747|     def test_illegal_month_error(self):
+  748|         with pytest.raises(ParserError):
+  749|             parse("0-100")
+  750| 
+  751|     def test_day_sanity(self, fuzzy):
+  752|         dstr = "2014-15-25"
+  753|         with pytest.raises(ParserError):
+  754|             parse(dstr, fuzzy=fuzzy)
+  755| 
+  756|     def test_minute_sanity(self, fuzzy):
+  757|         dstr = "2014-02-28 22:64"
+  758|         with pytest.raises(ParserError):
+  759|             parse(dstr, fuzzy=fuzzy)
+  760| 
+  761|     def test_hour_sanity(self, fuzzy):
+  762|         dstr = "2014-02-28 25:16 PM"
+  763|         with pytest.raises(ParserError):
+  764|             parse(dstr, fuzzy=fuzzy)
+  765| 
+  766|     def test_second_sanity(self, fuzzy):
+  767|         dstr = "2014-02-28 22:14:64"
+  768|         with pytest.raises(ParserError):
+  769|             parse(dstr, fuzzy=fuzzy)
+  770| 
+  771| 
+  772| class TestParseUnimplementedCases(object):
+  773|     @pytest.mark.xfail
+  774|     def test_somewhat_ambiguous_string(self):
+  775|         # Ref: github issue #487
+  776|         # The parser is choosing the wrong part for hour
+  777|         # causing datetime to raise an exception.
+  778|         dtstr = '1237 PM BRST Mon Oct 30 2017'
+  779|         res = parse(dtstr, tzinfo=self.tzinfos)
+  780|         assert res == datetime(2017, 10, 30, 12, 37, tzinfo=self.tzinfos)
+  781| 
+  782|     @pytest.mark.xfail
+  783|     def test_YmdH_M_S(self):
+  784|         # found in nasdaq's ftp data
+  785|         dstr = '1991041310:19:24'
+  786|         expected = datetime(1991, 4, 13, 10, 19, 24)
+  787|         res = parse(dstr)
+  788|         assert res == expected, (res, expected)
+  789| 
+  790|     @pytest.mark.xfail
+  791|     def test_first_century(self):
+  792|         dstr = '0031 Nov 03'
+  793|         expected = datetime(31, 11, 3)
+  794|         res = parse(dstr)
+  795|         assert res == expected, res
+  796| 
+  797|     @pytest.mark.xfail
+  798|     def test_era_trailing_year_with_dots(self):
+  799|         dstr = 'A.D.2001'
+  800|         res = parse(dstr)
+  801|         assert res.year == 2001, res
+  802| 
+  803|     @pytest.mark.xfail
+  804|     def test_ad_nospace(self):
+  805|         expected = datetime(6, 5, 19)
+  806|         for dstr in [' 6AD May 19', ' 06AD May 19',
+  807|                      ' 006AD May 19', ' 0006AD May 19']:
+  808|             res = parse(dstr)
+  809|             assert res == expected, (dstr, res)
+  810| 
+  811|     @pytest.mark.xfail
+  812|     def test_four_letter_day(self):
+  813|         dstr = 'Frid Dec 30, 2016'
+  814|         expected = datetime(2016, 12, 30)
+  815|         res = parse(dstr)
+  816|         assert res == expected
+  817| 
+  818|     @pytest.mark.xfail
+  819|     def test_non_date_number(self):
+  820|         dstr = '1,700'
+  821|         with pytest.raises(ParserError):
+  822|             parse(dstr)
+  823| 
+  824|     @pytest.mark.xfail
+  825|     def test_on_era(self):
+  826|         # This could be classified as an "eras" test, but the relevant part
+  827|         # about this is the ` on `
+  828|         dstr = '2:15 PM on January 2nd 1973 A.D.'
+  829|         expected = datetime(1973, 1, 2, 14, 15)
+  830|         res = parse(dstr)
+  831|         assert res == expected
+  832| 
+  833|     @pytest.mark.xfail
+  834|     def test_extraneous_year(self):
+  835|         # This was found in the wild at insidertrading.org
+  836|         dstr = "2011 MARTIN CHILDREN'S IRREVOCABLE TRUST u/a/d NOVEMBER 7, 2012"
+  837|         res = parse(dstr, fuzzy_with_tokens=True)
+  838|         expected = datetime(2012, 11, 7)
+  839|         assert res == expected
+  840| 
+  841|     @pytest.mark.xfail
+  842|     def test_extraneous_year_tokens(self):
+  843|         # This was found in the wild at insidertrading.org
+  844|         # Unlike in the case above, identifying the first "2012" as the year
+  845|         # would not be a problem, but inferring that the latter 2012 is hhmm
+  846|         # is a problem.
+  847|         dstr = "2012 MARTIN CHILDREN'S IRREVOCABLE TRUST u/a/d NOVEMBER 7, 2012"
+  848|         expected = datetime(2012, 11, 7)
+  849|         (res, tokens) = parse(dstr, fuzzy_with_tokens=True)
+  850|         assert res == expected
+  851|         assert tokens == ("2012 MARTIN CHILDREN'S IRREVOCABLE TRUST u/a/d ",)
+  852| 
+  853|     @pytest.mark.xfail
+  854|     def test_extraneous_year2(self):
+  855|         # This was found in the wild at insidertrading.org
+  856|         dstr = ("Berylson Amy Smith 1998 Grantor Retained Annuity Trust "
+  857|                 "u/d/t November 2, 1998 f/b/o Jennifer L Berylson")
+  858|         res = parse(dstr, fuzzy_with_tokens=True)
+  859|         expected = datetime(1998, 11, 2)
+  860|         assert res == expected
+  861| 
+  862|     @pytest.mark.xfail
+  863|     def test_extraneous_year3(self):
+  864|         # This was found in the wild at insidertrading.org
+  865|         dstr = "SMITH R &  WEISS D 94 CHILD TR FBO M W SMITH UDT 12/1/1994"
+  866|         res = parse(dstr, fuzzy_with_tokens=True)
+  867|         expected = datetime(1994, 12, 1)
+  868|         assert res == expected
+  869| 
+  870|     @pytest.mark.xfail
+  871|     def test_unambiguous_YYYYMM(self):
+  872|         # 171206 can be parsed as YYMMDD. However, 201712 cannot be parsed
+  873|         # as instance of YYMMDD and parser could fallback to YYYYMM format.
+  874|         dstr = "201712"
+  875|         res = parse(dstr)
+  876|         expected = datetime(2017, 12, 1)
+  877|         assert res == expected
+  878| 
+  879|     @pytest.mark.xfail
+  880|     def test_extraneous_numerical_content(self):
+  881|         # ref: https://github.com/dateutil/dateutil/issues/1029
+  882|         # parser interprets price and percentage as parts of the date
+  883|         dstr = "£14.99 (25% off, until April 20)"
+  884|         res = parse(dstr, fuzzy=True, default=datetime(2000, 1, 1))
+  885|         expected = datetime(2000, 4, 20)
+  886|         assert res == expected
+  887| 
+  888| 
+  889| @pytest.mark.skipif(IS_WIN, reason="Windows does not use TZ var")
+  890| class TestTZVar(object):
+  891|     def test_parse_unambiguous_nonexistent_local(self):
+  892|         # When dates are specified "EST" even when they should be "EDT" in the
+  893|         # local time zone, we should still assign the local time zone
+  894|         with TZEnvContext('EST+5EDT,M3.2.0/2,M11.1.0/2'):
+  895|             dt_exp = datetime(2011, 8, 1, 12, 30, tzinfo=tz.tzlocal())
+  896|             dt = parse('2011-08-01T12:30 EST')
+  897| 
+  898|             assert dt.tzname() == 'EDT'
+  899|             assert dt == dt_exp
+  900| 
+  901|     def test_tzlocal_in_gmt(self):
+  902|         # GH #318
+  903|         with TZEnvContext('GMT0BST,M3.5.0,M10.5.0'):
+  904|             # This is an imaginary datetime in tz.tzlocal() but should still
+  905|             # parse using the GMT-as-alias-for-UTC rule
+  906|             dt = parse('2004-05-01T12:00 GMT')
+  907|             dt_exp = datetime(2004, 5, 1, 12, tzinfo=tz.UTC)
+  908| 
+  909|             assert dt == dt_exp
+  910| 
+  911|     def test_tzlocal_parse_fold(self):
+  912|         # One manifestion of GH #318
+  913|         with TZEnvContext('EST+5EDT,M3.2.0/2,M11.1.0/2'):
+  914|             dt_exp = datetime(2011, 11, 6, 1, 30, tzinfo=tz.tzlocal())
+  915|             dt_exp = tz.enfold(dt_exp, fold=1)
+  916|             dt = parse('2011-11-06T01:30 EST')
+  917| 
+  918|             # Because this is ambiguous, until `tz.tzlocal() is tz.tzlocal()`
+  919|             # we'll just check the attributes we care about rather than
+  920|             # dt == dt_exp
+  921|             assert dt.tzname() == dt_exp.tzname()
+  922|             assert dt.replace(tzinfo=None) == dt_exp.replace(tzinfo=None)
+  923|             assert getattr(dt, 'fold') == getattr(dt_exp, 'fold')
+  924|             assert dt.astimezone(tz.UTC) == dt_exp.astimezone(tz.UTC)
+  925| 
+  926| 
+  927| def test_parse_tzinfos_fold():
+  928|     NYC = tz.gettz('America/New_York')
+  929|     tzinfos = {'EST': NYC, 'EDT': NYC}
+  930| 
+  931|     dt_exp = tz.enfold(datetime(2011, 11, 6, 1, 30, tzinfo=NYC), fold=1)
+  932|     dt = parse('2011-11-06T01:30 EST', tzinfos=tzinfos)
+  933| 
+  934|     assert dt == dt_exp
+  935|     assert dt.tzinfo is dt_exp.tzinfo
+  936|     assert getattr(dt, 'fold') == getattr(dt_exp, 'fold')
+  937|     assert dt.astimezone(tz.UTC) == dt_exp.astimezone(tz.UTC)
+  938| 
+  939| 
+  940| @pytest.mark.parametrize('dtstr,dt', [
+  941|     ('5.6h', datetime(2003, 9, 25, 5, 36)),
+  942|     ('5.6m', datetime(2003, 9, 25, 0, 5, 36)),
+  943|     # '5.6s' never had a rounding problem, test added for completeness
+  944|     ('5.6s', datetime(2003, 9, 25, 0, 0, 5, 600000))
+  945| ])
+  946| def test_rounding_floatlike_strings(dtstr, dt):
+  947|     assert parse(dtstr, default=datetime(2003, 9, 25)) == dt
+  948| 
+  949| 
+  950| @pytest.mark.parametrize('value', ['1: test', 'Nan'])
+  951| def test_decimal_error(value):
+  952|     # GH 632, GH 662 - decimal.Decimal raises some non-ParserError exception
+  953|     # when constructed with an invalid value
+  954|     with pytest.raises(ParserError):
+  955|         parse(value)
+  956| 
+  957| def test_parsererror_repr():
+  958|     # GH 991 — the __repr__ was not properly indented and so was never defined.
+  959|     # This tests the current behavior of the ParserError __repr__, but the
+  960|     # precise format is not guaranteed to be stable and may change even in
+  961|     # minor versions. This test exists to avoid regressions.
+  962|     s = repr(ParserError("Problem with string: %s", "2019-01-01"))
+  963| 
+  964|     assert s == "ParserError('Problem with string: %s', '2019-01-01')"
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-dateutil-contains-107",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The class body contains no direct def, class, or assignment children."
+  },
+  {
+    "query_id": "g1q-dateutil-contains-30",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_parser.py::IS_WIN",
+      "tests/test_parser.py::PARSER_DEFAULT_TEST_CASES",
+      "tests/test_parser.py::PARSER_TEST_CASES",
+      "tests/test_parser.py::PLATFORM_HAS_DASH_D",
+      "tests/test_parser.py::ParserTest",
+      "tests/test_parser.py::TestFormat",
+      "tests/test_parser.py::TestInputTypes",
+      "tests/test_parser.py::TestOutOfBounds",
+      "tests/test_parser.py::TestParseUnimplementedCases",
+      "tests/test_parser.py::TestTZVar",
+      "tests/test_parser.py::TestTzinfoInputTypes",
+      "tests/test_parser.py::_brsttz",
+      "tests/test_parser.py::fuzzy",
+      "tests/test_parser.py::test_decimal_error",
+      "tests/test_parser.py::test_parse_dayfirst",
+      "tests/test_parser.py::test_parse_ignoretz",
+      "tests/test_parser.py::test_parse_tzinfos_fold",
+      "tests/test_parser.py::test_parse_with_tzoffset",
+      "tests/test_parser.py::test_parse_yearfirst",
+      "tests/test_parser.py::test_parser",
+      "tests/test_parser.py::test_parser_default",
+      "tests/test_parser.py::test_parsererror_repr",
+      "tests/test_parser.py::test_rounding_floatlike_strings"
+    ],
+    "conditional_flags": [],
+    "notes": "Complete set of direct module-level definitions and simple-name assignments; imports and nested definitions are excluded."
+  }
+]
+tokens used
+32,622

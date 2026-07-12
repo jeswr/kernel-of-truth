@@ -1,0 +1,625 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.c295vswr"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.f8mz2l8u
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c5-6afc-70c3-aa92-470ce38c01cc
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: jinja ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/cache_extension.py
+docs/examples/inline_gettext_extension.py
+examples/basic/cycle.py
+examples/basic/debugger.py
+examples/basic/inheritance.py
+examples/basic/test.py
+examples/basic/test_filter_and_linestatements.py
+examples/basic/test_loop_filter.py
+examples/basic/translate.py
+scripts/generate_identifier_pattern.py
+src/jinja2/__init__.py
+src/jinja2/_identifier.py
+src/jinja2/async_utils.py
+src/jinja2/bccache.py
+src/jinja2/compiler.py
+src/jinja2/constants.py
+src/jinja2/debug.py
+src/jinja2/defaults.py
+src/jinja2/environment.py
+src/jinja2/exceptions.py
+src/jinja2/ext.py
+src/jinja2/filters.py
+src/jinja2/idtracking.py
+src/jinja2/lexer.py
+src/jinja2/loaders.py
+src/jinja2/meta.py
+src/jinja2/nativetypes.py
+src/jinja2/nodes.py
+src/jinja2/optimizer.py
+src/jinja2/parser.py
+src/jinja2/runtime.py
+src/jinja2/sandbox.py
+src/jinja2/tests.py
+src/jinja2/utils.py
+src/jinja2/visitor.py
+tests/conftest.py
+tests/test_api.py
+tests/test_async.py
+tests/test_async_filters.py
+tests/test_bytecode_cache.py
+tests/test_compile.py
+tests/test_core_tags.py
+tests/test_debug.py
+tests/test_ext.py
+tests/test_filters.py
+tests/test_idtracking.py
+tests/test_imports.py
+tests/test_inheritance.py
+tests/test_lexnparse.py
+tests/test_loader.py
+tests/test_nativetypes.py
+tests/test_nodes.py
+tests/test_pickle.py
+tests/test_regression.py
+tests/test_runtime.py
+tests/test_security.py
+tests/test_tests.py
+tests/test_utils.py
+tests/res/__init__.py
+
+=== QUERIES (2) ===
+QUERY g1q-jinja-imports_of-57: family=imports_of module=tests/test_tests.py
+QUERY g1q-jinja-imports_of-20: family=imports_of module=src/jinja2/exceptions.py
+
+=== CONTEXT ===
+
+FILE tests/test_tests.py:
+    1| import pytest
+    2| from markupsafe import Markup
+    3| 
+    4| from jinja2 import Environment
+    5| from jinja2 import TemplateAssertionError
+    6| from jinja2 import TemplateRuntimeError
+    7| 
+    8| 
+    9| class MyDict(dict):
+   10|     pass
+   11| 
+   12| 
+   13| class TestTestsCase:
+   14|     def test_defined(self, env):
+   15|         tmpl = env.from_string("{{ missing is defined }}|{{ true is defined }}")
+   16|         assert tmpl.render() == "False|True"
+   17| 
+   18|     def test_even(self, env):
+   19|         tmpl = env.from_string("""{{ 1 is even }}|{{ 2 is even }}""")
+   20|         assert tmpl.render() == "False|True"
+   21| 
+   22|     def test_odd(self, env):
+   23|         tmpl = env.from_string("""{{ 1 is odd }}|{{ 2 is odd }}""")
+   24|         assert tmpl.render() == "True|False"
+   25| 
+   26|     def test_lower(self, env):
+   27|         tmpl = env.from_string("""{{ "foo" is lower }}|{{ "FOO" is lower }}""")
+   28|         assert tmpl.render() == "True|False"
+   29| 
+   30|     # Test type checks
+   31|     @pytest.mark.parametrize(
+   32|         "op,expect",
+   33|         (
+   34|             ("none is none", True),
+   35|             ("false is none", False),
+   36|             ("true is none", False),
+   37|             ("42 is none", False),
+   38|             ("none is true", False),
+   39|             ("false is true", False),
+   40|             ("true is true", True),
+   41|             ("0 is true", False),
+   42|             ("1 is true", False),
+   43|             ("42 is true", False),
+   44|             ("none is false", False),
+   45|             ("false is false", True),
+   46|             ("true is false", False),
+   47|             ("0 is false", False),
+   48|             ("1 is false", False),
+   49|             ("42 is false", False),
+   50|             ("none is boolean", False),
+   51|             ("false is boolean", True),
+   52|             ("true is boolean", True),
+   53|             ("0 is boolean", False),
+   54|             ("1 is boolean", False),
+   55|             ("42 is boolean", False),
+   56|             ("0.0 is boolean", False),
+   57|             ("1.0 is boolean", False),
+   58|             ("3.14159 is boolean", False),
+   59|             ("none is integer", False),
+   60|             ("false is integer", False),
+   61|             ("true is integer", False),
+   62|             ("42 is integer", True),
+   63|             ("3.14159 is integer", False),
+   64|             ("(10 ** 100) is integer", True),
+   65|             ("none is float", False),
+   66|             ("false is float", False),
+   67|             ("true is float", False),
+   68|             ("42 is float", False),
+   69|             ("4.2 is float", True),
+   70|             ("(10 ** 100) is float", False),
+   71|             ("none is number", False),
+   72|             ("false is number", True),
+   73|             ("true is number", True),
+   74|             ("42 is number", True),
+   75|             ("3.14159 is number", True),
+   76|             ("complex is number", True),
+   77|             ("(10 ** 100) is number", True),
+   78|             ("none is string", False),
+   79|             ("false is string", False),
+   80|             ("true is string", False),
+   81|             ("42 is string", False),
+   82|             ('"foo" is string', True),
+   83|             ("none is sequence", False),
+   84|             ("false is sequence", False),
+   85|             ("42 is sequence", False),
+   86|             ('"foo" is sequence', True),
+   87|             ("[] is sequence", True),
+   88|             ("[1, 2, 3] is sequence", True),
+   89|             ("{} is sequence", True),
+   90|             ("none is mapping", False),
+   91|             ("false is mapping", False),
+   92|             ("42 is mapping", False),
+   93|             ('"foo" is mapping', False),
+   94|             ("[] is mapping", False),
+   95|             ("{} is mapping", True),
+   96|             ("mydict is mapping", True),
+   97|             ("none is iterable", False),
+   98|             ("false is iterable", False),
+   99|             ("42 is iterable", False),
+  100|             ('"foo" is iterable', True),
+  101|             ("[] is iterable", True),
+  102|             ("{} is iterable", True),
+  103|             ("range(5) is iterable", True),
+  104|             ("none is callable", False),
+  105|             ("false is callable", False),
+  106|             ("42 is callable", False),
+  107|             ('"foo" is callable', False),
+  108|             ("[] is callable", False),
+  109|             ("{} is callable", False),
+  110|             ("range is callable", True),
+  111|         ),
+  112|     )
+  113|     def test_types(self, env, op, expect):
+  114|         t = env.from_string(f"{{{{ {op} }}}}")
+  115|         assert t.render(mydict=MyDict(), complex=complex(1, 2)) == str(expect)
+  116| 
+  117|     def test_upper(self, env):
+  118|         tmpl = env.from_string('{{ "FOO" is upper }}|{{ "foo" is upper }}')
+  119|         assert tmpl.render() == "True|False"
+  120| 
+  121|     def test_equalto(self, env):
+  122|         tmpl = env.from_string(
+  123|             "{{ foo is eq 12 }}|"
+  124|             "{{ foo is eq 0 }}|"
+  125|             "{{ foo is eq (3 * 4) }}|"
+  126|             '{{ bar is eq "baz" }}|'
+  127|             '{{ bar is eq "zab" }}|'
+  128|             '{{ bar is eq ("ba" + "z") }}|'
+  129|             "{{ bar is eq bar }}|"
+  130|             "{{ bar is eq foo }}"
+  131|         )
+  132|         assert (
+  133|             tmpl.render(foo=12, bar="baz")
+  134|             == "True|False|True|True|False|True|True|False"
+  135|         )
+  136| 
+  137|     @pytest.mark.parametrize(
+  138|         "op,expect",
+  139|         (
+  140|             ("eq 2", True),
+  141|             ("eq 3", False),
+  142|             ("ne 3", True),
+  143|             ("ne 2", False),
+  144|             ("lt 3", True),
+  145|             ("lt 2", False),
+  146|             ("le 2", True),
+  147|             ("le 1", False),
+  148|             ("gt 1", True),
+  149|             ("gt 2", False),
+  150|             ("ge 2", True),
+  151|             ("ge 3", False),
+  152|         ),
+  153|     )
+  154|     def test_compare_aliases(self, env, op, expect):
+  155|         t = env.from_string(f"{{{{ 2 is {op} }}}}")
+  156|         assert t.render() == str(expect)
+  157| 
+  158|     def test_sameas(self, env):
+  159|         tmpl = env.from_string("{{ foo is sameas false }}|{{ 0 is sameas false }}")
+  160|         assert tmpl.render(foo=False) == "True|False"
+  161| 
+  162|     def test_no_paren_for_arg1(self, env):
+  163|         tmpl = env.from_string("{{ foo is sameas none }}")
+  164|         assert tmpl.render(foo=None) == "True"
+  165| 
+  166|     def test_escaped(self, env):
+  167|         env = Environment(autoescape=True)
+  168|         tmpl = env.from_string("{{ x is escaped }}|{{ y is escaped }}")
+  169|         assert tmpl.render(x="foo", y=Markup("foo")) == "False|True"
+  170| 
+  171|     def test_greaterthan(self, env):
+  172|         tmpl = env.from_string("{{ 1 is greaterthan 0 }}|{{ 0 is greaterthan 1 }}")
+  173|         assert tmpl.render() == "True|False"
+  174| 
+  175|     def test_lessthan(self, env):
+  176|         tmpl = env.from_string("{{ 0 is lessthan 1 }}|{{ 1 is lessthan 0 }}")
+  177|         assert tmpl.render() == "True|False"
+  178| 
+  179|     def test_multiple_tests(self):
+  180|         items = []
+  181| 
+  182|         def matching(x, y):
+  183|             items.append((x, y))
+  184|             return False
+  185| 
+  186|         env = Environment()
+  187|         env.tests["matching"] = matching
+  188|         tmpl = env.from_string(
+  189|             "{{ 'us-west-1' is matching '(us-east-1|ap-northeast-1)'"
+  190|             " or 'stage' is matching '(dev|stage)' }}"
+  191|         )
+  192|         assert tmpl.render() == "False"
+  193|         assert items == [
+  194|             ("us-west-1", "(us-east-1|ap-northeast-1)"),
+  195|             ("stage", "(dev|stage)"),
+  196|         ]
+  197| 
+  198|     def test_in(self, env):
+  199|         tmpl = env.from_string(
+  200|             '{{ "o" is in "foo" }}|'
+  201|             '{{ "foo" is in "foo" }}|'
+  202|             '{{ "b" is in "foo" }}|'
+  203|             "{{ 1 is in ((1, 2)) }}|"
+  204|             "{{ 3 is in ((1, 2)) }}|"
+  205|             "{{ 1 is in [1, 2] }}|"
+  206|             "{{ 3 is in [1, 2] }}|"
+  207|             '{{ "foo" is in {"foo": 1}}}|'
+  208|             '{{ "baz" is in {"bar": 1}}}'
+  209|         )
+  210|         assert tmpl.render() == "True|True|False|True|False|True|False|True|False"
+  211| 
+  212| 
+  213| def test_name_undefined(env):
+  214|     with pytest.raises(TemplateAssertionError, match="No test named 'f'"):
+  215|         env.from_string("{{ x is f }}")
+  216| 
+  217| 
+  218| def test_name_undefined_in_if(env):
+  219|     t = env.from_string("{% if x is defined %}{{ x is f }}{% endif %}")
+  220|     assert t.render() == ""
+  221| 
+  222|     with pytest.raises(TemplateRuntimeError, match="No test named 'f'"):
+  223|         t.render(x=1)
+  224| 
+  225| 
+  226| def test_is_filter(env):
+  227|     assert env.call_test("filter", "title")
+  228|     assert not env.call_test("filter", "bad-name")
+  229| 
+  230| 
+  231| def test_is_test(env):
+  232|     assert env.call_test("test", "number")
+  233|     assert not env.call_test("test", "bad-name")
+
+FILE src/jinja2/exceptions.py:
+    1| import typing as t
+    2| 
+    3| if t.TYPE_CHECKING:
+    4|     from .runtime import Undefined
+    5| 
+    6| 
+    7| class TemplateError(Exception):
+    8|     """Baseclass for all template errors."""
+    9| 
+   10|     def __init__(self, message: str | None = None) -> None:
+   11|         super().__init__(message)
+   12| 
+   13|     @property
+   14|     def message(self) -> str | None:
+   15|         return self.args[0] if self.args else None
+   16| 
+   17| 
+   18| class TemplateNotFound(IOError, LookupError, TemplateError):
+   19|     """Raised if a template does not exist.
+   20| 
+   21|     .. versionchanged:: 2.11
+   22|         If the given name is :class:`Undefined` and no message was
+   23|         provided, an :exc:`UndefinedError` is raised.
+   24|     """
+   25| 
+   26|     # Silence the Python warning about message being deprecated since
+   27|     # it's not valid here.
+   28|     message: str | None = None
+   29| 
+   30|     def __init__(
+   31|         self,
+   32|         name: t.Union[str, "Undefined"] | None,
+   33|         message: str | None = None,
+   34|     ) -> None:
+   35|         IOError.__init__(self, name)
+   36| 
+   37|         if message is None:
+   38|             from .runtime import Undefined
+   39| 
+   40|             if isinstance(name, Undefined):
+   41|                 name._fail_with_undefined_error()
+   42| 
+   43|             message = name
+   44| 
+   45|         self.message = message
+   46|         self.name = name
+   47|         self.templates = [name]
+   48| 
+   49|     def __str__(self) -> str:
+   50|         return str(self.message)
+   51| 
+   52| 
+   53| class TemplatesNotFound(TemplateNotFound):
+   54|     """Like :class:`TemplateNotFound` but raised if multiple templates
+   55|     are selected.  This is a subclass of :class:`TemplateNotFound`
+   56|     exception, so just catching the base exception will catch both.
+   57| 
+   58|     .. versionchanged:: 2.11
+   59|         If a name in the list of names is :class:`Undefined`, a message
+   60|         about it being undefined is shown rather than the empty string.
+   61| 
+   62|     .. versionadded:: 2.2
+   63|     """
+   64| 
+   65|     def __init__(
+   66|         self,
+   67|         names: t.Sequence[t.Union[str, "Undefined"]] = (),
+   68|         message: str | None = None,
+   69|     ) -> None:
+   70|         if message is None:
+   71|             from .runtime import Undefined
+   72| 
+   73|             parts = []
+   74| 
+   75|             for name in names:
+   76|                 if isinstance(name, Undefined):
+   77|                     parts.append(name._undefined_message)
+   78|                 else:
+   79|                     parts.append(name)
+   80| 
+   81|             parts_str = ", ".join(map(str, parts))
+   82|             message = f"none of the templates given were found: {parts_str}"
+   83| 
+   84|         super().__init__(names[-1] if names else None, message)
+   85|         self.templates = list(names)
+   86| 
+   87| 
+   88| class TemplateSyntaxError(TemplateError):
+   89|     """Raised to tell the user that there is a problem with the template."""
+   90| 
+   91|     def __init__(
+   92|         self,
+   93|         message: str,
+   94|         lineno: int,
+   95|         name: str | None = None,
+   96|         filename: str | None = None,
+   97|     ) -> None:
+   98|         super().__init__(message)
+   99|         self.lineno = lineno
+  100|         self.name = name
+  101|         self.filename = filename
+  102|         self.source: str | None = None
+  103| 
+  104|         # this is set to True if the debug.translate_syntax_error
+  105|         # function translated the syntax error into a new traceback
+  106|         self.translated = False
+  107| 
+  108|     def __str__(self) -> str:
+  109|         # for translated errors we only return the message
+  110|         if self.translated:
+  111|             return t.cast(str, self.message)
+  112| 
+  113|         # otherwise attach some stuff
+  114|         location = f"line {self.lineno}"
+  115|         name = self.filename or self.name
+  116|         if name:
+  117|             location = f'File "{name}", {location}'
+  118|         lines = [t.cast(str, self.message), "  " + location]
+  119| 
+  120|         # if the source is set, add the line to the output
+  121|         if self.source is not None:
+  122|             try:
+  123|                 line = self.source.splitlines()[self.lineno - 1]
+  124|             except IndexError:
+  125|                 pass
+  126|             else:
+  127|                 lines.append("    " + line.strip())
+  128| 
+  129|         return "\n".join(lines)
+  130| 
+  131|     def __reduce__(self):  # type: ignore
+  132|         # https://bugs.python.org/issue1692335 Exceptions that take
+  133|         # multiple required arguments have problems with pickling.
+  134|         # Without this, raises TypeError: __init__() missing 1 required
+  135|         # positional argument: 'lineno'
+  136|         return self.__class__, (self.message, self.lineno, self.name, self.filename)
+  137| 
+  138| 
+  139| class TemplateAssertionError(TemplateSyntaxError):
+  140|     """Like a template syntax error, but covers cases where something in the
+  141|     template caused an error at compile time that wasn't necessarily caused
+  142|     by a syntax error.  However it's a direct subclass of
+  143|     :exc:`TemplateSyntaxError` and has the same attributes.
+  144|     """
+  145| 
+  146| 
+  147| class TemplateRuntimeError(TemplateError):
+  148|     """A generic runtime error in the template engine.  Under some situations
+  149|     Jinja may raise this exception.
+  150|     """
+  151| 
+  152| 
+  153| class UndefinedError(TemplateRuntimeError):
+  154|     """Raised if a template tries to operate on :class:`Undefined`."""
+  155| 
+  156| 
+  157| class SecurityError(TemplateRuntimeError):
+  158|     """Raised if a template tries to do something insecure if the
+  159|     sandbox is enabled.
+  160|     """
+  161| 
+  162| 
+  163| class FilterArgumentError(TemplateRuntimeError):
+  164|     """This error is raised if a filter was called with inappropriate
+  165|     arguments
+  166|     """
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-jinja-imports_of-57",
+    "answerable_static": true,
+    "gold": [
+      "ext:markupsafe",
+      "ext:pytest",
+      "repo:src/jinja2/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-jinja-imports_of-20",
+    "answerable_static": true,
+    "gold": [
+      "ext:typing",
+      "repo:src/jinja2/__init__.py",
+      "repo:src/jinja2/runtime.py"
+    ],
+    "conditional_flags": [
+      "repo:src/jinja2/__init__.py",
+      "repo:src/jinja2/runtime.py"
+    ],
+    "notes": ""
+  }
+]
+tokens used
+9,630

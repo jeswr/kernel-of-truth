@@ -1,0 +1,832 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: cachetools ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/cachetools/__init__.py
+src/cachetools/_cached.py
+src/cachetools/_cachedmethod.py
+src/cachetools/func.py
+src/cachetools/keys.py
+tests/__init__.py
+tests/test_cache.py
+tests/test_cached.py
+tests/test_cachedmethod.py
+tests/test_classmethod.py
+tests/test_fifo.py
+tests/test_func.py
+tests/test_keys.py
+tests/test_lfu.py
+tests/test_lru.py
+tests/test_rr.py
+tests/test_threading.py
+tests/test_tlru.py
+tests/test_ttl.py
+
+=== QUERIES (2) ===
+QUERY g1q-cachetools-contained_in-315: family=contained_in target=tests/test_cachedmethod.py::Cached.get_cond_error
+QUERY g1q-cachetools-contained_in-337: family=contained_in target=tests/test_cachedmethod.py::MethodDecoratorTestMixin.test_decorator_cond_clear
+
+=== CONTEXT ===
+
+FILE tests/test_cachedmethod.py:
+    1| import unittest
+    2| import unittest.mock
+    3| import warnings
+    4| 
+    5| 
+    6| from cachetools import Cache, cachedmethod, keys
+    7| 
+    8| from . import CountedCondition, CountedLock, _TestCaseProtocol
+    9| 
+   10| 
+   11| class Cached:
+   12|     def __init__(self, cache, count=0):
+   13|         self.cache = cache
+   14|         self.count = count
+   15|         self.lock = CountedLock()
+   16|         self.cond = CountedCondition()
+   17| 
+   18|     def __get(self, _value):
+   19|         result = self.count
+   20|         self.count += 1
+   21|         return result
+   22| 
+   23|     @cachedmethod(lambda self: self.cache)
+   24|     def get(self, value):
+   25|         """docstring"""
+   26| 
+   27|         return self.__get(value)
+   28| 
+   29|     @cachedmethod(lambda self: self.cache, key=keys.typedmethodkey)
+   30|     def get_typed(self, value):
+   31|         return self.__get(value)
+   32| 
+   33|     @cachedmethod(lambda self: self.cache, info=True)
+   34|     def get_info(self, value):
+   35|         return self.__get(value)
+   36| 
+   37|     @cachedmethod(lambda self: self.cache, lock=lambda self: self.lock)
+   38|     def get_lock(self, value):
+   39|         return self.__get(value)
+   40| 
+   41|     @cachedmethod(lambda self: self.cache, lock=lambda self: self.lock, info=True)
+   42|     def get_lock_info(self, value):
+   43|         return self.__get(value)
+   44| 
+   45|     @cachedmethod(lambda self: self.cache, condition=lambda self: self.cond)
+   46|     def get_cond(self, value):
+   47|         return self.__get(value)
+   48| 
+   49|     @cachedmethod(lambda self: self.cache, condition=lambda self: self.cond)
+   50|     def get_cond_error(self, _value):
+   51|         raise ValueError("test error")
+   52| 
+   53|     @cachedmethod(lambda self: self.cache, condition=lambda self: self.cond, info=True)
+   54|     def get_cond_info(self, value):
+   55|         return self.__get(value)
+   56| 
+   57|     @cachedmethod(
+   58|         lambda self: self.cache,
+   59|         lock=lambda self: self.lock,
+   60|         condition=lambda self: self.cond,
+   61|     )
+   62|     def get_lock_cond(self, value):
+   63|         return self.__get(value)
+   64| 
+   65|     @cachedmethod(
+   66|         lambda self: self.cache,
+   67|         lock=lambda self: self.lock,
+   68|         condition=lambda self: self.cond,
+   69|         info=True,
+   70|     )
+   71|     def get_lock_cond_info(self, value):
+   72|         return self.__get(value)
+   73| 
+   74| 
+   75| class Unhashable(Cached):
+   76|     # https://github.com/tkem/cachetools/issues/107
+   77|     def __hash__(self):
+   78|         raise TypeError("unhashable type")
+   79| 
+   80| 
+   81| class MethodDecoratorTestMixin(_TestCaseProtocol):
+   82|     def cache(self, _minsize, **_kwargs):
+   83|         raise NotImplementedError
+   84| 
+   85|     def test_decorator(self):
+   86|         cached = Cached(self.cache(2))
+   87| 
+   88|         self.assertEqual(cached.get(0), 0)
+   89|         self.assertEqual(cached.get(1), 1)
+   90|         self.assertEqual(cached.get(1), 1)
+   91|         self.assertEqual(cached.get(1.0), 1)
+   92|         self.assertEqual(cached.get(1.0), 1)
+   93| 
+   94|         cached.cache.clear()
+   95|         self.assertEqual(cached.get(1), 2)
+   96| 
+   97|     def test_decorator_typed(self):
+   98|         cached = Cached(self.cache(3))
+   99| 
+  100|         self.assertEqual(cached.get_typed(0), 0)
+  101|         self.assertEqual(cached.get_typed(1), 1)
+  102|         self.assertEqual(cached.get_typed(1), 1)
+  103|         self.assertEqual(cached.get_typed(1.0), 2)
+  104|         self.assertEqual(cached.get_typed(1.0), 2)
+  105|         self.assertEqual(cached.get_typed(0.0), 3)
+  106| 
+  107|     def test_decorator_unhashable(self):
+  108|         cached = Unhashable(self.cache(2))
+  109| 
+  110|         self.assertEqual(cached.get(0), 0)
+  111|         self.assertEqual(cached.get(1), 1)
+  112|         self.assertEqual(cached.get(1), 1)
+  113|         self.assertEqual(cached.get(1.0), 1)
+  114|         self.assertEqual(cached.get(1.0), 1)
+  115| 
+  116|         cached.cache.clear()
+  117|         self.assertEqual(cached.get(1), 2)
+  118| 
+  119|     def test_decorator_lock(self):
+  120|         cached = Cached(self.cache(2))
+  121| 
+  122|         self.assertEqual(cached.get_lock(0), 0)
+  123|         self.assertEqual(cached.lock.count, 2)
+  124|         self.assertEqual(cached.get_lock(1), 1)
+  125|         self.assertEqual(cached.lock.count, 4)
+  126|         self.assertEqual(cached.get_lock(1), 1)
+  127|         self.assertEqual(cached.lock.count, 5)
+  128|         self.assertEqual(cached.get_lock(1.0), 1)
+  129|         self.assertEqual(cached.lock.count, 6)
+  130|         self.assertEqual(cached.get_lock(1.0), 1)
+  131|         self.assertEqual(cached.lock.count, 7)
+  132| 
+  133|         cached.cache.clear()
+  134|         self.assertEqual(cached.get_lock(1), 2)
+  135|         self.assertEqual(cached.lock.count, 9)
+  136| 
+  137|     def test_decorator_cond(self):
+  138|         cached = Cached(self.cache(2))
+  139| 
+  140|         self.assertEqual(cached.get_cond(0), 0)
+  141|         self.assertEqual(cached.cond.count, 3)
+  142|         self.assertEqual(cached.cond.wait_count, 1)
+  143|         self.assertEqual(cached.cond.notify_count, 1)
+  144|         self.assertEqual(cached.get_cond(1), 1)
+  145|         self.assertEqual(cached.cond.count, 6)
+  146|         self.assertEqual(cached.cond.wait_count, 2)
+  147|         self.assertEqual(cached.cond.notify_count, 2)
+  148|         self.assertEqual(cached.get_cond(1), 1)
+  149|         self.assertEqual(cached.cond.count, 7)
+  150|         self.assertEqual(cached.cond.wait_count, 3)
+  151|         self.assertEqual(cached.cond.notify_count, 2)
+  152|         self.assertEqual(cached.get_cond(1.0), 1)
+  153|         self.assertEqual(cached.cond.count, 8)
+  154|         self.assertEqual(cached.cond.wait_count, 4)
+  155|         self.assertEqual(cached.cond.notify_count, 2)
+  156|         self.assertEqual(cached.get_cond(1.0), 1)
+  157|         self.assertEqual(cached.cond.count, 9)
+  158|         self.assertEqual(cached.cond.wait_count, 5)
+  159|         self.assertEqual(cached.cond.notify_count, 2)
+  160| 
+  161|         cached.cache.clear()
+  162|         self.assertEqual(cached.get_cond(1), 2)
+  163|         self.assertEqual(cached.cond.count, 12)
+  164|         self.assertEqual(cached.cond.wait_count, 6)
+  165|         self.assertEqual(cached.cond.notify_count, 3)
+  166| 
+  167|     def test_decorator_info(self):
+  168|         cache = self.cache(2)
+  169|         cached = Cached(cache)
+  170|         wrapper = cached.get_info
+  171| 
+  172|         maxsize = cache.maxsize if isinstance(cache, Cache) else None
+  173| 
+  174|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  175|         self.assertEqual(wrapper(0), 0)
+  176|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  177|         self.assertEqual(wrapper(1), 1)
+  178|         self.assertEqual(wrapper.cache_info(), (0, 2, maxsize, 2))
+  179|         self.assertEqual(wrapper(0), 0)
+  180|         self.assertEqual(wrapper.cache_info(), (1, 2, maxsize, 2))
+  181|         wrapper.cache_clear()
+  182|         self.assertEqual(len(cache), 0)
+  183|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  184|         self.assertEqual(wrapper(0), 2)
+  185|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  186|         self.assertEqual(wrapper(0), 2)
+  187|         self.assertEqual(wrapper.cache_info(), (1, 1, maxsize, 1))
+  188| 
+  189|         # assert hits/misses are counted per instance
+  190|         cached = Cached(self.cache(2))
+  191|         self.assertEqual(cached.get_info(0), 0)
+  192|         self.assertEqual(cached.get_info.cache_info(), (0, 1, maxsize, 1))
+  193| 
+  194|     def test_decorator_lock_info(self):
+  195|         cache = self.cache(2)
+  196|         cached = Cached(cache)
+  197|         wrapper = cached.get_lock_info
+  198| 
+  199|         maxsize = cache.maxsize if isinstance(cache, Cache) else None
+  200| 
+  201|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  202|         self.assertEqual(cached.lock.count, 1)
+  203|         self.assertEqual(wrapper(0), 0)
+  204|         self.assertEqual(cached.lock.count, 3)
+  205|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  206|         self.assertEqual(cached.lock.count, 4)
+  207|         self.assertEqual(wrapper(1), 1)
+  208|         self.assertEqual(cached.lock.count, 6)
+  209|         self.assertEqual(wrapper.cache_info(), (0, 2, maxsize, 2))
+  210|         self.assertEqual(cached.lock.count, 7)
+  211|         self.assertEqual(wrapper(0), 0)
+  212|         self.assertEqual(cached.lock.count, 8)
+  213|         self.assertEqual(wrapper.cache_info(), (1, 2, maxsize, 2))
+  214|         self.assertEqual(cached.lock.count, 9)
+  215| 
+  216|         wrapper.cache_clear()
+  217|         self.assertEqual(cached.lock.count, 10)
+  218|         self.assertEqual(len(cache), 0)
+  219|         self.assertEqual(cached.lock.count, 10)
+  220|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  221|         self.assertEqual(cached.lock.count, 11)
+  222|         self.assertEqual(wrapper(0), 2)
+  223|         self.assertEqual(cached.lock.count, 13)
+  224|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  225|         self.assertEqual(cached.lock.count, 14)
+  226|         self.assertEqual(wrapper(0), 2)
+  227|         self.assertEqual(cached.lock.count, 15)
+  228|         self.assertEqual(wrapper.cache_info(), (1, 1, maxsize, 1))
+  229|         self.assertEqual(cached.lock.count, 16)
+  230| 
+  231|         # assert hits/misses are counted per instance
+  232|         cached = Cached(self.cache(2))
+  233|         self.assertEqual(cached.get_lock_info(0), 0)
+  234|         self.assertEqual(cached.get_lock_info.cache_info(), (0, 1, maxsize, 1))
+  235| 
+  236|     def test_decorator_cond_info(self):
+  237|         cache = self.cache(2)
+  238|         cached = Cached(cache)
+  239|         wrapper = cached.get_cond_info
+  240| 
+  241|         maxsize = cache.maxsize if isinstance(cache, Cache) else None
+  242| 
+  243|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  244|         self.assertEqual(cached.cond.count, 1)
+  245|         self.assertEqual(wrapper(0), 0)
+  246|         self.assertEqual(cached.cond.count, 4)
+  247|         self.assertEqual(cached.cond.wait_count, 1)
+  248|         self.assertEqual(cached.cond.notify_count, 1)
+  249|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  250|         self.assertEqual(cached.cond.count, 5)
+  251|         self.assertEqual(wrapper(1), 1)
+  252|         self.assertEqual(cached.cond.count, 8)
+  253|         self.assertEqual(cached.cond.wait_count, 2)
+  254|         self.assertEqual(cached.cond.notify_count, 2)
+  255|         self.assertEqual(wrapper.cache_info(), (0, 2, maxsize, 2))
+  256|         self.assertEqual(cached.cond.count, 9)
+  257|         self.assertEqual(wrapper(0), 0)
+  258|         self.assertEqual(cached.cond.count, 10)
+  259|         self.assertEqual(cached.cond.wait_count, 3)
+  260|         self.assertEqual(cached.cond.notify_count, 2)
+  261|         self.assertEqual(wrapper.cache_info(), (1, 2, maxsize, 2))
+  262|         self.assertEqual(cached.cond.count, 11)
+  263|         wrapper.cache_clear()
+  264|         self.assertEqual(cached.cond.count, 12)
+  265|         self.assertEqual(len(cache), 0)
+  266|         self.assertEqual(cached.cond.count, 12)
+  267|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  268|         self.assertEqual(cached.cond.count, 13)
+  269|         self.assertEqual(wrapper(0), 2)
+  270|         self.assertEqual(cached.cond.count, 16)
+  271|         self.assertEqual(cached.cond.wait_count, 4)
+  272|         self.assertEqual(cached.cond.notify_count, 3)
+  273|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  274|         self.assertEqual(cached.cond.count, 17)
+  275|         self.assertEqual(wrapper(0), 2)
+  276|         self.assertEqual(cached.cond.count, 18)
+  277|         self.assertEqual(cached.cond.wait_count, 5)
+  278|         self.assertEqual(cached.cond.notify_count, 3)
+  279|         self.assertEqual(wrapper.cache_info(), (1, 1, maxsize, 1))
+  280|         self.assertEqual(cached.cond.count, 19)
+  281| 
+  282|         # assert hits/misses are counted per instance
+  283|         cached = Cached(self.cache(2))
+  284|         self.assertEqual(cached.get_cond_info(0), 0)
+  285|         self.assertEqual(cached.get_cond_info.cache_info(), (0, 1, maxsize, 1))
+  286| 
+  287|     def test_decorator_lock_cond_info(self):
+  288|         cache = self.cache(2)
+  289|         cached = Cached(cache)
+  290|         wrapper = cached.get_lock_cond_info
+  291| 
+  292|         maxsize = cache.maxsize if isinstance(cache, Cache) else None
+  293| 
+  294|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  295|         self.assertEqual(cached.lock.count, 1)
+  296|         self.assertEqual(wrapper(0), 0)
+  297|         self.assertEqual(cached.lock.count, 4)
+  298|         self.assertEqual(cached.cond.wait_count, 1)
+  299|         self.assertEqual(cached.cond.notify_count, 1)
+  300|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  301|         self.assertEqual(cached.lock.count, 5)
+  302|         self.assertEqual(wrapper(1), 1)
+  303|         self.assertEqual(cached.lock.count, 8)
+  304|         self.assertEqual(cached.cond.wait_count, 2)
+  305|         self.assertEqual(cached.cond.notify_count, 2)
+  306|         self.assertEqual(wrapper.cache_info(), (0, 2, maxsize, 2))
+  307|         self.assertEqual(cached.lock.count, 9)
+  308|         self.assertEqual(wrapper(0), 0)
+  309|         self.assertEqual(cached.lock.count, 10)
+  310|         self.assertEqual(cached.cond.wait_count, 3)
+  311|         self.assertEqual(cached.cond.notify_count, 2)
+  312|         self.assertEqual(wrapper.cache_info(), (1, 2, maxsize, 2))
+  313|         self.assertEqual(cached.lock.count, 11)
+  314|         wrapper.cache_clear()
+  315|         self.assertEqual(cached.lock.count, 12)
+  316|         self.assertEqual(len(cache), 0)
+  317|         self.assertEqual(cached.lock.count, 12)
+  318|         self.assertEqual(wrapper.cache_info(), (0, 0, maxsize, 0))
+  319|         self.assertEqual(cached.lock.count, 13)
+  320|         self.assertEqual(wrapper(0), 2)
+  321|         self.assertEqual(cached.lock.count, 16)
+  322|         self.assertEqual(cached.cond.wait_count, 4)
+  323|         self.assertEqual(cached.cond.notify_count, 3)
+  324|         self.assertEqual(wrapper.cache_info(), (0, 1, maxsize, 1))
+  325|         self.assertEqual(cached.lock.count, 17)
+  326|         self.assertEqual(wrapper(0), 2)
+  327|         self.assertEqual(cached.lock.count, 18)
+  328|         self.assertEqual(cached.cond.wait_count, 5)
+  329|         self.assertEqual(cached.cond.notify_count, 3)
+  330|         self.assertEqual(wrapper.cache_info(), (1, 1, maxsize, 1))
+  331|         self.assertEqual(cached.lock.count, 19)
+  332| 
+  333|         # assert hits/misses are counted per instance
+  334|         cached = Cached(self.cache(2))
+  335|         self.assertEqual(cached.get_lock_cond_info(0), 0)
+  336|         self.assertEqual(cached.get_lock_cond_info.cache_info(), (0, 1, maxsize, 1))
+  337| 
+  338|     def test_decorator_cond_error(self):
+  339|         cached = Cached(self.cache(2))
+  340| 
+  341|         with self.assertRaises(ValueError):
+  342|             cached.get_cond_error(0)
+  343|         self.assertEqual(cached.cond.count, 2)
+  344|         self.assertEqual(cached.cond.wait_count, 1)
+  345|         self.assertEqual(cached.cond.notify_count, 1)
+  346| 
+  347|         # verify pending set is cleaned up, otherwise this might deadlock
+  348|         with self.assertRaises(ValueError):
+  349|             cached.get_cond_error(0)
+  350|         self.assertEqual(cached.cond.count, 4)
+  351|         self.assertEqual(cached.cond.wait_count, 2)
+  352|         self.assertEqual(cached.cond.notify_count, 2)
+  353| 
+  354|     def test_decorator_wrapped(self):
+  355|         cache = self.cache(2)
+  356|         cached = Cached(cache)
+  357| 
+  358|         self.assertEqual(len(cache), 0)
+  359|         self.assertEqual(cached.get.__wrapped__(cached, 0), 0)
+  360|         self.assertEqual(cached.get.__name__, "get")
+  361|         self.assertEqual((cached.get.__doc__ or "").strip(), "docstring")
+  362|         self.assertEqual(len(cache), 0)
+  363|         self.assertEqual(cached.get(0), 1)
+  364|         self.assertEqual(len(cache), 1)
+  365|         self.assertEqual(cached.get(0), 1)
+  366|         self.assertEqual(len(cache), 1)
+  367| 
+  368|     def test_decorator_attributes(self):
+  369|         cache = self.cache(2)
+  370|         cached = Cached(cache)
+  371| 
+  372|         self.assertIs(cached.get.cache, cache)
+  373|         self.assertIs(cached.get.cache_lock, None)
+  374|         self.assertIs(cached.get.cache_condition, None)
+  375|         self.assertEqual(cached.get.cache_key(42), keys.methodkey(cached, 42))
+  376| 
+  377|         self.assertIs(cached.get_lock.cache, cache)
+  378|         self.assertIs(cached.get_lock.cache_lock, cached.lock)
+  379|         self.assertIs(cached.get_lock.cache_condition, None)
+  380|         self.assertEqual(cached.get_lock.cache_key(42), keys.methodkey(cached, 42))
+  381| 
+  382|         self.assertIs(cached.get_cond.cache, cache)
+  383|         self.assertIs(cached.get_cond.cache_lock, cached.cond)
+  384|         self.assertIs(cached.get_cond.cache_condition, cached.cond)
+  385|         self.assertEqual(cached.get_cond.cache_key(42), keys.methodkey(cached, 42))
+  386| 
+  387|         self.assertIs(cached.get_lock_cond_info.cache, cache)
+  388|         self.assertIs(cached.get_lock_cond_info.cache_lock, cached.lock)
+  389|         self.assertIs(cached.get_lock_cond_info.cache_condition, cached.cond)
+  390|         self.assertEqual(
+  391|             cached.get_lock_cond_info.cache_key(42), keys.methodkey(cached, 42)
+  392|         )
+  393| 
+  394|     def test_decorator_clear(self):
+  395|         cache = self.cache(2)
+  396|         cached = Cached(cache)
+  397| 
+  398|         self.assertEqual(cached.get(0), 0)
+  399|         self.assertEqual(len(cache), 1)
+  400|         cached.get.cache_clear()
+  401|         self.assertEqual(len(cache), 0)
+  402| 
+  403|     def test_decorator_lock_clear(self):
+  404|         cache = self.cache(2)
+  405|         cached = Cached(cache)
+  406| 
+  407|         self.assertEqual(cached.get_lock(0), 0)
+  408|         self.assertEqual(len(cache), 1)
+  409|         self.assertEqual(cached.lock.count, 2)
+  410|         cached.get_lock.cache_clear()
+  411|         self.assertEqual(len(cache), 0)
+  412|         self.assertEqual(cached.lock.count, 3)
+  413| 
+  414|     def test_decorator_cond_clear(self):
+  415|         cache = self.cache(2)
+  416|         cached = Cached(cache)
+  417| 
+  418|         self.assertEqual(cached.get_cond(0), 0)
+  419|         self.assertEqual(len(cache), 1)
+  420|         self.assertEqual(cached.cond.count, 3)
+  421|         cached.get_cond.cache_clear()
+  422|         self.assertEqual(len(cache), 0)
+  423|         self.assertEqual(cached.cond.count, 4)
+  424| 
+  425|     def test_decorator_slots(self):
+  426| 
+  427|         class Slots:
+  428|             __slots__ = ("cache",)
+  429| 
+  430|             def __init__(self, cache):
+  431|                 self.cache = cache
+  432| 
+  433|             @cachedmethod(lambda self: self.cache)
+  434|             def get(self, value):
+  435|                 return value
+  436| 
+  437|             @cachedmethod(lambda self: self.cache, info=True)
+  438|             def get_info(self, value):
+  439|                 return value
+  440| 
+  441|         cache = self.cache(2)
+  442|         cached = Slots(cache)
+  443| 
+  444|         with self.assertRaises(TypeError):
+  445|             cached.get_info(42)
+  446| 
+  447|         with warnings.catch_warnings(record=True) as w:
+  448|             warnings.simplefilter("always")
+  449|             self.assertEqual(cached.get(0), 0)
+  450|             self.assertEqual(cached.get(0), 0)
+  451|         self.assertEqual(len(cache), 1)
+  452|         self.assertEqual(len(w), 2)
+  453|         self.assertIs(w[0].category, DeprecationWarning)
+  454|         self.assertIs(w[1].category, DeprecationWarning)
+  455| 
+  456|     def test_decorator_immutable_dict(self):
+  457| 
+  458|         class ReadOnlyDict(dict):
+  459|             def __setitem__(self, _key, _value):
+  460|                 raise TypeError("Modification not supported")
+  461| 
+  462|             def setdefault(self, _key, _value=None):
+  463|                 raise TypeError("Modification not supported")
+  464| 
+  465|         class Immutable:
+  466|             def __init__(self, cache):
+  467|                 self.cache = cache
+  468|                 self.__dict__ = ReadOnlyDict(self.__dict__)
+  469| 
+  470|             @cachedmethod(lambda self: self.cache)
+  471|             def get(self, value):
+  472|                 return value
+  473| 
+  474|             @cachedmethod(lambda self: self.cache, info=True)
+  475|             def get_info(self, value):
+  476|                 return value
+  477| 
+  478|         cache = self.cache(2)
+  479|         cached = Immutable(cache)
+  480| 
+  481|         with self.assertRaises(TypeError):
+  482|             cached.get_info(42)
+  483| 
+  484|         with warnings.catch_warnings(record=True) as w:
+  485|             warnings.simplefilter("always")
+  486|             self.assertEqual(cached.get(0), 0)
+  487|             self.assertEqual(cached.get(0), 0)
+  488|         self.assertEqual(len(cache), 1)
+  489|         self.assertEqual(len(w), 2)
+  490|         self.assertIs(w[0].category, DeprecationWarning)
+  491|         self.assertIs(w[1].category, DeprecationWarning)
+  492| 
+  493|     def test_decorator_different_names(self):
+  494|         # RuntimeError for Python < 3.12, TypeError otherwise
+  495|         with self.assertRaisesRegex(Exception, "bar"):
+  496| 
+  497|             class Cached:
+  498|                 @cachedmethod(lambda _: self.cache(2))
+  499|                 def foo(_self):
+  500|                     pass
+  501| 
+  502|                 bar = foo
+  503| 
+  504|     def test_decorator_no_set_name(self):
+  505|         class Cached:
+  506|             def foo(_self):
+  507|                 pass
+  508| 
+  509|         # __set_name__ currently only asserted with info, since this
+  510|         # may also occur with deprecated @classmethod use
+  511|         Cached.bar = cachedmethod(lambda _: self.cache(2), info=True)(Cached.foo)  # type: ignore
+  512| 
+  513|         cached = Cached()
+  514| 
+  515|         with self.assertRaises(TypeError):
+  516|             cached.bar()  # type: ignore
+  517| 
+  518| 
+  519| class CacheMethodTest(unittest.TestCase, MethodDecoratorTestMixin):
+  520|     def cache(self, minsize, **kwargs):
+  521|         return Cache(maxsize=minsize, **kwargs)
+  522| 
+  523|     def test_nospace(self):
+  524|         cached = Cached(self.cache(0))
+  525| 
+  526|         self.assertEqual(cached.get(0), 0)
+  527|         self.assertEqual(cached.get(1), 1)
+  528|         self.assertEqual(cached.get(1), 2)
+  529|         self.assertEqual(cached.get(1.0), 3)
+  530|         self.assertEqual(cached.get(1.0), 4)
+  531| 
+  532|         self.assertEqual(cached.get_typed(0), 5)
+  533|         self.assertEqual(cached.get_typed(1), 6)
+  534|         self.assertEqual(cached.get_typed(1.0), 7)
+  535| 
+  536|         self.assertEqual(cached.get_info(0), 8)
+  537|         self.assertEqual(cached.get_info(1), 9)
+  538|         self.assertEqual(cached.get_info(1.0), 10)
+  539| 
+  540|     def test_lock_nospace(self):
+  541|         cached = Cached(self.cache(0))
+  542| 
+  543|         self.assertEqual(cached.get_lock(0), 0)
+  544|         self.assertEqual(cached.lock.count, 2)
+  545|         self.assertEqual(cached.get_lock(1), 1)
+  546|         self.assertEqual(cached.lock.count, 4)
+  547|         self.assertEqual(cached.get_lock(1), 2)
+  548|         self.assertEqual(cached.lock.count, 6)
+  549|         self.assertEqual(cached.get_lock(1.0), 3)
+  550|         self.assertEqual(cached.lock.count, 8)
+  551|         self.assertEqual(cached.get_lock(1.0), 4)
+  552|         self.assertEqual(cached.lock.count, 10)
+  553| 
+  554|         self.assertEqual(cached.get_lock_info(0), 5)
+  555|         self.assertEqual(cached.lock.count, 12)
+  556|         self.assertEqual(cached.get_lock_info(1), 6)
+  557|         self.assertEqual(cached.lock.count, 14)
+  558|         self.assertEqual(cached.get_lock_info(1.0), 7)
+  559|         self.assertEqual(cached.lock.count, 16)
+  560| 
+  561|     def test_cond_nospace(self):
+  562|         cached = Cached(self.cache(0))
+  563| 
+  564|         self.assertEqual(cached.get_cond(0), 0)
+  565|         self.assertEqual(cached.cond.count, 3)
+  566|         self.assertEqual(cached.cond.wait_count, 1)
+  567|         self.assertEqual(cached.cond.notify_count, 1)
+  568|         self.assertEqual(cached.get_cond(1), 1)
+  569|         self.assertEqual(cached.cond.count, 6)
+  570|         self.assertEqual(cached.cond.wait_count, 2)
+  571|         self.assertEqual(cached.cond.notify_count, 2)
+  572|         self.assertEqual(cached.get_cond(1), 2)
+  573|         self.assertEqual(cached.cond.count, 9)
+  574|         self.assertEqual(cached.cond.wait_count, 3)
+  575|         self.assertEqual(cached.cond.notify_count, 3)
+  576|         self.assertEqual(cached.get_cond(1.0), 3)
+  577|         self.assertEqual(cached.cond.count, 12)
+  578|         self.assertEqual(cached.cond.wait_count, 4)
+  579|         self.assertEqual(cached.cond.notify_count, 4)
+  580|         self.assertEqual(cached.get_cond(1.0), 4)
+  581|         self.assertEqual(cached.cond.count, 15)
+  582|         self.assertEqual(cached.cond.wait_count, 5)
+  583|         self.assertEqual(cached.cond.notify_count, 5)
+  584| 
+  585|         self.assertEqual(cached.get_cond_info(0), 5)
+  586|         self.assertEqual(cached.cond.count, 18)
+  587|         self.assertEqual(cached.cond.wait_count, 6)
+  588|         self.assertEqual(cached.cond.notify_count, 6)
+  589|         self.assertEqual(cached.get_cond_info(1), 6)
+  590|         self.assertEqual(cached.cond.count, 21)
+  591|         self.assertEqual(cached.cond.wait_count, 7)
+  592|         self.assertEqual(cached.cond.notify_count, 7)
+  593|         self.assertEqual(cached.get_cond(1.0), 7)
+  594|         self.assertEqual(cached.cond.count, 24)
+  595|         self.assertEqual(cached.cond.wait_count, 8)
+  596|         self.assertEqual(cached.cond.notify_count, 8)
+  597| 
+  598|     def test_shared_cache(self):
+  599|         cache = self.cache(2)
+  600|         cached1 = Cached(cache)
+  601|         cached2 = Cached(cache)
+  602| 
+  603|         self.assertEqual(cached1.get_info.cache_info(), (0, 0, 2, 0))
+  604|         self.assertEqual(cached2.get_info.cache_info(), (0, 0, 2, 0))
+  605| 
+  606|         # hits/misses are counted by instance
+  607|         self.assertEqual(cached1.get_info(0), 0)
+  608|         self.assertEqual(cached1.get_info.cache_info(), (0, 1, 2, 1))
+  609|         self.assertEqual(cached2.get_info.cache_info(), (0, 0, 2, 1))
+  610| 
+  611|         # default methodkey discards "self", so results will be shared
+  612|         # across instances
+  613|         self.assertEqual(cached2.get_info(0), 0)
+  614|         self.assertEqual(cached1.get_info.cache_info(), (0, 1, 2, 1))
+  615|         self.assertEqual(cached2.get_info.cache_info(), (1, 0, 2, 1))
+  616|         self.assertEqual(cached1.get_info(0), 0)
+  617|         self.assertEqual(cached1.get_info.cache_info(), (1, 1, 2, 1))
+  618|         self.assertEqual(cached2.get_info.cache_info(), (1, 0, 2, 1))
+  619|         self.assertEqual(cached1.get_info(1), 1)
+  620|         self.assertEqual(cached1.get_info.cache_info(), (1, 2, 2, 2))
+  621|         self.assertEqual(cached2.get_info.cache_info(), (1, 0, 2, 2))
+  622|         self.assertEqual(cached2.get_info(1), 1)
+  623|         self.assertEqual(cached1.get_info.cache_info(), (1, 2, 2, 2))
+  624|         self.assertEqual(cached2.get_info.cache_info(), (2, 0, 2, 2))
+  625| 
+  626|     def test_value_too_large(self):
+  627|         cache = self.cache(1, getsizeof=lambda x: x)
+  628|         cached = Cached(cache)
+  629|         self.assertEqual(cached.get(0), 0)
+  630|         self.assertIn(0, cache.values())
+  631|         self.assertEqual(cached.get(1), 1)
+  632|         self.assertIn(1, cache.values())
+  633|         self.assertEqual(cached.get(2), 2)
+  634|         self.assertNotIn(2, cache.values())
+  635| 
+  636| 
+  637| class DictMethodTest(unittest.TestCase, MethodDecoratorTestMixin):
+  638|     def cache(self, minsize, **_kwargs):
+  639|         return dict()
+  640| 
+  641| 
+  642| class WeakRefMethodTest(unittest.TestCase):
+  643|     def test_weakref(self):
+  644|         import fractions
+  645|         import gc
+  646|         import weakref
+  647| 
+  648|         # FIXME: in Python 3.9, `int` does not support weak references
+  649|         # even when subclassed, but Fraction apparently does...
+  650|         class Int(fractions.Fraction):
+  651|             def __add__(self, other):  # type: ignore
+  652|                 return Int(fractions.Fraction.__add__(self, other))
+  653| 
+  654|         cache = weakref.WeakValueDictionary()
+  655|         cached = Cached(cache, count=Int(0))  # type: ignore
+  656| 
+  657|         self.assertEqual(cached.get(0), 0)
+  658|         gc.collect()
+  659|         self.assertEqual(cached.get(0), 1)
+  660| 
+  661|         ref = cached.get(1)
+  662|         self.assertEqual(ref, 2)
+  663|         self.assertEqual(cached.get(1), 2)
+  664|         self.assertEqual(cached.get(1.0), 2)
+  665| 
+  666|         ref = cached.get_typed(2)
+  667|         self.assertEqual(ref, 3)
+  668|         self.assertEqual(cached.get_typed(1), 4)
+  669|         self.assertEqual(cached.get_typed(1.0), 5)
+  670| 
+  671|         cached.cache.clear()
+  672|         self.assertEqual(cached.get(1), 6)
+  673| 
+  674| 
+  675| class NoneMethodTest(unittest.TestCase):
+  676|     def cache(self, _minsize):
+  677|         return None
+  678| 
+  679|     def test_none_info(self):
+  680|         cached = Cached(self.cache(1))
+  681|         wrapper = cached.get_info
+  682| 
+  683|         with self.assertRaises(TypeError):
+  684|             wrapper.cache_info()
+  685| 
+  686| 
+  687| class AutospecTest(unittest.TestCase):
+  688|     def test_autospec_no_warnings(self):
+  689| 
+  690|         with warnings.catch_warnings(record=True) as w:
+  691|             warnings.simplefilter("always")
+  692|             unittest.mock.create_autospec(Cached, instance=True)
+  693|         self.assertEqual(len(w), 0)
+
+Answer now with ONE JSON array containing one object per query, in query order.

@@ -1,0 +1,117 @@
+[
+  {
+    "query_id": "g1q-decorator-contains-11",
+    "answerable_static": true,
+    "gold": [
+      "tests/documentation.py::Action.delete",
+      "tests/documentation.py::Action.insert",
+      "tests/documentation.py::Action.view"
+    ],
+    "conditional_flags": [],
+    "notes": "Class Action (line 1528) has exactly three direct children, the decorated methods view, insert, delete; no class-body assignments."
+  },
+  {
+    "query_id": "g1q-decorator-contains-22",
+    "answerable_static": true,
+    "gold": [
+      "tests/documentation.py::singledispatch_example2.V.__len__"
+    ],
+    "conditional_flags": [],
+    "notes": "Class V (line 1770, nested in singledispatch_example2) has a single direct child, the method __len__; no class-body assignments."
+  },
+  {
+    "query_id": "g1q-decorator-contained_in-100",
+    "answerable_static": true,
+    "gold": [
+      "tests/documentation.py"
+    ],
+    "conditional_flags": [],
+    "notes": "warn_slow is a top-level def at line 1794, so its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-decorator-contained_in-17",
+    "answerable_static": true,
+    "gold": [
+      "src/decorator/__init__.py::ContextManager"
+    ],
+    "conditional_flags": [],
+    "notes": "__init__ at line 398 is defined directly in the body of class ContextManager (line 397)."
+  },
+  {
+    "query_id": "g1q-decorator-imports_of-2",
+    "answerable_static": true,
+    "gold": [
+      "ext:collections",
+      "ext:collections.abc",
+      "ext:doctest",
+      "ext:functools",
+      "ext:inspect",
+      "ext:itertools",
+      "ext:threading",
+      "ext:time",
+      "repo:src/decorator/__init__.py"
+    ],
+    "conditional_flags": [
+      "ext:doctest"
+    ],
+    "notes": "Top-level imports at lines 1-9; 'from decorator import ...' resolves to the repo package src/decorator/__init__.py (symbols of the package module; no further ancestors). 'import doctest' at line 1889 is inside 'if __name__ == __main__' so flagged conditional. Import-looking lines inside docstrings/doctests are string content, not import statements."
+  },
+  {
+    "query_id": "g1q-decorator-imports_of-3",
+    "answerable_static": true,
+    "gold": [
+      "ext:asyncio",
+      "ext:collections",
+      "ext:collections.abc",
+      "ext:decimal",
+      "ext:doctest",
+      "ext:functools",
+      "ext:inspect",
+      "ext:sys",
+      "ext:typing",
+      "ext:unittest",
+      "repo:src/decorator/__init__.py",
+      "repo:tests/documentation.py"
+    ],
+    "conditional_flags": [
+      "ext:collections.abc",
+      "repo:tests/documentation.py"
+    ],
+    "notes": "Lines 1-16. 'from decorator import ...' resolves to repo package src/decorator/__init__.py. Both branches of the try/except (relative 'from . import documentation' and top-level 'import documentation', tests/ being a rootable directory without __init__.py) resolve to tests/documentation.py, so it is flagged conditional. 'from collections.abc import Sequence' sits under 'if TYPE_CHECKING' so flagged. 'from collections import ...' (X external) yields ext:collections."
+  },
+  {
+    "query_id": "g1q-decorator-where_defined-111",
+    "answerable_static": true,
+    "gold": [
+      "src/decorator/__init__.py:450"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def site at line 450 (nested def inside dispatch_on). Line 537 is an attribute assignment (gen_func_dec.__name__) and line 538 a return, neither a definition site."
+  },
+  {
+    "query_id": "g1q-decorator-where_defined-191",
+    "answerable_static": true,
+    "gold": [
+      "tests/test.py:290"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def site: method header of TestSingleDispatch.test_wrapping_attributes at line 290."
+  },
+  {
+    "query_id": "g1q-decorator-callees_of-104",
+    "answerable_static": true,
+    "gold": [
+      "ext:doctest.testmod",
+      "ext:unittest.TestCase.assertEqual"
+    ],
+    "conditional_flags": [],
+    "notes": "Body calls doctest.testmod(doc) and self.assertEqual(...); self is a unittest.TestCase instance (DocumentationTestCase inherits unittest.TestCase and does not override assertEqual), so both callees are external. No repo-internal callees."
+  },
+  {
+    "query_id": "g1q-decorator-callees_of-56",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "test_kwonlyargs (lines 1616-1625) has a body consisting only of a docstring; the doctest examples are string content, not call expressions, so the callee set is positively empty."
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "query_id": "g1q-requests-callees_of-29",
+    "answerable_static": true,
+    "gold": [
+      "src/requests/api.py::request"
+    ],
+    "conditional_flags": [],
+    "notes": ""
+  },
+  {
+    "query_id": "g1q-requests-callees_of-143",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.any",
+      "ext:builtins.dict.update",
+      "ext:builtins.isinstance",
+      "ext:builtins.len",
+      "ext:typing.cast",
+      "src/requests/auth.py::HTTPBasicAuth",
+      "src/requests/models.py::PreparedRequest.prepare_content_length",
+      "src/requests/utils.py::get_auth_from_url"
+    ],
+    "conditional_flags": [],
+    "notes": "The auth_handler(self) call may invoke an arbitrary callable supplied through the auth parameter, so its runtime callee cannot be fully determined statically."
+  }
+]

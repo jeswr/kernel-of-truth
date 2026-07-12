@@ -1,0 +1,17 @@
+{
+    "author": "coordinator-1",
+    "date": "2026-07-11T21:45:00Z",
+    "experiment": "casc-0",
+    "kind": "ops",
+    "patch": [
+        {
+            "op": "replace",
+            "path": "/pins/harness_manifest",
+            "value": "3f00341e28d4cabdf9ac71dc93d229afe094a3f086d779a7311ec577c915b8ec"
+        }
+    ],
+    "rationale": "Input pin only (P2 P-9): a PINNED-AT-INPUTS placeholder completed by ops amendment before the final-phase run; no design field is touched. The CASC-0 static-case runner was built under poc/casc-0/ (runner/casc0_runner.py implementing the frozen size x medium x verifier factorial with the anti-oracle intermediate-only verifier ERR_ORACLE_CHECK; modal/modal_casc0.py; casc0-manifest.json); then two pre-freeze passes edited poc/casc-0 bytes: (1) the ASM-1158 explicator pass upgraded the raw-kernel gloss templates to explicator-authored kernel-STYLE Option-A per-relation records (mapping verdict FAIL: 0/7 core relations kernel-record-backed -> rider weakened kernel-covered->kernel-STYLE) and (2) the schema-conformance pass redistributed the over-nested /design fields into the kot-reg-allowed locations with matching analysis field-paths. This resolves the harness_manifest placeholder to the staged-bytes manifest sha re-printed after those edits (python3 poc/casc-0/modal/modal_casc0.py --print-manifest; 12 staged files); the in-container staged-bytes assert fails closed (ERR_STAGING_MISMATCH/ERR_PIN) on any mismatch. prereg-freeze --dry-run = DRY-RUN-OK (schema + 3 corpus digests + P-6 pins reproduced); reuse-check --gate GREEN (0 blocking, 6 fresh). One-shot pin discipline: any change to poc/casc-0 bytes before the run invalidates this value and requires a pre-run correction record.",
+    "schema_version": "kot-amend/1",
+    "seq": 1,
+    "unblinding_state_at_write": "pre"
+}

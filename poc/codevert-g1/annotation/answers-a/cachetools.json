@@ -1,0 +1,93 @@
+[
+  {
+    "query_id": "g1q-cachetools-contains-53",
+    "answerable_static": true,
+    "gold": [
+      "tests/__init__.py::CacheTestMixin.test_missing_getsizeof.DefaultCache.__missing__"
+    ],
+    "conditional_flags": [],
+    "notes": "Class body (lines 208-214) has exactly one direct child: def __missing__ (line 209). No class-body assignments."
+  },
+  {
+    "query_id": "g1q-cachetools-contains-92",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_tlru.py::TLRUTestCache.__init__"
+    ],
+    "conditional_flags": [],
+    "notes": "Class body (lines 27-29) contains only def __init__ (line 28); no class-body assignments."
+  },
+  {
+    "query_id": "g1q-cachetools-contained_in-315",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_cachedmethod.py::Cached"
+    ],
+    "conditional_flags": [],
+    "notes": "def get_cond_error (line 50) is a direct member of top-level class Cached."
+  },
+  {
+    "query_id": "g1q-cachetools-contained_in-337",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_cachedmethod.py::MethodDecoratorTestMixin"
+    ],
+    "conditional_flags": [],
+    "notes": "def test_decorator_cond_clear (line 414) is a direct member of class MethodDecoratorTestMixin."
+  },
+  {
+    "query_id": "g1q-cachetools-imports_of-0",
+    "answerable_static": true,
+    "gold": [
+      "ext:pathlib",
+      "ext:sys"
+    ],
+    "conditional_flags": [],
+    "notes": "Only two top-level imports (lines 1-2), both external; no nested or dynamic imports. Sphinx extension names are config strings, not import statements."
+  },
+  {
+    "query_id": "g1q-cachetools-imports_of-7",
+    "answerable_static": true,
+    "gold": [
+      "ext:unittest",
+      "repo:src/cachetools/__init__.py",
+      "repo:tests/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": "import unittest (ext); import cachetools resolves via src/ root to src/cachetools/__init__.py (no repo ancestor package above it); from . import CacheTestMixin resolves to symbol of tests/__init__.py. All top-level."
+  },
+  {
+    "query_id": "g1q-cachetools-where_defined-39",
+    "answerable_static": true,
+    "gold": [
+      "src/cachetools/__init__.py:585"
+    ],
+    "conditional_flags": [],
+    "notes": "Only line 585 is a class TLRUCache definition. Line 9 is a string in __all__; tests/test_tlru.py:4 is an import binding; line 27 uses it as a base class; all other lines are function-local usages."
+  },
+  {
+    "query_id": "g1q-cachetools-where_defined-223",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_cachedmethod.py:425"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def header at line 425 inside MethodDecoratorTestMixin; no other occurrences."
+  },
+  {
+    "query_id": "g1q-cachetools-callees_of-343",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Only call site is cached(self) at line 102; 'cached' is the result of self.decorator(lambda n: n) (line 89), a decorator-produced wrapper whose concrete callee depends on DECORATOR set in subclasses — unresolvable statically. No other calls in the body (== at line 103 is an operator)."
+  },
+  {
+    "query_id": "g1q-cachetools-callees_of-174",
+    "answerable_static": true,
+    "gold": [
+      "src/cachetools/_cachedmethod.py::_unlocked.wrapper"
+    ],
+    "conditional_flags": [],
+    "notes": "Body (line 384) makes exactly one call: wrapper(self._obj, *args, **kwargs), where wrapper is the closure function defined at line 360 inside _unlocked; binding is unambiguous within that scope."
+  }
+]

@@ -1,0 +1,115 @@
+[
+  {
+    "query_id": "g1q-humanize-contains-11",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_number.py::test_apnumber",
+      "tests/test_number.py::test_clamp",
+      "tests/test_number.py::test_fractional",
+      "tests/test_number.py::test_intcomma",
+      "tests/test_number.py::test_intword",
+      "tests/test_number.py::test_intword_powers",
+      "tests/test_number.py::test_metric",
+      "tests/test_number.py::test_ordinal",
+      "tests/test_number.py::test_scientific"
+    ],
+    "conditional_flags": [],
+    "notes": "Nine top-level defs; no module-level simple-name assignments; imports excluded."
+  },
+  {
+    "query_id": "g1q-humanize-contains-9",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_i18n.py::NOW",
+      "tests/test_i18n.py::TestActivate",
+      "tests/test_i18n.py::test_default_locale_path_defined__spec__",
+      "tests/test_i18n.py::test_default_locale_path_none__spec__",
+      "tests/test_i18n.py::test_default_locale_path_undefined__file__",
+      "tests/test_i18n.py::test_i18n",
+      "tests/test_i18n.py::test_intcomma",
+      "tests/test_i18n.py::test_intword_i18n",
+      "tests/test_i18n.py::test_langauge_codes",
+      "tests/test_i18n.py::test_naturaldelta",
+      "tests/test_i18n.py::test_naturalsize_i18n",
+      "tests/test_i18n.py::test_naturalsize_i18n_binary",
+      "tests/test_i18n.py::test_ordinal_genders"
+    ],
+    "conditional_flags": [
+      "tests/test_i18n.py::NOW"
+    ],
+    "notes": "NOW (line 14) is bound inside a module-level 'with freeze_time' block, hence flagged; 11 top-level defs plus class TestActivate."
+  },
+  {
+    "query_id": "g1q-humanize-contained_in-69",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_i18n.py::TestActivate"
+    ],
+    "conditional_flags": [],
+    "notes": "test_none_locale (line 310) is a method defined directly in class TestActivate (line 272)."
+  },
+  {
+    "query_id": "g1q-humanize-contained_in-53",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_filesize.py"
+    ],
+    "conditional_flags": [],
+    "notes": "test_naturalsize (line 96) is a top-level def; parent is the module."
+  },
+  {
+    "query_id": "g1q-humanize-imports_of-3",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:typing"
+    ],
+    "conditional_flags": [
+      "ext:typing"
+    ],
+    "notes": "'from typing import Any' sits under 'if TYPE_CHECKING:' (a module-level constant set to False), so it is conditional; typing is external. No repo-internal imports."
+  },
+  {
+    "query_id": "g1q-humanize-imports_of-8",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:pytest",
+      "repo:src/humanize/__init__.py"
+    ],
+    "conditional_flags": [],
+    "notes": "'import humanize' resolves via the src/ root to the repo package src/humanize/__init__.py; humanize is top-level so no ancestor packages. pytest and __future__ are external."
+  },
+  {
+    "query_id": "g1q-humanize-where_defined-17",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_time.py:14"
+    ],
+    "conditional_flags": [],
+    "notes": "Single module-level assignment at tests/test_time.py:14; lines 33-34 only use the name (they bind TOMORROW/YESTERDAY)."
+  },
+  {
+    "query_id": "g1q-humanize-where_defined-50",
+    "answerable_static": true,
+    "gold": [
+      "src/humanize/i18n.py:100"
+    ],
+    "conditional_flags": [],
+    "notes": "Only definition site is the def at src/humanize/i18n.py:100. Lines filesize.py:9, number.py:9, time.py:13 are import bindings (aliased to _) and excluded; i18n.py:129 is a docstring mention and i18n.py:150 is a call."
+  },
+  {
+    "query_id": "g1q-humanize-callees_of-37",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The only call expression is benchmark(...) at line 25; 'benchmark' is a parameter (pytest fixture) whose runtime callee cannot be determined from the shown source. humanize.apnumber is passed as an argument, not called lexically."
+  },
+  {
+    "query_id": "g1q-humanize-callees_of-75",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The only call is humanize.scientific(*test_args) at line 224; 'humanize' is the repo package but src/humanize/__init__.py's source is not shown, so the def site of 'scientific' (likely re-exported from a submodule) cannot be resolved to a relpath::qualpath."
+  }
+]

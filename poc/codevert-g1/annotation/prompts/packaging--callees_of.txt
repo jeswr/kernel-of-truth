@@ -1,0 +1,1475 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: packaging ===
+PY FILE LISTING (repo-root-relative; authoritative):
+noxfile.py
+benchmarks/__init__.py
+benchmarks/markers.py
+benchmarks/requirement.py
+benchmarks/resolver.py
+benchmarks/specifiers.py
+benchmarks/utils.py
+benchmarks/version.py
+docs/conf.py
+src/packaging/__init__.py
+src/packaging/_elffile.py
+src/packaging/_manylinux.py
+src/packaging/_musllinux.py
+src/packaging/_parser.py
+src/packaging/_ranges.py
+src/packaging/_structures.py
+src/packaging/_tokenizer.py
+src/packaging/dependency_groups.py
+src/packaging/direct_url.py
+src/packaging/errors.py
+src/packaging/markers.py
+src/packaging/metadata.py
+src/packaging/pylock.py
+src/packaging/ranges.py
+src/packaging/requirements.py
+src/packaging/specifiers.py
+src/packaging/tags.py
+src/packaging/utils.py
+src/packaging/version.py
+src/packaging/licenses/__init__.py
+src/packaging/licenses/_spdx.py
+tasks/__init__.py
+tasks/check_frozen_revs.py
+tasks/licenses.py
+tasks/paths.py
+tasks/pickle_compat.py
+tasks/select_pypi_dist.py
+tasks/select_pypi_specs.py
+tasks/select_pypi_versions.py
+tests/__init__.py
+tests/conftest.py
+tests/test_dependency_groups.py
+tests/test_direct_url.py
+tests/test_elffile.py
+tests/test_errors.py
+tests/test_licenses.py
+tests/test_manylinux.py
+tests/test_markers.py
+tests/test_metadata.py
+tests/test_musllinux.py
+tests/test_pylock.py
+tests/test_pylock_select.py
+tests/test_ranges.py
+tests/test_requirements.py
+tests/test_specifiers.py
+tests/test_tags.py
+tests/test_utils.py
+tests/test_version.py
+tests/property/__init__.py
+tests/property/strategies.py
+tests/property/test_ranges_cross_epoch.py
+tests/property/test_ranges_pep440_extended.py
+tests/property/test_ranges_pubgrub.py
+tests/property/test_ranges_set_algebra.py
+tests/property/test_ranges_set_relations.py
+tests/property/test_specifier_comparison.py
+tests/property/test_specifier_extended.py
+tests/property/test_specifier_implied.py
+tests/property/test_specifier_matching.py
+tests/property/test_version_format.py
+tests/property/test_version_normalization.py
+tests/property/test_version_ordering.py
+tests/property/test_version_releases.py
+
+=== QUERIES (2) ===
+QUERY g1q-packaging-callees_of-223: family=callees_of target=src/packaging/metadata.py::_Validator.__set_name__
+QUERY g1q-packaging-callees_of-55: family=callees_of target=src/packaging/_manylinux.py::_glibc_version_string
+
+=== CONTEXT ===
+
+FILE src/packaging/metadata.py:
+    1| from __future__ import annotations
+    2| 
+    3| import email.header
+    4| import email.message
+    5| import email.parser
+    6| import email.policy
+    7| import keyword
+    8| import pathlib
+    9| import typing
+   10| from typing import (
+   11|     Any,
+   12|     Callable,
+   13|     Generic,
+   14|     Literal,
+   15|     TypedDict,
+   16|     cast,
+   17| )
+   18| 
+   19| from . import licenses, requirements, specifiers, utils
+   20| from . import version as version_module
+   21| from .errors import ExceptionGroup, _ErrorCollector
+   22| 
+   23| if typing.TYPE_CHECKING:
+   24|     from .licenses import NormalizedLicenseExpression
+   25|     from .version import Version
+   26| 
+   27| T = typing.TypeVar("T")
+   28| 
+   29| 
+   30| __all__ = [
+   31|     "ExceptionGroup",  # Keep this for a bit (makes mypy happy w/ 26.0 compat)
+   32|     "InvalidMetadata",
+   33|     "Metadata",
+   34|     "RFC822Message",
+   35|     "RFC822Policy",
+   36|     "RawMetadata",
+   37|     "parse_email",
+   38| ]
+   39| 
+   40| 
+   41| def __dir__() -> list[str]:
+   42|     return __all__
+   43| 
+   44| 
+   45| class InvalidMetadata(ValueError):
+   46|     """A metadata field contains invalid data."""
+   47| 
+   48|     field: str
+   49|     """The name of the field that contains invalid data."""
+   50| 
+   51|     def __init__(self, field: str, message: str) -> None:
+   52|         self.field = field
+   53|         super().__init__(message)
+   54| 
+   55|     # Support pickling; ``args`` does not match ``__init__``'s signature.
+   56|     def __reduce__(self) -> tuple[type[InvalidMetadata], tuple[str, str]]:
+   57|         return (self.__class__, (self.field, self.args[0]))
+   58| 
+   59| 
+   60| # The RawMetadata class attempts to make as few assumptions about the underlying
+   61| # serialization formats as possible. The idea is that as long as a serialization
+   62| # formats offer some very basic primitives in *some* way then we can support
+   63| # serializing to and from that format.
+   64| class RawMetadata(TypedDict, total=False):
+   65|     """A dictionary of raw core metadata.
+   66| 
+   67|     Each field in core metadata maps to a key of this dictionary (when data is
+   68|     provided). The key is lower-case and underscores are used instead of dashes
+   69|     compared to the equivalent core metadata field. Any core metadata field that
+   70|     can be specified multiple times or can hold multiple values in a single
+   71|     field have a key with a plural name. See :class:`Metadata` whose attributes
+   72|     match the keys of this dictionary.
+   73| 
+   74|     Core metadata fields that can be specified multiple times are stored as a
+   75|     list or dict depending on which is appropriate for the field. Any fields
+   76|     which hold multiple values in a single field are stored as a list. All fields
+   77|     are considered optional.
+   78|     """
+   79| 
+   80|     # Metadata 1.0 - PEP 241
+   81|     metadata_version: str
+   82|     name: str
+   83|     version: str
+   84|     platforms: list[str]
+   85|     summary: str
+   86|     description: str
+   87|     keywords: list[str]
+   88|     home_page: str
+   89|     author: str
+   90|     author_email: str
+   91|     license: str
+   92| 
+   93|     # Metadata 1.1 - PEP 314
+   94|     supported_platforms: list[str]
+   95|     download_url: str
+   96|     classifiers: list[str]
+   97|     requires: list[str]
+   98|     provides: list[str]
+   99|     obsoletes: list[str]
+  100| 
+  101|     # Metadata 1.2 - PEP 345
+  102|     maintainer: str
+  103|     maintainer_email: str
+  104|     requires_dist: list[str]
+  105|     provides_dist: list[str]
+  106|     obsoletes_dist: list[str]
+  107|     requires_python: str
+  108|     requires_external: list[str]
+  109|     project_urls: dict[str, str]
+  110| 
+  111|     # Metadata 2.0
+  112|     # PEP 426 attempted to completely revamp the metadata format
+  113|     # but got stuck without ever being able to build consensus on
+  114|     # it and ultimately ended up withdrawn.
+  115|     #
+  116|     # However, a number of tools had started emitting METADATA with
+  117|     # `2.0` Metadata-Version, so for historical reasons, this version
+  118|     # was skipped.
+  119| 
+  120|     # Metadata 2.1 - PEP 566
+  121|     description_content_type: str
+  122|     provides_extra: list[str]
+  123| 
+  124|     # Metadata 2.2 - PEP 643
+  125|     dynamic: list[str]
+  126| 
+  127|     # Metadata 2.3 - PEP 685
+  128|     # No new fields were added in PEP 685, just some edge case were
+  129|     # tightened up to provide better interoperability.
+  130| 
+  131|     # Metadata 2.4 - PEP 639
+  132|     license_expression: str
+  133|     license_files: list[str]
+  134| 
+  135|     # Metadata 2.5 - PEP 794
+  136|     import_names: list[str]
+  137|     import_namespaces: list[str]
+  138| 
+  139|     # Metadata 2.6 - PEP 808 (no new fields, behavior change for Dynamic)
+  140| 
+  141| 
+  142| # 'keywords' is special as it's a string in the core metadata spec, but we
+  143| # represent it as a list.
+  144| _STRING_FIELDS = {
+  145|     "author",
+  146|     "author_email",
+  147|     "description",
+  148|     "description_content_type",
+  149|     "download_url",
+  150|     "home_page",
+  151|     "license",
+  152|     "license_expression",
+  153|     "maintainer",
+  154|     "maintainer_email",
+  155|     "metadata_version",
+  156|     "name",
+  157|     "requires_python",
+  158|     "summary",
+  159|     "version",
+  160| }
+  161| 
+  162| _LIST_FIELDS = {
+  163|     "classifiers",
+  164|     "dynamic",
+  165|     "license_files",
+  166|     "obsoletes",
+  167|     "obsoletes_dist",
+  168|     "platforms",
+  169|     "provides",
+  170|     "provides_dist",
+  171|     "provides_extra",
+  172|     "requires",
+  173|     "requires_dist",
+  174|     "requires_external",
+  175|     "supported_platforms",
+  176|     "import_names",
+  177|     "import_namespaces",
+  178| }
+  179| 
+  180| _DICT_FIELDS = {
+  181|     "project_urls",
+  182| }
+  183| 
+  184| 
+  185| def _parse_keywords(data: str) -> list[str]:
+  186|     """Split a string of comma-separated keywords into a list of keywords."""
+  187|     return [k.strip() for k in data.split(",")]
+  188| 
+  189| 
+  190| def _parse_project_urls(data: list[str]) -> dict[str, str]:
+  191|     """Parse a list of label/URL string pairings separated by a comma."""
+  192|     urls = {}
+  193|     for pair in data:
+  194|         # Our logic is slightly tricky here as we want to try and do
+  195|         # *something* reasonable with malformed data.
+  196|         #
+  197|         # The main thing that we have to worry about, is data that does
+  198|         # not have a ',' at all to split the label from the Value. There
+  199|         # isn't a singular right answer here, and we will fail validation
+  200|         # later on (if the caller is validating) so it doesn't *really*
+  201|         # matter, but since the missing value has to be an empty str
+  202|         # and our return value is dict[str, str], if we let the key
+  203|         # be the missing value, then they'd have multiple '' values that
+  204|         # overwrite each other in a accumulating dict.
+  205|         #
+  206|         # The other potential issue is that it's possible to have the
+  207|         # same label multiple times in the metadata, with no solid "right"
+  208|         # answer with what to do in that case. As such, we'll do the only
+  209|         # thing we can, which is treat the field as unparsable and add it
+  210|         # to our list of unparsed fields.
+  211|         #
+  212|         # TODO: The spec doesn't say anything about if the keys should be
+  213|         #       considered case sensitive or not... logically they should
+  214|         #       be case-preserving and case-insensitive, but doing that
+  215|         #       would open up more cases where we might have duplicate
+  216|         #       entries.
+  217|         label, _, url = (s.strip() for s in pair.partition(","))
+  218| 
+  219|         if label in urls:
+  220|             # The label already exists in our set of urls, so this field
+  221|             # is unparsable, and we can just add the whole thing to our
+  222|             # unparsable data and stop processing it.
+  223|             raise KeyError("duplicate labels in project urls")
+  224|         urls[label] = url
+  225| 
+  226|     return urls
+  227| 
+  228| 
+  229| def _get_payload(msg: email.message.Message, source: bytes | str) -> str:
+  230|     """Get the body of the message."""
+  231|     # If our source is a str, then our caller has managed encodings for us,
+  232|     # and we don't need to deal with it.
+  233|     if isinstance(source, str):
+  234|         payload = msg.get_payload()
+  235|         # A multipart payload makes get_payload() return a list of messages
+  236|         # rather than a str; route it to ``unparsed``.
+  237|         if not isinstance(payload, str):
+  238|             raise ValueError("payload is not a string")  # noqa: TRY004
+  239|         return payload
+  240|     # If our source is a bytes, then we're managing the encoding and we need
+  241|     # to deal with it.
+  242|     else:
+  243|         bpayload = msg.get_payload(decode=True)
+  244|         # A multipart payload makes get_payload(decode=True) return None;
+  245|         # route it to ``unparsed``.
+  246|         if not isinstance(bpayload, bytes):
+  247|             raise ValueError("payload in an invalid encoding")  # noqa: TRY004
+  248|         try:
+  249|             return bpayload.decode("utf8", "strict")
+  250|         except UnicodeDecodeError as exc:
+  251|             raise ValueError("payload in an invalid encoding") from exc
+  252| 
+  253| 
+  254| # The various parse_FORMAT functions here are intended to be as lenient as
+  255| # possible in their parsing, while still returning a correctly typed
+  256| # RawMetadata.
+  257| #
+  258| # To aid in this, we also generally want to do as little touching of the
+  259| # data as possible, except where there are possibly some historic holdovers
+  260| # that make valid data awkward to work with.
+  261| #
+  262| # While this is a lower level, intermediate format than our ``Metadata``
+  263| # class, some light touch ups can make a massive difference in usability.
+  264| 
+  265| # Map METADATA fields to RawMetadata.
+  266| _EMAIL_TO_RAW_MAPPING = {
+  267|     "author": "author",
+  268|     "author-email": "author_email",
+  269|     "classifier": "classifiers",
+  270|     "description": "description",
+  271|     "description-content-type": "description_content_type",
+  272|     "download-url": "download_url",
+  273|     "dynamic": "dynamic",
+  274|     "home-page": "home_page",
+  275|     "import-name": "import_names",
+  276|     "import-namespace": "import_namespaces",
+  277|     "keywords": "keywords",
+  278|     "license": "license",
+  279|     "license-expression": "license_expression",
+  280|     "license-file": "license_files",
+  281|     "maintainer": "maintainer",
+  282|     "maintainer-email": "maintainer_email",
+  283|     "metadata-version": "metadata_version",
+  284|     "name": "name",
+  285|     "obsoletes": "obsoletes",
+  286|     "obsoletes-dist": "obsoletes_dist",
+  287|     "platform": "platforms",
+  288|     "project-url": "project_urls",
+  289|     "provides": "provides",
+  290|     "provides-dist": "provides_dist",
+  291|     "provides-extra": "provides_extra",
+  292|     "requires": "requires",
+  293|     "requires-dist": "requires_dist",
+  294|     "requires-external": "requires_external",
+  295|     "requires-python": "requires_python",
+  296|     "summary": "summary",
+  297|     "supported-platform": "supported_platforms",
+  298|     "version": "version",
+  299| }
+  300| _RAW_TO_EMAIL_MAPPING = {raw: email for email, raw in _EMAIL_TO_RAW_MAPPING.items()}
+  301| 
+  302| 
+  303| # This class is for writing RFC822 messages
+  304| class RFC822Policy(email.policy.EmailPolicy):
+  305|     """
+  306|     This is :class:`email.policy.EmailPolicy`, but with a simple ``header_store_parse``
+  307|     implementation that handles multi-line values, and some nice defaults.
+  308|     """
+  309| 
+  310|     utf8 = True
+  311|     mangle_from_ = False
+  312|     max_line_length = 0
+  313| 
+  314|     def header_store_parse(self, name: str, value: str) -> tuple[str, str]:
+  315|         size = len(name) + 2
+  316|         value = value.replace("\n", "\n" + " " * size)
+  317|         return (name, value)
+  318| 
+  319| 
+  320| # This class is for writing RFC822 messages
+  321| class RFC822Message(email.message.EmailMessage):
+  322|     """
+  323|     This is :class:`email.message.EmailMessage` with two small changes: it defaults to
+  324|     our `RFC822Policy`, and it correctly writes unicode when being called
+  325|     with `bytes()`.
+  326|     """
+  327| 
+  328|     def __init__(self) -> None:
+  329|         super().__init__(policy=RFC822Policy())
+  330| 
+  331|     def as_bytes(
+  332|         self, unixfrom: bool = False, policy: email.policy.Policy | None = None
+  333|     ) -> bytes:
+  334|         """
+  335|         Return the bytes representation of the message.
+  336| 
+  337|         This handles unicode encoding.
+  338|         """
+  339|         return self.as_string(unixfrom, policy=policy).encode("utf-8")
+  340| 
+  341| 
+  342| def parse_email(data: bytes | str) -> tuple[RawMetadata, dict[str, list[str]]]:
+  343|     """Parse a distribution's metadata stored as email headers (e.g. from ``METADATA``).
+  344| 
+  345|     This function returns a two-item tuple of dicts. The first dict is of
+  346|     recognized fields from the core metadata specification. Fields that can be
+  347|     parsed and translated into Python's built-in types are converted
+  348|     appropriately. All other fields are left as-is. Fields that are allowed to
+  349|     appear multiple times are stored as lists.
+  350| 
+  351|     The second dict contains all other fields from the metadata. This includes
+  352|     any unrecognized fields. It also includes any fields which are expected to
+  353|     be parsed into a built-in type but were not formatted appropriately. Finally,
+  354|     any fields that are expected to appear only once but are repeated are
+  355|     included in this dict.
+  356| 
+  357|     """
+  358|     raw: dict[str, str | list[str] | dict[str, str]] = {}
+  359|     unparsed: dict[str, list[str]] = {}
+  360| 
+  361|     if isinstance(data, str):
+  362|         parsed = email.parser.Parser(policy=email.policy.compat32).parsestr(data)
+  363|     else:
+  364|         parsed = email.parser.BytesParser(policy=email.policy.compat32).parsebytes(data)
+  365| 
+  366|     # We have to wrap parsed.keys() in a set, because in the case of multiple
+  367|     # values for a key (a list), the key will appear multiple times in the
+  368|     # list of keys, but we're avoiding that by using get_all().
+  369|     for name_with_case in frozenset(parsed.keys()):
+  370|         # Header names in RFC are case insensitive, so we'll normalize to all
+  371|         # lower case to make comparisons easier.
+  372|         name = name_with_case.lower()
+  373| 
+  374|         # We use get_all() here, even for fields that aren't multiple use,
+  375|         # because otherwise someone could have e.g. two Name fields, and we
+  376|         # would just silently ignore it rather than doing something about it.
+  377|         headers = parsed.get_all(name) or []
+  378| 
+  379|         # The way the email module works when parsing bytes is that it
+  380|         # unconditionally decodes the bytes as ascii using the surrogateescape
+  381|         # handler. When you pull that data back out (such as with get_all() ),
+  382|         # it looks to see if the str has any surrogate escapes, and if it does
+  383|         # it wraps it in a Header object instead of returning the string.
+  384|         #
+  385|         # As such, we'll look for those Header objects, and fix up the encoding.
+  386|         value = []
+  387|         # Flag if we have run into any issues processing the headers, thus
+  388|         # signalling that the data belongs in 'unparsed'.
+  389|         valid_encoding = True
+  390|         for h in headers:
+  391|             # It's unclear if this can return more types than just a Header or
+  392|             # a str, so we'll just assert here to make sure.
+  393|             assert isinstance(h, (email.header.Header, str))
+  394| 
+  395|             # If it's a header object, we need to do our little dance to get
+  396|             # the real data out of it. In cases where there is invalid data
+  397|             # we're going to end up with mojibake, but there's no obvious, good
+  398|             # way around that without reimplementing parts of the Header object
+  399|             # ourselves.
+  400|             #
+  401|             # That should be fine since, if mojibacked happens, this key is
+  402|             # going into the unparsed dict anyways.
+  403|             if isinstance(h, email.header.Header):
+  404|                 # The Header object stores it's data as chunks, and each chunk
+  405|                 # can be independently encoded, so we'll need to check each
+  406|                 # of them.
+  407|                 chunks: list[tuple[bytes, str | None]] = []
+  408|                 for binary, _encoding in email.header.decode_header(h):
+  409|                     try:
+  410|                         binary.decode("utf8", "strict")
+  411|                     except UnicodeDecodeError:
+  412|                         # Enable mojibake.
+  413|                         encoding = "latin1"
+  414|                         valid_encoding = False
+  415|                     else:
+  416|                         encoding = "utf8"
+  417|                     chunks.append((binary, encoding))
+  418| 
+  419|                 # Turn our chunks back into a Header object, then let that
+  420|                 # Header object do the right thing to turn them into a
+  421|                 # string for us.
+  422|                 value.append(str(email.header.make_header(chunks)))
+  423|             # This is already a string, so just add it.
+  424|             else:
+  425|                 value.append(h)
+  426| 
+  427|         # We've processed all of our values to get them into a list of str,
+  428|         # but we may have mojibake data, in which case this is an unparsed
+  429|         # field.
+  430|         if not valid_encoding:
+  431|             unparsed[name] = value
+  432|             continue
+  433| 
+  434|         raw_name = _EMAIL_TO_RAW_MAPPING.get(name)
+  435|         if raw_name is None:
+  436|             # This is a bit of a weird situation, we've encountered a key that
+  437|             # we don't know what it means, so we don't know whether it's meant
+  438|             # to be a list or not.
+  439|             #
+  440|             # Since we can't really tell one way or another, we'll just leave it
+  441|             # as a list, even though it may be a single item list, because that's
+  442|             # what makes the most sense for email headers.
+  443|             unparsed[name] = value
+  444|             continue
+  445| 
+  446|         # If this is one of our string fields, then we'll check to see if our
+  447|         # value is a list of a single item. If it is then we'll assume that
+  448|         # it was emitted as a single string, and unwrap the str from inside
+  449|         # the list.
+  450|         #
+  451|         # If it's any other kind of data, then we haven't the faintest clue
+  452|         # what we should parse it as, and we have to just add it to our list
+  453|         # of unparsed stuff.
+  454|         if raw_name in _STRING_FIELDS and len(value) == 1:
+  455|             raw[raw_name] = value[0]
+  456|         # If this is import_names, we need to special case the empty field
+  457|         # case, which converts to an empty list instead of None. We can't let
+  458|         # the empty case slip through, as it will fail validation.
+  459|         elif raw_name == "import_names" and value == [""]:
+  460|             raw[raw_name] = []
+  461|         # If this is one of our list of string fields, then we can just assign
+  462|         # the value, since email *only* has strings, and our get_all() call
+  463|         # above ensures that this is a list.
+  464|         elif raw_name in _LIST_FIELDS:
+  465|             raw[raw_name] = value
+  466|         # Special Case: Keywords
+  467|         # The keywords field is implemented in the metadata spec as a str,
+  468|         # but it conceptually is a list of strings, and is serialized using
+  469|         # ", ".join(keywords), so we'll do some light data massaging to turn
+  470|         # this into what it logically is.
+  471|         elif raw_name == "keywords" and len(value) == 1:
+  472|             raw[raw_name] = _parse_keywords(value[0])
+  473|         # Special Case: Project-URL
+  474|         # The project urls is implemented in the metadata spec as a list of
+  475|         # specially-formatted strings that represent a key and a value, which
+  476|         # is fundamentally a mapping, however the email format doesn't support
+  477|         # mappings in a sane way, so it was crammed into a list of strings
+  478|         # instead.
+  479|         #
+  480|         # We will do a little light data massaging to turn this into a map as
+  481|         # it logically should be.
+  482|         elif raw_name == "project_urls":
+  483|             try:
+  484|                 raw[raw_name] = _parse_project_urls(value)
+  485|             except KeyError:
+  486|                 unparsed[name] = value
+  487|         # Nothing that we've done has managed to parse this, so it'll just
+  488|         # throw it in our unparsable data and move on.
+  489|         else:
+  490|             unparsed[name] = value
+  491| 
+  492|     # We need to support getting the Description from the message payload in
+  493|     # addition to getting it from the the headers. This does mean, though, there
+  494|     # is the possibility of it being set both ways, in which case we put both
+  495|     # in 'unparsed' since we don't know which is right.
+  496|     try:
+  497|         payload = _get_payload(parsed, data)
+  498|     except ValueError:
+  499|         unparsed.setdefault("description", []).append(
+  500|             parsed.get_payload(decode=isinstance(data, bytes))  # type: ignore[call-overload]
+  501|         )
+  502|     else:
+  503|         if payload:
+  504|             # Check to see if we've already got a description, if so then both
+  505|             # it, and this body move to unparsable.
+  506|             if "description" in raw:
+  507|                 description_header = cast("str", raw.pop("description"))
+  508|                 unparsed.setdefault("description", []).extend(
+  509|                     [description_header, payload]
+  510|                 )
+  511|             elif "description" in unparsed:
+  512|                 unparsed["description"].append(payload)
+  513|             else:
+  514|                 raw["description"] = payload
+  515| 
+  516|     # We need to cast our `raw` to a metadata, because a TypedDict only support
+  517|     # literal key names, but we're computing our key names on purpose, but the
+  518|     # way this function is implemented, our `TypedDict` can only have valid key
+  519|     # names.
+  520|     return cast("RawMetadata", raw), unparsed
+  521| 
+  522| 
+  523| _NOT_FOUND = object()
+  524| 
+  525| 
+  526| # Keep the two values in sync.
+  527| _VALID_METADATA_VERSIONS = [
+  528|     "1.0",
+  529|     "1.1",
+  530|     "1.2",
+  531|     "2.1",
+  532|     "2.2",
+  533|     "2.3",
+  534|     "2.4",
+  535|     "2.5",
+  536|     "2.6",
+  537| ]
+  538| _MetadataVersion = Literal[
+  539|     "1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"
+  540| ]
+  541| 
+  542| _REQUIRED_ATTRS = frozenset(["metadata_version", "name", "version"])
+  543| 
+  544| 
+  545| class _Validator(Generic[T]):
+  546|     """Validate a metadata field.
+  547| 
+  548|     All _process_*() methods correspond to a core metadata field. The method is
+  549|     called with the field's raw value. If the raw value is valid it is returned
+  550|     in its "enriched" form (e.g. ``version.Version`` for the ``Version`` field).
+  551|     If the raw value is invalid, :exc:`InvalidMetadata` is raised (with a cause
+  552|     as appropriate).
+  553|     """
+  554| 
+  555|     name: str
+  556|     raw_name: str
+  557|     added: _MetadataVersion
+  558| 
+  559|     def __init__(
+  560|         self,
+  561|         *,
+  562|         added: _MetadataVersion = "1.0",
+  563|     ) -> None:
+  564|         self.added = added
+  565| 
+  566|     def __set_name__(self, _owner: Metadata, name: str) -> None:
+  567|         self.name = name
+  568|         self.raw_name = _RAW_TO_EMAIL_MAPPING[name]
+  569| 
+  570|     def __get__(self, instance: Metadata, _owner: type[Metadata]) -> T:
+  571|         # With Python 3.8, the caching can be replaced with functools.cached_property().
+  572|         # No need to check the cache as attribute lookup will resolve into the
+  573|         # instance's __dict__ before __get__ is called.
+  574|         cache = instance.__dict__
+  575|         value = instance._raw.get(self.name)
+  576| 
+  577|         # To make the _process_* methods easier, we'll check if the value is None
+  578|         # and if this field is NOT a required attribute, and if both of those
+  579|         # things are true, we'll skip the the converter. This will mean that the
+  580|         # converters never have to deal with the None union.
+  581|         if self.name in _REQUIRED_ATTRS or value is not None:
+  582|             try:
+  583|                 converter: Callable[[Any], T] = getattr(self, f"_process_{self.name}")
+  584|             except AttributeError:
+  585|                 pass
+  586|             else:
+  587|                 value = converter(value)
+  588| 
+  589|         cache[self.name] = value
+  590|         try:
+  591|             del instance._raw[self.name]  # type: ignore[misc]
+  592|         except KeyError:
+  593|             pass
+  594| 
+  595|         return cast("T", value)
+  596| 
+  597|     def _invalid_metadata(
+  598|         self, msg: str, cause: Exception | None = None
+  599|     ) -> InvalidMetadata:
+  600|         exc = InvalidMetadata(self.raw_name, msg)
+  601|         exc.__cause__ = cause
+  602|         return exc
+  603| 
+  604|     def _process_metadata_version(self, value: str) -> _MetadataVersion:
+  605|         # Implicitly makes Metadata-Version required.
+  606|         if value not in _VALID_METADATA_VERSIONS:
+  607|             raise self._invalid_metadata(f"{value!r} is not a valid metadata version")
+  608|         return cast("_MetadataVersion", value)
+  609| 
+  610|     def _process_name(self, value: str) -> str:
+  611|         if not value:
+  612|             raise self._invalid_metadata(f"{self.raw_name!r} is a required field")
+  613|         # Validate the name as a side-effect.
+  614|         try:
+  615|             utils.canonicalize_name(value, validate=True)
+  616|         except utils.InvalidName as exc:
+  617|             raise self._invalid_metadata(
+  618|                 f"{value!r} is invalid for {self.raw_name!r}", cause=exc
+  619|             ) from exc
+  620|         else:
+  621|             return value
+  622| 
+  623|     def _process_version(self, value: str) -> Version:
+  624|         if not value:
+  625|             raise self._invalid_metadata(f"{self.raw_name!r} is a required field")
+  626|         try:
+  627|             return version_module.parse(value)
+  628|         except version_module.InvalidVersion as exc:
+  629|             raise self._invalid_metadata(
+  630|                 f"{value!r} is invalid for {self.raw_name!r}", cause=exc
+  631|             ) from exc
+  632| 
+  633|     def _process_summary(self, value: str) -> str:
+  634|         """Check the field contains no newlines."""
+  635|         if "\n" in value:
+  636|             raise self._invalid_metadata(f"{self.raw_name!r} must be a single line")
+  637|         return value
+  638| 
+  639|     def _process_description_content_type(self, value: str) -> str:
+  640|         content_types = {"text/plain", "text/x-rst", "text/markdown"}
+  641|         invalid_msg = (
+  642|             f"{self.raw_name!r} must be one of {list(content_types)}, not {value!r}"
+  643|         )
+  644|         message = email.message.EmailMessage()
+  645|         try:
+  646|             message["content-type"] = value
+  647|         # The email parser can raise IndexError on malformed RFC 2231
+  648|         # parameters such as "text/plain; x*".
+  649|         except (ValueError, IndexError) as exc:
+  650|             msg = f"{value!r} is not a valid content type for {self.raw_name!r}"
+  651|             raise self._invalid_metadata(msg, cause=exc) from exc
+  652|         content_type_header = message["content-type"]
+  653|         if content_type_header.defects:
+  654|             defect = content_type_header.defects[0]
+  655|             msg = (
+  656|                 f"{value!r} is not a valid content type for {self.raw_name!r}: {defect}"
+  657|             )
+  658|             raise self._invalid_metadata(msg, cause=defect) from defect
+  659| 
+  660|         content_type, parameters = (
+  661|             # Defaults to `text/plain` if parsing failed.
+  662|             message.get_content_type().lower(),
+  663|             content_type_header.params,
+  664|         )
+  665|         # Check if content-type is valid or defaulted to `text/plain` and thus was
+  666|         # not parseable.
+  667|         if content_type not in content_types or content_type not in value.lower():
+  668|             raise self._invalid_metadata(invalid_msg)
+  669| 
+  670|         charset = parameters.get("charset", "UTF-8")
+  671|         if charset != "UTF-8":
+  672|             raise self._invalid_metadata(
+  673|                 f"{self.raw_name!r} can only specify the UTF-8 charset, not {charset!r}"
+  674|             )
+  675| 
+  676|         markdown_variants = {"GFM", "CommonMark"}
+  677|         variant = parameters.get("variant", "GFM")  # Use an acceptable default.
+  678|         if content_type == "text/markdown" and variant not in markdown_variants:
+  679|             raise self._invalid_metadata(
+  680|                 f"valid Markdown variants for {self.raw_name!r} are "
+  681|                 f"{list(markdown_variants)}, not {variant!r}",
+  682|             )
+  683|         return value
+  684| 
+  685|     def _process_dynamic(self, value: list[str]) -> list[str]:
+  686|         dynamic_fields = list(map(str.lower, value))
+  687|         for dynamic_field in dynamic_fields:
+  688|             if dynamic_field in {"name", "version", "metadata-version"}:
+  689|                 raise self._invalid_metadata(
+  690|                     f"{dynamic_field!r} is not allowed as a dynamic field"
+  691|                 )
+  692|             elif dynamic_field not in _EMAIL_TO_RAW_MAPPING:
+  693|                 raise self._invalid_metadata(
+  694|                     f"{dynamic_field!r} is not a valid dynamic field"
+  695|                 )
+  696|         return dynamic_fields
+  697| 
+  698|     def _process_provides_extra(
+  699|         self,
+  700|         value: list[str],
+  701|     ) -> list[utils.NormalizedName]:
+  702|         normalized_names = []
+  703|         try:
+  704|             for name in value:
+  705|                 normalized_names.append(utils.canonicalize_name(name, validate=True))
+  706|         except utils.InvalidName as exc:
+  707|             raise self._invalid_metadata(
+  708|                 f"{name!r} is invalid for {self.raw_name!r}", cause=exc
+  709|             ) from exc
+  710|         else:
+  711|             return normalized_names
+  712| 
+  713|     def _process_requires_python(self, value: str) -> specifiers.SpecifierSet:
+  714|         try:
+  715|             return specifiers.SpecifierSet(value)
+  716|         except specifiers.InvalidSpecifier as exc:
+  717|             raise self._invalid_metadata(
+  718|                 f"{value!r} is invalid for {self.raw_name!r}", cause=exc
+  719|             ) from exc
+  720| 
+  721|     def _process_requires_dist(
+  722|         self,
+  723|         value: list[str],
+  724|     ) -> list[requirements.Requirement]:
+  725|         reqs = []
+  726|         try:
+  727|             for req in value:
+  728|                 reqs.append(requirements.Requirement(req))
+  729|         except requirements.InvalidRequirement as exc:
+  730|             raise self._invalid_metadata(
+  731|                 f"{req!r} is invalid for {self.raw_name!r}", cause=exc
+  732|             ) from exc
+  733|         else:
+  734|             return reqs
+  735| 
+  736|     def _process_license_expression(self, value: str) -> NormalizedLicenseExpression:
+  737|         try:
+  738|             return licenses.canonicalize_license_expression(value)
+  739|         except ValueError as exc:
+  740|             raise self._invalid_metadata(
+  741|                 f"{value!r} is invalid for {self.raw_name!r}", cause=exc
+  742|             ) from exc
+  743| 
+  744|     def _process_license_files(self, value: list[str]) -> list[str]:
+  745|         paths = []
+  746|         for path in value:
+  747|             if ".." in path:
+  748|                 raise self._invalid_metadata(
+  749|                     f"{path!r} is invalid for {self.raw_name!r}, "
+  750|                     "parent directory indicators are not allowed"
+  751|                 )
+  752|             if "*" in path:
+  753|                 raise self._invalid_metadata(
+  754|                     f"{path!r} is invalid for {self.raw_name!r}, paths must be resolved"
+  755|                 )
+  756|             if (
+  757|                 pathlib.PurePosixPath(path).is_absolute()
+  758|                 or pathlib.PureWindowsPath(path).is_absolute()
+  759|             ):
+  760|                 raise self._invalid_metadata(
+  761|                     f"{path!r} is invalid for {self.raw_name!r}, paths must be relative"
+  762|                 )
+  763|             if pathlib.PureWindowsPath(path).as_posix() != path:
+  764|                 raise self._invalid_metadata(
+  765|                     f"{path!r} is invalid for {self.raw_name!r}, "
+  766|                     "paths must use '/' delimiter"
+  767|                 )
+  768|             paths.append(path)
+  769|         return paths
+  770| 
+  771|     def _process_import_names(self, value: list[str]) -> list[str]:
+  772|         for import_name in value:
+  773|             name, semicolon, private = import_name.partition(";")
+  774|             name = name.rstrip()
+  775|             for identifier in name.split("."):
+  776|                 if not identifier.isidentifier():
+  777|                     raise self._invalid_metadata(
+  778|                         f"{name!r} is invalid for {self.raw_name!r}; "
+  779|                         f"{identifier!r} is not a valid identifier"
+  780|                     )
+  781|                 elif keyword.iskeyword(identifier):
+  782|                     raise self._invalid_metadata(
+  783|                         f"{name!r} is invalid for {self.raw_name!r}; "
+  784|                         f"{identifier!r} is a keyword"
+  785|                     )
+  786|             if semicolon and private.lstrip() != "private":
+  787|                 raise self._invalid_metadata(
+  788|                     f"{import_name!r} is invalid for {self.raw_name!r}; "
+  789|                     "the only valid option is 'private'"
+  790|                 )
+  791|         return value
+  792| 
+  793|     _process_import_namespaces = _process_import_names
+  794| 
+  795| 
+  796| class Metadata:
+  797|     """Representation of distribution metadata.
+  798| 
+  799|     Compared to :class:`RawMetadata`, this class provides objects representing
+  800|     metadata fields instead of only using built-in types. Any invalid metadata
+  801|     will cause :exc:`InvalidMetadata` to be raised (with a
+  802|     :py:attr:`~BaseException.__cause__` attribute as appropriate).
+  803|     """
+  804| 
+  805|     _raw: RawMetadata
+  806| 
+  807|     @classmethod
+  808|     def from_raw(cls, data: RawMetadata, *, validate: bool = True) -> Metadata:
+  809|         """Create an instance from :class:`RawMetadata`.
+  810| 
+  811|         If *validate* is true, all metadata will be validated. All exceptions
+  812|         related to validation will be gathered and raised as an :class:`ExceptionGroup`.
+  813|         """
+  814|         ins = cls()
+  815|         ins._raw = data.copy()  # Mutations occur due to caching enriched values.
+  816| 
+  817|         if validate:
+  818|             collector = _ErrorCollector()
+  819|             metadata_version = None
+  820|             with collector.collect(InvalidMetadata):
+  821|                 metadata_version = ins.metadata_version
+  822|                 metadata_age = _VALID_METADATA_VERSIONS.index(metadata_version)
+  823| 
+  824|             # Make sure to check for the fields that are present, the required
+  825|             # fields (so their absence can be reported).
+  826|             fields_to_check = frozenset(ins._raw) | _REQUIRED_ATTRS
+  827|             # Remove fields that have already been checked.
+  828|             fields_to_check -= {"metadata_version"}
+  829| 
+  830|             for key in fields_to_check:
+  831|                 try:
+  832|                     if metadata_version:
+  833|                         # Can't use getattr() as that triggers descriptor protocol which
+  834|                         # will fail due to no value for the instance argument.
+  835|                         try:
+  836|                             field_metadata_version = cls.__dict__[key].added
+  837|                         except KeyError:
+  838|                             exc = InvalidMetadata(key, f"unrecognized field: {key!r}")
+  839|                             collector.error(exc)
+  840|                             continue
+  841|                         field_age = _VALID_METADATA_VERSIONS.index(
+  842|                             field_metadata_version
+  843|                         )
+  844|                         if field_age > metadata_age:
+  845|                             field = _RAW_TO_EMAIL_MAPPING[key]
+  846|                             exc = InvalidMetadata(
+  847|                                 field,
+  848|                                 f"{field} introduced in metadata version "
+  849|                                 f"{field_metadata_version}, not {metadata_version}",
+  850|                             )
+  851|                             collector.error(exc)
+  852|                             continue
+  853|                     getattr(ins, key)
+  854|                 except InvalidMetadata as exc:
+  855|                     collector.error(exc)
+  856| 
+  857|             collector.finalize("invalid metadata")
+  858| 
+  859|         return ins
+  860| 
+  861|     @classmethod
+  862|     def from_email(cls, data: bytes | str, *, validate: bool = True) -> Metadata:
+  863|         """Parse metadata from email headers.
+  864| 
+  865|         If *validate* is true, the metadata will be validated. All exceptions
+  866|         related to validation will be gathered and raised as an :class:`ExceptionGroup`.
+  867|         """
+  868|         raw, unparsed = parse_email(data)
+  869| 
+  870|         if validate:
+  871|             with _ErrorCollector().on_exit("unparsed") as collector:
+  872|                 for unparsed_key in unparsed:
+  873|                     if unparsed_key in _EMAIL_TO_RAW_MAPPING:
+  874|                         message = f"{unparsed_key!r} has invalid data"
+  875|                     else:
+  876|                         message = f"unrecognized field: {unparsed_key!r}"
+  877|                     collector.error(InvalidMetadata(unparsed_key, message))
+  878| 
+  879|         try:
+  880|             return cls.from_raw(raw, validate=validate)
+  881|         except ExceptionGroup as exc_group:
+  882|             raise ExceptionGroup(
+  883|                 "invalid or unparsed metadata", exc_group.exceptions
+  884|             ) from None
+  885| 
+  886|     metadata_version: _Validator[_MetadataVersion] = _Validator()
+  887|     """:external:ref:`core-metadata-metadata-version`
+  888|     (required; validated to be a valid metadata version)"""
+  889|     # `name` is not normalized/typed to NormalizedName so as to provide access to
+  890|     # the original/raw name.
+  891|     name: _Validator[str] = _Validator()
+  892|     """:external:ref:`core-metadata-name`
+  893|     (required; validated using :func:`~packaging.utils.canonicalize_name` and its
+  894|     *validate* parameter)"""
+  895|     version: _Validator[Version] = _Validator()
+  896|     """:external:ref:`core-metadata-version` (required)"""
+  897|     dynamic: _Validator[list[str] | None] = _Validator(
+  898|         added="2.2",
+  899|     )
+  900|     """:external:ref:`core-metadata-dynamic`
+  901|     (validated against core metadata field names and lowercased)"""
+  902|     platforms: _Validator[list[str] | None] = _Validator()
+  903|     """:external:ref:`core-metadata-platform`"""
+  904|     supported_platforms: _Validator[list[str] | None] = _Validator(added="1.1")
+  905|     """:external:ref:`core-metadata-supported-platform`"""
+  906|     summary: _Validator[str | None] = _Validator()
+  907|     """:external:ref:`core-metadata-summary` (validated to contain no newlines)"""
+  908|     description: _Validator[str | None] = _Validator()  # TODO 2.1: can be in body
+  909|     """:external:ref:`core-metadata-description`"""
+  910|     description_content_type: _Validator[str | None] = _Validator(added="2.1")
+  911|     """:external:ref:`core-metadata-description-content-type` (validated)"""
+  912|     keywords: _Validator[list[str] | None] = _Validator()
+  913|     """:external:ref:`core-metadata-keywords`"""
+  914|     home_page: _Validator[str | None] = _Validator()
+  915|     """:external:ref:`core-metadata-home-page`"""
+  916|     download_url: _Validator[str | None] = _Validator(added="1.1")
+  917|     """:external:ref:`core-metadata-download-url`"""
+  918|     author: _Validator[str | None] = _Validator()
+  919|     """:external:ref:`core-metadata-author`"""
+  920|     author_email: _Validator[str | None] = _Validator()
+  921|     """:external:ref:`core-metadata-author-email`"""
+  922|     maintainer: _Validator[str | None] = _Validator(added="1.2")
+  923|     """:external:ref:`core-metadata-maintainer`"""
+  924|     maintainer_email: _Validator[str | None] = _Validator(added="1.2")
+  925|     """:external:ref:`core-metadata-maintainer-email`"""
+  926|     license: _Validator[str | None] = _Validator()
+  927|     """:external:ref:`core-metadata-license`"""
+  928|     license_expression: _Validator[NormalizedLicenseExpression | None] = _Validator(
+  929|         added="2.4"
+  930|     )
+  931|     """:external:ref:`core-metadata-license-expression`"""
+  932|     license_files: _Validator[list[str] | None] = _Validator(added="2.4")
+  933|     """:external:ref:`core-metadata-license-file`"""
+  934|     classifiers: _Validator[list[str] | None] = _Validator(added="1.1")
+  935|     """:external:ref:`core-metadata-classifier`"""
+  936|     requires_dist: _Validator[list[requirements.Requirement] | None] = _Validator(
+  937|         added="1.2"
+  938|     )
+  939|     """:external:ref:`core-metadata-requires-dist`"""
+  940|     requires_python: _Validator[specifiers.SpecifierSet | None] = _Validator(
+  941|         added="1.2"
+  942|     )
+  943|     """:external:ref:`core-metadata-requires-python`"""
+  944|     # Because `Requires-External` allows for non-PEP 440 version specifiers, we
+  945|     # don't do any processing on the values.
+  946|     requires_external: _Validator[list[str] | None] = _Validator(added="1.2")
+  947|     """:external:ref:`core-metadata-requires-external`"""
+  948|     project_urls: _Validator[dict[str, str] | None] = _Validator(added="1.2")
+  949|     """:external:ref:`core-metadata-project-url`"""
+  950|     # PEP 685 lets us raise an error if an extra doesn't pass `Name` validation
+  951|     # regardless of metadata version.
+  952|     provides_extra: _Validator[list[utils.NormalizedName] | None] = _Validator(
+  953|         added="2.1",
+  954|     )
+  955|     """:external:ref:`core-metadata-provides-extra`"""
+  956|     provides_dist: _Validator[list[str] | None] = _Validator(added="1.2")
+  957|     """:external:ref:`core-metadata-provides-dist`"""
+  958|     obsoletes_dist: _Validator[list[str] | None] = _Validator(added="1.2")
+  959|     """:external:ref:`core-metadata-obsoletes-dist`"""
+  960|     import_names: _Validator[list[str] | None] = _Validator(added="2.5")
+  961|     """:external:ref:`core-metadata-import-name`"""
+  962|     import_namespaces: _Validator[list[str] | None] = _Validator(added="2.5")
+  963|     """:external:ref:`core-metadata-import-namespace`"""
+  964|     requires: _Validator[list[str] | None] = _Validator(added="1.1")
+  965|     """``Requires`` (deprecated)"""
+  966|     provides: _Validator[list[str] | None] = _Validator(added="1.1")
+  967|     """``Provides`` (deprecated)"""
+  968|     obsoletes: _Validator[list[str] | None] = _Validator(added="1.1")
+  969|     """``Obsoletes`` (deprecated)"""
+  970| 
+  971|     def as_rfc822(self) -> RFC822Message:
+  972|         """
+  973|         Return an RFC822 message with the metadata.
+  974|         """
+  975|         message = RFC822Message()
+  976|         self._write_metadata(message)
+  977|         return message
+  978| 
+  979|     def _write_metadata(self, message: RFC822Message) -> None:
+  980|         """
+  981|         Return an RFC822 message with the metadata.
+  982|         """
+  983|         for name, validator in self.__class__.__dict__.items():
+  984|             if isinstance(validator, _Validator) and name != "description":
+  985|                 value = getattr(self, name)
+  986|                 email_name = _RAW_TO_EMAIL_MAPPING[name]
+  987|                 if value is not None:
+  988|                     if email_name == "project-url":
+  989|                         for label, url in value.items():
+  990|                             message[email_name] = f"{label}, {url}"
+  991|                     elif email_name == "keywords":
+  992|                         message[email_name] = ",".join(value)
+  993|                     elif email_name == "import-name" and value == []:
+  994|                         message[email_name] = ""
+  995|                     elif isinstance(value, list):
+  996|                         for item in value:
+  997|                             message[email_name] = str(item)
+  998|                     else:
+  999|                         message[email_name] = str(value)
+ 1000| 
+ 1001|         # The description is a special case because it is in the body of the message.
+ 1002|         if self.description is not None:
+ 1003|             message.set_payload(self.description)
+
+FILE src/packaging/_manylinux.py:
+    1| from __future__ import annotations
+    2| 
+    3| import collections
+    4| import contextlib
+    5| import functools
+    6| import os
+    7| import re
+    8| import sys
+    9| import warnings
+   10| from typing import TYPE_CHECKING, NamedTuple
+   11| 
+   12| from ._elffile import EIClass, EIData, ELFFile, EMachine
+   13| 
+   14| if TYPE_CHECKING:
+   15|     import types
+   16|     from collections.abc import Generator, Iterator, Sequence
+   17| 
+   18| EF_ARM_ABIMASK = 0xFF000000
+   19| EF_ARM_ABI_VER5 = 0x05000000
+   20| EF_ARM_ABI_FLOAT_HARD = 0x00000400
+   21| 
+   22| _ALLOWED_ARCHS = {
+   23|     "x86_64",
+   24|     "aarch64",
+   25|     "ppc64",
+   26|     "ppc64le",
+   27|     "s390x",
+   28|     "loongarch64",
+   29|     "riscv64",
+   30| }
+   31| 
+   32| 
+   33| @contextlib.contextmanager
+   34| def _parse_elf(path: str) -> Generator[ELFFile | None, None, None]:
+   35|     try:
+   36|         with open(path, "rb") as f:
+   37|             yield ELFFile(f)
+   38|     except (OSError, TypeError, ValueError):
+   39|         yield None
+   40| 
+   41| 
+   42| def _is_linux_armhf(executable: str) -> bool:
+   43|     # hard-float ABI can be detected from the ELF header of the running
+   44|     # process
+   45|     # https://static.docs.arm.com/ihi0044/g/aaelf32.pdf
+   46|     with _parse_elf(executable) as f:
+   47|         return (
+   48|             f is not None
+   49|             and f.capacity == EIClass.C32
+   50|             and f.encoding == EIData.Lsb
+   51|             and f.machine == EMachine.Arm
+   52|             and f.flags & EF_ARM_ABIMASK == EF_ARM_ABI_VER5
+   53|             and f.flags & EF_ARM_ABI_FLOAT_HARD == EF_ARM_ABI_FLOAT_HARD
+   54|         )
+   55| 
+   56| 
+   57| def _is_linux_i686(executable: str) -> bool:
+   58|     with _parse_elf(executable) as f:
+   59|         return (
+   60|             f is not None
+   61|             and f.capacity == EIClass.C32
+   62|             and f.encoding == EIData.Lsb
+   63|             and f.machine == EMachine.I386
+   64|         )
+   65| 
+   66| 
+   67| def _have_compatible_abi(executable: str, archs: Sequence[str]) -> bool:
+   68|     if "armv7l" in archs:
+   69|         return _is_linux_armhf(executable)
+   70|     if "i686" in archs:
+   71|         return _is_linux_i686(executable)
+   72|     return any(arch in _ALLOWED_ARCHS for arch in archs)
+   73| 
+   74| 
+   75| # If glibc ever changes its major version, we need to know what the last
+   76| # minor version was, so we can build the complete list of all versions.
+   77| # For now, guess what the highest minor version might be, assume it will
+   78| # be 50 for testing. Once this actually happens, update the dictionary
+   79| # with the actual value.
+   80| _LAST_GLIBC_MINOR: dict[int, int] = collections.defaultdict(lambda: 50)
+   81| 
+   82| 
+   83| class _GLibCVersion(NamedTuple):
+   84|     major: int
+   85|     minor: int
+   86| 
+   87| 
+   88| def _glibc_version_string_confstr() -> str | None:
+   89|     """
+   90|     Primary implementation of glibc_version_string using os.confstr.
+   91|     """
+   92|     # os.confstr is quite a bit faster than ctypes.DLL. It's also less likely
+   93|     # to be broken or missing. This strategy is used in the standard library
+   94|     # platform module.
+   95|     # https://github.com/python/cpython/blob/fcf1d003bf4f0100c/Lib/platform.py#L175-L183
+   96|     try:
+   97|         # Should be a string like "glibc 2.17".
+   98|         version_string: str | None = os.confstr("CS_GNU_LIBC_VERSION")
+   99|         assert version_string is not None
+  100|         _, version = version_string.rsplit()
+  101|     except (AssertionError, AttributeError, OSError, ValueError):
+  102|         # os.confstr() or CS_GNU_LIBC_VERSION not available (or a bad value)...
+  103|         return None
+  104|     return version
+  105| 
+  106| 
+  107| def _glibc_version_string_ctypes() -> str | None:
+  108|     """
+  109|     Fallback implementation of glibc_version_string using ctypes.
+  110|     """
+  111|     try:
+  112|         import ctypes  # noqa: PLC0415
+  113|     except ImportError:
+  114|         return None
+  115| 
+  116|     # ctypes.CDLL(None) internally calls dlopen(NULL), and as the dlopen
+  117|     # manpage says, "If filename is NULL, then the returned handle is for the
+  118|     # main program". This way we can let the linker do the work to figure out
+  119|     # which libc our process is actually using.
+  120|     #
+  121|     # We must also handle the special case where the executable is not a
+  122|     # dynamically linked executable. This can occur when using musl libc,
+  123|     # for example. In this situation, dlopen() will error, leading to an
+  124|     # OSError. Interestingly, at least in the case of musl, there is no
+  125|     # errno set on the OSError. The single string argument used to construct
+  126|     # OSError comes from libc itself and is therefore not portable to
+  127|     # hard code here. In any case, failure to call dlopen() means we
+  128|     # can proceed, so we bail on our attempt.
+  129|     try:
+  130|         process_namespace = ctypes.CDLL(None)
+  131|     except OSError:
+  132|         return None
+  133| 
+  134|     try:
+  135|         gnu_get_libc_version = process_namespace.gnu_get_libc_version
+  136|     except AttributeError:
+  137|         # Symbol doesn't exist -> therefore, we are not linked to
+  138|         # glibc.
+  139|         return None
+  140| 
+  141|     # Call gnu_get_libc_version, which returns a string like "2.5".
+  142|     gnu_get_libc_version.restype = ctypes.c_char_p
+  143|     # A c_char_p restype comes back as bytes, so decode to text.
+  144|     version_str: str | bytes = gnu_get_libc_version()
+  145|     if isinstance(version_str, bytes):
+  146|         version_str = version_str.decode("ascii")
+  147| 
+  148|     return version_str
+  149| 
+  150| 
+  151| def _glibc_version_string() -> str | None:
+  152|     """Returns glibc version string, or None if not using glibc."""
+  153|     return _glibc_version_string_confstr() or _glibc_version_string_ctypes()
+  154| 
+  155| 
+  156| def _parse_glibc_version(version_str: str) -> _GLibCVersion:
+  157|     """Parse glibc version.
+  158| 
+  159|     We use a regexp instead of str.split because we want to discard any
+  160|     random junk that might come after the minor version -- this might happen
+  161|     in patched/forked versions of glibc (e.g. Linaro's version of glibc
+  162|     uses version strings like "2.20-2014.11"). See gh-3588.
+  163|     """
+  164|     m = re.match(r"(?P<major>[0-9]+)\.(?P<minor>[0-9]+)", version_str)
+  165|     if not m:
+  166|         warnings.warn(
+  167|             f"Expected glibc version with 2 components major.minor, got: {version_str}",
+  168|             RuntimeWarning,
+  169|             stacklevel=2,
+  170|         )
+  171|         return _GLibCVersion(-1, -1)
+  172|     return _GLibCVersion(int(m.group("major")), int(m.group("minor")))
+  173| 
+  174| 
+  175| @functools.lru_cache
+  176| def _get_glibc_version() -> _GLibCVersion:
+  177|     version_str = _glibc_version_string()
+  178|     if version_str is None:
+  179|         return _GLibCVersion(-1, -1)
+  180|     return _parse_glibc_version(version_str)
+  181| 
+  182| 
+  183| # From PEP 513, PEP 600
+  184| @functools.lru_cache(maxsize=1)
+  185| def _get_manylinux_module() -> types.ModuleType | None:
+  186|     """Return the ``_manylinux`` C extension module, or None if unavailable.
+  187| 
+  188|     The result is cached for the lifetime of the process, since the presence
+  189|     of the module does not change while running.
+  190|     """
+  191|     try:
+  192|         return __import__("_manylinux")
+  193|     except ImportError:
+  194|         return None
+  195| 
+  196| 
+  197| def _is_compatible(arch: str, version: _GLibCVersion) -> bool:
+  198|     sys_glibc = _get_glibc_version()
+  199|     if sys_glibc < version:
+  200|         return False
+  201|     # Check for presence of _manylinux module.
+  202|     manylinux_mod = _get_manylinux_module()
+  203|     if manylinux_mod is None:
+  204|         return True
+  205|     if hasattr(manylinux_mod, "manylinux_compatible"):
+  206|         result = manylinux_mod.manylinux_compatible(version[0], version[1], arch)
+  207|         if result is not None:
+  208|             return bool(result)
+  209|         return True
+  210|     if version == _GLibCVersion(2, 5) and hasattr(
+  211|         manylinux_mod, "manylinux1_compatible"
+  212|     ):
+  213|         return bool(manylinux_mod.manylinux1_compatible)
+  214|     if version == _GLibCVersion(2, 12) and hasattr(
+  215|         manylinux_mod, "manylinux2010_compatible"
+  216|     ):
+  217|         return bool(manylinux_mod.manylinux2010_compatible)
+  218|     if version == _GLibCVersion(2, 17) and hasattr(
+  219|         manylinux_mod, "manylinux2014_compatible"
+  220|     ):
+  221|         return bool(manylinux_mod.manylinux2014_compatible)
+  222|     return True
+  223| 
+  224| 
+  225| _LEGACY_MANYLINUX_MAP: dict[_GLibCVersion, str] = {
+  226|     # CentOS 7 w/ glibc 2.17 (PEP 599)
+  227|     _GLibCVersion(2, 17): "manylinux2014",
+  228|     # CentOS 6 w/ glibc 2.12 (PEP 571)
+  229|     _GLibCVersion(2, 12): "manylinux2010",
+  230|     # CentOS 5 w/ glibc 2.5 (PEP 513)
+  231|     _GLibCVersion(2, 5): "manylinux1",
+  232| }
+  233| 
+  234| 
+  235| def platform_tags(archs: Sequence[str]) -> Iterator[str]:
+  236|     """Generate manylinux tags compatible to the current platform.
+  237| 
+  238|     :param archs: Sequence of compatible architectures.
+  239|         The first one shall be the closest to the actual architecture and be the part of
+  240|         platform tag after the ``linux_`` prefix, e.g. ``x86_64``.
+  241|         The ``linux_`` prefix is assumed as a prerequisite for the current platform to
+  242|         be manylinux-compatible.
+  243| 
+  244|     :returns: An iterator of compatible manylinux tags.
+  245|     """
+  246|     if not _have_compatible_abi(sys.executable, archs):
+  247|         return
+  248|     # Oldest glibc to be supported regardless of architecture is (2, 17).
+  249|     too_old_glibc2 = _GLibCVersion(2, 16)
+  250|     if set(archs) & {"x86_64", "i686"}:
+  251|         # On x86/i686 also oldest glibc to be supported is (2, 5).
+  252|         too_old_glibc2 = _GLibCVersion(2, 4)
+  253|     current_glibc = _GLibCVersion(*_get_glibc_version())
+  254|     glibc_max_list = [current_glibc]
+  255|     # We can assume compatibility across glibc major versions.
+  256|     # https://sourceware.org/bugzilla/show_bug.cgi?id=24636
+  257|     #
+  258|     # Build a list of maximum glibc versions so that we can
+  259|     # output the canonical list of all glibc from current_glibc
+  260|     # down to too_old_glibc2, including all intermediary versions.
+  261|     for glibc_major in range(current_glibc.major - 1, 1, -1):
+  262|         glibc_minor = _LAST_GLIBC_MINOR[glibc_major]
+  263|         glibc_max_list.append(_GLibCVersion(glibc_major, glibc_minor))
+  264|     for arch in archs:
+  265|         for glibc_max in glibc_max_list:
+  266|             if glibc_max.major == too_old_glibc2.major:
+  267|                 min_minor = too_old_glibc2.minor
+  268|             else:
+  269|                 # For other glibc major versions oldest supported is (x, 0).
+  270|                 min_minor = -1
+  271|             for glibc_minor in range(glibc_max.minor, min_minor, -1):
+  272|                 glibc_version = _GLibCVersion(glibc_max.major, glibc_minor)
+  273|                 if _is_compatible(arch, glibc_version):
+  274|                     yield "manylinux_{}_{}_{}".format(*glibc_version, arch)
+  275| 
+  276|                     # Handle the legacy manylinux1, manylinux2010, manylinux2014 tags.
+  277|                     if legacy_tag := _LEGACY_MANYLINUX_MAP.get(glibc_version):
+  278|                         yield f"{legacy_tag}_{arch}"
+
+Answer now with ONE JSON array containing one object per query, in query order.

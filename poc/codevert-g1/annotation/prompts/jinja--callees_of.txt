@@ -1,0 +1,3110 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: jinja ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/cache_extension.py
+docs/examples/inline_gettext_extension.py
+examples/basic/cycle.py
+examples/basic/debugger.py
+examples/basic/inheritance.py
+examples/basic/test.py
+examples/basic/test_filter_and_linestatements.py
+examples/basic/test_loop_filter.py
+examples/basic/translate.py
+scripts/generate_identifier_pattern.py
+src/jinja2/__init__.py
+src/jinja2/_identifier.py
+src/jinja2/async_utils.py
+src/jinja2/bccache.py
+src/jinja2/compiler.py
+src/jinja2/constants.py
+src/jinja2/debug.py
+src/jinja2/defaults.py
+src/jinja2/environment.py
+src/jinja2/exceptions.py
+src/jinja2/ext.py
+src/jinja2/filters.py
+src/jinja2/idtracking.py
+src/jinja2/lexer.py
+src/jinja2/loaders.py
+src/jinja2/meta.py
+src/jinja2/nativetypes.py
+src/jinja2/nodes.py
+src/jinja2/optimizer.py
+src/jinja2/parser.py
+src/jinja2/runtime.py
+src/jinja2/sandbox.py
+src/jinja2/tests.py
+src/jinja2/utils.py
+src/jinja2/visitor.py
+tests/conftest.py
+tests/test_api.py
+tests/test_async.py
+tests/test_async_filters.py
+tests/test_bytecode_cache.py
+tests/test_compile.py
+tests/test_core_tags.py
+tests/test_debug.py
+tests/test_ext.py
+tests/test_filters.py
+tests/test_idtracking.py
+tests/test_imports.py
+tests/test_inheritance.py
+tests/test_lexnparse.py
+tests/test_loader.py
+tests/test_nativetypes.py
+tests/test_nodes.py
+tests/test_pickle.py
+tests/test_regression.py
+tests/test_runtime.py
+tests/test_security.py
+tests/test_tests.py
+tests/test_utils.py
+tests/res/__init__.py
+
+=== QUERIES (2) ===
+QUERY g1q-jinja-callees_of-329: family=callees_of target=src/jinja2/filters.py::do_float
+QUERY g1q-jinja-callees_of-669: family=callees_of target=src/jinja2/runtime.py::Undefined.__iter__
+
+=== CONTEXT ===
+
+FILE src/jinja2/filters.py:
+    1| """Built-in template filters used with the ``|`` operator."""
+    2| 
+    3| import math
+    4| import random
+    5| import re
+    6| import typing
+    7| import typing as t
+    8| from collections import abc
+    9| from inspect import getattr_static
+   10| from itertools import chain
+   11| from itertools import groupby
+   12| 
+   13| from markupsafe import escape
+   14| from markupsafe import Markup
+   15| from markupsafe import soft_str
+   16| 
+   17| from .async_utils import async_variant
+   18| from .async_utils import auto_aiter
+   19| from .async_utils import auto_await
+   20| from .async_utils import auto_to_list
+   21| from .exceptions import FilterArgumentError
+   22| from .runtime import Undefined
+   23| from .utils import htmlsafe_json_dumps
+   24| from .utils import pass_context
+   25| from .utils import pass_environment
+   26| from .utils import pass_eval_context
+   27| from .utils import pformat
+   28| from .utils import url_quote
+   29| from .utils import urlize
+   30| 
+   31| if t.TYPE_CHECKING:
+   32|     import typing_extensions as te
+   33| 
+   34|     from .environment import Environment
+   35|     from .nodes import EvalContext
+   36|     from .runtime import Context
+   37|     from .sandbox import SandboxedEnvironment  # noqa: F401
+   38| 
+   39|     class HasHTML(te.Protocol):
+   40|         def __html__(self) -> str:
+   41|             pass
+   42| 
+   43| 
+   44| F = t.TypeVar("F", bound=t.Callable[..., t.Any])
+   45| K = t.TypeVar("K")
+   46| V = t.TypeVar("V")
+   47| 
+   48| 
+   49| def ignore_case(value: V) -> V:
+   50|     """For use as a postprocessor for :func:`make_attrgetter`. Converts strings
+   51|     to lowercase and returns other types as-is."""
+   52|     if isinstance(value, str):
+   53|         return t.cast(V, value.lower())
+   54| 
+   55|     return value
+   56| 
+   57| 
+   58| def make_attrgetter(
+   59|     environment: "Environment",
+   60|     attribute: str | int | None,
+   61|     postprocess: t.Callable[[t.Any], t.Any] | None = None,
+   62|     default: t.Any | None = None,
+   63| ) -> t.Callable[[t.Any], t.Any]:
+   64|     """Returns a callable that looks up the given attribute from a
+   65|     passed object with the rules of the environment.  Dots are allowed
+   66|     to access attributes of attributes.  Integer parts in paths are
+   67|     looked up as integers.
+   68|     """
+   69|     parts = _prepare_attribute_parts(attribute)
+   70| 
+   71|     def attrgetter(item: t.Any) -> t.Any:
+   72|         for part in parts:
+   73|             item = environment.getitem(item, part)
+   74| 
+   75|             if default is not None and isinstance(item, Undefined):
+   76|                 item = default
+   77| 
+   78|         if postprocess is not None:
+   79|             item = postprocess(item)
+   80| 
+   81|         return item
+   82| 
+   83|     return attrgetter
+   84| 
+   85| 
+   86| def make_multi_attrgetter(
+   87|     environment: "Environment",
+   88|     attribute: str | int | None,
+   89|     postprocess: t.Callable[[t.Any], t.Any] | None = None,
+   90| ) -> t.Callable[[t.Any], list[t.Any]]:
+   91|     """Returns a callable that looks up the given comma separated
+   92|     attributes from a passed object with the rules of the environment.
+   93|     Dots are allowed to access attributes of each attribute.  Integer
+   94|     parts in paths are looked up as integers.
+   95| 
+   96|     The value returned by the returned callable is a list of extracted
+   97|     attribute values.
+   98| 
+   99|     Examples of attribute: "attr1,attr2", "attr1.inner1.0,attr2.inner2.0", etc.
+  100|     """
+  101|     if isinstance(attribute, str):
+  102|         split: t.Sequence[str | int | None] = attribute.split(",")
+  103|     else:
+  104|         split = [attribute]
+  105| 
+  106|     parts = [_prepare_attribute_parts(item) for item in split]
+  107| 
+  108|     def attrgetter(item: t.Any) -> list[t.Any]:
+  109|         items = [None] * len(parts)
+  110| 
+  111|         for i, attribute_part in enumerate(parts):
+  112|             item_i = item
+  113| 
+  114|             for part in attribute_part:
+  115|                 item_i = environment.getitem(item_i, part)
+  116| 
+  117|             if postprocess is not None:
+  118|                 item_i = postprocess(item_i)
+  119| 
+  120|             items[i] = item_i
+  121| 
+  122|         return items
+  123| 
+  124|     return attrgetter
+  125| 
+  126| 
+  127| def _prepare_attribute_parts(
+  128|     attr: str | int | None,
+  129| ) -> list[str | int]:
+  130|     if attr is None:
+  131|         return []
+  132| 
+  133|     if isinstance(attr, str):
+  134|         return [int(x) if x.isdigit() else x for x in attr.split(".")]
+  135| 
+  136|     return [attr]
+  137| 
+  138| 
+  139| def do_forceescape(value: "str | HasHTML") -> Markup:
+  140|     """Enforce HTML escaping.  This will probably double escape variables."""
+  141|     if hasattr(value, "__html__"):
+  142|         value = t.cast("HasHTML", value).__html__()
+  143| 
+  144|     return escape(str(value))
+  145| 
+  146| 
+  147| def do_urlencode(
+  148|     value: str | t.Mapping[str, t.Any] | t.Iterable[tuple[str, t.Any]],
+  149| ) -> str:
+  150|     """Quote data for use in a URL path or query using UTF-8.
+  151| 
+  152|     Basic wrapper around :func:`urllib.parse.quote` when given a
+  153|     string, or :func:`urllib.parse.urlencode` for a dict or iterable.
+  154| 
+  155|     :param value: Data to quote. A string will be quoted directly. A
+  156|         dict or iterable of ``(key, value)`` pairs will be joined as a
+  157|         query string.
+  158| 
+  159|     When given a string, "/" is not quoted. HTTP servers treat "/" and
+  160|     "%2F" equivalently in paths. If you need quoted slashes, use the
+  161|     ``|replace("/", "%2F")`` filter.
+  162| 
+  163|     .. versionadded:: 2.7
+  164|     """
+  165|     if isinstance(value, str) or not isinstance(value, abc.Iterable):
+  166|         return url_quote(value)
+  167| 
+  168|     if isinstance(value, dict):
+  169|         items: t.Iterable[tuple[str, t.Any]] = value.items()
+  170|     else:
+  171|         items = value  # type: ignore
+  172| 
+  173|     return "&".join(
+  174|         f"{url_quote(k, for_qs=True)}={url_quote(v, for_qs=True)}" for k, v in items
+  175|     )
+  176| 
+  177| 
+  178| @pass_eval_context
+  179| def do_replace(
+  180|     eval_ctx: "EvalContext", s: str, old: str, new: str, count: int | None = None
+  181| ) -> str:
+  182|     """Return a copy of the value with all occurrences of a substring
+  183|     replaced with a new one. The first argument is the substring
+  184|     that should be replaced, the second is the replacement string.
+  185|     If the optional third argument ``count`` is given, only the first
+  186|     ``count`` occurrences are replaced:
+  187| 
+  188|     .. sourcecode:: jinja
+  189| 
+  190|         {{ "Hello World"|replace("Hello", "Goodbye") }}
+  191|             -> Goodbye World
+  192| 
+  193|         {{ "aaaaargh"|replace("a", "d'oh, ", 2) }}
+  194|             -> d'oh, d'oh, aaargh
+  195|     """
+  196|     if count is None:
+  197|         count = -1
+  198| 
+  199|     if not eval_ctx.autoescape:
+  200|         return str(s).replace(str(old), str(new), count)
+  201| 
+  202|     if (
+  203|         hasattr(old, "__html__")
+  204|         or hasattr(new, "__html__")
+  205|         and not hasattr(s, "__html__")
+  206|     ):
+  207|         s = escape(s)
+  208|     else:
+  209|         s = soft_str(s)
+  210| 
+  211|     return s.replace(soft_str(old), soft_str(new), count)
+  212| 
+  213| 
+  214| def do_upper(s: str) -> str:
+  215|     """Convert a value to uppercase."""
+  216|     return soft_str(s).upper()
+  217| 
+  218| 
+  219| def do_lower(s: str) -> str:
+  220|     """Convert a value to lowercase."""
+  221|     return soft_str(s).lower()
+  222| 
+  223| 
+  224| def do_items(value: t.Mapping[K, V] | Undefined) -> t.Iterator[tuple[K, V]]:
+  225|     """Return an iterator over the ``(key, value)`` items of a mapping.
+  226| 
+  227|     ``x|items`` is the same as ``x.items()``, except if ``x`` is
+  228|     undefined an empty iterator is returned.
+  229| 
+  230|     This filter is useful if you expect the template to be rendered with
+  231|     an implementation of Jinja in another programming language that does
+  232|     not have a ``.items()`` method on its mapping type.
+  233| 
+  234|     .. code-block:: html+jinja
+  235| 
+  236|         <dl>
+  237|         {% for key, value in my_dict|items %}
+  238|             <dt>{{ key }}
+  239|             <dd>{{ value }}
+  240|         {% endfor %}
+  241|         </dl>
+  242| 
+  243|     .. versionadded:: 3.1
+  244|     """
+  245|     if isinstance(value, Undefined):
+  246|         return
+  247| 
+  248|     if not isinstance(value, abc.Mapping):
+  249|         raise TypeError("Can only get item pairs from a mapping.")
+  250| 
+  251|     yield from value.items()
+  252| 
+  253| 
+  254| # Check for characters that would move the parser state from key to value.
+  255| # https://html.spec.whatwg.org/#attribute-name-state
+  256| _attr_key_re = re.compile(r"[\s/>=]", flags=re.ASCII)
+  257| 
+  258| 
+  259| @pass_eval_context
+  260| def do_xmlattr(
+  261|     eval_ctx: "EvalContext", d: t.Mapping[str, t.Any], autospace: bool = True
+  262| ) -> str:
+  263|     """Create an SGML/XML attribute string based on the items in a dict.
+  264| 
+  265|     **Values** that are neither ``none`` nor ``undefined`` are automatically
+  266|     escaped, safely allowing untrusted user input.
+  267| 
+  268|     User input should not be used as **keys** to this filter. If any key
+  269|     contains a space, ``/`` solidus, ``>`` greater-than sign, or ``=`` equals
+  270|     sign, this fails with a ``ValueError``. Regardless of this, user input
+  271|     should never be used as keys to this filter, or must be separately validated
+  272|     first.
+  273| 
+  274|     .. sourcecode:: html+jinja
+  275| 
+  276|         <ul{{ {'class': 'my_list', 'missing': none,
+  277|                 'id': 'list-%d'|format(variable)}|xmlattr }}>
+  278|         ...
+  279|         </ul>
+  280| 
+  281|     Results in something like this:
+  282| 
+  283|     .. sourcecode:: html
+  284| 
+  285|         <ul class="my_list" id="list-42">
+  286|         ...
+  287|         </ul>
+  288| 
+  289|     As you can see it automatically prepends a space in front of the item
+  290|     if the filter returned something unless the second parameter is false.
+  291| 
+  292|     .. versionchanged:: 3.1.4
+  293|         Keys with ``/`` solidus, ``>`` greater-than sign, or ``=`` equals sign
+  294|         are not allowed.
+  295| 
+  296|     .. versionchanged:: 3.1.3
+  297|         Keys with spaces are not allowed.
+  298|     """
+  299|     items = []
+  300| 
+  301|     for key, value in d.items():
+  302|         if value is None or isinstance(value, Undefined):
+  303|             continue
+  304| 
+  305|         if _attr_key_re.search(key) is not None:
+  306|             raise ValueError(f"Invalid character in attribute name: {key!r}")
+  307| 
+  308|         items.append(f'{escape(key)}="{escape(value)}"')
+  309| 
+  310|     rv = " ".join(items)
+  311| 
+  312|     if autospace and rv:
+  313|         rv = " " + rv
+  314| 
+  315|     if eval_ctx.autoescape:
+  316|         rv = Markup(rv)
+  317| 
+  318|     return rv
+  319| 
+  320| 
+  321| def do_capitalize(s: str) -> str:
+  322|     """Capitalize a value. The first character will be uppercase, all others
+  323|     lowercase.
+  324|     """
+  325|     return soft_str(s).capitalize()
+  326| 
+  327| 
+  328| _word_beginning_split_re = re.compile(r"([-\s({\[<]+)")
+  329| 
+  330| 
+  331| def do_title(s: str) -> str:
+  332|     """Return a titlecased version of the value. I.e. words will start with
+  333|     uppercase letters, all remaining characters are lowercase.
+  334|     """
+  335|     return "".join(
+  336|         [
+  337|             item[0].upper() + item[1:].lower()
+  338|             for item in _word_beginning_split_re.split(soft_str(s))
+  339|             if item
+  340|         ]
+  341|     )
+  342| 
+  343| 
+  344| def do_dictsort(
+  345|     value: t.Mapping[K, V],
+  346|     case_sensitive: bool = False,
+  347|     by: 'te.Literal["key", "value"]' = "key",
+  348|     reverse: bool = False,
+  349| ) -> list[tuple[K, V]]:
+  350|     """Sort a dict and yield (key, value) pairs. Python dicts may not
+  351|     be in the order you want to display them in, so sort them first.
+  352| 
+  353|     .. sourcecode:: jinja
+  354| 
+  355|         {% for key, value in mydict|dictsort %}
+  356|             sort the dict by key, case insensitive
+  357| 
+  358|         {% for key, value in mydict|dictsort(reverse=true) %}
+  359|             sort the dict by key, case insensitive, reverse order
+  360| 
+  361|         {% for key, value in mydict|dictsort(true) %}
+  362|             sort the dict by key, case sensitive
+  363| 
+  364|         {% for key, value in mydict|dictsort(false, 'value') %}
+  365|             sort the dict by value, case insensitive
+  366|     """
+  367|     if by == "key":
+  368|         pos = 0
+  369|     elif by == "value":
+  370|         pos = 1
+  371|     else:
+  372|         raise FilterArgumentError('You can only sort by either "key" or "value"')
+  373| 
+  374|     def sort_func(item: tuple[t.Any, t.Any]) -> t.Any:
+  375|         value = item[pos]
+  376| 
+  377|         if not case_sensitive:
+  378|             value = ignore_case(value)
+  379| 
+  380|         return value
+  381| 
+  382|     return sorted(value.items(), key=sort_func, reverse=reverse)
+  383| 
+  384| 
+  385| @pass_environment
+  386| def do_sort(
+  387|     environment: "Environment",
+  388|     value: "t.Iterable[V]",
+  389|     reverse: bool = False,
+  390|     case_sensitive: bool = False,
+  391|     attribute: str | int | None = None,
+  392| ) -> "list[V]":
+  393|     """Sort an iterable using Python's :func:`sorted`.
+  394| 
+  395|     .. sourcecode:: jinja
+  396| 
+  397|         {% for city in cities|sort %}
+  398|             ...
+  399|         {% endfor %}
+  400| 
+  401|     :param reverse: Sort descending instead of ascending.
+  402|     :param case_sensitive: When sorting strings, sort upper and lower
+  403|         case separately.
+  404|     :param attribute: When sorting objects or dicts, an attribute or
+  405|         key to sort by. Can use dot notation like ``"address.city"``.
+  406|         Can be a list of attributes like ``"age,name"``.
+  407| 
+  408|     The sort is stable, it does not change the relative order of
+  409|     elements that compare equal. This makes it is possible to chain
+  410|     sorts on different attributes and ordering.
+  411| 
+  412|     .. sourcecode:: jinja
+  413| 
+  414|         {% for user in users|sort(attribute="name")
+  415|             |sort(reverse=true, attribute="age") %}
+  416|             ...
+  417|         {% endfor %}
+  418| 
+  419|     As a shortcut to chaining when the direction is the same for all
+  420|     attributes, pass a comma separate list of attributes.
+  421| 
+  422|     .. sourcecode:: jinja
+  423| 
+  424|         {% for user in users|sort(attribute="age,name") %}
+  425|             ...
+  426|         {% endfor %}
+  427| 
+  428|     .. versionchanged:: 2.11.0
+  429|         The ``attribute`` parameter can be a comma separated list of
+  430|         attributes, e.g. ``"age,name"``.
+  431| 
+  432|     .. versionchanged:: 2.6
+  433|        The ``attribute`` parameter was added.
+  434|     """
+  435|     key_func = make_multi_attrgetter(
+  436|         environment, attribute, postprocess=ignore_case if not case_sensitive else None
+  437|     )
+  438|     return sorted(value, key=key_func, reverse=reverse)
+  439| 
+  440| 
+  441| @pass_environment
+  442| def sync_do_unique(
+  443|     environment: "Environment",
+  444|     value: "t.Iterable[V]",
+  445|     case_sensitive: bool = False,
+  446|     attribute: str | int | None = None,
+  447| ) -> "t.Iterator[V]":
+  448|     """Returns a list of unique items from the given iterable.
+  449| 
+  450|     .. sourcecode:: jinja
+  451| 
+  452|         {{ ['foo', 'bar', 'foobar', 'FooBar']|unique|list }}
+  453|             -> ['foo', 'bar', 'foobar']
+  454| 
+  455|     The unique items are yielded in the same order as their first occurrence in
+  456|     the iterable passed to the filter.
+  457| 
+  458|     :param case_sensitive: Treat upper and lower case strings as distinct.
+  459|     :param attribute: Filter objects with unique values for this attribute.
+  460|     """
+  461|     getter = make_attrgetter(
+  462|         environment, attribute, postprocess=ignore_case if not case_sensitive else None
+  463|     )
+  464|     seen = set()
+  465| 
+  466|     for item in value:
+  467|         key = getter(item)
+  468| 
+  469|         if key not in seen:
+  470|             seen.add(key)
+  471|             yield item
+  472| 
+  473| 
+  474| @async_variant(sync_do_unique)  # type: ignore
+  475| async def do_unique(
+  476|     environment: "Environment",
+  477|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+  478|     case_sensitive: bool = False,
+  479|     attribute: str | int | None = None,
+  480| ) -> "t.Iterator[V]":
+  481|     return sync_do_unique(
+  482|         environment, await auto_to_list(value), case_sensitive, attribute
+  483|     )
+  484| 
+  485| 
+  486| def _min_or_max(
+  487|     environment: "Environment",
+  488|     value: "t.Iterable[V]",
+  489|     func: "t.Callable[..., V]",
+  490|     case_sensitive: bool,
+  491|     attribute: str | int | None,
+  492| ) -> "V | Undefined":
+  493|     it = iter(value)
+  494| 
+  495|     try:
+  496|         first = next(it)
+  497|     except StopIteration:
+  498|         return environment.undefined("No aggregated item, sequence was empty.")
+  499| 
+  500|     key_func = make_attrgetter(
+  501|         environment, attribute, postprocess=ignore_case if not case_sensitive else None
+  502|     )
+  503|     return func(chain([first], it), key=key_func)
+  504| 
+  505| 
+  506| @pass_environment
+  507| def do_min(
+  508|     environment: "Environment",
+  509|     value: "t.Iterable[V]",
+  510|     case_sensitive: bool = False,
+  511|     attribute: str | int | None = None,
+  512| ) -> "V | Undefined":
+  513|     """Return the smallest item from the sequence.
+  514| 
+  515|     .. sourcecode:: jinja
+  516| 
+  517|         {{ [1, 2, 3]|min }}
+  518|             -> 1
+  519| 
+  520|     :param case_sensitive: Treat upper and lower case strings as distinct.
+  521|     :param attribute: Get the object with the min value of this attribute.
+  522|     """
+  523|     return _min_or_max(environment, value, min, case_sensitive, attribute)
+  524| 
+  525| 
+  526| @pass_environment
+  527| def do_max(
+  528|     environment: "Environment",
+  529|     value: "t.Iterable[V]",
+  530|     case_sensitive: bool = False,
+  531|     attribute: str | int | None = None,
+  532| ) -> "V | Undefined":
+  533|     """Return the largest item from the sequence.
+  534| 
+  535|     .. sourcecode:: jinja
+  536| 
+  537|         {{ [1, 2, 3]|max }}
+  538|             -> 3
+  539| 
+  540|     :param case_sensitive: Treat upper and lower case strings as distinct.
+  541|     :param attribute: Get the object with the max value of this attribute.
+  542|     """
+  543|     return _min_or_max(environment, value, max, case_sensitive, attribute)
+  544| 
+  545| 
+  546| def do_default(
+  547|     value: V,
+  548|     default_value: V = "",  # type: ignore
+  549|     boolean: bool = False,
+  550| ) -> V:
+  551|     """If the value is undefined it will return the passed default value,
+  552|     otherwise the value of the variable:
+  553| 
+  554|     .. sourcecode:: jinja
+  555| 
+  556|         {{ my_variable|default('my_variable is not defined') }}
+  557| 
+  558|     This will output the value of ``my_variable`` if the variable was
+  559|     defined, otherwise ``'my_variable is not defined'``. If you want
+  560|     to use default with variables that evaluate to false you have to
+  561|     set the second parameter to `true`:
+  562| 
+  563|     .. sourcecode:: jinja
+  564| 
+  565|         {{ ''|default('the string was empty', true) }}
+  566| 
+  567|     .. versionchanged:: 2.11
+  568|        It's now possible to configure the :class:`~jinja2.Environment` with
+  569|        :class:`~jinja2.ChainableUndefined` to make the `default` filter work
+  570|        on nested elements and attributes that may contain undefined values
+  571|        in the chain without getting an :exc:`~jinja2.UndefinedError`.
+  572|     """
+  573|     if isinstance(value, Undefined) or (boolean and not value):
+  574|         return default_value
+  575| 
+  576|     return value
+  577| 
+  578| 
+  579| @pass_eval_context
+  580| def sync_do_join(
+  581|     eval_ctx: "EvalContext",
+  582|     value: t.Iterable[t.Any],
+  583|     d: str = "",
+  584|     attribute: str | int | None = None,
+  585| ) -> str:
+  586|     """Return a string which is the concatenation of the strings in the
+  587|     sequence. The separator between elements is an empty string per
+  588|     default, you can define it with the optional parameter:
+  589| 
+  590|     .. sourcecode:: jinja
+  591| 
+  592|         {{ [1, 2, 3]|join('|') }}
+  593|             -> 1|2|3
+  594| 
+  595|         {{ [1, 2, 3]|join }}
+  596|             -> 123
+  597| 
+  598|     It is also possible to join certain attributes of an object:
+  599| 
+  600|     .. sourcecode:: jinja
+  601| 
+  602|         {{ users|join(', ', attribute='username') }}
+  603| 
+  604|     .. versionadded:: 2.6
+  605|        The `attribute` parameter was added.
+  606|     """
+  607|     if attribute is not None:
+  608|         value = map(make_attrgetter(eval_ctx.environment, attribute), value)
+  609| 
+  610|     # no automatic escaping?  joining is a lot easier then
+  611|     if not eval_ctx.autoescape:
+  612|         return str(d).join(map(str, value))
+  613| 
+  614|     # if the delimiter doesn't have an html representation we check
+  615|     # if any of the items has.  If yes we do a coercion to Markup
+  616|     if not hasattr(d, "__html__"):
+  617|         value = list(value)
+  618|         do_escape = False
+  619| 
+  620|         for idx, item in enumerate(value):
+  621|             if hasattr(item, "__html__"):
+  622|                 do_escape = True
+  623|             else:
+  624|                 value[idx] = str(item)
+  625| 
+  626|         if do_escape:
+  627|             d = escape(d)
+  628|         else:
+  629|             d = str(d)
+  630| 
+  631|         return d.join(value)
+  632| 
+  633|     # no html involved, to normal joining
+  634|     return soft_str(d).join(map(soft_str, value))
+  635| 
+  636| 
+  637| @async_variant(sync_do_join)  # type: ignore
+  638| async def do_join(
+  639|     eval_ctx: "EvalContext",
+  640|     value: t.AsyncIterable[t.Any] | t.Iterable[t.Any],
+  641|     d: str = "",
+  642|     attribute: str | int | None = None,
+  643| ) -> str:
+  644|     return sync_do_join(eval_ctx, await auto_to_list(value), d, attribute)
+  645| 
+  646| 
+  647| def do_center(value: str, width: int = 80) -> str:
+  648|     """Centers the value in a field of a given width."""
+  649|     return soft_str(value).center(width)
+  650| 
+  651| 
+  652| @pass_environment
+  653| def sync_do_first(environment: "Environment", seq: "t.Iterable[V]") -> "V | Undefined":
+  654|     """Return the first item of a sequence."""
+  655|     try:
+  656|         return next(iter(seq))
+  657|     except StopIteration:
+  658|         return environment.undefined("No first item, sequence was empty.")
+  659| 
+  660| 
+  661| @async_variant(sync_do_first)  # type: ignore
+  662| async def do_first(
+  663|     environment: "Environment", seq: "t.AsyncIterable[V] | t.Iterable[V]"
+  664| ) -> "V | Undefined":
+  665|     try:
+  666|         return await auto_aiter(seq).__anext__()
+  667|     except StopAsyncIteration:
+  668|         return environment.undefined("No first item, sequence was empty.")
+  669| 
+  670| 
+  671| @pass_environment
+  672| def do_last(environment: "Environment", seq: "t.Reversible[V]") -> "V | Undefined":
+  673|     """Return the last item of a sequence.
+  674| 
+  675|     Note: Does not work with generators. You may want to explicitly
+  676|     convert it to a list:
+  677| 
+  678|     .. sourcecode:: jinja
+  679| 
+  680|         {{ data | selectattr('name', '==', 'Jinja') | list | last }}
+  681|     """
+  682|     try:
+  683|         return next(iter(reversed(seq)))
+  684|     except StopIteration:
+  685|         return environment.undefined("No last item, sequence was empty.")
+  686| 
+  687| 
+  688| # No async do_last, it may not be safe in async mode.
+  689| 
+  690| 
+  691| @pass_context
+  692| def do_random(context: "Context", seq: "t.Sequence[V]") -> "V | Undefined":
+  693|     """Return a random item from the sequence."""
+  694|     try:
+  695|         return random.choice(seq)
+  696|     except IndexError:
+  697|         return context.environment.undefined("No random item, sequence was empty.")
+  698| 
+  699| 
+  700| def do_filesizeformat(value: str | float | int, binary: bool = False) -> str:
+  701|     """Format the value like a 'human-readable' file size (i.e. 13 kB,
+  702|     4.1 MB, 102 Bytes, etc).  Per default decimal prefixes are used (Mega,
+  703|     Giga, etc.), if the second parameter is set to `True` the binary
+  704|     prefixes are used (Mebi, Gibi).
+  705|     """
+  706|     bytes = float(value)
+  707|     base = 1024 if binary else 1000
+  708|     prefixes = [
+  709|         ("KiB" if binary else "kB"),
+  710|         ("MiB" if binary else "MB"),
+  711|         ("GiB" if binary else "GB"),
+  712|         ("TiB" if binary else "TB"),
+  713|         ("PiB" if binary else "PB"),
+  714|         ("EiB" if binary else "EB"),
+  715|         ("ZiB" if binary else "ZB"),
+  716|         ("YiB" if binary else "YB"),
+  717|     ]
+  718| 
+  719|     if bytes == 1:
+  720|         return "1 Byte"
+  721|     elif bytes < base:
+  722|         return f"{int(bytes)} Bytes"
+  723|     else:
+  724|         for i, prefix in enumerate(prefixes):
+  725|             unit = base ** (i + 2)
+  726| 
+  727|             if bytes < unit:
+  728|                 return f"{base * bytes / unit:.1f} {prefix}"
+  729| 
+  730|         return f"{base * bytes / unit:.1f} {prefix}"
+  731| 
+  732| 
+  733| def do_pprint(value: t.Any) -> str:
+  734|     """Pretty print a variable. Useful for debugging."""
+  735|     return pformat(value)
+  736| 
+  737| 
+  738| _uri_scheme_re = re.compile(r"^([\w.+-]{2,}:(/){0,2})$")
+  739| 
+  740| 
+  741| @pass_eval_context
+  742| def do_urlize(
+  743|     eval_ctx: "EvalContext",
+  744|     value: str,
+  745|     trim_url_limit: int | None = None,
+  746|     nofollow: bool = False,
+  747|     target: str | None = None,
+  748|     rel: str | None = None,
+  749|     extra_schemes: t.Iterable[str] | None = None,
+  750| ) -> str:
+  751|     """Convert URLs in text into clickable links.
+  752| 
+  753|     This may not recognize links in some situations. Usually, a more
+  754|     comprehensive formatter, such as a Markdown library, is a better
+  755|     choice.
+  756| 
+  757|     Works on ``http://``, ``https://``, ``www.``, ``mailto:``, and email
+  758|     addresses. Links with trailing punctuation (periods, commas, closing
+  759|     parentheses) and leading punctuation (opening parentheses) are
+  760|     recognized excluding the punctuation. Email addresses that include
+  761|     header fields are not recognized (for example,
+  762|     ``mailto:address@example.com?cc=copy@example.com``).
+  763| 
+  764|     :param value: Original text containing URLs to link.
+  765|     :param trim_url_limit: Shorten displayed URL values to this length.
+  766|     :param nofollow: Add the ``rel=nofollow`` attribute to links.
+  767|     :param target: Add the ``target`` attribute to links.
+  768|     :param rel: Add the ``rel`` attribute to links.
+  769|     :param extra_schemes: Recognize URLs that start with these schemes
+  770|         in addition to the default behavior. Defaults to
+  771|         ``env.policies["urlize.extra_schemes"]``, which defaults to no
+  772|         extra schemes.
+  773| 
+  774|     .. versionchanged:: 3.0
+  775|         The ``extra_schemes`` parameter was added.
+  776| 
+  777|     .. versionchanged:: 3.0
+  778|         Generate ``https://`` links for URLs without a scheme.
+  779| 
+  780|     .. versionchanged:: 3.0
+  781|         The parsing rules were updated. Recognize email addresses with
+  782|         or without the ``mailto:`` scheme. Validate IP addresses. Ignore
+  783|         parentheses and brackets in more cases.
+  784| 
+  785|     .. versionchanged:: 2.8
+  786|        The ``target`` parameter was added.
+  787|     """
+  788|     policies = eval_ctx.environment.policies
+  789|     rel_parts = set((rel or "").split())
+  790| 
+  791|     if nofollow:
+  792|         rel_parts.add("nofollow")
+  793| 
+  794|     rel_parts.update((policies["urlize.rel"] or "").split())
+  795|     rel = " ".join(sorted(rel_parts)) or None
+  796| 
+  797|     if target is None:
+  798|         target = policies["urlize.target"]
+  799| 
+  800|     if extra_schemes is None:
+  801|         extra_schemes = policies["urlize.extra_schemes"] or ()
+  802| 
+  803|     for scheme in extra_schemes:
+  804|         if _uri_scheme_re.fullmatch(scheme) is None:
+  805|             raise FilterArgumentError(f"{scheme!r} is not a valid URI scheme prefix.")
+  806| 
+  807|     rv = urlize(
+  808|         value,
+  809|         trim_url_limit=trim_url_limit,
+  810|         rel=rel,
+  811|         target=target,
+  812|         extra_schemes=extra_schemes,
+  813|     )
+  814| 
+  815|     if eval_ctx.autoescape:
+  816|         rv = Markup(rv)
+  817| 
+  818|     return rv
+  819| 
+  820| 
+  821| def do_indent(
+  822|     s: str, width: int | str = 4, first: bool = False, blank: bool = False
+  823| ) -> str:
+  824|     """Return a copy of the string with each line indented by 4 spaces. The
+  825|     first line and blank lines are not indented by default.
+  826| 
+  827|     :param width: Number of spaces, or a string, to indent by.
+  828|     :param first: Don't skip indenting the first line.
+  829|     :param blank: Don't skip indenting empty lines.
+  830| 
+  831|     .. versionchanged:: 3.0
+  832|         ``width`` can be a string.
+  833| 
+  834|     .. versionchanged:: 2.10
+  835|         Blank lines are not indented by default.
+  836| 
+  837|         Rename the ``indentfirst`` argument to ``first``.
+  838|     """
+  839|     if isinstance(width, str):
+  840|         indention = width
+  841|     else:
+  842|         indention = " " * width
+  843| 
+  844|     newline = "\n"
+  845| 
+  846|     if isinstance(s, Markup):
+  847|         indention = Markup(indention)
+  848|         newline = Markup(newline)
+  849| 
+  850|     s += newline  # this quirk is necessary for splitlines method
+  851| 
+  852|     if blank:
+  853|         rv = (newline + indention).join(s.splitlines())
+  854|     else:
+  855|         lines = s.splitlines()
+  856|         rv = lines.pop(0)
+  857| 
+  858|         if lines:
+  859|             rv += newline + newline.join(
+  860|                 indention + line if line else line for line in lines
+  861|             )
+  862| 
+  863|     if first:
+  864|         rv = indention + rv
+  865| 
+  866|     return rv
+  867| 
+  868| 
+  869| @pass_environment
+  870| def do_truncate(
+  871|     env: "Environment",
+  872|     s: str,
+  873|     length: int = 255,
+  874|     killwords: bool = False,
+  875|     end: str = "...",
+  876|     leeway: int | None = None,
+  877| ) -> str:
+  878|     """Return a truncated copy of the string. The length is specified
+  879|     with the first parameter which defaults to ``255``. If the second
+  880|     parameter is ``true`` the filter will cut the text at length. Otherwise
+  881|     it will discard the last word. If the text was in fact
+  882|     truncated it will append an ellipsis sign (``"..."``). If you want a
+  883|     different ellipsis sign than ``"..."`` you can specify it using the
+  884|     third parameter. Strings that only exceed the length by the tolerance
+  885|     margin given in the fourth parameter will not be truncated.
+  886| 
+  887|     .. sourcecode:: jinja
+  888| 
+  889|         {{ "foo bar baz qux"|truncate(9) }}
+  890|             -> "foo..."
+  891|         {{ "foo bar baz qux"|truncate(9, True) }}
+  892|             -> "foo ba..."
+  893|         {{ "foo bar baz qux"|truncate(11) }}
+  894|             -> "foo bar baz qux"
+  895|         {{ "foo bar baz qux"|truncate(11, False, '...', 0) }}
+  896|             -> "foo bar..."
+  897| 
+  898|     The default leeway on newer Jinja versions is 5 and was 0 before but
+  899|     can be reconfigured globally.
+  900|     """
+  901|     if leeway is None:
+  902|         leeway = env.policies["truncate.leeway"]
+  903| 
+  904|     assert length >= len(end), f"expected length >= {len(end)}, got {length}"
+  905|     assert leeway >= 0, f"expected leeway >= 0, got {leeway}"
+  906| 
+  907|     if len(s) <= length + leeway:
+  908|         return s
+  909| 
+  910|     if killwords:
+  911|         return s[: length - len(end)] + end
+  912| 
+  913|     result = s[: length - len(end)].rsplit(" ", 1)[0]
+  914|     return result + end
+  915| 
+  916| 
+  917| @pass_environment
+  918| def do_wordwrap(
+  919|     environment: "Environment",
+  920|     s: str,
+  921|     width: int = 79,
+  922|     break_long_words: bool = True,
+  923|     wrapstring: str | None = None,
+  924|     break_on_hyphens: bool = True,
+  925| ) -> str:
+  926|     """Wrap a string to the given width. Existing newlines are treated
+  927|     as paragraphs to be wrapped separately.
+  928| 
+  929|     :param s: Original text to wrap.
+  930|     :param width: Maximum length of wrapped lines.
+  931|     :param break_long_words: If a word is longer than ``width``, break
+  932|         it across lines.
+  933|     :param break_on_hyphens: If a word contains hyphens, it may be split
+  934|         across lines.
+  935|     :param wrapstring: String to join each wrapped line. Defaults to
+  936|         :attr:`Environment.newline_sequence`.
+  937| 
+  938|     .. versionchanged:: 2.11
+  939|         Existing newlines are treated as paragraphs wrapped separately.
+  940| 
+  941|     .. versionchanged:: 2.11
+  942|         Added the ``break_on_hyphens`` parameter.
+  943| 
+  944|     .. versionchanged:: 2.7
+  945|         Added the ``wrapstring`` parameter.
+  946|     """
+  947|     import textwrap
+  948| 
+  949|     if wrapstring is None:
+  950|         wrapstring = environment.newline_sequence
+  951| 
+  952|     # textwrap.wrap doesn't consider existing newlines when wrapping.
+  953|     # If the string has a newline before width, wrap will still insert
+  954|     # a newline at width, resulting in a short line. Instead, split and
+  955|     # wrap each paragraph individually.
+  956|     return wrapstring.join(
+  957|         [
+  958|             wrapstring.join(
+  959|                 textwrap.wrap(
+  960|                     line,
+  961|                     width=width,
+  962|                     expand_tabs=False,
+  963|                     replace_whitespace=False,
+  964|                     break_long_words=break_long_words,
+  965|                     break_on_hyphens=break_on_hyphens,
+  966|                 )
+  967|             )
+  968|             for line in s.splitlines()
+  969|         ]
+  970|     )
+  971| 
+  972| 
+  973| _word_re = re.compile(r"\w+")
+  974| 
+  975| 
+  976| def do_wordcount(s: str) -> int:
+  977|     """Count the words in that string."""
+  978|     return len(_word_re.findall(soft_str(s)))
+  979| 
+  980| 
+  981| def do_int(value: t.Any, default: int = 0, base: int = 10) -> int:
+  982|     """Convert the value into an integer. If the
+  983|     conversion doesn't work it will return ``0``. You can
+  984|     override this default using the first parameter. You
+  985|     can also override the default base (10) in the second
+  986|     parameter, which handles input with prefixes such as
+  987|     0b, 0o and 0x for bases 2, 8 and 16 respectively.
+  988|     The base is ignored for decimal numbers and non-string values.
+  989|     """
+  990|     try:
+  991|         if isinstance(value, str):
+  992|             return int(value, base)
+  993| 
+  994|         return int(value)
+  995|     except (TypeError, ValueError):
+  996|         # this quirk is necessary so that "42.23"|int gives 42.
+  997|         try:
+  998|             return int(float(value))
+  999|         except (TypeError, ValueError, OverflowError):
+ 1000|             return default
+ 1001| 
+ 1002| 
+ 1003| def do_float(value: t.Any, default: float = 0.0) -> float:
+ 1004|     """Convert the value into a floating point number. If the
+ 1005|     conversion doesn't work it will return ``0.0``. You can
+ 1006|     override this default using the first parameter.
+ 1007|     """
+ 1008|     try:
+ 1009|         return float(value)
+ 1010|     except (TypeError, ValueError):
+ 1011|         return default
+ 1012| 
+ 1013| 
+ 1014| def do_format(value: str, *args: t.Any, **kwargs: t.Any) -> str:
+ 1015|     """Apply the given values to a `printf-style`_ format string, like
+ 1016|     ``string % values``.
+ 1017| 
+ 1018|     .. sourcecode:: jinja
+ 1019| 
+ 1020|         {{ "%s, %s!"|format(greeting, name) }}
+ 1021|         Hello, World!
+ 1022| 
+ 1023|     In most cases it should be more convenient and efficient to use the
+ 1024|     ``%`` operator or :meth:`str.format`.
+ 1025| 
+ 1026|     .. code-block:: text
+ 1027| 
+ 1028|         {{ "%s, %s!" % (greeting, name) }}
+ 1029|         {{ "{}, {}!".format(greeting, name) }}
+ 1030| 
+ 1031|     .. _printf-style: https://docs.python.org/library/stdtypes.html
+ 1032|         #printf-style-string-formatting
+ 1033|     """
+ 1034|     if args and kwargs:
+ 1035|         raise FilterArgumentError(
+ 1036|             "can't handle positional and keyword arguments at the same time"
+ 1037|         )
+ 1038| 
+ 1039|     return soft_str(value) % (kwargs or args)
+ 1040| 
+ 1041| 
+ 1042| def do_trim(value: str, chars: str | None = None) -> str:
+ 1043|     """Strip leading and trailing characters, by default whitespace."""
+ 1044|     return soft_str(value).strip(chars)
+ 1045| 
+ 1046| 
+ 1047| def do_striptags(value: "str | HasHTML") -> str:
+ 1048|     """Strip SGML/XML tags and replace adjacent whitespace by one space."""
+ 1049|     if hasattr(value, "__html__"):
+ 1050|         value = t.cast("HasHTML", value).__html__()
+ 1051| 
+ 1052|     return Markup(str(value)).striptags()
+ 1053| 
+ 1054| 
+ 1055| def sync_do_slice(
+ 1056|     value: "t.Collection[V]", slices: int, fill_with: "V | None" = None
+ 1057| ) -> "t.Iterator[list[V]]":
+ 1058|     """Slice an iterator and return a list of lists containing
+ 1059|     those items. Useful if you want to create a div containing
+ 1060|     three ul tags that represent columns:
+ 1061| 
+ 1062|     .. sourcecode:: html+jinja
+ 1063| 
+ 1064|         <div class="columnwrapper">
+ 1065|           {%- for column in items|slice(3) %}
+ 1066|             <ul class="column-{{ loop.index }}">
+ 1067|             {%- for item in column %}
+ 1068|               <li>{{ item }}</li>
+ 1069|             {%- endfor %}
+ 1070|             </ul>
+ 1071|           {%- endfor %}
+ 1072|         </div>
+ 1073| 
+ 1074|     If you pass it a second argument it's used to fill missing
+ 1075|     values on the last iteration.
+ 1076|     """
+ 1077|     seq = list(value)
+ 1078|     length = len(seq)
+ 1079|     items_per_slice = length // slices
+ 1080|     slices_with_extra = length % slices
+ 1081|     offset = 0
+ 1082| 
+ 1083|     for slice_number in range(slices):
+ 1084|         start = offset + slice_number * items_per_slice
+ 1085| 
+ 1086|         if slice_number < slices_with_extra:
+ 1087|             offset += 1
+ 1088| 
+ 1089|         end = offset + (slice_number + 1) * items_per_slice
+ 1090|         tmp = seq[start:end]
+ 1091| 
+ 1092|         if fill_with is not None and slice_number >= slices_with_extra:
+ 1093|             tmp.append(fill_with)
+ 1094| 
+ 1095|         yield tmp
+ 1096| 
+ 1097| 
+ 1098| @async_variant(sync_do_slice)  # type: ignore
+ 1099| async def do_slice(
+ 1100|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1101|     slices: int,
+ 1102|     fill_with: t.Any | None = None,
+ 1103| ) -> "t.Iterator[list[V]]":
+ 1104|     return sync_do_slice(await auto_to_list(value), slices, fill_with)
+ 1105| 
+ 1106| 
+ 1107| def do_batch(
+ 1108|     value: "t.Iterable[V]", linecount: int, fill_with: "V | None" = None
+ 1109| ) -> "t.Iterator[list[V]]":
+ 1110|     """
+ 1111|     A filter that batches items. It works pretty much like `slice`
+ 1112|     just the other way round. It returns a list of lists with the
+ 1113|     given number of items. If you provide a second parameter this
+ 1114|     is used to fill up missing items. See this example:
+ 1115| 
+ 1116|     .. sourcecode:: html+jinja
+ 1117| 
+ 1118|         <table>
+ 1119|         {%- for row in items|batch(3, '&nbsp;') %}
+ 1120|           <tr>
+ 1121|           {%- for column in row %}
+ 1122|             <td>{{ column }}</td>
+ 1123|           {%- endfor %}
+ 1124|           </tr>
+ 1125|         {%- endfor %}
+ 1126|         </table>
+ 1127|     """
+ 1128|     tmp: list[V] = []
+ 1129| 
+ 1130|     for item in value:
+ 1131|         if len(tmp) == linecount:
+ 1132|             yield tmp
+ 1133|             tmp = []
+ 1134| 
+ 1135|         tmp.append(item)
+ 1136| 
+ 1137|     if tmp:
+ 1138|         if fill_with is not None and len(tmp) < linecount:
+ 1139|             tmp += [fill_with] * (linecount - len(tmp))
+ 1140| 
+ 1141|         yield tmp
+ 1142| 
+ 1143| 
+ 1144| def do_round(
+ 1145|     value: float,
+ 1146|     precision: int = 0,
+ 1147|     method: 'te.Literal["common", "ceil", "floor"]' = "common",
+ 1148| ) -> float:
+ 1149|     """Round the number to a given precision. The first
+ 1150|     parameter specifies the precision (default is ``0``), the
+ 1151|     second the rounding method:
+ 1152| 
+ 1153|     - ``'common'`` rounds either up or down
+ 1154|     - ``'ceil'`` always rounds up
+ 1155|     - ``'floor'`` always rounds down
+ 1156| 
+ 1157|     If you don't specify a method ``'common'`` is used.
+ 1158| 
+ 1159|     .. sourcecode:: jinja
+ 1160| 
+ 1161|         {{ 42.55|round }}
+ 1162|             -> 43.0
+ 1163|         {{ 42.55|round(1, 'floor') }}
+ 1164|             -> 42.5
+ 1165| 
+ 1166|     Note that even if rounded to 0 precision, a float is returned.  If
+ 1167|     you need a real integer, pipe it through `int`:
+ 1168| 
+ 1169|     .. sourcecode:: jinja
+ 1170| 
+ 1171|         {{ 42.55|round|int }}
+ 1172|             -> 43
+ 1173|     """
+ 1174|     if method not in {"common", "ceil", "floor"}:
+ 1175|         raise FilterArgumentError("method must be common, ceil or floor")
+ 1176| 
+ 1177|     if method == "common":
+ 1178|         return round(value, precision)
+ 1179| 
+ 1180|     func = getattr(math, method)
+ 1181|     return t.cast(float, func(value * (10**precision)) / (10**precision))
+ 1182| 
+ 1183| 
+ 1184| class _GroupTuple(t.NamedTuple):
+ 1185|     grouper: t.Any
+ 1186|     list: list[t.Any]
+ 1187| 
+ 1188|     # Use the regular tuple repr to hide this subclass if users print
+ 1189|     # out the value during debugging.
+ 1190|     def __repr__(self) -> str:
+ 1191|         return tuple.__repr__(self)
+ 1192| 
+ 1193|     def __str__(self) -> str:
+ 1194|         return tuple.__str__(self)
+ 1195| 
+ 1196| 
+ 1197| @pass_environment
+ 1198| def sync_do_groupby(
+ 1199|     environment: "Environment",
+ 1200|     value: "t.Iterable[V]",
+ 1201|     attribute: str | int,
+ 1202|     default: t.Any | None = None,
+ 1203|     case_sensitive: bool = False,
+ 1204| ) -> "list[_GroupTuple]":
+ 1205|     """Group a sequence of objects by an attribute using Python's
+ 1206|     :func:`itertools.groupby`. The attribute can use dot notation for
+ 1207|     nested access, like ``"address.city"``. Unlike Python's ``groupby``,
+ 1208|     the values are sorted first so only one group is returned for each
+ 1209|     unique value.
+ 1210| 
+ 1211|     For example, a list of ``User`` objects with a ``city`` attribute
+ 1212|     can be rendered in groups. In this example, ``grouper`` refers to
+ 1213|     the ``city`` value of the group.
+ 1214| 
+ 1215|     .. sourcecode:: html+jinja
+ 1216| 
+ 1217|         <ul>{% for city, items in users|groupby("city") %}
+ 1218|           <li>{{ city }}
+ 1219|             <ul>{% for user in items %}
+ 1220|               <li>{{ user.name }}
+ 1221|             {% endfor %}</ul>
+ 1222|           </li>
+ 1223|         {% endfor %}</ul>
+ 1224| 
+ 1225|     ``groupby`` yields namedtuples of ``(grouper, list)``, which
+ 1226|     can be used instead of the tuple unpacking above. ``grouper`` is the
+ 1227|     value of the attribute, and ``list`` is the items with that value.
+ 1228| 
+ 1229|     .. sourcecode:: html+jinja
+ 1230| 
+ 1231|         <ul>{% for group in users|groupby("city") %}
+ 1232|           <li>{{ group.grouper }}: {{ group.list|join(", ") }}
+ 1233|         {% endfor %}</ul>
+ 1234| 
+ 1235|     You can specify a ``default`` value to use if an object in the list
+ 1236|     does not have the given attribute.
+ 1237| 
+ 1238|     .. sourcecode:: jinja
+ 1239| 
+ 1240|         <ul>{% for city, items in users|groupby("city", default="NY") %}
+ 1241|           <li>{{ city }}: {{ items|map(attribute="name")|join(", ") }}</li>
+ 1242|         {% endfor %}</ul>
+ 1243| 
+ 1244|     Like the :func:`~jinja-filters.sort` filter, sorting and grouping is
+ 1245|     case-insensitive by default. The ``key`` for each group will have
+ 1246|     the case of the first item in that group of values. For example, if
+ 1247|     a list of users has cities ``["CA", "NY", "ca"]``, the "CA" group
+ 1248|     will have two values. This can be disabled by passing
+ 1249|     ``case_sensitive=True``.
+ 1250| 
+ 1251|     .. versionchanged:: 3.1
+ 1252|         Added the ``case_sensitive`` parameter. Sorting and grouping is
+ 1253|         case-insensitive by default, matching other filters that do
+ 1254|         comparisons.
+ 1255| 
+ 1256|     .. versionchanged:: 3.0
+ 1257|         Added the ``default`` parameter.
+ 1258| 
+ 1259|     .. versionchanged:: 2.6
+ 1260|         The attribute supports dot notation for nested access.
+ 1261|     """
+ 1262|     expr = make_attrgetter(
+ 1263|         environment,
+ 1264|         attribute,
+ 1265|         postprocess=ignore_case if not case_sensitive else None,
+ 1266|         default=default,
+ 1267|     )
+ 1268|     out = [
+ 1269|         _GroupTuple(key, list(values))
+ 1270|         for key, values in groupby(sorted(value, key=expr), expr)
+ 1271|     ]
+ 1272| 
+ 1273|     if not case_sensitive:
+ 1274|         # Return the real key from the first value instead of the lowercase key.
+ 1275|         output_expr = make_attrgetter(environment, attribute, default=default)
+ 1276|         out = [_GroupTuple(output_expr(values[0]), values) for _, values in out]
+ 1277| 
+ 1278|     return out
+ 1279| 
+ 1280| 
+ 1281| @async_variant(sync_do_groupby)  # type: ignore
+ 1282| async def do_groupby(
+ 1283|     environment: "Environment",
+ 1284|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1285|     attribute: str | int,
+ 1286|     default: t.Any | None = None,
+ 1287|     case_sensitive: bool = False,
+ 1288| ) -> "list[_GroupTuple]":
+ 1289|     expr = make_attrgetter(
+ 1290|         environment,
+ 1291|         attribute,
+ 1292|         postprocess=ignore_case if not case_sensitive else None,
+ 1293|         default=default,
+ 1294|     )
+ 1295|     out = [
+ 1296|         _GroupTuple(key, await auto_to_list(values))
+ 1297|         for key, values in groupby(sorted(await auto_to_list(value), key=expr), expr)
+ 1298|     ]
+ 1299| 
+ 1300|     if not case_sensitive:
+ 1301|         # Return the real key from the first value instead of the lowercase key.
+ 1302|         output_expr = make_attrgetter(environment, attribute, default=default)
+ 1303|         out = [_GroupTuple(output_expr(values[0]), values) for _, values in out]
+ 1304| 
+ 1305|     return out
+ 1306| 
+ 1307| 
+ 1308| @pass_environment
+ 1309| def sync_do_sum(
+ 1310|     environment: "Environment",
+ 1311|     iterable: "t.Iterable[V]",
+ 1312|     attribute: str | int | None = None,
+ 1313|     start: V = 0,  # type: ignore
+ 1314| ) -> V:
+ 1315|     """Returns the sum of a sequence of numbers plus the value of parameter
+ 1316|     'start' (which defaults to 0).  When the sequence is empty it returns
+ 1317|     start.
+ 1318| 
+ 1319|     It is also possible to sum up only certain attributes:
+ 1320| 
+ 1321|     .. sourcecode:: jinja
+ 1322| 
+ 1323|         Total: {{ items|sum(attribute='price') }}
+ 1324| 
+ 1325|     .. versionchanged:: 2.6
+ 1326|        The ``attribute`` parameter was added to allow summing up over
+ 1327|        attributes.  Also the ``start`` parameter was moved on to the right.
+ 1328|     """
+ 1329|     if attribute is not None:
+ 1330|         iterable = map(make_attrgetter(environment, attribute), iterable)
+ 1331| 
+ 1332|     return sum(iterable, start)  # type: ignore[no-any-return, call-overload]
+ 1333| 
+ 1334| 
+ 1335| @async_variant(sync_do_sum)  # type: ignore
+ 1336| async def do_sum(
+ 1337|     environment: "Environment",
+ 1338|     iterable: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1339|     attribute: str | int | None = None,
+ 1340|     start: V = 0,  # type: ignore
+ 1341| ) -> V:
+ 1342|     rv = start
+ 1343| 
+ 1344|     if attribute is not None:
+ 1345|         func = make_attrgetter(environment, attribute)
+ 1346|     else:
+ 1347| 
+ 1348|         def func(x: V) -> V:
+ 1349|             return x
+ 1350| 
+ 1351|     async for item in auto_aiter(iterable):
+ 1352|         rv += func(item)
+ 1353| 
+ 1354|     return rv
+ 1355| 
+ 1356| 
+ 1357| def sync_do_list(value: "t.Iterable[V]") -> "list[V]":
+ 1358|     """Convert the value into a list.  If it was a string the returned list
+ 1359|     will be a list of characters.
+ 1360|     """
+ 1361|     return list(value)
+ 1362| 
+ 1363| 
+ 1364| @async_variant(sync_do_list)  # type: ignore
+ 1365| async def do_list(value: "t.AsyncIterable[V] | t.Iterable[V]") -> "list[V]":
+ 1366|     return await auto_to_list(value)
+ 1367| 
+ 1368| 
+ 1369| def do_mark_safe(value: str) -> Markup:
+ 1370|     """Mark the value as safe which means that in an environment with automatic
+ 1371|     escaping enabled this variable will not be escaped.
+ 1372|     """
+ 1373|     return Markup(value)
+ 1374| 
+ 1375| 
+ 1376| def do_mark_unsafe(value: str) -> str:
+ 1377|     """Mark a value as unsafe.  This is the reverse operation for :func:`safe`."""
+ 1378|     return str(value)
+ 1379| 
+ 1380| 
+ 1381| @typing.overload
+ 1382| def do_reverse(value: str) -> str: ...
+ 1383| 
+ 1384| 
+ 1385| @typing.overload
+ 1386| def do_reverse(value: "t.Iterable[V]") -> "t.Iterable[V]": ...
+ 1387| 
+ 1388| 
+ 1389| def do_reverse(value: str | t.Iterable[V]) -> str | t.Iterable[V]:
+ 1390|     """Reverse the object or return an iterator that iterates over it the other
+ 1391|     way round.
+ 1392|     """
+ 1393|     if isinstance(value, str):
+ 1394|         return value[::-1]
+ 1395| 
+ 1396|     try:
+ 1397|         return reversed(value)  # type: ignore
+ 1398|     except TypeError:
+ 1399|         try:
+ 1400|             rv = list(value)
+ 1401|             rv.reverse()
+ 1402|             return rv
+ 1403|         except TypeError as e:
+ 1404|             raise FilterArgumentError("argument must be iterable") from e
+ 1405| 
+ 1406| 
+ 1407| @pass_environment
+ 1408| def do_attr(environment: "Environment", obj: t.Any, name: str) -> Undefined | t.Any:
+ 1409|     """Get an attribute of an object. ``foo|attr("bar")`` works like
+ 1410|     ``foo.bar``, but returns undefined instead of falling back to ``foo["bar"]``
+ 1411|     if the attribute doesn't exist.
+ 1412| 
+ 1413|     See :ref:`Notes on subscriptions <notes-on-subscriptions>` for more details.
+ 1414|     """
+ 1415|     # Environment.getattr will fall back to obj[name] if obj.name doesn't exist.
+ 1416|     # But we want to call env.getattr to get behavior such as sandboxing.
+ 1417|     # Determine if the attr exists first, so we know the fallback won't trigger.
+ 1418|     try:
+ 1419|         # This avoids executing properties/descriptors, but misses __getattr__
+ 1420|         # and __getattribute__ dynamic attrs.
+ 1421|         getattr_static(obj, name)
+ 1422|     except AttributeError:
+ 1423|         # This finds dynamic attrs, and we know it's not a descriptor at this point.
+ 1424|         if not hasattr(obj, name):
+ 1425|             return environment.undefined(obj=obj, name=name)
+ 1426| 
+ 1427|     return environment.getattr(obj, name)
+ 1428| 
+ 1429| 
+ 1430| @typing.overload
+ 1431| def sync_do_map(
+ 1432|     context: "Context",
+ 1433|     value: t.Iterable[t.Any],
+ 1434|     name: str,
+ 1435|     *args: t.Any,
+ 1436|     **kwargs: t.Any,
+ 1437| ) -> t.Iterable[t.Any]: ...
+ 1438| 
+ 1439| 
+ 1440| @typing.overload
+ 1441| def sync_do_map(
+ 1442|     context: "Context",
+ 1443|     value: t.Iterable[t.Any],
+ 1444|     *,
+ 1445|     attribute: str = ...,
+ 1446|     default: t.Any | None = None,
+ 1447| ) -> t.Iterable[t.Any]: ...
+ 1448| 
+ 1449| 
+ 1450| @pass_context
+ 1451| def sync_do_map(
+ 1452|     context: "Context", value: t.Iterable[t.Any], *args: t.Any, **kwargs: t.Any
+ 1453| ) -> t.Iterable[t.Any]:
+ 1454|     """Applies a filter on a sequence of objects or looks up an attribute.
+ 1455|     This is useful when dealing with lists of objects but you are really
+ 1456|     only interested in a certain value of it.
+ 1457| 
+ 1458|     The basic usage is mapping on an attribute.  Imagine you have a list
+ 1459|     of users but you are only interested in a list of usernames:
+ 1460| 
+ 1461|     .. sourcecode:: jinja
+ 1462| 
+ 1463|         Users on this page: {{ users|map(attribute='username')|join(', ') }}
+ 1464| 
+ 1465|     You can specify a ``default`` value to use if an object in the list
+ 1466|     does not have the given attribute.
+ 1467| 
+ 1468|     .. sourcecode:: jinja
+ 1469| 
+ 1470|         {{ users|map(attribute="username", default="Anonymous")|join(", ") }}
+ 1471| 
+ 1472|     Alternatively you can let it invoke a filter by passing the name of the
+ 1473|     filter and the arguments afterwards.  A good example would be applying a
+ 1474|     text conversion filter on a sequence:
+ 1475| 
+ 1476|     .. sourcecode:: jinja
+ 1477| 
+ 1478|         Users on this page: {{ titles|map('lower')|join(', ') }}
+ 1479| 
+ 1480|     Similar to a generator comprehension such as:
+ 1481| 
+ 1482|     .. code-block:: python
+ 1483| 
+ 1484|         (u.username for u in users)
+ 1485|         (getattr(u, "username", "Anonymous") for u in users)
+ 1486|         (do_lower(x) for x in titles)
+ 1487| 
+ 1488|     .. versionchanged:: 2.11.0
+ 1489|         Added the ``default`` parameter.
+ 1490| 
+ 1491|     .. versionadded:: 2.7
+ 1492|     """
+ 1493|     if value:
+ 1494|         func = prepare_map(context, args, kwargs)
+ 1495| 
+ 1496|         for item in value:
+ 1497|             yield func(item)
+ 1498| 
+ 1499| 
+ 1500| @typing.overload
+ 1501| def do_map(
+ 1502|     context: "Context",
+ 1503|     value: t.AsyncIterable[t.Any] | t.Iterable[t.Any],
+ 1504|     name: str,
+ 1505|     *args: t.Any,
+ 1506|     **kwargs: t.Any,
+ 1507| ) -> t.Iterable[t.Any]: ...
+ 1508| 
+ 1509| 
+ 1510| @typing.overload
+ 1511| def do_map(
+ 1512|     context: "Context",
+ 1513|     value: t.AsyncIterable[t.Any] | t.Iterable[t.Any],
+ 1514|     *,
+ 1515|     attribute: str = ...,
+ 1516|     default: t.Any | None = None,
+ 1517| ) -> t.Iterable[t.Any]: ...
+ 1518| 
+ 1519| 
+ 1520| @async_variant(sync_do_map)  # type: ignore
+ 1521| async def do_map(
+ 1522|     context: "Context",
+ 1523|     value: t.AsyncIterable[t.Any] | t.Iterable[t.Any],
+ 1524|     *args: t.Any,
+ 1525|     **kwargs: t.Any,
+ 1526| ) -> t.AsyncIterable[t.Any]:
+ 1527|     if value:
+ 1528|         func = prepare_map(context, args, kwargs)
+ 1529| 
+ 1530|         async for item in auto_aiter(value):
+ 1531|             yield await auto_await(func(item))
+ 1532| 
+ 1533| 
+ 1534| @pass_context
+ 1535| def sync_do_select(
+ 1536|     context: "Context", value: "t.Iterable[V]", *args: t.Any, **kwargs: t.Any
+ 1537| ) -> "t.Iterator[V]":
+ 1538|     """Filters a sequence of objects by applying a test to each object,
+ 1539|     and only selecting the objects with the test succeeding.
+ 1540| 
+ 1541|     If no test is specified, each object will be evaluated as a boolean.
+ 1542| 
+ 1543|     Example usage:
+ 1544| 
+ 1545|     .. sourcecode:: jinja
+ 1546| 
+ 1547|         {{ numbers|select("odd") }}
+ 1548|         {{ numbers|select("odd") }}
+ 1549|         {{ numbers|select("divisibleby", 3) }}
+ 1550|         {{ numbers|select("lessthan", 42) }}
+ 1551|         {{ strings|select("equalto", "mystring") }}
+ 1552| 
+ 1553|     Similar to a generator comprehension such as:
+ 1554| 
+ 1555|     .. code-block:: python
+ 1556| 
+ 1557|         (n for n in numbers if test_odd(n))
+ 1558|         (n for n in numbers if test_divisibleby(n, 3))
+ 1559| 
+ 1560|     .. versionadded:: 2.7
+ 1561|     """
+ 1562|     return select_or_reject(context, value, args, kwargs, lambda x: x, False)
+ 1563| 
+ 1564| 
+ 1565| @async_variant(sync_do_select)  # type: ignore
+ 1566| async def do_select(
+ 1567|     context: "Context",
+ 1568|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1569|     *args: t.Any,
+ 1570|     **kwargs: t.Any,
+ 1571| ) -> "t.AsyncIterator[V]":
+ 1572|     return async_select_or_reject(context, value, args, kwargs, lambda x: x, False)
+ 1573| 
+ 1574| 
+ 1575| @pass_context
+ 1576| def sync_do_reject(
+ 1577|     context: "Context", value: "t.Iterable[V]", *args: t.Any, **kwargs: t.Any
+ 1578| ) -> "t.Iterator[V]":
+ 1579|     """Filters a sequence of objects by applying a test to each object,
+ 1580|     and rejecting the objects with the test succeeding.
+ 1581| 
+ 1582|     If no test is specified, each object will be evaluated as a boolean.
+ 1583| 
+ 1584|     Example usage:
+ 1585| 
+ 1586|     .. sourcecode:: jinja
+ 1587| 
+ 1588|         {{ numbers|reject("odd") }}
+ 1589| 
+ 1590|     Similar to a generator comprehension such as:
+ 1591| 
+ 1592|     .. code-block:: python
+ 1593| 
+ 1594|         (n for n in numbers if not test_odd(n))
+ 1595| 
+ 1596|     .. versionadded:: 2.7
+ 1597|     """
+ 1598|     return select_or_reject(context, value, args, kwargs, lambda x: not x, False)
+ 1599| 
+ 1600| 
+ 1601| @async_variant(sync_do_reject)  # type: ignore
+ 1602| async def do_reject(
+ 1603|     context: "Context",
+ 1604|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1605|     *args: t.Any,
+ 1606|     **kwargs: t.Any,
+ 1607| ) -> "t.AsyncIterator[V]":
+ 1608|     return async_select_or_reject(context, value, args, kwargs, lambda x: not x, False)
+ 1609| 
+ 1610| 
+ 1611| @pass_context
+ 1612| def sync_do_selectattr(
+ 1613|     context: "Context", value: "t.Iterable[V]", *args: t.Any, **kwargs: t.Any
+ 1614| ) -> "t.Iterator[V]":
+ 1615|     """Filters a sequence of objects by applying a test to the specified
+ 1616|     attribute of each object, and only selecting the objects with the
+ 1617|     test succeeding.
+ 1618| 
+ 1619|     If no test is specified, the attribute's value will be evaluated as
+ 1620|     a boolean.
+ 1621| 
+ 1622|     Example usage:
+ 1623| 
+ 1624|     .. sourcecode:: jinja
+ 1625| 
+ 1626|         {{ users|selectattr("is_active") }}
+ 1627|         {{ users|selectattr("email", "none") }}
+ 1628| 
+ 1629|     Similar to a generator comprehension such as:
+ 1630| 
+ 1631|     .. code-block:: python
+ 1632| 
+ 1633|         (user for user in users if user.is_active)
+ 1634|         (user for user in users if test_none(user.email))
+ 1635| 
+ 1636|     .. versionadded:: 2.7
+ 1637|     """
+ 1638|     return select_or_reject(context, value, args, kwargs, lambda x: x, True)
+ 1639| 
+ 1640| 
+ 1641| @async_variant(sync_do_selectattr)  # type: ignore
+ 1642| async def do_selectattr(
+ 1643|     context: "Context",
+ 1644|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1645|     *args: t.Any,
+ 1646|     **kwargs: t.Any,
+ 1647| ) -> "t.AsyncIterator[V]":
+ 1648|     return async_select_or_reject(context, value, args, kwargs, lambda x: x, True)
+ 1649| 
+ 1650| 
+ 1651| @pass_context
+ 1652| def sync_do_rejectattr(
+ 1653|     context: "Context", value: "t.Iterable[V]", *args: t.Any, **kwargs: t.Any
+ 1654| ) -> "t.Iterator[V]":
+ 1655|     """Filters a sequence of objects by applying a test to the specified
+ 1656|     attribute of each object, and rejecting the objects with the test
+ 1657|     succeeding.
+ 1658| 
+ 1659|     If no test is specified, the attribute's value will be evaluated as
+ 1660|     a boolean.
+ 1661| 
+ 1662|     .. sourcecode:: jinja
+ 1663| 
+ 1664|         {{ users|rejectattr("is_active") }}
+ 1665|         {{ users|rejectattr("email", "none") }}
+ 1666| 
+ 1667|     Similar to a generator comprehension such as:
+ 1668| 
+ 1669|     .. code-block:: python
+ 1670| 
+ 1671|         (user for user in users if not user.is_active)
+ 1672|         (user for user in users if not test_none(user.email))
+ 1673| 
+ 1674|     .. versionadded:: 2.7
+ 1675|     """
+ 1676|     return select_or_reject(context, value, args, kwargs, lambda x: not x, True)
+ 1677| 
+ 1678| 
+ 1679| @async_variant(sync_do_rejectattr)  # type: ignore
+ 1680| async def do_rejectattr(
+ 1681|     context: "Context",
+ 1682|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1683|     *args: t.Any,
+ 1684|     **kwargs: t.Any,
+ 1685| ) -> "t.AsyncIterator[V]":
+ 1686|     return async_select_or_reject(context, value, args, kwargs, lambda x: not x, True)
+ 1687| 
+ 1688| 
+ 1689| @pass_eval_context
+ 1690| def do_tojson(
+ 1691|     eval_ctx: "EvalContext", value: t.Any, indent: int | None = None
+ 1692| ) -> Markup:
+ 1693|     """Serialize an object to a string of JSON, and mark it safe to
+ 1694|     render in HTML. This filter is only for use in HTML documents.
+ 1695| 
+ 1696|     The returned string is safe to render in HTML documents and
+ 1697|     ``<script>`` tags. The exception is in HTML attributes that are
+ 1698|     double quoted; either use single quotes or the ``|forceescape``
+ 1699|     filter.
+ 1700| 
+ 1701|     :param value: The object to serialize to JSON.
+ 1702|     :param indent: The ``indent`` parameter passed to ``dumps``, for
+ 1703|         pretty-printing the value.
+ 1704| 
+ 1705|     .. versionadded:: 2.9
+ 1706|     """
+ 1707|     policies = eval_ctx.environment.policies
+ 1708|     dumps = policies["json.dumps_function"]
+ 1709|     kwargs = policies["json.dumps_kwargs"]
+ 1710| 
+ 1711|     if indent is not None:
+ 1712|         kwargs = kwargs.copy()
+ 1713|         kwargs["indent"] = indent
+ 1714| 
+ 1715|     return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+ 1716| 
+ 1717| 
+ 1718| def prepare_map(
+ 1719|     context: "Context", args: tuple[t.Any, ...], kwargs: dict[str, t.Any]
+ 1720| ) -> t.Callable[[t.Any], t.Any]:
+ 1721|     if not args and "attribute" in kwargs:
+ 1722|         attribute = kwargs.pop("attribute")
+ 1723|         default = kwargs.pop("default", None)
+ 1724| 
+ 1725|         if kwargs:
+ 1726|             raise FilterArgumentError(
+ 1727|                 f"Unexpected keyword argument {next(iter(kwargs))!r}"
+ 1728|             )
+ 1729| 
+ 1730|         func = make_attrgetter(context.environment, attribute, default=default)
+ 1731|     else:
+ 1732|         try:
+ 1733|             name = args[0]
+ 1734|             args = args[1:]
+ 1735|         except LookupError:
+ 1736|             raise FilterArgumentError("map requires a filter argument") from None
+ 1737| 
+ 1738|         def func(item: t.Any) -> t.Any:
+ 1739|             return context.environment.call_filter(
+ 1740|                 name, item, args, kwargs, context=context
+ 1741|             )
+ 1742| 
+ 1743|     return func
+ 1744| 
+ 1745| 
+ 1746| def prepare_select_or_reject(
+ 1747|     context: "Context",
+ 1748|     args: tuple[t.Any, ...],
+ 1749|     kwargs: dict[str, t.Any],
+ 1750|     modfunc: t.Callable[[t.Any], t.Any],
+ 1751|     lookup_attr: bool,
+ 1752| ) -> t.Callable[[t.Any], t.Any]:
+ 1753|     if lookup_attr:
+ 1754|         try:
+ 1755|             attr = args[0]
+ 1756|         except LookupError:
+ 1757|             raise FilterArgumentError("Missing parameter for attribute name") from None
+ 1758| 
+ 1759|         transfunc = make_attrgetter(context.environment, attr)
+ 1760|         off = 1
+ 1761|     else:
+ 1762|         off = 0
+ 1763| 
+ 1764|         def transfunc(x: V) -> V:
+ 1765|             return x
+ 1766| 
+ 1767|     try:
+ 1768|         name = args[off]
+ 1769|         args = args[1 + off :]
+ 1770| 
+ 1771|         def func(item: t.Any) -> t.Any:
+ 1772|             return context.environment.call_test(name, item, args, kwargs, context)
+ 1773| 
+ 1774|     except LookupError:
+ 1775|         func = bool  # type: ignore
+ 1776| 
+ 1777|     return lambda item: modfunc(func(transfunc(item)))
+ 1778| 
+ 1779| 
+ 1780| def select_or_reject(
+ 1781|     context: "Context",
+ 1782|     value: "t.Iterable[V]",
+ 1783|     args: tuple[t.Any, ...],
+ 1784|     kwargs: dict[str, t.Any],
+ 1785|     modfunc: t.Callable[[t.Any], t.Any],
+ 1786|     lookup_attr: bool,
+ 1787| ) -> "t.Iterator[V]":
+ 1788|     if value:
+ 1789|         func = prepare_select_or_reject(context, args, kwargs, modfunc, lookup_attr)
+ 1790| 
+ 1791|         for item in value:
+ 1792|             if func(item):
+ 1793|                 yield item
+ 1794| 
+ 1795| 
+ 1796| async def async_select_or_reject(
+ 1797|     context: "Context",
+ 1798|     value: "t.AsyncIterable[V] | t.Iterable[V]",
+ 1799|     args: tuple[t.Any, ...],
+ 1800|     kwargs: dict[str, t.Any],
+ 1801|     modfunc: t.Callable[[t.Any], t.Any],
+ 1802|     lookup_attr: bool,
+ 1803| ) -> "t.AsyncIterator[V]":
+ 1804|     if value:
+ 1805|         func = prepare_select_or_reject(context, args, kwargs, modfunc, lookup_attr)
+ 1806| 
+ 1807|         async for item in auto_aiter(value):
+ 1808|             if func(item):
+ 1809|                 yield item
+ 1810| 
+ 1811| 
+ 1812| FILTERS = {
+ 1813|     "abs": abs,
+ 1814|     "attr": do_attr,
+ 1815|     "batch": do_batch,
+ 1816|     "capitalize": do_capitalize,
+ 1817|     "center": do_center,
+ 1818|     "count": len,
+ 1819|     "d": do_default,
+ 1820|     "default": do_default,
+ 1821|     "dictsort": do_dictsort,
+ 1822|     "e": escape,
+ 1823|     "escape": escape,
+ 1824|     "filesizeformat": do_filesizeformat,
+ 1825|     "first": do_first,
+ 1826|     "float": do_float,
+ 1827|     "forceescape": do_forceescape,
+ 1828|     "format": do_format,
+ 1829|     "groupby": do_groupby,
+ 1830|     "indent": do_indent,
+ 1831|     "int": do_int,
+ 1832|     "join": do_join,
+ 1833|     "last": do_last,
+ 1834|     "length": len,
+ 1835|     "list": do_list,
+ 1836|     "lower": do_lower,
+ 1837|     "items": do_items,
+ 1838|     "map": do_map,
+ 1839|     "min": do_min,
+ 1840|     "max": do_max,
+ 1841|     "pprint": do_pprint,
+ 1842|     "random": do_random,
+ 1843|     "reject": do_reject,
+ 1844|     "rejectattr": do_rejectattr,
+ 1845|     "replace": do_replace,
+ 1846|     "reverse": do_reverse,
+ 1847|     "round": do_round,
+ 1848|     "safe": do_mark_safe,
+ 1849|     "select": do_select,
+ 1850|     "selectattr": do_selectattr,
+ 1851|     "slice": do_slice,
+ 1852|     "sort": do_sort,
+ 1853|     "string": soft_str,
+ 1854|     "striptags": do_striptags,
+ 1855|     "sum": do_sum,
+ 1856|     "title": do_title,
+ 1857|     "trim": do_trim,
+ 1858|     "truncate": do_truncate,
+ 1859|     "unique": do_unique,
+ 1860|     "upper": do_upper,
+ 1861|     "urlencode": do_urlencode,
+ 1862|     "urlize": do_urlize,
+ 1863|     "wordcount": do_wordcount,
+ 1864|     "wordwrap": do_wordwrap,
+ 1865|     "xmlattr": do_xmlattr,
+ 1866|     "tojson": do_tojson,
+ 1867| }
+
+FILE src/jinja2/runtime.py:
+    1| """The runtime functions and state used by compiled templates."""
+    2| 
+    3| import functools
+    4| import sys
+    5| import typing as t
+    6| from collections import abc
+    7| from itertools import chain
+    8| 
+    9| from markupsafe import escape  # noqa: F401
+   10| from markupsafe import Markup
+   11| from markupsafe import soft_str
+   12| 
+   13| from .async_utils import auto_aiter
+   14| from .async_utils import auto_await  # noqa: F401
+   15| from .exceptions import TemplateNotFound  # noqa: F401
+   16| from .exceptions import TemplateRuntimeError  # noqa: F401
+   17| from .exceptions import UndefinedError
+   18| from .nodes import EvalContext
+   19| from .utils import _PassArg
+   20| from .utils import concat
+   21| from .utils import internalcode
+   22| from .utils import missing
+   23| from .utils import Namespace  # noqa: F401
+   24| from .utils import object_type_repr
+   25| from .utils import pass_eval_context
+   26| 
+   27| V = t.TypeVar("V")
+   28| F = t.TypeVar("F", bound=t.Callable[..., t.Any])
+   29| 
+   30| if t.TYPE_CHECKING:
+   31|     import logging
+   32| 
+   33|     import typing_extensions as te
+   34| 
+   35|     from .environment import Environment
+   36| 
+   37|     class LoopRenderFunc(te.Protocol):
+   38|         def __call__(
+   39|             self,
+   40|             reciter: t.Iterable[V],
+   41|             loop_render_func: "LoopRenderFunc",
+   42|             depth: int = 0,
+   43|         ) -> str: ...
+   44| 
+   45| 
+   46| # these variables are exported to the template runtime
+   47| exported = [
+   48|     "LoopContext",
+   49|     "TemplateReference",
+   50|     "Macro",
+   51|     "Markup",
+   52|     "TemplateRuntimeError",
+   53|     "missing",
+   54|     "escape",
+   55|     "markup_join",
+   56|     "str_join",
+   57|     "identity",
+   58|     "TemplateNotFound",
+   59|     "Namespace",
+   60|     "Undefined",
+   61|     "internalcode",
+   62| ]
+   63| async_exported = [
+   64|     "AsyncLoopContext",
+   65|     "auto_aiter",
+   66|     "auto_await",
+   67| ]
+   68| 
+   69| 
+   70| def identity(x: V) -> V:
+   71|     """Returns its argument. Useful for certain things in the
+   72|     environment.
+   73|     """
+   74|     return x
+   75| 
+   76| 
+   77| def markup_join(seq: t.Iterable[t.Any]) -> str:
+   78|     """Concatenation that escapes if necessary and converts to string."""
+   79|     buf = []
+   80|     iterator = map(soft_str, seq)
+   81|     for arg in iterator:
+   82|         buf.append(arg)
+   83|         if hasattr(arg, "__html__"):
+   84|             return Markup("").join(chain(buf, iterator))
+   85|     return concat(buf)
+   86| 
+   87| 
+   88| def str_join(seq: t.Iterable[t.Any]) -> str:
+   89|     """Simple args to string conversion and concatenation."""
+   90|     return concat(map(str, seq))
+   91| 
+   92| 
+   93| def new_context(
+   94|     environment: "Environment",
+   95|     template_name: str | None,
+   96|     blocks: dict[str, t.Callable[["Context"], t.Iterator[str]]],
+   97|     vars: dict[str, t.Any] | None = None,
+   98|     shared: bool = False,
+   99|     globals: t.MutableMapping[str, t.Any] | None = None,
+  100|     locals: t.Mapping[str, t.Any] | None = None,
+  101| ) -> "Context":
+  102|     """Internal helper for context creation."""
+  103|     if vars is None:
+  104|         vars = {}
+  105|     if shared:
+  106|         parent = vars
+  107|     else:
+  108|         parent = dict(globals or (), **vars)
+  109|     if locals:
+  110|         # if the parent is shared a copy should be created because
+  111|         # we don't want to modify the dict passed
+  112|         if shared:
+  113|             parent = dict(parent)
+  114|         for key, value in locals.items():
+  115|             if value is not missing:
+  116|                 parent[key] = value
+  117|     return environment.context_class(
+  118|         environment, parent, template_name, blocks, globals=globals
+  119|     )
+  120| 
+  121| 
+  122| class TemplateReference:
+  123|     """The `self` in templates."""
+  124| 
+  125|     def __init__(self, context: "Context") -> None:
+  126|         self.__context = context
+  127| 
+  128|     def __getitem__(self, name: str) -> t.Any:
+  129|         blocks = self.__context.blocks[name]
+  130|         return BlockReference(name, self.__context, blocks, 0)
+  131| 
+  132|     def __repr__(self) -> str:
+  133|         return f"<{type(self).__name__} {self.__context.name!r}>"
+  134| 
+  135| 
+  136| def _dict_method_all(dict_method: F) -> F:
+  137|     @functools.wraps(dict_method)
+  138|     def f_all(self: "Context") -> t.Any:
+  139|         return dict_method(self.get_all())
+  140| 
+  141|     return t.cast(F, f_all)
+  142| 
+  143| 
+  144| @abc.Mapping.register
+  145| class Context:
+  146|     """The template context holds the variables of a template.  It stores the
+  147|     values passed to the template and also the names the template exports.
+  148|     Creating instances is neither supported nor useful as it's created
+  149|     automatically at various stages of the template evaluation and should not
+  150|     be created by hand.
+  151| 
+  152|     The context is immutable.  Modifications on :attr:`parent` **must not**
+  153|     happen and modifications on :attr:`vars` are allowed from generated
+  154|     template code only.  Template filters and global functions marked as
+  155|     :func:`pass_context` get the active context passed as first argument
+  156|     and are allowed to access the context read-only.
+  157| 
+  158|     The template context supports read only dict operations (`get`,
+  159|     `keys`, `values`, `items`, `iterkeys`, `itervalues`, `iteritems`,
+  160|     `__getitem__`, `__contains__`).  Additionally there is a :meth:`resolve`
+  161|     method that doesn't fail with a `KeyError` but returns an
+  162|     :class:`Undefined` object for missing variables.
+  163|     """
+  164| 
+  165|     def __init__(
+  166|         self,
+  167|         environment: "Environment",
+  168|         parent: dict[str, t.Any],
+  169|         name: str | None,
+  170|         blocks: dict[str, t.Callable[["Context"], t.Iterator[str]]],
+  171|         globals: t.MutableMapping[str, t.Any] | None = None,
+  172|     ):
+  173|         self.parent = parent
+  174|         self.vars: dict[str, t.Any] = {}
+  175|         self.environment: Environment = environment
+  176|         self.eval_ctx = EvalContext(self.environment, name)
+  177|         self.exported_vars: set[str] = set()
+  178|         self.name = name
+  179|         self.globals_keys = set() if globals is None else set(globals)
+  180| 
+  181|         # create the initial mapping of blocks.  Whenever template inheritance
+  182|         # takes place the runtime will update this mapping with the new blocks
+  183|         # from the template.
+  184|         self.blocks = {k: [v] for k, v in blocks.items()}
+  185| 
+  186|     def super(
+  187|         self, name: str, current: t.Callable[["Context"], t.Iterator[str]]
+  188|     ) -> t.Union["BlockReference", "Undefined"]:
+  189|         """Render a parent block."""
+  190|         try:
+  191|             blocks = self.blocks[name]
+  192|             index = blocks.index(current) + 1
+  193|             blocks[index]
+  194|         except LookupError:
+  195|             return self.environment.undefined(
+  196|                 f"there is no parent block called {name!r}.", name="super"
+  197|             )
+  198|         return BlockReference(name, self, blocks, index)
+  199| 
+  200|     def get(self, key: str, default: t.Any = None) -> t.Any:
+  201|         """Look up a variable by name, or return a default if the key is
+  202|         not found.
+  203| 
+  204|         :param key: The variable name to look up.
+  205|         :param default: The value to return if the key is not found.
+  206|         """
+  207|         try:
+  208|             return self[key]
+  209|         except KeyError:
+  210|             return default
+  211| 
+  212|     def resolve(self, key: str) -> t.Union[t.Any, "Undefined"]:
+  213|         """Look up a variable by name, or return an :class:`Undefined`
+  214|         object if the key is not found.
+  215| 
+  216|         If you need to add custom behavior, override
+  217|         :meth:`resolve_or_missing`, not this method. The various lookup
+  218|         functions use that method, not this one.
+  219| 
+  220|         :param key: The variable name to look up.
+  221|         """
+  222|         rv = self.resolve_or_missing(key)
+  223| 
+  224|         if rv is missing:
+  225|             return self.environment.undefined(name=key)
+  226| 
+  227|         return rv
+  228| 
+  229|     def resolve_or_missing(self, key: str) -> t.Any:
+  230|         """Look up a variable by name, or return a ``missing`` sentinel
+  231|         if the key is not found.
+  232| 
+  233|         Override this method to add custom lookup behavior.
+  234|         :meth:`resolve`, :meth:`get`, and :meth:`__getitem__` use this
+  235|         method. Don't call this method directly.
+  236| 
+  237|         :param key: The variable name to look up.
+  238|         """
+  239|         if key in self.vars:
+  240|             return self.vars[key]
+  241| 
+  242|         if key in self.parent:
+  243|             return self.parent[key]
+  244| 
+  245|         return missing
+  246| 
+  247|     def get_exported(self) -> dict[str, t.Any]:
+  248|         """Get a new dict with the exported variables."""
+  249|         return {k: self.vars[k] for k in self.exported_vars}
+  250| 
+  251|     def get_all(self) -> dict[str, t.Any]:
+  252|         """Return the complete context as dict including the exported
+  253|         variables.  For optimizations reasons this might not return an
+  254|         actual copy so be careful with using it.
+  255|         """
+  256|         if not self.vars:
+  257|             return self.parent
+  258|         if not self.parent:
+  259|             return self.vars
+  260|         return dict(self.parent, **self.vars)
+  261| 
+  262|     @internalcode
+  263|     def call(
+  264|         __self,  # noqa: B902
+  265|         __obj: t.Callable[..., t.Any],
+  266|         *args: t.Any,
+  267|         **kwargs: t.Any,
+  268|     ) -> t.Union[t.Any, "Undefined"]:
+  269|         """Call the callable with the arguments and keyword arguments
+  270|         provided but inject the active context or environment as first
+  271|         argument if the callable has :func:`pass_context` or
+  272|         :func:`pass_environment`.
+  273|         """
+  274|         if __debug__:
+  275|             __traceback_hide__ = True  # noqa
+  276| 
+  277|         # Allow callable classes to take a context
+  278|         if (
+  279|             hasattr(__obj, "__call__")  # noqa: B004
+  280|             and _PassArg.from_obj(__obj.__call__) is not None
+  281|         ):
+  282|             __obj = __obj.__call__
+  283| 
+  284|         pass_arg = _PassArg.from_obj(__obj)
+  285| 
+  286|         if pass_arg is _PassArg.context:
+  287|             # the active context should have access to variables set in
+  288|             # loops and blocks without mutating the context itself
+  289|             if kwargs.get("_loop_vars"):
+  290|                 __self = __self.derived(kwargs["_loop_vars"])
+  291|             if kwargs.get("_block_vars"):
+  292|                 __self = __self.derived(kwargs["_block_vars"])
+  293|             args = (__self,) + args
+  294|         elif pass_arg is _PassArg.eval_context:
+  295|             args = (__self.eval_ctx,) + args
+  296|         elif pass_arg is _PassArg.environment:
+  297|             args = (__self.environment,) + args
+  298| 
+  299|         kwargs.pop("_block_vars", None)
+  300|         kwargs.pop("_loop_vars", None)
+  301| 
+  302|         try:
+  303|             return __obj(*args, **kwargs)
+  304|         except StopIteration:
+  305|             return __self.environment.undefined(
+  306|                 "value was undefined because a callable raised a"
+  307|                 " StopIteration exception"
+  308|             )
+  309| 
+  310|     def derived(self, locals: dict[str, t.Any] | None = None) -> "Context":
+  311|         """Internal helper function to create a derived context.  This is
+  312|         used in situations where the system needs a new context in the same
+  313|         template that is independent.
+  314|         """
+  315|         context = new_context(
+  316|             self.environment, self.name, {}, self.get_all(), True, None, locals
+  317|         )
+  318|         context.eval_ctx = self.eval_ctx
+  319|         context.blocks.update((k, list(v)) for k, v in self.blocks.items())
+  320|         return context
+  321| 
+  322|     keys = _dict_method_all(dict.keys)
+  323|     values = _dict_method_all(dict.values)
+  324|     items = _dict_method_all(dict.items)
+  325| 
+  326|     def __contains__(self, name: str) -> bool:
+  327|         return name in self.vars or name in self.parent
+  328| 
+  329|     def __getitem__(self, key: str) -> t.Any:
+  330|         """Look up a variable by name with ``[]`` syntax, or raise a
+  331|         ``KeyError`` if the key is not found.
+  332|         """
+  333|         item = self.resolve_or_missing(key)
+  334| 
+  335|         if item is missing:
+  336|             raise KeyError(key)
+  337| 
+  338|         return item
+  339| 
+  340|     def __repr__(self) -> str:
+  341|         return f"<{type(self).__name__} {self.get_all()!r} of {self.name!r}>"
+  342| 
+  343| 
+  344| class BlockReference:
+  345|     """One block on a template reference."""
+  346| 
+  347|     def __init__(
+  348|         self,
+  349|         name: str,
+  350|         context: "Context",
+  351|         stack: list[t.Callable[["Context"], t.Iterator[str]]],
+  352|         depth: int,
+  353|     ) -> None:
+  354|         self.name = name
+  355|         self._context = context
+  356|         self._stack = stack
+  357|         self._depth = depth
+  358| 
+  359|     @property
+  360|     def super(self) -> t.Union["BlockReference", "Undefined"]:
+  361|         """Super the block."""
+  362|         if self._depth + 1 >= len(self._stack):
+  363|             return self._context.environment.undefined(
+  364|                 f"there is no parent block called {self.name!r}.", name="super"
+  365|             )
+  366|         return BlockReference(self.name, self._context, self._stack, self._depth + 1)
+  367| 
+  368|     @internalcode
+  369|     async def _async_call(self) -> str:
+  370|         rv = self._context.environment.concat(  # type: ignore
+  371|             [x async for x in self._stack[self._depth](self._context)]  # type: ignore
+  372|         )
+  373| 
+  374|         if self._context.eval_ctx.autoescape:
+  375|             return Markup(rv)
+  376| 
+  377|         return rv
+  378| 
+  379|     @internalcode
+  380|     def __call__(self) -> str:
+  381|         if self._context.environment.is_async:
+  382|             return self._async_call()  # type: ignore
+  383| 
+  384|         rv = self._context.environment.concat(  # type: ignore
+  385|             self._stack[self._depth](self._context)
+  386|         )
+  387| 
+  388|         if self._context.eval_ctx.autoescape:
+  389|             return Markup(rv)
+  390| 
+  391|         return rv
+  392| 
+  393| 
+  394| class LoopContext:
+  395|     """A wrapper iterable for dynamic ``for`` loops, with information
+  396|     about the loop and iteration.
+  397|     """
+  398| 
+  399|     #: Current iteration of the loop, starting at 0.
+  400|     index0 = -1
+  401| 
+  402|     _length: int | None = None
+  403|     _after: t.Any = missing
+  404|     _current: t.Any = missing
+  405|     _before: t.Any = missing
+  406|     _last_changed_value: t.Any = missing
+  407| 
+  408|     def __init__(
+  409|         self,
+  410|         iterable: t.Iterable[V],
+  411|         undefined: type["Undefined"],
+  412|         recurse: t.Optional["LoopRenderFunc"] = None,
+  413|         depth0: int = 0,
+  414|     ) -> None:
+  415|         """
+  416|         :param iterable: Iterable to wrap.
+  417|         :param undefined: :class:`Undefined` class to use for next and
+  418|             previous items.
+  419|         :param recurse: The function to render the loop body when the
+  420|             loop is marked recursive.
+  421|         :param depth0: Incremented when looping recursively.
+  422|         """
+  423|         self._iterable = iterable
+  424|         self._iterator = self._to_iterator(iterable)
+  425|         self._undefined = undefined
+  426|         self._recurse = recurse
+  427|         #: How many levels deep a recursive loop currently is, starting at 0.
+  428|         self.depth0 = depth0
+  429| 
+  430|     @staticmethod
+  431|     def _to_iterator(iterable: t.Iterable[V]) -> t.Iterator[V]:
+  432|         return iter(iterable)
+  433| 
+  434|     @property
+  435|     def length(self) -> int:
+  436|         """Length of the iterable.
+  437| 
+  438|         If the iterable is a generator or otherwise does not have a
+  439|         size, it is eagerly evaluated to get a size.
+  440|         """
+  441|         if self._length is not None:
+  442|             return self._length
+  443| 
+  444|         try:
+  445|             self._length = len(self._iterable)  # type: ignore
+  446|         except TypeError:
+  447|             iterable = list(self._iterator)
+  448|             self._iterator = self._to_iterator(iterable)
+  449|             self._length = len(iterable) + self.index + (self._after is not missing)
+  450| 
+  451|         return self._length
+  452| 
+  453|     def __len__(self) -> int:
+  454|         return self.length
+  455| 
+  456|     @property
+  457|     def depth(self) -> int:
+  458|         """How many levels deep a recursive loop currently is, starting at 1."""
+  459|         return self.depth0 + 1
+  460| 
+  461|     @property
+  462|     def index(self) -> int:
+  463|         """Current iteration of the loop, starting at 1."""
+  464|         return self.index0 + 1
+  465| 
+  466|     @property
+  467|     def revindex0(self) -> int:
+  468|         """Number of iterations from the end of the loop, ending at 0.
+  469| 
+  470|         Requires calculating :attr:`length`.
+  471|         """
+  472|         return self.length - self.index
+  473| 
+  474|     @property
+  475|     def revindex(self) -> int:
+  476|         """Number of iterations from the end of the loop, ending at 1.
+  477| 
+  478|         Requires calculating :attr:`length`.
+  479|         """
+  480|         return self.length - self.index0
+  481| 
+  482|     @property
+  483|     def first(self) -> bool:
+  484|         """Whether this is the first iteration of the loop."""
+  485|         return self.index0 == 0
+  486| 
+  487|     def _peek_next(self) -> t.Any:
+  488|         """Return the next element in the iterable, or :data:`missing`
+  489|         if the iterable is exhausted. Only peeks one item ahead, caching
+  490|         the result in :attr:`_last` for use in subsequent checks. The
+  491|         cache is reset when :meth:`__next__` is called.
+  492|         """
+  493|         if self._after is not missing:
+  494|             return self._after
+  495| 
+  496|         self._after = next(self._iterator, missing)
+  497|         return self._after
+  498| 
+  499|     @property
+  500|     def last(self) -> bool:
+  501|         """Whether this is the last iteration of the loop.
+  502| 
+  503|         Causes the iterable to advance early. See
+  504|         :func:`itertools.groupby` for issues this can cause.
+  505|         The :func:`groupby` filter avoids that issue.
+  506|         """
+  507|         return self._peek_next() is missing
+  508| 
+  509|     @property
+  510|     def previtem(self) -> t.Union[t.Any, "Undefined"]:
+  511|         """The item in the previous iteration. Undefined during the
+  512|         first iteration.
+  513|         """
+  514|         if self.first:
+  515|             return self._undefined("there is no previous item")
+  516| 
+  517|         return self._before
+  518| 
+  519|     @property
+  520|     def nextitem(self) -> t.Union[t.Any, "Undefined"]:
+  521|         """The item in the next iteration. Undefined during the last
+  522|         iteration.
+  523| 
+  524|         Causes the iterable to advance early. See
+  525|         :func:`itertools.groupby` for issues this can cause.
+  526|         The :func:`jinja-filters.groupby` filter avoids that issue.
+  527|         """
+  528|         rv = self._peek_next()
+  529| 
+  530|         if rv is missing:
+  531|             return self._undefined("there is no next item")
+  532| 
+  533|         return rv
+  534| 
+  535|     def cycle(self, *args: V) -> V:
+  536|         """Return a value from the given args, cycling through based on
+  537|         the current :attr:`index0`.
+  538| 
+  539|         :param args: One or more values to cycle through.
+  540|         """
+  541|         if not args:
+  542|             raise TypeError("no items for cycling given")
+  543| 
+  544|         return args[self.index0 % len(args)]
+  545| 
+  546|     def changed(self, *value: t.Any) -> bool:
+  547|         """Return ``True`` if previously called with a different value
+  548|         (including when called for the first time).
+  549| 
+  550|         :param value: One or more values to compare to the last call.
+  551|         """
+  552|         if self._last_changed_value != value:
+  553|             self._last_changed_value = value
+  554|             return True
+  555| 
+  556|         return False
+  557| 
+  558|     def __iter__(self) -> "LoopContext":
+  559|         return self
+  560| 
+  561|     def __next__(self) -> tuple[t.Any, "LoopContext"]:
+  562|         if self._after is not missing:
+  563|             rv = self._after
+  564|             self._after = missing
+  565|         else:
+  566|             rv = next(self._iterator)
+  567| 
+  568|         self.index0 += 1
+  569|         self._before = self._current
+  570|         self._current = rv
+  571|         return rv, self
+  572| 
+  573|     @internalcode
+  574|     def __call__(self, iterable: t.Iterable[V]) -> str:
+  575|         """When iterating over nested data, render the body of the loop
+  576|         recursively with the given inner iterable data.
+  577| 
+  578|         The loop must have the ``recursive`` marker for this to work.
+  579|         """
+  580|         if self._recurse is None:
+  581|             raise TypeError(
+  582|                 "The loop must have the 'recursive' marker to be called recursively."
+  583|             )
+  584| 
+  585|         return self._recurse(iterable, self._recurse, depth=self.depth)
+  586| 
+  587|     def __repr__(self) -> str:
+  588|         return f"<{type(self).__name__} {self.index}/{self.length}>"
+  589| 
+  590| 
+  591| class AsyncLoopContext(LoopContext):
+  592|     _iterator: t.AsyncIterator[t.Any]  # type: ignore
+  593| 
+  594|     @staticmethod
+  595|     def _to_iterator(  # type: ignore
+  596|         iterable: t.Iterable[V] | t.AsyncIterable[V],
+  597|     ) -> t.AsyncIterator[V]:
+  598|         return auto_aiter(iterable)
+  599| 
+  600|     @property
+  601|     async def length(self) -> int:  # type: ignore
+  602|         if self._length is not None:
+  603|             return self._length
+  604| 
+  605|         try:
+  606|             self._length = len(self._iterable)  # type: ignore
+  607|         except TypeError:
+  608|             iterable = [x async for x in self._iterator]
+  609|             self._iterator = self._to_iterator(iterable)
+  610|             self._length = len(iterable) + self.index + (self._after is not missing)
+  611| 
+  612|         return self._length
+  613| 
+  614|     @property
+  615|     async def revindex0(self) -> int:  # type: ignore
+  616|         return await self.length - self.index
+  617| 
+  618|     @property
+  619|     async def revindex(self) -> int:  # type: ignore
+  620|         return await self.length - self.index0
+  621| 
+  622|     async def _peek_next(self) -> t.Any:
+  623|         if self._after is not missing:
+  624|             return self._after
+  625| 
+  626|         try:
+  627|             self._after = await self._iterator.__anext__()
+  628|         except StopAsyncIteration:
+  629|             self._after = missing
+  630| 
+  631|         return self._after
+  632| 
+  633|     @property
+  634|     async def last(self) -> bool:  # type: ignore
+  635|         return await self._peek_next() is missing
+  636| 
+  637|     @property
+  638|     async def nextitem(self) -> t.Union[t.Any, "Undefined"]:
+  639|         rv = await self._peek_next()
+  640| 
+  641|         if rv is missing:
+  642|             return self._undefined("there is no next item")
+  643| 
+  644|         return rv
+  645| 
+  646|     def __aiter__(self) -> "AsyncLoopContext":
+  647|         return self
+  648| 
+  649|     async def __anext__(self) -> tuple[t.Any, "AsyncLoopContext"]:
+  650|         if self._after is not missing:
+  651|             rv = self._after
+  652|             self._after = missing
+  653|         else:
+  654|             rv = await self._iterator.__anext__()
+  655| 
+  656|         self.index0 += 1
+  657|         self._before = self._current
+  658|         self._current = rv
+  659|         return rv, self
+  660| 
+  661| 
+  662| class Macro:
+  663|     """Wraps a macro function."""
+  664| 
+  665|     def __init__(
+  666|         self,
+  667|         environment: "Environment",
+  668|         func: t.Callable[..., str],
+  669|         name: str,
+  670|         arguments: list[str],
+  671|         catch_kwargs: bool,
+  672|         catch_varargs: bool,
+  673|         caller: bool,
+  674|         default_autoescape: bool | None = None,
+  675|     ):
+  676|         self._environment = environment
+  677|         self._func = func
+  678|         self._argument_count = len(arguments)
+  679|         self.name = name
+  680|         self.arguments = arguments
+  681|         self.catch_kwargs = catch_kwargs
+  682|         self.catch_varargs = catch_varargs
+  683|         self.caller = caller
+  684|         self.explicit_caller = "caller" in arguments
+  685| 
+  686|         if default_autoescape is None:
+  687|             if callable(environment.autoescape):
+  688|                 default_autoescape = environment.autoescape(None)
+  689|             else:
+  690|                 default_autoescape = environment.autoescape
+  691| 
+  692|         self._default_autoescape = default_autoescape
+  693| 
+  694|     @internalcode
+  695|     @pass_eval_context
+  696|     def __call__(self, *args: t.Any, **kwargs: t.Any) -> str:
+  697|         # This requires a bit of explanation,  In the past we used to
+  698|         # decide largely based on compile-time information if a macro is
+  699|         # safe or unsafe.  While there was a volatile mode it was largely
+  700|         # unused for deciding on escaping.  This turns out to be
+  701|         # problematic for macros because whether a macro is safe depends not
+  702|         # on the escape mode when it was defined, but rather when it was used.
+  703|         #
+  704|         # Because however we export macros from the module system and
+  705|         # there are historic callers that do not pass an eval context (and
+  706|         # will continue to not pass one), we need to perform an instance
+  707|         # check here.
+  708|         #
+  709|         # This is considered safe because an eval context is not a valid
+  710|         # argument to callables otherwise anyway.  Worst case here is
+  711|         # that if no eval context is passed we fall back to the compile
+  712|         # time autoescape flag.
+  713|         if args and isinstance(args[0], EvalContext):
+  714|             autoescape = args[0].autoescape
+  715|             args = args[1:]
+  716|         else:
+  717|             autoescape = self._default_autoescape
+  718| 
+  719|         # try to consume the positional arguments
+  720|         arguments = list(args[: self._argument_count])
+  721|         off = len(arguments)
+  722| 
+  723|         # For information why this is necessary refer to the handling
+  724|         # of caller in the `macro_body` handler in the compiler.
+  725|         found_caller = False
+  726| 
+  727|         # if the number of arguments consumed is not the number of
+  728|         # arguments expected we start filling in keyword arguments
+  729|         # and defaults.
+  730|         if off != self._argument_count:
+  731|             for name in self.arguments[len(arguments) :]:
+  732|                 try:
+  733|                     value = kwargs.pop(name)
+  734|                 except KeyError:
+  735|                     value = missing
+  736|                 if name == "caller":
+  737|                     found_caller = True
+  738|                 arguments.append(value)
+  739|         else:
+  740|             found_caller = self.explicit_caller
+  741| 
+  742|         # it's important that the order of these arguments does not change
+  743|         # if not also changed in the compiler's `function_scoping` method.
+  744|         # the order is caller, keyword arguments, positional arguments!
+  745|         if self.caller and not found_caller:
+  746|             caller = kwargs.pop("caller", None)
+  747|             if caller is None:
+  748|                 caller = self._environment.undefined("No caller defined", name="caller")
+  749|             arguments.append(caller)
+  750| 
+  751|         if self.catch_kwargs:
+  752|             arguments.append(kwargs)
+  753|         elif kwargs:
+  754|             if "caller" in kwargs:
+  755|                 raise TypeError(
+  756|                     f"macro {self.name!r} was invoked with two values for the special"
+  757|                     " caller argument. This is most likely a bug."
+  758|                 )
+  759|             raise TypeError(
+  760|                 f"macro {self.name!r} takes no keyword argument {next(iter(kwargs))!r}"
+  761|             )
+  762|         if self.catch_varargs:
+  763|             arguments.append(args[self._argument_count :])
+  764|         elif len(args) > self._argument_count:
+  765|             raise TypeError(
+  766|                 f"macro {self.name!r} takes not more than"
+  767|                 f" {len(self.arguments)} argument(s)"
+  768|             )
+  769| 
+  770|         return self._invoke(arguments, autoescape)
+  771| 
+  772|     async def _async_invoke(self, arguments: list[t.Any], autoescape: bool) -> str:
+  773|         rv = await self._func(*arguments)  # type: ignore
+  774| 
+  775|         if autoescape:
+  776|             return Markup(rv)
+  777| 
+  778|         return rv  # type: ignore
+  779| 
+  780|     def _invoke(self, arguments: list[t.Any], autoescape: bool) -> str:
+  781|         if self._environment.is_async:
+  782|             return self._async_invoke(arguments, autoescape)  # type: ignore
+  783| 
+  784|         rv = self._func(*arguments)
+  785| 
+  786|         if autoescape:
+  787|             rv = Markup(rv)
+  788| 
+  789|         return rv
+  790| 
+  791|     def __repr__(self) -> str:
+  792|         name = "anonymous" if self.name is None else repr(self.name)
+  793|         return f"<{type(self).__name__} {name}>"
+  794| 
+  795| 
+  796| class Undefined:
+  797|     """The default undefined type. This can be printed, iterated, and treated as
+  798|     a boolean. Any other operation will raise an :exc:`UndefinedError`.
+  799| 
+  800|     >>> foo = Undefined(name='foo')
+  801|     >>> str(foo)
+  802|     ''
+  803|     >>> not foo
+  804|     True
+  805|     >>> foo + 42
+  806|     Traceback (most recent call last):
+  807|       ...
+  808|     jinja2.exceptions.UndefinedError: 'foo' is undefined
+  809|     """
+  810| 
+  811|     __slots__ = (
+  812|         "_undefined_hint",
+  813|         "_undefined_obj",
+  814|         "_undefined_name",
+  815|         "_undefined_exception",
+  816|     )
+  817| 
+  818|     def __init__(
+  819|         self,
+  820|         hint: str | None = None,
+  821|         obj: t.Any = missing,
+  822|         name: str | None = None,
+  823|         exc: type[TemplateRuntimeError] = UndefinedError,
+  824|     ) -> None:
+  825|         self._undefined_hint = hint
+  826|         self._undefined_obj = obj
+  827|         self._undefined_name = name
+  828|         self._undefined_exception = exc
+  829| 
+  830|     @property
+  831|     def _undefined_message(self) -> str:
+  832|         """Build a message about the undefined value based on how it was
+  833|         accessed.
+  834|         """
+  835|         if self._undefined_hint:
+  836|             return self._undefined_hint
+  837| 
+  838|         if self._undefined_obj is missing:
+  839|             return f"{self._undefined_name!r} is undefined"
+  840| 
+  841|         if not isinstance(self._undefined_name, str):
+  842|             return (
+  843|                 f"{object_type_repr(self._undefined_obj)} has no"
+  844|                 f" element {self._undefined_name!r}"
+  845|             )
+  846| 
+  847|         return (
+  848|             f"{object_type_repr(self._undefined_obj)!r} has no"
+  849|             f" attribute {self._undefined_name!r}"
+  850|         )
+  851| 
+  852|     @internalcode
+  853|     def _fail_with_undefined_error(
+  854|         self, *args: t.Any, **kwargs: t.Any
+  855|     ) -> "te.NoReturn":
+  856|         """Raise an :exc:`UndefinedError` when operations are performed
+  857|         on the undefined value.
+  858|         """
+  859|         raise self._undefined_exception(self._undefined_message)
+  860| 
+  861|     @internalcode
+  862|     def __getattr__(self, name: str) -> t.Any:
+  863|         # Raise AttributeError on requests for names that appear to be unimplemented
+  864|         # dunder methods to keep Python's internal protocol probing behaviors working
+  865|         # properly in cases where another exception type could cause unexpected or
+  866|         # difficult-to-diagnose failures.
+  867|         if name[:2] == "__" and name[-2:] == "__":
+  868|             raise AttributeError(name)
+  869| 
+  870|         return self._fail_with_undefined_error()
+  871| 
+  872|     __add__ = __radd__ = __sub__ = __rsub__ = _fail_with_undefined_error
+  873|     __mul__ = __rmul__ = __div__ = __rdiv__ = _fail_with_undefined_error
+  874|     __truediv__ = __rtruediv__ = _fail_with_undefined_error
+  875|     __floordiv__ = __rfloordiv__ = _fail_with_undefined_error
+  876|     __mod__ = __rmod__ = _fail_with_undefined_error
+  877|     __pos__ = __neg__ = _fail_with_undefined_error
+  878|     __call__ = __getitem__ = _fail_with_undefined_error
+  879|     __lt__ = __le__ = __gt__ = __ge__ = _fail_with_undefined_error
+  880|     __int__ = __float__ = __complex__ = _fail_with_undefined_error
+  881|     __pow__ = __rpow__ = _fail_with_undefined_error
+  882| 
+  883|     def __eq__(self, other: t.Any) -> bool:
+  884|         return type(self) is type(other)
+  885| 
+  886|     def __ne__(self, other: t.Any) -> bool:
+  887|         return not self.__eq__(other)
+  888| 
+  889|     def __hash__(self) -> int:
+  890|         return id(type(self))
+  891| 
+  892|     def __str__(self) -> str:
+  893|         return ""
+  894| 
+  895|     def __len__(self) -> int:
+  896|         return 0
+  897| 
+  898|     def __iter__(self) -> t.Iterator[t.Any]:
+  899|         yield from ()
+  900| 
+  901|     async def __aiter__(self) -> t.AsyncIterator[t.Any]:
+  902|         for _ in ():
+  903|             yield
+  904| 
+  905|     def __bool__(self) -> bool:
+  906|         return False
+  907| 
+  908|     def __repr__(self) -> str:
+  909|         return "Undefined"
+  910| 
+  911| 
+  912| def make_logging_undefined(
+  913|     logger: t.Optional["logging.Logger"] = None, base: type[Undefined] = Undefined
+  914| ) -> type[Undefined]:
+  915|     """Given a logger object this returns a new undefined class that will
+  916|     log certain failures.  It will log iterations and printing.  If no
+  917|     logger is given a default logger is created.
+  918| 
+  919|     Example::
+  920| 
+  921|         logger = logging.getLogger(__name__)
+  922|         LoggingUndefined = make_logging_undefined(
+  923|             logger=logger,
+  924|             base=Undefined
+  925|         )
+  926| 
+  927|     .. versionadded:: 2.8
+  928| 
+  929|     :param logger: the logger to use.  If not provided, a default logger
+  930|                    is created.
+  931|     :param base: the base class to add logging functionality to.  This
+  932|                  defaults to :class:`Undefined`.
+  933|     """
+  934|     if logger is None:
+  935|         import logging
+  936| 
+  937|         logger = logging.getLogger(__name__)
+  938|         logger.addHandler(logging.StreamHandler(sys.stderr))
+  939| 
+  940|     def _log_message(undef: Undefined) -> None:
+  941|         logger.warning("Template variable warning: %s", undef._undefined_message)
+  942| 
+  943|     class LoggingUndefined(base):  # type: ignore
+  944|         __slots__ = ()
+  945| 
+  946|         def _fail_with_undefined_error(  # type: ignore
+  947|             self, *args: t.Any, **kwargs: t.Any
+  948|         ) -> "te.NoReturn":
+  949|             try:
+  950|                 super()._fail_with_undefined_error(*args, **kwargs)
+  951|             except self._undefined_exception as e:
+  952|                 logger.error("Template variable error: %s", e)  # type: ignore
+  953|                 raise e
+  954| 
+  955|         def __str__(self) -> str:
+  956|             _log_message(self)
+  957|             return super().__str__()  # type: ignore
+  958| 
+  959|         def __iter__(self) -> t.Iterator[t.Any]:
+  960|             _log_message(self)
+  961|             return super().__iter__()  # type: ignore
+  962| 
+  963|         def __bool__(self) -> bool:
+  964|             _log_message(self)
+  965|             return super().__bool__()  # type: ignore
+  966| 
+  967|     return LoggingUndefined
+  968| 
+  969| 
+  970| class ChainableUndefined(Undefined):
+  971|     """An undefined that is chainable, where both ``__getattr__`` and
+  972|     ``__getitem__`` return itself rather than raising an
+  973|     :exc:`UndefinedError`.
+  974| 
+  975|     >>> foo = ChainableUndefined(name='foo')
+  976|     >>> str(foo.bar['baz'])
+  977|     ''
+  978|     >>> foo.bar['baz'] + 42
+  979|     Traceback (most recent call last):
+  980|       ...
+  981|     jinja2.exceptions.UndefinedError: 'foo' is undefined
+  982| 
+  983|     .. versionadded:: 2.11.0
+  984|     """
+  985| 
+  986|     __slots__ = ()
+  987| 
+  988|     def __html__(self) -> str:
+  989|         return str(self)
+  990| 
+  991|     def __getattr__(self, name: str) -> "ChainableUndefined":
+  992|         # Raise AttributeError on requests for names that appear to be unimplemented
+  993|         # dunder methods to avoid confusing Python with truthy non-method objects that
+  994|         # do not implement the protocol being probed for. e.g., copy.copy(Undefined())
+  995|         # fails spectacularly if getattr(Undefined(), '__setstate__') returns an
+  996|         # Undefined object instead of raising AttributeError to signal that it does not
+  997|         # support that style of object initialization.
+  998|         if name[:2] == "__" and name[-2:] == "__":
+  999|             raise AttributeError(name)
+ 1000| 
+ 1001|         return self
+ 1002| 
+ 1003|     def __getitem__(self, _name: str) -> "ChainableUndefined":  # type: ignore[override]
+ 1004|         return self
+ 1005| 
+ 1006| 
+ 1007| class DebugUndefined(Undefined):
+ 1008|     """An undefined that returns the debug info when printed.
+ 1009| 
+ 1010|     >>> foo = DebugUndefined(name='foo')
+ 1011|     >>> str(foo)
+ 1012|     '{{ foo }}'
+ 1013|     >>> not foo
+ 1014|     True
+ 1015|     >>> foo + 42
+ 1016|     Traceback (most recent call last):
+ 1017|       ...
+ 1018|     jinja2.exceptions.UndefinedError: 'foo' is undefined
+ 1019|     """
+ 1020| 
+ 1021|     __slots__ = ()
+ 1022| 
+ 1023|     def __str__(self) -> str:
+ 1024|         if self._undefined_hint:
+ 1025|             message = f"undefined value printed: {self._undefined_hint}"
+ 1026| 
+ 1027|         elif self._undefined_obj is missing:
+ 1028|             message = self._undefined_name  # type: ignore
+ 1029| 
+ 1030|         else:
+ 1031|             message = (
+ 1032|                 f"no such element: {object_type_repr(self._undefined_obj)}"
+ 1033|                 f"[{self._undefined_name!r}]"
+ 1034|             )
+ 1035| 
+ 1036|         return f"{{{{ {message} }}}}"
+ 1037| 
+ 1038| 
+ 1039| class StrictUndefined(Undefined):
+ 1040|     """An undefined that barks on print and iteration as well as boolean
+ 1041|     tests and all kinds of comparisons.  In other words: you can do nothing
+ 1042|     with it except checking if it's defined using the `defined` test.
+ 1043| 
+ 1044|     >>> foo = StrictUndefined(name='foo')
+ 1045|     >>> str(foo)
+ 1046|     Traceback (most recent call last):
+ 1047|       ...
+ 1048|     jinja2.exceptions.UndefinedError: 'foo' is undefined
+ 1049|     >>> not foo
+ 1050|     Traceback (most recent call last):
+ 1051|       ...
+ 1052|     jinja2.exceptions.UndefinedError: 'foo' is undefined
+ 1053|     >>> foo + 42
+ 1054|     Traceback (most recent call last):
+ 1055|       ...
+ 1056|     jinja2.exceptions.UndefinedError: 'foo' is undefined
+ 1057|     """
+ 1058| 
+ 1059|     __slots__ = ()
+ 1060|     __iter__ = __str__ = __len__ = Undefined._fail_with_undefined_error
+ 1061|     __eq__ = __ne__ = __bool__ = __hash__ = Undefined._fail_with_undefined_error
+ 1062|     __contains__ = Undefined._fail_with_undefined_error
+
+Answer now with ONE JSON array containing one object per query, in query order.

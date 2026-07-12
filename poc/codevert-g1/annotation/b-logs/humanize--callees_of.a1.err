@@ -1,0 +1,567 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/g1b-home.6ggvw0yv"))
+OpenAI Codex v0.144.1
+--------
+workdir: /tmp/g1b-work.qi3z1lwc
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f52c4-6cff-7f13-b511-38a81771adc3
+--------
+user
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: humanize ===
+PY FILE LISTING (repo-root-relative; authoritative):
+src/humanize/__init__.py
+src/humanize/filesize.py
+src/humanize/i18n.py
+src/humanize/lists.py
+src/humanize/number.py
+src/humanize/time.py
+tests/__init__.py
+tests/test_benchmarks.py
+tests/test_filesize.py
+tests/test_i18n.py
+tests/test_lists.py
+tests/test_number.py
+tests/test_time.py
+
+=== QUERIES (2) ===
+QUERY g1q-humanize-callees_of-37: family=callees_of target=tests/test_benchmarks.py::test_apnumber
+QUERY g1q-humanize-callees_of-75: family=callees_of target=tests/test_number.py::test_scientific
+
+=== CONTEXT ===
+
+FILE tests/test_benchmarks.py:
+    1| """Benchmarks run via pytest-codspeed."""
+    2| 
+    3| from __future__ import annotations
+    4| 
+    5| import datetime as dt
+    6| 
+    7| import pytest
+    8| 
+    9| import humanize
+   10| 
+   11| TYPE_CHECKING = False
+   12| if TYPE_CHECKING:
+   13|     from pytest_codspeed import BenchmarkFixture
+   14| 
+   15| 
+   16| @pytest.fixture(scope="session", autouse=True)
+   17| def _warmup_i18n() -> None:
+   18|     # Touch i18n-backed functions once so lazy gettext catalog loading
+   19|     # is not attributed to the first benchmarked call.
+   20|     humanize.naturaltime(dt.datetime.now() - dt.timedelta(seconds=1))
+   21|     humanize.naturalday(dt.date.today())
+   22| 
+   23| 
+   24| def test_apnumber(benchmark: BenchmarkFixture) -> None:
+   25|     benchmark(humanize.apnumber, 7)
+   26| 
+   27| 
+   28| def test_clamp(benchmark: BenchmarkFixture) -> None:
+   29|     benchmark(humanize.clamp, 0.5, "{:.0%}", 0.1, 0.9)
+   30| 
+   31| 
+   32| def test_fractional(benchmark: BenchmarkFixture) -> None:
+   33|     benchmark(humanize.fractional, 1.5)
+   34| 
+   35| 
+   36| def test_intcomma(benchmark: BenchmarkFixture) -> None:
+   37|     benchmark(humanize.intcomma, 1_234_567_890)
+   38| 
+   39| 
+   40| def test_intword(benchmark: BenchmarkFixture) -> None:
+   41|     benchmark(humanize.intword, 1_234_567_890)
+   42| 
+   43| 
+   44| def test_metric(benchmark: BenchmarkFixture) -> None:
+   45|     benchmark(humanize.metric, 1500, "W")
+   46| 
+   47| 
+   48| def test_natural_list(benchmark: BenchmarkFixture) -> None:
+   49|     benchmark(humanize.natural_list, ["one", "two", "three", "four"])
+   50| 
+   51| 
+   52| def test_naturaldate(benchmark: BenchmarkFixture) -> None:
+   53|     benchmark(humanize.naturaldate, dt.date.today() - dt.timedelta(days=30))
+   54| 
+   55| 
+   56| def test_naturalday(benchmark: BenchmarkFixture) -> None:
+   57|     benchmark(humanize.naturalday, dt.date.today() - dt.timedelta(days=1))
+   58| 
+   59| 
+   60| def test_naturaldelta(benchmark: BenchmarkFixture) -> None:
+   61|     benchmark(humanize.naturaldelta, dt.timedelta(hours=3, minutes=27))
+   62| 
+   63| 
+   64| def test_naturalsize(benchmark: BenchmarkFixture) -> None:
+   65|     benchmark(humanize.naturalsize, 1_234_567_890)
+   66| 
+   67| 
+   68| def test_naturaltime(benchmark: BenchmarkFixture) -> None:
+   69|     when = dt.datetime.now() - dt.timedelta(hours=3, minutes=27)
+   70|     benchmark(humanize.naturaltime, when)
+   71| 
+   72| 
+   73| def test_ordinal(benchmark: BenchmarkFixture) -> None:
+   74|     benchmark(humanize.ordinal, 123)
+   75| 
+   76| 
+   77| def test_precisedelta(benchmark: BenchmarkFixture) -> None:
+   78|     benchmark(humanize.precisedelta, dt.timedelta(days=2, hours=3, seconds=4))
+   79| 
+   80| 
+   81| def test_scientific(benchmark: BenchmarkFixture) -> None:
+   82|     benchmark(humanize.scientific, -1.234e-50)
+
+FILE tests/test_number.py:
+    1| """Number tests."""
+    2| 
+    3| from __future__ import annotations
+    4| 
+    5| import math
+    6| import typing
+    7| 
+    8| import pytest
+    9| 
+   10| import humanize
+   11| from humanize import number
+   12| 
+   13| 
+   14| @pytest.mark.parametrize(
+   15|     "test_input, expected",
+   16|     [
+   17|         ("1", "1st"),
+   18|         ("2", "2nd"),
+   19|         ("3", "3rd"),
+   20|         ("4", "4th"),
+   21|         ("11", "11th"),
+   22|         ("12", "12th"),
+   23|         ("13", "13th"),
+   24|         ("101", "101st"),
+   25|         ("102", "102nd"),
+   26|         ("103", "103rd"),
+   27|         ("111", "111th"),
+   28|         ("something else", "something else"),
+   29|         (None, "None"),
+   30|         (math.nan, "NaN"),
+   31|         (math.inf, "+Inf"),
+   32|         (-math.inf, "-Inf"),
+   33|         ("nan", "NaN"),
+   34|         ("-inf", "-Inf"),
+   35|     ],
+   36| )
+   37| def test_ordinal(test_input: str, expected: str) -> None:
+   38|     assert humanize.ordinal(test_input) == expected
+   39| 
+   40| 
+   41| @pytest.mark.parametrize(
+   42|     "test_args, expected",
+   43|     [
+   44|         ([100], "100"),
+   45|         ([1000], "1,000"),
+   46|         ([10123], "10,123"),
+   47|         ([10311], "10,311"),
+   48|         ([1_000_000], "1,000,000"),
+   49|         ([1_234_567.25], "1,234,567.25"),
+   50|         (["100"], "100"),
+   51|         (["1000"], "1,000"),
+   52|         (["10123"], "10,123"),
+   53|         (["10311"], "10,311"),
+   54|         (["1000000"], "1,000,000"),
+   55|         (["1234567.1234567"], "1,234,567.1234567"),
+   56|         (["1234567.1234567", 0], "1,234,567"),
+   57|         (["1234567.1234567", 1], "1,234,567.1"),
+   58|         (["1234567.1234567", 10], "1,234,567.1234567000"),
+   59|         (["1234567", 1], "1,234,567.0"),
+   60|         ([None], "None"),
+   61|         ([14308.40], "14,308.4"),
+   62|         ([14308.40, None], "14,308.4"),
+   63|         ([14308.40, 1], "14,308.4"),
+   64|         ([14308.40, 2], "14,308.40"),
+   65|         ([14308.40, 3], "14,308.400"),
+   66|         ([1234.5454545], "1,234.5454545"),
+   67|         ([1234.5454545, None], "1,234.5454545"),
+   68|         ([1234.5454545, 0], "1,235"),
+   69|         ([1234.5454545, 1], "1,234.5"),
+   70|         ([1234.5454545, 2], "1,234.55"),
+   71|         ([1234.5454545, 3], "1,234.545"),
+   72|         ([1234.5454545, 10], "1,234.5454545000"),
+   73|         ([math.nan], "NaN"),
+   74|         ([math.inf], "+Inf"),
+   75|         ([-math.inf], "-Inf"),
+   76|         (["nan"], "NaN"),
+   77|         (["-inf"], "-Inf"),
+   78|     ],
+   79| )
+   80| def test_intcomma(
+   81|     test_args: list[int] | list[float] | list[str], expected: str
+   82| ) -> None:
+   83|     assert humanize.intcomma(*test_args) == expected
+   84| 
+   85| 
+   86| def test_intword_powers() -> None:
+   87|     # make sure that powers & human_powers have the same number of items
+   88|     assert len(number.powers) == len(number.human_powers)
+   89| 
+   90| 
+   91| @pytest.mark.parametrize(
+   92|     "test_args, expected",
+   93|     [
+   94|         (["0"], "0"),
+   95|         (["100"], "100"),
+   96|         (["-100"], "-100"),
+   97|         (["1000"], "1.0 thousand"),
+   98|         (["12400"], "12.4 thousand"),
+   99|         (["12490"], "12.5 thousand"),
+  100|         (["1000000"], "1.0 million"),
+  101|         (["-1000000"], "-1.0 million"),
+  102|         (["1200000"], "1.2 million"),
+  103|         (["1290000"], "1.3 million"),
+  104|         (["999999999"], "1.0 billion"),
+  105|         (["1000000000"], "1.0 billion"),
+  106|         (["-1000000000"], "-1.0 billion"),
+  107|         (["2000000000"], "2.0 billion"),
+  108|         (["999999999999"], "1.0 trillion"),
+  109|         (["1000000000000"], "1.0 trillion"),
+  110|         (["6000000000000"], "6.0 trillion"),
+  111|         (["-6000000000000"], "-6.0 trillion"),
+  112|         (["999999999999999"], "1.0 quadrillion"),
+  113|         (["1000000000000000"], "1.0 quadrillion"),
+  114|         (["1300000000000000"], "1.3 quadrillion"),
+  115|         (["-1300000000000000"], "-1.3 quadrillion"),
+  116|         (["3500000000000000000000"], "3.5 sextillion"),
+  117|         (["8100000000000000000000000000000000"], "8.1 decillion"),
+  118|         (["-8100000000000000000000000000000000"], "-8.1 decillion"),
+  119|         ([1_000_000_000_000_000_000_000_000_000_000_000_000], "1000.0 decillion"),
+  120|         ([1_100_000_000_000_000_000_000_000_000_000_000_000], "1100.0 decillion"),
+  121|         ([2_100_000_000_000_000_000_000_000_000_000_000_000], "2100.0 decillion"),
+  122|         ([2e100], "2.0 googol"),
+  123|         ([None], "None"),
+  124|         (["1230000", "%0.2f"], "1.23 million"),
+  125|         ([10**100], "1.0 googol"),
+  126|         ([10**101], "10.0 googol"),
+  127|         ([math.nan], "NaN"),
+  128|         ([math.inf], "+Inf"),
+  129|         ([-math.inf], "-Inf"),
+  130|         (["nan"], "NaN"),
+  131|         (["-inf"], "-Inf"),
+  132|         (["1234567", "%.0f"], "1 million"),
+  133|         (["1234567", "%.1f"], "1.2 million"),
+  134|         (["1234567", "%.2f"], "1.23 million"),
+  135|         (["1234567", "%.3f"], "1.235 million"),
+  136|         (["999500", "%.0f"], "1 million"),
+  137|         (["999499", "%.0f"], "999 thousand"),
+  138|     ],
+  139| )
+  140| def test_intword(test_args: list[str], expected: str) -> None:
+  141|     assert humanize.intword(*test_args) == expected
+  142| 
+  143| 
+  144| @pytest.mark.parametrize(
+  145|     "test_input, expected",
+  146|     [
+  147|         (0, "zero"),
+  148|         (1, "one"),
+  149|         (2, "two"),
+  150|         (4, "four"),
+  151|         (5, "five"),
+  152|         (9, "nine"),
+  153|         (10, "10"),
+  154|         ("7", "seven"),
+  155|         (None, "None"),
+  156|         (math.nan, "NaN"),
+  157|         (math.inf, "+Inf"),
+  158|         (-math.inf, "-Inf"),
+  159|         ("nan", "NaN"),
+  160|         ("-inf", "-Inf"),
+  161|     ],
+  162| )
+  163| def test_apnumber(test_input: int | str, expected: str) -> None:
+  164|     assert humanize.apnumber(test_input) == expected
+  165| 
+  166| 
+  167| @pytest.mark.parametrize(
+  168|     "test_input, expected",
+  169|     [
+  170|         (1, "1"),
+  171|         (2.0, "2"),
+  172|         (4.0 / 3.0, "1 1/3"),
+  173|         (5.0 / 6.0, "5/6"),
+  174|         ("7", "7"),
+  175|         ("8.9", "8 9/10"),
+  176|         ("ten", "ten"),
+  177|         (None, "None"),
+  178|         (1 / 3, "1/3"),
+  179|         (1.5, "1 1/2"),
+  180|         (0.3, "3/10"),
+  181|         (0.333, "333/1000"),
+  182|         (math.nan, "NaN"),
+  183|         (math.inf, "+Inf"),
+  184|         (-math.inf, "-Inf"),
+  185|         ("nan", "NaN"),
+  186|         ("-inf", "-Inf"),
+  187|         (-1.3, "-1 3/10"),
+  188|         (-2.5, "-2 1/2"),
+  189|         (-0.5, "-1/2"),
+  190|     ],
+  191| )
+  192| def test_fractional(test_input: float | str, expected: str) -> None:
+  193|     assert humanize.fractional(test_input) == expected
+  194| 
+  195| 
+  196| @pytest.mark.parametrize(
+  197|     "test_args, expected",
+  198|     [
+  199|         ([1000], "1.00 x 10³"),
+  200|         ([-1000], "-1.00 x 10³"),
+  201|         ([5.5], "5.50 x 10⁰"),
+  202|         ([5781651000], "5.78 x 10⁹"),
+  203|         (["1000"], "1.00 x 10³"),
+  204|         (["99"], "9.90 x 10¹"),
+  205|         ([0.3], "3.00 x 10⁻¹"),
+  206|         (["foo"], "foo"),
+  207|         ([None], "None"),
+  208|         ([1000, 1], "1.0 x 10³"),
+  209|         ([0.3, 1], "3.0 x 10⁻¹"),
+  210|         ([1000, 0], "1 x 10³"),
+  211|         ([0.3, 0], "3 x 10⁻¹"),
+  212|         ([1e20], "1.00 x 10²⁰"),
+  213|         ([2e-20], "2.00 x 10⁻²⁰"),
+  214|         ([-3e20], "-3.00 x 10²⁰"),
+  215|         ([-4e-20], "-4.00 x 10⁻²⁰"),
+  216|         ([math.nan], "NaN"),
+  217|         ([math.inf], "+Inf"),
+  218|         ([-math.inf], "-Inf"),
+  219|         (["nan"], "NaN"),
+  220|         (["-inf"], "-Inf"),
+  221|     ],
+  222| )
+  223| def test_scientific(test_args: list[typing.Any], expected: str) -> None:
+  224|     assert humanize.scientific(*test_args) == expected
+  225| 
+  226| 
+  227| @pytest.mark.parametrize(
+  228|     "test_args, expected",
+  229|     [
+  230|         ([1], "1"),
+  231|         ([None], None),
+  232|         ([0.0001, "{:.0%}"], "0%"),
+  233|         ([0.0001, "{:.0%}", 0.01], "<1%"),
+  234|         ([0.9999, "{:.0%}", None, 0.99], ">99%"),
+  235|         ([0.0001, "{:.0%}", 0.01, None, "under ", None], "under 1%"),
+  236|         ([0.9999, "{:.0%}", None, 0.99, None, "above "], "above 99%"),
+  237|         ([1, humanize.intword, 1e6, None, "under "], "under 1.0 million"),
+  238|         ([math.nan], "NaN"),
+  239|         ([math.inf], "+Inf"),
+  240|         ([-math.inf], "-Inf"),
+  241|     ],
+  242| )
+  243| def test_clamp(test_args: list[typing.Any], expected: str) -> None:
+  244|     assert humanize.clamp(*test_args) == expected
+  245| 
+  246| 
+  247| @pytest.mark.parametrize(
+  248|     "test_args, expected",
+  249|     [
+  250|         ([0], "0.00"),
+  251|         ([1, "Hz"], "1.00 Hz"),
+  252|         ([1.0, "W"], "1.00 W"),
+  253|         ([3, "C"], "3.00 C"),
+  254|         ([3, "W", 5], "3.0000 W"),
+  255|         ([1.23456], "1.23"),
+  256|         ([12.3456], "12.3"),
+  257|         ([123.456], "123"),
+  258|         ([1234.56], "1.23 k"),
+  259|         ([12345, "", 6], "12.3450 k"),
+  260|         ([200_000], "200 k"),
+  261|         ([999.9, "V"], "1.00 kV"),
+  262|         ([999.99, "V"], "1.00 kV"),
+  263|         ([999_999, "V"], "1.00 MV"),
+  264|         ([0.0009999, "V"], "1.00 mV"),
+  265|         ([1e25, "m"], "10.0 Ym"),
+  266|         ([1e26, "m"], "100 Ym"),
+  267|         ([1e27, "A"], "1.00 RA"),
+  268|         ([1.234e28, "A"], "12.3 RA"),
+  269|         ([1.234e-28, "A"], "123 qA"),
+  270|         ([1.235e29, "A"], "124 RA"),
+  271|         ([2.56e-30, "V"], "2.56 qV"),
+  272|         ([2.596e32, "F"], "260 QF"),
+  273|         ([1e50], "1.00 x 10⁵⁰"),
+  274|         ([1e-50], "1.00 x 10⁻⁵⁰"),
+  275|         ([-1500, "V"], "-1.50 kV"),
+  276|         ([0.12], "120 m"),
+  277|         ([0.012], "12.0 m"),
+  278|         ([0.0012], "1.20 m"),
+  279|         ([0.00012], "120 μ"),
+  280|         ([1e-23], "10.0 y"),
+  281|         ([1e-24], "1.00 y"),
+  282|         ([1e-25], "100 r"),
+  283|         ([1e-26], "10.0 r"),
+  284|         ([1, "°"], "1.00°"),
+  285|         ([0.1, "°"], "100m°"),
+  286|         ([100], "100"),
+  287|         ([0.1], "100 m"),
+  288|         ([1.5123, "", 0], "2"),
+  289|         ([10.5123, "", 0], "11"),
+  290|         ([10.5123, "", 1], "11"),
+  291|         ([10.5123, "", 2], "11"),
+  292|         ([10.5123, "", 3], "10.5"),
+  293|         ([1, "", 0], "1"),
+  294|         ([10, "", 0], "10"),
+  295|         ([100, "", 0], "100"),
+  296|         ([1000, "", 0], "1 k"),
+  297|         ([1, "", 1], "1"),
+  298|         ([10, "", 1], "10"),
+  299|         ([100, "", 1], "100"),
+  300|         ([1000, "", 1], "1 k"),
+  301|         ([1, "", 2], "1.0"),
+  302|         ([10, "", 2], "10"),
+  303|         ([100, "", 2], "100"),
+  304|         ([1000, "", 2], "1.0 k"),
+  305|         ([1, "", 3], "1.00"),
+  306|         ([10, "", 3], "10.0"),
+  307|         ([100, "", 3], "100"),
+  308|         ([1000, "", 3], "1.00 k"),
+  309|         ([math.nan], "NaN"),
+  310|         ([math.nan, "m"], "NaN"),
+  311|         ([math.inf], "+Inf"),
+  312|         ([-math.inf], "-Inf"),
+  313|     ],
+  314|     ids=str,
+  315| )
+  316| def test_metric(test_args: list[typing.Any], expected: str) -> None:
+  317|     assert humanize.metric(*test_args) == expected
+
+Answer now with ONE JSON array containing one object per query, in query order.
+
+warning: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.
+codex
+[
+  {
+    "query_id": "g1q-humanize-callees_of-37",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The benchmark parameter is invoked, but its runtime callee cannot be determined from the shown source; humanize.apnumber is passed as an argument, not directly called."
+  },
+  {
+    "query_id": "g1q-humanize-callees_of-75",
+    "answerable_static": false,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "The call to humanize.scientific is visible, but the shown source does not establish which repository definition that imported attribute resolves to."
+  }
+]
+tokens used
+10,236

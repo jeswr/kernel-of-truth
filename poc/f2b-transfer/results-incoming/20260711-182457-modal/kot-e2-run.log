@@ -1,0 +1,18 @@
+$ /usr/local/bin/python /root/kot/poc/f2b-transfer/runner/f2bt_runner.py --inputs-dir /root/kot/poc/f2b-transfer/inputs --dqat-dir /root/kot/data/d-qa-t --dadjt-dir /root/kot/data/d-adj-t --dqa-dir /root/kot/data/d-qa --dxif-dir /root/kot/data/d-xif --records-root /root/kot --out-dir /tmp/f2bt-results --device cpu --gpu-class A100 --mock
+[f2bt     0.0s] mode=MOCK device=cpu eval_items=16 (externally-labelled d-qa-t rank prefix; 333 labelled on disk)
+[f2bt     0.0s] shuffled-verifier permutation: seed=20260710 sha=d401b19cf2fd
+[f2bt     0.0s] mock adjudication-instrument record emitted (verbatim pinned summary integers; phase=mock, never a measurement of this run)
+[f2bt     3.1s] cell model-alone R1 k=0 seed=0 done (3.0s)
+[f2bt     3.1s] cell model-alone R1 k=0 seed=1 done (0.0s)
+[f2bt     3.1s] cell model-alone R3 k=0 seed=0 done (0.0s)
+[f2bt     3.1s] cell model-alone R3 k=0 seed=1 done (0.0s)
+[f2bt     3.1s] cell kernel-verify-retry R1 k=4 seed=0 done (0.0s)
+[f2bt     3.1s] cell kernel-verify-retry R1 k=4 seed=1 done (0.0s)
+[f2bt     3.1s] cell shuffled-kernel-verify-retry R1 k=4 seed=0 done (0.0s)
+[f2bt     3.1s] cell shuffled-kernel-verify-retry R1 k=4 seed=1 done (0.0s)
+[f2bt     3.1s] cell gloss-self-verify-retry R1 k=4 seed=0 done (0.0s)
+[f2bt     3.1s] cell gloss-self-verify-retry R1 k=4 seed=1 done (0.0s)
+[f2bt     3.1s] cell extraction-instrument R1 k=0 seed=0 done (0.0s)
+[f2bt     3.1s] iface gate: 300 labelled, 3 extraction failures
+[f2bt     3.1s] OUTCOME: MOCK-HARNESS-COMPLETE (12 run-record bodies in /tmp/f2bt-results/run-records-f2bt-mock.jsonl)
+[runner exit rc=0]

@@ -1,0 +1,119 @@
+[
+  {
+    "query_id": "g1q-tomli-contains-2",
+    "answerable_static": true,
+    "gold": [
+      "fuzzer/fuzz.py::main",
+      "fuzzer/fuzz.py::normalize_toml_obj",
+      "fuzzer/fuzz.py::print_err",
+      "fuzzer/fuzz.py::test_one_input"
+    ],
+    "conditional_flags": [],
+    "notes": "Four top-level defs. The with-block at lines 3-10 contains only imports (excluded). Line 14 is an attribute assignment (tomli._re.cached_tz), not a simple-name binding; line 17 is a call statement, not a binding."
+  },
+  {
+    "query_id": "g1q-tomli-contains-13",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_misc.py::TestMiscellaneous"
+    ],
+    "conditional_flags": [],
+    "notes": "Only module-level child is the class TestMiscellaneous (line 19); all other module-level statements are imports."
+  },
+  {
+    "query_id": "g1q-tomli-contained_in-65",
+    "answerable_static": true,
+    "gold": [
+      "tests/test_error.py::TestError"
+    ],
+    "conditional_flags": [],
+    "notes": "test_invalid_parse_float (line 62) is a method defined directly in class TestError (line 13)."
+  },
+  {
+    "query_id": "g1q-tomli-contained_in-11",
+    "answerable_static": true,
+    "gold": [
+      "src/tomli/_parser.py"
+    ],
+    "conditional_flags": [],
+    "notes": "def loads (line 162) is at module top level, so its direct lexical parent is the module."
+  },
+  {
+    "query_id": "g1q-tomli-imports_of-2",
+    "answerable_static": true,
+    "gold": [
+      "ext:atheris",
+      "ext:math",
+      "ext:sys",
+      "ext:tomli_w",
+      "ext:warnings",
+      "repo:src/tomli/__init__.py"
+    ],
+    "conditional_flags": [
+      "ext:math",
+      "ext:sys",
+      "ext:tomli_w",
+      "ext:warnings",
+      "repo:src/tomli/__init__.py"
+    ],
+    "notes": "import tomli resolves via the src/ root to package src/tomli (src/tomli/__init__.py). Lines 4-10 sit inside the 'with atheris.instrument_imports():' block, so flagged as non-top-level; 'import atheris' (line 1) is unconditional top-level."
+  },
+  {
+    "query_id": "g1q-tomli-imports_of-7",
+    "answerable_static": true,
+    "gold": [
+      "ext:__future__",
+      "ext:datetime",
+      "ext:functools",
+      "ext:re",
+      "ext:typing",
+      "repo:src/tomli/__init__.py",
+      "repo:src/tomli/_types.py"
+    ],
+    "conditional_flags": [
+      "ext:typing",
+      "repo:src/tomli/__init__.py",
+      "repo:src/tomli/_types.py"
+    ],
+    "notes": "Lines 13 and 15 are inside 'if TYPE_CHECKING:' (TYPE_CHECKING = False), hence flagged. Relative 'from ._types import ParseFloat' resolves to src/tomli/_types.py; ancestor package src/tomli/__init__.py included per import semantics."
+  },
+  {
+    "query_id": "g1q-tomli-where_defined-68",
+    "answerable_static": true,
+    "gold": [
+      "src/tomli/_re.py:116"
+    ],
+    "conditional_flags": [],
+    "notes": "Only definition site is the def header at src/tomli/_re.py:116. src/tomli/_parser.py:19 is a from-import binding (excluded); line 764 is a call site."
+  },
+  {
+    "query_id": "g1q-tomli-where_defined-79",
+    "answerable_static": true,
+    "gold": [
+      "src/tomli/_parser.py:460"
+    ],
+    "conditional_flags": [],
+    "notes": "Only definition site is the def header at src/tomli/_parser.py:460; lines 429 and 556 are call sites inside other functions."
+  },
+  {
+    "query_id": "g1q-tomli-callees_of-62",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.str",
+      "ext:unittest.TestCase.assertEqual"
+    ],
+    "conditional_flags": [],
+    "notes": "tomllib is bound via 'from . import tomllib' (line 10); no tests/tomllib.py exists and tests/__init__.py content is not shown, so the runtime callee of tomllib.TOMLDecodeError(...) at line 97 cannot be resolved from the shown source. Remaining resolvable callees: self.assertEqual (x7) and str."
+  },
+  {
+    "query_id": "g1q-tomli-callees_of-58",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.str",
+      "ext:unittest.TestCase.assertEqual",
+      "ext:unittest.TestCase.assertRaises"
+    ],
+    "conditional_flags": [],
+    "notes": "tomllib is bound via 'from . import tomllib' (line 10); tests/__init__.py content is not shown, so the runtime callee of tomllib.loads(...) at line 71 cannot be resolved from the shown source. Nested defs dict_returner/list_returner contain no calls. Resolvable callees: self.assertRaises, self.assertEqual, str."
+  }
+]

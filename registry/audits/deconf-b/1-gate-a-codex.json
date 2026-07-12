@@ -1,0 +1,44 @@
+{
+  "schema_version": "kot-audit/1",
+  "experiment": "deconf-b",
+  "audit_kind": "GATE-A cross-vendor PASS audit (P2 G-6; directives section 8) — deconf-b Stage-B mechanical verdict recompute (Delta_align alignment-specificity)",
+  "auditor": "auditor-4",
+  "auditor_binding": "cross-vendor auditor per docs/kernel-design-directives.md section 8: GPT-5.6-sol via the codex CLI; vendor tag only, no account credential (RT-14); run-vs-audit separation is cross-vendor — the Stage-B GPU run + 27-record log-append by runner-1, prereg-freeze + verdict-gen by coordinator-1 (Anthropic Opus), this audit by GPT-5.6/codex (OpenAI).",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.144.1 via npx -y @openai/codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "sandbox": "read-only"
+  },
+  "vendor": "openai-gpt-5.6-sol",
+  "independence": "auditor-4 (GPT-5.6/codex) does not appear as a runner in any results-log/deconf-b.jsonl record; runner-1 log-appended the 27 final run-records; cross-vendor (audit by OpenAI GPT-5.6 vs the run/verdict by Anthropic Opus).",
+  "checks": {
+    "frozen_hash": "ok",
+    "analysis_script_sha": "ok",
+    "endpoint_recompute": "ok",
+    "holm_family": "ok",
+    "instrument_gate": "ok",
+    "amendment_overlay": "ok",
+    "pins": "ok",
+    "log_chain": "ok",
+    "scope": "ok",
+    "verdict_rule": "ok",
+    "primary": "ok"
+  },
+  "recomputed_endpoint": {
+    "delta_align": 0.2696696697,
+    "ci90_low": 0.245045045,
+    "ci90_high": 0.2942942943,
+    "delta_align_p_holm": 0.00039996,
+    "superiority_pass": true,
+    "tost_equivalence_pass": false,
+    "gsa_acc_ext": 0.6780780781,
+    "grd_acc_ext": 0.4084084084
+  },
+  "matches_verdict_object": true,
+  "outcome": "CONFIRMED",
+  "result": "CONFIRM",
+  "codex_raw_excerpt": "Overall verdict: **CONFIRMED**. The Gate-A PASS is statistically supported and pre-registration-faithful for the frozen experiment and its narrowly licensed scope. I found no violation that should have blocked PASS.\n\n1. Endpoint implementation — CONFIRMED\n\n[analysis/deconf_b.py](/home/ec2-user/css/kernel/kernel-of-truth/analysis/deconf_b.py) matches its frozen SHA-256 pin `299954…`.\n\nIt implements:\n\n- `Delta_align = acc_ext(gsa-verify-retry, k=4) − acc_ext(gr-d-lite, k=4)`.\n- Five seeds per arm, with each arm’s seed results averaged per item before paired item resampling.\n- Exactly 333 entries in every modeled arm/seed vector.\n- Paired item bootstrap with `B=10000`, Python PRNG seed `20260711`, and item-level BCa intervals.\n- GR-D-lite selected at retry budget 4; the logged calibration corresponds to `m=3`, acceptance at ≥2/3 agreement, as frozen.\n\nThe actual log contains the complete registered grid: seeds 0–4 for model-alone, GSA, GR-A, GR-D, and the reinstated kernel arm. The eval-item hash is the registered `480cc9…`.\n\nIndependent arithmetic reproduces:\n\n- GSA accuracy: `0.678078",
+  "verdict_object_audited_sha256": "259e2dbe7c208396f17f466d83049bb4cb7f9e5ffbaa7a1830d03a86469739ef",
+  "ts": "2026-07-11T21:52:00Z"
+}

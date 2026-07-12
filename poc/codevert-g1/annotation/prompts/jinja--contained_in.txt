@@ -1,0 +1,1311 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: jinja ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+docs/examples/cache_extension.py
+docs/examples/inline_gettext_extension.py
+examples/basic/cycle.py
+examples/basic/debugger.py
+examples/basic/inheritance.py
+examples/basic/test.py
+examples/basic/test_filter_and_linestatements.py
+examples/basic/test_loop_filter.py
+examples/basic/translate.py
+scripts/generate_identifier_pattern.py
+src/jinja2/__init__.py
+src/jinja2/_identifier.py
+src/jinja2/async_utils.py
+src/jinja2/bccache.py
+src/jinja2/compiler.py
+src/jinja2/constants.py
+src/jinja2/debug.py
+src/jinja2/defaults.py
+src/jinja2/environment.py
+src/jinja2/exceptions.py
+src/jinja2/ext.py
+src/jinja2/filters.py
+src/jinja2/idtracking.py
+src/jinja2/lexer.py
+src/jinja2/loaders.py
+src/jinja2/meta.py
+src/jinja2/nativetypes.py
+src/jinja2/nodes.py
+src/jinja2/optimizer.py
+src/jinja2/parser.py
+src/jinja2/runtime.py
+src/jinja2/sandbox.py
+src/jinja2/tests.py
+src/jinja2/utils.py
+src/jinja2/visitor.py
+tests/conftest.py
+tests/test_api.py
+tests/test_async.py
+tests/test_async_filters.py
+tests/test_bytecode_cache.py
+tests/test_compile.py
+tests/test_core_tags.py
+tests/test_debug.py
+tests/test_ext.py
+tests/test_filters.py
+tests/test_idtracking.py
+tests/test_imports.py
+tests/test_inheritance.py
+tests/test_lexnparse.py
+tests/test_loader.py
+tests/test_nativetypes.py
+tests/test_nodes.py
+tests/test_pickle.py
+tests/test_regression.py
+tests/test_runtime.py
+tests/test_security.py
+tests/test_tests.py
+tests/test_utils.py
+tests/res/__init__.py
+
+=== QUERIES (2) ===
+QUERY g1q-jinja-contained_in-1056: family=contained_in target=tests/test_async.py::TestAsyncForLoop.test_recursive_depth0
+QUERY g1q-jinja-contained_in-1461: family=contained_in target=tests/test_inheritance.py::TestInheritance.test_level2_required
+
+=== CONTEXT ===
+
+FILE tests/test_async.py:
+    1| import pytest
+    2| 
+    3| from jinja2 import ChainableUndefined
+    4| from jinja2 import DictLoader
+    5| from jinja2 import Environment
+    6| from jinja2 import Template
+    7| from jinja2.async_utils import auto_aiter
+    8| from jinja2.exceptions import TemplateNotFound
+    9| from jinja2.exceptions import TemplatesNotFound
+   10| from jinja2.exceptions import UndefinedError
+   11| from jinja2.nativetypes import NativeEnvironment
+   12| 
+   13| 
+   14| def test_basic_async(run_async_fn):
+   15|     t = Template(
+   16|         "{% for item in [1, 2, 3] %}[{{ item }}]{% endfor %}", enable_async=True
+   17|     )
+   18| 
+   19|     async def func():
+   20|         return await t.render_async()
+   21| 
+   22|     rv = run_async_fn(func)
+   23|     assert rv == "[1][2][3]"
+   24| 
+   25| 
+   26| def test_await_on_calls(run_async_fn):
+   27|     t = Template("{{ async_func() + normal_func() }}", enable_async=True)
+   28| 
+   29|     async def async_func():
+   30|         return 42
+   31| 
+   32|     def normal_func():
+   33|         return 23
+   34| 
+   35|     async def func():
+   36|         return await t.render_async(async_func=async_func, normal_func=normal_func)
+   37| 
+   38|     rv = run_async_fn(func)
+   39|     assert rv == "65"
+   40| 
+   41| 
+   42| def test_await_on_calls_normal_render():
+   43|     t = Template("{{ async_func() + normal_func() }}", enable_async=True)
+   44| 
+   45|     async def async_func():
+   46|         return 42
+   47| 
+   48|     def normal_func():
+   49|         return 23
+   50| 
+   51|     rv = t.render(async_func=async_func, normal_func=normal_func)
+   52|     assert rv == "65"
+   53| 
+   54| 
+   55| def test_await_and_macros(run_async_fn):
+   56|     t = Template(
+   57|         "{% macro foo(x) %}[{{ x }}][{{ async_func() }}]{% endmacro %}{{ foo(42) }}",
+   58|         enable_async=True,
+   59|     )
+   60| 
+   61|     async def async_func():
+   62|         return 42
+   63| 
+   64|     async def func():
+   65|         return await t.render_async(async_func=async_func)
+   66| 
+   67|     rv = run_async_fn(func)
+   68|     assert rv == "[42][42]"
+   69| 
+   70| 
+   71| def test_async_blocks(run_async_fn):
+   72|     t = Template(
+   73|         "{% block foo %}<Test>{% endblock %}{{ self.foo() }}",
+   74|         enable_async=True,
+   75|         autoescape=True,
+   76|     )
+   77| 
+   78|     async def func():
+   79|         return await t.render_async()
+   80| 
+   81|     rv = run_async_fn(func)
+   82|     assert rv == "<Test><Test>"
+   83| 
+   84| 
+   85| def test_async_generate():
+   86|     t = Template("{% for x in [1, 2, 3] %}{{ x }}{% endfor %}", enable_async=True)
+   87|     rv = list(t.generate())
+   88|     assert rv == ["1", "2", "3"]
+   89| 
+   90| 
+   91| def test_async_iteration_in_templates():
+   92|     t = Template("{% for x in rng %}{{ x }}{% endfor %}", enable_async=True)
+   93| 
+   94|     async def async_iterator():
+   95|         for item in [1, 2, 3]:
+   96|             yield item
+   97| 
+   98|     rv = list(t.generate(rng=async_iterator()))
+   99|     assert rv == ["1", "2", "3"]
+  100| 
+  101| 
+  102| def test_async_iteration_in_templates_extended():
+  103|     t = Template(
+  104|         "{% for x in rng %}{{ loop.index0 }}/{{ x }}{% endfor %}", enable_async=True
+  105|     )
+  106|     stream = t.generate(rng=auto_aiter(range(1, 4)))
+  107|     assert next(stream) == "0"
+  108|     assert "".join(stream) == "/11/22/3"
+  109| 
+  110| 
+  111| @pytest.fixture
+  112| def test_env_async():
+  113|     env = Environment(
+  114|         loader=DictLoader(
+  115|             dict(
+  116|                 module="{% macro test() %}[{{ foo }}|{{ bar }}]{% endmacro %}",
+  117|                 header="[{{ foo }}|{{ 23 }}]",
+  118|                 o_printer="({{ o }})",
+  119|             )
+  120|         ),
+  121|         enable_async=True,
+  122|     )
+  123|     env.globals["bar"] = 23
+  124|     return env
+  125| 
+  126| 
+  127| class TestAsyncImports:
+  128|     def test_context_imports(self, test_env_async):
+  129|         t = test_env_async.from_string('{% import "module" as m %}{{ m.test() }}')
+  130|         assert t.render(foo=42) == "[|23]"
+  131|         t = test_env_async.from_string(
+  132|             '{% import "module" as m without context %}{{ m.test() }}'
+  133|         )
+  134|         assert t.render(foo=42) == "[|23]"
+  135|         t = test_env_async.from_string(
+  136|             '{% import "module" as m with context %}{{ m.test() }}'
+  137|         )
+  138|         assert t.render(foo=42) == "[42|23]"
+  139|         t = test_env_async.from_string('{% from "module" import test %}{{ test() }}')
+  140|         assert t.render(foo=42) == "[|23]"
+  141|         t = test_env_async.from_string(
+  142|             '{% from "module" import test without context %}{{ test() }}'
+  143|         )
+  144|         assert t.render(foo=42) == "[|23]"
+  145|         t = test_env_async.from_string(
+  146|             '{% from "module" import test with context %}{{ test() }}'
+  147|         )
+  148|         assert t.render(foo=42) == "[42|23]"
+  149| 
+  150|     def test_trailing_comma(self, test_env_async):
+  151|         test_env_async.from_string('{% from "foo" import bar, baz with context %}')
+  152|         test_env_async.from_string('{% from "foo" import bar, baz, with context %}')
+  153|         test_env_async.from_string('{% from "foo" import bar, with context %}')
+  154|         test_env_async.from_string('{% from "foo" import bar, with, context %}')
+  155|         test_env_async.from_string('{% from "foo" import bar, with with context %}')
+  156| 
+  157|     def test_exports(self, test_env_async, run_async_fn):
+  158|         coro_fn = test_env_async.from_string(
+  159|             """
+  160|             {% macro toplevel() %}...{% endmacro %}
+  161|             {% macro __private() %}...{% endmacro %}
+  162|             {% set variable = 42 %}
+  163|             {% for item in [1] %}
+  164|                 {% macro notthere() %}{% endmacro %}
+  165|             {% endfor %}
+  166|             """
+  167|         )._get_default_module_async
+  168|         m = run_async_fn(coro_fn)
+  169|         assert run_async_fn(m.toplevel) == "..."
+  170|         assert not hasattr(m, "__missing")
+  171|         assert m.variable == 42
+  172|         assert not hasattr(m, "notthere")
+  173| 
+  174|     def test_import_with_globals(self, test_env_async):
+  175|         t = test_env_async.from_string(
+  176|             '{% import "module" as m %}{{ m.test() }}', globals={"foo": 42}
+  177|         )
+  178|         assert t.render() == "[42|23]"
+  179| 
+  180|         t = test_env_async.from_string('{% import "module" as m %}{{ m.test() }}')
+  181|         assert t.render() == "[|23]"
+  182| 
+  183|     def test_import_with_globals_override(self, test_env_async):
+  184|         t = test_env_async.from_string(
+  185|             '{% set foo = 41 %}{% import "module" as m %}{{ m.test() }}',
+  186|             globals={"foo": 42},
+  187|         )
+  188|         assert t.render() == "[42|23]"
+  189| 
+  190|     def test_from_import_with_globals(self, test_env_async):
+  191|         t = test_env_async.from_string(
+  192|             '{% from "module" import test %}{{ test() }}',
+  193|             globals={"foo": 42},
+  194|         )
+  195|         assert t.render() == "[42|23]"
+  196| 
+  197| 
+  198| class TestAsyncIncludes:
+  199|     def test_context_include(self, test_env_async):
+  200|         t = test_env_async.from_string('{% include "header" %}')
+  201|         assert t.render(foo=42) == "[42|23]"
+  202|         t = test_env_async.from_string('{% include "header" with context %}')
+  203|         assert t.render(foo=42) == "[42|23]"
+  204|         t = test_env_async.from_string('{% include "header" without context %}')
+  205|         assert t.render(foo=42) == "[|23]"
+  206| 
+  207|     def test_choice_includes(self, test_env_async):
+  208|         t = test_env_async.from_string('{% include ["missing", "header"] %}')
+  209|         assert t.render(foo=42) == "[42|23]"
+  210| 
+  211|         t = test_env_async.from_string(
+  212|             '{% include ["missing", "missing2"] ignore missing %}'
+  213|         )
+  214|         assert t.render(foo=42) == ""
+  215| 
+  216|         t = test_env_async.from_string('{% include ["missing", "missing2"] %}')
+  217|         pytest.raises(TemplateNotFound, t.render)
+  218|         with pytest.raises(TemplatesNotFound) as e:
+  219|             t.render()
+  220| 
+  221|         assert e.value.templates == ["missing", "missing2"]
+  222|         assert e.value.name == "missing2"
+  223| 
+  224|         def test_includes(t, **ctx):
+  225|             ctx["foo"] = 42
+  226|             assert t.render(ctx) == "[42|23]"
+  227| 
+  228|         t = test_env_async.from_string('{% include ["missing", "header"] %}')
+  229|         test_includes(t)
+  230|         t = test_env_async.from_string("{% include x %}")
+  231|         test_includes(t, x=["missing", "header"])
+  232|         t = test_env_async.from_string('{% include [x, "header"] %}')
+  233|         test_includes(t, x="missing")
+  234|         t = test_env_async.from_string("{% include x %}")
+  235|         test_includes(t, x="header")
+  236|         t = test_env_async.from_string("{% include x %}")
+  237|         test_includes(t, x="header")
+  238|         t = test_env_async.from_string("{% include [x] %}")
+  239|         test_includes(t, x="header")
+  240| 
+  241|     def test_include_ignoring_missing(self, test_env_async):
+  242|         t = test_env_async.from_string('{% include "missing" %}')
+  243|         pytest.raises(TemplateNotFound, t.render)
+  244|         for extra in "", "with context", "without context":
+  245|             t = test_env_async.from_string(
+  246|                 '{% include "missing" ignore missing ' + extra + " %}"
+  247|             )
+  248|             assert t.render() == ""
+  249| 
+  250|     def test_context_include_with_overrides(self, test_env_async):
+  251|         env = Environment(
+  252|             loader=DictLoader(
+  253|                 dict(
+  254|                     main="{% for item in [1, 2, 3] %}{% include 'item' %}{% endfor %}",
+  255|                     item="{{ item }}",
+  256|                 )
+  257|             )
+  258|         )
+  259|         assert env.get_template("main").render() == "123"
+  260| 
+  261|     def test_unoptimized_scopes(self, test_env_async):
+  262|         t = test_env_async.from_string(
+  263|             """
+  264|             {% macro outer(o) %}
+  265|             {% macro inner() %}
+  266|             {% include "o_printer" %}
+  267|             {% endmacro %}
+  268|             {{ inner() }}
+  269|             {% endmacro %}
+  270|             {{ outer("FOO") }}
+  271|         """
+  272|         )
+  273|         assert t.render().strip() == "(FOO)"
+  274| 
+  275|     def test_unoptimized_scopes_autoescape(self):
+  276|         env = Environment(
+  277|             loader=DictLoader({"o_printer": "({{ o }})"}),
+  278|             autoescape=True,
+  279|             enable_async=True,
+  280|         )
+  281|         t = env.from_string(
+  282|             """
+  283|             {% macro outer(o) %}
+  284|             {% macro inner() %}
+  285|             {% include "o_printer" %}
+  286|             {% endmacro %}
+  287|             {{ inner() }}
+  288|             {% endmacro %}
+  289|             {{ outer("FOO") }}
+  290|         """
+  291|         )
+  292|         assert t.render().strip() == "(FOO)"
+  293| 
+  294| 
+  295| class TestAsyncForLoop:
+  296|     def test_simple(self, test_env_async):
+  297|         tmpl = test_env_async.from_string("{% for item in seq %}{{ item }}{% endfor %}")
+  298|         assert tmpl.render(seq=list(range(10))) == "0123456789"
+  299| 
+  300|     def test_else(self, test_env_async):
+  301|         tmpl = test_env_async.from_string(
+  302|             "{% for item in seq %}XXX{% else %}...{% endfor %}"
+  303|         )
+  304|         assert tmpl.render() == "..."
+  305| 
+  306|     def test_empty_blocks(self, test_env_async):
+  307|         tmpl = test_env_async.from_string(
+  308|             "<{% for item in seq %}{% else %}{% endfor %}>"
+  309|         )
+  310|         assert tmpl.render() == "<>"
+  311| 
+  312|     @pytest.mark.parametrize(
+  313|         "transform", [lambda x: x, iter, reversed, lambda x: (i for i in x), auto_aiter]
+  314|     )
+  315|     def test_context_vars(self, test_env_async, transform):
+  316|         t = test_env_async.from_string(
+  317|             "{% for item in seq %}{{ loop.index }}|{{ loop.index0 }}"
+  318|             "|{{ loop.revindex }}|{{ loop.revindex0 }}|{{ loop.first }}"
+  319|             "|{{ loop.last }}|{{ loop.length }}\n{% endfor %}"
+  320|         )
+  321|         out = t.render(seq=transform([42, 24]))
+  322|         assert out == "1|0|2|1|True|False|2\n2|1|1|0|False|True|2\n"
+  323| 
+  324|     def test_cycling(self, test_env_async):
+  325|         tmpl = test_env_async.from_string(
+  326|             """{% for item in seq %}{{
+  327|             loop.cycle('<1>', '<2>') }}{% endfor %}{%
+  328|             for item in seq %}{{ loop.cycle(*through) }}{% endfor %}"""
+  329|         )
+  330|         output = tmpl.render(seq=list(range(4)), through=("<1>", "<2>"))
+  331|         assert output == "<1><2>" * 4
+  332| 
+  333|     def test_lookaround(self, test_env_async):
+  334|         tmpl = test_env_async.from_string(
+  335|             """{% for item in seq -%}
+  336|             {{ loop.previtem|default('x') }}-{{ item }}-{{
+  337|             loop.nextitem|default('x') }}|
+  338|         {%- endfor %}"""
+  339|         )
+  340|         output = tmpl.render(seq=list(range(4)))
+  341|         assert output == "x-0-1|0-1-2|1-2-3|2-3-x|"
+  342| 
+  343|     def test_changed(self, test_env_async):
+  344|         tmpl = test_env_async.from_string(
+  345|             """{% for item in seq -%}
+  346|             {{ loop.changed(item) }},
+  347|         {%- endfor %}"""
+  348|         )
+  349|         output = tmpl.render(seq=[None, None, 1, 2, 2, 3, 4, 4, 4])
+  350|         assert output == "True,False,True,True,False,True,True,False,False,"
+  351| 
+  352|     def test_scope(self, test_env_async):
+  353|         tmpl = test_env_async.from_string("{% for item in seq %}{% endfor %}{{ item }}")
+  354|         output = tmpl.render(seq=list(range(10)))
+  355|         assert not output
+  356| 
+  357|     def test_varlen(self, test_env_async):
+  358|         def inner():
+  359|             yield from range(5)
+  360| 
+  361|         tmpl = test_env_async.from_string(
+  362|             "{% for item in iter %}{{ item }}{% endfor %}"
+  363|         )
+  364|         output = tmpl.render(iter=inner())
+  365|         assert output == "01234"
+  366| 
+  367|     def test_noniter(self, test_env_async):
+  368|         tmpl = test_env_async.from_string("{% for item in none %}...{% endfor %}")
+  369|         pytest.raises(TypeError, tmpl.render)
+  370| 
+  371|     def test_recursive(self, test_env_async):
+  372|         tmpl = test_env_async.from_string(
+  373|             """{% for item in seq recursive -%}
+  374|             [{{ item.a }}{% if item.b %}<{{ loop(item.b) }}>{% endif %}]
+  375|         {%- endfor %}"""
+  376|         )
+  377|         assert (
+  378|             tmpl.render(
+  379|                 seq=[
+  380|                     dict(a=1, b=[dict(a=1), dict(a=2)]),
+  381|                     dict(a=2, b=[dict(a=1), dict(a=2)]),
+  382|                     dict(a=3, b=[dict(a="a")]),
+  383|                 ]
+  384|             )
+  385|             == "[1<[1][2]>][2<[1][2]>][3<[a]>]"
+  386|         )
+  387| 
+  388|     def test_recursive_lookaround(self, test_env_async):
+  389|         tmpl = test_env_async.from_string(
+  390|             """{% for item in seq recursive -%}
+  391|             [{{ loop.previtem.a if loop.previtem is defined else 'x' }}.{{
+  392|             item.a }}.{{ loop.nextitem.a if loop.nextitem is defined else 'x'
+  393|             }}{% if item.b %}<{{ loop(item.b) }}>{% endif %}]
+  394|         {%- endfor %}"""
+  395|         )
+  396|         assert (
+  397|             tmpl.render(
+  398|                 seq=[
+  399|                     dict(a=1, b=[dict(a=1), dict(a=2)]),
+  400|                     dict(a=2, b=[dict(a=1), dict(a=2)]),
+  401|                     dict(a=3, b=[dict(a="a")]),
+  402|                 ]
+  403|             )
+  404|             == "[x.1.2<[x.1.2][1.2.x]>][1.2.3<[x.1.2][1.2.x]>][2.3.x<[x.a.x]>]"
+  405|         )
+  406| 
+  407|     def test_recursive_depth0(self, test_env_async):
+  408|         tmpl = test_env_async.from_string(
+  409|             "{% for item in seq recursive %}[{{ loop.depth0 }}:{{ item.a }}"
+  410|             "{% if item.b %}<{{ loop(item.b) }}>{% endif %}]{% endfor %}"
+  411|         )
+  412|         assert (
+  413|             tmpl.render(
+  414|                 seq=[
+  415|                     dict(a=1, b=[dict(a=1), dict(a=2)]),
+  416|                     dict(a=2, b=[dict(a=1), dict(a=2)]),
+  417|                     dict(a=3, b=[dict(a="a")]),
+  418|                 ]
+  419|             )
+  420|             == "[0:1<[1:1][1:2]>][0:2<[1:1][1:2]>][0:3<[1:a]>]"
+  421|         )
+  422| 
+  423|     def test_recursive_depth(self, test_env_async):
+  424|         tmpl = test_env_async.from_string(
+  425|             "{% for item in seq recursive %}[{{ loop.depth }}:{{ item.a }}"
+  426|             "{% if item.b %}<{{ loop(item.b) }}>{% endif %}]{% endfor %}"
+  427|         )
+  428|         assert (
+  429|             tmpl.render(
+  430|                 seq=[
+  431|                     dict(a=1, b=[dict(a=1), dict(a=2)]),
+  432|                     dict(a=2, b=[dict(a=1), dict(a=2)]),
+  433|                     dict(a=3, b=[dict(a="a")]),
+  434|                 ]
+  435|             )
+  436|             == "[1:1<[2:1][2:2]>][1:2<[2:1][2:2]>][1:3<[2:a]>]"
+  437|         )
+  438| 
+  439|     def test_looploop(self, test_env_async):
+  440|         tmpl = test_env_async.from_string(
+  441|             """{% for row in table %}
+  442|             {%- set rowloop = loop -%}
+  443|             {% for cell in row -%}
+  444|                 [{{ rowloop.index }}|{{ loop.index }}]
+  445|             {%- endfor %}
+  446|         {%- endfor %}"""
+  447|         )
+  448|         assert tmpl.render(table=["ab", "cd"]) == "[1|1][1|2][2|1][2|2]"
+  449| 
+  450|     def test_reversed_bug(self, test_env_async):
+  451|         tmpl = test_env_async.from_string(
+  452|             "{% for i in items %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}"
+  453|         )
+  454|         assert tmpl.render(items=reversed([3, 2, 1])) == "1,2,3"
+  455| 
+  456|     def test_loop_errors(self, test_env_async, run_async_fn):
+  457|         tmpl = test_env_async.from_string(
+  458|             """{% for item in [1] if loop.index
+  459|                                       == 0 %}...{% endfor %}"""
+  460|         )
+  461|         with pytest.raises(UndefinedError):
+  462|             run_async_fn(tmpl.render_async)
+  463| 
+  464|         tmpl = test_env_async.from_string(
+  465|             """{% for item in [] %}...{% else
+  466|             %}{{ loop }}{% endfor %}"""
+  467|         )
+  468|         assert run_async_fn(tmpl.render_async) == ""
+  469| 
+  470|     def test_loop_filter(self, test_env_async):
+  471|         tmpl = test_env_async.from_string(
+  472|             "{% for item in range(10) if item is even %}[{{ item }}]{% endfor %}"
+  473|         )
+  474|         assert tmpl.render() == "[0][2][4][6][8]"
+  475|         tmpl = test_env_async.from_string(
+  476|             """
+  477|             {%- for item in range(10) if item is even %}[{{
+  478|                 loop.index }}:{{ item }}]{% endfor %}"""
+  479|         )
+  480|         assert tmpl.render() == "[1:0][2:2][3:4][4:6][5:8]"
+  481| 
+  482|     def test_scoped_special_var(self, test_env_async):
+  483|         t = test_env_async.from_string(
+  484|             "{% for s in seq %}[{{ loop.first }}{% for c in s %}"
+  485|             "|{{ loop.first }}{% endfor %}]{% endfor %}"
+  486|         )
+  487|         assert t.render(seq=("ab", "cd")) == "[True|True|False][False|True|False]"
+  488| 
+  489|     def test_scoped_loop_var(self, test_env_async):
+  490|         t = test_env_async.from_string(
+  491|             "{% for x in seq %}{{ loop.first }}"
+  492|             "{% for y in seq %}{% endfor %}{% endfor %}"
+  493|         )
+  494|         assert t.render(seq="ab") == "TrueFalse"
+  495|         t = test_env_async.from_string(
+  496|             "{% for x in seq %}{% for y in seq %}"
+  497|             "{{ loop.first }}{% endfor %}{% endfor %}"
+  498|         )
+  499|         assert t.render(seq="ab") == "TrueFalseTrueFalse"
+  500| 
+  501|     def test_recursive_empty_loop_iter(self, test_env_async):
+  502|         t = test_env_async.from_string(
+  503|             """
+  504|         {%- for item in foo recursive -%}{%- endfor -%}
+  505|         """
+  506|         )
+  507|         assert t.render(dict(foo=[])) == ""
+  508| 
+  509|     def test_call_in_loop(self, test_env_async):
+  510|         t = test_env_async.from_string(
+  511|             """
+  512|         {%- macro do_something() -%}
+  513|             [{{ caller() }}]
+  514|         {%- endmacro %}
+  515| 
+  516|         {%- for i in [1, 2, 3] %}
+  517|             {%- call do_something() -%}
+  518|                 {{ i }}
+  519|             {%- endcall %}
+  520|         {%- endfor -%}
+  521|         """
+  522|         )
+  523|         assert t.render() == "[1][2][3]"
+  524| 
+  525|     def test_scoping_bug(self, test_env_async):
+  526|         t = test_env_async.from_string(
+  527|             """
+  528|         {%- for item in foo %}...{{ item }}...{% endfor %}
+  529|         {%- macro item(a) %}...{{ a }}...{% endmacro %}
+  530|         {{- item(2) -}}
+  531|         """
+  532|         )
+  533|         assert t.render(foo=(1,)) == "...1......2..."
+  534| 
+  535|     def test_unpacking(self, test_env_async):
+  536|         tmpl = test_env_async.from_string(
+  537|             "{% for a, b, c in [[1, 2, 3]] %}{{ a }}|{{ b }}|{{ c }}{% endfor %}"
+  538|         )
+  539|         assert tmpl.render() == "1|2|3"
+  540| 
+  541|     def test_recursive_loop_filter(self, test_env_async):
+  542|         t = test_env_async.from_string(
+  543|             """
+  544|         <?xml version="1.0" encoding="UTF-8"?>
+  545|         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  546|           {%- for page in [site.root] if page.url != this recursive %}
+  547|           <url><loc>{{ page.url }}</loc></url>
+  548|           {{- loop(page.children) }}
+  549|           {%- endfor %}
+  550|         </urlset>
+  551|         """
+  552|         )
+  553|         sm = t.render(
+  554|             this="/foo",
+  555|             site={"root": {"url": "/", "children": [{"url": "/foo"}, {"url": "/bar"}]}},
+  556|         )
+  557|         lines = [x.strip() for x in sm.splitlines() if x.strip()]
+  558|         assert lines == [
+  559|             '<?xml version="1.0" encoding="UTF-8"?>',
+  560|             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  561|             "<url><loc>/</loc></url>",
+  562|             "<url><loc>/bar</loc></url>",
+  563|             "</urlset>",
+  564|         ]
+  565| 
+  566|     def test_nonrecursive_loop_filter(self, test_env_async):
+  567|         t = test_env_async.from_string(
+  568|             """
+  569|         <?xml version="1.0" encoding="UTF-8"?>
+  570|         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  571|           {%- for page in items if page.url != this %}
+  572|           <url><loc>{{ page.url }}</loc></url>
+  573|           {%- endfor %}
+  574|         </urlset>
+  575|         """
+  576|         )
+  577|         sm = t.render(
+  578|             this="/foo", items=[{"url": "/"}, {"url": "/foo"}, {"url": "/bar"}]
+  579|         )
+  580|         lines = [x.strip() for x in sm.splitlines() if x.strip()]
+  581|         assert lines == [
+  582|             '<?xml version="1.0" encoding="UTF-8"?>',
+  583|             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  584|             "<url><loc>/</loc></url>",
+  585|             "<url><loc>/bar</loc></url>",
+  586|             "</urlset>",
+  587|         ]
+  588| 
+  589|     def test_bare_async(self, test_env_async):
+  590|         t = test_env_async.from_string('{% extends "header" %}')
+  591|         assert t.render(foo=42) == "[42|23]"
+  592| 
+  593|     def test_awaitable_property_slicing(self, test_env_async):
+  594|         t = test_env_async.from_string("{% for x in a.b[:1] %}{{ x }}{% endfor %}")
+  595|         assert t.render(a=dict(b=[1, 2, 3])) == "1"
+  596| 
+  597| 
+  598| def test_namespace_awaitable(test_env_async, run_async_fn):
+  599|     async def _test():
+  600|         t = test_env_async.from_string(
+  601|             '{% set ns = namespace(foo="Bar") %}{{ ns.foo }}'
+  602|         )
+  603|         actual = await t.render_async()
+  604|         assert actual == "Bar"
+  605| 
+  606|     run_async_fn(_test)
+  607| 
+  608| 
+  609| def test_chainable_undefined_aiter(run_async_fn):
+  610|     async def _test():
+  611|         t = Template(
+  612|             "{% for x in a['b']['c'] %}{{ x }}{% endfor %}",
+  613|             enable_async=True,
+  614|             undefined=ChainableUndefined,
+  615|         )
+  616|         rv = await t.render_async(a={})
+  617|         assert rv == ""
+  618| 
+  619|     run_async_fn(_test)
+  620| 
+  621| 
+  622| @pytest.fixture
+  623| def async_native_env():
+  624|     return NativeEnvironment(enable_async=True)
+  625| 
+  626| 
+  627| def test_native_async(async_native_env, run_async_fn):
+  628|     async def _test():
+  629|         t = async_native_env.from_string("{{ x }}")
+  630|         rv = await t.render_async(x=23)
+  631|         assert rv == 23
+  632| 
+  633|     run_async_fn(_test)
+  634| 
+  635| 
+  636| def test_native_list_async(async_native_env, run_async_fn):
+  637|     async def _test():
+  638|         t = async_native_env.from_string("{{ x }}")
+  639|         rv = await t.render_async(x=list(range(3)))
+  640|         assert rv == [0, 1, 2]
+  641| 
+  642|     run_async_fn(_test)
+  643| 
+  644| 
+  645| def test_getitem_after_filter():
+  646|     env = Environment(enable_async=True)
+  647|     env.filters["add_each"] = lambda v, x: [i + x for i in v]
+  648|     t = env.from_string("{{ (a|add_each(2))[1:] }}")
+  649|     out = t.render(a=range(3))
+  650|     assert out == "[3, 4]"
+  651| 
+  652| 
+  653| def test_getitem_after_call():
+  654|     env = Environment(enable_async=True)
+  655|     env.globals["add_each"] = lambda v, x: [i + x for i in v]
+  656|     t = env.from_string("{{ add_each(a, 2)[1:] }}")
+  657|     out = t.render(a=range(3))
+  658|     assert out == "[3, 4]"
+  659| 
+  660| 
+  661| def test_basic_generate_async(run_async_fn):
+  662|     t = Template(
+  663|         "{% for item in [1, 2, 3] %}[{{ item }}]{% endfor %}", enable_async=True
+  664|     )
+  665| 
+  666|     async def func():
+  667|         agen = t.generate_async()
+  668|         try:
+  669|             return await agen.__anext__()
+  670|         finally:
+  671|             await agen.aclose()
+  672| 
+  673|     rv = run_async_fn(func)
+  674|     assert rv == "["
+  675| 
+  676| 
+  677| def test_include_generate_async(run_async_fn, test_env_async):
+  678|     t = test_env_async.from_string('{% include "header" %}')
+  679| 
+  680|     async def func():
+  681|         agen = t.generate_async()
+  682|         try:
+  683|             return await agen.__anext__()
+  684|         finally:
+  685|             await agen.aclose()
+  686| 
+  687|     rv = run_async_fn(func)
+  688|     assert rv == "["
+  689| 
+  690| 
+  691| def test_blocks_generate_async(run_async_fn):
+  692|     t = Template(
+  693|         "{% block foo %}<Test>{% endblock %}{{ self.foo() }}",
+  694|         enable_async=True,
+  695|         autoescape=True,
+  696|     )
+  697| 
+  698|     async def func():
+  699|         agen = t.generate_async()
+  700|         try:
+  701|             return await agen.__anext__()
+  702|         finally:
+  703|             await agen.aclose()
+  704| 
+  705|     rv = run_async_fn(func)
+  706|     assert rv == "<Test>"
+  707| 
+  708| 
+  709| def test_async_extend(run_async_fn, test_env_async):
+  710|     t = test_env_async.from_string('{% extends "header" %}')
+  711| 
+  712|     async def func():
+  713|         agen = t.generate_async()
+  714|         try:
+  715|             return await agen.__anext__()
+  716|         finally:
+  717|             await agen.aclose()
+  718| 
+  719|     rv = run_async_fn(func)
+  720|     assert rv == "["
+
+FILE tests/test_inheritance.py:
+    1| import pytest
+    2| 
+    3| from jinja2 import DictLoader
+    4| from jinja2 import Environment
+    5| from jinja2 import TemplateRuntimeError
+    6| from jinja2 import TemplateSyntaxError
+    7| 
+    8| LAYOUTTEMPLATE = """\
+    9| |{% block block1 %}block 1 from layout{% endblock %}
+   10| |{% block block2 %}block 2 from layout{% endblock %}
+   11| |{% block block3 %}
+   12| {% block block4 %}nested block 4 from layout{% endblock %}
+   13| {% endblock %}|"""
+   14| 
+   15| LEVEL1TEMPLATE = """\
+   16| {% extends "layout" %}
+   17| {% block block1 %}block 1 from level1{% endblock %}"""
+   18| 
+   19| LEVEL2TEMPLATE = """\
+   20| {% extends "level1" %}
+   21| {% block block2 %}{% block block5 %}nested block 5 from level2{%
+   22| endblock %}{% endblock %}"""
+   23| 
+   24| LEVEL3TEMPLATE = """\
+   25| {% extends "level2" %}
+   26| {% block block5 %}block 5 from level3{% endblock %}
+   27| {% block block4 %}block 4 from level3{% endblock %}
+   28| """
+   29| 
+   30| LEVEL4TEMPLATE = """\
+   31| {% extends "level3" %}
+   32| {% block block3 %}block 3 from level4{% endblock %}
+   33| """
+   34| 
+   35| WORKINGTEMPLATE = """\
+   36| {% extends "layout" %}
+   37| {% block block1 %}
+   38|   {% if false %}
+   39|     {% block block2 %}
+   40|       this should work
+   41|     {% endblock %}
+   42|   {% endif %}
+   43| {% endblock %}
+   44| """
+   45| 
+   46| DOUBLEEXTENDS = """\
+   47| {% extends "layout" %}
+   48| {% extends "layout" %}
+   49| {% block block1 %}
+   50|   {% if false %}
+   51|     {% block block2 %}
+   52|       this should work
+   53|     {% endblock %}
+   54|   {% endif %}
+   55| {% endblock %}
+   56| """
+   57| 
+   58| 
+   59| @pytest.fixture
+   60| def env():
+   61|     return Environment(
+   62|         loader=DictLoader(
+   63|             {
+   64|                 "layout": LAYOUTTEMPLATE,
+   65|                 "level1": LEVEL1TEMPLATE,
+   66|                 "level2": LEVEL2TEMPLATE,
+   67|                 "level3": LEVEL3TEMPLATE,
+   68|                 "level4": LEVEL4TEMPLATE,
+   69|                 "working": WORKINGTEMPLATE,
+   70|                 "doublee": DOUBLEEXTENDS,
+   71|             }
+   72|         ),
+   73|         trim_blocks=True,
+   74|     )
+   75| 
+   76| 
+   77| class TestInheritance:
+   78|     def test_layout(self, env):
+   79|         tmpl = env.get_template("layout")
+   80|         assert tmpl.render() == (
+   81|             "|block 1 from layout|block 2 from layout|nested block 4 from layout|"
+   82|         )
+   83| 
+   84|     def test_level1(self, env):
+   85|         tmpl = env.get_template("level1")
+   86|         assert tmpl.render() == (
+   87|             "|block 1 from level1|block 2 from layout|nested block 4 from layout|"
+   88|         )
+   89| 
+   90|     def test_level2(self, env):
+   91|         tmpl = env.get_template("level2")
+   92|         assert tmpl.render() == (
+   93|             "|block 1 from level1|nested block 5 from "
+   94|             "level2|nested block 4 from layout|"
+   95|         )
+   96| 
+   97|     def test_level3(self, env):
+   98|         tmpl = env.get_template("level3")
+   99|         assert tmpl.render() == (
+  100|             "|block 1 from level1|block 5 from level3|block 4 from level3|"
+  101|         )
+  102| 
+  103|     def test_level4(self, env):
+  104|         tmpl = env.get_template("level4")
+  105|         assert tmpl.render() == (
+  106|             "|block 1 from level1|block 5 from level3|block 3 from level4|"
+  107|         )
+  108| 
+  109|     def test_super(self, env):
+  110|         env = Environment(
+  111|             loader=DictLoader(
+  112|                 {
+  113|                     "a": "{% block intro %}INTRO{% endblock %}|"
+  114|                     "BEFORE|{% block data %}INNER{% endblock %}|AFTER",
+  115|                     "b": '{% extends "a" %}{% block data %}({{ '
+  116|                     "super() }}){% endblock %}",
+  117|                     "c": '{% extends "b" %}{% block intro %}--{{ '
+  118|                     "super() }}--{% endblock %}\n{% block data "
+  119|                     "%}[{{ super() }}]{% endblock %}",
+  120|                 }
+  121|             )
+  122|         )
+  123|         tmpl = env.get_template("c")
+  124|         assert tmpl.render() == "--INTRO--|BEFORE|[(INNER)]|AFTER"
+  125| 
+  126|     def test_working(self, env):
+  127|         env.get_template("working")
+  128| 
+  129|     def test_reuse_blocks(self, env):
+  130|         tmpl = env.from_string(
+  131|             "{{ self.foo() }}|{% block foo %}42{% endblock %}|{{ self.foo() }}"
+  132|         )
+  133|         assert tmpl.render() == "42|42|42"
+  134| 
+  135|     def test_preserve_blocks(self, env):
+  136|         env = Environment(
+  137|             loader=DictLoader(
+  138|                 {
+  139|                     "a": "{% if false %}{% block x %}A{% endblock %}"
+  140|                     "{% endif %}{{ self.x() }}",
+  141|                     "b": '{% extends "a" %}{% block x %}B{{ super() }}{% endblock %}',
+  142|                 }
+  143|             )
+  144|         )
+  145|         tmpl = env.get_template("b")
+  146|         assert tmpl.render() == "BA"
+  147| 
+  148|     def test_dynamic_inheritance(self, env):
+  149|         env = Environment(
+  150|             loader=DictLoader(
+  151|                 {
+  152|                     "default1": "DEFAULT1{% block x %}{% endblock %}",
+  153|                     "default2": "DEFAULT2{% block x %}{% endblock %}",
+  154|                     "child": "{% extends default %}{% block x %}CHILD{% endblock %}",
+  155|                 }
+  156|             )
+  157|         )
+  158|         tmpl = env.get_template("child")
+  159|         for m in range(1, 3):
+  160|             assert tmpl.render(default=f"default{m}") == f"DEFAULT{m}CHILD"
+  161| 
+  162|     def test_multi_inheritance(self, env):
+  163|         env = Environment(
+  164|             loader=DictLoader(
+  165|                 {
+  166|                     "default1": "DEFAULT1{% block x %}{% endblock %}",
+  167|                     "default2": "DEFAULT2{% block x %}{% endblock %}",
+  168|                     "child": (
+  169|                         "{% if default %}{% extends default %}{% else %}"
+  170|                         "{% extends 'default1' %}{% endif %}"
+  171|                         "{% block x %}CHILD{% endblock %}"
+  172|                     ),
+  173|                 }
+  174|             )
+  175|         )
+  176|         tmpl = env.get_template("child")
+  177|         assert tmpl.render(default="default2") == "DEFAULT2CHILD"
+  178|         assert tmpl.render(default="default1") == "DEFAULT1CHILD"
+  179|         assert tmpl.render() == "DEFAULT1CHILD"
+  180| 
+  181|     def test_scoped_block(self, env):
+  182|         env = Environment(
+  183|             loader=DictLoader(
+  184|                 {
+  185|                     "default.html": "{% for item in seq %}[{% block item scoped %}"
+  186|                     "{% endblock %}]{% endfor %}"
+  187|                 }
+  188|             )
+  189|         )
+  190|         t = env.from_string(
+  191|             "{% extends 'default.html' %}{% block item %}{{ item }}{% endblock %}"
+  192|         )
+  193|         assert t.render(seq=list(range(5))) == "[0][1][2][3][4]"
+  194| 
+  195|     def test_super_in_scoped_block(self, env):
+  196|         env = Environment(
+  197|             loader=DictLoader(
+  198|                 {
+  199|                     "default.html": "{% for item in seq %}[{% block item scoped %}"
+  200|                     "{{ item }}{% endblock %}]{% endfor %}"
+  201|                 }
+  202|             )
+  203|         )
+  204|         t = env.from_string(
+  205|             '{% extends "default.html" %}{% block item %}'
+  206|             "{{ super() }}|{{ item * 2 }}{% endblock %}"
+  207|         )
+  208|         assert t.render(seq=list(range(5))) == "[0|0][1|2][2|4][3|6][4|8]"
+  209| 
+  210|     def test_scoped_block_after_inheritance(self, env):
+  211|         env = Environment(
+  212|             loader=DictLoader(
+  213|                 {
+  214|                     "layout.html": """
+  215|             {% block useless %}{% endblock %}
+  216|             """,
+  217|                     "index.html": """
+  218|             {%- extends 'layout.html' %}
+  219|             {% from 'helpers.html' import foo with context %}
+  220|             {% block useless %}
+  221|                 {% for x in [1, 2, 3] %}
+  222|                     {% block testing scoped %}
+  223|                         {{ foo(x) }}
+  224|                     {% endblock %}
+  225|                 {% endfor %}
+  226|             {% endblock %}
+  227|             """,
+  228|                     "helpers.html": """
+  229|             {% macro foo(x) %}{{ the_foo + x }}{% endmacro %}
+  230|             """,
+  231|                 }
+  232|             )
+  233|         )
+  234|         rv = env.get_template("index.html").render(the_foo=42).split()
+  235|         assert rv == ["43", "44", "45"]
+  236| 
+  237|     def test_level1_required(self, env):
+  238|         env = Environment(
+  239|             loader=DictLoader(
+  240|                 {
+  241|                     "default": "{% block x required %}{# comment #}\n {% endblock %}",
+  242|                     "level1": "{% extends 'default' %}{% block x %}[1]{% endblock %}",
+  243|                 }
+  244|             )
+  245|         )
+  246|         rv = env.get_template("level1").render()
+  247|         assert rv == "[1]"
+  248| 
+  249|     def test_level2_required(self, env):
+  250|         env = Environment(
+  251|             loader=DictLoader(
+  252|                 {
+  253|                     "default": "{% block x required %}{% endblock %}",
+  254|                     "level1": "{% extends 'default' %}{% block x %}[1]{% endblock %}",
+  255|                     "level2": "{% extends 'default' %}{% block x %}[2]{% endblock %}",
+  256|                 }
+  257|             )
+  258|         )
+  259|         rv1 = env.get_template("level1").render()
+  260|         rv2 = env.get_template("level2").render()
+  261| 
+  262|         assert rv1 == "[1]"
+  263|         assert rv2 == "[2]"
+  264| 
+  265|     def test_level3_required(self, env):
+  266|         env = Environment(
+  267|             loader=DictLoader(
+  268|                 {
+  269|                     "default": "{% block x required %}{% endblock %}",
+  270|                     "level1": "{% extends 'default' %}",
+  271|                     "level2": "{% extends 'level1' %}{% block x %}[2]{% endblock %}",
+  272|                     "level3": "{% extends 'level2' %}",
+  273|                 }
+  274|             )
+  275|         )
+  276|         t1 = env.get_template("level1")
+  277|         t2 = env.get_template("level2")
+  278|         t3 = env.get_template("level3")
+  279| 
+  280|         with pytest.raises(TemplateRuntimeError, match="Required block 'x' not found"):
+  281|             assert t1.render()
+  282| 
+  283|         assert t2.render() == "[2]"
+  284|         assert t3.render() == "[2]"
+  285| 
+  286|     def test_invalid_required(self, env):
+  287|         env = Environment(
+  288|             loader=DictLoader(
+  289|                 {
+  290|                     "empty": "{% block x required %}{% endblock %}",
+  291|                     "blank": "{% block x required %} {# c #}{% endblock %}",
+  292|                     "text": "{% block x required %}data {# c #}{% endblock %}",
+  293|                     "block": "{% block x required %}{% block y %}"
+  294|                     "{% endblock %}{% endblock %}",
+  295|                     "if": "{% block x required %}{% if true %}"
+  296|                     "{% endif %}{% endblock %}",
+  297|                     "top": "{% extends t %}{% block x %}CHILD{% endblock %}",
+  298|                 }
+  299|             )
+  300|         )
+  301|         t = env.get_template("top")
+  302|         assert t.render(t="empty") == "CHILD"
+  303|         assert t.render(t="blank") == "CHILD"
+  304| 
+  305|         required_block_check = pytest.raises(
+  306|             TemplateSyntaxError,
+  307|             match="Required blocks can only contain comments or whitespace",
+  308|         )
+  309| 
+  310|         with required_block_check:
+  311|             t.render(t="text")
+  312| 
+  313|         with required_block_check:
+  314|             t.render(t="block")
+  315| 
+  316|         with required_block_check:
+  317|             t.render(t="if")
+  318| 
+  319|     def test_required_with_scope(self, env):
+  320|         env = Environment(
+  321|             loader=DictLoader(
+  322|                 {
+  323|                     "default1": "{% for item in seq %}[{% block item scoped required %}"
+  324|                     "{% endblock %}]{% endfor %}",
+  325|                     "child1": "{% extends 'default1' %}{% block item %}"
+  326|                     "{{ item }}{% endblock %}",
+  327|                     "default2": "{% for item in seq %}[{% block item required scoped %}"
+  328|                     "{% endblock %}]{% endfor %}",
+  329|                     "child2": "{% extends 'default2' %}{% block item %}"
+  330|                     "{{ item }}{% endblock %}",
+  331|                 }
+  332|             )
+  333|         )
+  334|         t1 = env.get_template("child1")
+  335|         t2 = env.get_template("child2")
+  336| 
+  337|         assert t1.render(seq=list(range(3))) == "[0][1][2]"
+  338| 
+  339|         # scoped must come before required
+  340|         with pytest.raises(TemplateSyntaxError):
+  341|             t2.render(seq=list(range(3)))
+  342| 
+  343|     def test_duplicate_required_or_scoped(self, env):
+  344|         env = Environment(
+  345|             loader=DictLoader(
+  346|                 {
+  347|                     "default1": "{% for item in seq %}[{% block item "
+  348|                     "scoped scoped %}}{{% endblock %}}]{{% endfor %}}",
+  349|                     "default2": "{% for item in seq %}[{% block item "
+  350|                     "required required %}}{{% endblock %}}]{{% endfor %}}",
+  351|                     "child": "{% if default %}{% extends default %}{% else %}"
+  352|                     "{% extends 'default1' %}{% endif %}{%- block x %}"
+  353|                     "CHILD{% endblock %}",
+  354|                 }
+  355|             )
+  356|         )
+  357|         tmpl = env.get_template("child")
+  358| 
+  359|         with pytest.raises(TemplateSyntaxError):
+  360|             tmpl.render(default="default1", seq=list(range(3)))
+  361| 
+  362|         with pytest.raises(TemplateSyntaxError):
+  363|             tmpl.render(default="default2", seq=list(range(3)))
+  364| 
+  365| 
+  366| class TestBugFix:
+  367|     def test_fixed_macro_scoping_bug(self, env):
+  368|         assert Environment(
+  369|             loader=DictLoader(
+  370|                 {
+  371|                     "test.html": """\
+  372|         {% extends 'details.html' %}
+  373| 
+  374|         {% macro my_macro() %}
+  375|         my_macro
+  376|         {% endmacro %}
+  377| 
+  378|         {% block inner_box %}
+  379|             {{ my_macro() }}
+  380|         {% endblock %}
+  381|             """,
+  382|                     "details.html": """\
+  383|         {% extends 'standard.html' %}
+  384| 
+  385|         {% macro my_macro() %}
+  386|         my_macro
+  387|         {% endmacro %}
+  388| 
+  389|         {% block content %}
+  390|             {% block outer_box %}
+  391|                 outer_box
+  392|                 {% block inner_box %}
+  393|                     inner_box
+  394|                 {% endblock %}
+  395|             {% endblock %}
+  396|         {% endblock %}
+  397|         """,
+  398|                     "standard.html": """
+  399|         {% block content %}&nbsp;{% endblock %}
+  400|         """,
+  401|                 }
+  402|             )
+  403|         ).get_template("test.html").render().split() == ["outer_box", "my_macro"]
+  404| 
+  405|     def test_double_extends(self, env):
+  406|         """Ensures that a template with more than 1 {% extends ... %} usage
+  407|         raises a ``TemplateError``.
+  408|         """
+  409|         with pytest.raises(TemplateRuntimeError, match="extended multiple times"):
+  410|             env.get_template("doublee").render()
+
+Answer now with ONE JSON array containing one object per query, in query order.

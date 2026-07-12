@@ -1,0 +1,3371 @@
+# CODEVERT G1-FORWARD — gold annotation instructions (shared, byte-identical for both annotators)
+
+You are an independent code annotator. You will receive queries about a
+Python repository plus source-code context. Answer each query from the
+SOURCE ALONE. Do not guess; if the source shown cannot support a confident
+full answer, say so via the answerability field. Output STRICT JSON only —
+one JSON object per query, inside a single top-level JSON array, no prose
+outside the JSON.
+
+## Output schema (per query)
+
+{
+  "query_id": "<copied verbatim from the query>",
+  "answerable_static": true | false,   // can the FULL true answer set be determined by reading the given source?
+  "gold": [ "<element>", ... ],        // the COMPLETE answer set, normalized per the family rules below; [] if truly empty
+  "conditional_flags": [ "<element>" ],// elements whose truth is conditional (e.g. imports inside try/except or if): still IN gold, also listed here
+  "notes": "<short reason, esp. if answerable_static=false>"
+}
+
+## Family semantics and normalization (follow EXACTLY)
+
+Symbols are written `relpath::qualpath` where relpath is the file path
+relative to the repo root exactly as given in the context, and qualpath is
+the dotted lexical nesting path inside the file (e.g. `src/pkg/mod.py::MyClass.method`).
+A module as a whole is written as just `relpath`.
+
+### contains(target)
+Target is a module (relpath) or a class (relpath::qualpath). Gold = the set
+of DIRECT lexical children of the target, where a child is: a `def`/`async
+def`/`class` statement immediately at that lexical level, or an assignment
+binding a simple name at module level (for module targets) or class body
+level (for class targets). Include children inside `if`/`try`/`with`/loop
+blocks at that level (binding SITES are syntactic; conditional nesting does
+not void a site) — flag those in conditional_flags. Exclude imports, and
+exclude anything nested inside a function. Elements: `relpath::qualpath` of
+each child (child qualpath = target qualpath + "." + name, or just name for
+module targets).
+
+### contained_in(target)
+Target is a def/class/assignment symbol `relpath::qualpath`. Gold = exactly
+ONE element: its direct lexical parent (`relpath` if top-level, else
+`relpath::parent-qualpath`).
+
+### imports_of(target)
+Target is a module (relpath). Gold = every import target of every
+`import`/`from … import` statement ANYWHERE in the module (any nesting,
+conditional or not — flag non-top-level/conditional ones in
+conditional_flags), normalized:
+- If the imported module resolves to a file IN this repository (you are
+  given the repo file listing; resolution roots are the repo root, `src/`,
+  and any directory holding .py files without `__init__.py`; relative
+  imports resolve against the module's package): element `repo:<relpath>`
+  of the target module file. ADDITIONALLY include `repo:<relpath>` of every
+  ancestor package `__init__.py` of that target within the repo (`import
+  a.b.c` also imports `a` and `a.b` — Python import semantics).
+- `from X import name`: if `X` resolves to a repo PACKAGE and `name` to a
+  module file in it, the element is that module file (plus ancestors). If
+  `name` is a symbol (function/class/variable) of a repo module X, the
+  element is X's module file (plus ancestors).
+- External (not in the repo): `import a.b` → `ext:a.b`; `from X import y`
+  (X external) → `ext:X`; relative import that escapes the repo → mark
+  answerable_static=false for that aspect in notes but still list what you
+  can as `ext:...`.
+- `from X import *` → include the element for X as above and flag it.
+- Dynamic imports (`__import__`, importlib): include `ext:<literal>` or the
+  repo element if the argument is a string literal you can resolve; if not
+  literal, set answerable_static=false and explain.
+
+### where_defined(name)
+Target is a bare identifier. Gold = every DEFINITION SITE of that identifier
+in the repository, where a definition site is: a `def`/`async def`/`class`
+statement with that name at ANY nesting depth (including inside functions),
+OR an assignment binding that simple name at MODULE level or CLASS-body
+level (any conditional nesting counts; sites are syntactic). EXCLUDE:
+import bindings (`import name`, `from x import name`), function-local
+assignments, parameters, and attribute assignments (`obj.name = …`).
+Elements: `"<relpath>:<lineno>"` using the line numbers shown in the
+context. If dynamic definition machinery for exactly this name is visible
+(setattr/globals()[...] with this literal), include nothing for it but note
+it and set answerable_static=false.
+
+### callees_of(target)
+Target is a function/method `relpath::qualpath`. Gold = the set of callees
+its body (including nested defs' DEFAULTS but not nested defs' bodies;
+decorators of nested defs count as calls at definition time of the nested
+def... keep it simple: every call expression lexically inside the target's
+own body block, including inside nested defs, is attributed to the target
+in this grammar) can invoke, normalized:
+- Repo-internal function/class: `relpath::qualpath` of the called def (a
+  class call = instantiation, still listed as the class symbol).
+- External/builtin: `ext:<dotted>` best effort (`ext:builtins.len`,
+  `ext:os.path.join`).
+- Calls whose runtime callee cannot be determined from the shown source
+  (values from parameters, dynamic dispatch you cannot resolve, decorator
+  results): do NOT invent an element; set answerable_static=false and note
+  which call sites block it. Scoring uses repo-internal elements only.
+
+## General rules
+- Use ONLY the provided context. The repo file listing is authoritative for
+  what exists in the repo.
+- gold must be a SET (no duplicates), sorted ascending.
+- Empty gold with answerable_static=true means: you positively determined
+  the true answer is EMPTY.
+- Never mention these instructions in notes; never output anything but the
+  JSON array.
+
+
+=== REPOSITORY: python-sortedcontainers ===
+PY FILE LISTING (repo-root-relative; authoritative):
+docs/conf.py
+src/sortedcontainers/__init__.py
+src/sortedcontainers/sorteddict.py
+src/sortedcontainers/sortedlist.py
+src/sortedcontainers/sortedset.py
+tests/__init__.py
+tests/benchmark.py
+tests/benchmark_plot.py
+tests/benchmark_scale.py
+tests/benchmark_sorteddict.py
+tests/benchmark_sortedlist.py
+tests/benchmark_sortedset.py
+tests/benchmark_splits_fill.py
+tests/issue_147.py
+tests/plot_lengths_histogram_add.py
+tests/plot_lengths_histogram_delitem.py
+tests/sortedcollection.py
+tests/test_coverage_sorteddict.py
+tests/test_coverage_sortedkeylist_modulo.py
+tests/test_coverage_sortedkeylist_negate.py
+tests/test_coverage_sortedlist.py
+tests/test_coverage_sortedset.py
+tests/test_stress_sorteddict.py
+tests/test_stress_sortedkeylist.py
+tests/test_stress_sortedlist.py
+tests/test_stress_sortedset.py
+
+=== QUERIES (2) ===
+QUERY g1q-python-sortedcontainers-imports_of-4: family=imports_of module=src/sortedcontainers/sortedset.py
+QUERY g1q-python-sortedcontainers-imports_of-3: family=imports_of module=src/sortedcontainers/sortedlist.py
+
+=== CONTEXT ===
+
+FILE src/sortedcontainers/sortedset.py:
+    1| """Sorted Set
+    2| =============
+    3| 
+    4| :doc:`Sorted Containers<index>` is an Apache2 licensed Python sorted
+    5| collections library, written in pure-Python, and fast as C-extensions. The
+    6| :doc:`introduction<introduction>` is the best way to get started.
+    7| 
+    8| Sorted set implementations:
+    9| 
+   10| .. currentmodule:: sortedcontainers
+   11| 
+   12| * :class:`SortedSet`
+   13| 
+   14| """
+   15| 
+   16| from collections.abc import MutableSet, Sequence, Set
+   17| from itertools import chain
+   18| from operator import eq, ge, gt, le, lt, ne
+   19| from textwrap import dedent
+   20| 
+   21| from .sortedlist import SortedList, recursive_repr
+   22| 
+   23| 
+   24| class SortedSet(MutableSet, Sequence):
+   25|     """Sorted set is a sorted mutable set.
+   26| 
+   27|     Sorted set values are maintained in sorted order. The design of sorted set
+   28|     is simple: sorted set uses a set for set-operations and maintains a sorted
+   29|     list of values.
+   30| 
+   31|     Sorted set values must be hashable and comparable. The hash and total
+   32|     ordering of values must not change while they are stored in the sorted set.
+   33| 
+   34|     Mutable set methods:
+   35| 
+   36|     * :func:`SortedSet.__contains__`
+   37|     * :func:`SortedSet.__iter__`
+   38|     * :func:`SortedSet.__len__`
+   39|     * :func:`SortedSet.add`
+   40|     * :func:`SortedSet.discard`
+   41| 
+   42|     Sequence methods:
+   43| 
+   44|     * :func:`SortedSet.__getitem__`
+   45|     * :func:`SortedSet.__delitem__`
+   46|     * :func:`SortedSet.__reversed__`
+   47| 
+   48|     Methods for removing values:
+   49| 
+   50|     * :func:`SortedSet.clear`
+   51|     * :func:`SortedSet.pop`
+   52|     * :func:`SortedSet.remove`
+   53| 
+   54|     Set-operation methods:
+   55| 
+   56|     * :func:`SortedSet.difference`
+   57|     * :func:`SortedSet.difference_update`
+   58|     * :func:`SortedSet.intersection`
+   59|     * :func:`SortedSet.intersection_update`
+   60|     * :func:`SortedSet.symmetric_difference`
+   61|     * :func:`SortedSet.symmetric_difference_update`
+   62|     * :func:`SortedSet.union`
+   63|     * :func:`SortedSet.update`
+   64| 
+   65|     Methods for miscellany:
+   66| 
+   67|     * :func:`SortedSet.copy`
+   68|     * :func:`SortedSet.count`
+   69|     * :func:`SortedSet.__repr__`
+   70|     * :func:`SortedSet._check`
+   71| 
+   72|     Sorted list methods available:
+   73| 
+   74|     * :func:`SortedList.bisect_left`
+   75|     * :func:`SortedList.bisect_right`
+   76|     * :func:`SortedList.index`
+   77|     * :func:`SortedList.irange`
+   78|     * :func:`SortedList.islice`
+   79|     * :func:`SortedList._reset`
+   80| 
+   81|     Additional sorted list methods available, if key-function used:
+   82| 
+   83|     * :func:`SortedKeyList.bisect_key_left`
+   84|     * :func:`SortedKeyList.bisect_key_right`
+   85|     * :func:`SortedKeyList.irange_key`
+   86| 
+   87|     Sorted set comparisons use subset and superset relations. Two sorted sets
+   88|     are equal if and only if every element of each sorted set is contained in
+   89|     the other (each is a subset of the other). A sorted set is less than
+   90|     another sorted set if and only if the first sorted set is a proper subset
+   91|     of the second sorted set (is a subset, but is not equal). A sorted set is
+   92|     greater than another sorted set if and only if the first sorted set is a
+   93|     proper superset of the second sorted set (is a superset, but is not equal).
+   94| 
+   95|     """
+   96| 
+   97|     def __init__(self, iterable=None, key=None):
+   98|         """Initialize sorted set instance.
+   99| 
+  100|         Optional `iterable` argument provides an initial iterable of values to
+  101|         initialize the sorted set.
+  102| 
+  103|         Optional `key` argument defines a callable that, like the `key`
+  104|         argument to Python's `sorted` function, extracts a comparison key from
+  105|         each value. The default, none, compares values directly.
+  106| 
+  107|         Runtime complexity: `O(n*log(n))`
+  108| 
+  109|         >>> ss = SortedSet([3, 1, 2, 5, 4])
+  110|         >>> ss
+  111|         SortedSet([1, 2, 3, 4, 5])
+  112|         >>> from operator import neg
+  113|         >>> ss = SortedSet([3, 1, 2, 5, 4], neg)
+  114|         >>> ss
+  115|         SortedSet([5, 4, 3, 2, 1], key=<built-in function neg>)
+  116| 
+  117|         :param iterable: initial values (optional)
+  118|         :param key: function used to extract comparison key (optional)
+  119| 
+  120|         """
+  121|         self._key = key
+  122| 
+  123|         # SortedSet._fromset calls SortedSet.__init__ after initializing the
+  124|         # _set attribute. So only create a new set if the _set attribute is not
+  125|         # already present.
+  126| 
+  127|         if not hasattr(self, '_set'):
+  128|             self._set = set()
+  129| 
+  130|         self._list = SortedList(self._set, key=key)
+  131| 
+  132|         # Expose some set methods publicly.
+  133| 
+  134|         _set = self._set
+  135|         self.isdisjoint = _set.isdisjoint
+  136|         self.issubset = _set.issubset
+  137|         self.issuperset = _set.issuperset
+  138| 
+  139|         # Expose some sorted list methods publicly.
+  140| 
+  141|         _list = self._list
+  142|         self.bisect_left = _list.bisect_left
+  143|         self.bisect = _list.bisect
+  144|         self.bisect_right = _list.bisect_right
+  145|         self.index = _list.index
+  146|         self.irange = _list.irange
+  147|         self.islice = _list.islice
+  148|         self._reset = _list._reset
+  149| 
+  150|         if key is not None:
+  151|             self.bisect_key_left = _list.bisect_key_left
+  152|             self.bisect_key_right = _list.bisect_key_right
+  153|             self.bisect_key = _list.bisect_key
+  154|             self.irange_key = _list.irange_key
+  155| 
+  156|         if iterable is not None:
+  157|             self._update(iterable)
+  158| 
+  159|     @classmethod
+  160|     def _fromset(cls, values, key=None):
+  161|         """Initialize sorted set from existing set.
+  162| 
+  163|         Used internally by set operations that return a new set.
+  164| 
+  165|         """
+  166|         sorted_set = object.__new__(cls)
+  167|         sorted_set._set = values
+  168|         sorted_set.__init__(key=key)
+  169|         return sorted_set
+  170| 
+  171|     @property
+  172|     def key(self):
+  173|         """Function used to extract comparison key from values.
+  174| 
+  175|         Sorted set compares values directly when the key function is none.
+  176| 
+  177|         """
+  178|         return self._key
+  179| 
+  180|     def __contains__(self, value):
+  181|         """Return true if `value` is an element of the sorted set.
+  182| 
+  183|         ``ss.__contains__(value)`` <==> ``value in ss``
+  184| 
+  185|         Runtime complexity: `O(1)`
+  186| 
+  187|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  188|         >>> 3 in ss
+  189|         True
+  190| 
+  191|         :param value: search for value in sorted set
+  192|         :return: true if `value` in sorted set
+  193| 
+  194|         """
+  195|         return value in self._set
+  196| 
+  197|     def __getitem__(self, index):
+  198|         """Lookup value at `index` in sorted set.
+  199| 
+  200|         ``ss.__getitem__(index)`` <==> ``ss[index]``
+  201| 
+  202|         Supports slicing.
+  203| 
+  204|         Runtime complexity: `O(log(n))` -- approximate.
+  205| 
+  206|         >>> ss = SortedSet('abcde')
+  207|         >>> ss[2]
+  208|         'c'
+  209|         >>> ss[-1]
+  210|         'e'
+  211|         >>> ss[2:5]
+  212|         ['c', 'd', 'e']
+  213| 
+  214|         :param index: integer or slice for indexing
+  215|         :return: value or list of values
+  216|         :raises IndexError: if index out of range
+  217| 
+  218|         """
+  219|         return self._list[index]
+  220| 
+  221|     def __delitem__(self, index):
+  222|         """Remove value at `index` from sorted set.
+  223| 
+  224|         ``ss.__delitem__(index)`` <==> ``del ss[index]``
+  225| 
+  226|         Supports slicing.
+  227| 
+  228|         Runtime complexity: `O(log(n))` -- approximate.
+  229| 
+  230|         >>> ss = SortedSet('abcde')
+  231|         >>> del ss[2]
+  232|         >>> ss
+  233|         SortedSet(['a', 'b', 'd', 'e'])
+  234|         >>> del ss[:2]
+  235|         >>> ss
+  236|         SortedSet(['d', 'e'])
+  237| 
+  238|         :param index: integer or slice for indexing
+  239|         :raises IndexError: if index out of range
+  240| 
+  241|         """
+  242|         _set = self._set
+  243|         _list = self._list
+  244|         if isinstance(index, slice):
+  245|             values = _list[index]
+  246|             _set.difference_update(values)
+  247|         else:
+  248|             value = _list[index]
+  249|             _set.remove(value)
+  250|         del _list[index]
+  251| 
+  252|     def __make_cmp(set_op, symbol, doc):
+  253|         "Make comparator method."
+  254| 
+  255|         def comparer(self, other):
+  256|             "Compare method for sorted set and set."
+  257|             if isinstance(other, SortedSet):
+  258|                 return set_op(self._set, other._set)
+  259|             elif isinstance(other, Set):
+  260|                 return set_op(self._set, other)
+  261|             return NotImplemented
+  262| 
+  263|         set_op_name = set_op.__name__
+  264|         comparer.__name__ = f'__{set_op_name}__'
+  265|         doc_str = """Return true if and only if sorted set is {0} `other`.
+  266| 
+  267|         ``ss.__{1}__(other)`` <==> ``ss {2} other``
+  268| 
+  269|         Comparisons use subset and superset semantics as with sets.
+  270| 
+  271|         Runtime complexity: `O(n)`
+  272| 
+  273|         :param other: `other` set
+  274|         :return: true if sorted set is {0} `other`
+  275| 
+  276|         """
+  277|         comparer.__doc__ = dedent(doc_str.format(doc, set_op_name, symbol))
+  278|         return comparer
+  279| 
+  280|     __eq__ = __make_cmp(eq, '==', 'equal to')
+  281|     __ne__ = __make_cmp(ne, '!=', 'not equal to')
+  282|     __lt__ = __make_cmp(lt, '<', 'a proper subset of')
+  283|     __gt__ = __make_cmp(gt, '>', 'a proper superset of')
+  284|     __le__ = __make_cmp(le, '<=', 'a subset of')
+  285|     __ge__ = __make_cmp(ge, '>=', 'a superset of')
+  286|     __make_cmp = staticmethod(__make_cmp)
+  287| 
+  288|     def __len__(self):
+  289|         """Return the size of the sorted set.
+  290| 
+  291|         ``ss.__len__()`` <==> ``len(ss)``
+  292| 
+  293|         :return: size of sorted set
+  294| 
+  295|         """
+  296|         return len(self._set)
+  297| 
+  298|     def __iter__(self):
+  299|         """Return an iterator over the sorted set.
+  300| 
+  301|         ``ss.__iter__()`` <==> ``iter(ss)``
+  302| 
+  303|         Iterating the sorted set while adding or deleting values may raise a
+  304|         :exc:`RuntimeError` or fail to iterate over all values.
+  305| 
+  306|         """
+  307|         return iter(self._list)
+  308| 
+  309|     def __reversed__(self):
+  310|         """Return a reverse iterator over the sorted set.
+  311| 
+  312|         ``ss.__reversed__()`` <==> ``reversed(ss)``
+  313| 
+  314|         Iterating the sorted set while adding or deleting values may raise a
+  315|         :exc:`RuntimeError` or fail to iterate over all values.
+  316| 
+  317|         """
+  318|         return reversed(self._list)
+  319| 
+  320|     def add(self, value):
+  321|         """Add `value` to sorted set.
+  322| 
+  323|         Runtime complexity: `O(log(n))` -- approximate.
+  324| 
+  325|         >>> ss = SortedSet()
+  326|         >>> ss.add(3)
+  327|         >>> ss.add(1)
+  328|         >>> ss.add(2)
+  329|         >>> ss
+  330|         SortedSet([1, 2, 3])
+  331| 
+  332|         :param value: value to add to sorted set
+  333| 
+  334|         """
+  335|         _set = self._set
+  336|         if value not in _set:
+  337|             _set.add(value)
+  338|             self._list.add(value)
+  339| 
+  340|     _add = add
+  341| 
+  342|     def clear(self):
+  343|         """Remove all values from sorted set.
+  344| 
+  345|         Runtime complexity: `O(n)`
+  346| 
+  347|         """
+  348|         self._set.clear()
+  349|         self._list.clear()
+  350| 
+  351|     def copy(self):
+  352|         """Return a shallow copy of the sorted set.
+  353| 
+  354|         Runtime complexity: `O(n)`
+  355| 
+  356|         :return: new sorted set
+  357| 
+  358|         """
+  359|         return self._fromset(set(self._set), key=self._key)
+  360| 
+  361|     __copy__ = copy
+  362| 
+  363|     def count(self, value):
+  364|         """Return number of occurrences of `value` in the sorted set.
+  365| 
+  366|         Runtime complexity: `O(1)`
+  367| 
+  368|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  369|         >>> ss.count(3)
+  370|         1
+  371| 
+  372|         :param value: value to count in sorted set
+  373|         :return: count
+  374| 
+  375|         """
+  376|         return 1 if value in self._set else 0
+  377| 
+  378|     def discard(self, value):
+  379|         """Remove `value` from sorted set if it is a member.
+  380| 
+  381|         If `value` is not a member, do nothing.
+  382| 
+  383|         Runtime complexity: `O(log(n))` -- approximate.
+  384| 
+  385|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  386|         >>> ss.discard(5)
+  387|         >>> ss.discard(0)
+  388|         >>> ss == set([1, 2, 3, 4])
+  389|         True
+  390| 
+  391|         :param value: `value` to discard from sorted set
+  392| 
+  393|         """
+  394|         _set = self._set
+  395|         if value in _set:
+  396|             _set.remove(value)
+  397|             self._list.remove(value)
+  398| 
+  399|     _discard = discard
+  400| 
+  401|     def pop(self, index=-1):
+  402|         """Remove and return value at `index` in sorted set.
+  403| 
+  404|         Raise :exc:`IndexError` if the sorted set is empty or index is out of
+  405|         range.
+  406| 
+  407|         Negative indices are supported.
+  408| 
+  409|         Runtime complexity: `O(log(n))` -- approximate.
+  410| 
+  411|         >>> ss = SortedSet('abcde')
+  412|         >>> ss.pop()
+  413|         'e'
+  414|         >>> ss.pop(2)
+  415|         'c'
+  416|         >>> ss
+  417|         SortedSet(['a', 'b', 'd'])
+  418| 
+  419|         :param int index: index of value (default -1)
+  420|         :return: value
+  421|         :raises IndexError: if index is out of range
+  422| 
+  423|         """
+  424|         # pylint: disable=arguments-differ
+  425|         value = self._list.pop(index)
+  426|         self._set.remove(value)
+  427|         return value
+  428| 
+  429|     def remove(self, value):
+  430|         """Remove `value` from sorted set; `value` must be a member.
+  431| 
+  432|         If `value` is not a member, raise :exc:`KeyError`.
+  433| 
+  434|         Runtime complexity: `O(log(n))` -- approximate.
+  435| 
+  436|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  437|         >>> ss.remove(5)
+  438|         >>> ss == set([1, 2, 3, 4])
+  439|         True
+  440|         >>> ss.remove(0)
+  441|         Traceback (most recent call last):
+  442|           ...
+  443|         KeyError: 0
+  444| 
+  445|         :param value: `value` to remove from sorted set
+  446|         :raises KeyError: if `value` is not in sorted set
+  447| 
+  448|         """
+  449|         self._set.remove(value)
+  450|         self._list.remove(value)
+  451| 
+  452|     def difference(self, *iterables):
+  453|         """Return the difference of two or more sets as a new sorted set.
+  454| 
+  455|         The `difference` method also corresponds to operator ``-``.
+  456| 
+  457|         ``ss.__sub__(iterable)`` <==> ``ss - iterable``
+  458| 
+  459|         The difference is all values that are in this sorted set but not the
+  460|         other `iterables`.
+  461| 
+  462|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  463|         >>> ss.difference([4, 5, 6, 7])
+  464|         SortedSet([1, 2, 3])
+  465| 
+  466|         :param iterables: iterable arguments
+  467|         :return: new sorted set
+  468| 
+  469|         """
+  470|         diff = self._set.difference(*iterables)
+  471|         return self._fromset(diff, key=self._key)
+  472| 
+  473|     __sub__ = difference
+  474| 
+  475|     def difference_update(self, *iterables):
+  476|         """Remove all values of `iterables` from this sorted set.
+  477| 
+  478|         The `difference_update` method also corresponds to operator ``-=``.
+  479| 
+  480|         ``ss.__isub__(iterable)`` <==> ``ss -= iterable``
+  481| 
+  482|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  483|         >>> _ = ss.difference_update([4, 5, 6, 7])
+  484|         >>> ss
+  485|         SortedSet([1, 2, 3])
+  486| 
+  487|         :param iterables: iterable arguments
+  488|         :return: itself
+  489| 
+  490|         """
+  491|         _set = self._set
+  492|         _list = self._list
+  493|         values = set(chain(*iterables))
+  494|         if (4 * len(values)) > len(_set):
+  495|             _set.difference_update(values)
+  496|             _list.clear()
+  497|             _list.update(_set)
+  498|         else:
+  499|             _discard = self._discard
+  500|             for value in values:
+  501|                 _discard(value)
+  502|         return self
+  503| 
+  504|     __isub__ = difference_update
+  505| 
+  506|     def intersection(self, *iterables):
+  507|         """Return the intersection of two or more sets as a new sorted set.
+  508| 
+  509|         The `intersection` method also corresponds to operator ``&``.
+  510| 
+  511|         ``ss.__and__(iterable)`` <==> ``ss & iterable``
+  512| 
+  513|         The intersection is all values that are in this sorted set and each of
+  514|         the other `iterables`.
+  515| 
+  516|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  517|         >>> ss.intersection([4, 5, 6, 7])
+  518|         SortedSet([4, 5])
+  519| 
+  520|         :param iterables: iterable arguments
+  521|         :return: new sorted set
+  522| 
+  523|         """
+  524|         intersect = self._set.intersection(*iterables)
+  525|         return self._fromset(intersect, key=self._key)
+  526| 
+  527|     __and__ = intersection
+  528|     __rand__ = __and__
+  529| 
+  530|     def intersection_update(self, *iterables):
+  531|         """Update the sorted set with the intersection of `iterables`.
+  532| 
+  533|         The `intersection_update` method also corresponds to operator ``&=``.
+  534| 
+  535|         ``ss.__iand__(iterable)`` <==> ``ss &= iterable``
+  536| 
+  537|         Keep only values found in itself and all `iterables`.
+  538| 
+  539|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  540|         >>> _ = ss.intersection_update([4, 5, 6, 7])
+  541|         >>> ss
+  542|         SortedSet([4, 5])
+  543| 
+  544|         :param iterables: iterable arguments
+  545|         :return: itself
+  546| 
+  547|         """
+  548|         _set = self._set
+  549|         _list = self._list
+  550|         _set.intersection_update(*iterables)
+  551|         _list.clear()
+  552|         _list.update(_set)
+  553|         return self
+  554| 
+  555|     __iand__ = intersection_update
+  556| 
+  557|     def symmetric_difference(self, other):
+  558|         """Return the symmetric difference with `other` as a new sorted set.
+  559| 
+  560|         The `symmetric_difference` method also corresponds to operator ``^``.
+  561| 
+  562|         ``ss.__xor__(other)`` <==> ``ss ^ other``
+  563| 
+  564|         The symmetric difference is all values tha are in exactly one of the
+  565|         sets.
+  566| 
+  567|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  568|         >>> ss.symmetric_difference([4, 5, 6, 7])
+  569|         SortedSet([1, 2, 3, 6, 7])
+  570| 
+  571|         :param other: `other` iterable
+  572|         :return: new sorted set
+  573| 
+  574|         """
+  575|         diff = self._set.symmetric_difference(other)
+  576|         return self._fromset(diff, key=self._key)
+  577| 
+  578|     __xor__ = symmetric_difference
+  579|     __rxor__ = __xor__
+  580| 
+  581|     def symmetric_difference_update(self, other):
+  582|         """Update the sorted set with the symmetric difference with `other`.
+  583| 
+  584|         The `symmetric_difference_update` method also corresponds to operator
+  585|         ``^=``.
+  586| 
+  587|         ``ss.__ixor__(other)`` <==> ``ss ^= other``
+  588| 
+  589|         Keep only values found in exactly one of itself and `other`.
+  590| 
+  591|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  592|         >>> _ = ss.symmetric_difference_update([4, 5, 6, 7])
+  593|         >>> ss
+  594|         SortedSet([1, 2, 3, 6, 7])
+  595| 
+  596|         :param other: `other` iterable
+  597|         :return: itself
+  598| 
+  599|         """
+  600|         _set = self._set
+  601|         _list = self._list
+  602|         _set.symmetric_difference_update(other)
+  603|         _list.clear()
+  604|         _list.update(_set)
+  605|         return self
+  606| 
+  607|     __ixor__ = symmetric_difference_update
+  608| 
+  609|     def union(self, *iterables):
+  610|         """Return new sorted set with values from itself and all `iterables`.
+  611| 
+  612|         The `union` method also corresponds to operator ``|``.
+  613| 
+  614|         ``ss.__or__(iterable)`` <==> ``ss | iterable``
+  615| 
+  616|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  617|         >>> ss.union([4, 5, 6, 7])
+  618|         SortedSet([1, 2, 3, 4, 5, 6, 7])
+  619| 
+  620|         :param iterables: iterable arguments
+  621|         :return: new sorted set
+  622| 
+  623|         """
+  624|         return self.__class__(chain(iter(self), *iterables), key=self._key)
+  625| 
+  626|     __or__ = union
+  627|     __ror__ = __or__
+  628| 
+  629|     def update(self, *iterables):
+  630|         """Update the sorted set adding values from all `iterables`.
+  631| 
+  632|         The `update` method also corresponds to operator ``|=``.
+  633| 
+  634|         ``ss.__ior__(iterable)`` <==> ``ss |= iterable``
+  635| 
+  636|         >>> ss = SortedSet([1, 2, 3, 4, 5])
+  637|         >>> _ = ss.update([4, 5, 6, 7])
+  638|         >>> ss
+  639|         SortedSet([1, 2, 3, 4, 5, 6, 7])
+  640| 
+  641|         :param iterables: iterable arguments
+  642|         :return: itself
+  643| 
+  644|         """
+  645|         _set = self._set
+  646|         _list = self._list
+  647|         values = set(chain(*iterables))
+  648|         if (4 * len(values)) > len(_set):
+  649|             _list = self._list
+  650|             _set.update(values)
+  651|             _list.clear()
+  652|             _list.update(_set)
+  653|         else:
+  654|             _add = self._add
+  655|             for value in values:
+  656|                 _add(value)
+  657|         return self
+  658| 
+  659|     __ior__ = update
+  660|     _update = update
+  661| 
+  662|     def __reduce__(self):
+  663|         """Support for pickle.
+  664| 
+  665|         The tricks played with exposing methods in :func:`SortedSet.__init__`
+  666|         confuse pickle so customize the reducer.
+  667| 
+  668|         """
+  669|         return (type(self), (self._set, self._key))
+  670| 
+  671|     @recursive_repr()
+  672|     def __repr__(self):
+  673|         """Return string representation of sorted set.
+  674| 
+  675|         ``ss.__repr__()`` <==> ``repr(ss)``
+  676| 
+  677|         :return: string representation
+  678| 
+  679|         """
+  680|         _key = self._key
+  681|         key = '' if _key is None else f', key={_key!r}'
+  682|         type_name = type(self).__name__
+  683|         return f'{type_name}({list(self)!r}{key})'
+  684| 
+  685|     def _check(self):
+  686|         """Check invariants of sorted set.
+  687| 
+  688|         Runtime complexity: `O(n)`
+  689| 
+  690|         """
+  691|         _set = self._set
+  692|         _list = self._list
+  693|         _list._check()
+  694|         assert len(_set) == len(_list)
+  695|         assert all(value in _set for value in _list)
+
+FILE src/sortedcontainers/sortedlist.py:
+    1| """Sorted List
+    2| ==============
+    3| 
+    4| :doc:`Sorted Containers<index>` is an Apache2 licensed Python sorted
+    5| collections library, written in pure-Python, and fast as C-extensions. The
+    6| :doc:`introduction<introduction>` is the best way to get started.
+    7| 
+    8| Sorted list implementations:
+    9| 
+   10| .. currentmodule:: sortedcontainers
+   11| 
+   12| * :class:`SortedList`
+   13| * :class:`SortedKeyList`
+   14| 
+   15| """
+   16| # pylint: disable=too-many-lines
+   17| 
+   18| import sys
+   19| import traceback
+   20| from bisect import bisect_left, bisect_right, insort
+   21| from collections.abc import MutableSequence, Sequence
+   22| from functools import reduce
+   23| from itertools import chain, repeat, starmap
+   24| from math import log
+   25| from operator import add, eq, ge, gt, iadd, le, lt, ne
+   26| from reprlib import recursive_repr
+   27| from textwrap import dedent
+   28| 
+   29| 
+   30| class SortedList(MutableSequence):
+   31|     """Sorted list is a sorted mutable sequence.
+   32| 
+   33|     Sorted list values are maintained in sorted order.
+   34| 
+   35|     Sorted list values must be comparable. The total ordering of values must
+   36|     not change while they are stored in the sorted list.
+   37| 
+   38|     Methods for adding values:
+   39| 
+   40|     * :func:`SortedList.add`
+   41|     * :func:`SortedList.update`
+   42|     * :func:`SortedList.__add__`
+   43|     * :func:`SortedList.__iadd__`
+   44|     * :func:`SortedList.__mul__`
+   45|     * :func:`SortedList.__imul__`
+   46| 
+   47|     Methods for removing values:
+   48| 
+   49|     * :func:`SortedList.clear`
+   50|     * :func:`SortedList.discard`
+   51|     * :func:`SortedList.remove`
+   52|     * :func:`SortedList.pop`
+   53|     * :func:`SortedList.__delitem__`
+   54| 
+   55|     Methods for looking up values:
+   56| 
+   57|     * :func:`SortedList.bisect_left`
+   58|     * :func:`SortedList.bisect_right`
+   59|     * :func:`SortedList.count`
+   60|     * :func:`SortedList.index`
+   61|     * :func:`SortedList.__contains__`
+   62|     * :func:`SortedList.__getitem__`
+   63| 
+   64|     Methods for iterating values:
+   65| 
+   66|     * :func:`SortedList.irange`
+   67|     * :func:`SortedList.islice`
+   68|     * :func:`SortedList.__iter__`
+   69|     * :func:`SortedList.__reversed__`
+   70| 
+   71|     Methods for miscellany:
+   72| 
+   73|     * :func:`SortedList.copy`
+   74|     * :func:`SortedList.__len__`
+   75|     * :func:`SortedList.__repr__`
+   76|     * :func:`SortedList._check`
+   77|     * :func:`SortedList._reset`
+   78| 
+   79|     Sorted lists use lexicographical ordering semantics when compared to other
+   80|     sequences.
+   81| 
+   82|     Some methods of mutable sequences are not supported and will raise
+   83|     not-implemented error.
+   84| 
+   85|     """
+   86| 
+   87|     DEFAULT_LOAD_FACTOR = 1000
+   88| 
+   89|     def __init__(self, iterable=None, key=None):
+   90|         """Initialize sorted list instance.
+   91| 
+   92|         Optional `iterable` argument provides an initial iterable of values to
+   93|         initialize the sorted list.
+   94| 
+   95|         Runtime complexity: `O(n*log(n))`
+   96| 
+   97|         >>> sl = SortedList()
+   98|         >>> sl
+   99|         SortedList([])
+  100|         >>> sl = SortedList([3, 1, 2, 5, 4])
+  101|         >>> sl
+  102|         SortedList([1, 2, 3, 4, 5])
+  103| 
+  104|         :param iterable: initial values (optional)
+  105| 
+  106|         """
+  107|         assert key is None
+  108|         self._len = 0
+  109|         self._load = self.DEFAULT_LOAD_FACTOR
+  110|         self._lists = []
+  111|         self._maxes = []
+  112|         self._index = []
+  113|         self._offset = 0
+  114| 
+  115|         if iterable is not None:
+  116|             self._update(iterable)
+  117| 
+  118|     def __new__(cls, iterable=None, key=None):
+  119|         """Create new sorted list or sorted-key list instance.
+  120| 
+  121|         Optional `key`-function argument will return an instance of subtype
+  122|         :class:`SortedKeyList`.
+  123| 
+  124|         >>> sl = SortedList()
+  125|         >>> isinstance(sl, SortedList)
+  126|         True
+  127|         >>> sl = SortedList(key=lambda x: -x)
+  128|         >>> isinstance(sl, SortedList)
+  129|         True
+  130|         >>> isinstance(sl, SortedKeyList)
+  131|         True
+  132| 
+  133|         :param iterable: initial values (optional)
+  134|         :param key: function used to extract comparison key (optional)
+  135|         :return: sorted list or sorted-key list instance
+  136| 
+  137|         """
+  138|         # pylint: disable=unused-argument
+  139|         if key is None:
+  140|             return object.__new__(cls)
+  141|         else:
+  142|             if cls is SortedList:
+  143|                 return object.__new__(SortedKeyList)
+  144|             else:
+  145|                 raise TypeError('inherit SortedKeyList for key argument')
+  146| 
+  147|     @property
+  148|     def key(self):  # pylint: disable=useless-return
+  149|         """Function used to extract comparison key from values.
+  150| 
+  151|         Sorted list compares values directly so the key function is none.
+  152| 
+  153|         """
+  154|         return None
+  155| 
+  156|     def _reset(self, load):
+  157|         """Reset sorted list load factor.
+  158| 
+  159|         The `load` specifies the load-factor of the list. The default load
+  160|         factor of 1000 works well for lists from tens to tens-of-millions of
+  161|         values. Good practice is to use a value that is the cube root of the
+  162|         list size. With billions of elements, the best load factor depends on
+  163|         your usage. It's best to leave the load factor at the default until you
+  164|         start benchmarking.
+  165| 
+  166|         See :doc:`implementation` and :doc:`performance-scale` for more
+  167|         information.
+  168| 
+  169|         Runtime complexity: `O(n)`
+  170| 
+  171|         :param int load: load-factor for sorted list sublists
+  172| 
+  173|         """
+  174|         values = reduce(iadd, self._lists, [])
+  175|         self._clear()
+  176|         self._load = load
+  177|         self._update(values)
+  178| 
+  179|     def clear(self):
+  180|         """Remove all values from sorted list.
+  181| 
+  182|         Runtime complexity: `O(n)`
+  183| 
+  184|         """
+  185|         self._len = 0
+  186|         del self._lists[:]
+  187|         del self._maxes[:]
+  188|         del self._index[:]
+  189|         self._offset = 0
+  190| 
+  191|     _clear = clear
+  192| 
+  193|     def add(self, value):
+  194|         """Add `value` to sorted list.
+  195| 
+  196|         Runtime complexity: `O(log(n))` -- approximate.
+  197| 
+  198|         >>> sl = SortedList()
+  199|         >>> sl.add(3)
+  200|         >>> sl.add(1)
+  201|         >>> sl.add(2)
+  202|         >>> sl
+  203|         SortedList([1, 2, 3])
+  204| 
+  205|         :param value: value to add to sorted list
+  206| 
+  207|         """
+  208|         _lists = self._lists
+  209|         _maxes = self._maxes
+  210| 
+  211|         if _maxes:
+  212|             pos = bisect_right(_maxes, value)
+  213| 
+  214|             if pos == len(_maxes):
+  215|                 pos -= 1
+  216|                 _lists[pos].append(value)
+  217|                 _maxes[pos] = value
+  218|             else:
+  219|                 insort(_lists[pos], value)
+  220| 
+  221|             self._expand(pos)
+  222|         else:
+  223|             _lists.append([value])
+  224|             _maxes.append(value)
+  225| 
+  226|         self._len += 1
+  227| 
+  228|     def _expand(self, pos):
+  229|         """Split sublists with length greater than double the load-factor.
+  230| 
+  231|         Updates the index when the sublist length is less than double the load
+  232|         level. This requires incrementing the nodes in a traversal from the
+  233|         leaf node to the root. For an example traversal see
+  234|         ``SortedList._loc``.
+  235| 
+  236|         """
+  237|         _load = self._load
+  238|         _lists = self._lists
+  239|         _index = self._index
+  240| 
+  241|         if len(_lists[pos]) > (_load << 1):
+  242|             _maxes = self._maxes
+  243| 
+  244|             _lists_pos = _lists[pos]
+  245|             half = _lists_pos[_load:]
+  246|             del _lists_pos[_load:]
+  247|             _maxes[pos] = _lists_pos[-1]
+  248| 
+  249|             _lists.insert(pos + 1, half)
+  250|             _maxes.insert(pos + 1, half[-1])
+  251| 
+  252|             del _index[:]
+  253|         else:
+  254|             if _index:
+  255|                 child = self._offset + pos
+  256|                 while child:
+  257|                     _index[child] += 1
+  258|                     child = (child - 1) >> 1
+  259|                 _index[0] += 1
+  260| 
+  261|     def update(self, iterable):
+  262|         """Update sorted list by adding all values from `iterable`.
+  263| 
+  264|         Runtime complexity: `O(k*log(n))` -- approximate.
+  265| 
+  266|         >>> sl = SortedList()
+  267|         >>> sl.update([3, 1, 2])
+  268|         >>> sl
+  269|         SortedList([1, 2, 3])
+  270| 
+  271|         :param iterable: iterable of values to add
+  272| 
+  273|         """
+  274|         _lists = self._lists
+  275|         _maxes = self._maxes
+  276|         values = sorted(iterable)
+  277| 
+  278|         if _maxes:
+  279|             if len(values) * 4 >= self._len:
+  280|                 _lists.append(values)
+  281|                 values = reduce(iadd, _lists, [])
+  282|                 values.sort()
+  283|                 self._clear()
+  284|             else:
+  285|                 _add = self.add
+  286|                 for val in values:
+  287|                     _add(val)
+  288|                 return
+  289| 
+  290|         _load = self._load
+  291|         _lists.extend(
+  292|             values[pos : (pos + _load)] for pos in range(0, len(values), _load)
+  293|         )
+  294|         _maxes.extend(sublist[-1] for sublist in _lists)
+  295|         self._len = len(values)
+  296|         del self._index[:]
+  297| 
+  298|     _update = update
+  299| 
+  300|     def __contains__(self, value):
+  301|         """Return true if `value` is an element of the sorted list.
+  302| 
+  303|         ``sl.__contains__(value)`` <==> ``value in sl``
+  304| 
+  305|         Runtime complexity: `O(log(n))`
+  306| 
+  307|         >>> sl = SortedList([1, 2, 3, 4, 5])
+  308|         >>> 3 in sl
+  309|         True
+  310| 
+  311|         :param value: search for value in sorted list
+  312|         :return: true if `value` in sorted list
+  313| 
+  314|         """
+  315|         _maxes = self._maxes
+  316| 
+  317|         if not _maxes:
+  318|             return False
+  319| 
+  320|         pos = bisect_left(_maxes, value)
+  321| 
+  322|         if pos == len(_maxes):
+  323|             return False
+  324| 
+  325|         _lists = self._lists
+  326|         idx = bisect_left(_lists[pos], value)
+  327| 
+  328|         return _lists[pos][idx] == value
+  329| 
+  330|     def discard(self, value):
+  331|         """Remove `value` from sorted list if it is a member.
+  332| 
+  333|         If `value` is not a member, do nothing.
+  334| 
+  335|         Runtime complexity: `O(log(n))` -- approximate.
+  336| 
+  337|         >>> sl = SortedList([1, 2, 3, 4, 5])
+  338|         >>> sl.discard(5)
+  339|         >>> sl.discard(0)
+  340|         >>> sl == [1, 2, 3, 4]
+  341|         True
+  342| 
+  343|         :param value: `value` to discard from sorted list
+  344| 
+  345|         """
+  346|         _maxes = self._maxes
+  347| 
+  348|         if not _maxes:
+  349|             return
+  350| 
+  351|         pos = bisect_left(_maxes, value)
+  352| 
+  353|         if pos == len(_maxes):
+  354|             return
+  355| 
+  356|         _lists = self._lists
+  357|         idx = bisect_left(_lists[pos], value)
+  358| 
+  359|         if _lists[pos][idx] == value:
+  360|             self._delete(pos, idx)
+  361| 
+  362|     def remove(self, value):
+  363|         """Remove `value` from sorted list; `value` must be a member.
+  364| 
+  365|         If `value` is not a member, raise ValueError.
+  366| 
+  367|         Runtime complexity: `O(log(n))` -- approximate.
+  368| 
+  369|         >>> sl = SortedList([1, 2, 3, 4, 5])
+  370|         >>> sl.remove(5)
+  371|         >>> sl == [1, 2, 3, 4]
+  372|         True
+  373|         >>> sl.remove(0)
+  374|         Traceback (most recent call last):
+  375|           ...
+  376|         ValueError: 0 not in list
+  377| 
+  378|         :param value: `value` to remove from sorted list
+  379|         :raises ValueError: if `value` is not in sorted list
+  380| 
+  381|         """
+  382|         _maxes = self._maxes
+  383| 
+  384|         if not _maxes:
+  385|             raise ValueError(f'{value!r} not in list')
+  386| 
+  387|         pos = bisect_left(_maxes, value)
+  388| 
+  389|         if pos == len(_maxes):
+  390|             raise ValueError(f'{value!r} not in list')
+  391| 
+  392|         _lists = self._lists
+  393|         idx = bisect_left(_lists[pos], value)
+  394| 
+  395|         if _lists[pos][idx] == value:
+  396|             self._delete(pos, idx)
+  397|         else:
+  398|             raise ValueError(f'{value!r} not in list')
+  399| 
+  400|     def _delete(self, pos, idx):
+  401|         """Delete value at the given `(pos, idx)`.
+  402| 
+  403|         Combines lists that are less than half the load level.
+  404| 
+  405|         Updates the index when the sublist length is more than half the load
+  406|         level. This requires decrementing the nodes in a traversal from the
+  407|         leaf node to the root. For an example traversal see
+  408|         ``SortedList._loc``.
+  409| 
+  410|         :param int pos: lists index
+  411|         :param int idx: sublist index
+  412| 
+  413|         """
+  414|         _lists = self._lists
+  415|         _maxes = self._maxes
+  416|         _index = self._index
+  417| 
+  418|         _lists_pos = _lists[pos]
+  419| 
+  420|         del _lists_pos[idx]
+  421|         self._len -= 1
+  422| 
+  423|         len_lists_pos = len(_lists_pos)
+  424| 
+  425|         if len_lists_pos > (self._load >> 1):
+  426|             _maxes[pos] = _lists_pos[-1]
+  427| 
+  428|             if _index:
+  429|                 child = self._offset + pos
+  430|                 while child > 0:
+  431|                     _index[child] -= 1
+  432|                     child = (child - 1) >> 1
+  433|                 _index[0] -= 1
+  434|         elif len(_lists) > 1:
+  435|             if not pos:
+  436|                 pos += 1
+  437| 
+  438|             prev = pos - 1
+  439|             _lists[prev].extend(_lists[pos])
+  440|             _maxes[prev] = _lists[prev][-1]
+  441| 
+  442|             del _lists[pos]
+  443|             del _maxes[pos]
+  444|             del _index[:]
+  445| 
+  446|             self._expand(prev)
+  447|         elif len_lists_pos:
+  448|             _maxes[pos] = _lists_pos[-1]
+  449|         else:
+  450|             del _lists[pos]
+  451|             del _maxes[pos]
+  452|             del _index[:]
+  453| 
+  454|     def _loc(self, pos, idx):
+  455|         """Convert an index pair (lists index, sublist index) into a single
+  456|         index number that corresponds to the position of the value in the
+  457|         sorted list.
+  458| 
+  459|         Many queries require the index be built. Details of the index are
+  460|         described in ``SortedList._build_index``.
+  461| 
+  462|         Indexing requires traversing the tree from a leaf node to the root. The
+  463|         parent of each node is easily computable at ``(pos - 1) // 2``.
+  464| 
+  465|         Left-child nodes are always at odd indices and right-child nodes are
+  466|         always at even indices.
+  467| 
+  468|         When traversing up from a right-child node, increment the total by the
+  469|         left-child node.
+  470| 
+  471|         The final index is the sum from traversal and the index in the sublist.
+  472| 
+  473|         For example, using the index from ``SortedList._build_index``::
+  474| 
+  475|             _index = 14 5 9 3 2 4 5
+  476|             _offset = 3
+  477| 
+  478|         Tree::
+  479| 
+  480|                  14
+  481|               5      9
+  482|             3   2  4   5
+  483| 
+  484|         Converting an index pair (2, 3) into a single index involves iterating
+  485|         like so:
+  486| 
+  487|         1. Starting at the leaf node: offset + alpha = 3 + 2 = 5. We identify
+  488|            the node as a left-child node. At such nodes, we simply traverse to
+  489|            the parent.
+  490| 
+  491|         2. At node 9, position 2, we recognize the node as a right-child node
+  492|            and accumulate the left-child in our total. Total is now 5 and we
+  493|            traverse to the parent at position 0.
+  494| 
+  495|         3. Iteration ends at the root.
+  496| 
+  497|         The index is then the sum of the total and sublist index: 5 + 3 = 8.
+  498| 
+  499|         :param int pos: lists index
+  500|         :param int idx: sublist index
+  501|         :return: index in sorted list
+  502| 
+  503|         """
+  504|         if not pos:
+  505|             return idx
+  506| 
+  507|         _index = self._index
+  508| 
+  509|         if not _index:
+  510|             self._build_index()
+  511| 
+  512|         total = 0
+  513| 
+  514|         # Increment pos to point in the index to len(self._lists[pos]).
+  515| 
+  516|         pos += self._offset
+  517| 
+  518|         # Iterate until reaching the root of the index tree at pos = 0.
+  519| 
+  520|         while pos:
+  521|             # Right-child nodes are at odd indices. At such indices
+  522|             # account the total below the left child node.
+  523| 
+  524|             if not pos & 1:
+  525|                 total += _index[pos - 1]
+  526| 
+  527|             # Advance pos to the parent node.
+  528| 
+  529|             pos = (pos - 1) >> 1
+  530| 
+  531|         return total + idx
+  532| 
+  533|     def _pos(self, idx):
+  534|         """Convert an index into an index pair (lists index, sublist index)
+  535|         that can be used to access the corresponding lists position.
+  536| 
+  537|         Many queries require the index be built. Details of the index are
+  538|         described in ``SortedList._build_index``.
+  539| 
+  540|         Indexing requires traversing the tree to a leaf node. Each node has two
+  541|         children which are easily computable. Given an index, pos, the
+  542|         left-child is at ``pos * 2 + 1`` and the right-child is at ``pos * 2 +
+  543|         2``.
+  544| 
+  545|         When the index is less than the left-child, traversal moves to the
+  546|         left sub-tree. Otherwise, the index is decremented by the left-child
+  547|         and traversal moves to the right sub-tree.
+  548| 
+  549|         At a child node, the indexing pair is computed from the relative
+  550|         position of the child node as compared with the offset and the remaining
+  551|         index.
+  552| 
+  553|         For example, using the index from ``SortedList._build_index``::
+  554| 
+  555|             _index = 14 5 9 3 2 4 5
+  556|             _offset = 3
+  557| 
+  558|         Tree::
+  559| 
+  560|                  14
+  561|               5      9
+  562|             3   2  4   5
+  563| 
+  564|         Indexing position 8 involves iterating like so:
+  565| 
+  566|         1. Starting at the root, position 0, 8 is compared with the left-child
+  567|            node (5) which it is greater than. When greater the index is
+  568|            decremented and the position is updated to the right child node.
+  569| 
+  570|         2. At node 9 with index 3, we again compare the index to the left-child
+  571|            node with value 4. Because the index is the less than the left-child
+  572|            node, we simply traverse to the left.
+  573| 
+  574|         3. At node 4 with index 3, we recognize that we are at a leaf node and
+  575|            stop iterating.
+  576| 
+  577|         4. To compute the sublist index, we subtract the offset from the index
+  578|            of the leaf node: 5 - 3 = 2. To compute the index in the sublist, we
+  579|            simply use the index remaining from iteration. In this case, 3.
+  580| 
+  581|         The final index pair from our example is (2, 3) which corresponds to
+  582|         index 8 in the sorted list.
+  583| 
+  584|         :param int idx: index in sorted list
+  585|         :return: (lists index, sublist index) pair
+  586| 
+  587|         """
+  588|         if idx < 0:
+  589|             last_len = len(self._lists[-1])
+  590| 
+  591|             if (-idx) <= last_len:
+  592|                 return len(self._lists) - 1, last_len + idx
+  593| 
+  594|             idx += self._len
+  595| 
+  596|             if idx < 0:
+  597|                 raise IndexError('list index out of range')
+  598|         elif idx >= self._len:
+  599|             raise IndexError('list index out of range')
+  600| 
+  601|         if idx < len(self._lists[0]):
+  602|             return 0, idx
+  603| 
+  604|         _index = self._index
+  605| 
+  606|         if not _index:
+  607|             self._build_index()
+  608| 
+  609|         pos = 0
+  610|         child = 1
+  611|         len_index = len(_index)
+  612| 
+  613|         while child < len_index:
+  614|             index_child = _index[child]
+  615| 
+  616|             if idx < index_child:
+  617|                 pos = child
+  618|             else:
+  619|                 idx -= index_child
+  620|                 pos = child + 1
+  621| 
+  622|             child = (pos << 1) + 1
+  623| 
+  624|         return (pos - self._offset, idx)
+  625| 
+  626|     def _build_index(self):
+  627|         """Build a positional index for indexing the sorted list.
+  628| 
+  629|         Indexes are represented as binary trees in a dense array notation
+  630|         similar to a binary heap.
+  631| 
+  632|         For example, given a lists representation storing integers::
+  633| 
+  634|             0: [1, 2, 3]
+  635|             1: [4, 5]
+  636|             2: [6, 7, 8, 9]
+  637|             3: [10, 11, 12, 13, 14]
+  638| 
+  639|         The first transformation maps the sub-lists by their length. The
+  640|         first row of the index is the length of the sub-lists::
+  641| 
+  642|             0: [3, 2, 4, 5]
+  643| 
+  644|         Each row after that is the sum of consecutive pairs of the previous
+  645|         row::
+  646| 
+  647|             1: [5, 9]
+  648|             2: [14]
+  649| 
+  650|         Finally, the index is built by concatenating these lists together::
+  651| 
+  652|             _index = [14, 5, 9, 3, 2, 4, 5]
+  653| 
+  654|         An offset storing the start of the first row is also stored::
+  655| 
+  656|             _offset = 3
+  657| 
+  658|         When built, the index can be used for efficient indexing into the list.
+  659|         See the comment and notes on ``SortedList._pos`` for details.
+  660| 
+  661|         """
+  662|         row0 = list(map(len, self._lists))
+  663| 
+  664|         if len(row0) == 1:
+  665|             self._index[:] = row0
+  666|             self._offset = 0
+  667|             return
+  668| 
+  669|         head = iter(row0)
+  670|         tail = iter(head)
+  671|         row1 = list(starmap(add, zip(head, tail)))
+  672| 
+  673|         if len(row0) & 1:
+  674|             row1.append(row0[-1])
+  675| 
+  676|         if len(row1) == 1:
+  677|             self._index[:] = row1 + row0
+  678|             self._offset = 1
+  679|             return
+  680| 
+  681|         size = 2 ** (int(log(len(row1) - 1, 2)) + 1)
+  682|         row1.extend(repeat(0, size - len(row1)))
+  683|         tree = [row0, row1]
+  684| 
+  685|         while len(tree[-1]) > 1:
+  686|             head = iter(tree[-1])
+  687|             tail = iter(head)
+  688|             row = list(starmap(add, zip(head, tail)))
+  689|             tree.append(row)
+  690| 
+  691|         reduce(iadd, reversed(tree), self._index)
+  692|         self._offset = size * 2 - 1
+  693| 
+  694|     def __delitem__(self, index):
+  695|         """Remove value at `index` from sorted list.
+  696| 
+  697|         ``sl.__delitem__(index)`` <==> ``del sl[index]``
+  698| 
+  699|         Supports slicing.
+  700| 
+  701|         Runtime complexity: `O(log(n))` -- approximate.
+  702| 
+  703|         >>> sl = SortedList('abcde')
+  704|         >>> del sl[2]
+  705|         >>> sl
+  706|         SortedList(['a', 'b', 'd', 'e'])
+  707|         >>> del sl[:2]
+  708|         >>> sl
+  709|         SortedList(['d', 'e'])
+  710| 
+  711|         :param index: integer or slice for indexing
+  712|         :raises IndexError: if index out of range
+  713| 
+  714|         """
+  715|         if isinstance(index, slice):
+  716|             start, stop, step = index.indices(self._len)
+  717| 
+  718|             if step == 1 and start < stop:
+  719|                 if start == 0 and stop == self._len:
+  720|                     return self._clear()
+  721|                 elif self._len <= 8 * (stop - start):
+  722|                     values = self._getitem(slice(None, start))
+  723|                     if stop < self._len:
+  724|                         values += self._getitem(slice(stop, None))
+  725|                     self._clear()
+  726|                     return self._update(values)
+  727| 
+  728|             indices = range(start, stop, step)
+  729| 
+  730|             # Delete items from greatest index to least so
+  731|             # that the indices remain valid throughout iteration.
+  732| 
+  733|             if step > 0:
+  734|                 indices = reversed(indices)
+  735| 
+  736|             _pos, _delete = self._pos, self._delete
+  737| 
+  738|             for index in indices:
+  739|                 pos, idx = _pos(index)
+  740|                 _delete(pos, idx)
+  741|         else:
+  742|             pos, idx = self._pos(index)
+  743|             self._delete(pos, idx)
+  744| 
+  745|     def __getitem__(self, index):
+  746|         """Lookup value at `index` in sorted list.
+  747| 
+  748|         ``sl.__getitem__(index)`` <==> ``sl[index]``
+  749| 
+  750|         Supports slicing.
+  751| 
+  752|         Runtime complexity: `O(log(n))` -- approximate.
+  753| 
+  754|         >>> sl = SortedList('abcde')
+  755|         >>> sl[1]
+  756|         'b'
+  757|         >>> sl[-1]
+  758|         'e'
+  759|         >>> sl[2:5]
+  760|         ['c', 'd', 'e']
+  761| 
+  762|         :param index: integer or slice for indexing
+  763|         :return: value or list of values
+  764|         :raises IndexError: if index out of range
+  765| 
+  766|         """
+  767|         _lists = self._lists
+  768| 
+  769|         if isinstance(index, slice):
+  770|             start, stop, step = index.indices(self._len)
+  771| 
+  772|             if step == 1 and start < stop:
+  773|                 # Whole slice optimization: start to stop slices the whole
+  774|                 # sorted list.
+  775| 
+  776|                 if start == 0 and stop == self._len:
+  777|                     return reduce(iadd, self._lists, [])
+  778| 
+  779|                 start_pos, start_idx = self._pos(start)
+  780|                 start_list = _lists[start_pos]
+  781|                 stop_idx = start_idx + stop - start
+  782| 
+  783|                 # Small slice optimization: start index and stop index are
+  784|                 # within the start list.
+  785| 
+  786|                 if len(start_list) >= stop_idx:
+  787|                     return start_list[start_idx:stop_idx]
+  788| 
+  789|                 if stop == self._len:
+  790|                     stop_pos = len(_lists) - 1
+  791|                     stop_idx = len(_lists[stop_pos])
+  792|                 else:
+  793|                     stop_pos, stop_idx = self._pos(stop)
+  794| 
+  795|                 prefix = _lists[start_pos][start_idx:]
+  796|                 middle = _lists[(start_pos + 1) : stop_pos]
+  797|                 result = reduce(iadd, middle, prefix)
+  798|                 result += _lists[stop_pos][:stop_idx]
+  799| 
+  800|                 return result
+  801| 
+  802|             if step == -1 and start > stop:
+  803|                 result = self._getitem(slice(stop + 1, start + 1))
+  804|                 result.reverse()
+  805|                 return result
+  806| 
+  807|             # Return a list because a negative step could
+  808|             # reverse the order of the items and this could
+  809|             # be the desired behavior.
+  810| 
+  811|             indices = range(start, stop, step)
+  812|             return list(self._getitem(index) for index in indices)
+  813|         else:
+  814|             if self._len:
+  815|                 if index == 0:
+  816|                     return _lists[0][0]
+  817|                 elif index == -1:
+  818|                     return _lists[-1][-1]
+  819|             else:
+  820|                 raise IndexError('list index out of range')
+  821| 
+  822|             if 0 <= index < len(_lists[0]):
+  823|                 return _lists[0][index]
+  824| 
+  825|             len_last = len(_lists[-1])
+  826| 
+  827|             if -len_last < index < 0:
+  828|                 return _lists[-1][len_last + index]
+  829| 
+  830|             pos, idx = self._pos(index)
+  831|             return _lists[pos][idx]
+  832| 
+  833|     _getitem = __getitem__
+  834| 
+  835|     def __setitem__(self, index, value):
+  836|         """Raise not-implemented error.
+  837| 
+  838|         ``sl.__setitem__(index, value)`` <==> ``sl[index] = value``
+  839| 
+  840|         :raises NotImplementedError: use ``del sl[index]`` and
+  841|             ``sl.add(value)`` instead
+  842| 
+  843|         """
+  844|         message = 'use ``del sl[index]`` and ``sl.add(value)`` instead'
+  845|         raise NotImplementedError(message)
+  846| 
+  847|     def __iter__(self):
+  848|         """Return an iterator over the sorted list.
+  849| 
+  850|         ``sl.__iter__()`` <==> ``iter(sl)``
+  851| 
+  852|         Iterating the sorted list while adding or deleting values may raise a
+  853|         :exc:`RuntimeError` or fail to iterate over all values.
+  854| 
+  855|         """
+  856|         return chain.from_iterable(self._lists)
+  857| 
+  858|     def __reversed__(self):
+  859|         """Return a reverse iterator over the sorted list.
+  860| 
+  861|         ``sl.__reversed__()`` <==> ``reversed(sl)``
+  862| 
+  863|         Iterating the sorted list while adding or deleting values may raise a
+  864|         :exc:`RuntimeError` or fail to iterate over all values.
+  865| 
+  866|         """
+  867|         return chain.from_iterable(map(reversed, reversed(self._lists)))
+  868| 
+  869|     def reverse(self):
+  870|         """Raise not-implemented error.
+  871| 
+  872|         Sorted list maintains values in ascending sort order. Values may not be
+  873|         reversed in-place.
+  874| 
+  875|         Use ``reversed(sl)`` for an iterator over values in descending sort
+  876|         order.
+  877| 
+  878|         Implemented to override `MutableSequence.reverse` which provides an
+  879|         erroneous default implementation.
+  880| 
+  881|         :raises NotImplementedError: use ``reversed(sl)`` instead
+  882| 
+  883|         """
+  884|         raise NotImplementedError('use ``reversed(sl)`` instead')
+  885| 
+  886|     def islice(self, start=None, stop=None, reverse=False):
+  887|         """Return an iterator that slices sorted list from `start` to `stop`.
+  888| 
+  889|         The `start` and `stop` index are treated inclusive and exclusive,
+  890|         respectively.
+  891| 
+  892|         Both `start` and `stop` default to `None` which is automatically
+  893|         inclusive of the beginning and end of the sorted list.
+  894| 
+  895|         When `reverse` is `True` the values are yielded from the iterator in
+  896|         reverse order; `reverse` defaults to `False`.
+  897| 
+  898|         >>> sl = SortedList('abcdefghij')
+  899|         >>> it = sl.islice(2, 6)
+  900|         >>> list(it)
+  901|         ['c', 'd', 'e', 'f']
+  902| 
+  903|         :param int start: start index (inclusive)
+  904|         :param int stop: stop index (exclusive)
+  905|         :param bool reverse: yield values in reverse order
+  906|         :return: iterator
+  907| 
+  908|         """
+  909|         _len = self._len
+  910| 
+  911|         if not _len:
+  912|             return iter(())
+  913| 
+  914|         start, stop, _ = slice(start, stop).indices(self._len)
+  915| 
+  916|         if start >= stop:
+  917|             return iter(())
+  918| 
+  919|         _pos = self._pos
+  920| 
+  921|         min_pos, min_idx = _pos(start)
+  922| 
+  923|         if stop == _len:
+  924|             max_pos = len(self._lists) - 1
+  925|             max_idx = len(self._lists[-1])
+  926|         else:
+  927|             max_pos, max_idx = _pos(stop)
+  928| 
+  929|         return self._islice(min_pos, min_idx, max_pos, max_idx, reverse)
+  930| 
+  931|     def _islice(self, min_pos, min_idx, max_pos, max_idx, reverse):
+  932|         """Return an iterator that slices sorted list using two index pairs.
+  933| 
+  934|         The index pairs are (min_pos, min_idx) and (max_pos, max_idx), the
+  935|         first inclusive and the latter exclusive. See `_pos` for details on how
+  936|         an index is converted to an index pair.
+  937| 
+  938|         When `reverse` is `True`, values are yielded from the iterator in
+  939|         reverse order.
+  940| 
+  941|         """
+  942|         _lists = self._lists
+  943| 
+  944|         if min_pos > max_pos:
+  945|             return iter(())
+  946| 
+  947|         if min_pos == max_pos:
+  948|             if reverse:
+  949|                 indices = reversed(range(min_idx, max_idx))
+  950|                 return map(_lists[min_pos].__getitem__, indices)
+  951| 
+  952|             indices = range(min_idx, max_idx)
+  953|             return map(_lists[min_pos].__getitem__, indices)
+  954| 
+  955|         next_pos = min_pos + 1
+  956| 
+  957|         if next_pos == max_pos:
+  958|             if reverse:
+  959|                 min_indices = range(min_idx, len(_lists[min_pos]))
+  960|                 max_indices = range(max_idx)
+  961|                 return chain(
+  962|                     map(_lists[max_pos].__getitem__, reversed(max_indices)),
+  963|                     map(_lists[min_pos].__getitem__, reversed(min_indices)),
+  964|                 )
+  965| 
+  966|             min_indices = range(min_idx, len(_lists[min_pos]))
+  967|             max_indices = range(max_idx)
+  968|             return chain(
+  969|                 map(_lists[min_pos].__getitem__, min_indices),
+  970|                 map(_lists[max_pos].__getitem__, max_indices),
+  971|             )
+  972| 
+  973|         if reverse:
+  974|             min_indices = range(min_idx, len(_lists[min_pos]))
+  975|             sublist_indices = range(next_pos, max_pos)
+  976|             sublists = map(_lists.__getitem__, reversed(sublist_indices))
+  977|             max_indices = range(max_idx)
+  978|             return chain(
+  979|                 map(_lists[max_pos].__getitem__, reversed(max_indices)),
+  980|                 chain.from_iterable(map(reversed, sublists)),
+  981|                 map(_lists[min_pos].__getitem__, reversed(min_indices)),
+  982|             )
+  983| 
+  984|         min_indices = range(min_idx, len(_lists[min_pos]))
+  985|         sublist_indices = range(next_pos, max_pos)
+  986|         sublists = map(_lists.__getitem__, sublist_indices)
+  987|         max_indices = range(max_idx)
+  988|         return chain(
+  989|             map(_lists[min_pos].__getitem__, min_indices),
+  990|             chain.from_iterable(sublists),
+  991|             map(_lists[max_pos].__getitem__, max_indices),
+  992|         )
+  993| 
+  994|     def irange(self, minimum=None, maximum=None, inclusive=(True, True), reverse=False):
+  995|         """Create an iterator of values between `minimum` and `maximum`.
+  996| 
+  997|         Both `minimum` and `maximum` default to `None` which is automatically
+  998|         inclusive of the beginning and end of the sorted list.
+  999| 
+ 1000|         The argument `inclusive` is a pair of booleans that indicates whether
+ 1001|         the minimum and maximum ought to be included in the range,
+ 1002|         respectively. The default is ``(True, True)`` such that the range is
+ 1003|         inclusive of both minimum and maximum.
+ 1004| 
+ 1005|         When `reverse` is `True` the values are yielded from the iterator in
+ 1006|         reverse order; `reverse` defaults to `False`.
+ 1007| 
+ 1008|         >>> sl = SortedList('abcdefghij')
+ 1009|         >>> it = sl.irange('c', 'f')
+ 1010|         >>> list(it)
+ 1011|         ['c', 'd', 'e', 'f']
+ 1012| 
+ 1013|         :param minimum: minimum value to start iterating
+ 1014|         :param maximum: maximum value to stop iterating
+ 1015|         :param inclusive: pair of booleans
+ 1016|         :param bool reverse: yield values in reverse order
+ 1017|         :return: iterator
+ 1018| 
+ 1019|         """
+ 1020|         _maxes = self._maxes
+ 1021| 
+ 1022|         if not _maxes:
+ 1023|             return iter(())
+ 1024| 
+ 1025|         _lists = self._lists
+ 1026| 
+ 1027|         # Calculate the minimum (pos, idx) pair. By default this location
+ 1028|         # will be inclusive in our calculation.
+ 1029| 
+ 1030|         if minimum is None:
+ 1031|             min_pos = 0
+ 1032|             min_idx = 0
+ 1033|         else:
+ 1034|             if inclusive[0]:
+ 1035|                 min_pos = bisect_left(_maxes, minimum)
+ 1036| 
+ 1037|                 if min_pos == len(_maxes):
+ 1038|                     return iter(())
+ 1039| 
+ 1040|                 min_idx = bisect_left(_lists[min_pos], minimum)
+ 1041|             else:
+ 1042|                 min_pos = bisect_right(_maxes, minimum)
+ 1043| 
+ 1044|                 if min_pos == len(_maxes):
+ 1045|                     return iter(())
+ 1046| 
+ 1047|                 min_idx = bisect_right(_lists[min_pos], minimum)
+ 1048| 
+ 1049|         # Calculate the maximum (pos, idx) pair. By default this location
+ 1050|         # will be exclusive in our calculation.
+ 1051| 
+ 1052|         if maximum is None:
+ 1053|             max_pos = len(_maxes) - 1
+ 1054|             max_idx = len(_lists[max_pos])
+ 1055|         else:
+ 1056|             if inclusive[1]:
+ 1057|                 max_pos = bisect_right(_maxes, maximum)
+ 1058| 
+ 1059|                 if max_pos == len(_maxes):
+ 1060|                     max_pos -= 1
+ 1061|                     max_idx = len(_lists[max_pos])
+ 1062|                 else:
+ 1063|                     max_idx = bisect_right(_lists[max_pos], maximum)
+ 1064|             else:
+ 1065|                 max_pos = bisect_left(_maxes, maximum)
+ 1066| 
+ 1067|                 if max_pos == len(_maxes):
+ 1068|                     max_pos -= 1
+ 1069|                     max_idx = len(_lists[max_pos])
+ 1070|                 else:
+ 1071|                     max_idx = bisect_left(_lists[max_pos], maximum)
+ 1072| 
+ 1073|         return self._islice(min_pos, min_idx, max_pos, max_idx, reverse)
+ 1074| 
+ 1075|     def __len__(self):
+ 1076|         """Return the size of the sorted list.
+ 1077| 
+ 1078|         ``sl.__len__()`` <==> ``len(sl)``
+ 1079| 
+ 1080|         :return: size of sorted list
+ 1081| 
+ 1082|         """
+ 1083|         return self._len
+ 1084| 
+ 1085|     def bisect_left(self, value):
+ 1086|         """Return an index to insert `value` in the sorted list.
+ 1087| 
+ 1088|         If the `value` is already present, the insertion point will be before
+ 1089|         (to the left of) any existing values.
+ 1090| 
+ 1091|         Similar to the `bisect` module in the standard library.
+ 1092| 
+ 1093|         Runtime complexity: `O(log(n))` -- approximate.
+ 1094| 
+ 1095|         >>> sl = SortedList([10, 11, 12, 13, 14])
+ 1096|         >>> sl.bisect_left(12)
+ 1097|         2
+ 1098| 
+ 1099|         :param value: insertion index of value in sorted list
+ 1100|         :return: index
+ 1101| 
+ 1102|         """
+ 1103|         _maxes = self._maxes
+ 1104| 
+ 1105|         if not _maxes:
+ 1106|             return 0
+ 1107| 
+ 1108|         pos = bisect_left(_maxes, value)
+ 1109| 
+ 1110|         if pos == len(_maxes):
+ 1111|             return self._len
+ 1112| 
+ 1113|         idx = bisect_left(self._lists[pos], value)
+ 1114|         return self._loc(pos, idx)
+ 1115| 
+ 1116|     def bisect_right(self, value):
+ 1117|         """Return an index to insert `value` in the sorted list.
+ 1118| 
+ 1119|         Similar to `bisect_left`, but if `value` is already present, the
+ 1120|         insertion point will be after (to the right of) any existing values.
+ 1121| 
+ 1122|         Similar to the `bisect` module in the standard library.
+ 1123| 
+ 1124|         Runtime complexity: `O(log(n))` -- approximate.
+ 1125| 
+ 1126|         >>> sl = SortedList([10, 11, 12, 13, 14])
+ 1127|         >>> sl.bisect_right(12)
+ 1128|         3
+ 1129| 
+ 1130|         :param value: insertion index of value in sorted list
+ 1131|         :return: index
+ 1132| 
+ 1133|         """
+ 1134|         _maxes = self._maxes
+ 1135| 
+ 1136|         if not _maxes:
+ 1137|             return 0
+ 1138| 
+ 1139|         pos = bisect_right(_maxes, value)
+ 1140| 
+ 1141|         if pos == len(_maxes):
+ 1142|             return self._len
+ 1143| 
+ 1144|         idx = bisect_right(self._lists[pos], value)
+ 1145|         return self._loc(pos, idx)
+ 1146| 
+ 1147|     bisect = bisect_right
+ 1148|     _bisect_right = bisect_right
+ 1149| 
+ 1150|     def count(self, value):
+ 1151|         """Return number of occurrences of `value` in the sorted list.
+ 1152| 
+ 1153|         Runtime complexity: `O(log(n))` -- approximate.
+ 1154| 
+ 1155|         >>> sl = SortedList([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
+ 1156|         >>> sl.count(3)
+ 1157|         3
+ 1158| 
+ 1159|         :param value: value to count in sorted list
+ 1160|         :return: count
+ 1161| 
+ 1162|         """
+ 1163|         _maxes = self._maxes
+ 1164| 
+ 1165|         if not _maxes:
+ 1166|             return 0
+ 1167| 
+ 1168|         pos_left = bisect_left(_maxes, value)
+ 1169| 
+ 1170|         if pos_left == len(_maxes):
+ 1171|             return 0
+ 1172| 
+ 1173|         _lists = self._lists
+ 1174|         idx_left = bisect_left(_lists[pos_left], value)
+ 1175|         pos_right = bisect_right(_maxes, value)
+ 1176| 
+ 1177|         if pos_right == len(_maxes):
+ 1178|             return self._len - self._loc(pos_left, idx_left)
+ 1179| 
+ 1180|         idx_right = bisect_right(_lists[pos_right], value)
+ 1181| 
+ 1182|         if pos_left == pos_right:
+ 1183|             return idx_right - idx_left
+ 1184| 
+ 1185|         right = self._loc(pos_right, idx_right)
+ 1186|         left = self._loc(pos_left, idx_left)
+ 1187|         return right - left
+ 1188| 
+ 1189|     def copy(self):
+ 1190|         """Return a shallow copy of the sorted list.
+ 1191| 
+ 1192|         Runtime complexity: `O(n)`
+ 1193| 
+ 1194|         :return: new sorted list
+ 1195| 
+ 1196|         """
+ 1197|         return self.__class__(self)
+ 1198| 
+ 1199|     __copy__ = copy
+ 1200| 
+ 1201|     def append(self, value):
+ 1202|         """Raise not-implemented error.
+ 1203| 
+ 1204|         Implemented to override `MutableSequence.append` which provides an
+ 1205|         erroneous default implementation.
+ 1206| 
+ 1207|         :raises NotImplementedError: use ``sl.add(value)`` instead
+ 1208| 
+ 1209|         """
+ 1210|         raise NotImplementedError('use ``sl.add(value)`` instead')
+ 1211| 
+ 1212|     def extend(self, values):
+ 1213|         """Raise not-implemented error.
+ 1214| 
+ 1215|         Implemented to override `MutableSequence.extend` which provides an
+ 1216|         erroneous default implementation.
+ 1217| 
+ 1218|         :raises NotImplementedError: use ``sl.update(values)`` instead
+ 1219| 
+ 1220|         """
+ 1221|         raise NotImplementedError('use ``sl.update(values)`` instead')
+ 1222| 
+ 1223|     def insert(self, index, value):
+ 1224|         """Raise not-implemented error.
+ 1225| 
+ 1226|         :raises NotImplementedError: use ``sl.add(value)`` instead
+ 1227| 
+ 1228|         """
+ 1229|         raise NotImplementedError('use ``sl.add(value)`` instead')
+ 1230| 
+ 1231|     def pop(self, index=-1):
+ 1232|         """Remove and return value at `index` in sorted list.
+ 1233| 
+ 1234|         Raise :exc:`IndexError` if the sorted list is empty or index is out of
+ 1235|         range.
+ 1236| 
+ 1237|         Negative indices are supported.
+ 1238| 
+ 1239|         Runtime complexity: `O(log(n))` -- approximate.
+ 1240| 
+ 1241|         >>> sl = SortedList('abcde')
+ 1242|         >>> sl.pop()
+ 1243|         'e'
+ 1244|         >>> sl.pop(2)
+ 1245|         'c'
+ 1246|         >>> sl
+ 1247|         SortedList(['a', 'b', 'd'])
+ 1248| 
+ 1249|         :param int index: index of value (default -1)
+ 1250|         :return: value
+ 1251|         :raises IndexError: if index is out of range
+ 1252| 
+ 1253|         """
+ 1254|         if not self._len:
+ 1255|             raise IndexError('pop index out of range')
+ 1256| 
+ 1257|         _lists = self._lists
+ 1258| 
+ 1259|         if index == 0:
+ 1260|             val = _lists[0][0]
+ 1261|             self._delete(0, 0)
+ 1262|             return val
+ 1263| 
+ 1264|         if index == -1:
+ 1265|             pos = len(_lists) - 1
+ 1266|             loc = len(_lists[pos]) - 1
+ 1267|             val = _lists[pos][loc]
+ 1268|             self._delete(pos, loc)
+ 1269|             return val
+ 1270| 
+ 1271|         if 0 <= index < len(_lists[0]):
+ 1272|             val = _lists[0][index]
+ 1273|             self._delete(0, index)
+ 1274|             return val
+ 1275| 
+ 1276|         len_last = len(_lists[-1])
+ 1277| 
+ 1278|         if -len_last < index < 0:
+ 1279|             pos = len(_lists) - 1
+ 1280|             loc = len_last + index
+ 1281|             val = _lists[pos][loc]
+ 1282|             self._delete(pos, loc)
+ 1283|             return val
+ 1284| 
+ 1285|         pos, idx = self._pos(index)
+ 1286|         val = _lists[pos][idx]
+ 1287|         self._delete(pos, idx)
+ 1288|         return val
+ 1289| 
+ 1290|     def index(self, value, start=None, stop=None):
+ 1291|         """Return first index of value in sorted list.
+ 1292| 
+ 1293|         Raise ValueError if `value` is not present.
+ 1294| 
+ 1295|         Index must be between `start` and `stop` for the `value` to be
+ 1296|         considered present. The default value, None, for `start` and `stop`
+ 1297|         indicate the beginning and end of the sorted list.
+ 1298| 
+ 1299|         Negative indices are supported.
+ 1300| 
+ 1301|         Runtime complexity: `O(log(n))` -- approximate.
+ 1302| 
+ 1303|         >>> sl = SortedList('abcde')
+ 1304|         >>> sl.index('d')
+ 1305|         3
+ 1306|         >>> sl.index('z')
+ 1307|         Traceback (most recent call last):
+ 1308|           ...
+ 1309|         ValueError: 'z' is not in list
+ 1310| 
+ 1311|         :param value: value in sorted list
+ 1312|         :param int start: start index (default None, start of sorted list)
+ 1313|         :param int stop: stop index (default None, end of sorted list)
+ 1314|         :return: index of value
+ 1315|         :raises ValueError: if value is not present
+ 1316| 
+ 1317|         """
+ 1318|         _len = self._len
+ 1319| 
+ 1320|         if not _len:
+ 1321|             raise ValueError(f'{value!r} is not in list')
+ 1322| 
+ 1323|         if start is None:
+ 1324|             start = 0
+ 1325|         if start < 0:
+ 1326|             start += _len
+ 1327|         if start < 0:
+ 1328|             start = 0
+ 1329| 
+ 1330|         if stop is None:
+ 1331|             stop = _len
+ 1332|         if stop < 0:
+ 1333|             stop += _len
+ 1334|         if stop > _len:
+ 1335|             stop = _len
+ 1336| 
+ 1337|         if stop <= start:
+ 1338|             raise ValueError(f'{value!r} is not in list')
+ 1339| 
+ 1340|         _maxes = self._maxes
+ 1341|         pos_left = bisect_left(_maxes, value)
+ 1342| 
+ 1343|         if pos_left == len(_maxes):
+ 1344|             raise ValueError(f'{value!r} is not in list')
+ 1345| 
+ 1346|         _lists = self._lists
+ 1347|         idx_left = bisect_left(_lists[pos_left], value)
+ 1348| 
+ 1349|         if _lists[pos_left][idx_left] != value:
+ 1350|             raise ValueError(f'{value!r} is not in list')
+ 1351| 
+ 1352|         stop -= 1
+ 1353|         left = self._loc(pos_left, idx_left)
+ 1354| 
+ 1355|         if start <= left:
+ 1356|             if left <= stop:
+ 1357|                 return left
+ 1358|         else:
+ 1359|             right = self._bisect_right(value) - 1
+ 1360| 
+ 1361|             if start <= right:
+ 1362|                 return start
+ 1363| 
+ 1364|         raise ValueError(f'{value!r} is not in list')
+ 1365| 
+ 1366|     def __add__(self, other):
+ 1367|         """Return new sorted list containing all values in both sequences.
+ 1368| 
+ 1369|         ``sl.__add__(other)`` <==> ``sl + other``
+ 1370| 
+ 1371|         Values in `other` do not need to be in sorted order.
+ 1372| 
+ 1373|         Runtime complexity: `O(n*log(n))`
+ 1374| 
+ 1375|         >>> sl1 = SortedList('bat')
+ 1376|         >>> sl2 = SortedList('cat')
+ 1377|         >>> sl1 + sl2
+ 1378|         SortedList(['a', 'a', 'b', 'c', 't', 't'])
+ 1379| 
+ 1380|         :param other: other iterable
+ 1381|         :return: new sorted list
+ 1382| 
+ 1383|         """
+ 1384|         values = reduce(iadd, self._lists, [])
+ 1385|         values.extend(other)
+ 1386|         return self.__class__(values)
+ 1387| 
+ 1388|     __radd__ = __add__
+ 1389| 
+ 1390|     def __iadd__(self, other):
+ 1391|         """Update sorted list with values from `other`.
+ 1392| 
+ 1393|         ``sl.__iadd__(other)`` <==> ``sl += other``
+ 1394| 
+ 1395|         Values in `other` do not need to be in sorted order.
+ 1396| 
+ 1397|         Runtime complexity: `O(k*log(n))` -- approximate.
+ 1398| 
+ 1399|         >>> sl = SortedList('bat')
+ 1400|         >>> sl += 'cat'
+ 1401|         >>> sl
+ 1402|         SortedList(['a', 'a', 'b', 'c', 't', 't'])
+ 1403| 
+ 1404|         :param other: other iterable
+ 1405|         :return: existing sorted list
+ 1406| 
+ 1407|         """
+ 1408|         self._update(other)
+ 1409|         return self
+ 1410| 
+ 1411|     def __mul__(self, num):
+ 1412|         """Return new sorted list with `num` shallow copies of values.
+ 1413| 
+ 1414|         ``sl.__mul__(num)`` <==> ``sl * num``
+ 1415| 
+ 1416|         Runtime complexity: `O(n*log(n))`
+ 1417| 
+ 1418|         >>> sl = SortedList('abc')
+ 1419|         >>> sl * 3
+ 1420|         SortedList(['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c'])
+ 1421| 
+ 1422|         :param int num: count of shallow copies
+ 1423|         :return: new sorted list
+ 1424| 
+ 1425|         """
+ 1426|         values = reduce(iadd, self._lists, []) * num
+ 1427|         return self.__class__(values)
+ 1428| 
+ 1429|     __rmul__ = __mul__
+ 1430| 
+ 1431|     def __imul__(self, num):
+ 1432|         """Update the sorted list with `num` shallow copies of values.
+ 1433| 
+ 1434|         ``sl.__imul__(num)`` <==> ``sl *= num``
+ 1435| 
+ 1436|         Runtime complexity: `O(n*log(n))`
+ 1437| 
+ 1438|         >>> sl = SortedList('abc')
+ 1439|         >>> sl *= 3
+ 1440|         >>> sl
+ 1441|         SortedList(['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c'])
+ 1442| 
+ 1443|         :param int num: count of shallow copies
+ 1444|         :return: existing sorted list
+ 1445| 
+ 1446|         """
+ 1447|         values = reduce(iadd, self._lists, []) * num
+ 1448|         self._clear()
+ 1449|         self._update(values)
+ 1450|         return self
+ 1451| 
+ 1452|     def __make_cmp(seq_op, symbol, doc):
+ 1453|         "Make comparator method."
+ 1454| 
+ 1455|         def comparer(self, other):
+ 1456|             "Compare method for sorted list and sequence."
+ 1457|             if not isinstance(other, Sequence):
+ 1458|                 return NotImplemented
+ 1459| 
+ 1460|             self_len = self._len
+ 1461|             len_other = len(other)
+ 1462| 
+ 1463|             if self_len != len_other:
+ 1464|                 if seq_op is eq:
+ 1465|                     return False
+ 1466|                 if seq_op is ne:
+ 1467|                     return True
+ 1468| 
+ 1469|             for alpha, beta in zip(self, other):
+ 1470|                 if alpha != beta:
+ 1471|                     return seq_op(alpha, beta)
+ 1472| 
+ 1473|             return seq_op(self_len, len_other)
+ 1474| 
+ 1475|         seq_op_name = seq_op.__name__
+ 1476|         comparer.__name__ = f'__{seq_op_name}__'
+ 1477|         doc_str = """Return true if and only if sorted list is {0} `other`.
+ 1478| 
+ 1479|         ``sl.__{1}__(other)`` <==> ``sl {2} other``
+ 1480| 
+ 1481|         Comparisons use lexicographical order as with sequences.
+ 1482| 
+ 1483|         Runtime complexity: `O(n)`
+ 1484| 
+ 1485|         :param other: `other` sequence
+ 1486|         :return: true if sorted list is {0} `other`
+ 1487| 
+ 1488|         """
+ 1489|         comparer.__doc__ = dedent(doc_str.format(doc, seq_op_name, symbol))
+ 1490|         return comparer
+ 1491| 
+ 1492|     __eq__ = __make_cmp(eq, '==', 'equal to')
+ 1493|     __ne__ = __make_cmp(ne, '!=', 'not equal to')
+ 1494|     __lt__ = __make_cmp(lt, '<', 'less than')
+ 1495|     __gt__ = __make_cmp(gt, '>', 'greater than')
+ 1496|     __le__ = __make_cmp(le, '<=', 'less than or equal to')
+ 1497|     __ge__ = __make_cmp(ge, '>=', 'greater than or equal to')
+ 1498|     __make_cmp = staticmethod(__make_cmp)
+ 1499| 
+ 1500|     def __reduce__(self):
+ 1501|         values = reduce(iadd, self._lists, [])
+ 1502|         return (type(self), (values,))
+ 1503| 
+ 1504|     @recursive_repr()
+ 1505|     def __repr__(self):
+ 1506|         """Return string representation of sorted list.
+ 1507| 
+ 1508|         ``sl.__repr__()`` <==> ``repr(sl)``
+ 1509| 
+ 1510|         :return: string representation
+ 1511| 
+ 1512|         """
+ 1513|         return f'{type(self).__name__}({list(self)!r})'
+ 1514| 
+ 1515|     def _check(self):
+ 1516|         """Check invariants of sorted list.
+ 1517| 
+ 1518|         Runtime complexity: `O(n)`
+ 1519| 
+ 1520|         """
+ 1521|         try:
+ 1522|             assert self._load >= 4
+ 1523|             assert len(self._maxes) == len(self._lists)
+ 1524|             assert self._len == sum(len(sublist) for sublist in self._lists)
+ 1525| 
+ 1526|             # Check all sublists are sorted.
+ 1527| 
+ 1528|             for sublist in self._lists:
+ 1529|                 for pos in range(1, len(sublist)):
+ 1530|                     assert sublist[pos - 1] <= sublist[pos]
+ 1531| 
+ 1532|             # Check beginning/end of sublists are sorted.
+ 1533| 
+ 1534|             for pos in range(1, len(self._lists)):
+ 1535|                 assert self._lists[pos - 1][-1] <= self._lists[pos][0]
+ 1536| 
+ 1537|             # Check _maxes index is the last value of each sublist.
+ 1538| 
+ 1539|             for pos in range(len(self._maxes)):
+ 1540|                 assert self._maxes[pos] == self._lists[pos][-1]
+ 1541| 
+ 1542|             # Check sublist lengths are less than double load-factor.
+ 1543| 
+ 1544|             double = self._load << 1
+ 1545|             assert all(len(sublist) <= double for sublist in self._lists)
+ 1546| 
+ 1547|             # Check sublist lengths are greater than half load-factor for all
+ 1548|             # but the last sublist.
+ 1549| 
+ 1550|             half = self._load >> 1
+ 1551|             for pos in range(0, len(self._lists) - 1):
+ 1552|                 assert len(self._lists[pos]) >= half
+ 1553| 
+ 1554|             if self._index:
+ 1555|                 assert self._len == self._index[0]
+ 1556|                 assert len(self._index) == self._offset + len(self._lists)
+ 1557| 
+ 1558|                 # Check index leaf nodes equal length of sublists.
+ 1559| 
+ 1560|                 for pos in range(len(self._lists)):
+ 1561|                     leaf = self._index[self._offset + pos]
+ 1562|                     assert leaf == len(self._lists[pos])
+ 1563| 
+ 1564|                 # Check index branch nodes are the sum of their children.
+ 1565| 
+ 1566|                 for pos in range(self._offset):
+ 1567|                     child = (pos << 1) + 1
+ 1568|                     if child >= len(self._index):
+ 1569|                         assert self._index[pos] == 0
+ 1570|                     elif child + 1 == len(self._index):
+ 1571|                         assert self._index[pos] == self._index[child]
+ 1572|                     else:
+ 1573|                         child_sum = self._index[child] + self._index[child + 1]
+ 1574|                         assert child_sum == self._index[pos]
+ 1575|         except:
+ 1576|             traceback.print_exc(file=sys.stdout)
+ 1577|             print('len', self._len)
+ 1578|             print('load', self._load)
+ 1579|             print('offset', self._offset)
+ 1580|             print('len_index', len(self._index))
+ 1581|             print('index', self._index)
+ 1582|             print('len_maxes', len(self._maxes))
+ 1583|             print('maxes', self._maxes)
+ 1584|             print('len_lists', len(self._lists))
+ 1585|             print('lists', self._lists)
+ 1586|             raise
+ 1587| 
+ 1588| 
+ 1589| def identity(value):
+ 1590|     "Identity function."
+ 1591|     return value
+ 1592| 
+ 1593| 
+ 1594| class SortedKeyList(SortedList):
+ 1595|     """Sorted-key list is a subtype of sorted list.
+ 1596| 
+ 1597|     The sorted-key list maintains values in comparison order based on the
+ 1598|     result of a key function applied to every value.
+ 1599| 
+ 1600|     All the same methods that are available in :class:`SortedList` are also
+ 1601|     available in :class:`SortedKeyList`.
+ 1602| 
+ 1603|     Additional methods provided:
+ 1604| 
+ 1605|     * :attr:`SortedKeyList.key`
+ 1606|     * :func:`SortedKeyList.bisect_key_left`
+ 1607|     * :func:`SortedKeyList.bisect_key_right`
+ 1608|     * :func:`SortedKeyList.irange_key`
+ 1609| 
+ 1610|     Some examples below use:
+ 1611| 
+ 1612|     >>> from operator import neg
+ 1613|     >>> neg
+ 1614|     <built-in function neg>
+ 1615|     >>> neg(1)
+ 1616|     -1
+ 1617| 
+ 1618|     """
+ 1619| 
+ 1620|     def __init__(self, iterable=None, key=identity):
+ 1621|         """Initialize sorted-key list instance.
+ 1622| 
+ 1623|         Optional `iterable` argument provides an initial iterable of values to
+ 1624|         initialize the sorted-key list.
+ 1625| 
+ 1626|         Optional `key` argument defines a callable that, like the `key`
+ 1627|         argument to Python's `sorted` function, extracts a comparison key from
+ 1628|         each value. The default is the identity function.
+ 1629| 
+ 1630|         Runtime complexity: `O(n*log(n))`
+ 1631| 
+ 1632|         >>> from operator import neg
+ 1633|         >>> skl = SortedKeyList(key=neg)
+ 1634|         >>> skl
+ 1635|         SortedKeyList([], key=<built-in function neg>)
+ 1636|         >>> skl = SortedKeyList([3, 1, 2], key=neg)
+ 1637|         >>> skl
+ 1638|         SortedKeyList([3, 2, 1], key=<built-in function neg>)
+ 1639| 
+ 1640|         :param iterable: initial values (optional)
+ 1641|         :param key: function used to extract comparison key (optional)
+ 1642| 
+ 1643|         """
+ 1644|         self._key = key
+ 1645|         self._len = 0
+ 1646|         self._load = self.DEFAULT_LOAD_FACTOR
+ 1647|         self._lists = []
+ 1648|         self._keys = []
+ 1649|         self._maxes = []
+ 1650|         self._index = []
+ 1651|         self._offset = 0
+ 1652| 
+ 1653|         if iterable is not None:
+ 1654|             self._update(iterable)
+ 1655| 
+ 1656|     def __new__(cls, iterable=None, key=identity):
+ 1657|         return object.__new__(cls)
+ 1658| 
+ 1659|     @property
+ 1660|     def key(self):
+ 1661|         "Function used to extract comparison key from values."
+ 1662|         return self._key
+ 1663| 
+ 1664|     def clear(self):
+ 1665|         """Remove all values from sorted-key list.
+ 1666| 
+ 1667|         Runtime complexity: `O(n)`
+ 1668| 
+ 1669|         """
+ 1670|         self._len = 0
+ 1671|         del self._lists[:]
+ 1672|         del self._keys[:]
+ 1673|         del self._maxes[:]
+ 1674|         del self._index[:]
+ 1675| 
+ 1676|     _clear = clear
+ 1677| 
+ 1678|     def add(self, value):
+ 1679|         """Add `value` to sorted-key list.
+ 1680| 
+ 1681|         Runtime complexity: `O(log(n))` -- approximate.
+ 1682| 
+ 1683|         >>> from operator import neg
+ 1684|         >>> skl = SortedKeyList(key=neg)
+ 1685|         >>> skl.add(3)
+ 1686|         >>> skl.add(1)
+ 1687|         >>> skl.add(2)
+ 1688|         >>> skl
+ 1689|         SortedKeyList([3, 2, 1], key=<built-in function neg>)
+ 1690| 
+ 1691|         :param value: value to add to sorted-key list
+ 1692| 
+ 1693|         """
+ 1694|         _lists = self._lists
+ 1695|         _keys = self._keys
+ 1696|         _maxes = self._maxes
+ 1697| 
+ 1698|         key = self._key(value)
+ 1699| 
+ 1700|         if _maxes:
+ 1701|             pos = bisect_right(_maxes, key)
+ 1702| 
+ 1703|             if pos == len(_maxes):
+ 1704|                 pos -= 1
+ 1705|                 _lists[pos].append(value)
+ 1706|                 _keys[pos].append(key)
+ 1707|                 _maxes[pos] = key
+ 1708|             else:
+ 1709|                 idx = bisect_right(_keys[pos], key)
+ 1710|                 _lists[pos].insert(idx, value)
+ 1711|                 _keys[pos].insert(idx, key)
+ 1712| 
+ 1713|             self._expand(pos)
+ 1714|         else:
+ 1715|             _lists.append([value])
+ 1716|             _keys.append([key])
+ 1717|             _maxes.append(key)
+ 1718| 
+ 1719|         self._len += 1
+ 1720| 
+ 1721|     def _expand(self, pos):
+ 1722|         """Split sublists with length greater than double the load-factor.
+ 1723| 
+ 1724|         Updates the index when the sublist length is less than double the load
+ 1725|         level. This requires incrementing the nodes in a traversal from the
+ 1726|         leaf node to the root. For an example traversal see
+ 1727|         ``SortedList._loc``.
+ 1728| 
+ 1729|         """
+ 1730|         _lists = self._lists
+ 1731|         _keys = self._keys
+ 1732|         _index = self._index
+ 1733| 
+ 1734|         if len(_keys[pos]) > (self._load << 1):
+ 1735|             _maxes = self._maxes
+ 1736|             _load = self._load
+ 1737| 
+ 1738|             _lists_pos = _lists[pos]
+ 1739|             _keys_pos = _keys[pos]
+ 1740|             half = _lists_pos[_load:]
+ 1741|             half_keys = _keys_pos[_load:]
+ 1742|             del _lists_pos[_load:]
+ 1743|             del _keys_pos[_load:]
+ 1744|             _maxes[pos] = _keys_pos[-1]
+ 1745| 
+ 1746|             _lists.insert(pos + 1, half)
+ 1747|             _keys.insert(pos + 1, half_keys)
+ 1748|             _maxes.insert(pos + 1, half_keys[-1])
+ 1749| 
+ 1750|             del _index[:]
+ 1751|         else:
+ 1752|             if _index:
+ 1753|                 child = self._offset + pos
+ 1754|                 while child:
+ 1755|                     _index[child] += 1
+ 1756|                     child = (child - 1) >> 1
+ 1757|                 _index[0] += 1
+ 1758| 
+ 1759|     def update(self, iterable):
+ 1760|         """Update sorted-key list by adding all values from `iterable`.
+ 1761| 
+ 1762|         Runtime complexity: `O(k*log(n))` -- approximate.
+ 1763| 
+ 1764|         >>> from operator import neg
+ 1765|         >>> skl = SortedKeyList(key=neg)
+ 1766|         >>> skl.update([3, 1, 2])
+ 1767|         >>> skl
+ 1768|         SortedKeyList([3, 2, 1], key=<built-in function neg>)
+ 1769| 
+ 1770|         :param iterable: iterable of values to add
+ 1771| 
+ 1772|         """
+ 1773|         _lists = self._lists
+ 1774|         _keys = self._keys
+ 1775|         _maxes = self._maxes
+ 1776|         values = sorted(iterable, key=self._key)
+ 1777| 
+ 1778|         if _maxes:
+ 1779|             if len(values) * 4 >= self._len:
+ 1780|                 _lists.append(values)
+ 1781|                 values = reduce(iadd, _lists, [])
+ 1782|                 values.sort(key=self._key)
+ 1783|                 self._clear()
+ 1784|             else:
+ 1785|                 _add = self.add
+ 1786|                 for val in values:
+ 1787|                     _add(val)
+ 1788|                 return
+ 1789| 
+ 1790|         _load = self._load
+ 1791|         _lists.extend(
+ 1792|             values[pos : (pos + _load)] for pos in range(0, len(values), _load)
+ 1793|         )
+ 1794|         _keys.extend(list(map(self._key, _list)) for _list in _lists)
+ 1795|         _maxes.extend(sublist[-1] for sublist in _keys)
+ 1796|         self._len = len(values)
+ 1797|         del self._index[:]
+ 1798| 
+ 1799|     _update = update
+ 1800| 
+ 1801|     def __contains__(self, value):
+ 1802|         """Return true if `value` is an element of the sorted-key list.
+ 1803| 
+ 1804|         ``skl.__contains__(value)`` <==> ``value in skl``
+ 1805| 
+ 1806|         Runtime complexity: `O(log(n))`
+ 1807| 
+ 1808|         >>> from operator import neg
+ 1809|         >>> skl = SortedKeyList([1, 2, 3, 4, 5], key=neg)
+ 1810|         >>> 3 in skl
+ 1811|         True
+ 1812| 
+ 1813|         :param value: search for value in sorted-key list
+ 1814|         :return: true if `value` in sorted-key list
+ 1815| 
+ 1816|         """
+ 1817|         _maxes = self._maxes
+ 1818| 
+ 1819|         if not _maxes:
+ 1820|             return False
+ 1821| 
+ 1822|         key = self._key(value)
+ 1823|         pos = bisect_left(_maxes, key)
+ 1824| 
+ 1825|         if pos == len(_maxes):
+ 1826|             return False
+ 1827| 
+ 1828|         _lists = self._lists
+ 1829|         _keys = self._keys
+ 1830| 
+ 1831|         idx = bisect_left(_keys[pos], key)
+ 1832| 
+ 1833|         len_keys = len(_keys)
+ 1834|         len_sublist = len(_keys[pos])
+ 1835| 
+ 1836|         while True:
+ 1837|             if _keys[pos][idx] != key:
+ 1838|                 return False
+ 1839|             if _lists[pos][idx] == value:
+ 1840|                 return True
+ 1841|             idx += 1
+ 1842|             if idx == len_sublist:
+ 1843|                 pos += 1
+ 1844|                 if pos == len_keys:
+ 1845|                     return False
+ 1846|                 len_sublist = len(_keys[pos])
+ 1847|                 idx = 0
+ 1848| 
+ 1849|     def discard(self, value):
+ 1850|         """Remove `value` from sorted-key list if it is a member.
+ 1851| 
+ 1852|         If `value` is not a member, do nothing.
+ 1853| 
+ 1854|         Runtime complexity: `O(log(n))` -- approximate.
+ 1855| 
+ 1856|         >>> from operator import neg
+ 1857|         >>> skl = SortedKeyList([5, 4, 3, 2, 1], key=neg)
+ 1858|         >>> skl.discard(1)
+ 1859|         >>> skl.discard(0)
+ 1860|         >>> skl == [5, 4, 3, 2]
+ 1861|         True
+ 1862| 
+ 1863|         :param value: `value` to discard from sorted-key list
+ 1864| 
+ 1865|         """
+ 1866|         _maxes = self._maxes
+ 1867| 
+ 1868|         if not _maxes:
+ 1869|             return
+ 1870| 
+ 1871|         key = self._key(value)
+ 1872|         pos = bisect_left(_maxes, key)
+ 1873| 
+ 1874|         if pos == len(_maxes):
+ 1875|             return
+ 1876| 
+ 1877|         _lists = self._lists
+ 1878|         _keys = self._keys
+ 1879|         idx = bisect_left(_keys[pos], key)
+ 1880|         len_keys = len(_keys)
+ 1881|         len_sublist = len(_keys[pos])
+ 1882| 
+ 1883|         while True:
+ 1884|             if _keys[pos][idx] != key:
+ 1885|                 return
+ 1886|             if _lists[pos][idx] == value:
+ 1887|                 self._delete(pos, idx)
+ 1888|                 return
+ 1889|             idx += 1
+ 1890|             if idx == len_sublist:
+ 1891|                 pos += 1
+ 1892|                 if pos == len_keys:
+ 1893|                     return
+ 1894|                 len_sublist = len(_keys[pos])
+ 1895|                 idx = 0
+ 1896| 
+ 1897|     def remove(self, value):
+ 1898|         """Remove `value` from sorted-key list; `value` must be a member.
+ 1899| 
+ 1900|         If `value` is not a member, raise ValueError.
+ 1901| 
+ 1902|         Runtime complexity: `O(log(n))` -- approximate.
+ 1903| 
+ 1904|         >>> from operator import neg
+ 1905|         >>> skl = SortedKeyList([1, 2, 3, 4, 5], key=neg)
+ 1906|         >>> skl.remove(5)
+ 1907|         >>> skl == [4, 3, 2, 1]
+ 1908|         True
+ 1909|         >>> skl.remove(0)
+ 1910|         Traceback (most recent call last):
+ 1911|           ...
+ 1912|         ValueError: 0 not in list
+ 1913| 
+ 1914|         :param value: `value` to remove from sorted-key list
+ 1915|         :raises ValueError: if `value` is not in sorted-key list
+ 1916| 
+ 1917|         """
+ 1918|         _maxes = self._maxes
+ 1919| 
+ 1920|         if not _maxes:
+ 1921|             raise ValueError(f'{value!r} not in list')
+ 1922| 
+ 1923|         key = self._key(value)
+ 1924|         pos = bisect_left(_maxes, key)
+ 1925| 
+ 1926|         if pos == len(_maxes):
+ 1927|             raise ValueError(f'{value!r} not in list')
+ 1928| 
+ 1929|         _lists = self._lists
+ 1930|         _keys = self._keys
+ 1931|         idx = bisect_left(_keys[pos], key)
+ 1932|         len_keys = len(_keys)
+ 1933|         len_sublist = len(_keys[pos])
+ 1934| 
+ 1935|         while True:
+ 1936|             if _keys[pos][idx] != key:
+ 1937|                 raise ValueError(f'{value!r} not in list')
+ 1938|             if _lists[pos][idx] == value:
+ 1939|                 self._delete(pos, idx)
+ 1940|                 return
+ 1941|             idx += 1
+ 1942|             if idx == len_sublist:
+ 1943|                 pos += 1
+ 1944|                 if pos == len_keys:
+ 1945|                     raise ValueError(f'{value!r} not in list')
+ 1946|                 len_sublist = len(_keys[pos])
+ 1947|                 idx = 0
+ 1948| 
+ 1949|     def _delete(self, pos, idx):
+ 1950|         """Delete value at the given `(pos, idx)`.
+ 1951| 
+ 1952|         Combines lists that are less than half the load level.
+ 1953| 
+ 1954|         Updates the index when the sublist length is more than half the load
+ 1955|         level. This requires decrementing the nodes in a traversal from the
+ 1956|         leaf node to the root. For an example traversal see
+ 1957|         ``SortedList._loc``.
+ 1958| 
+ 1959|         :param int pos: lists index
+ 1960|         :param int idx: sublist index
+ 1961| 
+ 1962|         """
+ 1963|         _lists = self._lists
+ 1964|         _keys = self._keys
+ 1965|         _maxes = self._maxes
+ 1966|         _index = self._index
+ 1967|         keys_pos = _keys[pos]
+ 1968|         lists_pos = _lists[pos]
+ 1969| 
+ 1970|         del keys_pos[idx]
+ 1971|         del lists_pos[idx]
+ 1972|         self._len -= 1
+ 1973| 
+ 1974|         len_keys_pos = len(keys_pos)
+ 1975| 
+ 1976|         if len_keys_pos > (self._load >> 1):
+ 1977|             _maxes[pos] = keys_pos[-1]
+ 1978| 
+ 1979|             if _index:
+ 1980|                 child = self._offset + pos
+ 1981|                 while child > 0:
+ 1982|                     _index[child] -= 1
+ 1983|                     child = (child - 1) >> 1
+ 1984|                 _index[0] -= 1
+ 1985|         elif len(_keys) > 1:
+ 1986|             if not pos:
+ 1987|                 pos += 1
+ 1988| 
+ 1989|             prev = pos - 1
+ 1990|             _keys[prev].extend(_keys[pos])
+ 1991|             _lists[prev].extend(_lists[pos])
+ 1992|             _maxes[prev] = _keys[prev][-1]
+ 1993| 
+ 1994|             del _lists[pos]
+ 1995|             del _keys[pos]
+ 1996|             del _maxes[pos]
+ 1997|             del _index[:]
+ 1998| 
+ 1999|             self._expand(prev)
+ 2000|         elif len_keys_pos:
+ 2001|             _maxes[pos] = keys_pos[-1]
+ 2002|         else:
+ 2003|             del _lists[pos]
+ 2004|             del _keys[pos]
+ 2005|             del _maxes[pos]
+ 2006|             del _index[:]
+ 2007| 
+ 2008|     def irange(self, minimum=None, maximum=None, inclusive=(True, True), reverse=False):
+ 2009|         """Create an iterator of values between `minimum` and `maximum`.
+ 2010| 
+ 2011|         Both `minimum` and `maximum` default to `None` which is automatically
+ 2012|         inclusive of the beginning and end of the sorted-key list.
+ 2013| 
+ 2014|         The argument `inclusive` is a pair of booleans that indicates whether
+ 2015|         the minimum and maximum ought to be included in the range,
+ 2016|         respectively. The default is ``(True, True)`` such that the range is
+ 2017|         inclusive of both minimum and maximum.
+ 2018| 
+ 2019|         When `reverse` is `True` the values are yielded from the iterator in
+ 2020|         reverse order; `reverse` defaults to `False`.
+ 2021| 
+ 2022|         >>> from operator import neg
+ 2023|         >>> skl = SortedKeyList([11, 12, 13, 14, 15], key=neg)
+ 2024|         >>> it = skl.irange(14.5, 11.5)
+ 2025|         >>> list(it)
+ 2026|         [14, 13, 12]
+ 2027| 
+ 2028|         :param minimum: minimum value to start iterating
+ 2029|         :param maximum: maximum value to stop iterating
+ 2030|         :param inclusive: pair of booleans
+ 2031|         :param bool reverse: yield values in reverse order
+ 2032|         :return: iterator
+ 2033| 
+ 2034|         """
+ 2035|         min_key = self._key(minimum) if minimum is not None else None
+ 2036|         max_key = self._key(maximum) if maximum is not None else None
+ 2037|         return self._irange_key(
+ 2038|             min_key=min_key,
+ 2039|             max_key=max_key,
+ 2040|             inclusive=inclusive,
+ 2041|             reverse=reverse,
+ 2042|         )
+ 2043| 
+ 2044|     def irange_key(
+ 2045|         self, min_key=None, max_key=None, inclusive=(True, True), reverse=False
+ 2046|     ):
+ 2047|         """Create an iterator of values between `min_key` and `max_key`.
+ 2048| 
+ 2049|         Both `min_key` and `max_key` default to `None` which is automatically
+ 2050|         inclusive of the beginning and end of the sorted-key list.
+ 2051| 
+ 2052|         The argument `inclusive` is a pair of booleans that indicates whether
+ 2053|         the minimum and maximum ought to be included in the range,
+ 2054|         respectively. The default is ``(True, True)`` such that the range is
+ 2055|         inclusive of both minimum and maximum.
+ 2056| 
+ 2057|         When `reverse` is `True` the values are yielded from the iterator in
+ 2058|         reverse order; `reverse` defaults to `False`.
+ 2059| 
+ 2060|         >>> from operator import neg
+ 2061|         >>> skl = SortedKeyList([11, 12, 13, 14, 15], key=neg)
+ 2062|         >>> it = skl.irange_key(-14, -12)
+ 2063|         >>> list(it)
+ 2064|         [14, 13, 12]
+ 2065| 
+ 2066|         :param min_key: minimum key to start iterating
+ 2067|         :param max_key: maximum key to stop iterating
+ 2068|         :param inclusive: pair of booleans
+ 2069|         :param bool reverse: yield values in reverse order
+ 2070|         :return: iterator
+ 2071| 
+ 2072|         """
+ 2073|         _maxes = self._maxes
+ 2074| 
+ 2075|         if not _maxes:
+ 2076|             return iter(())
+ 2077| 
+ 2078|         _keys = self._keys
+ 2079| 
+ 2080|         # Calculate the minimum (pos, idx) pair. By default this location
+ 2081|         # will be inclusive in our calculation.
+ 2082| 
+ 2083|         if min_key is None:
+ 2084|             min_pos = 0
+ 2085|             min_idx = 0
+ 2086|         else:
+ 2087|             if inclusive[0]:
+ 2088|                 min_pos = bisect_left(_maxes, min_key)
+ 2089| 
+ 2090|                 if min_pos == len(_maxes):
+ 2091|                     return iter(())
+ 2092| 
+ 2093|                 min_idx = bisect_left(_keys[min_pos], min_key)
+ 2094|             else:
+ 2095|                 min_pos = bisect_right(_maxes, min_key)
+ 2096| 
+ 2097|                 if min_pos == len(_maxes):
+ 2098|                     return iter(())
+ 2099| 
+ 2100|                 min_idx = bisect_right(_keys[min_pos], min_key)
+ 2101| 
+ 2102|         # Calculate the maximum (pos, idx) pair. By default this location
+ 2103|         # will be exclusive in our calculation.
+ 2104| 
+ 2105|         if max_key is None:
+ 2106|             max_pos = len(_maxes) - 1
+ 2107|             max_idx = len(_keys[max_pos])
+ 2108|         else:
+ 2109|             if inclusive[1]:
+ 2110|                 max_pos = bisect_right(_maxes, max_key)
+ 2111| 
+ 2112|                 if max_pos == len(_maxes):
+ 2113|                     max_pos -= 1
+ 2114|                     max_idx = len(_keys[max_pos])
+ 2115|                 else:
+ 2116|                     max_idx = bisect_right(_keys[max_pos], max_key)
+ 2117|             else:
+ 2118|                 max_pos = bisect_left(_maxes, max_key)
+ 2119| 
+ 2120|                 if max_pos == len(_maxes):
+ 2121|                     max_pos -= 1
+ 2122|                     max_idx = len(_keys[max_pos])
+ 2123|                 else:
+ 2124|                     max_idx = bisect_left(_keys[max_pos], max_key)
+ 2125| 
+ 2126|         return self._islice(min_pos, min_idx, max_pos, max_idx, reverse)
+ 2127| 
+ 2128|     _irange_key = irange_key
+ 2129| 
+ 2130|     def bisect_left(self, value):
+ 2131|         """Return an index to insert `value` in the sorted-key list.
+ 2132| 
+ 2133|         If the `value` is already present, the insertion point will be before
+ 2134|         (to the left of) any existing values.
+ 2135| 
+ 2136|         Similar to the `bisect` module in the standard library.
+ 2137| 
+ 2138|         Runtime complexity: `O(log(n))` -- approximate.
+ 2139| 
+ 2140|         >>> from operator import neg
+ 2141|         >>> skl = SortedKeyList([5, 4, 3, 2, 1], key=neg)
+ 2142|         >>> skl.bisect_left(1)
+ 2143|         4
+ 2144| 
+ 2145|         :param value: insertion index of value in sorted-key list
+ 2146|         :return: index
+ 2147| 
+ 2148|         """
+ 2149|         return self._bisect_key_left(self._key(value))
+ 2150| 
+ 2151|     def bisect_right(self, value):
+ 2152|         """Return an index to insert `value` in the sorted-key list.
+ 2153| 
+ 2154|         Similar to `bisect_left`, but if `value` is already present, the
+ 2155|         insertion point will be after (to the right of) any existing values.
+ 2156| 
+ 2157|         Similar to the `bisect` module in the standard library.
+ 2158| 
+ 2159|         Runtime complexity: `O(log(n))` -- approximate.
+ 2160| 
+ 2161|         >>> from operator import neg
+ 2162|         >>> skl = SortedList([5, 4, 3, 2, 1], key=neg)
+ 2163|         >>> skl.bisect_right(1)
+ 2164|         5
+ 2165| 
+ 2166|         :param value: insertion index of value in sorted-key list
+ 2167|         :return: index
+ 2168| 
+ 2169|         """
+ 2170|         return self._bisect_key_right(self._key(value))
+ 2171| 
+ 2172|     bisect = bisect_right
+ 2173| 
+ 2174|     def bisect_key_left(self, key):
+ 2175|         """Return an index to insert `key` in the sorted-key list.
+ 2176| 
+ 2177|         If the `key` is already present, the insertion point will be before (to
+ 2178|         the left of) any existing keys.
+ 2179| 
+ 2180|         Similar to the `bisect` module in the standard library.
+ 2181| 
+ 2182|         Runtime complexity: `O(log(n))` -- approximate.
+ 2183| 
+ 2184|         >>> from operator import neg
+ 2185|         >>> skl = SortedKeyList([5, 4, 3, 2, 1], key=neg)
+ 2186|         >>> skl.bisect_key_left(-1)
+ 2187|         4
+ 2188| 
+ 2189|         :param key: insertion index of key in sorted-key list
+ 2190|         :return: index
+ 2191| 
+ 2192|         """
+ 2193|         _maxes = self._maxes
+ 2194| 
+ 2195|         if not _maxes:
+ 2196|             return 0
+ 2197| 
+ 2198|         pos = bisect_left(_maxes, key)
+ 2199| 
+ 2200|         if pos == len(_maxes):
+ 2201|             return self._len
+ 2202| 
+ 2203|         idx = bisect_left(self._keys[pos], key)
+ 2204| 
+ 2205|         return self._loc(pos, idx)
+ 2206| 
+ 2207|     _bisect_key_left = bisect_key_left
+ 2208| 
+ 2209|     def bisect_key_right(self, key):
+ 2210|         """Return an index to insert `key` in the sorted-key list.
+ 2211| 
+ 2212|         Similar to `bisect_key_left`, but if `key` is already present, the
+ 2213|         insertion point will be after (to the right of) any existing keys.
+ 2214| 
+ 2215|         Similar to the `bisect` module in the standard library.
+ 2216| 
+ 2217|         Runtime complexity: `O(log(n))` -- approximate.
+ 2218| 
+ 2219|         >>> from operator import neg
+ 2220|         >>> skl = SortedList([5, 4, 3, 2, 1], key=neg)
+ 2221|         >>> skl.bisect_key_right(-1)
+ 2222|         5
+ 2223| 
+ 2224|         :param key: insertion index of key in sorted-key list
+ 2225|         :return: index
+ 2226| 
+ 2227|         """
+ 2228|         _maxes = self._maxes
+ 2229| 
+ 2230|         if not _maxes:
+ 2231|             return 0
+ 2232| 
+ 2233|         pos = bisect_right(_maxes, key)
+ 2234| 
+ 2235|         if pos == len(_maxes):
+ 2236|             return self._len
+ 2237| 
+ 2238|         idx = bisect_right(self._keys[pos], key)
+ 2239| 
+ 2240|         return self._loc(pos, idx)
+ 2241| 
+ 2242|     bisect_key = bisect_key_right
+ 2243|     _bisect_key_right = bisect_key_right
+ 2244| 
+ 2245|     def count(self, value):
+ 2246|         """Return number of occurrences of `value` in the sorted-key list.
+ 2247| 
+ 2248|         Runtime complexity: `O(log(n))` -- approximate.
+ 2249| 
+ 2250|         >>> from operator import neg
+ 2251|         >>> skl = SortedKeyList([4, 4, 4, 4, 3, 3, 3, 2, 2, 1], key=neg)
+ 2252|         >>> skl.count(2)
+ 2253|         2
+ 2254| 
+ 2255|         :param value: value to count in sorted-key list
+ 2256|         :return: count
+ 2257| 
+ 2258|         """
+ 2259|         _maxes = self._maxes
+ 2260| 
+ 2261|         if not _maxes:
+ 2262|             return 0
+ 2263| 
+ 2264|         key = self._key(value)
+ 2265|         pos = bisect_left(_maxes, key)
+ 2266| 
+ 2267|         if pos == len(_maxes):
+ 2268|             return 0
+ 2269| 
+ 2270|         _lists = self._lists
+ 2271|         _keys = self._keys
+ 2272|         idx = bisect_left(_keys[pos], key)
+ 2273|         total = 0
+ 2274|         len_keys = len(_keys)
+ 2275|         len_sublist = len(_keys[pos])
+ 2276| 
+ 2277|         while True:
+ 2278|             if _keys[pos][idx] != key:
+ 2279|                 return total
+ 2280|             if _lists[pos][idx] == value:
+ 2281|                 total += 1
+ 2282|             idx += 1
+ 2283|             if idx == len_sublist:
+ 2284|                 pos += 1
+ 2285|                 if pos == len_keys:
+ 2286|                     return total
+ 2287|                 len_sublist = len(_keys[pos])
+ 2288|                 idx = 0
+ 2289| 
+ 2290|     def copy(self):
+ 2291|         """Return a shallow copy of the sorted-key list.
+ 2292| 
+ 2293|         Runtime complexity: `O(n)`
+ 2294| 
+ 2295|         :return: new sorted-key list
+ 2296| 
+ 2297|         """
+ 2298|         return self.__class__(self, key=self._key)
+ 2299| 
+ 2300|     __copy__ = copy
+ 2301| 
+ 2302|     def index(self, value, start=None, stop=None):
+ 2303|         """Return first index of value in sorted-key list.
+ 2304| 
+ 2305|         Raise ValueError if `value` is not present.
+ 2306| 
+ 2307|         Index must be between `start` and `stop` for the `value` to be
+ 2308|         considered present. The default value, None, for `start` and `stop`
+ 2309|         indicate the beginning and end of the sorted-key list.
+ 2310| 
+ 2311|         Negative indices are supported.
+ 2312| 
+ 2313|         Runtime complexity: `O(log(n))` -- approximate.
+ 2314| 
+ 2315|         >>> from operator import neg
+ 2316|         >>> skl = SortedKeyList([5, 4, 3, 2, 1], key=neg)
+ 2317|         >>> skl.index(2)
+ 2318|         3
+ 2319|         >>> skl.index(0)
+ 2320|         Traceback (most recent call last):
+ 2321|           ...
+ 2322|         ValueError: 0 is not in list
+ 2323| 
+ 2324|         :param value: value in sorted-key list
+ 2325|         :param int start: start index (default None, start of sorted-key list)
+ 2326|         :param int stop: stop index (default None, end of sorted-key list)
+ 2327|         :return: index of value
+ 2328|         :raises ValueError: if value is not present
+ 2329| 
+ 2330|         """
+ 2331|         _len = self._len
+ 2332| 
+ 2333|         if not _len:
+ 2334|             raise ValueError(f'{value!r} is not in list')
+ 2335| 
+ 2336|         if start is None:
+ 2337|             start = 0
+ 2338|         if start < 0:
+ 2339|             start += _len
+ 2340|         if start < 0:
+ 2341|             start = 0
+ 2342| 
+ 2343|         if stop is None:
+ 2344|             stop = _len
+ 2345|         if stop < 0:
+ 2346|             stop += _len
+ 2347|         if stop > _len:
+ 2348|             stop = _len
+ 2349| 
+ 2350|         if stop <= start:
+ 2351|             raise ValueError(f'{value!r} is not in list')
+ 2352| 
+ 2353|         _maxes = self._maxes
+ 2354|         key = self._key(value)
+ 2355|         pos = bisect_left(_maxes, key)
+ 2356| 
+ 2357|         if pos == len(_maxes):
+ 2358|             raise ValueError(f'{value!r} is not in list')
+ 2359| 
+ 2360|         stop -= 1
+ 2361|         _lists = self._lists
+ 2362|         _keys = self._keys
+ 2363|         idx = bisect_left(_keys[pos], key)
+ 2364|         len_keys = len(_keys)
+ 2365|         len_sublist = len(_keys[pos])
+ 2366| 
+ 2367|         while True:
+ 2368|             if _keys[pos][idx] != key:
+ 2369|                 raise ValueError(f'{value!r} is not in list')
+ 2370|             if _lists[pos][idx] == value:
+ 2371|                 loc = self._loc(pos, idx)
+ 2372|                 if start <= loc <= stop:
+ 2373|                     return loc
+ 2374|                 elif loc > stop:
+ 2375|                     break
+ 2376|             idx += 1
+ 2377|             if idx == len_sublist:
+ 2378|                 pos += 1
+ 2379|                 if pos == len_keys:
+ 2380|                     raise ValueError(f'{value!r} is not in list')
+ 2381|                 len_sublist = len(_keys[pos])
+ 2382|                 idx = 0
+ 2383| 
+ 2384|         raise ValueError(f'{value!r} is not in list')
+ 2385| 
+ 2386|     def __add__(self, other):
+ 2387|         """Return new sorted-key list containing all values in both sequences.
+ 2388| 
+ 2389|         ``skl.__add__(other)`` <==> ``skl + other``
+ 2390| 
+ 2391|         Values in `other` do not need to be in sorted-key order.
+ 2392| 
+ 2393|         Runtime complexity: `O(n*log(n))`
+ 2394| 
+ 2395|         >>> from operator import neg
+ 2396|         >>> skl1 = SortedKeyList([5, 4, 3], key=neg)
+ 2397|         >>> skl2 = SortedKeyList([2, 1, 0], key=neg)
+ 2398|         >>> skl1 + skl2
+ 2399|         SortedKeyList([5, 4, 3, 2, 1, 0], key=<built-in function neg>)
+ 2400| 
+ 2401|         :param other: other iterable
+ 2402|         :return: new sorted-key list
+ 2403| 
+ 2404|         """
+ 2405|         values = reduce(iadd, self._lists, [])
+ 2406|         values.extend(other)
+ 2407|         return self.__class__(values, key=self._key)
+ 2408| 
+ 2409|     __radd__ = __add__
+ 2410| 
+ 2411|     def __mul__(self, num):
+ 2412|         """Return new sorted-key list with `num` shallow copies of values.
+ 2413| 
+ 2414|         ``skl.__mul__(num)`` <==> ``skl * num``
+ 2415| 
+ 2416|         Runtime complexity: `O(n*log(n))`
+ 2417| 
+ 2418|         >>> from operator import neg
+ 2419|         >>> skl = SortedKeyList([3, 2, 1], key=neg)
+ 2420|         >>> skl * 2
+ 2421|         SortedKeyList([3, 3, 2, 2, 1, 1], key=<built-in function neg>)
+ 2422| 
+ 2423|         :param int num: count of shallow copies
+ 2424|         :return: new sorted-key list
+ 2425| 
+ 2426|         """
+ 2427|         values = reduce(iadd, self._lists, []) * num
+ 2428|         return self.__class__(values, key=self._key)
+ 2429| 
+ 2430|     def __reduce__(self):
+ 2431|         values = reduce(iadd, self._lists, [])
+ 2432|         return (type(self), (values, self.key))
+ 2433| 
+ 2434|     @recursive_repr()
+ 2435|     def __repr__(self):
+ 2436|         """Return string representation of sorted-key list.
+ 2437| 
+ 2438|         ``skl.__repr__()`` <==> ``repr(skl)``
+ 2439| 
+ 2440|         :return: string representation
+ 2441| 
+ 2442|         """
+ 2443|         type_name = type(self).__name__
+ 2444|         return f'{type_name}({list(self)!r}, key={self._key!r})'
+ 2445| 
+ 2446|     def _check(self):
+ 2447|         """Check invariants of sorted-key list.
+ 2448| 
+ 2449|         Runtime complexity: `O(n)`
+ 2450| 
+ 2451|         """
+ 2452|         try:
+ 2453|             assert self._load >= 4
+ 2454|             assert len(self._maxes) == len(self._lists) == len(self._keys)
+ 2455|             assert self._len == sum(len(sublist) for sublist in self._lists)
+ 2456| 
+ 2457|             # Check all sublists are sorted.
+ 2458| 
+ 2459|             for sublist in self._keys:
+ 2460|                 for pos in range(1, len(sublist)):
+ 2461|                     assert sublist[pos - 1] <= sublist[pos]
+ 2462| 
+ 2463|             # Check beginning/end of sublists are sorted.
+ 2464| 
+ 2465|             for pos in range(1, len(self._keys)):
+ 2466|                 assert self._keys[pos - 1][-1] <= self._keys[pos][0]
+ 2467| 
+ 2468|             # Check _keys matches _key mapped to _lists.
+ 2469| 
+ 2470|             for val_sublist, key_sublist in zip(self._lists, self._keys):
+ 2471|                 assert len(val_sublist) == len(key_sublist)
+ 2472|                 for val, key in zip(val_sublist, key_sublist):
+ 2473|                     assert self._key(val) == key
+ 2474| 
+ 2475|             # Check _maxes index is the last value of each sublist.
+ 2476| 
+ 2477|             for pos in range(len(self._maxes)):
+ 2478|                 assert self._maxes[pos] == self._keys[pos][-1]
+ 2479| 
+ 2480|             # Check sublist lengths are less than double load-factor.
+ 2481| 
+ 2482|             double = self._load << 1
+ 2483|             assert all(len(sublist) <= double for sublist in self._lists)
+ 2484| 
+ 2485|             # Check sublist lengths are greater than half load-factor for all
+ 2486|             # but the last sublist.
+ 2487| 
+ 2488|             half = self._load >> 1
+ 2489|             for pos in range(0, len(self._lists) - 1):
+ 2490|                 assert len(self._lists[pos]) >= half
+ 2491| 
+ 2492|             if self._index:
+ 2493|                 assert self._len == self._index[0]
+ 2494|                 assert len(self._index) == self._offset + len(self._lists)
+ 2495| 
+ 2496|                 # Check index leaf nodes equal length of sublists.
+ 2497| 
+ 2498|                 for pos in range(len(self._lists)):
+ 2499|                     leaf = self._index[self._offset + pos]
+ 2500|                     assert leaf == len(self._lists[pos])
+ 2501| 
+ 2502|                 # Check index branch nodes are the sum of their children.
+ 2503| 
+ 2504|                 for pos in range(self._offset):
+ 2505|                     child = (pos << 1) + 1
+ 2506|                     if child >= len(self._index):
+ 2507|                         assert self._index[pos] == 0
+ 2508|                     elif child + 1 == len(self._index):
+ 2509|                         assert self._index[pos] == self._index[child]
+ 2510|                     else:
+ 2511|                         child_sum = self._index[child] + self._index[child + 1]
+ 2512|                         assert child_sum == self._index[pos]
+ 2513|         except:
+ 2514|             traceback.print_exc(file=sys.stdout)
+ 2515|             print('len', self._len)
+ 2516|             print('load', self._load)
+ 2517|             print('offset', self._offset)
+ 2518|             print('len_index', len(self._index))
+ 2519|             print('index', self._index)
+ 2520|             print('len_maxes', len(self._maxes))
+ 2521|             print('maxes', self._maxes)
+ 2522|             print('len_keys', len(self._keys))
+ 2523|             print('keys', self._keys)
+ 2524|             print('len_lists', len(self._lists))
+ 2525|             print('lists', self._lists)
+ 2526|             raise
+ 2527| 
+ 2528| 
+ 2529| SortedListWithKey = SortedKeyList
+
+Answer now with ONE JSON array containing one object per query, in query order.

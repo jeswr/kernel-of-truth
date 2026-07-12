@@ -1,0 +1,206 @@
+[
+  {
+    "query_id": "g1q-wrapt-contains-37",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_deferred_patching.py::TestDeferredPatchFunctionWrapper",
+      "tests/core/test_deferred_patching.py::TestDeferredWrapFunctionWrapper"
+    ],
+    "conditional_flags": [],
+    "notes": "Two top-level classes; imports excluded; the if __name__ block contains only a call, no bindings; no module-level assignments."
+  },
+  {
+    "query_id": "g1q-wrapt-contains-309",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_descriptor_get_class_access.py::TestProperty.test_class_level_get.C.value"
+    ],
+    "conditional_flags": [],
+    "notes": "Class C body (lines 177-180) holds a single def value (property-decorated); no other class-body bindings."
+  },
+  {
+    "query_id": "g1q-wrapt-contained_in-3140",
+    "answerable_static": true,
+    "gold": [
+      "tests/mypy/mypy_patching_primitives_t1.py::Factory"
+    ],
+    "conditional_flags": [],
+    "notes": "__call__ (line 24) is a direct method of top-level class Factory (line 23)."
+  },
+  {
+    "query_id": "g1q-wrapt-contained_in-2295",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_object_proxy_type_checks.py::TestIssubclassProxyOnRight"
+    ],
+    "conditional_flags": [],
+    "notes": "test_subclass (line 34) is a direct method of top-level class TestIssubclassProxyOnRight (line 22)."
+  },
+  {
+    "query_id": "g1q-wrapt-imports_of-20",
+    "answerable_static": true,
+    "gold": [
+      "ext:os",
+      "ext:pathlib",
+      "ext:platform",
+      "ext:pytest",
+      "ext:pytest.collect",
+      "ext:re",
+      "ext:subprocess",
+      "ext:sys",
+      "ext:warnings"
+    ],
+    "conditional_flags": [
+      "ext:platform",
+      "ext:pytest.collect",
+      "ext:subprocess"
+    ],
+    "notes": "ext:pytest is unconditional (top-level line 7) even though the from-import at line 10 is in try; ext:pytest.collect only in the except fallback (line 12); platform/subprocess imported inside run_custom_action (lines 65-66). All external; no repo files resolve."
+  },
+  {
+    "query_id": "g1q-wrapt-imports_of-37",
+    "answerable_static": true,
+    "gold": [
+      "ext:colorsys",
+      "ext:sys",
+      "ext:unittest",
+      "repo:src/wrapt/__init__.py",
+      "repo:src/wrapt/importer.py"
+    ],
+    "conditional_flags": [
+      "ext:colorsys"
+    ],
+    "notes": "import wrapt resolves to src/wrapt/__init__.py (src/ root); from wrapt.importer import _post_import_hooks gives src/wrapt/importer.py plus ancestor package __init__.py; colorsys imported only inside test methods (lines 28, 37, 64, 104, 113, 141, 163)."
+  },
+  {
+    "query_id": "g1q-wrapt-where_defined-1307",
+    "answerable_static": true,
+    "gold": [
+      "tests/core/test_inplace_operators.py:705"
+    ],
+    "conditional_flags": [],
+    "notes": "Single def site; no other occurrences of the token in the repo."
+  },
+  {
+    "query_id": "g1q-wrapt-where_defined-47",
+    "answerable_static": true,
+    "gold": [
+      "docs/benchmarks.py:32",
+      "tests/core/test_attribute_wrapper.py:6",
+      "tests/core/test_enabled_bool_error.py:128",
+      "tests/core/test_enabled_bool_error.py:152",
+      "tests/core/test_function_wrapper.py:100",
+      "tests/core/test_function_wrapper.py:122",
+      "tests/core/test_function_wrapper.py:145",
+      "tests/core/test_function_wrapper.py:162",
+      "tests/core/test_function_wrapper.py:182",
+      "tests/core/test_function_wrapper.py:198",
+      "tests/core/test_function_wrapper.py:218",
+      "tests/core/test_function_wrapper.py:234",
+      "tests/core/test_function_wrapper.py:25",
+      "tests/core/test_function_wrapper.py:250",
+      "tests/core/test_function_wrapper.py:284",
+      "tests/core/test_function_wrapper.py:294",
+      "tests/core/test_function_wrapper.py:306",
+      "tests/core/test_function_wrapper.py:321",
+      "tests/core/test_function_wrapper.py:334",
+      "tests/core/test_function_wrapper.py:43",
+      "tests/core/test_function_wrapper.py:445",
+      "tests/core/test_function_wrapper.py:586",
+      "tests/core/test_function_wrapper.py:62",
+      "tests/core/test_inner_classmethod.py:133",
+      "tests/core/test_inner_classmethod.py:160",
+      "tests/core/test_inner_classmethod.py:187",
+      "tests/core/test_inner_classmethod.py:19",
+      "tests/core/test_inner_classmethod.py:215",
+      "tests/core/test_inner_classmethod.py:234",
+      "tests/core/test_inner_classmethod.py:259",
+      "tests/core/test_inner_classmethod.py:284",
+      "tests/core/test_inner_classmethod.py:29",
+      "tests/core/test_inner_classmethod.py:310",
+      "tests/core/test_inner_staticmethod.py:133",
+      "tests/core/test_inner_staticmethod.py:160",
+      "tests/core/test_inner_staticmethod.py:187",
+      "tests/core/test_inner_staticmethod.py:19",
+      "tests/core/test_inner_staticmethod.py:215",
+      "tests/core/test_inner_staticmethod.py:240",
+      "tests/core/test_inner_staticmethod.py:265",
+      "tests/core/test_inner_staticmethod.py:29",
+      "tests/core/test_instancemethod.py:241",
+      "tests/core/test_instancemethod.py:269",
+      "tests/core/test_instancemethod.py:298",
+      "tests/core/test_instancemethod.py:327",
+      "tests/core/test_instancemethod.py:360",
+      "tests/core/test_instancemethod.py:388",
+      "tests/core/test_instancemethod.py:417",
+      "tests/core/test_instancemethod.py:446",
+      "tests/core/test_monkey_patching.py:478",
+      "tests/core/test_monkey_patching.py:506",
+      "tests/core/test_monkey_patching.py:534",
+      "tests/core/test_monkey_patching.py:562",
+      "tests/core/test_object_proxy.py:1569",
+      "tests/core/test_object_proxy.py:1925",
+      "tests/core/test_object_proxy.py:473",
+      "tests/core/test_object_proxy.py:487",
+      "tests/core/test_object_proxy.py:501",
+      "tests/core/test_object_proxy.py:515",
+      "tests/core/test_object_proxy.py:529",
+      "tests/core/test_object_proxy.py:543",
+      "tests/core/test_object_proxy.py:557",
+      "tests/core/test_object_proxy.py:571",
+      "tests/core/test_object_proxy.py:585",
+      "tests/core/test_object_proxy.py:600",
+      "tests/core/test_object_proxy.py:615",
+      "tests/core/test_object_proxy.py:630",
+      "tests/core/test_object_proxy.py:645",
+      "tests/core/test_object_proxy.py:660",
+      "tests/core/test_object_proxy.py:675",
+      "tests/core/test_object_proxy.py:690",
+      "tests/core/test_object_proxy.py:705",
+      "tests/core/test_object_proxy.py:720",
+      "tests/core/test_object_proxy.py:735",
+      "tests/core/test_object_proxy.py:750",
+      "tests/core/test_object_proxy.py:765",
+      "tests/core/test_object_proxy.py:780",
+      "tests/core/test_object_proxy.py:795",
+      "tests/core/test_object_proxy.py:810",
+      "tests/core/test_object_proxy.py:855",
+      "tests/core/test_object_proxy.py:870",
+      "tests/core/test_outer_classmethod.py:152",
+      "tests/core/test_outer_classmethod.py:194",
+      "tests/core/test_outer_classmethod.py:21",
+      "tests/core/test_outer_classmethod.py:31",
+      "tests/core/test_outer_staticmethod.py:136",
+      "tests/core/test_outer_staticmethod.py:167",
+      "tests/core/test_outer_staticmethod.py:19",
+      "tests/core/test_outer_staticmethod.py:29",
+      "tests/core/test_weak_function_proxy.py:115",
+      "tests/core/test_weak_function_proxy.py:141",
+      "tests/core/test_weak_function_proxy.py:167",
+      "tests/core/test_weak_function_proxy.py:64",
+      "tests/core/test_weak_function_proxy.py:89"
+    ],
+    "conditional_flags": [],
+    "notes": "94 class-statement sites at any nesting depth. Excluded: comment-only lines; Original = Class (binds Original); Class.function = None (attribute assignment); Class = None at test_weak_function_proxy.py:157,182 (function-local assignments). No module/class-level assignments binding Class; no dynamic definition machinery for this name."
+  },
+  {
+    "query_id": "g1q-wrapt-callees_of-1731",
+    "answerable_static": false,
+    "gold": [
+      "ext:builtins.str",
+      "ext:re.match",
+      "ext:unittest.TestCase.assertNotEqual",
+      "ext:unittest.TestCase.assertRaises",
+      "tests/core/test_object_proxy.py::TestArgumentUnpackingPartial.test_self_keyword_argument_on_class_init_2a.Object"
+    ],
+    "conditional_flags": [],
+    "notes": "wrapt.partial (line 2410) cannot be resolved to a def: src/wrapt/__init__.py source is not shown and the attribute may be a re-export; wrapper() (line 2413) calls the runtime value returned by it. Object(...) at line 2400 instantiates the locally nested class."
+  },
+  {
+    "query_id": "g1q-wrapt-callees_of-558",
+    "answerable_static": true,
+    "gold": [],
+    "conditional_flags": [],
+    "notes": "Body is a single return of x + 1; a binary operation is not a call expression, so the callee set is positively empty."
+  }
+]
