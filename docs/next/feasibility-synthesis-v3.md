@@ -68,7 +68,7 @@ now been met [MEASURED: audit-status.jsonl, Gate-A CONFIRM]. The revised governi
 worded per the stage-2 interpretation's §5 attribution requirement [STIPULATED, adopted
 verbatim]:
 
-> LOAD-BEARING: the registry now contains **ONE audited end-task win on blind,
+> LOAD-BEARING: [MEASURED: registry/verdicts/f2b-transfer.json] the registry now contains **ONE audited end-task win on blind,
 > ground-truth-independent external gold** — a 135M host + deterministic verify-retry over
 > the kernel-authored store gains **+0.2507 absolute** over the same host alone, the lift
 > is **content-specific** (seed-pinned shuffled arm recovers <30% at the one-sided 95%
@@ -433,7 +433,7 @@ one API key (A-F0)** [DERIVED from the ledger states cited above].
 
 ## 6. Bottom line
 
-LOAD-BEARING: Neither thesis is dead; neither is established; neither moves off
+LOAD-BEARING: [STIPULATED: ASM-1240] Neither thesis is dead; neither is established; neither moves off
 INCONCLUSIVE-PENDING on this wave — and this synthesis declares nothing beyond that state.
 What the wave changed is the *content* of the pending question. CORRECTNESS now reads:
 instrument exact and confirmed; authored content externally endorsed (0.961) and externally

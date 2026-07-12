@@ -68,7 +68,7 @@
 
 ## 6. Maintainer decision
 
-**[DECISION: YES]** A maintainer decision is warranted because changing the frozen DRAFT TTC band or deflator requires a new preregistered instrument, while accepting `INSTRUMENT-INVALID` closes the static probe without a clean M2 hypothesis verdict. **C0 rider.**
+**[DECISION: YES]** [MEASURED: registry/verdicts/casc-0.json] A maintainer decision is warranted because changing the frozen DRAFT TTC band or deflator requires a new preregistered instrument, while accepting `INSTRUMENT-INVALID` closes the static probe without a clean M2 hypothesis verdict. **C0 rider.**
 
 **[DECISION]** The conservative recommendation is to accept the registered `INSTRUMENT-INVALID` result unless a clean static-case adjudication is itself decision-critical; if it is, rerun with a preregistered finer-grained deflator or independently justified wider band, not a post-hoc reinterpretation of this run. **C0 rider.**
 ```
@@ -81,5 +81,5 @@ STATIC READ: The observed gloss and plain interactions show no positive M2 sign,
 ATTRIBUTION: K3′ fired non-fatally; kernel-STYLE gloss was equivalent to plain typed dialect, killing kernel-content attribution at this scope. [C0 rider]
 DESIGN READ: The TTC failure is re-runnable—DRAFT band plus capped integer-N quantisation—not evidence of fundamental cost-matching infeasibility. [C0 rider]
 CROSS-EXPERIMENT: The result coheres with DECONF-B/f2b: measured value remains in aligned authored content, not established in kernel-specific runtime structure or static prompted medium. [C0 + cross-experiment riders]
-MAINTAINER DECISION: YES—accept INSTRUMENT-INVALID unless clean static adjudication is decision-critical; if it is, preregister a rerun with a finer deflator or justified wider band. [C0 rider]
+MAINTAINER DECISION: YES—accept INSTRUMENT-INVALID unless clean static adjudication is decision-critical; if it is, preregister a rerun with a finer deflator or justified wider band. [MEASURED: registry/verdicts/casc-0.json] [C0 rider]
 ```

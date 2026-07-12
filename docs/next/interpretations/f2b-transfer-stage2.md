@@ -37,15 +37,15 @@
   rule index 4, the frozen PASS rule: `primary_reject AND (shuffled_low_recovery AND
   beats_gloss_self_verify)`. Eligible runs 17, excluded 0; rungs measured R1 and R3;
   seeds {0, 1, 2}; the fixed pre-registered retry budget k = 4; 250 externally-labelled
-  d-qa-t items [STIPULATED: frozen design for n/seeds/k].
-- PREMISE: [MEASURED] **Primary effect_size = 0.2507** (verbatim 0.25066666666666704) —
+  d-qa-t items [STIPULATED: ASM-0964 — frozen design for n/seeds/k].
+- PREMISE: [MEASURED: registry/verdicts/f2b-transfer.json] **Primary effect_size = 0.2507** (verbatim 0.25066666666666704) —
   acc_ext(135M + kernel-verify-retry, k = 4) − acc_ext(135M-alone), seed-averaged per-item
   means on the 250-item externally-labelled eval set, scored against BLIND-ADJUDICATED
   external gold; `primary_reject` TRUE under the frozen test (paired item BCa bootstrap,
-  B = 10000, PRNG seed 20260710, one-sided 95% BCa lower bound > 0) [STIPULATED: the test
-  wording; the LB value itself is not restated here — it is the analysis artifact's, and
+  B = 10000, PRNG seed 20260710, one-sided 95% BCa lower bound > 0) [STIPULATED: ASM-0964 — the
+  test wording; the LB value itself is not restated here — it is the analysis artifact's, and
   the fired rule certifies its sign].
-- PREMISE: [MEASURED] Holm family F-secondary(f2b-t): `shuffled_low_recovery` TRUE (the
+- PREMISE: [MEASURED: registry/verdicts/f2b-transfer.json] Holm family F-secondary(f2b-t): `shuffled_low_recovery` TRUE (the
   seed-pinned Sattolo-deranged shuffled-kernel arm, at identical retry topology and cost,
   recovers less than 30% of the true-verify external-gold lift at the one-sided 95% BCa
   upper bound); `beats_gloss_self_verify` TRUE (the kernel arm beats gloss-text self-verify
@@ -54,14 +54,14 @@
   1.7B-alone on external gold at margin 0 was NOT established. The separation gate is
   VALID, so this secondary was lawfully IN the Holm family and its FALSE is a licensed
   reading, not a gate artifact.
-- PREMISE: [MEASURED] Descriptive diagnostics (never verdict-bearing, restated as such):
+- PREMISE: [MEASURED: registry/verdicts/f2b-transfer.json] Descriptive diagnostics (never verdict-bearing, restated as such):
   **dual_scoring_gap = 0.0053** (verbatim 0.005333333333333301) — lift_mem − lift_ext on
   the SAME runs, i.e. the external-gold lift is within half a point of the membership-gold
   lift; `seed_sign_consistent` TRUE (3/3 seeds same-direction lift on external gold).
   Stage-1 external endorsement A = 0.9610 (verbatim 0.960960960960961; = 320/333, one-sided
   95% Wilson LB 0.9395, human-anchored per the issue-#9 tie-break rule) [MEASURED: verdict
   `sec-endorsement` + f2b-transfer-stage1.md §0, restated].
-- PREMISE: [MEASURED] Every instrument gate VALID: adjudication (G-adj), engagement
+- PREMISE: [MEASURED: registry/verdicts/f2b-transfer.json] Every instrument gate VALID: adjudication (G-adj), engagement
   (RT-7a made structural — the verifier decidably engaged, attempt-0 rejection inside
   [0.05, 0.95], at least one final answer differing from attempt 0; the F2/d-ext vacuity
   signature is excluded), headroom (R1-alone ≤ 0.85 on external gold — room to lift),

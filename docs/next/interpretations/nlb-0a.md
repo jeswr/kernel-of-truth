@@ -38,9 +38,9 @@
 
 ## 0. The mechanical facts, restated inside the diagnostic licence
 
-PREMISE: [MEASURED: poc/nlb/nlb0a/results/baseline.json — fail-closed identity check
+PREMISE: [MEASURED: poc/nlb/nlb0a/results/baseline.json] — fail-closed identity check
 PASS, every recomputed counter identical to the frozen `results-log/a5-nl.jsonl` final
-row, every input sha matching `pins_observed`] The baseline reproduces the frozen a5-nl
+row, every input sha matching `pins_observed`. The baseline reproduces the frozen a5-nl
 instrument exactly (356/855 exact, 43 wrong, stages {frame-miss 468, gazetteer-miss 24}),
 so every delta below is attributable to the repair, not to harness drift.
 
@@ -56,8 +56,7 @@ byte-identical on every arm):
 | l3a pinned in-scope | 251/527 | 8 (0.0152) | 0.4763 | 242/270 |
 | l3a repaired (supplementary) | 259/527 | **0** (diag CP-UB95 .0057) | **0.4915** | 242/270 |
 
-PREMISE: [MEASURED: readout §4; STIPULATED: the §7.1 proceed condition verbatim,
-instantiated per the readout's PROPOSED-ASM-1094] The §7.1 proceed condition
+PREMISE: [MEASURED: readout §4] [STIPULATED: ASM-1094 — the §7.1 proceed condition verbatim, instantiated per the readout] The §7.1 proceed condition
 (dangerous-wrong ≤ 4/855 ∧ retention ≥ 0.39637, point estimates) is **NOT MET**:
 inventory-B passes the safety leg (0) and fails retention (0.30058); inventory-A passes
 retention (0.41637) and fails safety (42). The conjunction fails on both arms, on
@@ -77,7 +76,7 @@ with retention improving.
 
 ## 1. What the no-go means — precisely, and only this
 
-LOAD-BEARING: the §7.1 outcome means exactly this and no more: **on the public legacy
+LOAD-BEARING: [MEASURED: readout §4] the §7.1 outcome means exactly this and no more: **on the public legacy
 a5 corpus at K=1, no deterministic Tier-0 inventory can simultaneously hold the
 dangerous class at ≤4 and the retention floor**, because the class's source is not a
 defective direction table but an irreducible two-op surface ambiguity in the closed
@@ -87,7 +86,7 @@ single-consistent-cue phrasings undetectable as conflicts, and the exacts they a
 entangled with use the SAME surface forms with the opposite gold op —
 DIAGNOSTIC-K1, this corpus, this grammar realisation, nothing wider].
 
-LOAD-BEARING: what it does NOT mean, each item from the binding design text:
+LOAD-BEARING: [STIPULATED: ASM-0904, ASM-0944 — the binding design text] what it does NOT mean, each item:
 
 - It does NOT consume a registered redesign cycle. §7.1's no-go routing is "redesign at
   the design level; nothing registered is burned"; a cycle is a FROZEN P3-E-NLB-1

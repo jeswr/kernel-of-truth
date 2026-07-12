@@ -75,7 +75,7 @@
   disagreement table symmetric (h_yes_p_no 6 / h_no_p_yes 6); human vs Haiku-4.5 exact
   0.870, decisive 0.9202 (n = 188), κ = 0.7069, 15 items, mildly asymmetric (Haiku says
   "no" more: 10 vs 5) [MEASURED: metrics.json `q1_agreement_*`].
-- PREMISE: [MEASURED] **Instrument gates:** hybrid-vs-Haiku (independent label sources)
+- PREMISE: [MEASURED: analysis-output.json; g3-result.md §2] **Instrument gates:** hybrid-vs-Haiku (independent label sources)
   κ = 0.5248; hybrid-vs-GPT-5.6 κ = 0.8758, structurally inflated (the pair shares q2)
   and not citable as agreement evidence. Both ≥ 0.4, so no INSTRUMENT-INVALID trip on the
   n = 200 mappings; the decisive-only mapping's `instrument_valid` = false is the
@@ -89,7 +89,7 @@
   (4/10); the remaining 36 violations spread over 16 further concepts. On these
   provisional inputs the signal is broad-based with two hot spots, not a two-bad-pins
   artifact.
-- PREMISE: [STIPULATED: registry n_planned] n = 200 was powered ≥ 0.90 to distinguish a
+- PREMISE: [STIPULATED: ASM-0181 — registry n_planned] n = 200 was powered ≥ 0.90 to distinguish a
   true 10% from a true 20% violation rate at α = 0.05; the observed 0.230 sits beyond
   the powered alternative. The design had the power to see what it saw.
 

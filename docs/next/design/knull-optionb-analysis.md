@@ -6,7 +6,7 @@
 > is frozen, pre-registered, scheduled, or run; no verdict, audit, frozen
 > object, or registered ruling is touched. This document's assumption entries
 > are carried as **PROPOSED-ASM-1080…ASM-1088** (disjoint block ASM-1080–1089
-> requested for this deliverable, ASM-1089 reserved unused; the coordinator
+> requested for this deliverable, the block's final id reserved unused; the coordinator
 > registers them at commit — this document edits no registry file). Author:
 > Fable, experiment-designer role (kern/fable-designer), 2026-07-11.**
 >
