@@ -1,0 +1,207 @@
+{
+ "_readme": [
+  "ENGINE-INF design assumption block ASM-1950..1967 (range 1950-1969 reserved; 1968-1969 unused) — EMITTED by the Fable DESIGN agent designer-4 (2026-07-12) for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions, design-role constraint).",
+  "Range verified free at emission: max registered id in registry/assumptions.jsonl is ASM-1939; repo-wide grep for ASM-19[5-6][0-9] empty.",
+  "Companion design: docs/next/design/engine-inference-under-typing.md (maintainer acceptance: issue #26 items D2+D3). Tags follow the registry convention: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-1950",
+   "tag": "STIPULATED",
+   "claim": "THE DIVERGENCE-SEAM PRINCIPLE, operationalised: per ASM-1851/ASM-1939(a), kernel-specific value is askable only where the kernel and a matched non-kernel source derive DIVERGENT closures. ENGINE-INF constructs that seam deliberately — kernel-v1 sense-split per-sense typing vs word-level/mechanical sources over the certified deterministic engine — and makes closure correctness vs third-party-derived gold on the divergent items the PRIMARY endpoint. It is simultaneously the programme's first direct test of whether the kernel's typing makes the engine draw correct conclusions.",
+   "rationale": "Four attribution probes (f2b-transfer, DECONF-B, CASC-0', rules-2-knull) all answered content-not-structure because the compared sources derived identical (byte-identical, in the knull case) closures; the question must be asked where they cannot coincide, and sense-splitting is structurally inexpressible in a word-level source.",
+   "backing_ref": "registry/assumptions.jsonl ASM-1851/1933/1939; docs/next/analysis/rules2-interpretation.md §2; docs/next/design/engine-inference-under-typing.md §0-§1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1951",
+   "tag": "MEASURED",
+   "claim": "The Stage-A substrate exists as committed bytes: data/kernel-v1/ holds 11 sense concepts over break/make/find/friend with per-sense identity-bearing explications whose clause content types the arguments per sense (break.violate: 'Y is words; these words say: people cannot do some things...'; break.shatter: many-small-pieces; 53 excluded break siblings listed in the sense index), plus annotation-layer typing sidecars (ck-ufo per-sense ontic categories; 30 soft-type records, binding:false).",
+   "rationale": "The divergence seam is built from bytes that already exist under maintainer direction (ASM-1884, Stage-A GO ASM-1909); ENGINE-INF adds no new kernel construction requirement at E0.",
+   "backing_ref": "data/kernel-v1/concepts/*.json; data/kernel-v1/typing/{ck-ufo-sidecar,soft-type-per-sense}.jsonl; data/kernel-v1/sense-index/break.json; data/kernel-v1/asm-stageA-1910-1929.json",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1952",
+   "tag": "STIPULATED",
+   "claim": "SOFT-TYPE FENCE: the per-sense soft-type sidecar (binding:false, forbidden_effects including derive-disjointness and assert-type) is NOT consumed by ENGINE-INF in any arm. The kernel arm's hard axiom module (data/axioms-engineinf-v0/, kot-axiom/1, experiment-scoped) is authored by the explicator role from the identity-bearing EXPLICATION clause content, with every axiom citing its source clause; the promotion of explication clauses to binding domain/range axioms is an experimental stipulation scoped to this record and does not alter the corpus's typing-authority discipline.",
+   "rationale": "Consuming rank-only records as axioms would violate their own forbidden-effects contract and taint the arm; the explications are kernel-proper and carry the per-sense commitments in their identity payload.",
+   "backing_ref": "data/kernel-v1/typing/soft-type-per-sense.jsonl (forbidden_effects fields); docs/next/design/engine-inference-under-typing.md §1.2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1953",
+   "tag": "MEASURED",
+   "claim": "The third-party gold substrate is already pinned: WordNet 3.1 (data/lexical-wn31, source tarball sha 3f7d8be8ef6ecc7167d39b10d66954ec734280b5bdcd57f7d9eafe429d11c22a) with mechanically extracted structural axioms (hypernym/hyponym/entailment) sufficient to compute the physical_entity/abstraction top split, per-synset gloss example sentences, and SemCor sense-frequency counts (index.sense tag_cnt). Sentence-level SemCor text and VerbNet selectional restrictions are NOT pinned and are named E1 additions.",
+   "rationale": "The E0 deterministic gold channel must be constructible from committed bytes with no network dependency; what is missing is named rather than assumed.",
+   "backing_ref": "data/lexical-wn31/manifest.json; data/lexical-wn31/synsets-{noun,verb}.jsonl; poc/scale/src/ingest.ts (SemCor tag_cnt usage precedent)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1954",
+   "tag": "STIPULATED",
+   "claim": "GOLD CONSTRUCTION RULES (mechanical over third-party bytes; no LLM judge anywhere in the instrument): G1 sense-by-attachment (a WN31 gloss example carries its synset as sense label; E1 adds real SemCor sentence tags); G2 argument typing by WN31 hypernym closure to the physical/abstraction top split; G3 anomaly labels by the pre-registered cross-pairing rule over G1+G2 (disclosed as constructed-rule gold; VerbNet upgrade + ~30-item human spot-audit at E1); G4 refusal gold = excludedSenses membership. The RULES are stipulated; the BYTES are third-party and predate kernel-v1.",
+   "rationale": "The channel must be deterministic and third-party-anchored while being honest that G3's labeling rule is a construction; the deflationary readings (kernel wrong on attested items) do not depend on G3.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1955",
+   "tag": "STIPULATED",
+   "claim": "ARMS, matched by construction (same engine bytes, same shared world-compiler, same scorer, same items; only the source module differs): K (kernel-v1 + axioms-engineinf-v0); D-word-dom (one relation per lemma, SemCor-dominant-sense signature — the pi:011 shape); D-word-union (one relation per lemma, union/LCS signature); B-wn (same sense URNs, typing mechanically from WN31 sentence frames only, zero kernel authoring); K-shuf (per-sense domain/range assignments deranged within lemma, byte bulk identical). Word-level arms consume sense-tagged input by projection to the lemma relation — the same comparator construction as the rules-2-knull leg.",
+   "rationale": "Kernel-vs-non-kernel must vary the source and nothing else; the projection step is the definition of what a word-level dictionary is, not a handicap.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §1.3-§1.4; poc/rules-2/results/knull-analog-result.json (comparator precedent)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1956",
+   "tag": "STIPULATED",
+   "claim": "B-wn IS THE KERNEL-SPECIFICITY DECIDER: the primary (headline) contrast is K vs B-wn on Div(K,B-wn). Beating only the D-word arms licenses at most 'sense-split typing beats word-level typing at this scope' — a sense-STRUCTURE claim, never 'kernel-specific value', because sense structure exists in WordNet without kernel authoring. A K win over B-wn that is trivial (frames too coarse) triggers the pre-named E1 extension arm B-vn (VerbNet-typed senses) before any strengthened claim.",
+   "rationale": "Kernel-specific means beating the best matched source constructible WITHOUT kernel authoring; pre-registering the two-tier claim ladder prevents overselling either tier.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §1.3, §2.3, §6.2 risk 2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1957",
+   "tag": "STIPULATED",
+   "claim": "GOLD/BASELINE PROVENANCE SEPARATION (anti-circularity, fail-closed): B-wn's typing may consume WN sentence frames ONLY; gold G2/G3 consume hypernym paths and example objects ONLY; no arm compiler may read any gold field. Enforced mechanically by the poisoned-gold canary: perturbing gold bytes must leave every arm's compiled TBox+worlds byte-identical, and a planted compiler gold-read must trip the canary (PC-4).",
+   "rationale": "The one seam where the instrument could rig itself (baseline or kernel typing derived from the same bytes as the gold labels) is closed by a mechanical byte-level test, not by argument.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.1, §5 PC-4",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1958",
+   "tag": "STIPULATED",
+   "claim": "ENGINE FROZEN AT E0: ENGINE-INF Stage E0 uses the certified RULES-1 closed inventory only (R-DOM, R-RNG, R-SUBP, CAX-DW, fail-closed refusal codes) — no new rule kind, no engine version change, no encoder touch. Class-hierarchy reasoning is precomputed mechanically from pinned WN31 hypernym axioms into flat stated cls facts by the arm-shared compiler (the engine has no cax-sco). The E1 grade-W increment (in-engine typed sense-elimination, R-DISAMB) IS an engine version change and requires twin+sparq-reason conformance rerun plus a CF-gated mini-certificate before any scored use.",
+   "rationale": "E0 rides entirely on certified machinery so a divergence result cannot be an artifact of new engine code; the engine extension is staged behind its own gates.",
+   "backing_ref": "poc/rules-1/twin_engine.py (IMPLEMENTED_KINDS, closed inventory); poc/rules-1/results/conformance-result.json (1207/1207); docs/next/design/engine-inference-under-typing.md §1.1, §6.1 E1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1959",
+   "tag": "STIPULATED",
+   "claim": "PRIMARY ENDPOINT AND DECISION BAND, fixed before any byte is scored: divergence certificate Div(K,b) computed mechanically per baseline BEFORE scoring (the ASM-1851 leg-1 analog); PASS-affirm iff K divergent-set correctness Wilson-LB95 >= 0.80 AND K minus B-wn >= +0.20 on Div(K,B-wn) with exact-binomial LB95 > 0 AND K beats both D-word arms on their divergent sets AND convergent-set no-net-harm (K not worse than any baseline by > 0.02). Deterministic engine, no seeds, double-run byte-identity mandatory; inference is over the finite WN31 gloss-example item frame (census numbers reported; CIs carry the pre-registered generalization to Stage-B lemmas only, tagged EXTRAPOLATION).",
+   "rationale": "One primary endpoint, exact thresholds, and a non-vacuousness artifact fixed pre-freeze, per the programme's prereg discipline.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1960",
+   "tag": "STIPULATED",
+   "claim": "KILL CRITERIA, verbatim: KILL-e1 (vacuity) fires iff |Div(K,D-word-dom)| < 25 at the operating point or divergent cells span < 3 closure ops or < 3 lemmas — the instrument cannot ask, no verdict either direction. KILL-e2 (convergence-deflation) fires iff |Div(K,B-wn)| < 10 — the kernel-vs-mechanical-sense-typing question is unaskable at this inventory and the outcome is recorded as a D3(b) input, never as an affirmative.",
+   "rationale": "The knull lineage's lesson made mechanical: certify non-vacuous divergence before interpreting any contrast; name the convergent outcome's meaning in advance so it cannot be spun.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3; registry/assumptions.jsonl ASM-1851",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1961",
+   "tag": "STIPULATED",
+   "claim": "BOTH READINGS PRE-REGISTERED: (affirmative) a PASS-affirm is the programme's FIRST kernel-specific-value datum, scoped to this inventory, this engine, downstream of third-party sense identification; (deflationary) KILL-e2 or FAIL-deflate (B-wn matches/beats K on the divergent set, or K's divergent-set correctness < D-word-dom's) is the honest trigger for the D3(b) thesis reframe — grounded content + certified engine, not kernel-specific structure — delivered to the maintainer as a pre-registered decision input. The verbatim deflationary sentence is fixed in the design §2.3 and may not be softened post hoc.",
+   "rationale": "The experiment is decisive only if both outcomes have owners and meanings fixed before data; the reframe trigger is a feature, not a failure mode.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3, §3; issue #26 D2+D3 (maintainer acceptance)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1962",
+   "tag": "STIPULATED",
+   "claim": "HONESTY-FIRST SECONDARY SCORE: alongside the primary raw exact-match, every arm is scored with the issue-#18-aligned asymmetric penalty (wrong assertion 1, refusal 0.5, correct 0; form frozen at freeze). Descriptive, never in the PASS rule; it exists to separate K's fail-closed refusals from D-word-dom's confident wrong assertions on excluded-sense and category-error cells.",
+   "rationale": "The programme's scoring direction penalises wrong answers above refusals; the word-level arm's characteristic failure mode is exactly confident wrongness.",
+   "backing_ref": "docs/next/design/honesty-first-scoring.md (issue #18 direction); docs/next/design/engine-inference-under-typing.md §2.2",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1963",
+   "tag": "STIPULATED",
+   "claim": "BLOCKING PILOT INSTANTIATION (mandatory, pre-freeze, per ASM-1830/1831): PC-1 no baseline floored/saturated on pilot divergent cells (K at 1.0 disclosed as certificate-normal); PC-2 pilot divergence |Div(K,D-word-dom)| >= 6 and |Div(K,B-wn)| >= 3 across >= 2 ops and >= 2 lemmas, divergence certificate committed; PC-3 K-shuf differs from K on >= half the pilot divergent cells with the predicted signature, D-union not row-identical to D-dom; PC-4 planted mistyped axiom fires the scorer/certificate on predicted cells only + poisoned-gold canary; PC-5 extractor well-formedness >= 0.95 + oracle arm 1.0 through the pinned scorer. The kernel-as-text control is structurally N/A (no LLM/host consumer exists — no prompt surface for the text to enter), recorded with reason; best achievable verdict is PILOT-PASS-WITH-FLAGS.",
+   "rationale": "Every interface the instrument keeps is exercised, not argued, before freeze; the N/A is explicit and downgrades, never silently passes.",
+   "backing_ref": "docs/next/protocol/blocking-pilot-before-freeze.md §1-§3; docs/next/design/engine-inference-under-typing.md §5",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1964",
+   "tag": "EXTRAPOLATION",
+   "claim": "EXPECTED OPERATING POINT (direction only, never a premise): the WN31 gloss-example extractor over break/make/find/friend is expected to yield ~60-120 items (attested + cross-pair anomaly + excluded-sense refusal cells) with >= 25 items divergent between K and D-word-dom and >= 10 divergent between K and B-wn. Resolution path: the extractor's first run plus the PC-2 pilot check; if the expectation fails, KILL-e1/e2 semantics apply pre-freeze at zero cost.",
+   "rationale": "Item counts are guessed from the measured sense inventory (59 break verb synsets, 53 excluded siblings, per-sense examples), not measured; the pilot resolves the guess before any freeze.",
+   "backing_ref": "data/kernel-v1/sense-index/break.json; docs/next/design/engine-inference-under-typing.md §5 PC-2, §6.1",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1965",
+   "tag": "EXTRAPOLATION",
+   "claim": "FORWARD PATH, direction only: a committed ENGINE-INF divergence certificate over this inventory is exactly the 'fresh leg-1 artifact showing divergence' that ASM-1851 pre-registers as the mechanical re-activation condition for the rules-2 knull GPU leg. If E0 certifies divergence, a rules-2-shaped train-time campaign on THIS inventory (E3, its own record, own pilot, maintainer authorization, ~$7-18 GPU at rules-2 anchors) would for the first time have non-byte-identical kernel vs dictionary training corpora — the train-time kernel-specificity contrast rules-2 could not buy. Never a premise of ENGINE-INF's own verdict.",
+   "rationale": "Names the experiment the divergence artifact would enable, per the register's discipline of licensing directions rather than conclusions.",
+   "backing_ref": "registry/assumptions.jsonl ASM-1851/1939(a); docs/next/design/engine-inference-under-typing.md §3, §6.1 E3",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1966",
+   "tag": "STIPULATED",
+   "claim": "STAGING, COST, GO/NO-GO: E0 (axiom module + extractor + 5 arms + oracle + divergence certificate + blocking pilot + freeze + run) at $0 model spend, CPU-only, 2-4 agent-days — GO recommended (designer confidence 0.85, ASSESSMENT, binding on nothing); E1 (SemCor/VerbNet pins, ~30-item ~1h human spot-audit, grade-W R-DISAMB engine extension behind conformance + mini-certificate) $0 + 2-3 agent-days, gated on E0's verdict; E2 (Stage-B ~60-90 senses) 1-2 agent-weeks authoring shared with the sense-split track, gated on E0 PASS-affirm or maintainer direction. The maintainer's one pre-freeze decision: G3 anomaly gold at E0 as WN-rule-constructed (recommended; disclosed-weaker) vs waiting for the VerbNet pin.",
+   "rationale": "Cheapest-decisive-first: the seam is created in the TBox where authoring costs days, not in a training corpus where the same divergence costs a GPU campaign.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §6",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1967",
+   "tag": "STIPULATED",
+   "claim": "CLAIM CAPS, fixed now: any ENGINE-INF outcome is scoped to the Stage-A inventory (11 senses, 4 lemmas), the certified closed engine inventory, compiled worlds (no NL parsing — the l3a wall stands), grade-S input (downstream of third-party sense identification at E0), and gold whose G3 component is rule-constructed until the E1 upgrade. No outcome licenses: NL robustness, any host/train-time/inference-time integration claim, any scale claim, any deployment claim, or any CORRECTNESS/EFFICIENCY thesis verdict. An affirmative licenses exactly one sentence: 'where kernel-v1 sense-split typing derives engine closures that matched non-kernel sources do not, the kernel's closures are the correct ones by third-party-derived gold, at this scope.'",
+   "rationale": "The result will be quotable in both directions; the licensed sentence is fixed before it exists.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §3, §4 item 6",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  }
+ ]
+}
