@@ -20,25 +20,43 @@ wrapper. The coordinator's freeze/ops amendment records it BEFORE the final
 run; ANY change to a staged byte after that requires a correction record.
 
     python3 poc/rules-2/modal/modal_rules2.py --print-manifest    # sha only, no modal, $0
+    python3 poc/rules-2/modal/modal_rules2.py --print-jobs        # shard plan, $0
     .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --dry-plan          # cost plan, $0, local
     .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --mock              # transport smoke, ~pennies
-    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g          # DEFAULT R1 tier
-    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g --rungs R1,R2  # R2 tier (extra authorization)
+    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g          # DEFAULT R1 tier (all 17 shards, parallel)
+    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g --jobs b2-r1-s1,b2-r1-s2   # subset (multi-account split)
+    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g --rungs R2 --authorize-r2  # R2 tier (second launch)
 
-LAUNCH GATES (do NOT run the full path until ALL hold):
-  1. registry/experiments/rules-2.json FROZEN by the coordinator and the
-     printed sha recorded in pins.harness_manifest;
-  2. the RULES-1 GPU readout exists and its branch permits RULES-2
-     (PROPOSED-ASM-1420 sequencing gate; KILL-b there => explicit maintainer
-     re-authorization required, s3' struck);
-  3. --dry-plan OK vs caps (registry usd_cap $18 / 14 GPU-h for the R1 tier;
-     coordinator outer ceiling $35) and green --mock;
-  4. maintainer sign-off.
+SHARDED PARALLEL LAUNCH (REWORK-2, review item 9 + the standing
+parallel-launch directive): the campaign is a set of INDEPENDENT jobs —
+one per (FT arm x seed), one per B4 seed, one per eval-only arm (see
+--print-jobs) — spawned CONCURRENTLY as separate Modal function calls.
+No single job approaches the 12 h function timeout (worst ~1.3 h planned).
+--jobs runs a named subset, so the shard set can be split across Modal
+accounts/workspaces; every shard ships its own results directory and
+poc/rules-2/merge_shards.py reconstructs the canonical results pair for
+the pinned analysis (fail-closed cross-shard pin/surface assertions).
+
+LAUNCH GATES — ENFORCED PROGRAMMATICALLY by _launch_gates() (fail-closed;
+review item 9 replaced the old advisory reminder), full path only:
+  1. registry/experiments/rules-2.json status FROZEN and the staged-bytes
+     manifest sha recorded in its pins.harness_manifest;
+  2. sequencing (PROPOSED-ASM-1420): registry/verdicts/rules-1-b.json
+     exists with verdict PASS (rules-1's GPU run was VOIDED 2026-07-12 and
+     superseded by rules-1-b; KILL-b/INSTRUMENT-INVALID/INCONCLUSIVE there
+     => refuse — any other branch needs a maintainer-authorized record
+     amendment, after which the coordinator updates this gate);
+  3. a green pinned mock artifact (poc/rules-2/results/mock-validation.json)
+     whose harness sha matches the staged bytes;
+  4. --dry-plan green for the requested tier (registry usd_cap $18 /
+     14 GPU-h for R1; coordinator outer ceiling $35);
+  5. the R2 rung additionally requires --authorize-r2 (the coordinator-
+     authorized SECOND launch, MD-R2-3a).
 Modal hygiene (standing bd memory): launch long runs nohup+setsid;
 `modal app stop ap-<id>` after killing ANY attached client.
 
-Results land in poc/rules-2/results-incoming/<UTC stamp>-modal/ — NOT
-auto-committed. Single GPU; 12 h function timeout.
+Results land in poc/rules-2/results-incoming/<UTC stamp>-modal/<job>/ (+
+merged/) — NOT auto-committed. 12 h function timeout per job.
 """
 
 from __future__ import annotations
@@ -65,7 +83,8 @@ import modal_common as mc  # noqa: E402  (stdlib-only helper, poc/modal)
 
 RULES2_DIR = REPO_ROOT / "poc" / "rules-2"
 RUNNER = RULES2_DIR / "rules2_runner.py"
-RULES2_FILES = ("rules2_runner.py", "materialise_closure.py")
+RULES2_FILES = ("rules2_runner.py", "materialise_closure.py",
+                "merge_shards.py")
 RULES2_INPUTS = RULES2_DIR / "inputs"
 C8_RESULT = RULES2_DIR / "results" / "c8-result.json"
 RULES1_DIR = REPO_ROOT / "poc" / "rules-1"
@@ -159,6 +178,104 @@ def _local_manifest() -> dict:
                      str(R2TRAIN_DIR), str(IMAGE_REQS))
 
 
+def build_jobs(rungs: str) -> list:
+    """The canonical shard set (rules2-manifest.json sharded_launch): one
+    job per (FT arm x seed x rung), one per B4 seed, one per eval-only arm.
+    Job tags are stable identifiers for --jobs subsetting across accounts."""
+    man = json.loads((RULES2_INPUTS / "rules2-manifest.json").read_text())
+    dc = man["design_constants_from_design_doc"]
+    jobs = []
+    rung_list = [r.strip() for r in rungs.split(",") if r.strip()]
+    for rung in rung_list:
+        if rung not in ("R1", "R2"):
+            raise SystemExit(f"ERR_RUNGS: unknown rung {rung!r}")
+        ft = dc["ft_arms"] if rung == "R1" else \
+            [a for a in dc["rungs_r2_arms"] if a in dc["ft_arms"]]
+        for arm in ft:
+            for seed in dc["ft_seeds"]:
+                jobs.append({"tag": f"{arm.lower()}-{rung.lower()}-s{seed}",
+                             "arms": arm, "rungs": rung, "seeds": str(seed)})
+        for seed in dc["eval_only_seeds"]["B0"]:
+            jobs.append({"tag": f"b0-{rung.lower()}-s{seed}", "arms": "B0",
+                         "rungs": rung, "seeds": str(seed)})
+    if "R1" in rung_list:
+        for seed in dc["eval_only_seeds"]["B4"]:
+            jobs.append({"tag": f"b4-s{seed}", "arms": "B4", "rungs": "R1",
+                         "seeds": str(seed)})
+        for seed in dc["eval_only_seeds"]["B5"]:
+            jobs.append({"tag": f"b5-r3-s{seed}", "arms": "B5",
+                         "rungs": "R1", "seeds": str(seed)})
+    return jobs
+
+
+def _launch_gates(gpu: str, rungs: str, authorize_r2: bool,
+                  staged_sha: str) -> None:
+    """Programmatic fail-closed launch gates for the FULL (non-mock) path
+    (REWORK-2, review item 9: the old code only PRINTED a reminder)."""
+    import subprocess
+
+    rec_path = REPO_ROOT / "registry" / "experiments" / "rules-2.json"
+    rec = json.loads(rec_path.read_text())
+    if rec.get("status") != "FROZEN":
+        raise SystemExit("ERR_GATE_FREEZE: registry/experiments/rules-2.json "
+                         "status is %r, not FROZEN — the coordinator freezes "
+                         "before any final-phase run" % rec.get("status"))
+    hm = str(rec.get("pins", {}).get("harness_manifest", ""))
+    if staged_sha not in hm:
+        raise SystemExit("ERR_GATE_MANIFEST: staged-bytes sha %s is not "
+                         "recorded in the frozen record's "
+                         "pins.harness_manifest — staged bytes drifted "
+                         "since freeze (correction record required)"
+                         % staged_sha[:16])
+
+    verdict_path = REPO_ROOT / "registry" / "verdicts" / "rules-1-b.json"
+    if not verdict_path.exists():
+        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420): no "
+                         "rules-1-b verdict exists yet — RULES-2's GPU path "
+                         "is blocked until the RULES-1-B GPU readout lands "
+                         "(rules-1 was VOIDED + superseded 2026-07-12)")
+    verdict = json.loads(verdict_path.read_text()).get("verdict")
+    if verdict != "PASS":
+        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420): "
+                         "rules-1-b verdict is %r — KILL-b requires explicit "
+                         "maintainer re-authorization (s3' struck); "
+                         "INSTRUMENT-INVALID/INCONCLUSIVE block the run. Any "
+                         "such branch needs a record amendment, after which "
+                         "the coordinator updates this gate." % verdict)
+
+    mv_path = RULES2_DIR / "results" / "mock-validation.json"
+    if not mv_path.exists():
+        raise SystemExit("ERR_GATE_MOCK: poc/rules-2/results/"
+                         "mock-validation.json missing — pin a green mock "
+                         "before any GPU spend")
+    mv = json.loads(mv_path.read_text())
+    if not mv.get("green"):
+        raise SystemExit("ERR_GATE_MOCK: pinned mock artifact is not green")
+    if mv.get("harness_manifest_sha256") != staged_sha:
+        raise SystemExit("ERR_GATE_MOCK: pinned mock artifact was validated "
+                         "against harness sha %s, staged bytes are %s — "
+                         "re-run the mock validation"
+                         % (str(mv.get("harness_manifest_sha256"))[:16],
+                            staged_sha[:16]))
+
+    if "R2" in rungs and not authorize_r2:
+        raise SystemExit("ERR_GATE_R2: the R2 rung is the coordinator-"
+                         "authorized SECOND launch (MD-R2-3a) — pass "
+                         "--authorize-r2 only under that authorization")
+
+    cmd = [sys.executable, str(RUNNER), "--dry-plan",
+           "--gpu-class", gpu, "--out-dir", "/tmp/rules2-dry-plan",
+           "--inputs-dir", str(RULES2_INPUTS),
+           "--data-root", str(REPO_ROOT / "data"),
+           "--corpus-dir", str(R2TRAIN_DIR), "--rungs", rungs]
+    if subprocess.call(cmd) != 0:
+        raise SystemExit("ERR_GATE_DRYPLAN: --dry-plan failed for the "
+                         "requested tier — caps or the 12 h per-job bound "
+                         "would be exceeded; DO NOT LAUNCH")
+    print("launch gates: ALL GREEN (freeze, sequencing, pinned mock, "
+          "dry-plan%s)" % (", R2 authorization" if "R2" in rungs else ""))
+
+
 def _outcome(results_dir: str) -> str:
     cands = sorted(n for n in os.listdir(results_dir)
                    if n.startswith("results-rules2") and n.endswith(".json"))
@@ -176,7 +293,8 @@ def _outcome(results_dir: str) -> str:
 
 
 def _run_in_container(gpu_requested: str, mock: bool, arms: str, rungs: str,
-                      local_manifest: dict) -> dict:
+                      local_manifest: dict, seeds: str = "",
+                      shard_tag: str = "") -> dict:
     import subprocess
 
     import modal_common as cmc
@@ -215,6 +333,10 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str, rungs: str,
         "--arms", arms,
         "--rungs", rungs,
     ]
+    if seeds:
+        cmd += ["--seeds", seeds]
+    if shard_tag:
+        cmd += ["--shard-tag", shard_tag]
     if mock:
         cmd.append("--mock")
     os.makedirs(REMOTE_OUT, exist_ok=True)
@@ -250,7 +372,8 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str, rungs: str,
         environment=cmc.redact_env(dict(os.environ)),
         notes="rules-2 fine-tune+eval arms; runner outputs shipped as opaque "
               "bytes; sidecars only — see poc/modal/modal_common.py "
-              "byte-identity contract; arms=%s rungs=%s" % (arms, rungs),
+              "byte-identity contract; arms=%s rungs=%s seeds=%s shard=%s"
+              % (arms, rungs, seeds or "all", shard_tag or "-"),
     )
     files = cmc.package_results(REMOTE_OUT, run_log=log, rc=rc,
                                 provenance=prov)
@@ -272,6 +395,8 @@ if modal is not None:
                         f"{REMOTE_RULES2}/rules2_runner.py")
         .add_local_file(RULES2_DIR / "materialise_closure.py",
                         f"{REMOTE_RULES2}/materialise_closure.py")
+        .add_local_file(RULES2_DIR / "merge_shards.py",
+                        f"{REMOTE_RULES2}/merge_shards.py")
         .add_local_file(C8_RESULT, f"{REMOTE_RULES2}/results/c8-result.json")
         .add_local_file(RULES1_DIR / "rules1_runner.py",
                         f"{REMOTE_RULES1}/rules1_runner.py")
@@ -305,33 +430,60 @@ if modal is not None:
     @app.function(image=image, gpu="T4", volumes={HF_CACHE_MOUNT: hf_cache},
                   timeout=TIMEOUT_S)
     def run_rules2_t4(mock: bool = False, arms: str = DEFAULT_ARMS,
-                      rungs: str = "R1",
+                      rungs: str = "R1", seeds: str = "",
+                      shard_tag: str = "",
                       local_manifest: dict = None) -> dict:  # noqa: RUF013
-        return _run_in_container("T4", mock, arms, rungs, local_manifest or {})
+        return _run_in_container("T4", mock, arms, rungs,
+                                 local_manifest or {}, seeds, shard_tag)
 
     @app.function(image=image, gpu="A10G", volumes={HF_CACHE_MOUNT: hf_cache},
                   timeout=TIMEOUT_S)
     def run_rules2_a10g(mock: bool = False, arms: str = DEFAULT_ARMS,
-                        rungs: str = "R1",
+                        rungs: str = "R1", seeds: str = "",
+                        shard_tag: str = "",
                         local_manifest: dict = None) -> dict:  # noqa: RUF013
         return _run_in_container("A10G", mock, arms, rungs,
-                                 local_manifest or {})
+                                 local_manifest or {}, seeds, shard_tag)
 
     @app.function(image=image, gpu="A100-40GB",
                   volumes={HF_CACHE_MOUNT: hf_cache}, timeout=TIMEOUT_S)
     def run_rules2_a100(mock: bool = False, arms: str = DEFAULT_ARMS,
-                        rungs: str = "R1",
+                        rungs: str = "R1", seeds: str = "",
+                        shard_tag: str = "",
                         local_manifest: dict = None) -> dict:  # noqa: RUF013
         return _run_in_container("A100", mock, arms, rungs,
-                                 local_manifest or {})
+                                 local_manifest or {}, seeds, shard_tag)
 
     GPU_FUNCTIONS = {"T4": run_rules2_t4, "A10G": run_rules2_a10g,
                      "A100": run_rules2_a100}
 
+    def _collect(files: dict, dest: Path) -> int:
+        mc.unpack_files(files, str(dest))
+        prov_path = dest / mc.PROVENANCE_NAME
+        prov = json.loads(prov_path.read_text())
+        try:
+            image_id = image.object_id
+        except Exception:  # noqa: BLE001
+            image_id = None
+        prov["coordinator"] = {
+            "modal_client": modal.__version__,
+            "image_object_id": image_id,
+            "local_manifest_matched": True,
+            "collected_utc": mc.utcnow_iso(),
+        }
+        prov_path.write_text(json.dumps(prov, indent=2, sort_keys=True)
+                             + "\n")
+        outcome = _outcome(str(dest))
+        rc = int((dest / mc.RUNNER_EXIT_NAME).read_text()
+                 .strip().split("=", 1)[1])
+        print(f"  {dest.name}: OUTCOME={outcome} rc={rc} "
+              f"({len(files)} files)")
+        return rc
+
     @app.local_entrypoint()
     def main(gpu: str = "A10G", mock: bool = False, dry_plan: bool = False,
-             arms: str = DEFAULT_ARMS, rungs: str = "R1",
-             out_root: str = "") -> None:
+             arms: str = "", rungs: str = "R1", jobs: str = "",
+             authorize_r2: bool = False, out_root: str = "") -> None:
         gpu = gpu.upper()
         if gpu not in GPU_FUNCTIONS:
             raise SystemExit(f"ERR_GPU: --gpu must be one of {GPU_CHOICES}, got {gpu!r}")
@@ -348,47 +500,79 @@ if modal is not None:
             raise SystemExit(subprocess.call(cmd))
 
         local_manifest = _local_manifest()
-        print(f"kot-rules2 via Modal: gpu={gpu} mock={mock} arms={arms} "
-              f"rungs={rungs} ({len(local_manifest)} staged files, runner "
+        staged_sha = _manifest_sha(local_manifest)
+        print(f"kot-rules2 via Modal: gpu={gpu} mock={mock} rungs={rungs} "
+              f"({len(local_manifest)} staged files, runner "
               f"{local_manifest['poc/rules-2/rules2_runner.py'][:12]}…)")
         print(f"pins.harness_manifest (staged-bytes manifest sha, canonical "
-              f"JSON): {_manifest_sha(local_manifest)}")
-        if not mock:
-            print("REMINDER: registry/experiments/rules-2.json must be "
-                  "FROZEN with this sha in pins.harness_manifest, the "
-                  "RULES-1 sequencing gate (PROPOSED-ASM-1420) must permit "
-                  "the run, dry-plan + mock must be green, and maintainer "
-                  "sign-off must hold (registry usd_cap $18; coordinator "
-                  "ceiling $35; R2 rung needs its own authorization).")
-
-        files = GPU_FUNCTIONS[gpu].remote(mock=mock, arms=arms, rungs=rungs,
-                                          local_manifest=local_manifest)
+              f"JSON): {staged_sha}")
 
         stamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + "-modal"
-        dest = Path(out_root) / stamp if out_root else INCOMING_ROOT / stamp
-        mc.unpack_files(files, str(dest))
+        root = Path(out_root) / stamp if out_root else INCOMING_ROOT / stamp
 
-        prov_path = dest / mc.PROVENANCE_NAME
-        prov = json.loads(prov_path.read_text())
-        try:
-            image_id = image.object_id
-        except Exception:  # noqa: BLE001
-            image_id = None
-        prov["coordinator"] = {
-            "modal_client": modal.__version__,
-            "image_object_id": image_id,
-            "local_manifest_matched": True,
-            "collected_utc": mc.utcnow_iso(),
-        }
-        prov_path.write_text(json.dumps(prov, indent=2, sort_keys=True) + "\n")
+        if mock:
+            # transport smoke: one monolithic mock container (arms
+            # overridable), NO freeze/sequencing gates, ~pennies
+            files = GPU_FUNCTIONS[gpu].remote(
+                mock=True, arms=arms or DEFAULT_ARMS, rungs=rungs,
+                local_manifest=local_manifest)
+            rc = _collect(files, root)
+            if rc != 0:
+                raise SystemExit(f"ERR_RUNNER: mock exited rc={rc}")
+            print("mock transport smoke done — `modal app stop ap-<id>` "
+                  "after every attached run")
+            return
 
-        outcome = _outcome(str(dest))
-        rc = int((dest / mc.RUNNER_EXIT_NAME).read_text().strip().split("=", 1)[1])
-        print(f"\nwrote {len(files)} files to {dest}")
-        print(f"OUTCOME: {outcome}")
+        if arms:
+            raise SystemExit("ERR_ARGS: the full path is SHARDED — select "
+                             "shards with --jobs (see --print-jobs), not "
+                             "--arms")
+        _launch_gates(gpu, rungs, authorize_r2, staged_sha)
+
+        all_jobs = build_jobs(rungs)
+        if jobs:
+            want = {j.strip() for j in jobs.split(",") if j.strip()}
+            unknown = want - {j["tag"] for j in all_jobs}
+            if unknown:
+                raise SystemExit(f"ERR_JOBS: unknown job tag(s) {sorted(unknown)}; "
+                                 f"see --print-jobs")
+            all_jobs = [j for j in all_jobs if j["tag"] in want]
+        print(f"spawning {len(all_jobs)} independent shard jobs "
+              f"(parallel; 12 h timeout each): "
+              f"{[j['tag'] for j in all_jobs]}")
+
+        calls = [(j, GPU_FUNCTIONS[gpu].spawn(
+            mock=False, arms=j["arms"], rungs=j["rungs"], seeds=j["seeds"],
+            shard_tag=j["tag"], local_manifest=local_manifest))
+            for j in all_jobs]
+        failures = []
+        shard_dirs = []
+        for j, call in calls:
+            dest = root / j["tag"]
+            try:
+                rc = _collect(call.get(), dest)
+            except Exception as e:  # noqa: BLE001
+                failures.append((j["tag"], str(e)))
+                continue
+            if rc != 0:
+                failures.append((j["tag"], f"rc={rc}"))
+            else:
+                shard_dirs.append(str(dest))
+        if failures:
+            raise SystemExit("ERR_SHARDS: %d/%d shard job(s) failed: %s — "
+                             "relaunch ONLY the failed tags with --jobs "
+                             "(completed shards are kept; merge after)"
+                             % (len(failures), len(calls), failures))
+
+        import subprocess
+        merged = root / "merged"
+        rc = subprocess.call([sys.executable,
+                              str(RULES2_DIR / "merge_shards.py"),
+                              "--out-dir", str(merged)] + shard_dirs)
         if rc != 0:
-            raise SystemExit(f"ERR_RUNNER: rules2_runner exited rc={rc} "
-                             f"(partials + logs saved in {dest})")
+            raise SystemExit("ERR_MERGE: merge_shards.py failed — shards "
+                             f"kept in {root}")
+        print(f"\nall {len(shard_dirs)} shards green; merged -> {merged}")
         print("done — review and commit deliberately (results are NOT "
               "auto-committed); `modal app stop ap-<id>` after every "
               "attached run")
@@ -403,5 +587,13 @@ if __name__ == "__main__":
         print(f"pins.harness_manifest (staged-bytes manifest sha, canonical "
               f"JSON): {_manifest_sha(man)}")
         sys.exit(0)
+    if "--print-jobs" in sys.argv:
+        rungs = "R1"
+        if "--rungs" in sys.argv:
+            rungs = sys.argv[sys.argv.index("--rungs") + 1]
+        for j in build_jobs(rungs):
+            print("%-12s arms=%-4s rungs=%-3s seeds=%s"
+                  % (j["tag"], j["arms"], j["rungs"], j["seeds"]))
+        sys.exit(0)
     raise SystemExit("run via `modal run poc/rules-2/modal/modal_rules2.py ...` "
-                     "or use --print-manifest")
+                     "or use --print-manifest / --print-jobs")

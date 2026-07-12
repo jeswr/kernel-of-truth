@@ -289,10 +289,11 @@ def gen_synthetic_components(n_fam, cert_mod, forbidden_names):
     MOTHER, FATHER = cert_mod.MOTHER, cert_mod.FATHER
     man = "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy"
     woman = "urn:kot:bciqbz6th7ul3gmk5bhtovyi2yifyv7twotuvwjcebgetthcs532sgoq"
-    for g in GIVEN_F2 + GIVEN_M2:
-        if g in forbidden_names:
-            raise SystemExit("ERR_NAME_COLLISION: given name %r appears in "
-                             "an eval corpus" % g)
+    for g in GIVEN_F2 + GIVEN_M2 + SURNAMES2:
+        if name_collides(g, forbidden_names):
+            raise SystemExit("ERR_NAME_COLLISION: name-pool entry %r "
+                             "appears in an eval corpus (token-level, "
+                             "rework-2)" % g)
     rng = random.Random(SEED_SYN)
     comps, used = [], set()
 
@@ -301,9 +302,10 @@ def gen_synthetic_components(n_fam, cert_mod, forbidden_names):
         for _ in range(1000):
             nm = "%s %s" % (rng.choice(pool), surname)
             if nm not in used:
-                if nm in forbidden_names:
-                    raise SystemExit("ERR_NAME_COLLISION: %r in eval corpus"
-                                     % nm)
+                if name_collides(nm, forbidden_names):
+                    raise SystemExit("ERR_NAME_COLLISION: %r collides with "
+                                     "an eval corpus name (token-level, "
+                                     "rework-2)" % nm)
                 used.add(nm)
                 urn = "urn:kotw:v0:r2t-%s" % nm.lower().replace(" ", "-")
                 names[urn] = nm
@@ -334,7 +336,15 @@ def gen_synthetic_components(n_fam, cert_mod, forbidden_names):
 
 def eval_surface_names():
     """All surface names in BOTH eval corpora (nsk1-clutrr item lexicons +
-    nsk1-eval lexicon) — the forbidden set for the synthetic expansion."""
+    nsk1-eval lexicon), expanded to TOKEN level — the forbidden set for the
+    synthetic expansion and the world-v0 guard. REWORK-2 (cross-vendor
+    prereg review 2026-07-12 item 5): the former FULL-NAME-only comparison
+    let world-v0 text containing the CLUTRR given names 'Gladys' and 'Lisa'
+    (as tokens of 'Gladys Presley' / 'Lisa Marie Presley') into training;
+    the disjointness claim (PROPOSED-ASM-1421/1442) is token-level, so the
+    guard now is too: every whitespace token of every eval surface name is
+    forbidden, and candidate training names are rejected on full-name OR
+    token intersection."""
     forb = set()
     for line in open(os.path.join(_ROOT, "data", "nsk1-clutrr",
                                   "items.jsonl")):
@@ -343,8 +353,17 @@ def eval_surface_names():
                                       "lexicon.json")))
     for full in lex["entities"].values():
         forb.add(full)
+    for full in list(forb):
         forb.update(full.split())
     return forb
+
+
+def name_collides(surface_name, forbidden):
+    """Token-level collision test (PROPOSED-ASM-1442, rework-2): a training
+    surface name collides if the full name OR ANY of its whitespace tokens
+    appears in the token-expanded forbidden set."""
+    return surface_name in forbidden or \
+        any(t in forbidden for t in surface_name.split())
 
 
 # ---------------------------------------------------------------------------
@@ -508,17 +527,23 @@ def build(args):
     wv0_comps, wv0_excluded = comps
     syn_comps = gen_synthetic_components(n_fam, cert_mod, forb)
     # world-v0 surface-name collision guard: exclude + count (real names are
-    # outside our control; exclusion is deterministic and disclosed)
+    # outside our control; exclusion is deterministic and disclosed).
+    # REWORK-2 (review item 5): the test is TOKEN-level — full-name-only
+    # matching admitted 'Gladys Presley'/'Lisa Marie Presley' although
+    # 'Gladys' and 'Lisa' are CLUTRR item-lexicon names. Excluded component
+    # ids are listed, not just counted.
     wv0_kept = []
     counts = {"components_conflict_excluded": 0,
               "components_engine_error": 0, "stated_query_skipped": 0,
               "e1_cell_skipped": 0, "e2_cell_skipped": 0,
               "refusal_cell_skipped": 0,
               "wv0_name_collision_excluded": 0,
+              "wv0_name_collision_excluded_ids": [],
               "wv0_out_of_inventory_records": wv0_excluded}
     for c in wv0_comps:
-        if any(n in forb for n in c["names"].values()):
+        if any(name_collides(n, forb) for n in c["names"].values()):
             counts["wv0_name_collision_excluded"] += 1
+            counts["wv0_name_collision_excluded_ids"].append(c["id"])
             continue
         wv0_kept.append(c)
 
@@ -685,9 +710,11 @@ def build(args):
         "family_kind_split_counts": dict(sorted(fam_counts.items())),
         "exclusion_ledger": counts,
         "name_disjointness": "asserted fail-closed vs nsk1-clutrr item "
-                             "lexicons and nsk1-eval lexicon "
-                             "(PROPOSED-ASM-1442); world-v0 collisions "
-                             "excluded+counted",
+                             "lexicons and nsk1-eval lexicon at TOKEN level "
+                             "(PROPOSED-ASM-1442, rework-2 per cross-vendor "
+                             "review item 5: full name OR any whitespace "
+                             "token); world-v0 collisions excluded, counted "
+                             "AND listed by component id",
         "refusal_answer": REFUSAL_ANSWER,
         "b3_note": "proof_sidecar is NEVER rendered into B2 training text; "
                    "B3 renders it before the answer (design SS2.2 family 4)",

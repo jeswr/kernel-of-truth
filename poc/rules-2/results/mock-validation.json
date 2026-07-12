@@ -1,0 +1,69 @@
+{
+ "analysis_parity": "monolithic == sharded+merged on every field except the disclosed process-measured metrics",
+ "artifact": "rules-2 pinned green-mock validation (REWORK-2, review item 9)",
+ "date_utc": "2026-07-12T13:10:21Z",
+ "dry_plans_green": [
+  "R1",
+  "R2"
+ ],
+ "gates_on_mock": {
+  "c8_lookup_gate_valid": true,
+  "headroom_valid": true,
+  "pin_gate_valid": true,
+  "repeat_byte_identical": true
+ },
+ "green": true,
+ "harness_manifest_sha256": "56c713d44b90ddc47d469b63ac2614c0ab72cf60be3db2f7c5f59b6baf8bc454",
+ "measured_fields_excluded_from_parity": [
+  "b2_usd_per_query",
+  "b4_usd_per_query_flops_share",
+  "claim_carrier_b2_r1_train_peak_bytes",
+  "engine_cpu_seconds_total",
+  "engine_us_mean",
+  "engine_us_total",
+  "gpu_hours",
+  "mean_engine_us",
+  "n_star_queries",
+  "peak_mem_bytes",
+  "peak_mem_bytes_max",
+  "per_arm_rung_eval_peak_bytes",
+  "per_arm_rung_train_peak_bytes",
+  "saving_usd_per_query",
+  "usd",
+  "usd_flops_share",
+  "usd_per_query",
+  "usd_per_query_flops_share",
+  "wallClockHours",
+  "wall_hours",
+  "wall_seconds"
+ ],
+ "mock_primary_band": "pass_lb_above_sesoi",
+ "mock_verdict_mapping": "PASS",
+ "mode": "MOCK",
+ "monolithic": {
+  "n_rows": 2525,
+  "outcome": "MOCK-HARNESS-COMPLETE",
+  "records_sha256": "63849c5d06a0ad0c338c8cd4b9017e9a44e22193e9463969eec9c6db96e478a9"
+ },
+ "sharded": {
+  "n_rows": 2525,
+  "n_shards": 13,
+  "records_sha256": "e2f2bc71935339465e9c5de7f1612f065934805887013962952f05c79a205395",
+  "shard_tags": [
+   "b0-r1-s0",
+   "b1-r1-s0",
+   "b1-r1-s1",
+   "b2-r1-s0",
+   "b2-r1-s1",
+   "b3-r1-s0",
+   "b3-r1-s1",
+   "c1p-r1-s0",
+   "c1p-r1-s1",
+   "b4-s0",
+   "b4-s1",
+   "b4-s2",
+   "b5-r3-s0"
+  ]
+ },
+ "status_note": "mock mechanics validation ONLY \u2014 the planted stub gradient exists so gates/analysis/verdict-mapping resolve; nothing here is a measurement or a feasibility conclusion"
+}

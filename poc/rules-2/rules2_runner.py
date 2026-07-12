@@ -32,16 +32,21 @@ review 2026-07-12, fix 1):
        target differs from the engine answer) — content control; the lift
        must collapse (s1', ASM-1426).
 
-EVAL SURFACES (review fix 1):
+EVAL SURFACES (review fix 1; REWORK-2 = the RULES-1-B frame contract after
+the 2026-07-12 VOID of rules-1's GPU run for a direction-ambiguous cue):
   (i)  The rules-2 surface: EVERY rules-2 arm (B0/B1/B2/B3/B5/c1p) scores
        S-out and the corpus strata on BYTE-IDENTICAL prompts (no per-arm
        padding; the prompt is a pure function of the cell) with the SAME
-       24-option decode (23-word CLUTRR menu + named refusal). The former
-       ASM-1127 A1 padding asymmetry for B0/B5 is REMOVED; the shared
-       prompt-surface sha is recorded in the results bytes.
+       24-option decode (23-word CLUTRR menu + named refusal). Frames are
+       the RULES-1-B fixes applied identically at train and eval: menu in
+       the task header, direction-explicit infill answer cue rendered from
+       the question template (relation: '{b} is {a}'s'; typing: '{e} is
+       a'), refusal option scored verbatim after the cue (marked
+       continuation, uniform, disclosed). The shared prompt-surface sha is
+       recorded in the results bytes.
   (ii) The common 23-option gap surface: for the s3' B2-vs-B4 gap, B2 (all
-       FT seeds) and B0 are ADDITIONALLY scored on the RULES-1 A1-verbatim
-       prompt (rules-1 frames, 23-option menu, no refusal option) — the
+       FT seeds) and B0 are ADDITIONALLY scored on the RULES-1-B A1-verbatim
+       prompt (rules-1-b frames, 23-option menu, no refusal option) — the
        exact attempt-0 surface B4 decodes on — emitted as cell="entailed23"
        (R1 only). B2/B4 and the (B2-B0)/(B4-B0) gap fraction are scored on
        THIS common surface, never across surfaces.
@@ -69,6 +74,9 @@ Usage:
   python3 rules2_runner.py --out-dir /tmp/rules2 --mock       # stub LM, CPU, $0
   python3 rules2_runner.py --out-dir /tmp/rules2 --dry-plan   # cost plan vs caps
   python3 rules2_runner.py --out-dir /tmp/rules2 --device cuda  # real (Modal only)
+  # sharded parallel job (one arm x seed; merge with merge_shards.py):
+  python3 rules2_runner.py --out-dir /tmp/r2 --device cuda \
+      --arms B2 --seeds 1 --shard-tag B2-R1-s1
 
 HARD RULES: --mock and --dry-plan spend $0, never touch a GPU or the network;
 mock numbers are labelled MOCK end-to-end and are never measurements; this
@@ -92,46 +100,44 @@ for p in (_HERE, _RULES1, os.path.join(_ROOT, "poc"),
     if p not in sys.path:
         sys.path.insert(0, p)
 
-# REUSE, byte-identical (pins verified in load_inputs before any cell runs):
+# REUSE, byte-identical — IMPORTED LAZILY by _import_pinned() ONLY AFTER
+# verify_pins_pre_import() has hash-verified the raw file bytes (REWORK-2,
+# cross-vendor prereg review 2026-07-12 item 6: the former module-level
+# imports EXECUTED certificate/rules1_runner/f2bt_runner code before
+# load_inputs() verified their hashes; the G1 pin gate now hashes first and
+# imports second, fail-closed):
 #   twin_engine.py / certificate.py — the FROZEN rules-1 engine + world glue
-#   rules1_runner.py — arm drivers (A1 padding, A3 verify-retry, prompt
-#                      frames, verbaliser, licensed rejections, gold-leak
-#                      guard) for B0/B4/B5
+#   rules1_runner.py — RULES-1-B arm drivers (A3 verify-retry, direction-
+#                      explicit prompt frames, verbaliser, licensed
+#                      rejections, gold-leak guard) for B4 + the gap23
+#                      surface; rules-1's GPU run was VOIDED 2026-07-12
+#                      (degenerate direction-ambiguous cue) and superseded
+#                      by rules-1-b — the imported bytes are the rules-1-b
+#                      freeze bytes, sha-pinned in rules2-manifest.json
 #   f2bt_runner.py   — HFLM forced-choice scorer + CellGuard + helpers
-import certificate as cert_mod  # noqa: E402
-import rules1_runner as r1  # noqa: E402
-from f2bt_runner import (  # noqa: E402
-    CellBudgetExceeded, CellGuard, corpus_kot_hash, det_u, load_jsonl,
-    sha256_file, utcnow,
-)
-
-FT_ARMS = ("B1", "B2", "B3", "c1p")
-EVAL_ARMS = ("B0", "B4", "B5")
-ALL_ARMS = ("B0", "B1", "B2", "B3", "B4", "B5", "c1p")
-RUNG_REPO = {"B5": "R3", "B4": "R1"}  # others take the --rungs plan
-CELL_TIMEOUT_S_DEFAULT = {"A100": 5400.0, "A10G": 5400.0, "T4": 10800.0}
-MAX_GEN_PER_ITEM = 8
+r1 = None         # set by _import_pinned()
+CellBudgetExceeded = CellGuard = corpus_kot_hash = det_u = None
+load_jsonl = utcnow = None
 
 
-# ---------------------------------------------------------------------------
-# Inputs + fail-closed pins
-# ---------------------------------------------------------------------------
-def load_inputs(args):
+def sha256_file(path):
+    """Local (stdlib-only) file hash — MUST NOT come from a pinned module,
+    because it verifies those modules' bytes BEFORE they are imported."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def verify_pins_pre_import(args):
+    """G1 pin gate, phase 1 (raw bytes only; PROPOSED-ASM-1437 + review
+    fix 6): hash every file whose code will be imported or trusted, plus the
+    c8/certificate artifacts, BEFORE any pinned module executes. Returns
+    (manifest, certificate json, c8 json)."""
     man = json.load(open(os.path.join(args.inputs_dir,
                                       "rules2-manifest.json")))
     pins = man["pins"]
-    for key, base in (
-            ("rules2TrainCorpusKotHash", args.corpus_dir),
-            ("nsk1ClutrrCorpusKotHash",
-             os.path.join(args.data_root, "nsk1-clutrr")),
-            ("axiomsV0CorpusKotHash",
-             os.path.join(args.data_root, "axioms-v0")),
-            ("axiomsKinshipV1CorpusKotHash",
-             os.path.join(args.data_root, "axioms-kinship-v1"))):
-        got = corpus_kot_hash(base)
-        if got != pins[key]:
-            raise SystemExit("ERR_PIN: %s: %s kot-corpus-hash %s != pin %s"
-                             % (key, base, got, pins[key]))
     for key, path in (
             ("twinEnginePySha256", os.path.join(_RULES1, "twin_engine.py")),
             ("certificatePySha256", os.path.join(_RULES1, "certificate.py")),
@@ -144,8 +150,8 @@ def load_inputs(args):
              os.path.join(_ROOT, "poc", "f2b-transfer", "runner",
                           "f2bt_runner.py"))):
         if sha256_file(path) != pins[key]:
-            raise SystemExit("ERR_PIN: %s: %s sha != rules2-manifest pin"
-                             % (key, path))
+            raise SystemExit("ERR_PIN: %s: %s sha != rules2-manifest pin "
+                             "(raw-byte check, pre-import)" % (key, path))
 
     # certificate precondition (rules-1 frozen gate carried over, ASM-1437)
     cert = json.load(open(os.path.join(_RULES1, "results",
@@ -166,8 +172,54 @@ def load_inputs(args):
                          "(mode=%s gate_pass=%s) — INSTRUMENT-INVALID, no "
                          "GPU spend" % (c8res["mode"],
                                         c8res["gate"]["gate_pass"]))
+    return man, cert, c8res
 
-    # verbaliser/frames drift guard vs the imported rules-1 bytes
+
+def _import_pinned():
+    """Phase 2: import the pin-verified modules (call ONLY after
+    verify_pins_pre_import)."""
+    global r1, CellBudgetExceeded, CellGuard, corpus_kot_hash, det_u
+    global load_jsonl, utcnow
+    import rules1_runner as _r1
+    import f2bt_runner as _f2
+    r1 = _r1
+    CellBudgetExceeded = _f2.CellBudgetExceeded
+    CellGuard = _f2.CellGuard
+    corpus_kot_hash = _f2.corpus_kot_hash
+    det_u = _f2.det_u
+    load_jsonl = _f2.load_jsonl
+    utcnow = _f2.utcnow
+
+FT_ARMS = ("B1", "B2", "B3", "c1p")
+EVAL_ARMS = ("B0", "B4", "B5")
+ALL_ARMS = ("B0", "B1", "B2", "B3", "B4", "B5", "c1p")
+RUNG_REPO = {"B5": "R3", "B4": "R1"}  # others take the --rungs plan
+CELL_TIMEOUT_S_DEFAULT = {"A100": 5400.0, "A10G": 5400.0, "T4": 10800.0}
+MAX_GEN_PER_ITEM = 8
+
+
+# ---------------------------------------------------------------------------
+# Inputs + fail-closed pins
+# ---------------------------------------------------------------------------
+def load_inputs(args, man):
+    """G1 pin gate, phase 3 (after verify_pins_pre_import + _import_pinned):
+    corpus kot-hashes + the frame/verbaliser drift guards vs the imported
+    RULES-1-B bytes."""
+    pins = man["pins"]
+    for key, base in (
+            ("rules2TrainCorpusKotHash", args.corpus_dir),
+            ("nsk1ClutrrCorpusKotHash",
+             os.path.join(args.data_root, "nsk1-clutrr")),
+            ("axiomsV0CorpusKotHash",
+             os.path.join(args.data_root, "axioms-v0")),
+            ("axiomsKinshipV1CorpusKotHash",
+             os.path.join(args.data_root, "axioms-kinship-v1"))):
+        got = corpus_kot_hash(base)
+        if got != pins[key]:
+            raise SystemExit("ERR_PIN: %s: %s kot-corpus-hash %s != pin %s"
+                             % (key, base, got, pins[key]))
+
+    # verbaliser/frames drift guard vs the imported rules-1-b bytes
     if r1.verbalise_fact(("rel", "s", "u", "o"), {"s": "A", "o": "B"},
                          {"u": "w"}) != "B is A's w" or \
        r1.verbalise_fact(("cls", "e", r1.MAN), {"e": "E"}, {}) != "E is a man" or \
@@ -177,12 +229,31 @@ def load_inputs(args):
     man1 = json.load(open(os.path.join(_RULES1, "inputs",
                                        "rules1-manifest.json")))
     f2 = man["prompt_frames"]
+    # shared-frame contract (REWORK-2): the rules-2 surface = the RULES-1-B
+    # surface (direction-explicit infill cue, menu in the task header)
+    # PLUS the rules-2-only refusal_note / typing cue / B3 proof block.
     for k in ("task_prefix", "fact_line", "una_line", "question_prefix",
-              "menu_prefix", "answer_cue", "padding_sentence"):
+              "answer_cue", "padding_sentence"):
         if f2[k] != man1["prompt_frames"][k]:
             raise SystemExit("ERR_FRAME_DRIFT: frame %r differs from the "
                              "rules-1 manifest" % k)
-    return man, man1, cert, c8res
+    # B3's proof block reuses the rules-1-b derived-block rendering verbatim
+    if f2["proof_prefix"] != man1["prompt_frames"]["derived_prefix"] or \
+            f2["proof_line"] != man1["prompt_frames"]["derived_line"]:
+        raise SystemExit("ERR_FRAME_DRIFT: proof block differs from the "
+                         "rules-1 derived block")
+    # the direction-explicit cue must carry both name slots (the rules-1
+    # void's root cause was a cue without them; fail closed on regression)
+    if "{a_name}" not in f2["answer_cue"] or "{b_name}" not in f2["answer_cue"]:
+        raise SystemExit("ERR_FRAME_DRIFT: answer_cue is not the direction-"
+                         "explicit infill (rules-1-b contract)")
+    if "{e_name}" not in f2["answer_cue_typing"]:
+        raise SystemExit("ERR_FRAME_DRIFT: answer_cue_typing missing "
+                         "{e_name}")
+    if "{menu}" not in f2["task_prefix"]:
+        raise SystemExit("ERR_FRAME_DRIFT: task_prefix missing {menu} "
+                         "(rules-1-b menu-in-header contract)")
+    return man1
 
 
 def load_corpus(args):
@@ -201,15 +272,47 @@ def load_corpus(args):
 
 
 # ---------------------------------------------------------------------------
-# Prompt construction (rules-1 frames + refusal note; B3 proof block).
+# Prompt construction (RULES-1-B frames + refusal note; B3 proof block).
 # REVIEW FIX 1: the eval prompt is a pure function of the cell — NO per-arm
 # padding, so every rules-2 arm scores BYTE-IDENTICAL prompts by
 # construction (the former ASM-1127 padding path is removed; the
 # padding_sentence frame is retained only for the rules-1 frame-drift
 # assertion).
+# REWORK-2 (rules-1 GPU VOID 2026-07-12; superseded by rules-1-b): the
+# surface adopts BOTH rules-1-b frame fixes — (1) the direction-explicit
+# infill answer cue ('\nAnswer: {b_name} is {a_name}'s' for relation
+# questions; '\nAnswer: {e_name} is a' for typing questions), rendered
+# deterministically from the question's OWN template (no gold dependence,
+# fail-closed ERR_CUE on an unrecognised shape), and (2) the menu inside
+# the task header ({menu} placeholder) instead of a line adjacent to the
+# cue. Applied identically at TRAIN and EVAL time for every rules-2 arm.
+# The refusal option is scored verbatim after the infill cue; the resulting
+# marked (agrammatical) continuation is uniform across arms and across
+# train/eval, and is disclosed (PROPOSED-ASM-1446).
 # ---------------------------------------------------------------------------
+def parse_cue_names(question):
+    """(kind, names) from the two closed question templates. The materialiser
+    and nsk1-clutrr both emit exactly these shapes; anything else is an
+    instrument bug, never a silent fallback."""
+    if question.startswith("How is ") and " related to " in question \
+            and question.endswith("?"):
+        a, b = question[len("How is "):-1].split(" related to ", 1)
+        return "rel", (a, b)
+    if question.startswith("Is ") and \
+            question.endswith(" a man or a woman?"):
+        return "typing", (question[len("Is "):-len(" a man or a woman?")],)
+    raise SystemExit("ERR_CUE: unrecognised question template %r" % question)
+
+
+def render_cue(frames, question):
+    kind, names = parse_cue_names(question)
+    if kind == "rel":
+        return frames["answer_cue"].format(a_name=names[0], b_name=names[1])
+    return frames["answer_cue_typing"].format(e_name=names[0])
+
+
 def render_prompt(frames, context_lines, question, menu, proof_lines=None):
-    parts = [frames["task_prefix"]]
+    parts = [frames["task_prefix"].format(menu=", ".join(menu))]
     for line in context_lines:
         parts.append(frames["fact_line"].format(line=line))
     parts.append(frames["una_line"])
@@ -219,8 +322,7 @@ def render_prompt(frames, context_lines, question, menu, proof_lines=None):
         for line in proof_lines:
             parts.append(frames["proof_line"].format(line=line))
     parts.append(frames["question_prefix"] + question)
-    parts.append(frames["menu_prefix"] + ", ".join(menu) + ".")
-    return "".join(parts) + frames["answer_cue"]
+    return "".join(parts) + render_cue(frames, question)
 
 
 def build_training_texts(arm, corpus, shuf_map, upsample_ids, byid, frames,
@@ -321,19 +423,28 @@ def eval_cells(lm, cells, arm, rung, seed, frames, refusal, emitter, guard,
     return hashlib.sha256(blob).hexdigest()
 
 
+def gap23_pair_names(ctx, iid):
+    """The (a, b) SURFACE names of the eval query pair — the rules-1-b cue
+    inputs, byte-identical to what B4's verify-retry loop renders."""
+    a, b = ctx["pair"][iid]
+    names = ctx["names"][iid]
+    return (names.get(a, a), names.get(b, b))
+
+
 def gap23_cells(lm, arm, seed, items_covered, ctx, frames1, emitter, guard):
     """REVIEW FIX 1(ii): the COMMON 23-option gap surface for s3'. B0 and B2
-    are scored on the RULES-1 A1-verbatim prompt (rules-1 frames, 23-word
-    menu, NO refusal option, no padding, no feedback) — byte-identical to
-    B4's attempt-0 verify-retry prompt — emitted as cell='entailed23',
-    rung R1. The B2/B4 gap and its (B2-B0)/(B4-B0) fraction are computed on
-    THIS surface only."""
+    are scored on the RULES-1-B A1-verbatim prompt (rules-1-b frames incl.
+    the direction-explicit cue, 23-word menu in the task header, NO refusal
+    option, no padding, no feedback) — byte-identical to B4's attempt-0
+    verify-retry prompt — emitted as cell='entailed23', rung R1. The B2/B4
+    gap and its (B2-B0)/(B4-B0) fraction are computed on THIS surface only."""
     for it in items_covered:
         iid = it["item_id"]
         guard.start_item({"id": iid})
         prompt = r1.build_prompt(frames1, it, ctx["stated"][iid],
                                  ctx["names"][iid], ctx["urn2word"],
-                                 ctx["menu"])
+                                 ctx["menu"],
+                                 pair_names=gap23_pair_names(ctx, iid))
         guard.gen()
         ans, _conf = lm.choose({"id": iid, "cell": "entailed23", "arm": arm},
                                list(ctx["menu"]), it["gold_relation"], seed,
@@ -571,35 +682,50 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
         train_tok[arm] = sum(len(p) + len(c) for p, c in texts) / cpt \
             * hp["epochs"]
 
-    hours = {"train": 0.0, "eval": 0.0}
+    # PER-JOB plan (REWORK-2, review item 9 + the parallel-launch directive):
+    # the campaign is sharded into INDEPENDENT Modal jobs — one per
+    # (FT arm x seed x rung), one per eval-only arm/seed group — so no
+    # single Modal function approaches the 12 h timeout and shards can run
+    # concurrently (across containers and across accounts). Job walls below
+    # are per-shard worst cases; the caps bind on the SUM (same total spend).
+    frames1 = json.load(open(os.path.join(
+        _RULES1, "inputs", "rules1-manifest.json")))["prompt_frames"]
+    b4_tok = sum(len(r1.build_prompt(
+        frames1, it, ctx["stated"][it["item_id"]],
+        ctx["names"][it["item_id"]], ctx["urn2word"], menu23,
+        pair_names=gap23_pair_names(ctx, it["item_id"]))) / cpt * 23
+        for it in items_covered)
+
+    jobs = []  # (job_name, hours)
     for rung in [r for r in ("R1", "R2") if r in rungs]:
         arms_r = dc["ft_arms"] if rung == "R1" else \
             [a for a in dc["rungs_r2_arms"] if a in dc["ft_arms"]]
         for arm in arms_r:
-            hours["train"] += len(dc["ft_seeds"]) * train_tok[arm] \
-                / tput_t[rung] / 3600.0
-            hours["eval"] += (len(dc["ft_seeds"]) * sout_tok + rep_tok
-                              + strata_tok) / tput_e[rung] / 3600.0
-        # B0 on this rung: S-out + repeat + strata (byte-identical unpadded
-        # surface, review fix 1)
-        hours["eval"] += (sout_tok + rep_tok + strata_tok) \
-            / tput_e[rung] / 3600.0
-    # B4 (R1): 23-option rules-1 surface, expected attempt factor 2, 3 seeds
-    b4_tok = sum(len(r1.build_prompt(
-        json.load(open(os.path.join(_RULES1, "inputs",
-                                    "rules1-manifest.json")))
-        ["prompt_frames"], it, ctx["stated"][it["item_id"]],
-        ctx["names"][it["item_id"]], ctx["urn2word"], menu23)) / cpt * 23
-        for it in items_covered)
-    hours["eval"] += b4_tok * 2.0 * 3 / tput_e["R1"] / 3600.0
-    # gap23 common surface (review fix 1): B2 x 3 FT seeds + B0 x 1, R1 only
-    hours["eval"] += b4_tok * (len(dc["ft_seeds"]) + 1) \
-        / tput_e["R1"] / 3600.0
-    # B5 (R3): S-out only + repeat
-    hours["eval"] += (sout_tok + rep_tok) / tput_e["R3"] / 3600.0
+            for si, seed in enumerate(dc["ft_seeds"]):
+                h = train_tok[arm] / tput_t[rung] / 3600.0 \
+                    + sout_tok / tput_e[rung] / 3600.0
+                if si == 0:
+                    h += (rep_tok + strata_tok) / tput_e[rung] / 3600.0
+                if arm == "B2" and rung == "R1":
+                    h += b4_tok / tput_e["R1"] / 3600.0  # gap23 cell
+                jobs.append(("%s/%s/seed%d" % (arm, rung, seed), h))
+        h0 = (sout_tok + rep_tok + strata_tok) / tput_e[rung] / 3600.0
+        if rung == "R1":
+            h0 += b4_tok / tput_e["R1"] / 3600.0  # B0 gap23 cell
+        jobs.append(("B0/%s/seed0" % rung, h0))
+    if "R1" in rungs:  # B4/B5 are R1-tier cells only
+        for seed in dc["eval_only_seeds"]["B4"]:
+            # B4: 23-option surface, expected attempt factor 2 (rules-1
+            # planning constant)
+            jobs.append(("B4/R1/seed%d" % seed,
+                         b4_tok * 2.0 / tput_e["R1"] / 3600.0))
+        jobs.append(("B5/R3/seed0",
+                     (sout_tok + rep_tok) / tput_e["R3"] / 3600.0))
 
-    total = hours["train"] + hours["eval"]
+    total = sum(h for _n, h in jobs)
     worst = total * plan["overhead_factor"]
+    job_worst = [(n, h * plan["overhead_factor"]) for n, h in jobs]
+    max_job = max(job_worst, key=lambda x: x[1])
     cap = dc["budget"]
     lines = [
         "rules-2 --dry-plan (ESTIMATES ONLY — planning constants from "
@@ -613,10 +739,10 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
         "prompts across arms) + strata/repeat on first seed only + gap23 "
         "common 23-option surface (B2 x %d seeds + B0, R1)"
         % (len(sout), n_opt, len(dc["ft_seeds"])),
-        "GPU-hours on %s: train %.2f + eval %.2f = %.2f h; with %.1fx "
-        "overhead %.2f h"
-        % (gpu, hours["train"], hours["eval"], total,
-           plan["overhead_factor"], worst),
+        "sharded launch: %d independent jobs; worst single job %s = %.2f h "
+        "(Modal function timeout 12 h)" % (len(jobs), max_job[0], max_job[1]),
+        "GPU-hours on %s (sum over jobs): %.2f h; with %.1fx overhead "
+        "%.2f h" % (gpu, total, plan["overhead_factor"], worst),
         "cost at Modal list $%.2f/h: est $%.2f / worst $%.2f"
         % (usd, total * usd, worst * usd),
         "",
@@ -629,6 +755,8 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
          worst * usd <= cap["coordinator_outer_ceiling_usd"]),
         ("worst hours vs gpu_hours_cap (%d h)" % cap["gpu_hours_cap"],
          worst <= cap["gpu_hours_cap"]),
+        ("worst single job vs 12 h Modal function timeout",
+         max_job[1] <= 12.0),
     ]
     for name, ok in verdicts:
         lines.append("  %-46s %s" % (name, "OK" if ok
@@ -656,12 +784,25 @@ def main():
     ap.add_argument("--mock", action="store_true")
     ap.add_argument("--dry-plan", action="store_true")
     ap.add_argument("--cell-timeout-s", type=float, default=None)
+    ap.add_argument("--seeds", default=None,
+                    help="shard filter: comma list of seeds to run in THIS "
+                         "job (applies to FT seeds and eval-only seeds); "
+                         "default = all design seeds. Strata/repeat cells "
+                         "still attach to the CANONICAL first design seed, "
+                         "wherever it runs (PROPOSED-ASM-1457).")
+    ap.add_argument("--shard-tag", default="",
+                    help="label for this job's output files (sharded "
+                         "parallel launch; merge with merge_shards.py)")
     args = ap.parse_args()
     if args.cell_timeout_s is None:
         args.cell_timeout_s = CELL_TIMEOUT_S_DEFAULT[args.gpu_class]
     t0 = time.time()
 
-    man, man1, cert, c8res = load_inputs(args)
+    # G1 phases: (1) raw-byte pins, (2) import pinned modules, (3) corpus
+    # hashes + frame drift (REWORK-2, review item 6: hash BEFORE import)
+    man, cert, c8res = verify_pins_pre_import(args)
+    _import_pinned()
+    man1 = load_inputs(args, man)
     corpus, byid, shuf, ups, samples, cman = load_corpus(args)
     dc = man["design_constants_from_design_doc"]
     frames = man["prompt_frames"]
@@ -701,10 +842,26 @@ def main():
         covered = covered[:mk["n_sout_covered"]]
         control = control[:mk["n_sout_control"]]
         strata_n = mk["strata_eval_counts"]
-        ft_seeds = mk["ft_seeds"]
+        ft_seeds_all = mk["ft_seeds"]
     else:
         strata_n = dc["strata_eval_counts"]
-        ft_seeds = dc["ft_seeds"]
+        ft_seeds_all = dc["ft_seeds"]
+    # shard filter (--seeds): run a subset of seeds in THIS job; the strata/
+    # repeat cells belong to the CANONICAL first design seed regardless of
+    # which shard runs it, so a sharded launch covers exactly the same cells
+    # as a monolithic one (asserted by merge_shards.py).
+    canon_first = ft_seeds_all[0]
+    if args.seeds is not None:
+        seeds_filter = [int(s) for s in args.seeds.split(",") if s.strip()]
+        ft_seeds = [s for s in ft_seeds_all if s in seeds_filter]
+    else:
+        seeds_filter = None
+        ft_seeds = list(ft_seeds_all)
+
+    def eval_only_seeds(arm):
+        seeds = dc["eval_only_seeds"][arm]
+        return (seeds if seeds_filter is None
+                else [s for s in seeds if s in seeds_filter])
 
     sout = sout_cells(covered, control, ctx, frames, menu23, refusal)
     strata = {
@@ -720,11 +877,12 @@ def main():
                                       menu23, refusal, "refusal_train"),
     }
 
-    emitter = r1.RowEmitter(args.out_dir, args.mock)
+    suffix = ("-" + args.shard_tag if args.shard_tag else "") + \
+        ("-mock" if args.mock else "")
+    emitter = r1.RowEmitter(args.out_dir, suffix)
     stray = emitter.path  # RowEmitter names its file for rules-1; rename
-    emitter.path = os.path.join(
-        args.out_dir, "run-records-rules2%s.jsonl"
-        % ("-mock" if args.mock else ""))
+    emitter.path = os.path.join(args.out_dir,
+                                "run-records-rules2%s.jsonl" % suffix)
     if os.path.exists(stray) and stray != emitter.path:
         os.remove(stray)
     with open(emitter.path, "w"):
@@ -744,7 +902,9 @@ def main():
         [r1.build_prompt(man1["prompt_frames"], it,
                          ctx["stated"][it["item_id"]],
                          ctx["names"][it["item_id"]], ctx["urn2word"],
-                         menu23) for it in covered],
+                         menu23,
+                         pair_names=gap23_pair_names(ctx, it["item_id"]))
+         for it in covered],
         separators=(",", ":")).encode()).hexdigest()
 
     # G4 repeat subsample: pinned first-N-by-sha S-out covered cells
@@ -815,8 +975,9 @@ def main():
 
     for arm in arms:
         if arm == "B4":
-            # RULES-1 A3 VERBATIM (frames + drivers byte-identical; k=4)
-            for seed in dc["eval_only_seeds"]["B4"]:
+            # RULES-1-B A3 VERBATIM (frames + drivers byte-identical; k=4;
+            # rules-1's GPU run VOIDED and superseded by rules-1-b)
+            for seed in eval_only_seeds("B4"):
                 lm = (r1.StubRulesLM("R1", {"stub_skill":
                       man["mock"]["b4_stub"]["stub_skill"],
                       "stub_injection_bonus":
@@ -841,7 +1002,7 @@ def main():
             for item in control:
                 pay = ctx["payload_true"][item["item_id"]]
                 refused = int(pay.refusal is not None and pay.answer is None)
-                for seed in dc["eval_only_seeds"]["B4"]:
+                for seed in eval_only_seeds("B4"):
                     emitter.emit(item_id=item["item_id"], arm="B4",
                                  rung="R1", seed=seed, cell="control",
                                  item_correct_ext=0, refused=refused,
@@ -850,23 +1011,28 @@ def main():
                                  refusal_code=pay.refusal or "ERR_NONE_BUG")
             continue
         if arm == "B5":
-            for seed in dc["eval_only_seeds"]["B5"]:
+            for seed in eval_only_seeds("B5"):
                 lm = (StubR2LM("R3", "B5", man["mock"], refusal) if args.mock
                       else r1.Rules1HFLM(
                           man["model_revisions"]["R3"]["repo"],
                           man["model_revisions"]["R3"]["revision"],
                           args.device))
-                run_eval_arm(lm, "B5", "R3", seed, sout_only=True)
+                run_eval_arm(lm, "B5", "R3", seed, sout_only=True,
+                             first_seed=(seed
+                                         == dc["eval_only_seeds"]["B5"][0]))
             continue
         for rung in ft_rungs[arm]:
             spec = man["model_revisions"][rung]
             if arm == "B0":
-                for seed in dc["eval_only_seeds"]["B0"]:
+                for seed in eval_only_seeds("B0"):
                     lm = (StubR2LM(rung, "B0", man["mock"], refusal)
                           if args.mock else
                           r1.Rules1HFLM(spec["repo"], spec["revision"],
                                         args.device))
-                    run_eval_arm(lm, "B0", rung, seed)
+                    run_eval_arm(lm, "B0", rung, seed,
+                                 first_seed=(seed
+                                             == dc["eval_only_seeds"]
+                                             ["B0"][0]))
                     if rung == "R1":
                         run_gap23(lm, "B0", seed)
                 continue
@@ -891,7 +1057,7 @@ def main():
                     ledger["mode"] = "REAL"
                     training_ledger[key] = ledger
                 run_eval_arm(lm, arm, rung, seed,
-                             first_seed=(seed == ft_seeds[0]))
+                             first_seed=(seed == canon_first))
                 if arm == "B2" and rung == "R1":
                     run_gap23(lm, "B2", seed)
                 if not args.mock:
@@ -918,6 +1084,16 @@ def main():
         "device": args.device,
         "gpu_class_assumed_for_usd": args.gpu_class,
         "arms": arms, "rungs": rungs, "ft_seeds": ft_seeds,
+        "ft_seeds_design": ft_seeds_all,
+        "canonical_first_seed": canon_first,
+        "shard_tag": args.shard_tag or None,
+        "seeds_filter": seeds_filter,
+        "shard_note": "sharded parallel launch (independent arm x seed "
+                      "jobs; PROPOSED-ASM-1459 merge protocol): shards are "
+                      "combined by poc/rules-2/merge_shards.py, which "
+                      "asserts identical pins/prompt-surface shas and "
+                      "reconstructs the canonical results-rules2.json the "
+                      "pinned analysis consumes",
         "n_sout_covered": len(covered), "n_sout_control": len(control),
         "strata_eval_counts": strata_n,
         "n_rows": len(emitter.rows),
@@ -961,7 +1137,6 @@ def main():
                    if args.mock else man["model_revisions"]),
         "wallClockHours": (time.time() - t0) / 3600.0,
     }
-    suffix = "-mock" if args.mock else ""
     with open(os.path.join(args.out_dir, "results-rules2%s.json" % suffix),
               "w") as f:
         json.dump(results, f, indent=2, sort_keys=True)

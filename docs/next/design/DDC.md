@@ -25,6 +25,47 @@
 > rows to `registry/assumptions.jsonl` in the same commit, and routes the document
 > through the standing external-review gate before commit.
 >
+> **REWORK revision (2026-07-12, same day):** the standing cross-vendor external
+> review (`poc/gpt56-review/ddc-review/`, final message) returned **REWORK — the
+> core experiment is viable, but the preregistration is not statistically
+> freeze-ready** — and this revision applies its three mandated fixes: (review
+> fix 2) §2.3 now defines the A2 alignment MATHEMATICALLY — exact ridge-CCA and
+> Procrustes matrices, the ridge grid, the concept splits, the direction scores,
+> the null statistic, every tie-break, and the fail-closed treatment when fewer
+> than r valid top-up vectors remain; (review fix 3) Procrustes is treated
+> explicitly as an alignment MAP from which direction pairs are EXTRACTED and
+> TESTED, under a single Westfall–Young **max-stat permutation family across
+> directions × layers × method-selection**; (review fix 4) gate I-5 is replaced —
+> a superiority MDE ≤ 3 points does not establish TOST power; §5.2 now carries a
+> declared SESOI, a real TOST decision rule, and a pre-registered power
+> SIMULATION with separate superiority and equivalence legs. Changed or new
+> stipulations are re-issued as **PROPOSED-ASM-1700..1719** (verified
+> collision-free at revision time; central register tail ASM-1691);
+> ASM-1652/1656/1663/1668 are superseded by citation (Appendix A.1) and are no
+> longer cited as live premises anywhere in this document. The review's
+> remaining, non-mandated items (Holm-family enumeration detail, outcome-map
+> inconclusive rows, C2 diversity matching, I-6 escalation, M1 count-matching
+> exactness, I-1 max-error bound, re-costing from measured throughput) are left
+> for the re-review pass and change no section structure here. This revision
+> writes nothing to `registry/assumptions.jsonl`.
+>
+> **Re-review residual fix (2026-07-12, same day):** the cross-vendor re-review
+> (`poc/gpt56-review/ddc-rereview/`, final message) returned **SHIP-WITH-FIXES**
+> — REWORK fixes 2 and 3 FIXED, fix 4 substantively fixed — with ONE residual:
+> the §5.2 superiority-power simulation specified PAIRWISE per-item outcomes,
+> but the primary Δ* is the MINIMUM of two CORRELATED contrasts — both share
+> the A1 outcomes, and R1 enters as a mean over its three seed columns — so
+> independent pairwise simulation legs misstate min-statistic power. This
+> revision replaces the simulation's data-generating model with a
+> pre-registered JOINT per-item outcome model over (A1, M1, all R1 seeds)
+> carrying an explicit, fully-swept dependence grid, and gates at the
+> least-favourable registered dependence configuration (§5.2 + gate I-5, now
+> v3). The changed stipulation is re-issued as **PROPOSED-ASM-1720** (block
+> 1720..1729 claimed; verified collision-free repo-wide at revision time;
+> central register tail ASM-1691); ASM-1704 is superseded by citation
+> (Appendix A.2) and is no longer cited as a live premise anywhere in this
+> document. This revision writes nothing to `registry/assumptions.jsonl`.
+>
 > **Tag convention (house discipline):** `[MEASURED: ref]` = a programme registry
 > verdict/record restated strictly inside its envelope; `[LIT-BACKED: ref]` = an external
 > fact verified at source, cited by arXiv id/DOI/year (through `docs/next/lit/SURG.md`
@@ -249,7 +290,7 @@ drop — and the only arm whose success would license a kernel-geometry claim:
   512-d toy is dropped with reason: the public-benchmark endpoint (§5) is
   undefined on a toy that cannot attempt the benchmarks.
 - **Probe construction** (critique mandatory fix 3; carrier machinery folded from
-  the GPT-5.6 proposal) [STIPULATED: ASM-1652]: each concept is probed under
+  the GPT-5.6 proposal) [STIPULATED: ASM-1700]: each concept is probed under
   P = 4 fixed carrier templates (canonical rendering alone; "The defined concept
   means: …"; a cloze carrier ending in a fixed delimiter; a question-form carrier
   with no answer requested) × ≥2 seeded render variants — ≥8 probe instances per
@@ -264,35 +305,108 @@ drop — and the only arm whose success would license a kernel-geometry claim:
   probe set adds a **minimal-contrast stratum**: pairs of explications differing in
   exactly one prime, role, clause order, depth, or polarity — the structure-vs-
   vocabulary discriminator used by the admission criteria below.
-- **Alignment step** (critique mandatory fix 1) [STIPULATED: ASM-1652]:
-  ridge-regularised CCA between {h_l(c_i)} and {v_i} (n ≈ 119 pairs, so the
-  unregularised eigenproblem is rank-deficient and meaningless as written in the
-  proposal); ridge λ selected by leave-one-concept-out reconstruction;
-  significance against a **permutation null** (1000 random re-pairings of
-  concepts to vectors) and, as the PAP-derived variant, orthogonal Procrustes on
-  the same centred pairs with the same null. Concepts (never carriers) are split
-  into alignment-fit / selection / held-out test partitions; no benchmark item
-  appears anywhere in the alignment data. Whichever of ridge-CCA / Procrustes
-  beats its null at more layers advances (FORK-1, §10); if neither beats the
-  null, A2 is dead before any surgery (gate G0, §8).
+- **Alignment step — defined mathematically** (critique mandatory fix 1; review
+  REWORK fix 2) [STIPULATED: ASM-1700]. Fix a layer l and let n be the number
+  of paired concepts (n ≈ 119; the exact inventory is pinned at T0). Let
+  H ∈ R^{n×d} carry rows h_l(c_i) after the probe pipeline above
+  (empty-carrier subtraction, probe-instance averaging, grand-mean centring),
+  and V ∈ R^{n×d} carry the column-centred canonical encoder vectors v_i
+  (D = d = 576). No benchmark item appears anywhere in the alignment data.
+  - **Concept splits, fixed once.** Concepts are partitioned ONCE by seeded
+    draw (seed 0), stratified by record class (primes / kernel-v0
+    explications / molecules-v0), into **FIT** (60%, n_F = ⌈0.6n⌉), **SEL**
+    (20%, n_S = ⌈0.2n⌉) and **TEST** (the remainder) — by concept, never by
+    probe instance (all carriers travel with their concept). The one
+    partition serves every layer, both methods, and every permutation
+    replicate. FIT fits matrices and selects λ; SEL is reserved for
+    admission criteria 2–4; TEST is read exactly once per candidate, after
+    every selection is frozen.
+  - **Ridge-CCA, exactly.** On FIT: S_hh = H_Fᵀ H_F / n_F,
+    S_vv = V_Fᵀ V_F / n_F, S_hv = H_Fᵀ V_F / n_F. Solve the regularised
+    canonical eigenproblem
+    (S_hh + λI)⁻¹ S_hv (S_vv + λI)⁻¹ S_hvᵀ a_j = ρ_j² a_j
+    (economy-SVD implementation; the unregularised problem is rank-deficient
+    at n_F ≈ 71 ≪ d = 576 — the critique's original ill-posedness defect),
+    variates normalised a_jᵀ (S_hh + λI) a_j = 1; kernel-side partner
+    b_j = (S_vv + λI)⁻¹ S_hvᵀ a_j / ρ_j. One λ serves both blocks (the
+    quasi-orthogonal codebook side is near-white by construction; a single λ
+    removes one selection degree of freedom).
+  - **Ridge grid + leave-one-concept-out selection.** λ ∈ {10⁻⁴, 10⁻³,
+    10⁻², 10⁻¹, 1} × tr(S_hh)/d — five values, fixed now, selected per
+    layer. For each λ and each FIT concept i: refit on FIT∖{i}; predict
+    v̂_i = Σ_j ρ_j (a_jᵀ h_i) β_j with kernel-side loadings
+    β_j = V_Fᵀ (H_F a_j)/(n_F − 1), summing all components with ρ_j > 0.
+    λ*_l = argmin of the mean LOO error (1/n_F) Σ_i ‖v̂_i − v_i‖²; ties →
+    the larger λ.
+  - **Procrustes, exactly — a MAP, from which directions must be EXTRACTED
+    (review REWORK fix 3).** On FIT: M = H_Fᵀ V_F; thin SVD M = U Σ Wᵀ; the
+    (unscaled) orthogonal-Procrustes map is R* = U Wᵀ =
+    argmin_{RᵀR = I} ‖H_F R − V_F‖_F. R* itself ranks nothing and is never
+    tested as a whole. The tested objects are the principal alignment PAIRS
+    of the cross-covariance: model-space direction u_j = column j of U,
+    kernel-space partner w_j = column j of W, fit-strength σ_j (descending).
+    σ_j orders CANDIDATES only and confers no admission — kernel-alignment
+    of every pair is established exclusively by the held-out score against
+    the max-stat null below.
+  - **Candidate sets and direction scores.** Per layer per method, J =
+    min(64, n_F − 1) candidates: for ridge-CCA the unit-normalised a_j
+    (paired with b_j) in descending ρ_j; for Procrustes the (u_j, w_j) pairs
+    in descending σ_j. Ordering ties → lower index j after the deterministic
+    sign convention (first nonzero component of the model-side vector made
+    positive). Score of a candidate: s_{m,l,j} = the SIGNED Pearson
+    correlation, over TEST concepts only, between H_T u and V_T w —
+    one-sided: the fitted sign must reproduce.
+  - **Null statistic with max-stat correction across directions × layers ×
+    method-selection (review REWORK fix 3)** [STIPULATED: ASM-1701]: B =
+    1000 permutations π_b (pinned PRNG stream, seed 1) of the GLOBAL
+    concept→vector pairing — v-rows permuted across all n concepts;
+    partition membership stays with the concept on the model side. Each
+    replicate re-runs the ENTIRE pipeline — per-layer LOO λ re-selection,
+    CCA eigen-solve, Procrustes SVD, candidate extraction, TEST scoring —
+    for BOTH methods at EVERY layer, and records the single maximum
+    T_b = max_{m,l,j} s^{(b)}_{m,l,j}. If FORK-2's diagnostic routes to
+    last-token pooling, the pooling variant is added to the max family, so
+    the fork cannot inflate the error rate. Admission p-value of an
+    observed score: p = (1 + #{b : T_b ≥ s_{m,l,j}}) / (B + 1); criterion 1
+    passes iff p ≤ 0.05 — Westfall–Young FWER control at α = 0.05, jointly
+    over every direction, every layer, and the CCA-vs-Procrustes choice; no
+    uncorrected per-direction null appears anywhere in admission. Cost:
+    closed-form algebra at d = 576, n ≈ 119 — 1000 full refits are
+    CPU-minutes, inside the G0 budget.
+  - **Method selection (FORK-1), after correction:** the method with
+    max-stat-admitted directions (all four criteria below) in more layers
+    advances; a tie → ridge-CCA (pre-declared v1 default). If neither
+    method admits a direction in at least ⌈L/3⌉ layers, A2 is dead before
+    any surgery (gate G0, §8).
 - **Admission criteria, per aligned direction** (folded from the GPT-5.6
-  proposal; all four required) [STIPULATED: ASM-1668]:
-  1. held-out canonical correlation above the 95th percentile of its permutation
-     null;
-  2. carrier-half stability — recovered in both carrier-half fits with
-     principal-angle cosine ≥ 0.8;
-  3. survives the minimal-contrast subset — the correlation persists on pairs
-     that differ in exactly one structural element;
+  proposal; all four required; criteria 2–4 are conjunctive FILTERS — they can
+  only remove candidates, so criterion 1 alone carries the family-wise error
+  control) [STIPULATED: ASM-1702]:
+  1. **max-stat significance:** TEST-partition score s_{m,l,j} with max-stat
+     p ≤ 0.05 against the joint directions × layers × methods permutation
+     family above [STIPULATED: ASM-1701] — never a per-direction 95th
+     percentile;
+  2. carrier-half stability — refit on FIT with the carriers split into the
+     two fixed halves {1,2} vs {3,4}; the direction is recovered in both
+     halves with |cos ∠(u^{(12)}, u^{(34)})| ≥ 0.8, the halves' candidates
+     matched by maximal kernel-side |cosine|;
+  3. survives the minimal-contrast subset — the signed correlation on the
+     minimal-contrast stratum (housed in SEL) is positive with per-stratum
+     permutation p ≤ 0.05 (B = 1000, same seed stream);
   4. beats the **bag-of-primes structure-destroyed kernel null** (same concepts
-     encoded with roles, clause order, and depth deleted): a direction explained
-     equally well by the bag null is admitted only as *lexical*, and flagged as
-     such in every table.
+     encoded with roles, clause order, and depth deleted): compute s^bag
+     identically with v_i replaced by the bag encoding; the direction is
+     admitted as STRUCTURAL only if the seeded paired bootstrap (10³ resamples
+     over TEST concepts) 90% CI of s − s^bag excludes 0; otherwise it is
+     admitted only as *lexical*, and flagged as such in every table.
   Cap: k ≤ min(d/2, 256) admitted directions per layer, so the protected set can
   never consume the entire rank budget.
 - **Basis assembly — orthonormal by construction** (review fix (a))
-  [STIPULATED: ASM-1652]: the admitted aligned directions are ordered by
-  **null-beating strength** (held-out correlation minus the direction's own null
-  95th percentile, descending) and orthonormalised by QR / Gram–Schmidt in that
+  [STIPULATED: ASM-1700]: the admitted aligned directions are ordered by
+  **null-beating strength** (TEST score s_{m,l,j} minus the shared max-stat
+  threshold t* — the ⌈0.95(B+1)⌉-th order statistic of {T_b} — descending;
+  ties → lower layer index, then lower candidate index j) and orthonormalised
+  by QR / Gram–Schmidt in that
   order, giving Q_A (k columns; the ordering matters — QR preserves the leading,
   strongest directions exactly and orthogonalises weaker ones against them). The
   A1 top-up is then **projected onto the orthogonal complement** (I − Q_A·Q_Aᵀ):
@@ -308,7 +422,16 @@ drop — and the only arm whose success would license a kernel-geometry claim:
   uncentred, the massive-activation direction (§2.2) enters the A2 basis first
   whenever the aligned set does not already contain it — logged per layer. The
   fraction of budget occupied by aligned-vs-topped-up directions is logged per
-  layer.
+  layer. **Top-up deficiency, fail-closed (review REWORK fix 2 — the
+  fewer-than-r case):** the top-up pool is the FULL uncentred second-moment
+  eigenbasis at layer l (all d eigenvectors in energy order), not only the top
+  r_l; since d eigenvectors span R^d, exact arithmetic always completes the
+  complement. If floating-point discards (projected residual norm < 1e-6)
+  nonetheless leave fewer than r_l columns after the entire pool is exhausted,
+  the harness raises **ERR_DDC_BASIS_DEFICIENT** and the A2 cell is reported as
+  a basis-construction failure — never silently patched: no random completion,
+  no threshold relaxation, no fallback to the A1 basis under the A2 label (the
+  critique's silent-degradation failure mode, made mechanically impossible).
 
 ### 2.4 HYBRID-rules-kernel arm (A3) — stated honestly
 
@@ -401,7 +524,7 @@ All choices below are stipulated as one block [STIPULATED: ASM-1653]:
 |---|---|---|---|
 | **A0** | none (donor unmodified) | — | ceiling anchor at every grid point |
 | **A1 kernel-static** | per-layer uncentred PCA of kernel-corpus activations | K-static (§2.2) | the task's "kernel-normalised + dropped (static)"; primary kernel arm |
-| **A2 kernel-geometry** | ridge-CCA/Procrustes vs native Bq vectors, orthonormalised + complement-projected A1 top-up (§2.3) | K-static + kot-enc-Bq/1 at D=576 | 135M only; gated by G0; the only geometry-claim carrier |
+| **A2 kernel-geometry** | max-stat-admitted ridge-CCA/Procrustes directions vs native Bq vectors, orthonormalised + complement-projected A1 top-up (§2.3) | K-static + kot-enc-Bq/1 at D=576 | 135M only; gated by G0; the only geometry-claim carrier |
 | **A3 kernel-hybrid** | as A1 | K-hybrid incl. engine closures (§2.4) | the task's "kernel-normalised + dropped (hybrid)" |
 | **M1 magnitude (structured)** | keep the r coordinate dimensions with largest summed squared weight mass across all residual-coupled matrices; no rotation, no bridges | none (data-free) | the task's MAGNITUDE-prune control, same structural family |
 | **M2 magnitude (unstructured)** | global weight-magnitude mask to the same retained-parameter count | none (data-free) | secondary, literature-familiar magnitude control; dense-storage caveat disclosed |
@@ -550,14 +673,14 @@ lineage; only its ARC end-task carrier appears here (survey adoption #2 rider).
   honest small-model convention near chance). All registered claims ride on raw
   paired accuracy deltas: chance correction is a per-task affine transform whose
   denominator degenerates near chance, exactly the F2 ratio failure mode.
-- **Cell-tier discipline** [STIPULATED: ASM-1656]: cells at ρ ∈ {0.9, 0.75, 0.5}
+- **Cell-tier discipline** [STIPULATED: ASM-1703]: cells at ρ ∈ {0.9, 0.75, 0.5}
   are scored on **full item sets** and are the only cells eligible for the
   registered statistical family. Cells at the aggressive tail ρ ∈ {0.3, 0.15} are
   scored on a **pre-declared deterministic 500-item-per-task subset** (pubeval's
   `det_u`-ranked subsampling, fixed at T0) — curve reporting only, no registered
   claim ever attaches to a subset-scored cell. This is the GPT-5.6 proposal's
   coarse-screen/full-eval split, adopted as cost control (§7).
-- **EXACTLY ONE primary endpoint** [STIPULATED: ASM-1656]: at ρ = 0.75 on the
+- **EXACTLY ONE primary endpoint** [STIPULATED: ASM-1703]: at ρ = 0.75 on the
   135M donor, Δ* = min( retention(A1) − retention(M1), retention(A1) − mean-seed
   retention(R1) ), computed on pooled items over the filtered task set. The
   pre-registered primary claim: **Δ* > 0** — the kernel-calibrated drop retains
@@ -573,7 +696,7 @@ lineage; only its ARC end-task carrier appears here (survey adoption #2 rider).
   a ratio, per the standing degenerate-denominator lesson [MEASURED:
   registry/verdicts/f2.json — the F2 kill fired on a degenerate ratio primary].
 - **Secondary family, Holm-corrected, pre-registered as one family**
-  [STIPULATED: ASM-1656]: (i) Δ* > 0 at ρ ∈ {0.9, 0.5} (full-item cells only —
+  [STIPULATED: ASM-1703]: (i) Δ* > 0 at ρ ∈ {0.9, 0.5} (full-item cells only —
   the task's "at some drop level" exists-claim resolves ONLY through this
   corrected family, never by uncorrected grid-scanning; the subset-scored tail
   can never enter); (ii) the kernel-specificity contrasts at ρ ∈ {0.75, 0.5}:
@@ -581,20 +704,98 @@ lineage; only its ARC end-task carrier appears here (survey adoption #2 rider).
   retention(A1) at ρ ∈ {0.75, 0.5} (geometry over corpus; only if G0 passes);
   (iv) retention(A3) − retention(A1) (closure content); (v) 360M replication of
   the primary contrast (only if S2 runs).
-- **Equivalence margin for potential nulls** [STIPULATED: ASM-1656]: TOST at
-  **±3.0 pooled accuracy points** decides "equivalent", so a C1 tie or an M1/R1
-  tie is an affirmative equivalence finding, not an absence of significance. The
-  margin is widened from the workflow draft's ±1.5: that number was set against
-  an ≈8k-item lm-eval pool; the pinned pubeval pool is smaller, and a margin the
-  instrument cannot resolve would make every equivalence claim vacuous.
-- **Power note** (verified against measured discordance at T0): if all three MC
-  benchmarks pass the filter, the pool is n ≈ 3,751 items; a paired design with
-  discordant-item fraction 0.15–0.30 gives a one-sided minimum detectable pooled
-  difference of ≈ 1.9–2.6 points at α = 0.05, power 0.9. If the filter reduces to
-  ARC-Easy alone (n = 2,376), the MDE is ≈ 2.3–3.3 points. The arithmetic is
-  re-run mechanically at T0 with the measured filter outcome, item counts, and
-  discordance; **gate I-5** requires the recomputed MDE ≤ the 3.0-point TOST
-  margin, else freeze is blocked and MD-6 fires [STIPULATED: ASM-1656].
+- **Equivalence machinery — SESOI + TOST, pre-registered (review REWORK
+  fix 4, definition side)** [STIPULATED: ASM-1703]: the SESOI is **±3.0 pooled
+  accuracy points**, declared as the ddc1 primary endpoint's
+  `smallest_effect_of_interest` in the registry record (the fail-closed freeze
+  constraint behind every equivalence/NULL row of §11). Rationale, stipulated
+  not derived: a paired pooled effect below 3 points sits inside the
+  fixed-prompt instrument's exemplar/seed sensitivity band and would change no
+  programme decision — it would neither motivate the recovery-trained
+  follow-up nor retire the training-free tier; the margin is symmetric and
+  identical for every registered equivalence claim. TOST operationalisation:
+  two one-sided task-stratified paired bootstrap tests at α = 0.05 each (10⁴
+  resamples, the same machinery as the primary) — equivalently, "equivalent"
+  is declared iff the 90% percentile-bootstrap CI of the paired pooled delta
+  lies entirely inside (−3.0, +3.0). Equivalence claims attach only to
+  full-item cells and only to the contrasts pre-listed in this section; a
+  wide-CI non-result (neither superiority nor CI containment) reads out as
+  INCONCLUSIVE-underpowered, never as equivalence. The ±3.0 value survives
+  from the draft (whose ±1.5 predecessor was set against an ≈8k-item lm-eval
+  pool the pinned instrument does not have), but its power claim is no longer
+  inherited from a superiority MDE — see the gate below.
+- **Power gate v3 — superiority AND equivalence powered separately, on the
+  JOINT contrast distribution (review REWORK fix 4, power side: a superiority
+  MDE ≤ margin does NOT establish TOST power; the two one-sided equivalence
+  tests at true Δ = 0 need margin/SE ≥ z₀.₉₅ + z₀.₉₅ ≈ 3.29, not the
+  superiority requirement z₀.₉₅ + z₀.₉₀ ≈ 2.93. PLUS re-review residual fix:
+  Δ* is the MINIMUM of two contrasts that SHARE the A1 outcomes — with R1
+  entering as a mean over its three seed columns — so the two component
+  deltas are correlated by construction, and simulating each pairwise
+  contrast independently misstates min-statistic power; the simulation must
+  draw the contrasts from their JOINT distribution)** [STIPULATED:
+  ASM-1720]: at T0, after the informative-task filter fixes the pool, a
+  pre-registered, seeded power SIMULATION runs (script
+  `poc/ddc/power_sim_ddc1.py`, pinned in the ddc1 record alongside the
+  analysis script; 2×10³ simulated campaigns per scenario cell; Monte-Carlo
+  SE ≈ 0.007 at power 0.9, disclosed).
+  **Data-generating model — JOINT, per item:** per filtered task t with
+  measured item count n_t and measured A0 accuracy p_t, each simulated item
+  draws the full outcome VECTOR (X^A1, X^M1, X^R1_s0, X^R1_s1, X^R1_s2) ∈
+  {0,1}⁵ as follows. (1) X^A1 ~ Bernoulli(p_t). (2) Each control column
+  C ∈ {M1, R1-seed-0, R1-seed-1, R1-seed-2} is generated RELATIVE to A1 by
+  conditional flips: given X^A1 = 1 the column flips to 0 with probability
+  a_C = (q + Δ_C)/(2 p_t); given X^A1 = 0 it flips to 1 with probability
+  b_C = (q − Δ_C)/(2(1 − p_t)) — exactly reproducing, per pairwise contrast,
+  the v2 marginals P(X^A1 ≠ X^C) = q and true paired delta
+  E[X^A1 − X^C] = Δ_C = q(2θ_C − 1). A scenario cell whose (a_C, b_C) fall
+  outside [0,1] at any measured p_t is reported INFEASIBLE-AT-MEASURED-p and
+  excluded with disclosure — never silently clamped. (3) **Dependence — the
+  object of this fix:** the four flip indicators of one item are driven by a
+  single Gaussian-copula latent vector Z ∈ R⁴ with equicorrelation c (column
+  C flips iff Φ(Z_C) < its conditional flip probability), with c swept over
+  the full registered grid **c ∈ {0, 0.5, 1}**: c = 0 is conditional
+  independence of the control columns given the shared A1 outcome (the
+  shared-A1 correlation floor — the two contrasts still correlate through
+  X^A1 itself); c = 1 is comonotone flipping (the same items are discordant
+  in every contrast). (4) The second contrast uses the registered estimator
+  exactly: per item, δ^AR = X^A1 − (1/3)Σ_s X^R1_s; δ^AM = X^A1 − X^M1;
+  Δ* = min of the two pooled contrasts computed from these JOINT draws —
+  never from two independently simulated pairwise legs. Every simulated
+  campaign is analysed by the EXACT pre-registered pipeline (task-stratified
+  paired bootstrap of the min statistic, 10⁴ resamples). Scenario grid:
+  q ∈ {0.10, 0.15, 0.20, 0.25, 0.30} × Δ ∈ {0, +3.0} × c ∈ {0, 0.5, 1},
+  reported in full; the GATE evaluates at the stipulated reference
+  discordance **q_ref = 0.25** (planning bound from the SURG §6 small-donor
+  retention band); the measured discordance of every registered contrast is
+  recomputed in-flight by the analysis script, and any claim whose measured
+  q exceeds q_ref is flagged in the readout with its achieved power (TOST
+  itself stays self-policing — equivalence is only ever declared from the
+  actual 90% CI). **Gate I-5 v3 requires BOTH**, at the measured filtered
+  counts: (i) **superiority power ≥ 0.9** at true Δ_M1 = Δ_R1 = +3.0 (both
+  component deltas at the boundary — the least-favourable boundary
+  configuration) on the min-statistic Δ* from the joint model, taken as the
+  **MINIMUM over the dependence grid c** — the least-favourable registered
+  covariance configuration gates, so the pre-registered power never rides on
+  an optimistic dependence assumption (for two boundary-mean contrasts,
+  E[min] falls as their correlation falls — E[min] = Δ − σ_δ√((1−ρ)/π) for
+  bivariate-normal contrast estimates — so low-c cells are expected binding;
+  the attaining c* is disclosed, not assumed); (ii) **equivalence power
+  ≥ 0.9** at true Δ = 0 for a pairwise TOST contrast (90% CI ⊂ (−3.0,
+  +3.0); the machinery is identical for every TOST row; a single pairwise
+  contrast is the MARGINAL of the joint model, so c does not enter this
+  leg). Closed-form anchors, reported never gating — and disclosed as
+  PAIRWISE anchors that upper-bound the min-statistic leg (at c < 1 the
+  joint min-statistic power is strictly below the pairwise anchor by
+  construction; the joint simulation, not the anchor, gates): with the full
+  three-MC pool (n ≈ 3,751) at q_ref, SE ≈ 0.82 points and margin/SE ≈ 3.68
+  — both legs nominally powered; if the filter reduces to ARC-Easy alone
+  (n = 2,376), SE ≈ 1.03 and margin/SE ≈ 2.93 < 3.29 — the equivalence leg
+  FAILS and MD-6 fires. Disclosed now: the draft's superiority-MDE gate
+  concealed exactly this gap (an ARC-Easy-only pool at q ≤ 0.25 passes
+  MDE ≤ 3.0 marginally while TOST is underpowered); under the corrected gate
+  that outcome blocks freeze instead of shipping vacuous equivalence
+  wording. Failure of either leg blocks freeze and surfaces MD-6.
 
 ### 5.3 Secondary, kernel-distribution suites (diagnostic only)
 
@@ -622,8 +823,8 @@ they can never carry the headline claim.
 
 | Stage | Content | Compute |
 |---|---|---|
-| **T0 mechanical** | pin donor BASE revisions + configs and add them to the pubeval MODEL_REGISTRY (fail-closed); build + hash-pin the five calibration corpora (K-static, K-hybrid, C4 sample, knull render, shuffle) with token-budget matching (gate I-3); land pubeval per-item emission + re-pin the harness content hash + `--mock` green at $0; `fetch_data.py` + `--verify` sha-pins for benchmark bytes; re-verify benchmark licenses at source (gate I-4); run A0 baselines (informative-task filter fixed; fluency-guard baseline recorded); super-weight census incl. massive-activation direction identification (§2.2/§2.5, feeds gate I-6); power arithmetic re-run (gate I-5); `--dry-plan` cost check per planned batch | CPU + ≤1 h small GPU |
-| **G0 statistics (`ddc0`)** | forward passes over K-static/C4/knull + the carrier probe set on 135M; per-layer principal angles + subspace-overlap (1/r)‖P_ker P_C4‖²_F between top-r kernel and C4 subspaces (uncentred convention); ridge-CCA and Procrustes vs native Bq with permutation nulls; the four admission criteria incl. carrier-half stability, minimal-contrast subset, and the bag-of-primes structure-destroyed null (§2.3); template-variance diagnostic; FORK-1/FORK-2 resolution | ≤2 GPU-h |
+| **T0 mechanical** | pin donor BASE revisions + configs and add them to the pubeval MODEL_REGISTRY (fail-closed); build + hash-pin the five calibration corpora (K-static, K-hybrid, C4 sample, knull render, shuffle) with token-budget matching (gate I-3); land pubeval per-item emission + re-pin the harness content hash + `--mock` green at $0; `fetch_data.py` + `--verify` sha-pins for benchmark bytes; re-verify benchmark licenses at source (gate I-4); run A0 baselines (informative-task filter fixed; fluency-guard baseline recorded); super-weight census incl. massive-activation direction identification (§2.2/§2.5, feeds gate I-6); power SIMULATION run — superiority + equivalence legs on the joint contrast distribution (§5.2, gate I-5 v3); `--dry-plan` cost check per planned batch | CPU + ≤1 h small GPU |
+| **G0 statistics (`ddc0`)** | forward passes over K-static/C4/knull + the carrier probe set on 135M; per-layer principal angles + subspace-overlap (1/r)‖P_ker P_C4‖²_F between top-r kernel and C4 subspaces (uncentred convention); ridge-CCA and Procrustes vs native Bq under the joint max-stat permutation family (directions × layers × methods, §2.3); the four admission criteria incl. carrier-half stability, minimal-contrast subset, and the bag-of-primes structure-destroyed null (§2.3); template-variance diagnostic; FORK-1/FORK-2 resolution | ≤2 GPU-h |
 | **Freeze** | pre-freeze skeptic memo (mandatory, incl. the oracle-leakage checklist — note the primary endpoint is third-party public benchmarks scored by the pinned harness, so the eval's gold labels cannot coincide with any mechanism-internal accept test); then `prereg-freeze.py` for `ddc1`; freeze-before-run, append-never-edit | $0 |
 | **S1 campaign (135M)** | LASER scout; surgery for all arm × grid cells (closed-form, minutes each); basis-orthonormality check + rotation-validation gate I-1 per rotated arm; pubeval full-item runs at ρ ∈ {0.9, 0.75, 0.5} and pinned 500-item subset runs at ρ ∈ {0.3, 0.15} (§5.2 cell tiers) + fluency guard + secondary suites per cell (~47 cells) | ≈12–17 GPU-h A10G |
 | **S2 campaign (360M, conditional)** | reduced grid (§3) on promotion rule §8 | ≈10–12 GPU-h A10G |
@@ -636,6 +837,27 @@ and the mechanical verdict; the cross-vendor auditor confirms any computed PASS;
 interpretation is a Fable interpretation bead; this designer identity touches none
 of the final runs. The document itself goes through the standing external-review
 gate before the coordinator commits it.
+
+**Record freeze-shape note (mechanical, so `prereg-freeze --experiment ddc0|ddc1
+--dry-run` passes on first drafting)** [STIPULATED: ASM-1705]: two DRAFT kot-reg
+records are drafted from this design before freeze. **`ddc0`** (Stage-0
+statistics): exactly one primary endpoint — `n_layers_admitted`, the number of
+layers in which the winning method admits ≥ 1 direction under all four §2.3
+criteria; primary claim n_layers_admitted ≥ ⌈L/3⌉; mandatory baselines = the
+permutation-null, bag-of-primes, and C4-subspace comparisons; no NULL verdict
+row (so no SESOI is required on the ddc0 primary); verdict rules end in the
+INCONCLUSIVE catch-all. **`ddc1`** (arm campaign): exactly one primary
+endpoint — Δ* at ρ = 0.75 on 135M — carrying `smallest_effect_of_interest` =
+3.0 pooled points (the §5.2 SESOI; required because §11's TOST rows freeze as
+NULL-capable rules); verdict rules end in the INCONCLUSIVE catch-all; every
+metric pointer in endpoints and verdict rules names a declared `output_fields`
+entry of the pinned analysis script (constraint-2 discipline), including the
+power-gate, fluency-guard, measured-discordance, and max-stat outputs; kill
+criterion and envelope enter verbatim from §8; budget.usd_cap = 60 (no Tier-5
+signoff); corpus pins under the current kot-corpus-hash recipe; no
+scale-language fields are declared (the §8 envelope licenses none). The two
+open-EXTRAPOLATION citations (ASM-1662, ASM-1706) trigger the freeze tool's
+non-fatal PAUSE flag by design — guard conclusions, not experiments.
 
 ## 7. Cost and account
 
@@ -678,10 +900,21 @@ gate before the coordinator commits it.
 - **I-4 licensing:** every primary-suite license re-verified at source at T0; any
   benchmark failing open-license verification is dropped from the filter set
   before freeze.
-- **I-5 power:** pubeval per-item emission landed and mock-validated; the T0
-  mechanically recomputed one-sided MDE on the measured filtered pool must be
-  ≤ the 3.0-point TOST margin. Failure blocks freeze and surfaces MD-6 — an
-  underpowered campaign is never run silently.
+- **I-5 power (v3 — superiority AND equivalence legs on the JOINT contrast
+  distribution; review REWORK fix 4 + re-review residual fix):** pubeval
+  per-item emission landed and mock-validated; the T0 power SIMULATION of
+  §5.2 [STIPULATED: ASM-1720], run on the measured filtered pool at the
+  stipulated q_ref = 0.25, must show BOTH (i) superiority power ≥ 0.9 at true
+  Δ_M1 = Δ_R1 = +3.0 on the min-statistic Δ* drawn from the JOINT per-item
+  outcome model over (A1, M1, all three R1 seed columns) — both components at
+  the boundary, power taken as the MINIMUM over the registered dependence
+  grid c ∈ {0, 0.5, 1} (least-favourable covariance configuration gates;
+  attaining c* disclosed) — AND (ii) TOST equivalence power ≥ 0.9 at true
+  Δ = 0 (90% CI ⊂ (−3.0, +3.0); pairwise marginal of the joint model).
+  Either leg failing blocks freeze and surfaces MD-6 — an underpowered
+  campaign is never run silently; a superiority MDE is never accepted as
+  evidence of equivalence power; and independent pairwise simulation legs are
+  never accepted as evidence of min-statistic power.
 - **I-6 second-moment sanity (review fix (b) tripwire):** the documented
   massive-activation direction's energy capture in the kept subspace is logged
   for every cell; capture < 0.99 in any cell does not block (the uncentred
@@ -691,7 +924,8 @@ gate before the coordinator commits it.
 **G0 routing rules (pre-registered):**
 
 - If neither ridge-CCA nor Procrustes yields admitted directions (all four §2.3
-  admission criteria) beating the permutation null (95th percentile) in at least
+  admission criteria, criterion 1 under the joint max-stat threshold across
+  directions × layers × methods) in at least
   ⌈L/3⌉ layers, **A2 is dropped** and reported as killed-by-G0.
 - If the kernel/C4 subspace overlap ≥ 0.9 at the working r for all layers, A1
   cannot mechanically differ from C1; the campaign still runs (the demonstrated
@@ -746,18 +980,24 @@ kernel states, or to deployment claims."
   or a matched-budget knull expansion should be authored before any
   kernel-specificity claim ships — connects to the open knull-fork maintainer
   thread.
-- **MD-6 (conditional; only if gate I-5 fails at T0)** — **`kernel-of-truth-j7mt`**:
-  freeze is blocked; the maintainer picks (a) accept the measured, disclosed
-  sensitivity (TOST margin re-stipulated to the measured MDE, register row
-  amended pre-freeze), or (b) wire one additional openly-licensed human-built
-  benchmark into pubeval before freeze.
+- **MD-6 (conditional; only if gate I-5 v3 fails at T0)** — **`kernel-of-truth-j7mt`**:
+  freeze is blocked; the maintainer picks (a) re-stipulate the SESOI upward to
+  the smallest margin at which BOTH simulated power legs (superiority at
+  Δ = SESOI on the joint min-statistic model at its least-favourable
+  registered dependence, equivalence at Δ = 0) reach 0.9 on the measured pool
+  (register row amended pre-freeze; every §11 equivalence wording weakens with it), or
+  (b) wire one additional openly-licensed human-built benchmark into pubeval
+  before freeze.
 
 ## 10. Registered forks (uncertainties an experiment decides, not prose)
 
 - **FORK-1 — basis-selection rule for A2:** ridge-CCA vs orthogonal Procrustes.
-  Why uncertain: n≈119 pairs in d=576 under-determines both; which survives a
-  permutation null is an empirical fact. Decider: G0 (more layers with admitted
-  above-null directions wins). Kill: neither beats the null → A2 dropped.
+  Why uncertain: n≈119 pairs in d=576 under-determines both; which survives the
+  corrected null is an empirical fact. Decider: G0 (more layers with
+  max-stat-admitted directions — all four §2.3 criteria — wins; tie →
+  ridge-CCA, pre-declared; the method choice is itself inside the max-stat
+  family, so the fork costs no uncorrected selection). Kill: neither admits in
+  ⌈L/3⌉ layers → A2 dropped.
 - **FORK-2 — pooling for h(c_i):** empty-carrier-subtracted, grand-mean-centred
   mean-pool (pinned v1) vs last-token-at-delimiter pooling. Why uncertain:
   template-artifact contamination is measured, not knowable a priori. Decider: G0
@@ -803,7 +1043,10 @@ kernel states, or to deployment claims."
    a lint-shaped backing; marker lines (PREMISE/DECISION) appear only where
    intended, as single logical lines.
 2. **Choices are STIPULATED, not MEASURED:** every design choice cites an ASM-id
-   from the claimed 1650..1679 block; no measurement is quoted outside its scope
+   from the claimed 1650..1679 / 1700..1719 / 1720..1729 blocks (superseded ids
+   1652/1656/1663/1668 appear only as history in Appendix A; superseded id 1704
+   appears only as history in Appendix A.1); no measurement is
+   quoted outside its scope
    (the MEASURED citations — rules-1, knull pins, the F2 verdict lesson — restate
    registry records within scope; SmolLM2 config values are additionally
    re-pinned at T0).
@@ -831,6 +1074,15 @@ Rows for `registry/assumptions.jsonl`, owner pseudonym `designer-3`, all
 `status:"open"`; ids final on coordinator registration (block renumbered from the
 workflow draft's 1470 claim; 1650..1679 verified collision-free at finalisation):
 
+> **REWORK amendment (2026-07-12, post-review):** rows **ASM-1652, ASM-1656,
+> ASM-1663 and ASM-1668** below are SUPERSEDED by the Appendix A.1 successor
+> rows (PROPOSED-ASM-1700..1706) under the register's append-only
+> supersede-by-citation convention; the superseded lines stand as append-only
+> history in the central register (they were registered before this revision)
+> and are no longer cited as live premises anywhere in this document. The A.1
+> rows are EMITTED HERE ONLY — the coordinator appends them centrally; this
+> revision writes nothing to `registry/assumptions.jsonl`.
+
 ```jsonl
 {"id":"ASM-1650","claim":"PDC (SliceGPT-scaffold rotate-and-slice) is the sole surgical method for ddc0/ddc1; PAP survives only as the Procrustes variant of the A2 basis fork; the convergent GPT-5.6 low-rank-factorisation scaffold is not adopted (its attribution controls are discharged in-family: C1 = kernel-agnostic spectral control)","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md sections 1.1 + 1.3","load_bearing":true,"status":"open","owner":"designer-3","rationale":"best-defined proposal; literature-proven surgery; critique defects all fixable pre-freeze; one surgery family keeps every arm an exact structural twin"}
 {"id":"ASM-1651","claim":"Calibration corpora: N=4096 sequences, <=256 tokens, seed 0, renderExplication over 65 primes + 54 kernel-v0 explications + molecules-v0 with generateExplication span expansion; all arms' corpora token-matched within +/-10%","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md section 2.2","load_bearing":true,"status":"open","owner":"designer-3","rationale":"deterministic, hash-pinnable, spans the depth x clause grid; size chosen to keep one-GPU calibration passes in minutes"}
@@ -854,7 +1106,40 @@ workflow draft's 1470 claim; 1650..1679 verified collision-free at finalisation)
 ```
 
 (ASM block 1669..1679 reserved unassigned within the claimed block for freeze-time
-amendments — e.g. an MD-6(a) TOST-margin re-stipulation; never reused elsewhere.)
+amendments — e.g. an MD-6(a) SESOI re-stipulation; never reused elsewhere.)
+
+## Appendix A.1 — PROPOSED-ASM-1700..1706 (REWORK-revision rows; emitted for central registration)
+
+Successors + new rows applying the cross-vendor review's mandated fixes 2/3/4;
+owner pseudonym `designer-3`, all `status:"open"`; 1700..1719 verified
+collision-free against the central register (tail ASM-1691) at revision time;
+1707..1719 remain reserved unassigned (the re-review residual fix claimed the
+1720..1729 block instead — Appendix A.2):
+
+```jsonl
+{"id":"ASM-1700","claim":"SUCCESSOR of ASM-1652 (supersede-by-citation; the ASM-1652 line stands as append-only history and is no longer cited by the DDC design). A2 probe + alignment + basis assembly, fully specified: carrier-controlled probes (P=4 carriers x >=2 seeded renders, empty-carrier subtraction, grand-mean centring, mean-pool v1); concept splits FIT/SEL/TEST = 60/20/20 by concept, seed 0, stratified by record class, one partition serving all layers, both methods, and every permutation replicate; ridge-CCA as the regularised eigenproblem (S_hh+lambda I)^-1 S_hv (S_vv+lambda I)^-1 S_hv^T a = rho^2 a with one lambda on both blocks, grid {1e-4,1e-3,1e-2,1e-1,1} x tr(S_hh)/d, leave-one-concept-out reconstruction selection (loadings-based rank-full predictor), ties to the larger lambda; Procrustes directions extracted as the SVD pairs (u_j, w_j, sigma_j) of the FIT cross-covariance M = H_F^T V_F (the map R*=UW^T itself is never tested; sigma orders candidates only); J = min(64, n_F-1) candidates per layer per method with deterministic sign/ordering tie-breaks; direction score = signed one-sided TEST-partition Pearson correlation of (H u, V w); basis assembly by null-beating-strength-ordered QR (score minus shared max-stat threshold t*, ties to lower layer then lower index) with complement-projected A1 top-up; top-up pool = the FULL d-vector uncentred eigenbasis, and floating-point deficiency (fewer than r_l columns after pool exhaustion) raises ERR_DDC_BASIS_DEFICIENT - the A2 cell fails closed as a basis-construction failure, never silently padded and never relabelled A1","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md section 2.3","load_bearing":true,"status":"open","owner":"designer-3","rationale":"review REWORK fix 2: the alignment was named but not defined; every matrix, grid, split, score, tie-break, and the fewer-than-r top-up path is now exact enough to implement, permute, and freeze"}
+{"id":"ASM-1701","claim":"A2 admission significance is controlled by a single Westfall-Young max-stat permutation family across directions x layers x method-selection (ridge-CCA vs Procrustes; plus the FORK-2 pooling variant if routed): B=1000 seeded global concept-to-vector permutations (seed 1; partition membership fixed on the model side), the FULL pipeline re-run per replicate (per-layer LOO lambda re-selection included), T_b = max over all candidates of the TEST score; admission p = (1+#{T_b >= s})/(B+1) <= 0.05; no uncorrected per-direction null appears anywhere in admission; FORK-1 resolves on corrected admissions (more layers with admitted directions wins; tie -> ridge-CCA)","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md section 2.3","load_bearing":true,"status":"open","owner":"designer-3","rationale":"review REWORK fix 3: Procrustes supplies an alignment map, not inherently ranked directions, and the selections actually made (direction, layer, method, pooling) must be corrected jointly - the max statistic controls FWER over exactly that family"}
+{"id":"ASM-1702","claim":"SUCCESSOR of ASM-1668 (supersede-by-citation; the ASM-1668 line stands as append-only history and is no longer cited by the DDC design). A2 aligned-direction admission requires all four criteria: (1) TEST score significant under the joint max-stat permutation family of ASM-1701 (p <= 0.05), never a per-direction 95th percentile; (2) carrier-half stability |cos| >= 0.8 between the two fixed carrier-half refits, halves matched by kernel-side cosine; (3) minimal-contrast survival: positive signed correlation on the SEL-housed minimal-contrast stratum with per-stratum permutation p <= 0.05; (4) bag-of-primes superiority: seeded paired bootstrap (1e3 resamples over TEST concepts) 90% CI of s - s_bag excludes 0, else admitted only as lexical and flagged; criteria 2-4 are conjunctive filters (they can only remove candidates), so criterion 1 alone carries the FWER control; cap k <= min(d/2, 256) per layer","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md section 2.3","load_bearing":true,"status":"open","owner":"designer-3","rationale":"folds the GPT-5.6 admission machinery under the corrected null: prevents renaming arbitrary or merely lexical directions as kernel-aligned and prevents the protected set consuming the rank budget"}
+{"id":"ASM-1703","claim":"SUCCESSOR of ASM-1656 (supersede-by-citation; the ASM-1656 line stands as append-only history and is no longer cited by the DDC design). Exactly one primary endpoint: Delta* = min(paired pooled-item retention delta of A1 vs M1, vs R1 mean-seed) at rho=0.75 on 135M, one-sided 95% task-stratified paired bootstrap (1e4); Holm secondary family per section 5.2 restricted to full-item cells (rho in {0.9,0.75,0.5}); tail cells subset-scored (500 det_u items/task) and claim-ineligible; SESOI = +/-3.0 pooled accuracy points, declared as the ddc1 primary endpoint's smallest_effect_of_interest; TOST = two one-sided task-stratified paired bootstrap tests at alpha=0.05 each, equivalently equivalence iff the 90% percentile-bootstrap CI lies inside (-3.0,+3.0), full-item cells and pre-listed contrasts only; a wide-CI non-result reads out INCONCLUSIVE-underpowered, never as equivalence","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md section 5.2","load_bearing":true,"status":"open","owner":"designer-3","rationale":"review REWORK fix 4 (definition side): the +/-3.0 margin survives from the draft but equivalence is now a real TOST decision rule with a declared SESOI carried on the frozen primary endpoint, not an afterthought on a superiority MDE"}
+{"id":"ASM-1704","claim":"Gate I-5 v2: at T0 a pre-registered seeded power SIMULATION (2e3 simulated campaigns per scenario cell, each analysed by the exact registered bootstrap pipeline; discordance-split data-generating model Delta = q(2theta-1) at measured per-task item counts and A0 accuracies; grid q in {0.10,0.15,0.20,0.25,0.30} x Delta in {0,+3.0}, full grid disclosed; gate evaluated at stipulated reference discordance q_ref=0.25; measured per-contrast discordance recomputed in-flight, claims with q > q_ref flagged with achieved power) must show BOTH superiority power >= 0.9 at true Delta* = +3.0 (min-statistic, both components at the boundary) AND TOST equivalence power >= 0.9 at true Delta = 0 (90% CI inside (-3.0,+3.0)); either leg failing blocks freeze and surfaces MD-6; a superiority MDE is never accepted as evidence of equivalence power","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md sections 5.2 + 8","load_bearing":true,"status":"open","owner":"designer-3","rationale":"review REWORK fix 4 (power side): the two one-sided tests at Delta=0 need margin/SE >= 3.29 vs the superiority 2.93; the draft's MDE gate demonstrably under-powered TOST - an ARC-Easy-only filter outcome passes MDE <= 3.0 marginally at q=0.25 while margin/SE ~ 2.93 leaves equivalence unpowered, and now blocks freeze instead"}
+{"id":"ASM-1705","claim":"Freeze-shape obligations for the ddc records: ddc0 primary endpoint = n_layers_admitted (winning method, all four admission criteria) with primary claim n_layers_admitted >= ceil(L/3), mandatory baselines = permutation-null/bag-of-primes/C4-subspace comparisons, no NULL row (no SESOI required), INCONCLUSIVE catch-all last; ddc1 primary endpoint = Delta* at rho=0.75/135M carrying smallest_effect_of_interest = 3.0 pooled points, INCONCLUSIVE catch-all last, every endpoint/verdict-rule metric pointer a declared analysis-script output field (incl. power-gate, fluency-guard, measured-discordance, and max-stat outputs), kill + envelope verbatim from section 8, budget usd_cap = 60, corpus pins under the current kot-corpus-hash recipe, no scale-language fields declared","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md section 6","load_bearing":true,"status":"open","owner":"designer-3","rationale":"restates the prereg-freeze fail-closed constraints as design obligations so both records pass --dry-run mechanically on first drafting; the open-EXTRAPOLATION citations (ASM-1662, ASM-1706) trigger only the non-fatal PAUSE flag by design"}
+{"id":"ASM-1706","claim":"SUCCESSOR of ASM-1663 (supersede-by-citation; the ASM-1663 line stands as append-only history and is no longer cited by the DDC design). Kernel geometry is transportable into model space by ridge-CCA/Procrustes at n~119 pairs, d=576","tag":"EXTRAPOLATION","backing_ref":"docs/next/design/DDC.md section 2.3","load_bearing":false,"status":"open","owner":"designer-3","resolution_path":"G0 joint max-stat permutation family + all-four admission criteria; fewer than ceil(L/3) layers with admitted directions for both methods kills A2 before surgery"}
+```
+
+## Appendix A.2 — PROPOSED-ASM-1720 (re-review residual-fix row; emitted for central registration)
+
+Successor row applying the re-review's one residual fix (SHIP-WITH-FIXES,
+`poc/gpt56-review/ddc-rereview/`); owner pseudonym `designer-3`, `status:"open"`;
+block 1720..1729 verified collision-free against the central register (tail
+ASM-1691) at revision time; 1721..1729 reserved unassigned for freeze-time
+amendments. Row **ASM-1704** above is SUPERSEDED by this row under the register's
+append-only supersede-by-citation convention and is no longer cited as a live
+premise anywhere in this document; this revision writes nothing to
+`registry/assumptions.jsonl` — the coordinator appends centrally:
+
+```jsonl
+{"id":"ASM-1720","claim":"SUCCESSOR of ASM-1704 (supersede-by-citation; the ASM-1704 line stands as append-only history and is no longer cited by the DDC design). Gate I-5 v3 - power simulation on the JOINT contrast distribution: at T0 a pre-registered seeded power SIMULATION (script poc/ddc/power_sim_ddc1.py pinned in the ddc1 record; 2e3 simulated campaigns per scenario cell, each analysed by the exact registered bootstrap pipeline) draws per-item outcomes for A1, M1, and all three R1 seed columns JOINTLY: X_A1 ~ Bernoulli(p_t) at measured per-task item counts and A0 accuracies; each control column C flips relative to A1 with conditional probabilities a_C=(q+Delta_C)/(2 p_t) given X_A1=1 and b_C=(q-Delta_C)/(2(1-p_t)) given X_A1=0, exactly reproducing the pairwise marginals (discordance q, true paired delta Delta_C=q(2theta_C-1)); scenario cells with (a_C,b_C) outside [0,1] at any measured p_t are reported INFEASIBLE-AT-MEASURED-p and excluded with disclosure, never clamped; the four flip indicators per item are coupled by a Gaussian copula with equicorrelation c in {0,0.5,1} (c=0 = conditional independence given the shared A1 outcome, the shared-A1 correlation floor; c=1 = comonotone flipping); Delta* = min of the two correlated contrasts (A1-M1 and A1-mean-of-3-R1-seeds) computed from these JOINT draws, never from independently simulated pairwise legs; grid q in {0.10,0.15,0.20,0.25,0.30} x Delta in {0,+3.0} x c in {0,0.5,1}, full grid disclosed; gate evaluated at stipulated reference discordance q_ref=0.25 with both component deltas at the +3.0 boundary, superiority power taken as the MINIMUM over the c grid (least-favourable registered dependence configuration gates; attaining c* disclosed); TOST equivalence leg at true Delta=0 is the pairwise marginal of the joint model (c does not enter a single contrast); measured per-contrast discordance recomputed in-flight, claims with q > q_ref flagged with achieved power; BOTH superiority power >= 0.9 AND equivalence power >= 0.9 required; either leg failing blocks freeze and surfaces MD-6; closed-form pairwise anchors are reported, disclosed as upper bounds on the min-statistic leg, and never gate","tag":"STIPULATED","backing_ref":"docs/next/design/DDC.md sections 5.2 + 8","load_bearing":true,"status":"open","owner":"designer-3","rationale":"re-review residual (SHIP-WITH-FIXES): the v2 simulation specified pairwise outcomes while the primary Delta* is the minimum of two contrasts sharing the A1 outcomes with R1 entering as a mean over seeds - correlated by construction; independent pairwise legs misstate min-statistic power (for two boundary-mean contrasts E[min] = Delta - sigma*sqrt((1-rho)/pi) falls as their correlation falls), so the joint model with a fully-swept dependence grid and a least-favourable gate makes the pre-registered power honest instead of optimistic"}
+```
 
 ## Appendix B — bytes parameterisation (which matrices shrink how)
 

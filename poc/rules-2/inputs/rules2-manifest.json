@@ -3,7 +3,7 @@
   "RULES-2 harness manifest (poc/rules-2/rules2_runner.py + poc/rules-2/modal/modal_rules2.py).",
   "Design: docs/next/design/rules-2-train-time.md (DRAFT registry/experiments/rules-2.json; freeze is the coordinator's).",
   "Every pin below is verified fail-closed (ERR_PIN / ERR_CERT_PRECONDITION / ERR_C8_GATE) before any cell runs, mock included.",
-  "Sequencing gate (PROPOSED-ASM-1420): RULES-2 does NOT run its GPU path until the RULES-1 GPU readout exists; KILL-b there requires explicit maintainer re-authorization (s3' struck).",
+  "Sequencing gate (PROPOSED-ASM-1420): RULES-2 does NOT run its GPU path until the RULES-1-B GPU readout exists (rules-1's GPU run was VOIDED 2026-07-12 and superseded by rules-1-b; the gate now reads the rules-1-b verdict); KILL-b there requires explicit maintainer re-authorization (s3' struck).",
   "model_revisions provenance: R1/R3 verbatim from poc/rules-1/inputs/rules1-manifest.json (chain: f2b-replicate/f2b-transfer FROZEN records); R2 from the a5-llm pinned record chain (docs/design-a5-llm.md, poc/a5-llm/inputs/a5-llm-manifest.json)."
  ],
  "design_constants_from_design_doc": {
@@ -11,7 +11,7 @@
   "design_doc": "docs/next/design/rules-2-train-time.md",
   "design_doc_sha256": "15c37c64f1f946b611dce98c865a4b67c56b068c10360ba1bc55b6ff31d03800",
   "arms_built_here": ["B0", "B1", "B2", "B3", "B4", "B5", "c1p"],
-  "arms_note": "B0 plain host; B1 exposure control (families 1+3, size-matched); B2 treatment (families 1+2+3); B3 proof-augmented variant (descriptive; proof block in TRAINING prompt only — see deviations_note); B4 RULES-1 A3 verbatim re-run (k=4, engine at inference) on the identical S-out slice; B5 R3-alone comparator; c1p LABEL-deranged-closure fine-tune (content control; every trained family-2 target differs from the engine answer). REVIEW FIX 1 (cross-vendor prereg review 2026-07-12): ALL rules-2 arms (B0/B1/B2/B3/B5/c1p) score S-out on BYTE-IDENTICAL prompts (no per-arm padding; prompt = pure function of the cell) with the SAME 24-option decode; the s3' B2-vs-B4 gap is scored on the COMMON 23-option rules-1 A1-verbatim surface (cell=entailed23 for B0/B2, R1, vs B4's A3 rows) — never across surfaces. c8 (train-bytes projection) + c4 floors are CPU artifacts carried in poc/rules-2/results/c8-result.json, gated BEFORE any GPU spend.",
+  "arms_note": "B0 plain host; B1 exposure control (families 1+3, size-matched); B2 treatment (families 1+2+3); B3 proof-augmented variant (descriptive; proof block in TRAINING prompt only — see deviations_note); B4 RULES-1-B A3 verbatim re-run (k=4, engine at inference; REWORK-2: rules-1's GPU run was VOIDED 2026-07-12 and superseded by rules-1-b — B4 imports the rules-1-b freeze bytes) on the identical S-out slice; B5 R3-alone comparator; c1p LABEL-deranged-closure fine-tune (content control; every trained family-2 target differs from the engine answer). REVIEW FIX 1 (cross-vendor prereg review 2026-07-12): ALL rules-2 arms (B0/B1/B2/B3/B5/c1p) score S-out on BYTE-IDENTICAL prompts (no per-arm padding; prompt = pure function of the cell) with the SAME 24-option decode; the s3' B2-vs-B4 gap is scored on the COMMON 23-option rules-1-b A1-verbatim surface (cell=entailed23 for B0/B2, R1, vs B4's A3 rows) — never across surfaces. c8 (train-bytes projection) + c4 floors are CPU artifacts carried in poc/rules-2/results/c8-result.json, gated BEFORE any GPU spend.",
   "ft_arms": ["B1", "B2", "B3", "c1p"],
   "ft_seeds": [0, 1, 2],
   "eval_only_seeds": {"B0": [0], "B5": [0], "B4": [0, 1, 2]},
@@ -28,10 +28,15 @@
   "repeat_rule": "G4 byte-identical repeat: per arm, first seed, on the pinned first-200-by-sha S-out covered subsample (deterministic; identical instrument at 23% of the token cost)",
   "budget": {"usd_cap": 18, "gpu_hours_cap": 14, "wall_clock_cap_hours": 24,
              "coordinator_outer_ceiling_usd": 35},
-  "budget_note": "MD-R2-5 recommendation (b): full skeleton, $18 ceiling for the DEFAULT R1 tier; the R2 rung and any worst-case extension ($25-35 band) are gated on the coordinator/maintainer inside the $35 outer ceiling (PROPOSED-ASM-1434)."
+  "budget_note": "MD-R2-5 recommendation (b): full skeleton, $18 ceiling for the DEFAULT R1 tier; the R2 rung and any worst-case extension ($25-35 band) are gated on the coordinator/maintainer inside the $35 outer ceiling (PROPOSED-ASM-1434).",
+  "sharded_launch": {
+   "note": "REWORK-2 (review item 9 + the standing parallel-launch directive): the campaign runs as INDEPENDENT Modal jobs — one per (FT arm x seed x rung), one per B4 seed, one for B0 per rung, one for B5 — via modal_rules2.py --shards; each job invokes rules2_runner.py with --arms/--seeds/--shard-tag and ships its own results; poc/rules-2/merge_shards.py reconstructs the canonical results-rules2.json + run-records-rules2.jsonl for the pinned analysis, asserting identical pins and prompt-surface shas across shards. No single job approaches the 12 h Modal function timeout (--dry-plan prints the worst single-job hours and fails closed at 12 h). Jobs are independent, so they may be split across Modal accounts/workspaces; the caps bind on the SUM of shard costs, unchanged.",
+   "strata_rule": "strata/repeat cells attach to the CANONICAL first design seed's job (canonical_first_seed in results), wherever it runs; merge_shards.py asserts exactly-once coverage",
+   "gap23_rule": "gap23 cells ride with their arm's per-seed jobs (B2 x each FT seed; B0's single job)"
+  }
  },
  "pins": {
-  "rules2TrainCorpusKotHash": "659314ea10c54c812ec9d818eb81369a193ca15687e42f32a5077d00a055aa2e",
+  "rules2TrainCorpusKotHash": "3465e63dfa0d568bc88e4f27a85fa655744317719934d45e8392a1331595817e",
   "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
   "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
   "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
@@ -39,14 +44,14 @@
   "rulesN3Sha256": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
   "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
   "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
-  "rules1RunnerPySha256": "020394f267c0e435e73616c84fc61508343ea2f10129f7f1d4ba80bc36caa6a8",
+  "rules1RunnerPySha256": "1f423ac09f5d64d22f83cd91e97df0801fe694672012ccf850bc0315bce43563",
   "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
-  "materialiserPySha256": "00546d5930c65c1fb9625d3625de4d63e223f57356650d3b8c51cfbac96fca8e",
-  "c8ResultSha256": "b00f3cacf8a29a5abbc80b729a2c3624985c24aa52f7f62b99bf0ac526057760",
+  "materialiserPySha256": "0c7aedc4c2cd0613ebca278333e665418c0d4dc0a577a86e67e4778cda2a75c6",
+  "c8ResultSha256": "cb3fecd32354ec9ce4fb354044b8cfaedbfcc6e56d2e5c2f884a3a813d9c0a57",
   "analysisRules2PySha256": "ba47f4d8e1669c059c889741444d36a4201d37b707629ab36893bb4c666a180b",
   "_freeze_reverify_note": "PROPOSED-ASM-1459: at freeze the coordinator re-hashes materialise_closure.py + analysis/rules_2.py against these pins, regenerates data/rules2-train ('build') and the c8 gate ('c8') from the pinned bytes, and verifies the corpus digest + c8 sha reproduce byte-exactly (deterministic, ~5 s CPU) BEFORE prereg-freeze.",
   "sparqCommitRecorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
-  "_pin_notes": "corpus + artifact pins verbatim from the FROZEN rules-1 record (PROPOSED-ASM-1437); rules1_runner.py pinned because rules2_runner IMPORTS its arm drivers byte-identical (B4 = A3 verbatim; prompt frames, verbaliser, licensed rejections, gold-leak guard); poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build."
+  "_pin_notes": "corpus + engine artifact pins verbatim from the FROZEN rules-1/rules-1-b records (PROPOSED-ASM-1437: twin/rules.n3/certificate/corpora are IDENTICAL in both); rules1RunnerPySha256 is the RULES-1-B freeze bytes (REWORK-2: rules-1's GPU run was VOIDED 2026-07-12 — degenerate direction-ambiguous prompt frame — and superseded by rules-1-b; importing the voided bytes would rebuild the broken instrument) because rules2_runner IMPORTS its arm drivers byte-identical (B4 = rules-1-b A3 verbatim; prompt frames, verbaliser, licensed rejections, gold-leak guard). All imported-module pins are verified on RAW BYTES BEFORE import (review fix 6). poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build."
  },
  "model_revisions": {
   "R1": {"repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
@@ -67,20 +72,20 @@
   "hp_note": "PINNED a priori (PROPOSED-ASM-1432/1449): NO hyperparameter search was performed anywhere; the dev split (last 20 synthetic families, disjoint from every eval stratum) is used ONLY for a per-epoch loss sanity ledger, never for selection. Any future HP search must be dev-split-only, disclosed, and re-pinned BEFORE freeze."
  },
  "prompt_frames": {
-  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word.\n\nFacts:\n",
+  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word from: {menu}.\n\nFacts:\n",
   "fact_line": "- {line}\n",
   "una_line": "- All named people are distinct individuals.\n",
   "refusal_note": "If the answer cannot be determined from these facts, answer: cannot be determined from these facts.\n",
   "proof_prefix": "Verified derivations from a deterministic rules engine (each with its proof):\n",
   "proof_line": "- {line}\n",
   "question_prefix": "\nQuestion: ",
-  "menu_prefix": "\nAnswer with one word from: ",
-  "answer_cue": "\nAnswer:",
+  "answer_cue": "\nAnswer: {b_name} is {a_name}'s",
+  "answer_cue_typing": "\nAnswer: {e_name} is a",
   "padding_sentence": "This line is neutral padding text with no information about the family.",
-  "frames_note": "RULES-1 frames verbatim PLUS the refusal_note line (fail-closed refusal is TRAINED and SCORED, PROPOSED-ASM-1431/1446) and a proof block used by B3 TRAINING prompts only. B4 uses the rules-1 frames verbatim (poc/rules-1/inputs/rules1-manifest.json) — it is the A3 comparator, not a rules-2 arm. Verbaliser/frames drift vs rules1_runner is asserted at load (ERR_FRAME_DRIFT). padding_sentence is retained ONLY for that drift assertion: review fix 1 removed all per-arm eval padding — every rules-2 arm scores byte-identical prompts (shared prompt-surface sha recorded in results)."
+  "frames_note": "REWORK-2: RULES-1-B frames verbatim (rules-1's GPU run was VOIDED 2026-07-12 for two frame defects that kept every arm at ~0 — a direction-ambiguous bare answer cue and a menu line adjacent to the cue; rules-1-b fixed both, PROPOSED-ASM-1630) PLUS the rules-2-only refusal_note line (fail-closed refusal is TRAINED and SCORED, PROPOSED-ASM-1431/1446), the typing-question infill cue answer_cue_typing (the E2 cells ask 'Is E a man or a woman?', which the relation cue cannot infill), and a proof block used by B3 TRAINING prompts only (byte-equal to the rules-1-b derived block, asserted). The infill cues are rendered per cell from the question's OWN closed template (fail-closed ERR_CUE), identically at TRAIN and EVAL time, so prompts remain a pure function of the cell (review fix 1) and byte-identical across arms. B4 uses the rules-1-b frames verbatim (poc/rules-1/inputs/rules1-manifest.json) — it is the A3 comparator, not a rules-2 arm. Verbaliser/frames drift vs rules1_runner is asserted at load (ERR_FRAME_DRIFT). padding_sentence is retained ONLY for that drift assertion: review fix 1 removed all per-arm eval padding — every rules-2 arm scores byte-identical prompts (shared prompt-surface sha recorded in results)."
  },
  "refusal_answer": "cannot be determined from these facts",
- "refusal_surface_note": "The refusal target is scored as a 24th forced-choice option appended to the 23-word CLUTRR menu (PROPOSED-ASM-1446). Sum-of-token-logprob scoring penalises the longer option uniformly across ALL compared arms; disclosed, not corrected.",
+ "refusal_surface_note": "The refusal target is scored as a 24th forced-choice option appended to the 23-word CLUTRR menu (PROPOSED-ASM-1446). Sum-of-token-logprob scoring penalises the longer option uniformly across ALL compared arms; disclosed, not corrected. REWORK-2 disclosure: after the rules-1-b direction-explicit infill cue ('Answer: {b} is {a}'s'), the refusal option continues agrammatically ('... is {a}'s cannot be determined from these facts'); the marked continuation is IDENTICAL across all arms and across train/eval (fine-tuned arms are trained on exactly this surface via family 3), so every between-arm refusal contrast is like-for-like; disclosed, not corrected.",
  "deviations_note": "B3 renders the one-line proof as a PROMPT block during training (scaffold), not as a generated rationale — the eval surface stays the single forced-choice word so B3 remains commensurable with B2; descriptive-only arm (MD-R2-4).",
  "mock": {
   "note": "SYNTHETIC mechanics-only stub LM (no torch, no peft); every number is labelled MOCK and never a measurement. The pins, corpus loading, c8 gate, prompt construction, split handling, B4 engine loop (real twin engine), row emitter, repeat gate and analysis contract are the REAL code paths. The planted skill gradient exists ONLY so the pinned analysis gates resolve during mock validation.",
