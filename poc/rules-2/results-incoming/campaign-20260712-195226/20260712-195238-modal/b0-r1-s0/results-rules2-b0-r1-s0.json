@@ -1,0 +1,121 @@
+{
+  "arms": [
+    "B0"
+  ],
+  "c8_gate": {
+    "gate_pass": true,
+    "sha256": "674b424f913d397c757ddf263d9abf8fbc10f54d986b75e3ff3bb768e8d7c598",
+    "sout_recovered_acc": 0.0
+  },
+  "canonical_first_seed": 0,
+  "certificate_precondition": {
+    "gates_asm_1163_all_pass": true,
+    "kill_a_fired": false,
+    "sha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "success_asm_1131": true
+  },
+  "corpus_manifest_mode": "REAL",
+  "date": "2026-07-12T20:24:34Z",
+  "decision_sha256": "e8828f4f5a39dcab32c45ab126a0614c7ab5277d879808f0ae65d9b3ca5c4873",
+  "device": "cuda",
+  "efficiency_constants": {
+    "engine_us_per_query_class": 5.3,
+    "engine_us_source": "registry/verdicts/l3a.json (L3a class)",
+    "materialisation_cpu_seconds_measured": 4.4,
+    "materialisation_note": "full REAL materialisation pass, 2 shared cores, 2026-07-12 (this build; PROPOSED-ASM-1429 one-off cost row)",
+    "no_direction_presumed": "the ledger may show the engine cheaper at any realistic N (PROPOSED-ASM-1429); this manifest presumes nothing",
+    "train_flops_formula": "6 * N_active_base * tokens_seen (disclosed formula; descriptive ledger field, identical across arms)"
+  },
+  "eval_ledger": {
+    "B0/R1/seed=0": {
+      "mem_instrument": "cuda_max_memory_allocated_per_cell",
+      "mode": "REAL",
+      "peak_mem_bytes": 862133760,
+      "wall_seconds": 166.05547850599987
+    }
+  },
+  "eval_ledger_note": "review fix 4: per arm/rung/seed wall seconds + peak memory; instrument named per entry; row-level tokens_in/flops_formula/attempts carry the rest of the per-arm efficiency vector",
+  "experiment": "rules-2",
+  "ft_seeds": [
+    0
+  ],
+  "ft_seeds_design": [
+    0,
+    1,
+    2
+  ],
+  "gpu_class_assumed_for_usd": "A10G",
+  "mode": "FULL",
+  "models": {
+    "R1": {
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+    },
+    "R2": {
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"
+    },
+    "R3": {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "revision": "31b70e2e869a7173562077fd711b654946d38674"
+    },
+    "dtype": "fp32 everywhere (train + eval), greedy forced-choice eval \u2014 the RULES-1 frozen hardware line carried over (PROPOSED-ASM-1439)"
+  },
+  "n_rows": 1608,
+  "n_sout_control": 100,
+  "n_sout_covered": 858,
+  "outcome": "HARNESS-COMPLETE",
+  "outcome_note": "NOT a hypothesis verdict \u2014 raw run-record rows only; the verdict is computed by the pinned analysis/rules_2.py + tools/registry/verdict-gen.py under run-vs-audit separation",
+  "pins": {
+    "_freeze_reverify_note": "PROPOSED-ASM-1459: at freeze the coordinator re-hashes materialise_closure.py + analysis/rules_2.py against these pins, regenerates data/rules2-train ('build') and the c8 gate ('c8') from the pinned bytes, and verifies the corpus digest + c8 sha reproduce byte-exactly (deterministic, ~5 s CPU) BEFORE prereg-freeze.",
+    "_pin_notes": "corpus + engine artifact pins verbatim from the FROZEN rules-1/rules-1-c records (PROPOSED-ASM-1437: twin/rules.n3/certificate/eval corpora are IDENTICAL in both); rules1RunnerPySha256 is the RULES-1-C bytes 91d780f3... (REWORK-3, PROPOSED-ASM-1800: rules-1-b's relation-word frame was superseded by the FROZEN rules-1-c entity form, registry/experiments/rules-1-c.json 09b246dc...; importing the rules-1-b bytes would rebuild the measured-dead instrument) because rules2_runner IMPORTS its arm drivers byte-identical (B4 = rules-1-c A3 verbatim; entity prompt frames, entity context builder, verbaliser, licensed rejections, gold-leak guard). All imported-module pins are verified on RAW BYTES BEFORE import (review fix 6). rules2-train regenerated on the entity form (REWORK-3) and repinned; c8 regenerated from the new corpus (gate PASS 0/858 unchanged). poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build.",
+    "analysisRules2PySha256": "782bc9ebc8e2f0c936e1f84063fbdd7ccec2eeec06106a7d6ef4959e92b47a00",
+    "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+    "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+    "c8ResultSha256": "674b424f913d397c757ddf263d9abf8fbc10f54d986b75e3ff3bb768e8d7c598",
+    "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+    "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+    "materialiserPySha256": "66e45adc10b6f2e6072db2f39ab13ce373817466eac90c5f17b1797a20711105",
+    "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+    "rules1RunnerPySha256": "91d780f344019f5948533973348873aadeb9803f85695abc5854198b690a23ab",
+    "rules2TrainCorpusKotHash": "c46aaa4ea2ffd56ef48c5cd0f2e379417fe763a5a0c140ce706f0bdf65545cf1",
+    "rulesN3Sha256": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
+    "sparqCommitRecorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
+    "twinEnginePySha256": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+  },
+  "pins_verified": true,
+  "prompt_surface_note": "review fix 1 (REWORK-3 entity form): S-out prompts are a pure function of the cell (no per-arm padding) \u2014 byte-identical across B0/B1/B2/B3/B5/c1p by construction, uniform 3-option decode (2-option anti-echo set + trained refusal, chance 0.5). B4 + the s3' gap2 surface are STRUCK (issue #24 decision (C), Appendix C)",
+  "records_file": "run-records-rules2-b0-r1-s0.jsonl",
+  "records_sha256": "cbac51d82683ba0556ad94bbfd5794729f1a3707303209188892ee8f3aa02034",
+  "repeat_note": "per-arm byte-identical S-out repeat (G4, PROPOSED-ASM-1439/1451): pass 2 is scored in-process and compared by decision sha; rows come from pass 1 only",
+  "repeat_shas": {
+    "B0/R1/seed=0": {
+      "a": "7f1fa48e2a7eba504813365dd2e268799e362eb004164f76f089bc1b3d3c06e2",
+      "b": "7f1fa48e2a7eba504813365dd2e268799e362eb004164f76f089bc1b3d3c06e2",
+      "byte_identical": true
+    }
+  },
+  "rungs": [
+    "R1"
+  ],
+  "seeds_filter": [
+    0
+  ],
+  "shard_note": "sharded parallel launch (independent arm x seed jobs; PROPOSED-ASM-1459 merge protocol): shards are combined by poc/rules-2/merge_shards.py, which asserts identical pins/prompt-surface shas and reconstructs the canonical results-rules2.json the pinned analysis consumes",
+  "shard_tag": "b0-r1-s0",
+  "sout_prompt_surface_sha256": "de41b4b391a37ad0b9e5e659d667cb02274469da7ee080fa1612eb01c36d5bfe",
+  "strata_eval_counts": {
+    "refusal_guard": 100,
+    "s_held": 200,
+    "s_mem": 200,
+    "stated_guard": 150
+  },
+  "training_ledger": {},
+  "usd_per_hour_table": {
+    "A100": 2.1,
+    "A10G": 1.1,
+    "T4": 0.59
+  },
+  "wallClockHours": 0.048496682975027294
+}

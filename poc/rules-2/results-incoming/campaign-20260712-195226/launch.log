@@ -1,0 +1,144 @@
+✓ Initialized. View run at 
+https://modal.com/apps/jwrightwho/main/ap-2DUVObjvYonpOeDkliV4Sn
+✓ Created objects.
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/modal/modal_rules2.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/modal/requirements-ima
+│   ge.txt
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/rules2-train
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-1/inputs
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f0/flop_meter.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/inputs
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f0/__init__.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/data/axioms-kinship-v1
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/f2b-transfer/runner/f2bt_runne
+│   r.py
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/axioms-v0
+├── 🔨 Created mount /home/ec2-user/css/kernel/kernel-of-truth/data/nsk1-clutrr
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-1/results/rules.n3
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-1/results/certificate-re
+│   sult.json
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-1/certificate.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-1/twin_engine.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/results/c8-result.json
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-1/rules1_runner.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/merge_shards.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/materialise_closure.py
+├── 🔨 Created mount 
+│   /home/ec2-user/css/kernel/kernel-of-truth/poc/rules-2/rules2_runner.py
+├── 🔨 Created mount PythonPackage:modal_common
+├── 🔨 Created function run_rules2_t4.
+├── 🔨 Created function run_rules2_a10g.
+└── 🔨 Created function run_rules2_a100.
+rules-2 --dry-plan (ESTIMATES ONLY — planning constants from rules2-manifest.json; actual corpus/prompt chars; no GPU, no network, $0 spent by this command)
+
+rungs planned: ['R1'] | FT arms ['B1', 'B2', 'B3', 'c1p'] x 3 seeds | train tokens/run: {'B1': '11.7M', 'B2': '8.7M', 'B3': '10.8M', 'c1p': '8.7M'}
+eval: S-out 958 cells x 3 options (entity form, all seeds, byte-identical prompts across arms) + strata/repeat on first seed only (B4 + gap2 STRUCK, issue #24 (C))
+sharded launch: 14 independent jobs; worst single job B1/R1/seed0 = 0.57 h (Modal function timeout 12 h)
+GPU-hours on A10G (sum over jobs): 3.91 h; with 1.5x overhead 5.87 h
+cost at Modal list $1.10/h: est $4.30 / worst $6.46
+
+  worst case vs registry usd_cap ($18)           OK
+  worst case vs coordinator ceiling ($35)        OK
+  worst hours vs gpu_hours_cap (14 h)            OK
+  worst single job vs 12 h Modal function timeout OK
+kot-rules2 via Modal: gpu=A10G mock=False rungs=R1 (51 staged files, runner fe9ab5db6a6d…)
+pins.harness_manifest (staged-bytes manifest sha, canonical JSON): e8c7c78e189ab97a3922a6ea00e725f99c15dea5c6bbeeed43621509abad1a65
+launch gates: ALL GREEN (freeze, sequencing, pinned mock, dry-plan)
+spawning 14 independent shard jobs (parallel; 12 h timeout each): ['b1-r1-s0', 'b1-r1-s1', 'b1-r1-s2', 'b2-r1-s0', 'b2-r1-s1', 'b2-r1-s2', 'b3-r1-s0', 'b3-r1-s1', 'b3-r1-s2', 'c1p-r1-s0', 'c1p-r1-s1', 'c1p-r1-s2', 'b0-r1-s0', 'b5-r3-s0']
+[rules2     1.3s] LoRA fine-tune B1/R1/ft_seed=0 (19931 examples)...
+[rules2     1.0s] LoRA fine-tune B1/R1/ft_seed=2 (19931 examples)...
+[rules2     1.3s] LoRA fine-tune B1/R1/ft_seed=1 (19931 examples)...
+[rules2     1.0s] LoRA fine-tune B2/R1/ft_seed=0 (19931 examples)...
+[rules2     0.9s] LoRA fine-tune B2/R1/ft_seed=2 (19931 examples)...
+[rules2     1.1s] LoRA fine-tune B2/R1/ft_seed=1 (19931 examples)...
+[rules2     0.9s] LoRA fine-tune B3/R1/ft_seed=0 (19931 examples)...
+[rules2     1.0s] LoRA fine-tune B3/R1/ft_seed=1 (19931 examples)...
+[rules2     1.0s] LoRA fine-tune B3/R1/ft_seed=2 (19931 examples)...
+[rules2     0.9s] LoRA fine-tune c1p/R1/ft_seed=0 (19931 examples)...
+[rules2   793.2s] epoch 0 done (776.7s, 1246 steps, loss 0.0006)
+[rules2   796.8s] epoch 0 done (781.8s, 1246 steps, loss 0.0004)
+[rules2   820.6s] epoch 0 done (806.8s, 1246 steps, loss 0.0003)
+[rules2   823.1s] epoch 0 done (804.7s, 1246 steps, loss 0.0004)
+[rules2   825.9s] epoch 0 done (810.1s, 1246 steps, loss 0.0004)
+[rules2   833.3s] epoch 0 done (817.4s, 1246 steps, loss 0.0003)
+[rules2   862.1s] epoch 0 done (841.7s, 1246 steps, loss 0.0003)
+[rules2   865.0s] epoch 0 done (840.5s, 1246 steps, loss 0.0004)
+[rules2   952.3s] epoch 0 done (925.0s, 1246 steps, loss 0.0006)
+[rules2   960.3s] epoch 0 done (930.1s, 1246 steps, loss 0.0004)
+[rules2  1571.1s] epoch 1 done (1554.7s, 2492 steps, loss 0.0003)
+[rules2  1578.8s] epoch 1 done (1563.7s, 2492 steps, loss 0.0003)
+[rules2  1626.0s] epoch 1 done (1612.2s, 2492 steps, loss 0.0001)
+[rules2  1626.8s] epoch 1 done (1608.4s, 2492 steps, loss 0.0007)
+[rules2  1637.3s] epoch 1 done (1621.5s, 2492 steps, loss 0.0003)
+[rules2  1650.7s] epoch 1 done (1634.8s, 2492 steps, loss 0.0001)
+[rules2  1675.7s] cell B2/R1/seed=2 done (97.0s)
+[rules2  1676.0s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b2-r1-s2.jsonl, sha d90ab6cdc4e2)
+[rules2     1.0s] LoRA fine-tune c1p/R1/ft_seed=1 (19931 examples)...
+[rules2  1702.5s] epoch 1 done (1682.1s, 2492 steps, loss 0.0003)
+[rules2  1704.0s] epoch 1 done (1679.5s, 2492 steps, loss 0.0003)
+[rules2  1723.1s] cell B3/R1/seed=1 done (97.2s)
+[rules2  1723.3s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b3-r1-s1.jsonl, sha 99f9d81af04c)
+[rules2  1723.9s] cell B3/R1/seed=2 done (97.0s)
+[rules2  1724.1s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b3-r1-s2.jsonl, sha 013382f8785b)
+[rules2     1.0s] LoRA fine-tune c1p/R1/ft_seed=2 (19931 examples)...
+[rules2  1747.3s] cell B1/R1/seed=2 done (96.6s)
+[rules2  1747.5s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b1-r1-s2.jsonl, sha be2cc9c2eeaf)
+[rules2  1776.0s] cell c1p/R1/seed=0 done (204.9s, repeat True)
+[rules2  1776.3s] OUTCOME: HARNESS-COMPLETE (1608 rows in /tmp/rules2-results/run-records-rules2-c1p-r1-s0.jsonl, sha 5f63e621acaa)
+[rules2  1834.2s] cell B1/R1/seed=1 done (131.7s)
+[rules2  1834.5s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b1-r1-s1.jsonl, sha e8c8bbaeee33)
+[rules2  1845.8s] cell B3/R1/seed=0 done (208.6s, repeat True)
+[rules2  1846.1s] OUTCOME: HARNESS-COMPLETE (1608 rows in /tmp/rules2-results/run-records-rules2-b3-r1-s0.jsonl, sha bad1fa0803f1)
+[rules2  1883.6s] epoch 1 done (1856.6s, 2492 steps, loss 0.0002)
+[rules2  1894.9s] epoch 1 done (1864.8s, 2492 steps, loss 0.0005)
+[rules2   174.6s] cell B0/R1/seed=0 done (166.1s, repeat True)
+[rules2   174.6s] OUTCOME: HARNESS-COMPLETE (1608 rows in /tmp/rules2-results/run-records-rules2-b0-r1-s0.jsonl, sha cbac51d82683)
+[rules2   168.7s] cell B5/R3/seed=0 done (154.2s, repeat True)
+[rules2   168.7s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b5-r3-s0.jsonl, sha 5affb7c05f17)
+[rules2  1968.4s] cell B1/R1/seed=0 done (264.4s, repeat True)
+[rules2  1968.8s] OUTCOME: HARNESS-COMPLETE (1608 rows in /tmp/rules2-results/run-records-rules2-b1-r1-s0.jsonl, sha dba28ae61136)
+[rules2  1969.9s] cell B2/R1/seed=1 done (86.0s)
+[rules2  1970.3s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-b2-r1-s1.jsonl, sha 192160a1b27f)
+  b1-r1-s0: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b1-r1-s1: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b1-r1-s2: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+[rules2  2083.2s] cell B2/R1/seed=0 done (188.2s, repeat True)
+[rules2  2083.6s] OUTCOME: HARNESS-COMPLETE (1608 rows in /tmp/rules2-results/run-records-rules2-b2-r1-s0.jsonl, sha e1cdd821597a)
+  b2-r1-s0: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b2-r1-s1: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b2-r1-s2: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b3-r1-s0: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b3-r1-s1: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  b3-r1-s2: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+  c1p-r1-s0: OUTCOME=HARNESS-COMPLETE rc=0 (5 files)
+[rules2   791.2s] epoch 0 done (781.9s, 1246 steps, loss 0.0003)
+[rules2   786.0s] epoch 0 done (776.8s, 1246 steps, loss 0.0006)
+[rules2  1573.2s] epoch 1 done (1563.9s, 2492 steps, loss 0.0002)
+[rules2  1562.8s] epoch 1 done (1553.5s, 2492 steps, loss 0.0002)
+[rules2  1668.6s] cell c1p/R1/seed=1 done (95.3s)
+[rules2  1668.8s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-c1p-r1-s1.jsonl, sha c91c8a176faf)
+  c1p-r1-s1: OUTCOME=HARNESS-COMPLETE rc=0 (7 files)
+[rules2  1658.9s] cell c1p/R1/seed=2 done (96.1s)
+[rules2  1659.1s] OUTCOME: HARNESS-COMPLETE (958 rows in /tmp/rules2-results/run-records-rules2-c1p-r1-s2.jsonl, sha 1e0433ea6bbb)
+ERR_MERGE: poc/rules-2/results-incoming/campaign-20260712-195226/20260712-195238-modal/c1p-r1-s1 has 2 results-rules2*.json files (need exactly 1)
+  c1p-r1-s2: OUTCOME=HARNESS-COMPLETE rc=0 (7 files)
+  b0-r1-s0: OUTCOME=HARNESS-COMPLETE rc=0 (7 files)
+  b5-r3-s0: OUTCOME=HARNESS-COMPLETE rc=0 (7 files)
+Stopping app - uncaught exception raised locally: SystemExit('ERR_MERGE: merge_shards.py failed — shards kept in poc/rules-2/results-incoming/campaign-20260712-195226/20260712-195238-modal').
+ERR_MERGE: merge_shards.py failed — shards kept in poc/rules-2/results-incoming/campaign-20260712-195226/20260712-195238-modal
