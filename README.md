@@ -45,10 +45,12 @@ The programme puts two theses under pre-registered test. **CORRECTNESS**: that a
 
 ### Outstanding work
 
-- **rules-1-b** — re-run the RULES-1 host-lift campaign on the repaired harness (direction-explicit cue, mandatory CPU pilot, host-validity instrument gate), then the `knull` rules-source ablation for kernel-specific attribution.
-- **g2-import-v2** — the typing repair on a fixed judging instrument (the κ-paradox-aware redesign), separating soft-routing breadth from source-specific ontology content.
-- **DDC** — the training-free kernel-guided compression experiment (does kernel-chosen structure preserve more ability than magnitude or random pruning at equal size?).
-- **sparq upstream PRs** — quoted-triple visibility in embeddings, ontology-prior readers, and quoted-triple inference in the engine.
+- **RULES-1 host-lift (→ rules-1-c)** — the re-run surfaced a *second* instrument defect (the host prompt-frame diverged from the working engine renderer, so host models scored 0 while the engine scored). A repaired frame is now piloting green — a CPU/GPU pilot recovers the engine-direct arm to 12/12 and the 135M host to 7/12 with proof-in-prompt — and is being re-frozen as **rules-1-c** before the parallelised host-lift campaign, then the `knull` rules-source ablation for kernel-specific attribution.
+- **RULES-2** — a train-time internalisation variant (does fine-tuning a small model on engine-derived *entailments* beat training on stated facts, and does it close the verify-retry gap?); harness built and mock-green, gated on the RULES-1 host-lift verdict.
+- **g2-import-v2** — the typing repair on a fixed judging instrument (the κ-paradox-aware AC1 redesign), separating soft-routing breadth from source-specific ontology content.
+- **DDC** — the training-free kernel-guided compression experiment (does kernel-chosen structure preserve more ability than magnitude or random pruning at equal size?); records frozen-ready, run harness in build.
+- **Large-kernel scale track** — every experiment so far runs on a sub-100-concept kernel, which is itself a barrier to demonstrating feasibility. A staged track (10k → 100k → 1M → millions of UFO-typed concepts, with the rules engine and full UFO expressivity) is now in design and build, to test which results hold — or only emerge — at realistic scale.
+- **sparq upstream PRs** — quoted-triple visibility in embeddings, ontology-prior readers, and quoted-triple inference in the engine (handed to the sparq agent to land, issue #2149).
 - **Human-gold reconciliation** — two-human blind panels on the frozen g2/g2-import packages; all proxy-labelled conclusions remain provisional until then.
 
 ## Repository layout
