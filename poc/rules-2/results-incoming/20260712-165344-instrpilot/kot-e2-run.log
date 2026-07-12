@@ -1,0 +1,14 @@
+$ /usr/local/bin/python /root/kot/poc/rules-2/instr_pilot.py --inputs-dir /root/kot/poc/rules-2/inputs --data-root /root/kot/data --corpus-dir /root/kot/data/rules2-train --out-dir /tmp/instrpilot-results --device cuda --gpu-class A10G
+[instrpilot     1.2s] IP-2 audit-teeth: real 0.0 <= 0.10: True; planted fires: True
+[instrpilot    29.1s] eval B0 done (7.9s)
+[instrpilot    29.2s] LoRA B2-pilot (6000 examples, pinned HPs, seed 0)...
+[instrpilot   272.1s] epoch 0 done (240.0s, 375 steps, loss 0.0055)
+[instrpilot   511.9s] epoch 1 done (479.8s, 750 steps, loss 0.0231)
+[instrpilot   519.5s] eval B2 done (7.6s)
+[instrpilot   519.8s] LoRA c1p-pilot (6000 examples, pinned HPs, seed 0)...
+[instrpilot   761.6s] epoch 0 done (241.0s, 375 steps, loss 0.0095)
+[instrpilot  1005.1s] epoch 1 done (484.4s, 750 steps, loss 0.0011)
+[instrpilot  1013.4s] eval c1p done (8.4s)
+[instrpilot  1016.3s] eval B4 done (1.5s)
+[instrpilot  1016.3s] VERDICT: PILOT-PASS-WITH-FLAGS (IP-1 True, IP-2 True, IP-3 True, B4-vacuous True) -> /tmp/instrpilot-results/instrpilot-result.json
+[pilot exit rc=0]

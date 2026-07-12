@@ -1,0 +1,131 @@
+{
+  "asm_block": "PROPOSED-ASM-1814..1819 (poc/rules-2/asm-instrpilot-1814-1819.json)",
+  "blocking_rule": "PROPOSED-ASM-1814: PILOT-FAIL blocks prereg-freeze of registry/experiments/rules-2.json pending redesign or an explicit coordinator override record",
+  "campaign_bytes_untouched_note": "the pilot stages/loads the pinned campaign bytes read-only; the campaign staged-bytes manifest (modal_rules2.py --print-manifest) is unchanged by the pilot build",
+  "date": "2026-07-12T17:10:47Z",
+  "device": "cuda",
+  "experiment": "rules-2 INSTRUMENT PILOT (pre-freeze validity gate)",
+  "gates": {
+    "ip1_separation": {
+      "b0": {
+        "acc": 0.7,
+        "control_refusal_rate": 0.0,
+        "n": 60,
+        "refusal_rate_covered": 0.0
+      },
+      "b2_pilot": {
+        "acc": 1.0,
+        "control_refusal_rate": 0.2,
+        "n": 60,
+        "refusal_rate_covered": 0.0
+      },
+      "binom_min_acc": 0.6166666666666667,
+      "binom_min_correct": 37,
+      "cond_a_b0_headroom": true,
+      "cond_b_b2p_above_floor": true,
+      "cond_c_gap": true,
+      "cond_d_refusal": true,
+      "pass": true
+    },
+    "ip2_audit_teeth": {
+      "ceiling": 0.1,
+      "gate_fires_on_planted_exploiter": true,
+      "note": "IP-2 (PROPOSED-ASM-1816): projection semantics duplicated verbatim from materialise_closure.c8 (qa+factline flat lookup, no joins, no inference); the plant injects the pilot S-out (base, rel)->gold keys \u2014 an audit that does not fire on that is vacuous",
+      "pass": true,
+      "planted_exploiter": {
+        "n": 60,
+        "recovered": 55,
+        "recovered_acc": 0.9166666666666666,
+        "recovered_correct": 55
+      },
+      "real_lookup": {
+        "n": 60,
+        "recovered": 0,
+        "recovered_acc": 0.0,
+        "recovered_correct": 0
+      },
+      "real_under_ceiling": true
+    },
+    "ip3_c1p_control": {
+      "c1p": {
+        "acc": 0.0,
+        "control_refusal_rate": 0.9,
+        "n": 60,
+        "refusal_rate_covered": 0.03333333333333333
+      },
+      "cond_no_abstention_collapse": true,
+      "cond_no_treatment_collapse": true,
+      "pass": true
+    },
+    "ip4_b4_vacuity_flag": {
+      "attempts_values": [
+        1
+      ],
+      "b4_vacuous": true,
+      "n": 24,
+      "note": "IP-4 (PROPOSED-ASM-1818): attempts==1 everywhere = the rules-1-c A3 vacuity (PROPOSED-ASM-1808) inherited at the operating point; a FLAG for the issue-#24 B4/s3' disposition, not a pilot FAIL"
+    }
+  },
+  "mock_degenerate": false,
+  "mode": "REAL",
+  "n_rows": 234,
+  "pilot_constants": {
+    "lora_hps": "pinned rules2-manifest values verbatim (epochs=2)",
+    "n_b4": 24,
+    "n_control": 10,
+    "n_sout": 60,
+    "train_subsample_n": 6000,
+    "train_total_n": 19931,
+    "usd_cap": 2.0
+  },
+  "pins": {
+    "_freeze_reverify_note": "PROPOSED-ASM-1459: at freeze the coordinator re-hashes materialise_closure.py + analysis/rules_2.py against these pins, regenerates data/rules2-train ('build') and the c8 gate ('c8') from the pinned bytes, and verifies the corpus digest + c8 sha reproduce byte-exactly (deterministic, ~5 s CPU) BEFORE prereg-freeze.",
+    "_pin_notes": "corpus + engine artifact pins verbatim from the FROZEN rules-1/rules-1-c records (PROPOSED-ASM-1437: twin/rules.n3/certificate/eval corpora are IDENTICAL in both); rules1RunnerPySha256 is the RULES-1-C bytes 91d780f3... (REWORK-3, PROPOSED-ASM-1800: rules-1-b's relation-word frame was superseded by the FROZEN rules-1-c entity form, registry/experiments/rules-1-c.json 09b246dc...; importing the rules-1-b bytes would rebuild the measured-dead instrument) because rules2_runner IMPORTS its arm drivers byte-identical (B4 = rules-1-c A3 verbatim; entity prompt frames, entity context builder, verbaliser, licensed rejections, gold-leak guard). All imported-module pins are verified on RAW BYTES BEFORE import (review fix 6). rules2-train regenerated on the entity form (REWORK-3) and repinned; c8 regenerated from the new corpus (gate PASS 0/858 unchanged). poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build.",
+    "analysisRules2PySha256": "782bc9ebc8e2f0c936e1f84063fbdd7ccec2eeec06106a7d6ef4959e92b47a00",
+    "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+    "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+    "c8ResultSha256": "674b424f913d397c757ddf263d9abf8fbc10f54d986b75e3ff3bb768e8d7c598",
+    "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+    "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+    "materialiserPySha256": "66e45adc10b6f2e6072db2f39ab13ce373817466eac90c5f17b1797a20711105",
+    "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+    "rules1RunnerPySha256": "91d780f344019f5948533973348873aadeb9803f85695abc5854198b690a23ab",
+    "rules2TrainCorpusKotHash": "c46aaa4ea2ffd56ef48c5cd0f2e379417fe763a5a0c140ce706f0bdf65545cf1",
+    "rulesN3Sha256": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
+    "sparqCommitRecorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
+    "twinEnginePySha256": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+  },
+  "pins_verified": true,
+  "records_file": "run-records-instrpilot.jsonl",
+  "records_sha256": "d3233733b29044dc44ef4996e968a3c27f617b7dffb4a6571431b09a52c004d5",
+  "seed": 0,
+  "sout_prompt_surface_sha256": "16c52b050615e541fb1fb0b8d22e5c709a958fc0887e863aadb9d739263cd1f1",
+  "training_ledger": {
+    "B2": {
+      "flops_formula_train": 2950109441231616.0,
+      "mem_instrument": "cuda_max_memory_allocated_per_cell",
+      "mode": "REAL",
+      "n_active_base": 134515008,
+      "n_examples": 6000,
+      "optimizer_steps": 750,
+      "peak_mem_bytes": 8081439232,
+      "tokens_seen": 3655242,
+      "wall_seconds": 479.842143535614
+    },
+    "c1p": {
+      "flops_formula_train": 2950130425572864.0,
+      "mem_instrument": "cuda_max_memory_allocated_per_cell",
+      "mode": "REAL",
+      "n_active_base": 134515008,
+      "n_examples": 6000,
+      "optimizer_steps": 750,
+      "peak_mem_bytes": 8080798208,
+      "tokens_seen": 3655268,
+      "wall_seconds": 484.4792683124542
+    }
+  },
+  "verdict": "PILOT-PASS-WITH-FLAGS",
+  "verdict_semantics": "instrument-validity ONLY \u2014 a PASS licenses the coordinator to proceed to the freeze checklist; it is NEVER evidence for any rules-2 hypothesis, and MOCK verdicts validate pilot mechanics only",
+  "wallClockHours": 0.28231111738416886
+}
