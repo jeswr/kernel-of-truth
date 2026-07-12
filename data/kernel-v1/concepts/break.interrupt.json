@@ -1,0 +1,93 @@
+{
+  "id": "urn:kernel-v1:break.interrupt",
+  "label": "break.interrupt (X breaks Y — Y is a continuing happening and because of what X does it stops; as in \"break a streak\" / \"break the cycle\", NOT as in \"break a glass\")",
+  "status": "research-grade",
+  "pattern": "frame-null cluster (design §1.3 row break.interrupt): a continuing something stops because of a doing",
+  "gloss": "X did something to Y at some time; before this time Y was happening for some time; because of this, after this time Y is not happening.",
+  "notes": "Frame-null cluster (no single pinned FrameNet frame carries this break LU reading); two-member within-frame-null cluster disclosed per R3: v-00364717 (terminate a streak/cycle) + v-02541382 (interrupt a continued activity). The design's illustrative third member v-02752324 ('the flat plain was broken by tall mesas') is EXCLUDED by this authoring pass: it is stative/spatial (no event, no time), so this temporal explication would misdescribe it — R3(b) truthful-coverage forbids the cluster. Disclosed authoring act.",
+  "sense": {
+    "senseTag": "interrupt",
+    "lemma": "break",
+    "pos": "v",
+    "wn31Synsets": ["urn:lexical-wn31:v-00364717", "urn:lexical-wn31:v-02541382"],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "terminate; \"break a lucky streak\"; \"break the cycle of poverty\" / interrupt a continued activity; \"She had broken with the traditional patterns\"",
+    "excludedSiblingCount": 53
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomethingRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "TimeRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": { "kind": "ref", "index": 1 },
+          "undergoer": { "kind": "ref", "index": 2 },
+          "time": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+            "det": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          { "kind": "ref", "index": 3 },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": { "kind": "ref", "index": 2 },
+              "duration": { "kind": "prime", "prime": "FOR-SOME-TIME" }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "undergoer": { "kind": "ref", "index": 2 }
+            }
+          },
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              { "kind": "ref", "index": 3 },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": { "kind": "ref", "index": 2 }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

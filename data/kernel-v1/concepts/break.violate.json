@@ -1,0 +1,135 @@
+{
+  "id": "urn:kernel-v1:break.violate",
+  "label": "break.violate (X breaks Y — Y is words such as a promise, a law, or a rule, and X does not do what these words say; as in \"break a promise\" / \"break the law\", NOT as in \"break a glass\")",
+  "status": "research-grade",
+  "pattern": "norm-violation sense (design §1.3 row break.violate): the object is a social/normative something made of words, never material",
+  "gloss": "Y is words; these words say: people cannot do some things; X did one of these things at some time; because of this, something bad can happen.",
+  "notes": "Authored fresh; the pi:011 defect class is unmintable here by construction — the record's subject IS the norm-violation sense, and its object is words. KNOWN-WEAK: obligation ('the words say someone must do something', as in promise-keeping) is rendered only through its prohibition dual ('the words say people cannot do some things', the deed being the omission); NSM renders 'must' via CAN/NOT-CAN and this explication follows that discipline. Prohibition-centred rendering disclosed per R3(b).",
+  "sense": {
+    "senseTag": "violate",
+    "lemma": "break",
+    "pos": "v",
+    "wn31Synsets": ["urn:lexical-wn31:v-02572443"],
+    "framenetFrame": "urn:onto-framenet:frame-117",
+    "framenetFrameName": "Compliance",
+    "glossQuote": "act in disregard of laws, rules, contracts, or promises; \"violate the basic laws of civilized society\"",
+    "excludedSiblingCount": 53
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "SomethingRef" },
+      { "index": 4, "refKind": "TimeRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": { "kind": "ref", "index": 2 },
+          "attribute": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "WORDS" }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+            "quant": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": { "kind": "ref", "index": 2 },
+          "quote": {
+            "kind": "quote",
+            "clauses": [
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "op",
+                    "op": "CAN",
+                    "args": [
+                      {
+                        "type": "pred",
+                        "pred": "DO",
+                        "roles": {
+                          "agent": {
+                            "kind": "sp",
+                            "head": { "kind": "primeHead", "prime": "PEOPLE" }
+                          },
+                          "undergoer": { "kind": "ref", "index": 3 }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": { "kind": "ref", "index": 1 },
+          "undergoer": { "kind": "ref", "index": 3 },
+          "time": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+            "det": "SOME",
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "undergoer": { "kind": "ref", "index": 3 }
+            }
+          },
+          {
+            "type": "op",
+            "op": "MAYBE",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HAPPEN",
+                "roles": {
+                  "undergoer": {
+                    "kind": "sp",
+                    "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                    "quant": "SOME",
+                    "mods": [{ "mod": "BAD" }]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

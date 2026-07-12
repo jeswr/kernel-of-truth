@@ -1,0 +1,81 @@
+{
+  "id": "urn:kernel-v1:make.create",
+  "label": "make.create (X makes Y — because of what X does, Y comes to exist; as in \"make a chair\" / \"make a cake\", NOT as in \"make someone sad\" or \"make the bed\" or \"make the train\")",
+  "status": "research-grade",
+  "pattern": "gist §3.4 creation pattern: BECAUSE(effect: THERE-IS x, cause: DO agent) — carried byte-identical from urn:kernel-v0:make (SEED disposition)",
+  "gloss": "because X did something at some time, there is this something; before this time it was not.",
+  "notes": "SEED from urn:kernel-v0:make (deprecated): the v0 explication already describes exactly the creation sense and is carried BYTE-IDENTICAL, so the content-addressed urn:kot: mint equals the v0 mint (continuity demonstrated in the manifest). Within-frame cluster of three agentive-creation synsets disclosed per R3 (shape / combine / manufacture — one explication truthfully covers all three; frame projection to Intentionally_create hand-reviewed per R2). Non-creation idioms ('make the bed', 'make the train', 'make merry') are excluded siblings — exactly the g2:pi:070 escapes no gloss short of a sense record could exclude.",
+  "sense": {
+    "senseTag": "create",
+    "lemma": "make",
+    "pos": "v",
+    "wn31Synsets": ["urn:lexical-wn31:v-01624592", "urn:lexical-wn31:v-01657416", "urn:lexical-wn31:v-01658171"],
+    "framenetFrame": "urn:onto-framenet:frame-280",
+    "framenetFrameName": "Intentionally_create",
+    "glossQuote": "make by shaping or bringing together constituents; \"make a dress\"; \"make a cake\"; \"make a wall of stones\"",
+    "excludedSiblingCount": 44
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "TimeRef" }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "undergoer": {
+                "kind": "sp",
+                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                "quant": "SOME"
+              },
+              "time": {
+                "kind": "sp",
+                "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+                "det": "SOME",
+                "bind": 3
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": { "kind": "ref", "index": 2 }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          { "kind": "ref", "index": 3 },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": { "kind": "ref", "index": 2 }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

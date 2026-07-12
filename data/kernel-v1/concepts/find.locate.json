@@ -1,0 +1,112 @@
+{
+  "id": "urn:kernel-v1:find.locate",
+  "label": "find.locate (X finds Y — X comes to know where Y is after not knowing; as in \"find the keys\", NOT as in \"find a flaw\" or \"find that ...\")",
+  "status": "research-grade",
+  "pattern": "locator-knowledge pattern (echoes the Bookmark 'can know where' clause, gist §3.4) — carried byte-identical from urn:kernel-v0:find (SEED disposition)",
+  "gloss": "before now X did not know where Y is; because X did something, X sees Y now; X knows now: Y is at this place.",
+  "notes": "SEED from urn:kernel-v0:find (deprecated): the v0 explication already describes exactly the locate sense and is carried BYTE-IDENTICAL, so the content-addressed urn:kot: mint equals the v0 mint (continuity demonstrated in the manifest). The place referent is bound inside the negated before-clause — the profile-1 rendering of \"the place it in fact was, unknown to X\". The epistemic-discovery reading ('find a flaw', 'find that he had lied') lives in find.discover.",
+  "sense": {
+    "senseTag": "locate",
+    "lemma": "find",
+    "pos": "v",
+    "wn31Synsets": ["urn:lexical-wn31:v-02290474"],
+    "framenetFrame": "urn:onto-framenet:frame-792",
+    "framenetFrameName": "Locating",
+    "glossQuote": "come upon after searching; find the location of something that was missed or lost; \"Did you find your glasses?\"",
+    "excludedSiblingCount": 14
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "PlaceRef" }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          { "kind": "prime", "prime": "NOW" },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": { "kind": "ref", "index": 1 },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "BE-SOMEWHERE",
+                      "roles": {
+                        "undergoer": { "kind": "ref", "index": 2 },
+                        "locus": {
+                          "kind": "sp",
+                          "head": { "kind": "primeHead", "prime": "WHERE~PLACE" },
+                          "det": "SOME",
+                          "bind": 3
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "undergoer": {
+                "kind": "sp",
+                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                "quant": "SOME"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": { "kind": "ref", "index": 1 },
+              "stimulus": { "kind": "ref", "index": 2 },
+              "time": { "kind": "prime", "prime": "NOW" }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "KNOW",
+        "roles": {
+          "experiencer": { "kind": "ref", "index": 1 },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "BE-SOMEWHERE",
+              "roles": {
+                "undergoer": { "kind": "ref", "index": 2 },
+                "locus": { "kind": "ref", "index": 3 }
+              }
+            }
+          },
+          "time": { "kind": "prime", "prime": "NOW" }
+        }
+      }
+    ]
+  }
+}

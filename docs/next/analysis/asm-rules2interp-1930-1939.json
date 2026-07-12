@@ -1,0 +1,121 @@
+{
+ "_readme": [
+  "RULES-2 interpretation assumption block ASM-1930..1939 — EMITTED by the Fable INTERPRETATION agent (2026-07-12) alongside docs/next/analysis/rules2-interpretation.md, for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions).",
+  "Range 1930-1939 verified free against registry/assumptions.jsonl at emission time (max registered id 1909).",
+  "Scope: interpretation of the graded rules-2 GPU campaign (campaign-20260712-195226) inside the frozen record registry/experiments/rules-2.json (frozen sha dde1b0d122bab4af32ea96dfe163fc70f4faf087321ea12f28bcad3cb385cb65). MEASURED rows restate the pinned analysis/rules_2_go.py (sha 58b4831f1b742ff934c28db2016c0fd284f2a0adfce1f4cf093d794c75639a54) output recomputed this tick over the merged campaign bytes, or committed sibling artifacts, with hashes given. STIPULATED rows are this interpretation agent's rulings/readings, never mechanical verdicts. No feasibility conclusion is stated on either thesis; the verdict artifact and cross-model audit remain the owning roles' steps.",
+  "Tags: MEASURED = read from committed bytes/pinned-analysis output this tick (hash or verdict ref given); LIT-BACKED = published-literature grounding, provenance disclosed; STIPULATED = interpretive ruling or design choice, rationale given; EXTRAPOLATION = forward claim, resolution_path given."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1930",
+   "tag": "MEASURED",
+   "claim": "RULES-2 mechanical readout (pinned analysis/rules_2_go.py sha 58b4831f... executed this tick over merged/results-rules2.json sha c904005a0f8040362a4ad26a7e2aa61413688814284ddfae5db8bfd0c3c39264 + merged/run-records-rules2.jsonl sha e3981c8e2d12c7e773118c40c42cb014df76dea05477c06a67f89295469da59a + c8-result.json sha 674b424f...): all four gates TRUE (pin, c8 0/858 <= 0.10, headroom B0 0.657 <= 0.85, repeat_byte_identical); primary B2-B0 on S-out point +0.343 (1.000 - 0.657), LB95 = +0.31585 > SESOI 0.05 -> primary_pass TRUE, kill_d_fired FALSE; Holm over {s1p,s2p,s4p}: s1p recovery UB95 -1.707 rejected (adj p 3.0e-4), s2p B2-B1 LB95 1.000 rejected (adj p 3.0e-4), s4p NOT rejected (p 0.995) with s4p_side_effect_flag TRUE. Under the frozen verdict_rules this maps to PASS; the verdict artifact and audit are pending (owning roles).",
+   "rationale": "The verdict-grade numeric spine every other row in this block interprets.",
+   "backing_ref": "analysis/rules_2_go.py (58b4831f...); poc/rules-2/results-incoming/campaign-20260712-195226/merged/results-rules2.json (c904005a...); registry/experiments/rules-2.json (frozen dde1b0d1...)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1931",
+   "tag": "MEASURED",
+   "claim": "Per-arm S-out accuracies (R1, 858 items x 3 FT seeds; chance 0.5 disclosed): B0 0.6573, B1 0.0000, B2 1.0000, B3 0.0000, B5 (R3 1.7B eval-only) 0.9277, c1p 0.0000; FT-seed range 0.000 in every fine-tuned arm (B2 = 1.000 at each seed). Collapse modes from the refusal-correctness control (100 unanswerable items): B1 refuses everything (1.000; descriptively B1-B0 = -0.657, the exposure fine-tune is worse than no fine-tune), B3 and c1p refusal-heavy (0.883), B2 near-never refuses (0.007), B0 never (0.000), B5 0.030. B2 strata: s_mem 1.000 / s_held 1.000 / s_out 1.000, reported separately, never pooled; only S-out carries the internalisation claim (ASM-1423).",
+   "rationale": "The arm anatomy behind the headline: B2 sits at ceiling; the exposure control degenerated into an always-refuser (s2' magnitude partly owes to that collapse); c1p's collapse is over-determined by anti-correlation; B3's collapse is descriptive-only (MD-R2-4).",
+   "backing_ref": "analysis/rules_2_go.py output fields /analysis/acc_*_sout, /analysis/refusal_correctness_control, /analysis/ft_seed_variance, /analysis/strata_profile over results sha c904005a...",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1932",
+   "tag": "MEASURED",
+   "claim": "s4' degradation guard FAILED on the refusal component only: stated-cell delta 0.000 (no stated-fact erosion), refusal delta -0.9933 vs the point-estimate-better reference (B1, an always-refuser); B2 correctly refuses 0.7% of unanswerable control items despite family-3 refusal data in its training corpus; s4p_side_effect_flag TRUE. Registered consequence (frozen design PROPOSED-ASM-1430): deployment-shaped language is CAPPED — nothing in this campaign licenses fielding the fine-tuned host, because fail-closed refusal did not survive internalisation training. B2 is no worse than the base host (B0 refusal 0.000), so the breach is against the trained target and the degenerate reference, not a regression below base.",
+   "rationale": "The honest cost inside the PASS: internalisation training destroyed the refusal behaviour on unanswerables — exactly the failure mode the programme's honesty-first scoring direction (issue #18) penalises.",
+   "backing_ref": "analysis/rules_2_go.py output fields /analysis/s4p_* over results sha c904005a...; registry/experiments/rules-2.json endpoint sec-s4p-degradation-guard",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1933",
+   "tag": "MEASURED",
+   "claim": "Deflationary premise consumed by this interpretation: the executed knull analog (poc/rules-2/results/knull-analog-result.json sha afcf09e882ae2fc3796eb72774eac4c46839169cc312fe0a717c8b4cfb1f89f1) shows the kernel TBox and the knull plain-dictionary TBox derive the FULLY SURFACE-EQUIVALENT training corpus over the identical component set: 21,780/21,780 examples byte-equal (family-2 13,020/13,020 at fraction 1.0 across chain/cover/typing; families 1+3 8,760/8,760; 0 divergent proof sidecars; identical exclusion ledgers; kernel side anchored byte-equal to pinned corpus c46aaa4e...). The GPU knull leg is conditional-vacuous and prohibited (ASM-1851): the c5k training bytes ARE B2's training bytes.",
+   "rationale": "Restates ASM-1850/1851 as the load-bearing input to the claim-ceiling ruling in ASM-1934; byte-identity makes the kernel-vs-dictionary contrast identically zero on this inventory, before any GPU spend.",
+   "backing_ref": "poc/rules-2/results/knull-analog-result.json (afcf09e8...); poc/rules-2/asm-go-1847-1859.json rows ASM-1849..1852",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1934",
+   "tag": "STIPULATED",
+   "claim": "INTERPRETATION RULING (the licensed sentence, applying the ASM-1852 claim ceiling): the RULES-2 PASS licenses exactly — 'LoRA fine-tuning SmolLM2-135M on the certified engine's materialised closure internalises this closed inference pattern at this operating point: out-of-world fresh-name entailed accuracy 1.000 vs 0.657 plain host (LB95 +0.316 > 6x SESOI), content-driven (c1p collapse), beyond format exposure (B2-B1), not reproducible by flat lookup over the training bytes (c8 0/858), no engine at inference' — where the entailments are derivable from EITHER rules source on this inventory. The PASS advances the host-integration question and does NOT advance the kernel-SPECIFIC-value question by any amount; the deflationary cap is part of the PASS's meaning, not a caveat appended to it. Two-sided: the byte-identity neither validates nor indicts the kernel; it makes the kernel-vs-dictionary question unaskable on this inventory.",
+   "rationale": "Locks the exact affirmative sentence to the frozen envelope (extrapolation_envelope_verbatim) + ASM-1852 so downstream synthesis cannot inflate 'engine-materialised entailments are internalisable' into 'the kernel adds value'.",
+   "backing_ref": "docs/next/analysis/rules2-interpretation.md sections 1.1 + 2.1; registry/experiments/rules-2.json extrapolation_envelope_verbatim; ASM-1933 (this block)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1935",
+   "tag": "STIPULATED",
+   "claim": "SCOPE AND EFFECT-SIZE CAPS on the licensed sentence: (a) single fine-tuned rung — R1 only in the merged campaign (rungs [R1,R3]; the authorized R2/360M tier was not run); scale_language 'none', not even a sign across scales; (b) single corpus/domain/form — this closed kinship inventory, entity form at disclosed chance 0.5, proof depth <= 4, support-restricted 3-name two-hop shape, gold-parse-only prompt-supplied facts (l3a parse wall stands), pinned LoRA regime only; 'internalised the inference' means THIS closed pattern family applied to fresh token-disjoint entities; (c) ceiling truncation — B2 saturated the 0.343-wide measurable window (LB95 within 0.027 of saturation), so the magnitude is lower-bound-shaped: on this surface the effect is as large as the instrument can measure, off this surface its size is UNMEASURED; the SESOI comparison (LB95 > 6x 0.05) stands as registered; (d) three FT seeds of one corpus is stability evidence, not a robustness demonstration.",
+   "rationale": "Prevents the two natural overreadings of a saturated PASS: magnitude generalisation past a chance-0.5 closed surface, and scope generalisation past one rung/one corpus/one form.",
+   "backing_ref": "docs/next/analysis/rules2-interpretation.md section 3; analysis/rules_2_go.py fields /analysis/rung_sign_descriptive + /analysis/primary_band over results sha c904005a...",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1936",
+   "tag": "MEASURED",
+   "claim": "CONTENT-NOT-STRUCTURE LEDGER, updated: rules-2-knull is the fourth attribution probe to answer 'content, not structure', each at a different seam — f2b-transfer (registry/verdicts/f2b-transfer.json PASS, audit CONFIRMED: +0.2507 lift carried by authored answer-bearing content, in-context seam); DECONF-B (registry/verdicts/deconf-b.json PASS, audit CONFIRMED: GS-A projected store = kernel arm, identity fraction 1.0, runtime-store seam); CASC-0' (gloss = plain at R2, prompt seam, as recorded in feasibility-synthesis-v6 section 2.2); rules-2-knull (training-corpus byte-identity 21,780/21,780, training-data seam, sha afcf09e8...). Mechanisms differ (runtime identity vs derivation identity); the surviving uniform account — measured value lives in item-aligned answer-bearing engine-checkable CONTENT, with no experiment yet detecting value in the kernel's distinctive structure — is this agent's reading of the measured rows, weighed as one model's account.",
+   "rationale": "Situates the rules-2 deflationary cap in the programme-wide pattern so the next synthesis consumes one ledger, not four scattered observations; the row's factual entries are MEASURED, the 'uniform account' sentence is flagged interpretive inside the claim.",
+   "backing_ref": "registry/verdicts/f2b-transfer.json; registry/verdicts/deconf-b.json; docs/next/interpretations/deconf-b.md; docs/next/feasibility-synthesis-v6.md section 2; poc/rules-2/results/knull-analog-result.json (afcf09e8...)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1937",
+   "tag": "STIPULATED",
+   "claim": "FIRST-VALID-AFFIRMATIVE STATUS: the rules-2 PASS is the first non-instrument-invalid affirmative result on the rules/host-integration question (after rules-1 VOID, rules-1-b pre-GPU supersession, rules-1-c INSTRUMENT-INVALID) — the first time the certified engine's output reaching a host has been measured through a valid instrument in either direction. It is NOT the correctness track's first valid affirmative overall (f2b-transfer and DECONF-B precede it in the memory/checker lane). Feasibility-synthesis-v6 section 2.3 pre-registered the consequence of exactly this event (ledger flip zero-for-five -> one-for-six; attribution chain re-opened — here already answered deflationarily by the knull byte-identity); EXECUTING that flip belongs to the next cross-experiment synthesis, and this block states no feasibility conclusion.",
+   "rationale": "Fixes the result's ledger position precisely, so it is neither undersold (another instrument datum) nor oversold (a thesis verdict).",
+   "backing_ref": "docs/next/feasibility-synthesis-v6.md section 2.3; docs/next/analysis/correctness-track-instrument-assessment.md section 0; docs/next/analysis/rules2-interpretation.md section 1.2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1938",
+   "tag": "STIPULATED",
+   "claim": "WHY TRAIN-TIME INSTRUMENTED WHERE INFERENCE-TIME COULD NOT (interpretive ruling): rules-2 removes the fragile host-cooperation interface BY CONSTRUCTION — the treatment is an offline weight update from a byte-pinned deterministically-materialised corpus, and the measurement channel is forced-choice string equality vs certified engine gold, the programme's deterministic-channel class (now six-for-six instrumenting cleanly), whereas all three rules-1-line failures died at runtime judgment interfaces (elicitation, task form, verifier engagement; that class remains zero-for-five). Contributing process causes, credited: the ASM-1830..1836 blocking-pilot protocol's first instance exercised every gate channel on real GPU at the operating point pre-freeze and caught B4's vacuity (IP-4), which was struck rather than run; and the fail-closed pin discipline descends from the rules-1-c post-mortem. Honest converse: rules-2 ROUTES AROUND the inference-time slot, does not vindicate it — verify-retry remains unmeasured in both directions, settled un-instrumentable at the 2-option operating point (ASM-1848). Standing residual on the content claim: the ASM-1806 DESIGN-OPEN (anti-correlated forced-flip control cannot fully separate closure content from the pick-the-non-bridge shortcut) survives the PASS and travels with it.",
+   "rationale": "Records the structural explanation for the lane's first valid reading so successor designs inherit the principle (test every kept interface at the operating point; delete every untestable one), and keeps the two standing residuals (verify-retry unmeasured; ASM-1806 shortcut) attached to the affirmative sentence.",
+   "backing_ref": "docs/next/analysis/rules2-interpretation.md section 4; docs/next/analysis/rules1c-instrument-invalid-interpretation.md sections 1-3; poc/rules-2/asm-go-1847-1859.json row ASM-1848; registry/experiments/rules-2.json pins.blocking_pilot",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1939",
+   "tag": "EXTRAPOLATION",
+   "claim": "FORWARD PATHS licensed as directions, never premises: (a) kernel-specific value, if it exists, must be sought where the two rules sources DERIVE DIVERGENT closures — inventories/domains rich enough that kernel structure (UFO priors, cross-domain composition, the large-scale kernel track's regime) yields entailments a plain dictionary does not; ASM-1851 pre-registers the mechanical re-activation condition (a fresh divergent leg-1 artifact); (b) the authorized-but-unrun R2 (360M) tier would supply a second sign point at ~$6.5 worst-case if the maintainer wants scale language above 'none'; (c) the s4' refusal destruction is plausibly a training-mix/curriculum question (refusal retention under closure fine-tuning, aligned with honesty-first scoring #18), not an instrument question — a cheap follow-on inside the existing harness; (d) replication under corpus regeneration or a second vertical would convert 'stability at three seeds of one corpus' into a robustness statement. None of these is evidence; each names the experiment that would make it so.",
+   "rationale": "Separates what the PASS makes worth buying next from what it licenses now; every path carries its own record and gates.",
+   "backing_ref": "docs/next/analysis/rules2-interpretation.md sections 2.2, 3.3, 5",
+   "resolution_path": "(a) new inventory + fresh knull leg-1 showing divergence -> amended rules-2-knull GPU leg; (b) coordinator-authorized --rungs R2 launch under the existing frozen record's second-tier provision; (c) a rules-2b record varying the refusal mix with s4' promoted to a primary; (d) a replication record with corpus-regeneration seeds.",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  }
+ ]
+}

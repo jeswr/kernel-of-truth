@@ -1,0 +1,100 @@
+{
+  "id": "urn:kernel-v1:find.discover",
+  "label": "find.discover (X finds Y — X comes to know something after not knowing it; as in \"find a flaw\" / \"she found that he had lied\", NOT as in \"find the keys\")",
+  "status": "research-grade",
+  "pattern": "epistemic-discovery sense (design §5 V-A row find.{locate,discover}): not-knowing + doing -> knowing, linked by BECAUSE",
+  "gloss": "X did something at some time; before this time X did not know Y (something); because of this, after this time X knows Y.",
+  "notes": "Authored fresh; distinct FrameNet frame (Coming_to_believe: 'she found that he had lied') => distinct concept from find.locate per R3's hard frame boundary. What is found is a something one comes to KNOW, not a something one comes to see at a place — the object referent stays SomethingRef but its explication role is epistemic (KNOW topic), never locative.",
+  "sense": {
+    "senseTag": "discover",
+    "lemma": "find",
+    "pos": "v",
+    "wn31Synsets": ["urn:lexical-wn31:v-00723361"],
+    "framenetFrame": "urn:onto-framenet:frame-23",
+    "framenetFrameName": "Coming_to_believe",
+    "glossQuote": "make a discovery; \"She found that he had lied to her\"; \"The story is false, so far as I can discover\"",
+    "excludedSiblingCount": 14
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      { "index": 1, "refKind": "SomeoneRef" },
+      { "index": 2, "refKind": "SomethingRef" },
+      { "index": 3, "refKind": "TimeRef" }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": { "kind": "ref", "index": 1 },
+          "undergoer": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+            "quant": "SOME"
+          },
+          "time": {
+            "kind": "sp",
+            "head": { "kind": "primeHead", "prime": "WHEN~TIME" },
+            "det": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          { "kind": "ref", "index": 3 },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": { "kind": "ref", "index": 1 },
+                  "topic": { "kind": "ref", "index": 2 }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": { "kind": "ref", "index": 1 },
+              "undergoer": {
+                "kind": "sp",
+                "head": { "kind": "primeHead", "prime": "SOMETHING~THING" },
+                "quant": "SOME"
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "KNOW",
+            "roles": {
+              "experiencer": { "kind": "ref", "index": 1 },
+              "topic": { "kind": "ref", "index": 2 },
+              "time": {
+                "kind": "temporal",
+                "op": "AFTER",
+                "anchor": { "kind": "ref", "index": 3 }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
