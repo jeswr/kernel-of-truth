@@ -1,0 +1,590 @@
+{
+  "title": "SCALE-1 S0 first rung — measured metrics at n=10000",
+  "date": "2026-07-12T14:39:01.985Z",
+  "epistemicStatus": [
+    "MEASURED: every number in the tables below is a direct local measurement of this pipeline.",
+    "STIPULATED: subset selection rule, lexFile→UFO crosswalk, anchor lists, kot-enc-import/0-poc construction and its weights.",
+    "EXTRAPOLATION: all 100k/1M projections; to be measured, never a premise.",
+    "NO FEASIBILITY CONCLUSION: S0 qualifies machinery only (design §8, §14). Correctness/efficiency remain INCONCLUSIVE-PENDING.",
+    "NOT construction B: these vectors are NOT kot-enc-B/1 outputs; nothing here touches the pinned encoder or its goldens."
+  ],
+  "ingestSummary": {
+    "stage": "ingest",
+    "epistemicStatus": "MEASURED (mechanical counts) over a STIPULATED selection rule; exploratory S0 pilot, no feasibility conclusion",
+    "selectionRule": "top-N WordNet 3.1 synsets by summed SemCor tag_cnt from source index.sense; ties (tag_cnt, then URN ASC); pure function of pinned source + N",
+    "selectionBias": "SemCor-derived frequency: over-represents 1990s balanced-corpus common vocabulary; under-represents technical/tail senses. Disclosed, not corrected.",
+    "n": 10000,
+    "totalSynsets": 117791,
+    "senseIndexLines": 207235,
+    "synsetsWithNonzeroTagCnt": 27210,
+    "selectedWithZeroTagCnt": 0,
+    "boundaryTagCnt": 4,
+    "boundaryUrn": "urn:lexical-wn31:v-02748513",
+    "posMix": {
+      "a": 1810,
+      "n": 4713,
+      "r": 575,
+      "v": 2902
+    },
+    "ssTypeMix": {
+      "a": 840,
+      "s": 970,
+      "n": 4713,
+      "r": 575,
+      "v": 2902
+    },
+    "lexFileMixTop": {
+      "adj.all": 1639,
+      "noun.artifact": 591,
+      "adv.all": 575,
+      "noun.act": 515,
+      "noun.person": 490,
+      "verb.communication": 451,
+      "noun.communication": 435,
+      "noun.cognition": 404,
+      "verb.change": 330,
+      "verb.motion": 324,
+      "verb.contact": 318,
+      "noun.attribute": 298,
+      "verb.social": 288,
+      "verb.stative": 263,
+      "noun.group": 256,
+      "noun.state": 226,
+      "noun.location": 214,
+      "verb.cognition": 211,
+      "verb.possession": 175,
+      "adj.pert": 169
+    },
+    "axiomTotal": 58270,
+    "axiomsPerConceptMean": 5.827,
+    "wallSeconds": 2.1670460000038148
+  },
+  "typingSplit": {
+    "importedVsInferred": {
+      "denotation_level": {
+        "source-asserted": "127 (1.27%)",
+        "rule-inferred": "9873 (98.73%)",
+        "soft-candidate": "0 (0.00%)",
+        "underdetermined": "0 (0.00%)"
+      },
+      "ontic_category": {
+        "source-asserted": "0 (0.00%)",
+        "rule-inferred": "5204 (52.04%)",
+        "soft-candidate": "4192 (41.92%)",
+        "underdetermined": "604 (6.04%)"
+      },
+      "sortality": {
+        "source-asserted": "0 (0.00%)",
+        "rule-inferred": "1196 (11.96%)",
+        "soft-candidate": "254 (2.54%)",
+        "underdetermined": "8550 (85.50%)"
+      },
+      "rigidity": {
+        "source-asserted": "0 (0.00%)",
+        "rule-inferred": "1069 (10.69%)",
+        "soft-candidate": "254 (2.54%)",
+        "underdetermined": "8677 (86.77%)"
+      },
+      "identity": {
+        "source-asserted": "0 (0.00%)",
+        "rule-inferred": "0 (0.00%)",
+        "soft-candidate": "0 (0.00%)",
+        "underdetermined": "10000 (100.00%)"
+      },
+      "dependence": {
+        "source-asserted": "0 (0.00%)",
+        "rule-inferred": "0 (0.00%)",
+        "soft-candidate": "0 (0.00%)",
+        "underdetermined": "10000 (100.00%)"
+      }
+    },
+    "onticOutcomes": {
+      "quality/soft-candidate": 1839,
+      "underdetermined/underdetermined": 604,
+      "event/rule-inferred": 3325,
+      "object/rule-inferred": 1581,
+      "quality/rule-inferred": 298,
+      "mode/soft-candidate": 994,
+      "social-object/soft-candidate": 524,
+      "object/soft-candidate": 470,
+      "event/soft-candidate": 70,
+      "region/soft-candidate": 249,
+      "relator/soft-candidate": 46
+    },
+    "sortalityOutcomes": {
+      "underdetermined/underdetermined": 8550,
+      "non-sortal/rule-inferred": 127,
+      "kind/rule-inferred": 1069,
+      "phase/soft-candidate": 54,
+      "role/soft-candidate": 200
+    }
+  },
+  "encodeCost": {
+    "canon8192": {
+      "D": 8192,
+      "wallSeconds": 392.7020669999123,
+      "usPerConcept": 39270,
+      "atoms": 68270,
+      "fftCount": 0
+    },
+    "proj512": {
+      "D": 512,
+      "wallSeconds": 392.7020669999123,
+      "usPerConcept": 39270,
+      "atoms": 68270,
+      "fftCount": 0
+    },
+    "proj576": {
+      "D": 576,
+      "wallSeconds": 392.7020669999123,
+      "usPerConcept": 39270,
+      "atoms": 68270,
+      "fftCount": 0
+    },
+    "native512": {
+      "D": 512,
+      "wallSeconds": 2.576815999984741,
+      "usPerConcept": 258,
+      "atoms": 68270,
+      "fftCount": 0
+    },
+    "native576": {
+      "D": 576,
+      "wallSeconds": 3.317147000312805,
+      "usPerConcept": 332,
+      "atoms": 68270,
+      "fftCount": 0
+    },
+    "native512lex": {
+      "D": 512,
+      "wallSeconds": 3.5917660002708436,
+      "usPerConcept": 359,
+      "atoms": 93495,
+      "fftCount": 0
+    }
+  },
+  "storage": {
+    "canon8192": {
+      "D": 8192,
+      "fp32MeasuredMB": 327.68,
+      "fp64DerivedMB": 655.36,
+      "fp16DerivedMB": 163.84
+    },
+    "proj512": {
+      "D": 512,
+      "fp32MeasuredMB": 20.48,
+      "fp64DerivedMB": 40.96,
+      "fp16DerivedMB": 10.24
+    },
+    "proj576": {
+      "D": 576,
+      "fp32MeasuredMB": 23.04,
+      "fp64DerivedMB": 46.08,
+      "fp16DerivedMB": 11.52
+    },
+    "native512": {
+      "D": 512,
+      "fp32MeasuredMB": 20.48,
+      "fp64DerivedMB": 40.96,
+      "fp16DerivedMB": 10.24
+    },
+    "native576": {
+      "D": 576,
+      "fp32MeasuredMB": 23.04,
+      "fp64DerivedMB": 46.08,
+      "fp16DerivedMB": 11.52
+    },
+    "native512lex": {
+      "D": 512,
+      "fp32MeasuredMB": 20.48,
+      "fp64DerivedMB": 40.96,
+      "fp16DerivedMB": 10.24
+    }
+  },
+  "marginPredictedVsMeasured": {
+    "disjointClassDefinition": "pair with no direct axiom edge, no shared axiom target, and DIFFERENT lexFile — the class the §6.5 independent-vector Gaussian model actually describes; related/shared-token pairs are reported separately under max-ANY",
+    "projected": [
+      {
+        "store": "proj512",
+        "D": 512,
+        "predicted_sigma_1_over_sqrtD": 0.0442,
+        "measured_sigma_disjoint": 0.0456,
+        "predicted_maxSpurious_sqrt2lnm_over_D": 0.1897,
+        "measured_median_perConcept_maxDisjoint": 0.169,
+        "measured_max_disjoint_pair": 0.2415,
+        "measured_median_perConcept_maxANY": 0.3857,
+        "measured_p95_perConcept_maxANY": 1
+      },
+      {
+        "store": "proj576",
+        "D": 576,
+        "predicted_sigma_1_over_sqrtD": 0.0417,
+        "measured_sigma_disjoint": 0.0432,
+        "predicted_maxSpurious_sqrt2lnm_over_D": 0.1788,
+        "measured_median_perConcept_maxDisjoint": 0.1621,
+        "measured_max_disjoint_pair": 0.2635,
+        "measured_median_perConcept_maxANY": 0.3867,
+        "measured_p95_perConcept_maxANY": 1
+      }
+    ],
+    "canon8192Sample": {
+      "store": "canon8192 (1k deterministic sample)",
+      "D": 8192,
+      "predicted_sigma": 0.01105,
+      "measured_sigma_disjoint": 0.01106,
+      "predicted_maxSpurious_at_sampleM": 0.0411,
+      "predicted_maxSpurious_at_1e4_designQuote_0046": 0.0474,
+      "measured_median_perConcept_maxDisjoint": 0.0353,
+      "measured_max_disjoint_pair": 0.0866,
+      "measured_median_perConcept_maxANY": 0.0594
+    }
+  },
+  "duplicates": {
+    "zeroAxiomRecords": 662,
+    "structuralTokenMultisets": {
+      "groups": 475,
+      "rowsInGroups": 2008,
+      "largestGroup": 466,
+      "example": [
+        "urn:lexical-wn31:r-00002669 (barely)",
+        "urn:lexical-wn31:r-00003864 (basically)",
+        "urn:lexical-wn31:r-00005103 (merely)",
+        "urn:lexical-wn31:r-00005348 (simply)",
+        "urn:lexical-wn31:r-00005948 (automatically)"
+      ]
+    },
+    "vectorPairsAboveCos": {
+      "proj512": {
+        ">0.99": 124343,
+        ">0.999": 124343,
+        ">0.9999": 124343
+      },
+      "proj576": {
+        ">0.99": 124343,
+        ">0.999": 124343,
+        ">0.9999": 124343
+      },
+      "native512": {
+        ">0.99": 124343,
+        ">0.999": 124343,
+        ">0.9999": 124343
+      },
+      "native512lex": {
+        ">0.99": 55,
+        ">0.999": 55,
+        ">0.9999": 55
+      }
+    },
+    "note": "§6.5 collision class 2: structurally indistinguishable AxiomsOnly records legitimately share a semantic block — the honest margin killer at this rung is DUPLICATE STRUCTURE, not Gaussian crosstalk."
+  },
+  "lexicalBlockEffect": {
+    "native512_nnMedian": 0.3842,
+    "native512lex_nnMedian": 0.314,
+    "native512_pairsAbove999": 124343,
+    "native512lex_pairsAbove999": 55,
+    "note": "optional §6.2 lexical block (lemma tokens, w=0.5) as a duplicate-splitting probe; lemmas are OUTSIDE record identity, so this is a deployment-profile experiment, not a record-identity change"
+  },
+  "rdmSpearmanVsCanon8192": {
+    "proj512": 0.26133454938465756,
+    "proj576": 0.28199185729097503,
+    "native512": 0.05295304332708737,
+    "native576": 0.04577066692429277,
+    "native512lex": 0.037103274633524204
+  },
+  "x4Calibration": {
+    "designCitedAtKernelV0_54concepts": {
+      "proj512": 0.9718,
+      "proj576": 0.9706
+    },
+    "remeasuredHere_globalRdm": {
+      "proj512": 0.26133454938465756,
+      "proj576": 0.28199185729097503,
+      "native512": 0.05295304332708737,
+      "native576": 0.04577066692429277,
+      "native512lex": 0.037103274633524204
+    },
+    "remeasuredHere_topPairsOnly": {
+      "proj512": 0.8092903014057582,
+      "proj576": 0.8200912906452501,
+      "native512": 0.811663904149739,
+      "native576": 0.8002179699588406,
+      "native512lex": 0.5570521295753228
+    },
+    "topPairCount": 4639,
+    "nnRecallAt1": {
+      "proj512": 0.266,
+      "proj576": 0.271,
+      "native512": 0.258,
+      "native576": 0.263,
+      "native512lex": 0.156
+    },
+    "nnRecallAt10": {
+      "proj512": 0.359,
+      "proj576": 0.36,
+      "native512": 0.309,
+      "native576": 0.314,
+      "native512lex": 0.226
+    },
+    "nnRecallAt1StrongNN": {
+      "proj512": 0.410459587955626,
+      "proj576": 0.4231378763866878,
+      "native512": 0.40729001584786056,
+      "native576": 0.41679873217115687,
+      "native512lex": 0.24564183835182252
+    },
+    "nnRecallAt10StrongNN": {
+      "proj512": 0.5166402535657686,
+      "proj576": 0.5182250396196514,
+      "native512": 0.47385103011093505,
+      "native576": 0.4865293185419968,
+      "native512lex": 0.3518225039619651
+    },
+    "strongNnCount": 631,
+    "sampleSize": 1000,
+    "readNote": "global RDM Spearman on a bulk-import store is dominated by the near-zero disjoint-pair noise floor (σ≈1/√8192≈0.011), which any D-reduction re-randomises — the kernel-v0 0.97 calibration does NOT transfer to bulk-import RDMs at this scale. Structure-bearing pairs (canon cos>0.05) and NN retrieval preservation are the operationally relevant fidelity numbers."
+  },
+  "nnDetails": {
+    "proj512": {
+      "store": "proj512",
+      "D": 512,
+      "classified": true,
+      "wallSeconds": 116.63394099998474,
+      "nnAll": {
+        "n": 10000,
+        "min": 0.13928561164070813,
+        "p5": 0.16099235398909773,
+        "p25": 0.1830400193822697,
+        "median": 0.385693845434903,
+        "p75": 0.7721841005675019,
+        "p95": 1.0000000000000016,
+        "p99": 1.0000000000000024,
+        "max": 1.0000000000000036,
+        "mean": 0.486706409448662,
+        "sd": 0.3232249220682783
+      },
+      "nnDisjoint": {
+        "n": 10000,
+        "min": 0.1379209207451335,
+        "p5": 0.15226858216066022,
+        "p25": 0.16205026135426198,
+        "median": 0.16902152369935336,
+        "p75": 0.17851758537204435,
+        "p95": 0.1954460809985417,
+        "p99": 0.20938227156814362,
+        "max": 0.24154068376677942,
+        "mean": 0.1711135817025888,
+        "sd": 0.0132153334873613
+      },
+      "disjointPairSigma": 0.045643039726620815,
+      "disjointPairMax": 0.24154068376677942,
+      "disjointPairCount": 47277314,
+      "pairsAbove": {
+        ">0.99": 124343,
+        ">0.999": 124343,
+        ">0.9999": 124343
+      },
+      "exactDuplicateRows": 124343,
+      "predictedCurveAtM": 0.1896783911731433,
+      "predictedSigma": 0.044194173824159216
+    },
+    "proj576": {
+      "store": "proj576",
+      "D": 576,
+      "classified": true,
+      "wallSeconds": 106.990617000103,
+      "nnAll": {
+        "n": 10000,
+        "min": 0.1349960923970583,
+        "p5": 0.15339075839223304,
+        "p25": 0.1754004199288654,
+        "median": 0.38670836573642764,
+        "p75": 0.7718516615581711,
+        "p95": 1.0000000000000018,
+        "p99": 1.0000000000000027,
+        "max": 1.0000000000000042,
+        "mean": 0.48365248852159887,
+        "sd": 0.32584104970169214
+      },
+      "nnDisjoint": {
+        "n": 10000,
+        "min": 0.12874904876916757,
+        "p5": 0.1440778614152657,
+        "p25": 0.15387376805206873,
+        "median": 0.16207867774440254,
+        "p75": 0.17225537855055198,
+        "p95": 0.18616442117945675,
+        "p99": 0.20190086764135137,
+        "max": 0.2635069813645181,
+        "mean": 0.16356136788181797,
+        "sd": 0.01350447170887808
+      },
+      "disjointPairSigma": 0.043222597560750246,
+      "disjointPairMax": 0.2635069813645181,
+      "disjointPairCount": 47277314,
+      "pairsAbove": {
+        ">0.99": 124343,
+        ">0.999": 124343,
+        ">0.9999": 124343
+      },
+      "exactDuplicateRows": 124343,
+      "predictedCurveAtM": 0.17883050219077895,
+      "predictedSigma": 0.041666666666666664
+    },
+    "native512": {
+      "store": "native512",
+      "D": 512,
+      "classified": false,
+      "wallSeconds": 112.1852769999504,
+      "nnAll": {
+        "n": 10000,
+        "min": 0.13841824528717764,
+        "p5": 0.15735778090365238,
+        "p25": 0.1792146716005349,
+        "median": 0.3841811633680727,
+        "p75": 0.7740340108290201,
+        "p95": 1.000000000000003,
+        "p99": 1.00000000000001,
+        "max": 1.0000000000000207,
+        "mean": 0.4848319617933841,
+        "sd": 0.32446277843115057
+      },
+      "pairsAbove": {
+        ">0.99": 124343,
+        ">0.999": 124343,
+        ">0.9999": 124343
+      },
+      "exactDuplicateRows": 124343,
+      "predictedCurveAtM": 0.1896783911731433,
+      "predictedSigma": 0.044194173824159216
+    },
+    "native512lex": {
+      "store": "native512lex",
+      "D": 512,
+      "classified": false,
+      "wallSeconds": 87.96282799959182,
+      "nnAll": {
+        "n": 10000,
+        "min": 0.13643083291126107,
+        "p5": 0.15798426013901767,
+        "p25": 0.17842294665358346,
+        "median": 0.3140452924983774,
+        "p75": 0.5815590149174886,
+        "p95": 0.8244952490732425,
+        "p99": 0.8935572517959283,
+        "max": 1.0000000000000169,
+        "mean": 0.3917629641352364,
+        "sd": 0.2324980411318879
+      },
+      "pairsAbove": {
+        ">0.99": 55,
+        ">0.999": 55,
+        ">0.9999": 55
+      },
+      "exactDuplicateRows": 55,
+      "predictedCurveAtM": 0.1896783911731433,
+      "predictedSigma": 0.044194173824159216
+    },
+    "canonSample": {
+      "sampleSize": 1000,
+      "pairCount": 499500,
+      "canonNnAll": {
+        "n": 1000,
+        "min": 0.027482114070179513,
+        "p5": 0.034452840976819436,
+        "p25": 0.04330283891142072,
+        "median": 0.05940921619030775,
+        "p75": 0.16330475397183358,
+        "p95": 1.0000000000000142,
+        "p99": 1.0000000000000144,
+        "max": 1.0000000000002092,
+        "mean": 0.19725373890238204,
+        "sd": 0.29500278668358465
+      },
+      "canonNnDisjoint": {
+        "n": 1000,
+        "min": 0.02520032654789194,
+        "p5": 0.02990920857059317,
+        "p25": 0.03304503424639067,
+        "median": 0.03527342565889242,
+        "p75": 0.0377868347660955,
+        "p95": 0.04178694337537172,
+        "p99": 0.04562568275957261,
+        "max": 0.08658393345145925,
+        "mean": 0.03559739507540732,
+        "sd": 0.004296331649219818
+      },
+      "canonDisjointSigma": 0.011062054912399095,
+      "canonDisjointMax": 0.08658393345145925,
+      "canonPredictedSigma": 0.011048543456039804,
+      "canonPredictedCurveAtSample": 0.04106657632622603,
+      "canonPredictedCurveAt1e4": 0.04741959779328583,
+      "rdmSpearman": {
+        "proj512": 0.26133454938465756,
+        "proj576": 0.28199185729097503,
+        "native512": 0.05295304332708737,
+        "native576": 0.04577066692429277,
+        "native512lex": 0.037103274633524204
+      },
+      "rdmSpearmanTopPairs": {
+        "proj512": 0.8092903014057582,
+        "proj576": 0.8200912906452501,
+        "native512": 0.811663904149739,
+        "native576": 0.8002179699588406,
+        "native512lex": 0.5570521295753228
+      },
+      "topPairCount": 4639,
+      "nnRecallAt1": {
+        "proj512": 0.266,
+        "proj576": 0.271,
+        "native512": 0.258,
+        "native576": 0.263,
+        "native512lex": 0.156
+      },
+      "nnRecallAt10": {
+        "proj512": 0.359,
+        "proj576": 0.36,
+        "native512": 0.309,
+        "native576": 0.314,
+        "native512lex": 0.226
+      },
+      "nnRecallAt1Strong": {
+        "proj512": 0.410459587955626,
+        "proj576": 0.4231378763866878,
+        "native512": 0.40729001584786056,
+        "native576": 0.41679873217115687,
+        "native512lex": 0.24564183835182252
+      },
+      "nnRecallAt10Strong": {
+        "proj512": 0.5166402535657686,
+        "proj576": 0.5182250396196514,
+        "native512": 0.47385103011093505,
+        "native576": 0.4865293185419968,
+        "native512lex": 0.3518225039619651
+      },
+      "strongNnCount": 631,
+      "wallSeconds": 41.24049300003052
+    }
+  },
+  "extrapolation": {
+    "encodeCpuHours": {
+      "perConceptSecondsCanon8192_inclJL": 0.0393,
+      "at100k": 1.09,
+      "at1M": 10.9,
+      "designBandS1CpuHours": "200-2000 (all stages, not just vectorisation)",
+      "designBandS2CpuHours": "2k-20k"
+    },
+    "exactNnCleanupWallHours_Onsquared": {
+      "at10k_measuredSeconds": 117,
+      "at100k_hours": 3.2,
+      "at1M_hours": 324,
+      "note": "O(m²) exact scan; this is the §6.5 decoder-cleanup/retrieval analogue — ANN + the ≥0.99 exact-vs-ANN recall gate becomes MANDATORY between 100k and 1M"
+    },
+    "storageGB_fp16_dense8192": {
+      "at10k": 0.164,
+      "at100k": 1.64,
+      "at1M": 16.4,
+      "design6_4": "0.16 / 1.64 / 16.38"
+    }
+  },
+  "wallSecondsMetricsStage": 466.1
+}

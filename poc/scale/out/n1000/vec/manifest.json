@@ -1,0 +1,145 @@
+{
+  "stage": "vectorise",
+  "epistemicStatus": "MEASURED costs of an EXPLORATORY §6.3 PoC vectoriser (kot-enc-import/0-poc). NOT construction B, NOT a pinned encoder version; numbers do not transfer to kot-enc-B/1. No feasibility conclusion.",
+  "vectoriser": {
+    "name": "kot-enc-import/0-poc",
+    "basis": "design §6.3 steps 1-9; atoms = deterministic Rademacher ±1/√D, signs bit-packed (8/byte, LSB-first) from encoder DetStream",
+    "atomLabel": "scale-import/atom/<D>/<token>",
+    "relsignLabel": "scale-import/relsign/<D>/<rel>",
+    "featureTokens": {
+      "axiom": {
+        "token": "ax/<rel>/<target-urn>",
+        "weight": 1
+      },
+      "lexfile": {
+        "token": "lexfile/<lexFile>",
+        "weight": 0.25
+      },
+      "lemma": {
+        "token": "lemma/<lemma>",
+        "weight": 0.5,
+        "note": "OPTIONAL lexical block (§6.2); only in the *lex secondary store — lemmas are annotations OUTSIDE record identity"
+      }
+    },
+    "rounds": 1,
+    "selfWeight": 1,
+    "degreeNorm": "1/sqrt(1+degWithin)  (within-subset axiom neighbors only; external targets contribute only their h0 joint atom)",
+    "aggregationOrder": "axioms sorted by (rel, target) byte order before summation; float64 accumulation; h0 and h1 unit-normalised",
+    "jl": "X4 Achlioptas sign matrix, ±1/sqrt(d), signs from DetStream label jl/<D>/<d> — IDENTICAL labels/consumption to poc/harness/x4.ts for comparability"
+  },
+  "pins": {
+    "512": "120a65219d206a97ee34dea07d85028c55b23c5f2ac610a819f09ea0e8d8539f",
+    "576": "49a6ed17d961145e768b87cfb7d89eb7ba64702e68960639bda0ec02f8a51c58",
+    "8192": "e1c4c18585c8b690d74fbb0bb89c4963266d5d70b57bf9785592262781f1e6a5"
+  },
+  "n": 1000,
+  "axiomTokens": 13611,
+  "withinSubsetEdges": 733,
+  "externalTargetShare": 0.9461464991550952,
+  "wordLevelPointersDropped": 259,
+  "discardedAxiomKinds": "none — every axiom row becomes a token; word-level (srcWord/tgtWord) anchoring is dropped from the token label (disclosed, §6.3 step 9)",
+  "stores": {
+    "canon8192": {
+      "store": "canon8192",
+      "D": 8192,
+      "wallSeconds": 45.73432599973678,
+      "h0Seconds": 3.160672999858856,
+      "roundSeconds": 0.27755499982833864,
+      "jlSeconds": 41.64278200006485,
+      "atomsGenerated": 14611,
+      "sha256BlocksForAtoms": 467552,
+      "fftCount": 0,
+      "usPerConceptEncode": 45734.325999736786,
+      "bytesOnDisk": 32768000,
+      "chunkSha256": [
+        "860ec0a1605fa20ddc1ba420ba5f72e56f11e1ec1e29aabf2b7a416ac5a560a5",
+        "9a0269f57665a470b32c2ee67faa2ac3a43f9122b7642b014bd2d5b22554636e"
+      ]
+    },
+    "proj512": {
+      "store": "proj512",
+      "D": 512,
+      "wallSeconds": 45.73432599973678,
+      "h0Seconds": 3.160672999858856,
+      "roundSeconds": 0.27755499982833864,
+      "jlSeconds": 41.64278200006485,
+      "atomsGenerated": 14611,
+      "sha256BlocksForAtoms": 467552,
+      "fftCount": 0,
+      "usPerConceptEncode": 45734.325999736786,
+      "bytesOnDisk": 2048000,
+      "chunkSha256": [
+        "835517c4b7bb207233309f01a369ca99ee2b4d6b7cf19e9a9fe22b08de03b085",
+        "bdaa5c393dcb31dc55bc7453988071e14353690291f08d5d2c7cfde527949afd"
+      ]
+    },
+    "proj576": {
+      "store": "proj576",
+      "D": 576,
+      "wallSeconds": 45.73432599973678,
+      "h0Seconds": 3.160672999858856,
+      "roundSeconds": 0.27755499982833864,
+      "jlSeconds": 41.64278200006485,
+      "atomsGenerated": 14611,
+      "sha256BlocksForAtoms": 467552,
+      "fftCount": 0,
+      "usPerConceptEncode": 45734.325999736786,
+      "bytesOnDisk": 2304000,
+      "chunkSha256": [
+        "e3fc596cc3ac442b6715b745480f94b81d12ee83bf2c1a0f4366b272f53ffeca",
+        "b69d2f02f30d1aac6909c64027a94cc8d334702bde723e2d3652cc8d4f7a23ec"
+      ]
+    },
+    "native512": {
+      "store": "native512",
+      "D": 512,
+      "wallSeconds": 0.3410559997558594,
+      "h0Seconds": 0.2572569999694824,
+      "roundSeconds": 0.06498199987411499,
+      "jlSeconds": 0.00002199983596801758,
+      "atomsGenerated": 14611,
+      "sha256BlocksForAtoms": 29222,
+      "fftCount": 0,
+      "usPerConceptEncode": 341.0559997558594,
+      "bytesOnDisk": 2048000,
+      "chunkSha256": [
+        "c74f922eee58746eec57b821ee4d75097d04e4bd49cfa305d2b66b1fc82f4ec6",
+        "8c7525665b594b52a3934fc1c1dbee34eed886852d1b4e5800233734b4fe0df9"
+      ]
+    },
+    "native576": {
+      "store": "native576",
+      "D": 576,
+      "wallSeconds": 0.3723289999961853,
+      "h0Seconds": 0.32398099994659424,
+      "roundSeconds": 0.007979000091552734,
+      "jlSeconds": 0.000013000011444091798,
+      "atomsGenerated": 14611,
+      "sha256BlocksForAtoms": 43833,
+      "fftCount": 0,
+      "usPerConceptEncode": 372.3289999961853,
+      "bytesOnDisk": 2304000,
+      "chunkSha256": [
+        "c2a43c791ad1357bd5947c34834f04c7307c76fe9fa7c15c618f3e89851a336a",
+        "4dbcfd445eb75553ed0bf3d0769639844b8ed8edd8224aeae7ed6e1a43c10d3d"
+      ]
+    },
+    "native512lex": {
+      "store": "native512lex",
+      "D": 512,
+      "wallSeconds": 0.3507510004043579,
+      "h0Seconds": 0.2983940000534058,
+      "roundSeconds": 0.008046000003814698,
+      "jlSeconds": 0.000013000011444091798,
+      "atomsGenerated": 17538,
+      "sha256BlocksForAtoms": 35076,
+      "fftCount": 0,
+      "usPerConceptEncode": 350.7510004043579,
+      "bytesOnDisk": 2048000,
+      "chunkSha256": [
+        "057411eb603715c20118bf12126d91a6cefec35f8e041f57ad5ad61a06478f46",
+        "f1255c38a2c577d27d3954356048d052def0cbb42d89834cfbbc6dee654d6b1f"
+      ]
+    }
+  }
+}
