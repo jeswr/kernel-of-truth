@@ -115,6 +115,34 @@ JUDGE_CFG = {
     "pB": {"id": "judge-pB-haiku45", "kind": "claude",
            "model": "claude-haiku-4-5-20251001"},
 }
+
+# ---- PROVISIONAL pA proxy (kernel-of-truth-29nb; NOT the frozen grade) ----
+# 2026-07-12: the codex/GPT-5.6 pA path is usage-capped (~1h). Maintainer
+# directive: `--pa-proxy fable` swaps judge-pA to claude-fable-5 via the SAME
+# headless-claude machinery as judge-pB, for an EARLY-READ campaign labelled
+# PROVISIONAL-ON-FABLE-PROXY-pA. The FROZEN codex pA path is byte-untouched
+# when the flag is absent; when GPT-5.6 is back the frozen instrument
+# (pA=GPT-5.6-Sol) re-runs the same 84 items and its grade GOVERNS on any
+# material AC1/verdict difference. Proxy runs keep ALL response files inside
+# their run_dir so the canonical BASE locations stay reserved for the frozen
+# run.
+PA_PROXY = None
+HAIKU_MODEL = "claude-haiku-4-5-20251001"
+FABLE_MODEL = "claude-fable-5"
+# The headless claude CLI spawns a background haiku helper turn whose key
+# appears in modelUsage alongside the requested model (observed 2026-07-12
+# probe: init.model='claude-fable-5', modelUsage={fable, haiku}). Allowed
+# ONLY under the proxy; the frozen pB exact-single-key check is unchanged.
+FABLE_MU_ALLOWED = frozenset({FABLE_MODEL, HAIKU_MODEL})
+
+
+def activate_pa_proxy(val):
+    global PA_PROXY
+    if val != "fable":
+        die("ERR_ONTG2V2_PROXY: --pa-proxy supports only 'fable'")
+    PA_PROXY = "fable"
+    JUDGE_CFG["pA"] = {"id": "judge-pA-fable5-PROXY", "kind": "claude",
+                       "model": FABLE_MODEL}
 EXPECT_CODEX_VER = "codex-cli 0.144.1"
 EFFORT = "low"
 NPX_CODEX = ["npx", "-y", "@openai/codex@0.144.1"]
@@ -301,7 +329,8 @@ def run_codex(model, prompt_text, attempt_dir, workdir):
     return p.returncode
 
 
-def run_claude(prompt_text, attempt_dir, workdir, sys_prompt):
+def run_claude(prompt_text, attempt_dir, workdir, sys_prompt,
+               model=HAIKU_MODEL):
     os.makedirs(attempt_dir, exist_ok=True)
     up = os.path.join(attempt_dir, "user-prompt.txt")
     with open(up, "w", encoding="utf-8") as f:
@@ -313,9 +342,16 @@ def run_claude(prompt_text, attempt_dir, workdir, sys_prompt):
     env.pop("ANTHROPIC_AUTH_TOKEN", None)
     env["MAX_THINKING_TOKENS"] = "0"
     env["DISABLE_AUTOUPDATER"] = "1"
-    cmd = ["claude", "-p", "--model", "claude-haiku-4-5-20251001",
+    # --strict-mcp-config: only MCP servers from --mcp-config (none given)
+    # may load. Without it, claude.ai MCP connectors nondeterministically
+    # attached to 1/62 headless sessions in the 2026-07-12 AC1 pilot despite
+    # --tools '' --setting-sources '', tripping the fail-closed tools==[]
+    # contract on a semantically correct answer (design section 11.8,
+    # kernel-of-truth-ewvh). The validator's tools==[] check is unchanged.
+    cmd = ["claude", "-p", "--model", model,
            "--system-prompt", sys_prompt, "--tools", "",
-           "--setting-sources", "", "--no-session-persistence",
+           "--setting-sources", "", "--strict-mcp-config",
+           "--no-session-persistence",
            "--output-format", "stream-json", "--verbose"]
     with open(up, "rb") as fin, open(events, "wb") as fout, \
             open(stderr, "wb") as ferr:
@@ -404,7 +440,7 @@ def validate_codex(exit_code, attempt_dir):
     return ("valid", {"answer": lab}, raw, None)
 
 
-def validate_claude(exit_code, attempt_dir):
+def validate_claude(exit_code, attempt_dir, model=HAIKU_MODEL):
     events = os.path.join(attempt_dir, "events.jsonl")
     init = result = None
     assistant_blocks = []
@@ -431,9 +467,15 @@ def validate_claude(exit_code, attempt_dir):
     if result is None or result.get("subtype") != "success":
         return ("transport", None, None, "transport")
     mu = result.get("modelUsage") or {}
-    if not (init and init.get("model") == "claude-haiku-4-5-20251001"
-            and init.get("apiKeySource") == "none"
-            and set(mu.keys()) == {"claude-haiku-4-5-20251001"}):
+    # Frozen pB identity check: exact single-key modelUsage. Under the
+    # PROVISIONAL fable proxy ONLY, the CLI's background haiku helper key is
+    # tolerated alongside the requested model (kernel-of-truth-29nb).
+    if model == FABLE_MODEL:
+        mu_ok = (model in mu) and set(mu.keys()) <= FABLE_MU_ALLOWED
+    else:
+        mu_ok = set(mu.keys()) == {model}
+    if not (init and init.get("model") == model
+            and init.get("apiKeySource") == "none" and mu_ok):
         return ("abort", None, None,
                 "identity_mismatch(model=%r apiKeySource=%r modelUsage=%r)"
                 % (init.get("model") if init else None,
@@ -461,8 +503,10 @@ def do_attempt(cfg, prompt, attempt_dir, workdir, sys_prompt):
         rc = run_codex(cfg["model"], prompt, attempt_dir, workdir)
         status, fields, raw, reason = validate_codex(rc, attempt_dir)
     else:
-        rc = run_claude(prompt, attempt_dir, workdir, sys_prompt)
-        status, fields, raw, reason = validate_claude(rc, attempt_dir)
+        rc = run_claude(prompt, attempt_dir, workdir, sys_prompt,
+                        model=cfg["model"])
+        status, fields, raw, reason = validate_claude(rc, attempt_dir,
+                                                      model=cfg["model"])
     hit = G.blinding_scan([os.path.join(attempt_dir, "user-prompt.txt"),
                            os.path.join(attempt_dir, "events.jsonl"),
                            os.path.join(attempt_dir, "stderr.log")])
@@ -613,26 +657,38 @@ def _calibration_rows():
 
 def _run_cal_block(cfg, rows, jdir, workdir, sys_prompt, log, run_dir,
                    subdir, phase_tag):
-    """Run a calibration block (expected answers known); returns results."""
+    """Run a calibration block (expected answers known); returns results.
+
+    Retry symmetry (design section 11.8, kernel-of-truth-ewvh): calibration
+    items go through the SAME process_item retry ladder as real/probe items
+    (MAX_TRANSPORT backoff + cap-stop + up to MAX_CONTENT=3 content
+    attempts). The 2026-07-12 AC1 pilot lost a semantically correct pB
+    answer (cal:hedge-6) to a single-attempt session flake -- the cal block
+    was the only single-attempt channel in the harness, so one 1/62-rate
+    process artifact could fail the 12/12 cal gate. The judged CONTENT
+    contract is unchanged: first valid answer is final; pass iff that
+    answer equals the pre-keyed expected label."""
     tmpl = read_template()
     done = load_checkpoint(jdir, phase_tag)
     _budget_check(run_dir, len([r for r in rows if r["id"] not in done]))
     results = []
-    for cal in rows:
+    for i, cal in enumerate(rows, 1):
         if cal["id"] in done:
             r = done[cal["id"]]
         else:
             prompt = assemble_prompt(cal["item"], tmpl)
-            call_dir = os.path.join(jdir, subdir, cal["id"].replace(":", "_"))
-            status, fields, raw, reason = do_attempt(cfg, prompt, call_dir,
-                                                     workdir, sys_prompt)
-            if status == "abort":
-                die("ERR_ONTG2V2_IDENTITY %s %s: %s"
-                    % (phase_tag, cal["id"], reason))
-            got = fields["answer"] if status == "valid" else None
-            r = {"id": cal["id"], "status": status, "got": got,
-                 "expected": cal["expected"], "reason": reason,
-                 "pass": (status == "valid") and (got == cal["expected"])}
+            base_dir = os.path.join(jdir, subdir, cal["id"].replace(":", "_"))
+            pr = process_item(cfg, prompt, "%s%d" % (phase_tag, i), base_dir,
+                              workdir, sys_prompt, log)
+            got = pr["answer"]
+            reason = (pr["flags"][1] if got is None and len(pr["flags"]) > 1
+                      else None)
+            r = {"id": cal["id"],
+                 "status": "valid" if got is not None else "content_invalid",
+                 "got": got, "expected": cal["expected"], "reason": reason,
+                 "pass": (got is not None) and (got == cal["expected"]),
+                 "n_content_attempts": pr["n_content_attempts"],
+                 "n_transport_retries": pr["n_transport_retries"]}
             append_checkpoint(jdir, phase_tag, cal["id"], r)
         results.append(r)
         log("  %s %s got=%s expected=%s => %s"
@@ -770,12 +826,18 @@ def _run_block(pkey, arm, run_dir, phase, rows, n_expected, nolabel_cap,
           % (block.upper(), pkey, n_nolabel, rp), flush=True)
 
 
+def _proxy_out_base(run_dir):
+    """Proxy runs keep response files in run_dir; frozen path uses BASE."""
+    return run_dir if PA_PROXY else None
+
+
 def phase_real(pkey, arm, run_dir):
     _require_pilot_pass(run_dir)
     _run_block(pkey, arm, run_dir, "real",
                load_jsonl("poc/ontology-import-g2/materials/%s"
                           % ARM_FILE[arm]),
-               N_ITEMS, NOLABEL_ABORT_REAL, "")
+               N_ITEMS, NOLABEL_ABORT_REAL, "",
+               out_base=_proxy_out_base(run_dir))
 
 
 def phase_probe(pkey, arm, run_dir):
@@ -783,7 +845,8 @@ def phase_probe(pkey, arm, run_dir):
     _run_block(pkey, arm, run_dir, "probe",
                load_jsonl("poc/ontology-import-g2/materials/probes-%s.jsonl"
                           % arm),
-               N_PROBES, NOLABEL_ABORT_PROBE, "p")
+               N_PROBES, NOLABEL_ABORT_PROBE, "p",
+               out_base=_proxy_out_base(run_dir))
 
 
 def phase_hedgeflip(pkey, arm, run_dir):
@@ -794,7 +857,8 @@ def phase_hedgeflip(pkey, arm, run_dir):
     _run_block(pkey, arm, run_dir, "hedgeflip",
                load_jsonl("poc/ontology-import-g2-v2/probes-hedgeflip-%s"
                           ".jsonl" % arm),
-               N_HEDGEFLIP, NOLABEL_ABORT_PROBE, "h")
+               N_HEDGEFLIP, NOLABEL_ABORT_PROBE, "h",
+               out_base=_proxy_out_base(run_dir))
 
 
 def phase_pilot(pkey, run_dir):
@@ -946,7 +1010,7 @@ def phase_pilotgate(run_dir, resp_dir=None, mock=False):
     if max(fs.values()) > PILOT_HF_FS_MAX:
         channels.append("hedge-flip false-sat %.2f > 0.25" % max(fs.values()))
     ok = not channels
-    status = {"phase": "pilotgate", "pass": ok,
+    status = {"phase": "pilotgate", "pass": ok, "pa_proxy": PA_PROXY,
               "ac1_a3": g, "kappa_a3_coreported": k, "metrics": pm,
               "hedgeflip_false_sat": fs,
               "channel": "; ".join(channels) if channels else None,
@@ -1122,7 +1186,18 @@ def _write_result(out_dir, metrics, analysis_out, labels_all, mock,
     result = {
         "schema": "ontg2v2-result/1",
         "status": ("MOCK -- MECHANICS ONLY, NO EVIDENCE" if mock
-                   else "PROVISIONAL-ON-LLM-PROXY"),
+                   else ("PROVISIONAL-ON-FABLE-PROXY-pA -- EARLY READ, NOT "
+                         "THE FROZEN-INSTRUMENT GRADE" if PA_PROXY
+                         else "PROVISIONAL-ON-LLM-PROXY")),
+        "pa_proxy": ({"proxy": "fable", "judge_pA": JUDGE_CFG["pA"],
+                      "frozen_pA": "judge-pA-gpt56sol (codex, usage-capped "
+                                   "2026-07-12)",
+                      "reconcile": "re-run the FROZEN instrument (pA="
+                                   "GPT-5.6-Sol) over the same 84 items when "
+                                   "the cap resets; on material AC1/verdict "
+                                   "difference the GPT-5.6 frozen grade "
+                                   "GOVERNS (kernel-of-truth-29nb)"}
+                     if PA_PROXY else None),
         "experiment": "g2-import-v2",
         "pilot_only": pilot_only,
         "baseline": {"source": "poc/g2/labels-proxy.jsonl (FROZEN g2 "
@@ -1132,6 +1207,12 @@ def _write_result(out_dir, metrics, analysis_out, labels_all, mock,
         "analysis": analysis_out,
         "labels_sha256": labels_sha,
         "disclosure": (
+            ("PROVISIONAL-ON-FABLE-PROXY-pA: judge-pA here is claude-fable-5 "
+             "via the pB headless-claude machinery (codex/GPT-5.6 capped "
+             "2026-07-12) -- BOTH judges are Anthropic-family, so cross-"
+             "vendor pair stability is NOT measured by this run; AC1/kappa "
+             "here are same-family pair stability only. " if PA_PROXY
+             else "") +
             "PROVISIONAL-ON-LLM-PROXY (directive #11): judge-pA GPT-5.6-Sol "
             "primary, judge-pB Claude Haiku 4.5 sensitivity (vendor-family "
             "overlap with the materials' authoring agents DISCLOSED, never "
@@ -1170,8 +1251,10 @@ def _write_result(out_dir, metrics, analysis_out, labels_all, mock,
 
 def phase_assemble(run_dir):
     _require_pilot_pass(run_dir)
-    # pilot response files live in BASE for a real run
-    _assemble(BASE, BASE)
+    # pilot response files live in BASE for a real (frozen-path) run;
+    # a PROVISIONAL proxy run keeps everything inside its run_dir.
+    base = run_dir if PA_PROXY else BASE
+    _assemble(base, base)
 
 
 # ---------------------------- mock ----------------------------
@@ -1348,6 +1431,12 @@ if __name__ == "__main__":
                 "<run_dir> | hedgeflip <pA|pB> <a2|a3> <run_dir> | "
                 "assemble <run_dir> | "
                 "mock <run_dir> <go|nogo|instrument|pilotfail|breadth>")
+        if "--pa-proxy" in sys.argv:
+            i = sys.argv.index("--pa-proxy")
+            if i + 1 >= len(sys.argv):
+                die("--pa-proxy requires a value (fable)")
+            activate_pa_proxy(sys.argv[i + 1])
+            del sys.argv[i:i + 2]
         mode = sys.argv[1]
         if mode == "preflight":
             phase_preflight(sys.argv[2], sys.argv[3])
