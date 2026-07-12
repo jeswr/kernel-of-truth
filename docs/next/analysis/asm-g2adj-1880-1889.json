@@ -1,0 +1,121 @@
+{
+ "_readme": [
+  "g2 measurement-validity + sense-splitting ADJUDICATION assumption block ASM-1880..1889 — EMITTED by the Fable ADJUDICATION agent (2026-07-12, maintainer-prompted on issue #25) for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions).",
+  "Range 1880-1889 verified free against registry/assumptions.jsonl at emission time (max registered id 1867; repo-wide grep for ASM-188x empty); ids 1880-1889 used.",
+  "Scope: the adjudication document docs/next/analysis/g2-measurement-and-sense-splitting-adjudication.md — sections A (measurement validity), B (rendering vs reality), C (sense-splitting construction methodology), D (net implication + v2.2 pilot decision). Rulings are the adjudicating agent's own conclusions, tagged STIPULATED with confidence, never MEASURED; no mechanical verdict is modified; no feasibility conclusion is stated on either thesis.",
+  "Rider carried by every forward-looking row, verbatim: PROVISIONAL-ON-LLM-PROXY where a proxy pair is involved; soft non-binding typing only — never hard laws; point-estimate engineering gates, not statistical superiority; no feasibility conclusion.",
+  "Tags: MEASURED = read from committed bytes/run files/issue thread this tick (stated arithmetic on such bytes folded in, counterfactuals labelled inside the claim); LIT-BACKED = published-literature grounding, provenance disclosed (training-knowledge citations flagged as unpinned with pinning path); STIPULATED = design choice, maintainer decision, or adjudicator ruling, rationale given; EXTRAPOLATION = forward claim, resolution_path given."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1880",
+   "tag": "MEASURED",
+   "claim": "The g2-import soft-typing layer is architecturally non-binding and currently unconsumed: all 84 records in data/onto-softtype/soft-type-candidates.jsonl carry binding:false, strength:preference, effect:rank-only, forbidden_effects:[assert-type,reject-world,derive-disjointness,mint-entity,close-domain]; the build manifest reports forbidden_effects_check PASS and hard_operational_axioms_emitted 0; and a repo-wide grep for consumers of soft-type-candidates.jsonl / kot-soft-type outside poc/ontology-import-g2* returns nothing. An unsound soft record's worst case is a ranking bias over otherwise-licensed interpretations; today it has no operational effect at all.",
+   "rationale": "Fixes the stakes gradient for the section-A ruling: the property g2-import-v2/v2.2 measures belongs to a bounded-authority, presently inert module.",
+   "backing_ref": "data/onto-softtype/soft-type-candidates.jsonl; data/onto-softtype/manifest.json (counts.forbidden_effects_check, counts.hard_operational_axioms_emitted); docs/next/design/ontology-import-plan.md licensing clauses ('rank otherwise licensed interpretations', never 'make an answer licensed or forbidden')",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1881",
+   "tag": "MEASURED",
+   "claim": "The typing g2 v1 measured at 33/84 = 0.3929 soundness (primary stand-in; pair-concordant precision 0.286, pair-union 0.452) is the HARD referent-sort scheme (SomeoneRef/SomethingRef/TimeRef etc.) inside the kot-ast/1 explications — identity-bearing per the kernel-v0 manifest ('Identity = the explication object') and inherited by any consumer of explications. Those sorts remain in data/kernel-v0/ unmodified today; the soft layer is the PLANNED replacement (MAPPING.md: 'This layer replaces each hard universal with (i) a broad BFO-anchored claim ... plus (ii) explicitly SOFT selectional preferences').",
+   "rationale": "The binding, measured-unsound typing surface and the non-binding, soundness-litigated surface are different layers; section A's redirect argument rests on this separation.",
+   "backing_ref": "poc/g2/result.json (constructions.*, n_derived_correct 33/84); data/kernel-v0/manifest.json (minting.identityPayload); data/kernel-v0/concepts/break.json (referents refKind); data/onto-softtype/MAPPING.md ('What this fixes')",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1882",
+   "tag": "MEASURED",
+   "claim": "The g2 instrument's sole sense-scoping device is the concept label's parenthetical: the frozen prompt template instructs 'the parenthetical, if any, tells you which sense of the word is meant' (v1 and v2.2 alike), and the rendered items' 'as described above' anaphora resolves to nothing beyond the Concept line (two-line item, verbatim substitution into {{ITEM}}). Where the parenthetical is a sense description ('lie (the words)', 'birth (the event)', 'reminder (the made something)') the claim is well-scoped; where it is bare valence ('break (X breaks Y)', 'make (X makes Y)', 'find (X finds Y)') the instrument delegates sense scope to the judge.",
+   "rationale": "Mechanism by which kernel-level sense-underdetermination surfaces as judge disagreement; grounds the section-B reclassification and corroborates the prior panel diagnostic's render reconstruction.",
+   "backing_ref": "poc/g2/materials/prompt-template.txt; poc/ontology-import-g2-v2/prompt-template-v2.2.txt; poc/ontology-import-g2/materials/arm-a3-bfo-sumo-framenet.jsonl (item texts); docs/next/analysis/g2-panel-vs-assessment.md section 1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1883",
+   "tag": "MEASURED",
+   "claim": "Precise pi:011 trace: record urn:kot-soft-type:g2i:g2-pi-011 types the RANGE of urn:kernel-v0:break (the patient Y) as BFO material entity (BFO_0000040), from SUMO Damaging/Object + FrameNet Cause_to_fragment (frame-414), hand-curated in build-softtype.py's per-concept table (break entries, lines ~222-251, with hand-drafted arm texts). Break's domain record types X as entity (BFO top) and the existential record types the TIME of breaking as temporal region. NO record in any layer types the breaking event itself as a material entity. The underlying concept is a single hand-authored NSM explication of the physical-shatter sense, listed in the kernel manifest's knownWeak, whose authoring note concedes the many-small-pieces clause 'fits shattering better than e.g. a broken machine'.",
+   "rationale": "Corrects the 'break -> material entity' compression carried from the #25 table (the maintainer's 'breakage is never a material entity' responds to the compressed form) while confirming the defect is real at the range slot ('break a promise / the silence / a record' defeat the unhedged material gloss; both judges + prior Fable read rejected).",
+   "backing_ref": "data/onto-softtype/soft-type-candidates.jsonl records g2-pi-010/011/012; poc/ontology-import-g2/build-softtype.py lines 222-251; data/kernel-v0/concepts/break.json; data/kernel-v0/manifest.json (knownWeak); docs/next/analysis/g2-panel-vs-assessment.md row 011",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1884",
+   "tag": "STIPULATED",
+   "claim": "Maintainer design requirement (2026-07-12, in response to the pi:011 trace on issue #25; the thread itself carries no comment — provenance is the session working-memory record, disclosed): a kernel concept is a SENSE, not a word; polysemous words must be split into one concept per sense at construction time (break-physical / break-sound / break-trust are distinct concepts); and typing must answer to the concept's own meaning — a breakage, in any sense, is an EVENT, never a material entity. The hand-built kernel-v0 does not sense-split.",
+   "rationale": "Maintainer decision recorded with provenance; the binding requirement this adjudication applies in sections B-D. Not a measured claim about any artifact's current content beyond the final sentence (which ASM-1883 grounds).",
+   "backing_ref": "working-memory record kern-sense-split-concepts (verbatim maintainer quote); issue #25 (jeswr/kernel-of-truth, comment state verified empty this tick)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1885",
+   "tag": "LIT-BACKED",
+   "claim": "Sense-as-unit is the settled norm of mature lexical-semantic resources: WordNet's unit is the synset; FrameNet's is the lexical unit (lemma-in-frame), and FrameNet separates the physical Cause_to_fragment from the norm-violating Compliance frame that covers 'break a promise / the law'; NSM practice explicates one sense per explication; 'break' is among the most polysemous English verbs (commonly cited count: 59 WordNet verb senses). UFO/gUFO typing (Kind/Role/Phase/Mode/Event) presupposes a determinate sense — a word cannot be UFO-typed, a sense can. DISCLOSURE: these are training-knowledge citations, not pinned against local source files this tick.",
+   "rationale": "Grounds section C's claim that the maintainer's requirement is field-standard rather than idiosyncratic, and that ontology-derived construction implicitly sense-splits at frame choice.",
+   "backing_ref": "UNPINNED training-knowledge citations (WordNet 3.x, FrameNet frame index, NSM literature, UFO/gUFO); resolution: pin WordNet/FrameNet source files (senses for break, make, find; Compliance vs Cause_to_fragment LUs) at the sense-split materials build",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1886",
+   "tag": "MEASURED",
+   "claim": "Decomposition basis for the sanctioned pilot's 12 non-clean items (real-20260712-auth, table 28/1/7/4, AC1 0.6222): 7 splits are the hedge-scope channel (016,021,025,033,064,068,089 — deterministic across three response sets, targeted by the v2.2 rubric); 4 splits (036,037,070,071) plus the sole both-no (011) all sit on bare-parenthetical heavy-polysemy verbs (find x2, make x2, break), while no sense-fixed-parenthetical item split through the sense channel; bare-but-centrally-dominant verbs (give 046, help 053, lose 065) passed, so bare labels are a necessary-not-sufficient condition. g2:pi:070's render already contains an explicit breadth escape ('But Y can also be words, a plan, or a happening') and pA still rejected on non-creation idioms — prose alone cannot close the sense channel. COUNTERFACTUAL arithmetic on the observed table: landing the 7 hedge items with all 4 sense items still split gives 36/40 raw agreement, AC1 ~0.88 >= 0.65; repairing the 4 alone gives ~0.78.",
+   "rationale": "The measured pattern behind section B's 7/5 decomposition ruling and section D's claim that the untouched pA channel does not by itself fail the AC1 gate.",
+   "backing_ref": "poc/ontology-import-g2-v2/runs/real-20260712-auth/{pilot-status.json,judge-pA-a3-pilot-responses.jsonl,judge-pB-a3-pilot-responses.jsonl}; poc/ontology-import-g2/materials/arm-a3-bfo-sumo-framenet.jsonl (070/011 renders); docs/next/analysis/g2-panel-vs-assessment.md sections 2-4 (counterfactual arithmetic)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1887",
+   "tag": "STIPULATED",
+   "claim": "Adjudication ruling A+B (this agent's conclusion, confidence A 0.85, B 0.9/0.8): (A) ordinary-meaning soundness of the non-binding soft layer is a legitimate but SECONDARY quality gate — the load-bearing measurements are (i) sense-scoped soundness of the BINDING referent sorts (0.3929 stands only as a word-scoped lower bound; sense-scoped truth unmeasured) and (ii) engine-inference correctness under the typing via a deterministic-channel, ranking-sensitive instrument; neither is licensed by any outcome of the current soundness test. (B) The #25 framing 'English rendering ambiguity, not in the kernel' is correct for the 7 hedge items and WRONG for the 5 sense items: those show kernel-level sense-underdetermination, a construction defect prose iteration cannot repair. Principal correction to #25 recorded accordingly; secondary correction: 'break -> material entity' must everywhere read 'break's RANGE -> material entity'.",
+   "rationale": "Adjudicator's own ruling (owned here, not the coordinator's), grounded in ASM-1880..1886; stipulated because it is a judgment about measurement priority and framing, not a measurement.",
+   "backing_ref": "docs/next/analysis/g2-measurement-and-sense-splitting-adjudication.md sections A-B; issue #25 body (quoted phrases verified this tick)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1888",
+   "tag": "STIPULATED",
+   "claim": "Adjudication ruling C+D (this agent's conclusion, confidence C 0.9, D 0.7): (C) sense-splitting is a PARTIAL BLOCKER on typing-soundness measurement — binding for polysemous word-labelled concepts (the measured property is ill-posed there: 'unsound' conflates typing error with scope error), already satisfied for sense-fixed concepts whose numbers stand; construction methodology becomes sense-split-FIRST (sense inventory imported from the pinned resources: FrameNet LUs, WordNet synsets, SUMO WordNet mappings), with NSM explication and typing authored per sense; UFO-typed construction depends on, and does not compete with, sense-splitting. (D) RUN the built-and-unspent v2.2 Opus pilot when the pA quota returns; on PASS run the full arm within the approved ceiling (no re-surfacing; this adjudication is the sanctioned decision point) with the licensing caps: a pilot PASS validates the INSTRUMENT not the typing; a full-arm PASS licenses only engineering adoption of a currently-unconsumed rank-only module, its soundness number carrying a sense-scope caveat (understates sense-scoped soundness by an unmeasured margin). On a second AC1 FAIL the pre-commitment retires the proxy pair for A3; the human-panel path should then be pointed at sense-split materials, not the current renders. Either way: no further prose iteration or judgment spend on the polysemous subset until it is sense-split, and the correctness track's marginal measurement effort moves to engine-inference-under-typing plus a sense-split re-measure of the binding sorts.",
+   "rationale": "Adjudicator's own ruling; stipulated. Tradeoff disclosed in the document: the pilot's marginal cost is ~trivial (sole launch attempt died at preflight on pA quota, ~$0.12 bound), a validated proxy-judge instrument is the programme's scarcest commodity, and the pre-commitment bounds the downside to an endpoint the redirect reaches anyway.",
+   "backing_ref": "docs/next/analysis/g2-measurement-and-sense-splitting-adjudication.md sections C-D; poc/ontology-import-g2-v2/runs/pilot-v22-20260712-171919/{driver.log,call-count.json} (aborted preflight, unspent); docs/next/design/g2-import-v22-rubric-iteration.md (one funded Stage-P pilot; section-4 pre-commitment)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1889",
+   "tag": "EXTRAPOLATION",
+   "claim": "Forward claims, each with its resolution path: (a) if the v2.2 rubric + judge-pB upgrade lands the 7-item hedge channel, the pilot passes the AC1 0.65 gate even with the 4-item verb-sense channel fully live (from the ASM-1886 counterfactual; new-judge construal channels remain the unmeasured risk) — resolved by the v2.2 pilot itself; (b) a sense-split rebuild of the polysemous subset converts most of the sense-channel disagreements and the pi:011 unsoundness into well-posed per-sense items (e.g. break-physical range -> material entity plausibly judged sound; break-trust typed as an event over a normative object) — resolved by the sense-split materials build plus one re-measure; (c) at the large-kernel staging (10k -> 1M+), importing by synset/lexical-unit delivers sense-split concepts as the natural unit, with a heavy-tailed concept-count multiplier (tens for frequent verbs, ~1 for most nouns) absorbed by the import route — resolved by the scale-track builds. PROVISIONAL-ON-LLM-PROXY wherever a proxy pair is the panel; no feasibility conclusion.",
+   "rationale": "Separates the adjudication's forward bets from its measured grounds so none can later be laundered as a premise (per the don't-extrapolate-as-premise standing rule).",
+   "backing_ref": "resolution_path: (a) poc/ontology-import-g2-v2 v2.2 Stage-P pilot run record when spent; (b) the sense-split materials build + re-measure record (to be designed); (c) docs/next/design/large-kernel-scale-track.md build records",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  }
+ ]
+}
