@@ -39,6 +39,11 @@ Usage:
   run-ontg2v2.py assemble  <run_dir>
   run-ontg2v2.py mock      <run_dir> <go|nogo|instrument|pilotfail|breadth>
                                                        (no LLM calls)
+Flags (append to any mode):
+  --pa-proxy fable   PROVISIONAL pA proxy (kernel-of-truth-29nb); never frozen
+  --rubric v22       v2.2 composite-hedge rubric iteration (DRAFT; successor
+                     record required -- docs/next/design/
+                     g2-import-v22-rubric-iteration.md); default = frozen v2
 """
 import json
 import os
@@ -143,6 +148,55 @@ def activate_pa_proxy(val):
     PA_PROXY = "fable"
     JUDGE_CFG["pA"] = {"id": "judge-pA-fable5-PROXY", "kind": "claude",
                        "model": FABLE_MODEL}
+
+
+# ---- v2.2 rubric iteration (flag-guarded; DRAFT until a successor record
+# freezes it -- docs/next/design/g2-import-v22-rubric-iteration.md) ----
+# 2026-07-12: the frozen g2-import-v2 record consumed its sanctioned Stage-P
+# pilot (runs/real-20260712-auth, AC1_A3 0.6222 < 0.65, INSTRUMENT-INVALID
+# pilot channel). The located residual channel is one-sided judge-pB
+# hedge-strictness on multi-claim hedged composites (9 persistent
+# disagreements across both authoritative pilots; pB 0/40 cross-pilot
+# flips). `--rubric v22` activates the v2.2 instrument: the composite-hedge
+# scope clarification (prompt-template-v2.2.txt) + the 8-item calibration
+# set (calibration-hedge-v22.jsonl, 2 new composite-hedge anchors exercised
+# at the operating point). WITHOUT the flag every byte of frozen v2
+# behaviour is untouched. PRE-COMMITMENT (recorded, ASM-1825): a second
+# sanctioned AC1_A3 < 0.65 pilot fail RETIRES the GPT-5.6+Haiku proxy pair
+# for the adoption arm; adoption authority passes to the two-human panel.
+RUBRIC = "v2"
+V22_PINS = {
+    "poc/ontology-import-g2-v2/prompt-template-v2.2.txt":
+        "60d3403721135410b51177545e637f8c12e44e5f18f4ccf8c2ade867dc4cfde1",
+    "poc/ontology-import-g2-v2/calibration-hedge-v22.jsonl":
+        "63c247a9e7e7edc8769739753ef3b4c33b502f1b93dd01e12e6a948a4f97f57f",
+}
+
+
+def activate_rubric(val):
+    """v2.2: 8 hedge-cal items (16/16 gate), pilot 112 calls, total 796;
+    796 x $0.012 = $9.552 <= the $10 usd_cap. All other gates unchanged
+    (AC1 >= 0.65, decisive >= 36/40, hedge-flip <= 2/8)."""
+    global RUBRIC, PILOT_CAL_MIN, BUDGET_MAX_CALLS
+    if val != "v22":
+        die("ERR_ONTG2V2_RUBRIC: --rubric supports only 'v22'")
+    RUBRIC = "v22"
+    PINS.update(V22_PINS)
+    PATHS.update({k: os.path.join(REPO, k) for k in V22_PINS})
+    PILOT_CAL_MIN = 16          # 8 hedge-calibration items x 2 judges
+    BUDGET_MAX_CALLS = 796      # +4 pilot cal + 4 preflight cal vs 788
+
+
+def _template_rel():
+    return ("poc/ontology-import-g2-v2/prompt-template-v2.2.txt"
+            if RUBRIC == "v22"
+            else "poc/ontology-import-g2-v2/prompt-template-v2.txt")
+
+
+def _hedge_cal_rel():
+    return ("poc/ontology-import-g2-v2/calibration-hedge-v22.jsonl"
+            if RUBRIC == "v22"
+            else "poc/ontology-import-g2-v2/calibration-hedge.jsonl")
 EXPECT_CODEX_VER = "codex-cli 0.144.1"
 EFFORT = "low"
 NPX_CODEX = ["npx", "-y", "@openai/codex@0.144.1"]
@@ -287,8 +341,7 @@ def load_jsonl_abs(path):
 
 
 def read_template():
-    return open(PATHS["poc/ontology-import-g2-v2/prompt-template-v2.txt"],
-                encoding="utf-8").read()
+    return open(PATHS[_template_rel()], encoding="utf-8").read()
 
 
 def read_sysprompt():
@@ -652,7 +705,7 @@ def _calibration_rows():
     """Preflight calibration: the 2 v1 items THEN the 6 hedge items (design
     section 3a; the v1 items are retained unchanged)."""
     return (load_jsonl("poc/g2/materials/calibration-items.jsonl")
-            + load_jsonl("poc/ontology-import-g2-v2/calibration-hedge.jsonl"))
+            + load_jsonl(_hedge_cal_rel()))
 
 
 def _run_cal_block(cfg, rows, jdir, workdir, sys_prompt, log, run_dir,
@@ -715,6 +768,7 @@ def phase_preflight(pkey, run_dir):
                              "preflight-cal")
     ok = all(r["pass"] for r in results)
     status_obj = {"phase": "preflight", "judge": cfg["id"],
+                  "rubric": RUBRIC,
                   "banners": banners, "workdir": workdir, "pass": ok,
                   "results": results}
     with open(os.path.join(jdir, "preflight-status.json"), "w") as f:
@@ -729,8 +783,13 @@ def _require_preflight(jdir, pkey):
     ps = os.path.join(jdir, "preflight-status.json")
     if not os.path.exists(ps):
         die("no preflight-status.json for %s; run preflight first" % pkey)
-    if not json.load(open(ps)).get("pass"):
+    pf = json.load(open(ps))
+    if not pf.get("pass"):
         die("preflight %s did not PASS; refusing" % pkey)
+    if pf.get("rubric", "v2") != RUBRIC:
+        die("ERR_ONTG2V2_RUBRIC: preflight ran under rubric %r but this "
+            "invocation is %r; rubrics may never mix within a run"
+            % (pf.get("rubric", "v2"), RUBRIC))
     workdir = open(os.path.join(jdir, "workdir-path.txt")).read().strip()
     if not os.path.isdir(workdir):
         die("recorded workdir missing: %s" % workdir)
@@ -748,6 +807,10 @@ def _require_pilot_pass(run_dir):
     if not st.get("pass"):
         die("ERR_ONTG2V2_PILOT: pilot gate FAILED (%s); the full run is "
             "never launched" % st.get("channel", "unknown channel"))
+    if st.get("rubric", "v2") != RUBRIC:
+        die("ERR_ONTG2V2_RUBRIC: pilot gate passed under rubric %r but this "
+            "invocation is %r; rubrics may never mix within a run"
+            % (st.get("rubric", "v2"), RUBRIC))
 
 
 def _run_block(pkey, arm, run_dir, phase, rows, n_expected, nolabel_cap,
@@ -872,8 +935,9 @@ def phase_pilot(pkey, run_dir):
     log = logger(jdir)
     log("PILOT %s start banners=%s" % (cfg["id"], json.dumps(banners)))
     sys_prompt = read_sysprompt() if cfg["kind"] == "claude" else None
-    # (a) 6 hedge-calibration items (file order, like preflight)
-    cal_rows = load_jsonl("poc/ontology-import-g2-v2/calibration-hedge.jsonl")
+    # (a) hedge-calibration items, file order like preflight (6 under the
+    # frozen v2 rubric; 8 under --rubric v22)
+    cal_rows = load_jsonl(_hedge_cal_rel())
     cal_results = _run_cal_block(cfg, cal_rows, jdir, workdir, sys_prompt,
                                  log, run_dir, "pilotcal", "pilot-cal")
     with open(os.path.join(BASE if run_dir == BASE else run_dir,
@@ -997,7 +1061,8 @@ def phase_pilotgate(run_dir, resp_dir=None, mock=False):
           for pk in ("pA", "pB")}
     channels = []
     if pm["cal_correct"] < PILOT_CAL_MIN:
-        channels.append("hedge-calibration %d/12 < 12" % pm["cal_correct"])
+        channels.append("hedge-calibration %d/%d < %d"
+                        % (pm["cal_correct"], PILOT_CAL_MIN, PILOT_CAL_MIN))
     if g is None or g < PILOT_AC1_MIN:
         channels.append("pilot AC1_A3 %s < 0.65 (table %s; kappa %s "
                         "co-reported, never gated)"
@@ -1011,6 +1076,7 @@ def phase_pilotgate(run_dir, resp_dir=None, mock=False):
         channels.append("hedge-flip false-sat %.2f > 0.25" % max(fs.values()))
     ok = not channels
     status = {"phase": "pilotgate", "pass": ok, "pa_proxy": PA_PROXY,
+              "rubric": RUBRIC,
               "ac1_a3": g, "kappa_a3_coreported": k, "metrics": pm,
               "hedgeflip_false_sat": fs,
               "channel": "; ".join(channels) if channels else None,
@@ -1329,7 +1395,7 @@ def phase_mock(run_dir, scenario):
     # ---- pilot files (all scenarios) ----
     pm = json.load(open(
         PATHS["poc/ontology-import-g2-v2/pilot-manifest.json"]))
-    cal_rows = load_jsonl("poc/ontology-import-g2-v2/calibration-hedge.jsonl")
+    cal_rows = load_jsonl(_hedge_cal_rel())
     for pk in ("pA", "pB"):
         with open(os.path.join(mdir, "judge-%s-pilotcal-responses.jsonl"
                                % pk), "w") as f:
@@ -1436,6 +1502,12 @@ if __name__ == "__main__":
             if i + 1 >= len(sys.argv):
                 die("--pa-proxy requires a value (fable)")
             activate_pa_proxy(sys.argv[i + 1])
+            del sys.argv[i:i + 2]
+        if "--rubric" in sys.argv:
+            i = sys.argv.index("--rubric")
+            if i + 1 >= len(sys.argv):
+                die("--rubric requires a value (v22)")
+            activate_rubric(sys.argv[i + 1])
             del sys.argv[i:i + 2]
         mode = sys.argv[1]
         if mode == "preflight":

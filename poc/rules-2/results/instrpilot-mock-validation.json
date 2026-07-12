@@ -1,0 +1,34 @@
+{
+  "artifact": "rules-2 INSTRUMENT PILOT mock validation (PROPOSED-ASM-1814..1819)",
+  "campaign_harness_manifest_sha256_unchanged": "d37640b2fac8b14198a9f9db60e3f97e6abd84639cb34979e383abd3f7b892ce",
+  "checks": {
+    "dry_plan": {
+      "rc": 0,
+      "stdout_tail": [
+        "GPU-hours on A10G: est 0.164 h; with 1.5x overhead 0.245 h",
+        "cost at Modal list $1.10/h: est $0.18 / worst $0.27",
+        "  worst case vs PILOT_USD_CAP ($2.00)                  OK"
+      ]
+    },
+    "mock_degenerate_teeth": {
+      "ip1_failed_as_required": true,
+      "note": "IP-3 deliberately unasserted here (noise-dominated when IP-1 is degenerate; IP-3 is conditional on a live IP-1 channel)",
+      "verdict": "PILOT-FAIL"
+    },
+    "mock_normal": {
+      "b0_acc_MOCK": 0.45,
+      "b2p_acc_MOCK": 0.9666666666666667,
+      "c1p_acc_MOCK": 0.35,
+      "ip1_pass": true,
+      "ip2_pass": true,
+      "ip3_pass": true,
+      "ip4_b4_vacuous_flag_fired": true,
+      "planted_recovered_acc": 0.9166666666666666,
+      "sout_prompt_surface_sha256": "16c52b050615e541fb1fb0b8d22e5c709a958fc0887e863aadb9d739263cd1f1",
+      "verdict": "PILOT-PASS-WITH-FLAGS"
+    }
+  },
+  "green": true,
+  "pilot_harness_manifest_sha256": "24fc793c78e44d0ad3cae5a925cc2c0b3b3ad1ef45150cd569f023d32df3138e",
+  "semantics": "mechanics validation ONLY \u2014 every number above is MOCK and licenses nothing; the pinned sha gates the modal_instrpilot.py GPU launch (validate_mock.py pattern)"
+}

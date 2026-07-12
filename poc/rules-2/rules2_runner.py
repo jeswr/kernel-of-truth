@@ -1156,12 +1156,15 @@ def main():
         "usd_per_hour_table": man["planning"]["usd_per_hour"],
         "sout_prompt_surface_sha256": sout_prompt_sha,
         "gap2_prompt_surface_sha256": gap2_prompt_sha,
-        "prompt_surface_note": "review fix 1: S-out prompts are a pure "
-                               "function of the cell (no per-arm padding) — "
-                               "byte-identical across B0/B1/B2/B3/B5/c1p by "
-                               "construction, 24-option decode; the s3' gap "
-                               "is scored on the common 23-option rules-1 "
-                               "surface (cell=entailed23 for B0/B2 vs B4)",
+        "prompt_surface_note": "review fix 1 (REWORK-3 entity form): "
+                               "S-out prompts are a pure function of the "
+                               "cell (no per-arm padding) — byte-identical "
+                               "across B0/B1/B2/B3/B5/c1p by construction, "
+                               "uniform 3-option decode (2-option anti-echo "
+                               "set + trained refusal, chance 0.5); the s3' "
+                               "gap is scored on the common 2-option "
+                               "rules-1-c entity surface (cell=entailed2 "
+                               "for B0/B2 vs B4)",
         "efficiency_constants": man["efficiency_ledger_constants"],
         "pins": man["pins"],
         "pins_verified": True,

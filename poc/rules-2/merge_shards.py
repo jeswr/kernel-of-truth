@@ -17,7 +17,7 @@ This tool reconstructs the CANONICAL pair the pinned analysis
 
 FAIL-CLOSED assertions (any failure => no merged output):
   * every shard carries IDENTICAL pins, certificate precondition, c8 gate,
-    prompt-surface shas (S-out + gap23), mode, canonical_first_seed,
+    prompt-surface shas (S-out + gap2), mode, canonical_first_seed,
     strata counts and USD table — shards from mismatched harness bytes or
     corpora can NEVER be pooled;
   * ledger/repeat keys are pairwise DISJOINT across shards and row-level

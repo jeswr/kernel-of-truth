@@ -476,6 +476,9 @@ jobs, worst single job 0.57 h); R2 tier worst $6.51 over 7 jobs; combined
 worst ≈$13 — well inside the $18 usd_cap and the $35 outer ceiling (the
 3-option decode prices ~8× fewer scored options than the old 24-option
 surface). Mock (mono + 13 shards + merge + analysis parity + verdict
-mapping + both dry-plans) is GREEN and pinned
-(`poc/rules-2/results/mock-validation.json`, staged-bytes sha
-`088307e7…`). NO freeze and NO run were performed by this build.
+mapping + both dry-plans) is GREEN and pinned as
+`poc/rules-2/results/mock-validation.json`, tied to the staged-bytes
+manifest sha it records (the registry record's `pins.harness_manifest`
+carries the build-time value; the doc deliberately does not quote it —
+the manifest pins THIS doc's sha, so quoting the staged sha here would
+be circular). NO freeze and NO run were performed by this build.

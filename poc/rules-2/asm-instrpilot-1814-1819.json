@@ -1,0 +1,76 @@
+{
+ "_readme": [
+  "RULES-2 INSTRUMENT-PILOT assumption block ASM-1814..1819 — EMITTED by the build role (fable-build-4, 2026-07-12) for central registration by the coordinator; registry/assumptions.jsonl is NOT touched by this build (same discipline as the 1440..1459 and 1800..1813 blocks).",
+  "Range 1814-1819 verified free at emission time (max id in registry/assumptions.jsonl = 1813; no ASM-181[4-9] reference anywhere in the tree).",
+  "Scope: the BLOCKING pre-freeze instrument pilot for rules-2 REWORK-3 (poc/rules-2/instr_pilot.py + modal/modal_instrpilot.py + validate_instrpilot.py + results/instrpilot-mock-validation.json), commissioned by docs/next/analysis/correctness-track-instrument-assessment.md SS2.2 and SS4 item 1 (the 'mandatory blocking instrument pilot at the operating point' whose absence let rules-1-c freeze and then grade INSTRUMENT-INVALID).",
+  "No feasibility conclusion is stated or implied; the pilot's verdict is instrument-validity ONLY and is never campaign evidence; this build performed NO freeze and NO GPU run; the CAMPAIGN GPU tier stays held on maintainer issue #24 and its gates in modal_rules2.py are untouched (campaign staged-bytes sha d37640b2... verified byte-identical after this build, see results/instrpilot-mock-validation.json)."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1814",
+   "tag": "STIPULATED",
+   "claim": "A BLOCKING instrument pilot is added to the rules-2 freeze checklist: before the coordinator runs prereg-freeze on registry/experiments/rules-2.json, poc/rules-2/instr_pilot.py must have been run on real GPU at the operating point (real R1 host, pinned-HP LoRA, real entity surface, real twin engine for B4) and reported PILOT-PASS or PILOT-PASS-WITH-FLAGS; a PILOT-FAIL blocks the freeze pending redesign or an explicit coordinator override record. The pilot is a STANDALONE runner + Modal wrapper (modal_instrpilot.py, its own app kot-rules2-instrpilot and its own staged-bytes sha) precisely so the pinned campaign surface (modal_rules2.py staged-bytes sha d37640b2fac8b14198a9f9db60e3f97e6abd84639cb34979e383abd3f7b892ce, its pinned green mock, and the DRAFT record) is byte-identical before and after the pilot build. The pilot wrapper DELIBERATELY omits the freeze gate and the rules-1-c-PASS sequencing gate: it IS the pre-freeze check, and the assessment's ranked recommendation states the pilot need not wait on the issue-#24 campaign hold; it is bounded instead by a $2 fail-closed worst-case cap (ASM-1819) and its own pinned green mock gate.",
+   "rationale": "Four instrument events in the lane (rules-1 void, rules-1-b dead form, rules-1-c INSTRUMENT-INVALID prediction, g2 proxy pair) share the process gap of gate channels never exercised at the operating point before freeze; the correctness assessment names the exercised-at-operating-point pilot the cheapest insurance the programme has repeatedly declined to buy. Pilot rows are exploratory instrument-validation rows under run-vs-audit separation: the pilot never grades a rules-2 hypothesis.",
+   "backing_ref": "docs/next/analysis/correctness-track-instrument-assessment.md SS2.2 + SS4 item 1 + meta-recommendation; poc/rules-2/instr_pilot.py module docstring; poc/rules-2/modal/modal_instrpilot.py _pilot_gates",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1815",
+   "tag": "STIPULATED",
+   "claim": "IP-1 (separation gate) operationalises 'the eval surface separates a trained host from B0' as four mechanical conditions on n=60 sha-ordered pilot S-out covered items scored on the uniform 3-option entity decode with a B2-pilot LoRA (deterministic family-stratified 6000-example subsample of the pinned corpus, pinned HPs verbatim, seed 0): (a) acc_B0 <= 0.90 (headroom exists; not both saturated), (b) acc_B2pilot >= the exact one-sided binomial 95% bound vs chance 0.5 at the pilot n (37/60 = 0.6167; not both floored), (c) acc_B2pilot - acc_B0 >= 0.05 (the contrast moves), (d) covered-refusal rate <= 0.5 on both arms (the channel is answers, not abstention). All four are required; thresholds are pre-declared constants in instr_pilot.py and changing any of them after a pilot result has been read requires a fresh pilot.",
+   "rationale": "The named risk is the rules-1-c degeneracy recurring on the 2-option surface: both arms floored at chance 0.5 (training signal cannot show) or both saturated (no headroom for the campaign contrast). The exact-binomial floor bound makes 'above chance' a mechanical statement at the pilot n rather than an eyeballed one.",
+   "backing_ref": "poc/rules-2/instr_pilot.py IP1_* constants + binom_min_k; correctness assessment SS2.2 condition (i)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1816",
+   "tag": "STIPULATED",
+   "claim": "IP-2 (audit-teeth gate) requires the c8 train-bytes projection to be shown NON-VACUOUS at the operating point: (a) the REAL flat lookup over the pinned B2 training bytes recovers <= the pinned ceiling (0.10) on the pilot S-out slice (re-confirming c8's 0/858 on the exercised items), AND (b) a PLANTED exploiter — the pilot items' (base-name, relation-word) -> gold entity keys injected into the QA index, exactly the shortcut the audit exists to catch — pushes recovered accuracy above the ceiling with recovery >= 0.90, i.e. the gate predicate FIRES. The projection semantics (ent_key / qa+factline indexes / AMBIG rule) are duplicated verbatim from materialise_closure.c8 rather than imported from its nested closure — the same duplication precedent as materialise_closure.query_pair_item vs rules1_runner.query_pair — and drift is caught by the runner's pinned c8ResultSha256 verification. Both halves are $0 CPU and run before any GPU second is spent.",
+   "rationale": "A shortcut audit that cannot fire is not a gate (the assessment's condition (ii): 'the shortcut audit actually fires on a planted shortcut exploiter'). The planted recovery lands at 0.9167 (55/60), not 1.0, because the small eval name pool reuses (base, rel) keys across items and the collisions are honestly AMBIG — disclosed, above the 0.90 teeth threshold. The 'pick-the-non-bridge-name' structural shortcut remains OUT OF SCOPE for IP-2, exactly as it is for c8: it is the registered DESIGN-OPEN ASM-1806 for the pre-freeze review.",
+   "backing_ref": "poc/rules-2/instr_pilot.py ip2_audit_teeth; poc/rules-2/materialise_closure.py c8; PROPOSED-ASM-1427/1445/1806",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1817",
+   "tag": "STIPULATED",
+   "claim": "IP-3 (c1p control gate) operationalises 'the shuffled-derivation control is non-degenerate' at the 2-option forced-flip re-operationalisation (ASM-1803): the c1p-pilot LoRA (same subsample, same pinned HPs, seed 0) must show (a) covered-refusal rate <= 0.5 (no collapse to abstention) and (b) acc_c1p <= acc_B2pilot - 0.05 (no collapse onto the treatment). IP-3 is meaningful only conditional on a live IP-1 channel: when IP-1 is degenerate the paired gap is noise-dominated, so the pinned mock-validation asserts the degenerate-stub PILOT-FAIL through IP-1, not IP-3.",
+   "rationale": "The assessment's condition (iii) verbatim ('its arm neither collapses to abstention nor to the treatment'). The anti-correlated forced-flip construction predicts c1p at or below the B0 floor; landing WITHIN 0.05 of the treatment would mean the derangement control cannot discharge its s1' role and the freeze must wait for a re-operationalisation.",
+   "backing_ref": "poc/rules-2/instr_pilot.py IP3_* constants; PROPOSED-ASM-1803/1426; correctness assessment SS2.2 condition (iii)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1818",
+   "tag": "STIPULATED",
+   "claim": "IP-4 (B4 vacuity flag) runs the imported rules-1-c A3 verify-retry loop (k=4, twin engine at inference, byte-identical drivers) on 24 pilot items and sets b4_vacuous=true iff every emitted row has attempts==1 — the measured rules-1-c vacuity (ASM-1808) inherited at the operating point. The flag downgrades the verdict to PILOT-PASS-WITH-FLAGS but is NOT a pilot FAIL: s3' is already conditional (ASM-1428) and the B4/s3' disposition belongs to the maintainer's issue #24; the pilot's job is to MEASURE the inheritance rather than argue it. The flag firing in mock (where the stub host goes through the REAL imported licensed_rejection) is the detection channel working, never a measurement.",
+   "rationale": "B4 is the one rules-2 arm that imports the failed verify-retry interface; the assessment demands its vacuity be flagged by an exercised channel, not inferred from the rules-1-c readout alone. Expected outcome at pilot time: flag FIRES (attempts=[1]), confirming ASM-1808 on rules-2's own instrument, which the coordinator carries into the issue-#24 decision.",
+   "backing_ref": "poc/rules-2/instr_pilot.py IP-4; PROPOSED-ASM-1808/1428; poc/rules-1/rules1_runner.py licensed_rejection (line ~342 urn2word comparison)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1819",
+   "tag": "LIMIT",
+   "claim": "Pilot scale and licence limits, disclosed: (a) the pilot trains on a deterministic sha-ordered family-stratified subsample (6000 of 19931 train examples, ~30%) at the pinned HPs and ONE seed, so a pilot IP-1 PASS licenses only 'the instrument has dynamic range at the operating point' — it is NEVER a preview of the campaign effect size, direction, or significance, and no pilot number may be quoted as evidence for any registered hypothesis; (b) an IP-1 FAIL at pilot scale could in principle reflect under-training rather than surface degeneracy — the fail-closed policy is that EITHER reading blocks the freeze until resolved (redesign, a larger pilot, or an explicit coordinator override record naming the risk accepted); (c) worst-case pilot cost is capped fail-closed at $2 (PILOT_USD_CAP, enforced by --dry-plan exit code and the wrapper's launch gate; planned worst $0.27 on A10G at build time); (d) the pilot S-out/B4 slices (60/24 sha-ordered covered items + 10 control) overlap the campaign's S-out stratum by construction — acceptable because the pilot result gates the instrument, not the hypothesis, and eval items are never trained on in either.",
+   "rationale": "Keeps the pilot honest in both directions: cheap enough to always run (the assessment's 'insurance the programme declined to buy'), and epistemically fenced so its numbers cannot leak into the campaign's evidence base.",
+   "backing_ref": "poc/rules-2/instr_pilot.py pre-declared constants + verdict_semantics field; poc/rules-2/results/instrpilot-mock-validation.json dry_plan check",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-4",
+   "date": "2026-07-12"
+  }
+ ]
+}
