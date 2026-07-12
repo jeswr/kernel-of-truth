@@ -1,0 +1,114 @@
+{
+ "_readme": [
+  "RULES-2 MECHANICAL-VERDICT REGISTRATION assumption block ASM-1940..1949 — EMITTED by the registry role (fable-registry-1, owner writer-4, 2026-07-12) for central registration by the coordinator; registry/assumptions.jsonl is NOT touched by this build (same discipline as the 1440..1459 / 1800..1813 / 1814..1819 / 1847..1859 blocks; central registration rides the coordinator's commit).",
+  "Range 1940-1949 verified free against registry/assumptions.jsonl at emission time (highest registered id in the 19xx block: ASM-1939).",
+  "Scope: the formal registration of the rules-2 mechanical verdict after the landed GPU campaign (campaign-20260712-195226) — the verdict-gen interface-defect resolution (stdin-conformant analysis successor, pre-final reset-refreeze, correction seq 1), the results-log append, the verdict-gen readout, and the registry-check gate. The verdict is MECHANICAL (a pure function of frozen record + chained log); NO feasibility conclusion is stated in any row — interpretation is the design/interpretation role's, downstream.",
+  "Tags: MEASURED = read off executed tool output or pinned artifacts in this tree (each row names its backing_ref); STIPULATED = protocol/mechanism choices with rationale. No EXTRAPOLATION rows in this block.",
+  "SELF-CHECK (mandatory gate, design-agent governance): tag mechanics verified per row (every MEASURED row cites a committed artifact/tool output; every choice row is STIPULATED, never MEASURED); no account strings, handles or e-mail addresses in these bytes (kot_common RT-14 patterns scanned clean); ids unique and in-range; owner pseudonymous (writer-4); registration explicitly deferred to the coordinator's commit."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1940",
+   "tag": "MEASURED",
+   "claim": "RULES-2 CAMPAIGN LANDED (GPU, campaign-20260712-195226): merged canonical pair poc/rules-2/results-incoming/campaign-20260712-195226/merged/run-records-rules2.jsonl (16,662 per-item rows, sha256 e3981c8e2d12c7e773118c40c42cb014df76dea05477c06a67f89295469da59a) + results-rules2.json (results carrier, sha256 c904005a0f8040362a4ad26a7e2aa61413688814284ddfae5db8bfd0c3c39264). 14 (arm,rung,seed) cells: B1/B2/B3/c1p x R1 x seeds {0,1,2} + B0/R1/seed=0 + B5/R3/seed=0 — the GO shard plan with B4 struck. Carrier flags: pins_verified=true; certificate_precondition {success_asm_1131=true, gates_asm_1163_all_pass=true, kill_a_fired=false}; c8_gate echo gate_pass=true sout_recovered_acc=0.0; repeat_shas byte_identical=true on all 6 first-seed cells; mode FULL, device cuda, corpus_manifest_mode REAL.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "poc/rules-2/results-incoming/campaign-20260712-195226/merged/run-records-rules2.jsonl; poc/rules-2/results-incoming/campaign-20260712-195226/merged/results-rules2.json"
+  },
+  {
+   "id": "ASM-1941",
+   "tag": "MEASURED",
+   "claim": "VERDICT-PATH INTERFACE DEFECT (same class as rules-1-c): the frozen record (superseded freeze dde1b0d122bab4af32ea96dfe163fc70f4faf087321ea12f28bcad3cb385cb65) pinned analysis/rules_2_go.py, whose input contract is argparse-REQUIRED flags (--run-records/--results/--c8), while tools/registry/verdict-gen.py step 5 invokes the pinned analysis with the eligible results-log run records as JSONL on STDIN and no argv — argparse exit 2 => ERR_P2_ANALYSIS on every automated invocation; the frozen record could never produce ANY verdict through the registered pure-function grader. Latent at freeze: rules-2 froze 2026-07-12T19:22:55Z, BEFORE the rules-1-c resolution of the same defect class landed (correction dated 2026-07-12T19:36:19Z).",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "registry/corrections/rules-2/1-prefreeze-correction.json (defect field); tools/registry/verdict-gen.py step 5; registry/corrections/rules-1-c/2-prefreeze-correction.json (precedent)"
+  },
+  {
+   "id": "ASM-1942",
+   "tag": "STIPULATED",
+   "claim": "STDIN-CONFORMANT SUCCESSOR analysis/rules_2_go_stdin.py (sha256 6b47b6349023e67369da64851146460184bab6987f877b1cb59c105cc5927570), replicating the rules-1-c resolution mechanism (analysis/rules_1c_stdin.py) precisely: eligible run records read from stdin per verdict-gen's contract (defensive re-filter event/phase/exit; reuse-provenance rows refused — rules-2 freezes no reused_from block; every eligible record must pin the campaign row artifact; only rows whose (arm,rung,seed) cell is witnessed by an eligible record enter the analysis), with the campaign rows, the results carrier and the c8 G2-gate artifact loaded from PINNED paths under fail-closed sha256 re-verification (ERR_RULES2_PIN_IO/PIN_DRIFT/ARTIFACT/CONFIG/NO_ROWS/NO_ELIGIBLE/REUSE/STDIN). Every statistic, constant, gate expression and the output serialization is carried BYTE-IDENTICAL from analysis/rules_2_go.py; only input acquisition changed. The superseded rules_2_go.py bytes are retained on disk UNEDITED as history (pinned bytes are never edited).",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "rationale": "The registered grader (verdict-gen) is the ONLY lawful producer of a verdict object (G-4); making the pin executable through it — with zero statistical change, proven by parity — is the minimal correct repair, and reusing the rules-1-c mechanism keeps the registry's defect-resolution surface uniform.",
+   "backing_ref": "analysis/rules_2_go_stdin.py; analysis/rules_2_go.py (superseded pin, retained); analysis/rules_1c_stdin.py (template)"
+  },
+  {
+   "id": "ASM-1943",
+   "tag": "MEASURED",
+   "claim": "PARITY PROOF (byte-identical outputs): (a) python3 analysis/rules_2_go.py --run-records <merged 16,662 rows> --results <merged carrier> --c8 poc/rules-2/results/c8-result.json and (b) a verdict-gen-shaped stdin invocation of analysis/rules_2_go_stdin.py over 14 stamped eligible run records covering the same (arm,rung,seed) cells produced BYTE-IDENTICAL stdout, sha256 56dd75cf2df3e8074189c0c640157d254d5e740c399d5d16439dea2d221b631f for both. The canonical-JSON re-serialization of the same analysis object written by verdict-gen is reports/auto/rules-2/analysis-output.json sha256 1c3c2c1ec354dc1e2a48029a887146993bb95d26e7f59425e92c9cf5c5f29913 (content verified equal to the parity stdout object).",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "registry/corrections/rules-2/1-prefreeze-correction.json (parity_proof field); reports/auto/rules-2/analysis-output.json"
+  },
+  {
+   "id": "ASM-1944",
+   "tag": "STIPULATED",
+   "claim": "LAWFUL PRE-FINAL RESET-REFREEZE (kind pre-signoff-reset-refreeze, correction seq 1): conditions verified conjunctively at correction time — results-log/rules-2.jsonl did NOT exist (no run record of any phase, no unblind; the merged campaign bytes sat in results-incoming, never appended) AND rules-2 absent from registry/gng0-signoff.json frozen_records; the P-9 cutoff was not crossed. The refreeze swapped ONLY pins.analysis_script: a field-by-field flatten-diff of superseded vs refrozen record shows exactly four deltas (/pins/analysis_script/path, /pins/analysis_script/sha256, /frozen_at 2026-07-12T19:22:55Z -> 2026-07-12T21:24:26Z, /frozen_sha256 dde1b0d1... -> 8a4763a3...); output_fields (35 pointers), endpoints, verdict_rules, design, kill text, envelope, corpus pins, artifact_hashes, harness_manifest, blocking_pilot, sequencing_gate, hypotheses, budget byte-identical; frozen_by unchanged (coordinator-1). Re-frozen through prereg-freeze under the full freeze-time lints; the same non-fatal PAUSE flags (ASM-1134/ASM-1434/ASM-1454, open extrapolations cited by the design text) re-emitted. Outcome-neutral by construction (ASM-1943 parity). An ops amendment could not lawfully do this (/pins/analysis_script is design scope, ERR_P2_DESIGN_AMEND) and a posthoc erratum would leave the verdict unproducible.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "rationale": "Reset-correct-refreeze is registered as lawful ONLY pre-final and pre-signoff; both conditions held and are witnessed in the correction record — the identical basis as the f1 and rules-1-c precedents.",
+   "backing_ref": "registry/corrections/rules-2/1-prefreeze-correction.json; registry/experiments/rules-2.json (refrozen 8a4763a3d20b38837a7c78b22f1fa32ce03aca98833abaa809aec6d290da833e); registry/frozen-index.json"
+  },
+  {
+   "id": "ASM-1945",
+   "tag": "MEASURED",
+   "claim": "RESULTS-LOG APPEND (single write path, tools/registry/log-append.py): 14 final-phase run records appended to results-log/rules-2.jsonl as seq 0..13 (runner-1; event=run, phase=final, exit=ok; config {arm,rung,seed} per campaign cell; prereg_hash 8a4763a3... = the refrozen sha; raw-count metrics per cell — rows/correct by stratum, refusals, retry_rows_attempts_gt1=0 everywhere, token totals — no derived statistics; artifacts pinning the merged rows, merged results carrier and c8 artifact by sha256). verdict-gen appended the unblind line as seq 14. Chain verified at every append and at readout; log_tail_sha256 5eb9904e15bb86aced0cd42bc6d70d9dfb300ab49c29d4588f2d8c111d2a726d.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "results-log/rules-2.jsonl; registry/verdicts/rules-2.json inputs.log_tail_sha256"
+  },
+  {
+   "id": "ASM-1946",
+   "tag": "MEASURED",
+   "claim": "MECHANICAL VERDICT REGISTERED (registry/verdicts/rules-2.json, computed by verdict-gen as a pure function of frozen record + chained log; eligible_runs=14, excluded=[]): fired_rule_index=2 = the frozen PASS rule (primary_pass AND (s1p_pass AND s2p_pass)); emitted verdict PASS-PENDING-AUDIT under the G-6 audit gate (no CONFIRMED non-runner audit exists under registry/audits/rules-2/ yet — the same pending state every prior PASS record carried before its cross-vendor audit landed). Values: gates pin/c8/headroom/repeat ALL true; primary_lift_lb95 = 0.31585081585081587 (B2-B0 on S-out, two-stage BCa) > SESOI 0.05, primary_band pass_lb_above_sesoi, kill_d_fired=false; s1p recovery UB95 = -1.7066246056782335 < 0.30 ceiling, Holm-rejected true; s2p exposure LB95 = 1.0 > 0, Holm-rejected true; descriptive accuracies acc_b0_sout 0.6573426573426573, acc_b1_sout 0.0, acc_b2_sout 1.0, acc_b3_sout 0.0, acc_b5_sout 0.9277389277389277 (R3), acc_c1p_sout 0.0. Coverage restated from the m0b verdict (fraction 0.3542, rung molecules-v0, audit-CONFIRMED source); rungs_measured [R1, R3]; scale_language_licensed none (the frozen ceiling).",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "registry/verdicts/rules-2.json; reports/auto/rules-2/analysis-output.json"
+  },
+  {
+   "id": "ASM-1947",
+   "tag": "MEASURED",
+   "claim": "s4' DEGRADATION GUARD FAILED WITH SIDE-EFFECT FLAG (ASM-1430 consequence, in the registered analysis output): s4p_stated_delta = 0.0 (no stated-cell breach) but s4p_refusal_delta = -0.9933333333333334 vs the point-estimate-better reference arm — B2's refusal correctness on control cells collapses after fine-tuning (refusal_correctness_control: B0 1.0, B1 1.0, B2 0.006666666666666667, B3 0.0, c1p 0.0; B5 1.0) — so s4p_side_effect_flag = TRUE, s4p Holm raw p 0.9948613622476115 not rejected, s4p_pass = false. REGISTERED CONSEQUENCE (frozen endpoint text): the side-effect flag CAPS DEPLOYMENT-SHAPED LANGUAGE without touching the primary — any deployment-shaped claim about the fine-tuned host stays capped until this is addressed; the internalisation primary and the s1'/s2' content/exposure legs are unaffected by construction.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "reports/auto/rules-2/analysis-output.json /analysis/s4p_*; registry/experiments/rules-2.json endpoints sec-s4p-degradation-guard"
+  },
+  {
+   "id": "ASM-1948",
+   "tag": "STIPULATED",
+   "claim": "CLAIM DISCIPLINE RESTATED FOR THIS REGISTRATION (no conclusion is drawn here): the registered readout is MECHANICAL — a rule evaluation over the pinned analysis output — not a feasibility conclusion; interpretation belongs to the downstream interpretation role and the audit. Binding caps that survive the PASS rule: (a) the PERMANENT claim cap (PROPOSED-ASM-1438 as resolved by PROPOSED-ASM-1852) — the knull-analog sibling proved the plain-dictionary rules source derives the byte-identical training corpus on this closed inventory, so ANY rules-2 outcome is 'engine-materialised entailments (derivable from EITHER rules source) are internalisable by a small host', NEVER 'kernel-specific value'; (b) the s4' side-effect cap (ASM-1947) on deployment-shaped language (the fine-tuned host loses trained refusal); (c) the frozen extrapolation envelope verbatim (gold-parse-only, this closed inventory and vertical, LoRA at pinned HPs, proof depth <= 4, entity form at disclosed chance 0.5, scale language 'none'); (d) G-6 — the emitted verdict stays PASS-PENDING-AUDIT until a CONFIRMED non-runner audit lands.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "rationale": "Statistical honesty discipline: registering a mechanical PASS must not smuggle in an interpretive conclusion; the caps are the frozen record's own text, restated so no downstream reader mistakes the verdict object for a claim.",
+   "backing_ref": "registry/experiments/rules-2.json extrapolation_envelope_verbatim + hypotheses; registry/verdicts/rules-2.json audit.state"
+  },
+  {
+   "id": "ASM-1949",
+   "tag": "MEASURED",
+   "claim": "REGISTRY-CHECK PASS after the registration: the full lint suite (chain, frozen-drift, corpus pins, account lint, append-only, claims-check over the register + 165 docs, reuse, kb) passes with the refrozen rules-2 record, the correction record, the new results-log and the verdict object in place. One mechanical follow-up was required and executed: tools/kb/kb-sync-internal regenerated the derived KB internal records (189 written) after the registry object changed (ERR_KB_INTERNAL_STALE resolved); registry-check then reported PASS with zero violations.",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12",
+   "backing_ref": "tools/registry/registry-check.py output (PASS); kb/records/internal/internal_rules-2.json"
+  }
+ ]
+}
