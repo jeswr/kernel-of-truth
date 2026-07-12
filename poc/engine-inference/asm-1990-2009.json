@@ -1,0 +1,185 @@
+{
+ "_readme": [
+  "ENGINE-INF BUILD operationalisation assumption block ASM-1990..2005 (range 1990-2009 reserved; 2006-2009 unused) — EMITTED by the Fable BUILD agent writer-4 (2026-07-12) for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions, build-role constraint).",
+  "Range verified free at emission: max registered id in registry/assumptions.jsonl is ASM-1967; docs/next/design/asm-glm52-1970-1989.json reserves 1970-1989; repo-wide grep for ASM-199[0-9]/ASM-200[0-9] empty before this file.",
+  "Companion design: docs/next/design/engine-inference-under-typing.md (ASM-1950..1967, registered). This block records every place the BUILD fixed a constant/rule the design left to build time, so the coordinator can accept or amend each at freeze. Tags: MEASURED | STIPULATED | EXTRAPOLATION."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-1990",
+   "tag": "STIPULATED",
+   "claim": "BUILD SCOPE AND QUARANTINE: poc/engine-inference/ + data/axioms-engineinf-v0/ + analysis/engine_inference_stdin.py + registry/experiments/engine-inference.json (DRAFT) are built to the frozen-shape of the ENGINE-INF design; the builder does not freeze, run the registered campaign, or conclude. A pre-freeze FULL mechanical execution of the deterministic harness occurred as harness validation (rules-1 certificate precedent: deterministic + pin-gated, a registered re-run reproduces the bytes for $0); its numbers are EXPLORATORY, quarantined, and may not be quoted for or against any registered hypothesis.",
+   "rationale": "The instrument is a $0 CPU pure function; building it without executing it is impossible to validate. The quarantine keeps the freeze-then-run discipline meaningful: the verdict is produced only by verdict-gen over the FROZEN record's registered run.",
+   "backing_ref": "poc/rules-1/certificate.py status block; docs/next/protocol/blocking-pilot-before-freeze.md §1; poc/engine-inference/results/run-result.json status field",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1991",
+   "tag": "STIPULATED",
+   "claim": "ITEM EXTRACTOR RULES (mechanical, deterministic, over pinned WN31 bytes only): (a) examples = quoted strings in synset glosses of the 13 minted + 114 excluded Stage-A synsets; (b) predicate match = longest inflected form of any synset lemma (verb.exc + minimal suffix morphology; noun-lemma concepts match the noun); (c) undergoer = head noun of the post-predicate NP (strip determiners; stop at prepositions/subordinators/pronouns; head = last WN-noun token), else the pre-predicate subject NP (intransitive/passive fallback) when it contains no pronoun; (d) pronoun-owned argument slots EXCLUDE the example (the undergoer is the referent, not a later noun); (e) every exclusion logged with a named reason; PC-5 candidate denominator = examples with a detected predicate and a non-pronoun nominal argument.",
+   "rationale": "The design pre-registers the item shape but not the parse; these rules are simple enough to audit by eye, fail closed on everything else, and yielded 0.978 well-formed-unique-gold on 181 candidates (>= the 0.95 PC-5 floor).",
+   "backing_ref": "poc/engine-inference/engineinf_lib.py parse_example/extract_items; results/exclusions.json",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1992",
+   "tag": "STIPULATED",
+   "claim": "NOUN SENSE + G3 DEFINEDNESS: an argument noun is typed via its most-SemCor-tagged WN31 sense (index.sense tag_cnt; ties and zero tags fall back to sense 1), then hypernym-closed to the physical_entity/abstraction top split (G2); nouns reaching neither or both sides are excluded (logged). The G3 cross-pair anomaly rule is applied only to minted synsets whose OWN attested example-object sides are unanimous; mixed-side synsets are logged and generate no cross-pairs.",
+   "rationale": "Both choices are third-party-frequency-anchored and mechanical; the unanimity restriction keeps constructed-rule gold (the design's disclosed weakest plank) away from senses where its premise is already violated.",
+   "backing_ref": "design §2.1 G2/G3; engineinf_lib.py noun_synset/noun_side/extract_items",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1993",
+   "tag": "MEASURED",
+   "claim": "D-WORD-DOM SIGNATURE, measured: the SemCor-dominant sense is derived from the pinned index.sense (break v-00364717 'interrupt' tag 15; make v-02566500 'engage in' tag 508; find v-02253273 'come upon' tag 159; friend n-10132360 tag 169), and its word-level range = the majority G2 side of the dominant synset's own gloss-example objects (break->C_abst, make->C_abst, find->C_abst, friend->C_abst). NOTE: the design's §1.5 illustration assumed shatter-dominant break (range C_material); the measured dominant is interrupt, so the pi:011 over-derivation runs in the OPPOSITE direction (false conflicts on PHYSICAL break objects). The divergence is measured, not assumed; the seam construction is unaffected.",
+   "rationale": "The strongest committed word-level dictionary must be constructed mechanically from third-party frequency, not from the design's worked example.",
+   "backing_ref": "engineinf_lib.py build_dword_arms; arms/arm-manifest.json dword_dom block; design §1.3 D-word-dom row",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1994",
+   "tag": "STIPULATED",
+   "claim": "DIVERGENCE SIGNATURE: Div(K,b) 'full' compares (verdict, refusal code, G2-side projection of derived undergoer classes) — decision-relevant divergence at gold granularity, not URN vocabulary trivia (K deriving C_words while B-wn derives C_wn-something is an O1 divergence only when their SIDE assertions differ). Decision-level Div (verdict+refusal only) scopes the correctness contrasts. Side projection: material/person/wn-somebody->phys; words/info/happening->abst; wn-something->none.",
+   "rationale": "Arms speak different class vocabularies by construction; comparing raw derived URNs would make Div vacuously large and un-killable (KILL-e2 could never fire), destroying the anti-knull gate's meaning.",
+   "backing_ref": "design §2.3 divergence certificate; engineinf_lib.py row_signature/divergence; analysis/engine_inference_stdin.py",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1995",
+   "tag": "STIPULATED",
+   "claim": "B-WN FRAME TYPING: a synset's object slot = the token immediately after the verb slot in its WN sentence-frame templates (verb.Framestext), counted only when literally 'somebody'/'something'; somebody-only -> range C_wn-somebody, something-only -> C_wn-something, mixed/none -> untyped; C_wn-somebody disjointWith C_wn-something is declared as the frame vocabulary's own two-way slot split. Nouns are wn-kind-typed by whether their hypernym closure reaches person (n-00007846).",
+   "rationale": "This is the strongest typing constructible from WN bytes with zero kernel authoring (the ASM-1956 anti-strawman requirement); the disjointness stipulation gives B-wn real discriminative teeth (it false-flags and true-flags — measured non-degenerate).",
+   "backing_ref": "design §1.3 B-wn row + risk §6.2(2); engineinf_lib.py load_frame_object_slots/build_bwn_arm",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1996",
+   "tag": "STIPULATED",
+   "claim": "K-SHUF DERANGEMENT: domain/range constraint sets rotate by 1 over URN-sorted senses within each lemma (deterministic; subPropertyOf/classDeclaration bulk untouched). DISCLOSED LIMIT: 3 of break's 5 senses share range C_material, so part of the typing assignment is permutation-invariant within lemma — the control destroys all typing content that IS destroyable by within-lemma permutation.",
+   "rationale": "The design mandates derangement 'across senses within lemma' (§1.3/§4.1); invariant material->material fixed points are a property of the kernel's own typing distribution, not of the shuffle.",
+   "backing_ref": "engineinf_lib.py build_kshuf_arm; pilot controls_nondegenerate evidence",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1997",
+   "tag": "STIPULATED",
+   "claim": "G4 SCORING RULE: on excluded-sense (refusal-gold) cells, REFUSE is correct AND vacuous CONSISTENT (no conflict asserted) is correct; ANOMALOUS — a confident category-error assertion against attested third-party usage — is incorrect. Honesty-weighted secondary: correct 0; refusal where gold != REFUSE 0.5; any other wrong 1.0 (penalty form fixed at freeze per design §2.2).",
+   "rationale": "Scoring bare REFUSE as the only correct answer would gift K wins purely for coverage gaps (rigged-for-K); scoring CONSISTENT as wrong would punish broader-coverage arms for covering more. This rule punishes exactly what the design's W3 example punishes: the confident wrong assertion.",
+   "backing_ref": "design §1.5 W3 + §2.2; engineinf_lib.py score()",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1998",
+   "tag": "STIPULATED",
+   "claim": "WORLD ENCODING: each item compiles to rel(anchor, R_arm, undergoer) + stated cls(undergoer, side-class) + cls(undergoer, wn-kind-class); intransitive/passive occurrences put the subject NP in the undergoer slot; the anchor entity carries no class facts (no domain-side scoring at E0). The world compiler is shared byte-identically by all arms; only the relation URN is substituted per arm.",
+   "rationale": "The certified engine types via domain/range over rel facts; a uniform undergoer slot keeps all arms' exposure identical and keeps the compiler trivially auditable.",
+   "backing_ref": "design §1.1 (precomputed cls facts) + §1.4 item shape; engineinf_lib.py neutral_world",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1999",
+   "tag": "STIPULATED",
+   "claim": "PRIMARY FRAME: the registered contrasts are computed on decision-level Div(K,b) RESTRICTED to G1/G3 cells (attested + constructed-anomaly gold); G4 refusal cells feed KILL-e1's full-divergence count and the honesty-weighted secondary ONLY. KILL-e2 threshold applies to the restricted frame |Div_dec(K,B-wn) ∩ (G1∪G3)| < 10.",
+   "rationale": "G4 cells are verdict-divergent for every non-kernel arm by construction (K refuses 156/212 cells where baselines answer); leaving them in the primary frame would dilute the delta denominator with cells where both arms score correct under ASM-1997 — the contrast would be INCONCLUSIVE by construction in either direction. The restriction keeps the primary question exactly the design's: whose CLOSURE is correct where closures diverge and gold is decisive.",
+   "backing_ref": "design §2.3 primary endpoint; analysis/engine_inference_stdin.py is_pri/d_pri",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-2000",
+   "tag": "STIPULATED",
+   "claim": "DELTA LOWER BOUND: the 'exact-binomial LB95 > 0' clause is implemented as delta_lb = (2*CP_LB(wins, m; one-sided alpha=0.05) - 1) * m / n_pri over the discordant pairs m = wins + losses on the primary frame (0 when m = 0) — a conservative bound conditional on the discordant count. Wilson-LB95 uses z = 1.959963984540054 (certificate precedent).",
+   "rationale": "Deterministic outcomes make the per-item contrast a paired 0/1 census; the CP-on-discordant-pairs form is the exact-binomial reading of the design's clause with no distributional assumptions.",
+   "backing_ref": "design §2.3 PASS-affirm clause; analysis/engine_inference_stdin.py clopper_pearson_lb",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-2001",
+   "tag": "MEASURED",
+   "claim": "ITEM CENSUS AT BUILD (resolves ASM-1964's estimate): 212 items over 4 lemmas — 21 attested (G1+G2), 35 constructed cross-pair anomalies (G3), 156 excluded-sense refusal cells (G4); extractor yield 0.978 on 181 candidate occurrences (35 logged exclusions incl. pronoun-argument and side-undetermined); oracle arm 212/212 through the pinned scorer; full 5-arm + oracle double run in ~2 s CPU at $0.",
+   "rationale": "The design's 60-120 estimate is superseded by the extractor's first run, as pre-registered ('resolved by the extractor's first run').",
+   "backing_ref": "poc/engine-inference/results/{items.json,exclusions.json,run-result.json}",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-2002",
+   "tag": "MEASURED",
+   "claim": "BLOCKING PILOT RESULT (instrument-validity only, never campaign evidence): PILOT-PASS-WITH-FLAGS on the 17-item deterministic slice (2 per lemma x kind), mode REAL, $0 — PC-1 pass (all baselines strictly between 0 and 1; refusal caps met); PC-2 pass: |Div(K,D-word-dom)|=16 >= 6 and |Div(K,B-wn)|=14 >= 3 spanning 3 closure ops and >= 2 lemmas (the non-vacuous-divergence existence proof, the anti-knull gate); PC-3 pass: K-shuf differs from K on 5/9 typing-active divergent cells with the predicted signature; D-union not row-identical to D-dom; PC-4 pass: planted range flip changed exactly the predicted cells and nothing else, poisoned-gold canary silent on the real compiler and TRIPPED by the planted gold-reading compiler, kernel-module provenance G2-independent; PC-5 pass: yield 0.978 >= 0.95, oracle 1.0, double-run sha match, B-wn frames available. FLAG: kernel-as-text structurally N/A (no prompt surface exists).",
+   "rationale": "The design's §5 pilot instantiation, executed pre-freeze per protocol ASM-1830/1831; the flag downgrade to PASS-WITH-FLAGS is the protocol-mandated best verdict for this instrument.",
+   "backing_ref": "poc/engine-inference/results/instrpilot-result.json; docs/next/protocol/blocking-pilot-before-freeze.md §2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-2003",
+   "tag": "STIPULATED",
+   "claim": "PC-1 OPERATIONALISATION: the degenerate-arm gate is the WHOLE-SLICE floor (0 < baseline score < 1 per baseline; refusal rate <= 0.5 on non-G4 cells for every arm), with per-baseline divergent-cell scores additionally REPORTED as evidence. D-word-union scoring 0 on its own divergent cells is the structural vacuity of the vacuous comparator (divergence with an untyped arm exists only where K acts), not instrument degeneracy.",
+   "rationale": "A literal divergent-cell-only floor would fail every experiment containing a deliberately vacuous control arm; the design's PC-1 intent is contrast headroom, which the whole-slice floor tests.",
+   "backing_ref": "design §5 PC-1 row; instr_pilot.py PC-1 block",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-2004",
+   "tag": "STIPULATED",
+   "claim": "PC-3 DENOMINATOR: the K-shuf-differs fraction is measured over TYPING-ACTIVE divergent cells (K non-refusing). On refusal cells K-shuf refuses identically to K by construction (the shuffle deranges typing content, not sense coverage), so such cells are shuffle-invariant and cannot discriminate any control.",
+   "rationale": "Without this restriction the pilot measured 5/16 = 0.31 purely because 7 slice divergent cells were refusal cells — a denominator artifact, not a weak control; on typing-active cells the measured fraction is 5/9 = 0.56.",
+   "backing_ref": "instr_pilot.py PC-3 block; first pilot iteration (PILOT-FAIL) vs second (PASS-WITH-FLAGS)",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-2005",
+   "tag": "STIPULATED",
+   "claim": "PC-4 PLANT SELECTION: the planted mistyped axiom targets the FIRST slice-present K-typed sense in item-id order (measured: break.malfunction, range C_material -> C_words), guaranteeing the plant is exercised by the slice; the predicted-changed set is exactly the slice items mapping to that sense.",
+   "rationale": "A fixed plant target (the design's illustrative break.violate) can fall outside a deterministic slice, making the teeth untestable — the first pilot iteration failed exactly this way; slice-aware selection keeps the CF-2-style predicate exact.",
+   "backing_ref": "instr_pilot.py PC-4 block; design §5 PC-4 row",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "writer-4",
+   "date": "2026-07-12"
+  }
+ ]
+}

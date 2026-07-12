@@ -1,0 +1,243 @@
+{
+ "analysis_plan_ref": {
+  "anchor": "\u00a72.2-\u00a72.3 (scoring, divergence certificate, primary endpoint, decision rule) + build block poc/engine-inference/asm-1990-2009.json (ASM-1994/1997/1999/2000 operationalisations)",
+  "path": "docs/next/design/engine-inference-under-typing.md",
+  "sha256": "2f6ee427ce89fe1090d0b655d11251fc53f43ca7e8b10213783a01d7706abc1f"
+ },
+ "budget": {
+  "usd_cap": 2.0
+ },
+ "depends_on": [
+  "rules-1",
+  "rules-2-knull"
+ ],
+ "design": {
+  "arms_mandatory_baselines": [
+   "D-word-dom (word-level dictionary, the pi:011 shape \u2014 matched comparator per the rules-2-knull construction)",
+   "D-word-union (word-level dictionary, cautious/untyped)",
+   "B-wn (best non-kernel source constructible without kernel authoring \u2014 beating only D-word arms licenses at most 'sense-split typing beats word-level typing', never 'kernel-specific value'; ASM-1956)",
+   "K-shuf (mandatory shuffled-kernel control)",
+   "oracle (gold injected through the pinned scorer; scorer-validity arm, PC-5)",
+   "kernel-as-text: structurally NOT-APPLICABLE \u2014 no LLM/host consumer exists anywhere in the instrument, no prompt surface for the text to enter; recorded per blocking-pilot protocol \u00a72 with the flag carried in the pinned pilot artifact (best verdict PILOT-PASS-WITH-FLAGS, ASM-1963)"
+  ],
+  "dependent_vars": [
+   {
+    "better": "higher",
+    "definition": "exact match of the engine verdict {CONSISTENT, ANOMALOUS(ERR_CONFLICT), REFUSE(code)} against the pinned deterministic gold, with the ASM-1997 G4 rule (REFUSE or vacuous-CONSISTENT correct; ANOMALOUS = confident wrong assertion)",
+    "name": "closure_correctness",
+    "unit": "fraction (per-item 0/1 census)"
+   },
+   {
+    "better": "n/a",
+    "definition": "Div(K,b) full-signature and decision-level counts with per-op (O1/O2/O3) and per-lemma composition \u2014 the committed divergence certificate (design \u00a72.3; ASM-1851 re-activation artifact) [better: n/a \u2014 instrument diagnostic]",
+    "name": "divergence_counts",
+    "unit": "items"
+   },
+   {
+    "better": "lower",
+    "definition": "issue-#18-direction secondary separating D-word-dom's confident wrongness from K's fail-closed refusals; penalty form fixed at freeze (ASM-1997)",
+    "name": "honesty_weighted_penalty",
+    "unit": "penalty sum (correct 0 / refusal 0.5 / wrong assertion 1)"
+   }
+  ],
+  "independent_vars": [
+   {
+    "levels": [
+     "K (kernel-v1 Stage-A senses + data/axioms-engineinf-v0 explication-derived hard module)",
+     "K-shuf (mandatory shuffled-kernel control: domain/range deranged within lemma, ASM-1996)",
+     "D-word-dom (plain word-level dictionary, SemCor-dominant-sense signature, ASM-1993)",
+     "D-word-union (plain word-level dictionary, union/LCS signature = untyped)",
+     "B-wn (WordNet-3.1-bytes-only sense-split arm, sentence-frame typing, ASM-1995 \u2014 the kernel-specificity decider)"
+    ],
+    "name": "typing_source"
+   },
+   {
+    "levels": [
+     "attested (G1+G2)",
+     "constructed-anomaly cross-pair (G3)",
+     "excluded-sense refusal (G4)"
+    ],
+    "name": "item_kind"
+   }
+  ],
+  "n_planned": {
+   "anomaly": 35,
+   "arms": 5,
+   "attested": 21,
+   "decisions_incl_double_run": 2544,
+   "items_census": 212,
+   "note": "deterministic engine => no seeds; double-run byte-identity required (certificate discipline)",
+   "oracle_arms": 1,
+   "refusal": 156
+  },
+  "scale_language_max": "none",
+  "scale_rungs": [
+   "e0-cpu-engine (certified rules-1 Python twin, CPU, $0)"
+  ],
+  "seeds": []
+ },
+ "endpoints": [
+  {
+   "id": "primary",
+   "metric": "/analysis/delta_k_minus_bwn_pri",
+   "role": "primary",
+   "smallest_effect_of_interest": {
+    "type": "absolute paired delta in closure-correctness (K minus B-wn) on the primary divergent frame",
+    "value": 0.2
+   },
+   "test": "PRIMARY (kernel-specificity, design \u00a72.3): paired exact contrast K - B-wn closure-correctness on the primary divergent frame Div_dec(K, B-wn) \u2229 (G1\u222aG3) (ASM-1999). Deterministic per-item 0/1 census over the finite WN31-gloss-example item frame; PASS-affirm additionally requires /analysis/k_pri_wilson_lb95 >= 0.80, /analysis/delta_k_minus_bwn_lb95 > 0 (exact-binomial, ASM-2000), K > b on both D-word arms' divergent frames, and /analysis/no_net_harm_ok (convergent-frame correctness within 0.02 of every baseline). Both readings pre-registered in hypotheses H-EI-1/H-EI-2 before any registered byte is scored."
+  },
+  {
+   "id": "sec-wordlevel",
+   "metric": "/analysis/delta_k_minus_dworddom_pri",
+   "role": "secondary",
+   "test": "capped claim ladder (design \u00a72.3): a K win over D-word arms alone licenses at most 'sense-split typing beats word-level typing at this scope' \u2014 never 'kernel-specific value'"
+  },
+  {
+   "id": "sec-honesty",
+   "metric": "/analysis/honesty_penalty_sum",
+   "role": "secondary",
+   "test": "descriptive honesty-weighted score per arm (correct 0 / refusal 0.5 / wrong assertion 1, ASM-1997): separates D-word-dom's confident wrongness from K's fail-closed refusals"
+  },
+  {
+   "id": "sec-control",
+   "metric": "/analysis/kshuf_differs_from_k_frac",
+   "role": "secondary",
+   "test": "shuffled-kernel control activity (descriptive; the binding control gate is pilot PC-3)"
+  }
+ ],
+ "extrapolation_envelope_verbatim": "Every claim is scoped to the Stage-A inventory (11 senses over 4 lemmas, 212 compiled items from WN31 gloss examples) at input grade S: typed closure correctness DOWNSTREAM of third-party sense identification \u2014 in-engine sense identification is the E1 increment and is not claimed. Items are compiled worlds, not parsed text: NO natural-language robustness claim (the l3a parse wall stands), NO host claim, NO deployment claim, NO training-time claim, and NO programme-thesis verdict \u2014 this is one seam made askable. G3 anomaly labels are constructed-rule gold over third-party bytes and are disclosed as such in every claim sentence; the deflationary readings do not depend on G3. Wilson/exact-binomial lower bounds are reported solely for the pre-registered generalization to the Stage-B lemma frame and any such statement must carry the EXTRAPOLATION tag. The envelope licenses nothing beyond these scoped sentences.",
+ "hypotheses": [
+  "H-EI-1 (kernel-win, pre-registered reading): on the primary divergent frame (decision-level Div(K, B-wn) restricted to G1/G3 cells, ASM-1999), the kernel arm's closure-correctness satisfies the PASS-affirm band (K Wilson-LB95 >= 0.80; K - B-wn >= +0.20 with exact-binomial LB95 > 0; K beats both D-word arms; no net harm on the convergent frame). Licensed sentence, scoped: 'On this inventory, where kernel-v1's sense-split typing derives engine closures that matched non-kernel sources do not, the kernel's closures are the correct ones by third-party-derived gold.' This would be the programme's FIRST kernel-specific-value datum (design \u00a73).",
+  "H-EI-2 (no-win, pre-registered D3(b) reframe trigger, verbatim per design \u00a72.3): 'where the kernel's closure diverges from matched non-kernel closures, it is not more correct; the kernel's distinctive contribution remains unlocated; the programme thesis reframes per D3(b) \u2014 grounded content + certified engine, not kernel-specific structure.' Fires on FAIL-deflate (B-wn matches/beats K on the divergent frame, or K < D-word-dom on Div(K, D-word-dom)); KILL-e2 (closures converge, |Div| < 10) is the same deflationary family recorded as 'sense structure suffices; kernel authoring adds no divergent closure here'. An honest, valuable outcome, not an instrument failure.",
+  "H-EI-3 (instrument): the divergence seam is non-vacuous at the operating point \u2014 verified pre-freeze by the blocking pilot PC-2 (|Div(K, D-word-dom)| >= 6 and |Div(K, B-wn)| >= 3 on the pilot slice) and re-checked at campaign scale by KILL-e1."
+ ],
+ "id": "engine-inference",
+ "kill_criterion_verbatim": "KILL-e1 (vacuity; verdict CONSTRUCTION-ANOMALY): |Div_full(K, D-word-dom)| < 25 at the operating point, or the divergent cells span < 3 closure ops or < 3 lemmas \u2014 the instrument cannot ask; no verdict either direction; extend the inventory (Stage-B senses) or accept the question as closed-deflationary at kernel scale. KILL-e2 (convergence-deflation; verdict NULL): |Div_dec(K, B-wn) \u2229 (G1\u222aG3)| < 10 \u2014 the kernel-vs-mechanical-sense-typing question is unaskable at this inventory; recorded as a D3(b) input ('sense structure suffices; kernel authoring adds no divergent closure here'), no affirmative claim. Also binding: a fired PASS or FAIL band is read ONLY through the pre-registered sentences in hypotheses H-EI-1/H-EI-2.",
+ "pins": {
+  "analysis_script": {
+   "output_fields": [
+    "/gates/oracle_score",
+    "/gates/oracle_valid",
+    "/gates/rows_complete",
+    "/gates/instrument_valid",
+    "/analysis/n_items",
+    "/analysis/n_pri_frame",
+    "/analysis/div_full_dworddom_n",
+    "/analysis/div_full_dworddom_ops_n",
+    "/analysis/div_full_dworddom_lemmas_n",
+    "/analysis/div_dec_bwn_n",
+    "/analysis/div_pri_bwn_n",
+    "/analysis/kill_e1_fired",
+    "/analysis/kill_e2_fired",
+    "/analysis/k_pri_correct_n",
+    "/analysis/k_pri_wilson_lb95",
+    "/analysis/delta_k_minus_bwn_pri",
+    "/analysis/delta_k_minus_bwn_lb95",
+    "/analysis/delta_k_minus_dworddom_pri",
+    "/analysis/delta_k_minus_dwordunion_pri",
+    "/analysis/k_on_div_dworddom",
+    "/analysis/dworddom_on_div_dworddom",
+    "/analysis/no_net_harm_ok",
+    "/analysis/band_pass_affirm",
+    "/analysis/band_fail_deflate",
+    "/analysis/kshuf_differs_from_k_frac",
+    "/analysis/census_correctness",
+    "/analysis/honesty_penalty_sum",
+    "/analysis/per_op_divergence_dworddom"
+   ],
+   "path": "analysis/engine_inference_stdin.py",
+   "sha256": "44c9623320f81b2c25686885e11536677e18256ca5d3d1123e7266a2ddb76321"
+  },
+  "artifact_hashes": {
+   "arm-compiler(poc/engine-inference/compile_arms.py)": "addd33f90175ebc8816421d46f48be4f719fd65f9b5ba81b3d583336576a80d4",
+   "arm-manifest(poc/engine-inference/arms/arm-manifest.json)": "f50f557c2e53552c3587942ed81214ac58f05dbecc515ab51c9803390524fe1f",
+   "asm-build-block(poc/engine-inference/asm-1990-2009.json)": "4871366e749bb3a4f17ea1aed47a9070f04f56041feb5d7ea1328529b5ba3e76",
+   "campaign-rows(poc/engine-inference/results/rows.jsonl)": "PINNED-AT-INPUTS: emitted by the frozen runner at the registered X.run; the runner's run-log pins rows_path/rows_sha256 which the pinned stdin analysis re-verifies fail-closed",
+   "campaign-run-result(poc/engine-inference/results/run-result.json)": "PINNED-AT-INPUTS: emitted by the frozen runner at the registered X.run (double-run determinism sha inside)",
+   "engineinf-lib(poc/engine-inference/engineinf_lib.py)": "7c0e3c47fc39af239774b518a98c7e767b9df7cd0a211a6528ae9d604061a0d9",
+   "exclusions(poc/engine-inference/results/exclusions.json)": "6747bda4938d4b6cd15bf143be668093e3b2b36250ff87ffcbf6c1e9a89ea706",
+   "extractor(poc/engine-inference/extract_items.py)": "877bb8d5aa9483146f1f91e9927cf7f002fb37d5185a1aa3f330612a7e4a5059",
+   "gold(poc/engine-inference/results/gold.json)": "eefc98474d19e66f87d01529dbad36322c9b0b9d068751142f37fa8c33470dfa",
+   "items(poc/engine-inference/results/items.json)": "d4fdbd6b13de4e824fe176cd757d7c694185e572e40eaca120c71bfcab5de8bc",
+   "mock-validation(poc/engine-inference/results/mock-validation.json)": "4146fe0ffb298c74796b69287e4369fb0cf2e69d75c62b9d332c9ef63971c469",
+   "mock-validator(poc/engine-inference/mock_validation.py)": "fa66240c5065ad6e49f6ddbdf540b3b4f63632bd50290bdd081fd4a4be3b23d8",
+   "output-fields(poc/engine-inference/output-fields.json)": "8323ad44cea2dd5bcbb10403f5752f85ed946237531f17015ea12603289f9185",
+   "pilot-runner(poc/engine-inference/instr_pilot.py)": "dd54bd7ca1298973cad6c86766baf8d5ec5d4035031785f6a36c8bcdb6e78c67",
+   "runner(poc/engine-inference/engineinf_runner.py)": "c4417cf43c5c3568af93be94e5c0949ae3cbafc5996f8a4ad4a0aa1ada2d8b43",
+   "twin-engine(poc/rules-1/twin_engine.py)": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+  },
+  "blocking_pilot": {
+   "artifact": "poc/engine-inference/results/instrpilot-result.json",
+   "pilot_mock_artifact": "poc/engine-inference/results/mock-validation.json (MOCK mechanics validation incl. the stdin analysis verdict path on synthetic PASS-shaped and DEFLATE-shaped rows; never satisfies the freeze gate)",
+   "role": "PRE-FREEZE GATE (blocking-pilot-before-freeze protocol, ASM-1830/1831; design \u00a75): mode REAL, CPU, $0, 17-item deterministic slice, executed 2026-07-12 BEFORE freeze. PC-1 no-degenerate-arm PASS; PC-2 separation non-vacuous PASS (|Div(K,D-word-dom)|=16, |Div(K,B-wn)|=14, 3 closure ops, >=2 lemmas \u2014 the non-vacuous-divergence existence proof, the anti-knull gate); PC-3 controls non-degenerate PASS (K-shuf differs on 5/9 typing-active divergent cells with the predicted signature; D-union != D-dom); PC-4 gate-teeth PASS (planted range flip fires exactly on predicted cells; poisoned-gold canary silent on the real compiler, tripped by the planted gold-reading compiler; kernel-module provenance G2-independent); PC-5 elicitable-gold PASS (yield 0.978, oracle 1.0, double-run sha match). FLAG kernel_as_text_na (structural, ASM-1963). Pilot numbers are instrument-validity data ONLY, never campaign evidence (ASM-1835).",
+   "sha256": "b0b90a50e98867c325d4551b3e1a89330caa57c062c675091ce8f5e9d25b20df",
+   "verdict": "PILOT-PASS-WITH-FLAGS"
+  },
+  "corpus_hashes": {
+   "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+   "axioms-engineinf-v0": "08e2042157ae8c43800b4ee84de263c10d844defbdf8e7d56bc88f3e189a13f2",
+   "kernel-v1": "371241a3c1685082896ff10211352744bf9ade3ef5fd521d4e564d2be9ad3624",
+   "lexical-wn31": "5e76def82e38221a3b7deb3b39fd60adbd1e87b3b9905dd0055739b47a492799"
+  }
+ },
+ "prereg_doc": {
+  "anchors": [
+   "\u00a71 divergence-seam construction",
+   "\u00a71.3 arms",
+   "\u00a72 deterministic gold + scoring",
+   "\u00a72.3 decision rule verbatim",
+   "\u00a75 blocking pilot instantiation"
+  ],
+  "path": "docs/next/design/engine-inference-under-typing.md",
+  "sha256": "2f6ee427ce89fe1090d0b655d11251fc53f43ca7e8b10213783a01d7706abc1f"
+ },
+ "runner_constraints": {
+  "channel": "DETERMINISTIC CPU only \u2014 no model call, no network, no GPU; worst-case $0 model spend under the $2 cap",
+  "procedure": "verify every pin against the frozen entry fail-closed; --dry-plan first; run poc/engine-inference/engineinf_runner.py; double-run byte-identity required; log rows_path/rows_sha256 in the run record artifacts for the pinned stdin analysis; mechanical verdict-gen only; the builder's pre-freeze exploratory execution (ASM-1990) is quarantined and is NOT the registered run"
+ },
+ "schema_version": "kot-reg/2",
+ "status": "DRAFT",
+ "title": "ENGINE-INF E0 (maintainer issue #26 items D2+D3): engine inference under typing on a deliberately constructed DIVERGENCE SEAM \u2014 on items where kernel-v1's sense-split per-sense typing and matched non-kernel sources (word-level dictionary dominant/union, WordNet-frame mechanical sense typing) derive DIVERGENT closures over the certified RULES-1 deterministic engine, whose closure is correct by third-party-derived gold? Fully deterministic channel: pinned bytes -> certified twin engine -> string-equality scoring; no LLM, no host, no judge anywhere. Simultaneously the programme's first direct test of typing->correct-engine-conclusions AND the first askable kernel-specificity contrast (ASM-1939(a)/ASM-1950); the committed divergence certificate doubles as the ASM-1851 re-activation artifact.",
+ "verdict_rules": [
+  {
+   "verdict": "INSTRUMENT-INVALID",
+   "when": {
+    "a": {
+     "metric": "/gates/instrument_valid"
+    },
+    "op": "not"
+   }
+  },
+  {
+   "verdict": "CONSTRUCTION-ANOMALY",
+   "when": {
+    "metric": "/analysis/kill_e1_fired"
+   }
+  },
+  {
+   "verdict": "NULL",
+   "when": {
+    "metric": "/analysis/kill_e2_fired"
+   }
+  },
+  {
+   "verdict": "PASS",
+   "when": {
+    "metric": "/analysis/band_pass_affirm"
+   }
+  },
+  {
+   "verdict": "FAIL",
+   "when": {
+    "metric": "/analysis/band_fail_deflate"
+   }
+  },
+  {
+   "verdict": "INCONCLUSIVE",
+   "when": {
+    "const": true
+   }
+  }
+ ]
+}

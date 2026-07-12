@@ -1,0 +1,39 @@
+{
+  "audit_attempts": 1,
+  "audit_kind": "GATE-A cross-vendor statistical-integrity pass audit (independent reproduction of the registered primary endpoint and verdict-rule application; directives \u00a78)",
+  "auditor": "auditor-1",
+  "auditor_binding": "cross-vendor auditor identity per docs/kernel-design-directives.md \u00a78: GPT-5.6 via the codex CLI; vendor tag only, no account credential (RT-14)",
+  "auditor_tooling": {
+    "cli": "codex-cli 0.144.1 (npx-pinned @openai/codex@0.144.1 via poc/gpt56-review/run-codex-warm.sh)",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "xhigh",
+    "sandbox": "read-only",
+    "session_id": "019f586b-ffc1-7b10-9dff-53d20cd7d3ea"
+  },
+  "checks": {
+    "analysis_output_pin": "ok",
+    "analysis_script_pin": "ok",
+    "decision_band": "ok",
+    "eligible_selection": "ok",
+    "endpoint_recompute": "ok",
+    "s4_prime_consistency": "ok",
+    "secondary_endpoints_and_gates": "ok",
+    "verdict_rule": "ok"
+  },
+  "codex_raw_excerpt": "{\"checks\":{\"analysis_output_pin\":\"ok\",\"analysis_script_pin\":\"ok\",\"decision_band\":\"ok\",\"eligible_selection\":\"ok\",\"endpoint_recompute\":\"ok\",\"s4_prime_consistency\":\"ok\",\"secondary_endpoints_and_gates\":\"ok\",\"verdict_rule\":\"ok\"},\"experiment\":\"rules-2\",\"matches_verdict_object\":true,\"reasoning\":\"I SHA-256 hashed the analysis script and confirmed 6b47b6349023e67369da64851146460184bab6987f877b1cb59c105cc5927570 against both pins. I selected the 14 original JSONL lines satisfying all four eligibility predicates and confirmed the verdict records 14 eligible runs with an empty exclusion list. I piped those lines to the pinned analysis script, which exited zero after independently validating its input pins. The recomputed LB95 was 0.31585081585081587, giving an exact difference of zero from the verdict endpoint. Every registered secondary endpoint and gate matched the recomputed JSON-pointer value. The recomputed s4p construction equaled Holm rejection AND no side-effect flag and correctly evaluated false. With SESOI 0.05, the recomputation produced primary_pass true, kill_d_fired false, and band pass_lb_above_sesoi. Applying the frozen rules top-down fired rule 2, matching the recorded expression and PASS-PENDING-AUDIT state; the registered output hash was 1c3c2c1ec354dc1e2a48029a887146993bb95d26e7f59425e92c9cf5c5f29913 and its endpoint also matched exactly.\",\"recomputed_endpoint\":0.31585081585081587,\"result\":\"CONFIRM\",\"s4p_detail\":\"The recomputed s4p side-effect flag was true and Holm rejection for s4p was false, so both required legs failed and s4p_pass was correctly false.\"}",
+  "experiment": "rules-2",
+  "independence": "the rules-2 campaign was run and analysed on the Fable/Anthropic side (runner: Fable agents; pinned analysis analysis/rules_2_go_stdin.py); the Gate-A auditor is codex/OpenAI (gpt-5.6-sol) = cross-vendor separation per directives \u00a78; the auditor appears as a runner in no eligible run of results-log/rules-2.jsonl",
+  "matches_verdict_object": true,
+  "outcome": "CONFIRMED",
+  "recomputed_endpoint": {
+    "metric": "/analysis/primary_lift_lb95",
+    "value": 0.31585081585081587
+  },
+  "result": "CONFIRM",
+  "s4p_detail": "The recomputed s4p side-effect flag was true and Holm rejection for s4p was false, so both required legs failed and s4p_pass was correctly false.",
+  "schema_version": "kot-audit/1",
+  "smoke_test": "codex final message opened with the exact requested token KOT-AUDIT-SMOKE-OK before the audit finding",
+  "ts": "2026-07-12T22:25:51Z",
+  "vendor": "openai/gpt-5.6-sol",
+  "verdict_object_audited_sha256": "02979f2b3c57253604a08b05d6e2d2333ff84dc6cd6784d13ab2af74cd0d6cd2"
+}

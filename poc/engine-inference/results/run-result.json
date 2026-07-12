@@ -1,0 +1,95 @@
+{
+ "determinism": {
+  "decision_payload_sha256": "6a2d9561608cd1570c68629c18c3462218c22c9e96ca74ab151e05e8cffd5e6a",
+  "double_run_sha_match": true
+ },
+ "divergence_counts": {
+  "B-wn": {
+   "decision": 189,
+   "full": 202
+  },
+  "D-word-dom": {
+   "decision": 190,
+   "full": 198
+  },
+  "D-word-union": {
+   "decision": 181,
+   "full": 194
+  },
+  "K-shuf": {
+   "decision": 17,
+   "full": 17
+  }
+ },
+ "per_arm": {
+  "B-wn": {
+   "anomalous": 23,
+   "correct": 168,
+   "honesty_penalty_sum": 44.0,
+   "n": 212,
+   "refusals": 0
+  },
+  "D-word-dom": {
+   "anomalous": 97,
+   "correct": 114,
+   "honesty_penalty_sum": 98.0,
+   "n": 212,
+   "refusals": 0
+  },
+  "D-word-union": {
+   "anomalous": 0,
+   "correct": 177,
+   "honesty_penalty_sum": 35.0,
+   "n": 212,
+   "refusals": 0
+  },
+  "K": {
+   "anomalous": 25,
+   "correct": 202,
+   "honesty_penalty_sum": 10.0,
+   "n": 212,
+   "refusals": 156
+  },
+  "K-shuf": {
+   "anomalous": 22,
+   "correct": 185,
+   "honesty_penalty_sum": 27.0,
+   "n": 212,
+   "refusals": 156
+  },
+  "oracle": {
+   "correct": 212,
+   "n": 212
+  }
+ },
+ "pins": {
+  "arm_manifest": "f50f557c2e53552c3587942ed81214ac58f05dbecc515ab51c9803390524fe1f",
+  "divergence_certificate": "a6f80614f1ec58c65079a94b3d7da9abd4c9862108359720209da641f7be0225",
+  "engineinf_lib_py": "7c0e3c47fc39af239774b518a98c7e767b9df7cd0a211a6528ae9d604061a0d9",
+  "engineinf_runner_py": "c4417cf43c5c3568af93be94e5c0949ae3cbafc5996f8a4ad4a0aa1ada2d8b43",
+  "gold_json": "eefc98474d19e66f87d01529dbad36322c9b0b9d068751142f37fa8c33470dfa",
+  "items_json": "d4fdbd6b13de4e824fe176cd757d7c694185e572e40eaca120c71bfcab5de8bc",
+  "module_manifest": "2d7dc3617669aee35688b9bd258946ea9bfe654c2ff48c0979e49a7d07010463",
+  "rows_jsonl": "8a21d5a31b8b114d913c1cffe28f164878331d411b0a38c47b166c4859285154",
+  "twin_engine_py": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+ },
+ "plan": {
+  "arms": [
+   "K",
+   "K-shuf",
+   "D-word-dom",
+   "D-word-union",
+   "B-wn",
+   "oracle"
+  ],
+  "channel": "DETERMINISTIC (pinned bytes -> certified twin engine -> string-equality scoring vs third-party-derived gold); no LLM, no host, no judge, no network",
+  "compute": "CPU-only, single process, nice-appropriate; the rules-1 certificate closed 958 worlds in <2s on this box \u2014 this run is the same order",
+  "decisions": 2544,
+  "experiment": "engine-inference",
+  "items": 212,
+  "worst_case_usd": 0.0
+ },
+ "schema": "kot-engineinf-run/1",
+ "status": "PRE-FREEZE EXPLORATORY execution of the pinned deterministic harness (mock/pilot posture). NO feasibility conclusion is stated; verdicts belong to verdict-gen over the FROZEN record's registered run.",
+ "timing_seconds": 1.798
+}

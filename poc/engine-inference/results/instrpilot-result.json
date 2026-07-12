@@ -1,0 +1,183 @@
+{
+ "asm_block": "ASM-1950..1967 (design) + ASM-1990..2009 (build)",
+ "checks": {
+  "controls_nondegenerate": {
+   "evidence": {
+    "denominator": "typing-active Div(K,D-word-dom) slice cells (K non-refusing) \u2014 refusal cells are shuffle-invariant by construction (ASM-2004)",
+    "div_cells_active_n": 9,
+    "dunion_row_identical_to_ddom": false,
+    "kshuf_differs_frac_of_div_cells": 0.5555555555555556,
+    "kshuf_error_signature_ok": true,
+    "note": "deterministic channel => margins are exact (noise 0)",
+    "replicate_noise": 0.0
+   },
+   "pass": true
+  },
+  "elicitable_gold": {
+   "evidence": {
+    "bwn_frame_typed_relations": 73,
+    "double_run_sha_match": true,
+    "extractor_yield_rate": 0.9779005524861878,
+    "oracle_arm_score": 1.0
+   },
+   "pass": true
+  },
+  "gate_teeth": {
+   "evidence": {
+    "arm_modules_sha_unchanged": "f50f557c2e53552c3587942ed81214ac58f05dbecc515ab51c9803390524fe1f",
+    "kernel_module_provenance_g2_independent": true,
+    "planted_axiom_flip_changed_items": [
+     "ei-break-anomaly-00259551-x-cycle",
+     "ei-break-anomaly-00259551-x-law",
+     "ei-break-attested-00259551-00"
+    ],
+    "planted_axiom_flip_predicted_items": [
+     "ei-break-anomaly-00259551-x-cycle",
+     "ei-break-anomaly-00259551-x-law",
+     "ei-break-attested-00259551-00"
+    ],
+    "planted_fires_exactly": true,
+    "planted_gold_reading_compiler_trips_canary": true,
+    "planted_range_flip": [
+     "urn:kot-engineinf:cls:material",
+     "urn:kot-engineinf:cls:words"
+    ],
+    "planted_sense": "urn:kernel-v1:break.malfunction",
+    "poisoned_gold_canary_silent_on_real_compiler": true
+   },
+   "pass": true
+  },
+  "no_degenerate_arm": {
+   "evidence": {
+    "arm_scores_divergent_cells_reported": {
+     "B-wn": 0.7142857142857143,
+     "D-word-dom": 0.375,
+     "D-word-union": 0.8125,
+     "K": 0.9375,
+     "K-shuf": 0.625
+    },
+    "arm_scores_slice": {
+     "B-wn": 0.7058823529411765,
+     "D-word-dom": 0.35294117647058826,
+     "D-word-union": 0.7647058823529411,
+     "K": 0.8823529411764706,
+     "K-shuf": 0.5882352941176471
+    },
+    "note": "gate = whole-slice floor 0<score<1 per baseline + refusal cap (ASM-2003); K at/near 1.0 is certificate-normal and disclosed, not a failure",
+    "refusal_rates_non_g4": {
+     "B-wn": 0.0,
+     "D-word-dom": 0.0,
+     "D-word-union": 0.0,
+     "K": 0.0,
+     "K-shuf": 0.0
+    }
+   },
+   "pass": true
+  },
+  "separation_nonvacuous": {
+   "evidence": {
+    "div_k_bwn_items": [
+     "ei-break-anomaly-00259551-x-cycle",
+     "ei-break-anomaly-00259551-x-law",
+     "ei-break-attested-00259551-00",
+     "ei-break-attested-00334996-00",
+     "ei-break-refusal-00030456-00",
+     "ei-break-refusal-00030456-01",
+     "ei-find-attested-02290474-00",
+     "ei-find-attested-02290474-01",
+     "ei-find-refusal-00523831-00",
+     "ei-find-refusal-00523831-01",
+     "ei-friend-refusal-09804483-00",
+     "ei-make-anomaly-01649617-x-cake",
+     "ei-make-refusal-00012260-00",
+     "ei-make-refusal-00012260-01"
+    ],
+    "div_k_bwn_n": 14,
+    "div_k_dworddom_items": [
+     "ei-break-anomaly-00259551-x-cycle",
+     "ei-break-anomaly-00259551-x-law",
+     "ei-break-attested-00259551-00",
+     "ei-break-attested-00334996-00",
+     "ei-break-refusal-00030456-00",
+     "ei-break-refusal-00030456-01",
+     "ei-find-attested-02290474-00",
+     "ei-find-attested-02290474-01",
+     "ei-find-refusal-00523831-00",
+     "ei-find-refusal-00523831-01",
+     "ei-friend-refusal-09804483-00",
+     "ei-make-anomaly-01649617-x-cake",
+     "ei-make-attested-01624592-00",
+     "ei-make-attested-01624592-01",
+     "ei-make-refusal-00012260-00",
+     "ei-make-refusal-00012260-01"
+    ],
+    "div_k_dworddom_n": 16,
+    "lemmas_spanned": [
+     "break",
+     "find",
+     "friend",
+     "make"
+    ],
+    "note": "the non-vacuous-divergence existence proof \u2014 the anti-knull gate (ASM-1851/1939(a) lineage)",
+    "ops_spanned": [
+     "O1",
+     "O2",
+     "O3"
+    ]
+   },
+   "pass": true
+  }
+ },
+ "cost": {
+  "usd_cap": 2.0,
+  "worst_case_usd_planned": 0.0
+ },
+ "date": "2026-07-12T00:00:00Z",
+ "determinism_sha256": "314e5568a112e0f5d3612898fbd50604dc42a56b7dc94f80324f8b1bdc1b96ff",
+ "emitted_by": "writer-4",
+ "experiment": "engine-inference",
+ "flags": [
+  {
+   "detail": "mandatory kernel-as-text control is structurally N/A: no LLM/host consumer exists anywhere in the instrument \u2014 no prompt surface for the text to enter (design \u00a71.3/\u00a74.2, ASM-1963); the shuffle + source-projection arms carry the content-vs-structure burden",
+   "name": "kernel_as_text_na"
+  }
+ ],
+ "mode": "REAL",
+ "operating_point": {
+  "description": "certified rules-1 twin engine (Python), 5 arms + oracle, kot-axiom/1 modules, WN31-derived deterministic gold, grade-S items; CPU-only, $0 model spend",
+  "n_pilot": {
+   "decisions": 102,
+   "items": 17
+  },
+  "pins": {
+   "corpus_hashes": {
+    "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
+    "axioms-engineinf-v0": "08e2042157ae8c43800b4ee84de263c10d844defbdf8e7d56bc88f3e189a13f2",
+    "kernel-v1": "371241a3c1685082896ff10211352744bf9ade3ef5fd521d4e564d2be9ad3624",
+    "lexical-wn31": "5e76def82e38221a3b7deb3b39fd60adbd1e87b3b9905dd0055739b47a492799"
+   },
+   "harness_manifest": "b53a3a61697ca66635da2a6c2dab1aa942933efc0c28b9941536ef7caaeb981f"
+  },
+  "seed": null
+ },
+ "records_file": "run-records-instrpilot.jsonl",
+ "records_sha256": "7f678d40f7515889a5ef751f7530717abe7b33c0e73c39480518be1937c82186",
+ "runner": {
+  "path": "poc/engine-inference/instr_pilot.py",
+  "sha256": "dd54bd7ca1298973cad6c86766baf8d5ec5d4035031785f6a36c8bcdb6e78c67"
+ },
+ "schema_version": "kot-pilot/1",
+ "thresholds_predeclared": {
+  "pc1_refusal_cap_non_g4": 0.5,
+  "pc2_min_div_bwn": 3,
+  "pc2_min_div_dworddom": 6,
+  "pc2_min_lemmas": 2,
+  "pc2_min_ops": 2,
+  "pc3_min_kshuf_diff_frac": 0.5,
+  "pc5_min_yield": 0.95,
+  "slice_per_group": 2,
+  "usd_cap_note": "default $2 cap; planned worst case $0 (CPU)"
+ },
+ "verdict": "PILOT-PASS-WITH-FLAGS",
+ "verdict_semantics": "instrument-validity ONLY; never campaign evidence"
+}
