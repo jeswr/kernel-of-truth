@@ -1,0 +1,55 @@
+{
+  "ac1_gate": {
+    "clears": true,
+    "clears_ceiling": true,
+    "independence_ceiling_ac1_at_measured_marginals": 0.6222,
+    "pilot_ac1_a3": 0.6909,
+    "threshold": 0.65
+  },
+  "agreement_table": {
+    "a_no_b_yes": 3,
+    "a_yes_b_no": 6,
+    "both_no": 2,
+    "both_yes": 29,
+    "n": 40,
+    "pA_yes_marginal": 0.875,
+    "pB_yes_marginal": 0.8,
+    "raw_agreement": 0.775
+  },
+  "co_reported_never_gated": {
+    "kappa": 0.1818,
+    "p_neg": 0.3077,
+    "p_pos": 0.8657,
+    "pabak": 0.55
+  },
+  "cost": {
+    "calls_budgeted_dir": 132,
+    "cap": 2.0,
+    "diag_repeats": 5,
+    "usd_bound_at_0.012": 1.644,
+    "usd_expected_at_v1_measured_0.008": "<= 1.10"
+  },
+  "disagreement_driver": "9/40 discordant (6 pA-yes/pB-no, 3 pA-no/pB-yes); 8/9 carry 'Typically' (FrameNet hedge clauses), strata R3=5/R4=4/R1=0 -- same hedged-composite locus as v1, at reduced rate",
+  "labels_status": "instrument evidence only; never scored; frozen record re-runs Stage-P from scratch per pilot discipline",
+  "mechanical_gate_verdict": "FAIL -- channel: hedge-calibration 11/12 < 12 (pilot-status.json; pilot-only assembly INSTRUMENT-INVALID per the pinned harness)",
+  "other_channels": {
+    "decisive_pA": "40/40",
+    "decisive_pB": "40/40",
+    "hedgeflip_false_sat_pA": "0/8",
+    "hedgeflip_false_sat_pB": "0/8"
+  },
+  "root_cause_of_cal_miss": "NOT a judge error: pB cal:hedge-6 raw answer was the correct 'no' but the session was rejected content_invalid/tool_use_detected because claude.ai MCP connector tools (Gmail, 30 tools) leaked into the headless session init, violating the pinned tools==[] contract; 1/62 pB sessions affected; 5/5 diagnostic stateless repeats (hedge6-repeats-pB.json) were clean, valid, correct; the cal block has no content-retry (asymmetric with process_item MAX_CONTENT=3)",
+  "run": "pilot-20260712-ac1 (Stage-P AC1 pilot, coordinator-directed instrument validation, record DRAFT pre-freeze)",
+  "semantic_calibration": "12/12 judges answered every hedge-cal item correctly where any answer was extracted (incl. the rejected call's raw answer); repaired cal:hedge-1 passed on both judges in preflight AND pilot",
+  "vs_exploratory_20260712": {
+    "ac1": [
+      0.578,
+      0.6909
+    ],
+    "note": "kappa 0.182 at 77.5% raw agreement re-confirms the Feinstein-Cicchetti prevalence collapse at pi~0.84; AC1 gated, kappa co-reported only",
+    "raw_agreement": [
+      0.7,
+      0.775
+    ]
+  }
+}
