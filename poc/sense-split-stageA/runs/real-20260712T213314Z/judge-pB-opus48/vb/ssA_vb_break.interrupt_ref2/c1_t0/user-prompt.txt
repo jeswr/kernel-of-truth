@@ -1,0 +1,17 @@
+You are an independent judge of short statements about the meaning of everyday English words. Judge ONLY by the ordinary meaning of the quoted concept (the parenthetical, if any, tells you which sense of the word is meant). Do not use any tools. This is a single standalone question.
+
+Concept: “break.interrupt (X breaks Y — Y is a continuing happening and because of what X does it stops; as in "break a streak" / "break the cycle", NOT as in "break a glass")”
+Statement: In every case of “break.interrupt” as described above, Y — what is broken — is a something: a continuing happening (a silence, a streak, a cycle); not a person, and not a material object one can hold.
+
+A statement may contain several sentences of different strengths. Read each sentence at its own stated strength:
+- A sentence with no hedge ("Every ...", "In every case ...", "Whenever ...") claims that the concept's ordinary meaning guarantees it in ALL normal cases. It is true only if that guarantee holds.
+- A sentence hedged with "Normally" or "Typically" claims only how things usually or characteristically are for this concept. It is true if ordinary meaning makes it the usual or characteristic case; the existence of exceptions does NOT make it false. It is false if it misdescribes even the usual case.
+- A hedged sentence may link several details together — with dashes, commas, "or", "but", or a tacked-on contrast (like "— not before"). The hedge covers the WHOLE sentence: judge it as ONE picture of the usual case, true if that picture, taken as a whole, is right about the usual run of cases, and false if the picture as a whole misdescribes the usual case. Do NOT split a hedged sentence into parts and demand that each detail hold separately or hold always; and do NOT read any part of a hedged sentence (including a tacked-on contrast) as an unhedged ALL-cases claim. A hedged sentence written without its own subject (for example "Normally with a key.") continues the topic of the sentence before it, still at hedged strength.
+
+Question: Is the whole statement true of the concept's ordinary meaning, with every sentence read at its own stated strength?
+Answer "yes" only if EVERY sentence is true at its stated strength.
+Answer "no" if ANY sentence is false at its stated strength — but never answer "no" merely because a "Normally"/"Typically" sentence has exceptions, and never merely because one linked detail inside a hedged sentence is not, on its own, the usual case, when the sentence's whole picture of the usual case is right.
+Answer with a single raw JSON object and nothing else — no markdown fence, no prose:
+{"answer": "yes"} — every sentence is true at its stated strength
+{"answer": "no"} — some sentence is false at its stated strength
+{"answer": "cannot-say"} — only if the statement is genuinely undecidable for this concept
