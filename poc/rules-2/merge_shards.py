@@ -3,7 +3,7 @@
 standing parallel-launch directive; PROPOSED-ASM-1459 merge protocol).
 
 The RULES-2 campaign runs as INDEPENDENT Modal jobs (one per FT arm x seed
-x rung; one per B4 seed; one per eval-only arm) so that no single job
+x rung; one per eval-only arm; B4 STRUCK per issue #24 (C)) so that no single job
 approaches the 12 h Modal function timeout and jobs can run concurrently
 across containers and across Modal accounts. Each job writes
 run-records-rules2-<tag>[-mock].jsonl + results-rules2-<tag>[-mock].json
@@ -45,9 +45,9 @@ import json
 import os
 
 ARM_ORDER = {a: i for i, a in enumerate(
-    ("B0", "B1", "B2", "B3", "B4", "B5", "c1p"))}
+    ("B0", "B1", "B2", "B3", "B5", "c1p"))}  # B4 STRUCK (issue #24 (C))
 CELL_ORDER = {c: i for i, c in enumerate(
-    ("entailed", "entailed2", "control", "s_mem", "s_held", "stated",
+    ("entailed", "control", "s_mem", "s_held", "stated",
      "refusal_train", "timeout"))}
 
 # results fields that MUST be byte-identical across every shard
@@ -55,7 +55,7 @@ INVARIANT_FIELDS = (
     "experiment", "mode", "outcome", "outcome_note", "device",
     "gpu_class_assumed_for_usd", "n_sout_covered", "n_sout_control",
     "strata_eval_counts", "usd_per_hour_table",
-    "sout_prompt_surface_sha256", "gap2_prompt_surface_sha256",
+    "sout_prompt_surface_sha256",
     "prompt_surface_note", "efficiency_constants", "pins", "pins_verified",
     "certificate_precondition", "c8_gate", "corpus_manifest_mode",
     "canonical_first_seed", "ft_seeds_design", "repeat_note",
@@ -138,7 +138,7 @@ def main():
     all_rows.sort(key=row_key)
 
     # 3) coverage: per FT arm/rung, seeds == design; canonical-seed strata +
-    #    repeat present (B4 exempt from repeat per PROPOSED-ASM-1450)
+    #    repeat present
     design_seeds = set(res0["ft_seeds_design"])
     canon = res0["canonical_first_seed"]
     by_arm_rung = {}

@@ -23,14 +23,15 @@ run; ANY change to a staged byte after that requires a correction record.
     python3 poc/rules-2/modal/modal_rules2.py --print-jobs        # shard plan, $0
     .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --dry-plan          # cost plan, $0, local
     .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --mock              # transport smoke, ~pennies
-    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g          # DEFAULT R1 tier (all 17 shards, parallel)
+    .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g          # DEFAULT R1 tier (all 14 shards, parallel)
     .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g --jobs b2-r1-s1,b2-r1-s2   # subset (multi-account split)
     .venv/bin/modal run poc/rules-2/modal/modal_rules2.py --gpu a10g --rungs R2 --authorize-r2  # R2 tier (second launch)
 
 SHARDED PARALLEL LAUNCH (REWORK-2, review item 9 + the standing
 parallel-launch directive): the campaign is a set of INDEPENDENT jobs —
-one per (FT arm x seed), one per B4 seed, one per eval-only arm (see
---print-jobs) — spawned CONCURRENTLY as separate Modal function calls.
+one per (FT arm x seed), one per eval-only arm (see --print-jobs; B4 is
+STRUCK per the maintainer's issue #24 decision (C) + the blocking pilot's
+IP-4 vacuity flag) — spawned CONCURRENTLY as separate Modal function calls.
 No single job approaches the 12 h function timeout (worst ~1.3 h planned).
 --jobs runs a named subset, so the shard set can be split across Modal
 accounts/workspaces; every shard ships its own results directory and
@@ -41,14 +42,14 @@ LAUNCH GATES — ENFORCED PROGRAMMATICALLY by _launch_gates() (fail-closed;
 review item 9 replaced the old advisory reminder), full path only:
   1. registry/experiments/rules-2.json status FROZEN and the staged-bytes
      manifest sha recorded in its pins.harness_manifest;
-  2. sequencing (PROPOSED-ASM-1420 as corrected by PROPOSED-ASM-1807,
-     REWORK-3): registry/verdicts/rules-1-c.json exists with verdict PASS
-     (rules-1-b was superseded pre-GPU by rules-1-c 2026-07-12 — a
-     rules-1-b verdict will never exist; the landed rules-1-c rows PREDICT
-     INSTRUMENT-INVALID, so expect this gate to hold GPU until the
-     maintainer's issue #24 slot decision re-registers it; KILL-b there
-     additionally requires explicit maintainer re-authorization, s3'
-     struck);
+  2. sequencing (PROPOSED-ASM-1420/1807 as RE-REGISTERED by the
+     maintainer's issue #24 decision (C), PROPOSED-ASM-1847): the
+     rules-1-c mechanical readout must EXIST
+     (registry/verdicts/rules-1-c.json) AND the frozen rules-2 record must
+     carry the sequencing_gate re-registration block citing issue #24 (C)
+     — the landed rules-1-c verdict is INSTRUMENT-INVALID and decision (C)
+     designates rules-2 (train-time internalisation, B4/s3' struck) as the
+     host-integration slot's replacement instrument;
   3. a green pinned mock artifact (poc/rules-2/results/mock-validation.json)
      whose harness sha matches the staged bytes;
   4. --dry-plan green for the requested tier (registry usd_cap $18 /
@@ -113,7 +114,7 @@ REMOTE_OUT = "/tmp/rules2-results"
 HF_CACHE_MOUNT = "/root/.cache/huggingface"
 TIMEOUT_S = 12 * 3600
 GPU_CHOICES = ("T4", "A10G", "A100")
-DEFAULT_ARMS = "B0,B1,B2,B3,B4,B5,c1p"
+DEFAULT_ARMS = "B0,B1,B2,B3,B5,c1p"  # B4 STRUCK (issue #24 (C))
 
 
 def _image_pins() -> list:
@@ -183,7 +184,7 @@ def _local_manifest() -> dict:
 
 def build_jobs(rungs: str) -> list:
     """The canonical shard set (rules2-manifest.json sharded_launch): one
-    job per (FT arm x seed x rung), one per B4 seed, one per eval-only arm.
+    job per (FT arm x seed x rung), one per eval-only arm (B4 STRUCK).
     Job tags are stable identifiers for --jobs subsetting across accounts."""
     man = json.loads((RULES2_INPUTS / "rules2-manifest.json").read_text())
     dc = man["design_constants_from_design_doc"]
@@ -202,9 +203,6 @@ def build_jobs(rungs: str) -> list:
             jobs.append({"tag": f"b0-{rung.lower()}-s{seed}", "arms": "B0",
                          "rungs": rung, "seeds": str(seed)})
     if "R1" in rung_list:
-        for seed in dc["eval_only_seeds"]["B4"]:
-            jobs.append({"tag": f"b4-s{seed}", "arms": "B4", "rungs": "R1",
-                         "seeds": str(seed)})
         for seed in dc["eval_only_seeds"]["B5"]:
             jobs.append({"tag": f"b5-r3-s{seed}", "arms": "B5",
                          "rungs": "R1", "seeds": str(seed)})
@@ -243,19 +241,21 @@ def _launch_gates(gpu: str, rungs: str, authorize_r2: bool,
                          "issue #24 host-integration slot decision.")
     verdict = json.loads(verdict_path.read_text()).get("verdict")
     if verdict != "PASS":
-        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420/1807): "
-                         "rules-1-c verdict is %r — only PASS opens this "
-                         "gate automatically. The landed rules-1-c rows "
-                         "PREDICT INSTRUMENT-INVALID (vacuous A3 engagement "
-                         "gate, attempts=1 everywhere); under that or ANY "
-                         "non-PASS branch the rules-2 launch requires the "
-                         "maintainer's issue #24 slot decision (rules-1-d "
-                         "repair vs rules-2 as the replacement slot, s3'/B4 "
-                         "fate included) and a record amendment "
-                         "re-registering this gate; KILL-b additionally "
-                         "requires explicit maintainer re-authorization "
-                         "(s3' struck). No spend on any branch without "
-                         "that." % verdict)
+        # PROPOSED-ASM-1420/1807 as amended by PROPOSED-ASM-1847: under any
+        # non-PASS rules-1-c branch the gate opens ONLY via the maintainer's
+        # issue #24 slot decision, carried as a machine-readable
+        # re-registration block in the FROZEN rules-2 record (decision (C):
+        # rules-2, with B4/s3' struck, is the host-integration slot's
+        # replacement instrument).
+        sg = rec.get("sequencing_gate", {})
+        if not (sg.get("reregistered") and "issue #24" in
+                str(sg.get("authority", "")) and sg.get("decision") == "C"):
+            raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420/1807/"
+                             "1847): rules-1-c verdict is %r (non-PASS) and "
+                             "the frozen rules-2 record carries no "
+                             "sequencing_gate re-registration block citing "
+                             "the maintainer's issue #24 decision (C) — no "
+                             "spend on any branch without that." % verdict)
 
     mv_path = RULES2_DIR / "results" / "mock-validation.json"
     if not mv_path.exists():

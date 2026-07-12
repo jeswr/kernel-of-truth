@@ -1,0 +1,98 @@
+{
+ "_readme": [
+  "RULES-1-D paper-design assumption block ASM-1860..1867 — EMITTED by the Fable design role (designer-4, 2026-07-12) for central registration by the coordinator; registry/assumptions.jsonl is NOT touched by this build (same discipline as the 1830..1836 and 1840..1846 blocks).",
+  "Range 1860-1869 verified free at emission time (no ASM-185x/186x reference anywhere in the tree; register max known ASM-1846 via the synthesis-v6 block). 1860-1867 used, 1868-1869 left free.",
+  "Scope: the rules-1-d non-vacuous-verifier PAPER DESIGN (docs/next/design/rules-1-d-nonvacuous-verifier.md), maintainer issue #24 branch (C). NOTHING here is frozen, minted, built, or launched; no feasibility conclusion is stated or implied; the slot decision remains the maintainer's. Every row inherits the rules-1-c INSTRUMENT-INVALID verdict semantics and the programme claim-cap stack verbatim."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1860",
+   "tag": "STIPULATED",
+   "claim": "rules-1-d design identity and status: a PAPER DESIGN for a fourth inference-time verify-retry instrument whose surface is sibling-bridged CLUTRR k=3 kinship items on the measured-working ENTITY form, 3-option in-story forced choice (chance 1/3, disclosed), retry budget k=1 (= n-2), attempt-indexed scoring, surface-matched attempt-0 prompts, and an information-theoretic leak criterion (a rejection removes at most log2(3/2) bits of option-set entropy, asserted fail-closed per feedback line, lexical gold-token guard retained as backstop). Claim carrier H-R1d primary P1 = final-accuracy(A3 informative licensed rejection) minus final-accuracy(c7 uninformative rejection at matched accept/reject oracle and budget); wording rule fixed in advance: 'engine feedback teaches the host' is licensed only by P1; S1 (c7-A1) alone licenses a filtering-only systems sentence. Nothing frozen; prereg operationalisation belongs to the experiment-designer role if and only if the maintainer funds the tranche.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §1, §7; docs/next/analysis/rules1c-instrument-invalid-interpretation.md §6",
+   "rationale": "Fixes the design's identity, surface, primary contrast, and paper-only status so later documents cite one record and the wording cannot drift after outcomes are known.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1861",
+   "tag": "MEASURED",
+   "claim": "CLUTRR k=3 scoping facts, read from the sha-pinned EMNLP release zip (data/clutrr-cache/clutrr-emnlp-release.zip, archive_sha256 b4029f68...) this tick: (1) the CLEAN bundle data_089907f8 contains 5,103 k=3 rows across 321 distinct edge-type combos and ZERO combos composed only of {father, mother} — great-grandparent is not in CLUTRR's 23-relation vocabulary, so pure 3-up chains are never generated and the naive depth-3 great-grandparent route has NO third-party gold. (2) The sibling-bridged route (exactly one {brother,sister} edge plus two {father,mother} edges, target in {grandfather, grandmother}; 16 combos) IS covered with third-party proof_state gold: data_089907f8 245 coverable / 184 gender-competitive items; data_db9b8f04 248 / 186; approx 493 / 370 pre-dedup. Counts are one-shot pre-dedup reads; the builder must re-derive them under pinned code.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §3; data/clutrr-cache/manifest.json",
+   "rationale": "Records the load-bearing item-availability facts (including the dead-on-arrival great-grandparent route) so no successor design re-argues them from memory.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1862",
+   "tag": "DERIVED",
+   "claim": "Non-vacuity arithmetic at the rules-1-d operating point: at n=3 a maximally informative licensed rejection (naming the rejected proposal, never the gold) removes log2(3/2) ~= 0.585 of log2(3) ~= 1.585 bits, leaving genuine residual uncertainty — non-leaking and informative are jointly satisfiable, dissolving the n=2 leak-vacuity dilemma; at k=1 <= n-2 acceptance cannot be reached by exhaustion and a feedback-blind resampler's final-accuracy ceiling is p0 + (1-p0)/2 < 1, so oracle filtering is bounded away from a manufactured PASS; the c7 matched-budget uninformative-rejection arm makes filtered-vs-taught separable, demoting the abstaining c1 from load-bearing separation duty to content-destruction duty. Both degeneracy directions of the interactive arm are gated: never-engages (engagement gate) and always-decides (decisive/oracle-capture flag).",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §1.3, §2; docs/next/analysis/rules1c-instrument-invalid-interpretation.md §1.2, §7",
+   "rationale": "Fixes the arithmetic answer to the three rules-1-c boxes so the design's non-vacuity claim is a stated derivation, not an argued property.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1863",
+   "tag": "DERIVED",
+   "claim": "Rule-LANGUAGE sufficiency: the rules-1-d inventory extension (concepts brother/sister/sibling; axioms brother/sister subPropertyOf sibling, range(brother->man), range(sister->woman), propertyChain(sibling,father->father), propertyChain(sibling,mother->mother)) is expressible entirely in the EXISTING closed rule language — R-CHAIN is length-2 only but the twin engine's fixpoint rebuilds its index over ALL derived rels each pass (twin_engine.py Closure._run), so k=3 derivations compose from len-2 applications (stated sibling edge -> subprop -> shared-parent chain -> existing parent-chain grandparent -> existing coveredBy + gender elimination). NO engine code change, NO new rule kinds, NO encoder ALGORITHM_VERSION bump. The full-sibling shared-parent premise (true in CLUTRR's generator by construction, not in the world) is a policy-regime assumption disclosed on every proof node that uses it, exactly like UNA (ASM-1120) and covering (ASM-1121). Residual engine risks (functional-conflict interaction, derivation-budget growth on 4-entity worlds) are certificate/CF matters, verified not argued.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §3 D2; poc/rules-1/twin_engine.py (R-CHAIN fixpoint comment); poc/rules-1/mint_kinship.py",
+   "rationale": "Separates 'inventory extension' (cheap, minted, endorsable) from 'rule-language extension' (expensive, refused by design) — the cost model of the whole tranche rests on this reading of the pinned engine bytes.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1864",
+   "tag": "STIPULATED",
+   "claim": "Re-certification obligation: the standing RULES-1 CPU certificate (858/858, C_dec stated/entailed 1.0/0.0, KILL-a not fired) is scoped to the 6-property module and the k=2 bank and does NOT carry to the extended inventory. Before any rules-1-d freeze, certificate.py must be re-run in full on the extended module: E3' (the coverable k=3 slice vs third-party CLUTRR gold at Wilson-LB >= 0.98, plus the k=2 858 re-run under the extended TBox with no regression), KILL-a re-execution, E5' refusal controls drawn from the ~305 uncovered k=3 combos, CF-1/2/3 counterfactual gates on the NEW axioms, and the DET double-run sha. The rules-1-d record's ERR_CERT_PRECONDITION pin must point at the NEW certificate-result bytes. Cost $0 (CPU, niced); a certificate failure is an engine finding and a NO-GO, never an instrument to iterate past.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §3 D3, §6.3; poc/rules-1/certificate.py",
+   "rationale": "Prevents the extended-inventory campaign from silently riding the old certificate's authority — the certified-engine premise must be re-earned at the new scope.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1865",
+   "tag": "STIPULATED",
+   "claim": "Blocking-pilot instantiation (protocol ASM-1830..1836, built IN FRONT, cost cap $2, kot-pilot/1 REAL artifact, freeze refuses without it): PC-5 scripted oracle >= 22/24, A7-analog >= 0.85, A5-analog >= 0.60 vs chance 1/3, parse-failure <= 0.05 (host engageability at n=3 over k=3 stories is UNMEASURED and is the make-or-break check); PC-1 A1 within [0.20, 0.85] with bounded refusal; PC-2 A3 attempt-0 rejection rate within [0.10, 0.90] AND attempts>1 on a nonzero fraction of A3 and c7 rows AND A3 not row-identical to c7 or c1; PC-3 c7 attempts distribution row-matched to A3, c1 behaviour on the extended module re-measured and disclosed, every gating statistic clears its degeneracy floor by more than its pilot replicate noise; PC-4 planted violations fire on real item bytes — verifier unit-test REJECTS a hand-simulated planted-distractor proposal via ground (ii) and ACCEPTS gold (killing the rules-1-c URN/word defect class at its exact location), planted gold-naming feedback fires the entropy audit, planted always-accept stub fires the engagement gate, planted always-reject stub fires the decisive flag, and the scripted surface-shortcut bot sits under its pre-declared ceiling while a planted gender-heuristic exploiter fires over it. Thresholds pre-declared before any result is read; pilot rows are never campaign evidence.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §5; docs/next/protocol/blocking-pilot-before-freeze.md §2-§3",
+   "rationale": "Makes every channel that killed the three predecessor instruments an exercised-at-operating-point predicate rather than a design argument, and fixes the exact operating-point checks before anyone sees a number.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1866",
+   "tag": "STIPULATED",
+   "claim": "Attribution controls fixed at design time: (1) c7 (uninformative rejection 'Rejected; answer again.' at the SAME accept/reject oracle, matched retry budget and token cost) is MANDATORY — the primary P1 = A3 - c7 is the only licensed carrier of a feedback-content claim; (2) attempt-0 prompts are surface-matched byte-identical across A1/A3/c7/c1 (pad both or neither), designing the measured +0.171 padding non-neutrality out of every registered contrast; (3) the primary stratum is gender-competitive only (>= 1 distractor sharing the gold's gender, decidable from edge_types at build time); items whose gold is the sole gender-consistent option are a quarantined descriptive stratum; (4) c1 (Sattolo-deranged TBox) is retained for content destruction with its extended-module behaviour re-measured and disclosed either way.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §1.1, §1.3, §1.4, §3 D4; docs/next/analysis/rules1c-instrument-invalid-interpretation.md §4, §1.2 box 3",
+   "rationale": "Encodes the three measured confound lessons (oracle filtering, padding shape, gender shortcut) as structural design constraints rather than post-hoc caveats.",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1867",
+   "tag": "EXTRAPOLATION",
+   "claim": "Cost and risk read (ASSESSMENT, binding on nothing): worst-case tranche total <= $26 GPU (D1-D4 $0; re-certification $0 CPU; pilot <= $2; campaign ~$12-18 cap $20; knull-analog ~$4) plus ~1 week serial agent effort and a fourth freeze cycle; ~370 pre-dedup primary items support SESOI ~0.10 on P1, not 0.05. Pre-committed NO-GO triggers: pilot PC-5/PC-1 failure closes the inference-time slot at this host scale (no rules-1-e); post-dedup primary stratum < 300 items; unbuildable c1 semantics on the extended module; a prior valid rules-2 affirmative; any D3 certificate failure. Recommendation shape: fund at most the $0+$2 tranche now and hold the campaign until both the pilot artifact and the rules-2 readout exist; the modal campaign outcome is a well-instrumented small-or-null P1 with positive S1 — informative about the interface, unlikely to move either thesis — while rules-2 remains the better single spend. Never a premise; load-bearing for nothing.",
+   "backing_ref": "docs/next/design/rules-1-d-nonvacuous-verifier.md §6; docs/next/analysis/correctness-track-instrument-assessment.md §2.2, §4",
+   "rationale": "Makes the design's own honest bet and its kill conditions explicit and falsifiable in advance, so the #24 decision consumes a costed, pre-committed read rather than advocacy.",
+   "load_bearing": false,
+   "resolution_path": "maintainer #24 branch decision; if funded: D3 certificate result -> pilot artifact -> campaign go/no-go against the five triggers; the next synthesis resolves this row against whichever has landed",
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-12"
+  }
+ ]
+}

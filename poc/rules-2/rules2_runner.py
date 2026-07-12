@@ -13,10 +13,9 @@ third-party CLUTRR gold, NO engine anywhere at inference) over the plain
 host — with the memorisation split (S-mem/S-held/S-out, ASM-1436) and the c8
 train-bytes projection gate (ASM-1427) making lookup unable to fake it?
 
-ARMS (design SS2.3; prompt surface REWORKED AGAIN — REWORK-3, 2026-07-12 —
-onto the rules-1-c ENTITY-FORM frame after the rules-1-b relation-word form
-was measured DEAD for unaided hosts and rules-1-c FROZE the entity form,
-frozen_sha256 09b246dc...):
+ARMS (design SS2.3 as amended by Appendix C — GO finalisation under the
+maintainer's issue #24 decision (C), 2026-07-12; prompt surface REWORK-3,
+the rules-1-c ENTITY-FORM frame, frozen_sha256 09b246dc...):
   B0   plain host (R1; optionally R2) — floor + headroom gate.
   B1   LoRA on families 1+3 (stated+refusal, NO entailments, size-matched via
        the pinned b1-upsample list) — exposure control (s2', ASM-1425).
@@ -25,49 +24,39 @@ frozen_sha256 09b246dc...):
        (ASM-1423).
   B3   B2 + one-line proof rendered as a TRAINING-prompt block (rationale
        scaffold; descriptive; MD-R2-4; deviation disclosed in the manifest).
-  B4   RULES-1-C A3 VERBATIM (frozen R1 host + twin-engine verify-retry k=4
-       at inference, ENTITY form) on the identical S-out slice — the
-       gap-closure comparator (s3', ASM-1428). Drivers imported
-       BYTE-IDENTICAL from poc/rules-1/rules1_runner.py (pin-verified,
-       91d780f3... = the rules-1-c bytes); rules-1 trees unmodified.
-       KNOWN INHERITED PROPERTY (PROPOSED-ASM-1808, flagged for the
-       coordinator): the rules-1-c A3 verify-retry channel measured VACUOUS
-       on the landed campaign (every A3 row attempts=1; licensed_rejection
-       abstains unconditionally because it compares the engine's WORD
-       answer through a URN-keyed urn2word lookup, rules1_runner.py:342),
-       so B4 degenerates to attempt-0 rows on the entity surface; s3' is
-       CONDITIONAL on a positive rules-1-c primary and drops out of the
-       Holm family otherwise (ASM-1428) — B4 rows are then descriptive
-       only. Repair belongs to rules-1-d (maintainer issue #24 slot
-       decision), never to this build (frozen bytes are imported, not
-       edited).
   B5   R3 (1.7B) alone on S-out — big-model efficiency comparator.
   c1p  LoRA on the FORCED-FLIP-deranged closure (pinned c1shuf-map; every
        trained family-2 target = the item's other decode option) — content
        control; the lift must collapse (s1', ASM-1426; REWORK-3
        re-operationalisation PROPOSED-ASM-1803, anti-correlated, disclosed).
 
-EVAL SURFACES (REWORK-3 = the rules-1-c ENTITY-FORM contract):
-  (i)  The rules-2 surface: EVERY rules-2 arm (B0/B1/B2/B3/B5/c1p) scores
-       S-out and the corpus strata on BYTE-IDENTICAL prompts (no per-arm
-       padding; the prompt is a pure function of the cell) with a uniform
-       3-OPTION decode: the cell's 2-option anti-echo set (entity NAMES,
-       chance 0.5 disclosed; man/woman for typing cells) + the trained
-       named refusal. Frames are the rules-1-c entity fixes applied
-       identically at train and eval: NO menu/option enumeration anywhere
-       in the prompt (the closed set is enforced by the per-option logprob
-       scorer), direction-explicit entity infill cue rendered from the
-       question's own closed template (relation: 'the {rel} of {a_name}
-       is'; typing: '{e_name} is a'), refusal option scored verbatim after
-       the cue (marked continuation, uniform, disclosed). The shared
-       prompt-surface sha is recorded in the results bytes.
-  (ii) The common 2-option gap surface: for the s3' B2-vs-B4 gap, B2 (all
-       FT seeds) and B0 are ADDITIONALLY scored on the RULES-1-C A1-verbatim
-       entity prompt (rules-1-c frames, per-item 2-option decode, no
-       refusal option, no padding) — the exact attempt-0 surface B4 decodes
-       on — emitted as cell="entailed2" (R1 only). B2/B4 and the
-       (B2-B0)/(B4-B0) gap fraction are scored on THIS common surface,
-       never across surfaces.
+  B4 + the s3' gap leg are STRUCK (issue #24 decision (C) + the blocking
+  instrument pilot's IP-4 flag, PROPOSED-ASM-1818/1847): the imported
+  rules-1-c A3 verify-retry channel is measured VACUOUS at the 2-option
+  entity operating point (attempts=1 everywhere; three instruments
+  consumed, zero valid readings) — the verify-retry question is settled
+  UN-INSTRUMENTABLE at 2-option scale and B4 rows would be attempt-0
+  decoys. The engine-at-inference price column now comes DESCRIPTIVELY
+  from the landed rules-1-c efficiency ledger (cross-campaign, disclosed);
+  B5 remains the in-campaign efficiency comparator. The kernel-vs-plain-
+  dictionary attribution question is carried by the MANDATORY knull-analog
+  sibling campaign (registry/experiments/rules-2-knull.json;
+  poc/rules-2/knull_analog.py $0 CPU byte-equivalence leg EXECUTED —
+  PROPOSED-ASM-1849..1852).
+
+EVAL SURFACE (REWORK-3 = the rules-1-c ENTITY-FORM contract): EVERY arm
+(B0/B1/B2/B3/B5/c1p) scores S-out and the corpus strata on BYTE-IDENTICAL
+prompts (no per-arm padding; the prompt is a pure function of the cell)
+with a uniform 3-OPTION decode: the cell's 2-option anti-echo set (entity
+NAMES, chance 0.5 disclosed; man/woman for typing cells) + the trained
+named refusal. Frames are the rules-1-c entity fixes applied identically
+at train and eval: NO menu/option enumeration anywhere in the prompt (the
+closed set is enforced by the per-option logprob scorer),
+direction-explicit entity infill cue rendered from the question's own
+closed template (relation: 'the {rel} of {a_name} is'; typing: '{e_name}
+is a'), refusal option scored verbatim after the cue (marked continuation,
+uniform, disclosed). The shared prompt-surface sha is recorded in the
+results bytes.
 Strata: S-out covered/control, S-mem, S-held, stated-guard, refusal-guard
 (s4' Herron degradation guard, ASM-1430); per-arm byte-identical in-process
 S-out repeat (G4, ASM-1439). FT seeds {0,1,2}; eval deterministic at
@@ -77,9 +66,11 @@ EFFICIENCY LEDGER (review fix 4): per-cell (arm/rung/seed) wall seconds and
 peak memory (torch.cuda.max_memory_allocated on GPU, reset per cell;
 process peak RSS ru_maxrss on CPU, monotone process-wide — instrument named
 in the row) are recorded in results.eval_ledger / results.training_ledger;
-rows carry tokens_in/flops_formula/attempts/engine_us so the pinned
-analysis can emit per-arm/rung GPU-h, USD, tokens, FLOPs, identical-S-out
-per-query cost, B4 attempts + engine CPU, and the break-even N*.
+rows carry tokens_in/flops_formula/attempts so the pinned analysis can emit
+per-arm/rung GPU-h, USD, tokens, FLOPs and the identical-S-out per-query
+cost. The engine-at-inference price column is carried DESCRIPTIVELY from
+the landed rules-1-c efficiency ledger (B4 struck; cross-campaign,
+disclosed).
 
 FAIL-CLOSED PINS (mock included): kot-corpus-hash/1 on rules2-train +
 nsk1-clutrr + axioms-v0 + axioms-kinship-v1; sha pins on twin_engine.py,
@@ -127,8 +118,8 @@ for p in (_HERE, _RULES1, os.path.join(_ROOT, "poc"),
 #   twin_engine.py / certificate.py — the FROZEN rules-1 engine + world glue
 #   rules1_runner.py — RULES-1-C arm drivers (A3 verify-retry, ENTITY-form
 #                      prompt frames + entity context builder, verbaliser,
-#                      licensed rejections, gold-leak guard) for B4 + the
-#                      gap2 surface; REWORK-3: the imported bytes are the
+#                      licensed rejections, gold-leak guard) for the S-out
+#                      context/eval machinery; REWORK-3: the bytes are the
 #                      rules-1-c bytes (91d780f3..., the frame FROZEN as
 #                      registry/experiments/rules-1-c.json 09b246dc...),
 #                      sha-pinned in rules2-manifest.json — rules-1-b's
@@ -210,9 +201,9 @@ def _import_pinned():
     utcnow = _f2.utcnow
 
 FT_ARMS = ("B1", "B2", "B3", "c1p")
-EVAL_ARMS = ("B0", "B4", "B5")
-ALL_ARMS = ("B0", "B1", "B2", "B3", "B4", "B5", "c1p")
-RUNG_REPO = {"B5": "R3", "B4": "R1"}  # others take the --rungs plan
+EVAL_ARMS = ("B0", "B5")
+ALL_ARMS = ("B0", "B1", "B2", "B3", "B5", "c1p")  # B4 STRUCK (issue #24 (C))
+RUNG_REPO = {"B5": "R3"}  # others take the --rungs plan
 CELL_TIMEOUT_S_DEFAULT = {"A100": 5400.0, "A10G": 5400.0, "T4": 10800.0}
 MAX_GEN_PER_ITEM = 8
 
@@ -464,46 +455,6 @@ def eval_cells(lm, cells, arm, rung, seed, frames, refusal, emitter, guard,
     return hashlib.sha256(blob).hexdigest()
 
 
-def gap2_prompt(ctx, frames1, iid):
-    """The RULES-1-C A1-verbatim ENTITY prompt for one covered item —
-    byte-identical to B4's attempt-0 verify-retry prompt (no padding, no
-    feedback, no derived block): r1.build_prompt on the entity question with
-    the direction-explicit entity cue."""
-    a, _b = ctx["pair"][iid]
-    names = ctx["names"][iid]
-    return r1.build_prompt(frames1, ctx["q_entity"][iid], ctx["stated"][iid],
-                           names, ctx["urn2word"],
-                           a_name=names.get(a, a),
-                           rel_word=ctx["rel_word"][iid])
-
-
-def gap2_cells(lm, arm, seed, items_covered, ctx, frames1, emitter, guard):
-    """REWORK-3 (review fix 1(ii) re-based): the COMMON 2-option gap surface
-    for s3'. B0 and B2 are scored on the RULES-1-C A1-verbatim entity prompt
-    (rules-1-c frames incl. the direction-explicit entity cue, per-item
-    2-option decode over the non-base lexicon surfaces, NO refusal option,
-    no padding, no feedback) — byte-identical to B4's attempt-0 verify-retry
-    prompt — emitted as cell='entailed2', rung R1. The B2/B4 gap and its
-    (B2-B0)/(B4-B0) fraction are computed on THIS surface only."""
-    for it in items_covered:
-        iid = it["item_id"]
-        guard.start_item({"id": iid})
-        prompt = gap2_prompt(ctx, frames1, iid)
-        opts = list(ctx["ent_options"][iid])
-        gold = ctx["ent_gold"][iid]
-        guard.gen()
-        ans, _conf = lm.choose({"id": iid, "cell": "entailed2", "arm": arm},
-                               opts, gold, seed, 0, prompt=prompt)
-        t_in = lm.count_tokens(prompt)
-        t_opts = sum(lm.count_tokens(" %s" % w) for w in opts)
-        emitter.emit(
-            item_id=iid, arm=arm, rung="R1", seed=seed, cell="entailed2",
-            item_correct_ext=int(ans == gold), refused=0,
-            attempts=1, tokens_in=t_in, tokens_out=1,
-            flops_formula=r1.flops_formula(
-                lm, t_in * len(opts) + t_opts))
-
-
 # ---------------------------------------------------------------------------
 # Resource instrument (review fix 4): per-cell wall + peak memory
 # ---------------------------------------------------------------------------
@@ -661,7 +612,7 @@ class StubR2LM:
                 p += (s["c1p_format_bonus"] if self.arm == "c1p"
                       else s["ft_format_bonus"])
             if self.arm in ("B2", "B3") and cell in ("entailed",
-                                                     "entailed2", "s_held"):
+                                                     "s_held"):
                 p += s["ft_content_bonus"]
             if self.arm in ("B2", "B3") and cell == "s_mem":
                 p += s["smem_lookup_bonus"]
@@ -683,12 +634,9 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
              items_control, ctx, gpu, rungs):
     """Char-accurate plan that MIRRORS the execution structure: per FT arm
     3 seeds x (train + full S-out eval), strata + pinned-subsample repeat on
-    the first seed only; all rules-2 arms on the byte-identical unpadded
-    entity surface (3-option decode, REWORK-3); the common 2-option gap
-    surface for B2 (all FT seeds) + B0 on R1; B4 expected-attempt-factor 2
-    (rules-1 planning constant, retained CONSERVATIVELY — the landed
-    rules-1-c rows measured attempts=1 everywhere, PROPOSED-ASM-1808);
-    B5 on R3."""
+    the first seed only; all arms on the byte-identical unpadded entity
+    surface (3-option decode, REWORK-3); B5 on R3. B4 + the gap2 surface
+    are STRUCK (issue #24 (C), Appendix C)."""
     plan = man["planning"]
     hp = man["lora"]
     dc = man["design_constants_from_design_doc"]
@@ -732,11 +680,6 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
     # single Modal function approaches the 12 h timeout and shards can run
     # concurrently (across containers and across accounts). Job walls below
     # are per-shard worst cases; the caps bind on the SUM (same total spend).
-    frames1 = json.load(open(os.path.join(
-        _RULES1, "inputs", "rules1-manifest.json")))["prompt_frames"]
-    b4_tok = sum(len(gap2_prompt(ctx, frames1, it["item_id"])) / cpt * 2
-                 for it in items_covered)
-
     jobs = []  # (job_name, hours)
     for rung in [r for r in ("R1", "R2") if r in rungs]:
         arms_r = dc["ft_arms"] if rung == "R1" else \
@@ -747,19 +690,10 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
                     + sout_tok / tput_e[rung] / 3600.0
                 if si == 0:
                     h += (rep_tok + strata_tok) / tput_e[rung] / 3600.0
-                if arm == "B2" and rung == "R1":
-                    h += b4_tok / tput_e["R1"] / 3600.0  # gap2 cell
                 jobs.append(("%s/%s/seed%d" % (arm, rung, seed), h))
         h0 = (sout_tok + rep_tok + strata_tok) / tput_e[rung] / 3600.0
-        if rung == "R1":
-            h0 += b4_tok / tput_e["R1"] / 3600.0  # B0 gap2 cell
         jobs.append(("B0/%s/seed0" % rung, h0))
-    if "R1" in rungs:  # B4/B5 are R1-tier cells only
-        for seed in dc["eval_only_seeds"]["B4"]:
-            # B4: 2-option entity surface, expected attempt factor 2
-            # (rules-1 planning constant, kept conservatively)
-            jobs.append(("B4/R1/seed%d" % seed,
-                         b4_tok * 2.0 / tput_e["R1"] / 3600.0))
+    if "R1" in rungs:  # B5 is an R1-tier cell only
         jobs.append(("B5/R3/seed0",
                      (sout_tok + rep_tok) / tput_e["R3"] / 3600.0))
 
@@ -778,7 +712,7 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
            {a: "%.1fM" % (t / 1e6) for a, t in train_tok.items()}),
         "eval: S-out %d cells x %d options (entity form, all seeds, byte-"
         "identical prompts across arms) + strata/repeat on first seed only "
-        "+ gap2 common 2-option entity surface (B2 x %d seeds + B0, R1)"
+        "(B4 + gap2 STRUCK, issue #24 (C))"
         % (len(sout), n_opt, len(dc["ft_seeds"])),
         "sharded launch: %d independent jobs; worst single job %s = %.2f h "
         "(Modal function timeout 12 h)" % (len(jobs), max_job[0], max_job[1]),
@@ -817,7 +751,7 @@ def main():
     ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
     ap.add_argument("--gpu-class", default="A10G",
                     choices=["T4", "A10G", "A100"])
-    ap.add_argument("--arms", default="B0,B1,B2,B3,B4,B5,c1p")
+    ap.add_argument("--arms", default="B0,B1,B2,B3,B5,c1p")
     ap.add_argument("--rungs", default="R1",
                     help="R1 (default tier) or R1,R2 (R2 rung = the "
                          "coordinator-authorized second launch; B0/B1/B2 "
@@ -930,20 +864,14 @@ def main():
         pass
     repeat_shas = {}
     training_ledger = {}
-    eval_ledger = {}  # per arm/rung/seed[/gap2]: wall + peak mem (fix 4)
+    eval_ledger = {}  # per arm/rung/seed: wall + peak mem (fix 4)
 
     # REVIEW FIX 1 evidence: the eval prompt is a pure function of the cell
     # (no per-arm padding), so the S-out prompt surface is byte-identical
-    # across every rules-2 arm BY CONSTRUCTION; record its sha once. Same
-    # for the common 2-option gap surface (rules-1-c A1-verbatim entity
-    # frames, REWORK-3).
+    # across every rules-2 arm BY CONSTRUCTION; record its sha once.
     sout_prompt_sha = hashlib.sha256(json.dumps(
         [render_prompt(frames, c["lines"], c["question"])
          for c in sout], separators=(",", ":")).encode()).hexdigest()
-    gap2_prompt_sha = hashlib.sha256(json.dumps(
-        [gap2_prompt(ctx, man1["prompt_frames"], it["item_id"])
-         for it in covered],
-        separators=(",", ":")).encode()).hexdigest()
 
     # G4 repeat subsample: pinned first-N-by-sha S-out covered cells
     rep_n = (man["mock"]["repeat_subsample_n"] if args.mock
@@ -991,66 +919,10 @@ def main():
                ", repeat %s" % repeat_shas[key]["byte_identical"]
                if key in repeat_shas else ""))
 
-    def run_gap2(lm, arm, seed):
-        # common 2-option entity gap surface (review fix 1(ii), REWORK-3);
-        # R1 only
-        key = "%s/R1/seed=%s/gap2" % (arm, seed)
-        guard = CellGuard(key, args.cell_timeout_s, MAX_GEN_PER_ITEM)
-        reset_peak_mem(args.device)
-        try:
-            gap2_cells(lm, arm, seed, covered, ctx, man1["prompt_frames"],
-                       emitter, guard)
-        except CellBudgetExceeded as e:
-            emitter.emit(item_id=str(e.item_id), arm=arm, rung="R1",
-                         seed=seed, cell="timeout", item_correct_ext=0,
-                         refused=0, attempts=0, tokens_in=0, tokens_out=0,
-                         flops_formula=0.0, exit="timeout")
-            raise SystemExit("ERR_CELL_TIMEOUT: %s" % e)
-        ledger_cell(key, guard)
-        log("cell %s done (%.1fs)" % (key, guard.elapsed()))
-
     ft_rungs = {a: (rungs if a in dc["rungs_r2_arms"] else ["R1"])
                 for a in ALL_ARMS}
 
     for arm in arms:
-        if arm == "B4":
-            # RULES-1-C A3 VERBATIM (entity frames + drivers byte-identical;
-            # k=4; REWORK-3 — note the inherited verify-retry vacuity flag,
-            # PROPOSED-ASM-1808: the imported licensed_rejection abstains
-            # unconditionally, so B4 rows are attempt-0 rows in practice)
-            for seed in eval_only_seeds("B4"):
-                lm = (r1.StubRulesLM("R1", {"stub_skill":
-                      man["mock"]["b4_stub"]["stub_skill"],
-                      "stub_injection_bonus":
-                      man["mock"]["b4_stub"]["stub_injection_bonus"],
-                      "stub_feedback_bonus":
-                      man["mock"]["b4_stub"]["stub_feedback_bonus"]})
-                      if args.mock else
-                      r1.Rules1HFLM(man["model_revisions"]["R1"]["repo"],
-                                    man["model_revisions"]["R1"]["revision"],
-                                    args.device))
-                guard = CellGuard("B4/seed=%s" % seed, args.cell_timeout_s,
-                                  MAX_GEN_PER_ITEM)
-                reset_peak_mem(args.device)
-                r1.run_verify_retry_cell(
-                    lm, "B4", man1["prompt_frames"], covered, ctx,
-                    ctx["payload_true"], ctx["tbox_true"],
-                    dc["k_retry_b4"], seed, emitter, guard)
-                ledger_cell("B4/R1/seed=%s" % seed, guard)
-                log("cell B4/seed=%s done (%.1fs)" % (seed, guard.elapsed()))
-            # E5 control cells for B4: engine-decided named refusals (the
-            # rules-1 run_control_cells semantics, emitted under arm=B4)
-            for item in control:
-                pay = ctx["payload_true"][item["item_id"]]
-                refused = int(pay.refusal is not None and pay.answer is None)
-                for seed in eval_only_seeds("B4"):
-                    emitter.emit(item_id=item["item_id"], arm="B4",
-                                 rung="R1", seed=seed, cell="control",
-                                 item_correct_ext=0, refused=refused,
-                                 attempts=0, tokens_in=0, tokens_out=0,
-                                 engine_us=pay.engine_us, flops_formula=0.0,
-                                 refusal_code=pay.refusal or "ERR_NONE_BUG")
-            continue
         if arm == "B5":
             for seed in eval_only_seeds("B5"):
                 lm = (StubR2LM("R3", "B5", man["mock"], refusal) if args.mock
@@ -1074,8 +946,6 @@ def main():
                                  first_seed=(seed
                                              == dc["eval_only_seeds"]
                                              ["B0"][0]))
-                    if rung == "R1":
-                        run_gap2(lm, "B0", seed)
                 continue
             # fine-tune arms
             texts = build_training_texts(arm, corpus, shuf, ups, byid,
@@ -1099,8 +969,6 @@ def main():
                     training_ledger[key] = ledger
                 run_eval_arm(lm, arm, rung, seed,
                              first_seed=(seed == canon_first))
-                if arm == "B2" and rung == "R1":
-                    run_gap2(lm, "B2", seed)
                 if not args.mock:
                     del lm  # free the adapter+base before the next seed
                     import torch
@@ -1148,23 +1016,21 @@ def main():
                        "only",
         "training_ledger": training_ledger,
         "eval_ledger": eval_ledger,
-        "eval_ledger_note": "review fix 4: per arm/rung/seed (and per gap2 "
-                            "cell) wall seconds + peak memory; instrument "
-                            "named per entry; row-level tokens_in/"
-                            "flops_formula/attempts/engine_us carry the "
-                            "rest of the per-arm efficiency vector",
+        "eval_ledger_note": "review fix 4: per arm/rung/seed wall seconds "
+                            "+ peak memory; instrument named per entry; "
+                            "row-level tokens_in/flops_formula/attempts "
+                            "carry the rest of the per-arm efficiency "
+                            "vector",
         "usd_per_hour_table": man["planning"]["usd_per_hour"],
         "sout_prompt_surface_sha256": sout_prompt_sha,
-        "gap2_prompt_surface_sha256": gap2_prompt_sha,
         "prompt_surface_note": "review fix 1 (REWORK-3 entity form): "
                                "S-out prompts are a pure function of the "
                                "cell (no per-arm padding) — byte-identical "
                                "across B0/B1/B2/B3/B5/c1p by construction, "
                                "uniform 3-option decode (2-option anti-echo "
-                               "set + trained refusal, chance 0.5); the s3' "
-                               "gap is scored on the common 2-option "
-                               "rules-1-c entity surface (cell=entailed2 "
-                               "for B0/B2 vs B4)",
+                               "set + trained refusal, chance 0.5). B4 + "
+                               "the s3' gap2 surface are STRUCK (issue #24 "
+                               "decision (C), Appendix C)",
         "efficiency_constants": man["efficiency_ledger_constants"],
         "pins": man["pins"],
         "pins_verified": True,

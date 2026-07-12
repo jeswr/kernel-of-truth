@@ -8,7 +8,7 @@ staged bytes do not match this artifact's harness sha).
 $0 CPU, deterministic mechanics; every number below is MOCK end-to-end and
 NEVER a measurement. Steps (all fail-closed):
   1. monolithic --mock run (all arms, stub LM);
-  2. the SAME campaign as the 13 canonical mock shard jobs
+  2. the SAME campaign as the 10 canonical mock shard jobs
      (--arms/--seeds/--shard-tag) + merge_shards.py;
   3. the pinned analysis on BOTH; assert equality of every field except
      process-measured metrics (wall/RSS/engine-us/USD-derived), which can
@@ -37,7 +37,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.normpath(os.path.join(_HERE, "..", ".."))
 RUNNER = os.path.join(_HERE, "rules2_runner.py")
 MERGER = os.path.join(_HERE, "merge_shards.py")
-ANALYSIS = os.path.join(_ROOT, "analysis", "rules_2.py")
+ANALYSIS = os.path.join(_ROOT, "analysis", "rules_2_go.py")
 WRAPPER = os.path.join(_HERE, "modal", "modal_rules2.py")
 C8 = os.path.join(_HERE, "results", "c8-result.json")
 RECORD = os.path.join(_ROOT, "registry", "experiments", "rules-2.json")
@@ -55,13 +55,12 @@ MEASURED_FIELDS = {
     "per_arm_rung_eval_peak_bytes", "wallClockHours",
 }
 
-MOCK_SHARDS = [
+MOCK_SHARDS = [  # B4 STRUCK (issue #24 (C) + IP-4, PROPOSED-ASM-1847/1848)
     ("B0", "0", "b0-r1-s0"),
     ("B1", "0", "b1-r1-s0"), ("B1", "1", "b1-r1-s1"),
     ("B2", "0", "b2-r1-s0"), ("B2", "1", "b2-r1-s1"),
     ("B3", "0", "b3-r1-s0"), ("B3", "1", "b3-r1-s1"),
     ("c1p", "0", "c1p-r1-s0"), ("c1p", "1", "c1p-r1-s1"),
-    ("B4", "0", "b4-s0"), ("B4", "1", "b4-s1"), ("B4", "2", "b4-s2"),
     ("B5", "0", "b5-r3-s0"),
 ]
 
