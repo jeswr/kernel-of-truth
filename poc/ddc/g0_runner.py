@@ -23,16 +23,23 @@ Two execution stages (cost split; ddc0 budget $5 / 2 GPU-h):
                   inputs.
 
 Probe fixture (data/ddc-probe-fixture-v1/probe-fixture.json, built +
-hash-pinned at T0 by the explicator/ops step; determinism-checked by
-building twice — gate /gates/probe_fixture_deterministic):
+hash-pinned at T0 by poc/ddc/t0/build_kernel_assets.mjs; determinism-
+checked by building twice — gate /gates/probe_fixture_deterministic):
   {"schema": "kot-ddc-probe-fixture/1",
    "determinism": {"sha_run1": <64hex>, "sha_run2": <64hex>},
    "empty_carriers": [4 carrier-only texts],
-   "concepts": [{"id", "class" ("prime"|"kernel-v0"|"molecules-v0"),
+   "concepts": [{"id", "class" ("prime"|"kernel-v0"|
+                 "synthetic-minimal-contrast"),
                  "vector": [d floats]  (canonical kot-enc-Bq/1, D=576),
                  "bag_vector": [d floats] (structure-destroyed),
                  "carriers": [[>=2 seeded render texts] x 4]}],
    "minimal_contrast_pairs": [[id, id], ...]}
+  T0-pinned inventory (PROPOSED-ASM-1790/1792): 119 committed paired
+  concepts (65 primes + 54 kernel-v0; molecules-v0 records carry no
+  explication AST, hence no canonical vector — corpus text only) + 30
+  synthetic single-edit minimal-contrast pairs (60 concepts; committed
+  records contain zero single-edit pairs, detector-verified), the §2.3
+  stratum housed in SEL by the stage_stats intersection below.
 
 MOCK (--mock, $0, stdlib+numpy, no torch, no network): emits SYNTHETIC
 mechanics-only outputs with a PLANTED gradient (12 ridge-CCA layers with

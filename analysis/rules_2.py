@@ -26,14 +26,23 @@ review 2026-07-12 (fixes 3 and 4):
   FIX 4 (efficiency): /analysis/efficiency_ledger emits PER-ARM/RUNG peak
   memory (instrument named), GPU-hours, USD, tokens, FLOPs, the
   identical-S-out per-query cost, B4 attempts + engine CPU, and the
-  break-even N* on the common 23-option surface, from
+  break-even N* on the common 2-option entity surface, from
   results.eval_ledger/training_ledger + row-level fields. NO direction
   presumed (PROPOSED-ASM-1429).
 
-Surfaces (review fix 1): all rules-2 arms score S-out on byte-identical
-prompts with 24-option decode (cell='entailed'); the s3' B2-vs-B4 gap and
-its descriptive fraction are computed ONLY on the common 23-option rules-1
-surface (cell='entailed23' for B0/B2 vs B4's A3 rows).
+Surfaces (review fix 1, re-based by REWORK-3 onto the rules-1-c ENTITY
+form): all rules-2 arms score S-out on byte-identical entity prompts with
+the uniform 3-option decode (per-item 2-option anti-echo set + trained
+refusal; chance 0.5 DISCLOSED; cell='entailed'); the s3' B2-vs-B4 gap and
+its descriptive fraction are computed ONLY on the common 2-option rules-1-c
+entity surface (cell='entailed2' for B0/B2 vs B4's A3 rows).
+REWORK-3 re-derivations at chance 0.5 (PROPOSED-ASM-1805): the registered
+SESOI 0.05 (absolute lift) and KILL-d (LB<=0) carry unchanged — both are
+PAIRED-lift quantities, not absolute accuracies; the G3 headroom ceiling
+0.85 is re-argued for the 0.5 chance floor (expected plain-host floor
+~0.70, the rules-1-c A1 descriptive read; 0.85 sits above the expected
+floor and leaves >= 3x SESOI of measurable headroom below saturation); the
+s1' 0.30 recovery ceiling is a lift RATIO, chance-floor-invariant.
 
 Statistics lineage otherwise verbatim from the frozen rules-1 discipline:
 paired per-item statistic, BCa bootstrap B=10000, one-sided alpha=0.05,
@@ -42,7 +51,7 @@ PRNG seed 20260712, per-item FT-seed-mean pairing, never best-of-seeds
 
 Input:
   --run-records  run-records-rules2.jsonl rows {item_id, arm, rung, seed,
-                 cell in {entailed, entailed23, control, s_mem, s_held,
+                 cell in {entailed, entailed2, control, s_mem, s_held,
                  stated, refusal_train, timeout}, item_correct_ext,
                  refused, attempts, tokens_in, flops_formula, engine_us?}
   --results      results-rules2.json (pins_verified, repeat_shas,
@@ -86,7 +95,7 @@ OUTPUT_FIELDS = [
     "/analysis/acc_b2_sout", "/analysis/acc_b3_sout",
     "/analysis/acc_b4_sout", "/analysis/acc_b5_sout",
     "/analysis/acc_c1p_sout",
-    "/analysis/acc_b0_sout23", "/analysis/acc_b2_sout23",
+    "/analysis/acc_b0_sout2", "/analysis/acc_b2_sout2",
     "/analysis/strata_profile",
     "/analysis/rung_sign_descriptive",
     "/analysis/refusal_correctness_control",
@@ -361,16 +370,16 @@ def build_efficiency_ledger(rows, res):
     el = res.get("eval_ledger", {}) or {}
     mode = res.get("mode")
 
-    def keyparts(k):  # "arm/rung/seed=N[/gap23]" or "arm/rung/ft_seed=N"
+    def keyparts(k):  # "arm/rung/seed=N[/gap2]" or "arm/rung/ft_seed=N"
         p = k.split("/")
-        return p[0], p[1], k.endswith("/gap23")
+        return p[0], p[1], k.endswith("/gap2")
 
     per = {}
 
     def slot(arm, rung):
         return per.setdefault("%s/%s" % (arm, rung), {
             "train": None, "eval": None, "sout_per_query": None,
-            "gap23_per_query": None})
+            "gap2_per_query": None})
 
     # training side (per arm/rung, summed over FT seeds)
     tr_group = {}
@@ -394,7 +403,7 @@ def build_efficiency_ledger(rows, res):
                                     if v.get("mem_instrument")), None),
             "mode": vs[0].get("mode", mode)}
 
-    # eval side (per arm/rung: main-surface cells and gap23 cells separately)
+    # eval side (per arm/rung: main-surface cells and gap2 cells separately)
     ev_group, gap_group = {}, {}
     for k, v in el.items():
         arm, rung, is_gap = keyparts(k)
@@ -434,7 +443,7 @@ def build_efficiency_ledger(rows, res):
             "engine_us_total": sum(eng) if eng else None}
 
     arms_rungs = sorted({(r["arm"], r.get("rung")) for r in rows
-                         if r["cell"] in ("entailed", "entailed23")})
+                         if r["cell"] in ("entailed", "entailed2")})
     for arm, rung in arms_rungs:
         s = slot(arm, rung)
         if (arm, rung) in ev_group:
@@ -452,7 +461,7 @@ def build_efficiency_ledger(rows, res):
                     usd_q = ev["usd"] * share / st["n_query_scorings"]
             st["usd_per_query_flops_share"] = usd_q
             s["sout_per_query"] = st
-        stg = rowstats(arm, rung, "entailed23")
+        stg = rowstats(arm, rung, "entailed2")
         if stg is not None:
             gv = gap_group.get((arm, rung))
             if gv:
@@ -464,9 +473,9 @@ def build_efficiency_ledger(rows, res):
                 stg["peak_mem_bytes_max"] = max(
                     (v.get("peak_mem_bytes") for v in gv
                      if v.get("peak_mem_bytes") is not None), default=None)
-            s["gap23_per_query"] = stg
+            s["gap2_per_query"] = stg
 
-    # B4 inference detail (attempts + engine CPU) on its own 23-opt surface
+    # B4 inference detail (attempts + engine CPU) on its own 2-opt entity surface
     b4 = per.get("B4/R1", {})
     b4_q = b4.get("sout_per_query")
     b4_detail = None
@@ -481,10 +490,10 @@ def build_efficiency_ledger(rows, res):
                 b4_q.get("usd_per_query_flops_share"),
             "k_max": 4}
 
-    # break-even N* on the COMMON 23-option surface (B2 gap23 vs B4),
-    # engine CPU priced separately (microseconds class — disclosed)
+    # break-even N* on the COMMON 2-option entity surface (B2 gap2 vs
+    # B4), engine CPU priced separately (microseconds class — disclosed)
     b2_train = (per.get("B2/R1", {}) or {}).get("train")
-    b2_gap = (per.get("B2/R1", {}) or {}).get("gap23_per_query")
+    b2_gap = (per.get("B2/R1", {}) or {}).get("gap2_per_query")
     train_usd = b2_train.get("usd") if b2_train else None
     b2_q = b2_gap.get("usd_per_query") if b2_gap else None
     b4_uq = b4_q.get("usd_per_query_flops_share") if b4_q else None
@@ -492,7 +501,7 @@ def build_efficiency_ledger(rows, res):
     n_star = (train_usd / saving
               if train_usd is not None and saving and saving > 0 else None)
     break_even = {
-        "surface": "common 23-option (B2 cell=entailed23 vs B4 A3 rows)",
+        "surface": "common 2-option entity (B2 cell=entailed2 vs B4 A3 rows)",
         "training_usd_b2_r1_all_seeds": train_usd,
         "b2_usd_per_query": b2_q,
         "b4_usd_per_query_flops_share": b4_uq,
@@ -520,7 +529,7 @@ def build_efficiency_ledger(rows, res):
                                 "hours x the assumed GPU list rate; per-"
                                 "query USD on the main surface uses flops-"
                                 "share attribution (disclosed formula); "
-                                "gap23 cells carry their own walls so their "
+                                "gap2 cells carry their own walls so their "
                                 "per-query USD is direct.",
     }
 
@@ -550,6 +559,9 @@ def main():
             c8["gate"]["gate_pass"] and
             c8["gate"]["sout_recovered_acc"] <= c8["gate"]["ceiling"]),
         # G3 headroom gate: saturated floor cannot measure a lift
+        # (REWORK-3 re-derivation at chance 0.5, PROPOSED-ASM-1805: expected
+        # plain-host floor ~0.70 on the entity form; 0.85 keeps >= 3x SESOI
+        # of headroom below the ceiling)
         "headroom_valid": (acc(rows, "B0", rung="R1") is not None and
                            acc(rows, "B0", rung="R1") <= 0.85),
         # G4 repeat gate (ASM-1439): every arm's S-out repeat byte-identical
@@ -558,7 +570,7 @@ def main():
     }
 
     ent = lambda arm: collect(rows, arm, "entailed", "R1")
-    ent23 = lambda arm: collect(rows, arm, "entailed23", "R1")
+    ent2 = lambda arm: collect(rows, arm, "entailed2", "R1")
 
     # PRIMARY (ASM-1424 + review fix 3): B2 - B0 on S-out entailed, seed+item
     # bootstrap; registered SESOI 0.05 decision band.
@@ -576,9 +588,9 @@ def main():
     br_s1 = BootRatio(ent("c1p"), ent("B2"), ent("B0"), "s1p_ratio")
     s3p_eval = args.rules1_primary_lb is not None \
         and args.rules1_primary_lb > 0
-    bc_s3 = (BootContrast(ent23("B2"),
+    bc_s3 = (BootContrast(ent2("B2"),
                           collect(rows, "B4", "entailed", "R1"),
-                          "s3p_b2_b4_common23")
+                          "s3p_b2_b4_common2")
              if s3p_eval else None)
 
     # s4' components (ASM-1430): B2 vs the point-estimate-better of B0/B1
@@ -666,17 +678,17 @@ def main():
                      "R2": acc(rows, a, rung="R2")}
                  for a in ("B0", "B1", "B2")}
 
-    # descriptive gap fraction on the COMMON 23-option surface only
+    # descriptive gap fraction on the COMMON 2-option entity surface only
     def seed_mean_acc(d):
         vals = [sum(bs.values()) / len(bs) for bs in d.values()]
         return sum(vals) / len(vals) if vals else None
 
     gap_fraction = None
-    a2_23 = seed_mean_acc(ent23("B2"))
-    a0_23 = seed_mean_acc(ent23("B0"))
-    a4_23 = seed_mean_acc(collect(rows, "B4", "entailed", "R1"))
-    if None not in (a2_23, a0_23, a4_23) and (a4_23 - a0_23):
-        gap_fraction = (a2_23 - a0_23) / (a4_23 - a0_23)
+    a2_g = seed_mean_acc(ent2("B2"))
+    a0_g = seed_mean_acc(ent2("B0"))
+    a4_g = seed_mean_acc(collect(rows, "B4", "entailed", "R1"))
+    if None not in (a2_g, a0_g, a4_g) and (a4_g - a0_g):
+        gap_fraction = (a2_g - a0_g) / (a4_g - a0_g)
 
     seed_var = {}
     for arm in ("B1", "B2", "B3", "c1p"):
@@ -733,8 +745,8 @@ def main():
         "acc_b4_sout": acc(rows, "B4", rung="R1"),
         "acc_b5_sout": acc(rows, "B5", rung="R3"),
         "acc_c1p_sout": acc(rows, "c1p", rung="R1"),
-        "acc_b0_sout23": acc(rows, "B0", cell="entailed23", rung="R1"),
-        "acc_b2_sout23": acc(rows, "B2", cell="entailed23", rung="R1"),
+        "acc_b0_sout2": acc(rows, "B0", cell="entailed2", rung="R1"),
+        "acc_b2_sout2": acc(rows, "B2", cell="entailed2", rung="R1"),
         "strata_profile": strata_profile,
         "rung_sign_descriptive": {
             "values": rung_sign,
@@ -746,8 +758,9 @@ def main():
             ("B0", "B1", "B2", "B3", "B4", "B5", "c1p")},
         "gap_fraction_descriptive": {
             "value": gap_fraction,
-            "surface": "common 23-option surface ONLY (B2/B0 "
-                       "cell=entailed23 vs B4 A3 rows; review fix 1)"},
+            "surface": "common 2-option entity surface ONLY (B2/B0 "
+                       "cell=entailed2 vs B4 A3 rows; review fix 1, "
+                       "REWORK-3)"},
         "b3_minus_b2_descriptive": bc_b3.lb(ALPHA),
         "ft_seed_variance": seed_var,
         "efficiency_ledger": ledger,

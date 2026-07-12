@@ -3,8 +3,17 @@
 
 Design: docs/next/design/rules-2-train-time.md SS2.1/2.2 (PROPOSED-ASM-1421,
 1422, 1427, 1431, 1436, 1437) + the RULES-2 build block PROPOSED-ASM-1440..1459
-(poc/rules-2/asm-1440-1459.json — EMITTED, not registered; this build never
-writes registry/assumptions.jsonl).
+(poc/rules-2/asm-1440-1459.json) + the REWORK-3 block PROPOSED-ASM-1800..
+(poc/rules-2/asm-rework3-1800-1813.json) — EMITTED, not registered; this
+build never writes registry/assumptions.jsonl.
+
+REWORK-3 (2026-07-12): every cell re-rendered on the RULES-1-C ENTITY FORM
+(question 'Who is the <rel> of <base>?' -> object NAME; per-cell 2-option
+anti-echo `options`; chance 0.5 DISCLOSED; typing cells keep man/woman) —
+the relation-word form this corpus previously carried is measured DEAD for
+unaided hosts (docs/next/analysis/rules1b-form-misattribution.md §2). The
+c1' derangement is re-derived as the 2-option FORCED FLIP and c8/c4 are
+re-derived at chance 0.5 (see PROPOSED-ASM-1801/1803/1804).
 
 WHAT THIS DOES (CPU, deterministic, ~$0 — no GPU, no network, no model):
   build   Materialise the closure of the TRAINING default world — world-v0
@@ -17,18 +26,18 @@ WHAT THIS DOES (CPU, deterministic, ~$0 — no GPU, no network, no model):
                                 family 2 entailed {chain E3, cover E1,
                                 typing E2} / family 3 refusal E5; each with
                                 context lines (RULES-1 canonical
-                                verbalisation), question, menu class, answer,
-                                why() proof sidecar (NEVER in B2 training
-                                text; B3 only), regime tag (ASM-1162), proof
-                                depth, split in {train, sheld, dev}
-            c1shuf-map.json     LABEL-derangement of family-2 TRAIN targets
-                                within each menu class (c1', ASM-1426;
+                                verbalisation), ENTITY question, 2-option
+                                anti-echo decode set (`options`), NAME (or
+                                man/woman or refusal) answer, why() proof
+                                sidecar (NEVER in B2 training text; B3
+                                only), regime tag (ASM-1162), proof depth,
+                                split in {train, sheld, dev}
+            c1shuf-map.json     FORCED FLIP of family-2 TRAIN targets to
+                                the item's other decode option (c1' at 2
+                                options, REWORK-3 PROPOSED-ASM-1803;
                                 identical corpus size; per-item assertion
-                                shuffled_answer != original_answer; label
-                                multiset preserved exactly wherever a
-                                multiset-preserving derangement exists —
-                                see build() for the disclosed binary-class
-                                residual rule)
+                                shuffled_answer != original_answer holds by
+                                construction; anti-correlated, disclosed)
             b1-upsample.json    deterministic cyclic repetition list making
                                 |B1| == |B2| (ASM-1425 size matching;
                                 PROPOSED-ASM-1447)
@@ -36,14 +45,16 @@ WHAT THIS DOES (CPU, deterministic, ~$0 — no GPU, no network, no model):
                                 stated_guard / refusal_guard id lists
             manifest.json       counts, seeds, exclusion ledger (NEVER
                                 silent), generator sha, split rules
-  c8      The train-bytes projection (PROPOSED-ASM-1427): the DECONF-A1/GS
-          flat-lookup family applied to the PINNED training corpus — a QA
-          index (question-pair -> trained answer) plus an aligned fact-line
-          index ((subject-name, object-name) -> stated word), NO joins, NO
-          inference. Scores S-out (858 covered nsk1-clutrr, fresh names),
-          S-mem, S-held. GATE G2: S-out recovered accuracy must be <= the
-          pinned ceiling or the split is broken => INSTRUMENT-INVALID before
-          any GPU spend. Also emits the c4 trivial floors (descriptive).
+  c8      The train-bytes projection (PROPOSED-ASM-1427; REWORK-3 entity
+          form PROPOSED-ASM-1804): the DECONF-A1/GS flat-lookup family
+          applied to the PINNED training corpus — a QA index ((base, rel)
+          entity question -> trained NAME) plus an aligned fact-line index
+          ((base-name, relation-word) -> object NAME), NO joins, NO
+          inference. Scores S-out (858 covered nsk1-clutrr, fresh names,
+          ENTITY question), S-mem, S-held. GATE G2: S-out recovered
+          accuracy must be <= the pinned ceiling or the split is broken =>
+          INSTRUMENT-INVALID before any GPU spend. Also emits the c4
+          trivial floors re-derived at chance 0.5 (descriptive).
 
 Usage:
   python3 materialise_closure.py build            # real corpus -> data/rules2-train
@@ -369,7 +380,29 @@ def name_collides(surface_name, forbidden):
 # ---------------------------------------------------------------------------
 # Example materialisation (one component at a time; local closures only —
 # world-v0's planted violations conflict-close their own component and are
-# excluded WITH COUNTS, PROPOSED-ASM-1443)
+# excluded WITH COUNTS, PROPOSED-ASM-1443).
+#
+# REWORK-3 (PROPOSED-ASM-1800..): every cell is re-rendered on the
+# RULES-1-C ENTITY FORM (registry/experiments/rules-1-c.json frozen_sha256
+# 09b246dc..., nsk1 g2b form 2 — the ONE form measured inside the host
+# capability window; the former relation-word form is recorded
+# 'dead-at-floor at every tested host', nsk1-g2d assessment):
+#   relation cells: question 'Who is the <rel> of <base>?', answer = the
+#   object NAME; per-cell 2-option anti-echo decode set carried in the
+#   example's `options` field (both names appear in the cell's context and
+#   exclude the base; chance 0.5, DISCLOSED); trained refusal appended at
+#   decode time => 3-option decode; NO menu enumeration anywhere.
+#   typing cells: unchanged 'Is E a man or a woman?' (already a 2-option
+#   forced choice; chance 0.5).
+# ENTITY-FORM UNIQUENESS (PROPOSED-ASM-1801): 'Who is the grandmother of
+# X?' has TWO true answers in a full 3-generation family, so family-2 chain
+# cells restrict their context to the derivation's STATED SUPPORT (proof
+# leaves + the support entities' gender facts + UNA over the support) —
+# exactly the 3-name two-hop shape of the nsk1-clutrr eval items; the
+# unique-answer property is asserted per cell in the restricted closure
+# (skipped WITH COUNTS otherwise, never silent). Family-1/3 cells keep the
+# full component context (stated mother/father are functional => unique;
+# refusals have no licensed answer by construction).
 # ---------------------------------------------------------------------------
 def component_examples(comp, tbox, cert_mod, Closure, EngineError, vocab4,
                        urn2word, kin_urns, counts):
@@ -400,29 +433,73 @@ def component_examples(comp, tbox, cert_mod, Closure, EngineError, vocab4,
     context = ctx_lines(stated)
     ex, eid = [], [0]
 
-    def emit(family, kind, regime, depth, mclass, ctx, q, ans, proof):
+    def emit(family, kind, regime, depth, mclass, ctx, q, ans, options,
+             proof):
         eid[0] += 1
         ex.append({"id": "r2-%s-%02d" % (comp["id"], eid[0]),
                    "source": comp["source"], "component": comp["id"],
                    "family": family, "kind": kind, "regime": regime,
                    "depth": depth, "menu_class": mclass, "context": ctx,
-                   "question": q, "answer": ans, "proof_sidecar": proof})
+                   "question": q, "answer": ans, "options": options,
+                   "proof_sidecar": proof})
 
-    def q_rel(a, b):
-        return "How is %s related to %s?" % (names[a], names[b])
+    def q_ent(w, a):
+        # RULES-1-C entity question (nsk1 g2b form 2), verbatim template
+        return "Who is the %s of %s?" % (w, names[a])
 
-    # family 1 — stated cells (format exposure)
-    stated_rel_set = set(rel_facts)
+    def unique_object(closure, a, w):
+        """The unique x with ('rel', a, vocab4[w], x) in the closure, or
+        None when 0 or >1 exist (entity-form uniqueness, ASM-1801)."""
+        u = vocab4[w]
+        xs = sorted({f[3] for f in closure.facts()
+                     if f[0] == "rel" and f[1] == a and f[2] == u})
+        return xs[0] if len(xs) == 1 else None
+
+    def sha_pick(tag, eid_str, cands, k=1):
+        """Deterministic sha-ordered pick of k candidates (no RNG state)."""
+        ranked = sorted(cands, key=lambda nm: hashlib.sha256(
+            ("%s|%s|%s" % (tag, eid_str, nm)).encode()).hexdigest())
+        return ranked[:k]
+
+    # family 1 — stated cells (format exposure), full component context.
+    # Entity form: 'Who is the <w> of <s>?' -> names[o]; anti-echo
+    # distractor sha-picked from the component's other surfaces.
     for s, p, o in comp["rels"]:
         try:
             w, why = cl.query_relation(s, o, vocab4)
         except EngineError:
             counts["stated_query_skipped"] += 1
             continue
-        emit(1, "stated", None, 0, "rel23", context, q_rel(s, o), w, None)
+        if unique_object(cl, s, w) != o:
+            counts["entity_ambiguous_skipped"] += 1
+            continue
+        pool = [names[u] for u in comp["entities"] if u not in (s, o)]
+        if not pool:
+            counts["entity_no_distractor_skipped"] += 1
+            continue
+        d = sha_pick("dist", "%s|%s|%s" % (comp["id"], names[s], w), pool)[0]
+        emit(1, "stated", None, 0, "name2", context, q_ent(w, s), names[o],
+             sorted([names[o], d]), None)
 
-    # family 2 / E3 — entailed relation cells (gendered grandparent chains)
-    refusable = []
+    # family 2 / E3 — entailed relation cells (gendered grandparent chains).
+    # Context restricted to the derivation's STATED SUPPORT (ASM-1801):
+    # proof leaves + support gender facts + UNA over the support — the
+    # 3-name two-hop nsk1 item shape; options = {bridge, chain-top}
+    # (anti-echo structural, byte-matching the rules-1-c eval decode).
+    def support_leaves(why):
+        leaves = set()
+
+        def walk(n):
+            if n.get("stated"):
+                leaves.add(tuple(n["fact"]))
+            else:
+                for pr in n["premises"]:
+                    walk(pr)
+        walk(why)
+        return leaves
+
+    stated_rel_set = set(rel_facts)
+    refusable_pairs = []
     for a in comp["entities"]:
         for b in comp["entities"]:
             if a == b or ("rel", a, MOTHER, b) in stated_rel_set \
@@ -432,15 +509,45 @@ def component_examples(comp, tbox, cert_mod, Closure, EngineError, vocab4,
                 w, why = cl.query_relation(a, b, vocab4)
             except EngineError as e:
                 if e.code == "ERR_INSUFFICIENT_PREMISES":
-                    refusable.append((a, b))
+                    refusable_pairs.append((a, b))
                 continue
             if why.get("stated"):
                 continue
-            emit(2, "chain", proof_regime(why), proof_depth(why), "rel23",
-                 context, q_rel(a, b), w, render(why))
+            leaves = support_leaves(why)
+            ents = set()
+            for f in leaves:
+                if f[0] == "rel":
+                    ents.update((f[1], f[3]))
+                elif f[0] == "cls":
+                    ents.add(f[1])
+            if len(ents) != 3:
+                # not the two-hop 3-name shape — no anti-echo bridge option
+                counts["entity_support_not3_skipped"] += 1
+                continue
+            st2 = sorted(f for f in leaves if f[0] == "rel") + \
+                [("cls", u, comp["clss"][u]) for u in sorted(ents)
+                 if u in comp["clss"]] + cert_mod.una(sorted(ents))
+            try:
+                cl2 = Closure(tbox, st2)
+                w2, why2 = cl2.query_relation(a, b, vocab4)
+            except EngineError:
+                counts["entity_support_closure_skipped"] += 1
+                continue
+            if w2 != w:
+                raise SystemExit("ERR_SUPPORT_DRIFT: %s->%s %r != %r in the "
+                                 "support-restricted closure" % (a, b, w2, w))
+            if unique_object(cl2, a, w) != b:
+                counts["entity_ambiguous_skipped"] += 1
+                continue
+            bridge = next(iter(ents - {a, b}))
+            emit(2, "chain", proof_regime(why2), proof_depth(why2), "name2",
+                 ctx_lines(st2), q_ent(w, a), names[b],
+                 sorted([names[b], names[bridge]]), render(why2))
 
     # family 2 / E1 — cover-elimination cells (held-out gendered edge
-    # abstracted to `parent`; certificate.build_e1_cells construction)
+    # abstracted to `parent`; certificate.build_e1_cells construction).
+    # Entity form: 'Who is the <held-gender-word> of <c>?' -> names[held];
+    # options = the two parents (both in context, base excluded).
     parent_urn = kin_urns["parent"]
     mo_of = {s: o for s, p, o in comp["rels"] if p == MOTHER}
     fa_of = {s: o for s, p, o in comp["rels"] if p == FATHER}
@@ -463,11 +570,16 @@ def component_examples(comp, tbox, cert_mod, Closure, EngineError, vocab4,
             if w != gold:
                 raise SystemExit("ERR_E1_GOLD: engine %r != held-out %r"
                                  % (w, gold))
-            emit(2, "cover", proof_regime(why), proof_depth(why), "rel23",
-                 ctx_lines(st2), q_rel(c, held), w, render(why))
+            if unique_object(cl2, c, gold) != held:
+                counts["entity_ambiguous_skipped"] += 1
+                continue
+            emit(2, "cover", proof_regime(why), proof_depth(why), "name2",
+                 ctx_lines(st2), q_ent(gold, c), names[held],
+                 sorted([names[held], names[kept_obj]]), render(why))
 
     # family 2 / E2 — domain/range typing cells (one gender class fact
-    # abstracted away; recovered via range(mother)/range(father))
+    # abstracted away; recovered via range(mother)/range(father)).
+    # Already a 2-option forced choice (chance 0.5) — form unchanged.
     done = set()
     for want_rel, want_word in ((MOTHER, "woman"), (FATHER, "man")):
         for s, p, o in comp["rels"]:
@@ -483,23 +595,42 @@ def component_examples(comp, tbox, cert_mod, Closure, EngineError, vocab4,
             why = cl2.why(fact)
             emit(2, "typing", proof_regime(why), proof_depth(why), "mw2",
                  ctx_lines(st2), "Is %s a man or a woman?" % names[o],
-                 want_word, render(why))
+                 want_word, ["man", "woman"], render(why))
             done.add(o)
             break  # one typing cell per gender per component
 
     # family 3 / E5 — insufficient-premise refusal cells (TRAINED and
-    # SCORED, PROPOSED-ASM-1431); engine refusal asserted per cell
-    for a, b in refusable[:4]:
-        try:
-            cl.query_relation(a, b, vocab4)
-            raise SystemExit("ERR_REFUSAL_CELL: engine answered %s->%s" %
-                             (a, b))
-        except EngineError as e:
-            if e.code != "ERR_INSUFFICIENT_PREMISES":
-                counts["refusal_cell_skipped"] += 1
+    # SCORED, PROPOSED-ASM-1431). Entity form: (base, rel) queries with NO
+    # licensed object anywhere in the component closure ('Who is the
+    # grandmother of <a top-generation person>?'); the pair-refusability
+    # ledger keeps the engine-refusal assertion. Options = two sha-picked
+    # non-base surfaces (the refusal target is appended at decode time).
+    ref_cands = []
+    for a in comp["entities"]:
+        for w in sorted(vocab4):
+            u = vocab4[w]
+            if any(f[0] == "rel" and f[1] == a and f[2] == u
+                   for f in cl.facts()):
                 continue
-        emit(3, "refusal", None, 0, "rel23", context, q_rel(a, b),
-             REFUSAL_ANSWER, None)
+            ref_cands.append((a, w))
+    ref_cands.sort(key=lambda aw: hashlib.sha256(
+        ("ref|%s|%s|%s" % (comp["id"], names[aw[0]], aw[1])).encode())
+        .hexdigest())
+    n_ref = 0
+    for a, w in ref_cands:
+        if n_ref >= 4:
+            break
+        pool = [names[u] for u in comp["entities"] if u != a]
+        if len(pool) < 2:
+            counts["refusal_cell_skipped"] += 1
+            continue
+        opts = sorted(sha_pick("refopt", "%s|%s|%s" % (comp["id"], names[a],
+                                                       w), pool, k=2))
+        emit(3, "refusal", None, 0, "name2", context, q_ent(w, a),
+             REFUSAL_ANSWER, opts, None)
+        n_ref += 1
+    if refusable_pairs and n_ref == 0:
+        counts["refusal_cell_skipped"] += 1
     return ex
 
 
@@ -537,6 +668,10 @@ def build(args):
               "components_engine_error": 0, "stated_query_skipped": 0,
               "e1_cell_skipped": 0, "e2_cell_skipped": 0,
               "refusal_cell_skipped": 0,
+              "entity_ambiguous_skipped": 0,
+              "entity_no_distractor_skipped": 0,
+              "entity_support_not3_skipped": 0,
+              "entity_support_closure_skipped": 0,
               "wv0_name_collision_excluded": 0,
               "wv0_name_collision_excluded_ids": [],
               "wv0_out_of_inventory_records": wv0_excluded}
@@ -569,72 +704,57 @@ def build(args):
                if e["split"] == "train" and e["family"] in (1, 3)]
     sheld = [e for e in examples if e["split"] == "sheld"]
 
-    # c1' LABEL-derangement of family-2 TRAIN targets within menu class
-    # (review fix 2, cross-vendor prereg review 2026-07-12: the former
-    # ITEM-Sattolo permuted items, but distinct items share answers, so
-    # 3,090/11,418 shuffled targets stayed LABEL-correct — the control did
-    # not destroy the content. The control must assert, PER ITEM,
-    # shuffled_answer != original_answer.)
-    #
-    # Construction (deterministic, seed SEED_SHUF): within each menu class,
-    # order the items label-block-contiguous (blocks by descending label
-    # count, seeded shuffle inside each block) and rotate the label sequence
-    # by the largest block size m. This preserves the per-class label
-    # MULTISET (hence token count) exactly and yields ZERO fixed labels
-    # whenever m <= n/2 (rel23: max 2573 of 10126). For a BINARY class with
-    # imbalance d = 2m - n > 0 (mw2: man/woman counts differ) a
-    # multiset-preserving label-derangement is mathematically impossible by
-    # exactly d items; those forced residuals are flipped to the complement
-    # label so the per-item assertion holds for ALL items, and the multiset
-    # delta d is DISCLOSED in c1shuf-map.json and the corpus manifest.
+    # c1' derangement of family-2 TRAIN targets — REWORK-3 re-derivation at
+    # the 2-option ENTITY surface (PROPOSED-ASM-1803; supersedes the rework-2
+    # label-block rotation, which presupposed a shared 23-word label space):
+    # entity targets are PER-ITEM NAMES from the item's own family, so no
+    # cross-item label permutation is well-defined. At exactly 2 candidate
+    # options the ONLY derangement is the FORCED FLIP: every family-2 train
+    # target is replaced by the item's OTHER decode option (the anti-echo
+    # distractor; man<->woman for typing cells). Properties, DISCLOSED:
+    #   * shuffled_answer != original_answer holds for EVERY item BY
+    #     CONSTRUCTION (the rework-1 per-item operative requirement);
+    #   * token cost preserved up to name-length variation (both options
+    #     appear in the item's own context);
+    #   * the control is ANTI-CORRELATED, not merely decorrelated — it
+    #     trains the complement rule ('answer the bridge'), a STRONGER
+    #     content destruction than a shuffle; s1' recovery < 0.30 remains
+    #     the registered test and a negative c1p lift counts as recovery
+    #     ~0, never a pass of the primary;
+    #   * CAVEAT (shortcut coverage, PROPOSED-ASM-1806): because the flip
+    #     teaches 'pick the bridge', a c1p collapse CANNOT separate
+    #     content-driven lift from a learned positional/anti-bridge
+    #     shortcut; that residual confound is a registered DESIGN-OPEN for
+    #     the pre-freeze review gate, argued (not resolved) in the ASM.
     shuf_map, shuf_disclosure = {}, {}
     for mclass in sorted({e["menu_class"] for e in train2}):
         cls_items = sorted((e for e in train2 if e["menu_class"] == mclass),
                            key=lambda e: e["id"])
         if len(cls_items) < 2:
             raise SystemExit("ERR_SHUFFLE: <2 items in class %s" % mclass)
-        by_label = {}
         for e in cls_items:
-            by_label.setdefault(e["answer"], []).append(e["id"])
-        rng = random.Random(SEED_SHUF)
-        blocks = sorted(by_label.items(), key=lambda kv: (-len(kv[1]), kv[0]))
-        ordered_ids, ordered_labels = [], []
-        for label, ids in blocks:
-            ids = list(ids)
-            rng.shuffle(ids)
-            ordered_ids.extend(ids)
-            ordered_labels.extend([label] * len(ids))
-        n, m = len(ordered_ids), len(blocks[0][1])
-        flipped = 0
-        for i, iid in enumerate(ordered_ids):
-            new = ordered_labels[(i + m) % n]
-            if new == ordered_labels[i]:
-                # reachable only when 2m > n, which (given the rotation by
-                # the LARGEST block) can only happen inside the largest
-                # block; a multiset-preserving derangement does not exist
-                # there. Flip to the complement — binary classes only.
-                if len(blocks) != 2:
-                    raise SystemExit("ERR_SHUFFLE: fixed label in non-binary"
-                                     " class %s (bug)" % mclass)
-                new = next(l for l, _ids in blocks
-                           if l != ordered_labels[i])
-                flipped += 1
-            shuf_map[iid] = new
-        # PER-ITEM assertion (the review's operative requirement)
+            opts = e["options"]
+            if len(opts) != 2 or e["answer"] not in opts:
+                raise SystemExit("ERR_SHUFFLE: %s options %r do not contain "
+                                 "the answer exactly once at 2 options"
+                                 % (e["id"], opts))
+            shuf_map[e["id"]] = next(o for o in opts if o != e["answer"])
+        # PER-ITEM assertion (the rework-1 operative requirement)
         orig = {e["id"]: e["answer"] for e in cls_items}
-        bad = [iid for iid in ordered_ids if shuf_map[iid] == orig[iid]]
+        bad = [e["id"] for e in cls_items
+               if shuf_map[e["id"]] == orig[e["id"]]]
         if bad:
             raise SystemExit("ERR_SHUFFLE: %d label-correct target(s) remain"
                              " in class %s (first: %s)"
                              % (len(bad), mclass, bad[0]))
         shuf_disclosure[mclass] = {
-            "n": n, "rotation": m, "flipped_to_complement": flipped,
-            "label_counts": {k: len(v) for k, v in sorted(by_label.items())},
-            "note": ("label multiset preserved exactly" if flipped == 0 else
-                     "binary class with imbalance %d: multiset-preserving "
-                     "derangement impossible; %d forced residual(s) flipped "
-                     "to the complement label (disclosed multiset delta)"
-                     % (flipped, flipped))}
+            "n": len(cls_items), "construction": "forced flip to the other "
+            "2-option decode candidate (entity form; REWORK-3)",
+            "note": "anti-correlated by construction (trains the complement "
+                    "rule); per-item shuffled != original holds for all "
+                    "items; token cost preserved up to name-length "
+                    "variation; shortcut-coverage caveat disclosed "
+                    "(PROPOSED-ASM-1806)"}
 
     # B1 size matching (ASM-1425 / PROPOSED-ASM-1447): deterministic cyclic
     # repetition of stated+refusal train ids until |B1| == |B2|
@@ -664,14 +784,15 @@ def build(args):
             f.write(json.dumps(e, sort_keys=True) + "\n")
     for name, obj in (("c1shuf-map.json",
                        {"seed": SEED_SHUF, "algorithm":
-                        "LABEL-derangement of family-2 TRAIN targets within "
-                        "each menu class (PROPOSED-ASM-1426/1448, reworked "
-                        "per cross-vendor prereg review fix 2): label-block-"
-                        "contiguous ordering + rotation by the largest block"
-                        " — shuffled_answer != original_answer asserted for "
-                        "EVERY item; label multiset (hence token count) "
-                        "preserved exactly except the disclosed binary-class"
-                        " residual flips",
+                        "FORCED FLIP of family-2 TRAIN targets to the "
+                        "item's other 2-option decode candidate "
+                        "(PROPOSED-ASM-1803, REWORK-3 entity form; "
+                        "supersedes the rework-2 label-block rotation — no "
+                        "cross-item label space exists for per-item NAME "
+                        "targets; deterministic, seed retained for "
+                        "provenance only) — shuffled_answer != "
+                        "original_answer holds for EVERY item by "
+                        "construction; ANTI-CORRELATED control, disclosed",
                         "assertion": "shuffled_answer != original_answer "
                                      "holds for all mapped items (fail-"
                                      "closed ERR_SHUFFLE otherwise)",
@@ -693,7 +814,22 @@ def build(args):
     manifest = {
         "corpus": "rules2-train",
         "mode": "MOCK" if args.mock else "REAL",
-        "design": "docs/next/design/rules-2-train-time.md SS2.1/2.2",
+        "design": "docs/next/design/rules-2-train-time.md SS2.1/2.2 as "
+                  "amended by Appendix B (REWORK-3: rules-1-c ENTITY-form "
+                  "re-render; PROPOSED-ASM-1800..)",
+        "answer_form": "entity (rules-1-c / nsk1 g2b form 2): 'Who is the "
+                       "<rel> of <base>?' -> object NAME; per-cell 2-option "
+                       "anti-echo decode set in `options` (chance 0.5, "
+                       "disclosed); typing cells keep the man/woman 2-option "
+                       "form; refusal target appended at decode time",
+        "entity_uniqueness_rule": "family-2 chain cells restrict context to "
+                                  "the derivation's stated support (proof "
+                                  "leaves + support gender facts + UNA; the "
+                                  "3-name two-hop nsk1 item shape); the "
+                                  "unique-answer property is asserted per "
+                                  "cell in the restricted closure; "
+                                  "ambiguous/non-3-name cells skipped WITH "
+                                  "COUNTS (PROPOSED-ASM-1801)",
         "generator": "poc/rules-2/materialise_closure.py",
         "generator_sha256": sha256_file(os.path.abspath(__file__)),
         "engine": "poc/rules-1/twin_engine.py (PINNED, byte-exact, "
@@ -735,6 +871,21 @@ def build(args):
 # ---------------------------------------------------------------------------
 # c8 — the train-bytes projection gate (PROPOSED-ASM-1427 / 1445)
 # ---------------------------------------------------------------------------
+def query_pair_item(item):
+    """(a, b) URNs of a nsk1-clutrr item's eval query — SEMANTICS VERBATIM
+    from poc/rules-1/rules1_runner.py query_pair (duplicated so the $0 CPU
+    gate does not import the GPU-runner module tree; REWORK-3)."""
+    if item["hop1"]:
+        a = item["hop1"]["subject"]
+        b = [u for u in item["lexicon"]
+             if u not in (a, item["hop1_bridge"])][0]
+        return a, b
+    q = item["question"]
+    name_a, name_b = q[len("How is "):-1].split(" related to ")
+    n2u = {v: k for k, v in item["lexicon"].items()}
+    return n2u[name_a], n2u[name_b]
+
+
 def c8(args):
     pins = verify_pins()
     corpus_dir = args.out_dir or os.path.join(_ROOT, "data", "rules2-train")
@@ -746,28 +897,38 @@ def c8(args):
     train = [e for e in examples if e["split"] == "train"]
 
     # GS-family FLAT lookup over the B2 TRAINING BYTES — no joins, no
-    # inference (DECONF-A1 GS lineage; certificate.py projection_answer):
-    #   (i)  QA index: trained (name_a, name_b) question pair -> answer
-    #   (ii) aligned fact-line index: parsed "O is S's w." -> (S, O) -> w
+    # inference (DECONF-A1 GS lineage; certificate.py projection_answer).
+    # REWORK-3 (entity form):
+    #   (i)  QA index: trained (base-name, rel-word) entity question ->
+    #        trained NAME answer (typing questions keyed verbatim)
+    #   (ii) aligned fact-line index: parsed "O is S's w." -> (S, w) -> O
+    #        (entity-directional: base+relation-word -> object NAME)
     qa, factline = {}, {}
+
+    def ent_key(q):
+        # 'Who is the <rel> of <base>?' -> (base, rel); None otherwise
+        if q.startswith("Who is the ") and " of " in q and q.endswith("?"):
+            rel, base = q[len("Who is the "):-1].split(" of ", 1)
+            return (base, rel)
+        return None
+
     for e in train:
-        q = e["question"]
-        if q.startswith("How is ") and " related to " in q:
-            a, b = q[len("How is "):-1].split(" related to ")
-            qa.setdefault((a, b), set()).add(e["answer"])
+        k = ent_key(e["question"])
+        if k is not None:
+            qa.setdefault(k, set()).add(e["answer"])
         else:
-            qa.setdefault((q, "#typing"), set()).add(e["answer"])
+            qa.setdefault((e["question"], "#typing"), set()).add(e["answer"])
         for line in e["context"]:
             if " is " in line and "'s " in line and line.endswith("."):
                 left, right = line[:-1].split(" is ", 1)
                 if "'s " in right:
                     subj, word = right.rsplit("'s ", 1)
-                    factline.setdefault((subj, left), set()).add(word)
+                    factline.setdefault((subj, word), set()).add(left)
 
-    def project(name_a, name_b):
-        hits = qa.get((name_a, name_b))
+    def project(base, rel):
+        hits = qa.get((base, rel))
         if not hits:
-            hits = factline.get((name_a, name_b))
+            hits = factline.get((base, rel))
         if not hits:
             return None
         return sorted(hits)[0] if len(hits) == 1 else "AMBIG"
@@ -777,68 +938,87 @@ def c8(args):
         by_kind = {}
         for iid in ids:
             e = byid[iid]
-            q = e["question"]
-            if q.startswith("How is "):
-                a, b = q[len("How is "):-1].split(" related to ")
-                p = project(a, b)
+            k = ent_key(e["question"])
+            if k is not None:
+                p = project(*k)
             else:
-                hits = qa.get((q, "#typing"))
+                hits = qa.get((e["question"], "#typing"))
                 p = (sorted(hits)[0] if hits and len(hits) == 1
                      else ("AMBIG" if hits else None))
             n += 1
-            k = by_kind.setdefault(e["kind"], {"n": 0, "recovered_correct": 0})
-            k["n"] += 1
+            kk = by_kind.setdefault(e["kind"], {"n": 0,
+                                                "recovered_correct": 0})
+            kk["n"] += 1
             if p not in (None, "AMBIG"):
                 rec += 1
                 hit = int(p == e["answer"])
                 corr += hit
-                k["recovered_correct"] += hit
+                kk["recovered_correct"] += hit
         return {"n": n, "recovered": rec, "recovered_correct": corr,
                 "recovered_acc": corr / n if n else None,
                 "by_kind": dict(sorted(by_kind.items())),
-                "disclosure": "cover (E1) cells share their (pair, answer) "
-                              "with trained family-1 stated cells of the "
-                              "same component, so they ARE flat-lookup-"
-                              "recoverable; the S-held stratum is "
-                              "descriptive-only and stratified by kind "
-                              "(PROPOSED-ASM-1444 disclosure)"}
+                "disclosure": "cover (E1) cells share their (base, rel) "
+                              "entity key with trained family-1 stated "
+                              "cells of the same component, so they ARE "
+                              "flat-lookup-recoverable; chain cells whose "
+                              "(base, rel) key is AMBIGUOUS across support "
+                              "contexts (two grandmothers) are NOT "
+                              "lookup-recoverable — the s_mem projection "
+                              "anchor is therefore <1.0 on the entity form "
+                              "and stratified by kind (REWORK-3 "
+                              "re-derivation of the PROPOSED-ASM-1444 "
+                              "disclosure)"}
 
-    # S-out: the 858 covered nsk1-clutrr items (fresh per-item names)
+    # S-out: the 858 covered nsk1-clutrr items on the ENTITY question
+    # ('Who is the <gold_rel> of <base>?' -> chain-top NAME) — the rules-1-c
+    # eval form, reconstructed here exactly as rules1_runner.build_context
+    # renders it (query_pair semantics duplicated above).
     items = [json.loads(x) for x in
              open(os.path.join(_ROOT, "data", "nsk1-clutrr", "items.jsonl"))]
     covered = [i for i in items if i["stratum"] == "covered"]
     if args.mock:
         covered = covered[:MOCK["n_sout"]]
     sout_n = sout_rec = sout_corr = 0
-    gold_counts = {}
+    first_opt_hits = 0
     for it in covered:
-        q = it["question"]
-        a, b = q[len("How is "):-1].split(" related to ")
-        p = project(a, b)
+        a, b = query_pair_item(it)
+        names = it["lexicon"]
+        base, gold_name = names[a], names[b]
+        rel = it["gold_relation"]
+        p = project(base, rel)
         sout_n += 1
-        gold_counts[it["gold_relation"]] = \
-            gold_counts.get(it["gold_relation"], 0) + 1
+        opts = sorted(s for u, s in names.items() if u != a)
+        first_opt_hits += int(gold_name == opts[0])
         if p not in (None, "AMBIG"):
             sout_rec += 1
-            sout_corr += int(p == it["gold_relation"])
+            sout_corr += int(p == gold_name)
     sout_acc = sout_corr / sout_n if sout_n else None
     gate_pass = sout_acc is not None and sout_acc <= C8_SOUT_CEILING
 
-    majority = max(gold_counts.values()) / sout_n if sout_n else None
+    first_opt_floor = first_opt_hits / sout_n if sout_n else None
     result = {
-        "c8": "rules-2 train-bytes projection (PROPOSED-ASM-1427)",
+        "c8": "rules-2 train-bytes projection (PROPOSED-ASM-1427; REWORK-3 "
+              "entity form, PROPOSED-ASM-1804)",
         "mode": "MOCK" if args.mock else "REAL",
         "status": "instrument gate artifact; NO feasibility conclusion is "
                   "stated here — verdicts belong to the pinned analysis + "
                   "verdict-gen",
         "construction": "GS-family flat lookup over the PINNED B2 training "
-                        "bytes: QA index (trained question pair -> answer) "
-                        "+ aligned fact-line index ((subject-name, "
-                        "object-name) -> stated word); NO joins, NO "
-                        "inference (DECONF-A1 GS lineage, "
-                        "certificate.projection_answer analog)",
-        "gate": {"stratum": "S-out (covered nsk1-clutrr vs third-party "
-                            "gold)",
+                        "bytes: QA index (trained (base, rel) entity "
+                        "question -> NAME) + aligned fact-line index "
+                        "((base-name, relation-word) -> object NAME); NO "
+                        "joins, NO inference (DECONF-A1 GS lineage, "
+                        "certificate.projection_answer analog). REWORK-3 "
+                        "ceiling re-argument at chance 0.5: the gate metric "
+                        "is recovered-correct/n, and eval surface names are "
+                        "TOKEN-disjoint from training names (fail-closed "
+                        "guard), so a lookup cannot even emit an in-lexicon "
+                        "eval NAME — recovery is 0 by construction and the "
+                        "0.10 ceiling is conservative INDEPENDENT of the "
+                        "decode chance floor (0.5 here vs 1/24 before): the "
+                        "ceiling bounds lookup leakage, not guessing",
+        "gate": {"stratum": "S-out (covered nsk1-clutrr, entity form, vs "
+                            "third-party gold chain-top NAME)",
                  "n": sout_n, "recovered": sout_rec,
                  "recovered_correct": sout_corr,
                  "sout_recovered_acc": sout_acc,
@@ -848,10 +1028,19 @@ def c8(args):
             "s_held_projection": score_ids(eval_samples["s_held"]),
             "c4_trivial_floors_sout": {
                 "abstain_all_acc": 0.0,
-                "answer_all_majority_word_acc": majority,
-                "gold_distribution": dict(sorted(gold_counts.items())),
-                "note": "L3a discipline descriptives; the primary is a "
-                        "paired B2-B0 lift, not an absolute accuracy"},
+                "random_two_option_acc": 0.5,
+                "always_first_option_acc": first_opt_floor,
+                "note": "REWORK-3 floors at the 2-option entity surface "
+                        "(chance 0.5 DISCLOSED; the 23-word majority floor "
+                        "is form-inapplicable): abstain-all 0.0; random "
+                        "0.5; the measured sorted-first-option incidence "
+                        "brackets position bias. The 'pick the non-bridge "
+                        "name' structural shortcut (gold = chain-top by "
+                        "construction on 2-hop items) is NOT a train-bytes "
+                        "lookup and is OUT OF SCOPE for this gate — it is "
+                        "the registered DESIGN-OPEN PROPOSED-ASM-1806 for "
+                        "the pre-freeze review. The primary is a paired "
+                        "B2-B0 lift, not an absolute accuracy"},
         },
         "pins_verified": pins,
         "corpus_kot_hash_rules2_train": corpus_kot_hash(corpus_dir),

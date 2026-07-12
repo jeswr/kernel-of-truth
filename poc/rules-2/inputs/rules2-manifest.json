@@ -1,42 +1,87 @@
 {
  "_readme": [
   "RULES-2 harness manifest (poc/rules-2/rules2_runner.py + poc/rules-2/modal/modal_rules2.py).",
-  "Design: docs/next/design/rules-2-train-time.md (DRAFT registry/experiments/rules-2.json; freeze is the coordinator's).",
+  "Design: docs/next/design/rules-2-train-time.md + its Appendix B REWORK-3 amendment (DRAFT registry/experiments/rules-2.json; freeze is the coordinator's).",
+  "REWORK-3 (2026-07-12, fable-build-3): the ENTIRE train+eval prompt surface is re-based onto the FROZEN rules-1-c ENTITY-FORM frame contract (registry/experiments/rules-1-c.json frozen_sha256 09b246dcba4640581646dee8d8c0ca7def18102f17179ad4398e514ebdd065f6) after the rules-1-b relation-word form was measured DEAD for unaided hosts (docs/next/analysis/rules1b-form-misattribution.md); every rules-1 import pin now points at the rules-1-c bytes (rules1_runner.py 91d780f3...). Chance floor is 0.5 (2-option anti-echo decode + trained refusal = uniform 3-option scoring), DISCLOSED; c8/c4/G3/SESOI re-derived accordingly (PROPOSED-ASM-1800..1813, poc/rules-2/asm-rework3-1800-1813.json).",
   "Every pin below is verified fail-closed (ERR_PIN / ERR_CERT_PRECONDITION / ERR_C8_GATE) before any cell runs, mock included.",
-  "Sequencing gate (PROPOSED-ASM-1420): RULES-2 does NOT run its GPU path until the RULES-1-B GPU readout exists (rules-1's GPU run was VOIDED 2026-07-12 and superseded by rules-1-b; the gate now reads the rules-1-b verdict); KILL-b there requires explicit maintainer re-authorization (s3' struck).",
+  "Sequencing gate (PROPOSED-ASM-1420 as corrected by PROPOSED-ASM-1807): RULES-2 does NOT run its GPU path until the RULES-1-C mechanical readout exists (registry/verdicts/rules-1-c.json); only a PASS verdict opens the gate automatically — every other branch (the landed rows PREDICT INSTRUMENT-INVALID via the vacuous A3 engagement gate) requires the maintainer's issue #24 host-integration slot decision to re-register this gate. GPU is HELD pending that decision.",
   "model_revisions provenance: R1/R3 verbatim from poc/rules-1/inputs/rules1-manifest.json (chain: f2b-replicate/f2b-transfer FROZEN records); R2 from the a5-llm pinned record chain (docs/design-a5-llm.md, poc/a5-llm/inputs/a5-llm-manifest.json)."
  ],
  "design_constants_from_design_doc": {
   "experiment": "rules-2",
-  "design_doc": "docs/next/design/rules-2-train-time.md",
-  "design_doc_sha256": "15c37c64f1f946b611dce98c865a4b67c56b068c10360ba1bc55b6ff31d03800",
-  "arms_built_here": ["B0", "B1", "B2", "B3", "B4", "B5", "c1p"],
-  "arms_note": "B0 plain host; B1 exposure control (families 1+3, size-matched); B2 treatment (families 1+2+3); B3 proof-augmented variant (descriptive; proof block in TRAINING prompt only — see deviations_note); B4 RULES-1-B A3 verbatim re-run (k=4, engine at inference; REWORK-2: rules-1's GPU run was VOIDED 2026-07-12 and superseded by rules-1-b — B4 imports the rules-1-b freeze bytes) on the identical S-out slice; B5 R3-alone comparator; c1p LABEL-deranged-closure fine-tune (content control; every trained family-2 target differs from the engine answer). REVIEW FIX 1 (cross-vendor prereg review 2026-07-12): ALL rules-2 arms (B0/B1/B2/B3/B5/c1p) score S-out on BYTE-IDENTICAL prompts (no per-arm padding; prompt = pure function of the cell) with the SAME 24-option decode; the s3' B2-vs-B4 gap is scored on the COMMON 23-option rules-1-b A1-verbatim surface (cell=entailed23 for B0/B2, R1, vs B4's A3 rows) — never across surfaces. c8 (train-bytes projection) + c4 floors are CPU artifacts carried in poc/rules-2/results/c8-result.json, gated BEFORE any GPU spend.",
-  "ft_arms": ["B1", "B2", "B3", "c1p"],
-  "ft_seeds": [0, 1, 2],
-  "eval_only_seeds": {"B0": [0], "B5": [0], "B4": [0, 1, 2]},
-  "eval_only_seeds_note": "eval decoding is greedy fp32 forced-choice argmax (deterministic), so eval-only arms need one pass + the byte-identical repeat; B4 keeps 3 seeds because the A3 retry RESAMPLER is seeded (f2bt SEED_BASE 20260710 bytes).",
-  "rungs_default": ["R1"],
-  "rungs_r2_arms": ["B0", "B1", "B2"],
+  "design_doc": "docs/next/design/rules-2-train-time.md (incl. Appendix B REWORK-3)",
+  "design_doc_sha256": "bc2b583ee4cbc12c6b6e321dc43bbdb0859e64c87222a66084b05cecdc3b093c",
+  "arms_built_here": [
+   "B0",
+   "B1",
+   "B2",
+   "B3",
+   "B4",
+   "B5",
+   "c1p"
+  ],
+  "arms_note": "B0 plain host; B1 exposure control (families 1+3, size-matched); B2 treatment (families 1+2+3); B3 proof-augmented variant (descriptive; proof block in TRAINING prompt only — see deviations_note); B4 RULES-1-C A3 verbatim re-run (k=4, engine at inference, ENTITY form; REWORK-3: B4 imports the rules-1-c bytes 91d780f3... — the rules-1-b bytes 1f423ac0... carried the measured-dead relation-word form) on the identical S-out slice; B5 R3-alone comparator; c1p FORCED-FLIP-deranged-closure fine-tune (content control at 2 options; every trained family-2 target = the item's other decode option; anti-correlated, disclosed, PROPOSED-ASM-1803). REVIEW FIX 1 (carried through REWORK-3): ALL rules-2 arms (B0/B1/B2/B3/B5/c1p) score S-out on BYTE-IDENTICAL entity prompts (no per-arm padding; prompt = pure function of the cell) with the SAME uniform 3-option decode (per-cell 2-option anti-echo set + trained refusal; chance 0.5 DISCLOSED); the s3' B2-vs-B4 gap is scored on the COMMON 2-option rules-1-c A1-verbatim entity surface (cell=entailed2 for B0/B2, R1, vs B4's A3 rows) — never across surfaces. B4 VACUITY FLAG (PROPOSED-ASM-1808, for the coordinator): the imported rules-1-c verify-retry channel measured vacuous on the landed campaign (every A3 row attempts=1); B4 therefore degenerates to attempt-0 rows and s3' auto-drops from the Holm family unless rules-1-d repairs the acceptance ground (maintainer issue #24). c8 (train-bytes projection) + c4 floors are CPU artifacts carried in poc/rules-2/results/c8-result.json, re-derived at chance 0.5, gated BEFORE any GPU spend.",
+  "ft_arms": [
+   "B1",
+   "B2",
+   "B3",
+   "c1p"
+  ],
+  "ft_seeds": [
+   0,
+   1,
+   2
+  ],
+  "eval_only_seeds": {
+   "B0": [
+    0
+   ],
+   "B5": [
+    0
+   ],
+   "B4": [
+    0,
+    1,
+    2
+   ]
+  },
+  "eval_only_seeds_note": "eval decoding is greedy fp32 forced-choice argmax (deterministic), so eval-only arms need one pass + the byte-identical repeat; B4 keeps 3 seeds by design symmetry with rules-1-c A3 (the seeded retry RESAMPLER, f2bt SEED_BASE 20260710, only differentiates seeds when the verify-retry channel fires — under the inherited PROPOSED-ASM-1808 vacuity all three seeds are expected byte-identical, which the merged rows will show and the analyst reads as the engagement datum).",
+  "rungs_default": [
+   "R1"
+  ],
+  "rungs_r2_arms": [
+   "B0",
+   "B1",
+   "B2"
+  ],
   "rungs_note": "DEFAULT tier is R1-only (--rungs R1; must clear usd_cap in --dry-plan). The R2 rung (B0/B1/B2 only, MD-R2-3) is a coordinator-authorized SECOND launch (--rungs R1,R2 or a separate --arms B0,B1,B2 --rungs R2 run) inside the coordinator outer ceiling; primary claims are R1, two rungs license a SIGN only (ASM-1433).",
   "k_retry_b4": 4,
   "n_sout_covered": 858,
   "n_sout_control": 100,
-  "strata_eval_counts": {"s_mem": 200, "s_held": 200, "stated_guard": 150, "refusal_guard": 100},
+  "strata_eval_counts": {
+   "s_mem": 200,
+   "s_held": 200,
+   "stated_guard": 150,
+   "refusal_guard": 100
+  },
   "strata_seed_rule": "corpus strata (s_mem/s_held/stated/refusal_train) are scored on the FIRST ft seed only (descriptive strata; the primary stratum S-out keeps all 3 FT seeds per ASM-1439)",
   "repeat_subsample_n": 200,
   "repeat_rule": "G4 byte-identical repeat: per arm, first seed, on the pinned first-200-by-sha S-out covered subsample (deterministic; identical instrument at 23% of the token cost)",
-  "budget": {"usd_cap": 18, "gpu_hours_cap": 14, "wall_clock_cap_hours": 24,
-             "coordinator_outer_ceiling_usd": 35},
-  "budget_note": "MD-R2-5 recommendation (b): full skeleton, $18 ceiling for the DEFAULT R1 tier; the R2 rung and any worst-case extension ($25-35 band) are gated on the coordinator/maintainer inside the $35 outer ceiling (PROPOSED-ASM-1434).",
+  "budget": {
+   "usd_cap": 18,
+   "gpu_hours_cap": 14,
+   "wall_clock_cap_hours": 24,
+   "coordinator_outer_ceiling_usd": 35
+  },
+  "budget_note": "MD-R2-5 recommendation (b): full skeleton, $18 ceiling for the DEFAULT R1 tier (REWORK-3 entity re-plan: R1 worst $6.51 — the 3-option decode prices ~8x fewer scored options); the R2 rung and any worst-case extension ($25-35 band) are gated on the coordinator/maintainer inside the $35 outer ceiling (PROPOSED-ASM-1434).",
   "sharded_launch": {
-   "note": "REWORK-2 (review item 9 + the standing parallel-launch directive): the campaign runs as INDEPENDENT Modal jobs — one per (FT arm x seed x rung), one per B4 seed, one for B0 per rung, one for B5 — via modal_rules2.py --shards; each job invokes rules2_runner.py with --arms/--seeds/--shard-tag and ships its own results; poc/rules-2/merge_shards.py reconstructs the canonical results-rules2.json + run-records-rules2.jsonl for the pinned analysis, asserting identical pins and prompt-surface shas across shards. No single job approaches the 12 h Modal function timeout (--dry-plan prints the worst single-job hours and fails closed at 12 h). Jobs are independent, so they may be split across Modal accounts/workspaces; the caps bind on the SUM of shard costs, unchanged.",
+   "note": "REWORK-2 (review item 9 + the standing parallel-launch directive): the campaign runs as INDEPENDENT Modal jobs — one per (FT arm x seed x rung), one per B4 seed, one for B0 per rung, one for B5 — via modal_rules2.py --shards; each job invokes rules2_runner.py with --arms/--seeds/--shard-tag and ships its own results; poc/rules-2/merge_shards.py reconstructs the canonical results-rules2.json + run-records-rules2.jsonl for the pinned analysis, asserting identical pins and prompt-surface shas across shards. No single job approaches the 12 h Modal function timeout (--dry-plan prints the worst single-job hours and fails closed at 12 h; REWORK-3 entity surface: worst single R1 job 0.57 h). Jobs are independent, so they may be split across Modal accounts/workspaces; the caps bind on the SUM of shard costs, unchanged.",
    "strata_rule": "strata/repeat cells attach to the CANONICAL first design seed's job (canonical_first_seed in results), wherever it runs; merge_shards.py asserts exactly-once coverage",
-   "gap23_rule": "gap23 cells ride with their arm's per-seed jobs (B2 x each FT seed; B0's single job)"
+   "gap2_rule": "gap2 cells (common 2-option rules-1-c entity surface) ride with their arm's per-seed jobs (B2 x each FT seed; B0's single job)"
   }
  },
  "pins": {
-  "rules2TrainCorpusKotHash": "3465e63dfa0d568bc88e4f27a85fa655744317719934d45e8392a1331595817e",
+  "rules2TrainCorpusKotHash": "c46aaa4ea2ffd56ef48c5cd0f2e379417fe763a5a0c140ce706f0bdf65545cf1",
   "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
   "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
   "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
@@ -44,79 +89,145 @@
   "rulesN3Sha256": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
   "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
   "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
-  "rules1RunnerPySha256": "1f423ac09f5d64d22f83cd91e97df0801fe694672012ccf850bc0315bce43563",
+  "rules1RunnerPySha256": "91d780f344019f5948533973348873aadeb9803f85695abc5854198b690a23ab",
   "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
-  "materialiserPySha256": "0c7aedc4c2cd0613ebca278333e665418c0d4dc0a577a86e67e4778cda2a75c6",
-  "c8ResultSha256": "cb3fecd32354ec9ce4fb354044b8cfaedbfcc6e56d2e5c2f884a3a813d9c0a57",
-  "analysisRules2PySha256": "ba47f4d8e1669c059c889741444d36a4201d37b707629ab36893bb4c666a180b",
+  "materialiserPySha256": "66e45adc10b6f2e6072db2f39ab13ce373817466eac90c5f17b1797a20711105",
+  "c8ResultSha256": "674b424f913d397c757ddf263d9abf8fbc10f54d986b75e3ff3bb768e8d7c598",
+  "analysisRules2PySha256": "782bc9ebc8e2f0c936e1f84063fbdd7ccec2eeec06106a7d6ef4959e92b47a00",
   "_freeze_reverify_note": "PROPOSED-ASM-1459: at freeze the coordinator re-hashes materialise_closure.py + analysis/rules_2.py against these pins, regenerates data/rules2-train ('build') and the c8 gate ('c8') from the pinned bytes, and verifies the corpus digest + c8 sha reproduce byte-exactly (deterministic, ~5 s CPU) BEFORE prereg-freeze.",
   "sparqCommitRecorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
-  "_pin_notes": "corpus + engine artifact pins verbatim from the FROZEN rules-1/rules-1-b records (PROPOSED-ASM-1437: twin/rules.n3/certificate/corpora are IDENTICAL in both); rules1RunnerPySha256 is the RULES-1-B freeze bytes (REWORK-2: rules-1's GPU run was VOIDED 2026-07-12 — degenerate direction-ambiguous prompt frame — and superseded by rules-1-b; importing the voided bytes would rebuild the broken instrument) because rules2_runner IMPORTS its arm drivers byte-identical (B4 = rules-1-b A3 verbatim; prompt frames, verbaliser, licensed rejections, gold-leak guard). All imported-module pins are verified on RAW BYTES BEFORE import (review fix 6). poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build."
+  "_pin_notes": "corpus + engine artifact pins verbatim from the FROZEN rules-1/rules-1-c records (PROPOSED-ASM-1437: twin/rules.n3/certificate/eval corpora are IDENTICAL in both); rules1RunnerPySha256 is the RULES-1-C bytes 91d780f3... (REWORK-3, PROPOSED-ASM-1800: rules-1-b's relation-word frame was superseded by the FROZEN rules-1-c entity form, registry/experiments/rules-1-c.json 09b246dc...; importing the rules-1-b bytes would rebuild the measured-dead instrument) because rules2_runner IMPORTS its arm drivers byte-identical (B4 = rules-1-c A3 verbatim; entity prompt frames, entity context builder, verbaliser, licensed rejections, gold-leak guard). All imported-module pins are verified on RAW BYTES BEFORE import (review fix 6). rules2-train regenerated on the entity form (REWORK-3) and repinned; c8 regenerated from the new corpus (gate PASS 0/858 unchanged). poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build."
  },
  "model_revisions": {
-  "R1": {"repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
-         "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"},
-  "R2": {"repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
-         "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"},
-  "R3": {"repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-         "revision": "31b70e2e869a7173562077fd711b654946d38674"},
+  "R1": {
+   "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+  },
+  "R2": {
+   "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"
+  },
+  "R3": {
+   "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "revision": "31b70e2e869a7173562077fd711b654946d38674"
+  },
   "dtype": "fp32 everywhere (train + eval), greedy forced-choice eval — the RULES-1 frozen hardware line carried over (PROPOSED-ASM-1439)"
  },
  "lora": {
-  "r": 16, "alpha": 32, "dropout": 0.0,
-  "target_modules": ["q_proj", "v_proj"],
-  "lr": 0.0002, "epochs": 2, "batch": 16, "micro_batch": 8,
-  "warmup_steps": 20, "weight_decay": 0.0, "max_seq_len": 512,
+  "r": 16,
+  "alpha": 32,
+  "dropout": 0.0,
+  "target_modules": [
+   "q_proj",
+   "v_proj"
+  ],
+  "lr": 0.0002,
+  "epochs": 2,
+  "batch": 16,
+  "micro_batch": 8,
+  "warmup_steps": 20,
+  "weight_decay": 0.0,
+  "max_seq_len": 512,
   "optimizer": "AdamW (torch defaults otherwise)",
   "loss": "completion-only cross-entropy (prompt tokens masked to -100)",
   "hp_note": "PINNED a priori (PROPOSED-ASM-1432/1449): NO hyperparameter search was performed anywhere; the dev split (last 20 synthetic families, disjoint from every eval stratum) is used ONLY for a per-epoch loss sanity ledger, never for selection. Any future HP search must be dev-split-only, disclosed, and re-pinned BEFORE freeze."
  },
  "prompt_frames": {
-  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word from: {menu}.\n\nFacts:\n",
+  "task_prefix": "Read the family facts, then answer the question with exactly one name.\n\nFacts:\n",
   "fact_line": "- {line}\n",
   "una_line": "- All named people are distinct individuals.\n",
   "refusal_note": "If the answer cannot be determined from these facts, answer: cannot be determined from these facts.\n",
   "proof_prefix": "Verified derivations from a deterministic rules engine (each with its proof):\n",
   "proof_line": "- {line}\n",
   "question_prefix": "\nQuestion: ",
-  "answer_cue": "\nAnswer: {b_name} is {a_name}'s",
+  "answer_cue": "\nAnswer: the {rel} of {a_name} is",
   "answer_cue_typing": "\nAnswer: {e_name} is a",
   "padding_sentence": "This line is neutral padding text with no information about the family.",
-  "frames_note": "REWORK-2: RULES-1-B frames verbatim (rules-1's GPU run was VOIDED 2026-07-12 for two frame defects that kept every arm at ~0 — a direction-ambiguous bare answer cue and a menu line adjacent to the cue; rules-1-b fixed both, PROPOSED-ASM-1630) PLUS the rules-2-only refusal_note line (fail-closed refusal is TRAINED and SCORED, PROPOSED-ASM-1431/1446), the typing-question infill cue answer_cue_typing (the E2 cells ask 'Is E a man or a woman?', which the relation cue cannot infill), and a proof block used by B3 TRAINING prompts only (byte-equal to the rules-1-b derived block, asserted). The infill cues are rendered per cell from the question's OWN closed template (fail-closed ERR_CUE), identically at TRAIN and EVAL time, so prompts remain a pure function of the cell (review fix 1) and byte-identical across arms. B4 uses the rules-1-b frames verbatim (poc/rules-1/inputs/rules1-manifest.json) — it is the A3 comparator, not a rules-2 arm. Verbaliser/frames drift vs rules1_runner is asserted at load (ERR_FRAME_DRIFT). padding_sentence is retained ONLY for that drift assertion: review fix 1 removed all per-arm eval padding — every rules-2 arm scores byte-identical prompts (shared prompt-surface sha recorded in results)."
+  "frames_note": "REWORK-3: RULES-1-C ENTITY frames verbatim (poc/rules-1/inputs/rules1-manifest.json; task_prefix/fact_line/una_line/question_prefix/answer_cue/padding_sentence asserted byte-equal at load, ERR_FRAME_DRIFT) PLUS the rules-2-only refusal_note line (fail-closed refusal is TRAINED and SCORED, PROPOSED-ASM-1431/1446), the typing-question infill cue answer_cue_typing (the E2 cells ask 'Is E a man or a woman?', which the entity cue cannot infill), and a proof block used by B3 TRAINING prompts only (byte-equal to the rules-1-c derived block, asserted). The entity infill cues are rendered per cell from the question's OWN closed template ('Who is the <rel> of <base>?' -> '\\nAnswer: the {rel} of {a_name} is'; typing -> '\\nAnswer: {e_name} is a'; fail-closed ERR_CUE), identically at TRAIN and EVAL time, so prompts remain a pure function of the cell (review fix 1) and byte-identical across arms. NO menu/option enumeration appears anywhere in any prompt (rules-1-c contract; the closed per-cell option set — 2 anti-echo names or man/woman, + the trained refusal — is enforced by the per-option logprob scorer). B4 uses the rules-1-c frames verbatim — it is the A3 comparator, not a rules-2 arm. Verbaliser/frames drift vs rules1_runner is asserted at load (ERR_FRAME_DRIFT). padding_sentence is retained ONLY for that drift assertion: review fix 1 removed all per-arm eval padding — every rules-2 arm scores byte-identical prompts (shared prompt-surface sha recorded in results)."
  },
  "refusal_answer": "cannot be determined from these facts",
- "refusal_surface_note": "The refusal target is scored as a 24th forced-choice option appended to the 23-word CLUTRR menu (PROPOSED-ASM-1446). Sum-of-token-logprob scoring penalises the longer option uniformly across ALL compared arms; disclosed, not corrected. REWORK-2 disclosure: after the rules-1-b direction-explicit infill cue ('Answer: {b} is {a}'s'), the refusal option continues agrammatically ('... is {a}'s cannot be determined from these facts'); the marked continuation is IDENTICAL across all arms and across train/eval (fine-tuned arms are trained on exactly this surface via family 3), so every between-arm refusal contrast is like-for-like; disclosed, not corrected.",
+ "refusal_surface_note": "The refusal target is scored as the 3rd forced-choice option appended to the per-cell 2-option anti-echo set (PROPOSED-ASM-1446/1802). Sum-of-token-logprob scoring penalises the longer option uniformly across ALL compared arms; disclosed, not corrected. REWORK-3 disclosure: after the rules-1-c direction-explicit entity infill cue ('Answer: the {rel} of {a} is'), the refusal option continues agrammatically ('... the {rel} of {a} is cannot be determined from these facts'); the marked continuation is IDENTICAL across all arms and across train/eval (fine-tuned arms are trained on exactly this surface via family 3), so every between-arm refusal contrast is like-for-like; disclosed, not corrected.",
  "deviations_note": "B3 renders the one-line proof as a PROMPT block during training (scaffold), not as a generated rationale — the eval surface stays the single forced-choice word so B3 remains commensurable with B2; descriptive-only arm (MD-R2-4).",
  "mock": {
-  "note": "SYNTHETIC mechanics-only stub LM (no torch, no peft); every number is labelled MOCK and never a measurement. The pins, corpus loading, c8 gate, prompt construction, split handling, B4 engine loop (real twin engine), row emitter, repeat gate and analysis contract are the REAL code paths. The planted skill gradient exists ONLY so the pinned analysis gates resolve during mock validation.",
-  "n_sout_covered": 120, "n_sout_control": 10,
-  "strata_eval_counts": {"s_mem": 30, "s_held": 30, "stated_guard": 20, "refusal_guard": 15},
+  "note": "SYNTHETIC mechanics-only stub LM (no torch, no peft); every number is labelled MOCK and never a measurement. The pins, corpus loading, c8 gate, entity prompt construction, split handling, B4 engine loop (real twin engine), row emitter, repeat gate and analysis contract are the REAL code paths. The planted skill gradient exists ONLY so the pinned analysis gates resolve during mock validation; skill constants are set for the chance-0.5 entity surface (REWORK-3).",
+  "n_sout_covered": 120,
+  "n_sout_control": 10,
+  "strata_eval_counts": {
+   "s_mem": 30,
+   "s_held": 30,
+   "stated_guard": 20,
+   "refusal_guard": 15
+  },
   "repeat_subsample_n": 40,
-  "ft_seeds": [0, 1],
-  "base_skill": {"R1": 0.25, "R2": 0.33, "R3": 0.62},
-  "ft_format_bonus": 0.08,
-  "c1p_format_bonus": 0.04,
-  "ft_content_bonus": 0.45,
-  "smem_lookup_bonus": 0.55,
-  "stated_skill_ft": 0.9, "stated_skill_plain": 0.7,
-  "refuse_skill": {"ft": 0.85, "plain": 0.25},
-  "b4_stub": {"stub_skill": {"R1": 0.55, "R3": 0.8}, "stub_injection_bonus": 0.4, "stub_feedback_bonus": 0.2}
+  "ft_seeds": [
+   0,
+   1
+  ],
+  "base_skill": {
+   "R1": 0.52,
+   "R2": 0.58,
+   "R3": 0.85
+  },
+  "ft_format_bonus": 0.06,
+  "c1p_format_bonus": -0.1,
+  "ft_content_bonus": 0.35,
+  "smem_lookup_bonus": 0.42,
+  "stated_skill_ft": 0.9,
+  "stated_skill_plain": 0.7,
+  "refuse_skill": {
+   "ft": 0.85,
+   "plain": 0.25
+  },
+  "b4_stub": {
+   "stub_skill": {
+    "R1": 0.55,
+    "R3": 0.8
+   },
+   "stub_injection_bonus": 0.4,
+   "stub_feedback_bonus": 0.2
+  },
+  "mock_gradient_note": "c1p_format_bonus is NEGATIVE (REWORK-3): the forced-flip control trains the complement rule, so the planted mock gradient puts c1p BELOW the plain floor — recovery ratio ~0, matching the anti-correlated construction (PROPOSED-ASM-1803); a mock-mechanics choice, never a measurement"
  },
  "planning": {
   "note": "dry-plan ESTIMATES only — never emitted as measurements; eval throughput constants carried from poc/rules-1/inputs/rules1-manifest.json planning; LoRA train throughput is a conservative planning constant (fp32, completion-masked, micro-batch 8)",
   "throughput_tok_per_s_eval": {
-   "A100": {"R1": 16000, "R2": 8000, "R3": 2600},
-   "A10G": {"R1": 12000, "R2": 6000, "R3": 1800},
-   "T4": {"R1": 4000, "R2": 2000, "R3": 600}
+   "A100": {
+    "R1": 16000,
+    "R2": 8000,
+    "R3": 2600
+   },
+   "A10G": {
+    "R1": 12000,
+    "R2": 6000,
+    "R3": 1800
+   },
+   "T4": {
+    "R1": 4000,
+    "R2": 2000,
+    "R3": 600
+   }
   },
   "throughput_tok_per_s_train": {
-   "A100": {"R1": 14000, "R2": 7000},
-   "A10G": {"R1": 9000, "R2": 4500},
-   "T4": {"R1": 2500, "R2": 1200}
+   "A100": {
+    "R1": 14000,
+    "R2": 7000
+   },
+   "A10G": {
+    "R1": 9000,
+    "R2": 4500
+   },
+   "T4": {
+    "R1": 2500,
+    "R2": 1200
+   }
   },
   "chars_per_token_estimate": 4.0,
   "overhead_factor": 1.5,
-  "usd_per_hour": {"T4": 0.59, "A10G": 1.1, "A100": 2.1}
+  "usd_per_hour": {
+   "T4": 0.59,
+   "A10G": 1.1,
+   "A100": 2.1
+  }
  },
  "efficiency_ledger_constants": {
   "engine_us_per_query_class": 5.3,

@@ -47,7 +47,7 @@ import os
 ARM_ORDER = {a: i for i, a in enumerate(
     ("B0", "B1", "B2", "B3", "B4", "B5", "c1p"))}
 CELL_ORDER = {c: i for i, c in enumerate(
-    ("entailed", "entailed23", "control", "s_mem", "s_held", "stated",
+    ("entailed", "entailed2", "control", "s_mem", "s_held", "stated",
      "refusal_train", "timeout"))}
 
 # results fields that MUST be byte-identical across every shard
@@ -55,7 +55,7 @@ INVARIANT_FIELDS = (
     "experiment", "mode", "outcome", "outcome_note", "device",
     "gpu_class_assumed_for_usd", "n_sout_covered", "n_sout_control",
     "strata_eval_counts", "usd_per_hour_table",
-    "sout_prompt_surface_sha256", "gap23_prompt_surface_sha256",
+    "sout_prompt_surface_sha256", "gap2_prompt_surface_sha256",
     "prompt_surface_note", "efficiency_constants", "pins", "pins_verified",
     "certificate_precondition", "c8_gate", "corpus_manifest_mode",
     "canonical_first_seed", "ft_seeds_design", "repeat_note",

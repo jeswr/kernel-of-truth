@@ -1,0 +1,120 @@
+{
+ "_readme": [
+  "DDC T0-OPS assumption block PROPOSED-ASM-1790..1799 — EMITTED by the T0 build role for central registration by the coordinator.",
+  "This build has NO write access to registry/assumptions.jsonl and did not touch it (same discipline as the poc/ddc build's 1750..1769 block).",
+  "Range check at emission time (2026-07-12): repo-wide grep shows ASM-1787 as the last consumed 17xx id (1750..1757 + 1780..1787 registered; 1760s/1770s claimed by other in-flight blocks were checked too); 1790..1799 verified collision-free repo-wide. If a concurrent wave consumes the range, the coordinator renumbers rows + this file together before commit, per house practice.",
+  "Every row is a T0 BUILD CHOICE (STIPULATED), never a measurement; the T0 artifacts these rows pin are data/ddc-* (kot-corpus-hash/1 digests in inputs/ddc-manifest.json and both DRAFT records), poc/pubeval/data/folio_*.jsonl, and the pubeval MODEL_REGISTRY BASE revisions. Nothing here states a feasibility conclusion."
+ ],
+ "rows": [
+  {
+   "id": "PROPOSED-ASM-1790",
+   "tag": "STIPULATED",
+   "claim": "The ddc0 probe-fixture PAIRED inventory is the 119 committed concepts: the 65 profile-1 primes (class 'prime'; canonical vector = the kot-enc-Bq/1 D=576 quasi-codebook 'head'-slot atom for the prime name — the prime's own codebook representation; probe text = the chart-order lexicon name, allolex variant where the name carries '~') and the 54 kernel-v0 explications (class 'kernel-v0'; canonical vector = encodeConceptSetQ over the committed reference DAG at D=576; probe text = renderExplication canonical-form v0). molecules-v0 records carry NO explication AST (partialExplication null in all 54, verified fail-closed by the builder), hence no canonical encoder vector, and therefore contribute CALIBRATION TEXT ONLY (their committed groundingNote glosses in K-static) and are never probe-paired — this resolves the DDC.md section 2.3 'n ~ 119, exact inventory pinned at T0' clause as 65+54.",
+   "backing_ref": "poc/ddc/t0/build_kernel_assets.mjs; data/ddc-probe-fixture-v1 (kot-corpus-hash 5e4489c2b1f17d787f1ae158a1c0a2da6d6db7a75a2c505cbce984e7c804ccb4); DDC.md section 2.3",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "the section-2.3 pairing needs a canonical encoder vector per concept; molecules structurally cannot supply one, and 65+54 = 119 matches the record's concepts_paired exactly"
+  },
+  {
+   "id": "PROPOSED-ASM-1791",
+   "tag": "STIPULATED",
+   "claim": "The P=4 fixed carrier templates are: (1) '%s' (canonical rendering alone; empty carrier = the empty string, which the activation collector maps to the EOS token); (2) 'The defined concept means: %s'; (3) 'Definition: %s\\n->' (the cloze carrier, fixed delimiter '->'); (4) 'Here is a definition: %s\\nWhat concept does this define?' (question form, no answer requested). The >=2 seeded render variants per carrier are: v0 = canonical text; v1 = the clause-rotated render (rotation offset 1 + sha256('ddc-probe-rot|<id>') mod (C-1), validity re-checked) for multi-clause explications, the trailing allolex for '~'-named primes, else v0 duplicated — duplication count disclosed in the fixture's build_disclosure (kernel target identical across carriers and variants by construction: the vector is always the canonical encoding).",
+   "backing_ref": "poc/ddc/t0/build_kernel_assets.mjs CARRIER_TEMPLATES; data/ddc-probe-fixture-v1/probe-fixture.json carrier_templates + build_disclosure; DDC.md section 2.3 probe construction (ASM-1700)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "ASM-1700 fixes the carrier COUNT and the empty-carrier subtraction but not the surface strings; these are the pinned surfaces so the probe stage is reproducible byte-for-byte"
+  },
+  {
+   "id": "PROPOSED-ASM-1792",
+   "tag": "STIPULATED",
+   "claim": "The section-2.3 minimal-contrast stratum is SYNTHETIC: 30 pairs (60 fixture concepts, class 'synthetic-minimal-contrast') built as seeded generateExplication bases ('ddc-mc|0|<k>', topClauses in {2,3,4}, depth in {2,3}) with mutateExplication single edits ('ddc-mc-edit|0|<k>'; realised edit mix 14 filler-substitution / 10 clause-swap / 4 operator-flip / 2 referent-index — exactly the 'one prime, role, clause order, depth, or polarity' family). Necessity is detector-verified: the committed 54 kernel-v0 records contain ZERO single-edit pairs (structural diff over frame/referents/clauses with one-token or clause-order or polarity difference), so without synthetics criterion 3 would be degenerate (empty SEL stratum => no admission possible => A2 spuriously killed). The stratum members enter the seeded concept split like every fixture concept (per-class 60/20/20), and the criterion-3 stratum is their SEL-resident subset (12 members under the pinned seed-0 split), per the harness's stage_stats intersection — the operative reading of 'housed in SEL'. Disclosed limits: total split inventory becomes 179 (119 committed + 60 synthetic; the DRAFT record's n_planned.concepts_paired = 119 counts committed paired records); prime concepts have bag_vector == vector (an atom has no structure to destroy), so prime-dominated directions can only ever admit as lexical under criterion 4.",
+   "backing_ref": "poc/ddc/t0/build_kernel_assets.mjs synthMcPairs + detectCommittedPairs; data/ddc-probe-fixture-v1/probe-fixture.json build_disclosure; poc/ddc/g0_runner.py stage_stats; DDC.md section 2.3 criteria 3-4",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "criterion 3 requires a non-degenerate minimal-contrast stratum; committed records cannot supply one; the single-edit mutator is the programme's audited edit family (Phase-X X1) and the max-stat null re-runs the full pipeline per replicate, so the enlarged inventory cannot inflate the family-wise error"
+  },
+  {
+   "id": "PROPOSED-ASM-1793",
+   "tag": "STIPULATED",
+   "claim": "The bag-of-primes structure-destroyed encoding (criterion 4) is: walk the explication AST collecting the PRIME-token multiset (predicates, operators, prime fillers, SP heads/dets/quants/mods/intensifiers, temporal-anchor operators), recursively expanding concept references into the referenced explication's multiset (closure of the bag) and deleting referent identity, roles, clause order, and depth; bag_vector = the unit-normalised multiset-weighted superposition of the D=576 quasi-codebook 'head'-slot atoms of the collected primes. Routing every prime through the single fixed 'head' slot is the mechanism that deletes role structure by construction.",
+   "backing_ref": "poc/ddc/t0/build_kernel_assets.mjs bagVector/bagPrimes; DDC.md section 2.3 criterion 4 (ASM-1702)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "the design names the null ('roles, clause order, and depth deleted') but not its construction; this pins one deterministic, label-addressable construction sharing the canonical encoding's atom inventory so s - s_bag isolates structure, not vocabulary"
+  },
+  {
+   "id": "PROPOSED-ASM-1794",
+   "tag": "STIPULATED",
+   "claim": "K-static (ddc-kernel-static-v1) assembly: committed renders FIRST in fixed order (65 prime lexicon names, 54 kernel-v0 renderExplication renders, 54 molecules-v0 groundingNotes), then the seeded generateExplication pool 'ddc-kstatic|0|<i>' over the Phase-X house depth x clause-count mixture (poc/src/x1-q.ts corpusShape: topClauses [1,2,3,4,6,8,12,16][i%8], depth [1,2,2,3,3,4,5,2][floor(i/8)%8]) in index order; sequences over 256 DONOR tokens skipped, exact duplicates deduplicated, corpus cut at exactly N=4096 sequences (measured total 482,501 donor tokens). Token counts use the SmolLM2 tokenizer at the pinned 135M revision (tokenizer.json sha256 9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c; both donors share it). C3 (ddc-shuffled-kernel-v1) is this corpus with a per-sequence seeded WHITESPACE-token shuffle (numpy default_rng over sha256('ddc-c3|0|<seq>')[:12]), the ASM-1651/section-3 'within-sequence token shuffle, seed 0'.",
+   "backing_ref": "poc/ddc/t0/build_corpora.py build_kstatic/build_shuffled; data/ddc-kernel-static-v1 (197997ce6bfcd0763492b8cc59f27338b5848b4354624fb29c75e0c526a3d2b5) + data/ddc-shuffled-kernel-v1 (cb9a9f745c84b21a9aa367be920984230d52e06dcf226d3956c1cee4177e5352) BUILD-MANIFESTs; DDC.md section 2.2 (ASM-1651)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "ASM-1651 fixes N, the token cap, seed 0 and dedup but not the expansion mixture or the shuffle tokenisation; the house Phase-X mixture is reused verbatim and whitespace tokens keep the shuffle model-independent while preserving unigram statistics"
+  },
+  {
+   "id": "PROPOSED-ASM-1795",
+   "tag": "STIPULATED",
+   "claim": "K-hybrid (ddc-kernel-hybrid-v1) = 2048 K-static sequences (rank by det_u('ddc-khybrid|kstatic-half', seq), keep the lowest 2048, corpus order) + 2048 closure sequences built from a deterministic sentence stream: (a) NL renderings of the RULES-1 pinned kinship module (tbox = axioms-v0/{rel-mother,rel-father,class-man} + axioms-kinship-v1) under fixed templates (subproperty 'The X of someone is also a Y of that someone.', domain 'Anyone who has a X is a Y.', range 'The X of someone is always a Y.', functional 'Someone can have only one X.', disjoint 'No X is a Y.', chain 'The X of someone's Y is that someone's Z.', cover 'Every X of someone is their Y or their Z.'); (b) stated facts and (c) twin-engine (poc/rules-1/twin_engine.py) closure-derived facts of data/world-v0 (721 derived; 2 pre-existing planted conflicts recorded, rendering unaffected), data/nsk1-eval (4,480 derived) and data/nsk1-clutrr (6,706 derived), rendered 'The <rel> of <S> is <O>.' / '<E> is a <C>.' (special-cased '<S> is the maker of <O>.' and '<S> is a part of <O>.'); URN->label map mechanically from data/{kernel-v0,molecules-v0}/minted-urns.jsonl + the axioms-kinship-v1 manifest concept_records; entity surfaces from the nsk1 lexicons, else the title-cased URN slug. Sentences are packed to a per-sequence token target chosen so the corpus total lands on K-static's (gate I-3; measured ratio 0.9284).",
+   "backing_ref": "poc/ddc/t0/build_corpora.py build_hybrid/_axiom_sentences/_world_sentences; data/ddc-kernel-hybrid-v1 (71d27bbc095c77550d0a4b6350d522fe824427bbe346236ef789d11a236e221e) BUILD-MANIFEST; DDC.md section 2.4 (ASM-1659); registry/experiments/rules-1.json (engine certification, restated in-envelope)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "ASM-1659 fixes the 50/50 split, the sources and the token band but not the NL surfaces; the templates and label map are pinned so the closure half is reproducible and the entailed-but-never-stated content demonstrably enters as text"
+  },
+  {
+   "id": "PROPOSED-ASM-1796",
+   "tag": "STIPULATED",
+   "claim": "C1 (ddc-c4-sample-v1) selection rule: the FIRST 4096 rows of allenai/c4, config 'en', split 'train', via the HF datasets-server rows API in offset order (offsets 0..4095 — no sampling discretion), each document truncated to a single binary-searched per-document cap of 131 donor tokens (3,030 of 4,096 docs truncated; truncation = tokenizer decode of the first-cap token ids) so the corpus total (483,127) matches K-static's within gate I-3 (ratio 1.0013). ODC-BY 1.0 LICENSE-NOTICE written alongside. The fetch is pin-on-build: the kot-corpus-hash digest pins the bytes; any later upstream drift fails the pin rather than silently re-pinning.",
+   "backing_ref": "poc/ddc/t0/build_corpora.py build_c4/_fetch_c4; data/ddc-c4-sample-v1 (73da13c1b497d0d839ce02e71ff2f35eaef5ccf49beae63713c8897521c10f3a) BUILD-MANIFEST + LICENSE-NOTICE.md; DDC.md section 3 C1 row + section 8 gate I-3",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "offset-order selection removes every sampling degree of freedom from the deflator control's corpus, and a single global cap is the least-discretionary way to hit the pinned token budget"
+  },
+  {
+   "id": "PROPOSED-ASM-1797",
+   "tag": "STIPULATED",
+   "claim": "C2 (ddc-knull-render-v1) rendering + budget rule: the 108 knull plain-dictionary definitions (poc/knull/inputs/plain-authored.json, sha pinned in the BUILD-MANIFEST) rendered '<term>: <gloss>', terms in sorted order, one definition per sequence, CYCLED until the running donor-token total first reaches K-static's — 12,083 sequences, ~111.9 cycles of the store, total 482,542 tokens (I-3 ratio 1.0001). The ~112x repetition is a disclosed mechanical consequence of matching a 4k-sequence budget with a 108-entry authored store; whether the store is ADEQUATE as the plain-dictionary control at this corpus size is exactly the standing maintainer question MD-5 and is not prejudged here.",
+   "backing_ref": "poc/ddc/t0/build_corpora.py build_knull; data/ddc-knull-render-v1 (6221e4f4fe74b74457e4bad8a5150b93e9ca7ee1b6f4e3eaee07835fa024dc2b) BUILD-MANIFEST; DDC.md section 3 C2 row (ASM-1660) + section 9 MD-5",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "ASM-1660 mandates the audited authored store at matched budget; cycling is the only construction that uses the store verbatim (no new authoring, no truncated budget) — the repetition is surfaced for MD-5 rather than hidden"
+  },
+  {
+   "id": "PROPOSED-ASM-1798",
+   "tag": "STIPULATED",
+   "claim": "The FOLIO benchmark bytes are pinned from the paper authors' own GitHub release (Yale-LILY/FOLIO data/v0.0: folio-validation.jsonl 204 rows, folio-train.jsonl 1004 rows; per-file sha256 in poc/pubeval/data/manifest.json) instead of the HF mirror yale-nlp/FOLIO: the mirror is GATED (auto click-through terms) and programmatically accepting a gate under the account's identity was ruled out at T0. Every row normalises through the UNCHANGED benchmarks._folio_norm (labels True/False/Uncertain/Unknown all handled; 204+1004 rows verified). Consequence, re-pinned everywhere it appears: the folio eval pool is 204 items (the HF mirror lists 203) — inputs/ddc-manifest.json cost_model.bench_sizes and the ddc1 record's n_planned.benchmark_items now carry 204; the license is MIT at both channels (gate I-4 re-verification at source stands).",
+   "backing_ref": "poc/pubeval/fetch_data.py FOLIO_RAW + SOURCES; poc/pubeval/data/manifest.json; inputs/ddc-manifest.json; registry/experiments/ddc1.json n_planned",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "the primary instrument needs FOLIO bytes pinned before any A0 baseline; the authors' release channel is the least-mediated open source, and the 203-vs-204 row delta is disclosed and re-pinned rather than silently absorbed"
+  },
+  {
+   "id": "PROPOSED-ASM-1799",
+   "tag": "STIPULATED",
+   "claim": "The BASE donor revisions are pinned as the HF model-API main-branch commit shas at T0 (2026-07-12): HuggingFaceTB/SmolLM2-135M @ 93efa2f097d58c2a74874c7e644dbc9b0cee75a2 and HuggingFaceTB/SmolLM2-360M @ f8027fd0eaeea54caa13c31d31b9fdc459c38b49, written identically into inputs/ddc-manifest.json donors, the pubeval MODEL_REGISTRY smollm2-{135m,360m}-base entries (clearing the deliberate ERR_UNPINNED_MODEL fail-close), and both DRAFT records' pins.model_revisions. config.json was re-fetched AT these revisions and re-verified against the design constants (135M: hidden 576, 30 layers, tied embeddings; 360M: hidden 960, 32 layers, tied embeddings — the DDC.md section 2.5 re-pin obligation). The 135M revision's tokenizer.json (sha256 9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c) is the pinned token-counting instrument for every T0 corpus budget.",
+   "backing_ref": "inputs/ddc-manifest.json donors; poc/pubeval/pubeval_runner.py MODEL_REGISTRY; registry/experiments/ddc0.json + ddc1.json pins.model_revisions; poc/ddc/t0/build_corpora.py TOKENIZER_URL/TOKENIZER_SHA; DDC.md section 2.5 (ASM-1653)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-t0ops-1",
+   "date": "2026-07-12",
+   "rationale": "ASM-1653 defers the revision pin to T0; the API main-branch sha is the reproducible pin, and re-verifying config.json at the pinned revision converts the design's architecture constants from asserted to checked"
+  }
+ ]
+}

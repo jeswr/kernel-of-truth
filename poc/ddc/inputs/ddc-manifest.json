@@ -2,7 +2,7 @@
   "_readme": [
     "DDC harness design-constants manifest (docs/next/design/DDC.md; DRAFT records registry/experiments/ddc0.json + ddc1.json).",
     "Every constant here restates a pinned design stipulation; nothing is tunable at run time. The Modal wrapper stages this file and the staged-bytes manifest sha covers it, so a silent constant change is a pin break.",
-    "PINNED-AT-INPUTS placeholders (donor revisions, corpus shas) are filled by the T0 ops step BEFORE freeze; the runner fails closed (ERR_DDC_UNPINNED) on any null pin in a non-mock run.",
+    "T0 ops 2026-07-12: donor revisions + corpus shas FILLED (builders poc/ddc/t0/; kot-corpus-hash/1 via tools/registry/corpus-pin.py; I-3 parity table poc/ddc/t0/i3-token-parity.json GREEN). The runner still fails closed (ERR_DDC_UNPINNED) on any null pin in a non-mock run.",
     "Accounts are referenced by env-file basename ONLY (ASM-1664 / RT-14): modal2.env primary, modal3.env + modal4.env spillover, modal.env repaired-or-skipped at T0."
   ],
   "schema": "kot-ddc-manifest/1",
@@ -10,11 +10,11 @@
   "records": {"ddc0": "registry/experiments/ddc0.json", "ddc1": "registry/experiments/ddc1.json"},
   "donors": {
     "r135": {"pubeval_model_key": "smollm2-135m-base", "repo": "HuggingFaceTB/SmolLM2-135M",
-             "revision": null, "d_model": 576, "n_layers": 30,
-             "note": "BASE checkpoint (ASM-1653); revision PINNED-AT-INPUTS at T0 into pubeval MODEL_REGISTRY too (fail-closed ERR_UNPINNED_MODEL)"},
+             "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2", "d_model": 576, "n_layers": 30,
+             "note": "BASE checkpoint (ASM-1653); revision = HF api/models main-branch sha at T0 2026-07-12, pinned into pubeval MODEL_REGISTRY too; config.json re-verified at this revision (hidden 576 / 30 layers / tied embeddings)"},
     "r360": {"pubeval_model_key": "smollm2-360m-base", "repo": "HuggingFaceTB/SmolLM2-360M",
-             "revision": null, "d_model": 960, "n_layers": 32,
-             "note": "BASE checkpoint; S2 conditional rung (promotion rule DDC.md section 8)"}
+             "revision": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49", "d_model": 960, "n_layers": 32,
+             "note": "BASE checkpoint; S2 conditional rung (promotion rule DDC.md section 8); revision = HF api/models main-branch sha at T0 2026-07-12; config.json re-verified (hidden 960 / 32 layers / tied embeddings)"}
   },
   "rho_grid": [0.9, 0.75, 0.5, 0.3, 0.15],
   "full_item_rhos": [0.9, 0.75, 0.5],
@@ -51,14 +51,14 @@
     "C1": "ddc-c4-sample-v1", "C2": "ddc-knull-render-v1", "C3": "ddc-shuffled-kernel-v1"
   },
   "corpora": {
-    "_recipe": "kot-corpus-hash/1 (tools/registry/corpus-pin.py); shas PINNED-AT-INPUTS at T0",
-    "ddc-kernel-static-v1": {"path": "data/ddc-kernel-static-v1", "sha256": null},
-    "ddc-kernel-hybrid-v1": {"path": "data/ddc-kernel-hybrid-v1", "sha256": null},
-    "ddc-c4-sample-v1": {"path": "data/ddc-c4-sample-v1", "sha256": null},
-    "ddc-knull-render-v1": {"path": "data/ddc-knull-render-v1", "sha256": null},
-    "ddc-shuffled-kernel-v1": {"path": "data/ddc-shuffled-kernel-v1", "sha256": null},
-    "ddc-probe-fixture-v1": {"path": "data/ddc-probe-fixture-v1", "sha256": null},
-    "ddc-eval-subset-v1": {"path": "data/ddc-eval-subset-v1", "sha256": null}
+    "_recipe": "kot-corpus-hash/1 (tools/registry/corpus-pin.py); pinned at T0 2026-07-12 (builders poc/ddc/t0/build_kernel_assets.mjs + build_corpora.py; I-3 parity poc/ddc/t0/i3-token-parity.json)",
+    "ddc-kernel-static-v1": {"path": "data/ddc-kernel-static-v1", "sha256": "197997ce6bfcd0763492b8cc59f27338b5848b4354624fb29c75e0c526a3d2b5"},
+    "ddc-kernel-hybrid-v1": {"path": "data/ddc-kernel-hybrid-v1", "sha256": "71d27bbc095c77550d0a4b6350d522fe824427bbe346236ef789d11a236e221e"},
+    "ddc-c4-sample-v1": {"path": "data/ddc-c4-sample-v1", "sha256": "73da13c1b497d0d839ce02e71ff2f35eaef5ccf49beae63713c8897521c10f3a"},
+    "ddc-knull-render-v1": {"path": "data/ddc-knull-render-v1", "sha256": "6221e4f4fe74b74457e4bad8a5150b93e9ca7ee1b6f4e3eaee07835fa024dc2b"},
+    "ddc-shuffled-kernel-v1": {"path": "data/ddc-shuffled-kernel-v1", "sha256": "cb9a9f745c84b21a9aa367be920984230d52e06dcf226d3956c1cee4177e5352"},
+    "ddc-probe-fixture-v1": {"path": "data/ddc-probe-fixture-v1", "sha256": "5e4489c2b1f17d787f1ae158a1c0a2da6d6db7a75a2c505cbce984e7c804ccb4"},
+    "ddc-eval-subset-v1": {"path": "data/ddc-eval-subset-v1", "sha256": "19fd160f89728e33ca896f481972b2e7fd1e2f7b454e799d79fca3b810cf7aab"}
   },
   "eval": {
     "harness": "poc/pubeval (ASM-1655; content-hash re-pinned at T0 after the two mechanical additions)",
@@ -105,7 +105,8 @@
     "mc_forwards_per_sec": {"r135": 8.0, "r360": 5.0},
     "gen_tok_per_sec": {"r135": 40.0, "r360": 25.0},
     "gen_tokens_per_item": 200,
-    "bench_sizes": {"folio": 203, "arc_easy": 2376, "arc_challenge": 1172, "gsm8k": 1319},
+    "bench_sizes": {"folio": 204, "arc_easy": 2376, "arc_challenge": 1172, "gsm8k": 1319},
+    "bench_sizes_note": "folio = 204: T0 pins the Yale-LILY/FOLIO GitHub v0.0 release (the HF mirror lists 203 but is gated; see poc/pubeval/fetch_data.py)",
     "bench_options": {"folio": 3, "arc_easy": 4, "arc_challenge": 4},
     "surgery_overhead_hours": {"r135": 0.10, "r360": 0.16},
     "calibration_overhead_hours": {"r135": 0.06, "r360": 0.10},

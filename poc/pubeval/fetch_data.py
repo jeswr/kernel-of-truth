@@ -8,8 +8,18 @@ writes data/manifest.json; every later fetch re-verifies sha256 of files on
 disk and FAILS CLOSED on drift, ERR_DATA_DRIFT).
 
 Sources ([search 2026-07-12] per the survey; licenses in benchmarks.LICENSES):
-  FOLIO / ARC : Hugging Face datasets-server rows API (plain JSON pages —
+  ARC         : Hugging Face datasets-server rows API (plain JSON pages —
                 avoids the parquet/pyarrow dependency the pinned image lacks)
+  FOLIO       : raw JSONL from github.com/Yale-LILY/FOLIO data/v0.0 (MIT) —
+                the paper authors' own release channel. Switched from the HF
+                mirror (yale-nlp/FOLIO) 2026-07-12 T0 ops: that repo is
+                GATED (auto click-through) and the box token has not accepted
+                the terms; programmatically accepting a gate under the
+                account's identity was ruled out. The GitHub v0.0 release
+                carries 204 validation / 1004 train rows (the HF mirror lists
+                203 validation) — counts pinned per-file below; the row
+                schema (premises list / conclusion / label incl. 'Unknown')
+                normalises through benchmarks._folio_norm unchanged.
   GSM8K       : raw JSONL from github.com/openai/grade-school-math (MIT)
 
 Usage:
@@ -41,13 +51,14 @@ GSM_RAW = ("https://raw.githubusercontent.com/openai/grade-school-math/"
 
 # (filename, kind, spec). Row-count floors are fail-closed sanity assertions
 # against silently-truncated fetches (public sizes per the survey §2.1/§3).
+FOLIO_RAW = ("https://raw.githubusercontent.com/Yale-LILY/FOLIO/main/"
+             "data/v0.0/folio-%s.jsonl")
+
 SOURCES = [
-    ("folio_validation.jsonl", "hf",
-     {"dataset": "yale-nlp/FOLIO", "config": "default",
-      "split": "validation", "min_rows": 150}),
-    ("folio_train.jsonl", "hf",
-     {"dataset": "yale-nlp/FOLIO", "config": "default",
-      "split": "train", "min_rows": 800}),
+    ("folio_validation.jsonl", "url",
+     {"url": FOLIO_RAW % "validation", "min_rows": 150}),
+    ("folio_train.jsonl", "url",
+     {"url": FOLIO_RAW % "train", "min_rows": 800}),
     ("arc_easy_test.jsonl", "hf",
      {"dataset": "allenai/ai2_arc", "config": "ARC-Easy",
       "split": "test", "min_rows": 2000}),

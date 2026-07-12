@@ -380,3 +380,102 @@ capped per ASM-1438 pending knull c5; the internalisation claim confined to
 S-out under the c8 gate; no @handle/account strings; new assumptions confined
 to the disjoint block 1420..1439; `registry/assumptions.jsonl` untouched; no
 frozen object modified.
+
+---
+
+## Appendix B — REWORK-3: entity-form re-base (2026-07-12, fable-build-3)
+
+**Why.** This design's prompt surface (§2.2/2.3 above, as reworked twice on
+2026-07-12) was built on the rules-1-B RELATION-WORD frame. That form is
+measured DEAD for unaided hosts (`docs/next/analysis/rules1b-form-
+misattribution.md` §2: gold relation word top-1 in 1/72 R3 probes, 0/30 at
+R1; the same model scores 11/12 on the entity form over the same stated
+facts), and rules-1-b was superseded pre-GPU by the FROZEN **rules-1-c**
+ENTITY form (`registry/experiments/rules-1-c.json`, frozen_sha256
+`09b246dc…`). RULES-2 as previously built could not run at all (ERR_PIN on
+the rules-1-b `rules1RunnerPySha256`; ERR_FRAME_DRIFT vs the now-entity-form
+rules-1 manifest) and, if repointed naively, would have measured its unaided
+arms on a dead form. This appendix AMENDS §§2.2–2.5 and §3; where they
+conflict, Appendix B governs. Operationalisations: PROPOSED-ASM-1800..1813
+(`poc/rules-2/asm-rework3-1800-1813.json`).
+
+**B.1 Surface (amends §2.2/2.3).** Train AND eval adopt the rules-1-c
+entity contract verbatim: question `Who is the <rel> of <base>?`, answer =
+object NAME; direction-explicit entity infill cue `\nAnswer: the {rel} of
+{a_name} is` (typing cells keep `Is E a man or a woman?` with the
+`{e_name} is a` cue); NO menu/option enumeration anywhere in any prompt.
+Decode is a uniform 3-option forced choice: the cell's 2-option anti-echo
+set (both names in the cell's context, base excluded; **chance 0.5,
+disclosed**) + the trained named refusal (marked agrammatical continuation
+after the entity cue, uniform across arms and train/eval, disclosed).
+Prompts remain a pure function of the cell (review fix 1) — byte-identical
+across B0/B1/B2/B3/B5/c1p; shared prompt-surface sha in the results bytes.
+
+**B.2 Corpus (amends §2.2).** `materialise_closure.py` re-renders families
+1/2/3 as entity QA with NAME targets. Entity-form uniqueness: family-2
+chain cells restrict their context to the derivation's stated support
+(proof leaves + support gender facts + UNA — the 3-name two-hop nsk1 item
+shape; `Who is the grandmother of X?` is 2-way ambiguous in a full
+3-generation family), with per-cell unique-answer assertions and counted
+(never silent) exclusions; cover cells keep their 3-person contexts;
+family-1/3 keep full component context. Real build: 21,780 examples
+(11,411 fam-2 train / 8,520 fam-1+3 train / 1,249 sheld / 600 dev),
+kot-corpus-hash `c46aaa4e…`.
+
+**B.3 c1′ (amends §2.3).** At 2 options a label derangement degenerates:
+the ONLY derangement is the FORCED FLIP — every family-2 train target is
+replaced by the item's other decode option (man↔woman for typing).
+`shuffled != original` holds per item BY CONSTRUCTION; the control is
+ANTI-CORRELATED (trains the complement rule), a stronger destruction than
+a shuffle, disclosed. CAVEAT (registered DESIGN-OPEN, PROPOSED-ASM-1806):
+the flip teaches "answer the bridge", so a c1p collapse cannot separate
+content-driven lift from a learned pick-the-non-bridge positional
+shortcut; on 2-hop items gold = chain-top by construction, so that
+shortcut has a 1.0 ceiling. B1 (no family-2) does not teach it and c8
+cannot see it (it is not a train-bytes lookup). This residual confound
+MUST be argued or gated through the GPT-5.6 review before freeze.
+
+**B.4 Floors/derived constants (amends §2.4).** Re-derived at chance 0.5:
+c4 floors = abstain-all 0.0, random-2-option 0.5, measured first-option
+incidence (in `c8-result.json`); G3 headroom stays `acc(B0) ≤ 0.85`
+(expected plain floor ≈0.70 per the rules-1-c A1 descriptive read; 0.85
+leaves ≥3× SESOI of headroom below saturation); the primary SESOI 0.05 and
+KILL-d (LB ≤ 0) carry UNCHANGED — both are paired-lift quantities, not
+absolute accuracies; s1′ 0.30 recovery ceiling is a lift ratio,
+chance-floor-invariant. c8 re-derived on the entity keys ((base, rel) QA
+index + entity-directional fact-line index): S-out recovery 0/858, PASS;
+the 0.10 ceiling bounds lookup leakage and is chance-floor-independent
+(eval names are token-disjoint from training names, fail-closed).
+
+**B.5 B4 / gap leg / sequencing gate (amends §2.3 s3′ and §3).** B4
+imports the rules-1-c A3 drivers byte-identical (pin `91d780f3…`); the
+common gap surface becomes the 2-option rules-1-c A1-verbatim entity
+prompt (`cell=entailed2`), byte-identical to B4's attempt-0 prompt.
+**B4 VACUITY FLAG (PROPOSED-ASM-1808, for the coordinator):** the landed
+rules-1-c campaign measured the A3 verify-retry channel VACUOUS (every A3
+row attempts=1; the imported `licensed_rejection` compares the engine's
+WORD answer through a URN-keyed `urn2word` lookup — `rules1_runner.py:342`
+— and therefore abstains unconditionally, before any acceptance ground is
+consulted). B4 inherits this byte-identically: it degenerates to attempt-0
+entity rows. Registered consequence: s3′ is conditional on a positive
+rules-1-c primary (ASM-1428) and DROPS OUT of the Holm family under the
+predicted INSTRUMENT-INVALID branch — B4 rows are then descriptive only.
+B4 is KEPT (runnable, pin-green) rather than dropped; its fate (repointed
+to a repaired rules-1-d A3 vs struck with B5-entity as sole efficiency
+comparator) is the maintainer's issue #24 decision. The B0–B5 train-time
+internalisation arms do NOT depend on the verify-retry channel and are
+unaffected by the vacuity. The §3 sequencing gate now reads
+`registry/verdicts/rules-1-c.json` (a rules-1-b verdict will never exist);
+only PASS opens it automatically; every other branch — including the
+predicted one — requires the maintainer's issue #24 slot decision and a
+record amendment re-registering the gate (PROPOSED-ASM-1807). GPU HELD.
+
+**B.6 Costs (amends §2.6).** Dry-plan on actual entity-corpus chars
+(A10G, sharded): R1 tier est $4.34 / worst $6.51 (5.92 worst GPU-h over 17
+jobs, worst single job 0.57 h); R2 tier worst $6.51 over 7 jobs; combined
+worst ≈$13 — well inside the $18 usd_cap and the $35 outer ceiling (the
+3-option decode prices ~8× fewer scored options than the old 24-option
+surface). Mock (mono + 13 shards + merge + analysis parity + verdict
+mapping + both dry-plans) is GREEN and pinned
+(`poc/rules-2/results/mock-validation.json`, staged-bytes sha
+`088307e7…`). NO freeze and NO run were performed by this build.

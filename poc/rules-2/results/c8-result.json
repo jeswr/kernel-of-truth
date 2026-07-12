@@ -1,16 +1,13 @@
 {
- "c8": "rules-2 train-bytes projection (PROPOSED-ASM-1427)",
- "construction": "GS-family flat lookup over the PINNED B2 training bytes: QA index (trained question pair -> answer) + aligned fact-line index ((subject-name, object-name) -> stated word); NO joins, NO inference (DECONF-A1 GS lineage, certificate.projection_answer analog)",
- "corpus_kot_hash_rules2_train": "3465e63dfa0d568bc88e4f27a85fa655744317719934d45e8392a1331595817e",
+ "c8": "rules-2 train-bytes projection (PROPOSED-ASM-1427; REWORK-3 entity form, PROPOSED-ASM-1804)",
+ "construction": "GS-family flat lookup over the PINNED B2 training bytes: QA index (trained (base, rel) entity question -> NAME) + aligned fact-line index ((base-name, relation-word) -> object NAME); NO joins, NO inference (DECONF-A1 GS lineage, certificate.projection_answer analog). REWORK-3 ceiling re-argument at chance 0.5: the gate metric is recovered-correct/n, and eval surface names are TOKEN-disjoint from training names (fail-closed guard), so a lookup cannot even emit an in-lexicon eval NAME \u2014 recovery is 0 by construction and the 0.10 ceiling is conservative INDEPENDENT of the decode chance floor (0.5 here vs 1/24 before): the ceiling bounds lookup leakage, not guessing",
+ "corpus_kot_hash_rules2_train": "c46aaa4ea2ffd56ef48c5cd0f2e379417fe763a5a0c140ce706f0bdf65545cf1",
  "descriptives": {
   "c4_trivial_floors_sout": {
    "abstain_all_acc": 0.0,
-   "answer_all_majority_word_acc": 0.5046620046620046,
-   "gold_distribution": {
-    "grandfather": 433,
-    "grandmother": 425
-   },
-   "note": "L3a discipline descriptives; the primary is a paired B2-B0 lift, not an absolute accuracy"
+   "always_first_option_acc": 0.4627039627039627,
+   "note": "REWORK-3 floors at the 2-option entity surface (chance 0.5 DISCLOSED; the 23-word majority floor is form-inapplicable): abstain-all 0.0; random 0.5; the measured sorted-first-option incidence brackets position bias. The 'pick the non-bridge name' structural shortcut (gold = chain-top by construction on 2-hop items) is NOT a train-bytes lookup and is OUT OF SCOPE for this gate \u2014 it is the registered DESIGN-OPEN PROPOSED-ASM-1806 for the pre-freeze review. The primary is a paired B2-B0 lift, not an absolute accuracy",
+   "random_two_option_acc": 0.5
   },
   "s_held_projection": {
    "by_kind": {
@@ -27,9 +24,9 @@
      "recovered_correct": 0
     }
    },
-   "disclosure": "cover (E1) cells share their (pair, answer) with trained family-1 stated cells of the same component, so they ARE flat-lookup-recoverable; the S-held stratum is descriptive-only and stratified by kind (PROPOSED-ASM-1444 disclosure)",
+   "disclosure": "cover (E1) cells share their (base, rel) entity key with trained family-1 stated cells of the same component, so they ARE flat-lookup-recoverable; chain cells whose (base, rel) key is AMBIGUOUS across support contexts (two grandmothers) are NOT lookup-recoverable \u2014 the s_mem projection anchor is therefore <1.0 on the entity form and stratified by kind (REWORK-3 re-derivation of the PROPOSED-ASM-1444 disclosure)",
    "n": 300,
-   "recovered": 142,
+   "recovered": 250,
    "recovered_acc": 0.47333333333333333,
    "recovered_correct": 142
   },
@@ -37,7 +34,7 @@
    "by_kind": {
     "chain": {
      "n": 102,
-     "recovered_correct": 102
+     "recovered_correct": 12
     },
     "cover": {
      "n": 159,
@@ -48,11 +45,11 @@
      "recovered_correct": 39
     }
    },
-   "disclosure": "cover (E1) cells share their (pair, answer) with trained family-1 stated cells of the same component, so they ARE flat-lookup-recoverable; the S-held stratum is descriptive-only and stratified by kind (PROPOSED-ASM-1444 disclosure)",
+   "disclosure": "cover (E1) cells share their (base, rel) entity key with trained family-1 stated cells of the same component, so they ARE flat-lookup-recoverable; chain cells whose (base, rel) key is AMBIGUOUS across support contexts (two grandmothers) are NOT lookup-recoverable \u2014 the s_mem projection anchor is therefore <1.0 on the entity form and stratified by kind (REWORK-3 re-derivation of the PROPOSED-ASM-1444 disclosure)",
    "n": 300,
-   "recovered": 300,
-   "recovered_acc": 1.0,
-   "recovered_correct": 300
+   "recovered": 210,
+   "recovered_acc": 0.7,
+   "recovered_correct": 210
   }
  },
  "gate": {
@@ -62,7 +59,7 @@
   "recovered": 0,
   "recovered_correct": 0,
   "sout_recovered_acc": 0.0,
-  "stratum": "S-out (covered nsk1-clutrr vs third-party gold)"
+  "stratum": "S-out (covered nsk1-clutrr, entity form, vs third-party gold chain-top NAME)"
  },
  "mode": "REAL",
  "pins_verified": {
@@ -78,8 +75,8 @@
  },
  "status": "instrument gate artifact; NO feasibility conclusion is stated here \u2014 verdicts belong to the pinned analysis + verdict-gen",
  "train_index_sizes": {
-  "fact_line_pairs": 5680,
-  "qa_pairs": 14800,
+  "fact_line_pairs": 8495,
+  "qa_pairs": 12611,
   "train_examples": 19931
  }
 }

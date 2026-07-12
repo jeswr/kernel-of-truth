@@ -41,11 +41,14 @@ LAUNCH GATES — ENFORCED PROGRAMMATICALLY by _launch_gates() (fail-closed;
 review item 9 replaced the old advisory reminder), full path only:
   1. registry/experiments/rules-2.json status FROZEN and the staged-bytes
      manifest sha recorded in its pins.harness_manifest;
-  2. sequencing (PROPOSED-ASM-1420): registry/verdicts/rules-1-b.json
-     exists with verdict PASS (rules-1's GPU run was VOIDED 2026-07-12 and
-     superseded by rules-1-b; KILL-b/INSTRUMENT-INVALID/INCONCLUSIVE there
-     => refuse — any other branch needs a maintainer-authorized record
-     amendment, after which the coordinator updates this gate);
+  2. sequencing (PROPOSED-ASM-1420 as corrected by PROPOSED-ASM-1807,
+     REWORK-3): registry/verdicts/rules-1-c.json exists with verdict PASS
+     (rules-1-b was superseded pre-GPU by rules-1-c 2026-07-12 — a
+     rules-1-b verdict will never exist; the landed rules-1-c rows PREDICT
+     INSTRUMENT-INVALID, so expect this gate to hold GPU until the
+     maintainer's issue #24 slot decision re-registers it; KILL-b there
+     additionally requires explicit maintainer re-authorization, s3'
+     struck);
   3. a green pinned mock artifact (poc/rules-2/results/mock-validation.json)
      whose harness sha matches the staged bytes;
   4. --dry-plan green for the requested tier (registry usd_cap $18 /
@@ -228,20 +231,31 @@ def _launch_gates(gpu: str, rungs: str, authorize_r2: bool,
                          "since freeze (correction record required)"
                          % staged_sha[:16])
 
-    verdict_path = REPO_ROOT / "registry" / "verdicts" / "rules-1-b.json"
+    verdict_path = REPO_ROOT / "registry" / "verdicts" / "rules-1-c.json"
     if not verdict_path.exists():
-        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420): no "
-                         "rules-1-b verdict exists yet — RULES-2's GPU path "
-                         "is blocked until the RULES-1-B GPU readout lands "
-                         "(rules-1 was VOIDED + superseded 2026-07-12)")
+        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420 as "
+                         "corrected by PROPOSED-ASM-1807): no rules-1-c "
+                         "verdict exists yet — RULES-2's GPU path is blocked "
+                         "until the RULES-1-C mechanical readout lands "
+                         "(rules-1-b was superseded pre-GPU by rules-1-c, "
+                         "2026-07-12; a rules-1-b verdict will never exist). "
+                         "GPU is additionally HELD pending the maintainer's "
+                         "issue #24 host-integration slot decision.")
     verdict = json.loads(verdict_path.read_text()).get("verdict")
     if verdict != "PASS":
-        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420): "
-                         "rules-1-b verdict is %r — KILL-b requires explicit "
-                         "maintainer re-authorization (s3' struck); "
-                         "INSTRUMENT-INVALID/INCONCLUSIVE block the run. Any "
-                         "such branch needs a record amendment, after which "
-                         "the coordinator updates this gate." % verdict)
+        raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420/1807): "
+                         "rules-1-c verdict is %r — only PASS opens this "
+                         "gate automatically. The landed rules-1-c rows "
+                         "PREDICT INSTRUMENT-INVALID (vacuous A3 engagement "
+                         "gate, attempts=1 everywhere); under that or ANY "
+                         "non-PASS branch the rules-2 launch requires the "
+                         "maintainer's issue #24 slot decision (rules-1-d "
+                         "repair vs rules-2 as the replacement slot, s3'/B4 "
+                         "fate included) and a record amendment "
+                         "re-registering this gate; KILL-b additionally "
+                         "requires explicit maintainer re-authorization "
+                         "(s3' struck). No spend on any branch without "
+                         "that." % verdict)
 
     mv_path = RULES2_DIR / "results" / "mock-validation.json"
     if not mv_path.exists():

@@ -1,0 +1,27 @@
+DRIVER start 2026-07-12T13:20:52Z
+PREFLIGHT pA 2026-07-12T13:20:52Z
+RUN_ONTG2V2_STOPCAP: pos preflight-cal1: cap pattern 'usage limit'; STOP (no retry). dir=poc/ontology-import-g2-v2/runs/real-20260712b/judge-pA-gpt56sol/preflight/cal_g2-1/c1_t0
+PREFLIGHT pA exit=3
+DRIVER STOP preflight rc=3
+DRIVER start 2026-07-12T15:02:40Z
+PREFLIGHT pA 2026-07-12T15:02:40Z
+PREFLIGHT pA judge-pA-gpt56sol: PASS
+PREFLIGHT pA exit=0
+PREFLIGHT pB 2026-07-12T15:03:26Z
+PREFLIGHT pB judge-pB-haiku45: PASS
+PREFLIGHT pB exit=0
+BLOCK pA a1 real start 2026-07-12T15:03:53Z
+RUN_ONTG2V2_ABORT: ERR_ONTG2V2_PILOT: no pilot-status.json; run pilot + pilotgate first (no full-arm call may precede a green pilot)
+BLOCK pA a1 real exit=2
+DRIVER STOP rc=2
+DRIVER start 2026-07-12T15:21:14Z
+PREFLIGHT pA 2026-07-12T15:21:14Z
+PREFLIGHT pA judge-pA-gpt56sol: PASS
+PREFLIGHT pA exit=0
+PREFLIGHT pB 2026-07-12T15:21:17Z
+PREFLIGHT pB judge-pB-haiku45: PASS
+PREFLIGHT pB exit=0
+BLOCK pA a1 real start 2026-07-12T15:21:20Z
+RUN_ONTG2V2_ABORT: ERR_ONTG2V2_PILOT: no pilot-status.json; run pilot + pilotgate first (no full-arm call may precede a green pilot)
+BLOCK pA a1 real exit=2
+DRIVER STOP rc=2

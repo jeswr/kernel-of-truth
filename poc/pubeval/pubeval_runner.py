@@ -76,12 +76,16 @@ MODEL_REGISTRY = {
     # DDC surgery donors (docs/next/design/DDC.md §2.5 / §5.1 T0 mechanical
     # addition 2, ASM-1655): BASE checkpoints, NOT Instruct — base-not-
     # instruct avoids the chat-template confound in likelihood scoring.
-    # revision "" is DELIBERATE: the T0 ops step pins the BASE revisions;
-    # until then any load fails closed via ERR_UNPINNED_MODEL (below).
-    "smollm2-135m-base": {"repo": "HuggingFaceTB/SmolLM2-135M",
-                          "revision": ""},
-    "smollm2-360m-base": {"repo": "HuggingFaceTB/SmolLM2-360M",
-                          "revision": ""},
+    # Revisions pinned at T0 ops (2026-07-12) from the HF model API
+    # (api/models/<repo> "sha" = the main-branch commit at pin time);
+    # config.json re-verified at these revisions: 135M d_model=576,
+    # 30 layers; 360M d_model=960, 32 layers (DDC.md §2.5 re-pin).
+    "smollm2-135m-base": {
+        "repo": "HuggingFaceTB/SmolLM2-135M",
+        "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2"},
+    "smollm2-360m-base": {
+        "repo": "HuggingFaceTB/SmolLM2-360M",
+        "revision": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49"},
 }
 
 GEN_STOP = "\nQuestion:"  # few-shot frame delimiter doubles as stop string

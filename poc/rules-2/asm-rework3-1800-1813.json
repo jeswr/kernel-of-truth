@@ -1,0 +1,161 @@
+{
+ "_readme": [
+  "RULES-2 REWORK-3 assumption block ASM-1800..1813 — EMITTED by the build role (fable-build-3, 2026-07-12) for central registration by the coordinator; registry/assumptions.jsonl is NOT touched by this build (same discipline as the 1440..1459 block).",
+  "Range 1800-1819 verified free against registry/assumptions.jsonl at emission time (max registered id 1787).",
+  "Code and record comments reference these rows as PROPOSED-ASM-18xx pending registration.",
+  "Scope: the REWORK-3 re-base of rules-2 onto the rules-1-c ENTITY-FORM frame (docs/next/design/rules-2-train-time.md Appendix B; critical-path doc §2 change set). No feasibility conclusion is stated or implied; GPU is HELD pending maintainer issue #24; this build performed NO freeze and NO run."
+ ],
+ "rows": [
+  {
+   "id": "ASM-1800",
+   "tag": "STIPULATED",
+   "claim": "REWORK-3 repoints EVERY rules-1 import pin to the rules-1-c bytes: rules2-manifest.json pins.rules1RunnerPySha256 = 91d780f344019f5948533973348873aadeb9803f85695abc5854198b690a23ab (on-disk poc/rules-1/rules1_runner.py, the frame FROZEN as registry/experiments/rules-1-c.json frozen_sha256 09b246dcba4640581646dee8d8c0ca7def18102f17179ad4398e514ebdd065f6); B4 and the gap surface import these bytes byte-identical. The rules-1-b pin 1f423ac0... is superseded: rules-1-b never ran on GPU and its relation-word form is measured dead for unaided hosts.",
+   "rationale": "Importing the rules-1-b bytes would rebuild a measured-dead instrument and fail ERR_PIN against the tree; rules-1-c is the frozen, instrument-relevant successor. poc/rules-1 is imported, never edited.",
+   "backing_ref": "poc/rules-2/inputs/rules2-manifest.json pins; docs/next/design/post-rules1c-critical-path.md §2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1801",
+   "tag": "STIPULATED",
+   "claim": "The training corpus is re-rendered as rules-1-c ENTITY-form QA: relation cells ask 'Who is the <rel> of <base>?' with the object NAME as target and a per-cell 2-option anti-echo decode set (both names in the cell's context, base excluded); family-2 chain cells restrict their context to the derivation's stated support (proof leaves + support gender facts + UNA — the 3-name two-hop nsk1 item shape) because the entity question is 2-way ambiguous in a full 3-generation family; the unique-answer property is asserted per cell in the restricted closure and violations are skipped WITH COUNTS (0 in the real build); family-1/3 keep full component context; typing cells keep the man/woman 2-option form.",
+   "rationale": "Entity-form uniqueness forces the support restriction ('Who is the grandmother of X?' has two true answers in a full family); the restriction reproduces exactly the eval item shape, keeping the train->eval form match that is the point of the rework. Mixed context sizes (family-1 full vs family-2 restricted) are disclosed in the corpus manifest.",
+   "backing_ref": "poc/rules-2/materialise_closure.py component_examples; data/rules2-train/manifest.json entity_uniqueness_rule",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1802",
+   "tag": "STIPULATED",
+   "claim": "Eval decode is a uniform 3-option forced choice on every rules-2 arm: the cell's 2-option anti-echo set + the trained named refusal ('cannot be determined from these facts'), scored per-option-logprob after the rules-1-c direction-explicit entity infill cue; chance among the content options is 0.5, DISCLOSED; NO menu/option enumeration appears anywhere in any prompt; the refusal continuation is agrammatical after the entity cue — a marked continuation, identical across arms and across train/eval (family 3 trains exactly this surface), disclosed, not corrected.",
+   "rationale": "Carries the rules-1-c no-enumeration contract and the rework-2 refusal-surface disclosure onto the entity form; like-for-like across every compared arm.",
+   "backing_ref": "poc/rules-2/inputs/rules2-manifest.json refusal_surface_note + frames_note; rules2_runner.py eval_cells",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1803",
+   "tag": "STIPULATED",
+   "claim": "c1p is re-operationalised for the 2-option entity surface as the FORCED FLIP: every family-2 train target is replaced by the item's other decode option (man<->woman for typing cells). shuffled_answer != original_answer holds for EVERY item BY CONSTRUCTION (11,411/11,411 in the real build); corpus size and token cost preserved up to name-length variation. The control is ANTI-CORRELATED — it trains the complement rule, a strictly stronger content destruction than a shuffle — and a negative c1p lift reads as recovery ~0 under the registered s1' ratio test (UB95 < 0.30, ceiling chance-floor-invariant).",
+   "rationale": "At exactly 2 candidate options no cross-item label permutation is well-defined (targets are per-item family NAMES) and the only derangement is the flip; the anti-correlation and its interpretive limit are disclosed rather than hidden (see ASM-1806).",
+   "backing_ref": "poc/rules-2/materialise_closure.py c1' section; data/rules2-train/c1shuf-map.json",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1804",
+   "tag": "MEASURED",
+   "claim": "The c8 train-bytes projection re-derived on entity keys ((base, rel) QA index + entity-directional fact-line index, no joins) recovers 0/858 S-out items (recovered_acc 0.0 <= ceiling 0.10, GATE PASS) on the REWORK-3 corpus; s_mem/s_held projections are stratified by kind with the entity-key ambiguity disclosure (chain (base, rel) keys AMBIG across support contexts => the s_mem lookup anchor is <1.0 on the entity form); c4 floors at chance 0.5: abstain-all 0.0, random-2-option 0.5, measured sorted-first-option incidence. The 0.10 ceiling is chance-floor-independent: it bounds lookup LEAKAGE, and eval surface names are token-disjoint from training names (fail-closed guard), so a lookup cannot emit an in-lexicon eval name at all.",
+   "backing_ref": "poc/rules-2/results/c8-result.json sha256 674b424f913d397c757ddf263d9abf8fbc10f54d986b75e3ff3bb768e8d7c598 (REAL, gate_pass=true, 2026-07-12)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1805",
+   "tag": "STIPULATED",
+   "claim": "Chance-0.5 re-derivations: the primary SESOI 0.05 and KILL-d (LB <= 0) carry UNCHANGED because both are paired-lift quantities, not absolute accuracies; G3 headroom stays acc(B0) <= 0.85 (expected plain-host floor ~0.70 per the rules-1-c A1 descriptive read 0.7028; 0.85 sits above the expected floor and leaves >= 3x SESOI of measurable headroom below saturation); the s1' 0.30 recovery ceiling is a lift ratio, chance-floor-invariant; c1p derangement re-derived per ASM-1803.",
+   "rationale": "The pre-registered decision quantities are contrasts and ratios; only the absolute-accuracy floors (c4) and the saturation gate needed re-argument at the new chance floor, and both are re-derived rather than silently carried.",
+   "backing_ref": "analysis/rules_2.py header + G3 comment; docs/next/design/rules-2-train-time.md Appendix B.4",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1806",
+   "tag": "STIPULATED",
+   "claim": "DESIGN-OPEN (registered, blocks freeze until reviewed): on the entity form the gold NAME is in-context and on 2-hop items gold = chain-top by construction, so a trained host could learn the positional 'pick the non-bridge name' shortcut (ceiling 1.0) instead of the inference. B1 (no family-2) does not teach it; c8 cannot see it (not a train-bytes lookup); and the ASM-1803 forced flip trains the complement rule, so a c1p collapse CANNOT separate content-driven lift from shortcut learning. This residual confound must be argued or gated through the GPT-5.6 review gate BEFORE the coordinator freezes rules-2.",
+   "rationale": "Honest registration of the one confound the rework introduces and its controls only partially cover; deferring it silently would be a prereg lie.",
+   "backing_ref": "docs/next/design/rules-2-train-time.md Appendix B.3; docs/next/design/post-rules1c-critical-path.md §2 item 5",
+   "resolution_path": "GPT-5.6 review gate pre-freeze: either an argued bound (e.g. B1-vs-B2 shortcut-transfer analysis, bridge-mention statistics) or an added gate/stratum (e.g. items where the bridge heuristic disagrees with gold) registered before freeze",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1807",
+   "tag": "STIPULATED",
+   "claim": "Sequencing-gate correction (amends PROPOSED-ASM-1420): modal_rules2._launch_gates reads registry/verdicts/rules-1-c.json (a rules-1-b verdict will never exist — superseded pre-GPU 2026-07-12); ONLY a PASS verdict opens the gate automatically; every other branch — including the PREDICTED INSTRUMENT-INVALID from the landed rows — requires the maintainer's issue #24 host-integration slot decision (rules-1-d repair vs rules-2 as the replacement slot, B4/s3' fate included) and a record amendment re-registering the gate; KILL-b additionally requires explicit maintainer re-authorization with s3' struck. GPU is HELD pending that decision; this build performed NO freeze and NO run.",
+   "rationale": "Fail-closed re-registration of an unsatisfiable gate onto the real predecessor, deferring every non-PASS branch to the maintainer exactly as the governance requires.",
+   "backing_ref": "poc/rules-2/modal/modal_rules2.py _launch_gates; docs/next/design/post-rules1c-critical-path.md §5 item 4",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1808",
+   "tag": "MEASURED",
+   "claim": "B4 INHERITS THE RULES-1-C VERIFY-RETRY VACUITY (coordinator flag): on the landed rules-1-c campaign every A3 row has attempts=1 and A3 is correctness-identical to c1 on all 2574 item x seed cells — the verify-retry channel never fired. Mechanism, read from the imported bytes: twin_engine.Closure.query_relation returns the relation WORD, but licensed_rejection (rules1_runner.py:342) tests urn2word.get(payload.answer) != rel_word — a URN-keyed lookup on a word — so the verifier abstains unconditionally BEFORE any acceptance ground is consulted. B4 imports these bytes byte-identically (frozen, not editable here), so B4 degenerates to attempt-0 entity rows and its 3 seeds are expected byte-identical. Consequences: s3' is conditional on a positive rules-1-c primary (ASM-1428) and DROPS OUT of the Holm family under the predicted branch (B4 rows descriptive only); the B0-B5 train-time internalisation arms do NOT use the verify-retry channel and are UNAFFECTED. Repair (word-comparison fix + an acceptance ground with teeth at 2 options) belongs to rules-1-d under the issue #24 decision.",
+   "backing_ref": "poc/rules-1/results-incoming/20260712-142704-rules1b-parallel/ (RUNNER_EXIT rc=0, 13,470 rows, all A3 attempts=1); poc/rules-1/rules1_runner.py sha256 91d780f344019f5948533973348873aadeb9803f85695abc5854198b690a23ab lines 338-345; poc/rules-1/twin_engine.py query_relation (returns (word, why))",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1809",
+   "tag": "EXTRAPOLATION",
+   "claim": "REWORK-3 cost bands from --dry-plan on actual entity-corpus chars (A10G, sharded): R1 tier est $4.34 / worst $6.51 (5.92 worst GPU-h over 17 independent jobs, worst single job 0.57 h vs the 12 h Modal function timeout); R2 tier worst $6.51 over 7 jobs; combined worst ~$13.02 vs the $18 usd_cap and $35 outer ceiling. The 3-option decode prices ~8x fewer scored options than the superseded 24-option surface.",
+   "backing_ref": "rules2_runner.py --dry-plan output 2026-07-12 (planning constants in rules2-manifest.json)",
+   "resolution_path": "the run's measured eval_ledger/training_ledger replaces these estimates; dry-plan re-run fails closed at launch",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1810",
+   "tag": "MEASURED",
+   "claim": "data/rules2-train regenerated on the entity form: 21,780 examples (11,411 family-2 train / 8,520 family-1+3 train / 1,249 sheld / 600 dev; kinds: 5,840 stated, 5,720 chain, 5,840 cover, 1,460 typing, 2,920 refusal), kot-corpus-hash c46aaa4ea2ffd56ef48c5cd0f2e379417fe763a5a0c140ce706f0bdf65545cf1; exclusion ledger: 3 conflict components, 1 token-level name-collision component (wv0-elvis-presley, listed), 117 out-of-inventory records, 0 entity-ambiguity/support-shape exclusions (the support restriction resolves all chain ambiguity).",
+   "backing_ref": "data/rules2-train/manifest.json (generator_sha256 66e45adc10b6f2e6072db2f39ab13ce373817466eac90c5f17b1797a20711105); kot-corpus-hash/1 digest c46aaa4e...",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1811",
+   "tag": "STIPULATED",
+   "claim": "The s3' gap leg is re-based onto the COMMON 2-option entity surface: B2 (all FT seeds) and B0 additionally decode the rules-1-c A1-verbatim entity prompt — byte-identical to B4's attempt-0 verify-retry prompt (r1.build_prompt, no padding/feedback/derived block, per-item 2-option decode, no refusal option) — emitted as cell='entailed2'; B2/B4 contrasts and the (B2-B0)/(B4-B0) descriptive fraction are computed on this surface only, never across surfaces. Analysis output fields renamed accordingly (/analysis/acc_b0_sout2, /analysis/acc_b2_sout2; ledger key suffix /gap2).",
+   "rationale": "Honest cell naming (the old 'entailed23' named a 23-option decode that no longer exists) with the review-fix-1 same-surface discipline carried verbatim.",
+   "backing_ref": "rules2_runner.py gap2_cells/gap2_prompt; analysis/rules_2.py sha256 782bc9ebc8e2f0c936e1f84063fbdd7ccec2eeec06106a7d6ef4959e92b47a00; merge_shards.py CELL_ORDER/INVARIANT_FIELDS",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1812",
+   "tag": "MEASURED",
+   "claim": "The REWORK-3 mock validation is GREEN and PINNED: monolithic mock + the 13 canonical mock shards + merge_shards.py reconstruction; pinned-analysis parity monolithic == sharded+merged on every field except the disclosed process-measured metrics; verdict mapping over the DRAFT record's verdict_rules resolves PASS on the planted stub gradient (mock mechanics, never evidence); --dry-plan green for both tiers. Artifact poc/rules-2/results/mock-validation.json sha256 0a9025951647f24750b1d4c4a61b9a307285d9f9ce7ee167698cf68a3e5275ef, tied to staged-bytes manifest sha 843ecab4ff12a457fec594d83153fa6d16a8b7c4dff3a22c250697d0fa7c29a7.",
+   "backing_ref": "poc/rules-2/results/mock-validation.json sha256 0a902595...; modal_rules2.py --print-manifest 843ecab4... (2026-07-12)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "ASM-1813",
+   "tag": "STIPULATED",
+   "claim": "Mock stub constants re-planted for the chance-0.5 entity surface (rules2-manifest.json mock block), including a NEGATIVE c1p format bonus (-0.10) so the planted c1p gradient sits below the plain floor, matching the ASM-1803 anti-correlated construction; a mock-mechanics choice so gates/analysis/verdict-mapping resolve during validation — never a measurement and never evidence.",
+   "rationale": "The stub gradient must exercise the machinery in the direction the real control is constructed to move; labelling stays MOCK end-to-end.",
+   "backing_ref": "poc/rules-2/inputs/rules2-manifest.json mock block (mock_gradient_note)",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  }
+ ]
+}
