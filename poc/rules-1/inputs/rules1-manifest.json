@@ -1,6 +1,6 @@
 {
  "_readme": [
-  "RULES-1 GPU-arm harness manifest (poc/rules-1/rules1_runner.py + poc/rules-1/modal/modal_rules1.py).",
+  "RULES-1-C GPU-arm harness manifest (poc/rules-1/rules1_runner.py + poc/rules-1/modal/modal_rules1.py) -- ENTITY-form host surface; DRAFT registry/experiments/rules-1-c.json supersedes rules-1-b (frozen 2b81375e..., host-validity pilot floor failure).",
   "FROZEN design: registry/experiments/rules-1.json frozen_sha256 0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c.",
   "Every pin below is verified fail-closed (ERR_PIN / ERR_CERT_PRECONDITION) before any cell runs, mock included.",
   "pins.model_revisions provenance: registry/experiments/nsk1.json is DRAFT and carries NO resolved revision shas (R1/R2 placeholders only); the FROZEN carriers of the R1/R3 Instruct revisions are registry/experiments/f2b-replicate.json and f2b-transfer.json pins.model_revisions (both FROZEN; same host family the nsk1 G2 calibration exercised). The coordinator's ops amendment should cite that chain when filling the rules-1 record's PINNED-AT-INPUTS model_revisions."
@@ -8,15 +8,35 @@
  "design_constants_from_frozen_record": {
   "experiment": "rules-1",
   "frozen_sha256": "0ef03ee16fdc278885b450500cb674f4319c1154ad067995e0b491feae4bec6c",
-  "arms_built_here": ["A1", "A3", "A5", "A7", "c1"],
+  "arms_built_here": [
+   "A1",
+   "A3",
+   "A5",
+   "A7",
+   "c1"
+  ],
   "arms_note": "The coordinator-scoped host-lift arms (A1/A3/A5/A7) plus c1 shuffled-rules — the load-bearing structure control the frozen verdict_rules require for PASS (s1) and the design marks as the one control NOT to cut. A2/A4/c2/c4/c6 cells are NOT in this runner's default plan; c5 is phase-2 by design (MD-7).",
   "k_retry": 4,
-  "seeds": [0, 1, 2],
-  "rungs": {"A1": "R1", "A3": "R1", "A7": "R1", "c1": "R1", "A5": "R3"},
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "rungs": {
+   "A1": "R1",
+   "A3": "R1",
+   "A7": "R1",
+   "c1": "R1",
+   "A5": "R3"
+  },
   "n_covered_entailed": 858,
   "n_control": 100,
-  "budget": {"usd_cap": 10, "gpu_hours_cap": 6, "wall_clock_cap_hours": 12,
-             "coordinator_outer_ceiling_usd": 40}
+  "budget": {
+   "usd_cap": 10,
+   "gpu_hours_cap": 6,
+   "wall_clock_cap_hours": 12,
+   "coordinator_outer_ceiling_usd": 40
+  }
  },
  "pins": {
   "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
@@ -31,14 +51,19 @@
   "_pin_notes": "corpus hashes verbatim from the FROZEN record pins.corpus_hashes (kot-corpus-hash/1); twin-engine + certificate-result verbatim from pins.artifact_hashes; f2bt runner pinned so the A3 loop's reused bytes (HFLM forced-choice scorer, seeded retry sampler SEED_BASE 20260710, CellGuard) are byte-identical to the f2b-transfer FULL-run harness; poc/f2b + poc/f2b-transfer + poc/deconf-b trees are NOT modified by this build (new module only)."
  },
  "model_revisions": {
-  "R1": {"repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
-         "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"},
-  "R3": {"repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-         "revision": "31b70e2e869a7173562077fd711b654946d38674"},
+  "R1": {
+   "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+  },
+  "R3": {
+   "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "revision": "31b70e2e869a7173562077fd711b654946d38674"
+  },
   "dtype": "fp32 (frozen runner_constraints.hardware: 'single A10G (Modal), fp32, greedy'; the reused f2bt HFLM defaults to fp16, so Rules1HFLM overrides ONLY the load dtype and inherits the scorer/sampler unchanged)"
  },
  "prompt_frames": {
-  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word from: {menu}.\n\nFacts:\n",
+  "task_prefix": "Read the family facts, then answer the question with exactly one name.\n\nFacts:\n",
+  "task_prefix_render": "Read the verified derivation, then answer the question with exactly one name.\n\n",
   "fact_line": "- {line}\n",
   "una_line": "- All named people are distinct individuals.\n",
   "derived_prefix": "Verified derivations from a deterministic rules engine (each with its proof):\n",
@@ -46,9 +71,9 @@
   "feedback_prefix": "Verifier feedback on earlier answers (each rejection is licensed by a proof from the stated facts):\n",
   "feedback_line": "- {line}\n",
   "question_prefix": "\nQuestion: ",
-  "answer_cue": "\nAnswer: {b_name} is {a_name}'s",
+  "answer_cue": "\nAnswer: the {rel} of {a_name} is",
   "padding_sentence": "This line is neutral padding text with no information about the family.",
-  "frames_note": "single shared affordance for every arm (nsk1/f2b discipline); arms differ ONLY in the derived/feedback blocks and padding (PROPOSED-ASM-1127 token matching: A1/A5 pad to the A2-shaped injection token count computed per item with the arm's own tokenizer). RULES-1-B FIXES (PROPOSED-ASM-1630, root cause of the rules-1 void — two interacting frame defects, each measured sufficient to keep even A7 at ~0 on the R1 host): (1) answer_cue is the direction-explicit infill '{b_name} is {a_name}'s' rendered per item from the query-pair surfaces — the CLUTRR gold convention reads (A, gold, B) as 'A's <gold> is B', and the rules-1 bare '\\nAnswer:' cue left the direction to the model (whose natural reading is the reverse), making the gold word structurally un-elicitable; (2) the 23-word closed-vocabulary enumeration moved from a standalone line immediately before the answer cue (where it swamps the small host's next-token distribution with menu-prior words: measured on R1, ' grandfather' top-1 at -1.14 without the adjacent menu vs rank ~9 with it, recovering to top-1 when the menu sits in the task header) into task_prefix ({menu} placeholder); the forced-choice constraint itself is enforced by the per-option logprob scorer, not by prompt text."
+  "frames_note": "single shared affordance for every arm (nsk1/f2b discipline); arms differ ONLY in the derived/feedback blocks and padding (PROPOSED-ASM-1127 token matching: A1/A5 pad to the A2-shaped injection token count computed per item with the arm's own tokenizer). RULES-1-C FIX (2026-07-12, after the rules-1-b host-validity pilot FAILED the frozen A5 floor at 0/24 on the fixed relation-word frame): the host surface is the ENTITY form (nsk1 g2b form 2) -- question 'Who is the <gold_rel> of <base>?', per-item 2-option forced choice over the non-base lexicon surfaces (bridge + chain-top; anti-echo structural, chance 0.5 DISCLOSED), answer = chain-top NAME (third-party CLUTRR proof_state gold). ROOT CAUSE of the rules-1-b floor failure (form mis-attribution): the 0.7912 A5 premise is the nsk1 ENTITY-form bprime datum (n=958); the relation-word form is recorded 'dead-at-floor at every tested host' in the nsk1-g2d assessment (1.7B 0.00-0.10), and 8 frame variants measured 2026-07-12 on the pinned R3 (A10G fp32; incl. the exact nsk1 chat+generation channel and story content) never put the gold relation word top-1, while the entity form on the SAME stated-facts world with the SAME f2bt scorer scored 11/12. The rules-1-b fixes are preserved in entity form: the answer cue is the direction-explicit infill 'the {rel} of {a_name} is' and no option enumeration appears anywhere in the prompt (the closed option set is enforced by the per-option logprob scorer). RULES-1-C A7 RENDER-ONLY (measured on the pinned R1 @ A10G fp32, n=12, 2026-07-12): A7's prompt is task_prefix_render + the BARE derived fact + question + cue, with NO stated-facts block and NO proof prose -- facts+proof scored 4/12 and facts+bare 3/12 (bridge-frequency capture at the 135M, the g2d pathology), render-only+proof 7/12, render-only+bare 12/12; the proof stays in the engine payload and the run-record ledger."
  },
  "shuffle": {
   "perm_seed": 20260711,
@@ -58,22 +83,41 @@
   "note": "SYNTHETIC mechanics-only stub LM (no torch); every number is labelled MOCK and never a measurement. The engine (twin), closures, proofs, feedback rendering, gold-leak guard, derangement, row emitter and analysis contract are the REAL code paths.",
   "n_covered": 60,
   "n_control": 10,
-  "seeds": [0, 1],
-  "stub_skill": {"R1": 0.55, "R3": 0.80},
-  "stub_injection_bonus": 0.40,
-  "stub_feedback_bonus": 0.20
+  "seeds": [
+   0,
+   1
+  ],
+  "stub_skill": {
+   "R1": 0.55,
+   "R3": 0.8
+  },
+  "stub_injection_bonus": 0.4,
+  "stub_feedback_bonus": 0.2
  },
  "planning": {
   "note": "dry-plan ESTIMATES only — never emitted as measurements; constants carried from poc/f2b-transfer/inputs/f2bt-manifest.json planning",
   "throughput_tok_per_s": {
-   "A100": {"R1": 16000, "R3": 2600},
-   "A10G": {"R1": 12000, "R3": 1800},
-   "T4": {"R1": 4000, "R3": 600}
+   "A100": {
+    "R1": 16000,
+    "R3": 2600
+   },
+   "A10G": {
+    "R1": 12000,
+    "R3": 1800
+   },
+   "T4": {
+    "R1": 4000,
+    "R3": 600
+   }
   },
   "chars_per_token_estimate": 4.0,
   "overhead_factor": 1.5,
   "overhead_factor_note": "rules-1-b true-up (PROPOSED-ASM-1638): the executed 20260712-070956 campaign measured 4.59 h wall for an ALL-retries run (A3/c1 attempts=5 everywhere) vs 4.28 h planned worst-case compute — measured overhead ~1.07x; 1.5 keeps a conservative margin. The prior 2.0 carried from f2bt planning put the marginal expected-hours check at 5.96/6.00 h, which the +~6-token/item direction-explicit cue flipped OVER despite the measured run finishing well inside every cap.",
   "expected_attempt_factor": 2.0,
-  "usd_per_hour": {"T4": 0.59, "A10G": 1.1, "A100": 2.1}
+  "usd_per_hour": {
+   "T4": 0.59,
+   "A10G": 1.1,
+   "A100": 2.1
+  }
  }
 }

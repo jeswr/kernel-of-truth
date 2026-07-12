@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
-"""RULES-1-B GPU-arm runner (DRAFT registry/experiments/rules-1-b.json,
-superseding rules-1 frozen_sha256 0ef03ee1... after the 2026-07-12 maintainer
-VOID of its GPU run — degenerate host instrument; post-mortem
-docs/next/analysis/rules1-void-degenerate-instrument.md. Fixes over the
-rules-1 harness: direction-explicit answer cue (render_answer_cue — the root
-cause), cue-aligned ground-(iii) feedback wording, and a mandatory real-model
-CPU pilot mode (--pilot-n). Prereg doc docs/next/arch/world-model-rules-engine.md
-§4 as amended by the cross-model synthesis; maintainer approvals MD-1..MD-9,
-issue #19).
+"""RULES-1-C GPU-arm runner (DRAFT registry/experiments/rules-1-c.json,
+superseding rules-1-b frozen_sha256 2b81375e... after its host-validity
+pilot FAILED the frozen A5 floor: acc(A5)=0/24 on the fixed relation-word
+frame, launch refused fail-closed 2026-07-12. ROOT CAUSE (form
+mis-attribution): the A5 floor premise 0.7912 is the nsk1 ENTITY-form datum
+(bprime, n=958), but rules-1/rules-1-b asked the RELATION-WORD form — the
+form the nsk1-g2d assessment records as 'dead-at-floor at every tested
+host' (1.7B 0.00-0.10). Measured 2026-07-12 on the pinned R3, A10G fp32: 8
+frame variants (as-built / no-pad / pad-above / chat template / the exact
+nsk1 generation channel / story content) never put the gold relation word
+top-1; the ENTITY form on the SAME stated-facts world with the SAME f2bt
+forced-choice scorer scores 11/12. FIX: the host surface is now the entity
+form (nsk1 g2b form 2) — question 'Who is the <gold_rel> of <base>?',
+per-item 2-option forced choice over the non-base lexicon names (bridge +
+chain-top; chance 0.5, DISCLOSED), answer = the chain-top NAME (third-party
+CLUTRR proof_state gold, predates the kernel). The rules-1-b direction-
+explicit-cue and no-menu-adjacency fixes are preserved in entity form.
+Prereg doc docs/next/arch/world-model-rules-engine.md §4 as amended by the
+cross-model synthesis; maintainer approvals MD-1..MD-9, issue #19).
 
 WHAT THIS RUNNER MEASURES (raw rows only — verdicts belong to the pinned
 analysis/rules_1.py + verdict-gen under run-vs-audit separation): does the
@@ -312,63 +322,56 @@ def assert_no_gold_leak(text, gold_word, where):
                          % (gold_word, where, text))
 
 
-def licensed_rejection(payload, tbox, stated_set, a, b, word, vocab,
-                       names, urn2word, gold_word):
-    """The A3 rejection line for a proposed answer `word` (prereg §4.3 A3:
-    'the engine issues a licensed rejection with its proof'). Three licensed
-    grounds, checked in order; the returned line NEVER contains the gold
-    token (asserted).
+def licensed_rejection(payload, tbox, stated_set, a, rel_word, proposed,
+                       vocab, names, urn2word, engine_name):
+    """The A3 rejection line for a proposed answer NAME `proposed` (prereg
+    §4.3 A3: 'the engine issues a licensed rejection with its proof').
+    ENTITY FORM (rules-1-c): the question fixes (A, rel_word) and asks for
+    the person; the engine's licensed answer is the derived chain-top
+    `engine_name` (= names[b] of the certified (a, rel, b) derivation).
+    Licensed grounds, checked in order; the returned line NEVER introduces
+    the gold/engine name token (asserted — the functional-uniqueness ground
+    of the relation form is DROPPED here because quoting 'a's only <rel> is
+    x' would name the gold entity).
 
     Returns None when the proposal equals the engine's licensed answer
     (accept) or when the engine cannot decide (abstain — no free rejections).
     """
     if payload.refusal is not None:
         return None  # engine undecidable here -> verifier abstains
-    if word == payload.answer:
+    if urn2word.get(payload.answer) != rel_word:
+        return None  # derivation does not address this question -> abstain
+    if proposed == engine_name:
         return None  # accept
-    # Leak guard scope: feedback may quote the model's OWN proposal (already
-    # known to the model) but must never INTRODUCE the gold token — so the
-    # check is skipped only when the proposal itself is the gold word (a c1
-    # deranged-verifier case; the true verifier accepts gold on covered).
-    if word == gold_word:
-        gold_word = None
-    cl = payload.closure
-    urn_w = vocab.get(word)
-    an, bn = names.get(a, a), names.get(b, b)
+    n2u = {v: k for k, v in names.items()}
+    p_urn = n2u.get(proposed)
+    rel_urn = vocab.get(rel_word)
+    an = names.get(a, a)
     line = None
-    if urn_w is not None:
-        # (i) functional refutation: a's only <word> is x != b (UNA)
-        if urn_w in tbox.functional:
-            others = sorted({f[3] for f in cl.facts()
-                             if f[0] == "rel" and f[1] == a
-                             and f[2] == urn_w and f[3] != b})
-            if others:
-                x = names.get(others[0], others[0])
-                line = ("'%s' is rejected: %s is %s's %s; %s and %s are "
-                        "different people; a person has exactly one %s "
-                        "(functional, by the definition of '%s')"
-                        % (word, x, an, word, x, bn, word, word))
-        # (ii) range refutation: b's stated gender conflicts with range(word)
-        if line is None and urn_w in tbox.range:
-            rng_cls, _ = tbox.range[urn_w]
-            b_classes = {f[2] for f in stated_set
-                         if f[0] == "cls" and f[1] == b}
-            for c1, c2, _ref in tbox.disjoint:
-                if (rng_cls == c1 and c2 in b_classes) or \
-                        (rng_cls == c2 and c1 in b_classes):
-                    have = "man" if MAN in b_classes else "woman"
-                    need = "man" if rng_cls == MAN else "woman"
-                    line = ("'%s' is rejected: %s is a %s, but someone's %s "
-                            "must be a %s (by the definition of '%s')"
-                            % (word, bn, have, word, need, word))
-                    break
+    # (i) range refutation: proposed's stated gender conflicts with
+    #     range(rel_word) — licensed by the pinned TBox, no gold token
+    if p_urn is not None and rel_urn is not None and rel_urn in tbox.range:
+        rng_cls, _ = tbox.range[rel_urn]
+        p_classes = {f[2] for f in stated_set
+                     if f[0] == "cls" and f[1] == p_urn}
+        for c1, c2, _ref in tbox.disjoint:
+            if (rng_cls == c1 and c2 in p_classes) or \
+                    (rng_cls == c2 and c1 in p_classes):
+                have = "man" if MAN in p_classes else "woman"
+                need = "man" if rng_cls == MAN else "woman"
+                line = ("'%s' is rejected: %s is a %s, but someone's %s "
+                        "must be a %s (by the definition of '%s')"
+                        % (proposed, proposed, have, rel_word, need,
+                           rel_word))
+                break
     if line is None:
-        # (iii) not licensed: no derivation yields this word for (a, b).
-        # Wording matches the direction-explicit answer cue ('{b} is {a}'s
-        # <word>') so feedback and cue never disagree about direction.
+        # (ii) not licensed: no derivation yields this person for
+        # (a, rel_word). Wording matches the direction-explicit entity cue
+        # ('the <rel> of <A> is …') so feedback and cue never disagree.
         line = ("'%s' is rejected: no derivation from the stated facts "
-                "licenses '%s is %s's %s'" % (word, bn, an, word))
-    assert_no_gold_leak(line, gold_word, "A3/c1")
+                "licenses '%s is the %s of %s'" % (proposed, proposed,
+                                                   rel_word, an))
+    assert_no_gold_leak(line, engine_name, "A3/c1")
     return line
 
 
@@ -382,35 +385,38 @@ def stated_lines(stated, names, urn2word):
             [verbalise_fact(f, names, urn2word) + "." for f in clss])
 
 
-def render_answer_cue(frames, pair_names):
-    """RULES-1-B FIX (root cause of the rules-1 void; post-mortem
-    docs/next/analysis/rules1-void-degenerate-instrument.md): the CLUTRR gold
-    convention for 'How is A related to B?' is the (A, gold, B) triple read
-    'A's <gold> is B' — i.e. the gold word names what B IS TO A. The rules-1
-    cue '\\nAnswer:' left the direction to the model, whose natural reading
-    is the REVERSE (A is B's granddaughter/grandson), so the gold word was
-    structurally un-elicitable and every arm scored 0. The cue is now the
-    direction-explicit infill '\\nAnswer: {b_name} is {a_name}'s' — the exact
-    surface of the engine's own derivation rendering ('Jason is Jennifer's
-    grandfather'), identical for every arm (shared affordance preserved)."""
-    if pair_names is None:
-        raise SystemExit("ERR_FRAME: answer cue requires the item's (a, b) "
-                         "surface names — no direction-ambiguous fallback")
-    a_name, b_name = pair_names
-    return frames["answer_cue"].format(a_name=a_name, b_name=b_name)
+def render_answer_cue(frames, a_name, rel_word):
+    """RULES-1-C FIX (diagnosed 2026-07-12 after the rules-1-b pilot floor
+    failure; supersedes the rules-1-b relation-word cue): the host surface is
+    the ENTITY form — 'Who is the <rel> of <A>?' answered with a NAME — the
+    ONE form the nsk1 G2d calibration measured inside the capability window
+    (1.7B zero-shot 0.76 story / 0.7912 bprime n=958; the relation-word form
+    is 'dead-at-floor at every tested host', nsk1-g2d assessment). The
+    rules-1/rules-1-b harness asked the relation-word form while citing the
+    entity-form 0.7912 datum for the A5 floor — a form mis-attribution no
+    prompt frame can fix (measured: 8 frame variants incl. the exact nsk1
+    channel, gold relation word never top-1 on the pinned R3; entity form on
+    the SAME stated-facts world with the SAME f2bt scorer: 11/12).
+    The cue is the direction-explicit entity infill
+    '\\nAnswer: the {rel} of {a_name} is' (probe-validated surface),
+    identical for every arm (shared affordance preserved)."""
+    if not a_name or not rel_word:
+        raise SystemExit("ERR_FRAME: answer cue requires the item's base "
+                         "surface name and the question's relation word — "
+                         "no direction-ambiguous fallback")
+    return frames["answer_cue"].format(rel=rel_word, a_name=a_name)
 
 
-def build_prompt(frames, item, stated, names, urn2word, menu,
+def build_prompt(frames, question, stated, names, urn2word,
                  derived_lines=None, feedback_lines=None, pad_to_tokens=None,
-                 lm=None, pair_names=None):
-    # RULES-1-B FIX 2 (PROPOSED-ASM-1630, see also render_answer_cue): the
-    # 23-word menu is rendered INSIDE the task header, not as a line adjacent
-    # to the answer cue — measured on R1: a menu line immediately before the
-    # cue swamps the small host's next-token distribution with menu-prior
-    # words (gold drops from top-1 to rank ~9 even with the derivation
-    # injected). The closed-vocabulary constraint itself is enforced by the
-    # per-option logprob scorer, not by prompt text.
-    parts = [frames["task_prefix"].format(menu=", ".join(menu))]
+                 lm=None, a_name=None, rel_word=None):
+    # RULES-1-C (see render_answer_cue): entity-form surface. The closed
+    # per-item option set (the two non-base lexicon names) is enforced by the
+    # per-option logprob scorer, never by prompt text — no menu line exists
+    # anywhere in the prompt (the rules-1 menu-adjacency defect cannot
+    # recur). `question` is the per-item entity question rendered once in
+    # build_context ('Who is the <gold_rel> of <base>?' — nsk1 g2b form 2).
+    parts = [frames["task_prefix"]]
     for line in stated_lines(stated, names, urn2word):
         parts.append(frames["fact_line"].format(line=line))
     parts.append(frames["una_line"])
@@ -422,9 +428,9 @@ def build_prompt(frames, item, stated, names, urn2word, menu,
         parts.append("\n" + frames["feedback_prefix"])
         for line in feedback_lines:
             parts.append(frames["feedback_line"].format(line=line))
-    parts.append(frames["question_prefix"] + item["question"])
+    parts.append(frames["question_prefix"] + question)
     base = "".join(parts)
-    cue = render_answer_cue(frames, pair_names)
+    cue = render_answer_cue(frames, a_name, rel_word)
     if pad_to_tokens is not None and lm is not None:
         # PROPOSED-ASM-1127: neutral token-matching padding, counted with the
         # arm's own tokenizer, appended before the answer cue.
@@ -436,6 +442,23 @@ def build_prompt(frames, item, stated, names, urn2word, menu,
         if block:
             base += "\n" + block.strip()
     return base + cue
+
+
+def build_render_prompt(frames, question, derived_lines, a_name, rel_word):
+    """A7 RENDER-ONLY prompt (rules-1-c): the engine has already answered;
+    the LM merely renders the derived fact into the forced-choice surface —
+    so the prompt carries ONLY the derived block (no stated-facts block, no
+    proof prose). Measured on the pinned R1 @ A10G fp32 (n=12, 2026-07-12):
+    facts+proof-line 4/12 and facts+bare-fact 3/12 (bridge-frequency capture
+    at the 135M — the g2d pathology), render-only+proof 7/12, render-only+
+    bare-fact 12/12. The proof itself stays in the engine payload and the
+    run-record ledger (s4 compares the EXECUTION PRODUCT vs axioms text,
+    not proof prose in the prompt)."""
+    parts = [frames["task_prefix_render"], frames["derived_prefix"]]
+    for line in derived_lines:
+        parts.append(frames["derived_line"].format(line=line))
+    parts.append(frames["question_prefix"] + question)
+    return "".join(parts) + render_answer_cue(frames, a_name, rel_word)
 
 
 def a2_shaped_injection(payload, names, urn2word):
@@ -474,15 +497,15 @@ def flops_formula(lm, tokens_scored):
 # ---------------------------------------------------------------------------
 # Arm drivers
 # ---------------------------------------------------------------------------
-def choose_word(lm, item, menu, gold, seed, attempt, prompt, guard):
+def choose_word(lm, item, options, gold, seed, attempt, prompt, guard):
     it = {"id": item["item_id"]}
     guard.gen()
     t0 = time.perf_counter()
-    ans, _conf = lm.choose(it, menu, gold, seed, attempt, prompt=prompt)
+    ans, _conf = lm.choose(it, options, gold, seed, attempt, prompt=prompt)
     lat = time.perf_counter() - t0
     t_prompt = lm.count_tokens(prompt)
-    t_opts = sum(lm.count_tokens(" %s" % w) for w in menu)
-    return ans, lat, t_prompt * len(menu) + t_opts, t_prompt
+    t_opts = sum(lm.count_tokens(" %s" % w) for w in options)
+    return ans, lat, t_prompt * len(options) + t_opts, t_prompt
 
 
 def run_alone_cell(lm, rung, arm, frames, items, ctx, seed, emitter, guard):
@@ -492,21 +515,22 @@ def run_alone_cell(lm, rung, arm, frames, items, ctx, seed, emitter, guard):
         guard.start_item({"id": iid})
         pay = ctx["payload_true"][iid]
         names, stated = ctx["names"][iid], ctx["stated"][iid]
-        a, b = ctx["pair"][iid]
-        pn = (names.get(a, a), names.get(b, b))
+        a, _b = ctx["pair"][iid]
+        an, rel = names.get(a, a), ctx["rel_word"][iid]
+        q, opts, gold = (ctx["q_entity"][iid], ctx["ent_options"][iid],
+                         ctx["ent_gold"][iid])
         inj = a2_shaped_injection(pay, names, ctx["urn2word"])
         target = lm.count_tokens(build_prompt(
-            frames, item, stated, names, ctx["urn2word"], ctx["menu"],
-            derived_lines=inj, pair_names=pn))
-        prompt = build_prompt(frames, item, stated, names, ctx["urn2word"],
-                              ctx["menu"], pad_to_tokens=target, lm=lm,
-                              pair_names=pn)
-        ans, _lat, toks, t_in = choose_word(lm, item, ctx["menu"],
-                                            item["gold_relation"], seed, 0,
+            frames, q, stated, names, ctx["urn2word"],
+            derived_lines=inj, a_name=an, rel_word=rel))
+        prompt = build_prompt(frames, q, stated, names, ctx["urn2word"],
+                              pad_to_tokens=target, lm=lm, a_name=an,
+                              rel_word=rel)
+        ans, _lat, toks, t_in = choose_word(lm, item, opts, gold, seed, 0,
                                             prompt, guard)
         emitter.emit(item_id=iid, arm=arm, rung=rung, seed=seed,
                      cell="entailed",
-                     item_correct_ext=int(ans == item["gold_relation"]),
+                     item_correct_ext=int(ans == gold),
                      refused=0, attempts=1, tokens_in=t_in, tokens_out=1,
                      flops_formula=flops_formula(lm, toks))
 
@@ -522,21 +546,22 @@ def run_verify_retry_cell(lm, arm, frames, items, ctx, payloads, tbox, k,
         pay = payloads[iid]
         names, stated = ctx["names"][iid], ctx["stated"][iid]
         stated_set = set(map(tuple, stated))
-        a, b = ctx["pair"][iid]
-        gold = item["gold_relation"]
+        a, _b = ctx["pair"][iid]
+        an, rel = names.get(a, a), ctx["rel_word"][iid]
+        q, opts, gold = (ctx["q_entity"][iid], ctx["ent_options"][iid],
+                         ctx["ent_gold"][iid])
         feedback, toks_total, t_in_last = [], 0, 0
         ans, attempts = None, 0
-        pn = (names.get(a, a), names.get(b, b))
         for attempt in range(k + 1):
-            prompt = build_prompt(frames, item, stated, names,
-                                  ctx["urn2word"], ctx["menu"],
+            prompt = build_prompt(frames, q, stated, names,
+                                  ctx["urn2word"],
                                   feedback_lines=feedback or None,
-                                  pair_names=pn)
+                                  a_name=an, rel_word=rel)
             ans, _lat, toks, t_in_last = choose_word(
-                lm, item, ctx["menu"], gold, seed, attempt, prompt, guard)
+                lm, item, opts, gold, seed, attempt, prompt, guard)
             toks_total += toks
             attempts = attempt + 1
-            rej = licensed_rejection(pay, tbox, stated_set, a, b, ans,
+            rej = licensed_rejection(pay, tbox, stated_set, a, rel, ans,
                                      ctx["vocab"], names, ctx["urn2word"],
                                      gold)
             if rej is None:
@@ -551,8 +576,11 @@ def run_verify_retry_cell(lm, arm, frames, items, ctx, payloads, tbox, k,
 
 
 def run_direct_executor_cell(lm, frames, items, ctx, seed, emitter, guard):
-    """A7: the engine answers from Cl(S) with proof; the LM only renders (the
-    derivation + proof is injected; forced choice over the same surface)."""
+    """A7: the engine answers from Cl(S) with proof; the LM ONLY RENDERS.
+    RULES-1-C: render-only surface — the bare derived fact is the injected
+    block and the stated-facts block is dropped (see build_render_prompt for
+    the measured rationale; the proof remains in the engine payload and the
+    run-record ledger)."""
     for item in items:
         iid = item["item_id"]
         guard.start_item({"id": iid})
@@ -565,17 +593,18 @@ def run_direct_executor_cell(lm, frames, items, ctx, seed, emitter, guard):
                          engine_us=pay.engine_us, flops_formula=0.0,
                          refusal_code=pay.refusal)
             continue
-        a, b = ctx["pair"][iid]
-        pn = (names.get(a, a), names.get(b, b))
-        inj = a2_shaped_injection(pay, names, ctx["urn2word"])
-        prompt = build_prompt(frames, item, stated, names, ctx["urn2word"],
-                              ctx["menu"], derived_lines=inj, pair_names=pn)
-        ans, _lat, toks, t_in = choose_word(lm, item, ctx["menu"],
-                                            item["gold_relation"], seed, 0,
+        a, _b = ctx["pair"][iid]
+        an, rel = names.get(a, a), ctx["rel_word"][iid]
+        q, opts, gold = (ctx["q_entity"][iid], ctx["ent_options"][iid],
+                         ctx["ent_gold"][iid])
+        inj = [verbalise_fact(tuple(pay.why["fact"]), names,
+                              ctx["urn2word"]) + "."]
+        prompt = build_render_prompt(frames, q, inj, an, rel)
+        ans, _lat, toks, t_in = choose_word(lm, item, opts, gold, seed, 0,
                                             prompt, guard)
         emitter.emit(item_id=iid, arm=ARM_A7, rung="R1", seed=seed,
                      cell="entailed",
-                     item_correct_ext=int(ans == item["gold_relation"]),
+                     item_correct_ext=int(ans == gold),
                      refused=0, attempts=1, tokens_in=t_in, tokens_out=1,
                      engine_us=pay.engine_us,
                      flops_formula=flops_formula(lm, toks))
@@ -677,14 +706,39 @@ def build_context(args, man):
            "tbox_true": tbox_true, "tbox_shuf": tbox_shuf,
            "perm": perm, "perm_sha": perm_sha,
            "names": {}, "stated": {}, "pair": {},
+           "q_entity": {}, "ent_options": {}, "ent_gold": {},
+           "rel_word": {},
            "payload_true": {}, "payload_shuf": {}}
     for item in items:
         iid = item["item_id"]
         stated = worlds.get(iid, []) + cert_mod.una(item["lexicon"].keys())
         a, b = query_pair(item)
-        ctx["names"][iid] = dict(item["lexicon"])
+        names = dict(item["lexicon"])
+        ctx["names"][iid] = names
         ctx["stated"][iid] = stated
         ctx["pair"][iid] = (a, b)
+        # RULES-1-C ENTITY FORM (nsk1 g2b form 2, the measured capability
+        # window): question 'Who is the <gold_rel> of <base>?'; answer = the
+        # chain-top NAME (third-party CLUTRR proof_state (A, rel, B) — B is
+        # released gold, predates the kernel). Forced-choice option set = the
+        # NON-BASE lexicon surfaces (bridge + chain-top; anti-echo is
+        # structural, matching the g2b scorer's base exclusion), sorted for
+        # determinism. Closed 3-name lexicon asserted fail-closed (the g2b
+        # 3-name pairwise-distinct property).
+        surfaces = list(names.values())
+        if len(names) != 3 or len({s.lower() for s in surfaces}) != 3:
+            raise SystemExit("ERR_ITEM_LEXICON: %s is not 3-name "
+                             "pairwise-distinct" % iid)
+        rel_word = item["gold_relation"]
+        ctx["rel_word"][iid] = rel_word
+        ctx["q_entity"][iid] = "Who is the %s of %s?" % (rel_word,
+                                                         names[a])
+        opts = sorted(s for u, s in names.items() if u != a)
+        if names[b] not in opts:
+            raise SystemExit("ERR_ITEM_GOLD: %s gold entity %r not in "
+                             "option set %s" % (iid, names[b], opts))
+        ctx["ent_options"][iid] = opts
+        ctx["ent_gold"][iid] = names[b]
         ctx["payload_true"][iid] = EnginePayload(tbox_true, stated, a, b, vocab)
         try:
             ctx["payload_shuf"][iid] = EnginePayload(tbox_shuf, stated, a, b,
@@ -706,16 +760,17 @@ def dry_plan(man, items_covered, ctx, gpu):
     usd = plan["usd_per_hour"][gpu]
     k = dc["k_retry"]
     seeds = dc["seeds"]
-    n_menu = 23
+    n_opts = 2  # entity form: per-item non-base lexicon surfaces
 
     def est_choose_tokens(item, extra_lines=0):
         iid = item["item_id"]
         names = ctx["names"][iid]
-        a, b = ctx["pair"][iid]
-        prompt = build_prompt(frames, item, ctx["stated"][iid],
-                              names, ctx["urn2word"], ctx["menu"],
-                              pair_names=(names.get(a, a), names.get(b, b)))
-        return (len(prompt) / cpt + 20 * extra_lines) * n_menu
+        a, _b = ctx["pair"][iid]
+        prompt = build_prompt(frames, ctx["q_entity"][iid],
+                              ctx["stated"][iid], names, ctx["urn2word"],
+                              a_name=names.get(a, a),
+                              rel_word=ctx["rel_word"][iid])
+        return (len(prompt) / cpt + 20 * extra_lines) * n_opts
 
     tok1 = sum(est_choose_tokens(i) for i in items_covered)
     tok_pad = sum(est_choose_tokens(i, extra_lines=2) for i in items_covered)
@@ -738,8 +793,8 @@ def dry_plan(man, items_covered, ctx, gpu):
         "rules1-manifest.json; no GPU, no network, $0 spent by this command)",
         "",
         "eval: %d covered entailed items x %d seeds; arms A1/A3/A5/A7/c1; "
-        "k=%d on A3/c1 (worst case k+1 attempts); 23-option forced-choice "
-        "surface (per-option scoring, f2bt bytes)"
+        "k=%d on A3/c1 (worst case k+1 attempts); ENTITY-form 2-option "
+        "forced-choice surface (per-option scoring, f2bt bytes)"
         % (len(items_covered), len(seeds), k),
         "control cells (E5, A3/A7): CPU-only engine refusals — no GPU cost",
         "",
@@ -1029,7 +1084,11 @@ def main():
     label = ("MOCK" if args.mock
              else "PILOT" if args.pilot_n is not None else "FULL")
     results = {
-        "experiment": "rules-1",
+        "experiment": "rules-1-c",
+        "answer_form": "entity (nsk1 g2b form 2): 'Who is the <gold_rel> of "
+                       "<base>?' -> chain-top NAME; per-item 2-option forced "
+                       "choice over the non-base lexicon surfaces (chance "
+                       "0.5, disclosed); third-party CLUTRR proof_state gold",
         "outcome": ("MOCK-HARNESS-COMPLETE" if args.mock
                     else "PILOT-HARNESS-COMPLETE" if args.pilot_n is not None
                     else "HARNESS-COMPLETE"),
