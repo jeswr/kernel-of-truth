@@ -73,6 +73,15 @@ MODEL_REGISTRY = {
                      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"},
     "smollm2-1.7b": {"repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
                      "revision": "31b70e2e869a7173562077fd711b654946d38674"},
+    # DDC surgery donors (docs/next/design/DDC.md §2.5 / §5.1 T0 mechanical
+    # addition 2, ASM-1655): BASE checkpoints, NOT Instruct — base-not-
+    # instruct avoids the chat-template confound in likelihood scoring.
+    # revision "" is DELIBERATE: the T0 ops step pins the BASE revisions;
+    # until then any load fails closed via ERR_UNPINNED_MODEL (below).
+    "smollm2-135m-base": {"repo": "HuggingFaceTB/SmolLM2-135M",
+                          "revision": ""},
+    "smollm2-360m-base": {"repo": "HuggingFaceTB/SmolLM2-360M",
+                          "revision": ""},
 }
 
 GEN_STOP = "\nQuestion:"  # few-shot frame delimiter doubles as stop string
@@ -317,7 +326,7 @@ def subsample(items, n, seed, bench):
     return ranked[:n]
 
 
-def eval_mc(lm, bench, items, prefix, log):
+def eval_mc(lm, bench, items, prefix, log, item_log=None):
     n = len(items)
     acc = acc_norm = 0
     nll_sum = tok_sum = 0.0
@@ -333,12 +342,23 @@ def eval_mc(lm, bench, items, prefix, log):
         # lm-eval convention — cross-vendor review 2026-07-12 finding #2.
         norm = [lps[j] / float(len(it["options"][j]))
                 for j in range(len(lps))]
-        acc += int(max(range(len(lps)), key=lambda j: lps[j]) == it["gold"])
-        acc_norm += int(max(range(len(norm)), key=lambda j: norm[j])
-                        == it["gold"])
+        it_acc = int(max(range(len(lps)), key=lambda j: lps[j]) == it["gold"])
+        it_norm = int(max(range(len(norm)), key=lambda j: norm[j])
+                      == it["gold"])
+        acc += it_acc
+        acc_norm += it_norm
         g_lp, g_n = scored[it["gold"]]
         nll_sum += -g_lp
         tok_sum += g_n
+        if item_log is not None:
+            # per-item record emission (DDC.md §5.1 T0 mechanical addition
+            # 1, ASM-1655): the ddc1 paired statistics are impossible
+            # without per-item correctness records — gate I-5 discipline.
+            item_log({"bench": bench, "item_id": it["id"], "kind": "mc",
+                      "acc": it_acc, "acc_norm": it_norm,
+                      "option_logprobs": [round(x, 6) for x in lps],
+                      "option_tokens": [s[1] for s in scored],
+                      "gold": it["gold"]})
         if (i + 1) % 50 == 0 or i + 1 == n:
             log("  %s %d/%d (%.1fs)" % (bench, i + 1, n, time.time() - t0))
     nll_tok = nll_sum / max(tok_sum, 1.0)
@@ -348,7 +368,7 @@ def eval_mc(lm, bench, items, prefix, log):
             "elapsed_s": round(time.time() - t0, 2)}
 
 
-def eval_gen(lm, bench, items, prefix, max_new_tokens, log):
+def eval_gen(lm, bench, items, prefix, max_new_tokens, log, item_log=None):
     n = len(items)
     em = 0
     nll_sum = tok_sum = 0.0
@@ -356,10 +376,17 @@ def eval_gen(lm, bench, items, prefix, max_new_tokens, log):
     for i, it in enumerate(items):
         ctx = prefix + it["context"]
         out = lm.generate_answer(ctx, it, max_new_tokens)
-        em += int(B.extract_final_number(out) == it["gold_answer"])
+        it_em = int(B.extract_final_number(out) == it["gold_answer"])
+        em += it_em
         lp, ntok = lm.loglikelihood(ctx, " %s" % it["gold_solution"])
         nll_sum += -lp
         tok_sum += ntok
+        if item_log is not None:
+            # per-item record emission (ASM-1655 addition 1; see eval_mc)
+            item_log({"bench": bench, "item_id": it["id"], "kind": "gen",
+                      "em": it_em,
+                      "gold_solution_logprob": round(lp, 6),
+                      "gold_solution_tokens": ntok})
         if (i + 1) % 25 == 0 or i + 1 == n:
             log("  %s %d/%d (%.1fs)" % (bench, i + 1, n, time.time() - t0))
     nll_tok = nll_sum / max(tok_sum, 1.0)
@@ -370,9 +397,12 @@ def eval_gen(lm, bench, items, prefix, max_new_tokens, log):
 
 
 def evaluate(lm, bench_names, data_dir, n, shots, seed, mock,
-             max_new_tokens=256, log=print):
+             max_new_tokens=256, log=print, item_log=None):
     """Programmatic entry point. `lm` is an HFLM (possibly wrapping a
-    weight-modified model via HFLM.from_model) or a StubLM."""
+    weight-modified model via HFLM.from_model) or a StubLM. `item_log`, if
+    given, is called once per scored item with a per-item record dict
+    (ASM-1655 per-item emission; aggregates are byte-identical whether or
+    not it is supplied)."""
     results = {}
     for name in bench_names:
         if name not in B.BENCHMARKS:
@@ -391,10 +421,11 @@ def evaluate(lm, bench_names, data_dir, n, shots, seed, mock,
             % (name, len(items), shots, B.LICENSES[name]["license"],
                B.LICENSES[name]["provenance"]))
         if bench.kind == "mc":
-            results[name] = eval_mc(lm, name, items, prefix, log)
+            results[name] = eval_mc(lm, name, items, prefix, log,
+                                    item_log=item_log)
         else:
             results[name] = eval_gen(lm, name, items, prefix,
-                                     max_new_tokens, log)
+                                     max_new_tokens, log, item_log=item_log)
         results[name].update(B.LICENSES[name])
 
     # Aggregate: unweighted macro-average of the headline metric per
@@ -439,6 +470,10 @@ def main():
                          "eval (dimcollapse seam)")
     ap.add_argument("--transform-kwargs", default="",
                     help='JSON object of kwargs for --transform')
+    ap.add_argument("--log-items", default="",
+                    help="write one JSON line per scored item to this path "
+                         "(per-item emission sidecar, DDC ASM-1655; "
+                         "aggregates unchanged)")
     args = ap.parse_args()
 
     bench_names = [b.strip() for b in args.benchmarks.split(",") if b.strip()]
@@ -469,9 +504,22 @@ def main():
         print("transform applied: %s changed_weights=%s"
               % (transform_info["spec"], transform_info["changed_weights"]))
 
+    item_fh = None
+    item_log = None
+    if args.log_items:
+        os.makedirs(os.path.dirname(os.path.abspath(args.log_items)),
+                    exist_ok=True)
+        item_fh = open(args.log_items, "w")
+
+        def item_log(rec, _fh=item_fh):
+            _fh.write(json.dumps(rec, sort_keys=True) + "\n")
+
     results, aggregate = evaluate(
         lm, bench_names, args.data_dir, args.n, args.shots, args.seed,
-        args.mock, max_new_tokens=args.max_gen_tokens)
+        args.mock, max_new_tokens=args.max_gen_tokens, item_log=item_log)
+    if item_fh is not None:
+        item_fh.close()
+        print("per-item records -> %s" % args.log_items)
 
     out = {
         "schema": SCHEMA,

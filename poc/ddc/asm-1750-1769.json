@@ -1,0 +1,99 @@
+{
+ "_readme": [
+  "DDC BUILD assumption block PROPOSED-ASM-1750..1769 — EMITTED by the build role for central registration by the coordinator.",
+  "This build has NO write access to registry/assumptions.jsonl and did not touch it (same discipline as the rules-2 build's 1440..1459 block).",
+  "Range check at emission time (2026-07-12): repo-wide grep shows 1720 as the last consumed 17xx id (1730, 1740..1744 claimed by other in-flight blocks); 1750..1769 verified collision-free. If a concurrent wave consumes the range, the coordinator renumbers rows + this file together before commit, per house practice.",
+  "Owner: fable-build-3, 2026-07-12. All tags provisional; NO feasibility conclusion is stated or implied — every mock number below is SYNTHETIC mechanics validation.",
+  "1758..1769 reserved unassigned for freeze-time amendments (e.g. the T0 harness re-pin row)."
+ ],
+ "rows": [
+  {
+   "id": "PROPOSED-ASM-1750",
+   "tag": "STIPULATED",
+   "claim": "The DDC harness is poc/ddc/{ddc_runner.py, g0_runner.py, g0_stats.py, ddc_selection.py, ddc_surgery.py, ddc_common.py, merge_shards.py, validate_mock.py, power_sim_ddc1.py, inputs/ddc-manifest.json, modal/modal_ddc.py} + the two ASM-1655 pubeval mechanical additions; analysis/ddc0.py and analysis/ddc1.py are consumed byte-unchanged (their pinned sha256s in the DRAFT records did not move during this build). LAW-1 (DDC.md section 1.2) is enforced MECHANICALLY, not narrated: ddc_surgery.py is the ONLY weights-touching module; every basis enters through assert_basis_provenance, which accepts exactly {model-activation-basis, haar-random-basis} and raises ERR_DDC_LAW1_TAINT on any other provenance or any taint marker; validate_mock.py additionally asserts STATICALLY that the surgery source references no kernel/codebook/encoder/selection identifier and imports nothing from the selection estate. Kernel vectors are consumed only by g0_runner/g0_stats, whose surgery-facing outputs are model-space directions u in R^d.",
+   "backing_ref": "docs/next/design/DDC.md sections 1.2 + 2.3; poc/ddc/ddc_surgery.py assert_basis_provenance; poc/ddc/validate_mock.py law1_static/law1_runtime",
+   "rationale": "the raw-foreign-coordinates cell stays empty by construction: a kernel vector cannot reach a weight matrix through the one seam that touches weights, and the gate is testable (4/4 tainted specs refused in the pinned mock artifact)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1751",
+   "tag": "STIPULATED",
+   "claim": "Boundary/bridge convention (harness-level mechanical pin inside the ASM-1653 scheme): L residual boundaries per donor — l=0 the embedding output, l=1..L-1 the post-residual outputs of blocks 0..L-2 — so the surgery grid coincides 1:1 with the ddc0 statistics boundaries (layers 0..29 on the 135M donor); block s reads in basis l=s and writes in basis l=s+1 (capped at L-1); the attention skip carries the explicit bridge Q_{s+1}^T Q_s and the MLP skip's bridge is IDENTITY because both MLP read and write sit in the block's output basis (one basis per residual boundary); the tied embedding is sliced once in the boundary-0 basis with ONE r x r unembedding bridge Q_0^T diag(g_final) Q_{L-1} that also absorbs the final RMSNorm gain, preserving tying; the r=d construction is exactly logit-preserving and gate I-1 verifies it end-to-end rather than trusting this derivation.",
+   "backing_ref": "poc/ddc/ddc_surgery.py rotate_and_slice + module docstring; poc/ddc/inputs/ddc-manifest.json surgery block; DDC.md section 2.5 (ASM-1653)",
+   "rationale": "ASM-1653 pins the invariance group but not the boundary indexing; pinning it here makes the ddc0->ddc1 A2 hand-off unambiguous and keeps every rotated arm an exact structural twin",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1752",
+   "tag": "STIPULATED",
+   "claim": "Sharded parallel launch protocol: the campaign is four tiers of INDEPENDENT Modal jobs — t0 (1 job: A0 r135 baseline), ddc0 (2 sequential jobs: g0-probe on GPU, g0-stats on a CPU-ONLY container so GPU-hours stay inside the 2 GPU-h carve-out; the B=1000 permutation family draws ALL permutations up front from the pinned seed-1 stream, so the result is byte-identical for any worker count, and is checkpointed/resumable), s1 (46 jobs: one per non-A0 r135 (arm, rho, seed) cell), s2 (19 jobs: A0 r360 + 18 r360 cells, conditional on the section-8 promotion rule and gated by --authorize-s2). Job tags are stable identifiers subsettable via --jobs for splitting across the modal2/modal3/modal4 workspaces (env-file basenames only). merge_shards.py reconstructs the canonical analysis inputs under fail-closed assertions: identical pins and t0_block across shards, pairwise-disjoint cells, globally-unique row tuples, per-shard records-sha re-verification, and EXACT coverage of the ASM-1654 grid (A2 all-or-nothing per the G0 route; r360 iff promoted). Worst planned single job 3.83 h << the 12 h Modal function timeout.",
+   "backing_ref": "poc/ddc/ddc_common.py build_jobs; poc/ddc/merge_shards.py; poc/ddc/modal/modal_ddc.py; poc/ddc/results/mock-validation.json parallel_jobs",
+   "rationale": "the standing parallel-launch directive + the rules-2 merge discipline: no job can orphan a 12 h timeout, failed tags relaunch individually, and pooling mismatched harness bytes is mechanically impossible",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1753",
+   "tag": "STIPULATED",
+   "claim": "Green-mock gate: no full (non-mock) launch proceeds unless poc/ddc/results/mock-validation.json exists, is green, and its harness_manifest_sha256 equals the staged-bytes sha (modal_ddc._launch_gates, fail-closed). The pinned artifact certifies, at $0 with SYNTHETIC planted gradients: (a) ddc0 mock -> pinned analysis -> the DRAFT record's verdict_rules resolve; (b) ddc1 monolithic mock == the 66-job canonical sharded mock + merge on EVERY pinned-analysis field except the disclosed measured cost fields {cost_ledger, usd_total, gpu_hours, wallClockHours}; (c) ddc1 verdict mapping resolves; (d) per-tier dry-plans green; (e) LAW-1 static + runtime assertions green; (f) a g0_stats planted-alignment numpy self-test recovers a planted H->V alignment — the real section-2.3 statistics path exercised without a GPU. Mock outputs are mechanics validation ONLY, never measurements.",
+   "backing_ref": "poc/ddc/validate_mock.py; poc/ddc/results/mock-validation.json; poc/rules-2/validate_mock.py (pattern)",
+   "rationale": "rules-2 review item 9 discipline carried over: a printed reminder is not a gate; the artifact pins WHAT was validated against WHICH bytes",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1754",
+   "tag": "STIPULATED",
+   "claim": "Dry-plan cost model (fail-closed, never advisory): conservative batch-1 constants (A10G $1.10/h; 8/5 forced-choice forwards per second for r135/r360; 40/25 generated tokens per second; per-cell surgery/calibration overheads) over the pinned benchmark sizes, evaluated under the DISCLOSED assumed filter {folio, arc_easy, arc_challenge} (the section-5.1 GSM8K filter-drop expectation; invoking the plan with gsm8k retained and breaching a cap FAILS CLOSED rather than warning). Emission-time figures: t0 $2.63/2.4h, ddc0 $2.52/1.2 GPU-h + ~6 CPU-h (inside the $5 / 2 GPU-h carve-out), s1 $26.42/24.0h over 46 jobs, s2 $24.98/22.7h over 19 jobs; campaign total $56.55 under the $60 hard ceiling (ASM-1664). These are deliberately MORE conservative than the design's section-7 bands ($14-19 S1, $11-13 S2, which assume batching); measured T0 throughput re-costs them before launch and any cap breach blocks.",
+   "backing_ref": "poc/ddc/ddc_common.py dry_plan_tier/dry_plan_campaign; poc/ddc/inputs/ddc-manifest.json cost_model + budgets; DDC.md section 7 (ASM-1664)",
+   "rationale": "the ceiling is enforced where launches happen, not in prose; a conservative model that still clears the ceiling means the real batched campaign has margin, and the ddc0 CPU/GPU split keeps the statistics stage from burning the GPU carve-out",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1755",
+   "tag": "STIPULATED",
+   "claim": "The two ASM-1655 pubeval mechanical additions, as landed: (1) per-item emission via an item_log callback in eval_mc/eval_gen/evaluate plus a --log-items CLI sidecar (one JSON line per scored item: bench, item_id, acc/acc_norm or em, per-option logprobs/token counts) — aggregates verified byte-identical with and without the sidecar; (2) MODEL_REGISTRY entries smollm2-135m-base / smollm2-360m-base (BASE repos, not Instruct) with revision EMPTY on purpose, failing closed via the existing ERR_UNPINNED_MODEL path until the T0 ops step pins the BASE revisions. pubeval's content hash is re-pinned at T0 with these additions in place (the ddc1 record's harness_manifest already covers the current bytes).",
+   "backing_ref": "poc/pubeval/pubeval_runner.py MODEL_REGISTRY + eval_mc/eval_gen item_log; DDC.md section 5.1 T0 mechanical additions (ASM-1655)",
+   "rationale": "the ddc1 paired statistics are impossible without per-item records (gate I-5 blocks until this exists) and base-not-instruct avoids the chat-template confound; both changes are additive so earlier pubeval uses are untouched",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1756",
+   "tag": "STIPULATED",
+   "claim": "Gate I-1 probe-corpus pin: the pinned 64-sequence corpus of ASM-1661 is the FIRST 64 sequences of the pinned K-static calibration corpus in kot-corpus-hash/1 relpath order, truncated to 256 tokens each; I-1 runs inside every rotated-arm cell job (rotation-only r=d copy vs donor: median KL <= 1e-5 AND 100% greedy top-1 agreement, orthonormality max|QtQ-I| <= 1e-6 as precondition) and a failure is RECORDED into the shard results and ANDed into /gates/i1_rotation_valid by the shared finaliser — kill (a) fires per the section-8 verbatim rule after one debugging iteration, decided at analysis, never silently retried in the harness.",
+   "backing_ref": "poc/ddc/ddc_runner.py run_cell_real; poc/ddc/ddc_surgery.py i1_check; DDC.md section 8 (ASM-1661)",
+   "rationale": "ASM-1661 pins the check but not the corpus identity; deriving it deterministically from an already-pinned artifact adds no new pin surface",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "PROPOSED-ASM-1757",
+   "tag": "STIPULATED",
+   "claim": "A2 consumption seam + I-6 v1 coverage disclosure: the ddc1 A2 basis is built ONLY from the ddc0 PINNED-ANALYSIS stdout (admitted keys = /analysis/max_stat_p_admitted minus /analysis/bag_of_primes_lexical_flags, winning method only) joined with the g0_runner a2-directions artifact (t*, model-space u per candidate); the runner NEVER recomputes admission, refuses a killed-by-G0 readout (ERR_DDC_A2_INPUTS), and ERR_DDC_BASIS_DEFICIENT fails the cell closed per ASM-1700. I-6 energy capture in harness v1 is computed from each PCA arm's own calibration second-moment census (min over boundaries at the sliced r); R1 and M2 cells log null pending the T0 census-artifact wiring — DISCLOSED as a coverage limit of the tripwire (flags still arm MD-4 for every PCA arm; a null never counts as capture >= 0.99), tracked as a beads follow-up for the runner identity.",
+   "backing_ref": "poc/ddc/ddc_runner.py _basis_for + run_cell_real; poc/ddc/ddc_selection.py a2_assemble/energy_capture; analysis/ddc1.py i6 handling (null-tolerant)",
+   "rationale": "admission authority stays with the frozen analysis bytes (run-vs-grade separation), and the tripwire's v1 blind spot is stated rather than smuggled — the uncentred convention (ASM-1665) already guarantees the PCA arms' capture by construction, which is where the confound risk lives",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "fable-build-3",
+   "date": "2026-07-12"
+  }
+ ]
+}

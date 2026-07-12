@@ -27,7 +27,14 @@
     "x1:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x1-q.js",
     "x2:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x2-q.js",
     "x4:q": "npm run corpus:build && nice -n 10 node dist-corpus/src/x4-q.js",
-    "x:q": "npm run cert:q && npm run x0:q && npm run x1:q && npm run x2:q && npm run x4:q"
+    "x:q": "npm run cert:q && npm run x0:q && npm run x1:q && npm run x2:q && npm run x4:q",
+    "scale:build": "tsc -p scale/tsconfig.json",
+    "scale:ingest": "npm run scale:build && nice -n 10 node scale/dist/ingest.js",
+    "scale:typing": "npm run scale:build && nice -n 10 node scale/dist/typing.js",
+    "scale:vec": "npm run scale:build && nice -n 10 node scale/dist/vectorise.js",
+    "scale:vec:verify": "npm run scale:build && nice -n 10 node scale/dist/vectorise.js --verify",
+    "scale:metrics": "npm run scale:build && nice -n 10 node --max-old-space-size=3072 scale/dist/metrics.js",
+    "scale:all": "npm run scale:build && nice -n 10 node scale/dist/ingest.js && nice -n 10 node scale/dist/typing.js && nice -n 10 node scale/dist/vectorise.js && nice -n 10 node --max-old-space-size=3072 scale/dist/metrics.js"
   },
   "dependencies": {
     "@jeswr/kernel-encoder": "file:../encoder"

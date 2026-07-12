@@ -1,0 +1,130 @@
+{
+  "_readme": [
+    "DDC harness design-constants manifest (docs/next/design/DDC.md; DRAFT records registry/experiments/ddc0.json + ddc1.json).",
+    "Every constant here restates a pinned design stipulation; nothing is tunable at run time. The Modal wrapper stages this file and the staged-bytes manifest sha covers it, so a silent constant change is a pin break.",
+    "PINNED-AT-INPUTS placeholders (donor revisions, corpus shas) are filled by the T0 ops step BEFORE freeze; the runner fails closed (ERR_DDC_UNPINNED) on any null pin in a non-mock run.",
+    "Accounts are referenced by env-file basename ONLY (ASM-1664 / RT-14): modal2.env primary, modal3.env + modal4.env spillover, modal.env repaired-or-skipped at T0."
+  ],
+  "schema": "kot-ddc-manifest/1",
+  "design_doc": "docs/next/design/DDC.md",
+  "records": {"ddc0": "registry/experiments/ddc0.json", "ddc1": "registry/experiments/ddc1.json"},
+  "donors": {
+    "r135": {"pubeval_model_key": "smollm2-135m-base", "repo": "HuggingFaceTB/SmolLM2-135M",
+             "revision": null, "d_model": 576, "n_layers": 30,
+             "note": "BASE checkpoint (ASM-1653); revision PINNED-AT-INPUTS at T0 into pubeval MODEL_REGISTRY too (fail-closed ERR_UNPINNED_MODEL)"},
+    "r360": {"pubeval_model_key": "smollm2-360m-base", "repo": "HuggingFaceTB/SmolLM2-360M",
+             "revision": null, "d_model": 960, "n_layers": 32,
+             "note": "BASE checkpoint; S2 conditional rung (promotion rule DDC.md section 8)"}
+  },
+  "rho_grid": [0.9, 0.75, 0.5, 0.3, 0.15],
+  "full_item_rhos": [0.9, 0.75, 0.5],
+  "subset_rhos": [0.3, 0.15],
+  "subset_items_per_task": 500,
+  "primary_rho": 0.75,
+  "arm_coverage": {
+    "_source": "ASM-1654 / DDC.md section 3 arm x grid coverage",
+    "r135": {
+      "A0": {"rhos": [1.0], "seeds": [0]},
+      "A1": {"rhos": [0.9, 0.75, 0.5, 0.3, 0.15], "seeds": [0]},
+      "A2": {"rhos": [0.75, 0.5], "seeds": [0], "gated_by": "ddc0 (G0)"},
+      "A3": {"rhos": [0.9, 0.75, 0.5, 0.3, 0.15], "seeds": [0]},
+      "M1": {"rhos": [0.9, 0.75, 0.5, 0.3, 0.15], "seeds": [0]},
+      "M2": {"rhos": [0.75, 0.5], "seeds": [0]},
+      "R1": {"rhos": [0.9, 0.75, 0.5, 0.3, 0.15], "seeds": [0, 1, 2]},
+      "C1": {"rhos": [0.9, 0.75, 0.5, 0.3, 0.15], "seeds": [0]},
+      "C2": {"rhos": [0.9, 0.75, 0.5, 0.3, 0.15], "seeds": [0]},
+      "C3": {"rhos": [0.75, 0.5], "seeds": [0]}
+    },
+    "r360": {
+      "A0": {"rhos": [1.0], "seeds": [0]},
+      "A1": {"rhos": [0.9, 0.75, 0.5], "seeds": [0]},
+      "A3": {"rhos": [0.9, 0.75, 0.5], "seeds": [0]},
+      "M1": {"rhos": [0.9, 0.75, 0.5], "seeds": [0]},
+      "R1": {"rhos": [0.9, 0.75, 0.5], "seeds": [0]},
+      "C1": {"rhos": [0.9, 0.75, 0.5], "seeds": [0]},
+      "C2": {"rhos": [0.9, 0.75, 0.5], "seeds": [0]}
+    }
+  },
+  "arms_calibration": {
+    "_note": "which pinned corpus calibrates which PCA arm (DDC.md section 3); A2 basis comes from the ddc0 max-stat outputs + A1 top-up; M1/M2 are data-free; R1 is seeded Haar",
+    "A1": "ddc-kernel-static-v1", "A3": "ddc-kernel-hybrid-v1",
+    "C1": "ddc-c4-sample-v1", "C2": "ddc-knull-render-v1", "C3": "ddc-shuffled-kernel-v1"
+  },
+  "corpora": {
+    "_recipe": "kot-corpus-hash/1 (tools/registry/corpus-pin.py); shas PINNED-AT-INPUTS at T0",
+    "ddc-kernel-static-v1": {"path": "data/ddc-kernel-static-v1", "sha256": null},
+    "ddc-kernel-hybrid-v1": {"path": "data/ddc-kernel-hybrid-v1", "sha256": null},
+    "ddc-c4-sample-v1": {"path": "data/ddc-c4-sample-v1", "sha256": null},
+    "ddc-knull-render-v1": {"path": "data/ddc-knull-render-v1", "sha256": null},
+    "ddc-shuffled-kernel-v1": {"path": "data/ddc-shuffled-kernel-v1", "sha256": null},
+    "ddc-probe-fixture-v1": {"path": "data/ddc-probe-fixture-v1", "sha256": null},
+    "ddc-eval-subset-v1": {"path": "data/ddc-eval-subset-v1", "sha256": null}
+  },
+  "eval": {
+    "harness": "poc/pubeval (ASM-1655; content-hash re-pinned at T0 after the two mechanical additions)",
+    "benchmarks": ["folio", "arc_easy", "arc_challenge", "gsm8k"],
+    "shots": 5, "seed": 20260712,
+    "chance": {"folio": 0.3333333333333333, "arc_easy": 0.25, "arc_challenge": 0.25, "gsm8k": 0.0},
+    "headline": "acc_norm (mc) / exact_match (gen); gold_ppl_arc_easy = fluency guard (ASM-1666)"
+  },
+  "surgery": {
+    "_source": "ASM-1653 / DDC.md section 2.5",
+    "dtype": "float32",
+    "boundary_convention": "L residual boundaries per donor: l=0 embedding output; l=1..L-1 post-residual output of blocks 0..L-2; the post-final-block segment shares the basis of boundary L-1 (harness-level mechanical pin, disclosed in sidecars)",
+    "uncentred_second_moment": "ASM-1665: all PCA bases from (1/N) X^T X, energy-ordered, identically in A1/A3/C1/C2/C3 and the A2 top-up",
+    "max_seq_tokens": 256
+  },
+  "g0": {
+    "_source": "ASM-1700/1701/1702; DDC.md section 2.3",
+    "B": 1000, "perm_seed": 1, "split_seed": 0,
+    "split_frac": {"fit": 0.6, "sel": 0.2, "test": 0.2},
+    "alpha": 0.05, "carrier_cos_min": 0.8, "bag_bootstrap_resamples": 1000,
+    "k_cap": 256, "j_max": 64, "carriers": 4, "renders_per_carrier": 2,
+    "n_concepts_nominal": 119, "layers_required": "ceil(L/3) = 10 at L=30",
+    "ridge_grid_multipliers": [0.0001, 0.001, 0.01, 0.1, 1.0],
+    "c4_tie_bound": 0.9, "template_var_max": 0.5
+  },
+  "gates": {
+    "i1_orthonormality_tol": 1e-06,
+    "i1_kl_median_max": 1e-05,
+    "i1_probe_sequences": 64,
+    "i2_c1_rho09_retention_min": 0.95,
+    "i3_token_budget_tolerance": 0.10,
+    "fluency_bound": 1.5,
+    "energy_capture_flag": 0.99
+  },
+  "budgets": {
+    "_source": "ASM-1664 (campaign) + ddc0 record budget (ASM-1730 carve-out)",
+    "ddc0_usd_cap": 5.0, "ddc0_gpu_hours_cap": 2.0,
+    "campaign_usd_cap": 60.0, "per_job_hours_cap": 12.0,
+    "pubeval_per_run_usd_cap": 10.0
+  },
+  "cost_model": {
+    "_note": "conservative batch-1 planning constants (pubeval modal README table lineage); dry-plan is fail-closed on the budgets above, never advisory",
+    "usd_per_gpu_hour_a10g": 1.10,
+    "mc_forwards_per_sec": {"r135": 8.0, "r360": 5.0},
+    "gen_tok_per_sec": {"r135": 40.0, "r360": 25.0},
+    "gen_tokens_per_item": 200,
+    "bench_sizes": {"folio": 203, "arc_easy": 2376, "arc_challenge": 1172, "gsm8k": 1319},
+    "bench_options": {"folio": 3, "arc_easy": 4, "arc_challenge": 4},
+    "surgery_overhead_hours": {"r135": 0.10, "r360": 0.16},
+    "calibration_overhead_hours": {"r135": 0.06, "r360": 0.10},
+    "g0_gpu_hours": 1.2,
+    "assumed_filter": ["arc_challenge", "arc_easy", "folio"],
+    "assumed_filter_note": "DDC.md section 5.1 disclosure: GSM8K very likely fails the informative-task filter at these donors (base exact-match ~0), removing the generation stage; the dry-plan defaults to this assumption and RE-FAILS CLOSED if invoked with gsm8k retained and the ceiling is exceeded"
+  },
+  "sharded_launch": {
+    "_note": "one INDEPENDENT Modal job per (rung, arm, rho, seed) cell + one A0 job per rung + one g0 job; tags are stable identifiers for --jobs subsetting across accounts (modal2/modal3/modal4 env basenames); every job stays far below the 12 h Modal function timeout",
+    "tiers": ["t0", "ddc0", "s1", "s2"],
+    "tier_contents": {
+      "t0": "A0 r135 baseline (fixes the informative-task filter + fluency baseline + super-weight census)",
+      "ddc0": "the single G0 statistics job (g0_runner.py)",
+      "s1": "all 46 non-A0 r135 cells",
+      "s2": "A0 r360 + all 18 r360 cells (conditional on the section-8 promotion rule)"
+    }
+  },
+  "law1": {
+    "statement": "LAW-1 (DDC.md section 1.2): no kernel vector ever enters the model weights; kernel text enters as calibration input only; kernel vectors participate only OUTSIDE the model, in selecting which of the model's own activation directions are kept",
+    "enforcement": "ddc_surgery.py is the ONLY weights-touching module; it accepts bases solely as BasisSpec objects whose provenance is in BASIS_PROVENANCE_ALLOWED and refuses anything else (ERR_DDC_LAW1_TAINT); validate_mock.py additionally asserts STATICALLY that ddc_surgery.py references no kernel/codebook/encoder identifier"
+  }
+}

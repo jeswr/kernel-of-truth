@@ -1,0 +1,82 @@
+{
+  "answer_form": "entity (nsk1 g2b form 2): 'Who is the <gold_rel> of <base>?' -> chain-top NAME; per-item 2-option forced choice over the non-base lexicon surfaces (chance 0.5, disclosed); third-party CLUTRR proof_state gold",
+  "arms": [
+    "A1",
+    "A5",
+    "A7",
+    "c1"
+  ],
+  "cells": [
+    "A1:2",
+    "A5:2",
+    "A7:2",
+    "c1:1"
+  ],
+  "cells_note": "the (arm x seed) cells THIS run actually executed (--cells disjoint slice for the parallel multi-account launch; default = the full --arms x seeds grid). Slices are merged into the canonical run-records-rules1b.jsonl by poc/rules-1/modal/merge_rules1b_slices.py.",
+  "certificate_precondition": {
+    "gates_asm_1163_all_pass": true,
+    "kill_a_fired": false,
+    "sha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "success_asm_1131": true
+  },
+  "date": "2026-07-12T14:33:10Z",
+  "decision_sha256": "dca8e330a69d842ae588bb1905e5898c4034a90e797a85393f354f7ee835514d",
+  "decision_sha_note": "double-run comparator for the frozen repeat_byte_identical gate (rows with the volatile engine_us timing stripped; pass two of THESE to analysis/rules_1.py --repeat-sha-a/-b)",
+  "device": "cuda",
+  "engine_outcome_ledger": {
+    "c1_deranged_tbox_covered": {
+      "ERR_CONFLICT": 645,
+      "ERR_INSUFFICIENT_PREMISES": 213
+    },
+    "note": "c1 DISCLOSURE (PROPOSED-ASM-1129 operationalisation): every Sattolo derangement of this tightly-typed 6-property module fail-closes the engine on covered items, so the c1 oracle licenses no rejections \u2014 the lift channel is absent by construction, which is the content-destruction result s1 measures",
+    "true_tbox_control": {
+      "ERR_INSUFFICIENT_PREMISES": 100
+    },
+    "true_tbox_covered": {
+      "answered": 858
+    }
+  },
+  "experiment": "rules-1-c",
+  "gpu_class_assumed_for_usd": "A10G",
+  "k_retry": 4,
+  "mode": "FULL",
+  "models": {
+    "R1": {
+      "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+    },
+    "R3": {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "revision": "31b70e2e869a7173562077fd711b654946d38674"
+    }
+  },
+  "n_control": 100,
+  "n_covered": 858,
+  "n_rows": 3532,
+  "outcome": "HARNESS-COMPLETE",
+  "outcome_note": "NOT a hypothesis verdict \u2014 raw run-record rows only; the verdict is computed by the pinned analysis/rules_1.py + tools/registry/verdict-gen.py under run-vs-audit separation",
+  "pins": {
+    "_pin_notes": "corpus hashes verbatim from the FROZEN record pins.corpus_hashes (kot-corpus-hash/1); twin-engine + certificate-result verbatim from pins.artifact_hashes; f2bt runner pinned so the A3 loop's reused bytes (HFLM forced-choice scorer, seeded retry sampler SEED_BASE 20260710, CellGuard) are byte-identical to the f2b-transfer FULL-run harness; poc/f2b + poc/f2b-transfer + poc/deconf-b trees are NOT modified by this build (new module only).",
+    "analysisRules1PySha256": "6c62f8bde0b6cb770343f00b3e7e5b465f8021fcd1ae2f20ebb84f966e5e4870",
+    "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+    "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+    "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+    "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+    "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+    "imageRequirementsSha256": "0fac7243f1cd5747258bb13bde30f15eb0231a15426bb1fe4465aec68ff6636e",
+    "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+    "twinEnginePySha256": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+  },
+  "records_file": "run-records-rules1.jsonl",
+  "records_sha256": "1e36346ee9aec8a7225cb375f8d53741f49f458c0e3f47993beb13944d100ffc",
+  "seeds": [
+    1,
+    2
+  ],
+  "shuffle": {
+    "map_file": "shuffle-map-rules1.json",
+    "map_sha256": "4cb83cceeb83dc03d06cb0f111d4fb1ffa11315bf9fb21d1e032b4ac9c0fdb52",
+    "perm_seed": 20260711
+  },
+  "wallClockHours": 0.07402291046248542
+}
