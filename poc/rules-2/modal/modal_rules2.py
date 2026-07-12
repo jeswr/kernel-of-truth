@@ -246,8 +246,9 @@ def _launch_gates(gpu: str, rungs: str, authorize_r2: bool,
         # issue #24 slot decision, carried as a machine-readable
         # re-registration block in the FROZEN rules-2 record (decision (C):
         # rules-2, with B4/s3' struck, is the host-integration slot's
-        # replacement instrument).
-        sg = rec.get("sequencing_gate", {})
+        # replacement instrument). Lives under runner_constraints (the
+        # kot-reg/2 root is additionalProperties:false).
+        sg = rec.get("runner_constraints", {}).get("sequencing_gate", {})
         if not (sg.get("reregistered") and "issue #24" in
                 str(sg.get("authority", "")) and sg.get("decision") == "C"):
             raise SystemExit("ERR_GATE_SEQUENCING (PROPOSED-ASM-1420/1807/"

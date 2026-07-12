@@ -8,12 +8,17 @@ document (i) diagnoses the located judge-pB hedge-strictness channel from the
 two authoritative Stage-P pilots, (ii) designs the v2.2 adoption-arm rubric
 refinement, (iii) closes the dangling §11.8 documentation gap (MCP-leak
 calibration artifact + harness pin drift), (iv) records the retirement
-PRE-COMMITMENT, and (v) recommends the successor-record mechanism. It changes
-NO frozen object: `docs/next/design/g2-import-v2-repair.md` (pinned sha
-5829fad9…) and every frozen v2 instrument file stay byte-identical; all v2.2
-artifacts are NEW files plus a flag-guarded harness path that is inert without
-`--rubric v22`. $0 spent: mock only, zero judge calls. Companion ASM block:
-`poc/ontology-import-g2-v2/asm-v22-1820-1828.json` (range verified free).**
+PRE-COMMITMENT, (v) recommends the successor-record mechanism, and — second
+build pass, same day, maintainer directive (issue #25) — (vi) upgrades the
+v2.2 judge-pB from Haiku-4.5 to **Opus-4.8** (`--pb-model opus`,
+v2.2-scoped; §2b). It changes NO frozen object:
+`docs/next/design/g2-import-v2-repair.md` (pinned sha 5829fad9…) and every
+frozen v2 instrument file stay byte-identical; all v2.2 artifacts are NEW
+files plus flag-guarded harness paths that are inert without `--rubric v22`
+(and `--pb-model opus`). $0 spent: mock only, zero judge calls. Companion
+ASM blocks: `poc/ontology-import-g2-v2/asm-v22-1820-1828.json` and
+`poc/ontology-import-g2-v2/asm-opusjudge-1870-1879.json` (both ranges
+verified free).**
 
 Epistemic tags as in the instrument assessment: [MEASURED] read from committed
 bytes this tick; [DERIVED] stated arithmetic/code-reading; [STIPULATED] design
@@ -160,6 +165,63 @@ channel is not weakened [ASSESSMENT, probe text read].
 
 ---
 
+## 2b. The v2.2 judge-pB upgrade — Haiku-4.5 → Opus-4.8 (maintainer directive, issue #25) [STIPULATED]
+
+**Directive.** The maintainer (issue #25, informed by
+`docs/next/analysis/g2-panel-vs-assessment.md`) directs that the v2.2
+successor's judge-pB be **claude-opus-4-8** (`judge-pB-opus48`), replacing
+Haiku-4.5, via the SAME headless-claude machinery, pinned system prompt, and
+template. **The v2.2 pair is therefore pA = GPT-5.6-Sol + pB = Opus-4.8**,
+and the hedge-scope rubric fix (§2) and the judge upgrade ship TOGETHER: the
+one funded Stage-P pilot tests the combined instrument.
+
+**Grounds [MEASURED, from the panel-vs-assessment analysis].** 7 of the 11
+sanctioned-pilot A3 disagreements are the pB hedge-scope channel (Haiku
+reading hedged multi-clause composites at per-part/unhedged strength); the
+independent Fable third-read sided against pB on all 7 (6 "sound" + 1
+"sound (lean)"). The remaining 4 are the pA verb-sense channel (below).
+Judge-substitution risk is disclosed: the rubric fix alone might have
+sufficed; replacing the judge AND the rubric in one iteration means a PASS
+cannot attribute credit between them. The maintainer accepts this — the
+pre-commitment (§4) bounds the family to this one iteration either way.
+
+**Harness mechanics [MEASURED, this build].** New flag `--pb-model opus`,
+v2.2-SCOPED: it dies (`ERR_ONTG2V2_PBMODEL`) unless `--rubric v22` is
+active, so the FROZEN g2-import-v2 record's pB = `claude-haiku-4-5-20251001`
+path (config, exact-single-key modelUsage identity check, canonical BASE
+output locations) is byte-untouched without the flag. Opus-pB runs keep ALL
+response files inside their run_dir (pA-proxy discipline); `pb_model` is
+recorded in preflight-status and pilot-status with fail-closed mix guards in
+both directions. The CLI's background haiku helper key is tolerated in
+modelUsage alongside the requested opus model — EXTRAPOLATED from the
+2026-07-12 fable-proxy probe (ASM-1873); the fail-closed identity check
+aborts the run if the first live call disagrees. Vendor-family overlap
+disclosure carries verbatim (Opus-4.8 is the same vendor family as Haiku-4.5
+and the Fable design/assessment agents; pB is a SENSITIVITY judge, never
+sole gold).
+
+**The pA verb-sense channel is NOT addressed by this change [ASSESSMENT,
+noted per issue #25].** The 4 remaining disagreements (g2:pi:036/037
+"find", 070/071 "make") are pA over-admitting non-central senses under BARE
+parentheticals — deterministic (0 flips across three same-day runs), so
+they should recur in the v2.2 pilot. Per #25, the render should ALSO pin
+verb sense where the parenthetical is bare — make "as described above"
+point at an actual sense description (e.g. "find (X finds Y — comes upon or
+locates Y)"), not a bare "(X finds Y)". **This is an open pre-pilot
+coordinator/maintainer decision, not implemented here**, because re-rendered
+A3 items conflict with the successor's verbatim-inheritance clause (§5:
+byte-identical arm renderings, the SAME 40 pinned pilot items) and would
+need a fresh estimand-identity + gold pass of their own. Options: (a) fund
+that render build BEFORE the pilot (a further design pass; the AC1 gate's
+"same 40 items" pin must be consciously re-based), or (b) run the pilot
+with the disclosed ~4-item residual pA channel — at pilot-#2 marginals the
+7-item pB channel alone straddles the gate (fixing it counterfactually gives
+AC1 ≈ 0.88), so (b) is viable but spends the family's LAST iteration with a
+known deterministic residual. ASM-1877 records the recurrence expectation
+and its resolution path.
+
+---
+
 ## 3. The MCP-leak calibration artifact — fixed, now documented (closes the dangling §11.8) [MEASURED]
 
 What broke pilot #1 (`pilot-20260712-ac1`): a claude.ai MCP connector
@@ -187,11 +249,13 @@ at `ce2ab5a6…`, but the hardened harness that ran sanctioned pilot #2 is
 `cd8e2f89…` (committed 13:56Z, post-freeze 13:20:02Z, pre-run 15:24Z) — the
 sanctioned pilot ran OFF-PIN with the fix in place and no ops amendment
 recording it. This is a second, independent reason the frozen record cannot
-simply be re-entered (§5). The v2.2 harness (this build: `--rubric v22` flag,
-v22 pins, rubric-mix guards) is
-`efe134ad0a51c9b49d2ea93d1f2e3341cfcd6a945cfcf492bd9a7e621d1d18e9`; the
+simply be re-entered (§5). The v2.2 harness (first v22 build pass
+`efe134ad…`: `--rubric v22` flag, v22 pins, rubric-mix guards; second pass,
+issue #25: `--pb-model opus` judge-pB upgrade, pb_model status stamps + mix
+guards, opus modelUsage allowance, run_dir output routing) is now
+`16d71d8ffbaa09d0ec1dcd86770edf97a555b00571ca2b6e7b581637dda77c5b`; the
 successor record must pin THIS sha and fill both judge CLI banners at its ops
-amendment. Without the flag the harness's v2 behaviour is unchanged
+amendment. Without the flags the harness's v2 behaviour is unchanged
 (regression-mocked, §6).
 
 ---
@@ -200,23 +264,31 @@ amendment. Without the flag the harness's v2 behaviour is unchanged
 
 > **If the v2.2 Stage-P pilot's Gwet AC1_A3 on the 40 pinned items is
 > < 0.65 — a SECOND sanctioned AC1 pilot failure for this record family —
-> the GPT-5.6-Sol + Haiku-4.5 proxy pair is RETIRED as an adoption-arm (A3)
-> instrument for the g2-import family: no further proxy-pair rubric
-> iteration may be funded for A3, and the adoption decision passes to the
-> two-human adjudicated panel on the 84 slots — which the frozen envelope
-> has always named as the sole authority for permanent adoption, and under
-> which the v1 primary signal holds on every label bracket including the
-> maximally conservative pair-concordant 42/84 ≥ 34/84. Retirement binds
-> the proxy pair's ADOPTION-ARM authority only: it licenses no conclusion
-> about H-SOFT/H-SRC/H-SEP in either direction, does not retire the pair
-> for unhedged arms or other record families, and does not bind the human
-> panel. A v2.2 pilot PASS licenses exactly the pre-registered next step:
-> the ~$5–6 full 796-call run under the successor record, nothing else.**
+> the v2.2 proxy pair (GPT-5.6-Sol + Opus-4.8) is RETIRED as an
+> adoption-arm (A3) instrument for the g2-import family, AND no further
+> LLM proxy pair may be substituted or funded for A3 in this family — the
+> judge upgrade (§2b) does NOT reset the one-iteration bound. The adoption
+> decision passes to the two-human adjudicated panel on the 84 slots —
+> which the frozen envelope has always named as the sole authority for
+> permanent adoption, and under which the v1 primary signal holds on every
+> label bracket including the maximally conservative pair-concordant
+> 42/84 ≥ 34/84. Retirement binds the proxy pair's ADOPTION-ARM authority
+> only: it licenses no conclusion about H-SOFT/H-SRC/H-SEP in either
+> direction, does not retire the judges for unhedged arms or other record
+> families, and does not bind the human panel. A v2.2 pilot PASS licenses
+> exactly the pre-registered next step: the ~$5–6 full 796-call run under
+> the successor record, nothing else.**
 
 Either branch terminates the proxy iteration loop, exactly as the instrument
 assessment's §2.1 closeability call requires ("fund exactly one v2.2
 iteration… with a pre-commitment that a second AC1 failure retires the
-proxy-pair instrument for this record family").
+proxy-pair instrument for this record family"). Note vs ASM-1825, which
+named the GPT-5.6-Sol + **Haiku-4.5** pair: under the §2b directive
+Haiku-4.5's pB role is retired NOW, by maintainer decision rather than by a
+second AC1 failure, and the restated clause above (ASM-1876) is STRICTLY
+STRONGER — it closes the judge-substitution loophole a literal reading of
+ASM-1825 would have opened (swap a judge, claim a fresh pair, iterate
+again). Anti-shopping intent carries forward intact.
 
 ---
 
@@ -249,15 +321,21 @@ evidence only; the record family already admits scoped post-freeze amendment
 **Successor shape (recommended, NOT frozen here — coordinator action):**
 `registry/experiments/g2-import-v2.2.json`, kot-reg/2, inheriting VERBATIM the
 estimand identity chain (same 84 slots, byte-identical arm renderings, A0
-frozen 33/84, primary ≥ 34/84, sep gates, judges, rider, envelope incl.
+frozen 33/84, primary ≥ 34/84, sep gates, judge-pA, rider, envelope incl.
 human-panel-sole-authority), all v2 instrument gates unchanged (pilot AC1_A3
 ≥ 0.65 on the SAME 40 pinned items + OC block, decisive ≥ 36/40, hedge-flip
 ≤ 2/8, full-run AC1 ≥ 0.65/arm etc.), both prior pilots quarantined as
-instrument evidence. New pins: `prompt-template-v2.2.txt` 60d34037…,
-`calibration-hedge-v22.jsonl` 63c247a9…, `run-ontg2v2.py` efe134ad… (invoked
-`--rubric v22`), cal gates 10/10 preflight per judge / 16/16 pilot, call
-ceiling 788 → **796** (796 × $0.012 = $9.552 ≤ $10), §4's pre-commitment as a
-verdict-bearing clause, ASM-1820..1828 registered at freeze. Disclosure
+instrument evidence. **Judge-pB is pinned as `judge-pB-opus48`,
+`claude-opus-4-8`, via the same headless-claude protocol (§2b)** — the ONE
+inherited-protocol departure, maintainer-directed (issue #25). New pins:
+`prompt-template-v2.2.txt` 60d34037…, `calibration-hedge-v22.jsonl`
+63c247a9…, `run-ontg2v2.py` 16d71d8f… (invoked `--rubric v22 --pb-model
+opus`), cal gates 10/10 preflight per judge / 16/16 pilot, call ceiling 788
+→ **796** (796 × $0.012 = $9.552 ≤ $10; the pinned per-call bound covers
+Opus-4.8 at the measured prompt envelope, ASM-1874, and pB draws no API
+dollars on the OAuth path), §4's pre-commitment as a verdict-bearing clause,
+ASM-1820..1828 + ASM-1870..1879 registered at freeze. The §2b verb-sense
+render question must be DECIDED (option a or b) before freeze. Disclosure
 carried on every readout: this is the family's LAST proxy-pair iteration for
 A3 under the pre-commitment.
 
@@ -279,22 +357,51 @@ Zero judge calls were made this build. Mocks executed 2026-07-12:
   ABORTS a v22 invocation (`ERR_ONTG2V2_RUBRIC`), and vice versa by
   symmetry; `verify_pins` green over the v22 pin set.
 
+Second build pass (issue #25, `--pb-model opus`), mocks executed 2026-07-12:
+
+- `--rubric v22 --pb-model opus`, all five verdict paths GREEN
+  (`runs/mockcheck-v22opus-20260712/`): go→PASS, nogo→FAIL,
+  instrument→INSTRUMENT-INVALID, pilotfail→INSTRUMENT-INVALID
+  (pilot_valid=False), breadth→FAIL (breadth_confound=True); pilot-status
+  records `rubric: v22, pb_model: opus`, cal 16/16; flag order
+  independence verified (`--pb-model` before `--rubric` in argv, same
+  GREEN).
+- Default-path regression GREEN after the pB edit
+  (`runs/mockcheck-v2default-opusbuild-20260712/`): go + pilotfail with NO
+  flags → `rubric: v2, pb_model: null`, cal 12/12 — the frozen pB=Haiku
+  path is untouched; all 25 frozen-record `artifact_hashes` re-verified
+  byte-identical except the already-disclosed `run-ontg2v2.py` drift (§3).
+- Guards exercised directly: `--pb-model opus` WITHOUT `--rubric v22` dies
+  (`ERR_ONTG2V2_PBMODEL`); `--pb-model haiku` dies; pb-model mix guard
+  fires in BOTH directions (v22-no-opus pilot-status vs v22+opus
+  invocation, and the reverse).
+- Anchor model-agnosticism check: zero model/vendor/judge-name tokens in
+  the 2 v1-cal + 8 hedge-cal items, `prompt-template-v2.2.txt`, and the
+  pinned pB system prompt (the only "judge" hits are the generic role word
+  in the template). Opus faces the same pinned bytes as Haiku did and must
+  clear the same mechanical gates: 10/10 preflight anchors per judge,
+  16/16 pilot cal across judges.
+
 **Pilot cost:** preflight (2+8)×2 = 20 + pilot (8+40+8)×2 = 112 → **132
 calls ≈ $1.06 at the v1-measured ≤ $0.008/call, ≤ $1.58 at the pinned
-$0.012 bound** (the ~$1.4 shape preserved). Stage-P discipline unchanged:
-any pilot-gate failure stops before any full-arm call.
+$0.012 bound** (the ~$1.4 shape preserved). Under pB=Opus the pB half (66
+calls) draws NO API dollars (OAuth path, `apiKeySource == "none"`
+enforced); its API-equivalent worst case at the measured prompt envelope is
+~≤ $0.009/call, inside the pinned bound (ASM-1874). Stage-P discipline
+unchanged: any pilot-gate failure stops before any full-arm call.
 
 **Exact coordinator launch command** (after the coordinator freezes the
-successor record and runs reuse-check; concurrency 1, this box):
+successor record and runs reuse-check; concurrency 1, this box; pair =
+pA GPT-5.6-Sol + pB Opus-4.8):
 
 ```bash
 cd /home/ec2-user/css/kernel/kernel-of-truth/poc/ontology-import-g2-v2 \
 && RUN=runs/pilot-v22-$(date -u +%Y%m%d) \
-&& nice -n 10 python3 run-ontg2v2.py preflight pA "$RUN" --rubric v22 \
-&& nice -n 10 python3 run-ontg2v2.py preflight pB "$RUN" --rubric v22 \
-&& nice -n 10 python3 run-ontg2v2.py pilot     pA "$RUN" --rubric v22 \
-&& nice -n 10 python3 run-ontg2v2.py pilot     pB "$RUN" --rubric v22 \
-&& nice -n 10 python3 run-ontg2v2.py pilotgate    "$RUN" --rubric v22
+&& nice -n 10 python3 run-ontg2v2.py preflight pA "$RUN" --rubric v22 --pb-model opus \
+&& nice -n 10 python3 run-ontg2v2.py preflight pB "$RUN" --rubric v22 --pb-model opus \
+&& nice -n 10 python3 run-ontg2v2.py pilot     pA "$RUN" --rubric v22 --pb-model opus \
+&& nice -n 10 python3 run-ontg2v2.py pilot     pB "$RUN" --rubric v22 --pb-model opus \
+&& nice -n 10 python3 run-ontg2v2.py pilotgate    "$RUN" --rubric v22 --pb-model opus
 ```
 
 PILOTGATE GREEN ⇒ the full run may proceed under the successor record;

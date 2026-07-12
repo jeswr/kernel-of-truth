@@ -1,0 +1,72 @@
+{
+ "schema_version": "kot-reg/2",
+ "id": "rules-2-knull",
+ "status": "DRAFT",
+ "title": "RULES-2-KNULL (the MANDATORY kernel-specific-attribution analog of the rules-1 c5/MD-7 knull ablation, at TRAIN time) — does the rules-2 train-time internalisation result depend on the KERNEL rules source at all, i.e. does fine-tuning on a KNULL plain-dictionary-derived materialised closure (tbox-knull, PROPOSED-ASM-1400..1404) differ from fine-tuning on the kernel-engine-derived closure (rules-2 B2), matched corpus? LEG 1 ($0 CPU byte-equivalence, EXECUTED 2026-07-12): the two rules sources derive the BYTE-IDENTICAL training corpus on the closed rules-2 inventory — 21,780/21,780 examples surface-equal, family-2 13,020/13,020 at fraction 1.0, proof sidecars included (poc/rules-2/results/knull-analog-result.json sha afcf09e8...). LEG 2 (GPU fine-tune c5k-vs-B2) is therefore CONDITIONAL-VACUOUS: it would train byte-identical arms and is REGISTERED, NOT RUN. Consequence for the ASM-1138/1438 claim cap: the knull comparison now EXISTS and its answer is deflationary — on this closed kinship inventory the plain-dictionary source is train-time-indistinguishable from the kernel source, so NO rules-2 outcome (pass or fail) licenses a 'kernel-specific value' claim; the cap's operative language is carried into the rules-2 GO record verbatim.",
+ "depends_on": ["rules-2", "rules-1-knull-cert"],
+ "analysis_plan_ref": {
+  "path": "docs/next/design/rules-2-train-time.md",
+  "anchor": "Appendix C SSC.3 (knull analog wiring; GO finalisation under maintainer issue #24 decision (C))",
+  "note": "sha recorded in the rules-2 GO record's prereg_doc pin (single source of truth; this sibling record is finalised in the same commit)"
+ },
+ "hypotheses": [
+  "H-R2K-1 (leg 1, mechanical): the knull plain-dictionary TBox (same closed constraint grammar, same shared ABox vocabulary, fresh knull-profile URNs for TBox-introduced terms) derives a materialised training corpus surface-DIFFERENT from the kernel-derived rules-2 corpus. MEASURED FALSE at $0: fully surface-equivalent (fraction 1.0 on every family and kind; id sets identical; proof sidecars identical).",
+  "H-R2K-2 (leg 2, conditional GPU): IF leg 1 had found divergence, LoRA fine-tuning on the matched knull-derived corpus (arm c5k) would differ from B2 on S-out. UNEVALUABLE-BY-CONSTRUCTION given the leg-1 result: c5k's training bytes are B2's training bytes; the contrast is 0 identically. Registered so the attribution question has a permanent, citable answer rather than an open cap."
+ ],
+ "design": {
+  "arms": [
+   "leg 1 (EXECUTED, $0 CPU): poc/rules-2/knull_analog.py — regenerate the rules-2 training examples twice over the IDENTICAL deterministic component set with the PINNED twin engine: side A kernel TBox (certificate.TBOX_PINNED; regeneration cross-checked byte-equal against the pinned data/rules2-train corpus, fail-closed ERR_KERNEL_REGEN), side B knull TBox (poc/rules-1-knull/inputs/tbox-knull, dir digest pin-verified against rules-1-knull-cert). Compare per-id training surfaces (context, question, answer, options); proof sidecars reported separately.",
+   "leg 2 (REGISTERED, CONDITIONAL — currently VACUOUS): arm c5k = LoRA on the knull-derived corpus at the rules-2 pinned hyperparameters, scored on the identical rules-2 S-out entity surface against B2 (matched, 3 FT seeds, same analysis machinery). RUN CONDITION: leg-1 family-2 surface_equal_fraction < 1.0 on a regenerated result. With the landed fraction 1.0 the arms are byte-identical and the leg MUST NOT be run (spend with a guaranteed-null contrast)."
+  ],
+  "independent_vars": [{"name": "rules_source", "levels": ["kernel (certificate.TBOX_PINNED)", "knull (tbox-knull plain-dictionary compile)"]}],
+  "dependent_vars": [
+   {"name": "family2_surface_equal_fraction", "definition": "fraction of shared family-2 example ids whose (context, question, answer, options) bytes are identical across the two rules sources", "unit": "fraction", "better": "n/a (attribution diagnostic)"},
+   {"name": "c5k_minus_b2_sout", "definition": "leg 2 only, conditional: paired S-out contrast at the rules-2 statistics (two-stage BCa)", "unit": "accuracy delta", "better": "n/a"}
+  ],
+  "n_planned": {"leg1_examples_compared": 21780, "leg1_family2": 13020, "leg2_seeds_if_run": [0, 1, 2]},
+  "scale_language_max": "none"
+ },
+ "endpoints": [
+  {"id": "primary", "role": "primary", "metric": "/analysis/family2_surface_equal_fraction", "test": "leg-1 mechanical equivalence readout (PROPOSED-ASM-1850): fraction 1.0 with identical id sets => the sources are train-time-indistinguishable on this inventory (leg 2 vacuous; deflationary attribution answer); fraction < 1.0 => leg 2 activates on the divergence-bearing item set (matched c5k-vs-B2). No statistics: the quantity is a deterministic byte comparison over the full population, not a sample."}
+ ],
+ "verdict_rules": [
+  {"verdict": "INSTRUMENT-INVALID", "when": {"op": "not", "a": {"metric": "/gates/pins_and_kernel_anchor_valid"}}},
+  {"verdict": "PASS", "when": {"const": true}}
+ ],
+ "verdict_rules_note": "PASS here means 'the attribution question is answered mechanically' (either branch of the primary endpoint), never a hypothesis endorsement; the gate is the leg-1 pin/anchor bundle (kernel pins byte-exact, knull tbox digest match, kernel regeneration byte-equal to the pinned corpus).",
+ "kill_criterion_verbatim": "KILL-none: leg 1 is a deterministic $0 diagnostic and cannot kill anything. The binding discipline is the LEG-2 RUN CONDITION: with family2 surface_equal_fraction = 1.0, launching the GPU leg is PROHIBITED (guaranteed-null contrast; the spend would be theatre). The ASM-1138/1438 claim-cap consequence binds regardless of any rules-2 outcome: 'engine-materialised entailments are internalisable' NEVER upgrades to 'kernel-specific value' on this inventory, because the plain-dictionary source derives the same entailments.",
+ "extrapolation_envelope_verbatim": "Scoped to THIS closed rules inventory and THIS kinship vertical exactly as the rules-2 GO record scopes it. The equivalence result is a property of the CLOSED CONSTRAINT GRAMMAR both TBoxes compile to (PROPOSED-ASM-1402: the knull compile targets the same inventory) — it does NOT say plain dictionaries replicate the kernel on any richer inventory, on NL-robust parsing, on coverage growth, or on any domain where the kernel's explication depth exceeds what a dictionary definition pins down. It also does not validate the kernel: it is a two-sided deflation (neither source is privileged at train time here).",
+ "budget": {"usd_cap": 0, "gpu_hours_cap": 0, "wall_clock_cap_hours": 1, "note": "leg 1 executed at $0 (~4 min, 2 shared CPU cores, nice -10). Leg 2 carries NO budget: its run condition is false; activating it requires a record amendment with a fresh divergent leg-1 artifact + its own dry-plan."},
+ "pins": {
+  "harness_manifest": "leg 1 is repo-local CPU (no staged-bytes manifest); the executable surface is fully pinned by artifact_hashes below",
+  "analysis_script": {
+   "path": "poc/rules-2/knull_analog.py",
+   "sha256": "53f38b570c5815bb703eb4c0cfb76a83b98b30b102b6ca94ad3cd667998e3afe",
+   "output_fields": ["/analysis/family2_surface_equal_fraction (result field family2_equivalence.surface_equal_fraction)", "/gates/pins_and_kernel_anchor_valid (result fields pins + pinned_corpus_anchor.kernel_regen_byte_equal)"]
+  },
+  "artifact_hashes": {
+   "knull-analog-result(poc/rules-2/results/knull-analog-result.json)": "afcf09e882ae2fc3796eb72774eac4c46839169cc312fe0a717c8b4cfb1f89f1",
+   "knull-analog-runner(poc/rules-2/knull_analog.py)": "53f38b570c5815bb703eb4c0cfb76a83b98b30b102b6ca94ad3cd667998e3afe",
+   "materialiser(poc/rules-2/materialise_closure.py)": "66e45adc10b6f2e6072db2f39ab13ce373817466eac90c5f17b1797a20711105",
+   "tbox-knull(dir-digest, kot-corpus-hash/1 recipe over poc/rules-1-knull/inputs/tbox-knull)": "15b79bb795ee95d79c6e61bf057d91b2d71f67f89718ce399f62a163ca053c42",
+   "knull-defs(poc/rules-1-knull/knull_kinship_defs.json)": "fa685a98041a1d7630cfc175bbcb70a00eaec5219865a39bba71d14448c75408",
+   "twin-engine(poc/rules-1/twin_engine.py)": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8",
+   "rules1-certificate-py(poc/rules-1/certificate.py)": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a"
+  },
+  "corpus_hashes": {
+   "_recipe": "kot-corpus-hash/1 verbatim from the frozen rules-1 record (reference implementation tools/registry/corpus-pin.py)",
+   "rules2-train": "c46aaa4ea2ffd56ef48c5cd0f2e379417fe763a5a0c140ce706f0bdf65545cf1",
+   "axioms-v0": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+   "axioms-kinship-v1": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+   "nsk1-clutrr": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98"
+  },
+  "model_revisions": {"note": "leg 1 uses NO model; leg 2 (if ever activated) inherits the rules-2 GO record's pinned R1 revision verbatim"}
+ },
+ "runner_constraints": {
+  "hardware": "leg 1: CPU-only, deterministic, repo-local; leg 2: PROHIBITED under the current leg-1 result",
+  "roles": "leg 1 authored + executed by the build role (fable-build-4, GO finalisation 2026-07-12, owner writer-4); reproduction is 'python3 poc/rules-2/knull_analog.py' and must reproduce the artifact byte-exactly (no timestamps, pinned seeds only). ASM block PROPOSED-ASM-1849..1852 in poc/rules-2/asm-go-1847-1859.json (EMITTED, not registered). NO feasibility conclusion is stated in this record.",
+  "artifact_notes": "knull-analog-result.json fields: pinned_corpus_anchor (kernel regeneration byte-equal to data/rules2-train, hash-anchored), id_set (21,780 shared, 0 either-side-only), family2_equivalence (13,020/13,020 surface-equal, 0 proof-sidecar divergent), family2_by_kind (chain/cover/typing all 1.0), family13_equivalence (8,760/8,760), counts ledgers for both sides (identical skip/exclusion profile; 0 knull-side builder aborts)."
+ },
+ "coverage_requirement": {"source": "m0b", "rung_field": "coverage_rung"},
+ "supersedes_note": "This record RETIRES the 'c5 knull-sourced-closure fine-tune: NOT in this campaign' deferral row (ASM-1138 carried by PROPOSED-ASM-1438/MD-R2-8 in the rules-2 record): the mandatory analog now exists as a first-class sibling campaign with an EXECUTED leg. It does not supersede rules-1-knull-cert (the inference-time certificate leg), which remains its own record."
+}

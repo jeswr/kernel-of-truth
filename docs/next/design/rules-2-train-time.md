@@ -482,3 +482,82 @@ manifest sha it records (the registry record's `pins.harness_manifest`
 carries the build-time value; the doc deliberately does not quote it —
 the manifest pins THIS doc's sha, so quoting the staged sha here would
 be circular). NO freeze and NO run were performed by this build.
+
+## Appendix C — GO finalisation (2026-07-12, fable-build-4; maintainer issue #24 decision (C))
+
+**Authority.** The maintainer's issue #24 host-integration slot decision is
+**(C): RULES-2 is GO** — rules-2 (train-time internalisation) is the slot's
+replacement instrument after the rules-1-c INSTRUMENT-INVALID; the §3
+sequencing gate is re-registered accordingly (machine-readable
+`sequencing_gate` block in the registry record; enforced by
+`modal_rules2._launch_gates`; PROPOSED-ASM-1847). The **blocking instrument
+pilot** (the mandatory exercised-at-operating-point gate this programme
+adopted after four instrument failures) RAN on real GPU 2026-07-12 and
+reported **PILOT-PASS-WITH-FLAGS**: IP-1 separation non-degenerate, IP-2
+c8 audit-teeth (planted exploiter fires, real lookup 0/60), IP-3 c1p
+control non-degenerate, IP-4 B4-vacuity FLAGGED TRUE (attempts=1
+everywhere — ASM-1808 confirmed at the operating point). Artifact:
+`poc/rules-2/results-incoming/20260712-165344-instrpilot/instrpilot-result.json`
+(sha `872477ef…`), pinned in the record as `pins.blocking_pilot`
+(PROPOSED-ASM-1853). Pilot numbers are instrument-validity data only.
+
+**C.1 B4 + s3′ STRUCK (amends §2.3/§2.4; PROPOSED-ASM-1848).** The B4
+engine-at-inference comparator imported the rules-1-c A3 verify-retry
+channel byte-identically; that channel is MEASURED VACUOUS at the 2-option
+entity operating point (rules-1-c landed rows + pilot IP-4: the imported
+`licensed_rejection` abstains unconditionally; attempts=1 on every row).
+Three instruments in a row failed on this channel; the verify-retry
+question is settled **un-instrumentable at 2-option scale** and B4 rows
+would be attempt-0 decoys. Decision (C) strikes the arm and the s3′
+gap-closure leg (and its `entailed2` common-2-option surface) rather than
+burn a fourth instrument. Consequences: arms = B0/B1/B2/B3/B5/c1p (the
+train-time internalisation primary and its controls are UNTOUCHED); the
+Holm family is {s1′, s2′, s4′}; the engine-at-inference price column is
+carried DESCRIPTIVELY from the landed rules-1-c campaign ledger
+(cross-campaign, disclosed — price rows from an INSTRUMENT-INVALID
+campaign are wall-clock measurements, never hypothesis evidence); B5 is
+the in-campaign efficiency comparator; NO break-even N\* is computed.
+Verify-retry repair, if ever, is rules-1-d's problem (issue #24, separate
+record).
+
+**C.2 Analysis successor (PROPOSED-ASM-1853).** `analysis/rules_2.py`
+(sha `782bc9eb…`) was pinned in the pre-GO DRAFT and inside the pilot
+artifact's pin block; pinned bytes are never edited. The GO analysis is
+the successor **`analysis/rules_2_go.py`**: statistics verbatim (two-stage
+FT-seed × item BCa, B=10000, seed 20260712, SESOI band, REAL Holm), with
+the s3′/B4/`entailed2` surfaces removed and the Holm family at m=3. The
+registry record's `pins.analysis_script` now points at the successor; the
+superseded script is retained on disk as history.
+
+**C.3 The MANDATORY knull analog (PROPOSED-ASM-1849..1852; retires the
+MD-R2-8 deferral).** The assessment requires the kernel-specific-
+attribution comparison: engine-derived-entailment training (kernel rules
+source) vs plain-dictionary-derived training (knull rules source),
+matched. Wired as the sibling campaign
+**`registry/experiments/rules-2-knull.json`** with its $0 leg EXECUTED:
+`poc/rules-2/knull_analog.py` regenerated the full training-example set
+under both rules sources over the identical deterministic component set
+(kernel side cross-checked byte-equal against the pinned
+`data/rules2-train` corpus, fail-closed) and compared per-id training
+surfaces. **Result: fully surface-equivalent — 21,780/21,780 examples,
+family-2 13,020/13,020 (chain/cover/typing all 1.0), proof sidecars
+included** (`poc/rules-2/results/knull-analog-result.json`, sha
+`afcf09e8…`). The knull-sourced fine-tune corpus IS the kernel-sourced
+corpus on this closed inventory, so the GPU leg (c5k-vs-B2) is
+**conditional-vacuous: registered, prohibited to run** (guaranteed-null
+contrast). Claim-cap consequence (ASM-1138/1438, sharpened): NO rules-2
+outcome licenses "kernel-specific value" — the operative claim ceiling is
+"engine-materialised entailments (derivable from EITHER rules source on
+this inventory) are internalisable by a small host". This is the honest,
+two-sided deflation: it neither validates the kernel nor the dictionary.
+
+**C.4 Freeze-surface changes.** `validate_mock.py` drops the
+`--rules1-primary-lb` mock argument (s3′ gone); the mock is re-run
+(monolithic + 10 shard jobs + merge + successor-analysis parity + verdict
+mapping + both dry-plans) and re-pinned; `pins.harness_manifest` carries
+the GO staged-bytes sha; the shard plan is 14 R1 jobs / 7 R2 jobs (B4's
+eval-only job removed). ASM block: **PROPOSED-ASM-1847..1859** in
+`poc/rules-2/asm-go-1847-1859.json` (EMITTED; central registration is the
+coordinator's step 3). `prereg-freeze --dry-run` re-verified at GO build
+time. NO freeze and NO run were performed by this build; GPU launch
+remains gated on the FROZEN record + the re-registered sequencing gate.

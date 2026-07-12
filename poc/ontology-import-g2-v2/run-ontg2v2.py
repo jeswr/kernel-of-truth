@@ -19,6 +19,9 @@ Protocol (maintainer directive #11, unchanged from v1):
   judge-pB  claude-haiku-4-5-20251001 via headless claude CLI, tools
             disabled, no session persistence (SENSITIVITY judge;
             vendor-family overlap DISCLOSED, never sole gold)
+            (v2.2 SUCCESSOR ONLY, --pb-model opus: judge-pB is
+            claude-opus-4-8 via the same machinery -- maintainer
+            directive, issue #25; same overlap disclosure)
 Stateless per-item calls; the NEW v2 sentence-force rubric
 (prompt-template-v2.txt, identical for every arm and both judges);
 FRESH per-judge-per-arm-per-phase order seeds (materials/manifest.json);
@@ -44,6 +47,11 @@ Flags (append to any mode):
   --rubric v22       v2.2 composite-hedge rubric iteration (DRAFT; successor
                      record required -- docs/next/design/
                      g2-import-v22-rubric-iteration.md); default = frozen v2
+  --pb-model opus    v2.2-ONLY judge-pB upgrade to claude-opus-4-8
+                     (maintainer directive, issue #25; REQUIRES --rubric
+                     v22). The frozen v2 record pins pB =
+                     claude-haiku-4-5-20251001; that path is byte-untouched
+                     without the flag.
 """
 import json
 import os
@@ -140,6 +148,28 @@ FABLE_MODEL = "claude-fable-5"
 # ONLY under the proxy; the frozen pB exact-single-key check is unchanged.
 FABLE_MU_ALLOWED = frozenset({FABLE_MODEL, HAIKU_MODEL})
 
+# ---- v2.2 judge-pB upgrade (maintainer directive, issue #25) ----
+# 2026-07-12: judge-pB Haiku-4.5's one-sided hedge-scope strictness caused 7
+# of the 11 sanctioned-pilot A3 disagreements
+# (docs/next/analysis/g2-panel-vs-assessment.md). `--pb-model opus`
+# (v2.2-SCOPED: requires --rubric v22) swaps judge-pB to claude-opus-4-8 via
+# the SAME headless-claude machinery, new judge id judge-pB-opus48. The
+# FROZEN g2-import-v2 record pins pB = claude-haiku-4-5-20251001; without
+# the flag that path (config, exact-single-key modelUsage identity check,
+# canonical BASE output locations) is byte-untouched. Like the fable proxy,
+# the CLI's background haiku helper key is tolerated in modelUsage alongside
+# the requested opus model (EXTRAPOLATED from the 2026-07-12 fable probe,
+# ASM-1873; the fail-closed identity check aborts the run if the first live
+# call disagrees). Call counts and the pinned conservative $0.012/call
+# dollar bound are unchanged (ASM-1874: opus-4-8 at the measured prompt
+# envelope is ~<= $0.009/call API-equivalent; pB runs on the OAuth path,
+# apiKeySource == "none" enforced). Opus-pB runs keep ALL response files
+# inside their run_dir (same discipline as the pA proxy) so the canonical
+# BASE locations stay reserved for the frozen record.
+PB_MODEL = None
+OPUS_MODEL = "claude-opus-4-8"
+OPUS_MU_ALLOWED = frozenset({OPUS_MODEL, HAIKU_MODEL})
+
 
 def activate_pa_proxy(val):
     global PA_PROXY
@@ -185,6 +215,24 @@ def activate_rubric(val):
     PATHS.update({k: os.path.join(REPO, k) for k in V22_PINS})
     PILOT_CAL_MIN = 16          # 8 hedge-calibration items x 2 judges
     BUDGET_MAX_CALLS = 796      # +4 pilot cal + 4 preflight cal vs 788
+
+
+def activate_pb_model(val):
+    """v2.2 judge-pB upgrade (see the PB_MODEL block above): swap judge-pB
+    to claude-opus-4-8, id judge-pB-opus48. MUST be activated after
+    --rubric v22 (main parses --rubric first regardless of argv order);
+    dies otherwise -- the Opus pB exists ONLY for the g2-import-v2.2
+    successor record, never for the frozen v2 path."""
+    global PB_MODEL
+    if val != "opus":
+        die("ERR_ONTG2V2_PBMODEL: --pb-model supports only 'opus'")
+    if RUBRIC != "v22":
+        die("ERR_ONTG2V2_PBMODEL: --pb-model opus is v2.2-scoped; pass "
+            "--rubric v22 (the frozen v2 record pins "
+            "pB = claude-haiku-4-5-20251001, byte-untouched)")
+    PB_MODEL = "opus"
+    JUDGE_CFG["pB"] = {"id": "judge-pB-opus48", "kind": "claude",
+                       "model": OPUS_MODEL}
 
 
 def _template_rel():
@@ -525,6 +573,12 @@ def validate_claude(exit_code, attempt_dir, model=HAIKU_MODEL):
     # tolerated alongside the requested model (kernel-of-truth-29nb).
     if model == FABLE_MODEL:
         mu_ok = (model in mu) and set(mu.keys()) <= FABLE_MU_ALLOWED
+    elif model == OPUS_MODEL:
+        # v2.2 pB upgrade (--pb-model opus): same helper-key tolerance as
+        # the fable proxy (EXTRAPOLATED, ASM-1873) -- the requested opus
+        # model MUST appear; only the CLI's background haiku helper key may
+        # accompany it. Fails closed on any other key set.
+        mu_ok = (model in mu) and set(mu.keys()) <= OPUS_MU_ALLOWED
     else:
         mu_ok = set(mu.keys()) == {model}
     if not (init and init.get("model") == model
@@ -768,7 +822,7 @@ def phase_preflight(pkey, run_dir):
                              "preflight-cal")
     ok = all(r["pass"] for r in results)
     status_obj = {"phase": "preflight", "judge": cfg["id"],
-                  "rubric": RUBRIC,
+                  "rubric": RUBRIC, "pb_model": PB_MODEL,
                   "banners": banners, "workdir": workdir, "pass": ok,
                   "results": results}
     with open(os.path.join(jdir, "preflight-status.json"), "w") as f:
@@ -790,6 +844,10 @@ def _require_preflight(jdir, pkey):
         die("ERR_ONTG2V2_RUBRIC: preflight ran under rubric %r but this "
             "invocation is %r; rubrics may never mix within a run"
             % (pf.get("rubric", "v2"), RUBRIC))
+    if pf.get("pb_model") != PB_MODEL:
+        die("ERR_ONTG2V2_PBMODEL: preflight ran under pb_model %r but this "
+            "invocation is %r; judge-pB models may never mix within a run"
+            % (pf.get("pb_model"), PB_MODEL))
     workdir = open(os.path.join(jdir, "workdir-path.txt")).read().strip()
     if not os.path.isdir(workdir):
         die("recorded workdir missing: %s" % workdir)
@@ -811,6 +869,10 @@ def _require_pilot_pass(run_dir):
         die("ERR_ONTG2V2_RUBRIC: pilot gate passed under rubric %r but this "
             "invocation is %r; rubrics may never mix within a run"
             % (st.get("rubric", "v2"), RUBRIC))
+    if st.get("pb_model") != PB_MODEL:
+        die("ERR_ONTG2V2_PBMODEL: pilot gate passed under pb_model %r but "
+            "this invocation is %r; judge-pB models may never mix within a "
+            "run" % (st.get("pb_model"), PB_MODEL))
 
 
 def _run_block(pkey, arm, run_dir, phase, rows, n_expected, nolabel_cap,
@@ -890,8 +952,10 @@ def _run_block(pkey, arm, run_dir, phase, rows, n_expected, nolabel_cap,
 
 
 def _proxy_out_base(run_dir):
-    """Proxy runs keep response files in run_dir; frozen path uses BASE."""
-    return run_dir if PA_PROXY else None
+    """Proxy AND opus-pB (--pb-model) runs keep response files in run_dir;
+    the frozen path uses the canonical BASE locations, which stay reserved
+    for the frozen record."""
+    return run_dir if (PA_PROXY or PB_MODEL) else None
 
 
 def phase_real(pkey, arm, run_dir):
@@ -1076,7 +1140,7 @@ def phase_pilotgate(run_dir, resp_dir=None, mock=False):
         channels.append("hedge-flip false-sat %.2f > 0.25" % max(fs.values()))
     ok = not channels
     status = {"phase": "pilotgate", "pass": ok, "pa_proxy": PA_PROXY,
-              "rubric": RUBRIC,
+              "rubric": RUBRIC, "pb_model": PB_MODEL,
               "ac1_a3": g, "kappa_a3_coreported": k, "metrics": pm,
               "hedgeflip_false_sat": fs,
               "channel": "; ".join(channels) if channels else None,
@@ -1318,8 +1382,9 @@ def _write_result(out_dir, metrics, analysis_out, labels_all, mock,
 def phase_assemble(run_dir):
     _require_pilot_pass(run_dir)
     # pilot response files live in BASE for a real (frozen-path) run;
-    # a PROVISIONAL proxy run keeps everything inside its run_dir.
-    base = run_dir if PA_PROXY else BASE
+    # PROVISIONAL proxy and opus-pB (--pb-model) runs keep everything
+    # inside their run_dir.
+    base = run_dir if (PA_PROXY or PB_MODEL) else BASE
     _assemble(base, base)
 
 
@@ -1508,6 +1573,14 @@ if __name__ == "__main__":
             if i + 1 >= len(sys.argv):
                 die("--rubric requires a value (v22)")
             activate_rubric(sys.argv[i + 1])
+            del sys.argv[i:i + 2]
+        # parsed AFTER --rubric (regardless of argv order) so the
+        # v2.2-scope check in activate_pb_model sees the final RUBRIC
+        if "--pb-model" in sys.argv:
+            i = sys.argv.index("--pb-model")
+            if i + 1 >= len(sys.argv):
+                die("--pb-model requires a value (opus)")
+            activate_pb_model(sys.argv[i + 1])
             del sys.argv[i:i + 2]
         mode = sys.argv[1]
         if mode == "preflight":

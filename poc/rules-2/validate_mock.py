@@ -134,7 +134,7 @@ def main():
              "--run-records",
              os.path.join(d, "run-records-rules2-mock.jsonl"),
              "--results", os.path.join(d, "results-rules2-mock.json"),
-             "--c8", C8, "--rules1-primary-lb", "0.10"],
+             "--c8", C8],
             capture_output=True, text=True)
         if r.returncode != 0:
             raise SystemExit("ERR_MOCK_VALIDATION: analysis failed on %s: %s"

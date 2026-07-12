@@ -713,7 +713,7 @@ def dry_plan(man, corpus, byid, shuf, ups, samples, items_covered,
         "eval: S-out %d cells x %d options (entity form, all seeds, byte-"
         "identical prompts across arms) + strata/repeat on first seed only "
         "(B4 + gap2 STRUCK, issue #24 (C))"
-        % (len(sout), n_opt, len(dc["ft_seeds"])),
+        % (len(sout), n_opt),
         "sharded launch: %d independent jobs; worst single job %s = %.2f h "
         "(Modal function timeout 12 h)" % (len(jobs), max_job[0], max_job[1]),
         "GPU-hours on %s (sum over jobs): %.2f h; with %.1fx overhead "
