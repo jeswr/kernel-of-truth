@@ -212,6 +212,38 @@ never a fail).
 
 <!-- PILOT-RESULTS: filled by the pilot run below -->
 
+**Executed 2026-07-12** (`--pilot-n 24`, seed 0, arms A1+A7, R1 fp32 CPU,
+66 min, ~$0; artifacts under `poc/rules-1/results-incoming/pilot-20260712-cpu/`,
+rows sha `f3d417b9aa66…`, PILOT-labelled end-to-end — never final rows):
+
+| arm | entailed acc (n=24) | voided rules-1 | note |
+|-----|--------------------:|---------------:|------|
+| A7 (engine-direct) | **20/24 = 0.833** (one-sided 95% Wilson LB ≈ 0.68) | 0/858 = 0.000 | **host-validity floor 0.30 CLEARED** |
+| A1 (135M-alone)    | 0/24 = 0.000 | 0/858 = 0.000 | no floor by design (inert floor arm); headroom gate (≤0.85) trivially clear |
+
+- **A7 recovery confirms the two-defect frame fix**: with the
+  direction-explicit cue and the menu moved into the task header, the host
+  now reads a verbatim injected engine-certified answer 83% of the time
+  (was structurally 0%). The 4 misses are all gold=`grandfather`
+  (grandmother 11/11, grandfather 9/13) — residual forced-choice confusable
+  noise in the 135M host (father/grandmother/grandson neighbours in the
+  23-word menu), not an instrument break; the gate margin (0.833 vs 0.30,
+  LB 0.68) absorbs it.
+- **A1 = 0/24 is chance-consistent, not degeneracy**: the pilot slice is
+  entirely depth-2 grandparent items (2 gold surfaces); P(0/24 | p=1/23)
+  ≈ 0.34, so chance-level behaviour cannot be rejected — exactly what the
+  inert floor arm should look like, and it maximises primary-lift headroom.
+  A1 carries no host-validity floor (§5); nothing here gates.
+- **A5 floor (≥0.15) remains untested at pilot scale** — the 1.7B was out
+  of this pilot's scope (bf16-CPU pilot allowed but ~10× slower). Its four-
+  times-replicated 0.7912 headroom datum plus the A7 demonstration that the
+  fixed frame is readable make the residual risk small, but the full-run
+  host-validity gate still enforces it; a maintainer may optionally demand
+  the A5 pilot cell before GPU spend.
+
+Pilot verdict: **instrument recovered — proceed to freeze + full run**
+(the §7 path), with the A5 caveat disclosed above.
+
 ## 7. Re-freeze and re-run path
 
 1. `registry/experiments/rules-1-b.json` (DRAFT, kot-reg/2 flat /design,
