@@ -1,0 +1,17 @@
+# Pinned Modal IMAGE deps for the RULES-2 fine-tune+eval container
+# (poc/rules-2/modal/modal_rules2.py). Base pins carried VERBATIM from
+# poc/modal/requirements-image.txt (sha 0fac7243..., the pinned f2b/rules-1
+# image lineage) so the eval scorer environment matches the estate's frozen
+# runs; RULES-2 adds ONLY peft (LoRA adapters — the one genuinely new
+# dependency of the train slot). poc/modal/requirements-image.txt itself is
+# NOT modified (frozen-image discipline; this is a NEW image for a NEW
+# experiment).
+numpy==2.2.6
+torch==2.6.0
+transformers==4.53.0
+bitsandbytes==0.46.1
+accelerate==1.6.0
+# LoRA fine-tuning (rules-2 B1/B2/B3/c1p arms). 0.15.2 is the 2025-04 stable
+# line compatible with transformers 4.53 / torch 2.6; verified by the Modal
+# --mock image build (the $0 local mock never imports peft).
+peft==0.15.2

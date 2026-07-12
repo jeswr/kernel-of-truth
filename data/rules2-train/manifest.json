@@ -1,0 +1,61 @@
+{
+ "b3_note": "proof_sidecar is NEVER rendered into B2 training text; B3 renders it before the answer (design SS2.2 family 4)",
+ "corpus": "rules2-train",
+ "design": "docs/next/design/rules-2-train-time.md SS2.1/2.2",
+ "engine": "poc/rules-1/twin_engine.py (PINNED, byte-exact, PROPOSED-ASM-1437)",
+ "exclusion_ledger": {
+  "components_conflict_excluded": 3,
+  "components_engine_error": 0,
+  "e1_cell_skipped": 0,
+  "e2_cell_skipped": 0,
+  "refusal_cell_skipped": 0,
+  "stated_query_skipped": 0,
+  "wv0_name_collision_excluded": 0,
+  "wv0_out_of_inventory_records": {
+   "class": 45,
+   "relation": 72
+  }
+ },
+ "family_kind_split_counts": {
+  "family1_stated_dev": 160,
+  "family1_stated_train": 5684,
+  "family2_chain_dev": 160,
+  "family2_chain_sheld": 570,
+  "family2_chain_train": 4992,
+  "family2_cover_dev": 160,
+  "family2_cover_sheld": 550,
+  "family2_cover_train": 5134,
+  "family2_typing_dev": 40,
+  "family2_typing_sheld": 130,
+  "family2_typing_train": 1292,
+  "family3_refusal_dev": 80,
+  "family3_refusal_train": 2844
+ },
+ "generator": "poc/rules-2/materialise_closure.py",
+ "generator_sha256": "601e079c0c0b53e78b11b4e5e8e77678cb6b37d3f9f92853b8b5559ff3a5a72d",
+ "mode": "REAL",
+ "n_dev_families": 20,
+ "n_examples": 21796,
+ "n_sheld": 1250,
+ "n_syn_families": 700,
+ "n_train_family13": 8528,
+ "n_train_family2": 11418,
+ "name_disjointness": "asserted fail-closed vs nsk1-clutrr item lexicons and nsk1-eval lexicon (PROPOSED-ASM-1442); world-v0 collisions excluded+counted",
+ "pins_verified": {
+  "certificate-result.json": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+  "kot-corpus-hash:axioms-kinship-v1": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+  "kot-corpus-hash:axioms-v0": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+  "kot-corpus-hash:nsk1-clutrr": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+  "kot-corpus-hash:nsk1-eval": "5c7c4dfe28cf0c2e131fcb232a8a9cd36132e8fcef9f4e0c2557ab1f7a7b53aa",
+  "kot-corpus-hash:world-v0": "dfa5145167b1365681b640f91c766f0a46da28af6941f35a56d00aff35408f9a",
+  "rules.n3": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
+  "sparq_commit_recorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
+  "twin_engine.py": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+ },
+ "refusal_answer": "cannot be determined from these facts",
+ "seeds": {
+  "c1shuf": 20260713,
+  "synthetic_expansion": 20260712
+ },
+ "sheld_rule": "sha256('sheld|'+id) fraction < 0.10 over non-dev family-2 cells (PROPOSED-ASM-1444)"
+}

@@ -1,0 +1,85 @@
+{
+ "c8": "rules-2 train-bytes projection (PROPOSED-ASM-1427)",
+ "construction": "GS-family flat lookup over the PINNED B2 training bytes: QA index (trained question pair -> answer) + aligned fact-line index ((subject-name, object-name) -> stated word); NO joins, NO inference (DECONF-A1 GS lineage, certificate.projection_answer analog)",
+ "corpus_kot_hash_rules2_train": "8e0b3945478e80d932a4da83000f38bf5772eae18e13be334b951f330a11bc97",
+ "descriptives": {
+  "c4_trivial_floors_sout": {
+   "abstain_all_acc": 0.0,
+   "answer_all_majority_word_acc": 0.5046620046620046,
+   "gold_distribution": {
+    "grandfather": 433,
+    "grandmother": 425
+   },
+   "note": "L3a discipline descriptives; the primary is a paired B2-B0 lift, not an absolute accuracy"
+  },
+  "s_held_projection": {
+   "by_kind": {
+    "chain": {
+     "n": 125,
+     "recovered_correct": 0
+    },
+    "cover": {
+     "n": 142,
+     "recovered_correct": 142
+    },
+    "typing": {
+     "n": 33,
+     "recovered_correct": 0
+    }
+   },
+   "disclosure": "cover (E1) cells share their (pair, answer) with trained family-1 stated cells of the same component, so they ARE flat-lookup-recoverable; the S-held stratum is descriptive-only and stratified by kind (PROPOSED-ASM-1444 disclosure)",
+   "n": 300,
+   "recovered": 142,
+   "recovered_acc": 0.47333333333333333,
+   "recovered_correct": 142
+  },
+  "s_mem_projection": {
+   "by_kind": {
+    "chain": {
+     "n": 102,
+     "recovered_correct": 102
+    },
+    "cover": {
+     "n": 159,
+     "recovered_correct": 159
+    },
+    "typing": {
+     "n": 39,
+     "recovered_correct": 39
+    }
+   },
+   "disclosure": "cover (E1) cells share their (pair, answer) with trained family-1 stated cells of the same component, so they ARE flat-lookup-recoverable; the S-held stratum is descriptive-only and stratified by kind (PROPOSED-ASM-1444 disclosure)",
+   "n": 300,
+   "recovered": 300,
+   "recovered_acc": 1.0,
+   "recovered_correct": 300
+  }
+ },
+ "gate": {
+  "ceiling": 0.1,
+  "gate_pass": true,
+  "n": 858,
+  "recovered": 0,
+  "recovered_correct": 0,
+  "sout_recovered_acc": 0.0,
+  "stratum": "S-out (covered nsk1-clutrr vs third-party gold)"
+ },
+ "mode": "REAL",
+ "pins_verified": {
+  "certificate-result.json": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+  "kot-corpus-hash:axioms-kinship-v1": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+  "kot-corpus-hash:axioms-v0": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+  "kot-corpus-hash:nsk1-clutrr": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+  "kot-corpus-hash:nsk1-eval": "5c7c4dfe28cf0c2e131fcb232a8a9cd36132e8fcef9f4e0c2557ab1f7a7b53aa",
+  "kot-corpus-hash:world-v0": "dfa5145167b1365681b640f91c766f0a46da28af6941f35a56d00aff35408f9a",
+  "rules.n3": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
+  "sparq_commit_recorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
+  "twin_engine.py": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+ },
+ "status": "instrument gate artifact; NO feasibility conclusion is stated here \u2014 verdicts belong to the pinned analysis + verdict-gen",
+ "train_index_sizes": {
+  "fact_line_pairs": 5684,
+  "qa_pairs": 14812,
+  "train_examples": 19946
+ }
+}

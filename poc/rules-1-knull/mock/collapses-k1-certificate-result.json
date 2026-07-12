@@ -1,0 +1,70 @@
+{
+ "MOCK": true,
+ "arm": "k1",
+ "attestation": {
+  "MOCK": true,
+  "arm": "k1",
+  "harness_sha256": {
+   "certificate.py": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+   "mint_kinship.py": "2d2e45ede4ff17b2c8e327e4baab0caa554fe255f482941da36e08b73c135720",
+   "twin_engine.py": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
+  },
+  "pinned_decision_payload_sha256": "fce753bad1a9709ff7ff03b07dbd3e34651720575d4f5a72179e38d2b070aee5",
+  "record_frozen_sha256": null,
+  "record_id": "rules-1-knull-ablation",
+  "record_status": "DRAFT",
+  "schema": "kot-knull-attest/1",
+  "shared_data_sha256": {
+   "nsk1-clutrr/items.jsonl": "0e1f5c6bad6f97b575e3c354803713c3efef2a25cf76a9745e79b3d584f5839e",
+   "nsk1-clutrr/world.jsonl": "f9d4dc97e74ec7bf2c6e4c28a210ec41f34568e006ee5d78a65e48e5d2d57fc6",
+   "world-v0/world.jsonl": "c4d96f5aac0d90beabd5f9bb81997081da43041a88c117a85ac008e54c415ef7"
+  },
+  "tbox": {
+   "registered_pin": "15b79bb795ee95d79c6e61bf057d91b2d71f67f89718ce399f62a163ca053c42",
+   "source_dir_digest": "15b79bb795ee95d79c6e61bf057d91b2d71f67f89718ce399f62a163ca053c42",
+   "tbox": "tbox-knull"
+  }
+ },
+ "certificate_result": {
+  "gates_asm_1163_all_pass": false,
+  "kill_a_fired": false,
+  "success_asm_1131": false
+ },
+ "determinism": {
+  "decision_payload_sha256": "mock",
+  "double_run_sha_match": true
+ },
+ "engine_identity_ablation_disclosure": "ABLATION ARM (PROPOSED-ASM-1416): decisions in this payload were computed SOLELY by the pinned Python differential twin (poc/rules-1/twin_engine.py, sha attested below). The inherited certificate_result.engine_identity block describes the RULES-1 conformance run over the KERNEL TBox (sparq-reason vs twin, 1207/1207) and is FALSE FOR THIS SUBSTITUTED ARM: sparq-reason was NOT executed over this TBox. Substituted-TBox differential conformance is a named follow-on, not part of this record.",
+ "engine_soundness": {
+  "e1_vs_held_out_world_v0_edge": {
+   "correct": 248,
+   "n": 248,
+   "wilson_lb95": 0.9847
+  },
+  "e3_vs_third_party_clutrr_gold": {
+   "bar": 0.98,
+   "correct": 531,
+   "meets_bar": false,
+   "n": 858,
+   "wilson_lb95": 0.61
+  },
+  "e5_control_refusal": {
+   "n": 100,
+   "refused": 100,
+   "wilson_lb95": 0.963
+  }
+ },
+ "grid": {
+  "C_dec_entailed": 0.0,
+  "C_dec_entailed_counts": [
+   0,
+   3680
+  ],
+  "C_dec_stated": 1.0,
+  "C_dec_stated_counts": [
+   1716,
+   1716
+  ]
+ },
+ "run_failed": false
+}

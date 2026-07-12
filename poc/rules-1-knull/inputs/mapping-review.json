@@ -1,0 +1,168 @@
+{
+ "completeness_vs_kernel_grammar": {
+  "kernel_constraints_total": 20,
+  "knull_constraints_total": 20,
+  "missing_content": [],
+  "note": "The kernel comparator TBox pinned for RULES-1 (data/axioms-v0/{rel-mother,rel-father,class-man} + data/axioms-kinship-v1, 8 records) compiles to exactly 20 constraints: functional x2, range x6, domain x2, disjointWith x1, subPropertyOf x4, coveredBy x1, propertyChain x3, classDeclaration x1. The knull TBox is a constraint-for-constraint structural isomorph under the URN translation (knull-minted parent/person/grandparent/grandfather/grandmother substituting the kernel concept URNs; shared ABox vocabulary URNs for mother/father/man/woman identical on both sides), including chain orders ([parent,father], [parent,mother], [parent,parent]) and cover members {mother,father}. Verified against the constraint files themselves, whose sha256s match every mapping row. No kernel-side constraint lacks a knull counterpart, and no expressible definition content within the closed inventory (twin_engine.py IMPLEMENTED_KINDS) that a competent kinship ruleset needs is dropped: inverseOf is unused on BOTH sides (no definition introduces a named inverse relation and no such URN exists in the vocabulary); the 'child' definition compiles to nothing on both sides (no child URN in the shared vocabulary, so a domain-of-father/mother constraint is inexpressible on either side - a shared, symmetric omission, not a compiler-induced collapse); class-level subsumption/covering for person (man/woman/child are persons) is outside what the kernel itself compiles and outside the engine's property-level coveredBy semantics. No compiler-induced collapse hazard found: the certificate cannot fail on the k1 side merely because a rule was dropped."
+ },
+ "date": "2026-07-12",
+ "disclosed_hazards": [
+  "Exhaustive-or covering: coveredBy(parent, {mother, father}) reads 'father or mother' as exhaustive; the plain text does not force this, but it is a named disclosed stipulation of the same class as the kernel's ASM-1121 covering premise.",
+  "Definite-article functionality: functional on father/mother rests on reading 'THE' as at-most-one (under stated differentFrom); disclosed, same class as the kernel's UNA stipulation (ASM-1120).",
+  "Male/female exclusivity: disjointWith(man, woman) reads male-sex/female-sex as exclusive; disclosed stipulation, same class as the kernel's.",
+  "male->man adultness over-restriction: range(father)=man and range(grandfather)=man import 'fully grown' from the man definition (a non-adult father would spuriously violate the range); explicitly disclosed in the rel-father reading and referenced from the chain-grandfather reading, and exactly symmetric with the kernel's identical range constraints, so it cannot produce a kernel-vs-knull asymmetry.",
+  "woman adultness: range(mother)=woman and range(grandmother)=woman inherit 'an adult human being' from the woman definition; register-carried, symmetric with the kernel's identical ranges (the mother definition itself states 'woman', so the mapping step is direct).",
+  "class-man mapping row has full_definition null because the disjointness is licensed jointly by the man AND woman definitions; the compiled record quotes both texts ('... || ...'), so span traceability is intact - cosmetic mapping-schema irregularity only.",
+  "Authoring contamination (from knull_kinship_defs.json disclosure): the definition-drafting session had read access to the endorsed axioms-kinship-v1 records; the resulting knull TBox is an exact structural isomorph of the kernel TBox. Per the disclosed direction analysis (PROPOSED-ASM-1401) this pressure pushes toward kernel-equivalence, i.e. toward the deflationary SURVIVES reading, and cannot manufacture a false kernel-specificity PASS; it does mean a SURVIVES outcome should be read as 'plain definitions suffice to reconstruct this ruleset', not as fully independent convergence."
+ ],
+ "inputs": {
+  "defs_sha256": "fa685a98041a1d7630cfc175bbcb70a00eaec5219865a39bba71d14448c75408",
+  "mapping_sha256": "1fcfd5e6eb910b857da6b74369d1e2cb0a1ae63792515fe51070f5c403d636f7"
+ },
+ "pass": true,
+ "per_constraint": [
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandfather.json",
+   "kind": "propertyChain",
+   "note": "Chain [parent,father] with super grandfather is licensed by 'the FATHER of one's FATHER OR MOTHER' once 'father or mother' is equated with parent, which the parent definition plus the disclosed exhaustive-or covering supports; order and slots match the definition's structure (father OF one's parent).",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandfather.json",
+   "kind": "subPropertyOf",
+   "note": "grandfather => grandparent follows plainly: father is a parent (father def 'the male PARENT'), so the father of one's father-or-mother is a parent of one's father-or-mother, i.e. a grandparent by the grandparent definition; target decodes to knull grandparent.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 2,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandfather.json",
+   "kind": "range",
+   "note": "Range man is licensed via grandfather-is-a-father plus the male->man class mapping; the adultness ('fully grown') over-restriction this imports is explicitly disclosed in the reading and mirrors the kernel's identical range constraint.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandmother.json",
+   "kind": "propertyChain",
+   "note": "Chain [parent,mother] with super grandmother mirrors the grandfather case and is licensed by 'the MOTHER of one's FATHER OR MOTHER' under the parent-definition/covering reading; slots decode correctly.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandmother.json",
+   "kind": "subPropertyOf",
+   "note": "grandmother => grandparent is licensed: a mother is a parent ('its female PARENT'), so the mother of one's father-or-mother satisfies the grandparent definition; target decodes to knull grandparent.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 2,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandmother.json",
+   "kind": "range",
+   "note": "Range woman is directly licensed: a grandmother is a mother and the mother definition states 'the WOMAN who has borne a child'; the adultness component of the woman definition is a register-carried hazard shared symmetrically with the kernel.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandparent.json",
+   "kind": "propertyChain",
+   "note": "Chain [parent,parent] with super grandparent is licensed by 'a PARENT of one's FATHER OR MOTHER' given the disclosed covering (one's parent is one's father or mother), exactly the kernel's own reading (ASM-1121 class).",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandparent.json",
+   "kind": "domain",
+   "note": "Domain person is thin but licensed in the plain-dictionary register: the possessive 'ONE'S' in a dictionary definition denotes a person, and person is defined as 'a human being'; matches the kernel's domain-person constraint.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 2,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandparent.json",
+   "kind": "range",
+   "note": "Range person is licensed: the filler is 'A PARENT', and a parent (a person's father or mother) is a man or woman, both human beings, hence a person by the person definition.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/class-person.json",
+   "kind": "classDeclaration",
+   "note": "Licensing-only declaration of the class the definition 'a human being, whether man, woman, or child' names; no inferential content, trivially licensed.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/cover-parent.json",
+   "kind": "coveredBy",
+   "note": "coveredBy(parent, {mother, father}) needs the exhaustive reading of 'father OR mother', which the plain text alone does not force, but the reading names it as a disclosed stipulation of the same class as the kernel's ASM-1121 covering premise, which the review protocol allows.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/rel-parent.json",
+   "kind": "domain",
+   "note": "Domain person is directly licensed by 'a PERSON'S father or mother': the possessor of the parent relation is stated to be a person.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/rel-parent.json",
+   "kind": "range",
+   "note": "Range person is licensed by a short definitional chain (father/mother are man/woman, man/woman are human beings, person = a human being), each step supported by the quoted definitions.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/sub-father-parent.json",
+   "kind": "subPropertyOf",
+   "note": "father => parent is directly licensed by 'the male PARENT of a child'; target decodes to knull parent.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/sub-mother-parent.json",
+   "kind": "subPropertyOf",
+   "note": "mother => parent is directly licensed by 'its female PARENT'; target decodes to knull parent.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-v0/class-man.json",
+   "kind": "disjointWith",
+   "note": "man disjointWith woman rests on reading male-sex/female-sex as exclusive, which is a disclosed stipulation named in the reading (same class as the kernel's); note the mapping row carries full_definition null because the license spans BOTH the man and woman definitions, whose texts the compiled record quotes ('... || ...') - cosmetic, traceability intact.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-v0/rel-father.json",
+   "kind": "functional",
+   "note": "Functionality (at most one father per child, clash only under stated differentFrom) is licensed by the definite article 'THE male parent of a child', a standard plain reading, and matches the kernel's UNA-stipulated constraint (ASM-1120 class).",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-v0/rel-father.json",
+   "kind": "range",
+   "note": "Range man is licensed by 'the MALE parent' plus the vocabulary fact that man is the only male-sex-typed class available; the imported adultness ('fully grown') over-restriction is explicitly disclosed in the reading and is symmetric with the kernel's identical range.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-v0/rel-mother.json",
+   "kind": "functional",
+   "note": "Functionality is licensed by the definite article 'THE woman who has borne a child' under the same disclosed definite-article reading as rel-father; matches the kernel constraint.",
+   "semantically_licensed": true
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-v0/rel-mother.json",
+   "kind": "range",
+   "note": "Range woman is the most direct license in the set: the definition states outright that a mother is 'the WOMAN who has borne a child'.",
+   "semantically_licensed": true
+  }
+ ],
+ "problems": [],
+ "reviewer": "reviewer-1 (independent: authored neither knull_kinship_defs.json nor build_knull_tbox.py; fresh-context cross-role review)",
+ "schema": "kot-knull-mapping-review/1"
+}

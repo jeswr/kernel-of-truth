@@ -1,0 +1,318 @@
+{
+ "n_constraints": 20,
+ "review_protocol": "INDEPENDENT REVIEW REQUIRED PRE-FREEZE (ASM-1415): a reviewer role that authored neither the definitions nor the compiler judges, per row: (a) is the constraint semantically licensed by the quoted definition read in its plain-dictionary sense? (b) is any definition content that a competent kinship ruleset needs MISSING from the compiled constraints (compiler-induced collapse hazard)? Verdicts land in inputs/mapping-review.json; pass==true is a mandatory component of /gates/compilation_lint_valid.",
+ "rows": [
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandfather.json",
+   "file_sha256": "87b5dda8d2b7a2773cb78c7353947d47f6d44f96eaa0c712f0b10eedb114f1a2",
+   "full_definition": "the father of one's father or mother",
+   "kind": "propertyChain",
+   "licensed_by_reading": "one's father-or-mother = one's parent (parent def), so: the father of x's parent is x's grandfather",
+   "licensed_by_span": "the FATHER of one's FATHER OR MOTHER",
+   "licensed_by_term": "grandfather",
+   "slots": {
+    "chain": [
+     "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq",
+     "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi"
+    ]
+   },
+   "subject": "urn:kot:bciqgjcxxd5eofpws4yxikqtlw4z2azyy7ejosrueser4iunde73gd7i",
+   "subject_term": "grandfather"
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandfather.json",
+   "file_sha256": "87b5dda8d2b7a2773cb78c7353947d47f6d44f96eaa0c712f0b10eedb114f1a2",
+   "full_definition": "the father of one's father or mother",
+   "kind": "subPropertyOf",
+   "licensed_by_reading": "a father is a parent (father def), and a parent of one's father-or-mother is a grandparent (grandparent def) => every grandfather is a grandparent",
+   "licensed_by_span": "the FATHER of one's father or mother",
+   "licensed_by_term": "grandfather",
+   "slots": {
+    "target": "urn:kot:bciqojcpfcb2t23gbalnz2yimc7fn6t3hwyjwetk76bw4nqeplnj762i"
+   },
+   "subject": "urn:kot:bciqgjcxxd5eofpws4yxikqtlw4z2azyy7ejosrueser4iunde73gd7i",
+   "subject_term": "grandfather"
+  },
+  {
+   "constraint_index": 2,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandfather.json",
+   "file_sha256": "87b5dda8d2b7a2773cb78c7353947d47f6d44f96eaa0c712f0b10eedb114f1a2",
+   "full_definition": "the father of one's father or mother",
+   "kind": "range",
+   "licensed_by_reading": "a grandfather is a father, and a father is male (father def; man-class mapping as in rel-father, disclosed)",
+   "licensed_by_span": "the FATHER of ...",
+   "licensed_by_term": "grandfather",
+   "slots": {
+    "target": "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy"
+   },
+   "subject": "urn:kot:bciqgjcxxd5eofpws4yxikqtlw4z2azyy7ejosrueser4iunde73gd7i",
+   "subject_term": "grandfather"
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandmother.json",
+   "file_sha256": "625ae751b99028c7b63177bdcc657dd05e7127846824d28f56d1c5558f080dc0",
+   "full_definition": "the mother of one's father or mother",
+   "kind": "propertyChain",
+   "licensed_by_reading": "one's father-or-mother = one's parent (parent def), so: the mother of x's parent is x's grandmother",
+   "licensed_by_span": "the MOTHER of one's FATHER OR MOTHER",
+   "licensed_by_term": "grandmother",
+   "slots": {
+    "chain": [
+     "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq",
+     "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua"
+    ]
+   },
+   "subject": "urn:kot:bciqoodhmicrktufsa5o7te5qpx67jxsyoffydgmpdp7mqdpnd5yjzyi",
+   "subject_term": "grandmother"
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandmother.json",
+   "file_sha256": "625ae751b99028c7b63177bdcc657dd05e7127846824d28f56d1c5558f080dc0",
+   "full_definition": "the mother of one's father or mother",
+   "kind": "subPropertyOf",
+   "licensed_by_reading": "a mother is a parent (mother def), and a parent of one's father-or-mother is a grandparent (grandparent def) => every grandmother is a grandparent",
+   "licensed_by_span": "the MOTHER of one's father or mother",
+   "licensed_by_term": "grandmother",
+   "slots": {
+    "target": "urn:kot:bciqojcpfcb2t23gbalnz2yimc7fn6t3hwyjwetk76bw4nqeplnj762i"
+   },
+   "subject": "urn:kot:bciqoodhmicrktufsa5o7te5qpx67jxsyoffydgmpdp7mqdpnd5yjzyi",
+   "subject_term": "grandmother"
+  },
+  {
+   "constraint_index": 2,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandmother.json",
+   "file_sha256": "625ae751b99028c7b63177bdcc657dd05e7127846824d28f56d1c5558f080dc0",
+   "full_definition": "the mother of one's father or mother",
+   "kind": "range",
+   "licensed_by_reading": "a grandmother is a mother, and a mother is a woman (mother def)",
+   "licensed_by_span": "the MOTHER of ...",
+   "licensed_by_term": "grandmother",
+   "slots": {
+    "target": "urn:kot:bciqbz6th7ul3gmk5bhtovyi2yifyv7twotuvwjcebgetthcs532sgoq"
+   },
+   "subject": "urn:kot:bciqoodhmicrktufsa5o7te5qpx67jxsyoffydgmpdp7mqdpnd5yjzyi",
+   "subject_term": "grandmother"
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandparent.json",
+   "file_sha256": "24394bdb1ea7697adcfe762d1e1a5e988777d8e382c0ee67bd1bc4a9a6f6750d",
+   "full_definition": "a parent of one's father or mother",
+   "kind": "propertyChain",
+   "licensed_by_reading": "one's father-or-mother = one's parent (parent def), so: x's parent's parent is x's grandparent",
+   "licensed_by_span": "a PARENT of one's FATHER OR MOTHER",
+   "licensed_by_term": "grandparent",
+   "slots": {
+    "chain": [
+     "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq",
+     "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq"
+    ]
+   },
+   "subject": "urn:kot:bciqojcpfcb2t23gbalnz2yimc7fn6t3hwyjwetk76bw4nqeplnj762i",
+   "subject_term": "grandparent"
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandparent.json",
+   "file_sha256": "24394bdb1ea7697adcfe762d1e1a5e988777d8e382c0ee67bd1bc4a9a6f6750d",
+   "full_definition": "a parent of one's father or mother",
+   "kind": "domain",
+   "licensed_by_reading": "'one' = a person",
+   "licensed_by_span": "of ONE'S father or mother",
+   "licensed_by_term": "grandparent",
+   "slots": {
+    "target": "urn:kot:bciqezamhgzfxzpjz2iivfkwwodoujrmjjkwfatkuviblczqetqvbz2y"
+   },
+   "subject": "urn:kot:bciqojcpfcb2t23gbalnz2yimc7fn6t3hwyjwetk76bw4nqeplnj762i",
+   "subject_term": "grandparent"
+  },
+  {
+   "constraint_index": 2,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/chain-grandparent.json",
+   "file_sha256": "24394bdb1ea7697adcfe762d1e1a5e988777d8e382c0ee67bd1bc4a9a6f6750d",
+   "full_definition": "a parent of one's father or mother",
+   "kind": "range",
+   "licensed_by_reading": "a parent is a person (parent def range reading)",
+   "licensed_by_span": "A PARENT of one's ...",
+   "licensed_by_term": "grandparent",
+   "slots": {
+    "target": "urn:kot:bciqezamhgzfxzpjz2iivfkwwodoujrmjjkwfatkuviblczqetqvbz2y"
+   },
+   "subject": "urn:kot:bciqojcpfcb2t23gbalnz2yimc7fn6t3hwyjwetk76bw4nqeplnj762i",
+   "subject_term": "grandparent"
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/class-person.json",
+   "file_sha256": "7fa26dfd707afc618ea9702e1664b239b6a6b85e469ec6863d6d45987dc5cde6",
+   "full_definition": "a human being, whether man, woman, or child",
+   "kind": "classDeclaration",
+   "licensed_by_reading": "class declaration",
+   "licensed_by_span": "a human being, whether man, woman, or child",
+   "licensed_by_term": "person",
+   "slots": {},
+   "subject": "urn:kot:bciqezamhgzfxzpjz2iivfkwwodoujrmjjkwfatkuviblczqetqvbz2y",
+   "subject_term": "person"
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/cover-parent.json",
+   "file_sha256": "d145698f8152e887953c613aba2a6cebd9b24c065c45b62c21923b5020c939c8",
+   "full_definition": "a person's father or mother",
+   "kind": "coveredBy",
+   "licensed_by_reading": "the disjunction read as EXHAUSTIVE: every parent is a father or a mother (disclosed stipulation, same class as the kernel's ASM-1121 covering premise)",
+   "licensed_by_span": "a person's father OR mother",
+   "licensed_by_term": "parent",
+   "slots": {
+    "members": [
+     "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+     "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi"
+    ]
+   },
+   "subject": "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq",
+   "subject_term": "parent"
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/rel-parent.json",
+   "file_sha256": "4145ea97865292a7e579df81f4fe66e76011288cc6da1c3fc961d8267b9f3227",
+   "full_definition": "a person's father or mother",
+   "kind": "domain",
+   "licensed_by_reading": "the one who has the parent is a person",
+   "licensed_by_span": "a PERSON'S father or mother",
+   "licensed_by_term": "parent",
+   "slots": {
+    "target": "urn:kot:bciqezamhgzfxzpjz2iivfkwwodoujrmjjkwfatkuviblczqetqvbz2y"
+   },
+   "subject": "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq",
+   "subject_term": "parent"
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/rel-parent.json",
+   "file_sha256": "4145ea97865292a7e579df81f4fe66e76011288cc6da1c3fc961d8267b9f3227",
+   "full_definition": "a person's father or mother",
+   "kind": "range",
+   "licensed_by_reading": "a father/mother is a male/female parent of a child; man and woman are defined as human beings; person = 'a human being' => the parent is a person",
+   "licensed_by_span": "a person's FATHER OR MOTHER",
+   "licensed_by_term": "parent",
+   "slots": {
+    "target": "urn:kot:bciqezamhgzfxzpjz2iivfkwwodoujrmjjkwfatkuviblczqetqvbz2y"
+   },
+   "subject": "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq",
+   "subject_term": "parent"
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/sub-father-parent.json",
+   "file_sha256": "28afc2fbacad394724f33b5bf359b2c843802cf04aead3df718830094f5ca5f9",
+   "full_definition": "the male parent of a child",
+   "kind": "subPropertyOf",
+   "licensed_by_reading": "a father is a parent",
+   "licensed_by_span": "the male PARENT of a child",
+   "licensed_by_term": "father",
+   "slots": {
+    "target": "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq"
+   },
+   "subject": "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi",
+   "subject_term": null
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-kinship-v1/sub-mother-parent.json",
+   "file_sha256": "b25efdb15705eed70dec4963964fe274291d7a014cb0e0666e198a78d04f0c29",
+   "full_definition": "the woman who has borne a child, its female parent",
+   "kind": "subPropertyOf",
+   "licensed_by_reading": "a mother is a parent",
+   "licensed_by_span": "its female PARENT",
+   "licensed_by_term": "mother",
+   "slots": {
+    "target": "urn:kot:bciqnktzhagsta2htxk4jz5tievjcfkuyxkwm2upaac7zui7vojl5foq"
+   },
+   "subject": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+   "subject_term": null
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-v0/class-man.json",
+   "file_sha256": "0be50fa216430e6e9910cad92d13cff9b311dc8ca8b8da04a70bcc380bfbc724",
+   "full_definition": null,
+   "kind": "disjointWith",
+   "licensed_by_reading": "male-sex and female-sex read as exclusive (disclosed stipulation, same class as the kernel's)",
+   "licensed_by_span": "of the MALE sex / of the FEMALE sex",
+   "licensed_by_term": "man/woman",
+   "slots": {
+    "target": "urn:kot:bciqbz6th7ul3gmk5bhtovyi2yifyv7twotuvwjcebgetthcs532sgoq"
+   },
+   "subject": "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy",
+   "subject_term": null
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-v0/rel-father.json",
+   "file_sha256": "34ab2b35a49f278684b45f4cbde874e063a288fe00dab03d74c07d992e79ae14",
+   "full_definition": "the male parent of a child",
+   "kind": "functional",
+   "licensed_by_reading": "definite article: at most one father per child (under stated differentFrom)",
+   "licensed_by_span": "THE male parent of a child",
+   "licensed_by_term": "father",
+   "slots": {},
+   "subject": "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi",
+   "subject_term": null
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-v0/rel-father.json",
+   "file_sha256": "34ab2b35a49f278684b45f4cbde874e063a288fe00dab03d74c07d992e79ae14",
+   "full_definition": "the male parent of a child",
+   "kind": "range",
+   "licensed_by_reading": "a father is male; the only male-sex-typed class in the shared stated vocabulary is man ('a human being of the male sex, fully grown') \u2014 the adultness component is an over-restriction risk carried by the dictionary register, disclosed",
+   "licensed_by_span": "the MALE parent",
+   "licensed_by_term": "father",
+   "slots": {
+    "target": "urn:kot:bciqkttqo6lnzwz7u72dbbpteqryr76cdyj7glivilcqribbggeqofsy"
+   },
+   "subject": "urn:kot:bciqgs7ze663hfdaq7be4jnuuue5nywum6qhdciqgq7greuyyobz6jqi",
+   "subject_term": null
+  },
+  {
+   "constraint_index": 0,
+   "file": "inputs/tbox-knull/axioms-v0/rel-mother.json",
+   "file_sha256": "6f4243d6db163b64d0748b835d0386aa0e4a076313e6cb9d7932583468a2ce78",
+   "full_definition": "the woman who has borne a child, its female parent",
+   "kind": "functional",
+   "licensed_by_reading": "definite article: at most one mother per child (under stated differentFrom)",
+   "licensed_by_span": "THE woman who has borne a child",
+   "licensed_by_term": "mother",
+   "slots": {},
+   "subject": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+   "subject_term": null
+  },
+  {
+   "constraint_index": 1,
+   "file": "inputs/tbox-knull/axioms-v0/rel-mother.json",
+   "file_sha256": "6f4243d6db163b64d0748b835d0386aa0e4a076313e6cb9d7932583468a2ce78",
+   "full_definition": "the woman who has borne a child, its female parent",
+   "kind": "range",
+   "licensed_by_reading": "a mother is a woman",
+   "licensed_by_span": "the WOMAN who has borne a child",
+   "licensed_by_term": "mother",
+   "slots": {
+    "target": "urn:kot:bciqbz6th7ul3gmk5bhtovyi2yifyv7twotuvwjcebgetthcs532sgoq"
+   },
+   "subject": "urn:kot:bciqdkz3mwjzgrbptwmryvvp5nwg7fuu6crj5e63i5y5cdkq4v2r6mua",
+   "subject_term": null
+  }
+ ],
+ "schema": "kot-knull-def-constraint-mapping/1",
+ "source_defs": {
+  "path": "knull_kinship_defs.json",
+  "sha256": "fa685a98041a1d7630cfc175bbcb70a00eaec5219865a39bba71d14448c75408"
+ },
+ "tbox": "inputs/tbox-knull"
+}

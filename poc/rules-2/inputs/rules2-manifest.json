@@ -1,0 +1,124 @@
+{
+ "_readme": [
+  "RULES-2 harness manifest (poc/rules-2/rules2_runner.py + poc/rules-2/modal/modal_rules2.py).",
+  "Design: docs/next/design/rules-2-train-time.md (DRAFT registry/experiments/rules-2.json; freeze is the coordinator's).",
+  "Every pin below is verified fail-closed (ERR_PIN / ERR_CERT_PRECONDITION / ERR_C8_GATE) before any cell runs, mock included.",
+  "Sequencing gate (PROPOSED-ASM-1420): RULES-2 does NOT run its GPU path until the RULES-1 GPU readout exists; KILL-b there requires explicit maintainer re-authorization (s3' struck).",
+  "model_revisions provenance: R1/R3 verbatim from poc/rules-1/inputs/rules1-manifest.json (chain: f2b-replicate/f2b-transfer FROZEN records); R2 from the a5-llm pinned record chain (docs/design-a5-llm.md, poc/a5-llm/inputs/a5-llm-manifest.json)."
+ ],
+ "design_constants_from_design_doc": {
+  "experiment": "rules-2",
+  "design_doc": "docs/next/design/rules-2-train-time.md",
+  "design_doc_sha256": "15c37c64f1f946b611dce98c865a4b67c56b068c10360ba1bc55b6ff31d03800",
+  "arms_built_here": ["B0", "B1", "B2", "B3", "B4", "B5", "c1p"],
+  "arms_note": "B0 plain host (A1-format, token-matched padding); B1 exposure control (families 1+3, size-matched); B2 treatment (families 1+2+3); B3 proof-augmented variant (descriptive; proof block in TRAINING prompt only — see deviations_note); B4 RULES-1 A3 verbatim re-run (k=4, engine at inference) on the identical S-out slice; B5 R3-alone comparator; c1p Sattolo-deranged-closure fine-tune (content control). c8 (train-bytes projection) + c4 floors are CPU artifacts carried in poc/rules-2/results/c8-result.json, gated BEFORE any GPU spend.",
+  "ft_arms": ["B1", "B2", "B3", "c1p"],
+  "ft_seeds": [0, 1, 2],
+  "eval_only_seeds": {"B0": [0], "B5": [0], "B4": [0, 1, 2]},
+  "eval_only_seeds_note": "eval decoding is greedy fp32 forced-choice argmax (deterministic), so eval-only arms need one pass + the byte-identical repeat; B4 keeps 3 seeds because the A3 retry RESAMPLER is seeded (f2bt SEED_BASE 20260710 bytes).",
+  "rungs_default": ["R1"],
+  "rungs_r2_arms": ["B0", "B1", "B2"],
+  "rungs_note": "DEFAULT tier is R1-only (--rungs R1; must clear usd_cap in --dry-plan). The R2 rung (B0/B1/B2 only, MD-R2-3) is a coordinator-authorized SECOND launch (--rungs R1,R2 or a separate --arms B0,B1,B2 --rungs R2 run) inside the coordinator outer ceiling; primary claims are R1, two rungs license a SIGN only (ASM-1433).",
+  "k_retry_b4": 4,
+  "n_sout_covered": 858,
+  "n_sout_control": 100,
+  "strata_eval_counts": {"s_mem": 200, "s_held": 200, "stated_guard": 150, "refusal_guard": 100},
+  "strata_seed_rule": "corpus strata (s_mem/s_held/stated/refusal_train) are scored on the FIRST ft seed only (descriptive strata; the primary stratum S-out keeps all 3 FT seeds per ASM-1439)",
+  "repeat_subsample_n": 200,
+  "repeat_rule": "G4 byte-identical repeat: per arm, first seed, on the pinned first-200-by-sha S-out covered subsample (deterministic; identical instrument at 23% of the token cost)",
+  "budget": {"usd_cap": 18, "gpu_hours_cap": 14, "wall_clock_cap_hours": 24,
+             "coordinator_outer_ceiling_usd": 35},
+  "budget_note": "MD-R2-5 recommendation (b): full skeleton, $18 ceiling for the DEFAULT R1 tier; the R2 rung and any worst-case extension ($25-35 band) are gated on the coordinator/maintainer inside the $35 outer ceiling (PROPOSED-ASM-1434)."
+ },
+ "pins": {
+  "rules2TrainCorpusKotHash": "8e0b3945478e80d932a4da83000f38bf5772eae18e13be334b951f330a11bc97",
+  "nsk1ClutrrCorpusKotHash": "ede8079b8d59b01da86110ebca0e35d26446a6729a204177ca91aaffd8feac98",
+  "axiomsV0CorpusKotHash": "bfcb2f45969b9fe9beb41bcb435d66c078aab3b01d8e6ec387c1bf36b52da718",
+  "axiomsKinshipV1CorpusKotHash": "be3f2d40c1ad06fe7d706c0e36b4f9290d515e798d8e9e2fbb94dc3a02a1508d",
+  "twinEnginePySha256": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8",
+  "rulesN3Sha256": "9857da8918d8d87823b6d21b248bef83bf5a8515cedeec6ff5dd5c3b26a22f98",
+  "certificatePySha256": "980fc4fdc992163384f76cda1cd321ecdb64dc7fac08ace03dabdf5b27f4dc0a",
+  "certificateResultSha256": "e0071e9e4952f915c461206d514afa555d683bc22985fad2273821f37176d379",
+  "rules1RunnerPySha256": "020394f267c0e435e73616c84fc61508343ea2f10129f7f1d4ba80bc36caa6a8",
+  "f2btRunnerPySha256": "810dcbc5105494f0fa188952a509ed80047223409553ce81ea1face273e2a338",
+  "materialiserPySha256": "601e079c0c0b53e78b11b4e5e8e77678cb6b37d3f9f92853b8b5559ff3a5a72d",
+  "c8ResultSha256": "2c34db34bd9a795ca976eb9e27a01b711edaf3ccb9bfd165e18b4be1c44411b8",
+  "analysisRules2PySha256": "873e8c79d7ee3aed9410051df44d3619582b61a33ae9d6b3eebb4739bc134f7a",
+  "_freeze_reverify_note": "PROPOSED-ASM-1459: at freeze the coordinator re-hashes materialise_closure.py + analysis/rules_2.py against these pins, regenerates data/rules2-train ('build') and the c8 gate ('c8') from the pinned bytes, and verifies the corpus digest + c8 sha reproduce byte-exactly (deterministic, ~5 s CPU) BEFORE prereg-freeze.",
+  "sparqCommitRecorded": "0ab87b2a5910fe0c783a73dcc043e93ed39c9f58",
+  "_pin_notes": "corpus + artifact pins verbatim from the FROZEN rules-1 record (PROPOSED-ASM-1437); rules1_runner.py pinned because rules2_runner IMPORTS its arm drivers byte-identical (B4 = A3 verbatim; prompt frames, verbaliser, licensed rejections, gold-leak guard); poc/rules-1, poc/f2b-transfer, poc/f2b, poc/deconf-b trees are NOT modified by this build."
+ },
+ "model_revisions": {
+  "R1": {"repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+         "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac"},
+  "R2": {"repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+         "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"},
+  "R3": {"repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+         "revision": "31b70e2e869a7173562077fd711b654946d38674"},
+  "dtype": "fp32 everywhere (train + eval), greedy forced-choice eval — the RULES-1 frozen hardware line carried over (PROPOSED-ASM-1439)"
+ },
+ "lora": {
+  "r": 16, "alpha": 32, "dropout": 0.0,
+  "target_modules": ["q_proj", "v_proj"],
+  "lr": 0.0002, "epochs": 2, "batch": 16, "micro_batch": 8,
+  "warmup_steps": 20, "weight_decay": 0.0, "max_seq_len": 512,
+  "optimizer": "AdamW (torch defaults otherwise)",
+  "loss": "completion-only cross-entropy (prompt tokens masked to -100)",
+  "hp_note": "PINNED a priori (PROPOSED-ASM-1432/1449): NO hyperparameter search was performed anywhere; the dev split (last 20 synthetic families, disjoint from every eval stratum) is used ONLY for a per-epoch loss sanity ledger, never for selection. Any future HP search must be dev-split-only, disclosed, and re-pinned BEFORE freeze."
+ },
+ "prompt_frames": {
+  "task_prefix": "Read the family facts, then answer the question with exactly one relationship word.\n\nFacts:\n",
+  "fact_line": "- {line}\n",
+  "una_line": "- All named people are distinct individuals.\n",
+  "refusal_note": "If the answer cannot be determined from these facts, answer: cannot be determined from these facts.\n",
+  "proof_prefix": "Verified derivations from a deterministic rules engine (each with its proof):\n",
+  "proof_line": "- {line}\n",
+  "question_prefix": "\nQuestion: ",
+  "menu_prefix": "\nAnswer with one word from: ",
+  "answer_cue": "\nAnswer:",
+  "padding_sentence": "This line is neutral padding text with no information about the family.",
+  "frames_note": "RULES-1 frames verbatim PLUS the refusal_note line (fail-closed refusal is TRAINED and SCORED, PROPOSED-ASM-1431/1446) and a proof block used by B3 TRAINING prompts only. B4 uses the rules-1 frames verbatim (poc/rules-1/inputs/rules1-manifest.json) — it is the A3 comparator, not a rules-2 arm. Verbaliser/frames drift vs rules1_runner is asserted at load (ERR_FRAME_DRIFT)."
+ },
+ "refusal_answer": "cannot be determined from these facts",
+ "refusal_surface_note": "The refusal target is scored as a 24th forced-choice option appended to the 23-word CLUTRR menu (PROPOSED-ASM-1446). Sum-of-token-logprob scoring penalises the longer option uniformly across ALL compared arms; disclosed, not corrected.",
+ "deviations_note": "B3 renders the one-line proof as a PROMPT block during training (scaffold), not as a generated rationale — the eval surface stays the single forced-choice word so B3 remains commensurable with B2; descriptive-only arm (MD-R2-4).",
+ "mock": {
+  "note": "SYNTHETIC mechanics-only stub LM (no torch, no peft); every number is labelled MOCK and never a measurement. The pins, corpus loading, c8 gate, prompt construction, split handling, B4 engine loop (real twin engine), row emitter, repeat gate and analysis contract are the REAL code paths. The planted skill gradient exists ONLY so the pinned analysis gates resolve during mock validation.",
+  "n_sout_covered": 120, "n_sout_control": 10,
+  "strata_eval_counts": {"s_mem": 30, "s_held": 30, "stated_guard": 20, "refusal_guard": 15},
+  "repeat_subsample_n": 40,
+  "ft_seeds": [0, 1],
+  "base_skill": {"R1": 0.25, "R2": 0.33, "R3": 0.62},
+  "ft_format_bonus": 0.08,
+  "c1p_format_bonus": 0.04,
+  "ft_content_bonus": 0.45,
+  "smem_lookup_bonus": 0.55,
+  "stated_skill_ft": 0.9, "stated_skill_plain": 0.7,
+  "refuse_skill": {"ft": 0.85, "plain": 0.25},
+  "b4_stub": {"stub_skill": {"R1": 0.55, "R3": 0.8}, "stub_injection_bonus": 0.4, "stub_feedback_bonus": 0.2}
+ },
+ "planning": {
+  "note": "dry-plan ESTIMATES only — never emitted as measurements; eval throughput constants carried from poc/rules-1/inputs/rules1-manifest.json planning; LoRA train throughput is a conservative planning constant (fp32, completion-masked, micro-batch 8)",
+  "throughput_tok_per_s_eval": {
+   "A100": {"R1": 16000, "R2": 8000, "R3": 2600},
+   "A10G": {"R1": 12000, "R2": 6000, "R3": 1800},
+   "T4": {"R1": 4000, "R2": 2000, "R3": 600}
+  },
+  "throughput_tok_per_s_train": {
+   "A100": {"R1": 14000, "R2": 7000},
+   "A10G": {"R1": 9000, "R2": 4500},
+   "T4": {"R1": 2500, "R2": 1200}
+  },
+  "chars_per_token_estimate": 4.0,
+  "overhead_factor": 1.5,
+  "usd_per_hour": {"T4": 0.59, "A10G": 1.1, "A100": 2.1}
+ },
+ "efficiency_ledger_constants": {
+  "engine_us_per_query_class": 5.3,
+  "engine_us_source": "registry/verdicts/l3a.json (L3a class)",
+  "materialisation_cpu_seconds_measured": 4.4,
+  "materialisation_note": "full REAL materialisation pass, 2 shared cores, 2026-07-12 (this build; PROPOSED-ASM-1429 one-off cost row)",
+  "train_flops_formula": "6 * N_active_base * tokens_seen (disclosed formula; descriptive ledger field, identical across arms)",
+  "no_direction_presumed": "the ledger may show the engine cheaper at any realistic N (PROPOSED-ASM-1429); this manifest presumes nothing"
+ }
+}
