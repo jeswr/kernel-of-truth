@@ -6,10 +6,10 @@
 > (DRAFT, kot-reg/1); `tools/registry/prereg-freeze.py --dry-run` is
 > **DRY-RUN-OK** on the revised record (every freeze-time lint green; the
 > PAUSE flags are the non-fatal open-extrapolation scan, by design).
-> This pass took no git action, wrote no `registry/assumptions.jsonl` entry,
+> The build pass took no git action, wrote no `registry/assumptions.jsonl` entry,
 > and ran no freeze. Companion ASMs: ASM-2270..2278 (centrally REGISTERED)
 > + **ASM-2280..2283** (`docs/next/design/asm-f1k-freeze-2280-2283.json`,
-> emitted, PENDING central registration). No feasibility conclusion anywhere
+> CENTRALLY REGISTERED 2026-07-13). No feasibility conclusion anywhere
 > in this package.
 
 ## What the FIX-FIRST revision changed (so the coordinator re-verifies the right things)
@@ -54,7 +54,7 @@
 2. **Verify the budget.** `budget.usd_cap == 149` (ASM-2205 reduced-cost
    protocol; cap-not-target). Constraint (§R6): no reduction may cut n
    below 1,440 or drop a ladder arm (b0/d0/d1-drng/d2/K). [ASM-2283]
-3. **Central ASM registration (the one PENDING block).** Register
+3. **Central ASM registration (now COMPLETE (registered 2026-07-13)).** Register
    **ASM-2280..2283** (`docs/next/design/asm-f1k-freeze-2280-2283.json`)
    with the landing commit, after the standing review gate. ASM-2282/2283
    are supersede-by-citation SUCCESSORS of ASM-2276/2277 — register them so
