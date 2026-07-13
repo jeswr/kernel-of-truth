@@ -41,7 +41,7 @@ def compute_rows(wn, items, gold, minted, arms_dir):
             rel = arm_relation(arm, it, minted)
             verdict, refusal, derived = run_item(tboxes[arm], world, rel)
             from engineinf_lib import derived_sides
-            correct, pen = score(g, verdict)
+            correct, pen = score(g, verdict, derived)  # ASM-2116: G4 vacuity check
             rows_by_arm[arm][it["id"]] = {
                 "item": it["id"], "kind": it["kind"], "lemma": it["lemma"],
                 "gold_rule": g["gold_rule"], "gold_verdict": g["verdict"],

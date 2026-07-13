@@ -1,0 +1,31 @@
+{
+ "_readme": [
+  "ENGINE-INF REVISION-3 assumption block ASM-2120..2121 (range 2120-2124 reserved; 2122-2124 unused) — EMITTED by the Fable DESIGN agent designer-4 (2026-07-13) in response to the cross-vendor codex re-review of REVISION-2 (3 of 4 residuals cleared; one remaining — K-shuf frame-selection bias), for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions, design-role constraint).",
+  "Range verified free at emission: ASM-2113..2119 are taken (REVISION-2 block used 2113..2117; the coordinator reserved 2118..2119); max ASM id used anywhere in the repo is 2119; 2120..2124 is free.",
+  "Companion design: docs/next/design/engine-inference-under-typing.md REVISION-3 section (marked [R3], superseding ONLY the C-SHUF typing-active frame in §2.3 and §4 item 1); prior blocks asm-engineinf-1950-1969.json, asm-engineinf-r1-2034-2049.json (ids 2100..2112), asm-engineinf-r2-2113-2117.json; build block poc/engine-inference/asm-1990-2009.json. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. This block states no feasibility conclusion. CLEARED and NOT re-opened by R3: the matched K vs K-lemma pair (EP-A), the exact fixed-frame H* census + PASS gates, the G4 scorer (ASM-2116), and the supersession/id-normalization record (ASM-2117)."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2120",
+   "tag": "STIPULATED",
+   "claim": "C-SHUF FRAME-SELECTION BIAS FIXED (residual R3-1; option (a) — orbit-invariant union frame; supersedes ONLY the typing-active-frame content of ASM-2114, the 960-orbit permutation mechanics and the p<=0.05 gate of ASM-2114 otherwise stand): the C-SHUF evaluation frame is no longer selected from the observed K (identity) outcome. Define, for each orbit member pi, Active(pi) = the (G1uG3)_H* cells on which arm-pi's row has a non-empty derived_sides set OR verdict = ANOMALOUS; the evaluation frame is the ORBIT-INVARIANT UNION A_union = union over all 960 pi of Active(pi) — a cell set literally invariant under the within-lemma permutation group action (relabeling permutes which member activates a cell but leaves the union fixed) and independent of any single arm's privileged status. The statistic T(pi) = arm-pi's cell-level correctness fraction over the FIXED frame A_union (one constant denominator |A_union| for identity and every derangement), computed by an identical rule for all members. Because A_union and T are orbit-symmetric, {T(pi)} is exchangeable under the sharp inertness null and K's (identity's) rank is uniform, so the one-sided randomization p = #{pi in Orbit : T(pi) >= T(K)}/960 (ties in >=, conservative) is CALIBRATED; binding gate unchanged C-SHUF = p <= 0.05. If A_union is empty (no member types) C-SHUF is N/A and KILL-e2a fires upstream. Option (b) (per-permutation activity selection with the same functional) is a valid alternative but was NOT chosen: the union frame gives a single fixed comparable denominator and a group-theoretic invariance argument with no per-member denominator noise.",
+   "rationale": "The R2 typing-active frame read K's own verdict/derived_sides to select cells, then scored every permutation only on those cells — this privileges the identity assignment, so K's orbit rank is not uniform under exchangeability and the p-value is not calibrated. An orbit-invariant frame (the union, computed identically for all members) restores exchangeability of {T(pi)} and hence a calibrated randomization p; the union is the sharpest arm-independent frame (it discriminates on exactly the cells some relabeling types) while remaining manifestly group-invariant.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3 (C-SHUF gate, A_union), §4 item 1 [R3], §5 PC-3'; poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md (R2 re-review, residual R3-1); ASM-2114 (960-orbit mechanics retained)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2121",
+   "tag": "STIPULATED",
+   "claim": "R3 GOVERNANCE + NON-DISTURBANCE OF CLEARED ITEMS: REVISION-3 supersedes ONLY the C-SHUF typing-active-frame definition (ASM-2114's frame clause -> ASM-2120); it changes nothing else. Confirmed undisturbed: (i) the matched K vs K-lemma-dom/union pair and its collapse rules (EP-A; ASM-2101/2102) — the typing-active frame is used ONLY by C-SHUF, never by EP-A/EP-B; (ii) the exact fixed-frame (G1uG3)_H* census and all PASS gates (EP-A/EP-B deltas, strict-sign, DIST-SPAN, no-net-harm; ASM-2115) — these score correctness on the co-primary frames, independent of A_union; (iii) the G4 scorer receive+check-derived_cls reconciliation (ASM-2116) and the engineinf_lib.py edit; (iv) the supersession record and ASM-id normalization (ASM-2117). A_union is derivable from the same 960-orbit rows the runner already emits, so R3 requires NO new engine runs and NO new item authoring ($0 CPU) beyond the already-mandated R1/R2 rebuild + pilot re-run. Registry delta (adds to the R2 list): the C-SHUF analysis reports cshuf_orbit_p, cshuf_rank, cshuf_active_n = |A_union|; the analysis-script hash is recomputed. Where R3 conflicts with earlier text, R3 governs (R3 > R2 > R1 > 2026-07-12). E0 stays DRAFT until the re-run pilot (PC-1..PC-7, with the R3 A_union C-SHUF) passes, KILL-e1 holdout adequacy holds, and the maintainer freezes.",
+   "rationale": "A single-residual revision on a near-frozen prereg must state explicitly and checkably that it perturbs only the one clause the re-review flagged, so the coordinator can confirm the three already-cleared items need no re-review.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §R3, §2.3, §4 item 1, §5 PC-3', self-check gate; asm-engineinf-r2-2113-2117.json (ASM-2115/2116/2117 cleared items)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  }
+ ]
+}

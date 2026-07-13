@@ -4,7 +4,10 @@
 (2026-07-13) in response to the cross-vendor codex FIX-FIRST freeze review
 (3 blockers); REVISION-2 (2026-07-13) in response to the codex RE-review of
 REVISION-1 (verdict RESIDUAL, 4 residuals; Blocker-1 matched pair and the
-narrowed exploratory sentence CLEARED and NOT re-opened);
+narrowed exploratory sentence CLEARED and NOT re-opened); REVISION-3
+(2026-07-13) in response to the re-review of REVISION-2 (3 of 4 cleared;
+one residual — K-shuf frame-selection bias — fixed in §R3, superseding only
+the C-SHUF typing-active frame);
 `poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md`. This is a DESIGN for the
 maintainer to freeze — not a prereg, not an execution, and it issues no
 feasibility conclusion on CORRECTNESS or EFFICIENCY. Nothing here modifies
@@ -16,10 +19,11 @@ designer-4); `docs/next/design/asm-engineinf-r1-2034-2049.json`
 (REVISION-1, ids ASM-2100..2112 after the coordinator's +66 remap from the
 originally-emitted 2034..2046); and
 `docs/next/design/asm-engineinf-r2-2113-2117.json` (REVISION-2, ids
-ASM-2113..2117; range verified free at emission — max ASM id used anywhere
-in the repo is 2112). Amendments are marked **[R1]** / **[R2]**; where a
-later revision conflicts with earlier text, the later revision governs
-(R2 > R1 > 2026-07-12).
+ASM-2113..2117); and `docs/next/design/asm-engineinf-r3-2120-2124.json`
+(REVISION-3, ids ASM-2120..2121; 2113–2119 taken, range verified free at
+emission — max ASM id used anywhere in the repo is 2119). Amendments are
+marked **[R1]** / **[R2]** / **[R3]**; where a later revision conflicts with
+earlier text, the later revision governs (R3 > R2 > R1 > 2026-07-12).
 
 Epistemic tags: **[MEASURED]** read from committed bytes this tick;
 **[DERIVED]** follows from measured bytes by stated reading/arithmetic;
@@ -137,6 +141,43 @@ scorer edit; the analysis-script hash and `output-fields.json` are
 recomputed; the derangement manifest becomes a 960-orbit manifest. Status
 remains DRAFT until the re-run pilot (PC-1..PC-7, with the R2-updated C-SHUF
 and scorer) passes and the maintainer freezes.
+
+---
+
+## R3. REVISION-3 (2026-07-13) — final residual → fix
+
+Cross-vendor re-review of REVISION-2 **cleared 3 of 4** (exact fixed-frame
+census inference, the G4 scorer, the supersession record — all accepted).
+**One residual remained**, and this revision supersedes ONLY the
+typing-active-frame definition in §2.3 and §4 item 1; nothing else moves.
+
+| # | residual (re-review finding) | option chosen + fix | where |
+|---|---|---|---|
+| R3-1 | **K-shuf frame-selection bias.** The 960-orbit mechanics are correct, but the R2 "typing-active" evaluation frame was selected from the OBSERVED K (identity) outcome — cells were active because K produced non-empty `derived_sides` / ANOMALOUS. Scoring every permutation only on cells K activated PRIVILEGES the identity assignment, so K's orbit rank is not uniform under the exchangeability null and p is not calibrated. | **Option (a): orbit-INVARIANT input/union frame.** The evaluation frame becomes `A_union = ⋃_{π ∈ Orbit} Active(π)`, the union of the per-member activated cells — a set invariant under the group action and independent of any single arm's (hence K's) privileged status. `T(π)` is each member's correctness over this ONE fixed frame (constant denominator), computed by the identical rule for identity and every derangement. Since `A_union` and `T` are orbit-symmetric, `{T(π)}` is exchangeable under the null, K's rank is uniform, and the one-sided randomization p = `#{π : T(π) ≥ T(K)}/960` is calibrated. Binding gate unchanged: **C-SHUF = p ≤ 0.05.** | §2.3, §4 item 1 [R3]; ASM-2120 |
+
+**Why option (a) over option (b) (per-permutation activity):** both are
+valid, but the union frame yields a SINGLE fixed evaluation frame with a
+constant denominator across all 960 members, which makes `{T(π)}` directly
+comparable and the exchangeability argument airtight (the group literally
+fixes `A_union` as a set); per-permutation frames would give each member a
+different denominator and add avoidable interpretive noise. [STIPULATED —
+ASM-2120]
+
+**Cleared items confirmed UNDISTURBED [STIPULATED — ASM-2121]:** R3 touches
+only the C-SHUF evaluation frame. The matched K vs K-lemma-dom/union pair
+(EP-A) is unchanged; the exact fixed-frame `(G1∪G3)_H*` census and PASS
+gates (EP-A/EP-B deltas, sign, DIST-SPAN, no-net-harm) are unchanged — they
+never used the typing-active frame (that frame feeds only C-SHUF); the G4
+scorer (ASM-2116) is unchanged; the supersession record and ASM-id
+normalization (ASM-2117) are unchanged. `A_union` is derivable from the same
+960-orbit rows the runner already emits — **no new engine runs, no new item
+authoring, $0 CPU** beyond the already-mandated rebuild.
+
+**Registry delta (coordinator; adds to the §R2 list):** the C-SHUF analysis
+computes `A_union` from the orbit rows and reports `cshuf_orbit_p`,
+`cshuf_rank`, and `cshuf_active_n = |A_union|`; the analysis-script hash is
+recomputed accordingly. Status remains DRAFT until the re-run pilot passes
+and the maintainer freezes.
 
 ---
 
@@ -574,22 +615,32 @@ R1 LB95/derangement-family gates]:
   × S₂ = **960 relabelings** of the per-sense domain/range constraint sets
   (identity K included; all fixed-point and tie members included), under the
   sharp exchangeability null "the content→sense assignment carries no
-  correctness signal." Statistic T = K-arm cell-level correctness on the
-  **typing-active** `(G1∪G3)_H*` cells (defined below). Calibrated
-  one-sided randomization p = `#{π ∈ Orbit : T(π) ≥ T(K)} / 960` (ties
-  counted in `≥`, the conservative convention; K's descriptive orbit rank
-  co-reported). **PASS gate C-SHUF = p ≤ 0.05.** Minimum attainable p =
+  correctness signal." **[R3, frame-selection bias fixed; ASM-2120]** The
+  evaluation frame is the **orbit-INVARIANT union** `A_union`, NOT any
+  single arm's activated cells (the R2 definition read K's own — the
+  identity's — outcome, privileging identity and de-calibrating the rank).
+  Define, for each orbit member π, `Active(π)` = the `(G1∪G3)_H*` cells on
+  which arm-π's row has a non-empty `derived_sides` set OR verdict =
+  ANOMALOUS (a domain/range or disjointness axiom fired and can change
+  under relabeling); then **`A_union = ⋃_{π ∈ Orbit} Active(π)`** — a set
+  literally invariant under the group action (relabeling permutes which
+  member activates a cell but leaves the union fixed), computed WITHOUT
+  privileging identity. Statistic, computed by the identical rule for every
+  member including identity: `T(π)` = arm-π's cell-level correctness
+  fraction over the FIXED frame `A_union` (constant denominator `|A_union|`
+  across all π). Calibrated one-sided randomization p =
+  `#{π ∈ Orbit : T(π) ≥ T(K)} / 960` (ties counted in `≥`, conservative;
+  K = identity assignment; K's descriptive orbit rank co-reported). Because
+  `A_union` and `T`'s rule are orbit-symmetric, the orbit values `{T(π)}`
+  are exchangeable under the null and K's rank is uniform — the p-value is
+  calibrated. **PASS gate C-SHUF = p ≤ 0.05.** Minimum attainable p =
   1/960 ≈ 0.00104, so the gate is meaningful at this inventory. If C-SHUF
   fails, the verdict is capped at INCONCLUSIVE with the pre-registered flag
   CONTENT-INERT: *"a kernel with permuted typing content is not
   distinguishably more correct than the kernel; the typing content is not
-  demonstrably load-bearing at this inventory."* **Typing-active cell
-  (mechanical, pinned):** a `(G1∪G3)_H*` cell is typing-active iff the K
-  arm's row on it has a non-empty `derived_sides` set OR verdict =
-  ANOMALOUS — i.e. the outcome was produced by a domain/range or
-  disjointness axiom and can therefore change under a relabeling;
-  CONSISTENT-with-empty-derived and REFUSE cells are typing-inert and
-  excluded from T (they are shuffle-invariant by construction).
+  demonstrably load-bearing at this inventory."* If `A_union` is empty (no
+  member ever types — impossible unless the inventory carries no
+  constraints), C-SHUF is N/A and the design is dead by KILL-e2a upstream.
 - **PASS-A [R2, exact census]:** for EACH x ∈ {dom, union}: exact cell
   delta (K − K-lemma-x) ≥ +0.20 on `F_A^x` AND strictly more win-cells
   than loss-cells on `F_A^x` (sign requirement); AND K's exact cell
@@ -768,10 +819,13 @@ its own record when it comes.]
    `range material` senses give many permutations identical TBoxes — these
    are ties, correctly counted inside the orbit rather than excluded. The
    binding gate C-SHUF (§2.3) is the calibrated one-sided randomization
-   p = #{π ∈ Orbit : T(π) ≥ T(K)}/960 ≤ 0.05, where T is K-arm correctness
-   on the mechanically-defined typing-active `(G1∪G3)_H*` cells; K's
-   descriptive orbit rank is co-reported (no p-value is asserted from a
-   bare rank). Cost: 960 arm evaluations of a CPU-trivial pipeline —
+   p = #{π ∈ Orbit : T(π) ≥ T(K)}/960 ≤ 0.05, where **[R3/ASM-2120]** T(π)
+   is arm-π's correctness over the orbit-INVARIANT union frame `A_union =
+   ⋃_π Active(π)` (the same fixed frame for identity and every member — NOT
+   K's own activated cells, which would privilege identity and de-calibrate
+   the rank); K's descriptive orbit rank is co-reported (no p-value is
+   asserted from a bare rank). Cost: 960 arm evaluations of a CPU-trivial
+   pipeline —
    minutes, $0. Extension rule, pinned: at any future inventory whose orbit
    is < 20 (min p > 0.05), C-SHUF instead uses B = 9,999 pinned-seed
    uniform within-lemma permutations plus the identity (Monte-Carlo
@@ -832,7 +886,7 @@ lemmas only — never on H (ASM-2111).** Instantiation
 |---|---|
 | **PC-1 no degenerate arm** | no baseline at 0 or 1.0 on the pilot divergent cells (K at 1.0 is certificate-normal and disclosed, not a failure — the contrast headroom lives in the baselines); refusal rate bounded on every arm except where gold IS refusal |
 | **PC-2′ separation non-vacuous [R1]** | `|Div(K, D-word-dom)| ≥ 6` and `|Div(K, B-wn)| ≥ 3` at pilot scale, spanning ≥ 2 closure ops and ≥ 2 lemmas, **plus the EP-A existence check: `|Div_dec(K, K-lemma-x) ∩ (G1∪G3)| ≥ 3` on the exploratory frame for at least one x ∈ {dom, union}** — if K's own collapses cannot diverge from K even exploratorily, EP-A is stillborn and the redesign stops pre-freeze at $0; the pilot divergence certificate is committed — **this is the non-vacuous-divergence existence proof, the exact anti-knull gate** |
-| **PC-3′ control orbit non-degenerate [R1, R2-amended]** | the FULL within-lemma permutation orbit compiles; |Orbit| equals the build-derived count (**960** = S₅·S₂³ at this inventory, identity and ties included); the identity member reproduces K byte-for-byte and at least one member differs byte-wise from K; orbit scores and the randomization p = #{π: T(π) ≥ T(K)}/960 computable end-to-end on the pilot slice; the single-rotation ≥-half check is retired (its job now belongs to the binding C-SHUF randomization p ≤ 0.05 gate at the registered run); D-union not row-identical to D-dom |
+| **PC-3′ control orbit non-degenerate [R1, R2/R3-amended]** | the FULL within-lemma permutation orbit compiles; |Orbit| equals the build-derived count (**960** = S₅·S₂³ at this inventory, identity and ties included); the identity member reproduces K byte-for-byte and at least one member differs byte-wise from K; **[R3]** the orbit-invariant union frame `A_union = ⋃_π Active(π)` is computed and verified invariant (recomputing it from a relabeled orbit indexing yields the identical cell set), and the calibrated p = #{π: T(π) ≥ T(K)}/960 over `A_union` is computable end-to-end on the pilot slice; the single-rotation ≥-half check is retired (its job now belongs to the binding C-SHUF randomization p ≤ 0.05 gate at the registered run); D-union not row-identical to D-dom |
 | **PC-4′ gate teeth [R1]** | planted mistyped axiom (range flip on one sense) ⇒ scorer + divergence certificate must fire on the predicted cells and nothing else (CF-2-style); poisoned-gold canary ⇒ all arm compilations (including K-lemma and derangement-family compilers) byte-identical under gold perturbation; a planted compiler gold-read must trip the canary; **sense-tag insensitivity canary: perturbing the item's gold sense tag leaves K-lemma and D-word compiled worlds byte-identical AND changes the K / B-wn relation URN on remapped items** |
 | **PC-5 elicitable gold** | the mechanical item extractor yields well-formed items with unique gold on ≥ 95% of candidate occurrences (rest excluded with logged reasons); the oracle arm (gold verdicts injected through the pinned scorer) scores 1.0 |
 | **PC-6 holdout machinery on decoys [R1]** | the SemCor pipeline (pin → sense-key mapping → extraction → gold → compile → engine → score) runs end-to-end on the three pinned decoy lemmas (draw, hold, cut — in neither Stage-A nor the kernel-v0 panel); decoy outcomes quarantined, touching no endpoint; mapping-failure and exclusion reasons logged |
@@ -928,16 +982,21 @@ are untouched. Assumption blocks
 `docs/next/design/asm-engineinf-r1-2034-2049.json` (REVISION-1, ids
 ASM-2100..2112 after the coordinator's +66 remap), and
 `docs/next/design/asm-engineinf-r2-2113-2117.json` (REVISION-2, ids
-ASM-2113..2117; owner designer-4, tags MEASURED | STIPULATED |
-EXTRAPOLATION, range 2113..2117 verified free at emission — max ASM used
-anywhere is 2112); central registration is the coordinator's, with commit.
-**[R2] REVISION-2 changes only the four residuals in §R2 (C-SHUF null
-recalibration, finite-census inference, the G4 scorer reconciliation, and
-ASM-id normalization); it does NOT re-open the cleared Blocker-1 matched
-pair or the narrowed exploratory sentence, and the `engineinf_lib.py`
-scorer edit means its pinned hash MUST be recomputed at re-pin.** Neither
-revision states a feasibility conclusion: the exploratory numbers are
-licensed only through the §R1 narrowed sentence, and the registered
-analysis remains INCONCLUSIVE until the confirmatory holdout runs. No git
-actions in this pass (design-role constraint); commit + push is the session
-coordinator's handoff step.
+ASM-2113..2117); and
+`docs/next/design/asm-engineinf-r3-2120-2124.json` (REVISION-3, ids
+ASM-2120..2121; owner designer-4, tags MEASURED | STIPULATED |
+EXTRAPOLATION, range 2120..2124 verified free at emission — max ASM used
+anywhere is 2119); central registration is the coordinator's, with commit.
+**[R2] REVISION-2 changed only its four residuals; it does NOT re-open the
+cleared Blocker-1 matched pair or the narrowed exploratory sentence, and the
+`engineinf_lib.py` scorer edit means its pinned hash MUST be recomputed at
+re-pin.** **[R3] REVISION-3 supersedes ONLY the C-SHUF typing-active frame
+(§2.3/§4.1) — replacing the K-outcome-selected frame with the
+orbit-invariant union `A_union` so the randomization p is calibrated — and
+disturbs none of the cleared items (matched pair, exact-census H* frame, G4
+scorer, supersession record); it needs no new engine runs or item authoring
+($0 CPU).** Neither revision states a feasibility conclusion: the
+exploratory numbers are licensed only through the §R1 narrowed sentence, and
+the registered analysis remains INCONCLUSIVE until the confirmatory holdout
+runs. No git actions in this pass (design-role constraint); commit + push is
+the session coordinator's handoff step.

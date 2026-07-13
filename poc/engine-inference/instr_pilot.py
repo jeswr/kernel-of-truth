@@ -94,7 +94,7 @@ def decide_all(wn, slice_items, gold, minted, tbox_paths):
         world = neutral_world(wn, it)
         for arm in ARM_NAMES:
             v, r, d = run_item(tboxes[arm], world, arm_relation(arm, it, minted))
-            correct, pen = score(gold[it["id"]], v)
+            correct, pen = score(gold[it["id"]], v, d)  # ASM-2116: G4 vacuity check
             rows[(arm, it["id"])] = {
                 "arm": arm, "item": it["id"], "kind": it["kind"],
                 "lemma": it["lemma"], "gold_rule": gold[it["id"]]["gold_rule"],
