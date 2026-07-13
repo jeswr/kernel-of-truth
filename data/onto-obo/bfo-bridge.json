@@ -1,0 +1,31 @@
+{
+  "schema": "kot-obo-bfo-bridge/1",
+  "purpose": "Pinned BFO 2.0 upper-anchor bridge for OBO root/intermediate classes whose is_a->BFO edge exists in the source ontology's OWL but was DROPPED by the local kot-obo-extractor (it kept only is_a edges whose target is inside the extracted subset). Loading this bridge RECOVERS source-asserted upper structure so is_a* closure reaches a BFO category anchor. Consumed by poc/scale/src/census.ts (--bridge on by default).",
+  "epistemic_status": "LIT-BACKED per row: each mapping is the named ontology's own published BFO commitment (verifiable in its canonical OWL / OBO Foundry bridge file). The choice of BFO anchor is the ontology's assertion, not a KoT stipulation. Coarseness notes are stated where a root spans more than one fine BFO class.",
+  "bfo_anchor_categories": {
+    "BFO_0000015": "event (process/occurrent)",
+    "BFO_0000016": "disposition",
+    "BFO_0000017": "disposition (realizable entity; function is a realizable entity)",
+    "BFO_0000004": "object (independent continuant)",
+    "BFO_0000040": "object (material entity)",
+    "BFO_0000031": "proposition (generically dependent continuant / information)"
+  },
+  "root_bridges": [
+    { "child": "urn:onto-obo:GO_0008150", "label": "biological_process", "bfo_anchor": "urn:onto-obo:BFO_0000015", "tag": "LIT-BACKED", "provenance": "GO OWL: biological_process is_a BFO:0000015 (process). go-bfo bridge.", "subtree_local": 24129 },
+    { "child": "urn:onto-obo:GO_0003674", "label": "molecular_function", "bfo_anchor": "urn:onto-obo:BFO_0000017", "tag": "LIT-BACKED", "provenance": "GO OWL: molecular_function is_a BFO:0000034 (function) is_a BFO:0000017 (realizable entity). Anchored at realizable-entity → disposition category.", "subtree_local": 10041 },
+    { "child": "urn:onto-obo:GO_0005575", "label": "cellular_component", "bfo_anchor": "urn:onto-obo:BFO_0000004", "tag": "LIT-BACKED", "provenance": "GO OWL: cellular_component is_a BFO:0000004 (independent continuant). COARSE: some components are BFO immaterial entities (e.g. membranes as sites); census maps the whole subtree to object.", "subtree_local": 4089 },
+    { "child": "urn:onto-obo:SO_0000110", "label": "sequence_feature", "bfo_anchor": "urn:onto-obo:BFO_0000031", "tag": "LIT-BACKED", "provenance": "SO OWL: sequence features are generically dependent continuants (information artifacts). so-bfo bridge.", "subtree_local": 1862 },
+    { "child": "urn:onto-obo:SO_0000400", "label": "sequence_attribute", "bfo_anchor": "urn:onto-obo:BFO_0000031", "tag": "LIT-BACKED", "provenance": "SO: sequence_attribute → generically dependent continuant.", "subtree_local": 233 },
+    { "child": "urn:onto-obo:SO_0001060", "label": "sequence_variant", "bfo_anchor": "urn:onto-obo:BFO_0000031", "tag": "LIT-BACKED", "provenance": "SO: sequence_variant → generically dependent continuant.", "subtree_local": 233 },
+    { "child": "urn:onto-obo:SO_0001260", "label": "sequence_collection", "bfo_anchor": "urn:onto-obo:BFO_0000031", "tag": "LIT-BACKED", "provenance": "SO: sequence_collection → generically dependent continuant.", "subtree_local": 88 },
+    { "child": "urn:onto-obo:MONDO_0021178", "label": "injury", "bfo_anchor": "urn:onto-obo:BFO_0000016", "tag": "STIPULATED", "rationale": "MONDO's disease root already reaches BFO:disposition in-extraction; 'injury' is a sibling orphan in the local subset. Mapped to BFO:0000016 (disposition) for consistency with MONDO's disease treatment. STIPULATED (not LIT-BACKED) because MONDO models injury via a mix of process/disposition/quality and the local subset does not carry the disambiguating axiom.", "subtree_local": 24 },
+    { "child": "urn:onto-obo:IAO_0000030", "label": "information content entity", "bfo_anchor": "urn:onto-obo:BFO_0000031", "tag": "LIT-BACKED", "provenance": "IAO OWL: information content entity is_a BFO:0000031 (generically dependent continuant). Bridges OGMS classes that dangle to IAO.", "subtree_local": 1 },
+    { "child": "urn:onto-obo:IAO_0000027", "label": "data item", "bfo_anchor": "urn:onto-obo:BFO_0000031", "tag": "LIT-BACKED", "provenance": "IAO OWL: data item is_a information content entity is_a BFO:0000031.", "subtree_local": 3 },
+    { "child": "urn:onto-obo:OBI_0000011", "label": "planned process", "bfo_anchor": "urn:onto-obo:BFO_0000015", "tag": "LIT-BACKED", "provenance": "OBI OWL: planned process is_a BFO:0000015 (process). Bridges OGMS classes that dangle to OBI.", "subtree_local": 3 },
+    { "child": "urn:onto-obo:OBI_0000278", "label": "process (OBI)", "bfo_anchor": "urn:onto-obo:BFO_0000015", "tag": "LIT-BACKED", "provenance": "OBI OWL: OBI:0000278 subtype of planned process → BFO:0000015.", "subtree_local": 5 }
+  ],
+  "ontology_orphan_fallback": [
+    { "ontology": "CHEBI", "bfo_anchor": "urn:onto-obo:BFO_0000040", "tag": "LIT-BACKED", "provenance": "CHEBI OWL: chemical entity (CHEBI:24431) is_a BFO:0000040 (material entity). The 41 local CHEBI classes are a flat orphan subset (the CHEBI:24431 root is not in the local extraction); all are material entities → object.", "applies_to": "CHEBI classes with no is_a edge" },
+    { "ontology": "NCBITaxon", "bfo_anchor": "urn:onto-obo:BFO_0000040", "tag": "STIPULATED", "rationale": "A taxon (e.g. Mammalia) is a type whose instances are organisms = BFO:0000040 material entities → object; design large-kernel-scale-track.md §0 permits counting taxa as biological Kinds. STIPULATED because NCBITaxon does not itself assert a BFO parent (it is a pure taxonomy); the material-entity reading is the standard OBI/ENVO organism treatment, applied here as a policy.", "applies_to": "NCBITaxon classes with no is_a edge (the 402-record local subset is a flat orphan sample)" }
+  ]
+}

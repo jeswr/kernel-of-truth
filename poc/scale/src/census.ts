@@ -34,6 +34,7 @@
 
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { REPO_DIR, RESULTS_DIR, ensureDir, nowMs, writeJson } from './common.js';
 
 const OBO_DIR = join(REPO_DIR, 'data', 'onto-obo');
@@ -144,8 +145,28 @@ function loadObo(): { recs: Map<string, OboRec>; perOnt: Record<string, number> 
   return { recs, perOnt };
 }
 
-/** Memoised is_a* closure category: the FIRST BFO anchor reached, or null. */
-function bfoCategoryOf(recs: Map<string, OboRec>): Map<string, string | null> {
+// --- BFO bridge (recovers root->BFO edges dropped by the subset extractor) ---
+interface Bridge {
+  edge: Map<string, string>; // childUrn -> bfoAnchorUrn (virtual is_a)
+  orphanFallback: Map<string, string>; // ontology -> bfoAnchorUrn (orphan classes only)
+  rows: number;
+}
+function loadBfoBridge(): Bridge {
+  const path = join(OBO_DIR, 'bfo-bridge.json');
+  const j = JSON.parse(readFileSync(path, 'utf8'));
+  const edge = new Map<string, string>();
+  for (const r of j.root_bridges ?? []) edge.set(r.child, r.bfo_anchor);
+  const orphanFallback = new Map<string, string>();
+  for (const r of j.ontology_orphan_fallback ?? []) orphanFallback.set(r.ontology, r.bfo_anchor);
+  return { edge, orphanFallback, rows: (j.root_bridges?.length ?? 0) + (j.ontology_orphan_fallback?.length ?? 0) };
+}
+
+/**
+ * Memoised is_a* closure category: the FIRST BFO anchor reached, or null.
+ * If `bridge` is supplied, its recovered root->BFO edges (and per-ontology
+ * orphan fallback) are injected as extra is_a targets during the walk.
+ */
+function bfoCategoryOf(recs: Map<string, OboRec>, bridge?: Bridge): Map<string, string | null> {
   const memo = new Map<string, string | null>();
   const visit = (id: string, stack: Set<string>): string | null => {
     if (memo.has(id)) return memo.get(id)!;
@@ -156,14 +177,26 @@ function bfoCategoryOf(recs: Map<string, OboRec>): Map<string, string | null> {
       memo.set(id, BFO_CATEGORY[bare]!);
       return BFO_CATEGORY[bare]!;
     }
+    // bridge edge on this node (applies even when the node is a non-record IAO/OBI intermediate)
+    const bridgeTargets: string[] = [];
+    if (bridge) {
+      const b = bridge.edge.get(id);
+      if (b) bridgeTargets.push(b);
+    }
     const rec = recs.get(id);
-    if (!rec) {
+    if (!rec && bridgeTargets.length === 0) {
       memo.set(id, null);
       return null;
     }
     stack.add(id);
     let found: string | null = null;
-    for (const p of rec.isa) {
+    const parents = [...(rec?.isa ?? []), ...bridgeTargets];
+    // per-ontology orphan fallback: a real class with no resolvable is_a
+    if (bridge && rec && rec.isa.length === 0) {
+      const fb = bridge.orphanFallback.get(rec.ontology);
+      if (fb) parents.push(fb);
+    }
+    for (const p of parents) {
       const c = visit(p, stack);
       if (c) {
         found = c;
@@ -269,25 +302,36 @@ function main(): void {
 
   // ---- OBO ----
   const { recs: obo, perOnt } = loadObo();
-  const bfoCat = bfoCategoryOf(obo);
+  const bridge = loadBfoBridge();
+  const bfoCatNoBridge = bfoCategoryOf(obo); // increment-1 baseline (subset-only is_a)
+  const bfoCat = bfoCategoryOf(obo, bridge); // increment-2 with recovered BFO bridges
   let oboClasses = 0;
-  let oboBfoReached = 0; // source-asserted ontic_category (cascade step 1)
-  let oboOntologyRoot = 0; // ontology-grounded fallback (cascade step 3, grounded)
+  let oboBfoReached = 0; // source-asserted ontic (with bridge)
+  let oboBfoReachedNoBridge = 0; // source-asserted ontic (increment-1 baseline)
+  let oboBridgeRecovered = 0; // records newly typed BY the bridge (delta)
+  let oboStillUnreached = 0; // reach NO anchor even with bridge
+  let oboOntologyRoot = 0; // ontology-grounded fallback covers the still-unreached
   let oboGenus = 0; // identity-provider candidate via genus
   let oboLogicalDef = 0;
   let oboDependence = 0; // ≥1 RO relationship edge → dependence candidate
   const oboBfoByOnt: Record<string, number> = {};
   const oboCatDist: Record<string, number> = {};
+  const oboUnreachedByOnt: Record<string, number> = {};
   for (const r of obo.values()) {
     if (r.kind !== 'class') continue;
     oboClasses++;
     const c = bfoCat.get(r.id) ?? null;
+    const c0 = bfoCatNoBridge.get(r.id) ?? null;
+    if (c0) oboBfoReachedNoBridge++;
     if (c) {
       oboBfoReached++;
+      if (!c0) oboBridgeRecovered++;
       oboBfoByOnt[r.ontology] = (oboBfoByOnt[r.ontology] ?? 0) + 1;
       oboCatDist[c] = (oboCatDist[c] ?? 0) + 1;
-    } else if (ONTOLOGY_ROOT_CATEGORY[r.ontology] && ONTOLOGY_ROOT_CATEGORY[r.ontology] !== 'underdetermined') {
-      oboOntologyRoot++;
+    } else {
+      oboStillUnreached++;
+      oboUnreachedByOnt[r.ontology] = (oboUnreachedByOnt[r.ontology] ?? 0) + 1;
+      if (ONTOLOGY_ROOT_CATEGORY[r.ontology] && ONTOLOGY_ROOT_CATEGORY[r.ontology] !== 'underdetermined') oboOntologyRoot++;
     }
     if (r.hasGenus) oboGenus++;
     if (r.hasLogicalDef) oboLogicalDef++;
@@ -363,8 +407,21 @@ function main(): void {
       wordnet_only_baseline_S0: { source_asserted_ontic: '0% (only the 1.27% instance flag on denotation_level)', identity: '0%', dependence: '0%' },
       obo: {
         classes: oboClasses,
-        ontic_source_asserted_via_bfo_chain: { count: oboBfoReached, pct: pct(oboBfoReached, oboClasses), by_ontology: oboBfoByOnt, category_dist: oboCatDist },
-        ontic_ontology_grounded_fallback_stipulated: { count: oboOntologyRoot, pct: pct(oboOntologyRoot, oboClasses) },
+        ontic_source_asserted_via_bfo_chain: {
+          count: oboBfoReached,
+          pct: pct(oboBfoReached, oboClasses),
+          by_ontology: oboBfoByOnt,
+          category_dist: oboCatDist,
+          bridge_lift: {
+            increment1_no_bridge: { count: oboBfoReachedNoBridge, pct: pct(oboBfoReachedNoBridge, oboClasses) },
+            increment2_with_bridge: { count: oboBfoReached, pct: pct(oboBfoReached, oboClasses) },
+            bridge_recovered_delta: oboBridgeRecovered,
+            still_no_anchor_even_with_bridge: { count: oboStillUnreached, pct: pct(oboStillUnreached, oboClasses), by_ontology: oboUnreachedByOnt },
+            bridge_source: 'data/onto-obo/bfo-bridge.json (LIT-BACKED per row: recovered root→BFO edges the subset-only extractor dropped; 2 STIPULATED rows for MONDO:injury and NCBITaxon orphans)',
+            bridge_rows: bridge.rows,
+          },
+        },
+        ontic_ontology_grounded_fallback_stipulated: { count: oboOntologyRoot, pct: pct(oboOntologyRoot, oboClasses), note: 'covers the residue still reaching no BFO anchor after the bridge' },
         identity_provider_candidate_via_genus: { count: oboGenus, pct: pct(oboGenus, oboClasses), note: 'genus-differentia logical definition supplies an identity-provider CANDIDATE via the genus chain — WordNet has none.' },
         logical_definition_records: { count: oboLogicalDef, pct: pct(oboLogicalDef, oboClasses) },
         dependence_candidate_via_RO_relationship: { count: oboDependence, pct: pct(oboDependence, oboClasses), note: 'RO relationship edges (part_of, has_part, ...) are dependence CANDIDATES — WordNet antonym/similarTo are lexical, not dependence.' },
@@ -380,7 +437,14 @@ function main(): void {
         'YIELD not PRECISION. A NONZERO source-asserted ontic yield + NONZERO identity-provider-candidate + NONZERO dependence-candidate demonstrates the multi-source portfolio has an EVIDENTIAL PATH to the UFO fields that WordNet-only lacked entirely. Whether those candidates are CORRECT at the §4.3 0.95 bar is a SEPARATE human-audit measurement this probe does not perform.',
     },
     wallSeconds: (nowMs() - t0) / 1000,
+    contentHash: '', // filled below: sha256 over the MEASURED payload (excludes volatile date/wallSeconds/contentHash)
   };
+
+  // Stable content hash so ASM backing_refs are reproducible across runs:
+  // the measured counts are deterministic; only `date`/`wallSeconds` telemetry
+  // vary, so hash the report with those pinned to constants.
+  const stable = { ...report, date: 'DETERMINISTIC', wallSeconds: 0, contentHash: '' };
+  report.contentHash = createHash('sha256').update(JSON.stringify(stable)).digest('hex');
 
   writeJson(join(RESULTS_DIR, 'scale-s1-census.json'), report);
 
@@ -436,25 +500,44 @@ subset, §3.1) that is not yet local** — the one missing ingredient flagged.
 | dependence candidate | 0% | OBO RO relationship edges: **${oboDependence.toLocaleString()} (${pct(oboDependence, oboClasses)})** |
 | argument/selectional typing | 0% | SUMO domain/range: ${sumoArg.toLocaleString()} |
 
-OBO BFO-reached category distribution: ${JSON.stringify(oboCatDist)}.
+OBO BFO-reached category distribution (with bridge): ${JSON.stringify(oboCatDist)}.
 
-**Interpretation (YIELD, not PRECISION).** A nonzero source-asserted ontic yield,
+### Increment 2 — BFO-bridge lift (source-asserted ontic FLOOR raised)
+
+The increment-1 floor (56.7%) was set by the local **subset-only** extractor,
+which dropped each ontology's root→BFO edge (GO's three roots, SO's four,
+CHEBI/NCBITaxon orphan subsets, MONDO:injury, OGMS→IAO/OBI). Loading the pinned
+bridge \`data/onto-obo/bfo-bridge.json\` (${bridge.rows} rows; LIT-BACKED per row —
+recovered source assertions, 2 STIPULATED for MONDO:injury + NCBITaxon) raises the
+source-asserted ontic yield:
+
+| | count | % of OBO classes |
+|---|---:|---:|
+| increment 1 (no bridge) | ${oboBfoReachedNoBridge.toLocaleString()} | ${pct(oboBfoReachedNoBridge, oboClasses)} |
+| **increment 2 (with bridge)** | **${oboBfoReached.toLocaleString()}** | **${pct(oboBfoReached, oboClasses)}** |
+| bridge-recovered (delta) | ${oboBridgeRecovered.toLocaleString()} | ${pct(oboBridgeRecovered, oboClasses)} |
+| still no anchor (even with bridge) | ${oboStillUnreached.toLocaleString()} | ${pct(oboStillUnreached, oboClasses)} |
+
+Still-unreached by ontology: ${JSON.stringify(oboUnreachedByOnt)} — the ${oboOntologyRoot.toLocaleString()}
+residue that types only via the STIPULATED ontology-grounded fallback.
+
+**Interpretation (YIELD, not PRECISION).** A source-asserted ontic yield of
+${pct(oboBfoReached, oboClasses)} (up from ${pct(oboBfoReachedNoBridge, oboClasses)}),
 a nonzero identity-provider-candidate yield (genus), and a nonzero
 dependence-candidate yield (RO) show the portfolio has an **evidential path** to
 exactly the UFO fields WordNet-only lacked entirely. Whether those candidates are
 **correct** at the §4.3 0.95 bar is a **separate human-audit measurement** this
-probe does not perform. The BFO-reached fraction is modest in the LOCAL
-extraction because most domain ontologies chain to their own roots, not to BFO
-directly (only a handful of upper classes carry explicit is_a→BFO edges); closing
-that gap is the S1 crosswalk step (load per-ontology BFO bridges + SUMO↔WordNet
-mapping), not new science.
+probe does not perform. The bridge RECOVERS structure the source ontologies
+assert but the extractor dropped — not new science.
 
 ## What this increment does and does not license
 
-- **Does:** retires §2.3 (union has >100k headroom); demonstrates §2.1 has a
-  nonzero evidential path via OBO/SUMO (identity/dependence off 0%); gives the
-  first §3.5-shaped four-count skeleton and the domain-balance gap (needs
-  Wikidata).
+- **Does:** retires §2.3 (union has >100k headroom); raises the §2.1
+  source-asserted ontic yield to ${pct(oboBfoReached, oboClasses)} via the BFO
+  bridge; demonstrates §2.1 has a nonzero evidential path via OBO/SUMO
+  (identity/dependence off 0%); gives the first §3.5-shaped four-count skeleton
+  and the domain-balance gap (needs Wikidata — see
+  \`docs/next/design/scale-s1-wikidata-domain-balance-plan.md\`).
 - **Does NOT:** compute exact post-merge type-level clusters (needs S1 dedup
   engineering); measure typing PRECISION (needs §4.3 human audit); make any
   correctness/efficiency claim; touch construction B or any registered verdict.
@@ -463,7 +546,7 @@ ASM candidates for the coordinator: \`poc/scale/asm-2050-2059.json\`.
 `;
   writeFileSync(join(RESULTS_DIR, 'scale-s1-census.md'), md);
   console.log(
-    `census: WN type-level ${wn.typeLevel}, OBO classes ${oboClasses} (BFO-reached ${oboBfoReached}, genus ${oboGenus}, dep ${oboDependence}), SUMO ${sumo.size} (typed ${sumoTyped}); union ${typeLevelUnion} in ${report.wallSeconds.toFixed(1)}s`,
+    `census: WN type-level ${wn.typeLevel}, OBO classes ${oboClasses} (BFO-reached no-bridge ${oboBfoReachedNoBridge} → with-bridge ${oboBfoReached} [+${oboBridgeRecovered}], still-unreached ${oboStillUnreached}, genus ${oboGenus}, dep ${oboDependence}), SUMO ${sumo.size} (typed ${sumoTyped}); union ${typeLevelUnion} in ${report.wallSeconds.toFixed(1)}s`,
   );
 }
 

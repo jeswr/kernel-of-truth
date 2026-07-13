@@ -1,6 +1,6 @@
 # SCALE-1 S1 (100k rung) — multi-source concept census + UFO-typing-yield probe
 
-date: 2026-07-13 · script: `poc/scale/src/census.ts` · full JSON: `scale-s1-census.json` · wall: 2.6s
+date: 2026-07-13 · script: `poc/scale/src/census.ts` · full JSON: `scale-s1-census.json` · wall: 2.8s
 
 **Epistemic status.** Exploratory S1-preparation pilot over LOCAL bytes
 (`data/lexical-wn31`, `data/onto-obo`, `data/onto-sumo`). It measures **YIELD**
@@ -43,31 +43,50 @@ subset, §3.1) that is not yet local** — the one missing ingredient flagged.
 
 | field | WordNet-only (S0) | multi-source yield (this probe) |
 |---|---|---|
-| source-asserted ontic_category | 0% | OBO is_a*→BFO: **54,018 (56.74%)**; SUMO subclass*: 2,482 (66.99%) |
-| ontology-grounded ontic (STIPULATED fallback) | 0% | OBO: 40,779 (42.83%) |
+| source-asserted ontic_category | 0% | OBO is_a*→BFO: **95,189 (99.99%)**; SUMO subclass*: 2,482 (66.99%) |
+| ontology-grounded ontic (STIPULATED fallback) | 0% | OBO: 10 (0.01%) |
 | identity-provider candidate | 0% | OBO genus-differentia: **24,693 (25.94%)** |
 | dependence candidate | 0% | OBO RO relationship edges: **46,755 (49.11%)** |
 | argument/selectional typing | 0% | SUMO domain/range: 713 |
 
-OBO BFO-reached category distribution: {"event":385,"object":18948,"region":691,"disposition":32048,"quality":13,"mode":1929,"role":2,"proposition":2}.
+OBO BFO-reached category distribution (with bridge): {"event":24555,"object":23476,"region":691,"disposition":42106,"quality":13,"mode":1929,"role":2,"proposition":2417}.
 
-**Interpretation (YIELD, not PRECISION).** A nonzero source-asserted ontic yield,
+### Increment 2 — BFO-bridge lift (source-asserted ontic FLOOR raised)
+
+The increment-1 floor (56.7%) was set by the local **subset-only** extractor,
+which dropped each ontology's root→BFO edge (GO's three roots, SO's four,
+CHEBI/NCBITaxon orphan subsets, MONDO:injury, OGMS→IAO/OBI). Loading the pinned
+bridge `data/onto-obo/bfo-bridge.json` (14 rows; LIT-BACKED per row —
+recovered source assertions, 2 STIPULATED for MONDO:injury + NCBITaxon) raises the
+source-asserted ontic yield:
+
+| | count | % of OBO classes |
+|---|---:|---:|
+| increment 1 (no bridge) | 54,018 | 56.74% |
+| **increment 2 (with bridge)** | **95,189** | **99.99%** |
+| bridge-recovered (delta) | 41,171 | 43.25% |
+| still no anchor (even with bridge) | 12 | 0.01% |
+
+Still-unreached by ontology: {"BFO":2,"OGMS":4,"RO":3,"UBERON":3} — the 10
+residue that types only via the STIPULATED ontology-grounded fallback.
+
+**Interpretation (YIELD, not PRECISION).** A source-asserted ontic yield of
+99.99% (up from 56.74%),
 a nonzero identity-provider-candidate yield (genus), and a nonzero
 dependence-candidate yield (RO) show the portfolio has an **evidential path** to
 exactly the UFO fields WordNet-only lacked entirely. Whether those candidates are
 **correct** at the §4.3 0.95 bar is a **separate human-audit measurement** this
-probe does not perform. The BFO-reached fraction is modest in the LOCAL
-extraction because most domain ontologies chain to their own roots, not to BFO
-directly (only a handful of upper classes carry explicit is_a→BFO edges); closing
-that gap is the S1 crosswalk step (load per-ontology BFO bridges + SUMO↔WordNet
-mapping), not new science.
+probe does not perform. The bridge RECOVERS structure the source ontologies
+assert but the extractor dropped — not new science.
 
 ## What this increment does and does not license
 
-- **Does:** retires §2.3 (union has >100k headroom); demonstrates §2.1 has a
-  nonzero evidential path via OBO/SUMO (identity/dependence off 0%); gives the
-  first §3.5-shaped four-count skeleton and the domain-balance gap (needs
-  Wikidata).
+- **Does:** retires §2.3 (union has >100k headroom); raises the §2.1
+  source-asserted ontic yield to 99.99% via the BFO
+  bridge; demonstrates §2.1 has a nonzero evidential path via OBO/SUMO
+  (identity/dependence off 0%); gives the first §3.5-shaped four-count skeleton
+  and the domain-balance gap (needs Wikidata — see
+  `docs/next/design/scale-s1-wikidata-domain-balance-plan.md`).
 - **Does NOT:** compute exact post-merge type-level clusters (needs S1 dedup
   engineering); measure typing PRECISION (needs §4.3 human audit); make any
   correctness/efficiency claim; touch construction B or any registered verdict.

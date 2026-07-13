@@ -1,12 +1,14 @@
 {
- "range": "ASM-2050..ASM-2055 (free range verified this tick: `grep -c ASM-205[0-9] registry/assumptions.jsonl` = 0; registry max existing = ASM-2112. Chosen at ASM-2050 per the build brief to avoid the E0 (2043-2049) and KaE (2034-2042) revisions in flight.)",
- "purpose": "SCALE-1 S1 (100k rung) FIRST-INCREMENT candidate assumptions: the multi-source concept census + UFO-typing-yield probe over the local WordNet/OBO/SUMO shards. Emitted by the poc/scale build agent (owner role: builder-scale-s1) for coordinator registration; NOT written to registry/assumptions.jsonl by the build agent.",
+ "range": "ASM-2050..ASM-2059 (free range verified this tick: `grep -c ASM-205[0-9] registry/assumptions.jsonl` = 0; registry max existing = ASM-2112. Chosen at ASM-2050 per the build brief to avoid the E0 (2043-2049, and 2100-2112) and KaE (2034-2042) ranges in flight. Increment-1 = 2050-2055; increment-2 (BFO bridge + Wikidata plan) = 2056-2059.)",
+ "purpose": "SCALE-1 S1 (100k rung) candidate assumptions: increment-1 multi-source concept census + UFO-typing-yield probe (2050-2055), and increment-2 BFO-bridge lift + Wikidata domain-balance plan (2056-2059), over the local WordNet/OBO/SUMO shards. Emitted by the poc/scale build agent (owner role: builder-scale-s1) for coordinator registration; NOT written to registry/assumptions.jsonl by the build agent.",
  "owner": "builder-scale-s1",
  "backing_artifacts": [
   "poc/scale/src/census.ts",
   "poc/scale/results/scale-s1-census.json",
   "poc/scale/results/scale-s1-census.md",
-  "docs/next/design/scale-s1-multisource-census.md"
+  "data/onto-obo/bfo-bridge.json",
+  "docs/next/design/scale-s1-multisource-census.md",
+  "docs/next/design/scale-s1-wikidata-domain-balance-plan.md"
  ],
  "assumptions": [
   {
@@ -62,6 +64,45 @@
    "owner": "designer-6",
    "load_bearing": false,
    "resolution_path": "Resolved by building the >=1M sense-split, domain-balanced concept->content map (docs/next/design/scale-s1-multisource-census.md steps 2-3: BFO-bridge load + Wikidata subset); until then F1-K instruments the coverage gate only on a hand-picked concept subset.",
+   "status": "open"
+  },
+  {
+   "id": "ASM-2056",
+   "claim": "INCREMENT-2 BFO-BRIDGE LIFT: loading the pinned bridge data/onto-obo/bfo-bridge.json (recovered root->BFO edges the subset-only kot-obo-extractor dropped) raises the OBO source-asserted ontic_category yield (is_a* closure reaching a BFO 2.0 category anchor) from 54,018/95,201 = 56.74% (increment-1, no bridge) to 95,189/95,201 = 99.99% (increment-2, with bridge) -- +41,171 records bridge-recovered, only 12 reaching no anchor. This directly confirms ASM-2053's prediction that the 56.74% was a FLOOR that rises once bridges are loaded. With-bridge category distribution: disposition 42,106 (MONDO disease 32k + GO molecular_function 10k), event 24,555 (GO biological_process + OGMS/OBI), object 23,476 (UBERON 15k + GO cellular_component 4k + CL 3.3k + CHEBI + NCBITaxon + PO), proposition 2,417 (SO sequence features), mode 1,929 (PATO), region 691, quality 13, role 2. YIELD not PRECISION (correctness at the 4.3 0.95 bar still needs the human audit).",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json field .contentHash = sha256:d143d90f8518fd3d4505398a680fef333e1eda6332fefcca991e311177d0c8b3 (STABLE reproducible hash over the measured payload, excludes volatile date/wallSeconds); path typing_yield_vs_wordnet_zero.obo.ontic_source_asserted_via_bfo_chain.bridge_lift; regenerate via `cd poc && npm run scale:census`, wall 3.6s",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2057",
+   "claim": "The BFO bridge table (data/onto-obo/bfo-bridge.json, 14 rows: 12 root_bridges + 2 ontology_orphan_fallback) is LIT-BACKED per row EXCEPT two STIPULATED rows: each root->BFO mapping (GO biological_process->process, GO molecular_function->realizable-entity/function, GO cellular_component->independent-continuant, SO sequence-features->generically-dependent-continuant, IAO ICE/data-item->gdc, OBI planned-process->process, CHEBI->material-entity) is the named ontology's own published BFO commitment in its canonical OWL, dropped by the local extractor and here RECOVERED (hence the reached records become source-asserted, cascade step 1). Two rows are STIPULATED with rationale: MONDO:0021178 injury->BFO:disposition (mapped for consistency with MONDO's disease treatment; the local subset lacks the disambiguating axiom) and NCBITaxon orphans->material-entity (taxa-as-Kinds per design 0; NCBITaxon asserts no BFO parent). One acknowledged coarseness: GO cellular_component->object collapses the immaterial-entity minority (e.g. membranes-as-sites) to object.",
+   "tag": "STIPULATED",
+   "backing_ref": "data/onto-obo/bfo-bridge.json sha256:1151d68e4f67fb1be6d7e3ec48bb1cd677ac3c71f755f18cc5a0533dcccebef5; provenance per row is each source ontology's canonical OWL BFO import (GO/SO/IAO/OBI/CHEBI OBO Foundry bridge files)",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open",
+   "rationale": "Curated 14-row BFO bridge table, sha256-pinned; provenance is each source ontologys canonical OWL BFO import (OBO Foundry bridge files, GO/SO/IAO/OBI/CHEBI). Tagged STIPULATED (conservative fallback) rather than LIT-BACKED because the source artifacts are ontology releases, not papers with a DOI/year; coordinator governance-conformance retag pending Fable confirmation."
+  },
+  {
+   "id": "ASM-2058",
+   "claim": "The 12 OBO classes reaching NO BFO anchor even after the bridge are legitimately un-anchorable, not a coverage defect: BFO 2 (the BFO:0000001 entity root itself + one top class, which sit ABOVE the category anchors by construction), RO 3 (relation-ontology classes, relational not categorial), UBERON 3 (2 obsolete 'pudendum' classes + 1), OGMS 4 (dangle to IAO/OBI intermediates not covered by the 12 root bridges). CONSEQUENCE: OBO UFO ontic_category source-assertion is effectively saturated locally at 99.99%; the residual 0.01% needs no further bridge work and is correctly reported (not silently dropped).",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json field .contentHash = sha256:d143d90f8518fd3d4505398a680fef333e1eda6332fefcca991e311177d0c8b3 (STABLE); path bridge_lift.still_no_anchor_even_with_bridge.by_ontology = {BFO:2,OGMS:4,RO:3,UBERON:3}",
+   "owner": "designer-6",
+   "load_bearing": false,
+   "resolution_path": "Non-load-bearing (residual is 0.01%); if ever needed, add IAO/OBI intermediate rows to the bridge for the 4 OGMS classes and skip obsolete UBERON classes.",
+   "status": "open"
+  },
+  {
+   "id": "ASM-2059",
+   "claim": "WIKIDATA DOMAIN-BALANCE PLAN (scope only, not run this tick): a benchmark-blind slice of Wikidata's CC0 class layer (items participating in P279 subclass-of structure; named individuals excluded) targeting ~50,000-100,000 NON-BIOLOGICAL reusable classes would drop the biology share of a ~110k+ typed-structured core from the measured ~100% (all-OBO) toward ~45-65%, satisfying design 0's exclude-single-domain-domination test that the current 207,733-record union fails. UFO typing via a pinned Wikidata-root->UFO table (P279* reaching physical-object/occurrence/profession/organization/quality roots; analogous to the BFO bridge). Decontamination against the existing union is an EXACT external-ID join (P8814 WordNet-3.1-synset, P686 ChEBI, P685 NCBI-taxon, P5270 MONDO, UBERON/CL xrefs), finally yielding a real design-3.5 exactly_crosswalked_clusters count. Cost: ~1-5 GB filtered dump, ~2-8 CPU-h extract, ~$0-20, no GPU; census re-run ~4s. Added-concept counts are planning bands to be replaced by WDQS count-only queries (seconds, no dump) before any ingest commit.",
+   "tag": "EXTRAPOLATION",
+   "backing_ref": "resolution_path: run WDQS count-only queries per class-root subtree to replace the ~50-100k band with measured counts; then acquire filtered dump + exact-ID decontamination + census re-run. Plan: docs/next/design/scale-s1-wikidata-domain-balance-plan.md; property IDs are stable Wikidata properties (P279/P31/P8814/P686/P685/P5270).",
+   "owner": "designer-6",
+   "load_bearing": false,
+   "resolution_path": "Measure with WDQS count queries (no download), then execute the filtered-dump acquisition + typing + decontamination in docs/next/design/scale-s1-wikidata-domain-balance-plan.md; until measured, the ~50-100k added-concept and ~45-65% biology-share figures are planning bands, never premises.",
    "status": "open"
   }
  ]

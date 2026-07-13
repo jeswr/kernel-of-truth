@@ -69,8 +69,13 @@ precision** (the §4.3 human audit is a later step). Design + staged plan:
 `docs/next/design/scale-s1-multisource-census.md`. ASM candidates:
 `poc/scale/asm-2050-2059.json` (ASM-2050..2055). Headline measured facts: the
 union has >100k type-level headroom (retires §2.3 selection-rule exhaustion),
-and OBO/SUMO give nonzero source-asserted-ontic (56.7%), identity-provider-
-candidate (25.9%) and dependence-candidate (49.1%) yield where WordNet-only gave
-0% (retires §2.1 as an evidential-path gap). Next cheap increments: load
-per-ontology BFO bridges + SUMO↔WordNet mapping (step 2), add a Wikidata class
-subset for domain balance (step 3) — both re-run this same script.
+and OBO/SUMO give nonzero source-asserted-ontic, identity-provider-candidate
+(25.9%) and dependence-candidate (49.1%) yield where WordNet-only gave 0%
+(retires §2.1 as an evidential-path gap).
+
+**Increment 2 (done):** the BFO bridge `data/onto-obo/bfo-bridge.json` (recovered
+root→BFO edges the subset extractor dropped) raises the OBO source-asserted ontic
+yield **56.74% → 99.99%** (+41,171; 12 residual) — the census reports the lift
+inline. **Increment 3 (scoped, not run):** add a Wikidata class subset for domain
+balance — plan in `docs/next/design/scale-s1-wikidata-domain-balance-plan.md`.
+ASM candidates now `poc/scale/asm-2050-2059.json` (ASM-2050..2059).

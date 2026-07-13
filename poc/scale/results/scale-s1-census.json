@@ -71,32 +71,60 @@
     "obo": {
       "classes": 95201,
       "ontic_source_asserted_via_bfo_chain": {
-        "count": 54018,
-        "pct": "56.74%",
+        "count": 95189,
+        "pct": "99.99%",
         "by_ontology": {
           "BFO": 33,
-          "CL": 3325,
-          "MONDO": 32078,
-          "OGMS": 61,
+          "CHEBI": 41,
+          "CL": 3335,
+          "GO": 38245,
+          "MONDO": 32095,
+          "NCBITaxon": 402,
+          "OGMS": 113,
           "PATO": 1882,
           "PO": 1659,
           "RO": 6,
+          "SO": 2404,
           "UBERON": 14974
         },
         "category_dist": {
-          "event": 385,
-          "object": 18948,
+          "event": 24555,
+          "object": 23476,
           "region": 691,
-          "disposition": 32048,
+          "disposition": 42106,
           "quality": 13,
           "mode": 1929,
           "role": 2,
-          "proposition": 2
+          "proposition": 2417
+        },
+        "bridge_lift": {
+          "increment1_no_bridge": {
+            "count": 54018,
+            "pct": "56.74%"
+          },
+          "increment2_with_bridge": {
+            "count": 95189,
+            "pct": "99.99%"
+          },
+          "bridge_recovered_delta": 41171,
+          "still_no_anchor_even_with_bridge": {
+            "count": 12,
+            "pct": "0.01%",
+            "by_ontology": {
+              "BFO": 2,
+              "OGMS": 4,
+              "RO": 3,
+              "UBERON": 3
+            }
+          },
+          "bridge_source": "data/onto-obo/bfo-bridge.json (LIT-BACKED per row: recovered root→BFO edges the subset-only extractor dropped; 2 STIPULATED rows for MONDO:injury and NCBITaxon orphans)",
+          "bridge_rows": 14
         }
       },
       "ontic_ontology_grounded_fallback_stipulated": {
-        "count": 40779,
-        "pct": "42.83%"
+        "count": 10,
+        "pct": "0.01%",
+        "note": "covers the residue still reaching no BFO anchor after the bridge"
       },
       "identity_provider_candidate_via_genus": {
         "count": 24693,
@@ -131,5 +159,6 @@
     },
     "interpretation": "YIELD not PRECISION. A NONZERO source-asserted ontic yield + NONZERO identity-provider-candidate + NONZERO dependence-candidate demonstrates the multi-source portfolio has an EVIDENTIAL PATH to the UFO fields that WordNet-only lacked entirely. Whether those candidates are CORRECT at the §4.3 0.95 bar is a SEPARATE human-audit measurement this probe does not perform."
   },
-  "wallSeconds": 2.588809000015259
+  "wallSeconds": 2.798642000198364,
+  "contentHash": "d143d90f8518fd3d4505398a680fef333e1eda6332fefcca991e311177d0c8b3"
 }
