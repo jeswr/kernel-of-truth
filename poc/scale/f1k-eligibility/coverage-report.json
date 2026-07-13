@@ -14,13 +14,16 @@
  "funnel": {
   "eligible_and_header_clean": 28728,
   "eligible_m_ge_8_c": 28818,
+  "eligible_m_unambiguous_ge_8": 2127,
   "greedy_disjoint_C_lower_bound": 2404,
   "greedy_disjoint_C_lower_bound_header_clean": 2401,
+  "greedy_disjoint_C_lower_bound_unambiguous_header_clean": 1475,
   "matching_ge_1_item": 50453,
   "wn_aligned_pool_b": 110049
  },
  "gate_arithmetic": {
-  "adequacy_finding": "POOL SUPPORTS THE GATE WITH HEADROOM",
+  "adequacy_finding": "POOL SUPPORTS THE GATE WITH HEADROOM (even on the conservative unambiguous-evidence bound)",
+  "conservative_unambiguous_bound": "1475 header-clean concepts reach m>=8 on DISJOINT items each matched via a monosemous direct lemma (SOP-5+SOP-6) — vs gate 65: True, vs 100+ headroom: True",
   "disjoint_bound_vs_gate": "2404 >= 65: True  (the honest number: counts clusters SIMULTANEOUSLY reaching m>=8 on disjoint items, SOP-5)",
   "gate": "C >= 65 clusters each m >= 8 (ASM-2271, [REG])",
   "headroom_target_100plus": "2404 >= 100: True (header-clean disjoint: 2401)",
@@ -53,7 +56,7 @@
   "SOP-3": "OP-4 matching over question+options only; header/cue/label collisions FLAGGED per concept, not counted",
   "SOP-4": "(c) = m_total >= 8 (any-span availability, as [BC])",
   "SOP-5": "greedy scarcest-first disjoint assignment = lower bound on simultaneous C at m >= 8",
-  "SOP-6": "m_unambiguous_lemma = monosemous-direct-lemma heuristic; screening aid, not a criterion"
+  "SOP-6": "m_unambiguous_lemma = monosemous-direct-lemma heuristic, cased/acronym WN source forms excluded (AN/IT/WHO/OR-style function-word collisions); screening aid, not a criterion"
  },
  "outputs": {
   "candidate_pool": "poc/scale/f1k-eligibility/candidate-pool.json",
