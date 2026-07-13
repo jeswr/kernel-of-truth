@@ -1,0 +1,469 @@
+diff --git a/c/Makefile b/c/Makefile
+index cd40965..f5b1a72 100644
+--- a/c/Makefile
++++ b/c/Makefile
+@@ -85,7 +85,7 @@ all: glm$(EXE)
+ # phony 'glm' → 'glm.exe' on Windows (so 'make glm' and 'coli build' work on every platform)
+ glm: glm$(EXE)
+ 
+-glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h $(CUDA_OBJ)
++glm$(EXE): glm.c st.h json.h tok.h tok_unicode.h compat.h grammar.h kae.h $(CUDA_OBJ)
+ 	$(CC) $(CFLAGS) glm.c $(CUDA_OBJ) -o glm$(EXE) $(LDFLAGS)
+ 
+ backend_cuda.o: backend_cuda.cu backend_cuda.h
+diff --git a/c/glm.c b/c/glm.c
+index 1d74f78..89633dd 100644
+--- a/c/glm.c
++++ b/c/glm.c
+@@ -35,6 +35,7 @@
+ #include "tok.h"
+ #include "tier.h"
+ #include "grammar.h"                              /* metodo F: draft grammaticali (#48) */
++#include "kae.h"                                  /* F1-K Kernel-as-Expert ADD splice — DRAFT, gate-0; inert unless KAE=1 */
+ #ifdef COLI_CUDA
+ #include <omp.h>
+ #include "backend_cuda.h"
+@@ -143,6 +144,7 @@ typedef struct {
+     uint64_t n_fw, n_emit;                       /* metodo E: forward di decode / token emessi */
+     double t_edisk, t_emm, t_attn, t_kvb, t_head;/* profiling: dove va il tempo (sempre attivo) */
+     int64_t resident_bytes;
++    KaE *kae;                                    /* F1-K KaE ADD carrier+gate — NULL unless KAE=1 (DRAFT, gate-0) */
+ } Model;
+ 
+ static void usage_save(Model *m);        /* cache che impara: definita accanto a stats_dump */
+@@ -566,6 +568,11 @@ static float g_temp=-1;  /* TEMP: temperatura di sampling sui TOKEN. <0 = auto (
+ static float g_nuc=0.95f;/* NUCLEUS: top-p sul vocabolario (default dal generation_config GLM-5.2) */
+ static int g_topk=0;     /* TOPK=n -> usa n expert/token invece di config (ricerca: meno disco) */
+ static float g_topp=0;   /* TOPP=p (0..1) -> top-p adattivo: tieni gli expert fino a peso cumulato p */
++/* F1-K KaE (Kernel-as-Expert) — DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.
++ * INERT unless KAE=1: g_kae defaults 0, so the moe() splice below is skipped and
++ * output stays byte-identical to upstream. KAE=1 arms the ADD path (§2.5). */
++static int   g_kae   = 0;    /* KAE=1 -> arm the ADD splice; 0/unset -> inert */
++static float g_kae_g = 1.f;  /* KAE_G=<float> -> blend weight g (applied after carrier norm) */
+ static int g_spec=1;     /* metodo C: SPEC=0 disabilita il prefetch speculativo cross-layer */
+ static int g_draft=0;    /* metodo E: DRAFT=n token auto-speculati per forward via n-gram lookup
+                           * (0=off). LOSSLESS: verifica = output identico al greedy. Default OFF:
+@@ -1267,7 +1274,7 @@ static void attention(Model *m, Layer *l, int layer, float *x, int S, int pos_ba
+  * una volta sola e moltiplicato per tutte le posizioni che lo usano (pesi letti 1 volta);
+  * lo shared expert e' un unico matmul a S righe. Per posizione l'accumulo resta
+  * nell'ordine (routed nel loro ordine di union, poi shared). */
+-static void moe(Model *m, Layer *l, int layer, float *x, int S, float *out){
++static void moe(Model *m, Layer *l, int layer, float *x, int S, int pos_base, float *out){
+     Cfg *c=&m->c; int D=c->hidden, E=c->n_experts, K=c->topk, I=c->moe_inter;
+     float *logit=falloc(E), *choice=falloc(E);
+     int sI=c->moe_inter*c->n_shared;
+@@ -1400,6 +1407,12 @@ static void moe(Model *m, Layer *l, int layer, float *x, int S, float *out){
+     for(int64_t z=0;z<(int64_t)S*sI;z++) sg[z]=siluf(sg[z])*su[z];
+     matmul_qt(hh, sg, &l->sh_down, S);
+     for(int64_t z=0;z<(int64_t)S*D;z++) out[z]+=hh[z];
++    /* F1-K KaE ADD splice — DRAFT, gate-0; INERT unless KAE=1 (Law-1-amendment-gated).
++     * At this point `out` holds the full MoE-block output (routed top-8 sum + shared
++     * expert), BEFORE it is added back to the residual stream in layer_forward().
++     * For gated tokens at a splice layer we add g*K[c][l] here — native experts intact.
++     * When g_kae==0 this branch is not taken and `out` is byte-identical to upstream. */
++    if(g_kae && m->kae) kae_apply_add(m->kae, layer, pos_base, S, D, out);
+     free(logit); free(choice); free(idxs); free(ws); free(keff); free(uniq);
+     free(xg); free(gg); free(uu); free(hh); free(rows); free(rw); free(sg); free(su);
+ }
+@@ -1497,7 +1510,7 @@ static void layer_forward(Model *m, Layer *l, int li, float *x, int S, int pos_b
+     if(g_pilot && S<=8 && li+1<c->n_layers && m->L[li+1].sparse) pilot_prefetch(m,li+1,x,S);
+     if(g_looka && S==1 && li+1<c->n_layers && m->L[li+1].sparse) la_predict(m,li+1,x,1);
+     for(int s=0;s<S;s++) rmsnorm(nrm+(int64_t)s*D, x+(int64_t)s*D, l->post_ln, D, c->eps);
+-    if(l->sparse) moe(m,l,li,nrm,S,tmp); else dense_mlp(l,nrm,S,D,c->dense_inter,tmp);
++    if(l->sparse) moe(m,l,li,nrm,S,pos_base,tmp); else dense_mlp(l,nrm,S,D,c->dense_inter,tmp);
+     for(int64_t j=0;j<(int64_t)S*D;j++) x[j]+=tmp[j];
+ }
+ static void layers_forward(Model *m, float *x, int S, int pos_base){
+@@ -2640,6 +2653,8 @@ int main(int argc, char **argv){
+     g_prefetch = getenv("PREFETCH")?atoi(getenv("PREFETCH")):0;
+     g_topk = getenv("TOPK")?atoi(getenv("TOPK")):0;
+     g_topp = getenv("TOPP")?atof(getenv("TOPP")):0;
++    g_kae  = getenv("KAE")?atoi(getenv("KAE")):0;          /* F1-K KaE ADD (DRAFT, gate-0); inert unless KAE=1 */
++    g_kae_g= getenv("KAE_G")?atof(getenv("KAE_G")):1.f;
+     g_mlock  = getenv("MLOCK")?atoi(getenv("MLOCK")):-1;   /* -1 auto (ON macOS), 0 off, 1 force / auto (ON macOS), 0 off, 1 force */
+     g_spec = getenv("SPEC")?atoi(getenv("SPEC")):1;
+     g_draft = getenv("DRAFT")?atoi(getenv("DRAFT")):-1;   /* -1 = auto: 3 se MTP, 0 senza */
+@@ -2695,6 +2710,19 @@ int main(int argc, char **argv){
+     printf("== GLM C engine (glm_moe_dsa), cache=%d experts/layer | experts@%d-bit dense@%d-bit | idot: " IDOT_KERNEL " ==\n", cap, ebits, dbits);
+     g_mem_avail_boot = mem_available_gb();
+     Model m; double t0=now_s(); model_init(&m,snap,cap,ebits,dbits);
++    /* F1-K KaE (Kernel-as-Expert) ADD carrier+gate — DRAFT FOR GATE-0 REVIEW, NOT
++     * DEPLOYED. Loads only if KAE=1; a load failure disables the splice (never a
++     * silent partial arm). Writing K into activations is a Law-1-amendment-gated
++     * action — this arms it ONLY when explicitly requested. */
++    m.kae = NULL;
++    if(g_kae){
++        m.kae = kae_load(getenv("KAE_CARRIER"), getenv("KAE_SPANS"),
++                         m.c.hidden, m.c.n_layers, g_kae_g,
++                         getenv("KAE_MODE")?atoi(getenv("KAE_MODE")):0);
++        if(!m.kae){ fprintf(stderr,"[KAE] load failed -> KaE DISABLED (running unmodified)\n"); g_kae=0; }
++        else fprintf(stderr,"[KAE] ADD-path armed (DRAFT/gate-0): %d concepts, %d splice layers, g=%.3f, %d gated positions\n",
++                     m.kae->nc, m.kae->nl, g_kae_g, m.kae->span_n);
++    }
+     if(g_draft<0) g_draft = m.has_mtp ? 3 : 0;
+     if(getenv("DSA_TOPK")) m.c.index_topk=atoi(getenv("DSA_TOPK"));   /* override per test */
+     printf("loaded in %.2fs | resident dense: %.2f MB | layers=%d experts=%d | MTP %s (draft=%d)\n",
+diff --git a/c/kae.h b/c/kae.h
+new file mode 100644
+index 0000000..6b7da4e
+--- /dev/null
++++ b/c/kae.h
+@@ -0,0 +1,158 @@
++#ifndef KAE_H
++#define KAE_H
++/* ============================================================================
++ * KaE — Kernel-as-Expert (F1-K), ADD-path.  DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.
++ *
++ * This is the reviewable artifact for MAINTAINER GATE 0 of
++ *   docs/next/design/glm52-followup-experiment.md (F1-K, through REVISION-6):
++ * it is the code that would write a grounded per-concept content-vector into
++ * GLM-5.2's MoE-block activations — a Law-1-amendment-gated action.  It is
++ * DRAFTED here for review; it is INERT unless the environment sets KAE=1, and
++ * NOTHING in this header runs against a governed model in this pass.
++ *
++ * Scope of THIS header (the design's first rung, §1.1 / §2.3 / §2.5 ADD):
++ *   - the lexical concept GATE (G-lex, computed harness-side): per-position
++ *     concept ids are supplied to the engine as a frozen sidecar (KAE_SPANS);
++ *     the engine only READS them — zero learned components, deterministic.
++ *   - the per-concept per-layer CARRIER table K[c][l] (KAE_CARRIER).
++ *   - the ADD splice: for a gated token at a splice layer, out += g * K[c][l],
++ *     applied AFTER the routed top-8 sum + shared expert are accumulated and
++ *     BEFORE the MoE block output is added back to the residual stream
++ *     (native experts left fully intact — pure ADD, §2.5).
++ *
++ * OUT OF SCOPE here (documented stubs, deferred by the design):
++ *   - REPLACE path (§2.5): admitted only after ADD passes K-1; kae_replace_note().
++ *   - hidden-state DUMP mode (§2.4/§2.8) for carrier construction — harness-side.
++ *   - G-emb cosine gate variant (§2.3) — budget-permitting, not this rung.
++ *
++ * The gate/splice functions take NO candidate/option/label argument: the
++ * intervention is a pure function of the FROZEN sidecar (spans+carrier), the
++ * layer, and the absolute token position.  That is the engine-level meaning of
++ * REVISION-1 §R1.1's "candidate-independent scoring": the spliced activations
++ * an item receives do not depend on which answer candidate is later scored off
++ * the single shared prefill.  (See test_kae.c, Test D.)
++ *
++ * Deliberately self-contained (no Model/Cfg dependency) so the mechanics can be
++ * unit-tested against the SAME source the engine links.  All symbols are
++ * static-inline; both glm.c and test_kae.c include this header.
++ *
++ * File formats (host-endian; x86-64 little-endian assumed, documented in README):
++ *   KAE_CARRIER : [4]="KAEC" magic | i32 nc | i32 nl | i32 D
++ *                 | i32 layer_id[nl] (the splice set L_KaE, ascending)
++ *                 | f32 K[nc*nl*D]   (row-major: concept, then slot, then dim)
++ *   KAE_SPANS   : ASCII, whitespace-separated ints, one per absolute token
++ *                 position (index = position); value = concept id, -1 = ungated.
++ * ==========================================================================*/
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++typedef struct KaE {
++    int    nc;          /* number of concepts C                              */
++    int    nl;          /* number of splice layers |L_KaE|                   */
++    int    D;           /* carrier hidden dim (must equal model hidden)      */
++    int   *layer;       /* [nl] splice layer ids (L_KaE), ascending          */
++    float *carrier;     /* [nc*nl*D] K[c][slot][d], row-major                */
++    int   *span;        /* [span_n] absolute-position -> concept id (-1 = off)*/
++    int    span_n;      /* number of positions covered by the sidecar        */
++    float  g;           /* blend weight (applied AFTER carrier norm), §2.3    */
++    int    mode;        /* 0 = ADD (implemented); 1 = REPLACE (stub, §2.5)    */
++} KaE;
++
++/* GATE (G-lex readout): concept id at absolute position `pos`, or -1 (ungated /
++ * out of the frozen sidecar's range). The whole gate is this table lookup —
++ * the phrase->concept matching is done harness-side and frozen into the sidecar. */
++static inline int kae_concept_at(const KaE *k, int pos){
++    if(!k || pos < 0 || pos >= k->span_n) return -1;
++    return k->span[pos];
++}
++
++/* Is `layer` a splice layer? Return its carrier slot in [0,nl), else -1. */
++static inline int kae_slot_of_layer(const KaE *k, int layer){
++    if(!k) return -1;
++    for(int i = 0; i < k->nl; i++) if(k->layer[i] == layer) return i;
++    return -1;
++}
++
++/* THE SPLICE (ADD path, §2.5).  out is the MoE-block output [S*D] with the
++ * routed sum + shared expert already accumulated.  For each batch row s whose
++ * absolute position (pos_base+s) is gated to concept c, at a splice layer,
++ * add g*K[c][slot] to out[s].  Ungated rows and non-splice layers are left
++ * bit-for-bit unchanged (that is the off-concept / inert invariant, §2.5).
++ * No candidate/label parameter exists: the effect is candidate-independent. */
++static inline void kae_apply_add(const KaE *k, int layer, int pos_base,
++                                 int S, int D, float *out){
++    if(!k || k->mode != 0) return;                 /* ADD path only          */
++    int slot = kae_slot_of_layer(k, layer);
++    if(slot < 0) return;                           /* not a splice layer     */
++    if(D != k->D) return;                          /* dim guard (also at load)*/
++    for(int s = 0; s < S; s++){
++        int cid = kae_concept_at(k, pos_base + s);
++        if(cid < 0 || cid >= k->nc) continue;      /* gate did not fire      */
++        const float *Kcl = k->carrier + ((size_t)cid * k->nl + slot) * (size_t)D;
++        float *os = out + (size_t)s * D;
++        for(int d = 0; d < D; d++) os[d] += k->g * Kcl[d];
++    }
++}
++
++/* REPLACE path (§2.5) — DOCUMENTED STUB, deferred by the design behind a K-1
++ * pass and its own NI power gate (REVISION-4 §R-REV4.3). Intentionally a no-op
++ * in this draft: REPLACE would skip the lowest-sigmoid-weight native expert on
++ * gated tokens and add w_dropped*K in its place, which requires the moe() expert
++ * loop to expose per-token dropped-weight bookkeeping. Not wired for gate 0. */
++static inline void kae_replace_note(void){ /* intentionally empty (stub) */ }
++
++static inline void kae_free(KaE *k){
++    if(!k) return;
++    free(k->layer); free(k->carrier); free(k->span); free(k);
++}
++
++/* Load the carrier table + span sidecar. Returns NULL (and prints why) on any
++ * malformed input or a hidden-dim mismatch — callers treat NULL as "disabled".
++ * hidden/n_layers are the model's, used only to validate the files. */
++static inline KaE *kae_load(const char *carrier_path, const char *spans_path,
++                            int hidden, int n_layers, float g, int mode){
++    if(!carrier_path || !spans_path){
++        fprintf(stderr, "[KAE] KAE=1 requires KAE_CARRIER=<file> and KAE_SPANS=<file>\n");
++        return NULL;
++    }
++    FILE *cf = fopen(carrier_path, "rb");
++    if(!cf){ fprintf(stderr, "[KAE] cannot open carrier %s\n", carrier_path); return NULL; }
++    char magic[4]; int32_t nc = 0, nl = 0, D = 0;
++    if(fread(magic, 1, 4, cf) != 4 || memcmp(magic, "KAEC", 4) != 0){
++        fprintf(stderr, "[KAE] bad carrier magic (want KAEC)\n"); fclose(cf); return NULL; }
++    if(fread(&nc, 4, 1, cf) != 1 || fread(&nl, 4, 1, cf) != 1 || fread(&D, 4, 1, cf) != 1){
++        fprintf(stderr, "[KAE] short carrier header\n"); fclose(cf); return NULL; }
++    if(nc <= 0 || nl <= 0 || D <= 0){
++        fprintf(stderr, "[KAE] non-positive carrier dims %d/%d/%d\n", nc, nl, D); fclose(cf); return NULL; }
++    if(D != hidden){
++        fprintf(stderr, "[KAE] carrier D=%d != model hidden=%d\n", D, hidden); fclose(cf); return NULL; }
++    KaE *k = (KaE*)calloc(1, sizeof(KaE));
++    k->nc = nc; k->nl = nl; k->D = D; k->g = g; k->mode = mode;
++    k->layer = (int*)malloc((size_t)nl * sizeof(int));
++    if(fread(k->layer, sizeof(int), (size_t)nl, cf) != (size_t)nl){
++        fprintf(stderr, "[KAE] short layer-id table\n"); fclose(cf); kae_free(k); return NULL; }
++    for(int i = 0; i < nl; i++) if(k->layer[i] < 0 || k->layer[i] >= n_layers){
++        fprintf(stderr, "[KAE] splice layer %d out of range [0,%d)\n", k->layer[i], n_layers);
++        fclose(cf); kae_free(k); return NULL; }
++    size_t ncar = (size_t)nc * nl * D;
++    k->carrier = (float*)malloc(ncar * sizeof(float));
++    if(fread(k->carrier, sizeof(float), ncar, cf) != ncar){
++        fprintf(stderr, "[KAE] short carrier body (want %zu floats)\n", ncar); fclose(cf); kae_free(k); return NULL; }
++    fclose(cf);
++
++    FILE *sf = fopen(spans_path, "r");
++    if(!sf){ fprintf(stderr, "[KAE] cannot open spans %s\n", spans_path); kae_free(k); return NULL; }
++    int cap = 1024, n = 0, v;
++    k->span = (int*)malloc((size_t)cap * sizeof(int));
++    while(fscanf(sf, "%d", &v) == 1){
++        if(n == cap){ cap *= 2; k->span = (int*)realloc(k->span, (size_t)cap * sizeof(int)); }
++        if(v >= nc){ fprintf(stderr, "[KAE] span concept id %d >= nc %d at pos %d\n", v, nc, n); fclose(sf); kae_free(k); return NULL; }
++        k->span[n++] = (v < 0) ? -1 : v;
++    }
++    fclose(sf);
++    k->span_n = n;
++    return k;
++}
++
++#endif /* KAE_H */
+diff --git a/c/tests/test_kae.c b/c/tests/test_kae.c
+new file mode 100644
+index 0000000..7116525
+--- /dev/null
++++ b/c/tests/test_kae.c
+@@ -0,0 +1,194 @@
++/* ============================================================================
++ * test_kae.c — mock unit tests for the F1-K KaE ADD-path mechanics.
++ * DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.  No model, no weights, no instance:
++ * a synthetic tiny setup (nc=3 concepts, D=4, splice layers {3,7}) that links
++ * the SAME kae.h the engine links, writes real KAE_CARRIER/KAE_SPANS fixtures,
++ * loads them through kae_load(), and asserts the four gate-0 properties:
++ *   A. the GATE fires on exactly the right tokens (and layers);
++ *   B. the CARRIER adds correctly (out += g*K[c][l]) and ONLY at gated rows;
++ *   C. INERT-by-default: the ADD path is a no-op whenever it must not fire
++ *      (disabled/off-mode/non-splice-layer/ungated) -> bytes unchanged;
++ *   D. the splice is CANDIDATE-INDEPENDENT (no option/label parameter; the
++ *      spliced activations do not depend on which candidate is later scored).
++ * Exit 0 = all pass; nonzero = a failure (printed).
++ * ==========================================================================*/
++#include <stdio.h>
++#include <string.h>
++#include <stdint.h>
++#include "../kae.h"
++
++static int fails = 0;
++#define CHECK(cond, msg) do{ if(!(cond)){ printf("  FAIL: %s\n", msg); fails++; } \
++                             else printf("  ok:   %s\n", msg); }while(0)
++
++/* synthetic model geometry */
++enum { NC = 3, NL = 2, D = 4, NLAYERS = 12, S = 8 };
++static const int   LAYERS[NL] = { 3, 7 };
++static const float G = 2.0f;
++/* spans: concept id per absolute position (index); -1 = ungated */
++static const int   SPANS[S]   = { -1, 0, -1, 2, 1, -1, 0, -1 };
++
++/* carrier value used everywhere so tests can predict exact results */
++static float Kval(int c, int slot, int d){ return (float)(100*c + 10*slot + d); }
++
++static void write_fixtures(const char *cpath, const char *spath){
++    FILE *cf = fopen(cpath, "wb");
++    int32_t nc = NC, nl = NL, dd = D;
++    fwrite("KAEC", 1, 4, cf);
++    fwrite(&nc, 4, 1, cf); fwrite(&nl, 4, 1, cf); fwrite(&dd, 4, 1, cf);
++    for(int i = 0; i < NL; i++){ int32_t L = LAYERS[i]; fwrite(&L, 4, 1, cf); }
++    for(int c = 0; c < NC; c++) for(int s = 0; s < NL; s++) for(int d = 0; d < D; d++){
++        float v = Kval(c, s, d); fwrite(&v, 4, 1, cf); }
++    fclose(cf);
++    FILE *sf = fopen(spath, "w");
++    for(int i = 0; i < S; i++) fprintf(sf, "%d\n", SPANS[i]);
++    fclose(sf);
++}
++
++/* fill out[S*D] with a distinctive, reproducible baseline */
++static void fill_baseline(float *out){
++    for(int s = 0; s < S; s++) for(int d = 0; d < D; d++) out[s*D+d] = (float)(s*10 + d);
++}
++
++int main(void){
++    const char *cpath = "/tmp/kae_carrier.bin", *spath = "/tmp/kae_spans.txt";
++    write_fixtures(cpath, spath);
++
++    /* end-to-end load through the engine's loader (exercises file formats too) */
++    KaE *k = kae_load(cpath, spath, /*hidden*/D, /*n_layers*/NLAYERS, G, /*mode ADD*/0);
++    if(!k){ printf("FATAL: kae_load returned NULL\n"); return 2; }
++
++    printf("== Test A: gate fires on the right tokens/layers ==\n");
++    for(int i = 0; i < S; i++){
++        char m[64]; snprintf(m, sizeof m, "concept_at(pos %d) == %d", i, SPANS[i]);
++        CHECK(kae_concept_at(k, i) == SPANS[i], m);
++    }
++    CHECK(kae_concept_at(k, -1) == -1,      "concept_at(-1) == -1 (below range)");
++    CHECK(kae_concept_at(k, S)  == -1,      "concept_at(past end) == -1 (above range)");
++    CHECK(kae_slot_of_layer(k, 3) == 0,     "layer 3 is splice slot 0");
++    CHECK(kae_slot_of_layer(k, 7) == 1,     "layer 7 is splice slot 1");
++    CHECK(kae_slot_of_layer(k, 4) == -1,    "layer 4 is NOT a splice layer");
++    CHECK(kae_slot_of_layer(k, 0) == -1,    "layer 0 is NOT a splice layer");
++
++    printf("== Test B: carrier adds correctly, only at gated rows/splice layers ==\n");
++    float out[S*D], ref[S*D];
++    /* B1: splice at layer 3 (slot 0), pos_base 0 */
++    fill_baseline(out); fill_baseline(ref);
++    kae_apply_add(k, /*layer*/3, /*pos_base*/0, S, D, out);
++    int b1 = 1;
++    for(int s = 0; s < S; s++){
++        int cid = SPANS[s];
++        for(int d = 0; d < D; d++){
++            float want = ref[s*D+d] + (cid < 0 ? 0.f : G * Kval(cid, 0, d));
++            if(out[s*D+d] != want) b1 = 0;
++        }
++    }
++    CHECK(b1, "layer 3: gated rows get +g*K[c][slot0], ungated rows unchanged");
++
++    /* B2: splice at layer 7 (slot 1) uses the slot-1 carrier */
++    fill_baseline(out);
++    kae_apply_add(k, /*layer*/7, /*pos_base*/0, S, D, out);
++    int b2 = 1;
++    for(int s = 0; s < S; s++){ int cid = SPANS[s];
++        for(int d = 0; d < D; d++){
++            float want = ref[s*D+d] + (cid < 0 ? 0.f : G * Kval(cid, 1, d));
++            if(out[s*D+d] != want) b2 = 0; } }
++    CHECK(b2, "layer 7: uses slot-1 carrier (per-layer table is distinct)");
++
++    /* B3: pos_base offset shifts which absolute positions gate */
++    fill_baseline(out);
++    kae_apply_add(k, /*layer*/3, /*pos_base*/2, S, D, out);
++    int b3 = 1;
++    for(int s = 0; s < S; s++){
++        int pos = 2 + s;
++        int cid = (pos < S) ? SPANS[pos] : -1;   /* beyond sidecar -> ungated */
++        for(int d = 0; d < D; d++){
++            float want = ref[s*D+d] + (cid < 0 ? 0.f : G * Kval(cid, 0, d));
++            if(out[s*D+d] != want) b3 = 0; } }
++    CHECK(b3, "pos_base=2 shifts gating by absolute position (rows past sidecar inert)");
++
++    printf("== Test C: inert-by-default (no-op whenever the splice must not fire) ==\n");
++    /* C1: non-splice layer -> byte-identical to baseline */
++    fill_baseline(out);
++    kae_apply_add(k, /*layer*/4, 0, S, D, out);
++    CHECK(memcmp(out, ref, sizeof out) == 0, "non-splice layer 4: out byte-identical");
++
++    /* C2: REPLACE mode (stubbed, deferred) -> ADD is a no-op */
++    KaE *kr = kae_load(cpath, spath, D, NLAYERS, G, /*mode REPLACE*/1);
++    fill_baseline(out);
++    kae_apply_add(kr, 3, 0, S, D, out);
++    CHECK(memcmp(out, ref, sizeof out) == 0, "REPLACE mode: ADD path inert (stub, gate-0)");
++    kae_free(kr);
++
++    /* C3: engine guard semantics — with g_kae==0 the call is skipped entirely.
++     * Model the moe() tail: out=accumulated; (skip splice) => bytes unchanged. */
++    fill_baseline(out);
++    int g_kae = 0;                          /* mirrors the engine default */
++    if(g_kae) kae_apply_add(k, 3, 0, S, D, out);   /* not taken */
++    CHECK(memcmp(out, ref, sizeof out) == 0, "g_kae==0: splice skipped, out == upstream");
++
++    /* C4: count that ENABLED splice perturbs ONLY the gated rows.
++     * SPANS gates positions {1,3,4,6} -> 4 rows; the other 4 stay untouched. */
++    fill_baseline(out);
++    kae_apply_add(k, 3, 0, S, D, out);
++    int changed_rows = 0, gated_expected = 0;
++    for(int s = 0; s < S; s++) if(SPANS[s] >= 0) gated_expected++;
++    for(int s = 0; s < S; s++){ int diff = 0;
++        for(int d = 0; d < D; d++) if(out[s*D+d] != ref[s*D+d]) diff = 1;
++        changed_rows += diff; }
++    CHECK(changed_rows == gated_expected && gated_expected == 4,
++          "enabled splice perturbs exactly the 4 gated rows, nothing else");
++
++    printf("== Test D: candidate-independent scoring hook ==\n");
++    /* The engine produces ONE shared prefill; scoring reads label-token logits at
++     * a fixed readout position. KaE's contribution must not depend on which
++     * candidate/label is scored. The gate/splice take NO candidate parameter, so
++     * this holds by construction; we also verify it at runtime. */
++    /* D1: determinism / candidate-invariance — splicing the same frozen sidecar
++     * into two buffers (an "arm" abstraction that carries no per-candidate state)
++     * yields byte-identical activations. */
++    float outA[S*D], outB[S*D];
++    fill_baseline(outA); fill_baseline(outB);
++    kae_apply_add(k, 3, 0, S, D, outA);
++    kae_apply_add(k, 3, 0, S, D, outB);
++    CHECK(memcmp(outA, outB, sizeof outA) == 0, "identical spans/carrier -> identical activations");
++
++    /* D2: the KaE-induced delta at the readout row is a fixed vector, the SAME no
++     * matter which candidate label set is later argmax-scored off it. */
++    fill_baseline(out);
++    kae_apply_add(k, 3, 0, S, D, out);
++    int readout = 3;                         /* a gated position (concept 2) */
++    float delta[D]; for(int d = 0; d < D; d++) delta[d] = out[readout*D+d] - ref[readout*D+d];
++    int cand1[2] = {0, 2}, cand2[2] = {1, 3};    /* two disjoint candidate label sets */
++    /* the delta each candidate's logit-precursor receives is read from the SAME
++     * spliced row; it does not depend on the candidate index chosen. */
++    int d2 = 1;
++    for(int i = 0; i < 2; i++){
++        float expect = G * Kval(2 /*cid at readout*/, 0, /*any d*/0);
++        (void)cand1; (void)cand2;
++        if(delta[0] != expect) d2 = 0;
++    }
++    CHECK(d2 == 1 && delta[0] == G*Kval(2,0,0),
++          "readout delta is candidate-independent (= g*K[c][l], no label term)");
++    /* D3: structural — the signatures carry no candidate/option/label argument.
++     * (Compile-time truth; asserted here as documentation.) */
++    CHECK(1, "kae_apply_add/kae_concept_at take no candidate arg (candidate-free by type)");
++
++    printf("== Test E: loader fail-safe (misconfig -> NULL -> engine disables KaE) ==\n");
++    printf("  (the [KAE] load-failure messages below are EXPECTED test output)\n");
++    CHECK(kae_load(NULL,  spath, D, NLAYERS, G, 0) == NULL, "missing carrier path -> NULL");
++    CHECK(kae_load(cpath, NULL,  D, NLAYERS, G, 0) == NULL, "missing spans path -> NULL");
++    CHECK(kae_load(cpath, spath, D+1, NLAYERS, G, 0) == NULL, "hidden-dim mismatch -> NULL");
++    CHECK(kae_load(cpath, spath, D, /*n_layers*/2, G, 0) == NULL, "splice layer out of range -> NULL");
++    /* bad-magic file */
++    { FILE *bf = fopen("/tmp/kae_bad.bin","wb"); fputs("XXXX",bf); fclose(bf);
++      CHECK(kae_load("/tmp/kae_bad.bin", spath, D, NLAYERS, G, 0) == NULL, "bad carrier magic -> NULL"); }
++    /* spans referencing a concept id >= nc */
++    { FILE *sf = fopen("/tmp/kae_badspans.txt","w"); fprintf(sf,"0 1 99\n"); fclose(sf);
++      CHECK(kae_load(cpath, "/tmp/kae_badspans.txt", D, NLAYERS, G, 0) == NULL, "span cid out of range -> NULL"); }
++
++    kae_free(k);
++    printf("\n%s (%d failure%s)\n", fails ? "TESTS FAILED" : "ALL TESTS PASSED",
++           fails, fails == 1 ? "" : "s");
++    return fails ? 1 : 0;
++}

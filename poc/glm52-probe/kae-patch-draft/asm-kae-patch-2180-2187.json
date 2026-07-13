@@ -1,0 +1,93 @@
+{
+  "range": "ASM-2180..2187",
+  "purpose": "Companion assumption block for the F1-K Kernel-as-Expert (KaE) ADD-path glm.c patch DRAFT, pre-built for MAINTAINER GATE 0 review (the maintainer/kernel-of-truth #28). EMITTED by the Fable architecture-design agent (designer-5, 2026-07-13) for central registration by the coordinator in registry/assumptions.jsonl with the landing commit, after the standing review gate. This pass writes NO registry entry and takes NO git action. The patch is a REVIEWABLE DRAFT ONLY: it is inert unless KAE=1, and nothing here was applied to, or run against, any governed GLM-5.2 model. Writing a kernel-derived content vector into model activations is a Law-1-amendment-gated action; this artifact is exactly what GATE 0 approves, drafted for review, NOT deployed.",
+  "owner": "designer-5",
+  "backing_artifacts": [
+    "poc/glm52-probe/kae-patch-draft/kae-add-path.patch (unified diff vs colibri commit a78a06fc5acc4b0dc0f9ef03987c66b0559d1250)",
+    "poc/glm52-probe/kae-patch-draft/build-test.log (compile + 30-check mock unit-test run, ALL PASSED)",
+    "poc/glm52-probe/kae-patch-draft/README.md",
+    "docs/next/design/glm52-followup-experiment.md (F1-K design through REVISION-6; §1.1, §2.3, §2.5, §2.8, §R1.1)"
+  ],
+  "assumptions": [
+    {
+      "id": "ASM-2180",
+      "claim": "The KaE ADD-path patch (poc/glm52-probe/kae-patch-draft/kae-add-path.patch) is a DRAFT-FOR-GATE-0-REVIEW artifact, not a deployed change: it edits a fresh out-of-tree colibri checkout only, is INERT unless the environment sets KAE=1 (g_kae defaults to 0), and was neither applied to nor run against any governed GLM-5.2 model. It is exactly the code MAINTAINER GATE 0 (docs/next/design/glm52-followup-experiment.md §2.2) approves: it would let code write a kernel-derived content vector into GLM-5.2's MoE-block activations, a Law-1-amendment-gated action.",
+      "tag": "STIPULATED",
+      "rationale": "Pre-building the reviewable patch is $0 prep that lets execution be apply-freeze-run on the maintainer's GO without any pre-GO write into governed activations.",
+      "backing_ref": "poc/glm52-probe/kae-patch-draft/kae-add-path.patch; README.md",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2181",
+      "claim": "The ADD splice point is the tail of colibri's moe() (FASE E), immediately after the routed top-8 weighted sum and the shared-expert matmul are accumulated into `out` and before layer_forward() adds `out` back into the residual stream (out[z]+=hh[z] is the last accumulation before the splice). This realizes design §2.3's 'after the routed sum and shared expert are accumulated and before write-back'. Verified against colibri commit a78a06fc5acc4b0dc0f9ef03987c66b0559d1250 where moe() is defined at glm.c:1270 (call site glm.c:1500); the line number and semantics are fetch-grade and must be re-verified at bring-up per ASM-1971 discipline.",
+      "tag": "STIPULATED",
+      "rationale": "The prior P0 probe located the MoE forward at moe() (glm.c:1270); the ADD carrier must enter the routed+shared sum with native experts intact, which is the moe() tail.",
+      "backing_ref": "scratchpad colibri c/glm.c moe() FASE E; kae-add-path.patch hunk 'F1-K KaE ADD splice'",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2182",
+      "claim": "The G-lex lexical concept gate is delivered to the engine as a FROZEN per-absolute-position concept-id span sidecar (env KAE_SPANS: ASCII, one integer per token position, -1 = ungated); the engine only reads it (kae_concept_at is a table lookup, zero learned components, deterministic, auditable byte-for-byte). The per-concept per-layer carrier table is a separate binary sidecar (env KAE_CARRIER). The phrase->concept matching that produces the spans is harness-side and out of scope for the C patch.",
+      "tag": "STIPULATED",
+      "rationale": "Design §2.3 specifies G-lex is computed harness-side and emitted to a sidecar the engine reads (KAE=spans); keeping matching out of the engine preserves determinism and reviewability.",
+      "backing_ref": "c/kae.h kae_concept_at / kae_load; design §2.3",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2183",
+      "claim": "The carrier file format is [4]='KAEC' magic | int32 nc | int32 nl | int32 D | int32 layer_id[nl] (the splice set L_KaE) | float32 K[nc*nl*D] (concept-major, then slot, then dim), host-endian (little-endian x86-64 assumed, documented). The loader (kae_load) validates D == model hidden and every splice layer id in [0,n_layers), and rejects malformed input by returning NULL; on any load failure the engine disables KaE and runs the unmodified model (never a silent partial arm). This fail-safe is unit-tested (6 malformed-input cases -> NULL).",
+      "tag": "STIPULATED",
+      "rationale": "A strict, self-describing format with a hidden-dim guard and fail-safe disable prevents a misconfigured KAE=1 from injecting an ill-shaped or mis-scaled carrier into activations.",
+      "backing_ref": "c/kae.h kae_load; tests/test_kae.c Test E; build-test.log",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2184",
+      "claim": "This draft implements the ADD path only (out += g*K[c][l] on gated tokens at splice layers, exactly one carrier per gated position, native experts intact). The REPLACE path (design §2.5; deferred behind a K-1 pass and its own non-inferiority power gate, REVISION-4 §R-REV4.3) is a documented no-op stub (kae_replace_note; KAE_MODE=1 makes kae_apply_add inert): REPLACE requires moe()'s expert loop to expose per-token dropped-weight bookkeeping, which is intentionally not wired for gate 0.",
+      "tag": "STIPULATED",
+      "rationale": "The design orders ADD first and admits REPLACE only after ADD passes K-1; drafting REPLACE now would add unreviewed surface the design does not yet license.",
+      "backing_ref": "c/kae.h kae_apply_add (mode!=0 -> return) + kae_replace_note; design §2.5, §R-REV4.3",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2185",
+      "claim": "Candidate-independence of the scoring hook (REVISION-1 §R1.1) is realized STRUCTURALLY: the gate (kae_concept_at) and splice (kae_apply_add) take no candidate/option/label argument, so the activations an item receives depend only on the frozen sidecar (spans + carrier), the layer, the blend weight g, and the absolute token position -- never on which answer candidate is later argmax-scored off the single shared prefill. Verified at runtime (identical inputs -> byte-identical activations; the readout-row delta = g*K[c][l] with no label term).",
+      "tag": "STIPULATED",
+      "rationale": "Design §R1.1 requires one prefill per item per arm with a candidate-independent scored token set; making the splice candidate-free by type removes any per-option gating interaction at the source.",
+      "backing_ref": "c/kae.h function signatures; tests/test_kae.c Test D; design §R1.1",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2186",
+      "claim": "The patch is kept strictly out of the KOT tree as a unified diff against colibri commit a78a06fc5acc4b0dc0f9ef03987c66b0559d1250 (referenced by sha, never by upstream org string, per account-lint); the third-party colibri checkout is NOT vendored into the maintainer/kernel-of-truth. Fork-vs-upstream etiquette is carried from ASM-1989: the diff stays in-repo as a reviewable artifact and nothing is pushed upstream without a separate maintainer decision. The KaE C surface (~150-200 lines) exceeds the P0 trace-dump C envelope (ASM-1986/1989) and therefore rides GATE 0 alongside the Law-1 amendment.",
+      "tag": "STIPULATED",
+      "rationale": "Design §2.8 keeps the KaE patch as an in-repo diff under GATE 0; account-lint forbids committing the upstream org string, so the base is pinned by sha.",
+      "backing_ref": "poc/glm52-probe/kae-patch-draft/kae-add-path.patch header; design §2.8; ASM-1989",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2187",
+      "claim": "The mock unit tests (tests/test_kae.c, 30 checks, ALL PASSED) validate the patch MECHANICS on a synthetic tiny setup (3 concepts, D=4, splice layers {3,7}) with no model, no weights, and no instance: (A) the gate fires on exactly the right token positions and layers; (B) the carrier adds correctly (out += g*K[c][l]) at gated rows only, per-layer table distinct, pos_base offset honoured; (C) inert-by-default (non-splice layer, REPLACE mode, g_kae==0 guard, and ungated rows all leave bytes unchanged; enabled splice perturbs exactly the gated rows); (D) candidate-independence; (E) loader fail-safe. This is a mechanics check, NOT a feasibility conclusion about F1-K and NOT a measurement of any GLM-5.2 quantity.",
+      "tag": "STIPULATED",
+      "rationale": "Gate-0 review needs the write-into-activations mechanism demonstrated correct and inert-by-default before any spend; feasibility (the accuracy ladder K-1/K-2/K-3) is a separate, maintainer-gated run.",
+      "backing_ref": "poc/glm52-probe/kae-patch-draft/build-test.log; tests/test_kae.c",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    }
+  ]
+}

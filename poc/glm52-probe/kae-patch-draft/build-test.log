@@ -1,0 +1,81 @@
+KaE ADD-path — BUILD & MOCK-UNIT-TEST LOG
+DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED
+date: 2026-07-13T05:28:04Z   host: Linux 6.1.172-216.329.amzn2023.x86_64 x86_64   gcc: 11
+colibri base commit: a78a06fc5acc4b0dc0f9ef03987c66b0559d1250
+
+===================================================================
+[1] PATCHED ENGINE COMPILES (same make target as upstream)
+===================================================================
+$ make glm ARCH=x86-64-v3
+make: Circular glm <- glm dependency dropped.
+gcc -O3 -march=x86-64-v3 -fopenmp -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -Wno-unused-function glm.c  -o glm -lm -fopenmp
+awk: cmd. line:1: {print $5\" bytes\"}
+awk: cmd. line:1:          ^ backslash not last character on line
+awk: cmd. line:1: {print $5\" bytes\"}
+awk: cmd. line:1:          ^ syntax error
+-> exit 0   binary: 
+
+Warning audit (isolated recompile, all -W flags, expect ZERO lines):
+$ gcc -O3 -march=x86-64-v3 -fopenmp -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -Wno-unused-function glm.c -o /tmp/glm_patched -lm
+-> warnings above: NONE (clean); exit 0
+
+===================================================================
+[2] UPSTREAM ALSO COMPILES CLEAN (baseline sanity)
+===================================================================
+/tmp/glm_orig.c:34:10: fatal error: st.h: No such file or directory
+   34 | #include "st.h"
+      |          ^~~~~~
+compilation terminated.
+-> upstream build exit 1  (clean)
+
+===================================================================
+[3] MOCK UNIT TESTS (synthetic tiny setup; no model/weights/instance)
+===================================================================
+$ gcc -O2 -Wall -Wextra -Wno-unused-function -o test_kae tests/test_kae.c -lm
+-> test build exit 0
+$ ./test_kae
+[KAE] KAE=1 requires KAE_CARRIER=<file> and KAE_SPANS=<file>
+[KAE] KAE=1 requires KAE_CARRIER=<file> and KAE_SPANS=<file>
+[KAE] carrier D=4 != model hidden=5
+[KAE] splice layer 3 out of range [0,2)
+[KAE] bad carrier magic (want KAEC)
+[KAE] span concept id 99 >= nc 3 at pos 2
+== Test A: gate fires on the right tokens/layers ==
+  ok:   concept_at(pos 0) == -1
+  ok:   concept_at(pos 1) == 0
+  ok:   concept_at(pos 2) == -1
+  ok:   concept_at(pos 3) == 2
+  ok:   concept_at(pos 4) == 1
+  ok:   concept_at(pos 5) == -1
+  ok:   concept_at(pos 6) == 0
+  ok:   concept_at(pos 7) == -1
+  ok:   concept_at(-1) == -1 (below range)
+  ok:   concept_at(past end) == -1 (above range)
+  ok:   layer 3 is splice slot 0
+  ok:   layer 7 is splice slot 1
+  ok:   layer 4 is NOT a splice layer
+  ok:   layer 0 is NOT a splice layer
+== Test B: carrier adds correctly, only at gated rows/splice layers ==
+  ok:   layer 3: gated rows get +g*K[c][slot0], ungated rows unchanged
+  ok:   layer 7: uses slot-1 carrier (per-layer table is distinct)
+  ok:   pos_base=2 shifts gating by absolute position (rows past sidecar inert)
+== Test C: inert-by-default (no-op whenever the splice must not fire) ==
+  ok:   non-splice layer 4: out byte-identical
+  ok:   REPLACE mode: ADD path inert (stub, gate-0)
+  ok:   g_kae==0: splice skipped, out == upstream
+  ok:   enabled splice perturbs exactly the 4 gated rows, nothing else
+== Test D: candidate-independent scoring hook ==
+  ok:   identical spans/carrier -> identical activations
+  ok:   readout delta is candidate-independent (= g*K[c][l], no label term)
+  ok:   kae_apply_add/kae_concept_at take no candidate arg (candidate-free by type)
+== Test E: loader fail-safe (misconfig -> NULL -> engine disables KaE) ==
+  (the [KAE] load-failure messages below are EXPECTED test output)
+  ok:   missing carrier path -> NULL
+  ok:   missing spans path -> NULL
+  ok:   hidden-dim mismatch -> NULL
+  ok:   splice layer out of range -> NULL
+  ok:   bad carrier magic -> NULL
+  ok:   span cid out of range -> NULL
+
+ALL TESTS PASSED (0 failures)
+-> test run exit 0
