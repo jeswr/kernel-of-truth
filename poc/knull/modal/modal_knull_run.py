@@ -60,10 +60,19 @@ except ImportError:  # --print-manifest works without a modal install
     modal = None
 
 _HERE = Path(__file__).resolve().parent
-try:
-    REPO_ROOT = _HERE.parents[2]
-except IndexError:
-    REPO_ROOT = _HERE  # container: local-path constants never dereferenced
+_cand = _HERE.parents[2] if len(_HERE.parents) >= 3 else _HERE
+# Inside the Modal container the entrypoint auto-mounts under /root, so the
+# __file__-derived root mis-resolves (parents[2] -> /root) even though the repo
+# files are staged at REMOTE_ROOT ("/root/kot", kept in sync below). The image
+# block (pip_install(*_image_pins()), add_local_*) is module-level and re-runs
+# on the container's re-import; anchor REPO_ROOT on a sentinel present in BOTH
+# layouts so every derived path resolves and the image stays byte-identical.
+if (_cand / "poc" / "modal" / "requirements-image.txt").exists():
+    REPO_ROOT = _cand
+elif Path("/root/kot/poc/modal/requirements-image.txt").exists():
+    REPO_ROOT = Path("/root/kot")  # container fallback; == REMOTE_ROOT below
+else:
+    REPO_ROOT = _cand
 _MODAL_TOOLS = REPO_ROOT / "poc" / "modal"
 sys.path.insert(0, str(_MODAL_TOOLS))
 import modal_common as mc  # noqa: E402  (stdlib-only helper, poc/modal)
