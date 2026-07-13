@@ -1183,6 +1183,11 @@ Worked band: at ρ_U = 0.05, m = 15 (DEFF = 1.70), δ_R = 0.10 gives n_NI ≈ 2,
 n_max → DEFER; a near-identical REPLACE (δ_R = 0.04) gives n_NI ≈ 1,062 ≤ n_max →
 RUN. REPLACE is thus affordable only when REPLACE and ADD are already nearly
 indistinguishable on dev — exactly when NI is the honest thing to test.
+**[SUPERSEDED by REVISION-4 §R-REV4.3 / ASM-2124 on the PLANNING INPUT ONLY: the
+ρ_U = 0.05 used above is the rejected value (§R-REV3.1); propagating ρ_U = 0.10
+(DEFF = 2.40) flips the verdict — δ_R = 0.04 → n_NI ≈ 1,500 > n_max → DEFER (RUN
+only if δ_R ≤ ~0.038). The SE_NI = 0.80 pts derivation and the n_NI formula are
+UNCHANGED (cleared in re-review).]**
 
 ### R-REV2.2 — Residual 2 (§R3): power arithmetic, ICC upper bound, re-derived n [STIPULATED: ASM-2045]
 
@@ -1372,7 +1377,12 @@ ICC, because resampling is over concept-cluster sign-flips, not over an assumed
 variance model. So ρ never enters the licensing decision (observed lift ≥ +3 pts AND
 permutation p < 0.05); it enters ONLY the POWER/MDE projection — how large a true
 effect the design can detect. This is the load-bearing correction: the earlier text
-let an unsupported ρ masquerade as part of the inference; it is not.
+let an unsupported ρ masquerade as part of the inference; it is not. **[the bare
+"EXACT under the sharp null for any ICC" assertion is UNDER-JUSTIFIED as written and
+is REPLACED by REVISION-4 §R-REV4.1 / ASM-2122, which states the exchangeability
+basis (cluster sign-symmetry under the no-differential-effect null), why ICC affects
+only the null's variance not its type-I validity, and the named fallback if
+sign-symmetry fails.]**
 
 **2. ρ = 0.05 relabeled [STIPULATED: ASM-2049], NOT an upper bound.** It is a
 sensitivity ANCHOR — the optimistic end of a reported curve. The concept-cluster ICC
@@ -1393,19 +1403,25 @@ F1-K runs at the cap, using all available concept clusters (maximise C; C fights
 harder than m). The planning point therefore collapses onto n_max = 1,440.
 
 **5. Power/MDE sensitivity curve (reported, pre-committed).** Minimum detectable
-effect at 80% power, one-sided α = 0.05 (MDE = 2.487·SE), at n = 1,440 with the
-best feasible geometry C = 96, m = 15:
+effect at 80% power, one-sided α = 0.05 (test-alone MDE = 2.487·SE), at n = 1,440
+with the best feasible geometry C = 96, m = 15:
 
-| ρ (planning) | DEFF = 1+(m−1)ρ | SE (pts) | MDE @ 80% (pts) | +3-pt floor powered? |
+| ρ (planning) | DEFF = 1+(m−1)ρ | SE (pts) | test-alone MDE @ 80% (pts) | +3-pt floor powered? |
 |---|---|---|---|---|
-| 0.05 (anchor) | 1.70 | 1.09 | **2.70** | yes |
-| 0.10 (frozen ρ_U) | 2.40 | 1.29 | **3.21** | ~no (resolves +3.2) |
-| 0.15 | 3.10 | 1.47 | **3.65** | no |
-| 0.20 | 3.80 | 1.62 | **4.04** | no |
+| 0.05 (anchor) | 1.70 | 1.09 | 2.70 | yes |
+| 0.10 (frozen ρ_U) | 2.40 | 1.29 | 3.21 | ~no (resolves +3.2) |
+| 0.15 | 3.10 | 1.47 | 3.65 | no |
+| 0.20 | 3.80 | 1.62 | 4.04 | no |
 
-[DERIVED, SE² = δ·DEFF/n]. At the coverage-floor geometry C = 65, m ≈ 22 the MDE at
-ρ_U = 0.10 rises to ≈ 3.65 pts; the realized (C, m) is reported and its MDE computed
-verbatim.
+[DERIVED, SE² = δ·DEFF/n]. **[This TEST-ALONE curve is SUPERSEDED as the reported
+power statistic by REVISION-4 §R-REV4.1 / ASM-2122: the licensing rule is the
+CONJUNCTION (p < 0.05 AND observed ≥ +3), whose 80%-power MDE = 3 + 0.842·SE (the
++3 floor binds since 1.645·SE < 3 throughout) is larger — 3.92 / 4.09 / 4.24 / 4.37
+pts across ρ ∈ {0.05, 0.10, 0.15, 0.20}. A true +3 effect clears the joint rule
+only ~50% of the time. The joint curve is the headline; the test-alone curve above
+is retained as context.]** At the coverage-floor geometry C = 65, m ≈ 22 the
+test-alone MDE at ρ_U = 0.10 rises to ≈ 3.65 pts (joint ≈ 4.24 pts); the realized
+(C, m) is reported and its MDE computed verbatim.
 
 **6. Pre-committed reporting rule (both directions worded).** F1-K runs at n = 1,440;
 the achieved SE and MDE at the realized (C, m, ρ_U = 0.10) are reported. If the
@@ -1484,6 +1500,10 @@ discretionary choice after the first spend began.
 - **Ordering, restated:** commit (A) → construction spend → commit (B0) → pilot spend
   → commit (5) → freeze (6) → test spend → bring-up (7). No spend of any kind
   (construction included) precedes the freeze of every rule that governs it.
+  **[SUPERSEDED by REVISION-4 §R-REV4.2 / ASM-2123: this ordering puts TEST spend
+  BEFORE bring-up/addendum-7, defeating bring-up's role as the PRE-TEST
+  affordability/semantic gate. Corrected so bring-up (7) and the power freeze (6)
+  both PRECEDE any test-set prefill.]**
 
 ### R-REV3.4 — Revision-3 self-check
 
@@ -1499,6 +1519,154 @@ before its own spend. No branch threshold, endpoint direction, or ladder margin
 moved; no feasibility conclusion is stated; no git action, run, or spend occurs in
 this pass. Central registration of ASM-2049/2113/2114 is the coordinator's action in
 the landing commit, after the standing review gate.
+
+---
+
+## §R-REV4 — REVISION-4 (2026-07-13, fourth pass): 2 residuals + 1 propagation
+
+> **Status: PRE-REGISTRATION-QUALITY REVISION, awaiting maintainer sign-off (GATE 1)
+> and the coordinator's re-review. No feasibility conclusion; no run, spend, or git
+> action in this pass.** Author: Fable, architecture-design role (designer-5),
+> 2026-07-13.
+>
+> **Provenance.** The re-review CLEARED family-blind tuning (ASM-2118); it is NOT
+> re-opened, nor are template/trigger (ASM-2043) or REPLACE-NI power (ASM-2044, whose
+> SE_NI = 0.80 derivation is fixed). Two load-bearing residuals plus one propagation
+> remain, fixed below (§R-REV4.1–.3). **Where §R-REV4 conflicts with §§1–10 or any
+> earlier §R, §R-REV4 governs.** ASM delta block: **ASM-2122, ASM-2123, ASM-2124**
+> (Appendix E; owner designer-5; 2120/2121 are held by E0, so 2122+ are used).
+
+### R-REV4.1 — Residual 1: sign-flip exchangeability basis + JOINT-rule power [STIPULATED: ASM-2122]
+
+**(a) The exchangeability basis (replaces the bare "EXACT for any ICC" assertion of
+§R-REV3.1).** The primary is a paired WITHIN-ITEM contrast: for each benchmark item i
+the K arm and the control arm are scored under the SAME frozen template (§R1.1),
+differing only by the splice. Define per-item d_i = 1{K correct on i} − 1{control
+correct on i} ∈ {−1, 0, +1}, and per-concept-cluster mean D_c = mean_{i∈c} d_i; the
+test statistic is T = mean_c D_c and the reference set is the 2^C cluster sign-flips
+{mean_c(s_c·D_c) : s ∈ {±1}^C}.
+
+- **Sharp null (stated):** H₀ — the carrier identity has NO differential effect on
+  scoring; equivalently, within each concept cluster the K and control per-item
+  correctness sequences are exchangeable (arm-label exchangeability), so each cluster
+  mean D_c is distributed SYMMETRICALLY about 0.
+- **Exchangeable / sign-symmetric unit:** the concept CLUSTER. Under H₀ the clusters
+  are mutually independent and each D_c is sign-symmetric about 0, so the joint
+  (D_1,…,D_C) is invariant under sign changes — which is exactly the invariance the
+  cluster-sign-flip reference set enumerates. Hence the test is **type-I EXACT with
+  respect to that reference set under H₀'s sign-symmetry**, for ANY within-cluster
+  ICC.
+- **Why ICC is harmless to VALIDITY:** the sign-flips act at the CLUSTER level and
+  hold each |D_c| fixed while flipping its sign; within-cluster correlation of the
+  d_i (the ICC) enters only through the MAGNITUDE/spread of D_c, i.e. the variance of
+  the null reference distribution — so ICC changes the test's POWER (the MDE of
+  §R-REV3.1) but not its type-I rate. We do NOT assume within-cluster item
+  independence anywhere; that is precisely what pushing the sign-flip up to the
+  cluster level buys. The honest claim is therefore "type-I exact under cluster
+  sign-symmetry, for any ICC," not "exact under an assumption-free null."
+- **If sign-symmetry fails** (e.g. a fixed non-treatment directional artifact common
+  across clusters — implausible here because the two arms share a byte-identical
+  template and the off-concept byte-identity guard (§2.5) forces zero effect where the
+  gate does not fire): the pre-registered FALLBACK is a cluster (concept-block)
+  bootstrap of T with a BCa 95% CI and the same +3-pt licensing floor; the choice
+  between sign-flip and cluster-bootstrap is frozen at (A) on the sign-symmetry check
+  of the dev split, not chosen on the test data.
+
+**(b) JOINT-rule 80%-power curve (replaces the test-alone MDE curve).** The licensing
+rule is the CONJUNCTION p < 0.05 AND observed lift ≥ +3 pts, so the operative power is
+P(both). One-sided p < 0.05 ⟺ observed > 1.645·SE; with 1.645·SE < 3 pts throughout
+our SE range (≤ 1.62 pts), the **+3 floor binds** and the joint rule fires ⟺
+observed > 3 pts. Joint 80% power ⟹ true μ = 3 + 0.842·SE [DERIVED]:
+
+| ρ (planning) | SE (pts) | JOINT-rule MDE @ 80% = 3 + 0.842·SE (pts) |
+|---|---|---|
+| 0.05 (anchor) | 1.09 | **3.92** |
+| 0.10 (frozen ρ_U) | 1.29 | **4.09** |
+| 0.15 | 1.47 | **4.24** |
+| 0.20 | 1.62 | **4.37** |
+
+(n = 1,440, C = 96, m = 15; coverage-floor C = 65, m ≈ 22 gives joint MDE ≈ 4.24 pts
+at ρ_U = 0.10.) **Key honest consequence:** a TRUE +3-pt effect — the licensing floor
+itself — clears the joint rule only ≈ 50% of the time (P(observed > 3 | μ = 3) ≈ 0.5),
+so 80% joint power needs a true effect of ≈ 3.9–4.4 pts. This is the headline power
+statement; it is reported alongside the result, and a non-significant outcome is
+scoped "the design had 80% joint power only for true effects ≥ [joint MDE] pts at
+ρ_U = 0.10," never a clean null at +3. Validity remains ρ-free per (a); only this
+power framing changed.
+
+### R-REV4.2 — Residual 2: bring-up is a PRE-test gate — corrected ordering [STIPULATED: ASM-2123]
+
+**The residual, accepted.** The §R-REV3.3 sequence ran TEST spend before bring-up and
+addendum-7, so the affordability/semantic gate that bring-up exists to enforce
+(measured s/prefill, cost projection vs ceiling, re-verification of colibri knob
+semantics per ASM-1971) would have fired only AFTER the test money was spent — a gate
+in name only. Bring-up and its addendum, and the power freeze that consumes the
+affordability projection, must precede any test-set prefill.
+
+**Corrected full ordered sequence (supersedes the §R-REV3.3 ordering line):**
+
+1. commit **(A)** — all rules + the complete carrier generator (§R-REV3.3), before ANY
+   spend;
+2. **construction spend** → commit **(B0)** — realized carrier tables + norms
+   (pure-function addendum);
+3. **pilot spend** on the dev subset (grid over the family-blind panel) — this pass
+   also yields the **bring-up s/prefill measurement**, the colibri-semantics
+   re-verification, and the dev-split δ̂ (REPLACE-vs-ADD and K-vs-control discordances)
+   and the dev sign-symmetry check (§R-REV4.1a);
+4. commit **(5)** — frozen (L, g) (deterministic argmax of the pilot);
+5. commit **(7)** — measured s/prefill + affordability projection at candidate n +
+   colibri-semantics confirmation; **the pre-test affordability/semantic GATE resolves
+   here**, applying the §R6 degradation order deterministically if the projection
+   exceeds the ceiling;
+6. freeze **(6)** — dev δ̂ → n_required → the RUN/DEFER gates (coverage C ≥ 65,
+   n = min(cap, n_required), REPLACE run/defer per §R-REV4.3, sign-flip-vs-bootstrap
+   choice per §R-REV4.1a);
+7. **test spend** — main arms at the frozen (L, g) and n;
+8. analysis + report.
+
+The test set stays untouched until (A), (B0), (5), (7), and (6) are all committed;
+bring-up (7) and the power freeze (6) are strictly PRE-test. No spend of any kind
+precedes the freeze of every rule that governs it, and no TEST spend precedes the
+affordability/semantic gate.
+
+### R-REV4.3 — Propagation: ρ_U = 0.10 into the REPLACE-NI run/defer calc [STIPULATED: ASM-2124]
+
+**Planning input only; the SE_NI = 0.80 derivation and the n_NI formula are unchanged
+(cleared, ASM-2044).** The REPLACE-NI run/defer worked band used the now-rejected
+ρ_U = 0.05 (DEFF = 1.70). Propagating the frozen conservative planning ρ_U = 0.10
+(DEFF = 1 + 14·0.10 = 2.40 at m = 15) into n_NI = δ_R·DEFF/SE_NI² = δ_R·DEFF/0.000064:
+
+| δ_R (dev REPLACE-vs-ADD discordance) | n_NI at ρ_U = 0.10 | verdict (n_max = 1,440) |
+|---|---|---|
+| 0.10 | ≈ 3,750 | DEFER |
+| 0.04 (was RUN at ρ_U = 0.05: ≈ 1,062) | ≈ 1,500 | **DEFER** |
+| ≤ ~0.038 | ≤ 1,440 | RUN |
+
+[DERIVED]. **Corrected verdict:** at the conservative planning ρ_U = 0.10, REPLACE is
+DEFERRED for any dev-measured discordance δ_R > ~0.038 — including the δ_R = 0.04
+illustrative case that read RUN under the rejected ρ_U = 0.05. REPLACE runs only if
+REPLACE and ADD are nearly indistinguishable on dev (δ_R ≤ ~0.038); deferral is now
+the modal expectation. **Dependent text/ceiling:** deferring REPLACE removes a scored
+pass (10 arms, not 11), which only LOWERS spend; the F1-K ceiling was built on the
+worst case that INCLUDED REPLACE, so it is UNCHANGED at $550 (and safer). The §R6
+degradation-order step "defer REPLACE" is unaffected — REPLACE is now additionally
+deferred by its own NI power gate whenever δ_R > ~0.038, before any cost-degradation
+step is reached.
+
+### R-REV4.4 — Revision-4 self-check
+
+The cleared items (family-blind tuning ASM-2118, template/trigger ASM-2043, REPLACE-NI
+power derivation ASM-2044) are NOT re-opened. Each residual/propagation has a
+full-schema STIPULATED ASM (ASM-2122, ASM-2123, ASM-2124); no EXTRAPOLATION is added
+or changed (F1-K ceiling unchanged at $550; ASM-2048 untouched — REPLACE deferral only
+lowers spend). The sign-flip test's validity is now grounded on a stated
+cluster-sign-symmetry null with a named fallback, ICC is confined to power not type-I,
+the licensing-rule power is reported as the JOINT-rule MDE (3 + 0.842·SE, ≈ 3.9–4.4
+pts), the ordering makes bring-up a genuine pre-test gate, and the REPLACE verdict is
+propagated to DEFER under ρ_U = 0.10. No branch threshold, endpoint direction, or
+ladder margin moved; no feasibility conclusion is stated; no git action, run, or spend
+occurs in this pass. Central registration of ASM-2122/2123/2124 is the coordinator's
+action in the landing commit, after the standing review gate.
 
 ---
 
@@ -2023,6 +2191,55 @@ the landing commit, after the standing review gate.
    "claim": "F1-K CARRIER-GENERATOR FREEZE BEFORE CONSTRUCTION SPEND (supersedes the addenda-5/6/7-only + construction-hashes-in-A clause of ASM-2047): carrier construction (section-2.4: m=16 contexts x 2 variants x up to 96 concepts ~3,072 forward passes at all candidate splice layers) is the FIRST F1-K spend, ordered before the pilot (the pilot needs carriers to exist), yet (A) held only construction hashes/rules and (B) admitted addenda for entries 5/6/7 only — leaving the realized carrier tables + norms, produced by construction spend, outside the pure-function discipline. FIX: (A) additions frozen before ANY construction spend = the COMPLETE carrier GENERATOR: (i) exact m=16 construction contexts per concept (verbatim or seed+source-pool-hash+deterministic authoring procedure), (ii) kernel-explication text per concept (hash) and d2 dictionary text per concept (hash), (iii) prepend-vs-not protocol + gated-position selection rule, (iv) exact candidate splice-layer set (= union of the pilot grid's layer sets), (v) mean-difference construction formula, (vi) reference-norm rule + per-(c,l) rescaling procedure, (vii) all seeds (construction, 2 pilot-panel, R=5 main derangements — derangements are a deterministic permutation of the frozen K tables, the random d0 table a deterministic function of its seed); given (A) every arm's carrier table and realized norm is a deterministic function of frozen rules applied to forward-pass activations. NEW (B0) carrier-construction addendum, ordered FIRST among addenda = the realized carrier tables {v_{c,l}} for every arm + realized raw/rescaled norms, committed after construction and before the pilot, each a pure function of an (A) generator rule, carrying the rule id; any deviation is a logged protocol amendment BEFORE further spend. Ordering: commit (A) -> construction spend -> commit (B0) -> pilot spend -> commit (5) -> freeze (6) -> test spend -> bring-up (7); no spend of any kind precedes the freeze of every rule that governs it.",
    "rationale": "Construction is spend, so the reviewer's 'no discretionary choice after spend begins' bar requires the carrier generator itself to be frozen before the first forward pass, with the realized tables entering only as a pure-function addendum — extending the (A)-rules / (B)-derived-values discipline to construction rather than trusting post-hoc hashes.",
    "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV3.3; registry ASM-2047 (parent freeze-gate), ASM-2027 (carrier construction), ASM-2036 (derangements/norms); poc/gpt56-review re-re-review residual 3",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  }
+ ]
+}
+```
+
+---
+
+## Appendix E — REVISION-4 assumption delta block ASM-2122, ASM-2123, ASM-2124 (registry-style; coordinator registers with the commit)
+
+```json
+{
+ "_readme": [
+  "GLM52-F1 REVISION-4 assumption delta block ASM-2122, ASM-2123, ASM-2124 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the 2 residuals + 1 propagation after the re-review cleared family-blind tuning (ASM-2118); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
+  "Ids >=2122 (2120/2121 held by E0). Supersession map: ASM-2122 supersedes the bare 'EXACT for any ICC' justification and the TEST-ALONE MDE curve of ASM-2049 (states the cluster-sign-symmetry exchangeability basis + named fallback, and replaces the reported power statistic with the JOINT-rule 80%-power MDE = 3 + 0.842*SE); ASM-2123 supersedes the ordering clause of ASM-2119 (bring-up (7) and power freeze (6) precede any test spend); ASM-2124 supersedes the ρ_U=0.05 PLANNING INPUT and the RUN-at-δ_R=0.04 verdict in the worked band of ASM-2044 (propagates ρ_U=0.10 -> REPLACE DEFER unless δ_R<=~0.038; SE_NI=0.80 derivation and n_NI formula UNCHANGED). Superseded PARENT ASMs remain registered with remaining content intact; no branch threshold, endpoint direction, or ladder margin changed; no EXTRAPOLATION added or changed (F1-K ceiling unchanged at $550; REPLACE deferral only lowers spend).",
+  "Companion design: docs/next/design/glm52-followup-experiment.md §R-REV4. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. EXTRAPOLATION entries carry an explicit resolution_path and are load_bearing=false."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2122",
+   "tag": "STIPULATED",
+   "claim": "F1-K SIGN-FLIP EXCHANGEABILITY BASIS + JOINT-RULE POWER (supersedes the bare 'EXACT under the sharp null for any ICC' justification and the TEST-ALONE MDE curve of ASM-2049; validity conclusion — rho affects power not type-I — is retained but now PROPERLY grounded). (a) BASIS: the primary is a paired WITHIN-ITEM contrast — per item i both arms are scored under the same frozen template (ASM-2035) differing only by the splice; d_i = 1{K correct}-1{control correct} in {-1,0,+1}, per-cluster mean D_c = mean_{i in c} d_i, statistic T = mean_c D_c, reference set = the 2^C cluster sign-flips. SHARP NULL H0: the carrier identity has NO differential effect on scoring, i.e. within each concept cluster the K and control per-item correctness sequences are arm-label EXCHANGEABLE, so each D_c is distributed SYMMETRICALLY about 0. EXCHANGEABLE/SIGN-SYMMETRIC UNIT = the concept CLUSTER (clusters mutually independent under H0, each D_c sign-symmetric), so the joint (D_1..D_C) is sign-change invariant — exactly what the cluster-sign-flip reference enumerates; the test is type-I EXACT w.r.t. that reference under H0's sign-symmetry, for ANY within-cluster ICC. ICC enters only the MAGNITUDE/spread of D_c (sign-flips hold |D_c| fixed while flipping its sign; within-cluster item independence is never assumed — that is what pushing the flip to the cluster level buys), so ICC changes POWER (the MDE) not the type-I rate; the honest claim is 'type-I exact under cluster sign-symmetry, for any ICC', not assumption-free. FALLBACK if sign-symmetry fails (implausible: shared byte-identical template + off-concept byte-identity guard force zero effect where the gate does not fire): a pre-registered cluster (concept-block) bootstrap of T with BCa 95% CI at the same +3-pt floor, the sign-flip-vs-bootstrap choice frozen at manifest (A) on the DEV sign-symmetry check, never on test data. (b) JOINT-RULE POWER (replaces the test-alone curve): the licensing rule is the CONJUNCTION p<0.05 AND observed>=+3 pts; since 1.645*SE<3 throughout (SE<=1.62), the +3 floor binds and the rule fires iff observed>3, so joint 80% power => true mu = 3 + 0.842*SE [DERIVED]: at n=1440,C=96,m=15 the JOINT-rule MDE is 3.92/4.09/4.24/4.37 pts for rho in {0.05,0.10,0.15,0.20} (coverage-floor C=65,m~22 -> ~4.24 at rho_U=0.10). A true +3 effect clears the joint rule only ~50% of the time; 80% joint power needs true ~3.9-4.4 pts; this JOINT curve is the headline power statement (test-alone MDE=2.487*SE retained as context), and a non-significant outcome is scoped 'powered at 80% only for true >= [joint MDE] pts at rho_U=0.10', never a clean null at +3.",
+   "rationale": "A sign-flip test is exact only on an explicit exchangeability/sign-symmetry basis; a paired within-item contrast under a shared frozen template supplies exactly cluster sign-symmetry under the no-differential-effect null, which is robust to within-cluster ICC because the flip is at the cluster level — and because the LICENSING rule is a conjunction, the honest power statistic is the joint-rule MDE (which the +3 floor makes materially larger than the test-alone MDE), not the test-alone power.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV4.1; registry ASM-2049 (parent rho-honesty), ASM-2038 (cluster permutation), ASM-2030 (+3 floor / conjunction), ASM-2035 (frozen template), ASM-2028 (off-concept byte-identity guard); poc/gpt56-review REVISION-4 residual 1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2123",
+   "tag": "STIPULATED",
+   "claim": "F1-K CORRECTED FREEZE ORDERING — BRING-UP IS A PRE-TEST GATE (supersedes the ordering clause of ASM-2119, which put TEST spend before bring-up/addendum-7 and thereby defeated bring-up's affordability/semantic gate): corrected full ordered sequence — (1) commit (A) all rules + complete carrier generator before ANY spend; (2) construction spend -> commit (B0) realized carrier tables+norms (pure-function addendum); (3) pilot spend on the dev subset (family-blind grid), which ALSO yields the bring-up s/prefill measurement, the colibri-semantics re-verification (ASM-1971), the dev delta-hat (REPLACE-vs-ADD and K-vs-control discordances), and the dev sign-symmetry check (ASM-2122a); (4) commit (5) frozen (L,g) (deterministic argmax); (5) commit (7) measured s/prefill + affordability projection at candidate n + semantics confirmation — THE PRE-TEST AFFORDABILITY/SEMANTIC GATE RESOLVES HERE, applying the section-R6 degradation order deterministically if the projection exceeds the ceiling; (6) freeze (6) dev delta-hat -> n_required -> RUN/DEFER gates (coverage C>=65, n=min(cap,n_required), REPLACE run/defer per ASM-2124, sign-flip-vs-bootstrap per ASM-2122a); (7) test spend at frozen (L,g) and n; (8) analysis. The test set stays untouched until (A),(B0),(5),(7),(6) are all committed; bring-up (7) and power freeze (6) are strictly PRE-test; no TEST spend precedes the affordability/semantic gate.",
+   "rationale": "Bring-up exists to gate the test on measured throughput/cost and re-verified knob semantics; if it runs after the test spend it is a gate in name only, so the ordering must place bring-up (7) and the power freeze (6) that consumes its projection strictly before any test-set prefill.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV4.2; registry ASM-2119 (parent ordering), ASM-2047 (freeze-gate artifacts), ASM-1971 (knob-semantics re-verification); poc/gpt56-review REVISION-4 residual 2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2124",
+   "tag": "STIPULATED",
+   "claim": "REPLACE-NI RUN/DEFER PROPAGATION OF rho_U=0.10 (supersedes the rho_U=0.05 PLANNING INPUT and the RUN-at-delta_R=0.04 verdict in the worked band of ASM-2044; the SE_NI=0.80 pts derivation and the n_NI=delta_R*DEFF/SE_NI^2 formula are CLEARED and UNCHANGED): propagating the frozen conservative planning rho_U=0.10 (DEFF=1+14*0.10=2.40 at m=15) into n_NI=delta_R*DEFF/0.000064 gives delta_R=0.10 -> n_NI~3750 DEFER; delta_R=0.04 -> n_NI~1500 > n_max=1440 -> DEFER (was ~1062 RUN under the rejected rho_U=0.05); RUN only if delta_R<=~0.038 (n_NI<=1440). CORRECTED VERDICT: at rho_U=0.10 REPLACE is DEFERRED for any dev-measured discordance delta_R>~0.038 (incl. the delta_R=0.04 illustrative case), so deferral is the modal expectation; REPLACE runs only if REPLACE and ADD are near-indistinguishable on dev. DEPENDENT TEXT/CEILING: deferring REPLACE removes a scored pass (10 arms not 11) and only LOWERS spend; the F1-K ceiling was built on the worst case INCLUDING REPLACE, so it is UNCHANGED at $550 (and safer); the section-R6 degradation-order step 'defer REPLACE' is unaffected — REPLACE is now additionally deferred by its own NI power gate before any cost-degradation step is reached.",
+   "rationale": "The REPLACE-NI power calc must use the same frozen conservative planning ICC as the primary; propagating rho_U=0.10 (not the rejected 0.05) into DEFF flips the illustrative delta_R=0.04 case from RUN to DEFER and makes deferral modal, which only reduces cost and leaves the ceiling intact.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV4.3; registry ASM-2044 (SE_NI derivation, cleared/unchanged), ASM-2049 (rho_U=0.10 planning choice), ASM-2041/2048 (ceiling); poc/gpt56-review REVISION-4 propagation 3",
    "load_bearing": true,
    "status": "open",
    "owner": "designer-5",
