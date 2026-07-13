@@ -1,10 +1,10 @@
 {
-  "range": "ASM-2180..2187",
-  "purpose": "Companion assumption block for the F1-K Kernel-as-Expert (KaE) ADD-path glm.c patch DRAFT, pre-built for MAINTAINER GATE 0 review (the maintainer/kernel-of-truth #28). EMITTED by the Fable architecture-design agent (designer-5, 2026-07-13) for central registration by the coordinator in registry/assumptions.jsonl with the landing commit, after the standing review gate. This pass writes NO registry entry and takes NO git action. The patch is a REVIEWABLE DRAFT ONLY: it is inert unless KAE=1, and nothing here was applied to, or run against, any governed GLM-5.2 model. Writing a kernel-derived content vector into model activations is a Law-1-amendment-gated action; this artifact is exactly what GATE 0 approves, drafted for review, NOT deployed.",
+  "range": "ASM-2180..2190",
+  "purpose": "Companion assumption block for the F1-K Kernel-as-Expert (KaE) ADD-path glm.c patch DRAFT, pre-built for MAINTAINER GATE 0 review (the maintainer/kernel-of-truth #28). EMITTED by the Fable architecture-design agent (designer-5, 2026-07-13) for central registration by the coordinator in registry/assumptions.jsonl with the landing commit, after the standing review gate. This pass writes NO registry entry and takes NO git action. The patch is a REVIEWABLE DRAFT ONLY: it is inert unless KAE=1, and nothing here was applied to, or run against, any governed GLM-5.2 model. Writing a kernel-derived content vector into model activations is a Law-1-amendment-gated action; this artifact is exactly what GATE 0 approves, drafted for review, NOT deployed. REVISION-1 (2026-07-13, this pass): remediates 3 codex code-review findings (ASM-2188 scoring hook, ASM-2189 request-aware span binding, ASM-2190 C-safety); ADD-splice correctness and inert-by-default were confirmed OK by the review and are unchanged.",
   "owner": "designer-5",
   "backing_artifacts": [
     "poc/glm52-probe/kae-patch-draft/kae-add-path.patch (unified diff vs colibri commit a78a06fc5acc4b0dc0f9ef03987c66b0559d1250)",
-    "poc/glm52-probe/kae-patch-draft/build-test.log (compile + 30-check mock unit-test run, ALL PASSED)",
+    "poc/glm52-probe/kae-patch-draft/build-test.log (REVISION-1: patched+upstream clean builds, 88/92 binary-equivalence proof, 44-check mock unit-test run ALL PASSED, ASan+UBSan+LSan clean)",
     "poc/glm52-probe/kae-patch-draft/README.md",
     "docs/next/design/glm52-followup-experiment.md (F1-K design through REVISION-6; §1.1, §2.3, §2.5, §2.8, §R1.1)"
   ],
@@ -81,10 +81,40 @@
     },
     {
       "id": "ASM-2187",
-      "claim": "The mock unit tests (tests/test_kae.c, 30 checks, ALL PASSED) validate the patch MECHANICS on a synthetic tiny setup (3 concepts, D=4, splice layers {3,7}) with no model, no weights, and no instance: (A) the gate fires on exactly the right token positions and layers; (B) the carrier adds correctly (out += g*K[c][l]) at gated rows only, per-layer table distinct, pos_base offset honoured; (C) inert-by-default (non-splice layer, REPLACE mode, g_kae==0 guard, and ungated rows all leave bytes unchanged; enabled splice perturbs exactly the gated rows); (D) candidate-independence; (E) loader fail-safe. This is a mechanics check, NOT a feasibility conclusion about F1-K and NOT a measurement of any GLM-5.2 quantity.",
+      "claim": "The mock unit tests (tests/test_kae.c, 44 checks, ALL PASSED under both a plain build and an AddressSanitizer+UBSan+LeakSanitizer build, exit 0, no sanitizer diagnostics) validate the patch MECHANICS on a synthetic tiny setup (3 concepts, D=4, splice layers {3,7}) with no model, no weights, and no instance: (A) the gate fires on exactly the right token positions and layers; (B) the carrier adds correctly (out += g*K[c][l]) at gated rows only, per-layer table distinct, pos_base offset honoured; (C) inert-by-default (non-splice layer, REPLACE mode, g_kae==0 guard, and ungated rows all leave bytes unchanged; enabled splice perturbs exactly the gated rows); (D) candidate-independent single-prefill label-logit scoring (kae_argmax_label); (E) loader fail-safe; (F) request-aware per-item span binding. Additionally an INDEPENDENT inert-by-default proof: pristine and patched glm.c compiled to objects, disassembled, address-normalized, and compared per function -> 88 of 92 shared functions BYTE-IDENTICAL; the only changed functions are moe/layer_forward/main (the wired path) and model_init (whose sole delta is the sizeof(Model) immediate 0x6278->0x6280 for the appended KaE* field). This is a mechanics check, NOT a feasibility conclusion about F1-K and NOT a measurement of any GLM-5.2 quantity.",
       "tag": "STIPULATED",
       "rationale": "Gate-0 review needs the write-into-activations mechanism demonstrated correct and inert-by-default before any spend; feasibility (the accuracy ladder K-1/K-2/K-3) is a separate, maintainer-gated run.",
       "backing_ref": "poc/glm52-probe/kae-patch-draft/build-test.log; tests/test_kae.c",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2188",
+      "claim": "REVISION-1 fix (codex finding 1, DESIGN-CONFORMANCE): the required §R1.1 candidate-independent scoring path is implemented as run_kae_score (glm.c) + kae_argmax_label (kae.h), reachable via KAE_SCORE=<manifest> and taking precedence over colibri's upstream continuation-loglikelihood run_score. Per item it does ONE prefill of the frozen template, reads the next-token logits at the answer-cue position, and returns argmax over the k single-token answer-LABEL token logits in PUBLISHED order (deterministic tie-break = lowest index). The scored token set is candidate-independent and length-invariant (no per-candidate continuation forward); it runs for EVERY arm (KAE=0 baseline included), so only the splice differs by arm. This makes the registered protocol what would actually run.",
+      "tag": "STIPULATED",
+      "rationale": "The prior draft left the upstream continuation scorer, so the registered §R1.1 protocol was not what would run; implementing the label-logit readout in the engine closes that design-conformance gap.",
+      "backing_ref": "c/glm.c run_kae_score + KAE_SCORE dispatch; c/kae.h kae_argmax_label; tests/test_kae.c Test D; design §R1.1 (~line 841)",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2189",
+      "claim": "REVISION-1 fix (codex finding 2, GATE binding): span binding is REQUEST-AWARE. The per-position concept-id array is no longer a process-global reused from position 0 across items; instead run_kae_score binds each item's frozen sidecar via kae_bind_spans(m->kae, spans, T) and clears it via kae_reset_spans between items, so benchmark item N gates on item N's spans and never on item N-1's. kae_bind_spans dups the item's spans (freeing the previous item's), validates every concept id in [-1, nc), and on a bad id or allocation failure leaves spans EMPTY (item scored ungated, fail-safe). A shorter item cannot see a stale tail from a longer previous item (positions past span_n read -1). Unit-tested (Test F).",
+      "tag": "STIPULATED",
+      "rationale": "Benchmark items are independent prefills at pos_base 0; without per-item rebinding the gate would fire on the wrong positions for every item after the first.",
+      "backing_ref": "c/kae.h kae_bind_spans/kae_reset_spans; c/glm.c run_kae_score; tests/test_kae.c Test F",
+      "owner": "designer-5",
+      "load_bearing": true,
+      "status": "open"
+    },
+    {
+      "id": "ASM-2190",
+      "claim": "REVISION-1 fix (codex finding 3, C-SAFETY, kae.h): all file-controlled size products go through a checked multiply (kae_szmul, overflow -> fail); every malloc/calloc/realloc return is checked; realloc goes into a temp pointer that is verified before assignment (no lost-buffer/NULL-deref); malformed (non-integer) span text is rejected (fscanf!=1 after a non-EOF stop -> NULL); nl>n_layers and every out-of-range layer/concept id are rejected; and <stdint.h> is included. Every rejection path is fail-safe: kae_load returns NULL and the engine disables KaE (runs unmodified) rather than crashing or writing corrupt activations. Confirmed by a clean AddressSanitizer+UBSan+LeakSanitizer run (exit 0, no diagnostics) over the 44-check suite.",
+      "tag": "STIPULATED",
+      "rationale": "The loader parses attacker/misconfig-controlled files; unchecked size products and allocations are exploitable/UB, and silent truncation of malformed spans would inject a wrong gate — all must fail closed.",
+      "backing_ref": "c/kae.h kae_szmul + kae_load + kae_bind_spans; poc/glm52-probe/kae-patch-draft/build-test.log section [5]",
       "owner": "designer-5",
       "load_bearing": true,
       "status": "open"

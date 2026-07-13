@@ -1,7 +1,13 @@
-KaE ADD-path — BUILD & MOCK-UNIT-TEST LOG
+KaE ADD-path (+ R1.1 scoring) — BUILD & MOCK-UNIT-TEST LOG  [REVISION-1]
 DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED
-date: 2026-07-13T05:28:04Z   host: Linux 6.1.172-216.329.amzn2023.x86_64 x86_64   gcc: 11
+date: 2026-07-13T07:05:54Z   host: Linux 6.1.172-216.329.amzn2023.x86_64 x86_64   gcc: 11
 colibri base commit: a78a06fc5acc4b0dc0f9ef03987c66b0559d1250
+
+REVISION-1 remediates 3 codex-review findings: (1) missing R1.1 candidate-independent
+single-prefill label-logit scoring path -> implemented (run_kae_score + kae_argmax_label);
+(2) process-global spans -> request-aware per-item binding (kae_bind_spans/reset);
+(3) C-safety: checked size products + all allocations, realloc-via-temp, malformed span
+text rejected, <stdint.h> added. ADD-splice correctness + inert-by-default confirmed OK by codex.
 
 ===================================================================
 [1] PATCHED ENGINE COMPILES (same make target as upstream)
@@ -9,37 +15,52 @@ colibri base commit: a78a06fc5acc4b0dc0f9ef03987c66b0559d1250
 $ make glm ARCH=x86-64-v3
 make: Circular glm <- glm dependency dropped.
 gcc -O3 -march=x86-64-v3 -fopenmp -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -Wno-unused-function glm.c  -o glm -lm -fopenmp
-awk: cmd. line:1: {print $5\" bytes\"}
-awk: cmd. line:1:          ^ backslash not last character on line
-awk: cmd. line:1: {print $5\" bytes\"}
-awk: cmd. line:1:          ^ syntax error
--> exit 0   binary: 
+-> make exit 0   binary: 194776 bytes
 
-Warning audit (isolated recompile, all -W flags, expect ZERO lines):
-$ gcc -O3 -march=x86-64-v3 -fopenmp -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -Wno-unused-function glm.c -o /tmp/glm_patched -lm
--> warnings above: NONE (clean); exit 0
+Warning audit (isolated recompile, all -W flags; expect ZERO warning lines):
+-> patched build exit 0 (no lines above = warning-clean)
 
 ===================================================================
-[2] UPSTREAM ALSO COMPILES CLEAN (baseline sanity)
+[2] UPSTREAM COMPILES CLEAN (pristine colibri glm.c; exit shown)
 ===================================================================
-/tmp/glm_orig.c:34:10: fatal error: st.h: No such file or directory
-   34 | #include "st.h"
-      |          ^~~~~~
-compilation terminated.
--> upstream build exit 1  (clean)
+$ gcc -O3 -march=x86-64-v3 -fopenmp -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -Wno-unused-function -I<colibri/c> /tmp/glm_orig.c -o glm_upstream -lm
+-> UPSTREAM build exit 0   (0 = clean)
 
 ===================================================================
-[3] MOCK UNIT TESTS (synthetic tiny setup; no model/weights/instance)
+[3] INDEPENDENT INERT-BY-DEFAULT PROOF (binary equivalence)
 ===================================================================
-$ gcc -O2 -Wall -Wextra -Wno-unused-function -o test_kae tests/test_kae.c -lm
+Method: compile pristine + patched glm.c to objects; disassemble; normalize
+absolute addresses; compare machine code PER FUNCTION. The new KaE* field is
+APPENDED to struct Model, so every pre-existing field offset is preserved.
+
+shared functions compared : 92
+BYTE-IDENTICAL machine code: 88  (95%)
+functions that CHANGED     : ['layer_forward', 'main', 'model_init', 'moe']
+new function (KaE-only)     : ['kae_free.part.0']
+
+Why each changed function changed (NONE is a behavioural change when KAE is unset):
+  model_init: sole delta = ['-mov    $0x6278,%edx', '+mov    $0x6280,%edx']
+              = sizeof(Model) 0x6278->0x6280 (the appended 8-byte KaE* field); NO logic change
+  layer_forward: passes the already-computed pos_base into moe() (register plumbing)
+  moe: adds ONE guarded tail branch (source below)
+  main: adds KaE env-parse + kae_load + KAE_SCORE dispatch, all under if(getenv/g_kae)
+
+Source of the sole moe() insertion (guard chain; skipped entirely when g_kae==0):
+    if(g_kae && m->kae) kae_apply_add(m->kae, layer, pos_base, S, D, out);
+and kae_apply_add returns immediately unless mode==0 AND the layer is a splice layer.
+So with KAE unset (g_kae==0, the engine default) the branch is NOT taken and every
+computed activation is byte-identical to upstream — consistent with the 88/92 result.
+
+===================================================================
+[4] MOCK UNIT TESTS (synthetic tiny setup; no model/weights/instance)
+===================================================================
 -> test build exit 0
-$ ./test_kae
-[KAE] KAE=1 requires KAE_CARRIER=<file> and KAE_SPANS=<file>
-[KAE] KAE=1 requires KAE_CARRIER=<file> and KAE_SPANS=<file>
+[KAE] KAE=1 requires KAE_CARRIER=<file>
 [KAE] carrier D=4 != model hidden=5
 [KAE] splice layer 3 out of range [0,2)
 [KAE] bad carrier magic (want KAEC)
 [KAE] span concept id 99 >= nc 3 at pos 2
+[KAE] malformed (non-integer) span text
 == Test A: gate fires on the right tokens/layers ==
   ok:   concept_at(pos 0) == -1
   ok:   concept_at(pos 1) == 0
@@ -64,18 +85,41 @@ $ ./test_kae
   ok:   REPLACE mode: ADD path inert (stub, gate-0)
   ok:   g_kae==0: splice skipped, out == upstream
   ok:   enabled splice perturbs exactly the 4 gated rows, nothing else
-== Test D: candidate-independent scoring hook ==
-  ok:   identical spans/carrier -> identical activations
-  ok:   readout delta is candidate-independent (= g*K[c][l], no label term)
-  ok:   kae_apply_add/kae_concept_at take no candidate arg (candidate-free by type)
+== Test D: candidate-independent single-prefill label-logit scoring (design R1.1) ==
+  ok:   argmax over the k label tokens picks the max-logit label (index 2)
+  ok:   readout is deterministic
+  ok:   score depends ONLY on the k label-token logits, not on other tokens
+  ok:   tie-break selects the lowest label index
+  ok:   prediction invariant to which candidate is 'evaluated' (no candidate arg)
+  ok:   splice delta identical across arms/candidates
 == Test E: loader fail-safe (misconfig -> NULL -> engine disables KaE) ==
   (the [KAE] load-failure messages below are EXPECTED test output)
   ok:   missing carrier path -> NULL
-  ok:   missing spans path -> NULL
   ok:   hidden-dim mismatch -> NULL
   ok:   splice layer out of range -> NULL
   ok:   bad carrier magic -> NULL
   ok:   span cid out of range -> NULL
+  ok:   non-integer span text -> NULL
+  ok:   carrier-only load OK (spans optional, per-item)
+== Test F: request-aware per-item span binding (no cross-item reuse) ==
+  ok:   carrier-only load for per-item binding
+  ok:   bind item A spans
+  ok:   item A: position 0 gates concept 1
+  ok:   item A: position 1 ungated
+  ok:   bind item B spans (rebind)
+  ok:   item B: position 0 now gates concept 2 (NOT item A's 1)
+  ok:   item B: position 2 out of range (no stale item-A tail)
+  ok:   bind rejects out-of-range concept id
+  ok:   rejected bind leaves spans empty (item scored ungated, no crash)
+  ok:   reset clears spans
 
 ALL TESTS PASSED (0 failures)
 -> test run exit 0
+
+===================================================================
+[5] C-SAFETY: AddressSanitizer + UBSan + LeakSanitizer
+===================================================================
+$ ASAN_OPTIONS=detect_leaks=1 ./test_kae_asan   (ASan + UBSan + LeakSanitizer)
+-> sanitized run exit 0   checks: 44 ok / 0 fail
+   no AddressSanitizer/UBSan/LeakSanitizer diagnostics = no leak, UB, or overflow
+ALL TESTS PASSED (0 failures)

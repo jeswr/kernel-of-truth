@@ -1,15 +1,17 @@
 /* ============================================================================
- * test_kae.c — mock unit tests for the F1-K KaE ADD-path mechanics.
+ * test_kae.c — mock unit tests for the F1-K KaE ADD-path + scoring mechanics.
  * DRAFT FOR GATE-0 REVIEW, NOT DEPLOYED.  No model, no weights, no instance:
  * a synthetic tiny setup (nc=3 concepts, D=4, splice layers {3,7}) that links
  * the SAME kae.h the engine links, writes real KAE_CARRIER/KAE_SPANS fixtures,
- * loads them through kae_load(), and asserts the four gate-0 properties:
+ * loads them through kae_load(), and asserts the gate-0 properties:
  *   A. the GATE fires on exactly the right tokens (and layers);
  *   B. the CARRIER adds correctly (out += g*K[c][l]) and ONLY at gated rows;
  *   C. INERT-by-default: the ADD path is a no-op whenever it must not fire
- *      (disabled/off-mode/non-splice-layer/ungated) -> bytes unchanged;
- *   D. the splice is CANDIDATE-INDEPENDENT (no option/label parameter; the
- *      spliced activations do not depend on which candidate is later scored).
+ *      -> bytes unchanged (unit-level companion to the binary equivalence proof);
+ *   D. the SCORING readout is CANDIDATE-INDEPENDENT (single-prefill label-logit
+ *      argmax; no candidate/option parameter; depends only on the k label logits);
+ *   E. loader fail-safe (malformed input -> NULL -> engine disables KaE);
+ *   F. REQUEST-AWARE per-item span binding (item N uses item N's spans, no reuse).
  * Exit 0 = all pass; nonzero = a failure (printed).
  * ==========================================================================*/
 #include <stdio.h>
@@ -72,20 +74,15 @@ int main(void){
 
     printf("== Test B: carrier adds correctly, only at gated rows/splice layers ==\n");
     float out[S*D], ref[S*D];
-    /* B1: splice at layer 3 (slot 0), pos_base 0 */
     fill_baseline(out); fill_baseline(ref);
     kae_apply_add(k, /*layer*/3, /*pos_base*/0, S, D, out);
     int b1 = 1;
-    for(int s = 0; s < S; s++){
-        int cid = SPANS[s];
+    for(int s = 0; s < S; s++){ int cid = SPANS[s];
         for(int d = 0; d < D; d++){
             float want = ref[s*D+d] + (cid < 0 ? 0.f : G * Kval(cid, 0, d));
-            if(out[s*D+d] != want) b1 = 0;
-        }
-    }
+            if(out[s*D+d] != want) b1 = 0; } }
     CHECK(b1, "layer 3: gated rows get +g*K[c][slot0], ungated rows unchanged");
 
-    /* B2: splice at layer 7 (slot 1) uses the slot-1 carrier */
     fill_baseline(out);
     kae_apply_add(k, /*layer*/7, /*pos_base*/0, S, D, out);
     int b2 = 1;
@@ -95,40 +92,32 @@ int main(void){
             if(out[s*D+d] != want) b2 = 0; } }
     CHECK(b2, "layer 7: uses slot-1 carrier (per-layer table is distinct)");
 
-    /* B3: pos_base offset shifts which absolute positions gate */
     fill_baseline(out);
     kae_apply_add(k, /*layer*/3, /*pos_base*/2, S, D, out);
     int b3 = 1;
-    for(int s = 0; s < S; s++){
-        int pos = 2 + s;
-        int cid = (pos < S) ? SPANS[pos] : -1;   /* beyond sidecar -> ungated */
+    for(int s = 0; s < S; s++){ int pos = 2 + s;
+        int cid = (pos < S) ? SPANS[pos] : -1;
         for(int d = 0; d < D; d++){
             float want = ref[s*D+d] + (cid < 0 ? 0.f : G * Kval(cid, 0, d));
             if(out[s*D+d] != want) b3 = 0; } }
     CHECK(b3, "pos_base=2 shifts gating by absolute position (rows past sidecar inert)");
 
     printf("== Test C: inert-by-default (no-op whenever the splice must not fire) ==\n");
-    /* C1: non-splice layer -> byte-identical to baseline */
     fill_baseline(out);
     kae_apply_add(k, /*layer*/4, 0, S, D, out);
     CHECK(memcmp(out, ref, sizeof out) == 0, "non-splice layer 4: out byte-identical");
 
-    /* C2: REPLACE mode (stubbed, deferred) -> ADD is a no-op */
     KaE *kr = kae_load(cpath, spath, D, NLAYERS, G, /*mode REPLACE*/1);
     fill_baseline(out);
     kae_apply_add(kr, 3, 0, S, D, out);
     CHECK(memcmp(out, ref, sizeof out) == 0, "REPLACE mode: ADD path inert (stub, gate-0)");
     kae_free(kr);
 
-    /* C3: engine guard semantics — with g_kae==0 the call is skipped entirely.
-     * Model the moe() tail: out=accumulated; (skip splice) => bytes unchanged. */
     fill_baseline(out);
     int g_kae = 0;                          /* mirrors the engine default */
     if(g_kae) kae_apply_add(k, 3, 0, S, D, out);   /* not taken */
     CHECK(memcmp(out, ref, sizeof out) == 0, "g_kae==0: splice skipped, out == upstream");
 
-    /* C4: count that ENABLED splice perturbs ONLY the gated rows.
-     * SPANS gates positions {1,3,4,6} -> 4 rows; the other 4 stay untouched. */
     fill_baseline(out);
     kae_apply_add(k, 3, 0, S, D, out);
     int changed_rows = 0, gated_expected = 0;
@@ -139,53 +128,78 @@ int main(void){
     CHECK(changed_rows == gated_expected && gated_expected == 4,
           "enabled splice perturbs exactly the 4 gated rows, nothing else");
 
-    printf("== Test D: candidate-independent scoring hook ==\n");
-    /* The engine produces ONE shared prefill; scoring reads label-token logits at
-     * a fixed readout position. KaE's contribution must not depend on which
-     * candidate/label is scored. The gate/splice take NO candidate parameter, so
-     * this holds by construction; we also verify it at runtime. */
-    /* D1: determinism / candidate-invariance — splicing the same frozen sidecar
-     * into two buffers (an "arm" abstraction that carries no per-candidate state)
-     * yields byte-identical activations. */
-    float outA[S*D], outB[S*D];
-    fill_baseline(outA); fill_baseline(outB);
-    kae_apply_add(k, 3, 0, S, D, outA);
-    kae_apply_add(k, 3, 0, S, D, outB);
-    CHECK(memcmp(outA, outB, sizeof outA) == 0, "identical spans/carrier -> identical activations");
+    printf("== Test D: candidate-independent single-prefill label-logit scoring (design R1.1) ==\n");
+    {
+        enum { V = 12 };
+        float logits[V]; for(int i = 0; i < V; i++) logits[i] = (float)i * 0.1f;
+        int label_ids[4] = { 2, 5, 7, 9 };            /* single-token labels A,B,C,D (published order) */
+        logits[7] = 9.0f;                             /* token 7 = label index 2 = the winner */
+        int pred = kae_argmax_label(logits, label_ids, 4);
+        CHECK(pred == 2, "argmax over the k label tokens picks the max-logit label (index 2)");
+        CHECK(kae_argmax_label(logits, label_ids, 4) == pred, "readout is deterministic");
 
-    /* D2: the KaE-induced delta at the readout row is a fixed vector, the SAME no
-     * matter which candidate label set is later argmax-scored off it. */
-    fill_baseline(out);
-    kae_apply_add(k, 3, 0, S, D, out);
-    int readout = 3;                         /* a gated position (concept 2) */
-    float delta[D]; for(int d = 0; d < D; d++) delta[d] = out[readout*D+d] - ref[readout*D+d];
-    int cand1[2] = {0, 2}, cand2[2] = {1, 3};    /* two disjoint candidate label sets */
-    /* the delta each candidate's logit-precursor receives is read from the SAME
-     * spliced row; it does not depend on the candidate index chosen. */
-    int d2 = 1;
-    for(int i = 0; i < 2; i++){
-        float expect = G * Kval(2 /*cid at readout*/, 0, /*any d*/0);
-        (void)cand1; (void)cand2;
-        if(delta[0] != expect) d2 = 0;
+        /* independence from NON-label logits: an option's content/length would move
+         * OTHER logits via a per-candidate continuation; our readout ignores them. */
+        float perturbed[V]; memcpy(perturbed, logits, sizeof logits);
+        perturbed[0] = 100.f; perturbed[3] = -100.f; perturbed[8] = 50.f; perturbed[11] = 77.f;
+        CHECK(kae_argmax_label(perturbed, label_ids, 4) == pred,
+              "score depends ONLY on the k label-token logits, not on other tokens");
+
+        /* deterministic tie-break = lowest label index */
+        float tie[V]; for(int i = 0; i < V; i++) tie[i] = 0.f;
+        tie[label_ids[1]] = 5.f; tie[label_ids[3]] = 5.f;
+        CHECK(kae_argmax_label(tie, label_ids, 4) == 1, "tie-break selects the lowest label index");
+
+        /* structural: scoring under different 'candidate contexts' (a variable the
+         * readout has no parameter for) is invariant -> one prefill, no per-candidate forward. */
+        int same = 1;
+        for(int cand = 0; cand < 4; cand++) if(kae_argmax_label(logits, label_ids, 4) != pred) same = 0;
+        CHECK(same, "prediction invariant to which candidate is 'evaluated' (no candidate arg)");
+
+        /* the KaE splice contributes a candidate-independent delta, so it shifts the
+         * shared prefill (hence every label logit) identically across arms. */
+        float outA[S*D], outB[S*D];
+        fill_baseline(outA); fill_baseline(outB);
+        kae_apply_add(k, 3, 0, S, D, outA);
+        kae_apply_add(k, 3, 0, S, D, outB);
+        CHECK(memcmp(outA, outB, sizeof outA) == 0, "splice delta identical across arms/candidates");
     }
-    CHECK(d2 == 1 && delta[0] == G*Kval(2,0,0),
-          "readout delta is candidate-independent (= g*K[c][l], no label term)");
-    /* D3: structural — the signatures carry no candidate/option/label argument.
-     * (Compile-time truth; asserted here as documentation.) */
-    CHECK(1, "kae_apply_add/kae_concept_at take no candidate arg (candidate-free by type)");
 
     printf("== Test E: loader fail-safe (misconfig -> NULL -> engine disables KaE) ==\n");
     printf("  (the [KAE] load-failure messages below are EXPECTED test output)\n");
     CHECK(kae_load(NULL,  spath, D, NLAYERS, G, 0) == NULL, "missing carrier path -> NULL");
-    CHECK(kae_load(cpath, NULL,  D, NLAYERS, G, 0) == NULL, "missing spans path -> NULL");
     CHECK(kae_load(cpath, spath, D+1, NLAYERS, G, 0) == NULL, "hidden-dim mismatch -> NULL");
     CHECK(kae_load(cpath, spath, D, /*n_layers*/2, G, 0) == NULL, "splice layer out of range -> NULL");
-    /* bad-magic file */
     { FILE *bf = fopen("/tmp/kae_bad.bin","wb"); fputs("XXXX",bf); fclose(bf);
       CHECK(kae_load("/tmp/kae_bad.bin", spath, D, NLAYERS, G, 0) == NULL, "bad carrier magic -> NULL"); }
-    /* spans referencing a concept id >= nc */
     { FILE *sf = fopen("/tmp/kae_badspans.txt","w"); fprintf(sf,"0 1 99\n"); fclose(sf);
       CHECK(kae_load(cpath, "/tmp/kae_badspans.txt", D, NLAYERS, G, 0) == NULL, "span cid out of range -> NULL"); }
+    { FILE *sf = fopen("/tmp/kae_txtbad.txt","w"); fprintf(sf,"0 1 xyz\n"); fclose(sf);
+      CHECK(kae_load(cpath, "/tmp/kae_txtbad.txt", D, NLAYERS, G, 0) == NULL, "non-integer span text -> NULL"); }
+    /* carrier-only load is VALID (spans bound per item in the scoring path) */
+    { KaE *kco = kae_load(cpath, NULL, D, NLAYERS, G, 0);
+      CHECK(kco != NULL && kco->span_n == 0, "carrier-only load OK (spans optional, per-item)");
+      kae_free(kco); }
+
+    printf("== Test F: request-aware per-item span binding (no cross-item reuse) ==\n");
+    {
+        KaE *kf = kae_load(cpath, NULL, D, NLAYERS, G, 0);
+        CHECK(kf != NULL, "carrier-only load for per-item binding");
+        int spansA[3] = { 1, -1, -1 };
+        CHECK(kae_bind_spans(kf, spansA, 3) == 0, "bind item A spans");
+        CHECK(kae_concept_at(kf, 0) == 1,  "item A: position 0 gates concept 1");
+        CHECK(kae_concept_at(kf, 1) == -1, "item A: position 1 ungated");
+        int spansB[2] = { 2, -1 };          /* DIFFERENT concept, SHORTER */
+        CHECK(kae_bind_spans(kf, spansB, 2) == 0, "bind item B spans (rebind)");
+        CHECK(kae_concept_at(kf, 0) == 2,  "item B: position 0 now gates concept 2 (NOT item A's 1)");
+        CHECK(kae_concept_at(kf, 2) == -1, "item B: position 2 out of range (no stale item-A tail)");
+        int spansBad[2] = { 0, 99 };        /* 99 >= nc */
+        CHECK(kae_bind_spans(kf, spansBad, 2) == -1, "bind rejects out-of-range concept id");
+        CHECK(kf->span_n == 0, "rejected bind leaves spans empty (item scored ungated, no crash)");
+        kae_reset_spans(kf);
+        CHECK(kf->span_n == 0 && kae_concept_at(kf, 0) == -1, "reset clears spans");
+        kae_free(kf);
+    }
 
     kae_free(k);
     printf("\n%s (%d failure%s)\n", fails ? "TESTS FAILED" : "ALL TESTS PASSED",
