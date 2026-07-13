@@ -1,0 +1,27 @@
+{
+ "schema": "kot-corpus/1",
+ "corpus": "semcor30",
+ "role": "ENGINE-INF E0 confirmatory-holdout source (design docs/next/design/engine-inference-under-typing.md §2.5 [R1], ASM-2104/2110): SemCor 3.0 sense-tagged Brown corpus (brown1/brown2/brownv), the third-party sentence corpus from which the unseen holdout H1/H2/H3 items are extracted mechanically. The corpus predates the programme (Brown corpus 1961-64; SemCor tagging 1993-2003, Princeton/Mihalcea). PINNED AS THE ZIP: the extractor reads semcor.zip directly and verifies this sha256 before any byte is consumed.",
+ "files": {
+  "semcor.zip": {
+   "sha256": "126fa2e829ab63edd5b3fd9de45ef1d60d6880e01e25abc55b5ac7918a824655",
+   "bytes": 4397021,
+   "contents": {
+    "brown1_tagfiles": 103,
+    "brown2_tagfiles": 83,
+    "brownv_tagfiles": 166,
+    "zip_entries": 363
+   }
+  }
+ },
+ "source": {
+  "url": "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/semcor.zip",
+  "distribution": "NLTK data 'semcor' package (XML conversion of SemCor 3.0; brown1 + brown2 + brownv concordances)",
+  "retrieved": "2026-07-13",
+  "note": "Primary mirror web.eecs.umich.edu/~mihalcea (semcor3.0.tar.gz) was TLS-unreachable from this box at pin time; the NLTK conversion carries the same brown1/brown2/brownv tagfiles with sense keys as lemma+lexsn attributes. Sense keys are version-stable and map to WN3.1 offsets through the ALREADY-PINNED data/lexical-wn31 index.sense (unmappable keys are logged exclusions, ASM-2104)."
+ },
+ "license": "SemCor: Princeton WordNet license (see LICENSE inside the zip); Brown corpus text as distributed with SemCor 3.0.",
+ "custody": "Entered the repo AFTER the K-lemma collapse modules and the C-SHUF orbit manifest were pinned (design §2.5 custody clause 1) and BEFORE any holdout outcome exists. No engine or scorer runs on holdout items pre-freeze (ASM-2104).",
+ "emitted_by": "writer-5",
+ "date": "2026-07-13"
+}

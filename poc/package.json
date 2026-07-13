@@ -34,6 +34,7 @@
     "scale:vec": "npm run scale:build && nice -n 10 node scale/dist/vectorise.js",
     "scale:vec:verify": "npm run scale:build && nice -n 10 node scale/dist/vectorise.js --verify",
     "scale:metrics": "npm run scale:build && nice -n 10 node --max-old-space-size=3072 scale/dist/metrics.js",
+    "scale:census": "npm run scale:build && nice -n 10 node --max-old-space-size=3072 scale/dist/census.js",
     "scale:all": "npm run scale:build && nice -n 10 node scale/dist/ingest.js && nice -n 10 node scale/dist/typing.js && nice -n 10 node scale/dist/vectorise.js && nice -n 10 node --max-old-space-size=3072 scale/dist/metrics.js"
   },
   "dependencies": {

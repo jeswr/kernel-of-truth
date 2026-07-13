@@ -1,33 +1,49 @@
 #!/usr/bin/env python3
 # ENGINE-INF pre-registered analysis (stdin-conformant; verdict-gen P2 §3.1
 # step 5 invokes this with the eligible results-log run records as JSONL on
-# STDIN and no argv).
+# STDIN and no argv). REVISION-1/2/3 build.
 #
-# Design: docs/next/design/engine-inference-under-typing.md §2.2-§2.3
-# (scoring, divergence certificate, decision rule verbatim); build-level
-# operationalisations ASM-1990..2009 (poc/engine-inference/asm-1990-2009.json):
-#   ASM-1994 divergence signature (verdict + refusal + G2-side projection)
-#   ASM-1997 G4 scoring rule (REFUSE or vacuous-CONSISTENT correct;
-#            ANOMALOUS = confident wrong assertion)
-#   ASM-1999 PRIMARY frame = decision-level Div(K, b) restricted to
-#            G1/G3 (decisive third-party/constructed-rule gold) cells;
-#            G4 cells feed the honesty-weighted secondary only
-#   ASM-2000 delta lower bound: conservative exact-binomial (Clopper-
-#            Pearson, one-sided alpha=0.05) on the discordant-pair win rate,
-#            mapped to the delta scale conditional on the discordant count m:
-#            delta_lb = (2*CP_LB(wins, m) - 1) * m / n_pri (0 when m = 0)
+# Design: docs/next/design/engine-inference-under-typing.md §2.2-§2.3 as
+# amended through REVISION-3 (exact finite-census gates, co-primary EP-A/
+# EP-B, C-SHUF orbit randomization over the orbit-invariant A_union frame);
+# operationalisations:
+#   ASM-1994  divergence signature (verdict + refusal + G2-side projection)
+#   ASM-1997/2116  G4 scoring rule (REFUSE or truly-vacuous CONSISTENT
+#             correct; a confident derived assertion is incorrect) — G4
+#             cells feed the honesty secondary only, never the co-primary
+#             frames
+#   ASM-2101/2102  co-primary endpoints: EP-A = K vs K-lemma-{dom,union} on
+#             Div_dec ∩ (G1∪G3)_H* (sense-splitting per se); EP-B = K vs
+#             B-wn on Div_dec ∩ (G1∪G3)_H* (kernel-authored content given
+#             splitting); D-word arms descriptive only
+#   ASM-2105  KILL-e1 (holdout adequacy) / KILL-e2a (sense-split idle) /
+#             KILL-e2b (kernel-vs-mechanical unaskable)
+#   ASM-2106  the outcome-equivalence CELL is the inference unit
+#   ASM-2115  EXACT census gates over the fixed cell frame (all bootstrap/
+#             LB95 gates REMOVED): delta >= +0.20, strict win>loss sign,
+#             K correctness floor >= 0.80, binding DIST-SPAN (net winning
+#             cells span >= 2 lemmas), no-net-harm tolerance 0.02
+#   ASM-2114/2120  C-SHUF: the 960-member within-lemma permutation orbit;
+#             evaluation frame = the orbit-INVARIANT union A_union of
+#             per-member activated cells (non-empty derived_sides OR
+#             ANOMALOUS); T(pi) = correctness over A_union (constant
+#             denominator); calibrated one-sided p = #{T(pi)>=T(K)}/960;
+#             PASS gate p <= 0.05
 #
 # INPUT CONTRACT: each eligible stdin record's `artifacts` must pin the
-# runner outputs: rows_path/rows_sha256 (+ optional run_result_path/_sha256).
-# Rows are loaded from the PINNED path, sha256 re-verified, fail closed.
-# The analysis is a pure function of those bytes: divergence, scores and
-# bands are RECOMPUTED from rows here — the committed certificate artifact
-# is provenance, not an input.
+# runner outputs: rows_path/rows_sha256 AND orbit_rows_path/
+# orbit_rows_sha256. Rows are loaded from the PINNED paths, sha256
+# re-verified, fail closed. The analysis is a pure function of those bytes:
+# cells, divergence, exact censuses, C-SHUF and bands are RECOMPUTED here —
+# committed certificate artifacts are provenance, not inputs.
 #
-# Statistics: deterministic engine => per-item outcomes are 0/1 census
-# quantities over the finite item frame (design §2.3); Wilson-LB95
-# (z=1.959963984540054) reported for the pre-registered generalization to
-# Stage-B lemmas, tagged EXTRAPOLATION in any readout.
+# FRAME SEMANTICS: rows carry frame ("H" = registered holdout run, "seen" =
+# exploratory) and h_star. The BINDING frame is (G1∪G3)_H* — G1∪G3 cells
+# whose h_star is true. On a seen-frame input every h_star is false; the
+# analysis then evaluates the identical machinery over the seen G1∪G3
+# cells and stamps exploratory_nonbinding=true (the seen frames are
+# exploratory-forever, ASM-2104 — such output is mechanics validation and
+# never a registered verdict).
 
 import hashlib
 import json
@@ -36,20 +52,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Pre-registered constants (design §2.3 verbatim; changing any is a design
-# change requiring a new freeze).
-KILL_E1_MIN_DIV_DWORDDOM_FULL = 25
-KILL_E1_MIN_OPS = 3
-KILL_E1_MIN_LEMMAS = 3
-KILL_E2_MIN_DIV_BWN_PRI = 10
-PASS_K_WILSON_LB = 0.80
-PASS_MIN_DELTA_BWN = 0.20
+# Pre-registered constants (design §2.3 [R2] verbatim; changing any is a
+# design change requiring a new freeze).
+PASS_MIN_DELTA = 0.20
+PASS_K_FLOOR = 0.80
 NO_NET_HARM_TOL = 0.02
-Z95 = 1.959963984540054
-CP_ALPHA = 0.05
+CSHUF_P_MAX = 0.05
+DIST_SPAN_MIN_LEMMAS = 2
+KILL_E1_MIN_ITEMS = 30
+KILL_E1_MIN_CELLS = 12
+KILL_E1_MIN_OPS = 2
+KILL_E1_MIN_LEMMAS = 2
+KILL_E2A_MIN_CELLS = 6
+KILL_E2B_MIN_CELLS = 6
+KILL_E2B_MIN_ITEMS = 10
+ORBIT_N = 960
 
-ARMS = ("K", "K-shuf", "D-word-dom", "D-word-union", "B-wn")
-BASELINES = ("D-word-dom", "D-word-union", "B-wn")
+ARMS = ("K", "K-lemma-dom", "K-lemma-union", "D-word-dom", "D-word-union",
+        "B-wn")
+EP_A_ARMS = ("K-lemma-dom", "K-lemma-union")
+EP_B_ARM = "B-wn"
 
 
 def fail(msg):
@@ -65,47 +87,8 @@ def sha256_file(p):
     return h.hexdigest()
 
 
-def wilson_lb(k, n, z=Z95):
-    if n == 0:
-        return 0.0
-    ph = k / n
-    d = 1 + z * z / n
-    c = ph + z * z / (2 * n)
-    e = z * ((ph * (1 - ph) / n + z * z / (4 * n * n)) ** 0.5)
-    return (c - e) / d
-
-
-def binom_tail_ge(k, n, p):
-    if k <= 0:
-        return 1.0
-    if k > n:
-        return 0.0
-    q = 1.0 - p
-    if q <= 0:
-        return 1.0
-    term = q ** n
-    cdf = 0.0
-    for i in range(0, k):
-        cdf += term
-        term = term * (n - i) / (i + 1) * (p / q)
-    return max(0.0, 1.0 - cdf)
-
-
-def clopper_pearson_lb(k, n, alpha=CP_ALPHA):
-    if n == 0 or k == 0:
-        return 0.0
-    lo, hi = 0.0, k / n
-    for _ in range(60):
-        mid = (lo + hi) / 2
-        if binom_tail_ge(k, n, mid) >= alpha:
-            hi = mid
-        else:
-            lo = mid
-    return lo
-
-
-def load_rows():
-    """Eligible stdin run records -> verified per-item rows by (arm, item)."""
+def load_pinned():
+    """Eligible stdin run records -> verified rows + orbit rows."""
     eligible = []
     for line in sys.stdin:
         line = line.strip()
@@ -120,170 +103,271 @@ def load_rows():
             eligible.append(rec)
     if not eligible:
         fail("no eligible run records on stdin")
-    rows_pins = set()
+    pins = set()
     for rec in eligible:
         art = rec.get("artifacts") or {}
-        if not art.get("rows_path") or not art.get("rows_sha256"):
-            fail("eligible record lacks artifacts.rows_path/rows_sha256")
-        rows_pins.add((art["rows_path"], art["rows_sha256"]))
-    if len(rows_pins) != 1:
-        fail("eligible records pin DIFFERENT rows artifacts: %s"
-             % sorted(rows_pins))
-    path, want = next(iter(rows_pins))
-    full = ROOT / path
-    if not full.is_file():
-        fail("pinned rows artifact missing: %s" % path)
-    got = sha256_file(full)
-    if got != want:
-        fail("rows artifact sha256 %s != pinned %s" % (got, want))
+        for k in ("rows_path", "rows_sha256", "orbit_rows_path",
+                  "orbit_rows_sha256"):
+            if not art.get(k):
+                fail("eligible record lacks artifacts.%s" % k)
+        pins.add((art["rows_path"], art["rows_sha256"],
+                  art["orbit_rows_path"], art["orbit_rows_sha256"]))
+    if len(pins) != 1:
+        fail("eligible records pin DIFFERENT artifacts: %s" % sorted(pins))
+    rows_path, rows_sha, orows_path, orows_sha = next(iter(pins))
+    out = []
+    for path, want in ((rows_path, rows_sha), (orows_path, orows_sha)):
+        full = ROOT / path
+        if not full.is_file():
+            fail("pinned artifact missing: %s" % path)
+        got = sha256_file(full)
+        if got != want:
+            fail("artifact %s sha256 %s != pinned %s" % (path, got, want))
+        out.append([json.loads(l) for l in open(full)])
+    rows_list, orbit_list = out
     rows = {}
-    for line in open(full):
-        r = json.loads(line)
+    for r in rows_list:
         rows[(r["arm"], r["item"])] = r
-    return rows
+    return rows, orbit_list
 
 
 def main():
-    rows = load_rows()
+    rows, orbit_list = load_pinned()
     item_ids = sorted({i for (a, i) in rows if a == "K"})
     for arm in ARMS + ("oracle",):
         missing = [i for i in item_ids if (arm, i) not in rows]
         if missing:
             fail("arm %s missing %d item rows" % (arm, len(missing)))
 
-    def sig(arm, iid):
-        r = rows[(arm, iid)]
-        return (r["verdict"], r["refusal"] or "", tuple(r["derived_sides"]))
+    frames = {rows[("K", i)].get("frame", "seen") for i in item_ids}
+    if len(frames) != 1:
+        fail("mixed row frames: %s" % sorted(frames))
+    frame = next(iter(frames))
+    binding = frame == "H"
 
     def dec(arm, iid):
         r = rows[(arm, iid)]
         return (r["verdict"], r["refusal"] or "")
 
-    def is_pri(iid):
-        return rows[("K", iid)]["gold_rule"] in ("G1+G2", "G3")
-
     def correct(arm, iid):
         return bool(rows[(arm, iid)]["correct"])
 
-    # ---- divergence (recomputed from rows; ASM-1994) ----
-    div_full = {b: [i for i in item_ids if sig("K", i) != sig(b, i)]
-                for b in BASELINES}
-    div_dec = {b: [i for i in item_ids if dec("K", i) != dec(b, i)]
-               for b in BASELINES}
-    d_pri = {b: [i for i in div_dec[b] if is_pri(i)] for b in BASELINES}
+    def is_g1g3(iid):
+        return rows[("K", iid)]["gold_rule"] in ("G1+G2", "G3")
 
-    def ops_of(b, iid):
-        k, r = rows[("K", iid)], rows[(b, iid)]
-        o = []
-        if tuple(k["derived_sides"]) != tuple(r["derived_sides"]):
-            o.append("O1")
-        if (k["verdict"] == "ANOMALOUS") != (r["verdict"] == "ANOMALOUS"):
-            o.append("O2")
-        if (k["verdict"] == "REFUSE") != (r["verdict"] == "REFUSE"):
-            o.append("O3")
-        return o
+    def in_frame(iid):
+        if not is_g1g3(iid):
+            return False
+        return rows[("K", iid)].get("h_star", False) if binding else True
 
-    dd_ops = sorted({o for i in div_full["D-word-dom"]
-                     for o in ops_of("D-word-dom", i)})
-    dd_lemmas = sorted({rows[("K", i)]["lemma"]
-                        for i in div_full["D-word-dom"]})
-
-    kill_e1 = (len(div_full["D-word-dom"]) < KILL_E1_MIN_DIV_DWORDDOM_FULL
-               or len(dd_ops) < KILL_E1_MIN_OPS
-               or len(dd_lemmas) < KILL_E1_MIN_LEMMAS)
-    kill_e2 = len(d_pri["B-wn"]) < KILL_E2_MIN_DIV_BWN_PRI
-
-    # ---- primary contrast (design §2.3; frame ASM-1999) ----
-    def delta_on(b):
-        cells = d_pri[b]
-        if not cells:
-            return 0.0, 0, 0, 0
-        kc = sum(1 for i in cells if correct("K", i))
-        bc = sum(1 for i in cells if correct(b, i))
-        wins = sum(1 for i in cells if correct("K", i) and not correct(b, i))
-        losses = sum(1 for i in cells if not correct("K", i) and correct(b, i))
-        return (kc - bc) / len(cells), kc, wins, losses
-
-    delta_bwn, k_pri_correct, wins, losses = delta_on("B-wn")
-    n_pri = len(d_pri["B-wn"])
-    m = wins + losses
-    delta_bwn_lb = ((2 * clopper_pearson_lb(wins, m) - 1) * m / n_pri
-                    if n_pri and m else 0.0)
-    k_pri_wilson = wilson_lb(k_pri_correct, n_pri)
-    delta_dd = delta_on("D-word-dom")[0]
-    delta_du = delta_on("D-word-union")[0]
-
-    # ---- no-net-harm (design §2.3 PASS clause 4) ----
-    harm_ok = True
-    for b in BASELINES:
-        conv = [i for i in item_ids if is_pri(i) and i not in set(div_dec[b])]
-        if not conv:
+    # ---- cells (ASM-2106): one observation per outcome-equivalence cell;
+    # within-cell determinism asserted, fail closed ----
+    cells = {}
+    for iid in item_ids:
+        if not in_frame(iid):
             continue
-        kc = sum(1 for i in conv if correct("K", i)) / len(conv)
-        bc = sum(1 for i in conv if correct(b, i)) / len(conv)
+        ck = rows[("K", iid)].get("cell")
+        if not ck:
+            fail("row lacks the cell key (item %s)" % iid)
+        cells.setdefault(ck, []).append(iid)
+    for ck, iids in sorted(cells.items()):
+        for arm in ARMS:
+            sigs = {(rows[(arm, i)]["verdict"], rows[(arm, i)]["refusal"] or "",
+                     tuple(rows[(arm, i)]["derived_sides"]),
+                     correct(arm, i)) for i in iids}
+            if len(sigs) != 1:
+                fail("cell %s not outcome-equivalent in arm %s" % (ck, arm))
+
+    def cell_dec(arm, ck):
+        return dec(arm, cells[ck][0])
+
+    def cell_correct(arm, ck):
+        return correct(arm, cells[ck][0])
+
+    def cell_lemma(ck):
+        return rows[("K", cells[ck][0])]["lemma"]
+
+    def cell_kind(ck):
+        return rows[("K", cells[ck][0])]["kind"]
+
+    frame_cells = sorted(cells)
+    n_frame_items = sum(len(cells[c]) for c in frame_cells)
+
+    # ---- KILL-e1 (holdout adequacy; ASM-2105 — the pre-freeze count,
+    # re-verified here from the pinned rows) ----
+    ops = sorted({"O1" if cell_kind(c) == "attested" else "O2"
+                  for c in frame_cells})
+    lemmas = sorted({cell_lemma(c) for c in frame_cells})
+    kill_e1 = (n_frame_items < KILL_E1_MIN_ITEMS
+               or len(frame_cells) < KILL_E1_MIN_CELLS
+               or len(ops) < KILL_E1_MIN_OPS
+               or len(lemmas) < KILL_E1_MIN_LEMMAS)
+
+    # ---- co-primary frames (ASM-2102): decision-level divergence cells ----
+    div_cells = {b: [c for c in frame_cells
+                     if cell_dec("K", c) != cell_dec(b, c)]
+                 for b in ARMS if b != "K"}
+    f_a = {x: div_cells[x] for x in EP_A_ARMS}
+    f_a_union = sorted(set(f_a["K-lemma-dom"]) | set(f_a["K-lemma-union"]))
+    f_b = div_cells[EP_B_ARM]
+
+    kill_e2a = len(f_a_union) < KILL_E2A_MIN_CELLS
+    kill_e2b = (len(f_b) < KILL_E2B_MIN_CELLS
+                or sum(len(cells[c]) for c in f_b) < KILL_E2B_MIN_ITEMS)
+
+    # ---- exact census per endpoint (ASM-2115) ----
+    def census(b, frame_c):
+        wins = [c for c in frame_c if cell_correct("K", c)
+                and not cell_correct(b, c)]
+        losses = [c for c in frame_c if not cell_correct("K", c)
+                  and cell_correct(b, c)]
+        ties = len(frame_c) - len(wins) - len(losses)
+        delta = ((sum(cell_correct("K", c) for c in frame_c)
+                  - sum(cell_correct(b, c) for c in frame_c)) / len(frame_c)
+                 if frame_c else 0.0)
+        # DIST-SPAN (binding, ASM-2115): net winning cells (win-cells minus
+        # same-lemma loss-cells) must span >= 2 distinct lemmas
+        net = {}
+        for c in wins:
+            net[cell_lemma(c)] = net.get(cell_lemma(c), 0) + 1
+        for c in losses:
+            net[cell_lemma(c)] = net.get(cell_lemma(c), 0) - 1
+        span = sorted(l for l, v in net.items() if v > 0)
+        return {"n_cells": len(frame_c), "n_items": sum(len(cells[c])
+                                                        for c in frame_c),
+                "delta": delta, "wins": len(wins), "losses": len(losses),
+                "ties": ties, "net_win_lemma_span": span,
+                "dist_span_ok": len(span) >= DIST_SPAN_MIN_LEMMAS}
+
+    ep_a = {x: census(x, f_a[x]) for x in EP_A_ARMS}
+    ep_b = census(EP_B_ARM, f_b)
+    k_corr_a = (sum(cell_correct("K", c) for c in f_a_union) / len(f_a_union)
+                if f_a_union else None)
+    k_corr_b = (sum(cell_correct("K", c) for c in f_b) / len(f_b)
+                if f_b else None)
+
+    pass_a = (not kill_e2a and all(
+        ep_a[x]["delta"] >= PASS_MIN_DELTA
+        and ep_a[x]["wins"] > ep_a[x]["losses"]
+        and ep_a[x]["dist_span_ok"] for x in EP_A_ARMS)
+        and k_corr_a is not None and k_corr_a >= PASS_K_FLOOR)
+    pass_b = (not kill_e2b and ep_b["delta"] >= PASS_MIN_DELTA
+              and ep_b["wins"] > ep_b["losses"] and ep_b["dist_span_ok"]
+              and k_corr_b is not None and k_corr_b >= PASS_K_FLOOR)
+    fail_a = (not kill_e2a and min(ep_a[x]["delta"] for x in EP_A_ARMS) <= 0)
+    fail_b = (not kill_e2b and ep_b["delta"] <= 0)
+
+    # ---- no-net-harm (binding for PASS-affirm; ASM-2115) ----
+    harm = {}
+    harm_ok = True
+    for b in ARMS:
+        if b == "K":
+            continue
+        conv = [c for c in frame_cells if c not in set(div_cells[b])]
+        if not conv:
+            harm[b] = None
+            continue
+        kc = sum(cell_correct("K", c) for c in conv) / len(conv)
+        bc = sum(cell_correct(b, c) for c in conv) / len(conv)
+        harm[b] = kc - bc
         if kc < bc - NO_NET_HARM_TOL:
             harm_ok = False
 
-    # ---- FAIL-deflate second clause: K < D-word-dom on Div(K,D-word-dom) ----
-    dd_cells = d_pri["D-word-dom"]
-    k_on_dd = (sum(1 for i in dd_cells if correct("K", i)) / len(dd_cells)
-               if dd_cells else 1.0)
-    dd_on_dd = (sum(1 for i in dd_cells if correct("D-word-dom", i))
-                / len(dd_cells) if dd_cells else 0.0)
+    # ---- C-SHUF (ASM-2114 mechanics + ASM-2120 A_union frame) ----
+    orbit = {}
+    for r in orbit_list:
+        orbit.setdefault(r["m"], {})[r["cell"]] = r
+    members = sorted(orbit)
+    if len(members) != ORBIT_N:
+        fail("orbit has %d members, expected %d" % (len(members), ORBIT_N))
+    cand = set(frame_cells)
+    for m in members:
+        if set(orbit[m]) - cand or cand - set(orbit[m]):
+            # orbit rows must cover exactly the frame cells
+            fail("orbit member %d cell set differs from the frame" % m)
+    # identity member must reproduce the K arm on the frame (consistency)
+    for c in frame_cells:
+        r0, rk = orbit[0][c], rows[("K", cells[c][0])]
+        if (r0["verdict"], tuple(r0["derived_sides"])) != \
+                (rk["verdict"], tuple(rk["derived_sides"])):
+            fail("orbit identity member != K arm on cell %s" % c)
+    a_union = sorted({c for m in members for c, r in orbit[m].items()
+                      if r["derived_sides"] or r["verdict"] == "ANOMALOUS"})
+    if a_union:
+        gold_of = {c: rows[("K", cells[c][0])]["gold_verdict"]
+                   for c in a_union}
+        t = {m: sum(1 for c in a_union
+                    if orbit[m][c]["verdict"] == gold_of[c]) / len(a_union)
+             for m in members}
+        t_k = t[0]
+        cshuf_p = sum(1 for m in members if t[m] >= t_k) / len(members)
+        cshuf_rank = sum(1 for m in members if t[m] > t_k) + 1
+        cshuf_ok = cshuf_p <= CSHUF_P_MAX
+    else:
+        t_k, cshuf_p, cshuf_rank, cshuf_ok = None, None, None, False
 
-    band_pass = (not kill_e1 and not kill_e2
-                 and k_pri_wilson >= PASS_K_WILSON_LB
-                 and delta_bwn >= PASS_MIN_DELTA_BWN and delta_bwn_lb > 0
-                 and delta_dd > 0 and delta_du > 0 and harm_ok)
-    band_fail = (not kill_e1 and not kill_e2
-                 and (delta_bwn <= 0 or k_on_dd < dd_on_dd))
+    # ---- bands (§2.3 [R2] decision rule; §3 ladder) ----
+    band_pass_affirm = (not kill_e1 and pass_a and pass_b and cshuf_ok
+                        and harm_ok)
+    content_inert = (a_union != [] and not cshuf_ok)
 
-    # ---- gates ----
+    # ---- gates + descriptive secondaries ----
     oracle_score = (sum(1 for i in item_ids if correct("oracle", i))
                     / len(item_ids) if item_ids else 0.0)
-    census = {}
-    honesty = {}
+    census_all, honesty = {}, {}
     for arm in ARMS:
-        census[arm] = sum(1 for i in item_ids if correct(arm, i)) / len(item_ids)
+        census_all[arm] = sum(1 for i in item_ids if correct(arm, i)) / len(item_ids)
         honesty[arm] = round(sum(rows[(arm, i)]["honesty_penalty"]
                                  for i in item_ids), 2)
-    kshuf_diff = (sum(1 for i in item_ids if sig("K", i) != sig("K-shuf", i))
-                  / len(item_ids))
+    dword_desc = {b: census(b, div_cells[b])
+                  for b in ("D-word-dom", "D-word-union")}
 
     out = {
         "gates": {
             "oracle_score": oracle_score,
             "oracle_valid": oracle_score == 1.0,
             "rows_complete": True,
+            "cells_outcome_equivalent": True,
+            "orbit_identity_matches_k": True,
             "instrument_valid": oracle_score == 1.0,
         },
         "analysis": {
+            "frame": frame,
+            "binding": binding,
+            "exploratory_nonbinding": not binding,
             "n_items": len(item_ids),
-            "n_pri_frame": sum(1 for i in item_ids if is_pri(i)),
-            "div_full_dworddom_n": len(div_full["D-word-dom"]),
-            "div_full_dworddom_ops_n": len(dd_ops),
-            "div_full_dworddom_lemmas_n": len(dd_lemmas),
-            "div_dec_bwn_n": len(div_dec["B-wn"]),
-            "div_pri_bwn_n": n_pri,
+            "n_frame_items": n_frame_items,
+            "n_cells_confirmatory": len(frame_cells),
+            "frame_ops_spanned": ops,
+            "frame_lemmas_spanned": lemmas,
             "kill_e1_fired": kill_e1,
-            "kill_e2_fired": kill_e2,
-            "k_pri_correct_n": k_pri_correct,
-            "k_pri_wilson_lb95": k_pri_wilson,
-            "delta_k_minus_bwn_pri": delta_bwn,
-            "delta_k_minus_bwn_lb95": delta_bwn_lb,
-            "delta_k_minus_dworddom_pri": delta_dd,
-            "delta_k_minus_dwordunion_pri": delta_du,
-            "k_on_div_dworddom": k_on_dd,
-            "dworddom_on_div_dworddom": dd_on_dd,
+            "kill_e2a_fired": kill_e2a,
+            "kill_e2b_fired": kill_e2b,
+            "ep_a_delta_dom": ep_a["K-lemma-dom"]["delta"],
+            "ep_a_delta_union": ep_a["K-lemma-union"]["delta"],
+            "ep_a_dom": ep_a["K-lemma-dom"],
+            "ep_a_union": ep_a["K-lemma-union"],
+            "ep_b_delta": ep_b["delta"],
+            "ep_b": ep_b,
+            "k_corr_ep_a_frame": k_corr_a,
+            "k_corr_ep_b_frame": k_corr_b,
+            "pass_a": pass_a,
+            "pass_b": pass_b,
+            "fail_a": fail_a,
+            "fail_b": fail_b,
+            "cshuf_orbit_p": cshuf_p,
+            "cshuf_rank": cshuf_rank,
+            "cshuf_active_n": len(a_union),
+            "cshuf_t_identity": t_k,
+            "cshuf_pass": cshuf_ok,
+            "content_inert_flag": content_inert,
             "no_net_harm_ok": harm_ok,
-            "band_pass_affirm": band_pass,
-            "band_fail_deflate": band_fail,
-            "kshuf_differs_from_k_frac": kshuf_diff,
-            "census_correctness": census,
+            "no_net_harm_margins": harm,
+            "band_pass_affirm": band_pass_affirm,
+            "band_fail_deflate": fail_a or fail_b,
+            "census_correctness": census_all,
             "honesty_penalty_sum": honesty,
-            "per_op_divergence_dworddom": {o: sum(1 for i in div_full["D-word-dom"]
-                                                  if o in ops_of("D-word-dom", i))
-                                           for o in ("O1", "O2", "O3")},
+            "dword_descriptive": dword_desc,
         },
     }
     print(json.dumps(out, indent=1, sort_keys=True))

@@ -115,6 +115,17 @@ that gap — loading per-ontology BFO bridge axioms and the SUMO↔WordNet mappi
 is the S1 crosswalk step, *not new science*; the source-asserted yield rises when
 the bridges are loaded.
 
+**Increment 2 executed this [MEASURED, ASM-2056].** Loading the pinned
+`data/onto-obo/bfo-bridge.json` (14 rows recovering the root→BFO edges the
+subset-only extractor dropped — GO's 3 roots, SO's 4, CHEBI/NCBITaxon orphans,
+MONDO:injury, OGMS→IAO/OBI; LIT-BACKED per row bar 2 STIPULATED) raises the OBO
+source-asserted ontic yield from **56.74% → 99.99%** (+41,171 records; only 12
+residual, all legitimately un-anchorable — the BFO root itself, RO relation
+classes, obsolete UBERON — ASM-2058). The confirmed floor→ceiling lift closes
+§2.1 as a *sourcing* gap: the OBO leg now carries a source-asserted UFO
+`ontic_category` for essentially every class. PRECISION (the §4.3 0.95 bar) is
+still a separate human-audit measurement.
+
 ### 2.4 The domain-balance gap [MEASURED, ASM-2054]
 
 The source-asserted-typed mass is **entirely biological** (OBO = 45.83% of the
@@ -135,8 +146,8 @@ in the order that puts number-changing decisions before the compute they change
 | step | item | addresses | cost [tag] |
 |---|---|---|---|
 | **1 (done)** | **multi-source census + typing-yield probe** | §2.3, §2.1 | **2.6 s, $0 [MEASURED]** |
-| 2 | load per-ontology BFO bridges + SUMO↔WordNet mapping; re-run census → measure source-asserted yield lift | §2.1 floor | ~1 CPU-h, $0 [EXTRAPOLATION] |
-| 3 | add a Wikidata class subset (CC0 dump, individuals excluded) for domain balance; re-run census | §0 balance | 1-2 CPU-days ingest + dump download; $0-20 [EXTRAPOLATION] |
+| **2 (done)** | **load recovered BFO bridges (`data/onto-obo/bfo-bridge.json`); re-run census** → source-asserted OBO ontic yield **56.74% → 99.99%** (+41,171 recovered, 12 residual) | §2.1 floor | **3.6 s, $0 [MEASURED, ASM-2056]** |
+| 3 (scoped) | add a Wikidata class subset (CC0 filtered dump, individuals excluded) for domain balance; exact external-ID decontamination; re-run census — **plan:** `scale-s1-wikidata-domain-balance-plan.md` | §0 balance | ~2-8 CPU-h + ~1-5 GB dump; $0-20 [EXTRAPOLATION, ASM-2059] |
 | 4 | pre-register S1 selection rule + duplicate/differentia policy (§2.4) + §4.3 audit design | §2.3, §2.4 | ~1 wk design, $0 compute |
 | 5 | source↔source exact crosswalk + type-level dedup → the §3.5 exactly-crosswalked & type-level counts | §2.3 exact | 2-4 wks engineering (S1 dominant cost); CPU-days [EXTRAPOLATION] |
 | 6 | SCC fixture on the OBO 1,142-term SCC (multi-round §6.3 determinism) + vectorise 100k (six stores) | cycles, — | <1 + ~1.1 CPU-h [EXTRAPOLATION from S0 39.3 ms/concept] |
