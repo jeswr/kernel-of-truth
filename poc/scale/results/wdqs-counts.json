@@ -1,0 +1,40 @@
+{
+  "artifact": "scale-s1 Wikidata WDQS count-only measurements",
+  "date": "2026-07-13",
+  "endpoint": "https://query.wikidata.org/sparql",
+  "epistemic_status": "MEASURED — live WDQS snapshot 2026-07-13. Each number is reproducible by re-running the query string, but the LIVE endpoint drifts upward as Wikidata grows; exact pinning requires the dated dump (heavy-ingest step, scoped not run). No feasibility conclusion.",
+  "purpose": "Replace the increment-2 ~50,000-100,000 non-biological-concept ESTIMATE (ASM-2059) and the decontamination-eligibility estimate with MEASURED counts, CPU-light (HTTP, seconds).",
+  "method": "curl -G with User-Agent, Accept application/sparql-results+json, 60s timeout; COUNT(DISTINCT ?x) aggregates; bounded property-existence and subtree queries only (unbounded whole-class-layer count TIMES OUT at the 60s WDQS limit — reported as such, not fabricated).",
+  "external_id_existence": {
+    "note": "Distinct Wikidata items carrying each external ID = the exact-decontamination FUEL against the existing 207,733-cluster union (each ID resolves an item to a specific local shard record).",
+    "P8814_wordnet31_synset": { "count": 28340, "resolves_against": "data/lexical-wn31 (WordNet 3.1)", "http": 200, "seconds": 0.62 },
+    "P686_chebi_id":          { "count": 43560, "resolves_against": "data/onto-obo CHEBI (only 41 local → most are NEW chemistry, not collisions)", "http": 200, "seconds": 1.16 },
+    "P685_ncbi_taxon_id":     { "count": 627783, "resolves_against": "data/onto-obo NCBITaxon (only 402 local → the vast majority are named-individual taxa, excluded from concept count)", "http": 200, "seconds": 10.95 },
+    "P5270_mondo_id":         { "count": 19518, "resolves_against": "data/onto-obo MONDO (32,136 local)", "http": 200, "seconds": 0.21 }
+  },
+  "external_id_intersect_class_layer": {
+    "note": "External-ID items that ALSO have a P279 (subclass-of) backbone = decontamination-eligible CLASSES (not individuals).",
+    "P8814_wordnet_AND_P279": { "count": 17374, "meaning": "Wikidata classes exactly joinable to our WordNet shard by synset ID — the cross-domain (mostly non-bio) decontamination set.", "http": 200, "seconds": 5.48 },
+    "P8814_wordnet_AND_P31":  { "count": 21016, "meaning": "WordNet-linked items with an instance-of edge (individuals or dual-role); reported for the class/individual split.", "http": 200, "seconds": 2.17 },
+    "P686_chebi_AND_P279":    { "count": 43559, "meaning": "ChEBI-linked classes (bio decontam; nearly all NEW vs our 41 local ChEBI).", "http": 200, "seconds": 3.07 },
+    "P5270_mondo_AND_P279":   { "count": 17631, "meaning": "MONDO-linked classes (bio decontam against 32,136 local MONDO).", "http": 200, "seconds": 0.50 }
+  },
+  "nonbio_domain_class_subtrees_P279star": {
+    "note": "Bounded P279* subtree class counts for non-biological domains. Subtrees OVERLAP (a class can be under several roots) so these are NOT summable; each shows a single non-bio domain already carries tens of thousands of P279-backbone classes. Two subtrees are too large to count within the 60s WDQS limit — itself evidence of a large non-bio layer.",
+    "occupation_Q28640":    { "count": 6616,   "ufo": "object / sortality role", "http": 200, "seconds": 1.36 },
+    "position_Q4164871":    { "count": 103707, "ufo": "object / sortality role", "http": 200, "seconds": 6.49 },
+    "vehicle_Q42889":       { "count": 63292,  "ufo": "object / sortality kind", "http": 200, "seconds": 9.99 },
+    "organization_Q43229":  { "count": 50430,  "ufo": "social-object", "http": 200, "seconds": 7.14 },
+    "event_Q1190554":       { "count": "TIMEOUT>60s (subtree too large to count live)", "ufo": "event" },
+    "product_Q2424752":     { "count": "TIMEOUT>60s", "ufo": "object" }
+  },
+  "unbounded_whole_class_layer": {
+    "classes_total_distinct_P279_subjects": "TIMEOUT (HTTP 502 after 17s) — the whole class layer is too large for a live COUNT(DISTINCT) within the WDQS limit; exact total requires the dump. Published Wikidata class-layer size is ~2-3M items [LIT-BACKED, unpinned].",
+    "classes_bio_exclusion_P279star_of_{organism,chem,disease,protein,...}": "TIMEOUT — deep transitive closure over the organism root exceeds the limit."
+  },
+  "headline_measured_findings": [
+    "The ~50-100k non-bio-concept estimate (ASM-2059) is now MEASURED-SUPPORTED: single non-bio domains already carry 6,616 (occupation), 50,430 (organization), 63,292 (vehicle) and 103,707 (position) P279-backbone classes; a benchmark-blind slice across non-bio domains reaches and exceeds 100k with room to spare (position alone exceeds it).",
+    "Exact decontamination against the existing union is real and BOUNDED: 17,374 Wikidata classes carry a WordNet-3.1 synset ID (P8814∩P279) → exactly joinable to our WordNet shard; ChEBI (43,559) and MONDO (17,631) linked classes cover bio decontam. So of a ~100k non-bio slice only ~17k would collide with our union via WordNet; the remainder are genuinely NEW non-bio concepts — the domain-balance headroom we want.",
+    "The bio external-ID counts confirm the local shards are small subsets (627,783 taxon-linked, 43,560 ChEBI-linked items exist in Wikidata vs 402 / 41 local) — but taxa are overwhelmingly named individuals (P31, not P279) and excluded from the concept count."
+  ]
+}

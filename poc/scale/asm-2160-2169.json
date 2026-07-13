@@ -1,0 +1,69 @@
+{
+ "range": "ASM-2160..ASM-2165 (free range verified this tick: `grep -c ASM-216[0-9] registry/assumptions.jsonl` = 0; registry max existing = ASM-2144. Chosen at ASM-2160 per the increment-3 brief to clear the KaE/E0/scale lower ranges now taken.)",
+ "purpose": "SCALE-1 S1 increment-3 candidate assumptions: CPU-light WDQS count-only measurements of the Wikidata non-biological class layer + external-ID decontamination fuel, the persisted P31/P279->UFO crosswalk + decontamination spec, and the heavy-dump go/no-go. Emitted by the poc/scale build agent (owner role: builder-scale-s1) for coordinator registration; NOT written to registry/assumptions.jsonl by the build agent.",
+ "owner": "builder-scale-s1",
+ "backing_artifacts": [
+  "poc/scale/results/wdqs-counts.json",
+  "data/onto-wikidata/p31-p279-ufo-crosswalk.json",
+  "docs/next/design/scale-s1-wikidata-domain-balance-plan.md"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2160",
+   "claim": "MEASURED WDQS non-biological class counts (live snapshot 2026-07-13) confirm a domain-balanced 100k slice is comfortably available: single non-bio domains carry 103,707 (position Q4164871), 63,292 (vehicle Q42889), 50,430 (organization Q43229) and 6,616 (occupation Q28640) P279-backbone classes via COUNT(DISTINCT ?x){?x wdt:P279* <root>}; occurrence/event Q1190554 and product Q2424752 subtrees are too large to count within the 60s WDQS limit. Subtrees overlap so are NOT summable, but position alone exceeds 100k. This REPLACES the increment-2 ~50,000-100,000 EXTRAPOLATION band (ASM-2059) with a measured lower bound. The number drifts upward on the live endpoint; exact pinning needs the dated dump.",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/wdqs-counts.json (nonbio_domain_class_subtrees_P279star) sha256:794b372dbc24025239f829262e37a4fc96d0da42fa741fd51a26f01151d40a83; queries reproducible against https://query.wikidata.org/sparql",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2161",
+   "claim": "MEASURED exact-decontamination fuel (WDQS 2026-07-13): distinct Wikidata items carrying each external ID that joins to a local shard = P8814 WordNet-3.1-synset 28,340; P686 ChEBI 43,560; P685 NCBI-taxon 627,783; P5270 MONDO 19,518. Restricting to the class layer (item ALSO has >=1 P279): P8814-and-P279 = 17,374; P686-and-P279 = 43,559; P5270-and-P279 = 17,631. CONSEQUENCE: exact-identifier decontamination against the existing 207,733-cluster union is real and BOUNDED \u2014 of a ~100k NON-BIOLOGICAL slice only the ~17,374 WordNet-twinned classes can collide (the ChEBI/MONDO/taxon IDs are biology the non-bio slice does not carry), so ~80k+ of a 100k slice are genuinely NEW concepts. The 627,783 taxon-linked items are overwhelmingly named individuals (P31, not P279) and excluded by the membership rule.",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/wdqs-counts.json (external_id_existence, external_id_intersect_class_layer) sha256:794b372dbc24025239f829262e37a4fc96d0da42fa741fd51a26f01151d40a83",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2162",
+   "claim": "The Wikidata concept-membership + denotation rule (data/onto-wikidata/p31-p279-ufo-crosswalk.json): an item counts as a type-level concept iff it has >=1 outgoing P279 OR is the P31 value of >=K instances (K STIPULATED, proposed 1 with P279 ancestry / >=25 for a bare P31 target); items that are only P31 SUBJECTS with no P279 backbone are named individuals, EXCLUDED from the concept headline and routed to the world ABox. This mirrors the OBO kind:class filter and design 0/3.5. STIPULATED because K and the P279-vs-P31 boundary are build choices, not source truth; the P279 chain itself is source-asserted structure.",
+   "tag": "STIPULATED",
+   "backing_ref": "data/onto-wikidata/p31-p279-ufo-crosswalk.json (concept_membership_rule, denotation_level_rule)",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "rationale": "The membership threshold K and the exclusion of bare-P31 individuals are deliberate design decisions to keep named entities out of the concept count (design 0); they are stipulated, reported, and pre-registered before ingest, never presented as measured source facts.",
+   "status": "open"
+  },
+  {
+   "id": "ASM-2163",
+   "claim": "The Wikidata root->UFO terminal crosswalk (10 rows: physical-object/vehicle/product->object-kind; occupation/position->object-role-anti-rigid; organization->social-object; occurrence/activity->event; property->quality; geographic-type->region) is STIPULATED (ontology-grounded) exactly like the OBO ONTOLOGY_ROOT_CATEGORY fallback and the BFO-bridge's 2 STIPULATED rows: the terminal UFO label per Wikidata root is a build decision, reported SEPARATELY from the source-asserted P279 chain, and audited by the design 4.3 stratified human sample (Wikidata is its own stratum). Soft selectional candidates (P1963/constraints) are cascade step-4 only and MUST NOT compile to hard rdfs:domain/range (design 4.2).",
+   "tag": "STIPULATED",
+   "backing_ref": "data/onto-wikidata/p31-p279-ufo-crosswalk.json (root_to_ufo, cascade_steps)",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "rationale": "Wikidata asserts no BFO/UFO category; the root->UFO mapping is the KoT stipulation needed to type the Wikidata leg, kept auditable and separate from source-asserted structure so a human audit can accept/reject each terminal label without touching the P279 evidence.",
+   "status": "open"
+  },
+  {
+   "id": "ASM-2164",
+   "claim": "HEAVY-DUMP GO/NO-GO: the domain-balance FEASIBILITY of the Wikidata leg (does a ~100k non-bio slice exist? is exact decontamination real?) is settled YES/YES by the live WDQS counts alone (ASM-2160/2161) with ZERO dump ingest. Building the actual shard needs a FILTERED entity dump (class layer + ~10 properties): ~1-5 GB, ~2-8 CPU-h extract, ~$0-20, no GPU. Recommendation: CONDITIONAL GO on the filtered dump but DEFERRED OFF-BOX (Oxford ARC / Modal CPU per design 9.2 \u2014 the box is 2 shared cores with a live server; a multi-CPU-hour job must not run inline); NO-GO on the full ~50-100 GB / 1-2 CPU-day dump (unjustified when the filtered slice suffices). Gate the CPU spend on pre-registering the root set + per-root caps + membership K + decontamination procedure.",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/wdqs-counts.json (headline_measured_findings) sha256:794b372dbc24025239f829262e37a4fc96d0da42fa741fd51a26f01151d40a83 + docs/next/design/scale-s1-wikidata-domain-balance-plan.md 5a; cost figures are [EXTRAPOLATION] within the measured feasibility",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2165",
+   "claim": "Executing the deferred filtered-dump ingest (3b) would add ~50,000-100,000 net-new non-biological typed concepts to the union, dropping the biology share of the typed-structured core from the measured ~100% toward ~40-60% and yielding the first real design-3.5 exactly_crosswalked_clusters count via the ASM-2161 external-ID joins. The net-new figure and the resulting biology share are forward estimates pending the actual shard build + census re-run.",
+   "tag": "EXTRAPOLATION",
+   "backing_ref": "resolution_path below; grounded by measured domain counts (ASM-2160) and collision bound (ASM-2161)",
+   "owner": "designer-6",
+   "load_bearing": false,
+   "resolution_path": "Run the deferred off-box filtered-dump ingest (docs/next/design/scale-s1-wikidata-domain-balance-plan.md 3b/5a), apply data/onto-wikidata/p31-p279-ufo-crosswalk.json, run the exact-ID decontamination, and re-run poc/scale/src/census.ts over the 4-source union to MEASURE the net-new count and the new biology share; until then these are estimates, never premises.",
+   "status": "open"
+  }
+ ]
+}

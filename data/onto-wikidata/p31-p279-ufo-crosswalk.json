@@ -1,0 +1,57 @@
+{
+  "schema": "kot-wikidata-ufo-crosswalk/1",
+  "purpose": "P31/P279 -> CK-UFO typing crosswalk + rules for the SCALE-1 S1 Wikidata domain-balance leg, and the exact-external-ID decontamination spec against the existing 207,733-cluster union. This is a DESIGN/TABLE artifact ($0, no ingest). The Wikidata source is NOT yet local; the heavy dump ingest is scoped-not-run (see docs/next/design/scale-s1-wikidata-domain-balance-plan.md).",
+  "epistemic_status": "The P279 (subclass-of) chain IS source-asserted structure (cascade step 1, like OBO is_a). Each terminal ROOT->UFO label below is STIPULATED (ontology-grounded), reported separately from any source-asserted chain, and audited by the design 4.3 stratified human sample (Wikidata gets its own stratum). Root Q-ids are stable Wikidata items; per-root class counts are MEASURED (poc/scale/results/wdqs-counts.json, 2026-07-13, live snapshot). NO feasibility conclusion.",
+
+  "concept_membership_rule": {
+    "counts_as_type_level_concept_if": "item has >=1 outgoing P279 (subclass of) statement OR is the value of P31 for >=K instances (a 'type used as a type'), K STIPULATED at build time (proposed K=1 for a class that itself has P279 ancestry; K>=25 for a bare P31 target with no P279).",
+    "excluded_named_individual_if": "item appears only as the SUBJECT of P31 and has no P279 backbone (e.g. a specific person/place/work/organism specimen). Named individuals belong in the world ABox (design 0) and do NOT count toward the concept headline.",
+    "rationale": "Mirrors the OBO 'kind:class' filter and design 3.5 'type-level clusters, not named individuals'. Taxa (P31 wd:Q16521 subject) are overwhelmingly individuals -> excluded, consistent with the 627,783 P685-linked items being mostly non-concepts."
+  },
+
+  "denotation_level_rule": {
+    "individual": "P31 to a non-metaclass value AND no P279 backbone -> denotation_level=individual (EXCLUDED from concept count).",
+    "type": "P279 backbone present -> denotation_level=type (source-asserted-structural via the P279 chain).",
+    "metaclass_guard": "if P31 value is itself a metaclass (P31 wd:Q19478619 metaclass, or wd:Q23958852 variable-order class), the item may still be a type; do not down-rank to individual."
+  },
+
+  "root_to_ufo": [
+    { "root": "wd:Q223557", "label": "physical object", "ontic_category": "object", "sortality": "kind", "rigidity": "rigid", "tag": "STIPULATED", "rationale": "physical object -> UFO substantial/object; kind by default." },
+    { "root": "wd:Q42889",  "label": "vehicle",         "ontic_category": "object", "sortality": "kind", "rigidity": "rigid", "tag": "STIPULATED", "rationale": "artifact kind under physical object.", "measured_subtree_classes": 63292 },
+    { "root": "wd:Q2424752","label": "product",         "ontic_category": "object", "sortality": "kind", "rigidity": "rigid", "tag": "STIPULATED", "rationale": "manufactured artifact kind.", "measured_subtree_classes": "TIMEOUT>60s live" },
+    { "root": "wd:Q28640",  "label": "profession/occupation", "ontic_category": "object", "sortality": "role", "rigidity": "anti-rigid", "tag": "STIPULATED", "rationale": "an occupation is a role a person plays (anti-rigid) -> UFO role-mixin/role. Identity provider = the person; role is externally dependent.", "measured_subtree_classes": 6616 },
+    { "root": "wd:Q4164871","label": "position",         "ontic_category": "object", "sortality": "role", "rigidity": "anti-rigid", "tag": "STIPULATED", "rationale": "a position/post is a role; anti-rigid.", "measured_subtree_classes": 103707 },
+    { "root": "wd:Q43229",  "label": "organization",     "ontic_category": "social-object", "sortality": "kind", "rigidity": "rigid", "tag": "STIPULATED", "rationale": "organization -> UFO social object (collective).", "measured_subtree_classes": 50430 },
+    { "root": "wd:Q1190554","label": "occurrence/event",  "ontic_category": "event", "sortality": "non-sortal", "rigidity": "underdetermined", "tag": "STIPULATED", "rationale": "occurrence -> UFO event/occurrent.", "measured_subtree_classes": "TIMEOUT>60s live (large)" },
+    { "root": "wd:Q1914636","label": "activity",          "ontic_category": "event", "sortality": "non-sortal", "rigidity": "underdetermined", "tag": "STIPULATED", "rationale": "activity -> event." },
+    { "root": "wd:Q937228", "label": "property/quality",   "ontic_category": "quality", "sortality": "non-sortal", "rigidity": "underdetermined", "tag": "STIPULATED", "rationale": "quality/attribute -> UFO quality (dependent particular)." },
+    { "root": "wd:Q2221906","label": "geographic location type", "ontic_category": "region", "sortality": "kind", "rigidity": "rigid", "tag": "STIPULATED", "rationale": "geographic feature TYPE -> region/place kind (the individual places are ABox)." }
+  ],
+
+  "cascade_steps": {
+    "step1_source_asserted": "P279 chain (structural) + membership rule -> denotation_level.",
+    "step2_crosswalk": "root_to_ufo terminal label when P279* reaches a listed root (ontology-grounded, STIPULATED terminal, reported separately).",
+    "step3_soft": "P1963 (properties for this type) and Wikidata constraint statements -> SOFT selectional candidates ONLY; never compiled to hard rdfs:domain/range (design 4.2).",
+    "step5_underdetermined": "default when no root is reached; preserved as underdetermined, never fabricated (design 11)."
+  },
+
+  "decontamination_against_union": {
+    "principle": "EXACT identifier join, not fuzzy match. A Wikidata item that carries an external ID resolving to an existing local record is a CROSSWALK MERGE (adds provenance/possibly a UFO commitment to the existing record; does NOT add a new concept).",
+    "id_joins": [
+      { "wikidata_property": "P8814", "name": "WordNet 3.1 Synset ID", "local_shard": "data/lexical-wn31", "measured_items_with_id": 28340, "measured_class_layer_items": 17374, "action": "merge into existing WN cluster" },
+      { "wikidata_property": "P686",  "name": "ChEBI ID",  "local_shard": "data/onto-obo CHEBI", "measured_items_with_id": 43560, "measured_class_layer_items": 43559, "action": "merge; note only 41 local so ~all are new chemistry (added, not merged-away)" },
+      { "wikidata_property": "P685",  "name": "NCBI taxon ID", "local_shard": "data/onto-obo NCBITaxon", "measured_items_with_id": 627783, "action": "merge taxa; most are individuals excluded by membership rule" },
+      { "wikidata_property": "P5270", "name": "MONDO ID", "local_shard": "data/onto-obo MONDO", "measured_items_with_id": 19518, "measured_class_layer_items": 17631, "action": "merge into existing MONDO cluster" },
+      { "wikidata_property": "P1554", "name": "UBERON ID", "local_shard": "data/onto-obo UBERON", "action": "merge" },
+      { "wikidata_property": "P7963", "name": "Cell Ontology ID", "local_shard": "data/onto-obo CL", "action": "merge" }
+    ],
+    "measured_collision_bound": "Of a ~100k non-bio target slice, only the ~17,374 P8814(WordNet)+P279 classes can collide with our union via the cross-domain lever; the bio IDs (ChEBI/MONDO/UBERON/CL) cover the bio layer we already have. So the NET NEW non-bio concept yield after decontamination is large (~80k+ of a 100k slice are genuinely new) — the domain-balance headroom. [MEASURED intersections, poc/scale/results/wdqs-counts.json]",
+    "output": "enables the first real design 3.5 'exactly_crosswalked_clusters' count (currently NOT COMPUTED in scale-s1-census.json)."
+  },
+
+  "provenance": {
+    "license": "Wikidata structured data is CC0 (design 3.1).",
+    "counts_source": "poc/scale/results/wdqs-counts.json (live WDQS snapshot 2026-07-13)",
+    "root_qids": "stable Wikidata items; verified reachable via WDQS this tick for the counted roots"
+  }
+}

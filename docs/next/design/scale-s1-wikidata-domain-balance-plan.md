@@ -56,35 +56,48 @@ individuals). Ingest only the **class layer**:
 - **Properties to retain:** `label/altLabel` (en), `P279` (subclass of), `P31`
   (instance of), and the external-ID properties in §3.
 
-## 2. How many non-biological concepts it adds [EXTRAPOLATION — resolution path: WDQS count queries; load_bearing=false]
+## 2. How many non-biological concepts it adds — NOW MEASURED [WDQS live snapshot 2026-07-13, `poc/scale/results/wdqs-counts.json`]
 
-Planning bands (to be replaced by measured WDQS counts before any ingest commit):
+Increment-3 ran the CPU-light WDQS count-only queries (HTTP, seconds each) that
+increment-2 deferred. The ~50-100k estimate is now **measured-supported**: single
+non-biological domains each already carry tens of thousands of P279-backbone
+classes.
 
-- Wikidata's full class layer (P279 participants) is on the order of **~2-3M
-  items** [EXTRAPOLATION].
-- Excluding the biology already covered locally (organism `Q7239` subtree ≈ taxa;
-  chemical compound `Q11173` ≈ ChEBI; disease `Q12136` ≈ MONDO; gene/protein) and
-  excluding pure administrative/geographic individuals, the **non-biological
-  reusable class** count is on the order of **~1M** [EXTRAPOLATION].
-- For a **domain-balanced 100k rung**, the target is a benchmark-blind slice of
-  **~50,000-100,000 non-biological classes** spread across UFO categories, e.g.
-  subtrees of: physical object `Q223557` (→ object), occurrence/event `Q1190554`
-  (→ event), profession/role `Q28640` and position `Q4164871` (→ role),
-  organization/social group (→ social-object), artifact/product (→ object),
-  activity `Q1914636` (→ event), quality/property (→ quality), and
-  region/geographic-feature type (→ region). Exact Q-roots and per-root caps are a
-  pre-registered §4-of-census-plan build choice.
+| non-bio domain (root, P279* subtree) | measured classes | UFO |
+|---|---:|---|
+| position `Q4164871` | **103,707** | object / role |
+| vehicle `Q42889` | **63,292** | object / kind |
+| organization `Q43229` | **50,430** | social-object |
+| occupation `Q28640` | **6,616** | object / role |
+| occurrence/event `Q1190554` | TIMEOUT >60s (subtree too large to count live) | event |
+| product `Q2424752` | TIMEOUT >60s | object |
 
-**Net effect on domain balance:** adding ~50-100k non-biological classes drops the
-biology share of a ~110k+ typed-structured core from ~100% to roughly **45-65%**
-[EXTRAPOLATION], and — more importantly — makes the count survive design §0's
-"exclude single-domain domination" test, which the current union fails.
+Subtrees overlap (a class can sit under several roots), so these are **not
+summable** — but position alone (103,707) already exceeds the 100k target, and two
+major branches (events, products) are too large to even count within the WDQS 60 s
+limit. **Conclusion [MEASURED]:** a benchmark-blind non-biological slice reaching
+50,000-100,000 P279-backbone classes is comfortably available; the earlier
+~50-100k band was if anything conservative.
+
+The whole-class-layer distinct count (`?x wdt:P279 []`) and the deep bio-exclusion
+transitive closure both **TIME OUT** on live WDQS (HTTP 502 after 17 s) — the exact
+total needs the dump, and is reported as unmeasured rather than fabricated
+(published class-layer size ~2-3M is [LIT-BACKED, unpinned]).
+
+**Net effect on domain balance:** adding ~100k non-biological classes drops the
+biology share of the typed-structured core from the measured ~100% (all-OBO)
+toward roughly **40-60%** [EXTRAPOLATION from the domain counts], making the count
+survive design §0's "exclude single-domain domination" test the current union
+fails.
 
 ## 3. P31/P279 → UFO typing crosswalk
 
 Wikidata has no native BFO, but its top ontology crosswalks cleanly to the CK-UFO
 `ontic_category`/`sortality` fields via a small pinned root→UFO table (the
-Wikidata analogue of the BFO bridge in `data/onto-obo/bfo-bridge.json`):
+Wikidata analogue of the BFO bridge in `data/onto-obo/bfo-bridge.json`). **The
+table + typing rules + decontamination spec are persisted at
+`data/onto-wikidata/p31-p279-ufo-crosswalk.json`** (schema `kot-wikidata-ufo-crosswalk/1`);
+summary:
 
 | Wikidata mechanism | CK-UFO consequence | cascade step |
 |---|---|---|
@@ -129,6 +142,19 @@ four counts (raw / exactly-crosswalked / type-level / fully-resolved) with the
 Wikidata shard's CC0 license manifest. This finally lets the census emit a real
 `exactly_crosswalked_clusters` number instead of the current "NOT COMPUTED".
 
+**The collision bound is now MEASURED [`poc/scale/results/wdqs-counts.json`,
+`data/onto-wikidata/p31-p279-ufo-crosswalk.json`].** The external-ID → class-layer
+intersections: **P8814(WordNet)∩P279 = 17,374** classes (the cross-domain lever
+against our WN shard), P686(ChEBI)∩P279 = 43,559, P5270(MONDO)∩P279 = 17,631. So
+of a ~100k **non-biological** target slice, only the ~17,374 WordNet-twinned
+classes can collide with the union (the ChEBI/MONDO/taxon IDs are biology, which
+the non-bio slice does not carry); **~80k+ of a 100k non-bio slice are genuinely
+new concepts** — the exact-join decontamination is real, bounded, and leaves large
+net domain-balance headroom. Full external-ID existence counts (28,340 WordNet;
+43,560 ChEBI; 627,783 taxon; 19,518 MONDO) confirm the local OBO shards are small
+subsets, but the taxon mass is overwhelmingly named individuals (P31, excluded by
+the membership rule).
+
 ## 5. Storage / compute estimate
 
 | item | estimate | tag |
@@ -144,16 +170,50 @@ Well inside the design §8 S1 band (200-2,000 CPU-h; $200-1,000). The dominant r
 cost remains, per design §10, the crosswalk engineering and the §4.3 human audit —
 not compute.
 
+## 5a. Heavy-dump ingest — GO / NO-GO for the coordinator + maintainer
+
+**Recommendation: CONDITIONAL GO on the *filtered* dump, NO-GO on the full dump,
+and NOT on this box.** Rationale:
+
+- **What the counts settle (no ingest needed):** the two questions increment-3 was
+  asked — *does a ~100k non-bio slice exist?* and *is exact decontamination
+  real?* — are answered **YES/YES by the live WDQS counts alone** (position 103,707
+  classes; 17,374 WordNet-collision bound). The domain-balance *feasibility* of the
+  Wikidata leg no longer depends on running the dump.
+- **What still needs the dump:** the actual **records** (labels, P279 edges,
+  external IDs) to build the shard, type it, decontaminate it, and re-run the
+  census over a 4-source union. WDQS cannot page ~100k×(several properties) inside
+  its timeouts reliably.
+- **GO (filtered dump, deferred, off-box):** a `wdumper`/server-side filtered
+  entity dump restricted to the class layer + the ~10 properties in §1/§3 is
+  **~1-5 GB, ~2-8 CPU-h extract, ~$0-20**. This is the recommended path — but it
+  is a **multi-CPU-hour** job and the box is 2 shared cores with a live server, so
+  **defer to off-box** (Oxford ARC CPU or a Modal CPU job per design §9.2) or to a
+  quiet window; do **not** run it inline here.
+- **NO-GO (full `latest-all`/`latest-truthy` dump):** ~50-100 GB, 1-2 CPU-days,
+  storage pressure — unjustified when the filtered slice suffices; keep only as a
+  fallback if the filtered dump proves lossy.
+- **Gate before spending the CPU-hours:** pre-register the root set + per-root caps
+  + the membership `K` (§1) and the decontamination procedure (§4), so the slice is
+  benchmark-blind and the §3.5 four-count is interpretable — same discipline as the
+  census's structural-duplicate policy.
+
+**One-line for the maintainer:** the cheap measurements say the domain-balanced
+100k is *available and de-duplicatable*; the next spend is a **~2-8 CPU-h off-box
+filtered-dump extract (~$0-20)**, recommended GO but **deferred off this box**;
+full-dump ingest is NO-GO.
+
 ## 6. Sequence (this plan is step 3 of the census-plan's 7-step S1 sequence)
 
 1-2 (done): census + BFO bridge — `scale-s1-multisource-census.md`.
-3 (this doc, scoped): acquire the Wikidata class slice; add the root→UFO table;
-run the exact-ID decontamination; re-run `census.ts` (extended with a Wikidata
-loader) to MEASURE the added non-biological concept count and the new biology
-share. **First measurable sub-increment:** a WDQS *count-only* query of each
-class-root subtree (no dump, seconds) to replace the §2 [EXTRAPOLATION] bands with
-measured counts before committing the ingest — the same "measure before you build"
-discipline as the census itself.
+3a (done, this increment): WDQS **count-only** measurement (no dump, seconds) —
+`poc/scale/results/wdqs-counts.json`; the P31/P279→UFO crosswalk + decontamination
+spec — `data/onto-wikidata/p31-p279-ufo-crosswalk.json`. Replaced the §2/§4 bands
+with measured counts and delivered the heavy-dump go/no-go (§5a).
+3b (deferred, off-box): acquire the filtered Wikidata class slice; apply the
+root→UFO table; run the exact-ID decontamination; re-run `census.ts` (extended with
+a Wikidata loader) to MEASURE the added non-biological concept count and the new
+biology share. Gated on §5a pre-registration.
 
 ## 7. Claim caps
 
