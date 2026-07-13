@@ -1,0 +1,18 @@
+$ /usr/local/bin/python /root/kot/poc/knull/runner/knull_runner_v2.py --arms plain --out-dir /tmp/knull2-out --checkpoint-dir /ckpt/knull-v2/knull-v2-20260713/plain --real --confirm-spend --device cuda --gpu-class A100
+[knull2     0.1s] pins OK: record FROZEN+indexed; SAP 54528cd42485; f2b machinery b62c3a72882b; 4 item files; 3x108 store files; prompt-token sidecar
+[knull2     0.1s] items OK: 1000 paired skeletons x 4 arms (rank-prefix; uid + type-mix identity enforced)
+[knull2     0.1s] mode=REAL device=cuda arms=plain n=1000 cells=9 (full campaign 36)
+[knull2     0.1s] loading HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366 on cuda ...
+[knull2    15.8s] cell plain__model-alone__R1__s0 done (0.0s, acc=0.505, resumed@1000)
+[knull2    16.3s] cell plain__model-alone__R1__s1 done (0.0s, acc=0.505, resumed@1000)
+[knull2    16.5s] cell plain__model-alone__R1__s2 done (0.0s, acc=0.505, resumed@1000)
+[knull2    16.5s] loading HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a on cuda ...
+[knull2    25.2s] cell plain__model-alone__R3__s0 done (0.0s, acc=0.948, resumed@1000)
+[knull2    25.5s] cell plain__model-alone__R3__s1 done (0.0s, acc=0.948, resumed@1000)
+[knull2    25.8s] cell plain__model-alone__R3__s2 done (0.0s, acc=0.948, resumed@1000)
+[knull2    26.3s] cell plain__verify-retry__R1__s0 done (0.0s, acc=0.672, resumed@1000)
+[knull2   357.6s] cell plain__verify-retry__R1__s1 done (331.1s, acc=0.851, resumed@127)
+[knull2   745.7s] cell plain__verify-retry__R1__s2 done (388.1s, acc=0.735)
+[knull2   745.8s] OUTCOME: HARNESS-COMPLETE (9 cell records in /tmp/knull2-out/run-records.jsonl)
+next: python3 analysis/knull_v3.py --records /tmp/knull2-out/run-records.jsonl --item-meta /tmp/knull2-out/item-meta.json --out <analysis.json>
+[runner exit rc=0]

@@ -1,0 +1,18 @@
+$ /usr/local/bin/python /root/kot/poc/knull/runner/knull_runner_v2.py --arms opaque --out-dir /tmp/knull2-out --checkpoint-dir /ckpt/knull-v2/knull-v2-20260713/opaque --real --confirm-spend --device cuda --gpu-class A100
+[knull2     0.0s] pins OK: record FROZEN+indexed; SAP 54528cd42485; f2b machinery b62c3a72882b; 4 item files; 3x108 store files; prompt-token sidecar
+[knull2     0.1s] items OK: 1000 paired skeletons x 4 arms (rank-prefix; uid + type-mix identity enforced)
+[knull2     0.1s] mode=REAL device=cuda arms=opaque n=1000 cells=9 (full campaign 36)
+[knull2     0.1s] loading HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366 on cuda ...
+[knull2    10.0s] cell opaque__model-alone__R1__s0 done (0.0s, acc=0.514, resumed@1000)
+[knull2    10.4s] cell opaque__model-alone__R1__s1 done (0.0s, acc=0.514, resumed@1000)
+[knull2    10.7s] cell opaque__model-alone__R1__s2 done (0.0s, acc=0.514, resumed@1000)
+[knull2    10.7s] loading HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a on cuda ...
+[knull2    15.3s] cell opaque__model-alone__R3__s0 done (0.0s, acc=0.512, resumed@1000)
+[knull2    15.5s] cell opaque__model-alone__R3__s1 done (0.0s, acc=0.512, resumed@1000)
+[knull2    16.0s] cell opaque__model-alone__R3__s2 done (0.0s, acc=0.512, resumed@1000)
+[knull2    77.2s] cell opaque__verify-retry__R1__s0 done (61.0s, acc=0.675, resumed@783)
+[knull2   326.7s] cell opaque__verify-retry__R1__s1 done (249.6s, acc=0.794)
+[knull2   577.1s] cell opaque__verify-retry__R1__s2 done (250.4s, acc=0.780)
+[knull2   577.2s] OUTCOME: HARNESS-COMPLETE (9 cell records in /tmp/knull2-out/run-records.jsonl)
+next: python3 analysis/knull_v3.py --records /tmp/knull2-out/run-records.jsonl --item-meta /tmp/knull2-out/item-meta.json --out <analysis.json>
+[runner exit rc=0]

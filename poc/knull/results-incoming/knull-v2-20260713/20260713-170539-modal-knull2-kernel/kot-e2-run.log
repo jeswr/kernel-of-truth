@@ -1,0 +1,22 @@
+$ /usr/local/bin/python /root/kot/poc/knull/runner/knull_runner_v2.py --arms kernel --out-dir /tmp/knull2-out --checkpoint-dir /ckpt/knull-v2/knull-v2-20260713/kernel --real --confirm-spend --device cuda --gpu-class A100
+[knull2     0.0s] pins OK: record FROZEN+indexed; SAP 54528cd42485; f2b machinery b62c3a72882b; 4 item files; 3x108 store files; prompt-token sidecar
+[knull2     0.1s] items OK: 1000 paired skeletons x 4 arms (rank-prefix; uid + type-mix identity enforced)
+[knull2     0.1s] shuffled bridge: seed=20260710 perm sha=d401b19cf2fd
+[knull2     0.1s] mode=REAL device=cuda arms=kernel n=1000 cells=12 (full campaign 36)
+[knull2     0.1s] loading HuggingFaceTB/SmolLM2-135M-Instruct@12fd25f77366 on cuda ...
+[knull2   106.8s] cell kernel__model-alone__R1__s0 done (96.8s, acc=0.505)
+[knull2   202.1s] cell kernel__model-alone__R1__s1 done (95.3s, acc=0.505)
+[knull2   298.9s] cell kernel__model-alone__R1__s2 done (96.7s, acc=0.505)
+[knull2   298.9s] loading HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a on cuda ...
+[knull2   380.5s] cell kernel__model-alone__R3__s0 done (74.5s, acc=0.691)
+[knull2   455.3s] cell kernel__model-alone__R3__s1 done (74.8s, acc=0.691)
+[knull2   528.4s] cell kernel__model-alone__R3__s2 done (73.1s, acc=0.691)
+[knull2   830.7s] cell kernel__verify-retry__R1__s0 done (302.3s, acc=0.662)
+[knull2  1112.0s] cell kernel__verify-retry__R1__s1 done (281.3s, acc=0.853)
+[knull2  1401.1s] cell kernel__verify-retry__R1__s2 done (289.1s, acc=0.719)
+[knull2  1801.3s] cell kernel__shuffled-verify-retry__R1__s0 done (400.2s, acc=0.512)
+[knull2  2195.5s] cell kernel__shuffled-verify-retry__R1__s1 done (394.2s, acc=0.509)
+[knull2  2573.9s] cell kernel__shuffled-verify-retry__R1__s2 done (378.4s, acc=0.496)
+[knull2  2573.9s] OUTCOME: HARNESS-COMPLETE (12 cell records in /tmp/knull2-out/run-records.jsonl)
+next: python3 analysis/knull_v3.py --records /tmp/knull2-out/run-records.jsonl --item-meta /tmp/knull2-out/item-meta.json --out <analysis.json>
+[runner exit rc=0]
