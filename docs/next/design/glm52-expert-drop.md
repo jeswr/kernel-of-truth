@@ -27,6 +27,28 @@
 > this pass writes the companion file only and does NOT touch
 > `registry/assumptions.jsonl`.
 >
+> **REVISION 1 (2026-07-13, designer-8, same pass discipline):** the standing
+> codex review of this design returned ISSUES on four points: (1) the masked
+> deflator arms were not dose-matched (m-emb conditioned on one nearest cluster
+> while m-kern may union multiple concepts; m-rand lacked the universal core);
+> (2) map coverage was overstated as "~24 concepts" — the probe source is 24
+> prompts across **8 concept clusters** (3 prompts/cluster); (3) the quality
+> power target (0.90 at a true +3) was unsound under the joint licensing rule
+> (p < 0.05 AND observed ≥ +3 has a ~50% power ceiling at true +3); (4) D2
+> compared against the accuracy-selected maximum of the deflators instead of
+> testing BOTH. All four are fixed in place below, tagged **[R1]**, and
+> recorded in §R1. The revision claims **ASM-2290..2293** (companion file
+> `poc/glm52-probe/asm-glm-drop-r1-2290-2293.json`, owner designer-8; range
+> verified free at emission: central register tail in
+> `registry/assumptions.jsonl` is ASM-2259, repo-wide grep for `ASM-229[0-9]`
+> empty). The review's OK items — the fixed-compute k\* ±5% matched-loads
+> comparison (§4.1), the full-TOPK=8 retention reference (b0-full), and the
+> spot/pinning/co-location cost design (§6.1–6.3) — are untouched byte-for-byte.
+> The ASM-2230..2239 companion file is left intact as the pre-review record;
+> ASM-2232 (m-rand arm), ASM-2235 (power clause), and ASM-2236 (D2 max clause)
+> are superseded ON THOSE POINTS by ASM-2290/2292/2293, an amendment the
+> coordinator registers centrally with the landing commit as usual.
+>
 > **Tag convention (house discipline):** `[MEASURED: ref]` = repository bytes or a
 > pinned mechanical output read this tick; `[DERIVED]` = arithmetic over tagged
 > premises; `[STIPULATED: ASM-id]` = a design choice made here; `[EXTRAPOLATION:
@@ -86,10 +108,14 @@ arm beats BOTH:
 1. **uniform-TOPK-drop at matched experts/token** — the zero-analysis, kernel-free
    knob that already banked 1.9× [MEASURED: probe-main.log P4; the explicit
    design-amendment recorded in `interpretation-fable.md` §1.1]; and
-2. **a kernel-free expert-importance baseline at the same retained fraction and
-   the same k** — pooled usage-frequency retention AND an embedding-topic-cluster
-   conditioned retention (the knull-analog for this seam; the *stronger* of the
-   two is the comparator, ASM-1977 discipline carried).
+2. **the kernel-free expert-importance baselines at the same retained fraction,
+   the same per-item dose, and the same k** — pooled usage-frequency retention
+   AND a matched-multilabel embedding-topic-cluster conditioned retention,
+   EACH in its own named contrast: the kernel arm must beat **both**, never a
+   best-of (or accuracy-selected) comparator [R1: ASM-2293]. The ASM-1977
+   knull "kernel-guided helps, not any-structured-drop" discipline is carried
+   by the dose-exact label-deranged mask m-drng (§3 [R1: ASM-2290]), which is
+   a third mandatory D2 leg.
 
 Anything less is reported as "conditioned/any dropping works; the kernel is one
 conditioner among several" — the exact shape of the programme's four
@@ -108,8 +134,8 @@ INCONCLUSIVE-PENDING under their own experiments. [STIPULATED: ASM-2236]
 ### 2.1 Construction [STIPULATED: ASM-2233]
 
 Built offline, CPU-only, from the committed P0 fingerprints
-(`poc/glm52-probe/results/stats/`, 24 prompts × 8 concept clusters × per-layer
-expert-usage histograms):
+(`poc/glm52-probe/results/stats/`, 24 prompts spanning **8 concept clusters**,
+3 prompts/cluster, with per-layer expert-usage histograms [R1: ASM-2291]):
 
 1. **Universal core (always retained).** The (layer, expert) cells active in all
    24 fingerprints carry ~94% of histogram mass [MEASURED:
@@ -128,8 +154,8 @@ expert-usage histograms):
 3. **Retained set R_kern(item, f).** Per layer: universal core ∪ top
    concept-conditional experts for the item's active concepts, filled to exactly
    f·256 experts. Leave-one-out within concept clusters wherever a test item's
-   concept has trace coverage from its own prompts (n=3/concept), so no item is
-   scored against a map built from itself.
+   cluster has trace coverage from its own prompts (n=3/cluster [R1: ASM-2291]),
+   so no item is scored against a map built from itself.
 
 ### 2.2 Scope, honestly [STIPULATED: ASM-2233; ASSESSMENT where marked]
 
@@ -148,18 +174,23 @@ expert-usage histograms):
   centred Δ +0.196, p 0.0029; bank Δ +0.326 at its n=6 permutation floor p 0.103
   [MEASURED: routing-analysis-v2.json]) but surface-disjoint discrimination is
   F1-A's job, not this experiment's. Claims are scoped accordingly.
-- **Map coverage is ~24 concepts on one box.** Items whose active concepts lack
-  trace coverage cannot get a kernel mask: they are excluded from masked-arm
-  contrasts and counted; if exclusions exceed 20% of the subset, the coverage
-  shortfall surfaces to the maintainer before the main phase (scale gate biting,
-  not lever failure — ASM-2033 wording carried).
+- **Map coverage is 8 concept clusters (24 prompts, 3/cluster) on one box
+  [R1: ASM-2291].** The earlier "~24 concepts" wording overstated this: the
+  unit the map can condition on is the CLUSTER, and there are eight. Every
+  claim in this design that rests on the count is scoped to C = 8 — in
+  particular the cluster-aware inference and its power floor, re-derived in
+  §5.2 [R1: ASM-2292]. Items whose active concepts lack trace coverage cannot
+  get a kernel mask: they are excluded from masked-arm contrasts and counted;
+  if exclusions exceed 20% of the subset, the coverage shortfall surfaces to
+  the maintainer before the main phase (scale gate biting, not lever failure —
+  ASM-2033 wording carried).
 - **Sense-level shards are NOT assumed.** Sense-granular retained sets are
   admissible only if the held classifier lands A1; otherwise word-level concepts
   only (ASM-2013 A1/A2 carried).
 
 ---
 
-## 3. Arms [STIPULATED: ASM-2232]
+## 3. Arms [STIPULATED: ASM-2232; masked-arm dose protocol R1: ASM-2290]
 
 All at the same operating point k\* (experts computed per token per MoE layer,
 §4.2) and, for masked arms, the same retained fraction f = 0.25 per layer
@@ -172,18 +203,36 @@ is the unrestricted knob colibri already exposes.
 |---|---|---|---|
 | **b0-full** | all 256/layer | TOPK=8 (config default) | retention reference |
 | **u-topk** | all 256/layer | TOPK=k\* | uniform router-weight drop — deflator 1 (the P0 lever) |
-| **m-rand** | random f·256/layer (seeded, universal core NOT protected) | TOPK=k\* among survivors | floor: "any mask at f" — descriptive sanity |
-| **m-freq** | top f·256/layer by pooled trace usage mass | TOPK=k\* among survivors | kernel-free importance, workload-blind — deflator 2a |
-| **m-emb** | per-item: universal core ∪ top experts by embedding-cluster-conditional mass (off-the-shelf sentence embedding clusters the trace corpus; item assigned to nearest cluster; no kernel anywhere) | TOPK=k\* among survivors | kernel-free CONDITIONED importance — deflator 2b, the knull-analog |
-| **m-kern** | R_kern(item, f) per §2.1 | TOPK=k\* among survivors | the kernel arm |
+| **m-drng** [R1] | per-item: universal core ∪ concept-conditional fill under a seeded LABEL DERANGEMENT — item i is masked with item σ(i)'s active-concept set, σ a derangement within strata of equal label-set cardinality, so \|labels\| is preserved per item; exactly f·256/layer | TOPK=k\* among survivors | dose-exact structured mask with WRONG labels — the knull analog (replaces m-rand); D2 leg 3 |
+| **m-freq** | universal core ∪ top experts by pooled trace usage mass, filled to exactly f·256/layer (the core is the head of the pooled ranking; stated explicitly for dose-exactness) | TOPK=k\* among survivors | kernel-free importance, workload-blind — deflator 2a; D2 leg 1 |
+| **m-emb** [R1] | per-item: universal core ∪ top experts by embedding-cluster-conditional mass for the item's top-\|C(item)\| nearest clusters — MATCHED MULTILABEL: the same number of conditioning labels as m-kern's active-concept set for that item (off-the-shelf sentence embedding clusters the trace corpus; no kernel anywhere); exactly f·256/layer | TOPK=k\* among survivors | kernel-free CONDITIONED importance — deflator 2b; D2 leg 2 |
+| **m-kern** | R_kern(item, f) per §2.1 — universal core ∪ concept-conditional fill for the item's \|C(item)\| active concepts; exactly f·256/layer | TOPK=k\* among survivors | the kernel arm |
 
-Notes: m-emb and m-kern are structurally identical pipelines differing only in
-the conditioning signal (embedding cluster vs kernel concept labels) — this is
-deliberate; it is the only comparison that can attribute anything to the kernel.
-Retained-set Jaccard overlap between m-kern / m-freq / m-emb is reported
-descriptively per layer; if m-kern∩m-emb overlap exceeds 95% the arms are
-declared non-distinct and the D2 contrast is reported as uninformative rather
-than as a tie [STIPULATED: ASM-2232].
+**Dose-exact mask protocol [R1: ASM-2290].** The review found the masked arms
+were not dose-matched (single-cluster m-emb vs multilabel m-kern; m-rand
+without the universal core). Fixed as a construction invariant: every masked
+arm retains EXACTLY f·256 = 64 experts per layer; every mask includes the SAME
+universal core; and per-item multilabel structure is matched — m-kern
+conditions on the item's \|C(item)\| active concepts, m-emb on the item's
+top-\|C(item)\| nearest embedding clusters, m-drng on a same-cardinality
+deranged label set drawn from the same concept inventory. Across
+m-kern / m-emb / m-drng / m-freq, ONLY the selection criterion differs; the
+number of experts removed, the core, and the label-set cardinality do not.
+Dose is verified mechanically: the run manifest records per-item, per-layer
+retained-set sizes for every masked arm, and any inequality VOIDs the affected
+contrast (never reinterpreted — the §4.1 discipline extended to mask dose).
+m-drng is what licenses "kernel-guided helps" over "any-structured-drop
+helps": identical pipeline, identical dose, identical structure, wrong labels.
+
+Notes: m-emb, m-drng, and m-kern are structurally identical pipelines differing
+only in the conditioning signal (matched-cardinality embedding clusters vs
+deranged concept labels vs kernel concept labels) — this is deliberate; it is
+the only construction that can attribute anything to the kernel labels
+themselves. Retained-set Jaccard overlap among m-kern / m-freq / m-emb / m-drng
+is reported descriptively per layer; if m-kern∩m-emb (or m-kern∩m-drng) overlap
+exceeds 95% the affected pair is declared non-distinct and that D2 leg is
+reported as uninformative rather than as a tie [STIPULATED: ASM-2232;
+R1: ASM-2290].
 
 ---
 
@@ -251,18 +300,49 @@ halts for a protocol amendment BEFORE data collection. [STIPULATED: ASM-2234]
   deployment shard size f × 370 GB ≈ 93 GB [DERIVED, northstar §2.2]. No
   efficiency claim attaches to these numbers in this experiment.
 
-### 5.2 Statistics and power [STIPULATED: ASM-2235]
+### 5.2 Statistics and power [STIPULATED: ASM-2235; power clause superseded — R1: ASM-2292]
 
 Unit = item; concept-cluster-aware inference reusing F1-K's REVISION-1 machinery
 (cluster-level permutation; ASM-2035/2038 analog): paired one-sided permutation
 test, 10,000 resamples, α = 0.05, effect floor ≥ +3 accuracy points per named
-contrast. Required n is power-derived (0.90 at the +3 floor) from pilot variance
-using the same simulation rig F1-K's power gate used; n_max = the available
-subset (F1-K pool, ≤1,440). **MD-6 lesson baked in:** if the power-required n
-exceeds the available subset, the experiment does NOT run underpowered by
-default — it surfaces to the maintainer with the measured shortfall and the
-priced options. Fixed n, no optional stopping, no post-hoc subgroups beyond the
-named sense-pair descriptive tag.
+contrast — i.e. every licensing gate below is the JOINT rule (p < 0.05 AND
+observed Δ̂ ≥ +3).
+
+**Power, re-derived [R1: ASM-2292].** The original target — "0.90 power at the
++3 floor" — was unsound and is WITHDRAWN: under the joint rule a true effect of
+exactly +3 gives P(observed Δ̂ ≥ +3) ≈ 0.5, so the observed-margin leg alone
+caps joint power at ~50% at true +3 (at ANY n), before the significance leg
+removes more. Power is therefore restated as a true-effect MDE, the KaE
+§R-REV4.1(b)/§R-REV5.1 discipline carried verbatim:
+
+- **JOINT-rule MDE at 80% power** (Gaussian planning approximation; the exact
+  figure comes from the pre-registered permutation simulation at prereg-freeze,
+  per the R-REV5.1 caveat): **MDE_true = max(3, c_α·SE) + 0.842·SE**, where
+  c_α is the one-sided 5% rejection boundary of the cluster permutation test
+  (Gaussian planning: 1.645·SE). Only true effects at or above MDE_true are
+  detected with 80% probability by the joint gate.
+- **The binding constraint is C = 8 clusters, not n items [R1:
+  ASM-2291/2292].** With SE² = (σ_d²/n)·(1 + (m−1)ρ) and m = n/8 items per
+  covered cluster, SE floors at σ_d·√(ρ/8) as n grows — item count cannot buy
+  power past the 8-cluster floor. Planning rows (σ_d ≈ 39 pts at a 15% paired
+  per-item disagreement rate, ρ = 0.10 — the F1-K planning premise family):
+  n = 300 → SE ≈ 4.8 pts, c_α·SE ≈ 7.9 pts, **MDE_true ≈ 12 pts**; n → ∞ →
+  SE ≈ 4.3 pts, **MDE_true ≈ 10.8 pts** (the floor). **Honest joint power at a
+  true +3 effect: ≈ 0.15 at the planning n = 300, and ≤ 0.5 at any n** (the
+  ceiling above); the significance leg, not the margin leg, binds at C = 8.
+- **Consequence, stated before spend (MD-6 lesson).** At C = 8 the design
+  resolves only large true effects (~11–12 pts at planning ρ). The prereg
+  publishes the simulated MDE_true at the frozen n and the honest
+  power-at-true-+3 figure, and the maintainer decides with those numbers
+  whether that resolution is worth the spend — the experiment does NOT run
+  carrying the withdrawn 0.90-at-+3 claim anywhere. The real power lever is
+  C — collecting trace fingerprints for MORE concept clusters — not n; that
+  option is priced to the maintainer alongside the shortfall. A
+  non-significant result is scoped "powered to resolve ≥ MDE_true pts at
+  C = 8 cluster coverage", never "no effect".
+
+n_max = the available subset (F1-K pool, ≤1,440). Fixed n, no optional
+stopping, no post-hoc subgroups beyond the named sense-pair descriptive tag.
 
 ### 5.3 Decision rule — frozen wording, both directions [STIPULATED: ASM-2236]
 
@@ -273,15 +353,24 @@ Evaluated on the untouched test split at k\*, in this order:
   contrast is licensed; report the retention-free uniform result and stop.
 - **D1 (guided vs uniform).** acc(m-kern) − acc(u-topk) ≥ +3 points, paired
   one-sided permutation p < 0.05, matched loads verified (§4.1).
-- **D2 (kernel-specificity).** acc(m-kern) − max(acc(m-freq), acc(m-emb)) ≥ +3
-  points, same test against the STRONGER deflator.
+- **D2 (kernel-specificity) [R1: ASM-2293].** THREE separate named paired
+  contrasts, EACH under the joint rule (Δ̂ ≥ +3 points AND its own paired
+  one-sided permutation p < 0.05): (a) acc(m-kern) − acc(m-freq); (b)
+  acc(m-kern) − acc(m-emb); (c) acc(m-kern) − acc(m-drng). **D2 passes only if
+  ALL THREE pass** — a kernel-guided win must beat BOTH kernel-free deflators
+  (uniform-TOPK is already D1's job; frequency AND embedding are each tested
+  here) and the label-deranged knull mask, never an accuracy-selected
+  best-of/max comparator. The conjunction is deliberately conservative; no
+  multiplicity relief is taken in the kernel's favour. A leg voided as
+  non-distinct (§3 Jaccard rule) or dose-voided (§3 [R1]) makes D2
+  UNINFORMATIVE, not passed.
 
 | Outcome | The entire licensed sentence |
 |---|---|
 | D1 ∧ D2 | "Kernel-concept-guided expert-drop preserved more accuracy than uniform router truncation and than kernel-free importance baselines at matched experts-per-token, on concept-covered QA items at this model and box." Nothing about intelligence, parity, general capability, or deployment. |
 | D1 ∧ ¬D2 | "Conditioned expert-drop preserves quality beyond router truncation; the kernel is one conditioner among several." Reported with equal prominence — the fifth guidance-not-kernel datum if it lands. |
 | ¬D1 | "Router-weight truncation suffices at this budget; concept guidance added nothing" → kernel-guided B1b recorded **dead-at-this-scale-and-subset**; uniform TOPK stands as a colibri-native, concept-free lever with no kernel sentence attached (ASM-2018 wording carried). |
-| m-rand ≈ m-kern (descriptive, Δ < 3 points) | flagged "any-mask regime" alongside whichever primary outcome obtains — an interpretive caution, not a gate. |
+| D2 leg (c) fails: m-kern − m-drng < +3 or p ≥ 0.05 [R1] | "any-structured-drop regime": DERANGED concept labels preserved as much accuracy as correct ones — mask structure (core + conditioned fill at dose f), not kernel content, did the work. Subsumed by ¬D2 above; named separately because it is the sharpest deflation and the direct knull analog. |
 
 A deflationary outcome at any rung is a real result and is filed at equal
 structural prominence. Verdict-gen's registered pathway grades the run; this
@@ -343,10 +432,11 @@ prefills. Main: 6 arms × n (power-derived, ≤1,440-pool, planning n ≈ 300) �
 1,800 prefills + mask/map construction (CPU, ~$0). Band ≈ **$15–45 spot**;
 **CEILING $60 spot-hours** (≈ $150 if spot capacity forces on-demand, which
 requires coordinator sign-off, not silent fallback). Pre-registered degradation
-order if the ceiling binds: (1) drop m-rand; (2) drop m-freq (m-emb is the
-stronger deflator and is never dropped); (3) drop the escalation k-cell;
-(4) return to the maintainer. The order NEVER cuts n below the power
-requirement (MD-6 lesson) and never drops a deflator required by D2.
+order if the ceiling binds [R1: ASM-2293]: (1) drop the escalation k-cell;
+(2) cut the generative tok/s spot-checks (descriptive only); (3) return to the
+maintainer. **NO masked arm can be dropped:** m-freq, m-emb, AND m-drng are
+all required by the both-deflators D2 rule (§5.3 [R1]), and the order NEVER
+cuts n below the frozen power/MDE basis (MD-6 lesson).
 
 ---
 
@@ -381,9 +471,67 @@ requirement (MD-6 lesson) and never drops a deflator required by D2.
 D1-tie or D1-pass/D2-tie — either is a publishable systems datum and neither is
 a kernel result; (ii) the deficit regime may not exist above k=1 on this subset
 (GLM-5.2 is strong; §4.2's STOP handles it honestly); (iii) the map rests on 24
-prompts — thin, disclosed, and the 20% exclusion gate + Jaccard-degeneracy check
-exist because of it; (iv) spot capacity for i4i.2xlarge can dry up — the ceiling
-names the on-demand fallback as a decision, not a default.
+prompts across only 8 concept clusters [R1: ASM-2291] — thin, disclosed, and
+doubly binding: C = 8 is also the inference floor that fixes the ~11–12-pt
+MDE_true (§5.2 [R1: ASM-2292]); the 20% exclusion gate, the Jaccard-degeneracy
+check, and the dose gate exist because of it, and the honest power lever is
+more trace clusters, not more items; (iv) spot capacity for i4i.2xlarge can dry
+up — the ceiling names the on-demand fallback as a decision, not a default.
+
+---
+
+## R1. REVISION 1 — codex design-review response [STIPULATED: ASM-2290..2293]
+
+The standing codex review of this design (pre-revision bytes sha256
+e52b3c3a…d966) returned ISSUES on four points. Each is fixed in place above
+(tagged [R1]); this section is the audit trail. No review-OK item was touched:
+the fixed-compute k\* ±5% matched-loads comparison (§4.1), the full-TOPK=8
+retention reference (b0-full), and the spot/pinning/co-location cost design
+(§6.1–6.3) stand byte-for-byte.
+
+1. **Deflator masking — dose-exact, matched multilabel [ASM-2290].** Found:
+   m-emb conditioned on ONE nearest cluster while m-kern may union multiple
+   concepts, and m-rand lacked the universal core — the drop-selection arms
+   were not dose-matched, so a m-kern win could have reflected dose or
+   structure, not labels. Fixed (§3): every masked arm retains exactly
+   f·256 = 64 experts/layer including the same universal core; m-emb is
+   matched-multilabel (top-\|C(item)\| clusters, the same per-item label
+   cardinality as m-kern); m-rand is replaced by **m-drng**, a dose-exact
+   LABEL-DERANGED mask (the m-kern pipeline under a seeded
+   cardinality-stratified derangement of item→concept-set assignment). All
+   three drop-selection arms now remove the SAME number of experts with
+   matched multilabel structure; only the selection CRITERION differs. The
+   manifest verifies dose per item per layer; inequality VOIDs the contrast.
+   This preserves the knull "kernel-guided helps, not any-structured-drop"
+   discipline as a construction invariant.
+2. **Coverage corrected [ASM-2291].** Found: "~24 concepts" overstated the
+   probe source, which is 24 prompts across only **8 concept CLUSTERS**
+   (3 prompts/cluster). Fixed: §2.1, §2.2, and §7 risk (iii) now state the
+   8-cluster coverage; every claim resting on the count is re-scoped to C = 8,
+   and the power analysis is re-derived on that basis (item 3).
+3. **Quality power re-derived [ASM-2292].** Found: "0.90 power at a true +3"
+   is impossible under the joint licensing rule (p < 0.05 AND observed ≥ +3):
+   at true +3 the observed-margin leg alone has a ~50% ceiling. Fixed (§5.2):
+   the target is withdrawn; power is restated as a true-effect MDE per the KaE
+   §R-REV4.1(b)/§R-REV5.1 precedent — **MDE_true = max(3, c_α·SE) +
+   0.842·SE** for 80% joint power (Gaussian planning; exact by simulation at
+   prereg-freeze). At the actual C = 8 coverage, SE floors at σ_d·√(ρ/8), so
+   planning MDE_true ≈ 12 pts at n = 300 and ≈ 10.8 pts at n → ∞, with honest
+   joint power at true +3 of ≈ 0.15 at planning n (≤ 0.5 at any n). The frozen
+   prereg must publish the simulated MDE_true and the honest power-at-+3
+   figure; the maintainer decides on those numbers (MD-6), and the named power
+   lever is more trace clusters (C), not more items (n).
+4. **D2 both-deflators rule [ASM-2293].** Found: D2 compared m-kern against
+   max(acc(m-freq), acc(m-emb)) with a single test "against the STRONGER
+   deflator" — an accuracy-selected comparator whose permutation null ignores
+   the selection. Fixed (§5.3): D2 is a CONJUNCTION of three separate named
+   paired contrasts — m-kern vs m-freq, m-kern vs m-emb, m-kern vs m-drng —
+   each requiring Δ̂ ≥ +3 AND its own p < 0.05; all must pass. §1's crux and
+   §6.4's degradation order are updated to match (no D2 comparator can ever
+   be dropped). ASM-2232's m-rand arm, ASM-2235's power clause, and
+   ASM-2236's D2 max clause are superseded on exactly these points; the
+   ASM-2230..2239 companion file is left intact as the pre-review record and
+   the coordinator registers the amendment centrally as usual.
 
 ---
 
@@ -391,15 +539,24 @@ names the on-demand fallback as a decision, not a default.
 
 Every load-bearing claim above carries MEASURED / DERIVED / STIPULATED /
 EXTRAPOLATION / ASSESSMENT; every design choice is STIPULATED with an ASM id in
-ASM-2230..2239; both directions of every gate (D0/D1/D2, the §4.2 STOP, the
-coverage and power shortfalls) are worded in advance; the deflator arms
-(uniform-TOPK at matched loads; frequency; embedding-cluster; random floor) are
-mandatory before any kernel-specific sentence; kernel-specificity is recorded
-OPEN pending R4, not assumed. No feasibility conclusion is stated. No frozen
-record, verdict, encoder pin, or registered assumption is touched;
-`registry/assumptions.jsonl` is not written; no git action, no model run, no
-spend occurs in this pass. Companion assumptions emitted to
-`poc/glm52-probe/asm-glm-drop-2230-2239.json` (owner designer-8; range verified
-free at emission — central register tail ASM-2202, repo-wide grep for
-`ASM-223[0-9]` empty); central registration is the coordinator's action, with
-the landing commit, after the standing GPT-5.6 review gate.
+ASM-2230..2239 or (REVISION 1) ASM-2290..2293; both directions of every gate
+(D0/D1/D2, the §4.2 STOP, the coverage and power shortfalls) are worded in
+advance; the deflator arms (uniform-TOPK at matched loads; frequency;
+matched-multilabel embedding-cluster; dose-exact label-deranged knull mask) are
+mandatory before any kernel-specific sentence, D2 requires beating EACH of them
+in its own named contrast (never a best-of), and all masked arms are
+dose-exact (same expert count, same universal core, matched multilabel
+structure — only the selection criterion differs); the probe coverage is
+stated as 24 prompts across 8 concept clusters and the power analysis is a
+true-effect MDE under the joint rule at C = 8, with the withdrawn 0.90-at-+3
+target recorded as withdrawn; kernel-specificity is recorded OPEN pending R4,
+not assumed. No feasibility conclusion is stated. No frozen record, verdict,
+encoder pin, or registered assumption is touched; `registry/assumptions.jsonl`
+is not written; no git action, no model run, no spend occurs in this pass.
+Companion assumptions emitted to `poc/glm52-probe/asm-glm-drop-2230-2239.json`
+(pre-review record, left intact) and
+`poc/glm52-probe/asm-glm-drop-r1-2290-2293.json` (REVISION 1; owner designer-8;
+range verified free at emission — central register tail ASM-2259, repo-wide
+grep for `ASM-229[0-9]` empty); central registration of both blocks, with the
+supersession notes in §R1 item 4, is the coordinator's action, with the landing
+commit, after the standing GPT-5.6 review gate.

@@ -11,6 +11,20 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "registry"))
 import kot_common as kc  # noqa: E402
 
+# SUPERSEDED (2026-07-13, codex FIX-FIRST revision): this builder reproduces
+# the ORIGINAL emission of registry/experiments/f1k.json. The live record now
+# carries the review fixes (ASM-2280..2283: explicit K-2 sign-symmetry basis,
+# implemented dev-selected BCa fallback + 50-field output surface, hardened
+# fail-closed validation, usd_cap = 149 per ASM-2205, freeze-manifest A/B0
+# spec) and a re-pinned analysis sha
+# 5dbf896cffaf9ed3a9dad34f884489f2b252f0a5b8c22275427cb8a2cde8e5eb.
+# Re-running this script would REVERT those fixes, so it refuses. Kept only
+# as the reproducibility record of the original pass.
+raise SystemExit(
+    "_build_f1k_record.py is SUPERSEDED by the codex FIX-FIRST revision of "
+    "registry/experiments/f1k.json (ASM-2280..2283); re-running would revert "
+    "the review fixes. See docs/next/design/asm-f1k-freeze-2280-2283.json.")
+
 DESIGN = "docs/next/design/glm52-followup-experiment.md"
 DESIGN_SHA = "9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6"
 SCRIPT = "analysis/f1k.py"

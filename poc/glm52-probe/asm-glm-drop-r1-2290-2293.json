@@ -1,0 +1,62 @@
+{
+ "range": "ASM-2290..ASM-2293 (free range verified this tick: central register tail in registry/assumptions.jsonl is ASM-2259; repo-wide grep for ASM-229[0-9] returned nothing before this emission)",
+ "purpose": "REVISION-1 companion assumption block for GLM-DROP (B1b), responding to the standing codex review of docs/next/design/glm52-expert-drop.md (verdict ISSUES, four points): (1) dose-exact matched-multilabel deflator masking with a label-deranged knull mask replacing m-rand; (2) coverage corrected from '~24 concepts' to 24 prompts across 8 concept clusters; (3) the unsound 0.90-power-at-true-+3 target withdrawn and re-derived as a true-effect MDE under the joint licensing rule at C=8; (4) D2 rewritten from a best-of/max comparison to a conjunction of separate named contrasts against EACH deflator. EMITTED by the Fable architecture-design agent (designer-8, 2026-07-13) for central registration by the coordinator in registry/assumptions.jsonl with the landing commit, after the standing GPT-5.6 review gate. ASM-2232 (m-rand arm), ASM-2235 (power clause), and ASM-2236 (D2 max clause) are superseded ON EXACTLY THOSE POINTS by ASM-2290/2292/2293; the ASM-2230..2239 companion file is left byte-intact as the pre-review record. This pass writes NO registry entry and takes NO git action; nothing is frozen, pre-registered, scheduled, or run; no feasibility conclusion is stated anywhere in the block.",
+ "owner": "designer-8",
+ "backing_artifacts": [
+  "docs/next/design/glm52-expert-drop.md (REVISION 1 applied this pass; pre-revision bytes sha256:e52b3c3ac7ce0fe484db8f52e2bbb592221107680f6d0f8d22c9771b5773d966)",
+  "poc/glm52-probe/asm-glm-drop-2230-2239.json sha256:30759487a84abe89c1c40508279640a8bd60b5d3e9bfffac859abb3f1a8f0531 (the pre-review block, left intact)",
+  "poc/glm52-probe/results/probe-main.log sha256:77023d2b94e5f7719bdf86955de26cfb720ad33eb53521b48d47e50bc2a52592",
+  "poc/glm52-probe/results/routing-analysis-v2.json sha256:e9d6813f99a6efa03645a3c15260a84c3d47221a3d0061ad6bbc68749e1c57cc",
+  "poc/glm52-probe/interpretation-fable.md sha256:797cdd6793885727b613b46f5dcd9209b75f1005bf75c50b92d51e2a7aba9e01",
+  "poc/glm52-probe/concept_prompts.json sha256:64df95a0095c892386e9ba71d3cc5be41d957e43cf308348d81eae248e81047f (the 24-prompt / 8-cluster probe source)",
+  "docs/next/design/glm52-followup-experiment.md sha256:9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6 (KaE joint-rule MDE precedent, R-REV4.1(b)/R-REV5.1)",
+  "repo HEAD at emission: e1b20798c7f5c5b7adbce9a50e1bfe8f78e0e743",
+  "the standing codex design review of glm52-expert-drop.md returning ISSUES on the four points enumerated above (this pass's triggering input)"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2290",
+   "tag": "STIPULATED",
+   "claim": "DOSE-EXACT MASK PROTOCOL (fixes review point 1): every masked arm of GLM-DROP retains EXACTLY f x 256 = 64 experts per layer, every mask includes the SAME universal core, and per-item multilabel structure is matched across the drop-selection arms — m-kern conditions on the item's |C(item)| active kernel concepts; m-emb conditions on the item's top-|C(item)| nearest embedding clusters (matched multilabel, replacing the single-nearest-cluster rule); m-drng REPLACES m-rand as the dose-exact label-deranged knull mask: the m-kern pipeline verbatim under a seeded derangement of the item-to-concept-set assignment, stratified so each item receives another item's label set of the SAME cardinality, universal core included. Across m-kern / m-emb / m-drng / m-freq only the selection CRITERION differs; the number of experts removed, the universal core, and the per-item label-set cardinality do not. Dose is verified mechanically: the run manifest records per-item, per-layer retained-set sizes for every masked arm, and any inequality VOIDs the affected contrast (never reinterpreted). Rationale for the derangement arm: it is the shuffled-kernel knull analog on this seam — identical structure, identical dose, wrong labels — and is what licenses 'kernel-guided helps' over 'any-structured-drop helps'. Supersedes ASM-2232's m-rand definition (random set, universal core NOT protected) and its single-cluster m-emb rule.",
+   "rationale": "The review found the deflator arms were not dose-matched (single-cluster m-emb vs multilabel m-kern; m-rand without the universal core), so a kernel-arm win could have reflected retained-set size, core protection, or multilabel structure rather than label content; making dose a manifest-verified construction invariant closes every non-label pathway to a D2 pass.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 3 [R1] + section R1 item 1; codex review point 1; poc/glm52-probe/results/routing-analysis-v2.json (universal_mass_frac 0.9392 — why core protection must be uniform across arms)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2291",
+   "tag": "MEASURED",
+   "claim": "COVERAGE CORRECTION (fixes review point 2): the probe source underlying the concept-to-expert map is 24 prompts spanning 8 concept CLUSTERS (3 prompts per cluster), per poc/glm52-probe/concept_prompts.json and the fingerprint set in poc/glm52-probe/results/stats/ — NOT '~24 concepts' as the pre-revision design stated. The unit the map can condition on is the cluster, so C = 8 is the coverage figure that every count-dependent claim is scoped to: the cluster-aware inference unit count, the SE/power floor of ASM-2292, the leave-one-out granularity (n=3 prompts/cluster), the 20%-exclusion coverage gate, and section 7 risk (iii). All occurrences in the design are corrected and tagged [R1].",
+   "rationale": "The overstated concept count silently inflated the apparent inference basis by 3x; scoping every dependent claim to C = 8 is what makes the re-derived power analysis (ASM-2292) honest rather than cosmetic.",
+   "backing_ref": "poc/glm52-probe/concept_prompts.json sha256:64df95a0095c892386e9ba71d3cc5be41d957e43cf308348d81eae248e81047f (8 clusters x 3 prompts); poc/glm52-probe/results/routing-analysis-v2.json (per-cluster blocks); docs/next/design/glm52-expert-drop.md sections 2.1, 2.2, 5.2, 7 [R1]; codex review point 2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2292",
+   "tag": "STIPULATED",
+   "claim": "QUALITY POWER RE-DERIVATION (fixes review point 3; supersedes ASM-2235's power clause): the pre-revision target '0.90 power at the +3 floor' is WITHDRAWN as unsound — under the joint licensing rule (permutation p < 0.05 AND observed delta >= +3 points) a true effect of exactly +3 gives P(observed >= +3) ~ 0.5, so joint power at true +3 is capped at ~50% at ANY n before the significance leg removes more. Replacement, carrying the KaE R-REV4.1(b)/R-REV5.1 precedent verbatim: power is stated as a TRUE-EFFECT MDE at 80% joint power, MDE_true = max(3, c_alpha x SE) + 0.842 x SE, where c_alpha is the one-sided 5% rejection boundary of the cluster permutation test (Gaussian planning value 1.645 x SE; the exact figure comes from the pre-registered permutation simulation at prereg-freeze — the Gaussian numbers are planning approximations, never premises). At the actual coverage C = 8 clusters (ASM-2291), SE^2 = (sigma_d^2/n)(1+(m-1)rho) with m = n/8 floors at sigma_d x sqrt(rho/8) as n grows, so item count cannot buy power past the 8-cluster floor; planning rows (sigma_d ~ 39 points at 15% paired disagreement, rho = 0.10, the F1-K planning premise family): n = 300 gives SE ~ 4.8 pts and MDE_true ~ 12 pts; n -> infinity gives SE ~ 4.3 pts and MDE_true ~ 10.8 pts; honest joint power at a true +3 effect is ~ 0.15 at planning n = 300 and <= 0.5 at any n. CONSEQUENCES, frozen: the prereg publishes the simulated MDE_true at the frozen n plus the honest power-at-true-+3 figure; the maintainer decides with those numbers before main-phase spend (MD-6); the named power lever is C (more trace clusters) rather than n; a non-significant result is scoped 'powered to resolve >= MDE_true points at C = 8 cluster coverage', never 'no effect'; the withdrawn 0.90-at-+3 claim appears nowhere in the prereg.",
+   "rationale": "A joint significance-and-margin gate cannot be 90%-powered at a true effect equal to the margin — the observed-margin leg alone is a coin flip there; stating the true-effect MDE at the real 8-cluster coverage tells the maintainer what the experiment can actually resolve (~11-12 points, not 3) before dollars move, which is the whole point of the MD-6 lesson.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 5.2 [R1] + section R1 item 3; docs/next/design/glm52-followup-experiment.md R-REV4.1(b)/R-REV5.1 (joint MDE = margin + 0.842 x SE precedent and its Gaussian-approximation caveat); codex review point 3; ASM-2291 (C = 8 basis)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2293",
+   "tag": "STIPULATED",
+   "claim": "D2 BOTH-DEFLATORS RULE (fixes review point 4; supersedes ASM-2236's D2 clause 'acc(m-kern) - max(acc(m-freq), acc(m-emb)) >= +3, same test against the STRONGER deflator'): D2 is a CONJUNCTION of three separate named paired contrasts, each under the joint rule (observed delta >= +3 points AND its own paired one-sided cluster permutation p < 0.05): (a) m-kern vs m-freq, (b) m-kern vs m-emb, (c) m-kern vs m-drng. D2 passes only if ALL THREE pass — a kernel-guided win must beat BOTH kernel-free importance deflators (the uniform-TOPK deflator is D1's separate mandatory gate at matched loads) and the label-deranged knull mask; no best-of, worst-of, or accuracy-selected comparator, whose permutation null would ignore the selection step. The conjunction takes no multiplicity relief in the kernel's favour (deliberately conservative). A leg declared non-distinct by the Jaccard rule or voided by the dose gate (ASM-2290) renders D2 UNINFORMATIVE, not passed. The section 6.4 degradation order is amended to match: no masked arm can ever be dropped under budget pressure (all three are D2-required); degradation is limited to the escalation k-cell and the descriptive generative spot-checks before returning to the maintainer, and never cuts n below the frozen power/MDE basis.",
+   "rationale": "Testing only the accuracy-selected maximum smuggles a post-hoc selection into the null and lets the kernel arm win by beating whichever deflator happened to underperform; requiring every deflator to be beaten in its own pre-named contrast is the only reading of the deflator crux consistent with the programme's four-deflation discipline.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md sections 1, 5.3, 6.4 [R1] + section R1 item 4; codex review point 4; ASM-2290 (m-drng definition and dose gate)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  }
+ ]
+}

@@ -8,9 +8,10 @@ i4i instance). Design: docs/next/design/glm52-followup-experiment.md §2
 (F1-K), as amended by §R (REVISION-1) through §R-REV5 (REVISION-5); where a
 revision conflicts with §§1-10, the latest revision governs. Companion
 record: registry/experiments/f1k.json. Cost approach: the maintainer's
-reduced-cost GO (issue #28): R = 3 derangement passes (the §R6 pre-registered
-degradation step 1, applied up front), spot/pinning savings are ops-side and
-touch nothing statistical.
+reduced-cost GO (issue #28) as validated by
+docs/next/design/glm52-f1k-cost-reduction.md (ASM-2205, $149 ceiling):
+R = 3 derangement passes (the §R6 pre-registered degradation step 1, applied
+up front), spot/pinning savings are ops-side and touch nothing statistical.
 
 REGISTERED STATISTICS (implemented, not narrated):
   * Unit of inference = the concept CLUSTER (§R3.1/§R-REV4.1a). For a paired
@@ -23,28 +24,68 @@ REGISTERED STATISTICS (implemented, not narrated):
     per-contrast PRNG sub-seeds (global SEED below) => byte-identical stdout
     across reruns. Type-I exact under cluster sign-symmetry, for ANY
     within-cluster ICC (§R-REV4.1a; ASM-2122).
+  * K-2 EXACTNESS BASIS (explicit, per the codex FIX-FIRST review
+    2026-07-13): the K-2 sign-flip (K vs the per-item derangement MEAN) is
+    exact ONLY under the EXPLICIT cluster sign-symmetry assumption on
+    D_c = mean_c(K - mean_R(d1-drng)) registered as ASM-2280. Four-arm
+    carrier exchangeability alone does NOT deliver it — the review's
+    counterexample (an exchangeable null in which exactly 3 of the 4 carrier
+    assignments score an item correct) rejects at ~6.28%, not 5%, at C = 72.
+    The registered remedy when sign-symmetry cannot be trusted is the
+    dev-selected BCa fallback below; the K-1 basis (ASM-2122) is unchanged.
+  * DEV-SELECTED INFERENCE METHOD + BCa FALLBACK BRANCH (IMPLEMENTED,
+    §R-REV4.1a): the choice between the sign-flip test and the cluster
+    (concept-block) BCa bootstrap is frozen PRE-TEST at freeze-manifest
+    addendum (6) from the dev-split sign-symmetry check — never from test
+    data — and carried in the sidecar as
+    inference = {method: "signflip"|"bca", dev_sign_symmetry_pass: bool}
+    (coherence enforced fail-closed: method == "signflip" iff the dev check
+    passed). Under "bca" EVERY directional contrast (K-1, K-2, K-3, d0
+    placebo, harm/kill) takes p = the cluster-BCa CI-inversion one-sided p
+    (p < a  <=>  BCa one-sided lower bound at level a clears 0, by
+    construction), same +3.0-pt joint rule. The method used is reported at
+    /analysis/inference_method.
   * LICENSING RULE (joint, §R-REV3.1/§R-REV4.1): a ladder rung is licensed
-    iff observed lift >= +3.0 accuracy points AND permutation p < 0.05. The
-    Gaussian joint-MDE numbers are PLANNING approximations only (§R-REV5 /
-    ASM-2130); they never enter this script's decisions.
+    iff observed lift >= +3.0 accuracy points AND p < 0.05 (p per the
+    dev-selected method above). The Gaussian joint-MDE numbers are PLANNING
+    approximations only (§R-REV5 / ASM-2130); they never enter this
+    script's decisions.
   * LADDER (§2.6, ASM-2029/2036): K-1 = K vs b0; K-2 = K vs the per-item MEAN
     correctness over the R = 3 d1-drng derangement passes (dose-exact
     deflator, §R2); K-3 = K vs d2 (plain-dictionary knull). K-seam = K vs
     d3-text, DESCRIPTIVE both directions, never a rung. Failing rung n caps
-    the claim at rung n-1.
-  * d0 placebo (run-voiding, §2.6): d0 vs b0 one-sided sign-flip p < 0.05
-    voids the instrument (NO +3 floor — noise sensitivity at any magnitude
-    voids; conservative sharpening registered in the f1k record).
+    the claim at rung n-1. Cluster-BCa 95% CIs are REGISTERED OUTPUTS for
+    all three rungs (/analysis/k1_ci95, k2_ci95, k3_ci95).
+  * d0 placebo (run-voiding, §2.6): d0 vs b0 one-sided p < 0.05 voids the
+    instrument (NO +3 floor — noise sensitivity at any magnitude voids;
+    conservative sharpening registered in the f1k record, ASM-2273).
   * NULL (TOST at the +/-3.0-pt SESOI): cluster-level BCa 90% CI of the K-1
     statistic strictly inside (-3.0, +3.0), and NOT ceiling-bound.
   * KILL (harm direction): K-1 observed lift <= -3.0 points AND
-    harm-direction sign-flip p < 0.05.
+    harm-direction p < 0.05 (dev-selected method).
   * REPLACE non-inferiority (conditional arm, §R1.2/ASM-2037/2044/2124):
     cluster-level BCa one-sided 95% LB of (REPLACE - K) > -2.0 points AND
     measured expert-byte saving > 0; run/defer decided PRE-test (sidecar).
   * Ceiling-bound wording (§2.7): b0 accuracy > 0.95 on the subset =>
     /analysis/ceiling_bound true; a non-fire is then scoped "ceiling-bound at
-    this subset", never a null (null_equiv is forced false).
+    this subset", never a null (null_equiv is forced false). The 0.95
+    threshold is IMMUTABLE (CEILING_B0 below): a sidecar carrying any other
+    b0_ceiling_threshold is rejected fail-closed.
+
+HARDENED VALIDATION (codex FIX-FIRST review 2026-07-13; all fail-closed
+ERR_P2_ANALYSIS, never gates):
+  * n EXACT: the b0 test-item universe must contain EXACTLY N_REGISTERED =
+    1,440 items (the design runs AT the cap, §R-REV3.1 item 4); any other n
+    (e.g. 520) is rejected, not analyzed.
+  * NO ARM SUPERSETS: every (arm, pass) may score ONLY items in the b0
+    universe; any item outside it is rejected (mandatory-arm UNDER-coverage
+    stays an INSTRUMENT-INVALID gate: /gates/completeness_valid).
+  * BINARY correctness: row "correct" must equal 0 or 1 (bools and any
+    non-binary value rejected).
+  * IMMUTABLE thresholds: the ceiling threshold is the pinned constant; the
+    sidecar cannot move it.
+  * REPLACE coherence: REPLACE rows present iff sidecar replace.ran; when
+    ran, REPLACE must score the full universe (no partial-NI).
 
 INPUT CONTRACT: each eligible stdin record (event=="run", phase=="final",
 exit=="ok") must carry artifacts.rows_path/rows_sha256 and
@@ -53,22 +94,27 @@ SAME artifact tuple. Rows and sidecar are loaded from the pinned paths,
 sha256 re-verified, fail closed; the analysis is a pure function of those
 bytes. ROWS (JSONL), one row per scored (item x arm x pass):
   {item_id, cluster, arm in {b0,d0,d1-drng,d2,d3-text,K,REPLACE},
-   pass (int; 1..3 for d1-drng, else 0), correct 0/1,
+   pass (int; 1..3 for d1-drng, else 0), correct 0/1 (STRICTLY binary),
    tags [subset of {sense-pair, multi-concept, option-trigger}],
    pred_label, gold_label}
 SIDECAR (JSON): manifest flags (pre-spend (A), B0, 5, 7, 6 committed;
 test-untouched), off-concept guard result, scoring-template checks,
 dose-exactness checks (R = 3 seeds vs the registered [101, 102, 103],
-derangement fixed-point-free, layerwise norm-matched), replace
-{ran, delta_r_dev, n_ni, io_saving_bytes_per_gated_token}, carriers
-{params_added, table_bytes, concepts, layers}, power {rho_u,
-joint_mde_points_at_rho_u, mc_exact_power}, cost {usd_total,
-instance_hours, prefills}, b0_ceiling_threshold.
+derangement fixed-point-free, layerwise norm-matched), inference {method
+"signflip"|"bca", dev_sign_symmetry_pass} (the §R-REV4.1a dev-selected
+choice, frozen at addendum (6)), replace {ran, delta_r_dev, n_ni,
+io_saving_bytes_per_gated_token}, carriers {params_added, table_bytes,
+concepts, layers}, power {rho_u, joint_mde_points_at_rho_u,
+mc_exact_power}, cost {usd_total, instance_hours, prefills},
+b0_ceiling_threshold (optional; MUST equal 0.95 if present).
 
 MOCK SELF-TEST: `python3 analysis/f1k.py --selftest` (optional argv; the
-stdin path takes no flags) builds two synthetic campaigns (planted +10-pt
-K lift; exact null) plus a pinned-file round-trip and asserts the full
-verdict-bearing output surface. Exits 0 on green.
+stdin path takes no flags) builds three synthetic campaigns (planted +10-pt
+K lift on the sign-flip branch; the SAME campaign on the BCa fallback
+branch; exact null) plus a pinned-file round-trip, asserts the full
+verdict-bearing output surface, and probes every hardened rejection
+(n != 1,440, arm superset, non-binary correct, mutated ceiling threshold,
+incoherent inference method). Exits 0 on green.
 
 Fail-closed exits: any pin/shape violation prints ERR_P2_ANALYSIS to stderr
 and exits 1 (=> verdict-gen ERR_P2_ANALYSIS); nothing falls back.
@@ -99,8 +145,12 @@ R_DRNG = 3               # derangement passes (R 5->3: §R6 degradation step 1,
 DRNG_SEEDS = [101, 102, 103]   # registered main-run derangement seeds
 POWER_GATE_MIN_C = 65    # clusters with m >= 8 (§R-REV2.2 power gate)
 POWER_GATE_MIN_M = 8
+N_REGISTERED = 1440      # the design runs AT the cap (§R-REV3.1 item 4);
+                         # any other realized n is REJECTED fail-closed
 N_MAX = 1440             # hard cap (§R3.2 / §R-REV3.1 item 4)
-CEILING_B0 = 0.95        # ceiling-bound threshold (§2.7)
+CEILING_B0 = 0.95        # ceiling-bound threshold (§2.7) — IMMUTABLE; a
+                         # sidecar carrying a different value is rejected
+INFERENCE_METHODS = ("signflip", "bca")  # §R-REV4.1a dev-selected choice
 MANDATORY_ARMS = ("b0", "d0", "d1-drng", "d2", "K")  # ladder arms, never
                                                      # droppable (§R6)
 
@@ -118,16 +168,19 @@ OUTPUT_FIELDS = [
     "/analysis/m_per_cluster_mean",
     "/analysis/b0_accuracy",
     "/analysis/ceiling_bound",
+    "/analysis/inference_method",
     "/analysis/k1_lift_points",
     "/analysis/k1_p",
     "/analysis/k1_ci95",
     "/analysis/k1_joint_pass",
     "/analysis/k2_lift_points",
     "/analysis/k2_p",
+    "/analysis/k2_ci95",
     "/analysis/k2_joint_pass",
     "/analysis/k2_rank_of_k",
     "/analysis/k3_lift_points",
     "/analysis/k3_p",
+    "/analysis/k3_ci95",
     "/analysis/k3_joint_pass",
     "/analysis/kseam_delta_points",
     "/analysis/d0_lift_points",
@@ -183,17 +236,23 @@ def read_pinned(path, want_sha, what):
 # ---------------------------------------------------------------------------
 def index_rows(rows):
     """rows -> {arm: {pass: {item_id: correct}}}; plus item->cluster map and
-    item->tags. Duplicate (arm, pass, item) rows are a harness bug."""
+    item->tags. Duplicate (arm, pass, item) rows are a harness bug.
+    HARDENED: "correct" must be STRICTLY binary (0 or 1; bools rejected) —
+    a fractional or boolean correctness value is a scorer defect, not data."""
     byarm, clusters, tags, labels = {}, {}, {}, {}
     for r in rows:
         for k in ("item_id", "cluster", "arm", "correct"):
             if k not in r:
                 fail("row missing %r: %s" % (k, json.dumps(r)[:200]))
+        c = r["correct"]
+        if isinstance(c, bool) or not (c == 0 or c == 1):
+            fail("non-binary correct %r (must be 0 or 1): %s"
+                 % (c, json.dumps(r)[:200]))
         arm, p, iid = r["arm"], int(r.get("pass", 0) or 0), r["item_id"]
         d = byarm.setdefault(arm, {}).setdefault(p, {})
         if iid in d:
             fail("duplicate row (arm=%s pass=%d item=%s)" % (arm, p, iid))
-        d[iid] = float(r["correct"])
+        d[iid] = int(c)
         prev = clusters.setdefault(iid, r["cluster"])
         if prev != r["cluster"]:
             fail("item %s carries two clusters (%s, %s)" % (iid, prev,
@@ -238,7 +297,10 @@ def cluster_diffs(xa, xb, clusters):
 def signflip(dcs, name, b=B):
     """One-sided cluster sign-flip permutation test of T = mean_c D_c > 0.
     Returns (T_points, p). Add-one corrected over b random sign patterns
-    (§R3.1; identity counted via the correction)."""
+    (§R3.1; identity counted via the correction). Exact ONLY under the
+    registered cluster sign-symmetry null: ASM-2122 grounds it for K-1;
+    K-2 additionally requires the EXPLICIT ASM-2280 assumption (four-arm
+    exchangeability alone is insufficient — see the module docstring)."""
     C = len(dcs)
     if C == 0:
         return None, None
@@ -268,8 +330,10 @@ def _norm_ppf(p, lo=-10.0, hi=10.0):
 
 class ClusterBCa:
     """BCa bootstrap of T = mean_c D_c, resampling CLUSTERS with
-    replacement (§R1.2 / §R-REV4.1a fallback machinery; used here for the
-    TOST CI and the REPLACE-NI lower bound). Deterministic sub-seeded."""
+    replacement (§R1.2 / §R-REV4.1a fallback machinery; carries the rung
+    95% CIs, the TOST CI, the REPLACE-NI lower bound, AND — when the
+    dev-selected method is 'bca' — the fallback-branch one-sided p via CI
+    inversion). Deterministic sub-seeded."""
 
     def __init__(self, dcs, name, b=B):
         self.n = len(dcs)
@@ -313,6 +377,30 @@ class ClusterBCa:
     def ub(self, alpha=ALPHA):
         return None if self.theta is None else self._q(1 - alpha)
 
+    def p_one_sided(self):
+        """CI-inversion one-sided p for H1: T > 0 — the smallest alpha at
+        which the BCa lower bound clears 0, so p < a <=> lb(a) > 0 by
+        construction (the §R-REV4.1a fallback branch's p). Deterministic
+        bisection over the same _q the CIs use; add-one floored at
+        1/(B+1), capped at 1."""
+        if self.theta is None:
+            return None
+        floor = 1.0 / (self.b + 1)
+        if self.degenerate:
+            return floor if self.theta > 0 else 1.0
+        lo, hi = floor, 1.0 - 1e-12
+        if self._q(lo) > 0:
+            return floor
+        if self._q(hi) <= 0:
+            return 1.0
+        for _ in range(60):          # lb(lo) <= 0 < lb(hi) invariant
+            mid = (lo + hi) / 2
+            if self._q(mid) > 0:
+                hi = mid
+            else:
+                lo = mid
+        return max(floor, min(1.0, hi))
+
 
 # ---------------------------------------------------------------------------
 # The pure analysis function (rows + sidecar bytes -> output dict)
@@ -328,6 +416,76 @@ def analyze(rows, side):
     if not b0 or not karm:
         fail("mandatory arms b0/K missing from rows")
 
+    # --- HARDENED VALIDATION (codex FIX-FIRST review; fail-closed) ---------
+    universe = set(b0)
+    if len(universe) != N_REGISTERED:
+        fail("registered n violated: b0 scores %d items but the frozen "
+             "design runs AT the cap n = %d (§R-REV3.1 item 4) — any other "
+             "realized n is rejected, never analyzed" % (len(universe),
+                                                         N_REGISTERED))
+    for arm in sorted(byarm):
+        for p in sorted(byarm[arm]):
+            extra = sorted(set(byarm[arm][p]) - universe)
+            if extra:
+                fail("arm %s pass %d scores %d item(s) OUTSIDE the "
+                     "registered b0 test set (arm supersets rejected): %s"
+                     % (arm, p, len(extra), extra[:5]))
+
+    # Immutable decision threshold: the sidecar may echo the pinned ceiling
+    # but can NEVER move it (§2.7; mutable-threshold rejection).
+    if "b0_ceiling_threshold" in side \
+            and side["b0_ceiling_threshold"] != CEILING_B0:
+        fail("sidecar b0_ceiling_threshold %r != pinned CEILING_B0 %s — "
+             "decision thresholds are immutable at freeze"
+             % (side["b0_ceiling_threshold"], CEILING_B0))
+
+    # Dev-selected inference method (§R-REV4.1a): frozen at addendum (6)
+    # from the dev sign-symmetry check, coherence enforced fail-closed.
+    inf = side.get("inference") or {}
+    method = inf.get("method")
+    if method not in INFERENCE_METHODS:
+        fail("sidecar inference.method %r not in %s (the §R-REV4.1a "
+             "dev-selected sign-flip-vs-BCa choice, frozen at addendum (6), "
+             "is mandatory)" % (method, list(INFERENCE_METHODS)))
+    sym = inf.get("dev_sign_symmetry_pass")
+    if not isinstance(sym, bool):
+        fail("sidecar inference.dev_sign_symmetry_pass must be a bool "
+             "(got %r)" % (sym,))
+    if (method == "signflip") != sym:
+        fail("sidecar inference incoherent: method=%r with "
+             "dev_sign_symmetry_pass=%r — sign-flip is licensed iff the dev "
+             "sign-symmetry check PASSED; otherwise the BCa fallback branch "
+             "governs (§R-REV4.1a)" % (method, sym))
+
+    # --- registered directional inference (both branches implemented) ------
+    def contrast(xa, xb, name, want_bca):
+        """T = mean_c D_c with H1: T > 0. p per the dev-selected method:
+        'signflip' = exact cluster sign-flip permutation p (valid under the
+        registered sign-symmetry null: ASM-2122 for K-1, the EXPLICIT
+        ASM-2280 assumption for K-2); 'bca' = the cluster-BCa CI-inversion
+        one-sided p (the §R-REV4.1a fallback branch), applied uniformly to
+        every directional contrast. want_bca additionally computes the
+        registered 95% CI even on the sign-flip branch."""
+        dcs, _ = cluster_diffs(xa, xb, clusters)
+        if not dcs:
+            return {"dcs": [], "lift": None, "p": None, "ci95": None,
+                    "bca": None}
+        lift = 100.0 * sum(dcs) / len(dcs)
+        bca = None
+        if want_bca or method == "bca":
+            bca = ClusterBCa([100.0 * d for d in dcs], name)
+        if method == "bca":
+            p = bca.p_one_sided()
+        else:
+            _, p = signflip(dcs, name)
+        return {"dcs": dcs, "lift": lift, "p": p,
+                "ci95": ([bca.lb(0.025), bca.ub(0.025)] if bca else None),
+                "bca": bca}
+
+    def fired(c):
+        return bool(c["lift"] is not None and c["p"] is not None
+                    and c["lift"] >= FLOOR_PTS and c["p"] < ALPHA)
+
     # --- gates -------------------------------------------------------------
     man = side.get("manifest") or {}
     manifest_valid = all(bool(man.get(k)) for k in (
@@ -342,7 +500,7 @@ def analyze(rows, side):
     n_clusters = len(csizes)
     c_ge8 = sum(1 for v in csizes.values() if v >= POWER_GATE_MIN_M)
     m_mean = (n_items / n_clusters) if n_clusters else None
-    power_gate = (c_ge8 >= POWER_GATE_MIN_C and n_items <= N_MAX)
+    power_gate = (c_ge8 >= POWER_GATE_MIN_C and n_items == N_REGISTERED)
 
     guard = side.get("guard") or {}
     guard_valid = bool(guard.get("byte_identical"))
@@ -357,18 +515,20 @@ def analyze(rows, side):
                   and bool(dose.get("norm_matched_within_tol"))
                   and drng is not None)
 
-    # placebo: d0 vs b0 one-sided sign-flip; p < 0.05 VOIDS (no +3 floor)
-    d0_dcs, _ = cluster_diffs(d0, b0, clusters)
-    d0_lift, d0_p = signflip(d0_dcs, "d0_vs_b0")
+    # placebo: d0 vs b0 one-sided; p < 0.05 VOIDS (no +3 floor, ASM-2273)
+    c_d0 = contrast(d0, b0, "d0_vs_b0", want_bca=False)
+    d0_lift, d0_p = c_d0["lift"], c_d0["p"]
     placebo_valid = (d0_p is not None and d0_p >= ALPHA)
 
-    # completeness: every mandatory arm scores every b0 test item
+    # completeness: every mandatory arm scores EXACTLY the b0 test universe
+    # (supersets already hard-rejected above; missing coverage gates here)
     complete = True
     for arm in MANDATORY_ARMS:
         if arm == "d1-drng":
-            complete &= (drng is not None and set(b0) <= set(drng))
+            complete = complete and (drng is not None
+                                     and set(drng) == universe)
         else:
-            complete &= set(b0) <= set(arm_items(byarm, arm))
+            complete = complete and set(arm_items(byarm, arm)) == universe
 
     gates = {
         "freeze_manifest_valid": bool(manifest_valid),
@@ -381,21 +541,19 @@ def analyze(rows, side):
     }
 
     # --- ladder ------------------------------------------------------------
-    def rung(xa, xb, name):
-        dcs, _ = cluster_diffs(xa, xb, clusters)
-        lift, p = signflip(dcs, name)
-        fired = (lift is not None and p is not None
-                 and lift >= FLOOR_PTS and p < ALPHA)
-        return dcs, lift, p, bool(fired)
-
-    k1_dcs, k1_lift, k1_p, k1_fire = rung(karm, b0, "k1_K_vs_b0")
+    k1 = contrast(karm, b0, "k1_K_vs_b0", want_bca=True)
+    k1_fire = fired(k1)
     if drng is not None:
-        _, k2_lift, k2_p, k2_fire = rung(karm, drng, "k2_K_vs_drngmean")
+        k2 = contrast(karm, drng, "k2_K_vs_drngmean", want_bca=True)
     else:
-        k2_lift = k2_p = None
-        k2_fire = False
-    _, k3_lift, k3_p, k3_fire = rung(karm, d2, "k3_K_vs_d2") if d2 else \
-        (None, None, None, False)
+        k2 = {"lift": None, "p": None, "ci95": None}
+    k2_fire = fired(k2) if drng is not None else False
+    if d2:
+        k3 = contrast(karm, d2, "k3_K_vs_d2", want_bca=True)
+        k3_fire = fired(k3)
+    else:
+        k3 = {"lift": None, "p": None, "ci95": None}
+        k3_fire = False
 
     # K-seam descriptive (never a rung)
     if d3:
@@ -417,24 +575,32 @@ def analyze(rows, side):
 
     # --- NULL (TOST) + kill + ceiling ---------------------------------------
     b0_acc = sum(b0.values()) / len(b0)
-    ceiling = b0_acc > float(side.get("b0_ceiling_threshold", CEILING_B0))
-    bca = ClusterBCa([100.0 * d for d in k1_dcs], "k1_tost")
+    ceiling = b0_acc > CEILING_B0     # pinned constant, never sidecar-movable
+    bca = k1["bca"]
     a2 = (1 - TOST_CI) / 2
-    tost = ([bca.lb(a2), bca.ub(a2)] if bca.theta is not None else None)
+    tost = ([bca.lb(a2), bca.ub(a2)] if bca is not None
+            and bca.theta is not None else None)
     null_equiv = bool(tost is not None and tost[0] is not None
                       and -FLOOR_PTS < tost[0] and tost[1] < FLOOR_PTS
                       and not ceiling)
-    harm_lift, harm_p = signflip([-d for d in k1_dcs], "k1_harm")
-    kill = bool(k1_lift is not None and k1_lift <= -FLOOR_PTS
-                and harm_p is not None and harm_p < ALPHA)
+    harm = contrast(b0, karm, "k1_harm", want_bca=False)  # T' = b0 - K
+    kill = bool(k1["lift"] is not None and k1["lift"] <= -FLOOR_PTS
+                and harm["p"] is not None and harm["p"] < ALPHA)
 
     # --- REPLACE non-inferiority (conditional) -------------------------------
     rep = arm_items(byarm, "REPLACE")
     rep_side = side.get("replace") or {}
+    if bool(rep) != bool(rep_side.get("ran")):
+        fail("REPLACE coherence violated: rows %s but sidecar replace.ran="
+             "%r — the run/defer decision is PRE-test (§R-REV4.3)"
+             % ("present" if rep else "absent", rep_side.get("ran")))
     rep_ran = bool(rep) and bool(rep_side.get("ran"))
+    if rep_ran and set(rep) != universe:
+        fail("REPLACE ran but scores %d/%d registered items — partial-NI is "
+             "rejected (§R1.2)" % (len(rep), len(universe)))
     if rep_ran:
-        rdcs, _ = cluster_diffs(rep, karm, clusters)
-        rlb = ClusterBCa([100.0 * d for d in rdcs], "replace_ni").lb(ALPHA)
+        c_rni = contrast(rep, karm, "replace_ni", want_bca=True)
+        rlb = c_rni["bca"].lb(ALPHA) if c_rni["bca"] is not None else None
         io = rep_side.get("io_saving_bytes_per_gated_token")
         rep_pass = bool(rlb is not None and rlb > -NI_MARGIN_PTS
                         and io is not None and io > 0)
@@ -497,7 +663,8 @@ def analyze(rows, side):
         "mc_exact_power": power.get("mc_exact_power"),
         "wording": "PLANNING APPROXIMATION (Gaussian large-sample) per "
                    "§R-REV5/ASM-2130 — the licensing decision uses ONLY the "
-                   "exact sign-flip p and the +3-pt floor; a non-fire is "
+                   "dev-selected exact-test p (sign-flip, or the BCa "
+                   "fallback branch) and the +3-pt floor; a non-fire is "
                    "scoped 'powered to resolve >= the joint MDE at rho_U', "
                    "never a clean null at +3.",
     }
@@ -511,13 +678,17 @@ def analyze(rows, side):
         "m_per_cluster_mean": m_mean,
         "b0_accuracy": b0_acc,
         "ceiling_bound": bool(ceiling),
-        "k1_lift_points": k1_lift, "k1_p": k1_p,
-        "k1_ci95": ([bca.lb(0.025), bca.ub(0.025)]
-                    if bca.theta is not None else None),
+        "inference_method": method,
+        "k1_lift_points": k1["lift"], "k1_p": k1["p"],
+        "k1_ci95": k1["ci95"],
         "k1_joint_pass": k1_fire,
-        "k2_lift_points": k2_lift, "k2_p": k2_p, "k2_joint_pass": k2_fire,
+        "k2_lift_points": k2["lift"], "k2_p": k2["p"],
+        "k2_ci95": k2["ci95"],
+        "k2_joint_pass": k2_fire,
         "k2_rank_of_k": k_rank,
-        "k3_lift_points": k3_lift, "k3_p": k3_p, "k3_joint_pass": k3_fire,
+        "k3_lift_points": k3["lift"], "k3_p": k3["p"],
+        "k3_ci95": k3["ci95"],
+        "k3_joint_pass": k3_fire,
         "kseam_delta_points": kseam,
         "d0_lift_points": d0_lift, "d0_p": d0_p,
         "ladder_rung_reached": ladder,
@@ -638,7 +809,7 @@ def _mock_campaign(p_by_arm, rng, C=72, m=20, shared_null=False):
     return rows
 
 
-def _mock_sidecar():
+def _mock_sidecar(method="signflip"):
     return {
         "manifest": {"pre_spend_committed": True,
                      "b0_addendum_committed": True,
@@ -650,6 +821,8 @@ def _mock_sidecar():
                      "header_cue_labels_trigger_free": True},
         "dose": {"r_seeds": DRNG_SEEDS, "derangement_no_fixed_point": True,
                  "norm_matched_within_tol": True},
+        "inference": {"method": method,
+                      "dev_sign_symmetry_pass": method == "signflip"},
         "replace": {"ran": False, "delta_r_dev": None, "n_ni": None,
                     "io_saving_bytes_per_gated_token": None},
         "carriers": {"params_added": 96 * 4 * 6144, "table_bytes": 9437184,
@@ -664,12 +837,31 @@ def _mock_sidecar():
 
 
 def selftest():
+    import contextlib
+    import io
+
     def check(cond, msg):
         if not cond:
             print("MOCK-SELFTEST FAIL: %s" % msg, file=sys.stderr)
             sys.exit(1)
 
-    # Mock A — planted +10-pt K lift over b0/d0/drng; d2 close (+2 pts)
+    def expect_reject(thunk, what):
+        """Every hardened validation must exit fail-closed (never return)."""
+        sink = io.StringIO()
+        try:
+            with contextlib.redirect_stderr(sink):
+                thunk()
+        except SystemExit as e:
+            check(e.code == 1, "%s: rejected but exit code %r" % (what,
+                                                                  e.code))
+            check("ERR_P2_ANALYSIS" in sink.getvalue(),
+                  "%s: rejection did not print ERR_P2_ANALYSIS" % what)
+            return
+        check(False, "%s: expected fail-closed rejection, got a result"
+              % what)
+
+    # Mock A — planted +10-pt K lift over b0/d0/drng; d2 close (+2 pts);
+    # sign-flip branch (dev sign-symmetry check passed)
     rng = random.Random(4242)
     rows_a = _mock_campaign({"b0": 0.70, "d0": 0.70, "d1-drng": 0.70,
                              "d2": 0.78, "d3-text": 0.71, "K": 0.80}, rng)
@@ -677,6 +869,7 @@ def selftest():
     g = out_a["gates"]
     a = out_a["analysis"]
     check(all(g.values()), "mock A: some gate failed: %s" % g)
+    check(a["inference_method"] == "signflip", "mock A: method not signflip")
     check(a["k1_joint_pass"], "mock A: K-1 did not fire (lift=%s p=%s)"
           % (a["k1_lift_points"], a["k1_p"]))
     check(a["k2_joint_pass"], "mock A: K-2 did not fire")
@@ -686,6 +879,12 @@ def selftest():
     check(a["ladder_rung_reached"] >= 2, "mock A: ladder < 2")
     check(a["n_items"] == 1440 and a["n_clusters"] == 72,
           "mock A: grid wrong")
+    for key in ("k1_ci95", "k2_ci95", "k3_ci95"):
+        ci = a[key]
+        check(isinstance(ci, list) and len(ci) == 2 and ci[0] is not None
+              and ci[0] <= ci[1], "mock A: %s malformed: %s" % (key, ci))
+    check(a["k2_ci95"][0] > 0, "mock A: K-2 BCa 95%% CI LB not > 0 under "
+          "planted lift: %s" % a["k2_ci95"])
 
     # Mock B — exact per-item null: every arm shares each item's draw
     rng = random.Random(2424)
@@ -699,8 +898,48 @@ def selftest():
     check(bnl["null_equiv"], "mock B: TOST did not certify the planted "
           "null (ci90=%s)" % bnl["tost_ci90"])
 
+    # Mock C — the SAME planted-lift campaign on the dev-selected BCa
+    # FALLBACK branch (dev sign-symmetry check failed): the implemented
+    # §R-REV4.1a machinery must reach the same PASS shape.
+    out_c = analyze(rows_a, _mock_sidecar(method="bca"))
+    cga, ca = out_c["gates"], out_c["analysis"]
+    check(all(cga.values()), "mock C: some gate failed: %s" % cga)
+    check(ca["inference_method"] == "bca", "mock C: method not bca")
+    check(ca["k1_p"] is not None and ca["k1_p"] < ALPHA,
+          "mock C: BCa-branch k1_p not significant: %s" % ca["k1_p"])
+    check(ca["k1_joint_pass"] and ca["k2_joint_pass"] and ca["pass_gate"],
+          "mock C: BCa fallback branch did not reach the PASS shape")
+    check(not ca["kill_fired"] and not ca["null_equiv"],
+          "mock C: kill/null fired under planted lift on the BCa branch")
+
+    # Hardened-validation probes — each must be REJECTED fail-closed
+    rows_short = [r for r in rows_a if r["item_id"] != "it-000-00"]
+    expect_reject(lambda: analyze(rows_short, _mock_sidecar()),
+                  "n != 1440 (dropped item)")
+    rows_super = rows_a + [{"item_id": "it-extra-99", "cluster": "c-000",
+                            "arm": "K", "pass": 0, "correct": 1,
+                            "pred_label": "A", "gold_label": "A",
+                            "tags": []}]
+    expect_reject(lambda: analyze(rows_super, _mock_sidecar()),
+                  "arm item superset")
+    rows_frac = [dict(r) for r in rows_a]
+    rows_frac[0]["correct"] = 0.5
+    expect_reject(lambda: analyze(rows_frac, _mock_sidecar()),
+                  "non-binary correct")
+    side_ceil = _mock_sidecar()
+    side_ceil["b0_ceiling_threshold"] = 0.99
+    expect_reject(lambda: analyze(rows_a, side_ceil),
+                  "mutated ceiling threshold")
+    side_inc = _mock_sidecar()
+    side_inc["inference"] = {"method": "bca", "dev_sign_symmetry_pass": True}
+    expect_reject(lambda: analyze(rows_a, side_inc),
+                  "incoherent inference method")
+    side_nom = _mock_sidecar()
+    del side_nom["inference"]
+    expect_reject(lambda: analyze(rows_a, side_nom),
+                  "missing inference block")
+
     # Pinned-file round-trip (exercises the stdin/pin path end-to-end)
-    import io
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         rp = Path(td) / "rows.jsonl"
@@ -723,15 +962,20 @@ def selftest():
         check(out2 == out_a, "pin round-trip output differs from in-memory")
 
     # Output-surface completeness: every OUTPUT_FIELDS pointer resolves
-    for ptr in OUTPUT_FIELDS:
-        node = out_a
-        for part in ptr.strip("/").split("/"):
-            check(isinstance(node, dict) and part in node,
-                  "output field %s missing" % ptr)
-            node = node[part]
+    # on BOTH branches
+    for branch, out in (("signflip", out_a), ("bca", out_c)):
+        for ptr in OUTPUT_FIELDS:
+            node = out
+            for part in ptr.strip("/").split("/"):
+                check(isinstance(node, dict) and part in node,
+                      "output field %s missing on %s branch" % (ptr, branch))
+                node = node[part]
     print("MOCK-SELFTEST PASS: planted-lift verdict shape (PASS-bound, "
-          "ladder rung %d), planted-null TOST NULL-bound, pin round-trip "
-          "byte-stable, %d output fields present."
+          "ladder rung %d) on the sign-flip branch AND on the implemented "
+          "BCa fallback branch, planted-null TOST NULL-bound, 6/6 hardened "
+          "rejections fail-closed (n!=1440, superset, non-binary, mutable "
+          "ceiling, incoherent/missing inference), pin round-trip "
+          "byte-stable, %d output fields present on both branches."
           % (out_a["analysis"]["ladder_rung_reached"], len(OUTPUT_FIELDS)))
     return 0
 

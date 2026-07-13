@@ -1,0 +1,59 @@
+{
+ "range": "ASM-2280..2283",
+ "purpose": "Companion assumption block for the CODEX FIX-FIRST REVIEW FIXES to the F1-K freeze package: registry/experiments/f1k.json (DRAFT, kot-reg/1) + the re-pinned analysis script analysis/f1k.py + the refreshed coordinator checklist docs/next/design/f1k-freeze-readiness.md. EMITTED by the Fable architecture-design agent (designer-5, 2026-07-13) in response to the cross-vendor codex review verdict FIX-FIRST on the ASM-2270..2278 package; central registration in registry/assumptions.jsonl is the COORDINATOR's action with the landing commit, after the standing review gate. This pass writes NO registry/assumptions.jsonl entry, takes NO git action, does NOT run tools/registry/prereg-freeze.py (a --dry-run lint only, which passed: DRY-RUN-OK, all freeze-time checks green), and states NO feasibility conclusion. Range verified free at emission: central register holds 2270..2278 (registered since the package emission) and nothing at or above 2280; repo-wide grep confirms 2280..2283 unused.",
+ "owner": "designer-5",
+ "backing_artifacts": [
+  "registry/experiments/f1k.json (DRAFT record, kot-reg/1; prereg-freeze --dry-run DRY-RUN-OK 2026-07-13 after these fixes: schema, single primary, pointer closure, catch-all, five-V, corpus pins reproduce, all P-6 pins byte-verified)",
+  "analysis/f1k.py sha256=5dbf896cffaf9ed3a9dad34f884489f2b252f0a5b8c22275427cb8a2cde8e5eb (stdin-conformant pinned analysis, codex-review-hardened revision; MOCK self-test PASS 2026-07-13 on both inference branches)",
+  "docs/next/design/f1k-freeze-readiness.md (coordinator checklist, refreshed this pass)",
+  "docs/next/design/glm52-f1k-cost-reduction.md (the ASM-2205 reduced-cost protocol, in-repo; source of the $149 ceiling)",
+  "docs/next/design/glm52-followup-experiment.md sha256=9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6 (the governing design; SSR-REV4.1a names the sign-symmetry basis + the cluster-bootstrap fallback + the dev-split selection rule)",
+  "docs/next/design/asm-f1k-freeze-2270-2278.json (the reviewed package this block amends)"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2280",
+   "tag": "STIPULATED",
+   "claim": "K-2 EXPLICIT CLUSTER SIGN-SYMMETRY ASSUMPTION (the codex FIX-FIRST load-bearing statistical fix): the rung K-2 cluster sign-flip test (K vs the per-item MEAN over the R = 3 d1-drng derangement passes) is type-I exact ONLY under the EXPLICIT assumption that, under the no-alignment-effect null, each per-cluster mean difference D_c = mean_{i in c}(correct_K(i) - mean_R correct_drng(i)) is distributed symmetrically about 0, clusters mutually independent. This is REGISTERED AS AN ASSUMPTION, not derived: four-arm exchangeability of the carrier assignments {K, drng-101, drng-102, drng-103} alone does NOT imply it — the review's counterexample (an exchangeable null in which exactly 3 of the 4 assignments score an item correct: K among them with probability 3/4 giving d_i = 1 - 2/3 = +1/3, K the incorrect one with probability 1/4 giving d_i = 0 - 1 = -1 — mean zero but ASYMMETRIC) yields ~6.28% rejection at C = 72 under a nominal 5% test. The registered REMEDY when sign-symmetry cannot be trusted is the SSR-REV4.1a dev-selected cluster-BCa fallback (ASM-2281): the dev-split sign-symmetry check, whose procedure is a freeze-manifest (A) entry and whose outcome is frozen at addendum (6), selects sign-flip vs BCa for ALL directional contrasts before any test spend. K-1's basis is unchanged (ASM-2122: within-item arm-label exchangeability under the shared byte-identical template does deliver cluster sign-symmetry for the paired two-arm contrast).",
+   "rationale": "The review is correct that K-2's exactness was over-claimed from exchangeability alone: the 4-arm derangement-mean contrast has no two-arm pairing symmetry, so sign-symmetry of D_c is a substantive distributional assumption and must be surfaced as one, with the design's own named fallback as the dev-checked escape; claiming the assumption explicitly (rather than weakening the test everywhere) preserves the registered exact test where the dev data licenses it.",
+   "backing_ref": "codex FIX-FIRST review of the F1-K freeze package (2026-07-13), item 2; docs/next/design/glm52-followup-experiment.md SSR-REV4.1a (sharp null, sign-symmetric unit, named fallback, dev-split selection); analysis/f1k.py (signflip docstring + contrast); registry/experiments/f1k.json endpoints[sec-k2-dose-exact-deflator] + n_planned.statistics; ASM-2122 (the K-1 basis this does not touch)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2281",
+   "tag": "STIPULATED",
+   "claim": "DEV-SELECTED BCa FALLBACK BRANCH IMPLEMENTED (previously named, never implemented): analysis/f1k.py now carries BOTH registered inference branches. The run sidecar MUST carry inference = {method in {signflip, bca}, dev_sign_symmetry_pass bool}; coherence is enforced fail-closed (method = signflip iff the dev sign-symmetry check PASSED; anything else, including a missing block, exits ERR_P2_ANALYSIS). Under method = bca, EVERY directional contrast (K-1, K-2, K-3, the d0 placebo void, the harm-direction kill) takes its one-sided p from the cluster-BCa CI inversion (ClusterBCa.p_one_sided: deterministic bisection over the same BCa quantile function the CIs use, so p < a iff the BCa one-sided lower bound at level a clears 0; add-one floored at 1/(B+1)), with the IDENTICAL +3.0-pt joint licensing rule; the method used is a registered output (/analysis/inference_method). The cluster-BCa 95% CIs for ALL THREE rungs are registered endpoint outputs (/analysis/k1_ci95, /analysis/k2_ci95, /analysis/k3_ci95). The method choice is made PRE-test from dev data at freeze-manifest addendum (6) (SSR-REV4.1a: 'not chosen on the test data') and applies uniformly — no per-contrast cherry-picking surface exists.",
+   "rationale": "A named-but-unimplemented fallback is a discretionary degree of freedom at readout time (the rules-2 argparse defect class transposed to statistics); implementing both branches behind a sidecar-frozen, coherence-checked selector removes it, and uniform application across all directional contrasts prevents method shopping between the rungs and the gates.",
+   "backing_ref": "codex FIX-FIRST review items 1-2; docs/next/design/glm52-followup-experiment.md SSR-REV4.1a + SSR-REV4.2 step 6; analysis/f1k.py (ClusterBCa.p_one_sided, contrast, inference validation; mock C exercises the BCa branch to the PASS shape); registry/experiments/f1k.json endpoints + pins.analysis_script.output_fields (50 fields)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2282",
+   "tag": "MEASURED",
+   "claim": "HARDENED VALIDATION + RE-PIN — SUCCESSOR of ASM-2276 (supersede-by-citation, append-only register convention): analysis/f1k.py sha256 = 5dbf896cffaf9ed3a9dad34f884489f2b252f0a5b8c22275427cb8a2cde8e5eb is the pinned analysis (re-pinned in registry/experiments/f1k.json pins.analysis_script; the prior pin c5edd0bd1dea70f4a7e0be85e4e107cce27ff49af1b42324a2bef58ff4e6b12c is superseded, its 47-field surface now 50 with /analysis/inference_method, /analysis/k2_ci95, /analysis/k3_ci95). Validation is HARDENED fail-closed (all ERR_P2_ANALYSIS, never silent): (a) n EXACT — the b0 test universe must hold exactly 1,440 items (the design runs AT the cap, SSR-REV3.1 item 4; a 520-item campaign is now REJECTED, not analyzed); (b) ARM SUPERSETS REJECTED — no (arm, pass) may score any item outside the b0 universe (mandatory-arm under-coverage remains the /gates/completeness_valid INSTRUMENT-INVALID path); (c) STRICTLY BINARY correctness (bools and fractional values rejected); (d) IMMUTABLE decision thresholds — the 0.95 ceiling is the pinned constant and a sidecar carrying any other b0_ceiling_threshold is rejected; (e) REPLACE coherence — rows present iff sidecar replace.ran, and a ran REPLACE must cover the full universe (no partial NI). STDIN contract unchanged (verdict-gen P2 SS3.1 step 5). MOCK SELF-TEST PASS 2026-07-13 (~9 s CPU): planted +10-pt lift reaches the PASS shape on BOTH branches (sign-flip AND the implemented BCa fallback), exact per-item null certifies TOST NULL, 6/6 hardened rejections observed fail-closed, pinned-file round-trip byte-stable, 50/50 output fields present on both branches.",
+   "rationale": "The reviewed script accepted n = 520, sidecar-movable ceiling thresholds, fractional correctness, and arm supersets — each a silent path to analyzing a campaign the freeze never registered; hardening these to fail-closed rejections and proving every rejection in the mock keeps the pinned analysis a pure function of exactly the registered campaign shape.",
+   "backing_ref": "codex FIX-FIRST review item 2 (validation list); analysis/f1k.py (hardened-validation block + selftest expect_reject probes); registry/experiments/f1k.json pins.analysis_script; ASM-2276 (the superseded pin/mock claim)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2283",
+   "tag": "STIPULATED",
+   "claim": "BUDGET RESOLVED AT THE VALIDATED REDUCED CEILING — SUCCESSOR of ASM-2277 (supersede-by-citation, append-only register convention): registry/experiments/f1k.json budget.usd_cap = 149, the validated reduced-cost ceiling of docs/next/design/glm52-f1k-cost-reduction.md (ASM-2205: 22,920 prefills x 100 s / 1.20 pessimistic pinning speedup / 3,600 x $0.28/h spot i4i.2xlarge = $148.56 -> $149; modeled 439-531 instance-hours; EC2 instance compute only), now IN-REPO — the condition ASM-2277 carried the worst-case ceiling against is resolved, and no superseded-ceiling figure remains anywhere in the record or the analysis. $149 is a CAP, not a target; ASM-2205's own resolution_path governs the projection risk (metered spend at completion; if pinning < 1.20x or spot > $0.28/h, the SSR6 degradation order applies and the ceiling re-derives from measured throughput at the bring-up affordability gate, manifest addendum 7). Reductions may never cut n below 1,440 or drop a ladder arm (SSR6). load_bearing = false: no registered test reads the ceiling.",
+   "rationale": "ASM-2277 existed only because the reduced-cost design was not yet in-repo; with glm52-f1k-cost-reduction.md landed and ASM-2205 centrally registered, freezing at the stale worst case would misstate the registered protocol, and the review requires the record to carry the $149 the maintainer actually GO'd.",
+   "backing_ref": "codex FIX-FIRST review item 3; docs/next/design/glm52-f1k-cost-reduction.md; ASM-2205 (the registered $149 extrapolation + resolution path); ASM-2277 (the superseded carried-worst-case entry); kernel-of-truth #28 (maintainer GO); registry/experiments/f1k.json budget + n_planned.budget_note",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  }
+ ]
+}

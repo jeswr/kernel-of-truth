@@ -37,3 +37,11 @@ own manifest + accounting**; never interleave its function-changing TOPK/drop ar
  {"id":"ASM-2205","tag":"EXTRAPOLATION","claim":"F1-K reduced-cost ceiling is $149 (from $550) via spot i4i.2xlarge ($0.20-0.28/h) + expert-pinning (1.20x pessimistic) + R=3 derangements; modeled 439-531 instance-hours, band $88-149. n=1,440 and the exact cluster-sign-flip licensing (p<0.05 AND lift>=3) are unchanged; R=3 preserves the d1-drng deflator's dose-exactness; larger instances do not break even. EC2 compute only.","backing_ref":"docs/next/design/glm52-f1k-cost-reduction.md; GPT-5.6 overflow design over glm52-followup-experiment.md sections R1.1/R3/R-REV4 + poc/glm52-probe/results/probe-main.log","owner":"designer-8","load_bearing":false,"status":"open","resolution_path":"Resolved by the actual metered spot-instance spend recorded in the F1-K run's cost ledger at completion; if pinning yields <1.20x or spot rates exceed $0.28/h, the degradation order (R stays 3, n never cut) governs and the ceiling is re-derived from measured throughput."}
 ]
 ```
+
+## GPU option evaluated (maintainer suggestion) — REJECTED, stay CPU-spot
+GPT-5.6 overflow analysis of running on an approved AWS GPU instance (colibri CUDA tier = VRAM-resident
+pinned experts): **RECOMMENDATION = stay-CPU-spot.** The only economical GPU (24 GB A10G/L4) covers too
+little of the KaE routing mass to collapse the disk bottleneck → only ~1.05x vs pinned CPU; the big-VRAM
+GPUs that *would* hold the hot working-set (multi-A10G / A100) cost several times the $149 CPU ceiling.
+GPU reserved only for an optional ~$5 benchmark-only cross-check. Reproducibility caveat moot (not used).
+The $149 spot-i4i + pinning + R=3 plan stands.

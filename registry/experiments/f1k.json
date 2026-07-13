@@ -5,7 +5,7 @@
   "sha256": "9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6"
  },
  "budget": {
-  "usd_cap": 550,
+  "usd_cap": 149,
   "wall_clock_cap_hours": 900
  },
  "depends_on": [],
@@ -80,7 +80,7 @@
   "n_planned": {
    "assumptions": [
     {
-     "claim": "Design verbatim from docs/next/design/glm52-followup-experiment.md SS2 + SSR through SSR-REV5 (ASM-2024..2033 / 2034..2042 / 2043..2048 / 2049,2113,2114 / 2122..2124 / 2130); freeze-package operationalisations ASM-2270..2278 (docs/next/design/asm-f1k-freeze-2270-2278.json, emitted, pending central registration)",
+     "claim": "Design verbatim from docs/next/design/glm52-followup-experiment.md SS2 + SSR through SSR-REV5 (ASM-2024..2033 / 2034..2042 / 2043..2048 / 2049,2113,2114 / 2122..2124 / 2130); freeze-package operationalisations ASM-2270..2278 (docs/next/design/asm-f1k-freeze-2270-2278.json) + codex FIX-FIRST review fixes ASM-2280..2283 (docs/next/design/asm-f1k-freeze-2280-2283.json), both emitted, pending central registration",
      "tag": "STIPULATED"
     },
     {
@@ -90,10 +90,19 @@
     {
      "claim": "Prefill seconds/item unknown until bring-up; bring-up (manifest addendum 7) is a PRE-test gate (SSR-REV4.2); the SSR6 degradation order applies deterministically if the projection exceeds the ceiling",
      "tag": "EXTRAPOLATION"
+    },
+    {
+     "claim": "K-2 sign-flip exactness rests on the EXPLICIT cluster sign-symmetry assumption ASM-2280 on D_c = mean_c(K - mean_R(d1-drng)) \u2014 four-arm carrier exchangeability alone does NOT deliver it (an exchangeable null with exactly 3 of 4 arms correct rejects at ~6.28%, not 5%, at C = 72; the codex FIX-FIRST counterexample); the registered remedy, the SSR-REV4.1a dev-selected cluster-BCa fallback branch, is IMPLEMENTED in analysis/f1k.py and selected PRE-test at addendum (6), never from test data",
+     "tag": "STIPULATED"
     }
    ],
-   "budget_note_TODO_coordinator": "usd_cap below is the REGISTERED SSR6/ASM-2048 worst-case ceiling ($550 at on-demand $0.69/h, pessimistic 100 s/prefill). The maintainer GO'd a REDUCED-COST approach (#28: spot ~$0.20-0.28/h + expert-pinning/warm-cache + R 5->3, expected well under $150). docs/next/design/glm52-f1k-cost-reduction.md is NOT yet in-repo: the coordinator MUST replace usd_cap with the validated reduced ceiling from that design before prereg-freeze, or freeze at $550 as a cap-not-target with the reduction recorded as an ops discipline. Reductions may never cut n below 1440 or drop a ladder arm (SSR6).",
+   "budget_note": "usd_cap = 149 is the VALIDATED reduced-cost ceiling from docs/next/design/glm52-f1k-cost-reduction.md (ASM-2205, centrally registered; the maintainer-GO'd reduced-cost protocol of kernel-of-truth #28): 22,920 prefills x 100 s / 1.20 pinning speedup (pessimistic) / 3,600 x $0.28/h spot i4i.2xlarge = $148.56 -> $149; modeled 439-531 instance-hours, full price/speed corner band $88-149; EC2 instance compute only, storage/tax/transfer separately accounted. The superseded on-demand worst-case ceiling (ASM-2048/ASM-2277) is history, not the cap. If pinning yields < 1.20x or spot exceeds $0.28/h, the SSR6 degradation order governs and the ceiling re-derives from measured throughput at the bring-up affordability gate (manifest addendum 7). Reductions may never cut n below 1440 or drop a ladder arm (SSR6).",
    "dev_split_items": 96,
+   "freeze_manifest": {
+    "A_pre_spend": "Committed BEFORE ANY F1-K spend, construction included (SSR5 as restructured by SSR-REV2.4/SSR-REV3.3/SSR-REV4.2): the COMPLETE carrier GENERATOR \u2014 (i) the exact m = 16 construction CONTEXTS per concept, enumerated verbatim or pinned by generation seed + source-pool hash + deterministic authoring procedure; (ii) the kernel-explication TEXT per concept (hash) and the d2 dictionary-definition TEXT per concept (hash); (iii) the prepend-vs-not protocol + the gated-position selection rule; (iv) the exact candidate splice-LAYER set at which offsets are dumped (= the union of the pilot grid's layer sets); (v) the mean-difference construction FORMULA; (vi) the reference-norm rule + the per-(c,l) rescaling procedure (SSR2); (vii) ALL SEEDS (construction; pilot-panel derangement 11; d0 table 7; main derangements 101,102,103 = design.seeds = analysis/f1k.py DRNG_SEEDS, dose gate fails closed on mismatch) \u2014 PLUS the phrase->concept trigger MAP inputs + gate precedence rules (completing corpus pin f1k-trigger-map-v1), the frozen scoring TEMPLATE inputs (template bytes+sha, single-token label ids, tie-break), the guard/dev/test id-list hashes, the deterministic derivation rules for addenda 5/6/7, the SSR-REV5 Monte-Carlo procedure + seed, and the SSR-REV4.1a dev sign-symmetry CHECK procedure whose outcome freezes the sign-flip-vs-BCa inference method at addendum (6). Given (A), every arm's carrier table and realized norm is a deterministic function of frozen rules \u2014 no free choice after the first dollar.",
+    "B0_pre_pilot": "Committed AFTER construction spend and BEFORE any pilot spend (the SSR-REV3.3 pure-function addendum, ordered FIRST among the addenda): the REALIZED carrier tables {v_(c,l)} for EVERY arm (K, the 3 main derangements, d0, d2) PLUS the realized RAW and RESCALED norms, each a pure function of an (A) generator rule (carrying the rule id it instantiates), completing corpus pin f1k-carriers-v1 (kot-corpus-hash/1 over data/f1k-carriers-v1/). Any deviation from the frozen generator is a logged protocol amendment BEFORE further spend, never silent.",
+    "ordering": "(A) -> construction spend -> (B0) -> pilot spend (also yields bring-up s/prefill, colibri-semantics re-verification, dev delta-hat and the dev sign-symmetry check) -> (5) frozen (L,g) -> (7) bring-up affordability/semantic PRE-test gate -> (6) power freeze + dev-selected inference method + RUN/DEFER gates -> TEST spend -> analysis; the test set stays untouched until (A),(B0),(5),(7),(6) are ALL committed (SSR-REV4.2 corrected sequence)."
+   },
    "mc_exact_power_confirmation": "SSR-REV5: frozen pre-spend CPU Monte-Carlo of the EXACT sign-flip joint power at mu* = +4.09 pts, N_sim = 10000, pass iff >= 0.80; procedure + seed = freeze-manifest (A) entries; realized power enters the sidecar and is reported at /analysis/power_scope \u2014 a reporting-fidelity check, never a spend lever",
    "n_max": 1440,
    "n_test_items": "n = min(n_max, n_required(rho_U=0.10)) = 1440 (SSR-REV3.1 item 4: n_required exceeds the cap at every feasible C, so F1-K runs AT the cap, maximising C)",
@@ -101,7 +110,7 @@
    "pilot": "3 layer sets x 3 g values on a 48-item stratified dev subset over the 4-member family-blind carrier panel {K-true, K-derangement (pilot seed 11), d2-family, random d0-family (seed 7)}; selection statistic = EQUAL FAMILY-LEVEL weight mean (SSR-REV3.2); frozen (L, g) applied identically to every spliced arm",
    "power_gate": "HARD: >= 65 concept clusters EACH with >= 8 test items (each-cluster reading of SSR-REV2.2 'C >= 65 with m >= 8', registered ASM-2271) and n <= 1440, computed from the realized b0 test rows; below it F1-K does NOT run and returns to the maintainer with the measured coverage-vs-power shortfall",
    "scoring_passes": "1 prefill per item per arm; main arms = b0, d0, d1-drng x3, d2, d3-text, K = 8 passes (+1 conditional REPLACE, run only if dev delta_R <= ~0.038 per SSR-REV4.3); worst-case main volume 9 x 1440 = 12960 prefills + construction <= 3072 + pilot ~6200 + guard <= 660",
-   "statistics": "cluster sign-flip permutation B = 10000, add-one corrected, global PRNG seed 20260713, deterministic per-contrast sub-seeds; cluster BCa bootstrap B = 10000 for TOST/NI bounds; all constants pinned in analysis/f1k.py"
+   "statistics": "cluster sign-flip permutation B = 10000, add-one corrected, global PRNG seed 20260713, deterministic per-contrast sub-seeds \u2014 exact under the REGISTERED cluster sign-symmetry null (ASM-2122 for K-1; the EXPLICIT ASM-2280 assumption for K-2, four-arm carrier exchangeability alone being insufficient); cluster BCa bootstrap B = 10000 for the registered K-1/K-2/K-3 95% CIs (/analysis/k1_ci95, /analysis/k2_ci95, /analysis/k3_ci95) and the TOST/NI bounds; the SSR-REV4.1a dev-selected FALLBACK is IMPLEMENTED in analysis/f1k.py: sign-flip vs cluster-BCa chosen PRE-test at freeze-manifest addendum (6) from the dev sign-symmetry check, carried in the run sidecar inference block (coherence enforced fail-closed), applied uniformly to every directional contrast (K-1/K-2/K-3, d0 placebo, harm/kill; one-sided p by BCa CI inversion under the fallback, identical +3-pt joint rule), reported at /analysis/inference_method; analysis-time validation is HARDENED fail-closed (n = 1440 EXACT, ceiling threshold immutable at 0.95, strictly binary correctness, arm item supersets rejected, REPLACE run/coverage coherence); all constants pinned in analysis/f1k.py."
   },
   "scale_language_max": "none",
   "scale_rungs": [
@@ -123,19 +132,19 @@
     "type": "absolute_accuracy_points",
     "value": 3.0
    },
-   "test": "EXACTLY ONE primary (SS2.6 rung K-1, SSR3.1, SSR-REV4.1): K vs b0 paired per-item correctness on the known-concept test subset; per-cluster mean D_c of per-item diffs; statistic T = mean_c D_c (points = 100T) at /analysis/k1_lift_points; one-sided CLUSTER-LEVEL sign-flip permutation test, B = 10000 add-one corrected, exact under cluster sign-symmetry for ANY ICC (ASM-2122), p at /analysis/k1_p. LICENSED iff observed lift >= +3.0 points AND p < 0.05 (/analysis/k1_joint_pass). Cluster-BCa 95% CI reported at /analysis/k1_ci95. The record VERDICT PASS additionally requires rung K-2 (/analysis/pass_gate = k1_joint_pass AND k2_joint_pass) \u2014 the mandatory deflator discipline (ASM-2029/2036; ASM-2271). NULL = TOST: cluster-BCa 90% CI strictly inside (-3.0, +3.0) AND not ceiling-bound (/analysis/null_equiv); b0 > 0.95 reads 'ceiling-bound at this subset' (/analysis/ceiling_bound), never a null. Power/MDE figures are Gaussian PLANNING approximations (SSR-REV5); they never enter licensing."
+   "test": "EXACTLY ONE primary (SS2.6 rung K-1, SSR3.1, SSR-REV4.1): K vs b0 paired per-item correctness on the known-concept test subset; per-cluster mean D_c of per-item diffs; statistic T = mean_c D_c (points = 100T) at /analysis/k1_lift_points; one-sided CLUSTER-LEVEL sign-flip permutation test, B = 10000 add-one corrected, exact under cluster sign-symmetry for ANY ICC (ASM-2122), p at /analysis/k1_p. LICENSED iff observed lift >= +3.0 points AND p < 0.05 (/analysis/k1_joint_pass). Cluster-BCa 95% CI reported at /analysis/k1_ci95. The record VERDICT PASS additionally requires rung K-2 (/analysis/pass_gate = k1_joint_pass AND k2_joint_pass) \u2014 the mandatory deflator discipline (ASM-2029/2036; ASM-2271). NULL = TOST: cluster-BCa 90% CI strictly inside (-3.0, +3.0) AND not ceiling-bound (/analysis/null_equiv); b0 > 0.95 reads 'ceiling-bound at this subset' (/analysis/ceiling_bound), never a null. Power/MDE figures are Gaussian PLANNING approximations (SSR-REV5); they never enter licensing. INFERENCE METHOD: the sign-flip is the default; the pre-registered FALLBACK (SSR-REV4.1a) is the cluster-BCa branch (one-sided p by BCa CI inversion, identical joint rule), selected PRE-TEST at freeze-manifest addendum (6) from the dev sign-symmetry check, carried in the run sidecar (inference.method, coherence enforced fail-closed), applied uniformly to every directional contrast, and reported at /analysis/inference_method."
   },
   {
    "id": "sec-k2-dose-exact-deflator",
    "metric": "/analysis/k2_joint_pass",
    "role": "secondary",
-   "test": "Rung K-2 (SSR2): K vs the per-item MEAN correctness over the R = 3 d1-drng derangement passes, same cluster sign-flip + joint rule (+3.0 pts, p < 0.05). Dose-exactness is gate-checked (/gates/dose_exactness_valid): registered seeds [101,102,103], fixed-point-free derangement, layerwise norm match. Exactness rank check DESCRIPTIVE at /analysis/k2_rank_of_k (best-of-4 nominal 0.25 after R 5->3, disclosed)."
+   "test": "Rung K-2 (SSR2): K vs the per-item MEAN correctness over the R = 3 d1-drng derangement passes, same cluster sign-flip + joint rule (+3.0 pts, p < 0.05). Dose-exactness is gate-checked (/gates/dose_exactness_valid): registered seeds [101,102,103], fixed-point-free derangement, layerwise norm match. Exactness rank check DESCRIPTIVE at /analysis/k2_rank_of_k (best-of-4 nominal 0.25 after R 5->3, disclosed). Cluster-BCa 95% CI reported at /analysis/k2_ci95. EXACTNESS BASIS (codex FIX-FIRST fix): the K-2 sign-flip is exact ONLY under the EXPLICIT cluster sign-symmetry assumption on D_c = mean_c(K - mean_R(d1-drng)) registered as ASM-2280 \u2014 four-arm carrier exchangeability alone does NOT deliver it (an exchangeable null with exactly 3 of 4 arms correct rejects at ~6.28%, not 5%, at C = 72); when the dev sign-symmetry check fails, the dev-selected BCa fallback branch governs K-2 (/analysis/inference_method)."
   },
   {
    "id": "sec-k3-knull",
    "metric": "/analysis/k3_joint_pass",
    "role": "secondary",
-   "test": "Rung K-3 (the hard kernel-specific bar): K vs d2 plain-dictionary carriers, same joint rule. A K~d2 tie is the modal expectation, reported at equal prominence in the content-not-structure wording; elevates wording, never the verdict."
+   "test": "Rung K-3 (the hard kernel-specific bar): K vs d2 plain-dictionary carriers, same joint rule. A K~d2 tie is the modal expectation, reported at equal prominence in the content-not-structure wording; elevates wording, never the verdict. Cluster-BCa 95% CI reported at /analysis/k3_ci95; the same dev-selected sign-flip-vs-BCa method governs (/analysis/inference_method)."
   },
   {
    "id": "sec-kseam-bridge",
@@ -188,16 +197,19 @@
     "/analysis/m_per_cluster_mean",
     "/analysis/b0_accuracy",
     "/analysis/ceiling_bound",
+    "/analysis/inference_method",
     "/analysis/k1_lift_points",
     "/analysis/k1_p",
     "/analysis/k1_ci95",
     "/analysis/k1_joint_pass",
     "/analysis/k2_lift_points",
     "/analysis/k2_p",
+    "/analysis/k2_ci95",
     "/analysis/k2_joint_pass",
     "/analysis/k2_rank_of_k",
     "/analysis/k3_lift_points",
     "/analysis/k3_p",
+    "/analysis/k3_ci95",
     "/analysis/k3_joint_pass",
     "/analysis/kseam_delta_points",
     "/analysis/d0_lift_points",
@@ -224,7 +236,7 @@
     "/analysis/cost_ledger"
    ],
    "path": "analysis/f1k.py",
-   "sha256": "c5edd0bd1dea70f4a7e0be85e4e107cce27ff49af1b42324a2bef58ff4e6b12c"
+   "sha256": "5dbf896cffaf9ed3a9dad34f884489f2b252f0a5b8c22275427cb8a2cde8e5eb"
   },
   "corpus_hashes": {
    "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
@@ -233,7 +245,7 @@
    "f1k-trigger-map-v1": "PINNED-AT-INPUTS:phrase->concept trigger map expanded to all kernel concepts with registered explications (WordNet lemma/derivational surface expansion) + gate precedence rules; kot-corpus-hash/1 over data/f1k-trigger-map-v1/ pinned at freeze-manifest (A), before ANY spend",
    "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809"
   },
-  "harness_manifest": "KaE patch (gate-0 artifact, REVISION-1 codex-hardened): poc/glm52-probe/kae-patch-draft/kae-add-path.patch sha256 11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb (unified diff vs colibri a78a06fc5acc4b0dc0f9ef03987c66b0559d1250; kae.h reference copy sha256 e2574873115b5109ca87123e29286ea89ce8955655a31fc158225be52fb21ddd); 44/44 unit checks under ASan+UBSan+LSan; inert-by-default proven (88/92 functions byte-identical at KAE=0); SSR1.1 scorer = run_kae_score via KAE_SCORE (one prefill/item/arm, label-logit argmax). FREEZE MANIFEST (SSR5 as restructured by SSR-REV2.4/SSR-REV3.3/SSR-REV4.2): pre-spend artifact (A) [all rules + carrier GENERATOR + all seeds (construction; pilot-panel 11; d0 table 7; main derangements 101,102,103) + template bytes/label ids/tie-break + trigger-map hash + guard/dev/test id-list hashes + deterministic derivation rules for 5/6/7 + the SSR-REV5 MC procedure/seed] committed before ANY spend; then construction -> (B0) realized carriers -> pilot -> (5) frozen (L,g) -> (7) bring-up s/prefill + affordability gate -> (6) power freeze + run/defer gates -> TEST spend; the test set stays untouched until (A),(B0),(5),(7),(6) are ALL committed. Analysis invocation: verdict-gen pipes eligible results-log records to analysis/f1k.py on STDIN; records pin rows+sidecar artifacts (path+sha256), re-verified fail-closed. Mock self-test green 2026-07-13: `python3 analysis/f1k.py --selftest` (planted +10-pt lift -> PASS shape at ladder rung >= 2; exact per-item null -> TOST NULL shape; pin round-trip byte-stable; 47/47 output fields present).",
+  "harness_manifest": "KaE patch (gate-0 artifact, REVISION-1 codex-hardened): poc/glm52-probe/kae-patch-draft/kae-add-path.patch sha256 11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb (unified diff vs colibri a78a06fc5acc4b0dc0f9ef03987c66b0559d1250; kae.h reference copy sha256 e2574873115b5109ca87123e29286ea89ce8955655a31fc158225be52fb21ddd); 44/44 unit checks under ASan+UBSan+LSan; inert-by-default proven (88/92 functions byte-identical at KAE=0); SSR1.1 scorer = run_kae_score via KAE_SCORE (one prefill/item/arm, label-logit argmax). FREEZE MANIFEST (SSR5 as restructured by SSR-REV2.4/SSR-REV3.3/SSR-REV4.2): pre-spend artifact (A) [all rules + carrier GENERATOR + all seeds (construction; pilot-panel 11; d0 table 7; main derangements 101,102,103) + template bytes/label ids/tie-break + trigger-map hash + guard/dev/test id-list hashes + deterministic derivation rules for 5/6/7 + the SSR-REV5 MC procedure/seed] committed before ANY spend; then construction -> (B0) realized carriers -> pilot -> (5) frozen (L,g) -> (7) bring-up s/prefill + affordability gate -> (6) power freeze + run/defer gates -> TEST spend; the test set stays untouched until (A),(B0),(5),(7),(6) are ALL committed. Analysis invocation: verdict-gen pipes eligible results-log records to analysis/f1k.py on STDIN; records pin rows+sidecar artifacts (path+sha256), re-verified fail-closed. Full freeze-manifest (A)/(B0) component spec: design.n_planned.freeze_manifest \u2014 (A) = complete carrier GENERATOR + texts + contexts + layers + formulas + map/trigger/template inputs + ALL seeds, committed before ANY spend; (B0) = realized carrier tables + raw/rescaled norms, committed before the pilot. Sidecar MUST carry inference {method: signflip|bca, dev_sign_symmetry_pass} (the SSR-REV4.1a dev-selected choice, frozen at addendum (6)); analysis/f1k.py enforces coherence fail-closed. Mock self-test green 2026-07-13 (codex-review-hardened revision): `python3 analysis/f1k.py --selftest` (planted +10-pt lift -> PASS shape on BOTH the sign-flip branch and the implemented BCa fallback branch; exact per-item null -> TOST NULL shape; 6/6 hardened rejections fail-closed: n != 1440, arm superset, non-binary correctness, mutated ceiling threshold, incoherent/missing inference method; pin round-trip byte-stable; 50/50 output fields present on both branches).",
   "model_revisions": {
    "colibri-base-commit": "a78a06fc5acc4b0dc0f9ef03987c66b0559d1250",
    "glm52-weights": "PINNED-AT-INPUTS:content hash of the GLM-5.2 weight set on the relaunched instance, pinned at bring-up per ASM-1971 discipline, before any test prefill"
@@ -255,7 +267,7 @@
  },
  "schema_version": "kot-reg/1",
  "status": "DRAFT",
- "title": "F1-K Kernel-as-Expert (KaE) ADD path on GLM-5.2: does splicing a grounded per-concept content-carrier into the MoE sum (training-free, concept-gated, the gate-0-approved kae-add-path.patch on the colibri C engine) lift accuracy on the known-concept public-QA subset over the unmodified model (b0), over R=3 dose-exact concept-label DERANGEMENTS of the identical carrier set (d1-drng), and over a plain-dictionary knull carrier (d2)? Design: docs/next/design/glm52-followup-experiment.md SS2 (F1-K) as amended by SSR (REVISION-1) through SSR-REV5 (REVISION-5); latest revision governs on conflict. Reduced-cost approach per the maintainer GO (kernel-of-truth #28): spot instance + expert-pinning/warm-cache (ops-side, statistics untouched) + R 5->3 (the SSR6 pre-registered degradation step 1, applied up front). ASMs: ASM-2024..2033, ASM-2034..2042, ASM-2043..2048, ASM-2049/2113/2114, ASM-2122..2124, ASM-2130 (design); ASM-2180..2190 (patch); ASM-2270..2278 (this freeze package).",
+ "title": "F1-K Kernel-as-Expert (KaE) ADD path on GLM-5.2: does splicing a grounded per-concept content-carrier into the MoE sum (training-free, concept-gated, the gate-0-approved kae-add-path.patch on the colibri C engine) lift accuracy on the known-concept public-QA subset over the unmodified model (b0), over R=3 dose-exact concept-label DERANGEMENTS of the identical carrier set (d1-drng), and over a plain-dictionary knull carrier (d2)? Design: docs/next/design/glm52-followup-experiment.md SS2 (F1-K) as amended by SSR (REVISION-1) through SSR-REV5 (REVISION-5); latest revision governs on conflict. Reduced-cost approach per the maintainer GO (kernel-of-truth #28): spot instance + expert-pinning/warm-cache (ops-side, statistics untouched) + R 5->3 (the SSR6 pre-registered degradation step 1, applied up front). ASMs: ASM-2024..2033, ASM-2034..2042, ASM-2043..2048, ASM-2049/2113/2114, ASM-2122..2124, ASM-2130 (design); ASM-2180..2190 (patch); ASM-2270..2278 (this freeze package); ASM-2280..2283 (codex FIX-FIRST review fixes: explicit K-2 sign-symmetry basis, implemented dev-selected BCa fallback, hardened fail-closed validation, $149 validated reduced ceiling per ASM-2205).",
  "verdict_rules": [
   {
    "verdict": "INSTRUMENT-INVALID",
