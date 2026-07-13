@@ -1,0 +1,567 @@
+{
+ "bucket_counts": {
+  "abst": 5,
+  "phys": 5
+ },
+ "candidates_not_selected": [
+  "accompany",
+  "apply",
+  "approach",
+  "back",
+  "bear",
+  "beat",
+  "brush",
+  "bury",
+  "carry",
+  "carve",
+  "cast",
+  "clear",
+  "climb",
+  "close",
+  "color",
+  "combine",
+  "compare",
+  "concern",
+  "connect",
+  "cover",
+  "crack",
+  "deliver",
+  "depart",
+  "drift",
+  "drink",
+  "drive",
+  "drop",
+  "eat",
+  "encourage",
+  "engage",
+  "enter",
+  "fasten",
+  "feed",
+  "file",
+  "fill",
+  "fire",
+  "fix",
+  "flood",
+  "fly",
+  "follow",
+  "grab",
+  "grasp",
+  "grip",
+  "guide",
+  "hasten",
+  "hit",
+  "impress",
+  "insert",
+  "inspire",
+  "join",
+  "jump",
+  "launch",
+  "lead",
+  "lick",
+  "lift",
+  "lower",
+  "marry",
+  "match",
+  "meet",
+  "open",
+  "paint",
+  "pass",
+  "play",
+  "pour",
+  "prepare",
+  "pull",
+  "pursue",
+  "push",
+  "raise",
+  "remove",
+  "return",
+  "roar",
+  "roll",
+  "satisfy",
+  "seize",
+  "send",
+  "shake",
+  "shift",
+  "shoot",
+  "shove",
+  "slide",
+  "snap",
+  "sponsor",
+  "stir",
+  "stretch",
+  "strike",
+  "support",
+  "swallow",
+  "sweep",
+  "threaten",
+  "throw",
+  "thrust",
+  "toss",
+  "transfer",
+  "use",
+  "visit",
+  "waste",
+  "wear",
+  "witness"
+ ],
+ "custody": "Benchmark-blind: consumed VerbNet zip + WN 3.1 dict bytes + synsets-*.jsonl + selrestr-side-table + kernel manifests ONLY; no SemCor sentence, holdout, results, gold, rows, or outcome artifact opened; no engine/scorer import (asserted at exit). tag_cnt is the SemCor-derived frequency aggregate inside the pinned WN bytes (disclosure: ASM-2251).",
+ "date": "2026-07-13",
+ "emitted_by": "designer-8",
+ "excluded_lemmas": [
+  "afraid",
+  "alive",
+  "angry",
+  "archived",
+  "begin",
+  "believe",
+  "birth",
+  "bookmark",
+  "break",
+  "broken",
+  "cause",
+  "celebration",
+  "change",
+  "condolence",
+  "conversation",
+  "cut",
+  "dead",
+  "death",
+  "draw",
+  "end",
+  "event",
+  "find",
+  "forget",
+  "friend",
+  "gift",
+  "give",
+  "grieving",
+  "happy",
+  "has-part",
+  "help",
+  "helpful",
+  "hold",
+  "inside",
+  "kind",
+  "learn",
+  "liar",
+  "lie",
+  "lose",
+  "lost",
+  "make",
+  "maker-of",
+  "memory",
+  "near",
+  "part-of",
+  "promise",
+  "remember",
+  "reminder",
+  "repair",
+  "right",
+  "sad",
+  "take",
+  "teacher",
+  "thief",
+  "trustworthy",
+  "useful",
+  "visible",
+  "wrong"
+ ],
+ "n_candidates": 109,
+ "n_selected": 10,
+ "pins": {
+  "e2a_diagnostic_sha256": "9fe199f76d2999a659a0483d93d7a0ce877a44bf0188d8934f39d171367683cd",
+  "engineinf_wn_sha256": "f0f7e610122fe485898470856cf9dddec2ec0321d1d215645f2108319a78f48a",
+  "script_sha256": "6b8ed757cf81abed81bb45492a353dae92a40b5c162bed486779af0c0e33f9ba",
+  "side_table_sha256": "58592c971e823a36fb81a59625d5208e9511e32a133e3f0252ed04280d06c1c2",
+  "verbnet_zip_sha256": "f11c901c21494a319e3bfaa56fab89f4e855d348629275293decce2ea2fd8ef7"
+ },
+ "role": "E2b MECHANICAL LEMMA SELECTION (design artifact, maintainer-approved issue #29). Selects inventory-extension lemmas by the pinned E2b-SEL rule; adopts NO anomaly-gold construct, runs NO engine, reads NO outcome, licenses NO feasibility conclusion.",
+ "rule": {
+  "F0": "single-token alphabetic VerbNet member lemma, present in pinned WN 3.1 index.verb",
+  "F1": "lemma not in Stage-A {break,find,friend,make}, not a PC-6 decoy {cut,draw,hold}, not a kernel-v0 panel lemma (mechanical from the two manifests)",
+  "F2": "has >=1 VN-restricted synset: some canonical class member sense key (non-'?', resolved via pinned index.sense) whose chain undergoer role (M2: second NP of the nearest 'NP V NP' frame) carries a side-entailing restriction (M3 pinned side table; M4 all-classes-agree), with tag_cnt >= T_RESTRICTED",
+  "F3": "polysemy: >=2 verb synsets with tag_cnt >= T_CONTRAST",
+  "F4": "within-lemma sortal differentiation: another frequent synset with VN required side OPPOSITE the top restricted synset's (a), else a parsed WN gloss-example object on the opposite side (b, ASM-1991 parse rules)",
+  "constants": {
+   "BUCKET_CAP": 5,
+   "TOTAL_CAP": 10,
+   "TOTAL_FLOOR": 6,
+   "T_CONTRAST": 2,
+   "T_RESTRICTED": 5
+  },
+  "ladder_applied": [],
+  "ranking": "per required-side bucket: top restricted synset tag_cnt desc, lemma asc; take <=BUCKET_CAP per bucket; floor/backfill per pinned ladder"
+ },
+ "schema": "kot-e2b-selection/1",
+ "selected": [
+  {
+   "bucket": "phys",
+   "contrast": {
+    "evidence": "gloss-object-abst:cachet",
+    "offset": "02329474",
+    "synset": "urn:lexical-wn31:v-02329474",
+    "tag_cnt": 15
+   },
+   "lemma": "add",
+   "lemma_tag_total": 203,
+   "n_frequent_synsets": 4,
+   "n_verb_synsets": 6,
+   "restricted": [
+    {
+     "classes": [
+      "mix-22.1-2"
+     ],
+     "offset": "00182551",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-00182551",
+     "tag_cnt": 116
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "mix-22.1-2"
+    ],
+    "offset": "00182551",
+    "required_side": "phys",
+    "synset": "urn:lexical-wn31:v-00182551",
+    "tag_cnt": 116
+   }
+  },
+  {
+   "bucket": "phys",
+   "contrast": {
+    "evidence": "gloss-object-abst:miracle",
+    "offset": "01632781",
+    "synset": "urn:lexical-wn31:v-01632781",
+    "tag_cnt": 31
+   },
+   "lemma": "bring",
+   "lemma_tag_total": 246,
+   "n_frequent_synsets": 8,
+   "n_verb_synsets": 11,
+   "restricted": [
+    {
+     "classes": [
+      "bring-11.3-1"
+     ],
+     "offset": "02081903",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-02081903",
+     "tag_cnt": 122
+    },
+    {
+     "classes": [
+      "bring-11.3-1"
+     ],
+     "offset": "01435927",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-01435927",
+     "tag_cnt": 19
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "bring-11.3-1"
+    ],
+    "offset": "02081903",
+    "required_side": "phys",
+    "synset": "urn:lexical-wn31:v-02081903",
+    "tag_cnt": 122
+   }
+  },
+  {
+   "bucket": "abst",
+   "contrast": {
+    "evidence": "vn-opposite-side",
+    "offset": "02003830",
+    "synset": "urn:lexical-wn31:v-02003830",
+    "tag_cnt": 2
+   },
+   "lemma": "conduct",
+   "lemma_tag_total": 79,
+   "n_frequent_synsets": 4,
+   "n_verb_synsets": 6,
+   "restricted": [
+    {
+     "classes": [
+      "conduct-111.1"
+     ],
+     "offset": "02450374",
+     "required_side": "abst",
+     "synset": "urn:lexical-wn31:v-02450374",
+     "tag_cnt": 44
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "conduct-111.1"
+    ],
+    "offset": "02450374",
+    "required_side": "abst",
+    "synset": "urn:lexical-wn31:v-02450374",
+    "tag_cnt": 44
+   }
+  },
+  {
+   "bucket": "abst",
+   "contrast": {
+    "evidence": "gloss-object-phys:girl",
+    "offset": "00065962",
+    "synset": "urn:lexical-wn31:v-00065962",
+    "tag_cnt": 12
+   },
+   "lemma": "cry",
+   "lemma_tag_total": 42,
+   "n_frequent_synsets": 4,
+   "n_verb_synsets": 7,
+   "restricted": [
+    {
+     "classes": [
+      "manner_speaking-37.3"
+     ],
+     "offset": "00914001",
+     "required_side": "abst",
+     "synset": "urn:lexical-wn31:v-00914001",
+     "tag_cnt": 11
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "manner_speaking-37.3"
+    ],
+    "offset": "00914001",
+    "required_side": "abst",
+    "synset": "urn:lexical-wn31:v-00914001",
+    "tag_cnt": 11
+   }
+  },
+  {
+   "bucket": "phys",
+   "contrast": {
+    "evidence": "gloss-object-abst:bill",
+    "offset": "01093838",
+    "synset": "urn:lexical-wn31:v-01093838",
+    "tag_cnt": 34
+   },
+   "lemma": "fight",
+   "lemma_tag_total": 159,
+   "n_frequent_synsets": 4,
+   "n_verb_synsets": 4,
+   "restricted": [
+    {
+     "classes": [
+      "meet-36.3-2"
+     ],
+     "offset": "01092746",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-01092746",
+     "tag_cnt": 112
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "meet-36.3-2"
+    ],
+    "offset": "01092746",
+    "required_side": "phys",
+    "synset": "urn:lexical-wn31:v-01092746",
+    "tag_cnt": 112
+   }
+  },
+  {
+   "bucket": "phys",
+   "contrast": {
+    "evidence": "gloss-object-abst:mess",
+    "offset": "00615374",
+    "synset": "urn:lexical-wn31:v-00615374",
+    "tag_cnt": 63
+   },
+   "lemma": "leave",
+   "lemma_tag_total": 392,
+   "n_frequent_synsets": 14,
+   "n_verb_synsets": 14,
+   "restricted": [
+    {
+     "classes": [
+      "escape-51.1-1-1"
+     ],
+     "offset": "02013448",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-02013448",
+     "tag_cnt": 146
+    },
+    {
+     "classes": [
+      "escape-51.1-1-1"
+     ],
+     "offset": "02019450",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-02019450",
+     "tag_cnt": 20
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "escape-51.1-1-1"
+    ],
+    "offset": "02013448",
+    "required_side": "phys",
+    "synset": "urn:lexical-wn31:v-02013448",
+    "tag_cnt": 146
+   }
+  },
+  {
+   "bucket": "abst",
+   "contrast": {
+    "evidence": "gloss-object-phys:fruit",
+    "offset": "01756303",
+    "synset": "urn:lexical-wn31:v-01756303",
+    "tag_cnt": 69
+   },
+   "lemma": "produce",
+   "lemma_tag_total": 156,
+   "n_frequent_synsets": 6,
+   "n_verb_synsets": 7,
+   "restricted": [
+    {
+     "classes": [
+      "engender-27.1"
+     ],
+     "offset": "01756692",
+     "required_side": "abst",
+     "synset": "urn:lexical-wn31:v-01756692",
+     "tag_cnt": 26
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "engender-27.1"
+    ],
+    "offset": "01756692",
+    "required_side": "abst",
+    "synset": "urn:lexical-wn31:v-01756692",
+    "tag_cnt": 26
+   }
+  },
+  {
+   "bucket": "phys",
+   "contrast": {
+    "evidence": "vn-opposite-side",
+    "offset": "02448714",
+    "synset": "urn:lexical-wn31:v-02448714",
+    "tag_cnt": 20
+   },
+   "lemma": "run",
+   "lemma_tag_total": 268,
+   "n_frequent_synsets": 22,
+   "n_verb_synsets": 41,
+   "restricted": [
+    {
+     "classes": [
+      "carry-11.4",
+      "run-51.3.2-2-1"
+     ],
+     "offset": "01930264",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-01930264",
+     "tag_cnt": 106
+    },
+    {
+     "classes": [
+      "run-51.3.2-2-1"
+     ],
+     "offset": "02079296",
+     "required_side": "phys",
+     "synset": "urn:lexical-wn31:v-02079296",
+     "tag_cnt": 38
+    },
+    {
+     "classes": [
+      "conduct-111.1"
+     ],
+     "offset": "02448714",
+     "required_side": "abst",
+     "synset": "urn:lexical-wn31:v-02448714",
+     "tag_cnt": 20
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "carry-11.4",
+     "run-51.3.2-2-1"
+    ],
+    "offset": "01930264",
+    "required_side": "phys",
+    "synset": "urn:lexical-wn31:v-01930264",
+    "tag_cnt": 106
+   }
+  },
+  {
+   "bucket": "abst",
+   "contrast": {
+    "evidence": "gloss-object-phys:ball",
+    "offset": "01663142",
+    "synset": "urn:lexical-wn31:v-01663142",
+    "tag_cnt": 6
+   },
+   "lemma": "shape",
+   "lemma_tag_total": 20,
+   "n_frequent_synsets": 3,
+   "n_verb_synsets": 3,
+   "restricted": [
+    {
+     "classes": [
+      "engender-27.1"
+     ],
+     "offset": "00702806",
+     "required_side": "abst",
+     "synset": "urn:lexical-wn31:v-00702806",
+     "tag_cnt": 11
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "engender-27.1"
+    ],
+    "offset": "00702806",
+    "required_side": "abst",
+    "synset": "urn:lexical-wn31:v-00702806",
+    "tag_cnt": 11
+   }
+  },
+  {
+   "bucket": "abst",
+   "contrast": {
+    "evidence": "gloss-object-phys:well",
+    "offset": "01733312",
+    "synset": "urn:lexical-wn31:v-01733312",
+    "tag_cnt": 35
+   },
+   "lemma": "sing",
+   "lemma_tag_total": 86,
+   "n_frequent_synsets": 3,
+   "n_verb_synsets": 5,
+   "restricted": [
+    {
+     "classes": [
+      "manner_speaking-37.3"
+     ],
+     "offset": "01734912",
+     "required_side": "abst",
+     "synset": "urn:lexical-wn31:v-01734912",
+     "tag_cnt": 46
+    }
+   ],
+   "top_restricted": {
+    "classes": [
+     "manner_speaking-37.3"
+    ],
+    "offset": "01734912",
+    "required_side": "abst",
+    "synset": "urn:lexical-wn31:v-01734912",
+    "tag_cnt": 46
+   }
+  }
+ ],
+ "structural_novel_o2_cell_bound_NOT_GOLD": 20
+}

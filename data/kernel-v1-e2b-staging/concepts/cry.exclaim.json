@@ -1,0 +1,148 @@
+{
+  "id": "urn:kernel-v1e2b:cry.exclaim",
+  "label": "cry.exclaim (X cries Y — Y is words; X says Y with a big voice because X feels something at that moment; as in \"‘Help!’ she cried\", NOT as in \"she cried bitterly at the news\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is words; X said Y at some time; X felt something at this time; because of this, X said Y not like people say words at other times; people in other places could hear Y.",
+  "notes": "E2b restricted sense (VerbNet manner_speaking-37.3, Topic [+communication] -> abst). Undergoer-sort clause: BE-SPEC(Y, WORDS) — the abst (C_words-shaped) license, the break.violate pattern. VerbNet anchor: manner_speaking-37.3 Topic [+communication].",
+  "sense": {
+    "senseTag": "exclaim",
+    "lemma": "cry",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-00914001"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "utter aloud; often with surprise, horror, or joy; \"`I won!' he exclaimed\"; \"`Help!' she cried\"; \"`I'm here,' the mother shouted when she saw her child looking lost\"",
+    "excludedSiblingCount": 5
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "det": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HEAR",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "id": "urn:kernel-v1e2b:add.combine",
+  "label": "add.combine (X adds Y to other things — after X does something, Y is with these things and they are like one bigger something; as in \"add flour to the mix\", NOT as in \"the music added a lot to the play\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "X did something to Y at some time; before this time Y was not with some other things; after this time Y is with these things; after this time these things are like one big something.",
+  "notes": "E2b restricted sense (VerbNet mix-22.1-2, Patient [+concrete] -> phys). Undergoer-sort clause: Y is placed somewhere with other things (BE-SOMEWHERE capability) — the phys license the §E2b promotion reads. Referent 1 kept SomeoneRef (adding is agentive in the attested frame). VerbNet anchor: mix-22.1-2 Patient [+concrete].",
+  "sense": {
+    "senseTag": "combine",
+    "lemma": "add",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-00182551"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "make an addition (to); join or combine or unite with others; increase the quality, quantity, size or scope of; \"We added two students to that dorm room\"; \"She added a personal note to her letter\"; \"Add insult to injury\"; \"Add some extra plates to the dinner table\"",
+    "excludedSiblingCount": 4
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "quant": "MUCH~MANY",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "det": "SOME",
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 3
+              },
+              "attribute": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "ONE",
+                "mods": [
+                  {
+                    "mod": "BIG"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

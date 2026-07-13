@@ -1,0 +1,126 @@
+{
+  "id": "urn:kernel-v1e2b:fight.combat",
+  "label": "fight.combat (X fights Y — Y is someone; X does bad things to Y's body and Y does the same to X; as in \"the tribesmen fought each other\", NOT as in \"the senator fought the bill\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is someone; X did some bad things to a part of Y's body at some time; at the same time Y did the same to X; X wanted something bad to happen to Y.",
+  "notes": "E2b restricted sense (VerbNet meet-36.3-2, Co-Agent [+animate] -> phys). Undergoer-sort clauses: SomeoneRef referent + DO onto a part of Y (body) — the phys/person license. VerbNet anchor: meet-36.3-2 Co-Agent [+animate].",
+  "sense": {
+    "senseTag": "combat",
+    "lemma": "fight",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-01092746"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "be engaged in a fight; carry on a fight; \"the tribesmen fought each other\"; \"Siblings are always fighting\"; \"Militant groups are contending for control of the country\"",
+    "excludedSiblingCount": 2
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          "time": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "det": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 2
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "sp",
+                  "head": {
+                    "kind": "primeHead",
+                    "prime": "SOMETHING~THING"
+                  },
+                  "quant": "SOME",
+                  "mods": [
+                    {
+                      "mod": "BAD"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

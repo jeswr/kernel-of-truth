@@ -1,0 +1,154 @@
+{
+  "id": "urn:kernel-v1e2b:fight.oppose",
+  "label": "fight.oppose (X fights Y — Y is something that can happen, not someone; X does not want Y to happen and does many things because of this; as in \"the senator fought the bill\", NOT as in \"the tribesmen fought each other\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style contrast event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is something that can happen; some people want Y to happen; X does not want Y to happen; because of this, X does many things for some time.",
+  "notes": "E2b contrast sense (within-lemma sortal differentiation for fight.combat). Undergoer-sort clause: CAN(HAPPEN(Y)) — the abst/eventive reading. VerbNet anchor: (no VN undergoer restriction; E2b-SEL F4(b) evidence: gloss object \"bill\", abst).",
+  "sense": {
+    "senseTag": "oppose",
+    "lemma": "fight",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-01093838"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "fight against or resist strongly; \"The senator said he would oppose the bill\"; \"Don't fight it!\"",
+    "excludedSiblingCount": 2
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "quant": "SOME"
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DON'T-WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "HAPPEN",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "MUCH~MANY"
+              },
+              "duration": {
+                "kind": "prime",
+                "prime": "FOR-SOME-TIME"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

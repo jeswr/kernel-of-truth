@@ -1,0 +1,132 @@
+{
+  "id": "urn:kernel-v1e2b:produce.engender",
+  "label": "produce.engender (X produces Y — Y is something that happens; because of X, Y happens; as in \"this procedure produces a curious effect\", NOT as in \"the tree would not produce fruit\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is something that happens; Y is not something that can be somewhere; because X did something at some time, Y happened after this time; before this time there was no Y.",
+  "notes": "E2b restricted sense (VerbNet engender-27.1, Theme [+abstract] -> abst). Referent 1 broadened to SomethingRef (\"this procedure produces...\"). Undergoer-sort clauses: HAPPEN(Y) and NOT(CAN(BE-SOMEWHERE Y)) — the abst license. VerbNet anchor: engender-27.1 Theme [+abstract].",
+  "sense": {
+    "senseTag": "engender",
+    "lemma": "produce",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-01756692"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "cause to happen, occur or exist; \"This procedure produces a curious effect\"; \"The new law gave rise to many complaints\"; \"These chemicals produce a noxious vapor\"; \"the new President must bring about a change in the health care system\"",
+    "excludedSiblingCount": 5
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "time": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                },
+                "det": "SOME",
+                "bind": 3
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "HAPPEN",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WHERE~PLACE"
+                    },
+                    "det": "SOME"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "THERE-IS",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

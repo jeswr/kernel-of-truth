@@ -969,6 +969,245 @@ implied on CORRECTNESS or EFFICIENCY.**
 
 ---
 
+## E2b. Inventory extension — sortally-differentiated sense-split lemmas (DESIGN ADDENDUM, 2026-07-13)
+
+**Role: Fable DESIGN agent (designer-8), 2026-07-13, maintainer-approved
+issue #29. This addendum designs the E2b inventory extension that the E2a
+diagnostic's verdict authorizes (ASM-2178: the E0 O2 starvation is
+INVENTORY-LIMITED at the binding margin — the strongest construct repair in
+place yields 0 novel O2 cells). It adopts NO anomaly-gold construct (hard
+vs defeasible remains the maintainer's #29 decision), runs NO engine, reads
+NO outcome, and states NO feasibility conclusion on CORRECTNESS or
+EFFICIENCY. Framing cap, from the steering synthesis, carried verbatim: an
+E2b run reports a *sortally-enriched capability test*, never generic kernel
+value.** Assumption block: `poc/engine-inference/asm-e2b-2250-2259.json`
+(ASM-2250..2259, owner designer-8). Artifacts:
+`poc/engine-inference/e2b-inventory-extension/{e2b_select_lemmas.py,
+e2b-selection.json}` and `data/kernel-v1-e2b-staging/` (22 staged concepts;
+kernel-v1 proper untouched).
+
+### E2b.1 Why extension, and why these lemmas must come from VerbNet
+
+KILL-e1 fired on the pinned holdout with `ops_spanned = {O1}` (91 items /
+17 cells / 4 lemmas — `holdout-manifest.json .kill_e1` [MEASURED]). E2a
+measured the repair space: every HARD anomaly construct dies on attested
+usage (H2 unanimity 2/13 synsets, VerbNet-hard 0/2), and the defeasible
+VerbNet amendment — the strongest repair the named third-party source
+supports — licenses only 2 O2 cells, both already seen (ASM-2176). The
+deficit is not cell-space but **third-party-licensable sortal
+differentiation on the current lemmas** (ASM-2177): the 4-lemma inventory
+has ~30 cells of construct-agnostic headroom that no source in hand
+licenses. The E2b consequence is mechanical: extend the inventory along
+lemmas where VerbNet 3.3 GENUINELY restricts the undergoer, so that a
+maintainer-admitted construct amendment and the extension land together —
+and so that even the pinned H2 hard-unanimity rule gets fresh, sortally
+polarized senses to work with. [DERIVED from E2a bytes]
+
+### E2b.2 The mechanical, benchmark-blind selection rule E2b-SEL [STIPULATED — ASM-2251]
+
+Implemented in `e2b_select_lemmas.py`; all constants fixed in the script
+before any selection output existed; double-run byte-identical. The rule
+consumes ONLY pinned third-party bytes: the E2a VerbNet 3.3 zip
+(sha-verified fail-closed), WN 3.1 dict bytes + pinned extraction, the E2a
+`selrestr-side-table.json` (M3), and the kernel manifests (exclusions). It
+imports the E2a mapping helpers byte-identically (M1 sense keys, M2
+undergoer role = second NP of the nearest `NP V NP` frame, M3 side table +
+combination logic, M4 all-classes-agree). It NEVER opens SemCor sentences,
+`items-h.json`, `gold-h.json`, results, rows, or any outcome artifact, and
+imports no engine/scorer (asserted at exit).
+
+- **F0** single-token alphabetic VerbNet member lemma, present in pinned
+  WN 3.1 `index.verb`.
+- **F1** lemma ∉ Stage-A {break, find, friend, make} ∪ PC-6 decoys
+  {cut, draw, hold} ∪ the kernel-v0 panel lemmas (mechanical from the two
+  manifests). Consequence: no selected lemma's cells exist in ANY seen
+  frame — every E2b cell is fresh by construction.
+- **F2** the lemma has ≥ 1 **VN-restricted synset**: a non-`?` member sense
+  key resolving via pinned `index.sense` to a WN 3.1 verb synset whose
+  chain undergoer role carries a side-entailing restriction (M2/M3/M4),
+  with `tag_cnt ≥ T_RESTRICTED = 5`.
+- **F3** polysemy: ≥ 2 verb synsets with `tag_cnt ≥ T_CONTRAST = 2` (the
+  sense-split is non-trivial; the lemma-collapse arms stay non-degenerate).
+- **F4** within-lemma sortal differentiation: another frequent synset with
+  (a) VN required side OPPOSITE the top restricted synset's, else (b) a
+  parsed WN gloss-example object on the opposite side (the pinned ASM-1991
+  parse + `noun_side`; gloss bytes of non-Stage-A lemmas were never
+  extracted, so nothing here is benchmark-derived).
+- **Ranking/quota:** per required-side bucket (phys/abst), sort by
+  restricted-synset `tag_cnt` desc then lemma asc; take ≤ 5 per bucket;
+  floor 6 / cap 10; pinned relaxation ladder (T_RESTRICTED→3, T_CONTRAST→1,
+  drop F4(b)) applies IN ORDER only on shortfall, logged — it was NOT
+  needed.
+
+**tag_cnt disclosure:** `index.sense` tag_cnt is a SemCor-derived frequency
+aggregate shipped inside the pinned WN 3.1 bytes — a deliberate FREQUENCY
+steer toward holdout yield, not outcome information (no sentence, item,
+cell, or verdict is readable from it); it is the identical field the frozen
+design already consumes (D-word-dom dominance, ASM-1993; ASM-2110).
+
+### E2b.3 The selection [MEASURED — ASM-2252]
+
+10 lemmas, buckets 5 phys / 5 abst, no ladder relaxation, 109 candidates
+passed the filters (`e2b-selection.json`, double-run byte-identical):
+
+| lemma | bucket | VN class (undergoer role, restriction) | restricted synset(s) [tag_cnt] | contrast sense (F4 evidence) |
+|---|---|---|---|---|
+| add | phys | mix-22.1-2 (Patient, `+concrete`) | v-00182551 [116] | v-02329474 (gloss object "cachet", abst) |
+| bring | phys | bring-11.3-1 (Theme, `+concrete`) | v-02081903 [122], v-01435927 [19] | v-01632781 (gloss object "miracle", abst) |
+| conduct | abst | conduct-111.1 (Theme, `+eventive`) | v-02450374 [44] | v-02003830 (F4(a): VN-opposite-side, phys) |
+| cry | abst | manner_speaking-37.3 (Topic, `+communication`) | v-00914001 [11] | v-00065962 (gloss subject "girl", phys) |
+| fight | phys | meet-36.3-2 (Co-Agent, `+animate`) | v-01092746 [112] | v-01093838 (gloss object "bill", abst) |
+| leave | phys | escape-51.1-1-1 (Initial_Location, `+concrete`) | v-02013448 [146], v-02019450 [20] | v-00615374 (gloss object "mess", abst) |
+| produce | abst | engender-27.1 (Theme, `+abstract`) | v-01756692 [26] | v-01756303 (gloss object "fruit", phys) |
+| run | phys | carry-11.4 / run-51.3.2-2-1 (Theme/Trajectory, `+concrete`); ALSO conduct-111.1 (`+eventive`, abst) | v-01930264 [106], v-02079296 [38] phys; v-02448714 [20] abst | internal (F4(a)): run's own abst-restricted operate sense |
+| shape | abst | engender-27.1 (Theme, `+abstract`) | v-00702806 [11] | v-01663142 (gloss object "ball(s)", phys) |
+| sing | abst | manner_speaking-37.3 (Topic, `+communication`) | v-01734912 [46] | v-01733312 (F4(b) evidence is a DISCLOSED parse artifact — §E2b.7) |
+
+Structural fresh-O2 cell bound of the selection (ASM-2177 arithmetic: 1
+cell per phys-restricted synset, 2 per abst-restricted): **20 cells over
+10 lemmas** [DERIVED — an upper bound assuming donors exist, NOT a yield
+claim; the pre-freeze KILL-e1 recount is the resolution path].
+
+### E2b.4 Minting rule and the staged concepts [STIPULATED — ASM-2253; MEASURED — ASM-2254]
+
+Per selected lemma, mint one concept per sense for: (a) every restricted
+synset passing F2, and (b) the contrast synset; synsets sharing one VN
+class, one required side, and one explication schema may form one concept's
+cluster (the break.interrupt precedent — used once: leave.depart covers
+v-02013448 + v-02019450); everything else goes to `excludedSenses` (R4/R5
+closure). The SemCor-dominant synset of every selected lemma is already in
+(a)∪(b) [MEASURED], so D-word-dom dominance stays inside the minted set.
+
+Result: **22 concepts** in `data/kernel-v1-e2b-staging/` (STAGING — see its
+README: kernel-v1 untouched, identity minting and FrameNet licensing
+deferred to the adoption build). Build gates, fail-closed: encoder ENC gate
+(all 22 pass `validateExplication` + one `encodeConceptSet`; encoder pin
+READ-only equals kernel-v0 frozen), SCOPE gate (minted set == selection
+output, mechanical), G1/G2 (each synset claimed exactly once), R1 recount,
+and the ONTIC gate: **every minted verb sense is an EVENT** in
+`typing/ck-ufo-sidecar.jsonl` — the Stage-A "a breakage, in any sense, is
+an event, never a material entity" maintainer clause, generalized to all 22
+E2b concepts.
+
+**Explication convention the §1.2 axiom promotion reads (pinned for the
+module build):** every RESTRICTED sense's explication carries an
+undergoer-sort clause on its own side — phys licenses via locational/
+kinetic capability (`BE-SOMEWHERE`/`MOVE`/body-part clauses; SomeoneRef or
+PlaceRef referent kinds), abst licenses via `NOT(CAN(BE-SOMEWHERE Y))`,
+`BE-SPEC(Y, WORDS)` (the break.violate pattern), or `HAPPEN(Y)` eventive
+clauses. Contrast senses may stay sortally broad (breadth is what makes the
+K-lemma-union collapse drop constraints — the EP-A mechanism). The
+explication→axiom promotion itself remains the disclosed experimental
+stipulation of §1.2, an explicator authoring act at module build, each
+axiom citing its clause; new bridge classes, if any, must anchor on the WN
+top split exactly as the existing ones do [STIPULATED — ASM-2255].
+
+### E2b.5 Re-extraction plan — fresh cells, custody preserved [STIPULATED — ASM-2256]
+
+Outcomes are UNKNOWN at freeze for every E2b cell; the plan keeps them so:
+
+1. **Inventory constant:** E2b lemmas enter via a separate
+   `E2B_LEMMAS`/extended-inventory constant in the extraction layer (a
+   build change, re-pinned at freeze with `engineinf_wn.py`'s new sha);
+   Stage-A `LEMMAS` and the decoy list are unchanged.
+2. **Extractors only, pre-freeze:** the gloss-example extractor and the
+   SemCor holdout extractor run for the extended inventory as PURE item/
+   gold constructors (no engine import — the existing custody mechanics).
+   items-H′/gold-H′ are sha-pinned pre-freeze; the KILL-e1 recount is
+   computed from pinned items alone at $0.
+3. **The E2a lesson, made a rule — no anomaly cell of any E2b synset is
+   ever realized outside the confirmatory frame:** the E2a diagnostic
+   showed the seen frame's own G3 rule burned the only VerbNet-licensable
+   cells. Therefore, for E2b synsets, anomaly items (G3/H2-shaped, under
+   whichever construct #29 admits) are constructed EXACTLY ONCE, inside the
+   pinned holdout extraction, and NO exploratory or pilot execution may
+   compile or run an anomaly item of an E2b synset. Pilot checks that need
+   anomaly mechanics use Stage-A frames and PC-6 decoys only; E2b lemmas
+   contribute attested/refusal items to pilot divergence checks. Enforced
+   mechanically: the pilot entrypoint asserts its item list contains no
+   `(E2b synset, anomaly)` pair, and the frozen runner's refuse-if-H-rows-
+   exist assertion (§2.5 custody 4) covers all H′ ids unchanged.
+4. **Decontamination and novelty:** the (synset, noun) decontamination and
+   the H\* novel-cell restriction apply unchanged; for E2b lemmas every
+   cell is novel by construction (F1), so H\*′ gains all their eligible
+   cells.
+5. **KILL-e1 recount, both constructs:** the recount is reported under the
+   pinned H2 hard-unanimity construct AND, separately, under the
+   VerbNet-defeasible amendment (E2a mechanics), each with its op/lemma
+   span; the freeze proceeds only if the count under the
+   maintainer-admitted construct passes (≥ 30 items, ≥ 12 cells, ≥ 2 ops,
+   ≥ 2 lemmas — thresholds unchanged). DIST-SPAN headroom is reported
+   descriptively (O2 cells per lemma; the structural bound spans 10
+   lemmas).
+6. **C-SHUF orbit growth [STIPULATED — ASM-2257]:** the extended inventory
+   multiplies the within-lemma permutation orbit to |Orbit| = 960 ×
+   (2!)⁸ × (3!)² = 8,847,360 (per-lemma minted sense counts: Stage-A
+   5·2·2·2; E2b eight 2-sense lemmas, two 3-sense lemmas) — full
+   enumeration is no longer CPU-trivial. Extension of the pinned ASM-2114
+   rule in the large direction: **if |Orbit| > 10⁴, C-SHUF uses B = 9,999
+   uniform within-lemma permutations drawn with a seed fixed at freeze,
+   plus the identity**; p = (1 + #{b : T(π_b) ≥ T(K)}) / (B + 1); the
+   `A_union` frame (§2.3 [R3]) is computed symmetrically over the sampled
+   members ∪ identity, so exchangeability and the calibrated Monte-Carlo p
+   are preserved. Minimum attainable p = 1/10,000.
+7. **Registry deltas at re-pin (coordinator custody):** adoption build
+   mints identities for the 22 concepts (kernel-v1 Stage-A extension or a
+   parallel corpus — maintainer choice at adoption); explicator authors the
+   `axioms-engineinf-v0` extension for the 22 senses per §1.2/§E2b.4; the
+   K-lemma collapse compiler and B-wn frame projection re-run mechanically
+   over the extended module; new pins (selection artifact, staging corpus,
+   extended sense-indexes, items-H′/gold-H′, orbit/MC manifest, extractor
+   shas); full blocking-pilot re-run (PC-1..PC-7, with §E2b.5 item 3's
+   restricted pilot frame); n_planned updated from the pinned recount.
+   Status remains DRAFT until the pilot passes, the recount clears, #29 is
+   signed off, and the maintainer freezes.
+
+### E2b.6 What E2b changes about the decision rules: NOTHING
+
+Endpoints (EP-A/EP-B), PASS gates, exact-census counting, DIST-SPAN,
+no-net-harm, KILL-e2a/e2b, the §3 claim ladder, and the honesty secondary
+are all untouched; E2b only feeds them a frame in which O2 can be populated
+by a third-party-licensed construct. Whether it IS populated — and every
+downstream verdict — is unknown at freeze and stays unknown until the
+registered run. If the recount still fails under the maintainer-admitted
+construct, the freeze stops again at $0, and THAT is the honest result of
+E2b. [STIPULATED]
+
+### E2b.7 Honesty audit (what could game this, and what is disclosed)
+
+1. **Rule-authoring order.** The selection rule and its constants were
+   fixed in the script before its first output was computed, and the run is
+   double-run byte-identical — but the same agent authored the rule and saw
+   its output within one session. Mitigations: every constant cites a
+   precedent rather than a per-lemma fit (T thresholds from KILL-e1
+   arithmetic; the exclusion list from the PC-6 decoy-eligibility rule);
+   the unused relaxation ladder was pinned in advance; any post-hoc
+   constant change is a NEW selection requiring a new ASM. The residual is
+   disclosed, not denied. [STIPULATED — ASM-2258 caveat]
+2. **tag_cnt is SemCor-derived** — frequency-only, disclosed in §E2b.2;
+   selection never touches SemCor sentences or holdout bytes.
+3. **F4(b) evidence quality is parser-limited.** One of ten selections
+   (sing) rests on the pinned parser reading adverbial "well" as a noun
+   ("my brother sings very well"). The SENSE (v-01733312) and its
+   subject-side undergoer are real; the EVIDENCE token is an artifact.
+   Disclosed here and in the concept file; the other nine F4 evidences are
+   clean (checked by hand against the glosses). Fixing the parser for F4
+   would be a rule change; the artifact is carried rather than patched
+   post hoc.
+4. **VerbNet class membership is VerbNet's judgment** — e.g. carry-11.4
+   lists run's locomotion sense; the mapping consumes it mechanically
+   (M1) and the E2a M2-abuse audit logic carries over unchanged.
+5. **Defeasible-gold weakness carries over verbatim from E2a §5.4**: if
+   #29 admits the defeasible construct, attested violations are logged
+   usage, a defeasible O2 PASS disclosures its presumptive status in every
+   claim sentence, and the E1-named ~30-item human spot-audit applies.
+6. **Selection ≠ yield.** The 20-cell bound assumes SemCor H1 donors exist
+   on the violating sides; the pre-freeze recount at $0 is the only
+   resolution [EXTRAPOLATION — ASM-2258]; a shortfall stops the freeze,
+   never weakens the record.
+
+---
+
 ## Self-check gate (governance)
 
 Every load-bearing claim above carries MEASURED / DERIVED / STIPULATED /
@@ -998,5 +1237,11 @@ scorer, supersession record); it needs no new engine runs or item authoring
 ($0 CPU).** Neither revision states a feasibility conclusion: the
 exploratory numbers are licensed only through the §R1 narrowed sentence, and
 the registered analysis remains INCONCLUSIVE until the confirmatory holdout
-runs. No git actions in this pass (design-role constraint); commit + push is
-the session coordinator's handoff step.
+runs. **[E2b] The §E2b addendum (2026-07-13, designer-8, ASM-2250..2259 in
+`poc/engine-inference/asm-e2b-2250-2259.json`) adds the inventory-extension
+design only: it adopts no anomaly-gold construct (#29 stays the
+maintainer's), runs no engine, computes no outcome, leaves every decision
+rule of §2-§4 untouched, and states no feasibility conclusion; its staged
+concepts live outside kernel-v1 pending adoption.** No git actions in this
+pass (design-role constraint); commit + push is the session coordinator's
+handoff step.

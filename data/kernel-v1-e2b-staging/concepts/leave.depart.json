@@ -1,0 +1,109 @@
+{
+  "id": "urn:kernel-v1e2b:leave.depart",
+  "label": "leave.depart (X leaves Y — Y is a place; before, X was in Y; X moves; after, X is not in Y; as in \"leave the room\" / \"the ship leaves at midnight\", NOT as in \"she left a mess\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is a place; X was in Y before some time; X moved at this time; after this time X is not in Y.",
+  "notes": "E2b restricted sense cluster (VerbNet escape-51.1-1-1, Initial_Location [+concrete] -> phys; two WN synsets — \"go away from a place\" and \"move out of or depart from\" — one schema, the break.interrupt cluster precedent). Referent 1 broadened to SomethingRef (\"the train leaves\"). Undergoer-sort: PlaceRef referent + BE-SOMEWHERE locus — the phys/location license. VerbNet anchor: escape-51.1-1-1 Initial_Location [+concrete].",
+  "sense": {
+    "senseTag": "depart",
+    "lemma": "leave",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-02013448",
+      "urn:lexical-wn31:v-02019450"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "go away from a place; \"At what time does your train leave?\"; \"She didn't leave until midnight\"; \"The ship leaves at midnight\"",
+    "excludedSiblingCount": 11
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "det": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "ref",
+            "index": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

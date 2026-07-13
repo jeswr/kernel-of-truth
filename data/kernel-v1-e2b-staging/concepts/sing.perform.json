@@ -1,0 +1,179 @@
+{
+  "id": "urn:kernel-v1e2b:sing.perform",
+  "label": "sing.perform (X sings Y — Y is words; X says Y not like people say words at other times; people can hear something good when X says Y; as in \"sing Christmas carols\", NOT as in \"my brother sings very well\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is words; X said Y at some time; X said Y not like people say words at other times; when X said Y, people could hear something good; because of this, people could feel something good.",
+  "notes": "E2b restricted sense (VerbNet manner_speaking-37.3, Topic [+communication] -> abst). Undergoer-sort clause: BE-SPEC(Y, WORDS) — the abst (C_words-shaped) license, the break.violate pattern. VerbNet anchor: manner_speaking-37.3 Topic [+communication].",
+  "sense": {
+    "senseTag": "perform",
+    "lemma": "sing",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-01734912"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "deliver by singing; \"Sing Christmas carols\"",
+    "excludedSiblingCount": 3
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "attribute": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WORDS"
+            }
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          },
+          "time": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "det": "SOME",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "topic": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "HEAR",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "stimulus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    },
+                    "quant": "SOME",
+                    "mods": [
+                      {
+                        "mod": "GOOD"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "HEAR",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "FEEL",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "attribute": {
+                    "kind": "prime",
+                    "prime": "GOOD"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

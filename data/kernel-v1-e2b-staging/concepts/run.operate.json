@@ -1,0 +1,179 @@
+{
+  "id": "urn:kernel-v1e2b:run.operate",
+  "label": "run.operate (X runs Y — Y is something that happens for some time because many people do things; X says words to these people because X wants Y to happen in a certain way; as in \"she is running a relief operation\", NOT as in \"the children ran to the store\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style VN-restricted event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "Y is something that happens for some time; Y is not something that can be somewhere; many people do things because of Y; X says words to these people; because of this, these people do things; X wants Y to happen in some way.",
+  "notes": "E2b restricted sense (VerbNet conduct-111.1, Theme [+eventive] -> abst) — run's own opposite-side restricted sense: the selection's F4(a) evidence for run is INTERNAL (phys-restricted locomote/flee vs abst-restricted operate). Undergoer-sort clauses: HAPPEN(Y, duration) and NOT(CAN(BE-SOMEWHERE Y)) — the abst license. VerbNet anchor: conduct-111.1 Theme [+eventive].",
+  "sense": {
+    "senseTag": "operate",
+    "lemma": "run",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-02448714"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "direct or control; projects, businesses, etc.; \"She is running a relief operation in the Sudan\"",
+    "excludedSiblingCount": 38
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "FOR-SOME-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "locus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "WHERE~PLACE"
+                    },
+                    "det": "SOME"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            },
+            "quant": "MUCH~MANY",
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "SAY",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "addressee": {
+            "kind": "ref",
+            "index": 3
+          },
+          "topic": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SAY",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "addressee": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 3
+              },
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "MUCH~MANY"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "HAPPEN",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "id": "urn:kernel-v1e2b:leave.behind",
+  "label": "leave.behind (X leaves Y — X moves away from a place; after this, Y is in this place because of what X did before; as in \"she left a mess\" / \"he left his gloves\", NOT as in \"leave the room\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style contrast event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "X was in some place before some time; X moved away from this place at this time; after this time Y is in this place; Y is in this place because of what X did before this time.",
+  "notes": "E2b contrast sense (within-lemma sortal differentiation for leave.depart; its objects range over both sides — \"a mess\" abst-side, \"his gloves\" phys-side — so the explication does NOT sortally force Y; breadth is the point of a contrast sense). VerbNet anchor: (no VN undergoer restriction; E2b-SEL F4(b) evidence: gloss object \"mess\", abst).",
+  "sense": {
+    "senseTag": "behind",
+    "lemma": "leave",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-00615374"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "go and leave behind, either intentionally or by neglect or forgetfulness; \"She left a mess when she moved out\"; \"His good luck finally left him\"; \"her husband left her after 20 years of marriage\"; \"she wept thinking she had been left behind\"",
+    "excludedSiblingCount": 11
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "PlaceRef"
+      },
+      {
+        "index": 4,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHERE~PLACE"
+            },
+            "det": "SOME",
+            "bind": 3
+          },
+          "time": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "det": "SOME",
+            "bind": 4
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "ref",
+            "index": 4
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 3
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 4
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "id": "urn:kernel-v1e2b:cry.weep",
+  "label": "cry.weep (X cries — X feels something very bad; because of this, small watery somethings come out of a part of X's body; as in \"she cried at the news\", NOT as in \"‘Help!’ she cried\")",
+  "status": "research-grade, E2b-STAGING (pre-adoption; identity minting deferred to the adoption build)",
+  "pattern": "NSM-style contrast event sense, sense-scoped per docs/next/design/sense-split-first-construction.md §1.3 and engine-inference-under-typing.md §E2b",
+  "gloss": "X felt something very bad at some time; because of this, some small somethings came out of a part of X's body; people can see these somethings; X did not want to do anything at this time.",
+  "notes": "E2b contrast sense (within-lemma sortal differentiation for cry.exclaim; intransitive — the instrument's subject-fallback undergoer is X, a person, phys). Undergoer-sort: SomeoneRef X + body-part clause. VerbNet anchor: (no VN undergoer restriction; E2b-SEL F4(b) evidence: gloss subject \"girl\", phys).",
+  "sense": {
+    "senseTag": "weep",
+    "lemma": "cry",
+    "pos": "v",
+    "wn31Synsets": [
+      "urn:lexical-wn31:v-00065962"
+    ],
+    "framenetFrame": null,
+    "framenetFrameName": null,
+    "glossQuote": "shed tears because of sadness, rage, or pain; \"She cried bitterly when she heard the news of his death\"; \"The girl in the wheelchair wept with frustration when she could not get up the stairs\"",
+    "excludedSiblingCount": 5
+  },
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "RelationalSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "BAD"
+          },
+          "time": {
+            "kind": "ref",
+            "index": 2
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "MUCH~MANY",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "quant": "MUCH~MANY",
+            "mods": [
+              {
+                "mod": "SMALL"
+              }
+            ]
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "stimulus": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "quant": "MUCH~MANY",
+                "mods": [
+                  {
+                    "mod": "SMALL"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
