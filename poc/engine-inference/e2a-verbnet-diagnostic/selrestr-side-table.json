@@ -1,0 +1,43 @@
+{
+ "schema": "kot-e2a-selrestr-side/1",
+ "_readme": [
+  "AUTHORED INPUT CONSTANT of the E2a diagnostic (STIPULATED, ASM-2174): the projection of every VerbNet 3.3 selectional-restriction type onto the experiment's G2 top-split side vocabulary (phys | abst | none). Authored BEFORE any anomaly count was computed, over the FULL inventory of the 28 restriction types that occur in any THEMROLE of the canonical verbnet3.3 class set (measured by the diagnostic script and asserted against this table at run time - a type in the data but missing here fails closed).",
+  "SEMANTICS: side 'phys' means a POSITIVE (+) occurrence of the restriction on a role entails that a filler of the role lies on the WN31 physical_entity side of the G2 top split; 'abst' likewise for the abstraction side; 'none' means no top-split entailment is licensed (finer-than-side sortal content, non-entity content, or WN-side-mixed content).",
+  "NEGATIVE VALUES: a '-' restriction NEVER entails a side. The WN31 top split is not two-valued (entity also dominates thing n-00002452 and the split is a sibling set, not a complement pair), so not-phys does not entail abst and vice versa.",
+  "COMBINATION LOGIC (from the SELRESTRS element): default/and-joined restrictions entail side S iff at least one conjunct entails S and no conjunct entails the opposite side (opposite-side conjuncts would be contradictory - fail closed with a flag); logic='or' restrictions entail S iff EVERY disjunct entails the same S.",
+  "ANCHOR COLUMN: the WN 3.1 noun whose hypernym-closure side justifies the entry, resolved by the pinned noun_side rule where the lemma's dominant sense matches the restriction's intent; entries where the dominant WN sense diverges from the VerbNet guideline meaning carry justification 'stipulated' with the reason in the note. The table is authoritative as STIPULATED; anchors are audit hooks, not derivations.",
+  "TUNING DISCLOSURE: only ONE type in this table is load-bearing for the current inventory (solid - the break-45.1 Patient restriction); every other entry is inert on the 4-lemma inventory because no other matched undergoer role carries any restriction. The table is emitted in full precisely so that this inertness is checkable and the single load-bearing entry cannot be quietly tuned."
+ ],
+ "types": {
+  "abstract": {"side": "abst", "anchor": "abstraction (n-00002137, the G2 top-split node itself)", "note": "definitionally the abstraction side"},
+  "animal": {"side": "phys", "anchor": "animal", "note": "organism -> living thing -> object -> physical entity"},
+  "animate": {"side": "phys", "anchor": "living thing", "note": "living beings are physical entities"},
+  "biotic": {"side": "phys", "anchor": "organism", "note": "biological entities are physical entities"},
+  "body_part": {"side": "phys", "anchor": "body_part", "note": "part of a physical organism"},
+  "comestible": {"side": "phys", "anchor": "food", "note": "food -> substance -> matter -> physical entity"},
+  "communication": {"side": "abst", "anchor": "communication", "note": "WN communication (something communicated / communicative activity) sits under abstraction"},
+  "concrete": {"side": "phys", "anchor": "physical entity (n-00001930, the G2 top-split node itself)", "note": "definitionally the physical side"},
+  "currency": {"side": "abst", "anchor": "currency", "note": "WN sides medium-of-exchange under abstraction; disclosed oddity (coins are physical, the monetary value VerbNet means is WN-abstract)"},
+  "elongated": {"side": "phys", "anchor": "stipulated", "note": "a shape restriction; only physical objects bear shape"},
+  "eventive": {"side": "abst", "anchor": "event", "note": "WN event -> psychological feature -> abstraction; disclosed: BFO-style ontologies side events differently, but G2 IS the WN top split"},
+  "force": {"side": "none", "anchor": "stipulated", "note": "WN-mixed: force-as-influence is abstract, force-as-physical-phenomenon is physical; no single-side entailment"},
+  "garment": {"side": "phys", "anchor": "garment", "note": "artifact -> physical entity"},
+  "human": {"side": "phys", "anchor": "person", "note": "person -> organism -> physical entity"},
+  "int_control": {"side": "none", "anchor": null, "note": "internal-control is an agency property, not an entity sort"},
+  "location": {"side": "phys", "anchor": "location", "note": "WN location -> object -> physical entity"},
+  "machine": {"side": "phys", "anchor": "machine", "note": "artifact -> physical entity"},
+  "nonrigid": {"side": "phys", "anchor": "stipulated", "note": "a physical-consistency restriction; only physical objects bear rigidity"},
+  "organization": {"side": "abst", "anchor": "organization", "note": "WN sides organization under social group -> group -> abstraction; disclosed oddity, but consistent with the instrument's own G2 rule"},
+  "plural": {"side": "none", "anchor": null, "note": "number, not an entity sort"},
+  "pointy": {"side": "phys", "anchor": "stipulated", "note": "a shape restriction; only physical objects bear shape"},
+  "refl": {"side": "none", "anchor": null, "note": "reflexivity marker, not an entity sort"},
+  "region": {"side": "phys", "anchor": "region", "note": "region -> location -> physical entity; occurs only negatively in 3.3 THEMROLES, so inert under the negative-value rule"},
+  "solid": {"side": "phys", "anchor": "solid", "note": "WN solid -> matter -> physical entity. THE load-bearing entry: break-45.1 Patient [+solid]"},
+  "sound": {"side": "none", "anchor": "stipulated", "note": "WN-mixed: sound-as-auditory-property is abstract, sound-as-mechanical-vibration is physical; no single-side entailment"},
+  "substance": {"side": "phys", "anchor": "substance", "note": "matter -> physical entity"},
+  "time": {"side": "abst", "anchor": "time", "note": "measure/attribute -> abstraction"},
+  "vehicle": {"side": "phys", "anchor": "vehicle", "note": "artifact -> physical entity"}
+ },
+ "emitted_by": "analyst-7",
+ "date": "2026-07-13"
+}
