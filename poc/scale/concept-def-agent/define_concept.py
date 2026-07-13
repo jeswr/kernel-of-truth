@@ -341,6 +341,8 @@ def main():
     ap.add_argument("--model", default="claude-opus-4-8",
                     choices=list(CLAUDE_MODELS) + [CODEX_MODEL])
     ap.add_argument("--out", default=str(HERE / "out"))
+    ap.add_argument("--prompt", default=str(PROMPT_PATH),
+                    help="system-prompt file (default: concept-def-prompt.md)")
     ap.add_argument("--gloss", help="WN gloss override (concept outside the pool)")
     ap.add_argument("--pos", help="pos override")
     ap.add_argument("--lemmas", help="comma-separated lemma override")
@@ -355,7 +357,7 @@ def main():
     lemmas = ([s.strip() for s in args.lemmas.split(",")] if args.lemmas
               else (row["lemmas"] if row else [args.label]))
 
-    sys_prompt = PROMPT_PATH.read_text()
+    sys_prompt = pathlib.Path(args.prompt).read_text()
     user_msg = build_user_message(args.label, urn, pos, lemmas, wn_gloss)
     slug = slugify(args.label)
     short = MODEL_SHORT[args.model]
