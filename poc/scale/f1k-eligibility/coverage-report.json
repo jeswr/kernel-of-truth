@@ -1,0 +1,71 @@
+{
+ "built": "2026-07-13 designer-29 f1k-eligibility screen ($0)",
+ "eval_sources": {
+  "admitted_items": 19311,
+  "by_source": {
+   "arc-challenge": 1172,
+   "arc-easy": 2376,
+   "csqa": 1221,
+   "mmlu": 14042,
+   "openbookqa": 500
+  },
+  "pins": "sha256-verified against [BC] SOURCES (fail closed)"
+ },
+ "funnel": {
+  "eligible_and_header_clean": 28728,
+  "eligible_m_ge_8_c": 28818,
+  "greedy_disjoint_C_lower_bound": 2404,
+  "greedy_disjoint_C_lower_bound_header_clean": 2401,
+  "matching_ge_1_item": 50453,
+  "wn_aligned_pool_b": 110049
+ },
+ "gate_arithmetic": {
+  "adequacy_finding": "POOL SUPPORTS THE GATE WITH HEADROOM",
+  "disjoint_bound_vs_gate": "2404 >= 65: True  (the honest number: counts clusters SIMULTANEOUSLY reaching m>=8 on disjoint items, SOP-5)",
+  "gate": "C >= 65 clusters each m >= 8 (ASM-2271, [REG])",
+  "headroom_target_100plus": "2404 >= 100: True (header-clean disjoint: 2401)",
+  "raw_eligible_vs_gate": "28818 >= 65: True"
+ },
+ "governance": {
+  "benchmark_blind": true,
+  "deterministic": "byte-identical on re-run; no RNG/wall-clock",
+  "git_registry_freeze_spend": "none",
+  "model_outcomes_read": false
+ },
+ "issue": "#33",
+ "item_contention_hist_concepts_per_item": {
+  "0": 5,
+  "1": 1,
+  "11-100": 6406,
+  "2-10": 58,
+  ">100": 12841
+ },
+ "m_distribution_eligible": {
+  "max": 11730,
+  "min": 8,
+  "n_ge_16": 22697,
+  "n_ge_35": 16179,
+  "p50": 43
+ },
+ "operationalisations": {
+  "SOP-1": "pool = WN31 type-level only; OBO/SUMO excluded (no computed crosswalk)",
+  "SOP-2": "trigger surface = [BC build_triggers] rule verbatim (synset lemmas + derivational '+' lemmas)",
+  "SOP-3": "OP-4 matching over question+options only; header/cue/label collisions FLAGGED per concept, not counted",
+  "SOP-4": "(c) = m_total >= 8 (any-span availability, as [BC])",
+  "SOP-5": "greedy scarcest-first disjoint assignment = lower bound on simultaneous C at m >= 8",
+  "SOP-6": "m_unambiguous_lemma = monosemous-direct-lemma heuristic; screening aid, not a criterion"
+ },
+ "outputs": {
+  "candidate_pool": "poc/scale/f1k-eligibility/candidate-pool.json",
+  "this_report": "poc/scale/f1k-eligibility/coverage-report.json"
+ },
+ "pool": {
+  "census": "poc/scale/results/scale-s1-census.json",
+  "exclusion_basis": "census four_counts_S35.exactly_crosswalked_clusters = NOT COMPUTED; data/onto-sumo carries no WordNet mappings (grep-verified). A future crosswalk can only ADD candidates that dedupe INTO WN synsets already screened here, so the WN-only screen is yield-complete for (b).",
+  "obo_classes_excluded_no_wn_crosswalk": 95201,
+  "sumo_classes_excluded_no_wn_crosswalk": 2483,
+  "unmerged_type_level_clusters": 207733,
+  "wn31_instances_excluded": 7742,
+  "wn31_type_level": 110049
+ }
+}
