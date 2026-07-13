@@ -1269,7 +1269,7 @@ spans carrier FAMILIES**, all rescaled to the reference norm ‖v^K_{c,l}‖ (§
 4. one random-carrier (d0-family) table.
 
 Selection statistic **S(L, g) = unweighted mean dev accuracy across the 4 panel
-members** **[SUPERSEDED by REVISION-3 §R-REV3.2 / ASM-2118: an unweighted 4-member
+members** **[SUPERSEDED by REVISION-3 §R-REV3.2 / ASM-2113: an unweighted 4-member
 mean gives the K FAMILY 50% weight (2 K members) vs 25% each for d2/random, so it
 is NOT family-invariant; the statistic is re-weighted to EQUAL FAMILY-LEVEL weight
 — average within each family, then average the 3 family means equally]**, panel
@@ -1318,7 +1318,7 @@ bring-up, so nothing discretionary is decided after spend begins:
 the input measurement + the rule id it instantiates. No addendum introduces a new
 choice; any departure from the frozen rule is a logged protocol amendment BEFORE
 further spend, never silent. The test set stays untouched until (A) and all of (B)
-are committed. **[SUPERSEDED by REVISION-3 §R-REV3.3 / ASM-2119: carrier
+are committed. **[SUPERSEDED by REVISION-3 §R-REV3.3 / ASM-2114: carrier
 CONSTRUCTION is itself the FIRST spend (thousands of forward passes) and (A) held
 only construction HASHES/RULES while (B) admitted addenda for 5/6/7 ONLY — leaving
 the realized carrier tables + norms outside the pure-function discipline. §R-REV3.3
@@ -1357,7 +1357,7 @@ after the standing review gate.
 > (ASM-2043) and the REPLACE-NI power derivation (ASM-2044); these are NOT re-opened.
 > Three narrower residuals remain, fixed below (§R-REV3.1–.3). **Where §R-REV3
 > conflicts with §§1–10, §R, or §R-REV2, §R-REV3 governs.** ASM delta block:
-> **ASM-2049, ASM-2118, ASM-2119** (Appendix D; owner designer-5; 2050–2059 and
+> **ASM-2049, ASM-2113, ASM-2114** (Appendix D; owner designer-5; 2050–2059 and
 > 2100–2112 are held by other work, so 2049 then 2113+ are used).
 
 ### R-REV3.1 — Residual 1: ρ honesty — validity-independent test + sensitivity anchor [STIPULATED: ASM-2049]
@@ -1441,7 +1441,7 @@ inheritance:** F1-A / F1-B.2 likewise treat ρ = 0.05 as an anchor with ρ_U = 0
 frozen planning value in DEFF, N = min(96, N_required(ρ_U = 0.10)); their permutation
 tests are ρ-free by the same argument.
 
-### R-REV3.2 — Residual 2: equal FAMILY-LEVEL weight in the blind selection statistic [STIPULATED: ASM-2118]
+### R-REV3.2 — Residual 2: equal FAMILY-LEVEL weight in the blind selection statistic [STIPULATED: ASM-2113]
 
 **The residual, accepted.** The 4-member panel {K-true, K-derangement, d2-family,
 random-family} under an UNWEIGHTED member mean gives the K family 2/4 = 50% of the
@@ -1466,7 +1466,7 @@ fixed, pre-registered partition (manifest entry 5) that carries no label of whic
 family is the treatment. Tie-break, seeds, and the identical-application rule of
 §R-REV2.3 are unchanged.
 
-### R-REV3.3 — Residual 3: freeze the carrier GENERATOR before construction spend [STIPULATED: ASM-2119]
+### R-REV3.3 — Residual 3: freeze the carrier GENERATOR before construction spend [STIPULATED: ASM-2114]
 
 **The residual, accepted.** Carrier construction (§2.4: m = 16 contexts × 2 variants
 × up to 96 concepts ≈ 3,072 forward passes, at all candidate splice layers) is the
@@ -1509,7 +1509,7 @@ discretionary choice after the first spend began.
 
 The two cleared items (template/trigger ASM-2043, REPLACE-NI power ASM-2044) are NOT
 re-opened. Each of the three residuals has a STIPULATED fix with a full-schema ASM
-(ASM-2049, ASM-2118, ASM-2119); no EXTRAPOLATION is added or changed (the F1-K
+(ASM-2049, ASM-2113, ASM-2114); no EXTRAPOLATION is added or changed (the F1-K
 ceiling is unchanged at $550, so ASM-2048 is untouched). ρ = 0.05 is now honestly
 tagged STIPULATED as a sensitivity anchor (not an upper bound) with the citation
 range as rationale; test validity is made ρ-free and the ρ dependence is confined to
@@ -1529,7 +1529,7 @@ the landing commit, after the standing review gate.
 > action in this pass.** Author: Fable, architecture-design role (designer-5),
 > 2026-07-13.
 >
-> **Provenance.** The re-review CLEARED family-blind tuning (ASM-2118); it is NOT
+> **Provenance.** The re-review CLEARED family-blind tuning (ASM-2113); it is NOT
 > re-opened, nor are template/trigger (ASM-2043) or REPLACE-NI power (ASM-2044, whose
 > SE_NI = 0.80 derivation is fixed). Two load-bearing residuals plus one propagation
 > remain, fixed below (§R-REV4.1–.3). **Where §R-REV4 conflicts with §§1–10 or any
@@ -1572,11 +1572,16 @@ test statistic is T = mean_c D_c and the reference set is the 2^C cluster sign-f
   between sign-flip and cluster-bootstrap is frozen at (A) on the sign-symmetry check
   of the dev split, not chosen on the test data.
 
-**(b) JOINT-rule 80%-power curve (replaces the test-alone MDE curve).** The licensing
+**(b) JOINT-rule 80%-power curve (replaces the test-alone MDE curve).** **[The z-test
+rejection boundary used here (1.645·SE, and MDE = 3 + 0.842·SE) is the GAUSSIAN
+large-sample APPROXIMATION to the exact sign-flip test's power — a PLANNING tool for
+choosing n only, NOT the licensing critical value; labelled and Monte-Carlo-confirmed
+by REVISION-5 §R-REV5 / ASM-2130.]** The licensing
 rule is the CONJUNCTION p < 0.05 AND observed lift ≥ +3 pts, so the operative power is
 P(both). One-sided p < 0.05 ⟺ observed > 1.645·SE; with 1.645·SE < 3 pts throughout
 our SE range (≤ 1.62 pts), the **+3 floor binds** and the joint rule fires ⟺
-observed > 3 pts. Joint 80% power ⟹ true μ = 3 + 0.842·SE [DERIVED]:
+observed > 3 pts. Joint 80% power ⟹ true μ = 3 + 0.842·SE [DERIVED, Gaussian
+approximation; see §R-REV5]:
 
 | ρ (planning) | SE (pts) | JOINT-rule MDE @ 80% = 3 + 0.842·SE (pts) |
 |---|---|---|
@@ -1655,7 +1660,7 @@ step is reached.
 
 ### R-REV4.4 — Revision-4 self-check
 
-The cleared items (family-blind tuning ASM-2118, template/trigger ASM-2043, REPLACE-NI
+The cleared items (family-blind tuning ASM-2113, template/trigger ASM-2043, REPLACE-NI
 power derivation ASM-2044) are NOT re-opened. Each residual/propagation has a
 full-schema STIPULATED ASM (ASM-2122, ASM-2123, ASM-2124); no EXTRAPOLATION is added
 or changed (F1-K ceiling unchanged at $550; ASM-2048 untouched — REPLACE deferral only
@@ -1667,6 +1672,95 @@ propagated to DEFER under ρ_U = 0.10. No branch threshold, endpoint direction, 
 ladder margin moved; no feasibility conclusion is stated; no git action, run, or spend
 occurs in this pass. Central registration of ASM-2122/2123/2124 is the coordinator's
 action in the landing commit, after the standing review gate.
+
+---
+
+## §R-REV5 — REVISION-5 (2026-07-13, fifth pass): final polish — planning-power approximation label + Monte-Carlo confirmation
+
+> **Status: PRE-REGISTRATION-QUALITY REVISION, awaiting maintainer sign-off (GATE 1)
+> and the coordinator's re-review. No feasibility conclusion; no run, spend, or git
+> action in this pass.** Author: Fable, architecture-design role (designer-5),
+> 2026-07-13.
+>
+> **Provenance.** The re-review CONFIRMS all substantive items cleared (family-blind
+> tuning ASM-2113, template/trigger ASM-2043, REPLACE-NI SE derivation ASM-2044,
+> sign-flip exchangeability basis ASM-2122a, ordering ASM-2123, ρ propagation
+> ASM-2124); NONE is re-opened. One residual remains, and it is about the PLANNING
+> power calc, not the licensing test. **Where §R-REV5 conflicts with the joint-power
+> clause of §R-REV4.1(b), §R-REV5 governs; nothing else changes.** ASM delta:
+> **ASM-2130** (Appendix F; owner designer-5; 2125+ is in use by another build agent,
+> so 2130 is used).
+
+### R-REV5.1 — Residual: the joint-power/MDE numbers are a Gaussian approximation, not the exact test [STIPULATED: ASM-2130]
+
+**The residual, accepted.** The headline joint-power derivation of §R-REV4.1(b) —
+MDE = 3 + 0.842·SE, resting on the one-sided z-rejection boundary observed > 1.645·SE
+— is the NORMAL-approximation power of a z-test. But the registered LICENSING test is
+the EXACT cluster sign-flip permutation test (§R-REV4.1a), whose exact critical value
+is a quantile of the 2^C sign-flip null, NOT the Gaussian 1.645·SE boundary. The two
+coincide only asymptotically. Substituting the z-boundary into the power/MDE
+projection conflates the planning approximation with the exact test.
+
+**Fix (option a — explicit approximation label + a frozen Monte-Carlo confirmation).**
+
+**Approximation label (frozen wording, reproduced verbatim in the §R-REV4.1(b) table
+caption and the run report):**
+
+> *"PLANNING APPROXIMATION (Gaussian large-sample). The joint-power and MDE figures
+> (MDE = 3 + 0.842·SE, and the 1.645·SE one-sided significance boundary behind them)
+> are the normal-approximation power of the exact cluster sign-flip test, used ONLY
+> as a planning tool to choose n. The LICENSING decision uses the EXACT permutation
+> p-value (p < 0.05) over the cluster sign-flip null AND the observed lift ≥ +3 pts —
+> never the z-boundary. At C ≈ 96 independent concept clusters the normal
+> approximation to the sign-flip null is expected to be close (Lyapunov CLT over
+> clusters), so it is adequate to justify n; it does not enter, and is never
+> substituted for, the exact licensing test."*
+
+This makes the numbers honestly what they are — an n-choosing device — and firewalls
+them from the inference, which stays exact.
+
+**Frozen pre-spend Monte-Carlo confirmation (included, to be airtight).** A
+CPU-only simulation, its exact procedure + seed frozen in manifest (A) and executed at
+the power-freeze step (6) — before any test spend — confirms the EXACT test's joint
+power rather than trusting the Gaussian number:
+
+- **Procedure (frozen):** for the frozen (C, m) and the conservative planning
+  ρ_U = 0.10, draw N_sim = 10,000 synthetic datasets under the alternative calibrated
+  to the Gaussian joint-MDE at ρ_U = 0.10 (μ* = +3.9 pts): per cluster, generate m
+  per-item paired differences with cluster-mean shifted to μ* and an exchangeable
+  within-cluster correlation ρ_U = 0.10 (or, when dev data exist, block-bootstrap the
+  dev empirical cluster-difference distribution shifted to μ*). For each synthetic
+  dataset run the EXACT cluster sign-flip test (10,000 sign-flips, the same code path
+  as the licensing test) and record the JOINT indicator (permutation p < 0.05 AND
+  observed mean ≥ +3). **Joint power = the fraction of synthetic datasets firing the
+  joint indicator; the check passes iff ≥ 0.80.** Seed, N_sim, μ*, the correlation
+  model, and the pass threshold are manifest-(A) entries; the realized power is a
+  pure-function addendum (§R-REV3.3 discipline).
+- **What it can and cannot change:** n is already at the cap (1,440), so a low result
+  cannot raise n. If the exact joint power at μ* = +3.9 pts is < 0.80, the simulation
+  reports the exact μ at which the exact test reaches 80% joint power, and THAT value
+  replaces the Gaussian 3.9–4.4 pts as the reported headline joint-MDE (scoping a
+  non-significant outcome to the exact-test power). **n stays 1,440 and the F1-K
+  ceiling stays $550** — the sim is a reporting-fidelity check, not a spend lever
+  (the coordinator's "keep n and ceiling unless the sim says otherwise" holds: the sim
+  can only refine the reported MDE, not demand more spend, because spend is already
+  capped). The CPU sim itself is free (no instance, no prefills).
+
+Nothing else in §R-REV4 changes: validity is exact and ρ-free (a); the licensing rule
+is unchanged (p < 0.05 AND observed ≥ +3); n = 1,440; ceiling $550.
+
+### R-REV5.2 — Revision-5 self-check
+
+Only the joint-power/MDE clause of §R-REV4.1(b) is touched; every cleared item is
+left intact. The Gaussian figures are relabelled a planning approximation with frozen
+verbatim wording, firewalled from the exact licensing test, and backed by a frozen
+pre-spend CPU Monte-Carlo confirmation of the EXACT test's joint power (pass iff
+≥ 80% at μ* = +3.9 pts; realized power a pure-function addendum). n = 1,440 and the
+$550 ceiling are unchanged (the sim cannot raise capped spend; it can only refine the
+reported MDE). No branch threshold, endpoint direction, or ladder margin moved; no
+feasibility conclusion is stated; no git action, run, or spend occurs in this pass.
+Central registration of ASM-2130 is the coordinator's action in the landing commit,
+after the standing review gate.
 
 ---
 
@@ -2153,13 +2247,13 @@ action in the landing commit, after the standing review gate.
 
 ---
 
-## Appendix D — REVISION-3 assumption delta block ASM-2049, ASM-2118, ASM-2119 (registry-style; coordinator registers with the commit)
+## Appendix D — REVISION-3 assumption delta block ASM-2049, ASM-2113, ASM-2114 (registry-style; coordinator registers with the commit)
 
 ```json
 {
  "_readme": [
-  "GLM52-F1 REVISION-3 assumption delta block ASM-2049, ASM-2118, ASM-2119 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the 3 narrowing residuals after the re-review cleared template/trigger (ASM-2043) and REPLACE-NI power (ASM-2044); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
-  "Ids: 2049 then 2113+ (2050-2059 and 2100-2112 are held by other work). Supersession map: ASM-2049 supersedes the rho-UPPER-bound label and the C~79/n~1180 planning clause of ASM-2045 (relabels rho=0.05 a STIPULATED sensitivity anchor, makes the primary permutation test's validity rho-INDEPENDENT, freezes conservative planning rho_U=0.10, sets n=min(n_max,n_required(rho_U))=1440, reports a power/MDE sensitivity curve; F1-K ceiling UNCHANGED at $550); ASM-2118 supersedes the unweighted-4-member-mean statistic clause of ASM-2046 (equal FAMILY-LEVEL weighting); ASM-2119 supersedes the addenda-5/6/7-only + construction-hashes-in-A clause of ASM-2047 (freeze the full carrier GENERATOR before construction spend + a pure-function construction addendum B0). Superseded PARENT ASMs remain registered with remaining content intact; no branch threshold, endpoint direction, or ladder margin is changed; no EXTRAPOLATION added or changed (ASM-2048 ceiling untouched).",
+  "GLM52-F1 REVISION-3 assumption delta block ASM-2049, ASM-2113, ASM-2114 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the 3 narrowing residuals after the re-review cleared template/trigger (ASM-2043) and REPLACE-NI power (ASM-2044); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
+  "Ids: 2049 then 2113+ (2050-2059 and 2100-2112 are held by other work). Supersession map: ASM-2049 supersedes the rho-UPPER-bound label and the C~79/n~1180 planning clause of ASM-2045 (relabels rho=0.05 a STIPULATED sensitivity anchor, makes the primary permutation test's validity rho-INDEPENDENT, freezes conservative planning rho_U=0.10, sets n=min(n_max,n_required(rho_U))=1440, reports a power/MDE sensitivity curve; F1-K ceiling UNCHANGED at $550); ASM-2113 supersedes the unweighted-4-member-mean statistic clause of ASM-2046 (equal FAMILY-LEVEL weighting); ASM-2114 supersedes the addenda-5/6/7-only + construction-hashes-in-A clause of ASM-2047 (freeze the full carrier GENERATOR before construction spend + a pure-function construction addendum B0). Superseded PARENT ASMs remain registered with remaining content intact; no branch threshold, endpoint direction, or ladder margin is changed; no EXTRAPOLATION added or changed (ASM-2048 ceiling untouched).",
   "Companion design: docs/next/design/glm52-followup-experiment.md §R-REV3. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. EXTRAPOLATION entries carry an explicit resolution_path and are load_bearing=false."
  ],
  "assumptions": [
@@ -2175,7 +2269,7 @@ action in the landing commit, after the standing review gate.
    "date": "2026-07-13"
   },
   {
-   "id": "ASM-2118",
+   "id": "ASM-2113",
    "tag": "STIPULATED",
    "claim": "F1-K FAMILY-INVARIANT SELECTION STATISTIC (supersedes the unweighted-4-member-mean clause of ASM-2046): an unweighted mean over the 4-member panel {K-true, K-derangement, d2-family, random-family} gives the K family 50% weight (2 members) vs 25% each for d2/random, so it is not family-invariant. FIX: S(L,g) = (1/3)[mean(K-family members) + mean(d2-family members) + mean(random-family members)] — each carrier FAMILY contributes exactly 1/3 to the blind (L,g) selection regardless of member count; the K family's 1/3 is the mean of {K-true, K-derangement}, preserving within-K mapping blindness, and d2/random contribute 1/3 each. The frozen (L,g) is thereby invariant to carrier FAMILY (and, within K, to mapping truth); if any family's member count changes, the family-mean keeps its 1/3 weight — the invariance is structural, not panel-size-dependent. Panel stays unlabeled in the selection code; the family partition is a fixed pre-registered grouping (manifest entry 5) carrying no label of which family is the treatment; tie-break, seeds, and the identical-application rule of ASM-2046 are unchanged.",
    "rationale": "Family-invariance requires equal weight per FAMILY, not per member; averaging within family before averaging across families makes the selection statistic exactly balanced across the three carrier families irrespective of how many representatives each contributes.",
@@ -2186,7 +2280,7 @@ action in the landing commit, after the standing review gate.
    "date": "2026-07-13"
   },
   {
-   "id": "ASM-2119",
+   "id": "ASM-2114",
    "tag": "STIPULATED",
    "claim": "F1-K CARRIER-GENERATOR FREEZE BEFORE CONSTRUCTION SPEND (supersedes the addenda-5/6/7-only + construction-hashes-in-A clause of ASM-2047): carrier construction (section-2.4: m=16 contexts x 2 variants x up to 96 concepts ~3,072 forward passes at all candidate splice layers) is the FIRST F1-K spend, ordered before the pilot (the pilot needs carriers to exist), yet (A) held only construction hashes/rules and (B) admitted addenda for entries 5/6/7 only — leaving the realized carrier tables + norms, produced by construction spend, outside the pure-function discipline. FIX: (A) additions frozen before ANY construction spend = the COMPLETE carrier GENERATOR: (i) exact m=16 construction contexts per concept (verbatim or seed+source-pool-hash+deterministic authoring procedure), (ii) kernel-explication text per concept (hash) and d2 dictionary text per concept (hash), (iii) prepend-vs-not protocol + gated-position selection rule, (iv) exact candidate splice-layer set (= union of the pilot grid's layer sets), (v) mean-difference construction formula, (vi) reference-norm rule + per-(c,l) rescaling procedure, (vii) all seeds (construction, 2 pilot-panel, R=5 main derangements — derangements are a deterministic permutation of the frozen K tables, the random d0 table a deterministic function of its seed); given (A) every arm's carrier table and realized norm is a deterministic function of frozen rules applied to forward-pass activations. NEW (B0) carrier-construction addendum, ordered FIRST among addenda = the realized carrier tables {v_{c,l}} for every arm + realized raw/rescaled norms, committed after construction and before the pilot, each a pure function of an (A) generator rule, carrying the rule id; any deviation is a logged protocol amendment BEFORE further spend. Ordering: commit (A) -> construction spend -> commit (B0) -> pilot spend -> commit (5) -> freeze (6) -> test spend -> bring-up (7); no spend of any kind precedes the freeze of every rule that governs it.",
    "rationale": "Construction is spend, so the reviewer's 'no discretionary choice after spend begins' bar requires the carrier generator itself to be frozen before the first forward pass, with the realized tables entering only as a pure-function addendum — extending the (A)-rules / (B)-derived-values discipline to construction rather than trusting post-hoc hashes.",
@@ -2207,8 +2301,8 @@ action in the landing commit, after the standing review gate.
 ```json
 {
  "_readme": [
-  "GLM52-F1 REVISION-4 assumption delta block ASM-2122, ASM-2123, ASM-2124 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the 2 residuals + 1 propagation after the re-review cleared family-blind tuning (ASM-2118); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
-  "Ids >=2122 (2120/2121 held by E0). Supersession map: ASM-2122 supersedes the bare 'EXACT for any ICC' justification and the TEST-ALONE MDE curve of ASM-2049 (states the cluster-sign-symmetry exchangeability basis + named fallback, and replaces the reported power statistic with the JOINT-rule 80%-power MDE = 3 + 0.842*SE); ASM-2123 supersedes the ordering clause of ASM-2119 (bring-up (7) and power freeze (6) precede any test spend); ASM-2124 supersedes the ρ_U=0.05 PLANNING INPUT and the RUN-at-δ_R=0.04 verdict in the worked band of ASM-2044 (propagates ρ_U=0.10 -> REPLACE DEFER unless δ_R<=~0.038; SE_NI=0.80 derivation and n_NI formula UNCHANGED). Superseded PARENT ASMs remain registered with remaining content intact; no branch threshold, endpoint direction, or ladder margin changed; no EXTRAPOLATION added or changed (F1-K ceiling unchanged at $550; REPLACE deferral only lowers spend).",
+  "GLM52-F1 REVISION-4 assumption delta block ASM-2122, ASM-2123, ASM-2124 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the 2 residuals + 1 propagation after the re-review cleared family-blind tuning (ASM-2113); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
+  "Ids >=2122 (2120/2121 held by E0). Supersession map: ASM-2122 supersedes the bare 'EXACT for any ICC' justification and the TEST-ALONE MDE curve of ASM-2049 (states the cluster-sign-symmetry exchangeability basis + named fallback, and replaces the reported power statistic with the JOINT-rule 80%-power MDE = 3 + 0.842*SE); ASM-2123 supersedes the ordering clause of ASM-2114 (bring-up (7) and power freeze (6) precede any test spend); ASM-2124 supersedes the ρ_U=0.05 PLANNING INPUT and the RUN-at-δ_R=0.04 verdict in the worked band of ASM-2044 (propagates ρ_U=0.10 -> REPLACE DEFER unless δ_R<=~0.038; SE_NI=0.80 derivation and n_NI formula UNCHANGED). Superseded PARENT ASMs remain registered with remaining content intact; no branch threshold, endpoint direction, or ladder margin changed; no EXTRAPOLATION added or changed (F1-K ceiling unchanged at $550; REPLACE deferral only lowers spend).",
   "Companion design: docs/next/design/glm52-followup-experiment.md §R-REV4. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. EXTRAPOLATION entries carry an explicit resolution_path and are load_bearing=false."
  ],
  "assumptions": [
@@ -2226,9 +2320,9 @@ action in the landing commit, after the standing review gate.
   {
    "id": "ASM-2123",
    "tag": "STIPULATED",
-   "claim": "F1-K CORRECTED FREEZE ORDERING — BRING-UP IS A PRE-TEST GATE (supersedes the ordering clause of ASM-2119, which put TEST spend before bring-up/addendum-7 and thereby defeated bring-up's affordability/semantic gate): corrected full ordered sequence — (1) commit (A) all rules + complete carrier generator before ANY spend; (2) construction spend -> commit (B0) realized carrier tables+norms (pure-function addendum); (3) pilot spend on the dev subset (family-blind grid), which ALSO yields the bring-up s/prefill measurement, the colibri-semantics re-verification (ASM-1971), the dev delta-hat (REPLACE-vs-ADD and K-vs-control discordances), and the dev sign-symmetry check (ASM-2122a); (4) commit (5) frozen (L,g) (deterministic argmax); (5) commit (7) measured s/prefill + affordability projection at candidate n + semantics confirmation — THE PRE-TEST AFFORDABILITY/SEMANTIC GATE RESOLVES HERE, applying the section-R6 degradation order deterministically if the projection exceeds the ceiling; (6) freeze (6) dev delta-hat -> n_required -> RUN/DEFER gates (coverage C>=65, n=min(cap,n_required), REPLACE run/defer per ASM-2124, sign-flip-vs-bootstrap per ASM-2122a); (7) test spend at frozen (L,g) and n; (8) analysis. The test set stays untouched until (A),(B0),(5),(7),(6) are all committed; bring-up (7) and power freeze (6) are strictly PRE-test; no TEST spend precedes the affordability/semantic gate.",
+   "claim": "F1-K CORRECTED FREEZE ORDERING — BRING-UP IS A PRE-TEST GATE (supersedes the ordering clause of ASM-2114, which put TEST spend before bring-up/addendum-7 and thereby defeated bring-up's affordability/semantic gate): corrected full ordered sequence — (1) commit (A) all rules + complete carrier generator before ANY spend; (2) construction spend -> commit (B0) realized carrier tables+norms (pure-function addendum); (3) pilot spend on the dev subset (family-blind grid), which ALSO yields the bring-up s/prefill measurement, the colibri-semantics re-verification (ASM-1971), the dev delta-hat (REPLACE-vs-ADD and K-vs-control discordances), and the dev sign-symmetry check (ASM-2122a); (4) commit (5) frozen (L,g) (deterministic argmax); (5) commit (7) measured s/prefill + affordability projection at candidate n + semantics confirmation — THE PRE-TEST AFFORDABILITY/SEMANTIC GATE RESOLVES HERE, applying the section-R6 degradation order deterministically if the projection exceeds the ceiling; (6) freeze (6) dev delta-hat -> n_required -> RUN/DEFER gates (coverage C>=65, n=min(cap,n_required), REPLACE run/defer per ASM-2124, sign-flip-vs-bootstrap per ASM-2122a); (7) test spend at frozen (L,g) and n; (8) analysis. The test set stays untouched until (A),(B0),(5),(7),(6) are all committed; bring-up (7) and power freeze (6) are strictly PRE-test; no TEST spend precedes the affordability/semantic gate.",
    "rationale": "Bring-up exists to gate the test on measured throughput/cost and re-verified knob semantics; if it runs after the test spend it is a gate in name only, so the ordering must place bring-up (7) and the power freeze (6) that consumes its projection strictly before any test-set prefill.",
-   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV4.2; registry ASM-2119 (parent ordering), ASM-2047 (freeze-gate artifacts), ASM-1971 (knob-semantics re-verification); poc/gpt56-review REVISION-4 residual 2",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV4.2; registry ASM-2114 (parent ordering), ASM-2047 (freeze-gate artifacts), ASM-1971 (knob-semantics re-verification); poc/gpt56-review REVISION-4 residual 2",
    "load_bearing": true,
    "status": "open",
    "owner": "designer-5",
@@ -2240,6 +2334,33 @@ action in the landing commit, after the standing review gate.
    "claim": "REPLACE-NI RUN/DEFER PROPAGATION OF rho_U=0.10 (supersedes the rho_U=0.05 PLANNING INPUT and the RUN-at-delta_R=0.04 verdict in the worked band of ASM-2044; the SE_NI=0.80 pts derivation and the n_NI=delta_R*DEFF/SE_NI^2 formula are CLEARED and UNCHANGED): propagating the frozen conservative planning rho_U=0.10 (DEFF=1+14*0.10=2.40 at m=15) into n_NI=delta_R*DEFF/0.000064 gives delta_R=0.10 -> n_NI~3750 DEFER; delta_R=0.04 -> n_NI~1500 > n_max=1440 -> DEFER (was ~1062 RUN under the rejected rho_U=0.05); RUN only if delta_R<=~0.038 (n_NI<=1440). CORRECTED VERDICT: at rho_U=0.10 REPLACE is DEFERRED for any dev-measured discordance delta_R>~0.038 (incl. the delta_R=0.04 illustrative case), so deferral is the modal expectation; REPLACE runs only if REPLACE and ADD are near-indistinguishable on dev. DEPENDENT TEXT/CEILING: deferring REPLACE removes a scored pass (10 arms not 11) and only LOWERS spend; the F1-K ceiling was built on the worst case INCLUDING REPLACE, so it is UNCHANGED at $550 (and safer); the section-R6 degradation-order step 'defer REPLACE' is unaffected — REPLACE is now additionally deferred by its own NI power gate before any cost-degradation step is reached.",
    "rationale": "The REPLACE-NI power calc must use the same frozen conservative planning ICC as the primary; propagating rho_U=0.10 (not the rejected 0.05) into DEFF flips the illustrative delta_R=0.04 case from RUN to DEFER and makes deferral modal, which only reduces cost and leaves the ceiling intact.",
    "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV4.3; registry ASM-2044 (SE_NI derivation, cleared/unchanged), ASM-2049 (rho_U=0.10 planning choice), ASM-2041/2048 (ceiling); poc/gpt56-review REVISION-4 propagation 3",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  }
+ ]
+}
+```
+
+---
+
+## Appendix F — REVISION-5 assumption delta block ASM-2130 (registry-style; coordinator registers with the commit)
+
+```json
+{
+ "_readme": [
+  "GLM52-F1 REVISION-5 assumption delta block ASM-2130 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) as the final polish after the re-review confirmed all substantive items cleared; central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
+  "Id 2130 (2125+ is in use by another build agent). Supersession map: ASM-2130 supersedes ONLY the joint-power/MDE clause of ASM-2122 (part b) — relabels the Gaussian z-boundary joint-power/MDE numbers a PLANNING APPROXIMATION used solely to choose n, firewalls them from the exact permutation licensing test, and adds a frozen pre-spend CPU Monte-Carlo confirmation of the exact test's joint power. ASM-2122 part a (exchangeability basis) and every other cleared ASM are UNCHANGED; no branch threshold, endpoint direction, ladder margin, n, or ceiling changed (n=1440, F1-K $550).",
+  "Companion design: docs/next/design/glm52-followup-experiment.md §R-REV5. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. EXTRAPOLATION entries carry an explicit resolution_path and are load_bearing=false."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2130",
+   "tag": "STIPULATED",
+   "claim": "F1-K PLANNING-POWER APPROXIMATION LABEL + MONTE-CARLO CONFIRMATION (supersedes ONLY the joint-power/MDE clause of ASM-2122 part b; ASM-2122 part a — the sign-flip exchangeability basis — and all other cleared items are unchanged): the joint-power/MDE figures (MDE=3+0.842*SE and the 1.645*SE one-sided rejection boundary behind them) are the GAUSSIAN large-sample APPROXIMATION to the exact cluster sign-flip test's power, and are used ONLY as a planning tool to choose n — they are NOT the licensing critical value. FROZEN LABEL (reproduced verbatim in the R-REV4.1(b) table caption and the run report): 'PLANNING APPROXIMATION (Gaussian large-sample). The joint-power and MDE figures (MDE=3+0.842*SE, and the 1.645*SE one-sided significance boundary behind them) are the normal-approximation power of the exact cluster sign-flip test, used ONLY as a planning tool to choose n. The LICENSING decision uses the EXACT permutation p-value (p<0.05) over the cluster sign-flip null AND the observed lift >= +3 pts — never the z-boundary. At C~96 independent concept clusters the normal approximation to the sign-flip null is expected to be close (Lyapunov CLT over clusters), so it is adequate to justify n; it does not enter, and is never substituted for, the exact licensing test.' FROZEN PRE-SPEND MONTE-CARLO CONFIRMATION (CPU-only, no instance/prefill spend): procedure + seed frozen in manifest (A), executed at the power-freeze step (6) before any test spend — for the frozen (C,m) and rho_U=0.10, draw N_sim=10,000 synthetic datasets under the alternative mu*=+3.9 pts (Gaussian joint-MDE at rho_U=0.10): per cluster generate m paired differences with cluster-mean shifted to mu* and exchangeable within-cluster correlation rho_U=0.10 (or block-bootstrap the dev empirical cluster-difference distribution shifted to mu* once dev data exist), run the EXACT cluster sign-flip test (10,000 sign-flips, same code path as the licensing test) on each, record the JOINT indicator (permutation p<0.05 AND observed mean >= +3); joint power = fraction firing the joint indicator, check PASSES iff >= 0.80; seed/N_sim/mu*/correlation-model/threshold are manifest-(A) entries and the realized power is a pure-function addendum. If exact joint power at mu*=+3.9 is < 0.80, the sim reports the exact mu at which the exact test reaches 80% joint power and THAT replaces the Gaussian 3.9-4.4 pts as the reported headline joint-MDE; n stays 1,440 (already capped, a low result cannot raise n) and the F1-K ceiling stays $550 (the sim is a reporting-fidelity check, not a spend lever). Validity remains exact and rho-free (ASM-2122a); the licensing rule (p<0.05 AND observed>=+3) is unchanged.",
+   "rationale": "Deriving power from a z-rejection boundary while licensing on an exact permutation test conflates the planning approximation with the inference; the honest fix is to label the Gaussian numbers a planning-only approximation firewalled from the exact test, and — since spend is already capped so the approximation cannot be cured by more n — to confirm the exact test's joint power with a frozen pre-spend CPU simulation whose worst case is a refined (not cheaper) reported MDE.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV5; registry ASM-2122 (part b superseded, part a intact), ASM-2049 (rho_U planning), ASM-2114 (pure-function addendum discipline), ASM-2048 (ceiling unchanged); poc/gpt56-review REVISION-5 residual",
    "load_bearing": true,
    "status": "open",
    "owner": "designer-5",
