@@ -1,0 +1,659 @@
+{
+ "arms": [
+  "kernel",
+  "plain",
+  "plain-padded",
+  "opaque"
+ ],
+ "asm_block": "ASM-1080..1088 (registered)",
+ "design_doc": "docs/design-knull-content-injection-ablation.md",
+ "generated": "2026-07-13",
+ "generator_seed": "knull/1|knull-content-injection-ablation|20260710",
+ "kernel_store": "existing pinned records (data/kernel-v0 + data/molecules-v0); records_root = repo root",
+ "leak_checks": {
+  "lc1_checked": 324,
+  "lc1_substituted": 0,
+  "lc3_accepted": 389,
+  "lc3_rejected": 3,
+  "lc4_option_sets": 324,
+  "lc6_true_claims": 43,
+  "lc8_retries": 590
+ },
+ "n_items_planned_per_arm": 1000,
+ "n_skeletons": 1080,
+ "opaque_token_calibration": {
+  "factor": 0.48,
+  "why": "byte-carried from v2 (same GEN_SEED => identical opaque store bytes); nonce syllable words tokenize at ~2.09x NSM English under the pinned SmolLM2 tokenizer; measured artifact poc/knull/inputs-v2/g3-token-band.json (gate G-3)"
+ },
+ "optionb_design_doc": "docs/next/design/knull-optionb-analysis.md",
+ "pins": {
+  "items_kernel_sha256": "2543c367781e2c2d9c6e9050735eae2d33a8b4fdb7e8997f32f526ac965bed39",
+  "items_opaque_sha256": "2effc5390a4326fd50634b5f1a677e5abb844eba05393cb57b18565799e7287f",
+  "items_plain-padded_sha256": "721e8a027df9ec370c57523e08466e527153244feeff90ad18a9e41892dc6476",
+  "items_plain_sha256": "3449c2fc80e67f2ef2220beae759c14192975cff2966ebe30ddebc40fa399006",
+  "store_opaque": {
+   "afraid.json": "5bd329e507b0dc3085fa24bc3bb66730b6e7d742345db79ab87fd86f4cbca3e7",
+   "alive.json": "cda831efa215cb35c793613f40b4c358169767140b56ac8c1ca5a02fa589e194",
+   "angry.json": "c39ca56288b5cc9e476741eed49b29e242f8c3518f7150820873536e29d76e09",
+   "animal.json": "eb2bf1f771876ca4674e4fdaac963361b43aa4d52e3948f44cde4abc5dce0654",
+   "archived (bookmark boolean property).json": "d0c7698f6766d3702e304a0db3a8ed4f9a0bed63c3ac65b8a426f71fc1b21605",
+   "ball.json": "ed5604eab13a525c3e334914b3541106f1e5ae298668a5d8ce2a0d3584c75e07",
+   "bear.json": "70e26418a56258e03f184f5854acf37195a2e877332ef55d1a34350281228d55",
+   "begin (happening X begins at time T).json": "fd23f07a32c6f2149668a633953eafa7dff303ce64c1f748786eb901d7732f53",
+   "believe (X believes Y).json": "e4638db77cd121df0e3a0e1b8f76f66c19a8ea1687a9b387d3d1c3ce38fecb7f",
+   "bird.json": "25d5d6a674448d76eb2574a2d1475462ca9954cbe17d40912c4c93d60bd7f43e",
+   "birth (the event).json": "aa2bb259ab847e59b7169ea5c39cc4666544606e1e005ed9171150858949d99d",
+   "blue.json": "bd001be317f8b6f9e406af0f5a0f5b33caebf0332f7486ff81df6c8e4ea19ef8",
+   "book.json": "de356052bca03eb0a2eddd3ed4f1a90c6ebb96e706c331f7bba0044f938281be",
+   "bookmark.json": "04f8ab18a714108094321f6c661da21ceee237819c96fc33039c6836966afe7a",
+   "box.json": "b806339438974f5892e30cedbe75d53c638204e5f3990f506dc8e5846060264f",
+   "break (X breaks Y).json": "92c2a310333817c586b4fdf9d38ab772dc6bd09269294cf99dd831b5c39f85a9",
+   "broken.json": "237bf42745b533a04311b163ff13ae9ee0f92136c19a4434be640360dde3f28d",
+   "car.json": "4e56dd57b95df4c7f569284133b4d2dba703907eef6a2cc0feb48ad70932f5db",
+   "cat.json": "56c9f33f4cf6edea2b4b8be4234207edf1d1d1c1a2cc822a57fa9ae364c2de6e",
+   "cause (happening X causes happening Y).json": "44542e4d86b3cdd13861598f6b8ac3259c4f36f66ed4f61ff1e0640ea1956a5c",
+   "celebration.json": "09115062f5c1ac373058684df1487dd0160d7390c8920823cdbe25164ae03563",
+   "change (the event).json": "3a4483c85e822f24a4217e87dbbd32d7f0bd74611de3ffedc9821df4405d4d03",
+   "child.json": "592f28d6cf28762a08da5ba443b78852ca8f031bc88793958d1a4a2a71c9c5f7",
+   "close.json": "d3015d815e8eb4ec1c83e14993576342070908bab4d3c1514a239668e0c46965",
+   "clothes.json": "4470ba56fb7af10a18c1f2f4514b03fe3789873d3e1ce0145d26c2cffcf9c633",
+   "cold.json": "6414143ac94ebb3c606e6828424c172bf9d3542f9385905a1461ecc78abadcfe",
+   "color.json": "323855ace2a2578430b4563e3b4fc20143f19ff603dd1bdb5412729ab3169de3",
+   "condolence (the words).json": "baa326df05314e4de5fa4b41c51fda6a524924e4af21487e97742e32a9c7dd63",
+   "conversation.json": "d2746a590ef83452ea7e7beaa0b6d1507af208638b9ab0d4fd5abfffb9efc3b3",
+   "cry.json": "5302165046a7554008e1c1d37ee1dc2bedaf0f375e0751212264ec7d8252b56e",
+   "day.json": "e8b383af88e17eb7e75eff18946a8c13b9e932c1532be9ecce461bfc7db1ae07",
+   "dead.json": "658538c313b43d03c7eb5c50aa665e621748e22c918783cf6c008e6eef6a191d",
+   "death (the event).json": "bbfa5bd9dab45eca20ae6b17ead2d7af6982292af0181a473849afef480b9b71",
+   "dog.json": "70e88a0d3b4e134107a10cf0ae5f527363bce8960a7d61a3257163706104dd03",
+   "eat.json": "a1573f49e96123b9acb7b1d4a384c26b8034f2e7a62159cec265673a89a4ca0b",
+   "end (happening X ends at time T).json": "4c82e3acedec96df3eb9bfe123ecabd656533c0efa2da3dd5d5b2e2e8dfb7789",
+   "event.json": "d048987944ecbed84178924331877ce6db9d74adbad7a182c0b016dc8d230e18",
+   "eye.json": "f978dd8ef5fbf1c1c23500eb789fe2ecae1ef9bdeaea956f5764283a54973a18",
+   "father.json": "992c90287b2ff53914222a673508eba2905d33246d4daee5fd0fb5e837310c67",
+   "find (X finds Y).json": "dc90428736f82b1fcf6cab6797bc5f729f6cec279727966eb81bf5db89ddfa96",
+   "fire.json": "e6f177e40019a44a45d6baa1be33fb67dc90221d5c03abb88a58bea1fbc18481",
+   "fish.json": "42854727d8717485107a53cf287bcf01374b28e070ff62de39e78f7265d59e52",
+   "flower.json": "b23f0fb93f712370eef16a34d7a03827f6becd1bb5927239d7b6c28cb1bff1e4",
+   "food.json": "9249fdfba11c928d1902e7ae20c5446bff631cddb136287857b0fca99f3b1d92",
+   "forget (X forgets Y).json": "28c7410d9bf8a82d86fcd2448d7c126e1263983fada4974573763f0a93ac45d7",
+   "friend (X is a friend of Y).json": "da45dbb69ae7ffbbc976f4c1a778eaaffb0511fe57cb272d6316958c25ca685f",
+   "gift.json": "76e2daa6ff92f47b0c2545b8b90bf8a00ebc4f01efa067a5213dfcca25fe4f73",
+   "give (X gives Y to someone).json": "11695ffca7ec1f0933d6f6659d10bf4f2ebf3708aa0a7cb276643d74ae231fe6",
+   "grass.json": "46682771c4351eea0621e22476d6a245c5dfec5fe0ce70c64ca73d7571354b8f",
+   "grieving.json": "7381a9f9de821e95efaaec95fd7ea8e0b5190d667e71a8db895d7f7f07df44fa",
+   "ground.json": "172abe33ee7e2749b9a3d8885c8507ae953d6d7fba11118168b753f04618e4a5",
+   "hand.json": "37ec38fc653e430665f64e2ea8a8cb0315a6e5759ffae534e0974a566848be71",
+   "happy.json": "7c30a111697c3a1c79927d2b8daac6eb89c0f31af49d7eff56ed8e1748f86ae1",
+   "has part (X has part Y).json": "b6c83fc27515bb1937aa3beab556a12f8f46e428c92add813bb75b3b92e1b4ff",
+   "head.json": "d12acf69a6c9ab4df9c56e522d52b3b19c7255873113d756e0243901ff0c3ea6",
+   "help (X helps Y).json": "49515839303c4d29d25ff80d017b1b2713ed3c5497f4685e3aaf357f7902f3f8",
+   "helpful (of a someone).json": "8fe5a33e860f00d38f1e6829b203da658d3bb67c2b494ceeade1b9e4182c4920",
+   "house.json": "8383dc59c576bb60457f03214997b1b65fddd4314ebc7666502017794fc40b8c",
+   "hug.json": "6c1a34e6dcdecd209b0a36aa61b7b30f7ed409e99b461ceec3595f19bb07f96d",
+   "inside (X is inside Y).json": "1d95ce7a9e5630dcd77cfc87188ee6cb07db4a0bef129adf92556498e57b26a6",
+   "jump.json": "abea437dd7e57ff597f81657d068f8f084c115a25af424ccea5fa9692d2c2e98",
+   "kind (gufo:Kind, sortal type).json": "e5520e155f7037c796cac602aef9e414bba40a1f004e376e673c690da2c2efd5",
+   "laugh.json": "81e92a001bdec1110b693fcbc7f031524fccf464f1a0ed4998d40ffa8f9de8e6",
+   "learn (X learns Y).json": "620fa2753c9880083431584e7609b87de4c215404169d5dfdbd85f050120730e",
+   "liar.json": "be292d30f2640b8a62004fa5bf2fc5bb4f9091a8de83c57c6f65065643dbbcc8",
+   "lie (the words).json": "bbf7b86be2f8b09077bcc88b17ad239e232988d5ea0e2346cc5e32b40b7e0b3f",
+   "light.json": "6ed4ce5e77f0af2417fdbbb81a20c7ec4ae47fcdf0a314b684afe5cd81c1d902",
+   "lose (X loses Y).json": "341c812c7ce3d8b5ed5669dd0fd7814ea684ff83d16aa5c2976b31e64a9f234e",
+   "lost.json": "5ecfdf3fd26c1bb77f8eb96b45111a1c88a6e4980216c5d2cb9efb43526f3c5f",
+   "make (X makes Y).json": "3f25abb70685d43cf27ed8917a0cf94fb217b573be082daec3296d59f5c49d9c",
+   "maker of (X is the maker of Y).json": "c5295f34e503d02ffd25d3284a49ff9dc38b215c29eab41542043b1e1059209f",
+   "man.json": "5414ef42dff01574a10ca09d5c00ba4ea4d5b29cc715494666dcca242e5091e8",
+   "memory (a stored something).json": "768a0e74f333c17ea358510afc5e8a74b94d89dd2a8bddbc915bbbb225edfc87",
+   "money.json": "69180d93507b5ec8f410f96964681ba80f1612578ed2feef7deb3b8c12e07372",
+   "mother.json": "0f2db07309271a31ba7a810a4ea83e202118d097b5ea46e49291f24e15aa693d",
+   "mouth.json": "1e274f3c94a3e75ac61b5437061e55a5e70b31aa6e96d45952ac02d5d16bfac0",
+   "music.json": "ab0a93a0ceda2f0607b8a975c1cd058a76ba51ff58d456988f20700c9fe60037",
+   "near (X is near Y).json": "45a54c0015e51299a0bfb23b6b5d269ac8c95b7da7105d8e6f6129e39b5d4b82",
+   "night.json": "572b384193fd97993873629502e246633edf248895907c62b6f863b1f7119d4d",
+   "open.json": "7d3e1b05276bb9c85e40a161d5323abf14c7cb66f60e0c23786374754acb0bae",
+   "part of (X is part of Y).json": "c1bcf8cbd590716995eb684c88833ba580822373df62217da8ecbcfe3e02c75e",
+   "picture.json": "5121d71423fd75aa8939d51f0e779634ad70c57fd0c6887f8828c23f838f4c40",
+   "promise (the words).json": "896095b728c2bcdbdaa3af94e3d53603abf4e6c8ab6eba41dc2b26c53a2acd75",
+   "rabbit.json": "711dad98a4478d218a7d7750a07b5e7bae0ceee5fdc77fb85c1c35401f3452ed",
+   "red.json": "28d5bf41dc606a589ca4ae92dbc55f82f474f54657d59a2bde77db9e29d67720",
+   "remember (X remembers Y).json": "19727a05c46f1452e1fe17717c9e46df5bab331ee8c0582aae53dd763283ccd8",
+   "reminder (the made something).json": "bee198881ca94d21477ff4b17adc37290c378251599cf64b8e1fa0be8b5e119f",
+   "repair (X repairs Y).json": "97d570f52631f68339f53cce47e1825d08b65e2c126058818e3c6b4cbc7b911c",
+   "right (of a doable something).json": "4f682cf6a46a3f493ffae43a808507abfcbeb0cc280c026012ca638a9f5b4826",
+   "rock.json": "94f02db9661f57ed14da8266a4674f6b14c834c38e13715d9edb95b244c2e829",
+   "run.json": "07371d70fa1458a9188d709be18a12daf82cb7d480967c84ea90afd0d0264019",
+   "sad.json": "8edec11d3e95ab0409881d818b5bb15a99f3fa33875812a32fa1bb05329f13a1",
+   "sit.json": "86102599954599657dff5a17c5dc2b8fcd741e5ef88d1d310006278bb08bfd86",
+   "sky.json": "88d29ddb7afd25d7328f9380f86f3f3401e5fac74bb4b3c1ee77106f7617270a",
+   "sleep.json": "338e63b5f1a6bf9ac147cace6f8de2fa51d4e8eaf27cb0e590474ef93cc07ffc",
+   "smile.json": "c73aa655271712235ceda7ebfa4097f5baca558f04f39ae1a3c1a6fe0571315a",
+   "sun.json": "a81a689a49f152e2d4279f830e7ff1c95a6ec866d0c3d5a1a8ff690f05d960da",
+   "take (X takes Y).json": "0f708973291d6d193cf92e243421b0477ba4431c419629ba8c8589d36acc3b3a",
+   "teacher.json": "6996592ce40ae954e4f747b40751a2da805635564aa045a4efbc512af31b1f60",
+   "thief.json": "bc4498da32db3607a43b1628fb755ffd8c33c279ed73567036ca99d07b309809",
+   "tree.json": "581539a049bc46b8dd04d0aa8419966ef612523b6c886166e8df8a8f1820c452",
+   "trustworthy.json": "c651ddf89b12c779b97ebeb0da84353ca270cf0d9e5f4fc8efccc77a6b7d77ad",
+   "useful (of a something).json": "d225a13a28bf32ab302bfceee5b80fc22e0f967ce4dd8b55624e3fe771d7018a",
+   "visible.json": "3e5e5deff2f335607468ca14eff436963e678bd5d42a49bd0ac43f6e94c7ce56",
+   "walk.json": "1ed01734394d2cac57f1e1fbba7cff025a7d008266a04c1b1c3647f323ee8118",
+   "water.json": "ecf4885361f6d7f2606a137a6b0d52395fe1997724dfeb041d3394b73a595ff3",
+   "woman.json": "8f0cfcec4b9b0d34ac194b91c63a6e1b2ad26e6c6d6a00f567ab84b3b631502e",
+   "wrong (of a doable something).json": "6edb9e5d3106164ba563fb61d68332a7e6a40bd7100d07610e50840ef5c6c737"
+  },
+  "store_plain": {
+   "afraid.json": "c11d41f3508aaa41c60ba9841cea776de74668104f59c5c09dc4625bb81a81a1",
+   "alive.json": "8e1194d4b8fb9c08675be575ee54f585ae1105d046ba457278a56a557f79dc79",
+   "angry.json": "05a579021ac4304f21129cfff037d6463aed07c141e439b05ad5a5b0de084218",
+   "animal.json": "efa9ffe695dc0d192f49961c2b971d3b3ccb77413b86f111f975f54840eefde0",
+   "archived (bookmark boolean property).json": "05d8fc97595a3bbe04465305dc8081ff856af04957b976aa3875b06852cb7c4d",
+   "ball.json": "4e89356bb9e270a10c97fa4f7b00c0a7bebdc2fec6b1a59ba9150bc97a506072",
+   "bear.json": "9fcb0e940b13e28ad4b807dd4e1c3bb881b5f32d464579462242586a70e4137b",
+   "begin (happening X begins at time T).json": "1f4c2ed525af4f7342cad04f11b3b997a1fe7b7a1e1fcc2d77981ac30e49d43e",
+   "believe (X believes Y).json": "d43fcebbc03113f02ad0be8c1cb1fe769eedf8699c255540ac019f391bf827da",
+   "bird.json": "e3df1b3c9b8bdf1113fa08d4a276ff7f9eaf52519aebae05f2139ac7a5da5005",
+   "birth (the event).json": "97b6eeb00ea5954199d4489fb7e71013b86e5025da160cf100331a6f85856e06",
+   "blue.json": "9de0237d423c8ea0a0d444abdabec60a6ba50cfc27bd131fb153fe8450b9d795",
+   "book.json": "fbf31571823317862853c102857316cee04ca8494f5c317f01ed6e8854b26485",
+   "bookmark.json": "8e2a71bc99b9e23c124a3c57d9dbf5e66fab67b09337c37acd273791f6646837",
+   "box.json": "e9acf4d14a3980703130b4fd50ddf5be1ba5726fcf45c82c7972d7ed469b30cd",
+   "break (X breaks Y).json": "62751d16a4930d77891e50d178b7793cdb4ae18f5a899a19f1012af111bd3642",
+   "broken.json": "5b0538dcf3d2ac60c491ffdd6bd349025a5ef6a3303b515ad9ddbc4941596164",
+   "car.json": "bf6020edd6259a91fc8a627253a539ddc5b9ba55c40fd1bf749c7bc0a35775b0",
+   "cat.json": "d0b22797f23179f29f41c9595a05fe611864b9f4202be74ce0ab506c11f13228",
+   "cause (happening X causes happening Y).json": "4617e476bbdd4d8f19396a75a4e3fc8556d0f0b80fba552e29f26fefd08a7fd4",
+   "celebration.json": "2fac1538a9286c37aed42d7f91b0bced446c6255f002a15aff42d21735f9d04b",
+   "change (the event).json": "25fd34b7de62cd73e15a263d3f6acf68dd275012960be822ce67f6a265b25bdb",
+   "child.json": "9acbdf6e171c05e8a861f857554ad4b5287173fedcd205e49e26ee17e660840d",
+   "close.json": "0d5f4a70f73a10a1a466da6b577b3282d55c30ea64f0617d5b1e204c550eca09",
+   "clothes.json": "f656ff87fd17ef4d53acd61bfa42df889414dfda9a44c9e924a92fd6033e85a4",
+   "cold.json": "14482ac07046402e3f23588c73b77f088248b4c301c3d264ebc62a5411c02628",
+   "color.json": "20464482371c9e8e17f55338b108ca0ca94346d7bdad568ade4602d196b66469",
+   "condolence (the words).json": "bf562dfe0da37caa59e9846965c24d228b9eac3cf2a2e36d0219c2efca6e4d84",
+   "conversation.json": "f18a78c2ec85c309e98ef2c0202efd9fe10f7abcbad9278116bd983713ffeec8",
+   "cry.json": "e7500ff4e387b6556bafa3e3926ba7db80f16e8ac832c0ebc277fa6085c12854",
+   "day.json": "dc42fb2398b113257b123801109c8b205270b0219cb62f9a8a6d0aaccbd83a43",
+   "dead.json": "3a70e9ab92baadb31cc8ba07a0579ab8d08ea8ca1cec65748eb24078c4f9ed67",
+   "death (the event).json": "6ff84cc2123582122b10d18fda867d6f61486e7a2bd364e5c7329c1c9ea2cada",
+   "dog.json": "562c2f6c2d78275f1996b38612dbec50a45a7503a0474cb9729d8797ee02479f",
+   "eat.json": "b97e42b9242cf4e0c1d8536e2a639155c1e7549e464d5974e21c45ea729c7381",
+   "end (happening X ends at time T).json": "3cdb58fb61659670ed1b0cd9c7752f4f0479cd233ae0577a188ed2881203c56e",
+   "event.json": "11d79ed6981f2efff4ba7a8254cdee4d4d87d74005ce708472b3b27f447f6b6a",
+   "eye.json": "7243ed1705824e2422c611262259b82271dff7ecd36fbdc5ba6bc44dbe49b659",
+   "father.json": "9411d5774f95a607a814e57740aa61516f41eb055dcf731c9c0320ad5a222377",
+   "find (X finds Y).json": "e7bf29e7f7804de2ca4631d5d0cfb92539cb3f46f22d0a227343ed66c2bc686a",
+   "fire.json": "a98c44984c1c92393da00df0911ec0034fcfb7b5f62497825bd1e36631a8f9bf",
+   "fish.json": "2eee0f0df15efab293a1e622b8a62ae390e4dff0f3aa2987a751b1ca3494f983",
+   "flower.json": "f99acee6e0091d2e24fc59fe92e8c61bfdfe18c5734b9be8a19613f87d42efea",
+   "food.json": "f3b6b3fb1949c645138fbbaefcc94a999c6c67e0a5993e00b1d69a5ccba17c4b",
+   "forget (X forgets Y).json": "9d3cec1e2ec947144d929b8062e126d08cc6cab7f40f8091432b7f81ff48330f",
+   "friend (X is a friend of Y).json": "6b80c76b64c26e01ff07164b9e59fdbf8afe3d7f7cceb74ced3c3c820337127a",
+   "gift.json": "4fd5e9c47acfb4245d63e56f5e8987d8878b1ee570d98f7ea5a5dcf43992ca79",
+   "give (X gives Y to someone).json": "a3727f85aa191200ff4fc2f1d6cb77463c5efa72bb934bc3a5b04050a927965c",
+   "grass.json": "e82bdfdc15fe3f8540658da3c1e9892387f345396a0dc90409df20c6fe945841",
+   "grieving.json": "be660eb28fa5fb62992e134237167ff690c3721b252b6052f6f405719e4a1d71",
+   "ground.json": "db26590ed8910b75b089f701379d98514065de36d644c9479fc692101e54960f",
+   "hand.json": "86785e87dd2767a390313785d502833df662c467bcea1aa67970e89a5573c1c8",
+   "happy.json": "e553b2af347dd2f754683ae52bb6c59265dc0eba829222c2d5dfaf4f76dc716b",
+   "has part (X has part Y).json": "34ce21bbca4a45318db7b26a24874bca2b22ab1e87d5cb7e251fd7a84a704ac4",
+   "head.json": "5c11649fa0b3da9f22b694b71974d2f52a148913388260a69ae7ccecdb6a2323",
+   "help (X helps Y).json": "93a91ab10963e6e522e1f57f29d37981c3b37b4dc914b65a5e1c53b53e7afea4",
+   "helpful (of a someone).json": "395369cf24a72b69d8fe13b9daae078500b0a7c1dbd3eedded6077dfbc826c21",
+   "house.json": "301138c267b31333b2d4b6e3db52be5b1089afe1def3a28e24ed54d1806d285b",
+   "hug.json": "1a462e7cd856b699ecc2752c3942c79bb6da06b46908a612a69adca092df30f1",
+   "inside (X is inside Y).json": "a8d988f79c441a492afc231f09fb249320ddb7b676e11aed4f965125eb7bf1d6",
+   "jump.json": "ee2b381c2aa40e1d09e0c00b4614de1b753bdb4c75f469f2370851dc053fdfb9",
+   "kind (gufo:Kind, sortal type).json": "10954b65b47c640b2debc7645f17fe796248cdd986c9740cc47f4e838b028e7b",
+   "laugh.json": "d84323eeb19bfc8b0ce371f7f7085e6e018a663e56b72c086548d030f0af9a6a",
+   "learn (X learns Y).json": "459e4a61685226890792d69b7ee306cf4b7a6727dd7095a822a0eeff5b309c28",
+   "liar.json": "d311aa318405c90f6912d56c19f6e703e4e04d1cbaf854ae261b1e383b0144aa",
+   "lie (the words).json": "f1e657288b6dea01db523adc25f6e3e836e93dd1949912b748ea3319949066d1",
+   "light.json": "1fdf61152c2d848c599b93c811362f5f245294b79699fca5eb71c4a829db071d",
+   "lose (X loses Y).json": "6f3babefbb187588605a3436bd83b673ec0cc286f4753a3b51b81891e17b8687",
+   "lost.json": "9154c20d998f643e3927d28faef5202cf2c176d06681df0c244d67da9a3974da",
+   "make (X makes Y).json": "e7d570b611bd2bb68f19a158f4ba499b03e8e00605dc294f0c4208e8388ec609",
+   "maker of (X is the maker of Y).json": "770569dcd219bf0981797a01b1ef445decd814048591236c8391d058cbcbdcf1",
+   "man.json": "e89bd531213bbbb1d7f5d0f52691ee765456740f6b1b17bfc66520b14b6d03b3",
+   "memory (a stored something).json": "052337b5fad49dbe7f7d1fb9fc08167d864459242095dba038c37b25bd59422c",
+   "money.json": "ca439a4aa04544b5cec295aae126d73aab451ac3894790a1078b6c49e0d6709b",
+   "mother.json": "521afa66ebe861b85aad7758cf00d183985034796925ce9b76a329d6dbe16c7e",
+   "mouth.json": "5990d681628dcef3d3a329b26eb67acaf23f3f5cdfe72762acb41855ba5ef721",
+   "music.json": "aa9b905287d4255a31e8a5ea58540259ab25032c7db659e9626e1dbda887e03c",
+   "near (X is near Y).json": "0b9986574217ff8de797ed3dcaeedefdbe9d32c3a95823c35294a92ba56d5fee",
+   "night.json": "ffc2ae25b81de676df6e5fa14f703faa9cc7be17a1d140267887afc68e09526d",
+   "open.json": "0add4e009f612b1ad46ad2027c05d800d7f14d2ca36acb4b1acef2ccd3a07dfa",
+   "part of (X is part of Y).json": "b63a3a44b4892a921e322cf47fdaf57790b855a62b9975ffcbf9de44dd34e968",
+   "picture.json": "3518a01033aa63c3103c395c69dbda4abcc4fd3b47f77f1843a5d37299f30aa4",
+   "promise (the words).json": "4af5f614117387105e3c79cd04ffa05c4fb0cab488afe0848ccb4594abf508e6",
+   "rabbit.json": "fedc8fd29b9181417093ff93765e75276823f802f06e9578efeefc79858fc97e",
+   "red.json": "53b866ad04afe20f3653603aa7a0553fbef530085d5708dbde9bef73b5ad35a6",
+   "remember (X remembers Y).json": "0732196c9aa280800cddaf6381f768aa1598ee2d9e7924e309556e6711671941",
+   "reminder (the made something).json": "c420bdef9d518941c9ff186c461e022422fd0ac3da7ed69045e330c8e832c0a1",
+   "repair (X repairs Y).json": "51a6b0d25db1f5ba9b3edd98367baed280ee2f5fc8ade51a1631b7ca5ecbebbf",
+   "right (of a doable something).json": "f5536de262b375f75442ee9772551bd5350bbf0d6572c4f305f359c18582fcb2",
+   "rock.json": "3b5920bccd0523ac00f4f276e1e6b8ece47d37f0f2292d8bbdff57195e9b5bf2",
+   "run.json": "4bf620fe5df80a9954e251e33af5607f661ed01c04a995cff5871669534b0c97",
+   "sad.json": "83e1cf28d3f91d680e1d966a9f30560ecbe7c18d6203c6c3a2aa463c0ddc075d",
+   "sit.json": "3145fcbeca8ae86328eaa1ebb8b8e2139538471c5f697fcfde9c952243e18acd",
+   "sky.json": "28c483a06cbe5ae408ed3dc3b17442b8b8fbe7eae3defcb82e84ab7684af9576",
+   "sleep.json": "54db1d2bafe305edba47a165c15653028653f5022e7cc9333d87a9161d801e7f",
+   "smile.json": "bae5692e36dfacc23b4b6ad3bc344741eed97a3cd487c21fb0b506d2e9c2e4a9",
+   "sun.json": "57bddab881b3548a13ffeabe0ecc2cd36a80155fe021a58bb94d9afa58bd4895",
+   "take (X takes Y).json": "9ed22f3dc70b78043c2ae648e7ba2954e93e47088e5e0c47b3231dea3ae9b677",
+   "teacher.json": "1163052ed2248dfdf2dfa653fc0a6a570ebce873b3cf29ef5f3bfa47498a03ef",
+   "thief.json": "1e77317e9c806dbc4b89cbd257f3072d21bf87a2da9ff6afc379eccd99f98721",
+   "tree.json": "f750d1dcf8d8b74d3901931f0ffd6707504d51b6a1b4801a93d8ca60d5ea1ae1",
+   "trustworthy.json": "d3c5cf45683e77632abccc07f83d6f4fe74e926002be709d0c753f58e5882e68",
+   "useful (of a something).json": "7af54adc85b47e393f6ba9a9869a7a2d804d0a7cacb78389cca9e9bb2c7aaa19",
+   "visible.json": "b655f9875057f9d685210042cd07f3f13a7235eb19958e0bb0a35525ddbb4829",
+   "walk.json": "74cfc4e01abbb4f98bc4135b531627265f2eb1301cb5e3c0c887e90c1f234c2b",
+   "water.json": "418ae5c3945b838cd2c579bdbe988d14ce6f58cd841872672a9f3e226f0ff4f2",
+   "woman.json": "c14cc1c4a45d53fa11d187592feeacdd04f9e705eda79a635e84f3ddc2803dc0",
+   "wrong (of a doable something).json": "e371b74ab6fcc83b01a1dfd784cf1d2353b9f39d7698b5f5ad4b88a58f0ac385"
+  },
+  "store_plain-padded": {
+   "afraid.json": "1bd183693e2c7e2bdd59e37dbf4502410558265488e9c8423f843dcbd8b68d96",
+   "alive.json": "102255fe5be5f7c63842bc2efe5d92a6c3286a1ebaff130a477e773b2feb925d",
+   "angry.json": "8d4ad95d8befd7aec8aba8d2a84233ee18de5c5d1aaaaca7236169eb3e48e948",
+   "animal.json": "565a6d02b92cec954a0712540cbe941e1e80196194fff6ee1f643e2ea9071a3d",
+   "archived (bookmark boolean property).json": "81d63f86b8cb7d19dfc0376b4c4ae849bff677c98392fa8f4f2f2f75b7c68a19",
+   "ball.json": "e168220d05a5e6ede6bbcd1550762b0c543240ac2dab93bd6c9b16b97611e7cb",
+   "bear.json": "6f31135f9be33ae2bc93b405d18aa5fd55e4ea47346d9c28a887504e27fc1535",
+   "begin (happening X begins at time T).json": "6bc186dcfb3ab3bafdc4f4601343e2024bc0c71782b02b507064806e9f89e610",
+   "believe (X believes Y).json": "a9802f827337345b37d0e41f38b4b2c48dc41e9b9b87b9094aba370ae99011b8",
+   "bird.json": "3cc375530bc3b9443c28e66663735d0e0df9d2d38d95b3908c105b48033a2493",
+   "birth (the event).json": "275cc5b3bc8075c36965561a5c2a5b7cc9a8f01efbea1e9b805c16ff77e1df1a",
+   "blue.json": "4212d05231e93919a3d5af21ddfe484cb578914315013c734e6a5f913592b14e",
+   "book.json": "44e05e47817e91b51bd1b61e6f8d080d5fd7df5812139b09be953a62d35a898b",
+   "bookmark.json": "03247628820bfab1d5989ff01f2764dbebc437b7f4b412daaa2b31863da40806",
+   "box.json": "c375b356fa0da85eef8d506f554444d6222a09b899f488f045ae0fb43a2e50b6",
+   "break (X breaks Y).json": "4792ec35ad407f95d870610b807b9a22a2d86684c63154ce311621efdab8242a",
+   "broken.json": "bdbe0148ccea3f1ae2034310a4d539b14f44e28e99ac5a642d2ea9d966b22db7",
+   "car.json": "b74bbeae34fd6248e26f0f56a5ea04a2804c5792562e81dd555591a73e61bd5a",
+   "cat.json": "070edc7b580a9a76c659624507493992527ef12f328be35884d1e5fda43ec638",
+   "cause (happening X causes happening Y).json": "18124434e60456e0d29cea3317d266e5714dea3358789457c878fceb061b9b16",
+   "celebration.json": "8212d7bf5665d2d721a6a9346cbc7523ac0ec2c0f3325356ceb6514b8e51b13c",
+   "change (the event).json": "c457d68baddd6284a3d5101c25c0f09f2de7ee8168f8446d44b7e645604563a5",
+   "child.json": "f40aeb6e053b954406a7a8ad869a4c988da74cbd3d5e557252c06bfdeca5026e",
+   "close.json": "266ae36cf821d95edde5c3a7e693edddae372287f427c95f803122fc1326430b",
+   "clothes.json": "0bb381f62a233cfaf6368b34d29b13cc3be2cc89fcb55b7e7dfbc9ec32e0c1a6",
+   "cold.json": "6bbcebb97cbcc408fc57280ca91f8c7caf9401dd2aacf401acadac1f633a57a8",
+   "color.json": "0fe8a41b75371504156baa6f55608e40bef39b018b5241b4d5c8b689885bcf6c",
+   "condolence (the words).json": "9ee125197ea66616497257a19226981d1dda390c12fc17650c11bace93dbd7f4",
+   "conversation.json": "9cb40d7bcc24d9713a1c8199ad2467a55de8bfab5fee7cebe93af8763a80f079",
+   "cry.json": "4cd83dc1af36d13dbda894f160d1ab0b1ffc55235312e60893da49e17e002892",
+   "day.json": "e25bdf6e3c882c87928f26010cc3ff5bb35b9bdcb1be47742cc7245cca67c275",
+   "dead.json": "bde122c80df272f86898748ed7925b48dd1ef4c020dd799f1a1ed69ecbe34712",
+   "death (the event).json": "7f5688448dafbffde41bc06ccf9b7b19fe2ab4c698c39a062d3ed24f81acc383",
+   "dog.json": "cbf2a159a229e15017f82ef3ac759758801ef3ab567e06aea62b5cc9f64db312",
+   "eat.json": "1532143b5ee80fd8ed1b3c7c629c308e304ab991122b9e036a83025106d2c95e",
+   "end (happening X ends at time T).json": "bff3bb15e48d11cdcb2308d2768cc5cdb798a6c905f59e79a0626498d805e346",
+   "event.json": "4680a0acc069e0087ed0cd8fbb0d041bca1498f93a52e3d2cf4dbc4c0391f24f",
+   "eye.json": "ce7dcc228d2b66a16df45a13e7591a60ee0343dac84745ca2de1c87783e72ded",
+   "father.json": "b374735222a80e8e158115b6cb0603d06eb74bc136495fab873ab8b7ece4f4de",
+   "find (X finds Y).json": "166e21ed66b9c62a6c0d416fd425f54b6880a6491b52528e1b2511f58933ab7e",
+   "fire.json": "0f3a5365a760282d3f6da053ca3d3ed71b2075e8378d4655701daecf3c72cd06",
+   "fish.json": "ea2cb9760f02509b4b12cf0dbccf88a2af2c776068b702be9b34d696f452237f",
+   "flower.json": "8703d791a0cb82c6d3470f61b0493eac2b7598b92fb9cb81247671a20ce80eae",
+   "food.json": "a547d5d6f6c9d0417b2dc2c4419057a01051c5c090277dcdfd538a2200edd6a2",
+   "forget (X forgets Y).json": "5a66531af6aeb828343d68a317cda6288f16bfb48be5de18b66e6846a5ba2500",
+   "friend (X is a friend of Y).json": "02413ec83db429c8098faa3b2b121f92b2e3147daa5b9ec84a9c5c3556966d5e",
+   "gift.json": "291121748ffe73a2232c955fe3305fefd1d758e253c1c2cb2d0f767b6650b573",
+   "give (X gives Y to someone).json": "f464eb3e9bbd1170c3ec266709ed4a7a98c6c03702bc44f4e9d69555364ab6aa",
+   "grass.json": "e0a8cdd2f81b77a4a47fc35d6b0d6ee587172de0bdbb7377c348459cb525b27d",
+   "grieving.json": "dc627ce129367096b043444d4446371a9f718dd1c70c0e863941892fac9eaa53",
+   "ground.json": "31209667085cbeb4567e14d38a57f298dc5116595d0c69f39c9b1457ba54ae6d",
+   "hand.json": "ac1d6b5959b8a86f67204f7be09e7bee4e087634605e876fd6c3e46314032334",
+   "happy.json": "52356bc87976bdde06d60b28e9005640caabe16c35ba4b5e2ad60da9006b1398",
+   "has part (X has part Y).json": "b069e2a2ed94184ed7bb8f88818c35e280f916acd2befc4f439beb89da01de30",
+   "head.json": "37d4315d3270c23e7ddddf589ba9ef53201c6c037d69448bb4ce4e63ee7004c7",
+   "help (X helps Y).json": "8ca947b5520cf9b3d762edeec1708e1fdbb6d29e27dce0f831d0f024c565798f",
+   "helpful (of a someone).json": "eb4f467e9994ec6360314c0641f53959cbd47d7643c9018bb655a4e3c7cedfda",
+   "house.json": "5d27c30b3c9a7c99599bd7b7f86a09aef60fb7797c78df3d9a172f955ebdff0d",
+   "hug.json": "9658454410967269e5a43c5b6abf614e5da327537f4cf846a175c5c58f57d83e",
+   "inside (X is inside Y).json": "2d3982f5b57b638bd2f3498d1c2859379b25f50af6ea17ce0c072162dc21f115",
+   "jump.json": "94c376f3b5bd51c7d0a13b992457f58d434bf83d3f3ebc9dabb20ff4ed8d9842",
+   "kind (gufo:Kind, sortal type).json": "438a5f1bebdea022d78bb590ed1143fd1654a03754285a2462346b9ddc41f065",
+   "laugh.json": "e923b064870f563723ff27b0f09a8ebd8a3ea77b59c7a96551ac1f90c56f0a38",
+   "learn (X learns Y).json": "e24a84342ef3abd6bd27becc473eaf3c4167a8ca926210edda74e61a5aa1a6c1",
+   "liar.json": "4a1a97df9e781d87e26cf9b3482b625bea404fa8a53793c5c8cd4e7a728eb085",
+   "lie (the words).json": "966671b4db2728737886b1e6b1ed7f6251f0e7e3cbfafc194025f3c9159e1d50",
+   "light.json": "7e86c69e77986f03784ba891aa2b60c8f25a8da3977918aefbd58b885aa32b64",
+   "lose (X loses Y).json": "c8f1e3e6dcf1ebadf2435c489fb7fdf29b6b52fbb95f60075b42b41c76a01a70",
+   "lost.json": "ceb0bb9c580d4bec05156a1bb7160cabce1886e09ca9f1d4b1e4eaa9426c82e3",
+   "make (X makes Y).json": "99d29cbdc6cd5afa5a9b97b43efd64117daed0f200ead81b2b22c9d14cc8ef6f",
+   "maker of (X is the maker of Y).json": "513fef3981303f342b468dfb02e999d7fd8feb96d93ebcad1d7a2831b2cc1890",
+   "man.json": "0923de7e1bf24cc114c0b02bfd0f9a36ee0062a64b81e7ba214c93c5f151c20a",
+   "memory (a stored something).json": "940e14b5a63a5c5850540e9c5bdde5d1745267beaa1a8939cfb10fd3f860e99a",
+   "money.json": "963e30be0a65358f7f5b63bc048afbd0065cd5a8d43ceb898cb8aa73db2c79bc",
+   "mother.json": "54e44a8854f6bf8be5d00cc4b76c3d6414650772f70fcdb4a59ebdd16a488167",
+   "mouth.json": "82f05eebe49ec1f87dfd505587456e99897fe7835e1dc4045bdd2fe131e61930",
+   "music.json": "55cf99d36f7776b6a831b5b1ebb843e230eaccdd4d1b2bced8e77503c7125cb8",
+   "near (X is near Y).json": "ec13b93be1ed0b22a6021a1ca3210dfd87fb91c23862670ea32074f1277b0c66",
+   "night.json": "b6e030052378f4499c444b01447be99417a4554d1f7a092ea39a109be044ceea",
+   "open.json": "7db552f2085c267a9c629397c373df56db3da795f6a85809837c3d76b3bd562b",
+   "part of (X is part of Y).json": "8f9d65f17ff7cd03bbef0e2e9f277cd59cb486685cabf396e9e7d8d0244fa616",
+   "picture.json": "501d6028ea29f7b23a69a8b6bd5cae274de1e8acdb72b2124fca0e02a2ffa0c1",
+   "promise (the words).json": "76db9ed363698ff5460ca55f1ec7df3ede6c46ea92e00d49fe71a7772219c130",
+   "rabbit.json": "5a0f45c628fc20498c7015c17f18e72c81da0b67db502087edec0691b329094b",
+   "red.json": "d310d60ac34da0441c5b0ab1deead2c57b901a0f9969cf4fbcc9feb6731acb61",
+   "remember (X remembers Y).json": "ca2abe04f56b17bb4dd5c37c2a29f35be8e7b58a0465905f62214ad7b0c1a747",
+   "reminder (the made something).json": "30e0b7ef74611b42c9d9c8913a40afdcbe8dbc9c20423e604abb3d612724e02e",
+   "repair (X repairs Y).json": "967399b6e2d018cd470472dff775950e2bbaf2e94eb2c4357faad4e2ac7cc673",
+   "right (of a doable something).json": "ab6ea28b61ad5d48335899fadabaf9aa61bcacc4c472ff88c21040d194122874",
+   "rock.json": "0a5f6860011e8a5d3a2169e8b20cc38a86214af08b6969bf1bf4fa6bfc4c2314",
+   "run.json": "cd9c062ccd1073a42f2c4e01a5e57ce7e726691cab02457474fe92d88bef71a9",
+   "sad.json": "8e3676a76d5254197f1e4e527ffdef2cf097ce0016204038714cdec8c9e17dda",
+   "sit.json": "1ba2e64a44602278700e26b9455df81b6f58d9d1cc50e889dfdc4ba2e7712867",
+   "sky.json": "001a70450e4b6813947c55489e18f941af4e276250ee27989a68fbaab8008987",
+   "sleep.json": "448bbec5d0adc7544be1e9f84cc2b41b934395279531131a69dfc11aa7b4612f",
+   "smile.json": "1df738ce7f26b5852719f90182dd3258614266282ef1ce675756d1174967d28a",
+   "sun.json": "61f21796d5ec93709239be98b8441c3969901d87684d5133ecac462d17876e4c",
+   "take (X takes Y).json": "8772f26a14f60311a450b5b38ed37f07788f0d5c225c0991ae978996a395a402",
+   "teacher.json": "38f97478f0eccbb76a4b5042d74b8fceb7bb3178ebf4c88a6920e42ccf613d05",
+   "thief.json": "f13903a7e5aceeab55910987de425d6a72a5bdcd7b93163e38ce025eb3d7b4d4",
+   "tree.json": "bfc81de6d4d0784f443fbeeb630909d057dc8153d2fb6c950c5088f18e9594d2",
+   "trustworthy.json": "a245e6bb24442f4ba77763832f071f2ba9d9ab33351f7bb6561ba074ed82b623",
+   "useful (of a something).json": "be5450e1e2e834f1b3bc138cf33b1b9db3e68eead3a89404410bd2acec7583cc",
+   "visible.json": "aa076d5c9d9e3583c9f2eb63d47cbb3e9c339c41d9588fe1d9c80cb11be4af60",
+   "walk.json": "9d6ecf3b5a82d8f0eaa342a754b86f508bb6e366e966ee2f80d0ba845666fcf5",
+   "water.json": "14c780e0248ec415c91951825f6d1c70a6833ae4051518eb1a73bde368ad5cdc",
+   "woman.json": "70062625f85c65b0f02dc7b35ad39fd10c16c504c036fb37f2137f908e4cca02",
+   "wrong (of a doable something).json": "09cbbcb2fab9403e927148aec1621afcdabae004b2d43f1b84c5cbd6247d45e9"
+  }
+ },
+ "plain_padded_generator": {
+  "cells": "alone-R1 + verify-retry-R1 only, seeds {0,1,2}, same 1000 rank-prefix skeletons; excluded from the alone-R3 bridge and the shuffled control (ASM-1086)",
+  "rule": "ASM-1082: cyclic whole-own-segment repetition joined by '; ' into the kernel-gloss word band [0.75*wc, max(1.25*wc, wc+8)]; degenerate no-pad allowed in-band; fail-closed KNULL_ERR_PAD_* (band landing, segment-set equality, LC1, uniqueness); deterministic transform of the quality-gated concise store \u2014 no authoring gate (ASM-1087); disclosed bias direction: any answer-key-repetition effect favors the padded arm, conservative against the content claim",
+  "status_counts": {
+   "DEGENERATE_NO_PAD": 6,
+   "PADDED": 102
+  }
+ },
+ "plain_store_authored": {
+  "acceptance": "maintainer issue-17 acceptance + blind style sign-off 10/10 (poc/knull/inputs-v3/plain-spotcheck-current-RESULT.md)",
+  "accepted_pin_verified": true,
+  "authoring_disclosure": {
+   "constraints_inherited_from_build": "own-label LC1 (full label AND headword), >=1 admissible claim segment (>=15 chars, no double quotes; L-4 RELAXED from >=2 by the Option-B ruling), pairwise + vs-canonical uniqueness, no-verbatim-NSM-line, register ratio >= 0.25, own-gloss Jaccard < 0.5, ASCII only; the +/-25 percent word band (L-3) is DROPPED for this store by the same ruling",
+   "date": "2026-07-11",
+   "drafted_by": "the Fable agent session of 2026-07-11 (kernel-of-truth, issue 17)",
+   "drafting_model_family": "Claude family (Fable) - a different vendor and model family from the SmolLM2 host models",
+   "fork": "F-KN-A option (ii) full re-authoring, frame-variation retry under maintainer issue 17 (2026-07-11) after the v3 ASM-0703 gate failure on set-level template monotony; Option-B relaxed contract unchanged (L-3 dropped, L-4 >=1 admissible segment) enforced via poc/knull/lint_plain_store_v4.py; blind two-family quality gate (ASM-0703) to be re-run on this store before freeze",
+   "register": "concise general-dictionary English at natural entry length, with deliberately varied sentence framing across the set - mixed genus-first, synonym-first, fronted-restriction, and appositive leads; semicolon paraphrase pairs avoided; genus + differentiae, the most apt word, parenthetical subject restrictions only where load-bearing; every clause definitional; no padding toward any length target"
+  },
+  "lint": "poc/knull/lint_plain_store_v4.py PASS (Option-B relaxed contract: L-3 dropped, L-4 relaxed to >=1 admissible segment, all other G-1 checks enforced; ASM-1080) \u2014 re-run fail-closed at this build",
+  "path": "poc/knull/inputs-v4/plain-authored.json",
+  "sha256": "97609abe17f87e10a384950a5d69d4e579e40935109573eaf782095bcb43c0d2"
+ },
+ "plain_store_note": "ACCEPTED v4 Option-B concise store (maintainer issue-17 acceptance + blind style sign-off 10/10, poc/knull/inputs-v3/plain-spotcheck-current-RESULT.md); word band DROPPED for this arm (ASM-1080/1085); gate G-1 = relaxed contract lint_plain_store_v4.py, re-run fail-closed at this build.",
+ "plain_store_placeholder": false,
+ "provenance_pins": {
+  "build_dqar_py_sha256": "d4fc3a0fc9b56fd0bf740937bd89bd9b67951976dc8b76e266a1b77b0de5b1eb",
+  "f2b_manifest_sha256": "da1fe9dddd9cbddc13143a7f7931ae3f0ced2548df8e36042244ee043fcb61f9",
+  "f2b_runner_py_sha256": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
+  "lint_plain_store_py_sha256": "e301951be47fdfb6543ac390d82e54f32ebc2ea2e6f82d713cbe695a3cf76573",
+  "lint_plain_store_v4_py_sha256": "8049459cbebe9d964a54413c929e517c21a284ed7b34ff0ae28753cd3ee30e2e"
+ },
+ "schema": "kot-knull-inputs/1",
+ "substitutions": [
+  {
+   "from": "claim-true",
+   "sid": "knull:alive:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:begin (happening X begins at time T):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:believe (X believes Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:birth (the event):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:broken:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:cause (happening X causes happening Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:celebration:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:change (the event):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:condolence (the words):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:conversation:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:dead:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:end (happening X ends at time T):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:event:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:find (X finds Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:forget (X forgets Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:friend (X is a friend of Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:gift:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:give (X gives Y to someone):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:grieving:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:happy:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:has part (X has part Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:help (X helps Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:helpful (of a someone):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:inside (X is inside Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:learn (X learns Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:liar:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:lie (the words):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:lose (X loses Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:lost:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:make (X makes Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:maker of (X is the maker of Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:memory (a stored something):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:near (X is near Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:part of (X is part of Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:remember (X remembers Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:right (of a doable something):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:take (X takes Y):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:teacher:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:thief:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:trustworthy:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:useful (of a something):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:visible:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:wrong (of a doable something):s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:bear:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:blue:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:cat:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:clothes:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:cry:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:eat:s3",
+   "to": "claim-false"
+  },
+  {
+   "from": "claim-true",
+   "sid": "knull:father:s3",
+   "to": "claim-false"
+  }
+ ],
+ "substitutions_n": 173,
+ "type_mix": {
+  "claim-false": 389,
+  "claim-true": 43,
+  "def-match": 324,
+  "term-match": 324
+ },
+ "type_mix_note": "re-derived on the v4 store and REQUIRED identical across all four arms (enforced fail-closed); expected shift vs v2: all 108 v4 definitions are single-segment (claim-true scarcity disclosed)",
+ "version": "4.0.0"
+}

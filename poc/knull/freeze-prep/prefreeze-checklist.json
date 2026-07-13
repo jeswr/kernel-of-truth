@@ -1,0 +1,84 @@
+{
+ "schema": "kot-knull-freezeprep-checklist/1",
+ "gate": "kernel-of-truth-d0hq G-4 (pre-freeze checklists), run 2026-07-13 by the Fable designer role (designer-26); $0, CPU-only, no git/registry/freeze/spend/launch actions",
+ "record_under_check": {
+  "path": "registry/experiments/knull-v2.json",
+  "status": "DRAFT",
+  "note": "checked BOTH as-committed (mechanical coherence) and against the RATIFIED design state (Option-B ASM-1080..1088 + issue-17 v4 acceptance + maintainer blind style sign-off) — the two diverge; see items C-9/C-10 and the README blockers"
+ },
+ "items": {
+  "C-1_corpus_pins_recompute": {
+   "status": "PASS",
+   "detail": "tools/registry/corpus-pin.py recomputed at check time; all four digests identical to pins.corpus_hashes",
+   "corpora": {
+    "d-qa": "ad756a7e31f9281de3baaff149e87832d8195452b41b19b6f16883ff196571e6",
+    "d-qa-r": "0d548bf18ac78f9d7b2abb6686c567f0930acd494c5ca03cee49806c4996ec5e",
+    "kernel-v0": "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809",
+    "molecules-v0": "69f0c8a354ce489d15e9156d611932ba548f80c41e78af4ffe597192067a59c4"
+   }
+  },
+  "C-2_harness_and_doc_pins": {
+   "status": "PASS",
+   "detail": "every sha256 named in the DRAFT record reproduces from the committed bytes at check time",
+   "verified": {
+    "docs/research-plan/08-stats-and-extrapolation.md": "823b321d9b27d5648bfd6f8d9bf55d3b446712e91f9b6d444ac4cc9de98d5c86",
+    "docs/design-knull-content-injection-ablation.md": "2d8dddf970db4bf58c01523110d07c823efb518c46bef9c4a1f73aeb6c773bcf",
+    "analysis/knull.py": "683f3e06189da0856565b1c6cd1053a9116dabaa21d65488919955458951f3bf",
+    "poc/knull/inputs-v2/manifest.json": "0cb2b8c07341bc9b120d0423ca263d7ac406891b56d3cf040c0bd171303e08f7",
+    "poc/knull/inputs-v2/plain-authored.json": "2536a2944ab381657cf0aa9d4412f5c8b00be65ac388e80621599fcf645f74d0",
+    "poc/knull/build_inputs_v2.py": "a64e23498ca0d2528909206173ea199478df32d0f20287eff98a4c7bf3e3ed77",
+    "poc/knull/build_inputs.py": "eae9bb7eab2d39fafaa811d2c5c7e94d22f0db488630a94b408f7eedf0886189",
+    "poc/knull/lint_plain_store_v2.py": "5b9f1cca78eb745617423c2bed10c3e04bc1184ca5fdfbd2dee2fab837114dc6",
+    "poc/knull/lint_plain_store.py": "e301951be47fdfb6543ac390d82e54f32ebc2ea2e6f82d713cbe695a3cf76573",
+    "poc/knull/check_token_band_v2.py": "6e2e4c36a0d6139ec9b9a2d2cdc96cbd9950a56fe34b450563e072896333ceed",
+    "poc/knull/inputs-v2/g3-token-band.json": "1b264959cea54ea350d0164cf4c42830c7c26dba433fe911a121df32e82d70a4",
+    "poc/knull/inputs-v2/g1-lint-report.json": "97935fbaa2b5f26c6425102ee5a4e8126430fbeb9e5e897568afd0015e3fbfbb",
+    "poc/knull/runner/knull_runner.py": "81e3684c4db866945a610f7647c1be02543dda6a378d368e617f1256e2497c13",
+    "poc/f2b/runner/f2b_runner.py": "b62c3a72882b354f25b97a4b38251fb4863b1c3417220d1c942c84b24fc9b666",
+    "tokenizer.json (SmolLM2-135M pinned revision)": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c"
+   }
+  },
+  "C-3_prereg_freeze_dry_run": {
+   "status": "PASS (mechanical)",
+   "detail": "python3 tools/registry/prereg-freeze.py --experiment knull-v2 --agent-id coordinator-1 --dry-run -> DRY-RUN-OK, pause_flags []; all fail-closed constraints green on the record AS COMMITTED (schema, one primary, exhaustive rules, pointer closure, SESOI, seeds, kill+envelope, Wilson gate power, baselines, corpus pins, P-6 pins, reuse collision, RT-14 account scan). CAVEAT: this validates the SUPERSEDED three-arm v2-store design; the dry-run frozen_sha256 is NOT the final hash (the required delta + freeze timestamp change it). Dry-run writes nothing.",
+   "dry_run_sha_do_not_post": "22ed0ce142301af6973b7e2e4c52fa0eb7d54ff1a96d5c81273b764ede9083e8"
+  },
+  "C-4_accepted_v4_store_integrity_and_lint": {
+   "status": "PASS",
+   "detail": "poc/knull/inputs-v4/plain-authored.json v4.0.0 sha256 97609abe17f87e10a384950a5d69d4e579e40935109573eaf782095bcb43c0d2 (the issue-17-accepted store); lint_plain_store_v4.py re-run at check time: PASS 108/108 enforced checks (Option-B relaxed contract: L-3 dropped, L-4 >=1 segment; 210 disclosed relaxations); committed report poc/knull/inputs-v4/g1-lint-report.json sha256 92e2e159995e0eb06a6bce97f6a0718a5db23082d10113989f1b8cb5302887f7"
+  },
+  "C-5_maintainer_gate_evidence": {
+   "status": "PASS (granted)",
+   "detail": "maintainer blind style sign-off 10/10 on the v4 store: poc/knull/inputs-v3/plain-spotcheck-current-RESULT.md sha256 295bf42769e0f6a6f4ae77016c5b4d7d06a1aee7022d196f964fe8736769f2cc over spotcheck poc/knull/inputs-v3/plain-spotcheck-current.json sha256 4bfe40d9ccc7ca06ea981da8496363ea4a7554bbab0fbe6aa588265940dee31a; ASM-0703 judge-gate disposition = issue-17 acceptance ('the v4 control store is accepted with its residual naturalness-gate defects documented'); v4 judge-gate tally (MEASURED, gate_met false, superseded by the acceptance ruling) poc/knull/quality-gate-v4/gate-tally.json sha256 d10373c6537b2903da6acdc92a29f7df0c2149d284c49567b2a07fb8bad57e62; non-blocking carry-forward caveat: item 5 (bookmark) bookmark-vs-archive ambiguity noted by the maintainer"
+  },
+  "C-6_account_lint_rt14": {
+   "status": "PASS",
+   "detail": "kot_common.require_no_account_strings over: the record's hashed bytes (via dry-run), the v4 store + its lint report, the spot-check artifact + RESULT/README, and every freeze-prep artifact in this directory — zero hits"
+  },
+  "C-7_asm_register": {
+   "status": "PASS",
+   "detail": "tools/registry/claims-check.py: PASS (1155 current entries). All knull-v2 ASMs present with lawful tags: ASM-0700..0704 STIPULATED, ASM-0705 MEASURED, ASM-0706 STIPULATED, ASM-0707 EXTRAPOLATION (colour, load-bearing for nothing), ASM-1080..1088 STIPULATED (the Option-B block, REGISTERED — no longer PROPOSED)"
+  },
+  "C-8_flops_recheck_g2": {
+   "status": "PASS (see artifact)",
+   "detail": "poc/knull/freeze-prep/flops-recheck-v4.json sha256 c150270e9f7d59220d86052874fba787a4544943259a8934bb16e2bbf7c91011 — matched-FLOP accounting re-verified on the accepted v4 store under the ASM-1085 scope: plain-padded projected prompt-token ratio 0.9907 (inside the +/-10% pre-freeze band), opaque 1.0043 MEASURED (inside), ASM-1082 padding feasible 108/108 (102 padded, 6 degenerate; all 108 v4 definitions single-segment), concise plain 0.6628 DESCRIPTIVE (exempt by design, outside +/-20% as the ruling intends); retry topology matched by construction (identical imported f2b verify-retry machinery, k=4, same pinned 135M host, CPU verifier at the pinned rate)"
+  },
+  "C-9_g3_token_band_binding_artifact": {
+   "status": "BLOCKED",
+   "detail": "the BINDING G-3 artifact must be computed on the actual v4 four-arm build (ASM-1088); the committed g3-token-band.json measures the superseded v2 three-arm build. Blocked on blocker B-1 (four-arm build) + B-2 (check_token_band_v4.py)"
+  },
+  "C-10_item_files_manifest_leak_checks": {
+   "status": "BLOCKED",
+   "detail": "inputs-v4/ holds only the store + lint report; the four item files (kernel/plain/plain-padded/opaque), LC8 surface-disjointness fail-closed checks, re-derived type mix (identical across arms), and the re-pinned manifest do not exist yet. Blocked on blocker B-1"
+  },
+  "C-11_analysis_script_v3": {
+   "status": "BLOCKED",
+   "detail": "analysis/knull_v3.py (the ratified SAP: ASM-1083 IUT superiority guard, length_guard_available, four-arm gates, section 4.6 output-field list) does not exist; the pinned analysis/knull.py implements the superseded three-arm SAP. Blocked on blocker B-3"
+  },
+  "C-12_runner_dry_plan": {
+   "status": "PASS (v1-scope smoke)",
+   "detail": "python3 poc/knull/runner/knull_runner.py --dry-plan -> 'dry-plan OK: 30 GPU cells over 1000 paired items x 3 arms; all pins verified; stores load fail-closed'. NOTE: the committed runner is the v1-pinned three-arm runner reading inputs/; the campaign runner (runner-role work at campaign start, per the record's harness_manifest) must re-point to the frozen knull-v2 + inputs-v4 and add the +6 plain-padded cells (36 total)"
+  }
+ },
+ "verdict": "NOT freeze-READY as committed. Mechanically the DRAFT would freeze today (C-3), but freezing it would pin the SUPERSEDED v2-store three-arm design against the registered Option-B rulings (ASM-1080..1088) and the issue-17 v4 acceptance — the record's own prefreeze_gates_evidence still says the quality-gate precondition is ESCALATED. Blockers B-1..B-4 in poc/knull/freeze-prep/README.md must land first; B-4 (the record delta) is coordinator registry work."
+}

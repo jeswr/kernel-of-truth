@@ -1,0 +1,74 @@
+{
+ "band_verdicts": {
+  "opaque_measured_in_prefreeze_band_10pct": true,
+  "opaque_measured_in_runtime_band_20pct": true,
+  "padded_feasible_108_of_108": true,
+  "plain_padded_projected_in_prefreeze_band_10pct": true,
+  "plain_padded_projected_in_runtime_band_20pct": true,
+  "plain_v4_descriptive_ratio": 0.6628,
+  "plain_v4_outside_20pct_band_as_designed": true,
+  "retry_topology_note": "matched by construction, not recomputed here: every verify arm runs the identical imported f2b verify-retry machinery at k=4 on the same pinned 135M host; the verifier is the CPU string-matcher metered at the pinned rate (knull_runner.py imports poc/f2b/runner/f2b_runner.py read-only at the pinned sha)",
+  "scope": "ASM-1085: parity binds the TOKEN-MATCHED arms (plain-padded, opaque) vs kernel; the concise plain arm is exempt by design, DESCRIPTIVE only"
+ },
+ "gate": "d0hq G-2 (FLOPs re-check on the accepted v4 store)",
+ "gloss_level_measured": {
+  "kernel": {
+   "max_tokens": 67,
+   "mean_tokens": 40.21,
+   "min_tokens": 12
+  },
+  "plain_padded_v4_projected": {
+   "max_tokens": 68,
+   "mean_tokens": 38.87,
+   "min_tokens": 9,
+   "ratio_vs_kernel": 0.9667
+  },
+  "plain_v2": {
+   "max_tokens": 60,
+   "mean_tokens": 38.67,
+   "min_tokens": 16,
+   "ratio_vs_kernel": 0.9617
+  },
+  "plain_v3": {
+   "max_tokens": 23,
+   "mean_tokens": 12.43,
+   "min_tokens": 5,
+   "ratio_vs_kernel": 0.3091
+  },
+  "plain_v4": {
+   "max_tokens": 25,
+   "mean_tokens": 14.16,
+   "min_tokens": 5,
+   "ratio_vs_kernel": 0.3522
+  }
+ },
+ "padded_feasibility_v4": {
+  "all_feasible": true,
+  "failures": [],
+  "n_feasible": 108,
+  "n_single_segment_definitions": 108,
+  "n_total": 108,
+  "rule": "ASM-1082 own-segment cyclic whole-segment repetition into the kernel word band [0.75*wc, max(1.25*wc, wc+8)]; fail-closed",
+  "status_counts": {
+   "DEGENERATE_NO_PAD": 6,
+   "PADDED": 102
+  }
+ },
+ "prompt_level": {
+  "_epistemic": "PROJECTED pre-freeze evidence only; binding resolution = the G-3 artifact of the actual v4 four-arm build + the run-time F0 FLOPs ledger (ASM-1088)",
+  "_method": "substitution of v4 glosses (and index-mapped v4 claim segments) into the byte-identical v2 plain item schedule, re-rendered with the pinned f2b build_prompt; kernel/opaque arms carried from the MEASURED v2 G-3 artifact (their logic is byte-identical across versions)",
+  "kernel_measured_v2": 110.47,
+  "opaque_measured_v2": 110.94,
+  "opaque_ratio_vs_kernel_measured": 1.0043,
+  "plain_padded_v4_projected": 109.44,
+  "plain_padded_v4_projected_ratio_vs_kernel": 0.9907,
+  "plain_v4_projected": 73.22,
+  "plain_v4_projected_ratio_vs_kernel": 0.6628
+ },
+ "schema": "kot-knull-freezeprep-flopsrecheck/1",
+ "store_v4": {
+  "path": "poc/knull/inputs-v4/plain-authored.json",
+  "sha256": "97609abe17f87e10a384950a5d69d4e579e40935109573eaf782095bcb43c0d2"
+ },
+ "tokenizer_json_sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c"
+}

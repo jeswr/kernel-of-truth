@@ -1,0 +1,62 @@
+{
+ "arms": {
+  "kernel": {
+   "band_binding": false,
+   "max_prompt_tokens": 278,
+   "mean_prompt_token_ratio_vs_kernel": 1.0,
+   "mean_prompt_tokens": 110.51,
+   "n_items": 1080,
+   "total_gloss_tokens": 5368
+  },
+  "opaque": {
+   "band_binding": true,
+   "max_prompt_tokens": 283,
+   "mean_prompt_token_ratio_vs_kernel": 1.0,
+   "mean_prompt_tokens": 110.96,
+   "n_items": 1080,
+   "total_gloss_tokens": 4371,
+   "within_declared_band": true
+  },
+  "plain": {
+   "band_binding": false,
+   "descriptive_disclosure": "measured ratio 0.6624 \u2014 outside the parity band AS THE OPTION-B RULING INTENDS (natural concise length; the token-matched comparison lives in the plain-padded arm); reported at run time as /gates/flops_ratio_plain, DESCRIPTIVE (ASM-1085)",
+   "max_prompt_tokens": 123,
+   "mean_prompt_token_ratio_vs_kernel": 0.66,
+   "mean_prompt_tokens": 73.2,
+   "n_items": 1080,
+   "total_gloss_tokens": 1529,
+   "within_declared_band": null
+  },
+  "plain-padded": {
+   "band_binding": true,
+   "max_prompt_tokens": 262,
+   "mean_prompt_token_ratio_vs_kernel": 0.99,
+   "mean_prompt_tokens": 109.43,
+   "n_items": 1080,
+   "total_gloss_tokens": 4198,
+   "within_declared_band": true
+  }
+ },
+ "band_scope": "ASM-1085: the band BINDS the token-matched arms (plain-padded, opaque) vs kernel; the concise plain arm is EXEMPT BY DESIGN \u2014 its ratio is measured and disclosed DESCRIPTIVE below, never a PASS/FAIL input. Run-time binding resolution of parity = the F0 FLOPs ledger (ASM-1088).",
+ "gate": "G-3 tokenizer-level FLOPs band re-check, four-arm Option-B scope",
+ "inputs_manifest_sha256": "ae52862d9f95c83238230ed555628318140f69f9c456eb95fc82b25fcac2ebfe",
+ "margin_call_f_kn_c": {
+  "decision": "margin 0.05 STANDS (n_planned 1000 >= 900; fork F-KN-C fallback 0.075 not triggered)",
+  "n_floor_for_margin_005": 900,
+  "n_planned_per_arm": 1000
+ },
+ "mean_band_declared": 0.1,
+ "opaque_token_calibration_factor": 0.48,
+ "prompt_tokens_sidecar": {
+  "path": "poc/knull/inputs-v4/prompt-tokens.json",
+  "sha256": "d9312f19a3a7338dbee1f5f7113803544e38218c30524f9d226b05edf09aa179"
+ },
+ "result": "PASS",
+ "runtime_gate_band": 0.2,
+ "schema": "kot-knull-g3/2",
+ "tokenizer": {
+  "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "tokenizer_json_sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c"
+ }
+}
