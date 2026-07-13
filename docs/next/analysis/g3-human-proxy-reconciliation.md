@@ -40,3 +40,28 @@ adversarially-verified and one-directional, which is a strong signal the registe
   necessity-violation rate, and re-verdict. If the corrected rate falls below 0.10, g3 flips FAIL → not-FAIL,
   which materially changes the correctness-thesis picture (the kernel's typing would be adequately NECESSARY
   on human judging). Surfaced to the maintainer for awareness; the re-run itself is authorized + cheap.
+
+## Opus-pB re-judge outcome (2026-07-13) — the FAIL STANDS; proxy-artifact hypothesis REFUTED
+
+To test whether the g3 FAIL was a judge-pB (Haiku) Pass-B over-flagging artifact, the full 200-item Pass B
+leg was re-judged with a stronger judge (claude-opus-4-8, temp 0, identical Pass B prompt — model swapped
+only). Coordinator-run checkpointed job; labels sha256 `514ae261…`; 200/200 decisive (2 cannot-say).
+Analysis: `poc/g3-llmproxy-v3/opus-pb-rejudge/analysis.json`.
+
+**Result: FAIL-STANDS.** The concordant necessity-violation rate with Opus-pB = **39/193 = 0.2021**
+(one-sided 95% Wilson LB **0.1588**), still **above the 0.10 kill bar** — even slightly higher than the
+registered Haiku-pB rate (0.1846, LB 0.1433). So the FAIL is **confirmed by an independent stronger judge**,
+not a Haiku-specific artifact.
+
+Cross-judge detail: Opus-pB vs Haiku-pB agree **153/198 = 77.3%** (κ on q2=no = 0.53); Opus is NOT
+systematically more lenient (24 Haiku-no/Opus-yes vs 21 Haiku-yes/Opus-no — balanced). On the recoverable
+human items Opus matches human 4/6 and itself over-flags some (e.g. begin-01: human yes, Opus no).
+
+**Reconciliation disposition:** the earlier 15-item human sample (6.7% necessity, below bar) raised a
+legitimate concern, but it was **concept-specific** (only the low-violation `end`/`begin` concepts) and too
+small to generalise; on the FULL 200 items a second, stronger LLM judge reproduces the FAIL. The registered
+g3 = FAIL is therefore **upheld** and the PROXY-PROVISIONAL-SUSPECT flag is **cleared** (validated, not
+overturned). Residual honest caveat: on the handful of human labels both LLM judges sometimes run stricter
+than the human on Pass B, so a fully human-graded g3 could differ — but establishing that needs far more
+than 15 human labels, and the pre-registered verdict rests on the LLM-concordant rate, which holds under two
+independent judges. **No re-verdict; the frozen record is untouched.**

@@ -1,0 +1,101 @@
+{
+  "_what": "opus-pb-rejudge advisory recompute; frozen record untouched",
+  "judge_id": "judge-pB-opus48-rejudge",
+  "judge_pB_rejudge_model": "claude-opus-4-8",
+  "labels_sha256": "514ae2615b82d63c8944740adf60bdda54578a78ddb09edd8667fd62f0108d11",
+  "n_instances": 200,
+  "opus_pB_cannot_say": 2,
+  "opus_pB_nolabel": 0,
+  "opus_vs_haiku_q2": {
+    "agree": 153,
+    "agreement": 0.7727272727272727,
+    "haiku_no_opus_yes": 24,
+    "haiku_yes_opus_no": 21,
+    "kappa_on_q2_no": 0.5252051582649472,
+    "n_both_decisive": 198
+  },
+  "opus_vs_human_sanity": {
+    "match": 4,
+    "n": 6,
+    "note": "full 15-item human workbook not in repo; comparison covers the 6 items whose human q2 is recoverable verbatim from the verified reconciliation record; g3-end-03 excluded (human q1=no, q2 not stated)",
+    "rows": [
+      {
+        "haiku_q2": "no",
+        "human_q2": "yes",
+        "id": "g3-begin-01",
+        "opus_matches_human": false,
+        "opus_q2": "no"
+      },
+      {
+        "haiku_q2": "no",
+        "human_q2": "yes",
+        "id": "g3-begin-03",
+        "opus_matches_human": true,
+        "opus_q2": "yes"
+      },
+      {
+        "haiku_q2": "no",
+        "human_q2": "no",
+        "id": "g3-end-01",
+        "opus_matches_human": true,
+        "opus_q2": "no"
+      },
+      {
+        "haiku_q2": "no",
+        "human_q2": "yes",
+        "id": "g3-end-06",
+        "opus_matches_human": true,
+        "opus_q2": "yes"
+      },
+      {
+        "haiku_q2": "no",
+        "human_q2": "yes",
+        "id": "g3-end-07",
+        "opus_matches_human": true,
+        "opus_q2": "yes"
+      },
+      {
+        "haiku_q2": "no",
+        "human_q2": "yes",
+        "id": "g3-end-09",
+        "opus_matches_human": false,
+        "opus_q2": "cannot-say"
+      }
+    ]
+  },
+  "recommendation": "FAIL-STANDS",
+  "registered": {
+    "bar": 0.1,
+    "n_dual_decisive": 195,
+    "necessity_concordant": 36,
+    "rate": 0.18461538461538463,
+    "verdict": "FAIL",
+    "wilson_lb": 0.14333614589524335
+  },
+  "variant1_frozen_formula_pB_passB_swapped": {
+    "definition": "concordant = (q1_pA=yes & q2_pA=no) AND (q1_pB[haiku,frozen]=yes & q2_pB[OPUS]=no), over dual-decisive",
+    "kappa_pair_necessity": 0.692866532899744,
+    "n_dual_decisive": 193,
+    "necessity_a_only": 6,
+    "necessity_b_only": 17,
+    "necessity_concordant": 39,
+    "necessity_concordant_wilson_lb": 0.15879553593472298,
+    "necessity_concordant_wilson_ub": 0.2535884210742654,
+    "necessity_rate_concordant": 0.20207253886010362,
+    "necessity_rate_union": 0.32124352331606215,
+    "necessity_union": 62,
+    "necessity_union_wilson_ub": 0.3786790879075546,
+    "proxy_fail_fires": true,
+    "proxy_pass_fires": false,
+    "sufficiency_concordant": 11,
+    "sufficiency_union": 28
+  },
+  "variant2_crossjudge_pAq1_x_opusq2": {
+    "definition": "violation = q1_pA=yes & q2[OPUS]=no, over items with both decisive (the reconciliation's cross-judge face)",
+    "n_decisive": 197,
+    "rate": 0.3096446700507614,
+    "violations": 61,
+    "wilson_lb": 0.25834286848913246,
+    "wilson_ub": 0.3661051169935289
+  }
+}
