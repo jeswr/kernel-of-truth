@@ -1,0 +1,114 @@
+{
+ "range": "ASM-2270..2278",
+ "purpose": "Companion assumption block for the F1-K (Kernel-as-Expert ADD path) PRE-REGISTRATION FREEZE PACKAGE: registry/experiments/f1k.json (DRAFT, kot-reg/1) + the pinned analysis script analysis/f1k.py + the freeze-readiness checklist docs/next/design/f1k-freeze-readiness.md. EMITTED by the Fable architecture-design agent (designer-5, 2026-07-13) after the maintainer's GO on the reduced-cost approach (kernel-of-truth #28); central registration in registry/assumptions.jsonl is the COORDINATOR's action with the landing commit, after the standing review gate. This pass writes NO registry/assumptions.jsonl entry, takes NO git action, does NOT run tools/registry/prereg-freeze.py (central custody + freeze are coordinator-owned), and states NO feasibility conclusion. Range verified free at emission: central register tail ASM-2202; design doc holds 2010..2049, 2113/2114, 2122..2124, 2130; patch draft holds 2180..2190; large-kernel holds 2191..2202; repo-wide grep finds nothing in 2203..2269 or above, and 2270+ was designated by the coordinator for this pass.",
+ "owner": "designer-5",
+ "backing_artifacts": [
+  "registry/experiments/f1k.json (DRAFT record; schema kot-reg/1; local lints green: schema OK, all verdict/endpoint metric pointers declared, exactly one primary, catch-all last, five-V dependent vars present, analysis/plan/prereg pins byte-verified, kernel-v0 corpus hash reproduced)",
+  "analysis/f1k.py sha256=c5edd0bd1dea70f4a7e0be85e4e107cce27ff49af1b42324a2bef58ff4e6b12c (stdin-conformant pinned analysis; MOCK self-test PASS 2026-07-13)",
+  "docs/next/design/f1k-freeze-readiness.md (coordinator checklist)",
+  "tools/registry/_build_f1k_record.py (reproducible record construction + lints; disposable after freeze)",
+  "docs/next/design/glm52-followup-experiment.md sha256=9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6 (the governing design, SS2 + SSR..SSR-REV5)",
+  "poc/glm52-probe/kae-patch-draft/kae-add-path.patch sha256=11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb (gate-0 artifact, REVISION-1)"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2270",
+   "tag": "STIPULATED",
+   "claim": "F1-K FREEZE PACKAGE EXISTENCE AND CUSTODY: registry/experiments/f1k.json (DRAFT, kot-reg/1) operationalises the F1-K design of docs/next/design/glm52-followup-experiment.md SS2 as amended through SSR-REV5, verbatim where the design speaks and by the explicitly-tagged operationalisations ASM-2271..2275 where the design left an implementation degree of freedom. The record extracts: the K-1 primary endpoint under the joint licensing rule (observed lift >= +3.0 pts AND exact cluster sign-flip p < 0.05), the arm set {b0, d0, d1-drng x3, d2, d3-text, K, conditional REPLACE}, the SSR1.1 frozen candidate-independent single-prefill label-logit scoring, the SSR2 dose-exactness discipline, verdict rules PASS/FAIL/NULL/INSTRUMENT-INVALID/INCONCLUSIVE, the kill criterion, and the SSR5/SSR-REV2.4/SSR-REV3.3/SSR-REV4.2 freeze-manifest ordering. The record is DRAFT: prereg-freeze (tools/registry/prereg-freeze.py), central ASM registration, and every git action belong to the coordinator. No feasibility conclusion is stated by this package.",
+   "rationale": "One registered record per experiment, built from the frozen design rather than from any run output, is the programme's pre-registration discipline; separating emission (designer) from custody (coordinator) keeps run-vs-design separation intact.",
+   "backing_ref": "registry/experiments/f1k.json; docs/next/design/glm52-followup-experiment.md SS2, SSR..SSR-REV5; kernel-of-truth #28 (maintainer GO, reduced-cost approach)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2271",
+   "tag": "STIPULATED",
+   "claim": "PRIMARY-ENDPOINT AND PASS-VERDICT OPERATIONALISATION (two named sharpenings of the design, chosen conservatively): (1) the record's SINGLE primary endpoint is ladder rung K-1 (K vs b0) at /analysis/k1_lift_points under the SSR-REV4.1 joint rule, but the record VERDICT 'PASS' requires /analysis/pass_gate = k1_joint_pass AND k2_joint_pass — rung K-2 (K vs the per-item mean over the R derangement passes) is PASS-REQUIRED, so no F1-K PASS can ever license 'any content helps' (the mandatory deflator discipline of ASM-2029/2036 and the maintainer brief in #28: 'a pass licenses kernel content helps'); K-3 elevates claim wording only, never the verdict. (2) The SSR-REV2.2 power gate 'C >= 65 concept clusters with m >= 8' is resolved to its STRICTER each-cluster reading: at least 65 clusters EACH holding >= 8 test items, computed from the realized b0 test rows (/gates/power_gate_valid), with n <= 1440. Sign-flip mechanics frozen: B = 10,000 random cluster sign patterns, add-one corrected p = (1 + #{T_b >= T_obs})/(B + 1), global PRNG seed 20260713 with deterministic per-contrast sub-seeds (byte-identical stdout across reruns).",
+   "rationale": "The design fixes the ladder and the joint rule but leaves 'primary vs verdict' wiring and the m>=8 quantifier ambiguous; both resolutions chosen are the stricter ones, so they can only reduce false PASSes and cannot weaken any registered test.",
+   "backing_ref": "registry/experiments/f1k.json endpoints[primary-k1-add-lift] + verdict_rules; analysis/f1k.py (signflip, POWER_GATE_MIN_C/M); design SS2.6, SSR2, SSR3.1, SSR-REV2.2, SSR-REV4.1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2272",
+   "tag": "STIPULATED",
+   "claim": "R = 3 DERANGEMENT PASSES PRE-APPLIED + SEEDS REGISTERED: the d1-drng deflator runs R = 3 (not 5) main-run derangement passes — exactly the SSR6 pre-registered degradation-order step 1 ('R 5->3: -2n prefills; rank check loses granularity, noted'), applied UP FRONT under the maintainer's reduced-cost GO (#28) rather than waiting for a bring-up cost overrun. The rung-K-2 inference (K vs per-item MEAN over the R passes) is unchanged and remains valid at R = 3 per SSR6's own admission; the exactness rank check coarsens to best-of-4 (nominal 0.167 -> 0.25), disclosed verbatim in the record and in /analysis/deflator_comparison.k_rank_note. Seeds are REGISTERED NOW rather than deferred to the manifest: main derangements [101, 102, 103] (design.seeds and analysis/f1k.py DRNG_SEEDS — the dose-exactness gate fails closed on any mismatch), pilot-panel K-derangement seed 11, d0 random-table seed 7, all mutually disjoint by construction. n is NOT cut (1440 stands) and no ladder arm is dropped.",
+   "rationale": "Applying a pre-registered degradation step before spend, under explicit maintainer direction, keeps the cost cut inside the frozen decision space; enumerating seeds in the record (not just the future manifest) removes a post-GO degree of freedom.",
+   "backing_ref": "design SSR6 degradation order + SSR2 (seeds 'enumerated in the freeze manifest'); kernel-of-truth #28 (maintainer: 'R 5->3 ... deflator still valid'); registry/experiments/f1k.json design.seeds; analysis/f1k.py R_DRNG/DRNG_SEEDS",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2273",
+   "tag": "STIPULATED",
+   "claim": "PLACEBO-VOID SHARPENING: the SS2.6 run-voiding rule 'if d0 beats b0, the run is VOIDED' is operationalised WITHOUT the +3-pt floor — the instrument is void iff the one-sided cluster sign-flip p(d0 > b0) < 0.05 at ANY magnitude (/gates/placebo_gate_valid). A norm-matched random carrier producing a statistically significant lift of any size means the instrument is measuring noise sensitivity, and the conservative direction for an instrument gate is the easier-to-trip one.",
+   "rationale": "The design left d0's 'beats' untested-at-margin; giving the placebo the LOWER bar (no floor) can only void more runs, never license more claims.",
+   "backing_ref": "design SS2.6 (d0 row); analysis/f1k.py placebo_valid; registry/experiments/f1k.json arms_mandatory_baselines[d0]",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2274",
+   "tag": "STIPULATED",
+   "claim": "NULL-VERDICT OPERATIONALISATION (TOST at the registered SESOI): /analysis/null_equiv is true iff the cluster-level BCa 90% CI of the K-1 statistic lies STRICTLY inside (-3.0, +3.0) accuracy points AND b0 is not ceiling-bound (b0 subset accuracy <= 0.95). The ceiling-bound state (/analysis/ceiling_bound) forces null_equiv false and takes the pre-worded 'ceiling-bound at this subset' scope, so a headroom artifact can never masquerade as an equivalence null (SS2.7 baseline-strength caveat). A wide-CI non-result falls through to INCONCLUSIVE (never equivalence), and any non-fire is scoped by /analysis/power_scope ('powered to resolve >= [joint MDE] pts at rho_U = 0.10, not a null at +3', SSR-REV3.1 item 6 / SSR-REV5).",
+   "rationale": "kot-reg/1 constraint 4 requires an explicit SESOI-bound NULL; the cluster-BCa TOST at the +/-3 SESOI is the design's own effect floor turned into an equivalence band, with the ceiling-bound and power-scope wordings preserved verbatim.",
+   "backing_ref": "design SS2.7 (ceiling caveat), SSR-REV3.1 item 6, SSR-REV4.1a (cluster bootstrap as the named fallback machinery); analysis/f1k.py ClusterBCa/TOST_CI; registry/experiments/f1k.json endpoints[primary].test",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2275",
+   "tag": "STIPULATED",
+   "claim": "KILL-CRITERION OPERATIONALISATION: F1-K is KILLED only by measured HARM — K-1 observed lift <= -3.0 points AND harm-direction cluster sign-flip p < 0.05 (/analysis/kill_fired -> FAIL). Everything else the design treats as void/return keeps its class: d0 placebo fire, off-concept byte-identity mismatch, dose/template/manifest failures -> INSTRUMENT-INVALID via the seven /gates/*; coverage-vs-power shortfall and post-degradation unaffordability -> pre-run returns to the maintainer (no record verdict). Deflationary NULLS AT ANY RUNG ARE REAL RESULTS reported at equal prominence, never kills (SS2.6 verbatim: rung-1 null = the seam is inert at this scale; rung-2 null = f2b's content effect does not survive the move from prompt to routing; rung-3 null = the fifth content-not-structure datum).",
+   "rationale": "The design deliberately has no 'null kills the lever' clause — F1-K's nulls carry information; reserving FAIL for demonstrated harm keeps the kill honest and symmetric with the +3/p<0.05 pass bar.",
+   "backing_ref": "registry/experiments/f1k.json kill_criterion_verbatim + verdict_rules; design SS2.6 (deflationary-null paragraph), SS2.5/SS7.4 (byte-identity guard), SSR-REV2.2 (power-gate return)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2276",
+   "tag": "MEASURED",
+   "claim": "PINNED ANALYSIS SCRIPT + GREEN MOCK: analysis/f1k.py sha256 = c5edd0bd1dea70f4a7e0be85e4e107cce27ff49af1b42324a2bef58ff4e6b12c is pinned in registry/experiments/f1k.json pins.analysis_script with its 47 declared output_fields (all verdict/endpoint pointers resolve; a byte change is a design change requiring a new freeze). STDIN-conformant per the verdict-gen P2 SS3.1 step-5 contract (eligible run records as JSONL on stdin, no argv; records pin rows+sidecar artifacts by path+sha256, re-verified fail-closed; all eligible records must pin the SAME tuple) — the rules_2_go_stdin.py / engine_inference_stdin.py interface class, so the automated verdict path can execute the pin. MOCK SELF-TEST PASS (2026-07-13, `python3 analysis/f1k.py --selftest`, ~4 s CPU): (a) planted +10-pt K lift over b0/d0/drng at C=72 x m=20 = n=1440 -> all 7 gates true, K-1 and K-2 fire, pass_gate true, kill false, null false, ladder rung >= 2; (b) exact per-item null (shared draws) -> pass_gate false, kill false, TOST NULL certified; (c) pinned-file round-trip through the stdin path byte-equal to the in-memory result; (d) all 47 OUTPUT_FIELDS pointers present in the emitted JSON.",
+   "rationale": "A freeze without an executable, interface-correct, mock-proven analysis pin repeats the rules-2/rules-1-c argparse defect class; the mock proves the PASS and NULL shapes both reachable by the registered machinery before any spend.",
+   "backing_ref": "analysis/f1k.py (selftest); registry/experiments/f1k.json pins.analysis_script; analysis/rules_2_go_stdin.py docstring (the interface-defect precedent)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2277",
+   "tag": "EXTRAPOLATION",
+   "claim": "BUDGET CARRIED AT THE REGISTERED CEILING PENDING THE REDUCED-COST DESIGN: f1k.json budget.usd_cap = 550 (the SSR6/ASM-2048 worst-case ceiling at on-demand $0.69/h and pessimistic 100 s/prefill) because the codex reduced-cost design (docs/next/design/glm52-f1k-cost-reduction.md) is NOT yet in-repo at emission. The maintainer GO'd the reduced approach (#28: spot ~$0.20-0.28/h + expert-pinning/warm-cache + R 5->3; coordinator expectation 'well under ~$150, plausibly under $100' — that expectation is the coordinator's, carried not endorsed). $550 is a CAP, not a target; the reductions are ops-side and may never cut n below 1440 or drop a ladder arm (SSR6). load_bearing = false: no registered test reads the ceiling.",
+   "rationale": "A record must carry a numeric cap to freeze; carrying the already-registered worst case keeps the cap sound whether or not the reduction lands first.",
+   "resolution_path": "Coordinator replaces budget.usd_cap with the validated ceiling from docs/next/design/glm52-f1k-cost-reduction.md (or freezes at $550 with the reduction as ops discipline) BEFORE prereg-freeze; either way the bring-up affordability gate (manifest addendum 7) re-checks the projection against whatever cap is frozen.",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2278",
+   "tag": "STIPULATED",
+   "claim": "PINNED-AT-INPUTS PLACEHOLDERS + FREEZE-READINESS CHECKLIST: three corpus pins are P-9 PINNED-AT-INPUTS placeholders completed by ops amendment before any final-phase run — f1k-trigger-map-v1 (pinned at freeze-manifest (A), before ANY spend), f1k-carriers-v1 (the SSR-REV3.3 B0 pure-function addendum, after construction / before the pilot), f1k-eval-v1 (test/dev/guard id lists + frozen templates + span sidecars, pinned by (A)/(6) before any test prefill); kernel-v0 is pinned now (8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809, reproduced at emission). glm52-weights is PINNED-AT-INPUTS at bring-up (ASM-1971 discipline). docs/next/design/f1k-freeze-readiness.md enumerates, in order, everything the coordinator must verify + pin before running prereg-freeze; the checklist is advisory structure, the record text is what freezes.",
+   "rationale": "The design's own ordering (SSR-REV4.2) makes several pins producible only during construction/bring-up; the P-9 placeholder mechanism is the registered way to freeze their derivation rules now and their bytes later, and one checklist keeps the coordinator's custody path explicit.",
+   "backing_ref": "registry/experiments/f1k.json pins.corpus_hashes + pins.model_revisions; tools/registry/prereg-freeze.py (PINNED-AT-INPUTS handling); design SSR-REV2.4/SSR-REV3.3/SSR-REV4.2; docs/next/design/f1k-freeze-readiness.md",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  }
+ ]
+}

@@ -1,0 +1,130 @@
+{
+ "range": "ASM-2230..ASM-2239 (free range verified this tick: central register tail in registry/assumptions.jsonl is ASM-2202; repo-wide grep for ASM-223[0-9] returned nothing before this emission)",
+ "purpose": "Companion assumption block for GLM-DROP (B1b) \u2014 kernel-guided GLM-5.2 expert-drop at matched experts-per-token, the primary efficiency instrument per the maintainer's issue #27 option-A redirect, designed with the issue #28 standing cost directive (spot i4i + expert-pinning + co-location on the KaE instance) baked in. EMITTED by the Fable architecture-design agent (designer-8, 2026-07-13) for central registration by the coordinator in registry/assumptions.jsonl with the landing commit, after the standing GPT-5.6 review gate. This pass writes NO registry entry and takes NO git action; nothing is frozen, pre-registered, scheduled, or run; no feasibility conclusion is stated anywhere in the block.",
+ "owner": "designer-8",
+ "backing_artifacts": [
+  "docs/next/design/glm52-expert-drop.md (the companion design, this pass)",
+  "poc/glm52-probe/results/probe-main.log sha256:77023d2b94e5f7719bdf86955de26cfb720ad33eb53521b48d47e50bc2a52592",
+  "poc/glm52-probe/results/routing-analysis-v2.json sha256:e9d6813f99a6efa03645a3c15260a84c3d47221a3d0061ad6bbc68749e1c57cc",
+  "poc/glm52-probe/results/routing-analysis.json sha256:f5d81dbd7d892aa3351efa6719b5db42fdfff0427aee14f1039080dfae847ec6",
+  "poc/glm52-probe/concept_prompts.json sha256:64df95a0095c892386e9ba71d3cc5be41d957e43cf308348d81eae248e81047f",
+  "poc/glm52-probe/interpretation-fable.md sha256:797cdd6793885727b613b46f5dcd9209b75f1005bf75c50b92d51e2a7aba9e01",
+  "docs/next/design/glm52-followup-experiment.md sha256:9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6",
+  "docs/next/design/glm52-kernel-integration-northstar.md sha256:a79c8a31b053af2e1928e4666f7485326bf03b0d76c9497e4191459fc2df2ba6",
+  "repo HEAD at emission: 31bd031d6546950a4179b3c32201087b358f6819",
+  "github.com/jeswr/kernel-of-truth issues #27 (comment: 'Proceed with A (redirect)...') and #28 (cost thread: spot + pinning + co-location; maintainer: 'Yes that works; please also use similar cost saving measures on other GLM 5.2 experiments...')"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2230",
+   "tag": "STIPULATED",
+   "claim": "REDIRECT + SEQUENCING AMENDMENT: per the maintainer's issue #27 option-A decision (verbatim comment: 'Proceed with A (redirect), with a token underpowered-DDC secondary if you want the SmolLM cross-check'), GLM-DROP (the B1b kernel-guided expert-drop on GLM-5.2) becomes the programme's PRIMARY efficiency instrument; DDC's disposition (park vs token underpowered-with-disclosure secondary) remains the coordinator's call. This amends ASM-2010's sequencing clause 'B1b gated behind B1a's outcome': GLM-DROP's admissibility no longer waits on a B1a live win \u2014 its physics lever (fewer experts computed per token) is TOPK-like and does not presuppose pin-miss structure \u2014 but it inherits every deflator obligation unreduced, a Branch-B/C outcome of the held ASM-2013 classifier scopes (not blocks) its claims, and the R4 offline replay (M_oracle/M_kernel, CPU-only, ~$0) MUST land through the coordinator's mechanical pathway before GLM-DROP main-phase spend. F1-K's primacy and its #28 gates are untouched.",
+   "rationale": "The maintainer decision must enter the record as a registered amendment, not a silent contradiction of ASM-2010; requiring the free R4 replay first preserves the branch classifier's integrity and prices the kernel-specificity prior before dollars move.",
+   "backing_ref": "issue #27 comment (maintainer); docs/next/design/glm52-expert-drop.md header + section 7; docs/next/design/glm52-followup-experiment.md ASM-2010/2013; poc/glm52-probe/interpretation-fable.md section 2 R4",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2231",
+   "tag": "MEASURED",
+   "claim": "P0 EVIDENCE BASE consumed by this design, from committed bytes: (a) uniform TOPK truncation on GLM-5.2/colibri gives 0.10 -> 0.12 -> 0.19 -> 0.25 tok/s at topk 8 -> 6 -> 4 -> 2 (1.9x at topk=4, 2.5x at topk=2), experts loaded/token 1786.5 -> 1596.0 -> 998.9 -> 606.3, with the sampled sky-blue answer staying correct and coherent down to topk=4; the factual-retention check is n=2 and mixed (topk=8 answered 'Paris.', topk=4 emitted an echo within a tiny token budget) \u2014 speed effect solid, quality effect unbounded at n=2 (probe-main.log P4, sha256:77023d2b94e5f7719bdf86955de26cfb720ad33eb53521b48d47e50bc2a52592); (b) the coordinator-run R1-R3 mechanical re-analysis (routing-analysis-v2.json, sha256:e9d6813f99a6efa03645a3c15260a84c3d47221a3d0061ad6bbc68749e1c57cc, 10,000 random label shuffles, seed 20260712) records raw within/across cosine delta +0.0432 at perm p=0.0001, mean-centred within 0.9119 vs across -0.0740 (delta 0.9859, p=0.0001), universal component = 10,591/16,483 cells carrying 93.92% of mass, sense pairs break delta +0.1955 p=0.0029 and bank delta +0.3259 at p=0.1026 (the n=6 permutation floor); (c) the R4 replay legs M_oracle and M_kernel have NEVER been computed \u2014 no such output exists in poc/glm52-probe/results/ \u2014 so the ASM-2013 branch classifier is legitimately HELD and kernel-specificity of the routing structure is OPEN.",
+   "rationale": "Pinning exactly what is measured (and what is NOT: n=2 quality, absent R4 legs) prevents the design from resting on the interpretation previews or on over-read probe numbers.",
+   "backing_ref": "poc/glm52-probe/results/probe-main.log P4; poc/glm52-probe/results/routing-analysis-v2.json; ls of poc/glm52-probe/results/ this tick (no M_oracle/M_kernel artifact)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2232",
+   "tag": "STIPULATED",
+   "claim": "ARM SET at one operating point k* (experts computed per token per MoE layer, pilot-selected per ASM-2234) and one retained fraction f=0.25 per layer for masked arms: b0-full (TOPK=8 config default, retention reference); u-topk (TOPK=k*, all experts eligible \u2014 deflator 1, the P0 uniform lever); m-rand (seeded random f-retained set, universal core NOT protected, TOPK=k* among survivors \u2014 descriptive any-mask floor); m-freq (top-f by pooled trace usage mass, workload-blind \u2014 deflator 2a); m-emb (per-item: universal core + top experts by embedding-cluster-conditional mass from an off-the-shelf sentence-embedding clustering of the trace corpus, no kernel anywhere \u2014 deflator 2b, the knull-analog); m-kern (the kernel arm, retained set per ASM-2233). m-emb and m-kern are structurally identical pipelines differing ONLY in the conditioning signal, so any m-kern increment over m-emb is attributable to the kernel labels. Per-layer retained-set Jaccard overlaps across m-kern/m-freq/m-emb are reported descriptively; if m-kern/m-emb overlap exceeds 95% the D2 contrast is declared uninformative (non-distinct arms) rather than reported as a tie.",
+   "rationale": "The arm set operationalises the deflator crux: uniform-TOPK at matched loads (the free knob that already banked 1.9x) plus a conditioned kernel-free importance baseline are both mandatory before any kernel sentence; the pipeline-identity of m-emb/m-kern is the only construction that isolates the kernel variable.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md sections 1, 3; poc/glm52-probe/interpretation-fable.md section 1.1 (the B1b design-amendment note); docs/next/design/glm52-kernel-integration-northstar.md section 2.2 (arm structure)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2233",
+   "tag": "STIPULATED",
+   "claim": "CONCEPT->EXPERT MAP construction and its honest scope: built offline (CPU, ~$0) from the 24 committed P0 fingerprints; every masked arm retains a shared UNIVERSAL CORE (top cells by pooled mass to a pre-registered cumulative-mass fraction, frozen in the prereg \u2014 the ~94%-mass always-on component is model function, not concept selection); the kernel arm then fills to f x 256 per layer with the top experts by MEAN-CENTRED conditional mass for the item's active concepts, where active concepts come from the same harness-side lexical G-lex trigger map F1-K uses (no router signal consumed for gating; G-route stays unsupported); leave-one-out within concept clusters so no item is scored against a map built from its own prompts. SCOPE, stated plainly: kernel-specificity is OPEN pending R4 (concept-shaped routing structure is mechanically established at p~1e-4, but whether KERNEL labels exploit it beyond an embedding-topic conditioner is unmeasured); the concept-vs-topical-lexical confound is unresolved at 3 prompts/concept (sense minimal-pairs argue against a purely surface account; surface-disjoint discrimination belongs to F1-A); map coverage is ~24 concepts from one box \u2014 items whose active concepts lack trace coverage are EXCLUDED from masked-arm contrasts and counted, and if exclusions exceed 20% of the subset the coverage shortfall surfaces to the maintainer before the main phase; sense-granular retained sets are admissible only on an A1 classifier outcome (ASM-2013 carried), else word-level concepts only.",
+   "rationale": "The map is the experiment's kernel-side input; over-claiming its evidential status (the exact R4 gap) or its coverage would smuggle the conclusion into the design. Universal-core retention prevents the kernel arm from being penalised for what is model plumbing, and leave-one-out prevents self-scoring.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 2; poc/glm52-probe/results/routing-analysis-v2.json (universal_mass_frac 0.9392, mean_centered block); poc/glm52-probe/interpretation-fable.md sections 1.2, 2 (R4), 4 (G-route unsupported)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2234",
+   "tag": "STIPULATED",
+   "claim": "MATCHED-EXPERTS PROTOCOL: the matched quantity is realized experts-loaded-per-token read from the engine's own counter (absorbs MTP union-loading across speculative drafts); all non-full arms run at the same k* so nominal experts-computed/token match by construction; MATCH GATE: every masked arm's realized loads/token must be within +/-5% of u-topk's on the same items or the affected arm is VOID (never reinterpreted); f x 256 = 64 survivors/layer >> k*, so no layer can run short (a short layer is a config error and halts). OPERATING-POINT SELECTION (dev split only): run b0-full and u-topk at k in {4,3,2}; k* = the largest k whose uniform deficit on dev is >= 3 accuracy points; escalation order k=1 then TOPP-tightened k=2; if NO tested point shows a >=3-point dev deficit, STOP and report 'uniform truncation is retention-free down to the tested floor on this subset' (a kernel-free efficiency datum; the guided-drop question is unanswerable where no deficit exists to recover) and return to the maintainer. INSTRUMENT SETTINGS: DRAFT=0; PILOT off; AUTOPIN/.coli_usage off in all arms, fresh caches at arm boundaries; DIRECT off (quality endpoints; cache state affects cost, not scoring); item order randomized and seeded at block level; arm order rotated; every run emits a committed manifest (binary hash, mask-file hashes, knob values, per-item realized-loads counters, seeds); knob semantics re-verified from the checkout at bring-up, any surprise halts for a protocol amendment before data collection.",
+   "rationale": "Matched physical cost is what makes 'guided beats uniform' meaningful at all; the deficit-regime pilot rule prevents spending a main phase in a regime where the question is undiscriminating (P0's coherence at topk=4 warns this is live); voiding rather than reinterpreting mismatched arms closes the post-hoc escape hatch.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 4; poc/glm52-probe/results/probe-main.log P4 (experts-loaded/token counter lines); docs/next/design/glm52-followup-experiment.md ASM-2028 (settings discipline carried)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2235",
+   "tag": "STIPULATED",
+   "claim": "QUALITY ENDPOINT + STATISTICS: items = the F1-K known-concept subset reused verbatim (G-lex-filtered MMLU supplemented mechanically from the pre-registered ARC-Easy/Challenge + OpenBookQA + CommonsenseQA pool; same splits; dev used for the pilot only; test untouched until arms freeze); scoring = one prefill per item per arm with F1-K's frozen candidate-independent label-token template, per-option loglikelihood, argmax = answer (generative benchmarking unaffordable at 0.09-0.25 tok/s, ASM-1988 carried); primary endpoint = per-item correctness, retention contrast Delta(arm) = acc(arm) - acc(b0-full), fully paired. Statistics: unit = item with concept-cluster-aware inference reusing F1-K's REVISION-1 machinery (cluster-level permutation analog of ASM-2035/2038); paired one-sided permutation, 10,000 resamples, alpha=0.05, effect floor >= +3 accuracy points per named contrast; required n power-derived (0.90 at the +3 floor) from pilot variance with F1-K's simulation rig, n_max = the available pool (<=1,440); if power-required n exceeds the available subset the experiment does NOT run underpowered by default \u2014 it surfaces to the maintainer with the measured shortfall and priced options (the MD-6 lesson); fixed n, no optional stopping, no post-hoc subgroups beyond the named sense-pair descriptive tag. Efficiency numbers (realized loads/token, a <=3-prompt seeded generative tok/s spot-check per arm, projected shard size f x 370 GB) are DESCRIPTIVE systems observations carrying no claim in this experiment.",
+   "rationale": "Reusing F1-K's subset, scorer, and power machinery amortizes construction cost per the standing directive AND scores the drop arms on exactly the concept-covered workload the map exists for; the surface-on-underpower rule prevents repeating the DDC I-5 failure mode that triggered issue #27.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 5.1-5.2; docs/next/design/glm52-followup-experiment.md sections 2.7, R1.1, R3 (ASM-2030/2035/2038); issue #27 (MD-6 root cause)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2236",
+   "tag": "STIPULATED",
+   "claim": "DECISION RULE + CLAIM CAPS, both directions frozen in wording before any run: D0 deficit check \u2014 if acc(u-topk) >= acc(b0-full) - 3 points on test, the run is floor-bound, no guided-vs-uniform contrast is licensed; D1 guided-vs-uniform \u2014 acc(m-kern) - acc(u-topk) >= +3 points, paired one-sided permutation p<0.05, matched loads verified; D2 kernel-specificity \u2014 acc(m-kern) - max(acc(m-freq), acc(m-emb)) >= +3 points, same test against the STRONGER deflator. Licensed sentences, exhaustive: D1-and-D2 pass -> 'kernel-concept-guided expert-drop preserved more accuracy than uniform router truncation and than kernel-free importance baselines at matched experts-per-token, on concept-covered QA items at this model and box' \u2014 the ENTIRE sentence, nothing about intelligence, parity, general capability, or deployment; D1 pass with D2 fail -> 'conditioned expert-drop preserves quality beyond router truncation; the kernel is one conditioner among several' (a guidance-not-kernel deflation, reported at equal prominence); D1 fail -> 'router-weight truncation suffices at this budget; concept guidance added nothing' and kernel-guided B1b is recorded dead-at-this-scale-and-subset with uniform TOPK standing as a colibri-native concept-free lever carrying no kernel sentence; m-rand within 3 points of m-kern is flagged 'any-mask regime' descriptively alongside whichever outcome obtains. Grading belongs to verdict-gen's registered pathway; no outcome moves the EFFICIENCY or CORRECTNESS synthesis verdicts, which remain INCONCLUSIVE-PENDING under their own designated experiments; this design states no feasibility conclusion.",
+   "rationale": "Pre-naming every outcome sentence \u2014 including the 'any drop works' and guidance-not-kernel deflations the programme's four prior deflations predict as modal \u2014 is the only defence against post-hoc wording drift once GLM-5.2 numbers become quotable (ASM-1987 scope-temptation discipline carried).",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 5.3; docs/next/design/glm52-kernel-integration-northstar.md section 6 risk 7 (ASM-1987); README experiment-summary deflation ledger",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2237",
+   "tag": "STIPULATED",
+   "claim": "CO-LOCATION + COST-SAVING DESIGN (the issue #28 standing maintainer directive, baked in as requirements): GLM-DROP runs on the SAME i4i.2xlarge SPOT instance that #28 authorizes for F1-K, sequenced AFTER F1-K's arms complete and never interleaved inside an arm, amortizing one S3 model restore, one bring-up + fact re-verification, one echo+logprobs gateway patch, one known-concept subset construction, and one prefill-throughput measurement across both experiments; if #28's gates do not land, GLM-DROP still runs on the same instance class with its own restore (the DROP patch does not depend on the KaE patch). Cost levers mandatory in the run design: (1) spot instances with per-item checkpointing so interruptions resume from the last completed item, long runs launched nohup+setsid per house box discipline; (2) expert-pinning + warm cache \u2014 masked arms draw from a ~93 GB retained pool instead of 370 GB, and the universal core plus pilot-measured workload-hot experts are PIN-ned within measured free RAM (cost lever only; scoring is cache-state independent); (3) concept-adjacent item-block scheduling within arms (seeded block-level randomization recorded); (4) instance stopped between phases, artifact persists in S3. All spend is EC2-only; codex/claude bundled plans are not touched.",
+   "rationale": "The maintainer conditioned the GLM-5.2 programme's cost posture on exactly these measures ('please also use similar cost saving measures on other GLM 5.2 experiments'); encoding them as design requirements rather than runtime options makes the cost discipline auditable at prereg review.",
+   "backing_ref": "issue #28 comment thread (cost breakdown + maintainer approval); docs/next/design/glm52-expert-drop.md section 6.1-6.2; bd memory modal-attached-runs (nohup/setsid box discipline analog)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2238",
+   "tag": "EXTRAPOLATION",
+   "claim": "COST BANDS (planning figures, never premises, verified at spin-up): i4i.2xlarge spot ~$0.20-0.28/h vs $0.69 on-demand; prefill throughput on this box is UNKNOWN until F1-K bring-up measures it (ASM-2023 carried), so bands scale from F1-K's $40-140/7-arm anchor: pilot ~170 prefills (24 dev items x 2 arms x 3 k-values + spot-checks), main ~1,800 prefills (6 arms x planning n~300, n power-derived within the <=1,440 pool), mask/map construction CPU ~$0; band ~$15-45 in spot-hours; CEILING $60 spot-hours, with any on-demand fallback (if spot capacity dries up) requiring coordinator sign-off rather than occurring silently (~$150 equivalent). Pre-registered degradation order if the ceiling binds: (1) drop m-rand; (2) drop m-freq (m-emb, the stronger conditioned deflator, is never dropped); (3) drop the escalation k-cell; (4) return to the maintainer \u2014 the order never cuts n below the power requirement and never removes a deflator required by D2. S3 retention stays on the existing $8.5/mo line.",
+   "rationale": "Bands priced at spot rates with a hard ceiling and a validity-preserving degradation order implement the #28 cost directive without creating a path where budget pressure silently weakens the deflator set or the power requirement.",
+   "backing_ref": "issue #28 comment thread (spot pricing, reduction levers); docs/next/design/glm52-followup-experiment.md ASM-2023/2048 (prefill-throughput unknown; ceiling discipline); docs/next/design/glm52-expert-drop.md section 6.4",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13",
+   "resolution_path": "Resolved by the measured GLM-5.2 expert-drop run (kernel-guided vs uniform-TOPK vs frequency-baseline at matched experts/token); the projection is discharged by the runs quality-retention metrics under the frozen deflator policy."
+  },
+  {
+   "id": "ASM-2239",
+   "tag": "STIPULATED",
+   "claim": "C-CHANGE ENVELOPE: the only engine modification GLM-DROP needs is a DROP=<mask-file> knob \u2014 a per-layer expert bitmask sidecar read at startup that restricts the router's candidate set before top-k selection; estimated 40-60 lines against the same pinned colibri commit the KaE draft targets (a78a06fc5acc4b0dc0f9ef03987c66b0559d1250), kept as an in-repo diff, inert unless DROP is set, fail-closed on malformed masks (engine refuses to start; never a silent partial arm), mask-file hashes recorded in every run manifest. This is NOT a Law-1 matter (it selects among native experts and writes nothing into activations) but it EXCEEDS the P0 trace-dump-only C envelope (ASM-1986/1989), so the diff requires maintainer patch approval \u2014 bundled into the #28 gate review as one decision rather than a new gate; fork-vs-upstream etiquette carried from ASM-1989 (nothing pushed upstream without a separate decision).",
+   "rationale": "Scoping the single C touch precisely, with fail-closed semantics and hash-pinned masks, keeps the fork-maintenance liability bounded and the arm definitions byte-auditable; routing it through the existing #28 review avoids gate proliferation while preserving the maintainer's approval authority over every C change.",
+   "backing_ref": "docs/next/design/glm52-expert-drop.md section 6.3; poc/glm52-probe/kae-patch-draft/asm-kae-patch-2180-2190.json (pinned colibri commit, fail-closed loader precedent); docs/next/design/glm52-kernel-integration-northstar.md section 6 risk 3 (ASM-1989)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-8",
+   "date": "2026-07-13"
+  }
+ ]
+}

@@ -1,0 +1,509 @@
+#!/usr/bin/env python3
+"""One-shot builder for registry/experiments/f1k.json (freeze-package pass,
+2026-07-13). Kept in-repo so the record's construction is reproducible; the
+coordinator may delete it after prereg-freeze. NO git action, NO freeze here.
+"""
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools" / "registry"))
+import kot_common as kc  # noqa: E402
+
+DESIGN = "docs/next/design/glm52-followup-experiment.md"
+DESIGN_SHA = "9f18e5e09f5c8a2a933f3446697daf5849676447004540398237da7f8e67f2b6"
+SCRIPT = "analysis/f1k.py"
+SCRIPT_SHA = "c5edd0bd1dea70f4a7e0be85e4e107cce27ff49af1b42324a2bef58ff4e6b12c"
+PATCH_SHA = "11f8b45884878111480192ee086c92b22acaa1aaf3238b2d46c47f952e9dd9cb"
+KAEH_SHA = "e2574873115b5109ca87123e29286ea89ce8955655a31fc158225be52fb21ddd"
+COLIBRI = "a78a06fc5acc4b0dc0f9ef03987c66b0559d1250"
+KERNEL_V0 = "8209cadabcfc2eaa11631c5c1100c04a48f33673516780b1f36cbf957217c809"
+
+def output_fields():
+    import re
+    src = (ROOT / SCRIPT).read_text(encoding="utf-8")
+    body = src.split("OUTPUT_FIELDS = [", 1)[1].split("]", 1)[0]
+    return re.findall(r'"(/[^"]+)"', body)
+
+
+def gate_and(metrics):
+    node = {"metric": metrics[0]}
+    for m in metrics[1:]:
+        node = {"op": "and", "a": node, "b": {"metric": m}}
+    return node
+
+
+FIELDS = output_fields()
+GATES = [f for f in FIELDS if f.startswith("/gates/")]
+
+record = {
+    "schema_version": "kot-reg/1",
+    "id": "f1k",
+    "status": "DRAFT",
+    "title": (
+        "F1-K Kernel-as-Expert (KaE) ADD path on GLM-5.2: does splicing a "
+        "grounded per-concept content-carrier into the MoE sum (training-"
+        "free, concept-gated, the gate-0-approved kae-add-path.patch on the "
+        "colibri C engine) lift accuracy on the known-concept public-QA "
+        "subset over the unmodified model (b0), over R=3 dose-exact concept-"
+        "label DERANGEMENTS of the identical carrier set (d1-drng), and over "
+        "a plain-dictionary knull carrier (d2)? Design: " + DESIGN + " SS2 "
+        "(F1-K) as amended by SSR (REVISION-1) through SSR-REV5 (REVISION-5); "
+        "latest revision governs on conflict. Reduced-cost approach per the "
+        "maintainer GO (kernel-of-truth #28): spot instance + expert-pinning/"
+        "warm-cache (ops-side, statistics untouched) + R 5->3 (the SSR6 "
+        "pre-registered degradation step 1, applied up front). ASMs: "
+        "ASM-2024..2033, ASM-2034..2042, ASM-2043..2048, ASM-2049/2113/2114, "
+        "ASM-2122..2124, ASM-2130 (design); ASM-2180..2190 (patch); "
+        "ASM-2270..2278 (this freeze package)."),
+    "depends_on": [],
+    "efficiency_relevant": True,
+    "hypotheses": [
+        "H-K1 (content seam works; the PRIMARY): on the known-concept QA "
+        "subset, the K carrier ADD splice lifts accuracy over unmodified "
+        "GLM-5.2 (b0) by >= +3.0 points with exact cluster sign-flip "
+        "permutation p < 0.05 — 'content injection at the MoE seam lifts "
+        "accuracy on concept-covered QA at this model/box' (SS2.6 rung K-1).",
+        "H-K2 (concept alignment matters; PASS-required deflator bar, "
+        "ASM-2029/2036): K beats the per-item MEAN over the R=3 seeded "
+        "concept-label derangements of the IDENTICAL carrier set at "
+        "identical dose (layerwise norm-matched) at the same joint rule — "
+        "'the TRUE concept->carrier alignment beats label-deranged "
+        "assignments' (rung K-2). A PASS licenses 'kernel-aligned content "
+        "helps', never 'any content helps'.",
+        "H-K3 (kernel-specific, the hard bar; secondary): K beats the "
+        "plain-dictionary d2 knull at the same joint rule (rung K-3). On "
+        "the four-deflation record a K~d2 tie is the MODAL expectation and "
+        "is reported at equal prominence in the pre-adopted content-not-"
+        "structure wording; K-3 elevates claim wording only, never the "
+        "verdict.",
+        "H-Kseam (descriptive, never a rung): K vs d3-text (identical "
+        "explication as prompt text, no splice) reported both directions — "
+        "whether the in-routing splice adds anything over f2b-transfer's "
+        "prompt seam is a mechanism finding either way.",
+        "H0/NULL (TOST at the +/-3.0-pt SESOI): the K-1 cluster-BCa 90% CI "
+        "lies strictly inside (-3.0, +3.0) and b0 is not ceiling-bound — no "
+        "training-free KaE ADD effect at this seam within the effect floor; "
+        "a rung-1 null says the seam itself is inert at this scale; a "
+        "rung-2/3 null is the next content-not-structure datum. No outcome "
+        "licenses an intelligence, parity, or general-capability claim "
+        "(ASM-2033).",
+    ],
+    "prereg_doc": {
+        "path": DESIGN,
+        "sha256": DESIGN_SHA,
+        "anchors": [
+            "SS2.1-2.9 (question, gate 0, gate/splice, carrier, ADD/REPLACE, "
+            "deflator ladder, QA protocol, C-patch scope, cost)",
+            "SSR1.1 (frozen candidate-independent single-prefill label-logit "
+            "scoring) + SSR-REV2.1 (template/trigger resolution)",
+            "SSR2 (d1-drng dose-exact derangement deflator + norm handling)",
+            "SSR3 + SSR-REV2.2 + SSR-REV3.1 (cluster-aware power; power "
+            "gate C>=65/m>=8/n<=1440; rho_U=0.10 planning; n=1440 at cap)",
+            "SSR4 + SSR-REV2.3 + SSR-REV3.2 (family-blind equal-family-"
+            "weight (L,g) tuning)",
+            "SSR5 + SSR-REV2.4 + SSR-REV3.3 + SSR-REV4.2 (pre-spend freeze "
+            "manifest (A), B0/5/7/6 pure-function addenda, bring-up as a "
+            "PRE-test gate)",
+            "SSR-REV4.1 (sign-flip exchangeability basis + joint-rule "
+            "licensing) + SSR-REV5 (Gaussian planning label + frozen "
+            "pre-spend Monte-Carlo exact-power confirmation)",
+            "SSR6 + SSR-REV4.3 (ceilings, degradation order, REPLACE "
+            "run/defer at rho_U=0.10)",
+        ],
+    },
+    "analysis_plan_ref": {
+        "path": DESIGN,
+        "anchor": ("SSR3.1 primary analysis form + SSR-REV4.1 licensing rule "
+                   "(exact cluster sign-flip, observed lift >= +3 pts AND "
+                   "p < 0.05) + SS2.6 ladder + SSR2 K-2 inference (K vs "
+                   "per-item mean over R derangement passes) + SSR1.2/"
+                   "SSR-REV2.1/SSR-REV4.3 REPLACE-NI + SS2.7 ceiling-bound "
+                   "wording"),
+        "sha256": DESIGN_SHA,
+    },
+    "design": {
+        "independent_vars": [
+            {"name": "arm",
+             "levels": ["b0", "d0", "d1-drng", "d2", "d3-text", "K",
+                        "REPLACE"]},
+            {"name": "drng_pass", "levels": [1, 2, 3]},
+        ],
+        "dependent_vars": [
+            {"name": "item_correct",
+             "unit": "0/1 per (item x arm x pass)",
+             "better": "higher",
+             "definition": ("SSR1.1 frozen scoring: ONE prefill per item per "
+                            "arm on the frozen byte-identical template; "
+                            "model answer = argmax over the k single-token "
+                            "answer-LABEL logprobs at the answer cue "
+                            "(published option order, tie-break lowest "
+                            "label index, ties logged); correct = match to "
+                            "the benchmark gold label. Candidate-"
+                            "independent and length-invariant by "
+                            "construction.")},
+            {"name": "accuracy", "unit": "fraction (0..1)",
+             "better": "higher",
+             "definition": ("K-arm accuracy on the known-concept test "
+                            "subset; all registered claims ride on paired "
+                            "cluster-level lifts, never absolute "
+                            "accuracy.")},
+            {"name": "params", "unit": "parameter count",
+             "better": "n/a",
+             "definition": ("Host parameters UNCHANGED by construction "
+                            "(ADD splice; native experts intact); carrier-"
+                            "table parameters added (concepts x |L_KaE| x "
+                            "6144 fp32) disclosed from the sidecar.")},
+            {"name": "memory", "unit": "bytes",
+             "better": "lower",
+             "definition": ("Carrier offset-table bytes (~0.6-44 MB fp32, "
+                            "SS2.4) + sidecar bytes, measured and "
+                            "disclosed; no other memory claim.")},
+            {"name": "inference_compute", "unit":
+                "prefills + bytes per gated token",
+             "better": "lower",
+             "definition": ("One prefill per item per arm (SSR1.1); ADD "
+                            "adds one axpy per gated (token, layer). The "
+                            "conditional REPLACE arm's endpoint includes "
+                            "measured expert-byte saving > 0 on gated "
+                            "tokens (SSR1.2).")},
+            {"name": "training_compute", "unit": "FLOPs",
+             "better": "n/a",
+             "definition": ("Identically ZERO by construction: carriers are "
+                            "mean differences of forward-pass hidden states "
+                            "(SS2.4); no gradients anywhere; reported as 0 "
+                            "for every arm.")},
+        ],
+        "arms_mandatory_baselines": [
+            "b0 unmodified GLM-5.2 (baseline; also the ceiling-bound "
+            "instrument: b0 subset accuracy > 0.95 => 'ceiling-bound at "
+            "this subset', never a null)",
+            "d0 norm-matched random carrier (placebo; if d0 beats b0 at "
+            "one-sided cluster sign-flip p < 0.05 the instrument measures "
+            "noise sensitivity => run VOIDED via /gates/placebo_gate_valid "
+            "— conservative sharpening ASM-2273: NO +3 floor on voiding)",
+            "d1-drng x3: seeded concept-label DERANGEMENTS of the IDENTICAL "
+            "K carrier set, layerwise norm-matched to ||v^K_{c,l}|| — the "
+            "dose-exact knull bar (SSR2/ASM-2036); R = 3 passes, seeds "
+            "[101, 102, 103] (R 5->3 = SSR6 degradation step 1, pre-applied "
+            "per the maintainer reduced-cost GO #28; rank-check granularity "
+            "loss disclosed: best-of-4 nominal 0.25)",
+            "d2 plain-dictionary definitions of the SAME concepts (the "
+            "knull proper, rung K-3), same construction, norm-rescaled to "
+            "the K reference",
+            "d3-text kernel explication prepended as PROMPT TEXT, no splice "
+            "(bridge control; K-seam descriptive; deferrable at SSR6 "
+            "degradation step 3 without touching any ladder rung)",
+        ],
+        "scale_rungs": ["glm52-744b"],
+        "scale_language_max": "none",
+        "seeds": [101, 102, 103],
+        "n_planned": {
+            "n_test_items": ("n = min(n_max, n_required(rho_U=0.10)) = "
+                             "1440 (SSR-REV3.1 item 4: n_required exceeds "
+                             "the cap at every feasible C, so F1-K runs AT "
+                             "the cap, maximising C)"),
+            "n_max": 1440,
+            "power_gate": ("HARD: >= 65 concept clusters EACH with >= 8 "
+                           "test items (each-cluster reading of SSR-REV2.2 "
+                           "'C >= 65 with m >= 8', registered ASM-2271) and "
+                           "n <= 1440, computed from the realized b0 test "
+                           "rows; below it F1-K does NOT run and returns to "
+                           "the maintainer with the measured coverage-vs-"
+                           "power shortfall"),
+            "dev_split_items": 96,
+            "off_concept_guard_items": 60,
+            "pilot": ("3 layer sets x 3 g values on a 48-item stratified "
+                      "dev subset over the 4-member family-blind carrier "
+                      "panel {K-true, K-derangement (pilot seed 11), "
+                      "d2-family, random d0-family (seed 7)}; selection "
+                      "statistic = EQUAL FAMILY-LEVEL weight mean "
+                      "(SSR-REV3.2); frozen (L, g) applied identically to "
+                      "every spliced arm"),
+            "scoring_passes": ("1 prefill per item per arm; main arms = "
+                               "b0, d0, d1-drng x3, d2, d3-text, K = 8 "
+                               "passes (+1 conditional REPLACE, run only "
+                               "if dev delta_R <= ~0.038 per SSR-REV4.3); "
+                               "worst-case main volume 9 x 1440 = 12960 "
+                               "prefills + construction <= 3072 + pilot "
+                               "~6200 + guard <= 660"),
+            "statistics": ("cluster sign-flip permutation B = 10000, "
+                           "add-one corrected, global PRNG seed 20260713, "
+                           "deterministic per-contrast sub-seeds; cluster "
+                           "BCa bootstrap B = 10000 for TOST/NI bounds; "
+                           "all constants pinned in analysis/f1k.py"),
+            "mc_exact_power_confirmation": (
+                "SSR-REV5: frozen pre-spend CPU Monte-Carlo of the EXACT "
+                "sign-flip joint power at mu* = +4.09 pts, N_sim = 10000, "
+                "pass iff >= 0.80; procedure + seed = freeze-manifest (A) "
+                "entries; realized power enters the sidecar and is "
+                "reported at /analysis/power_scope — a reporting-fidelity "
+                "check, never a spend lever"),
+            "budget_note_TODO_coordinator": (
+                "usd_cap below is the REGISTERED SSR6/ASM-2048 worst-case "
+                "ceiling ($550 at on-demand $0.69/h, pessimistic 100 "
+                "s/prefill). The maintainer GO'd a REDUCED-COST approach "
+                "(#28: spot ~$0.20-0.28/h + expert-pinning/warm-cache + "
+                "R 5->3, expected well under $150). docs/next/design/"
+                "glm52-f1k-cost-reduction.md is NOT yet in-repo: the "
+                "coordinator MUST replace usd_cap with the validated "
+                "reduced ceiling from that design before prereg-freeze, "
+                "or freeze at $550 as a cap-not-target with the reduction "
+                "recorded as an ops discipline. Reductions may never cut "
+                "n below 1440 or drop a ladder arm (SSR6)."),
+            "assumptions": [
+                {"claim": ("Design verbatim from " + DESIGN + " SS2 + SSR "
+                           "through SSR-REV5 (ASM-2024..2033 / 2034..2042 / "
+                           "2043..2048 / 2049,2113,2114 / 2122..2124 / "
+                           "2130); freeze-package operationalisations "
+                           "ASM-2270..2278 (docs/next/design/"
+                           "asm-f1k-freeze-2270-2278.json, emitted, pending "
+                           "central registration)"),
+                 "tag": "STIPULATED"},
+                {"claim": ("MAINTAINER GATE 0 (Law-1 scoped amendment + the "
+                           "KaE patch) and GATE 1 (plan + ceilings) are "
+                           "GO'd on the reduced-cost approach per "
+                           "kernel-of-truth #28; the Law-1 amendment must "
+                           "still be an explicit registry event before any "
+                           "run (ASM-2025)"),
+                 "tag": "STIPULATED"},
+                {"claim": ("Prefill seconds/item unknown until bring-up; "
+                           "bring-up (manifest addendum 7) is a PRE-test "
+                           "gate (SSR-REV4.2); the SSR6 degradation order "
+                           "applies deterministically if the projection "
+                           "exceeds the ceiling"),
+                 "tag": "EXTRAPOLATION"},
+            ],
+        },
+    },
+    "endpoints": [
+        {"id": "primary-k1-add-lift",
+         "role": "primary",
+         "metric": "/analysis/k1_lift_points",
+         "smallest_effect_of_interest": {
+             "type": "absolute_accuracy_points", "value": 3.0},
+         "test": ("EXACTLY ONE primary (SS2.6 rung K-1, SSR3.1, SSR-REV4.1): "
+                  "K vs b0 paired per-item correctness on the known-concept "
+                  "test subset; per-cluster mean D_c of per-item diffs; "
+                  "statistic T = mean_c D_c (points = 100T) at "
+                  "/analysis/k1_lift_points; one-sided CLUSTER-LEVEL "
+                  "sign-flip permutation test, B = 10000 add-one corrected, "
+                  "exact under cluster sign-symmetry for ANY ICC "
+                  "(ASM-2122), p at /analysis/k1_p. LICENSED iff observed "
+                  "lift >= +3.0 points AND p < 0.05 "
+                  "(/analysis/k1_joint_pass). Cluster-BCa 95% CI reported "
+                  "at /analysis/k1_ci95. The record VERDICT PASS "
+                  "additionally requires rung K-2 (/analysis/pass_gate = "
+                  "k1_joint_pass AND k2_joint_pass) — the mandatory "
+                  "deflator discipline (ASM-2029/2036; ASM-2271). "
+                  "NULL = TOST: cluster-BCa 90% CI strictly inside "
+                  "(-3.0, +3.0) AND not ceiling-bound "
+                  "(/analysis/null_equiv); b0 > 0.95 reads 'ceiling-bound "
+                  "at this subset' (/analysis/ceiling_bound), never a "
+                  "null. Power/MDE figures are Gaussian PLANNING "
+                  "approximations (SSR-REV5); they never enter licensing.")},
+        {"id": "sec-k2-dose-exact-deflator",
+         "role": "secondary",
+         "metric": "/analysis/k2_joint_pass",
+         "test": ("Rung K-2 (SSR2): K vs the per-item MEAN correctness over "
+                  "the R = 3 d1-drng derangement passes, same cluster "
+                  "sign-flip + joint rule (+3.0 pts, p < 0.05). Dose-"
+                  "exactness is gate-checked (/gates/dose_exactness_valid): "
+                  "registered seeds [101,102,103], fixed-point-free "
+                  "derangement, layerwise norm match. Exactness rank check "
+                  "DESCRIPTIVE at /analysis/k2_rank_of_k (best-of-4 nominal "
+                  "0.25 after R 5->3, disclosed).")},
+        {"id": "sec-k3-knull",
+         "role": "secondary",
+         "metric": "/analysis/k3_joint_pass",
+         "test": ("Rung K-3 (the hard kernel-specific bar): K vs d2 "
+                  "plain-dictionary carriers, same joint rule. A K~d2 tie "
+                  "is the modal expectation, reported at equal prominence "
+                  "in the content-not-structure wording; elevates wording, "
+                  "never the verdict.")},
+        {"id": "sec-kseam-bridge",
+         "role": "secondary",
+         "metric": "/analysis/kseam_delta_points",
+         "test": ("K vs d3-text (prompt-seam bridge), DESCRIPTIVE both "
+                  "directions (SS2.6 K-seam); deferrable at SSR6 "
+                  "degradation step 3.")},
+        {"id": "sec-replace-ni",
+         "role": "secondary",
+         "metric": "/analysis/replace_ni_pass",
+         "test": ("Conditional REPLACE non-inferiority (SSR1.2/ASM-2044/"
+                  "2124): admitted only after ADD passes K-1 AND dev "
+                  "delta_R <= ~0.038 at rho_U = 0.10 (else DEFERRED, the "
+                  "modal expectation, decided PRE-test); PASSES iff "
+                  "cluster-BCa one-sided 95% LB of (REPLACE - K) > -2.0 "
+                  "pts (/analysis/replace_ni_lb95) AND measured expert-"
+                  "byte saving > 0 (/analysis/replace_io_saving); an LB "
+                  "crossing -2 is 'not shown non-inferior'.")},
+        {"id": "sec-power-scope",
+         "role": "secondary",
+         "metric": "/analysis/power_scope",
+         "test": ("Realized (C, m) joint-MDE at rho_U = 0.10 + the frozen "
+                  "pre-spend Monte-Carlo EXACT-test joint power (SSR-REV5) "
+                  "carried from the sidecar; any non-fire is scoped "
+                  "'powered to resolve >= [joint MDE] pts at rho_U = "
+                  "0.10', never a clean null at +3.")},
+        {"id": "sec-mechanism-descriptives",
+         "role": "secondary",
+         "metric": "/analysis/flip_matrix",
+         "test": ("Mechanism-level descriptives, never endpoints: "
+                  "corrections-vs-regressions flip matrix (K vs b0); "
+                  "predicted-label distribution per arm "
+                  "(/analysis/position_bias, instrument note); sense-pair / "
+                  "multi-concept / option-trigger subgroups "
+                  "(/analysis/subgroups); per-pass deflator accuracies "
+                  "(/analysis/deflator_comparison).")},
+    ],
+    "verdict_rules": [
+        {"verdict": "INSTRUMENT-INVALID",
+         "when": {"op": "not", "a": gate_and(GATES)}},
+        {"verdict": "FAIL", "when": {"metric": "/analysis/kill_fired"}},
+        {"verdict": "PASS", "when": {"metric": "/analysis/pass_gate"}},
+        {"verdict": "NULL", "when": {"metric": "/analysis/null_equiv"}},
+        {"verdict": "INCONCLUSIVE", "when": {"const": True}},
+    ],
+    "kill_criterion_verbatim": (
+        "F1-K is killed iff the splice actively HARMS: K-1 observed lift "
+        "<= -3.0 accuracy points AND harm-direction cluster sign-flip "
+        "p < 0.05 (/analysis/kill_fired) — the ADD lever is dead at this "
+        "model/box and the KaE track stops pending redesign. VOIDS (not "
+        "kills, INSTRUMENT-INVALID): d0 placebo beats b0 at one-sided "
+        "p < 0.05 (noise-sensitivity instrument, SS2.6); any off-concept "
+        "guard byte-identity mismatch (SS2.5/SS7.4); dose-exactness or "
+        "scoring-template check failure; freeze-manifest ordering violation "
+        "(SSR-REV4.2). PRE-RUN RETURNS (F1-K does not start): power gate "
+        "< 65 clusters with m >= 8 within n_max = 1440 (SSR-REV2.2 — the "
+        "scale gate biting, not a lever failure); bring-up affordability "
+        "projection above the ceiling after the full SSR6 degradation "
+        "order. A deflationary null at ANY ladder rung is a REAL RESULT "
+        "reported at equal prominence — never a kill: rung-1 null = the "
+        "seam is inert at this scale; rung-2 null = f2b's content effect "
+        "does not survive the move from prompt to routing; rung-3 null = "
+        "the fifth content-not-structure datum. A kill or void is reported "
+        "at the same prominence as a pass."),
+    "extrapolation_envelope_verbatim": (
+        "Results bind ONLY to: GLM-5.2 at the weights pinned at bring-up, "
+        "served by the colibri C engine at base commit " + COLIBRI + " with "
+        "the gate-0-approved KaE ADD patch (kae-add-path.patch sha256 " +
+        PATCH_SHA + "), on the single pinned i4i-class box; the mechanically "
+        "filtered known-concept QA subset (composition reported verbatim; "
+        "internal-relative numbers, never leaderboard-comparable); the "
+        "frozen (L_KaE, g) configuration from the family-blind pilot; "
+        "carriers built by the frozen SS2.4 generator; the SSR1.1 frozen "
+        "single-prefill label-logit scoring; R = 3 registered derangement "
+        "passes. NOTHING here extends to other models, scales, engines, "
+        "boxes, gating mechanisms (G-emb/G-route are registered variants, "
+        "not run), REPLACE beyond its own NI test, unlabelled-prompt "
+        "workloads (the l3a parse wall stands), or to any intelligence, "
+        "parity, efficiency-thesis or general-capability claim (ASM-2033); "
+        "no outcome moves the CORRECTNESS or EFFICIENCY synthesis verdicts, "
+        "which remain under their own designated experiments. Every claim "
+        "is scoped verbatim to 'concept-covered QA at this model and box'."),
+    "budget": {
+        "usd_cap": 550,
+        "wall_clock_cap_hours": 900,
+    },
+    "pins": {
+        "corpus_hashes": {
+            "_recipe": kc.CORPUS_RECIPE,
+            "kernel-v0": KERNEL_V0,
+            "f1k-eval-v1": (
+                "PINNED-AT-INPUTS:known-concept item lists (test/dev/"
+                "off-concept-guard ids + frozen scored templates + per-item "
+                "span sidecars), produced by the frozen mechanical filter + "
+                "trigger map; kot-corpus-hash/1 over data/f1k-eval-v1/ "
+                "pinned by ops amendment at freeze-manifest (A)/(6), before "
+                "any test prefill"),
+            "f1k-carriers-v1": (
+                "PINNED-AT-INPUTS:realized carrier tables for every arm "
+                "(K, 3 derangements, d0, d2) + raw and rescaled norms — the "
+                "B0 pure-function addendum (SSR-REV3.3); kot-corpus-hash/1 "
+                "over data/f1k-carriers-v1/ pinned after construction, "
+                "before the pilot"),
+            "f1k-trigger-map-v1": (
+                "PINNED-AT-INPUTS:phrase->concept trigger map expanded to "
+                "all kernel concepts with registered explications "
+                "(WordNet lemma/derivational surface expansion) + gate "
+                "precedence rules; kot-corpus-hash/1 over "
+                "data/f1k-trigger-map-v1/ pinned at freeze-manifest (A), "
+                "before ANY spend"),
+        },
+        "model_revisions": {
+            "glm52-weights": (
+                "PINNED-AT-INPUTS:content hash of the GLM-5.2 weight set "
+                "on the relaunched instance, pinned at bring-up per "
+                "ASM-1971 discipline, before any test prefill"),
+            "colibri-base-commit": COLIBRI,
+        },
+        "analysis_script": {
+            "path": SCRIPT,
+            "sha256": SCRIPT_SHA,
+            "output_fields": FIELDS,
+        },
+        "harness_manifest": (
+            "KaE patch (gate-0 artifact, REVISION-1 codex-hardened): "
+            "poc/glm52-probe/kae-patch-draft/kae-add-path.patch sha256 " +
+            PATCH_SHA + " (unified diff vs colibri " + COLIBRI + "; kae.h "
+            "reference copy sha256 " + KAEH_SHA + "); 44/44 unit checks "
+            "under ASan+UBSan+LSan; inert-by-default proven (88/92 "
+            "functions byte-identical at KAE=0); SSR1.1 scorer = "
+            "run_kae_score via KAE_SCORE (one prefill/item/arm, label-"
+            "logit argmax). FREEZE MANIFEST (SSR5 as restructured by "
+            "SSR-REV2.4/SSR-REV3.3/SSR-REV4.2): pre-spend artifact (A) "
+            "[all rules + carrier GENERATOR + all seeds (construction; "
+            "pilot-panel 11; d0 table 7; main derangements 101,102,103) + "
+            "template bytes/label ids/tie-break + trigger-map hash + "
+            "guard/dev/test id-list hashes + deterministic derivation "
+            "rules for 5/6/7 + the SSR-REV5 MC procedure/seed] committed "
+            "before ANY spend; then construction -> (B0) realized "
+            "carriers -> pilot -> (5) frozen (L,g) -> (7) bring-up "
+            "s/prefill + affordability gate -> (6) power freeze + "
+            "run/defer gates -> TEST spend; the test set stays untouched "
+            "until (A),(B0),(5),(7),(6) are ALL committed. Analysis "
+            "invocation: verdict-gen pipes eligible results-log records "
+            "to analysis/f1k.py on STDIN; records pin rows+sidecar "
+            "artifacts (path+sha256), re-verified fail-closed. Mock "
+            "self-test green 2026-07-13: `python3 analysis/f1k.py "
+            "--selftest` (planted +10-pt lift -> PASS shape at ladder "
+            "rung >= 2; exact per-item null -> TOST NULL shape; pin "
+            "round-trip byte-stable; 47/47 output fields present)."),
+    },
+}
+
+path = ROOT / "registry" / "experiments" / "f1k.json"
+path.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n",
+                encoding="utf-8")
+print("wrote", path)
+
+# --- local lint (read-only; NOT prereg-freeze, no custody action) ---
+schema = json.loads((ROOT / "registry" / "schema" /
+                     "kot-reg-1.json").read_text(encoding="utf-8"))
+errs = kc.validate_schema(record, schema)
+if errs:
+    print("SCHEMA ERRORS:")
+    for e in errs[:20]:
+        print(" -", e)
+    sys.exit(1)
+print("schema kot-reg/1: OK")
+
+declared = set(record["pins"]["analysis_script"]["output_fields"])
+ptrs = []
+for rule in record["verdict_rules"]:
+    ptrs.extend(kc.collect_metric_pointers(rule["when"]))
+for ep in record["endpoints"]:
+    ptrs.append(ep["metric"])
+unknown = sorted(set(p for p in ptrs if p not in declared))
+print("pointer check:", "OK" if not unknown else "UNKNOWN %s" % unknown)
+prim = [e for e in record["endpoints"] if e["role"] == "primary"]
+print("exactly one primary:", len(prim) == 1)
+print("catch-all last:",
+      record["verdict_rules"][-1] == {"verdict": "INCONCLUSIVE",
+                                      "when": {"const": True}})
+five = ("accuracy", "params", "memory", "inference_compute",
+        "training_compute")
+dvs = {d["name"] for d in record["design"]["dependent_vars"]}
+print("five-V present:", all(v in dvs for v in five))
