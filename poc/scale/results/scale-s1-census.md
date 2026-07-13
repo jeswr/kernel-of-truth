@@ -1,6 +1,6 @@
 # SCALE-1 S1 (100k rung) — multi-source concept census + UFO-typing-yield probe
 
-date: 2026-07-13 · script: `poc/scale/src/census.ts` · full JSON: `scale-s1-census.json` · wall: 2.8s
+date: 2026-07-13 · script: `poc/scale/src/census.ts` · full JSON: `scale-s1-census.json` · wall: 3.1s
 
 **Epistemic status.** Exploratory S1-preparation pilot over LOCAL bytes
 (`data/lexical-wn31`, `data/onto-obo`, `data/onto-sumo`). It measures **YIELD**
@@ -38,6 +38,25 @@ largest single ontology = GO (38,256,
 single-*taxonomy* domination is NOT the local risk; single-*domain* (biology) is.
 **A domain-balanced 100k needs a non-biological structured source (Wikidata class
 subset, §3.1) that is not yet local** — the one missing ingredient flagged.
+
+### §0 domain balance v2 — WITH the balanced Wikidata non-bio slice (increment-5 MILESTONE)
+
+Typed-structured core = source-asserted-UFO-typed records (OBO all-biology +
+balanced Wikidata non-bio); excludes the WordNet lexical backbone + SUMO upper.
+
+| domain | UFO | balanced count | share of typed core |
+|---|---|---:|---:|
+| biology (OBO, BFO-typed) | mixed | 95,201 | 49.77% |
+| position (Wikidata) | object/role | 35,000 | 18.30% |
+| vehicle (Wikidata) | object/kind | 29,843 | 15.60% |
+| organization (Wikidata) | social-object | 24,842 | 12.99% |
+| occupation (Wikidata) | object/role | 6,415 | 3.35% |
+| **typed-structured core** | | **191,301** | 100% |
+
+**Biology share of the typed-structured core = 49.77%** (was ~100%
+all-OBO). Clears the design §0 45-65% domain-balance band: **YES**.
+This is a YIELD/coverage balance metric (the §4.3 typing-PRECISION audit is separate).
+
 
 ### §2.1 — WordNet-only gave 0% identity / 0% dependence / 0% source-asserted ontic
 

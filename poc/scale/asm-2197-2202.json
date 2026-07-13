@@ -1,0 +1,72 @@
+{
+ "range": "ASM-2197..ASM-2202 (free range verified this tick: registry max existing = ASM-2196; `grep -c ASM-2197|ASM-2198|ASM-2199` in registry = 0. Chosen at ASM-2197 per the increment-5 brief.)",
+ "purpose": "SCALE-1 S1 increment-5: COMPLETE the domain-balanced ~100k rung by fanning three more Wikidata non-bio domain ingests across Modal (parallel), then re-running the 4-source census to MEASURE the biology share of the typed-structured core. Kernel-machinery MILESTONE (not a verdicted experiment). Emitted for coordinator registration; NOT written to registry by the build agent.",
+ "owner": "designer-6",
+ "backing_artifacts": [
+  "docs/next/design/scale-s1-position-ingest-prereg.md",
+  "poc/modal/modal_scale_wikidata.py",
+  "poc/scale/src/census.ts",
+  "poc/scale/results/scale-s1-census.json",
+  "poc/scale/results/wikidata-{position,vehicle,organization,occupation}/manifest.json",
+  "Modal Volume kot-scale-wikidata:/{position,vehicle,organization,occupation}/concepts.jsonl (off-box)"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2197",
+   "claim": "THREE parallel Modal CPU domain ingests (fanned via the parameterized modal_scale_wikidata.py, root-QID + cap + per-domain crosswalk terminal) produced: vehicle (wd:Q42889, cap 30,000 of 63,292 subtree) 30,000 typed / 29,843 new / 157 merges (object/kind/rigid), wall 105.3 s; organization (wd:Q43229, cap 25,000 of 50,432) 25,000 typed / 24,842 new / 158 merges (social-object/kind/rigid), wall 89.4 s; occupation (wd:Q28640, uncapped) 6,615 typed / 6,415 new / 200 merges (object/role/anti-rigid), wall 40.1 s. Merge rate rises with lemma commonness (occupation 3.0% vs position 0.34%) exactly as expected (common occupations carry WordNet synsets). Each typed via the crosswalk terminal and decontaminated by exact external-ID join vs the union index; full chunks off-box in Modal Volume kot-scale-wikidata.",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/wikidata-vehicle/manifest.json contentHash sha256:06fbea9419351790a645d516b8f3f004f9980a4a7bc810a5c858df633422cb61; wikidata-organization sha256:5d4988bb54c77232ff601f3aa07d83ccf28924e2fc18128e3629a30d9707e9f8; wikidata-occupation sha256:99675b6ecdaa660eff7e3e44c71cad4bc33f53778d2bafc7992f0865857ad3b4",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2198",
+   "claim": "The balanced ~100k per-domain caps (pre-registered before the fan-out, scale-s1-position-ingest-prereg.md \u00a75b): position 35,000 (of 103,707), vehicle 30,000 (of 63,292), organization 25,000 (of 50,432), occupation all 6,616 \u2014 target ~96,616, max single non-bio domain share 36.2% < 40%. Cap rule = first N QIDs by ascending QID string (deterministic, benchmark-blind). Position is capped at census from its retained full 103,714 chunk; vehicle/organization capped at ingest (cost-saver); occupation uncapped. STIPULATED because caps + cap-rule are build choices pinned for reproducibility, not source facts.",
+   "tag": "STIPULATED",
+   "backing_ref": "docs/next/design/scale-s1-position-ingest-prereg.md \u00a75b",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "rationale": "Position alone (103,714) would be ~52% of a ~200k slice and dominate, violating design \u00a70. Capping each domain so none exceeds ~40% of a ~100k target yields a genuinely domain-balanced rung; the cap-rule is fixed before the run so the balance metric is not post-hoc.",
+   "status": "open"
+  },
+  {
+   "id": "ASM-2199",
+   "claim": "MILESTONE \u2014 the domain-balanced ~100k rung is COMPLETE and MEASURED (4-source census re-run, WordNet\u222aOBO\u222aSUMO\u222aWikidata): the typed-structured core (source-asserted-UFO-typed records: OBO all-biology + the balanced Wikidata non-bio slice) totals 191,301 = OBO 95,201 (biology) + Wikidata 96,100 (non-bio: position 35,000 + vehicle 29,843 + organization 24,842 + occupation 6,415). BIOLOGY SHARE OF THE TYPED CORE = 49.77% (down from ~100% all-OBO at increments 1-2), CLEARING the design \u00a70 45-65% domain-balance band (YES). Biology is the largest single domain at 49.77% (plurality, not domination); the non-bio side spans 4 domains (position 18.3%, vehicle 15.6%, organization 13.0%, occupation 3.4%). YIELD/coverage balance metric, NOT typing-PRECISION (the \u00a74.3 human audit is separate).",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json (domain_balance_v2_with_wikidata) contentHash sha256:4bd461dd825a5ef15229cef37d5d2f7d59e147c263c747e4291eb0f1c20d6b0a; regenerate via `cd poc && npm run scale:census`",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2200",
+   "claim": "COST + persistence: the entire Wikidata domain-balance ingest (position 699.5 s + vehicle 105.3 s + organization 89.4 s + occupation 40.1 s + 16.3 s smoke) cost ~$0.033 total on Modal standard-rate CPU (cpu=2.0 + \u22644 GiB, $0.0000131/core-sec + $0.00000222/GiB-sec); the increment-5 portion (3 new domains) was ~$0.008. Well under the $5 stop-threshold and the $0-20 standing authority. Box only orchestrated; all four full chunks persist off-box in Modal Volume kot-scale-wikidata:/{position,vehicle,organization,occupation}/concepts.jsonl, with per-domain manifests + 100-record samples in poc/scale/results/wikidata-*/.",
+   "tag": "MEASURED",
+   "backing_ref": "per-domain manifest.json wall_seconds (position 699.5 / vehicle 105.3 / organization 89.4 / occupation 40.1); cost is standard-rate arithmetic on the measured walls (poc/scale/results/scale-s1-census.json sha256:1a29fe3b351f2f0ee8e68ce9de420a4388a258c93c422dbbbf92f8789e35f2a3)",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2201",
+   "claim": "This is a clean STOPPING milestone for the large-kernel domain-balance track: a ~191k typed-structured core with biology at 49.77% (in-band). Escalation toward the millions-of-concepts / full-UFO / world-fact scale (design \u00a77, SCALE-GROUND-1M) is a SEPARATE, larger commitment requiring the maintainer's direction and is deliberately NOT undertaken this pass. Not a feasibility conclusion; CORRECTNESS and EFFICIENCY remain INCONCLUSIVE-PENDING (design \u00a714).",
+   "tag": "STIPULATED",
+   "backing_ref": "coordinator increment-5 directive (pause at the balanced-100k milestone; do not escalate toward millions this pass)",
+   "owner": "designer-6",
+   "load_bearing": false,
+   "rationale": "The balanced-100k rung is a self-contained machinery deliverable; the millions-scale escalation is a strategic direction call for the maintainer, not an automatic next step, so the track pauses here with a clean measured milestone.",
+   "status": "open"
+  },
+  {
+   "id": "ASM-2202",
+   "claim": "Remaining gaps the balanced-100k milestone does NOT close (for the record, not undertaken): (a) exact cross-source dedup between the Wikidata slice and WordNet/OBO beyond the external-ID join (fuzzy/label overlaps unmerged); (b) typing PRECISION of the crosswalk terminals (needs the \u00a74.3 stratified human audit, Wikidata as its own stratum); (c) the full design-3.5 four-count over the merged 4-source union; (d) causal use of the store in a benchmark (the store is built + typed, which per design \u00a70.8 is necessary-not-sufficient for the scale thesis). These are the next increments IF the maintainer directs continuation.",
+   "tag": "EXTRAPOLATION",
+   "backing_ref": "resolution_path below; design \u00a70.8, \u00a73.5, \u00a74.3, \u00a77.2",
+   "owner": "designer-6",
+   "load_bearing": false,
+   "resolution_path": "If continued: add label/embedding-proposed cross-source merge review (a), run the \u00a74.3 stratified human audit incl. a Wikidata stratum (b), emit the merged four-count (c), and wire the store into a SCALE-GROUND benchmark leg (d). Until done these remain open; none is a premise for any claim here.",
+   "status": "open"
+  }
+ ]
+}

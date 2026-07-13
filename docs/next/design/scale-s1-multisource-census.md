@@ -147,7 +147,7 @@ in the order that puts number-changing decisions before the compute they change
 |---|---|---|---|
 | **1 (done)** | **multi-source census + typing-yield probe** | §2.3, §2.1 | **2.6 s, $0 [MEASURED]** |
 | **2 (done)** | **load recovered BFO bridges (`data/onto-obo/bfo-bridge.json`); re-run census** → source-asserted OBO ontic yield **56.74% → 99.99%** (+41,171 recovered, 12 residual) | §2.1 floor | **3.6 s, $0 [MEASURED, ASM-2056]** |
-| 3 (scoped) | add a Wikidata class subset (CC0 filtered dump, individuals excluded) for domain balance; exact external-ID decontamination; re-run census — **plan:** `scale-s1-wikidata-domain-balance-plan.md` | §0 balance | ~2-8 CPU-h + ~1-5 GB dump; $0-20 [EXTRAPOLATION, ASM-2059] |
+| **3 (done)** | add the Wikidata non-bio slice (4 domains, off-box Modal, exact external-ID decontam); **4-source census → biology share 49.77%, clears §0 45-65% band** | §0 balance | **~$0.033 total [MEASURED, ASM-2199/2200]** — prereg `scale-s1-position-ingest-prereg.md` |
 | 4 | pre-register S1 selection rule + duplicate/differentia policy (§2.4) + §4.3 audit design | §2.3, §2.4 | ~1 wk design, $0 compute |
 | 5 | source↔source exact crosswalk + type-level dedup → the §3.5 exactly-crosswalked & type-level counts | §2.3 exact | 2-4 wks engineering (S1 dominant cost); CPU-days [EXTRAPOLATION] |
 | 6 | SCC fixture on the OBO 1,142-term SCC (multi-round §6.3 determinism) + vectorise 100k (six stores) | cycles, — | <1 + ~1.1 CPU-h [EXTRAPOLATION from S0 39.3 ms/concept] |

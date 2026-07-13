@@ -72,15 +72,93 @@ merges keep provenance. This yields the first real design §3.5
   p31, external_ids, ckufo: {denotation_level, ontic_category, sortality,
   rigidity}, decontam: {status, matched_key}, provenance}`.
 
-## 6. Go/no-go for the remaining domains
+## 5b. Balanced ~100k rung — pre-registered per-domain caps [STIPULATED, before the fan-out]
 
-Reported after the run in `poc/scale/results/wikidata-position/manifest.json` and
-ASM-2195: given the measured per-domain wall + Modal cost for position (~103k
-classes), extrapolate the cost of ingesting vehicle/organization/occupation/… to a
-balanced 100k target, with a GO/NO-GO recommendation and whether it stays inside
-the $0-20 standing authority.
+Position alone (103,714) would be ~52% of a ~200k slice and dominate, violating
+design §0 (exclude single-domain domination). Pinned caps for a genuinely
+domain-balanced ~100k target, **no domain > 40%**, using the four reliably-countable
+non-bio domains (WDQS-measured subtree sizes in parens):
+
+| domain | root | subtree | **cap** | share of target |
+|---|---|---:|---:|---:|
+| position (role) | `Q4164871` | 103,707 | **35,000** | 36.2% |
+| vehicle (object/kind) | `Q42889` | 63,292 | **30,000** | 31.1% |
+| organization (social-object) | `Q43229` | 50,430 | **25,000** | 25.9% |
+| occupation (role) | `Q28640` | 6,616 | **all (6,616)** | 6.8% |
+| **balanced target** | | | **~96,616** | max 36.2% < 40% |
+
+**Cap rule [STIPULATED]:** take the first N QIDs by ascending QID string —
+deterministic and benchmark-blind (QID order is arbitrary w.r.t. any benchmark).
+**Cost-saver:** vehicle/organization are ingested *capped* (only their first
+30k/25k QIDs are property-fetched). Position is NOT re-run — the balanced slice
+reuses the first 35,000 records of the existing full `/position/concepts.jsonl`
+chunk (it is already QID-sorted), so the full 103,714 position domain is retained
+as an asset while the balance metric uses the capped 35k. The census (§ below)
+applies these caps uniformly to each domain's decontaminated new-count.
+
+## 6. RESULT + go/no-go for the remaining domains [MEASURED 2026-07-13]
+
+The run executed on Modal CPU (`cpu=2.0`) — box only orchestrated. Result
+(`poc/scale/results/wikidata-position/manifest.json`, contentHash
+`1aee3712…f516458`):
+
+| metric | value |
+|---|---:|
+| typed position concepts | **103,714** |
+| genuinely new (survived decontamination) | **103,362** |
+| crosswalk-merges vs the union (all via P8814 WordNet) | **352** (0.34%) |
+| external-ID coverage | P8814 352 · P686/P685/P5270 = 0 |
+| UFO typing | 103,714 × object/role/anti-rigid (position terminal) |
+| wall | 699.5 s (346 WDQS property batches) |
+| **Modal cost** | **~$0.025** (full $0.0245 + 16.3 s smoke $0.0006; standard-rate cpu=2.0 + ≤4 GiB) |
+| full chunk | Modal Volume `kot-scale-wikidata:/position/concepts.jsonl` (off-box) |
+
+The 0.34% collision rate confirms ASM-2161's prediction: a non-biological domain
+barely overlaps our bio-heavy union, so non-bio ingests add near-entirely new
+concepts.
+
+**GO/NO-GO — GO on the remaining domains, off-box, per the same harness.** At
+~$0.025 per ~104k concepts (~$0.00024/1k), ingesting vehicle (63,292) +
+organization (50,430) + occupation (6,616) to assemble a benchmark-blind ~100k
+domain-balanced slice is **~2-4 more Modal runs, aggregate well under $5**.
+
+## 7. MILESTONE — balanced ~100k rung COMPLETE [MEASURED 2026-07-13]
+
+The three remaining domains were fanned across Modal in parallel (capped per §5b),
+then the 4-source census (WordNet∪OBO∪SUMO∪Wikidata) re-run
+(`poc/scale/results/scale-s1-census.json` → `domain_balance_v2_with_wikidata`,
+contentHash `4bd461dd…c20d6b0a`).
+
+| domain | root | typed | genuinely new | UFO terminal | wall |
+|---|---|---:|---:|---|---:|
+| position | Q4164871 | 103,714 (cap→35,000) | 103,362 | object/role/anti-rigid | 699.5 s |
+| vehicle | Q42889 | 30,000 | 29,843 | object/kind/rigid | 105.3 s |
+| organization | Q43229 | 25,000 | 24,842 | social-object/kind/rigid | 89.4 s |
+| occupation | Q28640 | 6,615 | 6,415 | object/role/anti-rigid | 40.1 s |
+
+**Domain-balanced typed-structured core** (source-asserted-UFO-typed: OBO
+all-biology + the balanced Wikidata non-bio slice):
+
+| component | count | share |
+|---|---:|---:|
+| biology (OBO, BFO-typed) | 95,201 | **49.77%** |
+| position (Wikidata) | 35,000 | 18.30% |
+| vehicle (Wikidata) | 29,843 | 15.60% |
+| organization (Wikidata) | 24,842 | 12.99% |
+| occupation (Wikidata) | 6,415 | 3.35% |
+| **typed-structured core** | **191,301** | 100% |
+
+**Biology share = 49.77%** (was ~100% all-OBO) → **clears the design §0 45-65%
+domain-balance band: YES**. Biology is a plurality, not a dominator; the non-bio
+side spans four domains. **Total Modal cost across all Wikidata ingests ≈ $0.033**
+(increment-5 portion ≈ $0.008) — deep inside the $0-20 authority. Full chunks
+off-box in Modal Volume `kot-scale-wikidata:/{position,vehicle,organization,occupation}/`.
+
+**This is a clean stopping milestone.** Escalation toward millions-of-concepts /
+full-UFO / causal-benchmark use (design §7) is a separate maintainer-direction
+commitment, deliberately not undertaken this pass (ASM-2201/2202).
 
 ---
 
-*No feasibility conclusion. This is machinery pre-registration; ASM-2191..2196 are
-coordinator registration actions.*
+*No feasibility conclusion. This is machinery; ASM-2191..2202 are coordinator
+registration actions.*

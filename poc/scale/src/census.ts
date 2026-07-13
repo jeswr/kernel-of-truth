@@ -32,7 +32,7 @@
  * Output: poc/scale/results/scale-s1-census.{json,md}
  */
 
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { REPO_DIR, RESULTS_DIR, ensureDir, nowMs, writeJson } from './common.js';
@@ -367,6 +367,33 @@ function main(): void {
   const oboLargest = Object.entries(perOnt).sort((a, b) => b[1] - a[1])[0];
   const biologyShare = oboClasses / typeLevelUnion;
 
+  // ---- Wikidata domain-balance fold-in (increment-5): read each ingested
+  // domain manifest under poc/scale/results/wikidata-<domain>/ and apply the
+  // pre-registered balanced caps (scale-s1-position-ingest-prereg.md §5b). All
+  // Wikidata domains here are NON-biological by construction (non-bio roots). ----
+  const WIKIDATA_CAPS: Record<string, number> = { position: 35000, vehicle: 30000, organization: 25000, occupation: 0 };
+  const wikidataDomains: Record<string, { subtree: number; typed: number; new: number; balanced_new: number; cat: string }> = {};
+  let wikidataBalancedNonBio = 0;
+  const CAT_BY_DOMAIN: Record<string, string> = { position: 'object/role', vehicle: 'object/kind', organization: 'social-object', occupation: 'object/role' };
+  for (const dom of Object.keys(WIKIDATA_CAPS)) {
+    const mp = join(RESULTS_DIR, `wikidata-${dom}`, 'manifest.json');
+    if (!existsSync(mp)) continue;
+    const m = JSON.parse(readFileSync(mp, 'utf8'));
+    const total = m.counts?.total_typed_concepts ?? 0;
+    const nnew = m.counts?.decontam_new_genuinely_novel ?? 0;
+    const cap = WIKIDATA_CAPS[dom]!;
+    // balanced_new: apply the pinned cap to the genuinely-new count (position's
+    // full chunk is capped at census; vehicle/org were capped at ingest so cap>=total).
+    const balancedNew = cap > 0 ? Math.min(cap, nnew) : nnew;
+    wikidataDomains[dom] = { subtree: m.subtree_total_before_cap ?? total, typed: total, new: nnew, balanced_new: balancedNew, cat: CAT_BY_DOMAIN[dom] ?? 'object' };
+    wikidataBalancedNonBio += balancedNew;
+  }
+  const haveWikidata = Object.keys(wikidataDomains).length > 0;
+  // Typed-structured core = source-asserted-UFO-typed records: OBO (all biology,
+  // 99.99% BFO-typed after the bridge) + Wikidata balanced non-bio slice.
+  const typedCore = oboClasses + wikidataBalancedNonBio;
+  const typedCoreBiologyShare = oboClasses / typedCore;
+
   const report = {
     stage: 'scale-s1-census',
     date: new Date().toISOString().slice(0, 10),
@@ -400,6 +427,29 @@ function main(): void {
       note:
         'NCBITaxon is only 402 records locally (not the full millions-of-taxa dump), so single-TAXONOMY domination is NOT the local risk; single-DOMAIN (biology, via all-OBO) is. A domain-balanced 100k needs a non-biological structured source (Wikidata class subset, §3.1) that is NOT yet local — flagged as the one missing ingredient for a domain-balanced (not merely 100k) rung.',
     },
+    // ------- increment-5: domain-balance v2 with the Wikidata non-bio slice -------
+    domain_balance_v2_with_wikidata: haveWikidata
+      ? {
+          question:
+            'design §0 domain-balance: after folding the pre-registered balanced Wikidata non-bio slice into the source-asserted-UFO-typed core (was ~100% biology = all-OBO), does biology share fall into the 45-65% target band?',
+          typed_structured_core_definition:
+            'source-asserted-UFO-typed records only: OBO classes (all biology, 99.99% BFO-typed after the bridge) + the balanced Wikidata non-bio slice (crosswalk-typed). Excludes the WordNet lexical backbone (AxiomsOnly, no source-asserted UFO type) and SUMO upper.',
+          obo_biology_typed: oboClasses,
+          wikidata_nonbio_balanced: wikidataBalancedNonBio,
+          wikidata_domains: wikidataDomains,
+          caps_applied: WIKIDATA_CAPS,
+          typed_structured_core_total: typedCore,
+          biology_share_of_typed_core: pct(oboClasses, typedCore),
+          largest_single_domain_share: (() => {
+            const doms: Array<[string, number]> = [['biology(OBO)', oboClasses], ...Object.entries(wikidataDomains).map(([d, v]) => [d, v.balanced_new] as [string, number])];
+            const top = doms.sort((a, b) => b[1] - a[1])[0]!;
+            return { domain: top[0], count: top[1], share: pct(top[1], typedCore) };
+          })(),
+          clears_45_to_65_band: typedCoreBiologyShare >= 0.45 && typedCoreBiologyShare <= 0.65,
+          note:
+            'Wikidata domains are non-biological by construction (non-bio P279* roots). Position is capped at census from its full 103,714 chunk; vehicle/organization were capped at ingest; occupation is uncapped. This is a YIELD/coverage balance metric, not a typing-PRECISION claim (the §4.3 human audit is separate).',
+        }
+      : { status: 'no Wikidata domain manifests present under poc/scale/results/wikidata-*/ — run the ingests first' },
     // ------- §2.1 blocker: does OBO/SUMO move UFO typing off WordNet-only 0%? -------
     typing_yield_vs_wordnet_zero: {
       question:
@@ -489,6 +539,22 @@ ${pct(oboLargest?.[1] ?? 0, typeLevelUnion)}). NCBITaxon is only 402 records loc
 single-*taxonomy* domination is NOT the local risk; single-*domain* (biology) is.
 **A domain-balanced 100k needs a non-biological structured source (Wikidata class
 subset, §3.1) that is not yet local** — the one missing ingredient flagged.
+${haveWikidata ? `
+### §0 domain balance v2 — WITH the balanced Wikidata non-bio slice (increment-5 MILESTONE)
+
+Typed-structured core = source-asserted-UFO-typed records (OBO all-biology +
+balanced Wikidata non-bio); excludes the WordNet lexical backbone + SUMO upper.
+
+| domain | UFO | balanced count | share of typed core |
+|---|---|---:|---:|
+| biology (OBO, BFO-typed) | mixed | ${oboClasses.toLocaleString()} | ${pct(oboClasses, typedCore)} |
+${Object.entries(wikidataDomains).map(([d, v]) => `| ${d} (Wikidata) | ${v.cat} | ${v.balanced_new.toLocaleString()} | ${pct(v.balanced_new, typedCore)} |`).join('\n')}
+| **typed-structured core** | | **${typedCore.toLocaleString()}** | 100% |
+
+**Biology share of the typed-structured core = ${pct(oboClasses, typedCore)}** (was ~100%
+all-OBO). Clears the design §0 45-65% domain-balance band: **${typedCoreBiologyShare >= 0.45 && typedCoreBiologyShare <= 0.65 ? 'YES' : 'NO'}**.
+This is a YIELD/coverage balance metric (the §4.3 typing-PRECISION audit is separate).
+` : ''}
 
 ### §2.1 — WordNet-only gave 0% identity / 0% dependence / 0% source-asserted ontic
 
@@ -546,7 +612,11 @@ ASM candidates for the coordinator: \`poc/scale/asm-2050-2059.json\`.
 `;
   writeFileSync(join(RESULTS_DIR, 'scale-s1-census.md'), md);
   console.log(
-    `census: WN type-level ${wn.typeLevel}, OBO classes ${oboClasses} (BFO-reached no-bridge ${oboBfoReachedNoBridge} → with-bridge ${oboBfoReached} [+${oboBridgeRecovered}], still-unreached ${oboStillUnreached}, genus ${oboGenus}, dep ${oboDependence}), SUMO ${sumo.size} (typed ${sumoTyped}); union ${typeLevelUnion} in ${report.wallSeconds.toFixed(1)}s`,
+    `census: WN type-level ${wn.typeLevel}, OBO classes ${oboClasses} (BFO-reached no-bridge ${oboBfoReachedNoBridge} → with-bridge ${oboBfoReached} [+${oboBridgeRecovered}], still-unreached ${oboStillUnreached}, genus ${oboGenus}, dep ${oboDependence}), SUMO ${sumo.size} (typed ${sumoTyped}); union ${typeLevelUnion}` +
+      (haveWikidata
+        ? `; DOMAIN-BALANCE v2: typed core ${typedCore} = OBO ${oboClasses} + Wikidata-nonbio ${wikidataBalancedNonBio} → biology share ${pct(oboClasses, typedCore)} (45-65% band: ${typedCoreBiologyShare >= 0.45 && typedCoreBiologyShare <= 0.65 ? 'YES' : 'NO'})`
+        : '') +
+      ` in ${report.wallSeconds.toFixed(1)}s`,
   );
 }
 

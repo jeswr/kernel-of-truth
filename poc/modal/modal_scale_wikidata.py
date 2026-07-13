@@ -35,10 +35,17 @@ except IndexError:
 INDEX_LOCAL = REPO_ROOT / "poc" / "scale" / "out" / "wikidata-position" / "union-extid-index.json"
 REMOTE_INDEX = "/root/union-extid-index.json"
 
-ROOT_QID = "Q4164871"          # position
-ROOT_LABEL = "position"
 WDQS = "https://query.wikidata.org/sparql"
 UA = "KoT-scale-census/0.1 (research; large-kernel domain-balance ingest)"
+
+# Per-domain crosswalk terminal (from data/onto-wikidata/p31-p279-ufo-crosswalk.json).
+# STIPULATED terminal, reported separately from the source-asserted P279 chain.
+ROOT_UFO = {
+    "Q4164871": ("position", "object", "role", "anti-rigid"),
+    "Q42889":   ("vehicle", "object", "kind", "rigid"),
+    "Q43229":   ("organization", "social-object", "kind", "rigid"),
+    "Q28640":   ("occupation", "object", "role", "anti-rigid"),
+}
 
 app = modal.App("kot-scale-wikidata-position")
 image = modal.Image.debian_slim(python_version="3.11").pip_install("requests==2.34.2")
@@ -70,25 +77,29 @@ def _norm_wn(p8814: str) -> str:
 
 
 @app.function(image=image, cpu=2.0, volumes={"/vol": vol}, timeout=3600)
-def ingest_position(limit_pages: int = 0, page_size: int = 20000) -> dict:
+def ingest_domain(root_qid: str, cap: int = 0, limit_pages: int = 0, page_size: int = 20000) -> dict:
+    root_label, cat, sort, rig = ROOT_UFO[root_qid]
     idx = json.loads(Path(REMOTE_INDEX).read_text())
     wn = set(idx["wordnet_p8814"]); chebi = set(idx["chebi_p686"])
     taxon = set(idx["ncbitaxon_p685"]); mondo = set(idx["mondo_p5270"])
 
     t0 = time.time()
     # ---- Phase 1: fetch the flat set of subtree QIDs (cheap; no label/optionals,
-    # no ORDER BY over the closure). Paged by QID range would still recompute the
-    # transitive closure; instead pull the whole QID set in ONE query (the
-    # position closure is ~1e5 rows, well under WDQS's row cap for a 1-column
-    # projection). ----
+    # no ORDER BY over the closure). Pull the whole QID set in ONE query (each
+    # counted domain's closure is <=1e5 rows, well under WDQS's row cap for a
+    # 1-column projection). ----
     qids: list[str] = []
-    binds = _wdqs(f"SELECT ?item WHERE {{ ?item wdt:P279* wd:{ROOT_QID} }}")
+    binds = _wdqs(f"SELECT ?item WHERE {{ ?item wdt:P279* wd:{root_qid} }}")
     for b in binds:
         q = b["item"]["value"].rsplit("/", 1)[-1]
-        if q != ROOT_QID:
+        if q != root_qid:
             qids.append(q)
     qids = sorted(set(qids))
-    if limit_pages:  # smoke: cap the QID set
+    subtree_total = len(qids)
+    # Deterministic, benchmark-blind cap: first N QIDs by ascending QID string.
+    if cap and len(qids) > cap:
+        qids = qids[:cap]
+    if limit_pages:  # smoke override
         qids = qids[: limit_pages * page_size]
 
     # ---- Phase 2: fetch label + external IDs + P279/P31 parents in VALUES
@@ -129,10 +140,10 @@ def ingest_position(limit_pages: int = 0, page_size: int = 20000) -> dict:
         time.sleep(0.2)
 
     # type + decontaminate
-    ufo = {"denotation_level": "type", "ontic_category": "object",
-           "sortality": "role", "rigidity": "anti-rigid",
-           "warrant": ["crosswalk:wd:Q4164871 position -> object/role/anti-rigid [STIPULATED terminal]",
-                       "P279* wd:Q4164871 (source-asserted structural)"]}
+    ufo = {"denotation_level": "type", "ontic_category": cat,
+           "sortality": sort, "rigidity": rig,
+           "warrant": [f"crosswalk:wd:{root_qid} {root_label} -> {cat}/{sort}/{rig} [STIPULATED terminal]",
+                       f"P279* wd:{root_qid} (source-asserted structural)"]}
     out_lines = []
     n_new = 0; n_merge = 0
     ext_cov = {"P8814": 0, "P686": 0, "P685": 0, "P5270": 0}
@@ -164,7 +175,7 @@ def ingest_position(limit_pages: int = 0, page_size: int = 20000) -> dict:
             "label": rec["label"], "p279_parents": sorted(rec["p279_parents"]),
             "p31": sorted(rec["p31"]), "external_ids": eid, "ckufo": ufo,
             "decontam": {"status": status, "matched_key": (matched[0] + ":" + matched[1]) if matched else None},
-            "provenance": {"source": "Wikidata (CC0)", "root": f"wd:{ROOT_QID} ({ROOT_LABEL})",
+            "provenance": {"source": "Wikidata (CC0)", "root": f"wd:{root_qid} ({root_label})",
                            "via": "P279* subtree", "snapshot": "live WDQS 2026-07-13"},
         }, ensure_ascii=False))
 
@@ -176,38 +187,40 @@ def ingest_position(limit_pages: int = 0, page_size: int = 20000) -> dict:
                   + "|" + d["decontam"]["status"] + "\n").encode())
     content_hash = h.hexdigest()
 
-    Path("/vol/position").mkdir(parents=True, exist_ok=True)
-    Path("/vol/position/concepts.jsonl").write_text("\n".join(out_lines) + "\n")
+    Path(f"/vol/{root_label}").mkdir(parents=True, exist_ok=True)
+    Path(f"/vol/{root_label}/concepts.jsonl").write_text("\n".join(out_lines) + "\n")
     vol.commit()
 
     manifest = {
-        "artifact": "scale-s1 Wikidata 'position' bounded ingest (kernel machinery)",
-        "root": f"wd:{ROOT_QID} ({ROOT_LABEL})", "date": "2026-07-13",
+        "artifact": f"scale-s1 Wikidata '{root_label}' domain ingest (kernel machinery)",
+        "root": f"wd:{root_qid} ({root_label})", "date": "2026-07-13",
         "epistemic_status": "MEASURED live-WDQS ingest; typing terminal STIPULATED (crosswalk); decontam via exact external-ID join vs the union index. NO feasibility conclusion.",
+        "subtree_total_before_cap": subtree_total, "cap": cap,
         "counts": {
             "total_typed_concepts": len(rows),
             "decontam_new_genuinely_novel": n_new,
             "decontam_crosswalk_merges": n_merge,
             "leaf_classes_no_outgoing_P279": leaves,
         },
-        "ufo_distribution": {"object/role/anti-rigid (position terminal)": len(rows)},
+        "ufo_distribution": {f"{cat}/{sort}/{rig} ({root_label} terminal)": len(rows)},
         "external_id_coverage": ext_cov,
         "wdqs_pages": pages, "page_size": page_size, "limit_pages": limit_pages,
         "wall_seconds": round(time.time() - t0, 1),
         "contentHash": content_hash,
-        "full_chunk_location": "Modal Volume kot-scale-wikidata:/position/concepts.jsonl (off-box)",
+        "full_chunk_location": f"Modal Volume kot-scale-wikidata:/{root_label}/concepts.jsonl (off-box)",
     }
-    Path("/vol/position/manifest.json").write_text(json.dumps(manifest, indent=2))
+    Path(f"/vol/{root_label}/manifest.json").write_text(json.dumps(manifest, indent=2))
     vol.commit()
     manifest["_sample"] = [json.loads(x) for x in out_lines[:100]]
     return manifest
 
 
 @app.local_entrypoint()
-def main(limit_pages: int = 0, page_size: int = 20000):
-    m = ingest_position.remote(limit_pages=limit_pages, page_size=page_size)
+def main(root_qid: str = "Q4164871", cap: int = 0, limit_pages: int = 0, page_size: int = 20000):
+    root_label = ROOT_UFO[root_qid][0]
+    m = ingest_domain.remote(root_qid=root_qid, cap=cap, limit_pages=limit_pages, page_size=page_size)
     sample = m.pop("_sample", [])
-    out_dir = REPO_ROOT / "poc" / "scale" / "results" / "wikidata-position"
+    out_dir = REPO_ROOT / "poc" / "scale" / "results" / f"wikidata-{root_label}"
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "manifest.json").write_text(json.dumps(m, indent=2))
     with (out_dir / "sample.jsonl").open("w") as f:

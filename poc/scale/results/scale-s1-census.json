@@ -61,6 +61,57 @@
     },
     "note": "NCBITaxon is only 402 records locally (not the full millions-of-taxa dump), so single-TAXONOMY domination is NOT the local risk; single-DOMAIN (biology, via all-OBO) is. A domain-balanced 100k needs a non-biological structured source (Wikidata class subset, §3.1) that is NOT yet local — flagged as the one missing ingredient for a domain-balanced (not merely 100k) rung."
   },
+  "domain_balance_v2_with_wikidata": {
+    "question": "design §0 domain-balance: after folding the pre-registered balanced Wikidata non-bio slice into the source-asserted-UFO-typed core (was ~100% biology = all-OBO), does biology share fall into the 45-65% target band?",
+    "typed_structured_core_definition": "source-asserted-UFO-typed records only: OBO classes (all biology, 99.99% BFO-typed after the bridge) + the balanced Wikidata non-bio slice (crosswalk-typed). Excludes the WordNet lexical backbone (AxiomsOnly, no source-asserted UFO type) and SUMO upper.",
+    "obo_biology_typed": 95201,
+    "wikidata_nonbio_balanced": 96100,
+    "wikidata_domains": {
+      "position": {
+        "subtree": 103714,
+        "typed": 103714,
+        "new": 103362,
+        "balanced_new": 35000,
+        "cat": "object/role"
+      },
+      "vehicle": {
+        "subtree": 63292,
+        "typed": 30000,
+        "new": 29843,
+        "balanced_new": 29843,
+        "cat": "object/kind"
+      },
+      "organization": {
+        "subtree": 50432,
+        "typed": 25000,
+        "new": 24842,
+        "balanced_new": 24842,
+        "cat": "social-object"
+      },
+      "occupation": {
+        "subtree": 6615,
+        "typed": 6615,
+        "new": 6415,
+        "balanced_new": 6415,
+        "cat": "object/role"
+      }
+    },
+    "caps_applied": {
+      "position": 35000,
+      "vehicle": 30000,
+      "organization": 25000,
+      "occupation": 0
+    },
+    "typed_structured_core_total": 191301,
+    "biology_share_of_typed_core": "49.77%",
+    "largest_single_domain_share": {
+      "domain": "biology(OBO)",
+      "count": 95201,
+      "share": "49.77%"
+    },
+    "clears_45_to_65_band": true,
+    "note": "Wikidata domains are non-biological by construction (non-bio P279* roots). Position is capped at census from its full 103,714 chunk; vehicle/organization were capped at ingest; occupation is uncapped. This is a YIELD/coverage balance metric, not a typing-PRECISION claim (the §4.3 human audit is separate)."
+  },
   "typing_yield_vs_wordnet_zero": {
     "question": "S0 §2.1: WordNet-only gave 0% source-asserted ontic_category, 0% identity, 0% dependence. Do OBO/BFO + SUMO commitments (cascade steps 1-2) yield NONZERO on those fields?",
     "wordnet_only_baseline_S0": {
@@ -159,6 +210,6 @@
     },
     "interpretation": "YIELD not PRECISION. A NONZERO source-asserted ontic yield + NONZERO identity-provider-candidate + NONZERO dependence-candidate demonstrates the multi-source portfolio has an EVIDENTIAL PATH to the UFO fields that WordNet-only lacked entirely. Whether those candidates are CORRECT at the §4.3 0.95 bar is a SEPARATE human-audit measurement this probe does not perform."
   },
-  "wallSeconds": 2.798642000198364,
-  "contentHash": "d143d90f8518fd3d4505398a680fef333e1eda6332fefcca991e311177d0c8b3"
+  "wallSeconds": 3.139191999912262,
+  "contentHash": "4bd461dd825a5ef15229cef37d5d2f7d59e147c263c747e4291eb0f1c20d6b0a"
 }
