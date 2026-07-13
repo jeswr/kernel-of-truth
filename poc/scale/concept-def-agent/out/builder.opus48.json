@@ -1,0 +1,114 @@
+{
+  "id": "urn:kernel-v1:builder",
+  "label": "builder (of an enterprise or nation)",
+  "synset": "urn:lexical-wn31:n-09898025",
+  "pattern": "InstanceSchema; causal DO bringing a large thing into being + growth",
+  "gloss": "A person who brings a large enterprise or country into being and makes it grow, so that through their work something great comes to exist and becomes bigger and stronger than before.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "BIG",
+                    "intensifier": "MORE"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — 'big thing' stands in for a business or country and its organized growth; the institutional and economic content (enterprise, nation, developing) is not expressible in the primes."
+}

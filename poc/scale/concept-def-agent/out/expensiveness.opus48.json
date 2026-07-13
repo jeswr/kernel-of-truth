@@ -1,0 +1,110 @@
+{
+  "id": "urn:kernel-v1:expensiveness",
+  "label": "expensiveness",
+  "synset": "urn:lexical-wn31:n-05153138",
+  "pattern": "WhenTrue; big amount one must give to have the thing",
+  "gloss": "The quality of costing a great deal, such that one must give much in exchange to obtain the thing.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "op",
+        "op": "IF",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "WANT",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "complement": {
+                "kind": "clause",
+                "clause": {
+                  "type": "pred",
+                  "pred": "IS-MINE",
+                  "roles": {
+                    "undergoer": {
+                      "kind": "ref",
+                      "index": 1
+                    },
+                    "possessor": {
+                      "kind": "prime",
+                      "prime": "I"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 2
+              },
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 3
+          },
+          "attribute": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — price and money have no primes; rendered as: to have the thing one must give much of something, with 'high' approximated by MUCH~MANY rather than any notion of monetary value."
+}
