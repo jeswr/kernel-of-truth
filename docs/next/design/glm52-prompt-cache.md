@@ -21,7 +21,20 @@
 > unconditional. Parts the review upheld (llama.cpp characterization,
 > MIT→Apache note, XCACHE/PCACHE non-duplication, KaE composition modulo the
 > arm-key/DSA fixes) are kept.
-> Owner: designer-14 (revision 1); revision-2 owner: designer-18.
+> **Revision 2.1** (designer-28, 2026-07-13) closes the two NON-BLOCKING
+> fixes from the GPT-5.6 re-review of revision 2
+> (`poc/gpt56-review/prompt-cache-r2/out/last-message.json`, verdict
+> SOUND-WITH-FIXES): (1) PR-P1's validity fingerprint hardened —
+> checkpoint-weight identity + complete execution/shape regime added to the
+> session envelope, and a KaE-touches-prefix assert/bypass rule added to both
+> the PR-P1 and in-memory paths (§5.1, §9, ASM-2339); (2) the §6.2
+> "break-even prefix size" wording corrected — ΔC>0 is only the
+> positive-marginal-saving threshold; break-even at expected reuse count n is
+> n·ΔC(P,S) ≥ ω·P + c_store with integer reuse n* = ⌈(ω·P + c_store)/ΔC⌉ —
+> and "four coefficients" corrected to five (α, β, γ, ρ, ω) (§0/§6,
+> ASM-2336). No other content changed.
+> Owner: designer-14 (revision 1); revision-2 owner: designer-18;
+> revision-2.1 owner: designer-28.
 > Companion ASM block (canonical source):
 > `docs/next/design/asm-prompt-cache-2331-2345.json` — **populated range
 > ASM-2331..2339 only**; ASM-2340..2345 were found already occupied by the
@@ -113,9 +126,10 @@ GROWS with P (the superseded constant-d model's 1/(d·U(S)) ceiling was an
 artifact of holding d fixed while P→∞ — expert-union I/O saturates while row
 compute and attention keep growing, so the disk share falls with shape). All
 bands [EXTRAPOLATION, ASM-2336, non-load-bearing]; no closed-form asymptote
-is claimed; G-PCACHE calibrates the four coefficients. Break-even is stated
-as the incremental identity n*·(C_off−C_hit) ≥ populate/write overhead — not
-as an average-cost shortcut (§6.2).
+is claimed; G-PCACHE calibrates the five coefficients (α, β, γ, ρ, ω).
+Break-even is stated over the expected reuse count n as the incremental
+identity n·(C_off−C_hit) ≥ ω·P + c_store — not as an average-cost shortcut,
+and not as the weaker ΔC>0 marginal condition alone (§6.2).
 
 **Recommendation shape (no feasibility conclusion).** PR-P1: adapt colibri's
 EXISTING serve prefix-reuse into `SCORE`/`KAE_SCORE` (mostly in-tree
@@ -583,12 +597,24 @@ Components (in dependency order):
 1. **In-memory hot path (per process) — adapted from serve.** The trivial
    80% win for a benchmark run: keep the CURRENT prefix state resident
    between items; per item, compare token ids against the resident prefix
-   (memcmp — no hashing needed in-process since the engine-tag/weights are
-   constant within a process), truncate to the longest match, prefill only
-   the remainder. This is exactly serve's token-history comparison relocated
-   into the `SCORE`/`KAE_SCORE` loop (single slot, no HTTP). It converts an
-   ordered benchmark stream with a shared header into first-item-pays
-   semantics.
+   (memcmp — no hashing needed in-process), truncate to the longest match,
+   prefill only the remainder. This is exactly serve's token-history
+   comparison relocated into the `SCORE`/`KAE_SCORE` loop (single slot, no
+   HTTP). It converts an ordered benchmark stream with a shared header into
+   first-item-pays semantics. **Token memcmp alone is NOT the validity
+   condition** (revision 2.1, r2 re-review non-blocking fix 1 — the
+   simplified path inherits the full §4.1 P-KV safety principle): the
+   resident prefix is additionally INVALIDATED (fail-closed drop ⇒ full
+   prefill) on (a) ANY in-process weight mutation — expert swap/mask/steering,
+   which the campaign's own arms perform — i.e. checkpoint-weight identity
+   must be unchanged since the resident state was computed, and (b) any
+   change of the execution/shape regime (row-block prefill policy,
+   kernel-family selection, `IDOT_KERNEL`); and (c) the resident prefix is
+   BYPASSED (full prefill, no reuse, no overwrite-save) for any item whose
+   active KaE arm touches it — the §4.1 null-effect decision procedure at
+   whole-stack scope: reuse only when spans ∩ [0, n_match) = ∅; the
+   in-memory path never keys arm config, so a non-null arm effect on the
+   prefix asserts caching OFF for that item.
 2. **On-disk persistent store (cross-process, cross-arm, cross-experiment).**
    The §4.1 content-addressed P-KV/P-RESID store under XCACHE's segment
    etiquette, `PCACHE_DIR`/`PCACHE_GB`-bounded, S3-mirrored via the
@@ -645,7 +671,7 @@ into the row-linear term and an asymptote 1/(d·U(S)) as P→∞ — is
 the disk share falls with shape), and attention must carry its own term
 because suffix queries still attend over the whole prefix.
 
-The replacement is additive with FOUR CALIBRATED COEFFICIENTS (α row-local
+The replacement is additive with FIVE CALIBRATED COEFFICIENTS (α row-local
 compute per token, β attention per attended position-pair, γ expert-union
 I/O per layer-union unit, ρ restore + ω write per prefix token), all measured
 by G-PCACHE under the frozen pinning policy — none assumed:
@@ -721,17 +747,27 @@ rejected that shortcut. The correct statement, per prefix, over its lifetime:
 
 ```
 net(P,S,n) = n · ΔC(P,S) − ω·P − c_store        where ΔC = C_off − C_hit
-break-even reuse count  n* = (ω·P + c_store) / ΔC(P,S)
-break-even prefix size: smallest P with ΔC(P,S) > 0, i.e. the saved
-row/attention/I/O work must exceed the restore overhead ρ·P
+break-even (at expected reuse count n):  n · ΔC(P,S) ≥ ω·P + c_store
+minimum integer reuse count   n* = ⌈(ω·P + c_store) / ΔC(P,S)⌉
+                              (defined only when ΔC(P,S) > 0)
+positive-marginal-saving threshold: smallest P with ΔC(P,S) > 0, i.e. the
+saved row/attention/I/O work must exceed the restore overhead ρ·P
 ```
+
+Revision 2.1 correction (r2 re-review, non-blocking fix 2): ΔC(P,S) > 0
+identifies only a POSITIVE MARGINAL HIT SAVING — it is NECESSARY for
+break-even (with ΔC ≤ 0 no reuse count ever repays the populate write) but
+NOT sufficient, and revision 2's label "break-even prefix size" for it was
+wrong. Actual break-even for a prefix with expected reuse count n is
+n·ΔC(P,S) ≥ ω·P + c_store; integer reuse uses the ceiling of that ratio.
 
 Bands for the components [EXTRAPOLATION, ASM-2336]: restore ρ ≈ read
 182 KB/token at NVMe ~3.3 GB/s (~55 µs/token) + BLAKE3 digest (~50 µs/token)
 ≈ ~0.1 ms/token; first-write ω is the same order (NVMe write + fsync
 amortized); recomputing a prefix token costs ~0.3–0.7 s at the planning
-band — a ~10³–10⁴× ratio. So the BANDS say n* ≪ 1 for any P ≥ one chunk
-(the first reuse more than repays the populate write) and the ΔC>0 prefix
+band — a ~10³–10⁴× ratio. So the BANDS say (ω·P + c_store)/ΔC ≪ 1, hence
+n* = ⌈(ω·P + c_store)/ΔC⌉ = 1, for any P ≥ one chunk (the first reuse more
+than repays the populate write), and the ΔC>0 positive-marginal-saving
 threshold is O(1) tokens — but this is now stated as a band over the
 calibrated identity, not as an established fact; G-PCACHE measures ΔC, ω, ρ
 directly, including the populate pass (§7).
@@ -877,16 +913,31 @@ Staged shape [STIPULATED: ASM-2339; no upstream action in this pass]:
   (verbatim memcmp, serve's rule), restore the matching prefix state
   (Lc/Rc/Ic), prefill only the suffix at `pos_base=n_match`, save on exit;
   `PCACHE_RO=1` reads without updating. Session file: the llama.cpp-shaped
-  envelope (magic + format version + model fingerprint (config hash +
-  ebits/dbits + IDOT_KERNEL) + token ids verbatim + per-layer state bytes +
-  whole-file checksum) OR a thin reuse of serve's own persistence format —
-  bring-up decides which is smaller. No new deps (no BLAKE3 at this stage).
-  Self-contained `pcache.h` (static inline, fail-safe: any mismatch/
-  short-read ⇒ warn + full prefill, never crash) + `test_pcache.c` + the
-  `cache_n/prompt_n` fields added to the score progress line. Inert unless
-  `PCACHE` is set; pristine-vs-patched byte-equality is the review artifact.
-  Nonbinding size note: ~200–300 LOC, lower if serve's functions are directly
-  callable.
+  envelope (magic + format version + model fingerprint + token ids verbatim +
+  per-layer state bytes + whole-file checksum) OR a thin reuse of serve's own
+  persistence format — bring-up decides which is smaller. **Hardened validity
+  fingerprint** (revision 2.1, r2 re-review non-blocking fix 1 — the
+  simplified PR-P1 path inherits the full §4.1 P-KV safety principle): the
+  model fingerprint covers (a) config hash + ebits/dbits + `IDOT_KERNEL`,
+  (b) CHECKPOINT-WEIGHT IDENTITY — a digest of the weight checkpoint file in
+  the envelope's own checksum family (guards accidents, not adversaries, at
+  this no-new-deps stage; upgraded to the BLAKE3 weight-hash manifest when
+  PR-P3 lands), and (c) the COMPLETE EXECUTION/SHAPE REGIME — the prefill
+  row-block/batch policy and kernel-family selection flags, the PR-P1 mirror
+  of §4.3's `PCACHE_SHAPEPIN`. Any fingerprint mismatch ⇒ warn + full prefill
+  (a fail-safe MISS, never an error). **KaE bypass rule:** PR-P1 never keys
+  arm config, so on the `KAE_SCORE` path, whenever the active arm's injection
+  touches the restored prefix (the §4.1 null-effect decision procedure fails
+  at whole-stack scope: spans ∩ [0, n_match) ≠ ∅), caching is asserted OFF
+  for that item — full prefill, no restore, no save. The in-memory hot path
+  (§5.1) applies the same rules: token memcmp alone is not the validity
+  condition (weight-mutation/regime invalidation + the same KaE bypass).
+  No new deps (no BLAKE3 at this stage). Self-contained `pcache.h` (static
+  inline, fail-safe: any mismatch/short-read ⇒ warn + full prefill, never
+  crash) + `test_pcache.c` + the `cache_n/prompt_n` fields added to the score
+  progress line. Inert unless `PCACHE` is set; pristine-vs-patched
+  byte-equality is the review artifact. Nonbinding size note: ~200–300 LOC,
+  lower if serve's functions are directly callable.
 - **PR-P2 — multi-prefix store + longest-prefix match.** Directory store,
   chunked entries, longest-chain reuse across DIFFERENT prompts (the §4.1
   chunk chain minus the per-layer weight keys — upstream runs one fixed
@@ -931,11 +982,13 @@ Staged shape [STIPULATED: ASM-2339; no upstream action in this pass]:
   by `ERR_PCACHE_SHAPE` and per-regime bring-up (§4.3). Also fixed from the
   review's finding 2: the P-RESID cut-over off-by-one (checkpoint ≤ ℓ̂, block
   ℓ̂ always rerun) and the block-ℓ̂ change-class distinction (§4.2a).
-- **Speedup model additive (review finding 4):** four calibrated
+- **Speedup model additive (review finding 4):** five calibrated
   coefficients (row α, attention β with A_hit ≈ P·S+S²/2 separated and a DSA
-  term flagged for measurement, expert-I/O γ, restore/write ρ/ω); no constant
-  d; no closed-form asymptote claimed; break-even via the incremental
-  identity n*·ΔC ≥ ω·P + store cost incl. populate cost and reuse count; the
+  term flagged for measurement, expert-I/O γ, restore ρ, write ω); no
+  constant d; no closed-form asymptote claimed; break-even at expected reuse
+  count n via the incremental identity n·ΔC ≥ ω·P + c_store, integer reuse
+  n* = ⌈(ω·P + c_store)/ΔC⌉, ΔC>0 demoted to the necessary
+  positive-marginal-saving threshold (revision 2.1); the
   fabricated llama.cpp 256-token guidance removed; provider minimums scoped
   to eligibility/economics examples (§6).
 - **Hot-swap re-derived (review finding 6):** §8 licenses mid-run
@@ -958,11 +1011,27 @@ Staged shape [STIPULATED: ASM-2339; no upstream action in this pass]:
   records the resolvable URLs (the repository path embeds an author account
   name — see header). Structural claims STIPULATED with rationale + resolution paths;
   projections EXTRAPOLATION, load_bearing:false. Owners: designer-14 (r1
-  entries), designer-18 (this revision) — both in the closed roster. No
+  entries), designer-18 (revision 2), designer-28 (revision 2.1) — all in
+  the closed roster. No
   GitHub handles or account names anywhere; the engine is referred to only
   as "colibri". No registry write, no git action, no model run, $0. ASM
   range: 2331..2339 populated; 2340..2345 found occupied (GLM-DROP R2) and
   left untouched.
+- **Revision 2.1 — r2 re-review non-blocking fixes closed (verdict
+  SOUND-WITH-FIXES, `poc/gpt56-review/prompt-cache-r2/out/last-message.json`):**
+  (fix 1) PR-P1's validity fingerprint hardened — checkpoint-weight identity
+  (envelope-checksum-family digest, BLAKE3 manifest at PR-P3) + complete
+  execution/shape regime (row-block/batch policy + kernel-family flags, the
+  `PCACHE_SHAPEPIN` mirror) added to the session envelope; explicit
+  KaE-touches-prefix assert/bypass (caching OFF when spans ∩ [0, n_match)
+  ≠ ∅) on both the PR-P1 and in-memory paths, whose token memcmp is no
+  longer the sole validity condition (§5.1, §9, ASM-2339). (fix 2) §6.2
+  corrected: ΔC>0 relabeled the positive-marginal-saving threshold
+  (necessary, not sufficient); break-even at expected reuse count n is
+  n·ΔC(P,S) ≥ ω·P + c_store with integer reuse n* = ⌈(ω·P + c_store)/ΔC⌉;
+  "four coefficients" corrected to five (α, β, γ, ρ, ω) in §0/§6.1/§10
+  and ASM-2336. Both fixes mirrored into the ASM JSON; no tags changed; no
+  other content touched.
 
 ---
 
@@ -982,3 +1051,15 @@ Review artifact: `poc/gpt56-review/prompt-cache/out/last-message.json`.
 | 5 | Upheld: llama.cpp characterization, MIT→Apache, XCACHE/PCACHE non-duplication, KaE composition once arm key + DSA state fixed; ASM-2333 OpenAI staleness (explicit GPT-5.6 breakpoints + prompt_cache_options now exist) | Keep + one fix | **KEPT** §§2/3/5 unchanged in substance; §3.1 corrected for the OpenAI recheck; ASM-2333 updated. |
 | 6 | Hot-swap conditionally true but unsupported; sampled recomputation is detection not proof; mid-run new binary = new stratum | Blocking (ASM-2338) | **RESOLVED** §8 re-derived: license = frozen binary + CANON + SHAPEPIN + per-regime bring-up; else stratum-boundary only; binary change = configuration stratum; detection-guard honesty + retroactive item-void rule. |
 | 7 | ASM semantics: revise ASM-2331, 2333–2336, 2338, 2339; 2334/2335/2338 most serious | Registration blocker | **RESOLVED** — all listed entries rewritten in the companion JSON (see per-entry revision notes there); structural checks (range, tags, URLs, owner, collision disclosure) preserved. |
+
+### 11.1 Re-review of revision 2 (verdict SOUND-WITH-FIXES) — revision 2.1
+
+Re-review artifact: `poc/gpt56-review/prompt-cache-r2/out/last-message.json`
+(GPT-5.6 xhigh, 2026-07-13). All revision-1 blocking findings were confirmed
+closed; two NON-BLOCKING specification fixes remained, both applied in
+revision 2.1 (designer-28, 2026-07-13):
+
+| # | Finding (non-blocking) | Resolution in revision 2.1 |
+|---|---|---|
+| r2-1 | PR-P1's validity fingerprint too weak: session envelope listed config/quantization/`IDOT_KERNEL` but not checkpoint-weight identity, the complete execution/shape regime, or KaE's effect on the restored prefix; the in-memory path compared only tokens | **RESOLVED** §9 PR-P1: fingerprint extended with checkpoint-weight identity (envelope-checksum-family digest; BLAKE3 manifest at PR-P3) and the complete execution/shape regime (row-block/batch policy + kernel-family flags, the `PCACHE_SHAPEPIN` mirror); explicit KaE assert/bypass — caching OFF whenever the active arm touches the restored prefix (spans ∩ [0, n_match) ≠ ∅); §5.1 in-memory path: token memcmp no longer the sole validity condition (weight-mutation/regime invalidation + the same KaE bypass). The simplified PR-P1 path now inherits the full §4.1 P-KV safety principle. ASM-2339 updated. |
+| r2-2 | "Break-even prefix size" mislabeled: ΔC>0 identifies only a positive marginal hit saving; actual break-even for expected reuse count n is n·ΔC(P,S) ≥ ω·P + c_store, integer reuse via the ceiling; also "four coefficients" while naming five (α, β, γ, ρ, ω) | **RESOLVED** §6.2: ΔC>0 relabeled the positive-marginal-saving threshold (necessary, not sufficient); break-even stated as n·ΔC(P,S) ≥ ω·P + c_store with n* = ⌈(ω·P + c_store)/ΔC⌉ (defined only when ΔC>0); band prose updated (n* = 1, not "n* ≪ 1"). "Four" → "five calibrated coefficients" in §0/§6.1/§10. ASM-2336 updated. |
