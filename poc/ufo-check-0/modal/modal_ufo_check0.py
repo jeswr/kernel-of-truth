@@ -153,6 +153,45 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str,
             f"ERR_STAGING_MISMATCH: staged bytes differ from coordinator: "
             f"{diff}")
 
+    # --- ensure the pinned SmolLM2 tokenizer.json is discoverable in-container
+    # (ERR_TOKENIZER_PIN pre-step). The runner's find_tokenizer() REQUIRES a
+    # sha-pinned tokenizer.json BEFORE model load — in --mock too (it is called
+    # before the mock/real branch). The mounted kot-hf-cache volume is not
+    # guaranteed to hold it at the manifest's search path (prior runs warmed the
+    # 135M snapshot; the manifest's default paths name the 360M snapshot).
+    # SmolLM2 shares ONE tokenizer across 135M/360M, so a single file (sha-equal
+    # to the pin) satisfies both hosts: fetch just that one file at the pinned
+    # r360 revision into the mounted cache — it lands EXACTLY at the manifest's
+    # default search path — and also pass it explicitly via --tokenizer. This
+    # touches ONLY the mounted volume + the runner CLI, never the staged bytes /
+    # pins.harness_manifest (this wrapper is the client-side orchestrator and is
+    # excluded from the manifest, like modal_knull_run.py).
+    with open(f"{REMOTE_UFO0}/inputs/manifest.json", encoding="utf-8") as _mf:
+        _rman = json.load(_mf)
+    _want_sha = _rman["tokenizer"]["sha256"]
+    _tspec = _rman["models"]["r360"]  # shared tokenizer; r360 = manifest default
+    try:
+        from huggingface_hub import hf_hub_download
+        tok_path = hf_hub_download(
+            repo_id=_tspec["repo"], filename="tokenizer.json",
+            revision=_tspec["revision"],
+            cache_dir=f"{HF_CACHE_MOUNT}/hub")
+    except Exception as e:  # noqa: BLE001
+        raise SystemExit(
+            "ERR_TOKENIZER_FETCH: could not fetch the pinned SmolLM2 "
+            "tokenizer.json in-container (HF Hub unreachable?): %r" % (e,))
+    _got_sha = cmc.sha256_file(tok_path)
+    if _got_sha != _want_sha:
+        raise SystemExit(
+            "ERR_TOKENIZER_PIN: fetched %s sha %s != manifest pin %s"
+            % (tok_path, _got_sha, _want_sha))
+    try:
+        hf_cache.commit()  # persist the tokenizer for the real --gpu run/reruns
+    except Exception:  # noqa: BLE001
+        pass
+    print("[tokenizer] pinned SmolLM2 tokenizer.json ready at %s (sha %s…)"
+          % (tok_path, _got_sha[:16]), flush=True)
+
     cmd = [
         sys.executable, f"{REMOTE_UFO0}/ufo_check0_runner.py",
         "--inputs-dir", f"{REMOTE_UFO0}/inputs",
@@ -160,6 +199,7 @@ def _run_in_container(gpu_requested: str, mock: bool, arms: str,
         "--out-dir", REMOTE_OUT,
         "--device", "cpu" if mock else "cuda",
         "--gpu-class", gpu_requested,
+        "--tokenizer", tok_path,
         "--frozen-record",
         f"{REMOTE_ROOT}/registry/experiments/ufo-check-0.json",
     ]
