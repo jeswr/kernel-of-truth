@@ -1,0 +1,135 @@
+{
+  "stage": "scale-s1-census",
+  "date": "2026-07-13",
+  "epistemicStatus": "Exploratory S1-preparation pilot. MEASURES YIELD (records that CAN carry a source-asserted/candidate UFO value), NOT PRECISION (correctness of those values — needs the §4.3 human audit, not performed here). Local bytes only; no encoder version; no registry write; NO feasibility conclusion (design §14).",
+  "sources": {
+    "wordnet": {
+      "file": "data/lexical-wn31",
+      "total": 117791,
+      "instances_named_individuals": 7742,
+      "type_level": 110049
+    },
+    "obo": {
+      "file": "data/onto-obo",
+      "records": 96192,
+      "classes": 95201,
+      "per_ontology": {
+        "BFO": 35,
+        "CHEBI": 41,
+        "CL": 3359,
+        "GO": 38256,
+        "MONDO": 32136,
+        "NCBITaxon": 402,
+        "OGMS": 117,
+        "PATO": 1883,
+        "PO": 1670,
+        "RO": 693,
+        "SO": 2447,
+        "UBERON": 15153
+      }
+    },
+    "sumo": {
+      "file": "data/onto-sumo",
+      "terms": 3705,
+      "classes": 2483
+    }
+  },
+  "reachability_100k": {
+    "question": "S0 §2.3: SemCor tag_cnt exhausted at 27,210 < 100k. Does WN∪OBO∪SUMO clear 100k type-level clusters WITHOUT named entities?",
+    "four_counts_S35": {
+      "raw_source_records": 217688,
+      "exactly_crosswalked_clusters": "NOT COMPUTED — source↔source exact crosswalk (WN↔OBO↔SUMO) is S1 step-3 engineering not yet built; only kernel-v0 anchor alignments ship. See caveat.",
+      "type_level_clusters_UNMERGED_UPPER_BOUND": 207733,
+      "fully_resolved_ckufo_records": "NOT COMPUTED — requires endorsement + human audit (S1→S2 gate)."
+    },
+    "per_source": {
+      "wordnet_typelevel": 110049,
+      "obo_classes": 95201,
+      "sumo_classes": 2483
+    },
+    "clears_100k_before_crosswalk_merge": true,
+    "caveat": "UNMERGED union upper bound: cross-source duplicates (e.g. WordNet cell ↔ CL cell) are NOT yet merged, so the true type-level count is LOWER. The measured point is that the union HEADROOM is >100k whereas the tag_cnt rule floored at 27,210 — the selection-rule exhaustion blocker (§2.3) is retired by the portfolio; the exact post-merge count is S1 step-3 work."
+  },
+  "domain_balance": {
+    "requirement": "design §0: a second domain-balanced count must exclude domination by a single taxonomy/domain.",
+    "obo_is_entirely_biology": true,
+    "biology_share_of_union": "45.83%",
+    "largest_single_ontology": {
+      "ontology": "GO",
+      "records": 38256,
+      "share_of_union": "18.42%"
+    },
+    "note": "NCBITaxon is only 402 records locally (not the full millions-of-taxa dump), so single-TAXONOMY domination is NOT the local risk; single-DOMAIN (biology, via all-OBO) is. A domain-balanced 100k needs a non-biological structured source (Wikidata class subset, §3.1) that is NOT yet local — flagged as the one missing ingredient for a domain-balanced (not merely 100k) rung."
+  },
+  "typing_yield_vs_wordnet_zero": {
+    "question": "S0 §2.1: WordNet-only gave 0% source-asserted ontic_category, 0% identity, 0% dependence. Do OBO/BFO + SUMO commitments (cascade steps 1-2) yield NONZERO on those fields?",
+    "wordnet_only_baseline_S0": {
+      "source_asserted_ontic": "0% (only the 1.27% instance flag on denotation_level)",
+      "identity": "0%",
+      "dependence": "0%"
+    },
+    "obo": {
+      "classes": 95201,
+      "ontic_source_asserted_via_bfo_chain": {
+        "count": 54018,
+        "pct": "56.74%",
+        "by_ontology": {
+          "BFO": 33,
+          "CL": 3325,
+          "MONDO": 32078,
+          "OGMS": 61,
+          "PATO": 1882,
+          "PO": 1659,
+          "RO": 6,
+          "UBERON": 14974
+        },
+        "category_dist": {
+          "event": 385,
+          "object": 18948,
+          "region": 691,
+          "disposition": 32048,
+          "quality": 13,
+          "mode": 1929,
+          "role": 2,
+          "proposition": 2
+        }
+      },
+      "ontic_ontology_grounded_fallback_stipulated": {
+        "count": 40779,
+        "pct": "42.83%"
+      },
+      "identity_provider_candidate_via_genus": {
+        "count": 24693,
+        "pct": "25.94%",
+        "note": "genus-differentia logical definition supplies an identity-provider CANDIDATE via the genus chain — WordNet has none."
+      },
+      "logical_definition_records": {
+        "count": 24693,
+        "pct": "25.94%"
+      },
+      "dependence_candidate_via_RO_relationship": {
+        "count": 46755,
+        "pct": "49.11%",
+        "note": "RO relationship edges (part_of, has_part, ...) are dependence CANDIDATES — WordNet antonym/similarTo are lexical, not dependence."
+      }
+    },
+    "sumo": {
+      "terms": 3705,
+      "classes": 2483,
+      "ontic_via_subclass_chain": {
+        "count": 2482,
+        "pct": "66.99%"
+      },
+      "argument_typing_domain_range": {
+        "count": 713,
+        "note": "SUMO domain/range axioms give selectional/argument structure — the layer FrameNet only scaffolds and WordNet lacks."
+      },
+      "biconditional_definitions": {
+        "count": 48,
+        "note": "SUMO <=> biconditionals are its genuinely-definitional statements."
+      }
+    },
+    "interpretation": "YIELD not PRECISION. A NONZERO source-asserted ontic yield + NONZERO identity-provider-candidate + NONZERO dependence-candidate demonstrates the multi-source portfolio has an EVIDENTIAL PATH to the UFO fields that WordNet-only lacked entirely. Whether those candidates are CORRECT at the §4.3 0.95 bar is a SEPARATE human-audit measurement this probe does not perform."
+  },
+  "wallSeconds": 2.588809000015259
+}

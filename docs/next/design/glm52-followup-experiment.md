@@ -371,12 +371,13 @@ nothing is pushed upstream without a separate decision).
 
 ### 2.9 Cost [EXTRAPOLATION: ASM-2032]
 
-**[SUPERSEDED by REVISION-1 §R6: n is power-derived (§R3), scoring is one prefill
-per item per arm (§R1.1), and the ceiling is derived from the power-required n at
-the pessimistic prefill band — new F1-K ceiling $450, with a pre-registered
-degradation order that never cuts n below the power requirement. ASM-2041
-supersedes ASM-2032.]** Original band retained for the record: ~$40–140 at $0.69/h,
-ceiling $250, per-option prefill scoring, n 240–300.
+**[SUPERSEDED by REVISION-1 §R6, ceiling re-derived by REVISION-2 §R-REV2: n is
+power-derived (§R3, ρ_U = 0.05 → n ≈ 1,180), scoring is one prefill per item per
+arm (§R1.1), and the ceiling is derived from the power-required n at the pessimistic
+prefill band — F1-K ceiling $550 (ASM-2048; REVISION-1's $450 corrected upward),
+with a pre-registered degradation order that never cuts n below the power
+requirement. ASM-2041/2048 supersede ASM-2032.]** Original band retained for the
+record: ~$40–140 at $0.69/h, ceiling $250, per-option prefill scoring, n 240–300.
 
 ---
 
@@ -703,9 +704,9 @@ kernel-expert carrier are worth building at scale at all.
 
 ## 9. Cost and decision summary
 
-**[Ceilings column SUPERSEDED by REVISION-1 §R6 (power-derived): K $450 / A $180 /
-B $85 / C $40. Deflator column for F1-K REVISED per §R2 (d1 → d1-drng derangements).
-Original table retained for the record.]**
+**[Ceilings column SUPERSEDED by REVISION-1 §R6 and REVISION-2 §R-REV2
+(power-derived): K $550 / A $180 / B $85 / C $40. Deflator column for F1-K REVISED
+per §R2 (d1 → d1-drng derangements). Original table retained for the record.]**
 
 | Experiment | Fires when | Primary endpoint | Deflator(s) that must be beaten | Ceiling |
 |---|---|---|---|---|
@@ -723,7 +724,8 @@ MAINTAINER GATES, consolidated:
   etiquette per ASM-1989).
 - **MAINTAINER GATE 1 (the sign-off this document exists for):** approve the overall
   plan — F1-K primary + the routing decision tree — with the per-experiment ceilings
-  **as revised power-derived in REVISION-1 §R6 (K $450 / A $180 / B $85 / C $40)**;
+  **as revised power-derived in REVISION-1 §R6 and REVISION-2 §R-REV2 (K $550 /
+  A $180 / B $85 / C $40)**;
   thereafter F1-K runs on P0's landing (gate 0 permitting), the classifier
   fires mechanically, and each experiment runs without re-surfacing inside its
   ceiling. Sign-off additionally binds the FREEZE-GATE of §R5: no F1-K spend before
@@ -845,8 +847,13 @@ candidate. Replacement, frozen before any run:
   rendering per item — instruction header, question, the k options rendered as
   labelled lines (`A. …` … `D. …`) in their PUBLISHED order (no per-arm or per-pass
   reordering), then the fixed answer cue ending at the label position. One template
-  for every item, every arm, every pass; template text contains no concept triggers
-  (verified mechanically against the trigger map at freeze).
+  for every item, every arm, every pass; ~~template text contains no concept triggers
+  (verified mechanically against the trigger map at freeze)~~ **[the blanket
+  no-triggers clause is CONTRADICTORY (items are SELECTED by triggers) and is
+  RETRACTED by REVISION-2 §R-REV2.1: the scored template DOES carry the selection
+  trigger — the gate must fire on it, that is the intervention — and only the fixed
+  instruction header, the fixed answer cue, and the answer-label tokens are
+  trigger-free; ASM-2043 supersedes this clause of ASM-2035].**
 - **Score:** ONE prefill per item per arm; read next-token logits at the answer
   position; the model's answer = argmax over the k answer-LABEL token logprobs
   (single-token labels; verified single-token under the tokenizer at freeze).
@@ -874,7 +881,9 @@ points** (Δ_NI = 2 pts, pre-registered), AND measured expert-byte saving on gat
 tokens > 0. A point estimate above −2 with a CI crossing it is a FAIL ("not shown
 non-inferior"), worded in advance. REPLACE's affordability at the power-required n
 is checked at bring-up; if unaffordable it is DEFERRED per §R6's degradation order,
-never run underpowered.
+never run underpowered. **[REVISION-2 §R-REV2.1 / ASM-2044 derives the explicit
+80%-power SE for the 2-pt NI margin (SE_NI ≤ 0.80 pts) and the resulting
+run-or-defer arithmetic; that derivation extends this rule.]**
 
 ### R2. BLOCKER 2 — dose-exact deflator: concept-label derangements [STIPULATED: ASM-2036]
 
@@ -919,6 +928,14 @@ per-concept-cluster mean of the paired per-item differences; one-sided
 CLUSTER-LEVEL sign-flip permutation test (10,000 resamples), α = 0.05; effect
 floor unchanged (observed paired lift ≥ +3 accuracy points); cluster-level BCa 95%
 CI reported for every primary contrast.
+
+**[REVISED by REVISION-2 §R-REV2.2 / ASM-2045: the C=67/n≈1,005 arithmetic is
+corrected (67.13 → C ≥ 68, n ≈ 1,020 at the original inputs), the ρ input is
+changed from a FLOOR to a conservative literature-anchored UPPER bound ρ_U = 0.05
+(a floor understates required n), the SE formula is restated in the standard
+design-effect form, and the power gate / planning point are re-derived (C ≈ 79,
+n ≈ 1,180 planning; gate C ≥ 65 under n_max). Read §R-REV2.2 as governing where it
+conflicts with the numbers below.]**
 
 **R3.2 F1-K power derivation (frozen formula + dev-measured inputs).** With C
 clusters of average m items, paired-difference discordance rate δ, and
@@ -983,6 +1000,12 @@ cannot be read as evidence of absence.
 applying that configuration to controls, hands the treatment a differential
 optimization advantage (winner's-curse asymmetry).
 
+**[REVISED by REVISION-2 §R-REV2.3 / ASM-2046: the 3-member panel (K + 2
+K-derangements) is blind to mapping truth WITHIN the K carrier family but still
+tunes (L, g) exclusively for the K vector family, leaving the K-vs-d2 and K-vs-random
+rungs a differential-optimization advantage. The panel is EXPANDED to span carrier
+FAMILIES; ASM-2046 supersedes the panel-composition clause below.]**
+
 **Fix — carrier-blind selection:** the pilot grid (3 layer sets × 3 g values, on a
 48-item stratified dev subset) is run over an UNLABELED CARRIER PANEL of three
 tables: the true-K assignment and 2 seeded derangements of it (pilot-reserved
@@ -1032,28 +1055,41 @@ amendment BEFORE further data collection, logged, never silent. Manifest content
 
 Items 1–5 freeze before the pilot where applicable (1–4) or at pilot completion
 (5); item 6 freezes before the test run; the test set stays untouched until all
-eight entries are committed.
+eight entries are committed. **[SUPERSEDED by REVISION-2 §R-REV2.4 / ASM-2047: a
+staged freeze leaves entries 5/6/7 produced AFTER spend begins, so only a partial
+manifest gates the pilot. The manifest is restructured into a PRE-SPEND part (all
+rules + all no-spend inputs + the exact deterministic derivation rules for 5/6/7),
+frozen before ANY F1-K spend including the pilot and bring-up, and mechanically
+derived addenda (5/6/7) that are pure functions of the frozen rules applied to
+pilot/bring-up measurements — no discretion after spend begins.]**
 
-### R6. Power-derived ceilings and the degradation order [EXTRAPOLATION: ASM-2041]
+### R6. Power-derived ceilings and the degradation order [EXTRAPOLATION: ASM-2041; REVISED by ASM-2048]
 
-Scoring is now 1 prefill per item per arm (§R1.1). Arm passes: b0, d0, d1-drng ×5,
-d2, d3-text, K = 10 (+1 conditional REPLACE). Worst-case admissible volume
-(n_max = 1,440): main 11 × 1,440 = 15,840 prefills; construction ≤ 96 concepts ×
-16 × 2 = 3,072; pilot 27 × 48 + δ̂ passes ≈ 1,500; guard 60 × 11 = 660 → ≈ 21.1k
-prefills. Planning point (n = 1,005): ≈ 16.3k prefills. Prefill seconds/item are
-UNKNOWN until bring-up (union-of-experts prefill; the original §2.9 band implies
-~30–100 s warm); at 30–100 s: planning point ≈ 136–452 h ≈ $94–312; worst case
-≈ 176–586 h ≈ $121–404 at $0.69/h.
+**[REVISED by REVISION-2 §R-REV2.2/§R-REV2.3: the corrected ρ_U = 0.05 planning
+raises the F1-K planning n from ~1,005 to ~1,180 and the family-blind pilot panel
+(§R-REV2.3) grows the pilot from 3 to 4 panel members; the F1-K ceiling rises to
+$550 to keep the pessimistic-prefill worst case inside the ceiling. ASM-2048
+supersedes the F1-K ceiling figure of ASM-2041; A/B/C ceilings are unchanged.]**
 
-| Experiment | Power basis | New ceiling |
+Scoring is 1 prefill per item per arm (§R1.1). Arm passes: b0, d0, d1-drng ×5,
+d2, d3-text, K = 10 (+1 conditional REPLACE). **Worst-case admissible volume
+(n_max = 1,440):** main 11 × 1,440 = 15,840; construction ≤ 96 × 16 × 2 = 3,072;
+pilot 27 configs × 48 dev × 4 panel + δ̂ ≈ 6,200; guard 60 × 11 = 660 → ≈ 25.8k
+prefills. **Planning point (ρ_U = 0.05 → n ≈ 1,180, C ≈ 79):** main 11 × 1,180 =
+12,980; construction 79 × 16 × 2 = 2,528; pilot ≈ 6,200; guard 660 → ≈ 22.4k
+prefills. Prefill seconds/item are UNKNOWN until bring-up (union-of-experts prefill;
+the original §2.9 band implies ~30–100 s warm); at 30–100 s: planning point ≈
+187–622 h ≈ $129–429; worst case ≈ 215–716 h ≈ $148–494 at $0.69/h.
+
+| Experiment | Power basis | Ceiling |
 |---|---|---|
-| **F1-K (PRIMARY)** | n_required from §R3.2 (cap 1,440), 10–11 passes, 1 prefill/item/arm; worst case ≈ $404 + restore/contingency | **$450** |
+| **F1-K (PRIMARY)** | n_required from §R-REV2.2 (ρ_U = 0.05; planning n ≈ 1,180, cap 1,440), 10–11 passes, 1 prefill/item/arm, 4-member family-blind pilot panel; worst case ≈ $494 + restore/contingency | **$550** |
 | F1-A | N ∈ [48, 96] from replay variance (§R3.3); 6 arms + a5 double-pass at N = 96 ≈ $49–138 | **$180** |
 | F1-B | B.1 16+16 pairs ≈ $8–12; B.2 3 arms × N ≤ 96 ≈ $21–59 | **$85** |
 | F1-C | unchanged (no verdict-bearing number) | **$40** |
 
-Maximum realized path = F1-K + one branch ≤ **$630** (Branch-A path); ceilings sum
-to $755 but branches are exclusive. **Pre-registered degradation order** if the
+Maximum realized path = F1-K + one branch ≤ **$730** (Branch-A path); ceilings sum
+to $855 but branches are exclusive. **Pre-registered degradation order** if the
 bring-up cost projection at n_required exceeds the F1-K ceiling: (1) R 5 → 3
 (−2 × n prefills; rank check loses granularity, noted); (2) defer REPLACE;
 (3) defer d3-text (K-seam question deferred, ladder rungs intact); (4) if still
@@ -1073,6 +1109,214 @@ pre-worded; no feasibility conclusion is stated; no git action, run, or spend
 occurs in this pass. Central registration of ASM-2034..2042 in
 `registry/assumptions.jsonl` is the coordinator's action, in the commit that lands
 this revision, after the standing review gate.
+
+---
+
+## §R-REV2 — REVISION-2 (2026-07-13, second pass): 4 RESIDUALS from the re-review
+
+> **Status: PRE-REGISTRATION-QUALITY REVISION, awaiting maintainer sign-off (GATE 1)
+> and the coordinator's re-review. No feasibility conclusion; no run, spend, or git
+> action in this pass.** Author: Fable, architecture-design role (designer-5),
+> 2026-07-13.
+>
+> **Provenance.** The codex re-review of REVISION-1 returned **RESIDUAL** (not
+> sign-off-ready): R2 (dose-exact derangement deflator) and the p_perm
+> reconciliation were passed and are NOT re-opened here. Four residuals remain,
+> fixed below (§R-REV2.1–.4). **Where §R-REV2 conflicts with §§1–10 or §R, §R-REV2
+> governs.** ASM delta block: **ASM-2043..2048** (Appendix C; owner designer-5;
+> range checked free — E0 holds 2100–2112, large-kernel 2050+, this range 2043–2049
+> was reserved for this pass).
+
+### R-REV2.1 — Residual 1 (§R1): template↔trigger contradiction + explicit REPLACE-NI power [STIPULATED: ASM-2043; extends ASM-2044]
+
+**The contradiction, accepted.** §R1.1 required the scored template to carry no
+concept triggers, yet items are SELECTED because they carry a trigger, and the KaE
+gate can only intervene by FIRING on a trigger inside the scored sequence. A
+trigger-free scored template would (i) contradict selection and (ii) disable the
+gate, leaving nothing to measure. The blanket clause is retracted; the fix
+separates the two roles cleanly.
+
+- **Selection signal (frozen as an item-id list, never re-evaluated at scoring
+  time):** an item is admitted iff the §2.7 mechanical filter matches ≥1 trigger
+  lemma in its question stem and/or options. Selection is a property of the SOURCE
+  item, computed once, and frozen as the test/dev id lists (freeze-manifest item 8).
+- **Gate/splice signal (the intervention):** the gate fires on the trigger spans
+  present in the frozen scored template — this is REQUIRED; the spliced carrier at
+  those positions IS the KaE intervention. Spans are computed ONCE per item on the
+  frozen template and are byte-identical across every arm and pass (§R1.1), so
+  gating is a fixed property of the item, not of the arm or of which label is read.
+- **What is trigger-free, and why it suffices:** only the FIXED instruction header,
+  the FIXED answer cue, and the answer-LABEL tokens (A–D) are verified trigger-free
+  at freeze. This is the whole requirement: it guarantees the readout position and
+  the shared scaffolding are never themselves gated, so no arm can differ at the
+  scored token through anything but the intended splice. Because scoring is ONE
+  prefill with a single-position label readout, there are no per-option
+  continuations, and option content cannot interact with gating differentially —
+  the option-dependent-gating bias of Blocker 1 is removed structurally regardless
+  of where the trigger sits.
+- **Stem-trigger preference (descriptive control):** items are preferentially
+  selected on a QUESTION-STEM trigger; items whose ONLY trigger falls inside an
+  option are tagged `option-trigger` and reported as a descriptive subgroup (the
+  gate still fires identically across arms; the tag exists so any stem/option
+  asymmetry is auditable, not because it biases the paired contrast).
+
+So: **selection is by trigger; the scored template carries the trigger and the gate
+fires on it; only the header, cue, and label tokens are trigger-free.** No
+contradiction, gate intact, bias removed.
+
+**Explicit REPLACE non-inferiority power (the NI power calc, ASM-2044).** For the
+one-sided NI test H₀: (REPLACE − ADD) ≤ −Δ_NI vs H₁: > −Δ_NI with Δ_NI = 2 pts,
+"declare non-inferior" iff the lower 95% one-sided bound exceeds −Δ_NI, i.e.
+estimate − 1.645·SE > −2. Power at true difference δ_true = 0 (the standard NI
+planning assumption — REPLACE truly equal to ADD):
+
+  power = Φ( (δ_true + Δ_NI)/SE − z₀.₉₅ ) = Φ( 2/SE − 1.645 ).
+
+Set = 0.80: 2/SE − 1.645 = 0.842 ⇒ 2/SE = 2.487 ⇒ **SE_NI ≤ 0.80 pts** [DERIVED].
+This is TIGHTER than the +3-pt superiority target (SE ≤ 1.2 pts) by a factor
+(1.2/0.80)² ≈ 2.25 in information. In the design-effect form (§R-REV2.2),
+n_NI = δ_R · DEFF / SE_NI² = δ_R · DEFF / (0.008)² = δ_R · DEFF / 0.000064, where
+δ_R is the dev-measured REPLACE-vs-ADD discordance rate. **Run-or-defer rule
+(quantitative, pre-committed):** REPLACE NI runs iff n_NI ≤ n_max = 1,440 given the
+dev-measured δ_R and ρ_U = 0.05; else REPLACE is DEFERRED (never run underpowered).
+Worked band: at ρ_U = 0.05, m = 15 (DEFF = 1.70), δ_R = 0.10 gives n_NI ≈ 2,656 >
+n_max → DEFER; a near-identical REPLACE (δ_R = 0.04) gives n_NI ≈ 1,062 ≤ n_max →
+RUN. REPLACE is thus affordable only when REPLACE and ADD are already nearly
+indistinguishable on dev — exactly when NI is the honest thing to test.
+
+### R-REV2.2 — Residual 2 (§R3): power arithmetic, ICC upper bound, re-derived n [STIPULATED: ASM-2045]
+
+**Arithmetic correction (accepted).** At the original inputs (δ = 0.10, ρ = 0.03,
+m = 15), C ≥ (ρδ + δ/m)/(0.012)² = 0.009667/0.000144 = 67.13, so **C ≥ 68 and
+n = C·m ≈ 1,020** — not C = 67 / n ≈ 1,005. The REVISION-1 figures are corrected
+accordingly.
+
+**SE formula, restated (standard design-effect form; supersedes the √((ρδ+δ/m)/C)
+approximation, with which it agrees to O(ρ)):** for n = C·m clustered per-item
+paired differences of per-item variance σ² ≈ δ and ICC ρ,
+
+  SE² = δ · DEFF / n,  DEFF = 1 + (m − 1)ρ.
+
+The irreducible between-cluster floor is SE_floor = √(δρ/C); SE_floor ≤ 1.2 pts
+requires C ≥ δρ/(0.012)².
+
+**ICC as a conservative UPPER bound, not a floor (the material fix).** A floor on ρ
+understates required n (larger ρ ⇒ larger n); and dev-96, with ≈ 1 observation per
+cluster, cannot robustly estimate ρ at all. The planning ρ is therefore an
+UPPER bound **ρ_U = 0.05** [STIPULATED — a conservative design choice, tagged
+STIPULATED not MEASURED], adopted as a standard conservative planning value for
+clustered BINARY outcomes: cluster-randomised-trial and educational-measurement
+reviews report topic/cluster ICCs for binary/achievement outcomes commonly at or
+below ~0.05 absent local data (Campbell et al. 2005 primary-care ICC review;
+Hedges & Hedberg 2007 report the higher achievement-clustering regime, which
+ρ_U = 0.05 is chosen to bracket for a within-model concept-cluster correctness
+outcome). Source cited at range level, not fetched this tick — hence STIPULATED.
+Dev-96 is used ONLY as a coarse UPPER cross-check: if its ICC point estimate's
+one-sided upper CB exceeds 0.05, ρ_U is raised and n re-derived, or the power gate
+(below) returns to the maintainer. ρ is never taken at a floor again.
+
+**Re-derived planning and gate (ρ_U = 0.05, δ = 0.10, SE ≤ 1.2 pts):**
+
+- **Planning point:** solving SE² = δ(1+(m−1)ρ_U)/(Cm) = (0.012)² gives, at m ≈ 15,
+  **C ≈ 79, n ≈ 1,180** [DERIVED]. (At the optimistic ρ = 0.03 this falls to
+  C ≈ 66 / n ≈ 990; the conservative ρ_U is what moves n from ~1,020 to ~1,180.)
+- **Feasibility floor:** SE_floor ≤ 1.2 needs C ≥ δρ_U/(0.012)² = 0.005/0.000144 ≈
+  35 clusters just for the between-cluster term; reaching the target at finite m
+  under the cap needs more.
+- **Power gate (hard, supersedes the C ≥ 48 gate):** F1-K runs only if the
+  mechanical filter supplies **C ≥ 65 concept clusters with m ≥ 8** and
+  n_required(C, m, ρ_U = 0.05) ≤ n_max = 1,440; C ≥ 65 is exactly the smallest
+  cluster count whose n_required stays under the cap at ρ_U = 0.05 (C = 65 ⇒
+  m ≈ 22, n ≈ 1,417) [DERIVED]. Below it, F1-K does NOT run and returns to the
+  maintainer with the measured coverage-vs-power shortfall. (≥216 items remains
+  confirmed underpowered; the C ≥ 48 figure of §R3.2 is superseded upward.)
+- **R3.3 inheritance:** F1-A / F1-B.2 likewise take ρ as a conservative UPPER
+  bound ρ_U = 0.05 in DEFF (not a floor); their N ∈ [48, 96] cap and power-gate
+  return are otherwise unchanged.
+
+### R-REV2.3 — Residual 3 (§R4): tuning invariant to carrier FAMILY, not only mapping truth [STIPULATED: ASM-2046]
+
+**The residual, accepted.** Averaging (L, g) selection over {K-true + 2
+K-derangements} is blind to the label→carrier mapping WITHIN the K vector family,
+but every panel member is a K-family vector, so the grid is still optimised for the
+K family — handing the kernel-specific rungs K-2 (vs d2 dictionary) and any
+random-carrier contrast a differential-optimisation advantage.
+
+**Fix — family-blind selection panel.** The pilot grid (3 layer sets × 3 g values,
+48-item stratified dev subset) is evaluated over a **4-member UNLABELED panel that
+spans carrier FAMILIES**, all rescaled to the reference norm ‖v^K_{c,l}‖ (§R2):
+
+1. the true-K mapping (K family),
+2. one seeded K-derangement (K family, mapping-scrambled — retains within-K
+   blindness),
+3. one dictionary (d2-family) mapping,
+4. one random-carrier (d0-family) table.
+
+Selection statistic **S(L, g) = unweighted mean dev accuracy across the 4 panel
+members**, panel unlabeled in the selection code. S is invariant to (i) which
+member is the true mapping AND (ii) which carrier FAMILY a member belongs to, so
+the frozen (L, g) cannot favour K over d2 or over random. Tie-break unchanged
+(fewer spliced layers, then lower g). The frozen (L, g) is applied IDENTICALLY to
+every scored arm (K, all R main-run derangements, d0, d2; d3-text has no splice).
+Panel composition, the four seeds, per-member dev accuracies (unblinded only AFTER
+the freeze), and the S(L, g) table are freeze-manifest entries. Pilot-panel seeds
+are disjoint from the R = 5 main-run derangement seeds (§R2) and from the dev/test
+splits. The gate-resolution clauses of §R4 (single carrier per position, overlap
+precedence, structural option-gating, norm handling) are unchanged.
+
+### R-REV2.4 — Residual 4 (§R5): complete manifest frozen before ALL F1-K spend [STIPULATED: ASM-2047]
+
+**The residual, accepted.** The 8-entry manifest froze entries 5/6/7 after spend
+began (5 post-pilot, 6 pre-test, 7 during bring-up), so only a partial manifest
+gated the pilot. Restructured into two artifacts:
+
+**(A) PRE-SPEND FREEZE MANIFEST — committed before ANY F1-K spend (pilot AND
+bring-up included). F1-K may not incur a single prefill until (A) is committed.**
+It contains every RULE and every no-spend input, AND the exact DETERMINISTIC
+derivation rule + inputs for each value that can only be produced during pilot or
+bring-up, so nothing discretionary is decided after spend begins:
+
+- entries 1–4 and 8 in full (scoring template bytes+hash, label ids, tie-break,
+  option order; trigger-map hash, gate precedence, span-sidecar rule; carrier
+  construction-context hash, reference-norm rule, raw+rescaled norm logging rule;
+  all seeds — 2 pilot-panel + 5 main derangements; off-concept guard + dev/test
+  id-list hashes);
+- the RULE for entry 5: the exact pilot grid, the 4-member family-blind panel
+  composition and seeds, S(L, g) as the unweighted-mean statistic, and the
+  tie-break — so the frozen (L, g) is a deterministic argmax of the pilot output;
+- the RULE for entry 6: the SE formula, SE targets (1.2 pts superiority; 0.80 pts
+  REPLACE-NI, §R-REV2.1), ρ_U = 0.05 and its dev cross-check/raise rule, the
+  n_required formula, the C ≥ 65 / m ≥ 8 / n ≤ 1,440 power gate, and δ̂'s one-sided
+  80%-upper-bound estimator — so n_required is a deterministic function of the
+  dev-measured (δ̂, dev-ICC cross-check);
+- the RULE for entry 7: the fixed prefill-seconds → cost mapping ($0.69/h), the
+  affordability decision rule, and the §R6 degradation ORDER — so any degradation
+  step is a deterministic consequence of the measured s/prefill, not a choice.
+
+**(B) DERIVED-VALUE ADDENDA (entries 5, 6, 7) — each a pure function of a frozen
+(A) rule applied to a pilot/bring-up measurement**, committed as it lands, carrying
+the input measurement + the rule id it instantiates. No addendum introduces a new
+choice; any departure from the frozen rule is a logged protocol amendment BEFORE
+further spend, never silent. The test set stays untouched until (A) and all of (B)
+are committed.
+
+This makes the pre-pilot artifact bind every subsequent entry by a pre-committed
+rule, satisfying the reviewer's requirement that the complete decision content be
+frozen before any F1-K spend.
+
+### R-REV2.5 — Revision-2 self-check
+
+R2 and the p_perm reconciliation are NOT re-opened. Each of the four residuals has a
+STIPULATED fix with an ASM id in ASM-2043..2048; the one changed EXTRAPOLATION
+(ceilings, ASM-2048) carries a resolution path and bears no load; ρ_U = 0.05 is
+tagged STIPULATED (conservative planning choice, literature cited at range level,
+not fetched) with its source and its dev cross-check/raise rule stated; no branch
+threshold, endpoint direction, or ladder margin moved; both directions of the new
+rules (REPLACE run-or-defer, power-gate return, ρ_U raise) are pre-worded; the only
+cost change is the F1-K ceiling $450 → $550 with its arithmetic; no feasibility
+conclusion is stated; no git action, run, or spend occurs in this pass. Central
+registration of ASM-2043..2048 is the coordinator's action in the landing commit,
+after the standing review gate.
 
 ---
 
@@ -1465,6 +1709,90 @@ this revision, after the standing review gate.
    "rationale": "Registers the corrected mechanical evidence with its hash, seed, and void-verdict on the defective v1 run so downstream documents cite one canonical record.",
    "backing_ref": "poc/glm52-probe/results/routing-analysis-v2.json; poc/glm52-probe/analyze_routing_v2.py; poc/glm52-probe/results/routing-analysis.json (v1, VOID); poc/glm52-probe/interpretation-fable.md §1.2 (defect provenance)",
    "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  }
+ ]
+}
+```
+
+---
+
+## Appendix C — REVISION-2 assumption delta block ASM-2043..2048 (registry-style; coordinator registers with the commit)
+
+```json
+{
+ "_readme": [
+  "GLM52-F1 REVISION-2 assumption delta block ASM-2043..2048 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the RESIDUAL re-review of REVISION-1 (4 residuals; R2 dose-exact deflator and the p_perm reconciliation PASSED and NOT re-opened); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
+  "Range 2043-2049 reserved for this pass (E0 holds ASM-2100..2112, large-kernel track is on ASM-2050+, this file's blocks hold ASM-2010..2042); 2043..2048 used, 2049 free.",
+  "Supersession map: ASM-2043 supersedes the 'no concept triggers in template' clause of ASM-2035 (selection-by-trigger vs trigger-free-scaffolding separation); ASM-2044 extends ASM-2037 with the explicit REPLACE-NI 80%-power SE and run-or-defer arithmetic; ASM-2045 supersedes the C=67/n=1005 arithmetic and the rho-FLOOR clause of ASM-2038 (rho_U upper bound + re-derived planning/gate); ASM-2046 supersedes the 3-member (K+2 K-derangement) panel clause of ASM-2040 (family-blind 4-member panel); ASM-2047 supersedes the staged-freeze clause of ASM-2039 (complete pre-spend manifest + derived addenda); ASM-2048 supersedes the F1-K ceiling figure of ASM-2041 ($450 -> $550). Superseded PARENT ASMs remain registered with their remaining content intact; no branch threshold, endpoint direction, or ladder margin is changed.",
+  "Companion design: docs/next/design/glm52-followup-experiment.md §R-REV2. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. EXTRAPOLATION entries carry an explicit resolution_path and are load_bearing=false."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2043",
+   "tag": "STIPULATED",
+   "claim": "F1-K TEMPLATE<->TRIGGER RESOLUTION (supersedes the 'template text contains no concept triggers' clause of ASM-2035, which was self-contradictory — items are SELECTED by triggers and the gate must FIRE on a trigger in the scored sequence to intervene): (1) SELECTION signal = the ASM-2030/section-2.7 mechanical filter matching >=1 trigger lemma in the source item's question stem and/or options, computed ONCE and frozen as the dev/test item-id lists (manifest entry 8), never re-evaluated at scoring time. (2) GATE/splice signal = the trigger spans present IN the frozen scored template; the gate firing on them IS the KaE intervention; spans are computed once per item and are byte-identical across every arm and pass, so gating is a fixed property of the item not of the arm or of which label is read. (3) Trigger-FREE by construction, verified at freeze = ONLY the fixed instruction header, the fixed answer cue, and the answer-LABEL tokens (A-D); this alone guarantees the readout position and shared scaffolding are never gated, and because scoring is ONE prefill with a single-position label readout there are no per-option continuations, so option content cannot interact with gating differentially (Blocker-1 option-dependent-gating bias removed structurally regardless of trigger location). (4) Items are preferentially selected on a QUESTION-STEM trigger; items whose only trigger is inside an option are tagged 'option-trigger' and reported as a descriptive subgroup (the gate still fires identically across arms; the tag makes any stem/option asymmetry auditable, it does not bias the paired contrast).",
+   "rationale": "A trigger-free scored template both contradicts trigger-based selection and disables the very gate whose effect is being measured; the honest resolution keeps the trigger in the scored template (the gate needs it), freezes selection as an item property, and confines the trigger-free requirement to the scaffolding and label tokens where it actually prevents differential gating.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.1; registry ASM-2035 (parent scoring), ASM-2030 (selection filter); poc/gpt56-review re-review residual 1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2044",
+   "tag": "STIPULATED",
+   "claim": "REPLACE NON-INFERIORITY POWER (extends ASM-2037 with the explicit NI power calc the re-review demanded): for H0 (REPLACE-ADD) <= -Delta_NI vs H1 > -Delta_NI at Delta_NI=2 pts, declaring non-inferiority iff the lower one-sided 95% bound exceeds -2 (estimate - 1.645*SE > -2), power at true difference 0 is Phi(2/SE - 1.645); setting =0.80 gives 2/SE = 1.645+0.842 = 2.487, so SE_NI <= 0.80 pts [DERIVED] — tighter than the +3-pt superiority target SE<=1.2 by ~2.25x information. In the ASM-2045 design-effect form n_NI = delta_R*DEFF/SE_NI^2 = delta_R*DEFF/0.000064 with delta_R = dev-measured REPLACE-vs-ADD discordance. RUN-OR-DEFER (pre-committed, quantitative): REPLACE NI runs iff n_NI <= n_max=1440 at the dev-measured delta_R and rho_U=0.05, else REPLACE is DEFERRED (never underpowered); worked band at rho_U=0.05,m=15,DEFF=1.70: delta_R=0.10 -> n_NI~2656>n_max -> DEFER; delta_R=0.04 -> n_NI~1062<=n_max -> RUN. REPLACE is affordable only when REPLACE and ADD are already near-indistinguishable on dev — exactly when NI is the honest test.",
+   "rationale": "A non-inferiority claim requires a power calculation at its own margin, not the superiority SE; deriving SE_NI<=0.80 and turning affordability into a deterministic delta_R threshold makes the ASM-2037 defer rule quantitative rather than discretionary.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.1; registry ASM-2037 (parent NI rule), ASM-2045 (DEFF form); poc/gpt56-review re-review residual 1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2045",
+   "tag": "STIPULATED",
+   "claim": "F1-K POWER ARITHMETIC + ICC UPPER BOUND (supersedes the C=67/n=1005 arithmetic and the rho-FLOOR clause of ASM-2038): (1) arithmetic corrected — at delta=0.10,rho=0.03,m=15, C >= 0.009667/0.000144 = 67.13 so C>=68 and n~1020 (not 67/1005). (2) SE restated in standard design-effect form SE^2 = delta*DEFF/n, DEFF=1+(m-1)*rho, agreeing with the prior sqrt((rho*delta+delta/m)/C) to O(rho); between-cluster floor SE_floor=sqrt(delta*rho/C). (3) rho is a conservative UPPER bound rho_U=0.05 NOT a floor (a floor understates required n; dev-96 with ~1 obs/cluster cannot robustly estimate rho); rho_U=0.05 is a STIPULATED conservative planning value for clustered binary outcomes consistent with the cluster-randomised-trial / educational-measurement ICC range (Campbell et al. 2005 primary-care review; Hedges & Hedberg 2007 achievement regime, bracketed) — cited at range level, not fetched this tick; dev-96 serves only as a coarse UPPER cross-check and if its ICC upper CB exceeds 0.05 rho_U is raised and n re-derived or the power gate returns. (4) Re-derived planning at rho_U=0.05,delta=0.10,SE<=1.2: C~79,n~1180 (optimistic rho=0.03 -> C~66/n~990); feasibility floor C>=35; POWER GATE (supersedes C>=48): F1-K runs only if the filter supplies C>=65 concept clusters with m>=8 and n_required<=n_max=1440 (C=65 is the smallest cluster count keeping n_required under the cap at rho_U=0.05: m~22,n~1417), else returns to the maintainer with the coverage-vs-power shortfall; >=216 items remains confirmed underpowered. (5) F1-A/F1-B.2 inherit rho as the same conservative upper bound rho_U=0.05 in DEFF.",
+   "rationale": "The re-review's arithmetic fix is accepted, but the material error was using a floor for rho when an upper bound is required for a conservative sample size; anchoring rho_U to the clustered-binary ICC literature, restating SE in design-effect form, and re-deriving the gate at rho_U keeps n honest and the gate feasible under the cap.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.2; registry ASM-2038 (parent power); poc/gpt56-review re-review residual 2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2046",
+   "tag": "STIPULATED",
+   "claim": "F1-K FAMILY-BLIND TUNING PANEL (supersedes the 3-member K+2-K-derangement panel clause of ASM-2040): averaging (L,g) selection over K-family members only is blind to mapping truth WITHIN K but still optimises the grid for the K vector family, giving the kernel-specific rungs K-vs-d2 and K-vs-random a differential-optimisation advantage. FIX: the pilot grid (3 layer sets x 3 g, 48-item stratified dev subset) is evaluated over a 4-member UNLABELED panel SPANNING carrier FAMILIES, all rescaled to ||v^K_{c,l}||: (1) true-K mapping, (2) one seeded K-derangement, (3) one dictionary d2-family mapping, (4) one random d0-family table; selection statistic S(L,g)=unweighted mean dev accuracy across the 4 members, panel unlabeled in the selection code, so the frozen (L,g) is invariant to BOTH which member is the true mapping AND which carrier FAMILY a member belongs to and cannot favour K over d2 or random; tie-break unchanged (fewer spliced layers, then lower g); frozen (L,g) applied identically to every scored arm (K, all R main derangements, d0, d2; d3-text has no splice). Panel composition, the four seeds (disjoint from the R=5 main derangement seeds and the dev/test splits), per-member accuracies (unblinded only after freeze), and the S(L,g) table are manifest entries. The ASM-2040 gate-resolution clauses (single carrier/position, overlap precedence, structural option-gating, norm handling) are unchanged.",
+   "rationale": "Carrier-blindness within the K family removes only the K-vs-d1-drng differential advantage; the kernel-specificity rungs compare K against OTHER carrier families, so the selection statistic must be invariant to family, achieved by putting one representative of each family in the unlabeled panel.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.3; registry ASM-2040 (parent tuning), ASM-2029 (deflator families); poc/gpt56-review re-review residual 3",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2047",
+   "tag": "STIPULATED",
+   "claim": "F1-K COMPLETE PRE-SPEND FREEZE MANIFEST (supersedes the staged-freeze clause of ASM-2039, under which entries 5/6/7 were produced AFTER spend began so only a partial manifest gated the pilot): restructured into (A) a PRE-SPEND FREEZE MANIFEST committed before ANY F1-K spend (pilot AND bring-up included; F1-K may not incur a single prefill until (A) is committed) containing entries 1-4 and 8 in full PLUS the exact DETERMINISTIC derivation rule + inputs for each value produced during pilot/bring-up — the rule for entry 5 (pilot grid, 4-member family-blind panel composition+seeds, S(L,g) unweighted-mean statistic, tie-break -> (L,g) is a deterministic argmax), the rule for entry 6 (SE formula, SE targets 1.2 pts superiority / 0.80 pts REPLACE-NI, rho_U=0.05 + dev cross-check/raise rule, n_required formula, C>=65/m>=8/n<=1440 power gate, delta-hat one-sided-80%-upper estimator -> n_required deterministic in dev measurements), the rule for entry 7 (fixed prefill-seconds->cost mapping at $0.69/h, affordability decision rule, section-R6 degradation ORDER -> any degradation step deterministic in measured s/prefill); and (B) DERIVED-VALUE ADDENDA 5/6/7 each a pure function of a frozen (A) rule applied to a pilot/bring-up measurement, committed as it lands with its input + rule id, introducing no new choice; any departure from a frozen rule is a logged protocol amendment BEFORE further spend. The test set stays untouched until (A) and all of (B) are committed.",
+   "rationale": "A freeze that leaves selection/power/affordability decisions to be MADE after spend begins does not actually bind the pilot; pre-committing the exact deterministic rule + inputs for every later value converts them from choices into computations, so the complete decision content is frozen before any F1-K prefill.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.4; registry ASM-2039 (parent freeze-gate); poc/gpt56-review re-review residual 4",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2048",
+   "tag": "EXTRAPOLATION",
+   "claim": "F1-K CEILING REVISION (supersedes the F1-K $450 figure of ASM-2041; A/B/C ceilings unchanged at $180/$85/$40): the rho_U=0.05 correction raises the F1-K planning n from ~1,005 to ~1,180 (C~79) and the family-blind pilot grows from 3 to 4 panel members, so worst-case admissible volume (n_max=1440) is ~25.8k prefills (main 15,840 + construction 3,072 + pilot ~6,200 + guard 660) and the planning point (n~1,180) ~22.4k; at the pessimistic 30-100 s/prefill band this prices planning ~$129-429 and worst case ~$148-494 at $0.69/h, so the F1-K CEILING rises to $550 to keep the 100 s/prefill worst case inside the ceiling. Maximum realized path = F1-K + one exclusive branch <= $730 (Branch-A); ceilings sum to $855. The section-R6 degradation order (R 5->3, defer REPLACE, defer d3-text, then STOP+return; n never below n_required, no ladder-rung arm dropped) is unchanged and remains the mechanism that holds spend to the ceiling.",
+   "rationale": "The two power-honesty corrections (conservative rho, family-blind panel) both raise cost; pricing them at the pessimistic prefill band and lifting only the F1-K ceiling keeps the ceiling honest without re-opening the branch ceilings.",
+   "resolution_path": "Bring-up s/prefill measurement + instance receipts recorded in freeze-manifest addendum 7 (ASM-2047); bands replaced by measured values in the F1-K run report; if the measured projection still exceeds $550 the section-R6 degradation order fires.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.2, §R-REV2.3, §R6; registry ASM-2041 (parent ceilings); poc/gpt56-review re-review residuals 2-3",
+   "load_bearing": false,
    "status": "open",
    "owner": "designer-5",
    "date": "2026-07-13"

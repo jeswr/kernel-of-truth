@@ -1,0 +1,68 @@
+{
+ "range": "ASM-2050..ASM-2055 (free range verified this tick: `grep -c ASM-205[0-9] registry/assumptions.jsonl` = 0; registry max existing = ASM-2112. Chosen at ASM-2050 per the build brief to avoid the E0 (2043-2049) and KaE (2034-2042) revisions in flight.)",
+ "purpose": "SCALE-1 S1 (100k rung) FIRST-INCREMENT candidate assumptions: the multi-source concept census + UFO-typing-yield probe over the local WordNet/OBO/SUMO shards. Emitted by the poc/scale build agent (owner role: builder-scale-s1) for coordinator registration; NOT written to registry/assumptions.jsonl by the build agent.",
+ "owner": "builder-scale-s1",
+ "backing_artifacts": [
+  "poc/scale/src/census.ts",
+  "poc/scale/results/scale-s1-census.json",
+  "poc/scale/results/scale-s1-census.md",
+  "docs/next/design/scale-s1-multisource-census.md"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2050",
+   "claim": "The local WordNet \u222a OBO \u222a SUMO shards yield 207,733 type-level clusters as an UNMERGED union upper bound (WordNet non-instance 110,049 + OBO classes 95,201 + SUMO classes 2,483, from raw records WN 117,791 + OBO 96,192 + SUMO 3,705 terms). This clears the 100k rung with headroom, whereas the S0 SemCor tag_cnt selection rule floored at 27,210 (ASM-1780). CONSEQUENCE: the selection-rule-exhaustion blocker (S0 interpretation \u00a72.3) is retired by the portfolio. CAVEAT (load-bearing): this is a PRE-DEDUP upper bound; cross-source duplicates (e.g. WordNet 'cell' \u2194 CL cell) are not merged, so the true post-crosswalk type-level count is LOWER and remains uncomputed (S1 step-3 dedup engineering).",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json (reachability_100k); regenerate via `cd poc && npm run scale:census`, wall 2.6s sha256:61417c4993f3ff43e5be9c1105bfcbf6e936e659203f7caaa56b6b4bf6041b08",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2051",
+   "claim": "OBO source-asserted ontic_category yield (cascade step 1, is_a* closure reaching a BFO 2.0 category anchor): 54,018 / 95,201 OBO classes = 56.74%, distributed disposition 32,048 (MONDO diseases), object 18,948 (UBERON anatomy 14,974 + CL cells 3,325 + PO 1,659), mode 1,929 (PATO qualities), region 691, event 385, quality 13, role 2, proposition 2. This is NONZERO on a field WordNet-only gave 0% (S0 interpretation \u00a72.1). CONSEQUENCE: the multi-source portfolio has an EVIDENTIAL PATH to source-asserted ontic_category. This is a YIELD, NOT a PRECISION claim (correctness at the \u00a74.3 0.95 bar needs a human audit not performed here).",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json (typing_yield_vs_wordnet_zero.obo.ontic_source_asserted_via_bfo_chain) sha256:61417c4993f3ff43e5be9c1105bfcbf6e936e659203f7caaa56b6b4bf6041b08",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2052",
+   "claim": "OBO identity-provider-candidate yield via genus-differentia logical definitions: 24,693 / 95,201 OBO classes = 25.94% carry a genus (identity-provider candidate via the genus chain); WordNet supplies none (0%). This measured count is within 0.5% of the design's independently-cited 24,578 genus-differentia definitions (large-kernel-scale-track.md \u00a71.1) \u2014 a cross-check that the extraction and the closure agree. OBO RO 'relationship' dependence-candidate yield: 46,755 / 95,201 = 49.11% carry \u22651 RO relationship edge (part_of/has_part/... \u2192 dependence candidate), vs WordNet 0% (antonym/similarTo are lexical, not dependence).",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json (identity_provider_candidate_via_genus, dependence_candidate_via_RO_relationship) sha256:61417c4993f3ff43e5be9c1105bfcbf6e936e659203f7caaa56b6b4bf6041b08",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2053",
+   "claim": "The BFO-reached fraction (56.74%) is a FLOOR set by the LOCAL extraction, not a ceiling: GO (38,256 records, 40% of OBO) reaches 0 BFO anchors because its three roots (biological_process/molecular_function/cellular_component) carry no explicit is_a\u2192BFO edge in the local jsonl, while MONDO does (disease is_a BFO:disposition). 40,779 OBO classes (42.83%) currently type only via the ontology-grounded fallback crosswalk (STIPULATED per-ontology root \u2192 category). CONSEQUENCE: closing the gap to full source-asserted coverage is the S1 crosswalk step (load per-ontology BFO bridges + the SUMO\u2194WordNet mapping), not new science; the yield RISES once bridges are loaded.",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json (typing_yield_vs_wordnet_zero.obo.ontic_source_asserted_via_bfo_chain.by_ontology shows GO absent) sha256:61417c4993f3ff43e5be9c1105bfcbf6e936e659203f7caaa56b6b4bf6041b08",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2054",
+   "claim": "Domain-balance gap: the local structured (source-asserted-typed) mass is ENTIRELY biological (OBO biology share of the union \u2248 45.8%; all of OBO is bio; NCBITaxon is only 402 records locally so single-TAXONOMY domination is not the local risk, single-DOMAIN biology is). A design \u00a70 domain-balanced 100k rung (count excluding single-domain domination) therefore requires a non-biological structured source with source-asserted typing \u2014 the Wikidata class subset (\u00a73.1, CC0) \u2014 which is NOT yet local. This is the single missing ingredient for a domain-balanced (not merely 100k-sized) rung.",
+   "tag": "MEASURED",
+   "backing_ref": "poc/scale/results/scale-s1-census.json (domain_balance) sha256:61417c4993f3ff43e5be9c1105bfcbf6e936e659203f7caaa56b6b4bf6041b08",
+   "owner": "designer-6",
+   "load_bearing": true,
+   "status": "open"
+  },
+  {
+   "id": "ASM-2055",
+   "claim": "The KaE / F1-K coverage gate (n_min = 240 benchmark items whose concepts the kernel covers; G-lex lexical phrase\u2192concept matcher) needs a concept\u2192content map whose SCALE governs whether F1-K is a toy demonstration or an impactful result: the minimal first map is the ~24 probe concepts + WordNet backbone (enough to instrument the gate); a benchmark like MMLU has an open-domain concept inventory that a bio-heavy 200k union covers only sparsely, so moving F1-K from 'known-concept-subset MMLU' (a hand-picked coverage island) to 'broad MMLU coverage' needs a sense-split, domain-balanced kernel at \u22651M concepts (design \u00a77.7 reach-and-successful-use; \u00a710 SCALE-GROUND-1M). RESOLUTION PATH: measure F1-K's MMLU concept-coverage against (a) the current census union and (b) a domain-balanced 1M union, to quantify the coverage lift. load_bearing=false.",
+   "tag": "EXTRAPOLATION",
+   "backing_ref": "resolution_path: run the G-lex trigger-map coverage count of MMLU pool concepts against the census union vs a projected domain-balanced 1M union; poc/glm52-probe/interpretation-fable.md \u00a74 (n_min=240 gate); large-kernel-scale-track.md \u00a77.7/\u00a710",
+   "owner": "designer-6",
+   "load_bearing": false,
+   "resolution_path": "Resolved by building the >=1M sense-split, domain-balanced concept->content map (docs/next/design/scale-s1-multisource-census.md steps 2-3: BFO-bridge load + Wikidata subset); until then F1-K instruments the coverage gate only on a hand-picked concept subset.",
+   "status": "open"
+  }
+ ]
+}

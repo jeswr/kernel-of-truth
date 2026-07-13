@@ -52,3 +52,25 @@ intermediates and checkpoints under `poc/scale/out/n<k>/`.
 ASM candidates for the coordinator are in `poc/scale/asm-1780-1789.json`
 (free range checked against `registry/assumptions.jsonl`; this directory does
 NOT write the registry itself).
+
+## Next rung: S1 (100k) increment 1 — multi-source census (built 2026-07-13)
+
+The first S1 increment is a **multi-source concept census + UFO-typing-yield
+probe** over the local WordNet ∪ OBO ∪ SUMO shards — the cheapest measurement
+that retires the two rung-gating S0 blockers before any 100k build:
+
+```bash
+cd poc
+npm run scale:census   # reads data/{lexical-wn31,onto-obo,onto-sumo}; ~2.6 s, $0
+```
+
+Outputs `poc/scale/results/scale-s1-census.{json,md}`. It measures **yield, not
+precision** (the §4.3 human audit is a later step). Design + staged plan:
+`docs/next/design/scale-s1-multisource-census.md`. ASM candidates:
+`poc/scale/asm-2050-2059.json` (ASM-2050..2055). Headline measured facts: the
+union has >100k type-level headroom (retires §2.3 selection-rule exhaustion),
+and OBO/SUMO give nonzero source-asserted-ontic (56.7%), identity-provider-
+candidate (25.9%) and dependence-candidate (49.1%) yield where WordNet-only gave
+0% (retires §2.1 as an evidential-path gap). Next cheap increments: load
+per-ontology BFO bridges + SUMO↔WordNet mapping (step 2), add a Wikidata class
+subset for domain balance (step 3) — both re-run this same script.
