@@ -1,0 +1,44 @@
+{
+  "id": "urn:kernel-v1:cook",
+  "label": "cook",
+  "synset": "urn:lexical-wn31:n-09982799",
+  "pattern": "InstanceSchema; agentive DO with an undergoer",
+  "gloss": "A person who prepares food for eating, especially by applying heat to ingredients and combining or transforming them into a dish.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — it renders a someone who does something to a thing, but cannot encode food, preparation, or the application of heat."
+}

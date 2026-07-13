@@ -1,0 +1,57 @@
+{
+  "id": "urn:kernel-v1:smith",
+  "label": "smith",
+  "synset": "urn:lexical-wn31:n-10634145",
+  "pattern": "InstanceSchema; manual DO applied to a material thing",
+  "gloss": "A person who shapes and forms metal, especially by striking it with a hammer while heat has made it malleable.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the metal material, hammering action, heat, and malleability are rendered only as manual action upon a thing because the metalanguage lacks these concepts."
+}

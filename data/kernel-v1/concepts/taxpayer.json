@@ -1,0 +1,45 @@
+{
+  "id": "urn:kernel-v1:taxpayer",
+  "label": "taxpayer",
+  "synset": "urn:lexical-wn31:n-10713659",
+  "pattern": "InstanceSchema; generic DO for an unrepresentable tax payment",
+  "gloss": "A person who makes compulsory payments to a public authority for the support of public revenue.",
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      }
+    ]
+  },
+  "references": [],
+  "status": "draft",
+  "notes": "AST adequacy: lossy — the metalanguage cannot represent money, compulsory payment, taxation, or public authority, so it renders only someone doing something."
+}
