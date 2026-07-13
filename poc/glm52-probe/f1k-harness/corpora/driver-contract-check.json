@@ -1,0 +1,45 @@
+{
+ "checks": [
+  {
+   "check": "split sizes test/dev/guard == 1440/96/60",
+   "note": "driver fails closed otherwise (ERR_F1K_EVAL)",
+   "ok": true
+  },
+  {
+   "check": "guard items carry zero trigger spans (driver: any s>=0 fails)",
+   "note": "recomputed on every guard template (off-concept: the gate must never fire, DES §2.5)",
+   "ok": true
+  },
+  {
+   "check": "every test/dev item has d3 template",
+   "note": "d3_template_text present; d3_template_tokens is a bring-up derivation",
+   "ok": true
+  },
+  {
+   "check": "labels/gold well-formed (labels len == options len; 0<=gold<k)",
+   "note": "",
+   "ok": true
+  },
+  {
+   "check": "token-level eval-manifest fields present",
+   "note": "CONTRACT MISMATCH (flagged, expected): the driver requires template_tokens / label_token_ids / spans / d3_template_tokens as TOKEN-level fields in the eval manifest; this corpus carries frozen template BYTES + CHAR-level spans + the deterministic derivation rule (template-spec.json), because the GLM-5.2 tokenizer is pinned only at bring-up (ASM-1971) and is not fetchable in a $0 no-model pass. Either the driver grows a corpus->manifest tokenizer step at bring-up, or the coordinator derives the token-level manifest as a pure function of this corpus + the pinned tokenizer before (6).",
+   "ok": false
+  },
+  {
+   "check": "derangement seeds == registered [101,102,103] + pilot 11, fixed-point-free over nc=49",
+   "note": "driver validate_dose requires meta.derangement FPF permutation; satisfied by generator/derangements.json at realization",
+   "ok": true
+  },
+  {
+   "check": "power gate C>=65 each m>=8 at n=1440",
+   "note": "clusters_with_m_ge_8 = 46 over a 54-concept universe — pre-run RETURN arithmetic surfaced now (OP-3)",
+   "ok": false
+  },
+  {
+   "check": "KAEC format params known (D=6144, nc=49, layers=bring-up)",
+   "note": "realized tables are B0; layer union unresolved until model config",
+   "ok": true
+  }
+ ],
+ "driver": "poc/glm52-probe/f1k-harness/f1k_driver.py load_eval_manifest / validate_dose / kaec_read"
+}

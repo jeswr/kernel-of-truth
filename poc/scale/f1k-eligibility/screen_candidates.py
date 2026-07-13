@@ -74,10 +74,14 @@ for the codex design to adopt or amend — none is a freeze):
          the C >= 65 gate.
   SOP-6  sense-ambiguity heuristic (screening aid only, NOT an eligibility
          criterion): a matched phrase is 'unambiguous evidence' for concept
-         c iff it is a DIRECT lemma of c and that lemma names exactly one
-         type-level synset in all of WN31. m_unambig = items with >= 1 such
-         match. Criterion (a) (explication quality / sense fit) is the
-         codex design's, deferred.
+         c iff it is a DIRECT lemma of c, that lemma names exactly one
+         type-level synset in all of WN31, AND its WN SOURCE form carries
+         no uppercase (cased/acronym lemmas like 'AN', 'IT', 'WHO', 'OR'
+         are lowercased by the reused [BC] expansion and then collide
+         case-insensitively with function words — objectively weak
+         evidence, excluded from the heuristic but NOT from m_total).
+         m_unambig = items with >= 1 such match. Criterion (a)
+         (explication quality / sense fit) is the codex design's, deferred.
 
 Determinism: byte-identical outputs on re-run. No wall-clock, no RNG, no
 network, no model, no git/registry/freeze/spend. colibri naming; no handles.
@@ -143,6 +147,7 @@ def write_json(path, obj):
 def parse_wn_dict():
     dictdir = ROOT / "data" / "lexical-wn31" / "source" / "dict"
     out = {}
+    cased = set()        # lowercased forms whose WN SOURCE form has uppercase
     for pos, fn in (("n", "data.noun"), ("v", "data.verb"),
                     ("a", "data.adj"), ("r", "data.adv")):
         with open(dictdir / fn, encoding="latin-1") as f:
@@ -157,7 +162,10 @@ def parse_wn_dict():
                 for _ in range(w_cnt):
                     w = parts[i]
                     w = re.sub(r"\((?:p|a|ip)\)$", "", w)   # syntactic markers
-                    words.append(w.replace("_", " ").lower())
+                    w = w.replace("_", " ")
+                    if w != w.lower():       # SOP-6: cased/acronym source form
+                        cased.add(w.lower())
+                    words.append(w.lower())
                     i += 2                   # skip lex_id
                 p_cnt = int(parts[i]); i += 1
                 deriv = {}
@@ -171,7 +179,7 @@ def parse_wn_dict():
                         deriv.setdefault(src, []).append((tp, toff, tgt))
                 out[(pos, off)] = {"words": words, "gloss": gloss.strip(),
                                    "deriv": deriv}
-    return out
+    return out, cased
 
 
 # ---------------------------------------------------------------------------
@@ -320,7 +328,7 @@ def load_items():
 # ---------------------------------------------------------------------------
 def main():
     print("[1/6] parsing WN3.1 dict + type-level pool ...")
-    wn = parse_wn_dict()
+    wn, cased = parse_wn_dict()
     instance_urns, jsonl_total = load_instance_urns()
     concepts, lemma_synsets = build_pool(wn, instance_urns)
     n_pool = len(concepts)
@@ -329,10 +337,11 @@ def main():
     if n_pool != 110049:
         fail("type-level pool %d != census type_level 110049 — pool moved"
              % n_pool)
-    mono = {w for w, n in lemma_synsets.items() if n == 1}
+    mono = {w for w, n in lemma_synsets.items() if n == 1} - cased
     print("  pool: %d type-level synsets (census-exact), %d instances "
-          "excluded, %d monosemous direct lemmas"
-          % (n_pool, len(instance_urns), len(mono)))
+          "excluded, %d monosemous lowercase-source direct lemmas "
+          "(%d cased/acronym forms excluded from the SOP-6 heuristic)"
+          % (n_pool, len(instance_urns), len(mono), len(cased)))
 
     idx = compile_index(concepts)
     matcher = Matcher(idx)
@@ -360,6 +369,7 @@ def main():
     print("[4/6] counting trigger matches (question+options, OP-4 rule) ...")
     stats = {}           # cid -> [m_total, m_stem, m_unambig, Counter(src)]
     per_cid_items = {}   # cid -> array('i') of item indices (for SOP-5)
+    per_cid_unamb = {}   # cid -> array('i') of unambiguous-evidence items
     contention = Counter()   # per item: #matching concepts (raw pool)
     for ii, it in enumerate(items):
         stem_cids, stem_ph = matcher.match(it["question"])
@@ -379,9 +389,9 @@ def main():
             if cid in stem_cids:
                 s[1] += 1
             c = concepts[cid]
-            if any(ph in mono and ph in c["direct"] for ph in phrases
-                   if ph in c["direct"]):
+            if any(ph in mono for ph in phrases if ph in c["direct"]):
                 s[2] += 1
+                per_cid_unamb.setdefault(cid, array("i")).append(ii)
             s[3][it["source"]] += 1
             per_cid_items[cid].append(ii)
         if (ii + 1) % 5000 == 0:
@@ -435,8 +445,31 @@ def main():
                 claimed2[ii] = 1
             greedy_ok_clean.add(cid)
     c_disjoint_clean = len(greedy_ok_clean)
+    # CONSERVATIVE bound (SOP-5+SOP-6): header-clean concepts reaching m>=8
+    # on DISJOINT items each matched via a MONOSEMOUS DIRECT LEMMA — the
+    # strongest design-independent adequacy statement this screen can make.
+    unamb_eligible = sorted(
+        (cid for cid, s in stats.items()
+         if s[2] >= POWER_GATE_MIN_M and cid not in hdr_cids),
+        key=lambda cid: (stats[cid][2], concepts[cid]["urn"]))
+    claimed3 = bytearray(n_items)
+    greedy_ok_unamb = set()
+    for cid in unamb_eligible:
+        take = []
+        for ii in per_cid_unamb[cid]:
+            if not claimed3[ii]:
+                take.append(ii)
+                if len(take) == POWER_GATE_MIN_M:
+                    break
+        if len(take) == POWER_GATE_MIN_M:
+            for ii in take:
+                claimed3[ii] = 1
+            greedy_ok_unamb.add(cid)
+    n_unamb8 = sum(1 for cid, s in stats.items() if s[2] >= POWER_GATE_MIN_M)
+    c_disjoint_unamb = len(greedy_ok_unamb)
     print("  disjoint m>=8 lower bound: C >= %d (raw), C >= %d "
-          "(header-clean only)" % (c_disjoint, c_disjoint_clean))
+          "(header-clean), C >= %d (conservative: unambiguous-lemma "
+          "evidence only)" % (c_disjoint, c_disjoint_clean, c_disjoint_unamb))
 
     # ---- kernel-v0 / molecules alignment flags -----------------------------
     align = json.load(open(ROOT / "data" / "lexical-wn31" /
@@ -444,6 +477,12 @@ def main():
     aligned_to = {}
     for a in align["alignments"]:
         aligned_to.setdefault(a["synset"], []).append(a["concept"])
+
+    # ---- alternative ranking by unambiguous evidence (screening aid) -------
+    alt_order = sorted(eligible, key=lambda cid: (-stats[cid][2],
+                                                  -stats[cid][0],
+                                                  concepts[cid]["urn"]))
+    alt_rank = {cid: i + 1 for i, cid in enumerate(alt_order)}
 
     # ---- candidate-pool.json ------------------------------------------------
     def entry(rank, cid):
@@ -462,6 +501,8 @@ def main():
             "by_source": {k: s[3].get(k, 0) for k in SRC_KEYS if s[3].get(k)},
             "header_cue_collision": cid in hdr_cids,
             "greedy_disjoint_m8": cid in greedy_ok,
+            "greedy_disjoint_m8_unambiguous": cid in greedy_ok_unamb,
+            "rank_by_unambiguous": alt_rank[cid],
             "existing_alignment": sorted(aligned_to.get(c["urn"], [])) or None,
         }
 
@@ -482,7 +523,11 @@ def main():
                  "rule, counted over question+options).",
         },
         "benchmark_blind": "item counting only; no model outcomes read",
-        "ranking": "m_total desc, m_stem desc, urn asc",
+        "ranking": "m_total desc, m_stem desc, urn asc. CAUTION for the "
+                   "(a)-design: raw m_total is inflated for hyper-ambiguous "
+                   "lemmas (single letters, function-word senses); use "
+                   "rank_by_unambiguous / m_unambiguous_lemma and the "
+                   "header_cue_collision flag when selecting (SOP-6).",
         "n_eligible": n_eligible,
         "candidates": [entry(i + 1, cid) for i, cid in enumerate(eligible)],
     }
@@ -524,8 +569,11 @@ def main():
             "matching_ge_1_item": n_matched_any,
             "eligible_m_ge_8_c": n_eligible,
             "eligible_and_header_clean": n_eligible_clean,
+            "eligible_m_unambiguous_ge_8": n_unamb8,
             "greedy_disjoint_C_lower_bound": c_disjoint,
             "greedy_disjoint_C_lower_bound_header_clean": c_disjoint_clean,
+            "greedy_disjoint_C_lower_bound_unambiguous_header_clean":
+                c_disjoint_unamb,
         },
         "gate_arithmetic": {
             "gate": "C >= %d clusters each m >= %d (ASM-2271, [REG])"
@@ -541,7 +589,16 @@ def main():
             "headroom_target_100plus": "%d >= %d: %s (header-clean disjoint: "
                 "%d)" % (c_disjoint, HEADROOM_TARGET,
                          c_disjoint >= HEADROOM_TARGET, c_disjoint_clean),
+            "conservative_unambiguous_bound": "%d header-clean concepts "
+                "reach m>=8 on DISJOINT items each matched via a monosemous "
+                "direct lemma (SOP-5+SOP-6) — vs gate 65: %s, vs 100+ "
+                "headroom: %s" % (c_disjoint_unamb,
+                                  c_disjoint_unamb >= POWER_GATE_MIN_C,
+                                  c_disjoint_unamb >= HEADROOM_TARGET),
             "adequacy_finding": (
+                "POOL SUPPORTS THE GATE WITH HEADROOM (even on the "
+                "conservative unambiguous-evidence bound)"
+                if c_disjoint_unamb >= HEADROOM_TARGET else
                 "POOL SUPPORTS THE GATE WITH HEADROOM"
                 if c_disjoint_clean >= HEADROOM_TARGET else
                 "POOL SUPPORTS THE GATE (headroom below the 100+ target)"
@@ -568,7 +625,9 @@ def main():
             "SOP-5": "greedy scarcest-first disjoint assignment = lower "
                      "bound on simultaneous C at m >= 8",
             "SOP-6": "m_unambiguous_lemma = monosemous-direct-lemma "
-                     "heuristic; screening aid, not a criterion",
+                     "heuristic, cased/acronym WN source forms excluded "
+                     "(AN/IT/WHO/OR-style function-word collisions); "
+                     "screening aid, not a criterion",
         },
         "governance": {
             "benchmark_blind": True,
@@ -589,11 +648,16 @@ def main():
     print("candidates with >=8 eval items (c):              %d" % n_eligible)
     print("  of which header/cue-collision-free:            %d"
           % n_eligible_clean)
+    print("  of which >=8 UNAMBIGUOUS-lemma items (SOP-6):  %d" % n_unamb8)
     print("disjoint-items C lower bound (honest headroom):  %d raw / %d "
-          "header-clean" % (c_disjoint, c_disjoint_clean))
-    print(">=65 achievable: %s   >=100 headroom: %s"
+          "header-clean / %d conservative-unambiguous"
+          % (c_disjoint, c_disjoint_clean, c_disjoint_unamb))
+    print(">=65 achievable: %s   >=100 headroom: %s   (conservative bound: "
+          ">=65 %s, >=100 %s)"
           % (c_disjoint_clean >= POWER_GATE_MIN_C,
-             c_disjoint_clean >= HEADROOM_TARGET))
+             c_disjoint_clean >= HEADROOM_TARGET,
+             c_disjoint_unamb >= POWER_GATE_MIN_C,
+             c_disjoint_unamb >= HEADROOM_TARGET))
     print("benchmark-blind: item counting only, no model outcomes read")
     print("colibri naming; no handles; no git/registry/freeze/spend; $0")
     print("candidate-pool.json: %s" % (HERE / "candidate-pool.json"))

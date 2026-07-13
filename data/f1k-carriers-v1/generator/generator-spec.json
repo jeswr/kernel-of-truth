@@ -1,0 +1,26 @@
+{
+ "arms": {
+  "K": "true concept->carrier mapping",
+  "d0": "norm-matched random table, seed 7 — DIRECTION generation algorithm is NOT registered anywhere (flagged in the README; must be fixed at (A) before construction)",
+  "d1-drng": "identical K table, concept labels deranged per derangements.json seeds [101,102,103]; pilot panel seed 11 [DES §R2/§R-REV2.3]",
+  "d2": "same construction with the plain-dictionary text (concept-texts.jsonl d2_dictionary_text) substituted for the explication [DES §2.6 d2]"
+ },
+ "built": "2026-07-13 designer-23 data-construction pass ($0)",
+ "candidate_splice_layers": "UNRESOLVED THIS PASS: A(iv) = the union of the pilot grid's layer sets L1/L2/L3 [DES §2.3]; L1 ~ one mid-stack MoE layer (~40), L2 = four evenly spaced mid-to-late, L3 = ALL MoE layers — the EXACT MoE layer ids require the pinned model config (bring-up)",
+ "carrier_definition": "v_{c,l} = mean difference of moe()-input hidden states at gated positions between contexts WITH the kernel explication of c prepended and matched contexts WITHOUT, over m = 16 construction contexts; K[c][l] := v_{c,l} [DES §2.4, ADOPTED row]",
+ "construction_seed": "NOT REGISTERED: freeze_manifest A(vii) names a 'construction' seed but no value exists in the frozen record — coordinator must fix at (A); flagged, not invented",
+ "g_grid": {
+  "multipliers": [
+   0.5,
+   1.0,
+   2.0
+  ],
+  "unit": "x mean native expert weight [DES §2.3] — the mean native expert weight is MEASURED on the model at construction (bring-up-dependent)"
+ },
+ "gated_position_rule": "G-lex spans of the concept's own triggers computed on the context with the SAME matching rule as f1k-trigger-map-v1; carrier dumped at gated positions only [DES §2.3/§2.4]",
+ "kaec_format": "[PATCH kae.h]: 'KAEC' | i32 nc | i32 nl | i32 D | i32 layer_id[nl] | f32 K[nc*nl*D], D = 6144, nc = 49 (carrier-index-map.json)",
+ "m_contexts": 16,
+ "prepend_protocol": "two variants per context: kernel explication text (concept-texts.jsonl k_explication_text) + '\\n\\n' prepended vs not [DES §2.4; OP-9 separator]",
+ "reference_norm_rule": "reference at each (c,l) = ||v^K_{c,l}||; every non-K carrier rescaled per (c,l) to the reference; g applies AFTER rescaling; raw and post-rescale norms are B0 entries [DES §R2]",
+ "status": "PRE-SPEND GENERATOR COMPONENTS ONLY. The realized carrier tables {v_(c,l)} and raw/rescaled norms are the B0 PURE-FUNCTION ADDENDUM: committed after construction spend and before the pilot [REG freeze_manifest B0_pre_pilot / DES §R-REV3.3]. They are functions of GLM-5.2 forward-pass hidden states and CANNOT exist in a $0 no-model pass."
+}

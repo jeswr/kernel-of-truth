@@ -1,0 +1,26 @@
+{
+ "answer_cue_bytes": "Answer:",
+ "answer_cue_sha256": "64f89cf423ee1a167e9c8142a340d7aaef3605a56c73d30275fbdd94d098e36c",
+ "built": "2026-07-13 designer-23 data-construction pass ($0)",
+ "header_bytes": "Below is a multiple-choice item. Respond with the letter of the best option.\n\n",
+ "header_cue_labels_trigger_free": true,
+ "header_sha256": "b8f056878f31719d43d62f071c86770ae9b424f4ada3a3d53a72b49527e8c36b",
+ "label_alphabet": [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E"
+ ],
+ "recipe": "DES §R1.1 (frozen candidate-independent single-prefill label-logit template) + §R-REV2.1 (trigger/template resolution)",
+ "rendering_rule": "template = header + question + one line per option ('<LABEL>. <option text>') in PUBLISHED order + '\\n' + answer cue; template ends at the cue (the label position follows it)",
+ "tie_break": "argmax over label token logprobs, lowest label index on ties, ties logged [REG dependent_vars.item_correct]",
+ "tokenizer_derivation_rule": {
+  "carrier_slots": "char_spans concept ids in this corpus are CARRIER SLOTS via f1k-carriers-v1 generator/carrier-index-map (identical copy in this corpus manifest)",
+  "label_token_ids": "for each label L in label_alphabet[:k]: the single token id of the label continuation at the answer position (the engine reads next-token logits after the cue); single-token property MUST be verified and recorded at freeze [DES §R1.1]",
+  "spans": "per-token concept slot: token t carries carrier slot s iff t's character interval intersects a char_span with slot s; -1 otherwise; d3_template_tokens = tokenizer(d3_template_text), spans NOT applied to d3-text (no-splice arm [DES §2.6])",
+  "status": "BLOCKED THIS PASS — requires the GLM-5.2 tokenizer, which is pinned only at bring-up (ASM-1971 discipline); no model/tokenizer download in a $0 pass",
+  "template_tokens": "tokenizer(template_text bytes), no BOS-stripping or normalisation beyond the engine's own prefill path"
+ },
+ "trigger_free_verification": "char-level against f1k-trigger-map-v1 (this build, fail-closed); the TOKEN-level re-verification is a freeze-(A) step with the pinned tokenizer"
+}
