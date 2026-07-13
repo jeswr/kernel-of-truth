@@ -13,7 +13,7 @@
  "assumptions": [
   {
    "id": "ASM-2191",
-   "claim": "FIRST REAL non-biological chunk: the bounded Modal ingest of the Wikidata 'position' domain (wd:Q4164871, P279* subtree) produced __TOTAL__ typed type-level concept records (schema kot-wikidata/1), each carrying label + P279 parents + P31 + external IDs + a ck-ufo typing block, written off-box to Modal Volume kot-scale-wikidata:/position/concepts.jsonl. This is the first real chunk of the domain-balanced 100k kernel and matches the WDQS-measured ~103,707 (ASM-2160) up to live-endpoint drift between the count (earlier) and the ingest snapshot.",
+   "claim": "FIRST REAL non-biological chunk: the bounded Modal ingest of the Wikidata 'position' domain (wd:Q4164871, P279* subtree) produced 103,714 typed type-level concept records (schema kot-wikidata/1), each carrying label + P279 parents + P31 + external IDs + a ck-ufo typing block, written off-box to Modal Volume kot-scale-wikidata:/position/concepts.jsonl. This is the first real chunk of the domain-balanced 100k kernel and matches the WDQS-measured ~103,707 (ASM-2160) up to live-endpoint drift between the count (earlier) and the ingest snapshot.",
    "tag": "MEASURED",
    "backing_ref": "poc/scale/results/wikidata-position/manifest.json contentHash sha256:5ebe993d0b96a22566882356583bd1354f444c71f652bdd60bb29b1abf5ed5ad (reproducible over sorted id|ufo|decontam tuples; modulo live-WDQS drift, exact pinning = dump)",
    "owner": "designer-6",
@@ -22,7 +22,7 @@
   },
   {
    "id": "ASM-2192",
-   "claim": "PIPELINE VALIDATED END-TO-END off-box: the full download (WDQS two-phase: 1 flat-QID query + VALUES property batches) -> filter (P279* class layer) -> type (crosswalk position terminal) -> decontaminate (exact external-ID join vs the union index) -> emit (typed records + manifest + contentHash to a Modal Volume) pipeline ran on Modal CPU (cpu=2.0) in __WALL__ s wall for the full position domain; the box only orchestrated (all HTTP + processing in-container). Determinism: records sorted by QID, contentHash over (id, ufo, decontam-status). A 600-QID smoke first validated the path in 16.3 s.",
+   "claim": "PIPELINE VALIDATED END-TO-END off-box: the full download (WDQS two-phase: 1 flat-QID query + VALUES property batches) -> filter (P279* class layer) -> type (crosswalk position terminal) -> decontaminate (exact external-ID join vs the union index) -> emit (typed records + manifest + contentHash to a Modal Volume) pipeline ran on Modal CPU (cpu=2.0) in 699.5 s wall for the full position domain; the box only orchestrated (all HTTP + processing in-container). Determinism: records sorted by QID, contentHash over (id, ufo, decontam-status). A 600-QID smoke first validated the path in 16.3 s.",
    "tag": "MEASURED",
    "backing_ref": "poc/scale/results/wikidata-position/manifest.json (wall_seconds, wdqs_pages); Modal app runs ap-F6IIEOXKu9vcJFvtPP260H (smoke) + full run this tick sha256:5ebe993d0b96a22566882356583bd1354f444c71f652bdd60bb29b1abf5ed5ad",
    "owner": "designer-6",
@@ -41,7 +41,7 @@
   },
   {
    "id": "ASM-2194",
-   "claim": "DECONTAMINATION RESULT (first real design-3.5 exactly_crosswalked datum for a non-bio domain): of __TOTAL__ position concepts, __MERGE__ were crosswalk-merges against the existing 207,733-cluster union by exact external ID (predominantly P8814 WordNet-synset) and __NEW__ were genuinely NEW non-biological concepts. External-ID coverage measured on the chunk: P8814=__WNCOV__, P686=__CHEBICOV__, P685=__TAXONCOV__, P5270=__MONDOCOV__. The very low collision rate confirms the ASM-2161 prediction that a non-bio domain barely overlaps our bio-heavy union, so ingesting non-bio domains adds near-entirely new concepts (domain-balance headroom).",
+   "claim": "DECONTAMINATION RESULT (first real design-3.5 exactly_crosswalked datum for a non-bio domain): of 103,714 position concepts, 352 were crosswalk-merges against the existing 207,733-cluster union by exact external ID (predominantly P8814 WordNet-synset) and 103,362 were genuinely NEW non-biological concepts. External-ID coverage measured on the chunk: P8814=352, P686=0, P685=0, P5270=0. The very low collision rate confirms the ASM-2161 prediction that a non-bio domain barely overlaps our bio-heavy union, so ingesting non-bio domains adds near-entirely new concepts (domain-balance headroom).",
    "tag": "MEASURED",
    "backing_ref": "poc/scale/results/wikidata-position/manifest.json (counts, external_id_coverage) contentHash sha256:5ebe993d0b96a22566882356583bd1354f444c71f652bdd60bb29b1abf5ed5ad",
    "owner": "designer-6",
@@ -50,7 +50,7 @@
   },
   {
    "id": "ASM-2195",
-   "claim": "GO/NO-GO for the remaining non-bio domains: the position domain (__TOTAL__ concepts) ingested off-box in __WALL__ s at an estimated Modal cost of ~$__COST__ (cpu=2.0 x __WALL__ s x $0.0000131/core-sec standard + memory; measured wall, standard-rate arithmetic). Extrapolating to the vehicle (63,292) / organization (50,430) / occupation (6,616) / event / product domains to assemble a benchmark-blind ~100k domain-balanced slice: total ~2-4 additional Modal runs of similar or smaller size, estimated aggregate cost well under $5 and well inside the $0-20 standing authority. RECOMMENDATION: GO on ingesting the remaining domains off-box (per-domain, same harness), gated only on pre-registering per-domain caps so the combined slice hits a balanced 100k without single-domain domination.",
+   "claim": "GO/NO-GO for the remaining non-bio domains: the position domain (103,714 concepts) ingested off-box in 699.5 s at an estimated Modal cost of ~$0.025 (full 0.0245 + smoke 0.0006; standard-rate cpu=2.0 + <=4 GiB mem) (cpu=2.0 x 699.5 s x $0.0000131/core-sec standard + memory; measured wall, standard-rate arithmetic). Extrapolating to the vehicle (63,292) / organization (50,430) / occupation (6,616) / event / product domains to assemble a benchmark-blind ~100k domain-balanced slice: total ~2-4 additional Modal runs of similar or smaller size, estimated aggregate cost well under $5 and well inside the $0-20 standing authority. RECOMMENDATION: GO on ingesting the remaining domains off-box (per-domain, same harness), gated only on pre-registering per-domain caps so the combined slice hits a balanced 100k without single-domain domination.",
    "tag": "MEASURED",
    "backing_ref": "poc/scale/results/wikidata-position/manifest.json (wall_seconds) + wdqs-counts.json domain sizes; cost is standard-rate arithmetic [EXTRAPOLATION] on the measured wall sha256:5ebe993d0b96a22566882356583bd1354f444c71f652bdd60bb29b1abf5ed5ad",
    "owner": "designer-6",
