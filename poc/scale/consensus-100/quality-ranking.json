@@ -1,0 +1,1437 @@
+{
+  "built": "dual-judge blind definitional-quality ranking over consensus-100",
+  "judges": {
+    "A": "gpt-5.6-sol (codex, reasoning=high)",
+    "B": "claude-opus-4-8 (claude -p, MAX_THINKING_TOKENS=0)"
+  },
+  "n_concepts_scored": {
+    "A": 100,
+    "B": 100,
+    "both": 100
+  },
+  "scale": "0-3 (0 wrong/circular/broken, 1 poor, 2 good, 3 first-rate)",
+  "per_model": {
+    "claude-opus-4-8": {
+      "mean_A_sol": 1.54,
+      "mean_B_opus": 2.04,
+      "mean_overall": 1.79,
+      "n_A": 100,
+      "n_B": 100,
+      "cost_usd_per_concept": 0.03572,
+      "embed_agreement": 0.84
+    },
+    "claude-fable-5": {
+      "mean_A_sol": 1.4747,
+      "mean_B_opus": 1.9697,
+      "mean_overall": 1.7222,
+      "n_A": 99,
+      "n_B": 99,
+      "cost_usd_per_concept": 0.17594,
+      "embed_agreement": 0.88
+    },
+    "claude-haiku-4-5": {
+      "mean_A_sol": 1.59,
+      "mean_B_opus": 2.23,
+      "mean_overall": 1.91,
+      "n_A": 100,
+      "n_B": 100,
+      "cost_usd_per_concept": 0.0059,
+      "embed_agreement": 0.9
+    },
+    "gpt-5.6-sol": {
+      "mean_A_sol": 2.68,
+      "mean_B_opus": 2.72,
+      "mean_overall": 2.7,
+      "n_A": 100,
+      "n_B": 100,
+      "cost_usd_per_concept": 0.07318,
+      "embed_agreement": 0.86
+    },
+    "gpt-5.6-luna": {
+      "mean_A_sol": 2.45,
+      "mean_B_opus": 2.62,
+      "mean_overall": 2.535,
+      "n_A": 100,
+      "n_B": 100,
+      "cost_usd_per_concept": 0.00459,
+      "embed_agreement": 0.94
+    },
+    "gpt-5.6-terra": {
+      "mean_A_sol": 2.35,
+      "mean_B_opus": 2.56,
+      "mean_overall": 2.455,
+      "n_A": 100,
+      "n_B": 100,
+      "cost_usd_per_concept": 0.00369,
+      "embed_agreement": 0.88
+    }
+  },
+  "quality_ranking": [
+    {
+      "model": "gpt-5.6-sol",
+      "short": "sol",
+      "mean_overall": 2.7
+    },
+    {
+      "model": "gpt-5.6-luna",
+      "short": "luna",
+      "mean_overall": 2.535
+    },
+    {
+      "model": "gpt-5.6-terra",
+      "short": "terra",
+      "mean_overall": 2.455
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "short": "haiku",
+      "mean_overall": 1.91
+    },
+    {
+      "model": "claude-opus-4-8",
+      "short": "opus",
+      "mean_overall": 1.79
+    },
+    {
+      "model": "claude-fable-5",
+      "short": "fable",
+      "mean_overall": 1.7222
+    }
+  ],
+  "embedding_agreement_ranking": [
+    {
+      "model": "gpt-5.6-luna",
+      "short": "luna",
+      "agreement": 0.94
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "short": "haiku",
+      "agreement": 0.9
+    },
+    {
+      "model": "gpt-5.6-terra",
+      "short": "terra",
+      "agreement": 0.88
+    },
+    {
+      "model": "claude-fable-5",
+      "short": "fable",
+      "agreement": 0.88
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "short": "sol",
+      "agreement": 0.86
+    },
+    {
+      "model": "claude-opus-4-8",
+      "short": "opus",
+      "agreement": 0.84
+    }
+  ],
+  "inter_judge_agreement": {
+    "n_paired_glosses": 599,
+    "pearson_r": 0.5685,
+    "quadratic_weighted_kappa": 0.4791,
+    "exact_agreement": 0.5476,
+    "within_1_agreement": 0.9549,
+    "mean_A_sol_overall": 2.015,
+    "mean_B_opus_overall": 2.3573
+  },
+  "reference": {
+    "models": [
+      "gpt-5.6-sol",
+      "claude-fable-5"
+    ],
+    "mean_quality": 2.2111,
+    "tolerance": 0.1
+  },
+  "cheapest_quality_matched_set": {
+    "ge_reference": {
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "terra"
+      ],
+      "size": 1,
+      "mean_quality": 2.455,
+      "cost_usd_per_concept": 0.00369,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    "ge_reference_minus_tol": {
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "terra"
+      ],
+      "size": 1,
+      "mean_quality": 2.455,
+      "cost_usd_per_concept": 0.00369,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    }
+  },
+  "embedding_recommendation_under_quality": {
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "mean_quality": 2.455,
+    "reference": 2.2111,
+    "meets_reference": true,
+    "meets_reference_tol": true
+  },
+  "reference_sensitivity": [
+    {
+      "reference": "mean{sol,fable}",
+      "reference_quality": 2.2111,
+      "tolerance": 0.0,
+      "cheapest_set": [
+        "terra"
+      ],
+      "cheapest_quality": 2.455,
+      "cheapest_cost_usd_per_concept": 0.00369
+    },
+    {
+      "reference": "mean{sol,fable}",
+      "reference_quality": 2.2111,
+      "tolerance": 0.1,
+      "cheapest_set": [
+        "terra"
+      ],
+      "cheapest_quality": 2.455,
+      "cheapest_cost_usd_per_concept": 0.00369
+    },
+    {
+      "reference": "sol_alone",
+      "reference_quality": 2.7,
+      "tolerance": 0.0,
+      "cheapest_set": [
+        "sol"
+      ],
+      "cheapest_quality": 2.7,
+      "cheapest_cost_usd_per_concept": 0.07318
+    },
+    {
+      "reference": "sol_alone",
+      "reference_quality": 2.7,
+      "tolerance": 0.1,
+      "cheapest_set": [
+        "sol"
+      ],
+      "cheapest_quality": 2.7,
+      "cheapest_cost_usd_per_concept": 0.07318
+    },
+    {
+      "reference": "max{sol,fable}",
+      "reference_quality": 2.7,
+      "tolerance": 0.0,
+      "cheapest_set": [
+        "sol"
+      ],
+      "cheapest_quality": 2.7,
+      "cheapest_cost_usd_per_concept": 0.07318
+    },
+    {
+      "reference": "max{sol,fable}",
+      "reference_quality": 2.7,
+      "tolerance": 0.1,
+      "cheapest_set": [
+        "sol"
+      ],
+      "cheapest_quality": 2.7,
+      "cheapest_cost_usd_per_concept": 0.07318
+    }
+  ],
+  "cost_quality_pareto": [
+    {
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "terra"
+      ],
+      "size": 1,
+      "mean_quality": 2.455,
+      "cost_usd_per_concept": 0.00369,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "luna"
+      ],
+      "size": 1,
+      "mean_quality": 2.535,
+      "cost_usd_per_concept": 0.00459,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "sol"
+      ],
+      "size": 1,
+      "mean_quality": 2.7,
+      "cost_usd_per_concept": 0.07318,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    }
+  ],
+  "all_subsets": [
+    {
+      "models": [
+        "claude-opus-4-8"
+      ],
+      "short": [
+        "opus"
+      ],
+      "size": 1,
+      "mean_quality": 1.79,
+      "cost_usd_per_concept": 0.03572,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-fable-5"
+      ],
+      "short": [
+        "fable"
+      ],
+      "size": 1,
+      "mean_quality": 1.7222,
+      "cost_usd_per_concept": 0.17594,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "short": [
+        "haiku"
+      ],
+      "size": 1,
+      "mean_quality": 1.91,
+      "cost_usd_per_concept": 0.0059,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "sol"
+      ],
+      "size": 1,
+      "mean_quality": 2.7,
+      "cost_usd_per_concept": 0.07318,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "luna"
+      ],
+      "size": 1,
+      "mean_quality": 2.535,
+      "cost_usd_per_concept": 0.00459,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "terra"
+      ],
+      "size": 1,
+      "mean_quality": 2.455,
+      "cost_usd_per_concept": 0.00369,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5"
+      ],
+      "short": [
+        "opus",
+        "fable"
+      ],
+      "size": 2,
+      "mean_quality": 1.7561,
+      "cost_usd_per_concept": 0.21166,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5"
+      ],
+      "short": [
+        "opus",
+        "haiku"
+      ],
+      "size": 2,
+      "mean_quality": 1.85,
+      "cost_usd_per_concept": 0.04162,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "opus",
+        "sol"
+      ],
+      "size": 2,
+      "mean_quality": 2.245,
+      "cost_usd_per_concept": 0.1089,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "luna"
+      ],
+      "size": 2,
+      "mean_quality": 2.1625,
+      "cost_usd_per_concept": 0.04031,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "terra"
+      ],
+      "size": 2,
+      "mean_quality": 2.1225,
+      "cost_usd_per_concept": 0.03941,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5"
+      ],
+      "short": [
+        "fable",
+        "haiku"
+      ],
+      "size": 2,
+      "mean_quality": 1.8161,
+      "cost_usd_per_concept": 0.18184,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "fable",
+        "sol"
+      ],
+      "size": 2,
+      "mean_quality": 2.2111,
+      "cost_usd_per_concept": 0.24912,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "fable",
+        "luna"
+      ],
+      "size": 2,
+      "mean_quality": 2.1286,
+      "cost_usd_per_concept": 0.18053,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "terra"
+      ],
+      "size": 2,
+      "mean_quality": 2.0886,
+      "cost_usd_per_concept": 0.17963,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "haiku",
+        "sol"
+      ],
+      "size": 2,
+      "mean_quality": 2.305,
+      "cost_usd_per_concept": 0.07908,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "haiku",
+        "luna"
+      ],
+      "size": 2,
+      "mean_quality": 2.2225,
+      "cost_usd_per_concept": 0.01049,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "haiku",
+        "terra"
+      ],
+      "size": 2,
+      "mean_quality": 2.1825,
+      "cost_usd_per_concept": 0.00959,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "sol",
+        "luna"
+      ],
+      "size": 2,
+      "mean_quality": 2.6175,
+      "cost_usd_per_concept": 0.07777,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "sol",
+        "terra"
+      ],
+      "size": 2,
+      "mean_quality": 2.5775,
+      "cost_usd_per_concept": 0.07687,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "luna",
+        "terra"
+      ],
+      "size": 2,
+      "mean_quality": 2.495,
+      "cost_usd_per_concept": 0.00828,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku"
+      ],
+      "size": 3,
+      "mean_quality": 1.8074,
+      "cost_usd_per_concept": 0.21756,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "sol"
+      ],
+      "size": 3,
+      "mean_quality": 2.0707,
+      "cost_usd_per_concept": 0.28484,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "luna"
+      ],
+      "size": 3,
+      "mean_quality": 2.0157,
+      "cost_usd_per_concept": 0.21625,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 1.9891,
+      "cost_usd_per_concept": 0.21535,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "sol"
+      ],
+      "size": 3,
+      "mean_quality": 2.1333,
+      "cost_usd_per_concept": 0.1148,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "luna"
+      ],
+      "size": 3,
+      "mean_quality": 2.0783,
+      "cost_usd_per_concept": 0.04621,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.0517,
+      "cost_usd_per_concept": 0.04531,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "sol",
+        "luna"
+      ],
+      "size": 3,
+      "mean_quality": 2.3417,
+      "cost_usd_per_concept": 0.11349,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "sol",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.315,
+      "cost_usd_per_concept": 0.11259,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "luna",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.26,
+      "cost_usd_per_concept": 0.044,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "sol"
+      ],
+      "size": 3,
+      "mean_quality": 2.1107,
+      "cost_usd_per_concept": 0.25502,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "luna"
+      ],
+      "size": 3,
+      "mean_quality": 2.0557,
+      "cost_usd_per_concept": 0.18643,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.0291,
+      "cost_usd_per_concept": 0.18553,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "fable",
+        "sol",
+        "luna"
+      ],
+      "size": 3,
+      "mean_quality": 2.3191,
+      "cost_usd_per_concept": 0.25371,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "sol",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.2924,
+      "cost_usd_per_concept": 0.25281,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "luna",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.2374,
+      "cost_usd_per_concept": 0.18422,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "haiku",
+        "sol",
+        "luna"
+      ],
+      "size": 3,
+      "mean_quality": 2.3817,
+      "cost_usd_per_concept": 0.08367,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "haiku",
+        "sol",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.355,
+      "cost_usd_per_concept": 0.08277,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "haiku",
+        "luna",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.3,
+      "cost_usd_per_concept": 0.01418,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 3,
+      "mean_quality": 2.5633,
+      "cost_usd_per_concept": 0.08146,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "sol"
+      ],
+      "size": 4,
+      "mean_quality": 2.0305,
+      "cost_usd_per_concept": 0.29074,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "luna"
+      ],
+      "size": 4,
+      "mean_quality": 1.9893,
+      "cost_usd_per_concept": 0.22215,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 1.9693,
+      "cost_usd_per_concept": 0.22125,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "sol",
+        "luna"
+      ],
+      "size": 4,
+      "mean_quality": 2.1868,
+      "cost_usd_per_concept": 0.28943,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "sol",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.1668,
+      "cost_usd_per_concept": 0.28853,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "luna",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.1256,
+      "cost_usd_per_concept": 0.21994,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "sol",
+        "luna"
+      ],
+      "size": 4,
+      "mean_quality": 2.2338,
+      "cost_usd_per_concept": 0.11939,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "sol",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.2138,
+      "cost_usd_per_concept": 0.11849,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "luna",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.1725,
+      "cost_usd_per_concept": 0.0499,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": false
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.37,
+      "cost_usd_per_concept": 0.11718,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "sol",
+        "luna"
+      ],
+      "size": 4,
+      "mean_quality": 2.2168,
+      "cost_usd_per_concept": 0.25961,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "sol",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.1968,
+      "cost_usd_per_concept": 0.25871,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "luna",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.1555,
+      "cost_usd_per_concept": 0.19012,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.3531,
+      "cost_usd_per_concept": 0.2574,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "haiku",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 4,
+      "mean_quality": 2.4,
+      "cost_usd_per_concept": 0.08736,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "sol",
+        "luna"
+      ],
+      "size": 5,
+      "mean_quality": 2.1314,
+      "cost_usd_per_concept": 0.29533,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "sol",
+        "terra"
+      ],
+      "size": 5,
+      "mean_quality": 2.1154,
+      "cost_usd_per_concept": 0.29443,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "luna",
+        "terra"
+      ],
+      "size": 5,
+      "mean_quality": 2.0824,
+      "cost_usd_per_concept": 0.22584,
+      "meets_ref": false,
+      "meets_ref_tol": false,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 5,
+      "mean_quality": 2.2404,
+      "cost_usd_per_concept": 0.29312,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "haiku",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 5,
+      "mean_quality": 2.278,
+      "cost_usd_per_concept": 0.12308,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "fable",
+        "haiku",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 5,
+      "mean_quality": 2.2644,
+      "cost_usd_per_concept": 0.2633,
+      "meets_ref": true,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    },
+    {
+      "models": [
+        "claude-opus-4-8",
+        "claude-fable-5",
+        "claude-haiku-4-5",
+        "gpt-5.6-sol",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra"
+      ],
+      "short": [
+        "opus",
+        "fable",
+        "haiku",
+        "sol",
+        "luna",
+        "terra"
+      ],
+      "size": 6,
+      "mean_quality": 2.1854,
+      "cost_usd_per_concept": 0.29902,
+      "meets_ref": false,
+      "meets_ref_tol": true,
+      "contains_ref_model": true
+    }
+  ]
+}
