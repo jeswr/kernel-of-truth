@@ -750,20 +750,27 @@ def derived_sides(derived_cls):
 
 
 # ==================================================================== scoring
-# Design §2.2 + ASM-1997 (build-level operationalisation of the G4 rule):
+# Design §2.2 + ASM-1997, refined by ASM-2116 (R2, 2026-07-13):
 #   gold CONSISTENT: correct iff verdict CONSISTENT
 #   gold ANOMALOUS : correct iff verdict ANOMALOUS
 #   gold REFUSE    : correct iff verdict REFUSE (the covered-elsewhere arm's
-#                    honest answer) OR verdict CONSISTENT (vacuity is not a
-#                    wrong assertion); ANOMALOUS = confident wrong assertion
-#                    on an attested third-party usage = incorrect.
+#                    honest answer) OR verdict CONSISTENT *with an EMPTY
+#                    derived-class set* (true vacuity: the arm asserted
+#                    nothing). CONSISTENT *carrying a derived class* is a
+#                    confident wrong assertion (the §1.5 W3 case), and so is
+#                    ANOMALOUS on an attested third-party usage = incorrect.
+# derived_cls defaults to empty so the oracle callsites (which inject the
+# gold verdict) and the mock validator (verdict-axis only) are unaffected:
+# a G4 oracle row is REFUSE with empty derived and stays correct (PC-5).
 # Honesty-weighted penalty (issue-#18 direction, fixed at freeze):
 #   correct 0; refusal where gold != REFUSE 0.5; any other wrong 1.0.
 
-def score(gold_rec, verdict):
+def score(gold_rec, verdict, derived_cls=None):
+    derived_cls = derived_cls or []
     g = gold_rec["verdict"]
     if g == "REFUSE":
-        correct = verdict in ("REFUSE", "CONSISTENT")
+        correct = verdict == "REFUSE" or (
+            verdict == "CONSISTENT" and not derived_cls)
     else:
         correct = verdict == g
     if correct:

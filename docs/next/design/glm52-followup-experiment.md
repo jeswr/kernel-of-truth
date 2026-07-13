@@ -1215,6 +1215,17 @@ Dev-96 is used ONLY as a coarse UPPER cross-check: if its ICC point estimate's
 one-sided upper CB exceeds 0.05, ρ_U is raised and n re-derived, or the power gate
 (below) returns to the maintainer. ρ is never taken at a floor again.
 
+**[SUPERSEDED by REVISION-3 §R-REV3.1 / ASM-2049: ρ = 0.05 was MISLABELED a
+conservative upper bound — the cited literature (Campbell 2005 up to 0.415;
+Hedges-Hedberg 2007 achievement ICCs ~0.10–0.24) does not support 0.05 as an upper
+bound and does not transfer to shared-carrier concept clustering. §R-REV3.1
+relabels ρ = 0.05 as a STIPULATED SENSITIVITY ANCHOR, makes the primary test's
+VALIDITY independent of ρ (cluster sign-flip permutation is exact for any ρ),
+freezes a conservative planning ρ_U = 0.10, sets n = min(n_max, n_required(ρ_U))
+= 1,440, and reports a power/MDE sensitivity curve. The C ≈ 79 / n ≈ 1,180 planning
+point and the dev-96 "upper cross-check that raises ρ_U" clause below are
+superseded.]**
+
 **Re-derived planning and gate (ρ_U = 0.05, δ = 0.10, SE ≤ 1.2 pts):**
 
 - **Planning point:** solving SE² = δ(1+(m−1)ρ_U)/(Cm) = (0.012)² gives, at m ≈ 15,
@@ -1253,7 +1264,11 @@ spans carrier FAMILIES**, all rescaled to the reference norm ‖v^K_{c,l}‖ (§
 4. one random-carrier (d0-family) table.
 
 Selection statistic **S(L, g) = unweighted mean dev accuracy across the 4 panel
-members**, panel unlabeled in the selection code. S is invariant to (i) which
+members** **[SUPERSEDED by REVISION-3 §R-REV3.2 / ASM-2118: an unweighted 4-member
+mean gives the K FAMILY 50% weight (2 K members) vs 25% each for d2/random, so it
+is NOT family-invariant; the statistic is re-weighted to EQUAL FAMILY-LEVEL weight
+— average within each family, then average the 3 family means equally]**, panel
+unlabeled in the selection code. S is invariant to (i) which
 member is the true mapping AND (ii) which carrier FAMILY a member belongs to, so
 the frozen (L, g) cannot favour K over d2 or over random. Tie-break unchanged
 (fewer spliced layers, then lower g). The frozen (L, g) is applied IDENTICALLY to
@@ -1298,7 +1313,13 @@ bring-up, so nothing discretionary is decided after spend begins:
 the input measurement + the rule id it instantiates. No addendum introduces a new
 choice; any departure from the frozen rule is a logged protocol amendment BEFORE
 further spend, never silent. The test set stays untouched until (A) and all of (B)
-are committed.
+are committed. **[SUPERSEDED by REVISION-3 §R-REV3.3 / ASM-2119: carrier
+CONSTRUCTION is itself the FIRST spend (thousands of forward passes) and (A) held
+only construction HASHES/RULES while (B) admitted addenda for 5/6/7 ONLY — leaving
+the realized carrier tables + norms outside the pure-function discipline. §R-REV3.3
+requires the carrier GENERATOR to be fully frozen in (A) before ANY construction
+spend and adds a construction addendum (B0) so the realized tables + norms enter
+strictly as a pure function of frozen rules.]**
 
 This makes the pre-pilot artifact bind every subsequent entry by a pre-committed
 rule, satisfying the reviewer's requirement that the complete decision content be
@@ -1317,6 +1338,167 @@ cost change is the F1-K ceiling $450 → $550 with its arithmetic; no feasibilit
 conclusion is stated; no git action, run, or spend occurs in this pass. Central
 registration of ASM-2043..2048 is the coordinator's action in the landing commit,
 after the standing review gate.
+
+---
+
+## §R-REV3 — REVISION-3 (2026-07-13, third pass): 3 narrowing residuals (final tightening)
+
+> **Status: PRE-REGISTRATION-QUALITY REVISION, awaiting maintainer sign-off (GATE 1)
+> and the coordinator's re-review. No feasibility conclusion; no run, spend, or git
+> action in this pass.** Author: Fable, architecture-design role (designer-5),
+> 2026-07-13.
+>
+> **Provenance.** The re-review of REVISION-2 CLEARED the template/trigger fix
+> (ASM-2043) and the REPLACE-NI power derivation (ASM-2044); these are NOT re-opened.
+> Three narrower residuals remain, fixed below (§R-REV3.1–.3). **Where §R-REV3
+> conflicts with §§1–10, §R, or §R-REV2, §R-REV3 governs.** ASM delta block:
+> **ASM-2049, ASM-2118, ASM-2119** (Appendix D; owner designer-5; 2050–2059 and
+> 2100–2112 are held by other work, so 2049 then 2113+ are used).
+
+### R-REV3.1 — Residual 1: ρ honesty — validity-independent test + sensitivity anchor [STIPULATED: ASM-2049]
+
+**The mislabel, accepted.** ρ_U = 0.05 was called a conservative UPPER bound; it is
+not one. The literature cited spans far higher — Campbell et al. 2005 reports
+primary-care ICCs up to 0.415; Hedges & Hedberg 2007 reports achievement ICCs
+~0.10–0.24 — and none of it transfers cleanly to a within-model, shared-carrier
+CONCEPT-clustering ICC, which is simply unknown. Claiming 0.05 as an upper bound was
+unsupported. **Resolution chosen: option (b)** — relabel ρ = 0.05 as a stipulated
+sensitivity anchor, make the primary test's validity independent of ρ, freeze a
+conservative planning ρ_U, and report a sensitivity curve.
+
+**1. Test VALIDITY does not depend on ρ.** The primary analysis is the cluster-level
+sign-flip permutation test (§R3.1): its p-value is EXACT under the sharp null for any
+ICC, because resampling is over concept-cluster sign-flips, not over an assumed
+variance model. So ρ never enters the licensing decision (observed lift ≥ +3 pts AND
+permutation p < 0.05); it enters ONLY the POWER/MDE projection — how large a true
+effect the design can detect. This is the load-bearing correction: the earlier text
+let an unsupported ρ masquerade as part of the inference; it is not.
+
+**2. ρ = 0.05 relabeled [STIPULATED: ASM-2049], NOT an upper bound.** It is a
+sensitivity ANCHOR — the optimistic end of a reported curve. The concept-cluster ICC
+is unknown; the citation range (0.05–0.42 across the cited primary-care/education
+work) is the rationale for spanning ρ ∈ {0.05, 0.10, 0.15, 0.20}, not for asserting
+any single bound.
+
+**3. Frozen conservative planning choice ρ_U = 0.10** [STIPULATED: ASM-2049] — the
+low end of the achievement-ICC range, chosen because shared-carrier concept clusters
+are expected less correlated than whole-school achievement outcomes but more than
+primary-care process measures; stated as a planning choice with the citation range as
+rationale, with NO hard-bound claim.
+
+**4. RUN gate: n = min(n_max, n_required(ρ_U)).** At ρ_U = 0.10, δ = 0.10, target
+SE ≤ 1.2 pts, n_required exceeds the cap even at the maximum feasible cluster count
+(C = 96 ⇒ m ≈ 24, n ≈ 2,260 > n_max) [DERIVED], so **n = min(1,440, 2,260) = 1,440**:
+F1-K runs at the cap, using all available concept clusters (maximise C; C fights ICC
+harder than m). The planning point therefore collapses onto n_max = 1,440.
+
+**5. Power/MDE sensitivity curve (reported, pre-committed).** Minimum detectable
+effect at 80% power, one-sided α = 0.05 (MDE = 2.487·SE), at n = 1,440 with the
+best feasible geometry C = 96, m = 15:
+
+| ρ (planning) | DEFF = 1+(m−1)ρ | SE (pts) | MDE @ 80% (pts) | +3-pt floor powered? |
+|---|---|---|---|---|
+| 0.05 (anchor) | 1.70 | 1.09 | **2.70** | yes |
+| 0.10 (frozen ρ_U) | 2.40 | 1.29 | **3.21** | ~no (resolves +3.2) |
+| 0.15 | 3.10 | 1.47 | **3.65** | no |
+| 0.20 | 3.80 | 1.62 | **4.04** | no |
+
+[DERIVED, SE² = δ·DEFF/n]. At the coverage-floor geometry C = 65, m ≈ 22 the MDE at
+ρ_U = 0.10 rises to ≈ 3.65 pts; the realized (C, m) is reported and its MDE computed
+verbatim.
+
+**6. Pre-committed reporting rule (both directions worded).** F1-K runs at n = 1,440;
+the achieved SE and MDE at the realized (C, m, ρ_U = 0.10) are reported. If the
+observed lift clears +3 pts with permutation p < 0.05, the ladder rung is licensed
+(validity is ρ-free). If the design's MDE at ρ_U = 0.10 exceeds +3 pts (as the table
+shows it may), a non-significant result is scoped **"powered to resolve ≥ MDE pts at
+ρ_U = 0.10, not a null at +3"** — never presented as a clean null — and the full
+sensitivity curve is shown so the reader sees the ICC dependence of power (not of
+validity). The C ≥ 65 / m ≥ 8 coverage gate (§R-REV2.2) is retained; the "dev-96
+raises ρ_U" clause is dropped (ρ_U is a frozen planning choice, and dev-96 cannot
+estimate ICC — it is reported as a descriptive cross-check only, binding nothing).
+
+**7. Cost.** n = 1,440 is the cap the REVISION-2 worst case already priced, so the
+F1-K planning cost now equals that worst case (≈ $494 at the pessimistic 100 s/prefill)
+and the **F1-K ceiling is UNCHANGED at $550**; A/B/C ceilings unchanged. **R3.3
+inheritance:** F1-A / F1-B.2 likewise treat ρ = 0.05 as an anchor with ρ_U = 0.10 the
+frozen planning value in DEFF, N = min(96, N_required(ρ_U = 0.10)); their permutation
+tests are ρ-free by the same argument.
+
+### R-REV3.2 — Residual 2: equal FAMILY-LEVEL weight in the blind selection statistic [STIPULATED: ASM-2118]
+
+**The residual, accepted.** The 4-member panel {K-true, K-derangement, d2-family,
+random-family} under an UNWEIGHTED member mean gives the K family 2/4 = 50% of the
+selection weight against 25% each for d2 and random — so (L, g) is still tuned toward
+the K family and is not family-invariant.
+
+**Fix — equal family-level weight.** The selection statistic is re-defined as the
+unweighted mean of the three FAMILY means:
+
+  S(L, g) = (1/3) · [ mean(K-family members) + mean(d2-family members)
+                      + mean(random-family members) ],
+
+where the K family contributes the mean of its members {K-true, K-derangement}
+(weight 1/3 total, regardless of member count), d2 contributes 1/3, random
+contributes 1/3. Each carrier FAMILY now contributes equally to the blind (L, g)
+choice irrespective of how many members it supplies, so the frozen (L, g) is
+invariant to carrier family (and, within the K family, still invariant to mapping
+truth). If any family's member count changes, the family-mean construction keeps its
+weight at exactly 1/3 — the invariance is structural, not a function of panel size.
+The panel remains unlabeled in the selection code; the family-membership grouping is a
+fixed, pre-registered partition (manifest entry 5) that carries no label of which
+family is the treatment. Tie-break, seeds, and the identical-application rule of
+§R-REV2.3 are unchanged.
+
+### R-REV3.3 — Residual 3: freeze the carrier GENERATOR before construction spend [STIPULATED: ASM-2119]
+
+**The residual, accepted.** Carrier construction (§2.4: m = 16 contexts × 2 variants
+× up to 96 concepts ≈ 3,072 forward passes, at all candidate splice layers) is the
+FIRST F1-K spend, ordered BEFORE the pilot (the pilot needs carriers to exist).
+Artifact (A) held only construction hashes/rules and artifact (B) admitted addenda for
+entries 5/6/7 only, so the realized carrier tables and their norms — produced by
+construction spend — sat outside the pure-function discipline, leaving room for a
+discretionary choice after the first spend began.
+
+**Fix — generator fully frozen in (A), realized tables via a pure-function addendum.**
+
+- **(A) additions, frozen before ANY construction spend:** the COMPLETE carrier
+  GENERATOR — (i) the exact m = 16 construction contexts per concept, enumerated
+  verbatim or pinned by generation seed + source-pool hash + deterministic authoring
+  procedure; (ii) the kernel-explication text per concept (hash) and the d2
+  dictionary-definition text per concept (hash); (iii) the prepend-vs-not protocol and
+  the gated-position selection rule; (iv) the exact set of candidate splice layers at
+  which offsets are dumped (= the union of the pilot grid's layer sets); (v) the
+  mean-difference construction formula; (vi) the reference-norm rule and the per-(c, l)
+  rescaling procedure (§R2); (vii) all seeds — construction, the 2 pilot-panel and
+  R = 5 main derangements (derangements are a deterministic permutation of the frozen
+  K tables; the random d0 table is a deterministic function of its frozen seed). Given
+  (A), every arm's carrier table and every realized norm is a deterministic function
+  of frozen rules applied to forward-pass activations — no free choice remains.
+- **(B0) carrier-construction addendum (new, ordered FIRST among the addenda):** the
+  realized carrier tables {v_{c,l}} for every arm plus realized raw and rescaled norms,
+  committed after construction and before the pilot, each a pure function of an (A)
+  generator rule applied to the construction forward passes, carrying the rule id it
+  instantiates. Any deviation from the frozen generator is a logged protocol amendment
+  BEFORE further spend, never silent — identical discipline to addenda 5/6/7.
+- **Ordering, restated:** commit (A) → construction spend → commit (B0) → pilot spend
+  → commit (5) → freeze (6) → test spend → bring-up (7). No spend of any kind
+  (construction included) precedes the freeze of every rule that governs it.
+
+### R-REV3.4 — Revision-3 self-check
+
+The two cleared items (template/trigger ASM-2043, REPLACE-NI power ASM-2044) are NOT
+re-opened. Each of the three residuals has a STIPULATED fix with a full-schema ASM
+(ASM-2049, ASM-2118, ASM-2119); no EXTRAPOLATION is added or changed (the F1-K
+ceiling is unchanged at $550, so ASM-2048 is untouched). ρ = 0.05 is now honestly
+tagged STIPULATED as a sensitivity anchor (not an upper bound) with the citation
+range as rationale; test validity is made ρ-free and the ρ dependence is confined to
+a reported power/MDE curve with both result directions pre-worded; the family-blind
+statistic is made family-invariant by construction; the carrier generator is frozen
+before its own spend. No branch threshold, endpoint direction, or ladder margin
+moved; no feasibility conclusion is stated; no git action, run, or spend occurs in
+this pass. Central registration of ASM-2049/2113/2114 is the coordinator's action in
+the landing commit, after the standing review gate.
 
 ---
 
@@ -1793,6 +1975,55 @@ after the standing review gate.
    "resolution_path": "Bring-up s/prefill measurement + instance receipts recorded in freeze-manifest addendum 7 (ASM-2047); bands replaced by measured values in the F1-K run report; if the measured projection still exceeds $550 the section-R6 degradation order fires.",
    "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV2.2, §R-REV2.3, §R6; registry ASM-2041 (parent ceilings); poc/gpt56-review re-review residuals 2-3",
    "load_bearing": false,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  }
+ ]
+}
+```
+
+---
+
+## Appendix D — REVISION-3 assumption delta block ASM-2049, ASM-2118, ASM-2119 (registry-style; coordinator registers with the commit)
+
+```json
+{
+ "_readme": [
+  "GLM52-F1 REVISION-3 assumption delta block ASM-2049, ASM-2118, ASM-2119 — EMITTED by the Fable architecture-design agent designer-5 (2026-07-13) remediating the 3 narrowing residuals after the re-review cleared template/trigger (ASM-2043) and REPLACE-NI power (ASM-2044); central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass.",
+  "Ids: 2049 then 2113+ (2050-2059 and 2100-2112 are held by other work). Supersession map: ASM-2049 supersedes the rho-UPPER-bound label and the C~79/n~1180 planning clause of ASM-2045 (relabels rho=0.05 a STIPULATED sensitivity anchor, makes the primary permutation test's validity rho-INDEPENDENT, freezes conservative planning rho_U=0.10, sets n=min(n_max,n_required(rho_U))=1440, reports a power/MDE sensitivity curve; F1-K ceiling UNCHANGED at $550); ASM-2118 supersedes the unweighted-4-member-mean statistic clause of ASM-2046 (equal FAMILY-LEVEL weighting); ASM-2119 supersedes the addenda-5/6/7-only + construction-hashes-in-A clause of ASM-2047 (freeze the full carrier GENERATOR before construction spend + a pure-function construction addendum B0). Superseded PARENT ASMs remain registered with remaining content intact; no branch threshold, endpoint direction, or ladder margin is changed; no EXTRAPOLATION added or changed (ASM-2048 ceiling untouched).",
+  "Companion design: docs/next/design/glm52-followup-experiment.md §R-REV3. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. EXTRAPOLATION entries carry an explicit resolution_path and are load_bearing=false."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2049",
+   "tag": "STIPULATED",
+   "claim": "F1-K ICC HONESTY (supersedes the rho-UPPER-bound label and the C~79/n~1180 planning clause of ASM-2045): rho=0.05 was mislabeled a conservative UPPER bound; the cited literature does not support it (Campbell et al. 2005 primary-care ICCs up to 0.415; Hedges & Hedberg 2007 achievement ICCs ~0.10-0.24) and none transfers cleanly to a within-model shared-carrier CONCEPT-cluster ICC, which is unknown. Resolution (option b): (1) the primary analysis (cluster-level sign-flip permutation, section-R3.1) is EXACT under the sharp null for ANY ICC, so rho does NOT enter the licensing decision (observed lift >=+3 pts AND permutation p<0.05) — it enters ONLY the power/MDE projection; the earlier text wrongly let an unsupported rho act as part of the inference. (2) rho=0.05 is relabeled a STIPULATED SENSITIVITY ANCHOR (optimistic end of a reported curve), NOT an upper bound; the citation range 0.05-0.42 is the rationale for spanning rho in {0.05,0.10,0.15,0.20}. (3) Frozen conservative planning choice rho_U=0.10 (low end of the achievement range; concept clusters expected less correlated than whole-school achievement, more than primary-care process measures), no hard-bound claim. (4) RUN gate n=min(n_max,n_required(rho_U)): at rho_U=0.10,delta=0.10,SE<=1.2 pts, n_required exceeds the cap even at max clusters (C=96 -> m~24, n~2260>1440), so n=min(1440,2260)=1440 — F1-K runs at the cap, maximising C (C fights ICC harder than m); the planning point collapses onto n_max=1440. (5) Reported power/MDE sensitivity curve (MDE=2.487*SE at n=1440,C=96,m=15): rho=0.05 SE=1.09 MDE=2.70; rho=0.10 SE=1.29 MDE=3.21; rho=0.15 SE=1.47 MDE=3.65; rho=0.20 SE=1.62 MDE=4.04 pts; at coverage-floor C=65,m~22 the rho_U=0.10 MDE rises to ~3.65 and the realized (C,m) MDE is reported verbatim. (6) Both directions pre-worded: observed >=+3 with p<0.05 licenses the rung (validity is rho-free); a non-significant result when MDE>+3 is scoped 'powered to resolve >= MDE pts at rho_U=0.10, not a null at +3', never a clean null, with the full curve shown; the C>=65/m>=8 coverage gate is retained; the dev-96 'raises rho_U' clause is DROPPED (rho_U is a frozen planning choice; dev-96 cannot estimate ICC and is a descriptive cross-check binding nothing). (7) Cost: n=1440 is the cap REVISION-2's worst case already priced, so F1-K planning cost equals that worst case (~$494 at 100 s/prefill) and the F1-K CEILING is UNCHANGED at $550; F1-A/F1-B.2 inherit the anchor+rho_U=0.10 planning with rho-free permutation tests.",
+   "rationale": "The only honest options were a genuinely conservative (much larger) upper bound or an explicit sensitivity framing; since the concept-cluster ICC is unknown and a large upper bound makes +3-at-SE<=1.2 infeasible within the kernel's cluster count, the design keeps a valid rho-free permutation test, freezes a conservative planning rho_U for n-selection only, and reports the ICC dependence of POWER (not validity) as a curve — removing the false claim without inflating cost.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV3.1; registry ASM-2045 (parent power), ASM-2038 (cluster permutation); poc/gpt56-review re-re-review residual 1 (Campbell 2005; Hedges & Hedberg 2007, cited at range level, not fetched this tick)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2118",
+   "tag": "STIPULATED",
+   "claim": "F1-K FAMILY-INVARIANT SELECTION STATISTIC (supersedes the unweighted-4-member-mean clause of ASM-2046): an unweighted mean over the 4-member panel {K-true, K-derangement, d2-family, random-family} gives the K family 50% weight (2 members) vs 25% each for d2/random, so it is not family-invariant. FIX: S(L,g) = (1/3)[mean(K-family members) + mean(d2-family members) + mean(random-family members)] — each carrier FAMILY contributes exactly 1/3 to the blind (L,g) selection regardless of member count; the K family's 1/3 is the mean of {K-true, K-derangement}, preserving within-K mapping blindness, and d2/random contribute 1/3 each. The frozen (L,g) is thereby invariant to carrier FAMILY (and, within K, to mapping truth); if any family's member count changes, the family-mean keeps its 1/3 weight — the invariance is structural, not panel-size-dependent. Panel stays unlabeled in the selection code; the family partition is a fixed pre-registered grouping (manifest entry 5) carrying no label of which family is the treatment; tie-break, seeds, and the identical-application rule of ASM-2046 are unchanged.",
+   "rationale": "Family-invariance requires equal weight per FAMILY, not per member; averaging within family before averaging across families makes the selection statistic exactly balanced across the three carrier families irrespective of how many representatives each contributes.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV3.2; registry ASM-2046 (parent panel); poc/gpt56-review re-re-review residual 2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-5",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2119",
+   "tag": "STIPULATED",
+   "claim": "F1-K CARRIER-GENERATOR FREEZE BEFORE CONSTRUCTION SPEND (supersedes the addenda-5/6/7-only + construction-hashes-in-A clause of ASM-2047): carrier construction (section-2.4: m=16 contexts x 2 variants x up to 96 concepts ~3,072 forward passes at all candidate splice layers) is the FIRST F1-K spend, ordered before the pilot (the pilot needs carriers to exist), yet (A) held only construction hashes/rules and (B) admitted addenda for entries 5/6/7 only — leaving the realized carrier tables + norms, produced by construction spend, outside the pure-function discipline. FIX: (A) additions frozen before ANY construction spend = the COMPLETE carrier GENERATOR: (i) exact m=16 construction contexts per concept (verbatim or seed+source-pool-hash+deterministic authoring procedure), (ii) kernel-explication text per concept (hash) and d2 dictionary text per concept (hash), (iii) prepend-vs-not protocol + gated-position selection rule, (iv) exact candidate splice-layer set (= union of the pilot grid's layer sets), (v) mean-difference construction formula, (vi) reference-norm rule + per-(c,l) rescaling procedure, (vii) all seeds (construction, 2 pilot-panel, R=5 main derangements — derangements are a deterministic permutation of the frozen K tables, the random d0 table a deterministic function of its seed); given (A) every arm's carrier table and realized norm is a deterministic function of frozen rules applied to forward-pass activations. NEW (B0) carrier-construction addendum, ordered FIRST among addenda = the realized carrier tables {v_{c,l}} for every arm + realized raw/rescaled norms, committed after construction and before the pilot, each a pure function of an (A) generator rule, carrying the rule id; any deviation is a logged protocol amendment BEFORE further spend. Ordering: commit (A) -> construction spend -> commit (B0) -> pilot spend -> commit (5) -> freeze (6) -> test spend -> bring-up (7); no spend of any kind precedes the freeze of every rule that governs it.",
+   "rationale": "Construction is spend, so the reviewer's 'no discretionary choice after spend begins' bar requires the carrier generator itself to be frozen before the first forward pass, with the realized tables entering only as a pure-function addendum — extending the (A)-rules / (B)-derived-values discipline to construction rather than trusting post-hoc hashes.",
+   "backing_ref": "docs/next/design/glm52-followup-experiment.md §R-REV3.3; registry ASM-2047 (parent freeze-gate), ASM-2027 (carrier construction), ASM-2036 (derangements/norms); poc/gpt56-review re-re-review residual 3",
+   "load_bearing": true,
    "status": "open",
    "owner": "designer-5",
    "date": "2026-07-13"

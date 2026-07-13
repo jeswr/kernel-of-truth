@@ -1,0 +1,64 @@
+{
+ "_readme": [
+  "ENGINE-INF REVISION-2 assumption block ASM-2113..2117 (5 entries) — EMITTED by the Fable DESIGN agent designer-4 (2026-07-13) in response to the cross-vendor codex RE-review of REVISION-1 (verdict RESIDUAL, 4 residuals), for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions, design-role constraint).",
+  "Range verified free at emission: the REVISION-1 block occupies ASM-2100..2112 (remapped +66 by the coordinator from the originally-emitted 2034..2046); max ASM id used anywhere in the repo is 2112; 2113..2117 is free.",
+  "Companion design: docs/next/design/engine-inference-under-typing.md REVISION-2 sections (marked [R2]); prior blocks docs/next/design/asm-engineinf-1950-1969.json and asm-engineinf-r1-2034-2049.json (ids 2100..2112); build block poc/engine-inference/asm-1990-2009.json. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. This block states no feasibility conclusion. CLEARED and NOT re-opened by R2: Blocker-1 (the matched K vs K-lemma-dom/union pair, EP-A) and the R1 narrowed exploratory sentence."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2113",
+   "tag": "STIPULATED",
+   "claim": "REVISION-2 GOVERNANCE AND SUPERSESSION: the codex RE-review of REVISION-1 returned RESIDUAL with 4 residuals — R2-1 (K-shuf null not calibrated: p=1/45 over a 44-member complete-derangement family is not a valid randomization p-value), R2-2 (freeze-readiness inference miscalibrated: cluster-bootstrap LB95 gates on individual dependent cells, non-binding jackknife), R2-3 (G4 prose vs the pinned scorer still inconsistent), R2-4 (supersession record broken: mixed/dangling ASM ranges after the coordinator remap). All 4 are accepted and fixed by ASM-2114..2117. R2 does NOT re-open the CLEARED Blocker-1 matched pair (EP-A) or the R1 narrowed exploratory sentence. Supersessions: the p-value/derangement-family content of ASM-2103 -> ASM-2114; the cluster-bootstrap interval content of ASM-2106 and the LB95 PASS-gate content of ASM-2102 -> ASM-2115 (their cell-as-unit and divergence-certificate content is retained); the G4 set-valued-rule content of ASM-2107/ASM-1997 is REFINED (not reversed) by ASM-2116; the id-normalization is ASM-2117. Where R2 conflicts with earlier text, R2 governs (R2 > R1 > 2026-07-12). E0 stays DRAFT until the R2-updated re-run pilot passes and the maintainer freezes.",
+   "rationale": "A RESIDUAL re-review must produce one authoritative R2 supersession map so the preregistration record has a single unambiguous reading and the freeze pins no stale gate.",
+   "backing_ref": "poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md (RE-review, verdict RESIDUAL); docs/next/design/engine-inference-under-typing.md §R2",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2114",
+   "tag": "STIPULATED",
+   "claim": "C-SHUF NULL RECALIBRATED (residual R2-1; option (a) — full exchangeable permutation orbit; supersedes the p-value/family content of ASM-2103): the control null is the COMPLETE within-lemma permutation orbit Orbit = S_5 x S_2 x S_2 x S_2, |Orbit| = 120*2*2*2 = 960 relabelings of the per-sense domain/range constraint sets, INCLUDING the identity (K itself) and all fixed-point/tie members, under the sharp exchangeability null 'the content->sense assignment carries no correctness signal'. Statistic T = K-arm cell-level correctness on the typing-active (G1uG3)_H* cells. Typing-active is defined MECHANICALLY: a (G1uG3)_H* cell is typing-active iff the K row's derived_sides is non-empty OR its verdict is ANOMALOUS (the outcome was produced by a domain/range or disjointness axiom and can change under a relabeling); CONSISTENT-with-empty-derived and REFUSE cells are typing-inert and excluded from T. Calibrated one-sided randomization p = #{pi in Orbit : T(pi) >= T(K)} / 960 (ties counted in >=, conservative); PASS gate C-SHUF = p <= 0.05 (min attainable 1/960 ~ 0.00104). K's descriptive orbit rank is co-reported; no p-value is asserted from a bare rank. Extension rule pinned: at any future inventory whose orbit is < 20 (min p > 0.05), C-SHUF uses B=9999 pinned-seed uniform within-lemma permutations plus the identity (Monte-Carlo randomization p, seed fixed at freeze). The R1 44-member derangement family and its p=1/(|S|+1) are retired.",
+   "rationale": "A hand-picked complete-derangement subset plus identity is not an exchangeable orbit and its 1/45 is not a calibrated randomization p-value; the full within-lemma permutation orbit (identity and ties included) is the exchangeable reference set under the inertness null, giving a valid randomization test at $0 CPU (960 evaluations). A frozen mechanical typing-active definition removes the last unpinned degree of freedom the reviewer flagged.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3 (C-SHUF gate), §4 item 1 [R2]; data/axioms-engineinf-v0/kernel/ (measured 5/2/2/2 sense inventory and per-sense constraint sets)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2115",
+   "tag": "STIPULATED",
+   "claim": "FINITE-CENSUS INFERENCE (residual R2-2; option (b) — treat H* as a fixed deterministic frame, drop the inferential 95% gates; supersedes the cluster-bootstrap interval content of ASM-2106 and the LB95 PASS-gate content of ASM-2102): (G1uG3)_H* is a FIXED FINITE FRAME and the instrument is a DETERMINISTIC CENSUS over it — there is no superpopulation and nothing to resample. All cluster-bootstrap LB95 PASS gates and the INSUFFICIENT-CLUSTERS rule are REMOVED. The unit remains the outcome-equivalence cell (ASM-2106 retained). PASS gates become EXACT counts over the fixed cell frame: PASS-A (for each x in {dom,union}): exact cell delta (K - K-lemma-x) >= +0.20 on F_A^x AND strictly more win-cells than loss-cells on F_A^x AND K exact cell correctness on F_A^dom u F_A^un >= 0.80 AND DIST-SPAN; PASS-B: exact cell delta (K - B-wn) >= +0.20 on F_B AND strict win>loss on F_B AND K exact cell correctness on F_B >= 0.80 AND DIST-SPAN; no-net-harm: K exact cell correctness on convergent (G1uG3)_H* cells not worse than any arm by > 0.02. DIST-SPAN (binding; replaces the non-binding jackknife): a passing endpoint's NET winning cells (win-cells minus same-lemma loss-cells) span >= 2 distinct lemmas; a single-lemma frame cannot PASS. Frame adequacy is guarded by KILL-e1 alone (>= 12 cells, >= 30 items, >= 2 ops, >= 2 lemmas). Only generalizations BEYOND the frame (to Stage-B) carry uncertainty and stay tagged EXTRAPOLATION, never a PASS gate.",
+   "rationale": "Bootstrapping individual cells assumes exchangeable draws from a superpopulation, but the cells are dependent through shared lemmas/senses/nouns and the H2 construction, and the frame is a deterministic census, not a sample; a non-binding jackknife does not repair that. Exact counting over the fixed frame is the honest estimand, with DIST-SPAN making distributional robustness a binding structural requirement rather than an inferential one.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.2 (finite-frame paragraph), §2.3 (PASS/DIST-SPAN) [R2]; measured cell structure poc/engine-inference/results/items.json (sha d4fdbd6b13de4e824fe176cd757d7c694185e572e40eaca120c71bfcab5de8bc; 56 G1uG3 items -> 19 cells)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2116",
+   "tag": "STIPULATED",
+   "claim": "G4 SCORER RECONCILED FOR REAL (residual R2-3; option (b) — change the scorer to receive+check derived_cls; refines ASM-2107/ASM-1997): score() now takes a third argument derived_cls (default empty). On a G4 (gold REFUSE) cell: REFUSE is correct; CONSISTENT is correct IFF derived_cls is empty (true vacuity); CONSISTENT-with-a-nonempty-derived-class and ANOMALOUS are confident wrong assertions (correct=False, honesty penalty 1.0). This makes the raw exact-match match the prose and the §1.5 W3 story (a lemma-collapsed arm deriving cls(voice, C_material) on an excluded sense is now scored wrong, not free). Back-compatibility preserved: oracle callsites inject the gold verdict (a G4 oracle row is REFUSE with empty derived -> correct, PC-5 oracle-1.0 holds) and the mock validator's 2-arg calls default derived_cls to empty. The change touches poc/engine-inference/engineinf_lib.py score() and its two live callsites (engineinf_runner.py, instr_pilot.py); the pinned engineinf_lib.py hash (registry artifact_hashes, 7c0e3c47c39af239774b518a98c7e767b9df7cd0a211a6528ae9d604061a0d9) is now STALE and MUST be recomputed by the coordinator at re-pin (the R1 rebuild already requires a recompute). G1/G3 scoring is unchanged (derived_cls is ignored when gold != REFUSE), so the R1 narrowed exploratory G1uG3 numbers (46/56 etc.) are unaffected.",
+   "rationale": "A preregistration whose prose and pinned implementation disagree is not a preregistration; option (b) is chosen over changing the prose because the design's own W3 example and ASM-1997's word 'vacuity' require punishing a confident typed assertion on an uncovered sense, which only a derived-class check delivers.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.2 [R2]; poc/engine-inference/engineinf_lib.py score() (edited this pass, hash to be recomputed at re-pin); reference-probe verified this pass: (REFUSE,CONSISTENT,[])->correct, (REFUSE,CONSISTENT,[cls])->wrong/pen1.0, (REFUSE,ANOMALOUS)->wrong, (CONSISTENT,CONSISTENT 2-arg)->correct",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2117",
+   "tag": "STIPULATED",
+   "claim": "ASM-ID NORMALIZATION (residual R2-4): the REVISION-1 block's ids and every reference to them are normalized to the coordinator's remapped ASM-2100..2112 space (+66 from the originally-emitted 2034..2046). In docs/next/design/engine-inference-under-typing.md every trailing slash-token was remapped (2036->2102, 2037->2103, 2039->2105, 2040->2106, 2041->2107, 2042->2108, 2043->2109, 2045->2111, 2046->2112) and no dangling/mixed range (e.g. '2101..2046', bare '2039'/'2045') remains; in docs/next/design/asm-engineinf-r1-2034-2049.json the readme and the ASM-2100 supersession claim are normalized to 2100..2112 (the '2034..2046' and quoted '2101..2046' strings that remain are explicit REMAP-NOTE descriptions of the historical/eliminated ids, not live references). The filename stem 'asm-engineinf-r1-2034-2049' is retained for git continuity; a rename to a '2100-2112' stem is a coordinator custody option that would also update the two filename references in the design doc header and self-check gate.",
+   "rationale": "A preregistration record with mixed/dangling ASM ranges is ambiguous about which assumption governs; a single documented +66 remap with a stated NOTE distinguishing live references from historical descriptions removes the ambiguity without a git rename in the design pass.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md (post-normalization grep: no ASM-2NNN/20[3-4][0-9] slash-groups remain); docs/next/design/asm-engineinf-r1-2034-2049.json readme + ASM-2100 claim (normalized this pass)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  }
+ ]
+}

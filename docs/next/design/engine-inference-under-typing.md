@@ -1,20 +1,25 @@
 # Engine Inference Under Typing (ENGINE-INF) — DESIGN
 
-**Role: Fable DESIGN agent (designer-4), 2026-07-12; REVISION-1 by the same
-design role, 2026-07-13, in response to the cross-vendor codex FIX-FIRST
-freeze review (3 blockers; `poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md`).
-This is a DESIGN for the maintainer to freeze — not a prereg, not an
-execution, and it issues no feasibility conclusion on CORRECTNESS or
-EFFICIENCY. Nothing here modifies the encoder pin, kernel-v0/kernel-v1, the
-RULES-1 certificate, any frozen record, or any registered verdict.
-Maintainer acceptance: issue #26 items D2+D3.** Assumption blocks:
-`docs/next/design/asm-engineinf-1950-1969.json` (original, owner designer-4)
-and `docs/next/design/asm-engineinf-r1-2034-2049.json` (REVISION-1, owner
-designer-4; range 2034–2049 verified free at emission — max ASM id found
-registered or reserved anywhere in the repo is ASM-2033; repo-wide grep for
-`ASM-20[3-9][0-9]` returns nothing above 2033). Amendments below are marked
-**[R1]**; where REVISION-1 conflicts with 2026-07-12 text, REVISION-1
-governs.
+**Role: Fable DESIGN agent (designer-4), 2026-07-12; REVISION-1
+(2026-07-13) in response to the cross-vendor codex FIX-FIRST freeze review
+(3 blockers); REVISION-2 (2026-07-13) in response to the codex RE-review of
+REVISION-1 (verdict RESIDUAL, 4 residuals; Blocker-1 matched pair and the
+narrowed exploratory sentence CLEARED and NOT re-opened);
+`poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md`. This is a DESIGN for the
+maintainer to freeze — not a prereg, not an execution, and it issues no
+feasibility conclusion on CORRECTNESS or EFFICIENCY. Nothing here modifies
+the encoder pin, kernel-v0/kernel-v1, the RULES-1 certificate, any frozen
+record, or any registered verdict. Maintainer acceptance: issue #26 items
+D2+D3.** Assumption blocks:
+`docs/next/design/asm-engineinf-1950-1969.json` (original, owner
+designer-4); `docs/next/design/asm-engineinf-r1-2034-2049.json`
+(REVISION-1, ids ASM-2100..2112 after the coordinator's +66 remap from the
+originally-emitted 2034..2046); and
+`docs/next/design/asm-engineinf-r2-2113-2117.json` (REVISION-2, ids
+ASM-2113..2117; range verified free at emission — max ASM id used anywhere
+in the repo is 2112). Amendments are marked **[R1]** / **[R2]**; where a
+later revision conflicts with earlier text, the later revision governs
+(R2 > R1 > 2026-07-12).
 
 Epistemic tags: **[MEASURED]** read from committed bytes this tick;
 **[DERIVED]** follows from measured bytes by stated reading/arithmetic;
@@ -49,9 +54,9 @@ blocker, and where its fix now lives:
 
 | # | blocker (reviewer's finding) | fix | where |
 |---|---|---|---|
-| B1 | **Instrument validity.** The K / B-wn vs D-word contrasts change typing SOURCE and sense-tag ACCESS together, not sense-splitting alone; no arm pair isolates sense-splitting per se. | A genuinely matched pair: **K vs K-lemma-dom / K-lemma-union** — the SAME pinned kernel axiom module, the SAME compiler input (including the gold sense tag), the same engine/scorer/items; the collapsed arms differ from K ONLY in that their relation inventory is one-per-lemma, with signatures derived from K's own per-sense constraint sets by pinned mechanical collapse rules. Endpoint EP-A (co-primary) is scored on this pair. K vs B-wn (EP-B, co-primary) is retained and relabelled for what it isolates: typing-source content GIVEN sense-split structure and identical tag access. D-word arms are demoted to descriptive context. | §1.3, §1.3.1, §2.3 [R1]; ASM-2101/2036 |
-| B2 | **K-shuf control.** A single fixed rotation is insufficient; "K beats K-shuf" is not a binding PASS. | The single rotation is retired. The control is the **exhaustive family of composite within-lemma derangements** of the per-sense domain/range constraint sets — D(5)·D(2)³ = 44 members from the measured 5/2/2/2 sense inventory [DERIVED] — with a prespecified binding superiority gate **C-SHUF**: on typing-active confirmatory cells, K's cell-level correctness must strictly exceed EVERY family member's (the 100th percentile of the derangement distribution), with the derangement-null empirical quantile p = 1/(|S|+1) ≈ 0.0222 ≤ 0.05 reported; family extension rule pinned if |S| < 19. C-SHUF failure caps the verdict at INCONCLUSIVE with a pre-registered CONTENT-INERT reading. | §4 item 1 [R1]; §2.3; ASM-2103 |
-| B3 | **Freeze-readiness.** The deterministic 212-item outcome is already known — a "rerun" cannot be pre-registered confirmation; item-level CIs ignore lemma/cross-pair dependence; §2.2 prose conflicted with the implemented G4 scoring rule. | (i) The seen frames (212-item exploratory execution + 17-item pilot slice) are **exploratory-only, permanently**. The confirmatory set is an **unseen holdout H** (SemCor-attested items + mechanically constructed cross-pairs + excluded-sense cells) whose items and gold are constructed and pinned pre-freeze but on which **no engine or scorer execution occurs before the registered run**, with mechanical custody enforcement; because the instrument is deterministic, the binding confirmatory frame is further restricted to **novel outcome-equivalence cells** (cell key not realized in any seen frame) — for items in already-seen cells the outcome is inferable, and counting them as confirmation would be a rerun in disguise. (ii) All interval statements move from item-level i.i.d. binomials to **cell-level analysis with a stratified cluster bootstrap** plus a drop-one-lemma jackknife sensitivity — measured on the seen frame, 56 G1∪G3 items collapse to 19 outcome-equivalence cells, so the dependence is real, not hypothetical. (iii) §2.2 prose now states the implemented set-valued G4 rule (ASM-1997) verbatim; the conflict is resolved in favour of the pinned implementation. | §2.5 (new), §2.2, §2.3 [R1]; ASM-2104/2039/2040/2041 |
+| B1 | **Instrument validity.** The K / B-wn vs D-word contrasts change typing SOURCE and sense-tag ACCESS together, not sense-splitting alone; no arm pair isolates sense-splitting per se. | A genuinely matched pair: **K vs K-lemma-dom / K-lemma-union** — the SAME pinned kernel axiom module, the SAME compiler input (including the gold sense tag), the same engine/scorer/items; the collapsed arms differ from K ONLY in that their relation inventory is one-per-lemma, with signatures derived from K's own per-sense constraint sets by pinned mechanical collapse rules. Endpoint EP-A (co-primary) is scored on this pair. K vs B-wn (EP-B, co-primary) is retained and relabelled for what it isolates: typing-source content GIVEN sense-split structure and identical tag access. D-word arms are demoted to descriptive context. | §1.3, §1.3.1, §2.3 [R1]; ASM-2101/2102 |
+| B2 | **K-shuf control.** A single fixed rotation is insufficient; "K beats K-shuf" is not a binding PASS. | The single rotation is retired. The control is the **exhaustive family of composite within-lemma derangements** of the per-sense domain/range constraint sets — D(5)·D(2)³ = 44 members from the measured 5/2/2/2 sense inventory [DERIVED] — with a prespecified binding superiority gate **C-SHUF**: on typing-active confirmatory cells, K's cell-level correctness must strictly exceed EVERY family member's (the 100th percentile of the derangement distribution), with the derangement-null empirical quantile p = 1/(|S|+1) ≈ 0.0222 ≤ 0.05 reported; family extension rule pinned if |S| < 19. C-SHUF failure caps the verdict at INCONCLUSIVE with a pre-registered CONTENT-INERT reading. **[SUPERSEDED by R2-1/ASM-2114: the 44-derangement family and p=1/45 are retired for the full 960-member exchangeable permutation orbit and a calibrated randomization p ≤ 0.05.]** | §4 item 1 [R1→R2]; §2.3; ASM-2103→2114 |
+| B3 | **Freeze-readiness.** The deterministic 212-item outcome is already known — a "rerun" cannot be pre-registered confirmation; item-level CIs ignore lemma/cross-pair dependence; §2.2 prose conflicted with the implemented G4 scoring rule. | (i) The seen frames (212-item exploratory execution + 17-item pilot slice) are **exploratory-only, permanently**. The confirmatory set is an **unseen holdout H** (SemCor-attested items + mechanically constructed cross-pairs + excluded-sense cells) whose items and gold are constructed and pinned pre-freeze but on which **no engine or scorer execution occurs before the registered run**, with mechanical custody enforcement; because the instrument is deterministic, the binding confirmatory frame is further restricted to **novel outcome-equivalence cells** (cell key not realized in any seen frame) — for items in already-seen cells the outcome is inferable, and counting them as confirmation would be a rerun in disguise. (ii) All interval statements move from item-level i.i.d. binomials to **cell-level analysis with a stratified cluster bootstrap** plus a drop-one-lemma jackknife sensitivity — measured on the seen frame, 56 G1∪G3 items collapse to 19 outcome-equivalence cells, so the dependence is real, not hypothetical. (iii) §2.2 prose now states the implemented set-valued G4 rule (ASM-1997) verbatim; the conflict is resolved in favour of the pinned implementation. **[PARTLY SUPERSEDED by R2: (ii)'s cluster bootstrap + jackknife are retired for exact finite-census counting + binding DIST-SPAN (R2-2/ASM-2115); (iii)'s "resolved in favour of the scorer" is reversed — the scorer is instead corrected to check derived_cls (R2-3/ASM-2116). (i) the unseen-holdout construction stands.]** | §2.5, §2.2, §2.3 [R1→R2]; ASM-2104/2105/2106/2107→2115/2116 |
 
 **Narrowed exploratory statement (reviewer's CONCERN, adopted verbatim as
 the ONLY licensed sentence about the 2026-07-12 exploratory execution):**
@@ -62,16 +67,16 @@ sense-splitting and does not generalize. The registered analysis remains
 INCONCLUSIVE until the confirmatory holdout runs."* [MEASURED numbers —
 `poc/engine-inference/results/rows.jsonl` sha `8a21d5a3…`, run-result
 decision-payload sha `6a2d9561…`, double-run match true; STIPULATED
-scope — ASM-2108/2043.] Any prior broader reading (including any
+scope — ASM-2108/2109.] Any prior broader reading (including any
 "sense-split signal" phrasing) is superseded; the reviewer's own retraction
 of an over-stated read is noted in the review artifact.
 
 **ASM supersession map [STIPULATED — ASM-2100]:** ASM-1996 (single-rotation
 K-shuf) superseded by ASM-2103; the decision-rule and kill-criteria content
 of ASM-1959/1960 and the frame/interval content of ASM-1999/2000 superseded
-by ASM-2102/2039/2040 (the divergence-certificate-before-scoring and
+by ASM-2102/2105/2106 (the divergence-certificate-before-scoring and
 double-run disciplines they carry are retained); ASM-1955/1956/1963/1966
-amended by ASM-2101/2036/2045/2046. All original ASMs otherwise stand.
+amended by ASM-2101/2102/2111/2112. All original ASMs otherwise stand.
 
 **Registry deltas required at re-pin (coordinator action, central custody):**
 arms list +K-lemma-dom, +K-lemma-union, K-shuf → derangement family
@@ -84,6 +89,54 @@ new pins (SemCor corpus hash, holdout extractor, K-lemma modules, derangement
 manifest, items-H/gold-H); analysis script and prereg_doc shas recomputed;
 blocking pilot re-run artifact (§5 [R1]). Status remains DRAFT until the
 re-run pilot passes and the maintainer freezes.
+
+---
+
+## R2. REVISION-2 (2026-07-13) — residual → fix ledger
+
+Cross-vendor RE-review verdict on REVISION-1: **RESIDUAL**
+(codex/GPT-5.6). **CLEARED, not re-opened here:** Blocker 1 (instrument
+validity — the matched K vs K-lemma-dom/union contrast, EP-A) is accepted;
+the §R1 narrowed exploratory sentence is accepted. REVISION-2 changes
+neither. Four residuals remain; each fix, and the OPTION chosen where the
+reviewer offered a choice:
+
+| # | residual (re-review finding) | option chosen + fix | where |
+|---|---|---|---|
+| R2-1 | **K-shuf null not calibrated.** p = 1/45 over the restricted 44-member complete-derangement family is not a valid randomization p-value: that family + identity is not an exchangeable permutation orbit, and functional duplicates undermine treating 44 as independent null evidence. | **Option (a): the FULL within-lemma permutation orbit.** C-SHUF's null is now the complete orbit S₅ × S₂ × S₂ × S₂ = 120·2·2·2 = **960 relabelings, identity and all fixed-point/tie members included**, under the sharp exchangeability null "the content→sense assignment carries no correctness signal." Calibrated one-sided randomization p = #{π ∈ Orbit : T(π) ≥ T(K)} / 960, PASS gate C-SHUF = **p ≤ 0.05**. The 44-derangement count and the p = 1/(|S|+1) claim are retired. "Typing-active" now has a mechanical frame definition (below). | §2.3, §4 item 1 [R2]; ASM-2114 |
+| R2-2 | **Freeze-readiness inference miscalibrated.** The binding LB95 gates bootstrap INDIVIDUAL cells despite dependence through shared lemmas/senses/nouns/H2-construction; a non-binding 4-lemma jackknife does not repair it. | **Option (b): treat H\* as a FINITE DETERMINISTIC frame; drop the inferential "95%" gates entirely.** The instrument is a deterministic census over a fixed frame, not a sample from a superpopulation — so there is nothing to bootstrap. All cluster-bootstrap LB95 PASS gates and the INSUFFICIENT-CLUSTERS rule are removed. PASS gates become **exact counts over the fixed cell frame**: exact census delta ≥ +0.20, a strict sign requirement (more win-cells than loss-cells), and an exact correctness floor ≥ 0.80; robustness is enforced by a new binding **DIST-SPAN** requirement (a passing endpoint's net win-cells span ≥ 2 lemmas — no single-lemma-carried pass), which replaces the non-binding jackknife. Generalization beyond the frame stays EXTRAPOLATION and is never a PASS gate. | §2.2, §2.3 [R2]; ASM-2115 |
+| R2-3 | **G4 prose vs implementation still inconsistent.** §2.2 prose says CONSISTENT is correct on G4 only with no derived-class assertion, but the pinned scorer `score()` (`poc/engine-inference/engineinf_lib.py`) accepts EVERY CONSISTENT verdict and never receives `derived_cls`. | **Option (b): change the scorer to receive + check `derived_cls`, and re-pin its hash.** `score()` now takes the derived-class list; on a G4 (gold REFUSE) cell, CONSISTENT is correct **iff the derived-class set is empty** (true vacuity), and CONSISTENT-with-a-derived-assertion is a confident wrong assertion (honesty penalty 1.0) — matching the §1.5 W3 story and ASM-1997's own word "vacuity." The reference edit is applied to `engineinf_lib.py` + its two live callsites; the pinned hash is now STALE and MUST be recomputed at re-pin (already required by the R1 rebuild). | §2.2 [R2]; `engineinf_lib.py`; ASM-2116 |
+| R2-4 | **Supersession record broken** (partly a coordinator remap artifact): the ASM readme + doc markers referenced nonexistent mixed ranges (e.g. "2101..2046", bare "2039"/"2045"). | Every ASM id and range reference in this doc and in the `asm-engineinf-r1-2034-2049.json` readme is normalized to the coordinator's remapped **2100..2112** space (+66 from the originally-emitted 2034..2046); no dangling or mixed range remains. The filename stem is retained for git continuity (a cosmetic rename is a coordinator custody option, flagged below). | §R1/§R2 throughout; ASM readme; ASM-2117 |
+
+**What R2 does NOT touch:** the matched sense-split pair (EP-A) and its
+collapse rules (§1.3.1); the unseen-holdout construction and custody (§2.5);
+the co-primary decomposition into EP-A/EP-B; the narrowed exploratory
+sentence (§R1). Those are cleared or unaffected.
+
+**Cell frame is retained as the unit (ASM-2115).** REVISION-1's move to the
+outcome-equivalence cell (one observation per cell, §2.2) is correct and
+kept — R2 only changes what we DO with cells: exact census counting instead
+of resampling.
+
+**ASM supersession map [R2] [STIPULATED — ASM-2113]:** the C-SHUF null /
+p-value content of ASM-2103 is superseded by ASM-2114; the
+cluster-bootstrap interval content of ASM-2106 and the LB95 PASS-gate
+content of ASM-2102 are superseded by ASM-2115 (their cell-as-unit and
+divergence-certificate content is retained); the G4 set-valued-rule content
+of ASM-2107/ASM-1997 is refined (not reversed) by ASM-2116 (adds the
+derived-empty check the prose always intended); the id-normalization is
+ASM-2117. All other R1 ASMs (2100–2112) stand.
+
+**Registry deltas required at re-pin (coordinator; supersedes/adds to the
+§R1 list):** endpoint fields drop `*_lb95`, `cshuf_p`(as 1/45), and the
+INSUFFICIENT-CLUSTERS flag; add `cshuf_orbit_p` (over 960), `cshuf_rank`,
+`ep_a_delta_dom/_union`, `ep_b_delta`, `ep_*_wins/_losses/_ties`,
+`ep_*_lemma_span`, `dist_span_ok`, exact `k_corr_*` floors; the
+`engineinf_lib.py` artifact hash (`7c0e3c47…`) is recomputed after the
+scorer edit; the analysis-script hash and `output-fields.json` are
+recomputed; the derangement manifest becomes a 960-orbit manifest. Status
+remains DRAFT until the re-run pilot (PC-1..PC-7, with the R2-updated C-SHUF
+and scorer) passes and the maintainer freezes.
 
 ---
 
@@ -206,7 +259,7 @@ axioms would violate its own contract and taint the arm. Instead
   rank-only status in the corpus is untouched; the module lives under the
   experiment, is consumed only by it, and dies with it.
 
-### 1.3 The arms [STIPULATED — ASM-1955, ASM-1956; amended by ASM-2101/2036/2037 [R1]]
+### 1.3 The arms [STIPULATED — ASM-1955, ASM-1956; amended by ASM-2101/2102/2103 [R1]]
 
 All arms share: the same engine bytes, the same shared world-compiler, the
 same scorer, the same item bank, **and the same compiler input record per
@@ -223,9 +276,9 @@ constant in the sense tag — the tag is received but has nowhere to route).
 | **D-word-dom** | plain dictionary | no — one relation per lemma | the SemCor-dominant sense's signature (tag_cnt from pinned `index.sense`) | descriptive context [R1]: the strongest committed word-level dictionary (the pi:011 shape) |
 | **D-word-union** | plain dictionary | no | union / least-common-subsumer signature (effectively untyped) | descriptive context [R1]: the cautious word-level dictionary |
 | **B-wn** | WordNet 3.1 bytes only, zero kernel authoring | yes (same sense URNs) | mechanical: WN verb sentence-frames (Somebody/Something slots) | **the kernel-source decider**: given sense-split structure and identical tag access, does kernel-authored typing content beat the best mechanical non-kernel content? |
-| **K-shuf family** [R1] | K with per-sense domain/range constraint-set assignments deranged within lemma — the FULL composite derangement family (§4 item 1), not one rotation | yes | deranged | mandatory shuffled-kernel control family (typing content destroyed, structure and byte bulk preserved) |
+| **K-shuf orbit** [R1/R2] | K with per-sense domain/range constraint-set assignments permuted within lemma — the FULL within-lemma permutation orbit (§4 item 1; 960 members incl. identity), not one rotation | yes | permuted | mandatory shuffled-kernel control orbit for the C-SHUF randomization null (typing content relabeled, structure and byte bulk preserved) |
 
-**What each pairwise contrast isolates [STIPULATED — ASM-2101/2036 [R1]]:**
+**What each pairwise contrast isolates [STIPULATED — ASM-2101/2102 [R1]]:**
 K vs K-lemma-{dom,union} isolates **sense-splitting per se** (same source
 content, same tag access, same everything else — the collapse rules are
 deterministic functions of K's own pinned module). K vs B-wn isolates
@@ -275,9 +328,9 @@ here would reopen the very confound the pair exists to close.
   must route by it). Both directions have teeth.
 - **Disclosed residual:** the collapsed arms carry fewer relation-typing
   axioms than K (one per lemma vs one per sense) — byte bulk is not
-  identical across this pair. Content-vs-bulk is the derangement family's
-  burden (§4 item 1), which preserves bulk exactly; the pair and the family
-  jointly cover what neither covers alone.
+  identical across this pair. Content-vs-bulk is the permutation orbit's
+  burden (§4 item 1; the C-SHUF null), which preserves bulk exactly; the
+  pair and the orbit jointly cover what neither covers alone.
 
 The mandatory **kernel-as-text control is structurally N/A**: there is no
 LLM/host consumer anywhere in the instrument — no prompt for the text to
@@ -397,38 +450,67 @@ canary (perturb gold bytes → every arm's compiled TBox+worlds must remain
 byte-identical; a diff fires the gate). This is the PC-4 planted-violation
 discipline applied to the seam where circularity could hide.
 
-### 2.2 Scoring [STIPULATED — ASM-1959, ASM-1962; amended by ASM-2106/2041 [R1]]
+### 2.2 Scoring [STIPULATED — ASM-1959, ASM-1962; amended by ASM-2106/2107 [R1], ASM-2115/2116 [R2]]
 
 Per item per arm, the engine emits a verdict in
 `{CONSISTENT, ANOMALOUS(ERR_CONFLICT), REFUSE(code), typed-answer}` plus
 derived class facts. On G1/G3 cells: exact match against gold verdict; O1
-cells additionally exact-match the derived class against G2. **[R1] On G4
-(excluded-sense) cells the gold is set-valued, per the implemented and
-pinned scorer (ASM-1997): REFUSE(code) is correct AND vacuous CONSISTENT
-(no conflict, no derived class assertion) is correct; ANOMALOUS or any
-confident derived assertion is wrong.** The 2026-07-12 prose here read
-"exact match against gold verdict" without the G4 qualification, in
-conflict with the implementation; the conflict is resolved in favour of the
-implementation, whose rationale stands: scoring bare REFUSE as the only
-correct G4 answer would gift K wins purely for coverage gaps, and scoring
-vacuous CONSISTENT as wrong would punish broader-coverage arms for covering
-more. Deterministic engine ⇒ no seeds; double-run byte-identity required
-(certificate discipline).
+cells additionally exact-match the derived class against G2.
 
-**[R1] Effective sample unit — the outcome-equivalence cell (ASM-2106).**
-Because the whole instrument is deterministic, every item in the same
-**cell** — the tuple `(gold sense synset, undergoer top-split side class,
-undergoer wn-kind class, item kind)`, i.e. the full arm-input equivalence
-class up to entity renaming — produces byte-identical worlds and therefore
-identical verdicts in every arm. Item counts overstate information:
-measured on the seen frame, the 56 G1∪G3 items collapse to 19 distinct
-cells. All registered inference is therefore at CELL level (one observation
-per cell, census item counts reported descriptively alongside); interval
-statements use a stratified (by item kind) percentile cluster bootstrap
-over cells, B = 10,000, pinned seed 20260713, plus a drop-one-lemma
-jackknife reported as a sensitivity (disclosed as coarse — 4 lemmas). Any
-co-primary frame with fewer than 8 cells is INSUFFICIENT-CLUSTERS: that
-endpoint cannot PASS and is reported descriptively only.
+**[R2] G4 scoring — prose reconciled with the (now corrected) scorer
+(ASM-2116; resolves residual R2-3).** On a G4 (excluded-sense, gold REFUSE)
+cell the gold is set-valued: **REFUSE(code) is correct; CONSISTENT is
+correct IFF the arm derived NO class on the undergoer (true vacuity — the
+arm asserted nothing); CONSISTENT WITH a derived class assertion, and
+ANOMALOUS, are confident wrong assertions (incorrect, honesty penalty
+1.0).** REVISION-1 stated this "no derived class assertion" rule in prose,
+but the pinned `score(gold_rec, verdict)` accepted every CONSISTENT verdict
+and never received `derived_cls` — so a lemma-collapsed arm that derives
+`cls(voice, C_material)` on "his voice broke" (the §1.5 W3 case) was scored
+fully correct with zero penalty, contradicting both the prose and ASM-1997's
+own word "vacuity." The reconciliation (option (b)) changes the scorer to
+receive and check `derived_cls`; the reference edit is in
+`poc/engine-inference/engineinf_lib.py` `score()` and its two live
+callsites (runner, pilot; the oracle and mock callsites are unaffected —
+oracle injects the gold verdict, so a G4 oracle row is REFUSE with empty
+derived and stays correct, preserving the PC-5 oracle-1.0 guarantee). The
+pinned `engineinf_lib.py` hash is now STALE and MUST be recomputed at re-pin.
+Rationale retained: this neither gifts K coverage-gap wins (bare REFUSE and
+true-vacuous CONSISTENT are both correct) nor punishes broader coverage for
+merely covering more (only a positive typed assertion on an uncovered sense
+is punished). Deterministic engine ⇒ no seeds; double-run byte-identity
+required (certificate discipline).
+
+**[R1, unit retained] Effective sample unit — the outcome-equivalence cell
+(ASM-2106).** Because the whole instrument is deterministic, every item in
+the same **cell** — the tuple `(gold sense synset, undergoer top-split side
+class, undergoer wn-kind class, item kind)`, i.e. the full arm-input
+equivalence class up to entity renaming — produces byte-identical worlds
+and therefore identical verdicts in every arm. Item counts overstate
+information: measured on the seen frame, the 56 G1∪G3 items collapse to 19
+distinct cells. All registered inference is therefore at CELL level (one
+observation per cell, census item counts reported descriptively alongside).
+
+**[R2] Finite deterministic frame — no resampling (ASM-2115; resolves
+residual R2-2).** REVISION-1 attached cluster-bootstrap LB95 gates to the
+cell-level deltas; the re-review noted these still bootstrap individual
+cells despite dependence through shared lemmas, senses, nouns, and the H2
+cross-pair construction, which a non-binding 4-lemma jackknife does not
+repair. The deeper point: `(G1∪G3)_H*` is a **fixed finite frame** and the
+instrument is a **deterministic census** over it — there is no
+superpopulation and nothing to resample. REVISION-2 therefore **removes all
+bootstrap/LB95 PASS gates and the INSUFFICIENT-CLUSTERS rule** and scores
+**exact counts over the fixed cell frame**: per endpoint, the exact
+paired cell delta, the exact win/loss/tie cell counts, and K's exact
+correctness fraction. Robustness that the bootstrap was meant to buy is
+enforced instead by the **binding DIST-SPAN requirement** (§2.3): a passing
+endpoint's net winning cells must span ≥ 2 lemmas, so no PASS is carried by
+a single lemma's cells. Frame adequacy is guarded by KILL-e1 (≥ 12 cells,
+≥ 30 items, ≥ 2 ops, ≥ 2 lemmas), evaluated pre-freeze at $0. The only
+statements that carry uncertainty are generalizations BEYOND the frame
+(to Stage-B lemmas), which remain tagged EXTRAPOLATION and are never PASS
+gates; residual dependence among cells sharing a sense/noun is the
+estimand's structure, disclosed, not resampling noise.
 
 Two scores, pre-registered:
 - **Primary: raw exact-match correctness** on the divergent set (below).
@@ -468,8 +550,9 @@ the typing-content source differs — this endpoint, and only this endpoint,
 licenses a sentence about kernel authoring vs mechanical non-kernel
 content.
 
-Decision rule, verbatim [STIPULATED — ASM-2102/2037/2039/2040 [R1];
-supersedes the 2026-07-12 bands]:
+Decision rule, verbatim [STIPULATED — ASM-2102/2103/2105/2106 [R1],
+recalibrated by ASM-2114/2115 [R2]; supersedes the 2026-07-12 bands and the
+R1 LB95/derangement-family gates]:
 
 - **KILL-e1 (holdout adequacy; verdict CONSTRUCTION-ANOMALY):** the
   confirmatory frame `(G1∪G3)_H*` has < 30 items or < 12 cells, or spans
@@ -486,23 +569,41 @@ supersedes the 2026-07-12 bands]:
   cells or < 10 items — recorded as a D3(b) input (*"sense structure
   suffices; kernel authoring adds no divergent closure here"*), no
   affirmative claim.
-- **Gate C-SHUF (binding for PASS-affirm):** over the pinned derangement
-  family S (§4 item 1; exhaustive |S| = 44 at this inventory), on the
-  typing-active `(G1∪G3)_H*` cells: `#{π ∈ S : corr(π) ≥ corr(K)} = 0`
-  — K strictly above the family maximum (the 100th percentile), with the
-  derangement-null empirical quantile p = 1/(|S|+1) ≈ 0.0222 reported. If
-  C-SHUF fails, the verdict is capped at INCONCLUSIVE with the
-  pre-registered flag CONTENT-INERT: *"a kernel with deranged typing
-  content matches the kernel; the typing content is not demonstrably
-  load-bearing at this inventory."*
-- **PASS-A:** for EACH x ∈ {dom, union}: cell-level delta (K −
-  K-lemma-x) ≥ +0.20 on `F_A^x` AND its cluster-bootstrap LB95 > 0; AND
-  K's cell-level correctness on `F_A^dom ∪ F_A^un` has cluster-bootstrap
-  LB95 ≥ 0.80.
-- **PASS-B:** cell-level delta (K − B-wn) ≥ +0.20 on `F_B` AND its
-  cluster-bootstrap LB95 > 0; AND K's cell-level correctness on `F_B` has
-  cluster-bootstrap LB95 ≥ 0.80.
-- **No-net-harm (binding for PASS-affirm):** K's cell-level correctness on
+- **Gate C-SHUF (binding for PASS-affirm) [R2, recalibrated; ASM-2114]:**
+  the null is the FULL within-lemma permutation orbit Orbit = S₅ × S₂ × S₂
+  × S₂ = **960 relabelings** of the per-sense domain/range constraint sets
+  (identity K included; all fixed-point and tie members included), under the
+  sharp exchangeability null "the content→sense assignment carries no
+  correctness signal." Statistic T = K-arm cell-level correctness on the
+  **typing-active** `(G1∪G3)_H*` cells (defined below). Calibrated
+  one-sided randomization p = `#{π ∈ Orbit : T(π) ≥ T(K)} / 960` (ties
+  counted in `≥`, the conservative convention; K's descriptive orbit rank
+  co-reported). **PASS gate C-SHUF = p ≤ 0.05.** Minimum attainable p =
+  1/960 ≈ 0.00104, so the gate is meaningful at this inventory. If C-SHUF
+  fails, the verdict is capped at INCONCLUSIVE with the pre-registered flag
+  CONTENT-INERT: *"a kernel with permuted typing content is not
+  distinguishably more correct than the kernel; the typing content is not
+  demonstrably load-bearing at this inventory."* **Typing-active cell
+  (mechanical, pinned):** a `(G1∪G3)_H*` cell is typing-active iff the K
+  arm's row on it has a non-empty `derived_sides` set OR verdict =
+  ANOMALOUS — i.e. the outcome was produced by a domain/range or
+  disjointness axiom and can therefore change under a relabeling;
+  CONSISTENT-with-empty-derived and REFUSE cells are typing-inert and
+  excluded from T (they are shuffle-invariant by construction).
+- **PASS-A [R2, exact census]:** for EACH x ∈ {dom, union}: exact cell
+  delta (K − K-lemma-x) ≥ +0.20 on `F_A^x` AND strictly more win-cells
+  than loss-cells on `F_A^x` (sign requirement); AND K's exact cell
+  correctness on `F_A^dom ∪ F_A^un` ≥ 0.80; AND DIST-SPAN holds for each x
+  (below).
+- **PASS-B [R2, exact census]:** exact cell delta (K − B-wn) ≥ +0.20 on
+  `F_B` AND strictly more win-cells than loss-cells on `F_B`; AND K's exact
+  cell correctness on `F_B` ≥ 0.80; AND DIST-SPAN holds.
+- **DIST-SPAN (binding; replaces the non-binding jackknife) [R2]:** for a
+  passing endpoint, the NET winning cells (win-cells minus, cell-for-cell,
+  any loss-cells in the same lemma) span ≥ 2 distinct lemmas — no PASS may
+  be carried by a single lemma's cells. If an endpoint's frame contains
+  only 1 lemma, DIST-SPAN cannot hold and that endpoint cannot PASS.
+- **No-net-harm (binding for PASS-affirm):** K's exact cell correctness on
   the CONVERGENT `(G1∪G3)_H*` cells is not worse than any arm's by > 0.02.
 - **PASS-affirm (full) = PASS-A ∧ PASS-B ∧ C-SHUF ∧ no-net-harm.**
   Licensed sentence fixed in §3.
@@ -522,8 +623,9 @@ supersedes the 2026-07-12 bands]:
 - Anything between the PASS and FAIL bands, or a partial pass (exactly one
   of PASS-A/PASS-B), ⇒ INCONCLUSIVE at scope with the passing endpoint's
   scoped intermediate sentence (§3 ladder) and no affirmative headline.
-- **INSUFFICIENT-CLUSTERS (§2.2):** any co-primary frame with < 8 cells
-  cannot PASS; reported descriptively.
+- **[R2] Frame adequacy** is guarded by KILL-e1 alone (§2.3; ≥ 12 cells,
+  ≥ 30 items, ≥ 2 ops, ≥ 2 lemmas, evaluated pre-freeze at $0). The
+  REVISION-1 INSUFFICIENT-CLUSTERS rule is retired with the bootstrap.
 
 Both readings of every endpoint are written into the record before any
 holdout byte is scored. The secondary endpoints (K vs D-word arms;
@@ -546,7 +648,7 @@ is also the cheapest possible venue for the kernel-specificity question:
 the seam is created in the TBox, where authoring is days, not in a
 training corpus, where the same divergence costs a GPU campaign.
 
-### 2.5 [R1] The confirmatory unseen holdout H (the B3 fix) [STIPULATED — ASM-2104/2039; expectation ASM-2110]
+### 2.5 [R1] The confirmatory unseen holdout H (the B3 fix) [STIPULATED — ASM-2104/2105; expectation ASM-2110]
 
 The 2026-07-12 exploratory execution computed every outcome on the 212-item
 gloss-example census, and the 17-item pilot slice is likewise seen. A
@@ -617,7 +719,7 @@ record.
 
 ## 3. The two co-primary endpoints — what each outcome means [R1]
 
-[STIPULATED — ASM-1961 as amended by ASM-2102/2042, load-bearing]
+[STIPULATED — ASM-1961 as amended by ASM-2102/2108, load-bearing]
 
 The claim ladder, fixed before any holdout byte is scored (each rung
 licenses exactly its own sentence, never a rung above it):
@@ -630,7 +732,7 @@ licenses exactly its own sentence, never a rung above it):
 | FAIL-A | "Where per-sense typing derives closures its own lemma-collapse does not, it is not more correct; sense-splitting per se is not supported at this scope." | direct input to the sense-split lane (ASM-1884 line) |
 | KILL-e2b / FAIL-B | "Sense-structure (or nothing) suffices; kernel authoring adds no divergent-and-correct closure at this scope." | The honest **D3(b) reframe trigger**: the thesis candidate becomes grounded-content + certified-engine, with the kernel as one authoring pathway among several — a pre-registered maintainer decision input, not a designer's choice |
 | KILL-e2a | "Sense-splitting is idle at this inventory (its own collapse derives the same closures)." | extend inventory before re-asking EP-A |
-| C-SHUF fail (CONTENT-INERT) | "Deranged typing content matches the kernel; content not demonstrably load-bearing here." | verdict capped INCONCLUSIVE; design treated as dead at this inventory pending redesign |
+| C-SHUF fail (CONTENT-INERT) | "A kernel with permuted typing content is not distinguishably more correct than the kernel (randomization p > 0.05); content not demonstrably load-bearing here." | verdict capped INCONCLUSIVE; design treated as dead at this inventory pending redesign |
 | KILL-e1 | instrument cannot ask at this holdout (adequacy) | stop pre-freeze at $0; extend inventory (Stage-B senses / E2) |
 | K loses to gold outright on divergent cells | first genuine per-sense typing-unsoundness signal through a valid instrument | feeds the sense-split lane's V-B question with engine-grade (not judge-grade) evidence |
 
@@ -650,26 +752,31 @@ its own record when it comes.]
 
 1. **[R1] K-shuf derangement FAMILY (mandatory; supersedes the single
    fixed rotation, which was insufficient — B2).** The family S is the
-   EXHAUSTIVE set of composite within-lemma index-derangements of the
-   per-sense domain/range constraint-set assignment (each lemma's senses
-   URN-sorted; every sense receives another sense's constraint set;
-   `subPropertyOf` links and classDeclarations untouched; byte bulk
+   **[R2, recalibrated — ASM-2114]** FULL within-lemma permutation ORBIT
+   of the per-sense domain/range constraint-set assignment (each lemma's
+   senses URN-sorted; each permutation reassigns constraint sets within
+   lemma; `subPropertyOf` links and classDeclarations untouched; byte bulk
    preserved). From the measured inventory (break 5, find 2, friend 2,
-   make 2 senses) |S| = D(5)·D(2)³ = 44 [DERIVED; count re-verified at
-   build]. Disclosed structure: make's two senses both carry empty
-   constraint sets, so its swap is functionally idle, and three of break's
-   five senses share `range material` — but every member of S changes
-   break.interrupt's range (no other sense carries `happening`), so no
-   member compiles byte-identical to K [DERIVED; asserted mechanically at
-   build]. The binding gate C-SHUF (§2.3) requires K strictly above the
-   family maximum on typing-active confirmatory cells — a prespecified
-   quantile threshold (100th percentile) over the derangement distribution,
-   with the derangement-null empirical quantile p = 1/(|S|+1) ≈ 0.0222 ≤
-   0.05 reported. Extension rule, pinned now: if a future inventory makes
-   |S| < 19 (empirical p floor above 0.05), the family is extended with
-   pinned seeded global cross-lemma derangements to ≥ 199 members (seed
-   fixed at freeze). Cost: |S|+1 arm evaluations of a CPU-trivial pipeline
-   — minutes, $0. [STIPULATED — ASM-2103]
+   make 2 senses) the orbit is S₅ × S₂ × S₂ × S₂, |Orbit| = 120·2·2·2 =
+   **960**, and — crucially for a valid randomization test — it INCLUDES
+   the identity (K itself) and all fixed-point/tie members, so it is a
+   genuine exchangeable permutation orbit rather than a hand-picked
+   derangement subset (the REVISION-1 44-derangement family was not
+   exchangeable, and its p = 1/45 was not a calibrated randomization
+   p-value — residual R2-1). Disclosed structure, now harmless: make's two
+   empty-constraint senses make its S₂ swap idle, and break's three
+   `range material` senses give many permutations identical TBoxes — these
+   are ties, correctly counted inside the orbit rather than excluded. The
+   binding gate C-SHUF (§2.3) is the calibrated one-sided randomization
+   p = #{π ∈ Orbit : T(π) ≥ T(K)}/960 ≤ 0.05, where T is K-arm correctness
+   on the mechanically-defined typing-active `(G1∪G3)_H*` cells; K's
+   descriptive orbit rank is co-reported (no p-value is asserted from a
+   bare rank). Cost: 960 arm evaluations of a CPU-trivial pipeline —
+   minutes, $0. Extension rule, pinned: at any future inventory whose orbit
+   is < 20 (min p > 0.05), C-SHUF instead uses B = 9,999 pinned-seed
+   uniform within-lemma permutations plus the identity (Monte-Carlo
+   randomization p, seed fixed at freeze). [STIPULATED — ASM-2103 as
+   superseded by ASM-2114]
 2. **Kernel-as-text: structurally N/A** (no prompt surface exists);
    recorded with reason per protocol §2; the shuffle + source-projection
    arms carry the content-vs-structure burden here. [STIPULATED]
@@ -705,7 +812,7 @@ its own record when it comes.]
    novel cells only (§2.5 `H*`), and inference is at cell level (§2.2), so
    already-inferable observations can neither pad n nor masquerade as
    confirmation. Full-H numbers are co-reported, descriptively labelled.
-   [STIPULATED — ASM-2104/2040]
+   [STIPULATED — ASM-2104/2106]
 
 ---
 
@@ -725,7 +832,7 @@ lemmas only — never on H (ASM-2111).** Instantiation
 |---|---|
 | **PC-1 no degenerate arm** | no baseline at 0 or 1.0 on the pilot divergent cells (K at 1.0 is certificate-normal and disclosed, not a failure — the contrast headroom lives in the baselines); refusal rate bounded on every arm except where gold IS refusal |
 | **PC-2′ separation non-vacuous [R1]** | `|Div(K, D-word-dom)| ≥ 6` and `|Div(K, B-wn)| ≥ 3` at pilot scale, spanning ≥ 2 closure ops and ≥ 2 lemmas, **plus the EP-A existence check: `|Div_dec(K, K-lemma-x) ∩ (G1∪G3)| ≥ 3` on the exploratory frame for at least one x ∈ {dom, union}** — if K's own collapses cannot diverge from K even exploratorily, EP-A is stillborn and the redesign stops pre-freeze at $0; the pilot divergence certificate is committed — **this is the non-vacuous-divergence existence proof, the exact anti-knull gate** |
-| **PC-3′ control family non-degenerate [R1]** | the FULL derangement family compiles; |S| equals the build-derived count (44 at this inventory); every member's compiled module differs byte-wise from K's; family scores computable end-to-end on the pilot slice; the single-rotation ≥-half check is retired (its job now belongs to the binding C-SHUF gate at the registered run); D-union not row-identical to D-dom |
+| **PC-3′ control orbit non-degenerate [R1, R2-amended]** | the FULL within-lemma permutation orbit compiles; |Orbit| equals the build-derived count (**960** = S₅·S₂³ at this inventory, identity and ties included); the identity member reproduces K byte-for-byte and at least one member differs byte-wise from K; orbit scores and the randomization p = #{π: T(π) ≥ T(K)}/960 computable end-to-end on the pilot slice; the single-rotation ≥-half check is retired (its job now belongs to the binding C-SHUF randomization p ≤ 0.05 gate at the registered run); D-union not row-identical to D-dom |
 | **PC-4′ gate teeth [R1]** | planted mistyped axiom (range flip on one sense) ⇒ scorer + divergence certificate must fire on the predicted cells and nothing else (CF-2-style); poisoned-gold canary ⇒ all arm compilations (including K-lemma and derangement-family compilers) byte-identical under gold perturbation; a planted compiler gold-read must trip the canary; **sense-tag insensitivity canary: perturbing the item's gold sense tag leaves K-lemma and D-word compiled worlds byte-identical AND changes the K / B-wn relation URN on remapped items** |
 | **PC-5 elicitable gold** | the mechanical item extractor yields well-formed items with unique gold on ≥ 95% of candidate occurrences (rest excluded with logged reasons); the oracle arm (gold verdicts injected through the pinned scorer) scores 1.0 |
 | **PC-6 holdout machinery on decoys [R1]** | the SemCor pipeline (pin → sense-key mapping → extraction → gold → compile → engine → score) runs end-to-end on the three pinned decoy lemmas (draw, hold, cut — in neither Stage-A nor the kernel-v0 panel); decoy outcomes quarantined, touching no endpoint; mapping-failure and exclusion reasons logged |
@@ -746,7 +853,7 @@ PILOT-PASS-WITH-FLAGS, printed by the freeze tool.
 
 | stage | content | cost | gate |
 |---|---|---|---|
-| **E0 — decisive first increment [R1-amended]** | `axioms-engineinf-v0` module (built, pinned); mechanical item extractor over WN31 gloss examples (built; 212 items measured, now EXPLORATORY-ONLY); **[R1] + K-lemma-dom/-union collapse compiler; + exhaustive derangement family (44 members); + SemCor pin (pulled forward from E1) and holdout extractor → items-H/gold-H pinned without outcomes; + cell-level cluster-bootstrap analysis; 7 arms + oracle + family; H divergence certificates; re-run blocking pilot (PC-1..PC-7); freeze; registered run scores H; verdict-gen** | **$0 model spend, CPU-only (2-core box fine, engine closes 958 worlds in <2 s [MEASURED certificate]); +1–2 agent-days over the original 2–4 band [STIPULATED — ASM-2112]** | re-run pilot PASS → KILL-e1 adequacy holds → freeze → run |
+| **E0 — decisive first increment [R1-amended]** | `axioms-engineinf-v0` module (built, pinned); mechanical item extractor over WN31 gloss examples (built; 212 items measured, now EXPLORATORY-ONLY); **[R1/R2] + K-lemma-dom/-union collapse compiler; + full 960-member within-lemma permutation orbit (C-SHUF randomization null); + SemCor pin (pulled forward from E1) and holdout extractor → items-H/gold-H pinned without outcomes; + cell-level EXACT-CENSUS analysis (no bootstrap); 7 arms + oracle + orbit; H divergence certificates; re-run blocking pilot (PC-1..PC-7); freeze; registered run scores H; verdict-gen** | **$0 model spend, CPU-only (2-core box fine, engine closes 958 worlds in <2 s [MEASURED certificate]); +1–2 agent-days over the original 2–4 band [STIPULATED — ASM-2112]** | re-run pilot PASS → KILL-e1 adequacy holds → freeze → run |
 | **E1 — instrument upgrades [R1-amended]** | VerbNet selectional-restriction pin (network fetch + sha-pin; fallback: stay on WN-only gold, disclosed); ~30-item human spot-audit of G3; grade-W items with the **R-DISAMB** engine extension (typed sense-elimination as a closure rule — engine version change: closed-inventory addition, twin+sparq-reason conformance rerun, CF-gate mini-certificate before any use). (SemCor sentence pin moved into E0 by REVISION-1 — the confirmatory holdout needs it.) | $0 model spend + ~1h human; 2–3 agent-days | E0 verdict lands; R-DISAMB conformance 100% |
 | **E2 — Stage-B scale-out** | the 24 polysemous g2-panel words (~60–90 senses per the sense-split design), full re-run; the census frame stops being 4 lemmas | 1–2 agent-weeks authoring (dominated by explication authoring, shared with sense-split Stage B — the marginal ENGINE-INF cost is the axiom module + items) | E0 PASS-affirm or maintainer direction after deflate |
 | **E3 — named follow-on, NOT this record** | divergent inventory ⇒ ASM-1851 re-activation: a rules-2-shaped train-time campaign where kernel vs dictionary corpora genuinely differ | ~$7–18 GPU (rules-2 anchors) | its own record, own pilot, maintainer authorization |
@@ -817,11 +924,19 @@ pre-registered with verbatim sentences; forward claims name their
 resolution path (pilot check, pre-freeze extraction count, E1 pin, Stage-B
 build). The engine, encoder pin, kernel-v0/v1 bytes, and all frozen records
 are untouched. Assumption blocks
-`docs/next/design/asm-engineinf-1950-1969.json` (original) and
-`docs/next/design/asm-engineinf-r1-2034-2049.json` (REVISION-1; owner
-designer-4, tags MEASURED | STIPULATED | EXTRAPOLATION, range verified free
-at emission); central registration is the coordinator's, with commit.
-REVISION-1 states no feasibility conclusion: the exploratory numbers are
+`docs/next/design/asm-engineinf-1950-1969.json` (original),
+`docs/next/design/asm-engineinf-r1-2034-2049.json` (REVISION-1, ids
+ASM-2100..2112 after the coordinator's +66 remap), and
+`docs/next/design/asm-engineinf-r2-2113-2117.json` (REVISION-2, ids
+ASM-2113..2117; owner designer-4, tags MEASURED | STIPULATED |
+EXTRAPOLATION, range 2113..2117 verified free at emission — max ASM used
+anywhere is 2112); central registration is the coordinator's, with commit.
+**[R2] REVISION-2 changes only the four residuals in §R2 (C-SHUF null
+recalibration, finite-census inference, the G4 scorer reconciliation, and
+ASM-id normalization); it does NOT re-open the cleared Blocker-1 matched
+pair or the narrowed exploratory sentence, and the `engineinf_lib.py`
+scorer edit means its pinned hash MUST be recomputed at re-pin.** Neither
+revision states a feasibility conclusion: the exploratory numbers are
 licensed only through the §R1 narrowed sentence, and the registered
 analysis remains INCONCLUSIVE until the confirmatory holdout runs. No git
 actions in this pass (design-role constraint); commit + push is the session
