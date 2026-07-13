@@ -1,15 +1,23 @@
 {
- "asm_block": "ASM-1950..1967 (design) + ASM-1990..2009 (build)",
+ "asm_block": "ASM-1950..1967 (design) + ASM-1990..2009 (build) + ASM-2100..2112 (R1) + ASM-2113..2117 (R2) + ASM-2120..2121 (R3)",
  "checks": {
-  "controls_nondegenerate": {
+  "control_orbit_nondegenerate": {
    "evidence": {
-    "denominator": "typing-active Div(K,D-word-dom) slice cells (K non-refusing) \u2014 refusal cells are shuffle-invariant by construction (ASM-2004)",
-    "div_cells_active_n": 9,
+    "a_union_invariant_under_relabeled_enumeration": true,
+    "a_union_slice_cells": [
+     "urn:lexical-wn31:v-00259551|abst|urn:kot-engineinf:cls:wn-something|anomaly",
+     "urn:lexical-wn31:v-00259551|phys|urn:kot-engineinf:cls:wn-something|attested",
+     "urn:lexical-wn31:v-00334996|phys|urn:kot-engineinf:cls:wn-something|attested",
+     "urn:lexical-wn31:v-02290474|phys|urn:kot-engineinf:cls:wn-something|attested"
+    ],
+    "calibrated_p_computable": true,
     "dunion_row_identical_to_ddom": false,
-    "kshuf_differs_frac_of_div_cells": 0.5555555555555556,
-    "kshuf_error_signature_ok": true,
-    "note": "deterministic channel => margins are exact (noise 0)",
-    "replicate_noise": 0.0
+    "expected_factorial_product": 960,
+    "identity_reproduces_k": true,
+    "note": "ASM-2114 orbit + ASM-2120 A_union; the pilot p is mechanics validation on the slice, never campaign evidence (ASM-1835); the retired single-rotation check is superseded",
+    "orbit_members": 960,
+    "pilot_slice_orbit_p_mechanics_only": 0.15,
+    "some_member_differs": true
    },
    "pass": true
   },
@@ -24,8 +32,8 @@
   },
   "gate_teeth": {
    "evidence": {
-    "arm_modules_sha_unchanged": "f50f557c2e53552c3587942ed81214ac58f05dbecc515ab51c9803390524fe1f",
-    "kernel_module_provenance_g2_independent": true,
+    "arm_modules_sha_unchanged": "ff4f6e276166a8b3fc8db1093f24d82745a2a45ba7b30a1e3c4f7cd58782fb6e",
+    "kernel_and_klemma_provenance_g2_independent": true,
     "planted_axiom_flip_changed_items": [
      "ei-break-anomaly-00259551-x-cycle",
      "ei-break-anomaly-00259551-x-law",
@@ -43,7 +51,58 @@
      "urn:kot-engineinf:cls:words"
     ],
     "planted_sense": "urn:kernel-v1:break.malfunction",
-    "poisoned_gold_canary_silent_on_real_compiler": true
+    "poisoned_gold_canary_silent_on_arm_module_compilers": true,
+    "poisoned_gold_canary_silent_on_real_compiler": true,
+    "sense_tag_canary_k_bwn_relations_change": true,
+    "sense_tag_canary_lemma_arms_payload_invariant": true
+   },
+   "pass": true
+  },
+  "holdout_custody": {
+   "evidence": {
+    "contamination": [],
+    "gold_h_sha256": "739d0ab68506b3ef39f86ae80d8f4b5f816bad668125d0c269ee2a5839e0bc62",
+    "items_h_gold_h_pinned": true,
+    "items_h_sha256": "b2cf8388941df7f320090c72bffaf4d5be6285a9b3945eb882349a347dff415f",
+    "kill_e1_count": {
+     "fired": true,
+     "lemmas_spanned": [
+      "break",
+      "find",
+      "friend",
+      "make"
+     ],
+     "matches_extractor_record": true,
+     "n_cells": 17,
+     "n_items": 91,
+     "ops_spanned": [
+      "O1"
+     ]
+    },
+    "note": "KILL-e1 is a freeze gate reported through the pilot: custody PASSES here even when the count fires \u2014 the firing blocks the FREEZE, per ASM-2105",
+    "results_scan_clean_of_h_ids": true,
+    "runner_refuses_on_planted_h_row": true,
+    "runner_refuses_without_freeze_marker": true
+   },
+   "pass": true
+  },
+  "holdout_machinery_decoys": {
+   "evidence": {
+    "decoy_exclusions_logged": 213,
+    "decoy_items_run": 325,
+    "decoy_lemma_coverage": [
+     "cut",
+     "draw",
+     "hold"
+    ],
+    "decoy_lemmas": [
+     "cut",
+     "draw",
+     "hold"
+    ],
+    "decoys_outside_stage_a_and_kernel_v0_panel": true,
+    "k_fail_closed_on_all_decoys": true,
+    "quarantine": "results/decoy/decoy-rows.jsonl (endpoint-inert)"
    },
    "pass": true
   },
@@ -54,14 +113,16 @@
      "D-word-dom": 0.375,
      "D-word-union": 0.8125,
      "K": 0.9375,
-     "K-shuf": 0.625
+     "K-lemma-dom": 0.375,
+     "K-lemma-union": 0.75
     },
     "arm_scores_slice": {
      "B-wn": 0.7058823529411765,
      "D-word-dom": 0.35294117647058826,
      "D-word-union": 0.7647058823529411,
      "K": 0.8823529411764706,
-     "K-shuf": 0.5882352941176471
+     "K-lemma-dom": 0.35294117647058826,
+     "K-lemma-union": 0.7058823529411765
     },
     "note": "gate = whole-slice floor 0<score<1 per baseline + refusal cap (ASM-2003); K at/near 1.0 is certificate-normal and disclosed, not a failure",
     "refusal_rates_non_g4": {
@@ -69,7 +130,8 @@
      "D-word-dom": 0.0,
      "D-word-union": 0.0,
      "K": 0.0,
-     "K-shuf": 0.0
+     "K-lemma-dom": 0.0,
+     "K-lemma-union": 0.0
     }
    },
    "pass": true
@@ -112,13 +174,17 @@
      "ei-make-refusal-00012260-01"
     ],
     "div_k_dworddom_n": 16,
+    "epa_existence_div_dec_g1g3_full_frame": {
+     "K-lemma-dom": 20,
+     "K-lemma-union": 25
+    },
     "lemmas_spanned": [
      "break",
      "find",
      "friend",
      "make"
     ],
-    "note": "the non-vacuous-divergence existence proof \u2014 the anti-knull gate (ASM-1851/1939(a) lineage)",
+    "note": "the non-vacuous-divergence existence proof \u2014 the anti-knull gate (ASM-1851/1939(a) lineage); PC-2' adds the ASM-2111 EP-A existence check",
     "ops_spanned": [
      "O1",
      "O2",
@@ -132,21 +198,25 @@
   "usd_cap": 2.0,
   "worst_case_usd_planned": 0.0
  },
- "date": "2026-07-12T00:00:00Z",
- "determinism_sha256": "314e5568a112e0f5d3612898fbd50604dc42a56b7dc94f80324f8b1bdc1b96ff",
- "emitted_by": "writer-4",
+ "date": "2026-07-13T00:00:00Z",
+ "determinism_sha256": "ebcd3aec08706e2063ae8233fab95a93e51f22c33ec07770199fe2c1f581e9db",
+ "emitted_by": "writer-5",
  "experiment": "engine-inference",
  "flags": [
   {
-   "detail": "mandatory kernel-as-text control is structurally N/A: no LLM/host consumer exists anywhere in the instrument \u2014 no prompt surface for the text to enter (design \u00a71.3/\u00a74.2, ASM-1963); the shuffle + source-projection arms carry the content-vs-structure burden",
+   "detail": "mandatory kernel-as-text control is structurally N/A: no LLM/host consumer exists anywhere in the instrument \u2014 no prompt surface for the text to enter (design \u00a71.3/\u00a74.2, ASM-1963); the matched K-lemma pair + the permutation orbit carry the content-vs-structure burden",
    "name": "kernel_as_text_na"
+  },
+  {
+   "detail": "the pinned holdout's binding frame (G1\u222aG3)_H* spans ops ['O1'] (< 2): the H2 cross-pair leg yields no NOVEL anomaly cell under the pre-registered unanimity rule on real SemCor objects. Per ASM-2105 the freeze DOES NOT PROCEED; inventory/construction extension first. This is a freeze-gate fact reported via the pilot, not a pilot-validity failure.",
+   "name": "kill_e1_fired_pre_freeze"
   }
  ],
  "mode": "REAL",
  "operating_point": {
-  "description": "certified rules-1 twin engine (Python), 5 arms + oracle, kot-axiom/1 modules, WN31-derived deterministic gold, grade-S items; CPU-only, $0 model spend",
+  "description": "certified rules-1 twin engine (Python), 6 scored arms + oracle + 960-member C-SHUF orbit, kot-axiom/1 modules, WN31+SemCor-derived deterministic gold, grade-S items; CPU-only, $0 model spend",
   "n_pilot": {
-   "decisions": 102,
+   "decisions": 119,
    "items": 17
   },
   "pins": {
@@ -154,26 +224,31 @@
     "_recipe": "kot-corpus-hash/1: digest = sha256 over the UTF-8 concatenation of one line per regular file under data/<corpus>/ (recursive; symlinks and directories excluded), each line '<sha256-of-file-bytes-hex>  <relpath>\\n' with exactly two spaces, relpath POSIX-style ('/'-separated) relative to data/<corpus>/, lines sorted by the UTF-8 byte order of relpath; reference implementation tools/registry/corpus-pin.py",
     "axioms-engineinf-v0": "08e2042157ae8c43800b4ee84de263c10d844defbdf8e7d56bc88f3e189a13f2",
     "kernel-v1": "371241a3c1685082896ff10211352744bf9ade3ef5fd521d4e564d2be9ad3624",
-    "lexical-wn31": "5e76def82e38221a3b7deb3b39fd60adbd1e87b3b9905dd0055739b47a492799"
+    "lexical-wn31": "5e76def82e38221a3b7deb3b39fd60adbd1e87b3b9905dd0055739b47a492799",
+    "semcor30": "035382c6e5d2673afc57310a50d292bc864fcf4ead5ab345fa7fe88a1ff7ff60"
    },
-   "harness_manifest": "b53a3a61697ca66635da2a6c2dab1aa942933efc0c28b9941536ef7caaeb981f"
+   "harness_manifest": "20b52456c6272aaed63634ca77d3c68d099ec12941e2ca621695ab7c8cf122b4",
+   "holdout_manifest": "c4009e98e09c4b6ad24724725b5f88629a6c3af9df5e59e96f1b7914e9f96b64",
+   "orbit_manifest": "04c0fcdcb536f81263b986fa260814084418550db9b3ae469ef065d9f0bb6b67"
   },
   "seed": null
  },
  "records_file": "run-records-instrpilot.jsonl",
- "records_sha256": "7f678d40f7515889a5ef751f7530717abe7b33c0e73c39480518be1937c82186",
+ "records_sha256": "cde7e25e215407d5e570947e8bb4fd4388b69f5a806b9c629217679cd86e8b86",
+ "revision": "R1/R2/R3 re-run (ASM-2111; supersedes the 2026-07-12 pilot ASM-2002 for freeze purposes)",
  "runner": {
   "path": "poc/engine-inference/instr_pilot.py",
-  "sha256": "dd54bd7ca1298973cad6c86766baf8d5ec5d4035031785f6a36c8bcdb6e78c67"
+  "sha256": "11dbee91057b36b3d194976779e5201d82de4c8fdcfb1519f9c17e828ac948a4"
  },
  "schema_version": "kot-pilot/1",
  "thresholds_predeclared": {
   "pc1_refusal_cap_non_g4": 0.5,
   "pc2_min_div_bwn": 3,
   "pc2_min_div_dworddom": 6,
+  "pc2_min_epa_div_items_full_frame": 3,
   "pc2_min_lemmas": 2,
   "pc2_min_ops": 2,
-  "pc3_min_kshuf_diff_frac": 0.5,
+  "pc3_orbit_expected": 960,
   "pc5_min_yield": 0.95,
   "slice_per_group": 2,
   "usd_cap_note": "default $2 cap; planned worst case $0 (CPU)"

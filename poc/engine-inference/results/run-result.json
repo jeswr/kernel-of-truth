@@ -1,6 +1,6 @@
 {
  "determinism": {
-  "decision_payload_sha256": "6a2d9561608cd1570c68629c18c3462218c22c9e96ca74ab151e05e8cffd5e6a",
+  "decision_payload_sha256": "67d1c74a699075da68d829db0905dc2560764c7f2b35e0d7abe0ee221b3b135a",
   "double_run_sha_match": true
  },
  "divergence_counts": {
@@ -16,10 +16,20 @@
    "decision": 181,
    "full": 194
   },
-  "K-shuf": {
-   "decision": 17,
-   "full": 17
+  "K-lemma-dom": {
+   "decision": 176,
+   "full": 176
+  },
+  "K-lemma-union": {
+   "decision": 181,
+   "full": 194
   }
+ },
+ "n_g1g3_cells_frame": 19,
+ "orbit": {
+  "n_frame_cells": 19,
+  "n_members": 960,
+  "n_rows": 18240
  },
  "per_arm": {
   "B-wn": {
@@ -50,12 +60,19 @@
    "n": 212,
    "refusals": 156
   },
-  "K-shuf": {
-   "anomalous": 22,
-   "correct": 185,
-   "honesty_penalty_sum": 27.0,
+  "K-lemma-dom": {
+   "anomalous": 59,
+   "correct": 101,
+   "honesty_penalty_sum": 111.0,
    "n": 212,
-   "refusals": 156
+   "refusals": 0
+  },
+  "K-lemma-union": {
+   "anomalous": 1,
+   "correct": 176,
+   "honesty_penalty_sum": 36.0,
+   "n": 212,
+   "refusals": 0
   },
   "oracle": {
    "correct": 212,
@@ -63,33 +80,39 @@
   }
  },
  "pins": {
-  "arm_manifest": "f50f557c2e53552c3587942ed81214ac58f05dbecc515ab51c9803390524fe1f",
-  "divergence_certificate": "a6f80614f1ec58c65079a94b3d7da9abd4c9862108359720209da641f7be0225",
-  "engineinf_lib_py": "7c0e3c47fc39af239774b518a98c7e767b9df7cd0a211a6528ae9d604061a0d9",
-  "engineinf_runner_py": "c4417cf43c5c3568af93be94e5c0949ae3cbafc5996f8a4ad4a0aa1ada2d8b43",
+  "arm_manifest": "ff4f6e276166a8b3fc8db1093f24d82745a2a45ba7b30a1e3c4f7cd58782fb6e",
+  "divergence_certificate": "735aa2cad2facb98ad9fcc9a6862a6060b79ee1a6cb113dba46a583de733ed99",
+  "engineinf_lib_py": "198caf5200add774fc880ff24155f041ff428ea022afdf3a2e70f466d0efe91d",
+  "engineinf_runner_py": "510d2a496a7f91625eea960ca5acb5eb6620950df6f14482b50a3d6b98a629e6",
+  "engineinf_wn_py": "f0f7e610122fe485898470856cf9dddec2ec0321d1d215645f2108319a78f48a",
   "gold_json": "eefc98474d19e66f87d01529dbad36322c9b0b9d068751142f37fa8c33470dfa",
   "items_json": "d4fdbd6b13de4e824fe176cd757d7c694185e572e40eaca120c71bfcab5de8bc",
   "module_manifest": "2d7dc3617669aee35688b9bd258946ea9bfe654c2ff48c0979e49a7d07010463",
-  "rows_jsonl": "8a21d5a31b8b114d913c1cffe28f164878331d411b0a38c47b166c4859285154",
+  "orbit_manifest": "04c0fcdcb536f81263b986fa260814084418550db9b3ae469ef065d9f0bb6b67",
+  "orbit_rows_jsonl": "3bfcaf0320c364991f632d7559396167fb75905e19217d545768f92dd6448128",
+  "rows_jsonl": "2dc511a7576d8709217a559fc1f775a7cf5ca44ffd35f1e7def386a5b1ad20c3",
   "twin_engine_py": "399fcd8d946b585e6a73317238e049602ae5e86aef7c4ed1b0243ff887e8dea8"
  },
  "plan": {
   "arms": [
    "K",
-   "K-shuf",
+   "K-lemma-dom",
+   "K-lemma-union",
    "D-word-dom",
    "D-word-union",
    "B-wn",
    "oracle"
   ],
   "channel": "DETERMINISTIC (pinned bytes -> certified twin engine -> string-equality scoring vs third-party-derived gold); no LLM, no host, no judge, no network",
-  "compute": "CPU-only, single process, nice-appropriate; the rules-1 certificate closed 958 worlds in <2s on this box \u2014 this run is the same order",
-  "decisions": 2544,
+  "compute": "CPU-only, single process, nice-appropriate; the rules-1 certificate closed 958 worlds in <2s on this box \u2014 the orbit adds ~960 x |cells| cached-TBox closures",
+  "decisions": 2968,
   "experiment": "engine-inference",
+  "frame": "seen",
   "items": 212,
+  "orbit_members": 960,
   "worst_case_usd": 0.0
  },
- "schema": "kot-engineinf-run/1",
- "status": "PRE-FREEZE EXPLORATORY execution of the pinned deterministic harness (mock/pilot posture). NO feasibility conclusion is stated; verdicts belong to verdict-gen over the FROZEN record's registered run.",
- "timing_seconds": 1.798
+ "schema": "kot-engineinf-run/2",
+ "status": "PRE-FREEZE EXPLORATORY execution of the pinned deterministic harness on the SEEN frame (exploratory-forever per ASM-2104; mechanics validation only). NO feasibility conclusion is stated; verdicts belong to verdict-gen over the FROZEN record's registered holdout run.",
+ "timing_seconds": 2.597
 }
