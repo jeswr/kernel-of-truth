@@ -1,0 +1,95 @@
+{
+  "id": "urn:kernel-v1-pilot:continuousness",
+  "label": "continuousness",
+  "status": "pilot",
+  "pattern": "WhenTrue; long duration + no interrupting after-gap",
+  "gloss": "The quality of a thing that goes on without break or pause, continuing as one unbroken whole through time rather than stopping and starting.",
+  "notes": "AST adequacy: faithful — happens for a long time; there is no later time at which it does not happen — a clean reading of unbroken continuity.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "op",
+            "op": "AFTER",
+            "args": [
+              {
+                "kind": "sp",
+                "det": "SOME",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "WHEN~TIME"
+                },
+                "bind": 2
+              },
+              {
+                "type": "op",
+                "op": "NOT",
+                "args": [
+                  {
+                    "type": "pred",
+                    "pred": "HAPPEN",
+                    "roles": {
+                      "undergoer": {
+                        "kind": "ref",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-05059738",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "continuousness",
+      "ceaselessness",
+      "incessancy",
+      "incessantness"
+    ],
+    "definition_mode": "authored-fresh",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the quality of something that continues without end or interruption",
+    "source_gloss_sha256": "991fddcf85c93f60c010e1b4749b1f0822ca1fdf40a4c1295f0e2f59dac57265",
+    "gloss_sha256": "f95a8e0b080ad4f0dcbc2191faac888e4b61f3f9a082249ea770e256d749ab48",
+    "m_test_screen": 50,
+    "bar_self_assessment": "meets",
+    "bar_note": "WN gloss ('something that continues without end or interruption') is circular; authored fresh around unbroken persistence.",
+    "benchmark_blind": true
+  }
+}

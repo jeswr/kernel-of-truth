@@ -1,0 +1,126 @@
+{
+  "id": "urn:kernel-v1-pilot:ransom",
+  "label": "ransom",
+  "status": "pilot",
+  "pattern": "InstanceSchema; payment-conditioned release",
+  "gloss": "The act of securing the release of a captive by paying the price demanded for it; also the sum so paid, or the freeing thereby obtained.",
+  "notes": "AST adequacy: lossy — 'pays the price' reduces to 'does something with a good thing'; captivity reduces to a captor's DON'T-WANT-to-go.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 4,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMEONE"
+            },
+            "bind": 4
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "MOVE",
+              "roles": {
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMEONE"
+                },
+                "bind": 2
+              },
+              "undergoer": {
+                "kind": "sp",
+                "mods": [
+                  {
+                    "mod": "GOOD"
+                  }
+                ],
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                },
+                "bind": 3
+              }
+            }
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "MOVE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-00097671",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "ransom"
+    ],
+    "definition_mode": "authored-fresh",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the act of freeing from captivity or punishment",
+    "source_gloss_sha256": "ef96d3eda9307e0202965a4e7b44d2497e14bb267b51181b5dea9ba34a328893",
+    "gloss_sha256": "539eaa531f6188983b6c0f5dfa74f81d275645c25c2a95f650cbaa7610b07975",
+    "m_test_screen": 8,
+    "bar_self_assessment": "borderline",
+    "bar_note": "the WN synset gloss ('the act of freeing from captivity or punishment') OMITS the defining payment; authoring it in restores the true intension but arguably narrows the synset — an alignment call the human reviewer must make.",
+    "benchmark_blind": true
+  }
+}

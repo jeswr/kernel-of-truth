@@ -1,0 +1,120 @@
+{
+  "id": "urn:kernel-v1-pilot:exit",
+  "label": "exit",
+  "status": "pilot",
+  "pattern": "InstanceSchema; INSIDE polarity across a MOVE",
+  "gloss": "The act of going out of a place; a movement by which someone or something passes from inside an enclosure or space to a position outside it.",
+  "notes": "AST adequacy: faithful — inside before, moves, not inside after — an exact NSM reading of going out.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "locus": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "INSIDE"
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "MOVE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "BE-SOMEWHERE",
+                "roles": {
+                  "undergoer": {
+                    "kind": "ref",
+                    "index": 1
+                  },
+                  "locus": {
+                    "kind": "ref",
+                    "index": 2
+                  },
+                  "manner": {
+                    "kind": "prime",
+                    "prime": "INSIDE"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-00059339",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "exit"
+    ],
+    "definition_mode": "light-edit",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the act of going out",
+    "source_gloss_sha256": "017d46ca7e911f3cdd01e56a531a97767e86bab86c94c749c557b3bf0ebc9f84",
+    "gloss_sha256": "a22e4dbf3ed6b219b0a23e264abd60898be885004ca10931868c7c9bac9f0688",
+    "m_test_screen": 11,
+    "bar_self_assessment": "meets",
+    "bar_note": "WN gloss ('the act of going out') is non-circular but too terse; expanded to state the inside-to-outside movement.",
+    "benchmark_blind": true
+  }
+}

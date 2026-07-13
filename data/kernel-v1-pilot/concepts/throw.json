@@ -1,0 +1,124 @@
+{
+  "id": "urn:kernel-v1-pilot:throw",
+  "label": "throw",
+  "status": "pilot",
+  "pattern": "InstanceSchema; body-part instrument + resulting far-motion",
+  "gloss": "The act of sending something through the air by a rapid movement of the arm and hand, releasing it so that it travels away from the thrower.",
+  "notes": "AST adequacy: faithful — acts on a thing with a body-part so that it moves far — a good primitive reading of propelling.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          },
+          "instrument": {
+            "kind": "sp",
+            "head": {
+              "kind": "partFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "BODY"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "BECAUSE",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "DO",
+            "roles": {
+              "agent": {
+                "kind": "ref",
+                "index": 1
+              },
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "MOVE",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "manner": {
+                "kind": "prime",
+                "prime": "FAR"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "ref",
+            "index": 1
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "FAR"
+          }
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-00105359",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "throw"
+    ],
+    "definition_mode": "light-edit",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the act of throwing (propelling something with a rapid movement of the arm and wrist); \"the catcher made a good throw to second base\"",
+    "source_gloss_sha256": "33fd92e9164d5ef2f539564cb973aceabd31cd6d04e784d9e2aaa3a83815454d",
+    "gloss_sha256": "906e30a99e761b24fe17b971d2194298bb7941eb56cc64aced0040cf13fabc45",
+    "m_test_screen": 28,
+    "bar_self_assessment": "meets",
+    "bar_note": "WN parenthetical ('propelling something with a rapid movement of the arm and wrist') is the real definition; led with it and dropped the circular 'the act of throwing'.",
+    "benchmark_blind": true
+  }
+}

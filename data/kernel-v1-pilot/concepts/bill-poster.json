@@ -1,0 +1,117 @@
+{
+  "id": "urn:kernel-v1-pilot:bill-poster",
+  "label": "bill poster",
+  "status": "pilot",
+  "pattern": "InstanceSchema; place-artefacts-for-public-view",
+  "gloss": "Someone whose work is to fix printed notices, posters, or placards onto walls, boards, and other public surfaces, so that many people will see them.",
+  "notes": "AST adequacy: lossy — 'bills with words on walls' reduce to 'puts many things onto big things where people can see them'.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "BE-SOMEWHERE",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 2
+          },
+          "locus": {
+            "kind": "sp",
+            "mods": [
+              {
+                "mod": "BIG"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 3
+          },
+          "manner": {
+            "kind": "prime",
+            "prime": "ABOVE"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "CAN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "SEE",
+            "roles": {
+              "experiencer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                }
+              },
+              "stimulus": {
+                "kind": "ref",
+                "index": 2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-09873916",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "bill poster",
+      "poster",
+      "bill sticker"
+    ],
+    "definition_mode": "light-edit",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "someone who pastes up bills or placards on walls or billboards",
+    "source_gloss_sha256": "7323e09c1e4a33a53fac8d2dea4068559633b15785052a258a3dda211b5a72ec",
+    "gloss_sha256": "866cc19c32a3f469af7c9e310075b5a0868d7fedfc662bed9dc3e590251d90a5",
+    "m_test_screen": 42,
+    "bar_self_assessment": "borderline",
+    "bar_note": "clean WN gloss, but the AST cannot carry 'printed notices / words', so the reviewer must judge the prose alone; a reviewer expecting AST-prose parity may fail it.",
+    "benchmark_blind": true
+  }
+}

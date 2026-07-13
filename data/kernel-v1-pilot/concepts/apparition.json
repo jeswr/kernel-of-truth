@@ -1,0 +1,157 @@
+{
+  "id": "urn:kernel-v1-pilot:apparition",
+  "label": "apparition",
+  "status": "pilot",
+  "pattern": "InstanceSchema; appearance + MOMENT + prior not-knowing",
+  "gloss": "An occasion on which something comes suddenly into view when no one expected to see it, so that those present are taken by surprise; a sudden, unlooked-for becoming-visible.",
+  "notes": "AST adequacy: lossy — 'surprise' rendered as 'people did not know they would see it'; suddenness rendered as MOMENT duration.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      },
+      {
+        "index": 3,
+        "refKind": "TimeRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "HAPPEN",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "time": {
+            "kind": "sp",
+            "det": "SOME",
+            "head": {
+              "kind": "primeHead",
+              "prime": "WHEN~TIME"
+            },
+            "bind": 3
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "MOMENT"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "AFTER",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "CAN",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "SEE",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "stimulus": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    },
+                    "bind": 2
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "op",
+        "op": "BEFORE",
+        "args": [
+          {
+            "kind": "ref",
+            "index": 3
+          },
+          {
+            "type": "op",
+            "op": "NOT",
+            "args": [
+              {
+                "type": "pred",
+                "pred": "KNOW",
+                "roles": {
+                  "experiencer": {
+                    "kind": "sp",
+                    "quant": "MUCH~MANY",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "PEOPLE"
+                    }
+                  },
+                  "complement": {
+                    "kind": "clause",
+                    "clause": {
+                      "type": "pred",
+                      "pred": "SEE",
+                      "roles": {
+                        "experiencer": {
+                          "kind": "sp",
+                          "quant": "MUCH~MANY",
+                          "head": {
+                            "kind": "primeHead",
+                            "prime": "PEOPLE"
+                          }
+                        },
+                        "stimulus": {
+                          "kind": "ref",
+                          "index": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-00051304",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "apparition"
+    ],
+    "definition_mode": "authored-fresh",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "an act of appearing or becoming visible unexpectedly; \"natives were amazed at the apparition of this white stranger\"",
+    "source_gloss_sha256": "4bb13605f7cc2a063196483326e458441f46f001d58e5183db3056c63b8bbdfe",
+    "gloss_sha256": "2b5fd85a9a21cca2fac0659ce3a202dfdd8ff358f00fff4e8e69c81f6e2dd70a",
+    "m_test_screen": 81,
+    "bar_self_assessment": "borderline",
+    "bar_note": "genuinely distinct from 'appearance' only by the sudden/unexpected differentia; deliberately near-synonymous to probe whether the reviewer discriminates the two senses.",
+    "benchmark_blind": true
+  }
+}

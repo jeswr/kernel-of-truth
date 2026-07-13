@@ -1,0 +1,98 @@
+{
+  "id": "urn:kernel-v1-pilot:changelessness",
+  "label": "changelessness",
+  "status": "pilot",
+  "pattern": "WhenTrue; THE-SAME / OTHER contrast over A-LONG-TIME",
+  "gloss": "The quality of remaining the same through time, such that a thing stays as it is and does not come to be other than it was.",
+  "notes": "AST adequacy: lossy — 'does not change' rendered as 'for a long time is the same kind of thing; is not another kind of thing'.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "BE-SPEC",
+        "roles": {
+          "undergoer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "sp",
+            "det": "THE-SAME",
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "sp",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "SOMETHING~THING"
+                }
+              }
+            }
+          },
+          "duration": {
+            "kind": "prime",
+            "prime": "A-LONG-TIME"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SPEC",
+            "roles": {
+              "undergoer": {
+                "kind": "ref",
+                "index": 1
+              },
+              "attribute": {
+                "kind": "sp",
+                "det": "OTHER~ELSE~ANOTHER",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "sp",
+                    "head": {
+                      "kind": "primeHead",
+                      "prime": "SOMETHING~THING"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-04745174",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "changelessness",
+      "unchangeability",
+      "unchangeableness",
+      "unchangingness"
+    ],
+    "definition_mode": "authored-fresh",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the quality of being unchangeable; having a marked tendency to remain unchanged",
+    "source_gloss_sha256": "02c4a4f5f5b525a86263315b6f4ec1da4c404ea86a485690c384daeb93c83677",
+    "gloss_sha256": "18960d03f44c8fcda8225d80b54020680162967101ee6cf576f943efc1d5d17d",
+    "m_test_screen": 8,
+    "bar_self_assessment": "borderline",
+    "bar_note": "WN gloss ('being unchangeable') is circular; authored fresh, but 'change' is not among the primes, so both prose and AST lean on the SAME/OTHER contrast — the reviewer should check that this is faithful, not merely available.",
+    "benchmark_blind": true
+  }
+}

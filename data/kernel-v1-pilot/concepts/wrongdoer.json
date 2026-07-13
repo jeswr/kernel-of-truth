@@ -1,0 +1,97 @@
+{
+  "id": "urn:kernel-v1-pilot:wrongdoer",
+  "label": "wrongdoer",
+  "status": "pilot",
+  "pattern": "InstanceSchema; bad acts + collective DON'T-WANT (cf. thief)",
+  "gloss": "A person who does what moral standards or the law forbid; one who commits an offence, wrong, or misdeed against others or against established rules.",
+  "notes": "AST adequacy: faithful — does many bad things that people do not want done — a sound NSM reading of transgression.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "DO",
+        "roles": {
+          "agent": {
+            "kind": "ref",
+            "index": 1
+          },
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "mods": [
+              {
+                "mod": "BAD"
+              }
+            ],
+            "head": {
+              "kind": "primeHead",
+              "prime": "SOMETHING~THING"
+            },
+            "bind": 2
+          }
+        }
+      },
+      {
+        "type": "pred",
+        "pred": "DON'T-WANT",
+        "roles": {
+          "experiencer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "head": {
+              "kind": "primeHead",
+              "prime": "PEOPLE"
+            }
+          },
+          "complement": {
+            "kind": "clause",
+            "clause": {
+              "type": "pred",
+              "pred": "DO",
+              "roles": {
+                "agent": {
+                  "kind": "ref",
+                  "index": 1
+                },
+                "undergoer": {
+                  "kind": "ref",
+                  "index": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-09657157",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "wrongdoer",
+      "offender"
+    ],
+    "definition_mode": "light-edit",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "a person who transgresses moral or civil law",
+    "source_gloss_sha256": "bf9a98ead95f16d9b601fdd1207e0c60f62b8937171db9c06c59b91e3e5f4d80",
+    "gloss_sha256": "3b0c50926be7e722c0b6552dbcec66e8c3144b7efb317941e6775ee9cb92934f",
+    "m_test_screen": 11,
+    "bar_self_assessment": "meets",
+    "bar_note": "WN core ('transgresses moral or civil law') is clean and non-circular; expanded for length and to separate the two forbidding sources (morality / law).",
+    "benchmark_blind": true
+  }
+}

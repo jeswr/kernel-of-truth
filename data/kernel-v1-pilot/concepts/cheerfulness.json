@@ -1,0 +1,97 @@
+{
+  "id": "urn:kernel-v1-pilot:cheerfulness",
+  "label": "cheerfulness",
+  "status": "pilot",
+  "pattern": "WhenTrue; felt gladness + spread to others",
+  "gloss": "A disposition marked by good spirits and evident gladness, such that one readily feels contentment and lifts the mood of those nearby.",
+  "notes": "AST adequacy: faithful — feels good, and others near feel good — captures both the felt cheer and the gloom-dispelling clause.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "WhenTrue",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomeoneRef"
+      },
+      {
+        "index": 2,
+        "refKind": "SomeoneRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "FEEL",
+        "roles": {
+          "experiencer": {
+            "kind": "ref",
+            "index": 1
+          },
+          "attribute": {
+            "kind": "prime",
+            "prime": "GOOD"
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "WHEN",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "BE-SOMEWHERE",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "MUCH~MANY",
+                "head": {
+                  "kind": "primeHead",
+                  "prime": "PEOPLE"
+                },
+                "bind": 2
+              },
+              "locus": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          },
+          {
+            "type": "pred",
+            "pred": "FEEL",
+            "roles": {
+              "experiencer": {
+                "kind": "ref",
+                "index": 2
+              },
+              "attribute": {
+                "kind": "prime",
+                "prime": "GOOD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-04638046",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "cheerfulness",
+      "cheer",
+      "sunniness",
+      "sunshine"
+    ],
+    "definition_mode": "authored-fresh",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the quality of being cheerful and dispelling gloom; \"flowers added a note of cheerfulness to the drab room\"",
+    "source_gloss_sha256": "78eeb66b2b63fead5915450e3c1e3071784c05b5a012ba4d1a51051c3a3ed686",
+    "gloss_sha256": "64c3e965cf6685f297ced455840d1f88d7be2c38ee1d4b6b40df3b3a304961f9",
+    "m_test_screen": 43,
+    "bar_self_assessment": "meets",
+    "bar_note": "WN gloss ('being cheerful and dispelling gloom') is circular; authored fresh around felt-gladness that spreads to others.",
+    "benchmark_blind": true
+  }
+}

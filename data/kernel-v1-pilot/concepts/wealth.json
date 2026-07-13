@@ -1,0 +1,82 @@
+{
+  "id": "urn:kernel-v1-pilot:wealth",
+  "label": "wealth (profuse abundance)",
+  "status": "pilot",
+  "pattern": "InstanceSchema; MUCH-MANY of a good kind + not-few",
+  "gloss": "A great abundance of some valued thing, such that there is far more of it present than is usual or than could be needed.",
+  "notes": "AST adequacy: faithful — there are very many good things of the kind; there are not few — an adequate reading of 'profuse abundance'.",
+  "references": [],
+  "explication": {
+    "schema": "kot-ast/1",
+    "frame": "InstanceSchema",
+    "referents": [
+      {
+        "index": 1,
+        "refKind": "SomethingRef"
+      }
+    ],
+    "clauses": [
+      {
+        "type": "pred",
+        "pred": "THERE-IS",
+        "roles": {
+          "undergoer": {
+            "kind": "sp",
+            "quant": "MUCH~MANY",
+            "mods": [
+              {
+                "mod": "GOOD"
+              }
+            ],
+            "head": {
+              "kind": "kindFrame",
+              "of": {
+                "kind": "ref",
+                "index": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "op",
+        "op": "NOT",
+        "args": [
+          {
+            "type": "pred",
+            "pred": "THERE-IS",
+            "roles": {
+              "undergoer": {
+                "kind": "sp",
+                "quant": "LITTLE~FEW",
+                "head": {
+                  "kind": "kindFrame",
+                  "of": {
+                    "kind": "ref",
+                    "index": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "wn31_synset": "urn:lexical-wn31:n-05123428",
+    "wn31_pos": "n",
+    "wn31_lemmas": [
+      "wealth"
+    ],
+    "definition_mode": "authored-fresh",
+    "source": "WordNet-3.1 synset gloss (candidate-pool.json, benchmark-blind item screen)",
+    "source_gloss": "the quality of profuse abundance; \"she has a wealth of talent\"",
+    "source_gloss_sha256": "bdf73c2d5d4281f005e66476607a50317eec58b9fb657e3a291fdf43ca0424da",
+    "gloss_sha256": "c699de01c9c8175f4c2bf4e27e7f6115ec2ae21fda65a263d65f131d05c43d44",
+    "m_test_screen": 61,
+    "bar_self_assessment": "borderline",
+    "bar_note": "this is the ABUNDANCE sense of the eligible synset (n-05123428), NOT the riches/money sense a reviewer may expect; the gloss must make the sense unmistakable or the WN alignment check will read as the wrong sense.",
+    "benchmark_blind": true
+  }
+}
