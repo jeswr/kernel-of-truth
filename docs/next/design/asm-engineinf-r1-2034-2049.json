@@ -1,0 +1,153 @@
+{
+ "_readme": [
+  "ENGINE-INF REVISION-1 assumption block ASM-2100..2046 (range 2034-2049 reserved; 2047-2049 unused) — EMITTED by the Fable DESIGN agent designer-4 (2026-07-13) in response to the cross-vendor codex FIX-FIRST freeze review (3 blockers; poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md), for central registration by the coordinator with the commit; registry/assumptions.jsonl is NOT touched by this pass (no git actions, design-role constraint).",
+  "Range verified free at emission: max ASM id found registered or reserved anywhere in the repo is ASM-2033 (registry/assumptions.jsonl max registered 2033; repo-wide grep for ASM-20[3-9][0-9] returns nothing above 2033 before this file).",
+  "Companion design: docs/next/design/engine-inference-under-typing.md REVISION-1 sections (marked [R1]); original block docs/next/design/asm-engineinf-1950-1969.json; build block poc/engine-inference/asm-1990-2009.json. Tags: MEASURED | LIT-BACKED | STIPULATED | EXTRAPOLATION. This block states no feasibility conclusion."
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2100",
+   "tag": "STIPULATED",
+   "claim": "REVISION-1 GOVERNANCE AND SUPERSESSION: the codex FIX-FIRST review (3 blockers: B1 instrument validity / sense-splitting not isolated; B2 single-rotation K-shuf insufficient; B3 seen-outcome freeze-readiness + dependence-blind CIs + G4 prose/implementation conflict) is accepted in full and fixed by ASM-2101..2046. Supersessions: ASM-1996 (single rotation) superseded by ASM-2103; the decision-rule/kill-criteria content of ASM-1959/1960 and the frame/interval content of ASM-1999/2000 superseded by ASM-2102/2039/2040 (their divergence-certificate-before-scoring and double-run disciplines are retained); ASM-1955/1956/1963/1966 amended by ASM-2101/2036/2045/2046. Where REVISION-1 conflicts with 2026-07-12 text, REVISION-1 governs. E0 remains DRAFT until the re-run pilot passes and the maintainer freezes.",
+   "rationale": "A FIX-FIRST verdict on a pre-registration draft must produce a single authoritative supersession map, or the record forks into two readable designs and the freeze pins ambiguity.",
+   "backing_ref": "poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md; docs/next/design/engine-inference-under-typing.md §R1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2101",
+   "tag": "STIPULATED",
+   "claim": "MATCHED SENSE-SPLIT PAIR (the B1 fix): two new arms are compiled from the SAME pinned kernel module (data/axioms-engineinf-v0) by pinned mechanical collapse rules, no new authoring — K-lemma-dom (lemma relation takes the constraint set of the dominant minted sense, dominance = max summed pinned index.sense tag_cnt over the concept's wn31Synsets, ties to lexicographically smallest concept URN — the identical ranking rule D-word-dom uses) and K-lemma-union (a slot constraint survives iff ALL minted senses of the lemma carry the identical constraint class; classDeclarations, disjointness pairs and any-<lemma> relations inherited byte-identically). ALL compilers receive the identical item record including the gold sense tag; a per-lemma inventory is constitutively constant in the tag (proven by the PC-4' sense-tag insensitivity canary in both directions). K vs K-lemma-{dom,union} therefore differs ONLY in whether senses are split; it is the only contrast licensed to speak about sense-splitting per se. The collapsed relation covers excluded senses (a lemma-level source cannot mark coverage), so EP-A is restricted to G1/G3 cells and the refusal-vs-assertion consequence of splitting is reported only in the honesty secondary. Disclosed residual: fewer relation-typing axioms than K (byte bulk not identical within this pair); content-vs-bulk is the ASM-2103 family's burden.",
+   "rationale": "The reviewed arms confounded typing source and tag access with the split; the only clean isolator is the kernel's own content collapsed by deterministic rules, with tag access matched by construction and verified mechanically rather than argued.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §1.3, §1.3.1, §1.4 [R1]; data/axioms-engineinf-v0/kernel/sense-*.json (per-sense constraint sets); poc/engine-inference/asm-1990-2009.json ASM-1993 (tag_cnt ranking precedent)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2102",
+   "tag": "STIPULATED",
+   "claim": "CO-PRIMARY ENDPOINTS AND CLAIM LADDER: EP-A (sense-splitting per se) = paired cell-level contrast K minus K-lemma-x on Div_dec(K, K-lemma-x) ∩ (G1∪G3)_H* for EACH x in {dom, union}; EP-B (kernel-authored content given splitting) = paired cell-level contrast K minus B-wn on Div_dec(K, B-wn) ∩ (G1∪G3)_H*. PASS-A: for each x, point delta >= +0.20 AND cluster-bootstrap LB95 > 0, AND K cell-level correctness cluster-LB95 >= 0.80 on the union of the two EP-A frames. PASS-B: point delta >= +0.20 AND cluster-bootstrap LB95 > 0 AND K correctness cluster-LB95 >= 0.80 on the EP-B frame. PASS-affirm (full) = PASS-A AND PASS-B AND C-SHUF (ASM-2103) AND no-net-harm (K not worse than any arm by > 0.02 on convergent (G1∪G3)_H* cells). FAIL-A: min over x of the EP-A point delta <= 0. FAIL-B: EP-B point delta <= 0 (the D3(b) trigger, verbatim sentence unchanged from ASM-1961). Partial passes and between-band outcomes are INCONCLUSIVE with only the passing endpoint's scoped intermediate sentence. D-word arms are demoted to descriptive context; under REVISION-1 a K win over D-word arms licenses NOTHING (that contrast confounds source and split). Both readings of every endpoint are fixed before any holdout byte is scored.",
+   "rationale": "One confounded primary becomes two clean co-primaries, each isolating exactly one factor, with the affirmative headline requiring both plus the content control — so no outcome can be quoted above its rung.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3 [R1], §3 [R1]",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2103",
+   "tag": "STIPULATED",
+   "claim": "C-SHUF MULTI-DERANGEMENT GATE (the B2 fix; supersedes ASM-1996): the control is the EXHAUSTIVE family S of composite within-lemma index-derangements of the per-sense domain/range constraint-set assignment (senses URN-sorted per lemma; every sense receives another sense's constraint set; subPropertyOf and classDeclarations untouched; byte bulk preserved). From the measured 5/2/2/2 sense inventory |S| = D(5)*D(2)^3 = 44; the count and the byte-distinctness of every member from K are asserted mechanically at build (no member can be byte-identical to K because only break.interrupt carries range happening, so every derangement changes it). BINDING PASS RULE, prespecified as a quantile threshold over the derangement distribution: on typing-active (G1∪G3)_H* cells, #{pi in S : corr(pi) >= corr(K)} = 0 — K strictly above the family maximum (100th percentile) — with the derangement-null empirical quantile p = 1/(|S|+1) ≈ 0.0222 <= 0.05 reported. C-SHUF failure caps the verdict at INCONCLUSIVE with the pre-registered CONTENT-INERT flag and sentence. Extension rule pinned now: if a future inventory yields |S| < 19 (empirical p floor > 0.05), extend with pinned seeded global cross-lemma derangements to >= 199 members, seed fixed at freeze. Disclosed: make's swap is functionally idle (both senses have empty constraint sets); functional duplicates within S are retained (S is the uniform derangement family, duplicates and all) with the byte-distinct count reported.",
+   "rationale": "A single fixed rotation is one draw from a 44-member family and 'K beats it' is not binding evidence about typing content; exhaustive enumeration plus a 100th-percentile superiority threshold makes the control a prespecified gate with a stated null quantile, at minutes of CPU and $0.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §4 item 1 [R1], §2.3 [R1]; data/axioms-engineinf-v0/kernel/ (5/2/2/2 inventory and constraint sets)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2104",
+   "tag": "STIPULATED",
+   "claim": "UNSEEN CONFIRMATORY HOLDOUT H (the B3 fix, part 1): the seen frames (212-item exploratory census + 17-item pilot slice) are EXPLORATORY-ONLY, permanently; no registered verdict consumes them. H is constructed mechanically at $0 model spend with no human item authoring and no new kernel authoring: H1 = SemCor-attested occurrences of the 4 Stage-A lemmas (NEW third-party pin, network fetch + sha-pin; sense keys mapped to WN3.1 synsets via the pinned index.sense, unmappable keys excluded and logged); H2 = the pre-registered G3 cross-pair rule applied to H1 objects (side-unanimity assessed over seen-plus-H1 objects, pairs generated from H1 objects only); H3 = SemCor excluded-sense occurrences (secondary/bookkeeping only). Decontamination: any H item whose (predicate synset, object noun lemma) pair occurs in any seen item is excluded, logged. Because the instrument is deterministic, items in already-seen outcome-equivalence cells have inferable outcomes; the BINDING confirmatory frame (G1∪G3)_H* is therefore restricted to NOVEL cells (cell key realized in no seen frame), with full-H numbers co-reported descriptively. CUSTODY, mechanically enforced: K-lemma modules and the derangement manifest are pinned before SemCor enters the repo; the holdout extractor is a separate entrypoint importing neither engine nor scorer; items-H + gold-H are constructed and sha-pinned pre-freeze with NO engine or scorer execution on any H item; a freeze-time repo scan asserts no results artifact contains any H item id; the frozen runner refuses to start if rows for any H id pre-exist; the H divergence certificates are emitted before scoring inside the frozen pipeline.",
+   "rationale": "A deterministic 212-item outcome that has already been computed cannot be preregistered confirmation; the only honest confirmatory set is one whose outcomes do not exist anywhere — and under determinism 'unseen' must be enforced at the outcome-equivalence-cell level, not the item level, or seen cells re-enter as fake confirmation.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.5 [R1], §4 item 7 [R1]; poc/engine-inference/asm-1990-2009.json ASM-1990 (exploratory quarantine)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2105",
+   "tag": "STIPULATED",
+   "claim": "REVISED KILL CRITERIA, verbatim (supersede the kill content of ASM-1960): KILL-e1 (holdout adequacy; verdict CONSTRUCTION-ANOMALY): (G1∪G3)_H* has < 30 items or < 12 cells, or spans < 2 closure ops or < 2 lemmas — evaluated PRE-FREEZE from pinned items-H + gold-H alone (counting needs no outcomes); if it fires, the freeze does not proceed and the inventory extends first (E2). KILL-e2a (sense-split idle; verdict NULL): |F_A^dom ∪ F_A^un| < 6 cells — pre-registered reading: 'sense-splitting adds no divergent closure at this inventory; the split is idle here.' KILL-e2b (kernel-vs-mechanical unaskable; verdict NULL): |F_B| < 6 cells or < 10 items — recorded as a D3(b) input ('sense structure suffices; kernel authoring adds no divergent closure here'), no affirmative claim. KILL-e2a/e2b are evaluated at the registered run (they need the H divergence certificates); the PC-2' pilot check provides the pre-freeze existence evidence on the exploratory frame.",
+   "rationale": "The old KILL-e1 was keyed to the now-descriptive D-word contrast; the revised kills gate exactly the three ways the revised instrument can fail to ask (holdout too thin, K's own collapse convergent, B-wn convergent), each with its verdict and reading named in advance.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.3 [R1], §2.5 [R1]",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2106",
+   "tag": "STIPULATED",
+   "claim": "DEPENDENCE-AWARE INFERENCE (the B3 fix, part 2; supersedes the interval content of ASM-2000): the effective sample unit is the outcome-equivalence CELL — the tuple (gold sense synset, undergoer top-split side class, undergoer wn-kind class, item kind) — because the deterministic pipeline gives byte-identical worlds and identical verdicts to all items in a cell, in every arm. All registered inference is at cell level (one observation per cell; item census co-reported descriptively). Interval statements use a stratified-by-item-kind percentile cluster bootstrap over cells, B = 10,000, pinned seed 20260713, applied to paired per-cell 0/1 deltas and to correctness floors; a drop-one-lemma jackknife is co-reported as a sensitivity, disclosed as coarse (4 lemmas). INSUFFICIENT-CLUSTERS: any co-primary frame with < 8 cells cannot PASS and is reported descriptively only. Cells sharing a sense or noun remain structurally dependent through shared axioms; that residual dependence is the estimand's structure, disclosed, not resampling noise. Generalization statements beyond the Stage-A frame keep the EXTRAPOLATION tag per ASM-1959's retained discipline.",
+   "rationale": "Item-level i.i.d. binomial CIs were dependence-blind: measured on the seen frame, 56 G1∪G3 items collapse to 19 distinct cells, so item-level n overstates information roughly threefold; cell-level analysis with cluster resampling is the honest unit for a deterministic instrument with lemma/cross-pair structure.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.2 [R1]; measured cell count: poc/engine-inference/results/items.json (sha d4fdbd6b13de4e824fe176cd757d7c694185e572e40eaca120c71bfcab5de8bc; 56 G1∪G3 items, 19 distinct (synset, side, kind) cells)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2107",
+   "tag": "STIPULATED",
+   "claim": "G4 PROSE/IMPLEMENTATION RECONCILIATION (the B3 fix, part 3): the design prose (§2.2) is amended to state the implemented set-valued G4 rule verbatim — on excluded-sense cells REFUSE(code) is correct AND vacuous CONSISTENT (no conflict, no derived class assertion) is correct; ANOMALOUS or any confident derived assertion is wrong. The conflict between the 2026-07-12 prose ('exact match against gold verdict') and the pinned scorer is resolved in favour of the implementation (ASM-1997), whose anti-rigging rationale stands; the pinned scorer bytes are unchanged by REVISION-1.",
+   "rationale": "A prereg whose prose and implementation disagree is not a prereg; resolving toward the implementation preserves the already-pinned, already-piloted scorer and the rule that neither gifts K coverage-gap wins nor punishes broader-coverage arms.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §2.2 [R1]; poc/engine-inference/asm-1990-2009.json ASM-1997; poc/engine-inference/engineinf_lib.py score() (sha 7c0e3c47fc39af239774b518a98c7e767b9df7cd0a211a6528ae9d604061a0d9)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2108",
+   "tag": "STIPULATED",
+   "claim": "NARROWED EXPLORATORY LICENSED LANGUAGE (the reviewer's CONCERN, adopted): the ONLY sentence licensed about the 2026-07-12 exploratory execution is, verbatim: 'Exploratorily, given gold sense IDs on the 56 G1/G3 items, K had higher exact-match (46/56) than B-wn (27/56), D-word-dom (26/56), and D-word-union (21/56), under partly-constructed gold. This does not isolate sense-splitting and does not generalize. The registered analysis remains INCONCLUSIVE until the confirmatory holdout runs.' Any broader phrasing — including any 'sense-split signal' or 'sense-split reduces anomalies' reading — is unlicensed and superseded; the reviewer's own retraction of an over-stated read is part of the record.",
+   "rationale": "The exploratory numbers were produced by the confounded pre-revision instrument on a fully seen frame; fixing their maximal honest description in advance prevents them from leaking into any registered claim while the holdout is pending.",
+   "backing_ref": "poc/gpt56-review/e0-freeze/REVIEW-SUMMARY.md (CONCERN 5 and disposition); docs/next/design/engine-inference-under-typing.md §R1",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2109",
+   "tag": "MEASURED",
+   "claim": "EXPLORATORY SEEN-FRAME RECORD (quarantined; instrument-context only, never campaign evidence): on the 56 G1∪G3 items of the 212-item census, exact-match correct counts were K 46/56, K-shuf(single rotation) 29/56, B-wn 27/56, D-word-dom 26/56, D-word-union 21/56, oracle 56/56; whole-bank per-arm totals and divergence counts as recorded in run-result.json; the 56 items span 19 distinct (gold synset, object side, kind) cells; double-run sha match true.",
+   "rationale": "REVISION-1's dependence and freeze-readiness arguments cite these bytes; recording them once, with hashes, keeps every later reference checkable and inside the ASM-2108 language cap.",
+   "backing_ref": "poc/engine-inference/results/rows.jsonl (sha 8a21d5a31b8b114d913c1cffe28f164878331d411b0a38c47b166c4859285154); poc/engine-inference/results/run-result.json (decision_payload sha 6a2d9561608cd1570c68629c18c3462218c22c9e96ca74ab151e05e8cffd5e6a, double_run_sha_match true, status PRE-FREEZE EXPLORATORY); poc/engine-inference/results/items.json (sha d4fdbd6b13de4e824fe176cd757d7c694185e572e40eaca120c71bfcab5de8bc)",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2110",
+   "tag": "EXTRAPOLATION",
+   "claim": "HOLDOUT OPERATING-POINT EXPECTATION (direction only, never a premise): SemCor (brown1/brown2/brownv) is expected to yield >= 30 eligible (G1∪G3)_H* items and >= 12 novel cells for the 4 Stage-A lemmas — grounded in the pinned index.sense tag_cnt mass on these lemmas (e.g. make v-02566500 alone carries 508 SemCor tags; find v-02253273 159; break v-00364717 15), of which the minted-sense and excluded-sense shares are unmeasured, and in the near-absence of find/friend cells from the seen frame (2 and 0 G1∪G3 items respectively), which makes novel cells likely wherever SemCor attests those lemmas at all.",
+   "rationale": "The one empirical risk REVISION-1 adds is H1 yield; naming the expectation and its resolution path keeps it out of the design's premises.",
+   "backing_ref": "data/lexical-wn31 index.sense tag_cnt (via poc/engine-inference/asm-1990-2009.json ASM-1993 measured dominants); poc/engine-inference/results/items.json per-lemma composition",
+   "resolution_path": "the pre-freeze KILL-e1 adequacy count over pinned items-H + gold-H (no outcomes required, $0); a shortfall stops the freeze rather than weakening the record",
+   "load_bearing": false,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2111",
+   "tag": "STIPULATED",
+   "claim": "PILOT AMENDMENTS (amends ASM-1963; the 2026-07-12 pilot does NOT satisfy the gate for the revised design): a full pilot RE-RUN with all 7 arms + oracle is mandatory pre-freeze, on exploratory frames and decoy lemmas only, never on H. PC-2' adds the EP-A existence check (|Div_dec(K, K-lemma-x) ∩ (G1∪G3)| >= 3 on the exploratory frame for at least one x, else the redesign stops pre-freeze at $0). PC-3' replaces the single-rotation check: the full derangement family compiles, |S| equals the build-derived count, every member byte-differs from K, family scores computable end-to-end. PC-4' adds the sense-tag insensitivity canary (perturbing the gold sense tag leaves K-lemma and D-word compiled worlds byte-identical AND changes K / B-wn relation URNs on remapped items) and re-runs the poisoned-gold canary over all new compilers. PC-6: the SemCor pipeline runs end-to-end (engine included) on three pinned decoy lemmas — draw, hold, cut — verified members of neither Stage-A nor the kernel-v0 39-concept panel; decoy outcomes quarantined from every endpoint. PC-7: custody demonstration — repo scan finds no H id in any results artifact; items-H + gold-H pinned with no corresponding rows; the runner's refuse-if-H-rows-exist assertion demonstrated against a planted fake H row; the KILL-e1 count reported. Best achievable verdict remains PILOT-PASS-WITH-FLAGS (kernel-as-text structural N/A stands).",
+   "rationale": "Every new interface REVISION-1 introduces (collapse compilers, derangement family, holdout machinery, custody assertions) must be exercised with teeth before freeze, per the blocking-pilot protocol — and exercised without touching a single H outcome.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §5 [R1]; docs/next/protocol/blocking-pilot-before-freeze.md; data/onto-softtype/soft-type-candidates.jsonl (panel membership check for the decoys)",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2112",
+   "tag": "STIPULATED",
+   "claim": "STAGING AMENDMENT (amends ASM-1966): the SemCor sentence pin moves from E1 into E0 (the confirmatory holdout requires it); E0 additionally gains the K-lemma collapse compiler, the exhaustive derangement family, the holdout extractor, the cell-level cluster-bootstrap analysis, and the pilot re-run, re-banded at +1-2 agent-days over the original 2-4 band, still $0 model spend and CPU-only. E1 retains the VerbNet pin, the ~30-item human G3 spot-audit, and the R-DISAMB grade-W extension behind its conformance + mini-certificate gates. The maintainer's pre-freeze G3 decision (WN-rule-constructed now vs VerbNet-first) is unchanged by REVISION-1.",
+   "rationale": "The confirmatory set cannot wait for a later stage — without it E0 has no registered run at all; everything else about the staging ladder survives.",
+   "backing_ref": "docs/next/design/engine-inference-under-typing.md §6.1 [R1]",
+   "load_bearing": true,
+   "status": "open",
+   "owner": "designer-4",
+   "date": "2026-07-13"
+  }
+ ]
+}
