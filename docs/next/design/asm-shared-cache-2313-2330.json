@@ -1,0 +1,183 @@
+{
+ "range": "ASM-2313..2326 (assigned block 2313..2330; 2327..2330 unused)",
+ "purpose": "Companion assumption block for XCACHE-SHARED (docs/next/design/glm52-shared-cache.md): the issue-#30 research question of whether a single shared database (e.g. Postgres) across the ~10 F1-K CPU-spot workers would capture cache hits the per-worker XCACHE design misses. Covers the cross-worker reuse enumeration and its honest quantification, the eu-west-2 storage-backend price comparison (RDS Postgres / S3 / ElastiCache / DynamoDB / Modal Volume), the critical-path latency analysis, the break-even, the correctness argument for a shared content-addressed store, and the tiered recommendation (per-worker NVMe hot tier + the EXISTING shared S3 content-addressed cold tier + a zero-cost Bloom existence index, DynamoDB trigger-gated, no Postgres). EMITTED by the Fable architecture-design agent (designer-10, 2026-07-13); central registration in registry/assumptions.jsonl is the COORDINATOR's action with the landing commit, after the standing review gate. This pass writes NO registry/assumptions.jsonl entry, takes NO git action, runs NO model, spends $0, and states NO feasibility conclusion. Range verified free at emission: central register tail in registry/assumptions.jsonl is ASM-2293; repo-wide grep for ASM-2313..ASM-2330 found nothing. REVISED 2026-07-13 by designer-16 per the second GPT-5.6 xhigh review of the consolidated XCACHE design (poc/gpt56-review/expert-cache-r2/out/last-message.json): ASM-2323 clause (b) is corrected so shared-tier record integrity is BLAKE3-128-authoritative (validated before any serve, per ASM-2308) with CRC32 demoted to a non-authoritative fast-reject/torn-tail hint - partial-write exclusion rests on atomic content-addressed S3 visibility plus BLAKE3 verification, never on CRC (r2 blocker 3); and ASM-2313's template-prefix first-touch parenthetical is re-derived from the corrected ASM-2302 union-reduction band (~2-7% corner, not the withdrawn revision-1 '<1%'), leaving its <= ~$1.5 band unchanged (r2 finding 6 residue).",
+ "owner": "designer-10",
+ "backing_artifacts": [
+  "docs/next/design/glm52-shared-cache.md (the governing research writeup; ASM block summarized at its section 8)",
+  "docs/next/design/glm52-expert-cache.md + docs/next/design/asm-expert-cache-2300-2312.json (the XCACHE design this extends: key schema ASM-2303, determinism ASM-2304, carve-outs ASM-2306, store/S3 mirror ASM-2308)",
+  "docs/next/design/glm52-f1k-cost-reduction.md (the $149 ceiling, ASM-2205; the issue-#30 ~10-worker CPU-spot sharding conclusion with all arms of an item on one worker)",
+  "docs/next/design/glm52-expert-drop.md (GLM-DROP #27, the cross-experiment reuse consumer; b0-full TOPK=8 baseline case per ASM-2309 as revised)",
+  "AWS Price List bulk API eu-west-2 offer files retrieved 2026-07-13: AmazonS3 (pub 2026-07-08), AmazonDynamoDB (pub 2026-06-08), AmazonElastiCache (pub 2026-07-06), AmazonRDS (pub 2026-07-10), all at pricing.us-east-1.amazonaws.com/offers/v1.0/aws/<service>/current/eu-west-2/index.json",
+  "repo state at emission: commit 3611025a3580b13cfb69af1d31e3723b9b9d165c"
+ ],
+ "assumptions": [
+  {
+   "id": "ASM-2313",
+   "tag": "EXTRAPOLATION",
+   "claim": "ADDITIONAL CROSS-WORKER HIT FRACTION of a genuinely-shared synchronous cache over the existing per-worker-NVMe + shared-S3 design is ~0.1% of expert I/O (band 0-1%), worth <= ~$1.5 per F1-K campaign at the ~$124-147 expected spend and 75% disk share. Basis: under the #30 sharding rule (all arms of an item on one worker) the dominant reuse class (cross-arm within an item, sigma ~0.55/0.41/0.013 per spliced arm) is within-worker by construction; the cross-worker classes (frozen-template prefix, item reassignment after spot interruption, #27 cross-experiment baseline on a re-provisioned fleet) are already captured by the shared S3 content-addressed mirror; the only residue a synchronous shared store adds is concurrent duplicate computation of the same key inside one S3-sync window, which item-disjoint sharding confines to ~9 redundant template-prefix first-touches (~9-12 s each: ~7.5 s of non-disk matmuls plus ~1.5-5 s of disk-union reduction at the corrected ASM-2302 corner band of ~2-7%, not the withdrawn revision-1 '<1%' figure; ~1.5-2 worker-minutes ~ $0.005-0.01 fleet-wide) plus rare reassignment races.",
+   "rationale": "A numeric projection over planning bands (q, T, interruption rates), not a premise; stated so the maintainer's question gets a defensible number instead of hand-waving in either direction.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md section 1; docs/next/design/glm52-expert-cache.md sections 1.2-1.3 (union-saturation-corrected sigma, ASM-2301/2302); docs/next/design/glm52-f1k-cost-reduction.md (sharding rule); poc/gpt56-review/expert-cache-r2/out/last-message.json finding 6 residue",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Resolved by the F1-K run manifest's per-worker hit counters split by entry origin (locally-computed vs S3-restored vs would-have-been-remote duplicate, i.e. keys later observed identical across two workers' populate logs); if measured cross-worker duplicate compute exceeds ~$5/campaign the ASM-2325 trigger fires and the DynamoDB index upgrade is taken.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2314",
+   "tag": "STIPULATED",
+   "claim": "CROSS-WORKER REUSE ENUMERATION under item-disjoint sharding: (1) cross-arm reuse within an item (b0 + 6 spliced passes) is WITHIN-worker because sharding pins all arms of an item to one worker; (2) the frozen R1.1 template PREFIX rows (pos < first item-specific token) are byte-identical across ALL items and workers at every layer - the only cross-item key-collision mass, because a pre-moe input row at layer l is the post-attention residual, a function of the entire causal token prefix, so items sharing only the template header collide only on header positions; (3) b0 passes are same-worker as their arms; (4) item reassignment (spot interruption/rebalancing) and (5) the #27 cross-experiment baseline on a possibly re-provisioned fleet are the genuinely cross-worker classes, both served by restoring the item's content-addressed segments from the shared S3 tier; (6) there are no other genuine (W-hash, x-hash) collisions across items. Consequently the S3 mirror already IS the shared cache across workers, and per-worker caching misses no material cross-worker hits.",
+   "rationale": "Structural consequence of the causal-attention DAG (ASM-2300), the content-addressed key (ASM-2303), and the stated #30 sharding policy; asserted here and verified only later by the origin-split counters, hence STIPULATED rather than any evidence-class tag.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md section 1 (table); docs/next/design/glm52-expert-cache.md sections 1.1/4.3/5.2; docs/next/design/glm52-f1k-cost-reduction.md (co-location and sharding)",
+   "owner": "designer-10",
+   "load_bearing": true,
+   "status": "open",
+   "resolution_path": "Checked mechanically at F1-K bring-up: (a) launch-script assertion that an item's arms share a worker id; (b) cross-worker key-collision census over two dev items' populate logs confirming collisions are confined to template-prefix positions; published in the run manifest.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2315",
+   "tag": "LIT-BACKED",
+   "claim": "S3 PRICING eu-west-2 (AWS Price List bulk API offer file, publication 2026-07-08, retrieved 2026-07-13): S3 Standard $0.024/GB-mo first 50 TB ($0.023 next 450 TB); Standard-IA $0.0131/GB-mo plus $0.01/GB retrieval flat fee; PUT/COPY/POST/LIST $0.0053 per 1,000 requests; GET $0.0042 per 10,000 requests; data transfer between S3 and EC2 in-region free. S3 Express One Zone does NOT appear in the eu-west-2 offer file (no Express storage class among the region's listed storage classes), so the single-digit-ms S3 tier is not available in this region as of the cited publication.",
+   "rationale": "Cited pricing facts from the authoritative machine-readable source; the Express One Zone absence is an observation of the same offer file.",
+   "backing_ref": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/eu-west-2/index.json (publicationDate 2026-07-08T00:09:36Z); usagetypes EUW2-TimedStorage-ByteHrs, EUW2-TimedStorage-SIA-ByteHrs, EUW2-Retrieval-SIA, EUW2-Requests-Tier1/Tier2",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Re-pull the offer file at spend time (prices float monthly); any material change re-derives the ASM-2322 cost table before it is relied on.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2316",
+   "tag": "LIT-BACKED",
+   "claim": "DYNAMODB PRICING eu-west-2 (offer publication 2026-06-08, retrieved 2026-07-13): on-demand $0.1487 per million read request units, $0.7423 per million write request units; storage $0.29715/GB-mo beyond the first 25 free GB-mo. Item size cap 400 KB (service quota), so DynamoDB can hold the 32-byte-key existence index and 24 KB expert rows but NOT the few-MB Tier-C prefix-checkpoint values.",
+   "rationale": "Cited pricing facts from the authoritative machine-readable source; the 400 KB item cap is standing AWS service documentation.",
+   "backing_ref": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/current/eu-west-2/index.json (publicationDate 2026-06-08T23:44:28Z); usagetypes EUW2-ReadRequestUnits, EUW2-WriteRequestUnits, EUW2-TimedStorage-ByteHrs; item cap per AWS DynamoDB service quotas documentation",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Re-pull at spend time; the ASM-2325 trigger-gated index option re-prices itself from the then-current offer file before activation.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2317",
+   "tag": "LIT-BACKED",
+   "claim": "ELASTICACHE PRICING eu-west-2 (offer publication 2026-07-06, retrieved 2026-07-13), on-demand node-hours, Valkey engine: cache.t4g.micro (0.5 GiB) $0.0144/h; cache.t4g.small (1.37 GiB) $0.0288/h; cache.t4g.medium (3.09 GiB) $0.0576/h; cache.r7g.large (13.07 GiB) $0.2048/h; Redis-engine nodes ~25% higher (e.g. cache.r7g.large $0.256/h). Holding the ~550 GB blob store in RAM would need ~43 r7g.large nodes ~ $6,430/mo; an index-only deployment is $42-150/mo.",
+   "rationale": "Cited pricing facts from the authoritative machine-readable source.",
+   "backing_ref": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonElastiCache/current/eu-west-2/index.json (publicationDate 2026-07-06T18:41:27Z)",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Re-pull at spend time if an ElastiCache option is ever reconsidered; none is recommended.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2318",
+   "tag": "LIT-BACKED",
+   "claim": "RDS POSTGRESQL PRICING eu-west-2, Single-AZ on-demand (offer publication 2026-07-10, retrieved 2026-07-13): db.t4g.medium (4 GiB) $0.072/h (~$52.6/mo at 730 h); db.t4g.large (8 GiB) $0.145/h; db.m6g.large (8 GiB) $0.184/h (~$134.3/mo); db.m7g.large $0.1952/h; db.r6g.large (16 GiB) $0.264/h; gp3 database storage $0.133/GB-mo (5.5x S3 Standard per GB). Composed monthly figures: index-only Postgres (db.t4g.medium + 20 GB gp3) ~ $55/mo; blob-store Postgres (db.m6g.large + 700 GB gp3 incl. WAL/bloat headroom) ~ $227/mo.",
+   "rationale": "Cited pricing facts from the authoritative machine-readable source; the two composed configurations are simple products of the cited unit prices.",
+   "backing_ref": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonRDS/current/eu-west-2/index.json (publicationDate 2026-07-10T19:40:47Z); usagetype EUW2-RDS:GP3-Storage and PostgreSQL Single-AZ instance SKUs",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Re-pull at spend time if a Postgres option is ever reconsidered; none is recommended.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2319",
+   "tag": "STIPULATED",
+   "claim": "NETWORK-STORE LATENCY LADDER per AWS documentation: S3 delivers ~100-200 ms small-object / first-byte-out latencies, with AWS itself directing latency-sensitive workloads to put a cache (ElastiCache/CloudFront) in front of S3 for single-digit-ms access; DynamoDB is positioned at single-digit-millisecond (observed ~5-20 ms typical for on-demand from EC2 in-region); ElastiCache (Redis/Valkey) at sub-millisecond to microsecond reads. Same-AZ TCP round-trips to an RDS instance are ~0.5-1 ms before query execution.",
+   "rationale": "Stipulated design inputs, not scholarly literature: these are VENDOR-DOC operating figures the design commits to as planning premises, per AWS S3 performance guidance and AWS product documentation, 2026. The S3 first-byte latency ~100-200 ms band and the cache-in-front guidance are a stipulated design input per the AWS S3 performance design-patterns documentation, 2026 (docs.aws.amazon.com/AmazonS3/latest/userguide/optimizing-performance-design-patterns.html, read 2026-07-13); the DynamoDB single-digit-ms and ElastiCache sub-millisecond positionings are per the AWS DynamoDB and ElastiCache product documentation, 2026 (aws.amazon.com/dynamodb/ and aws.amazon.com/elasticache/, read 2026-07-13); the RDS same-AZ RTT is the standard AWS intra-AZ network figure. They enter the analysis only through the ASM-2320 arithmetic, whose conclusion is insensitive to them within an order of magnitude.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md section 3 (latency ladder table) and section 8 'Pricing sources' list (the AWS S3 performance design-patterns page and the DynamoDB/ElastiCache product pages, retrieved 2026-07-13; URLs named in the rationale)",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "If any shared network tier is ever put anywhere near a probe path, measure actual RTTs from a fleet worker at bring-up before relying on these figures.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2320",
+   "tag": "EXTRAPOLATION",
+   "claim": "PROBE-PATH LATENCY ARITHMETIC: a ~100 s prefill issues ~15,000 Tier-A probes (200 rows x 75 layers; Tier-B up to 8x), layer-synchronous so batching floors at ~75 round-trips of <=200 keys. Synchronous per-probe use of a network store adds: ElastiCache (~0.3-0.5 ms) +4.5-7.5 s (+5-8%); Postgres same-AZ (~1-5 ms) +15-75 s (+15-75%); DynamoDB (~5-20 ms) at least doubles the prefill unbatched and bills ~344M reads ~ $51/campaign if probed per-key; S3 (~100-200 ms) +25-50 min unbatched and +7.5-15 s even fully layer-batched. Local NVMe 24 KB reads (~0.05-0.2 ms, overlappable) and an in-RAM Bloom snapshot (~100 ns) are the only probe-path options that do not materially inflate the 439-531 instance-hour campaign; a +15% synchronous drag would cost ~ +$19 at spot, exceeding the entire ASM-2313 benefit band by an order of magnitude.",
+   "rationale": "A numeric projection composing the ASM-2319 latencies with XCACHE's probe counts; the conclusion (no synchronous network probes) is robust across the whole band.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md section 3; docs/next/design/glm52-expert-cache.md section 2.4 (probe overhead); ASM-2319 latencies; NVMe figure = i4i instance-store class, planning band only",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Resolved at F1-K bring-up by measuring per-probe NVMe hit latency and (if the ASM-2325 trigger ever fires) batched DynamoDB BatchGetItem latency from a fleet worker; the run manifest records both.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2321",
+   "tag": "STIPULATED",
+   "claim": "SHARED-TIER PLACEMENT RULE: the synchronous probe path inside moe() is LOCAL-ONLY (per-worker NVMe hot tier + in-RAM Bloom existence snapshot); the shared tier is bulk/async and segment-granular only - (a) bring-up restore of manifest + priority segments, (b) item-granular prefetch BEFORE starting a reassigned or cross-experiment item's prefills, (c) async write-behind of closed segments on the existing per-item checkpoint cadence. The Bloom snapshot (~22M keys x 10 bits ~ 28 MB, ~1% false positives) is rebuilt from the S3 segment manifests at each sync; a false positive degenerates to one recompute (cost, never correctness); a false negative is impossible for keys present at snapshot time.",
+   "rationale": "The ASM-2320 arithmetic makes any synchronous network probe a net loss; this rule is the structural fix and is asserted as a design invariant to be enforced in the harness, not verified in advance.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md sections 3/6; docs/next/design/glm52-expert-cache.md sections 2.4/5.1/7 (segment layout, checkpoint cadence)",
+   "owner": "designer-10",
+   "load_bearing": true,
+   "status": "open",
+   "resolution_path": "Enforced by construction in the eventual xcache patch (no network client linked into the moe() path; S3 sync lives in the harness sidecar); verified in code review of that patch and by the bring-up latency measurements of ASM-2320.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2322",
+   "tag": "EXTRAPOLATION",
+   "claim": "COST TABLE AND BREAK-EVEN (eu-west-2, from ASM-2315..2318 unit prices, ~550 GB store / ~22M entries / one campaign-month): existing S3 Standard shared tier ~$13.2/mo + <$1 requests (segment-granular); Bloom manifest index $0; DynamoDB key index ~$16.3 write sweep + <$5 batched reads + ~$0 storage (25 GB free tier) ~ $17-21/campaign; ElastiCache index $42-150/mo; Postgres index-only ~$55/mo; Postgres blob ~$227/mo; DynamoDB blob ~$163/mo + ~$392 write sweep (REJECT, also 400 KB cap); ElastiCache blob ~$6,430/mo (REJECT). Standard-vs-IA inverts at 10 workers: IA saves $0.0109/GB-mo but charges $0.01/GB retrieval, break-even ~1.1 full-store retrievals/mo, and a 10-worker fleet's bring-up restores make Standard the cheaper class (10 full restores would cost $55 in IA retrieval fees). BREAK-EVEN vs the ASM-2313 benefit band (<= ~$1.5/campaign): DynamoDB index needs ~11x, Postgres index ~37x, Postgres blob ~150x more cross-worker reuse than exists; only the $0 Bloom option always breaks even. The $149 F1-K ceiling is UNCHANGED - the recommended architecture adds ~$0-5/mo on the storage/retention line (outside EC2-compute scope, like the existing ASM-2205/2308 lines) and zero compute or latency.",
+   "rationale": "A cost projection composing cited unit prices with the design's sizes; the ceiling never depends on it.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md sections 2/4; ASM-2315..2318; docs/next/design/glm52-expert-cache.md section 5.1 (the $9-13/mo mirror line this adjusts); docs/next/design/glm52-f1k-cost-reduction.md (ceiling scope)",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Resolved by the actual S3/storage line items in the F1-K cost ledger and, if the ASM-2325 trigger fires, the metered DynamoDB bill; prices re-pulled from the offer files at spend time.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2323",
+   "tag": "STIPULATED",
+   "claim": "SHARING PRESERVES EXACTNESS: the BLAKE3 content-addressed key (ASM-2303) contains no worker identity and nothing mutable, entries are immutable and never updated in place, so a hit is bit-identical to recompute WHICHEVER worker wrote it and sharing introduces no staleness path - outcomes remain exactly {valid hit | miss} fleet-wide. Concurrency closures: (a) concurrent duplicate computes of one key produce byte-identical values (P1/P2, ASM-2304) and content-addressed puts are idempotent (wasted compute, never corruption); (b) partial writes are excluded by atomic S3 object visibility (ASM-2324) plus the AUTHORITATIVE BLAKE3-128 record digest of ASM-2308, validated BEFORE any value is served, inside segments - the per-record CRC32 is a non-authoritative fast-reject/torn-tail hint only (collision floor ~2^-32, it supports no integrity guarantee), so partial-write exclusion rests on atomic content-addressed puts plus BLAKE3 verification, never on CRC; (c) read-after-write is strong on S3 and even eventual consistency would only yield a miss->recompute; (d) entries collide across workers only under a fleet-uniform engine-tag including the XCACHE_CANON setting - a mixed fleet over-invalidates, never goes stale, and the launch script asserts one engine-tag fleet-wide; (e) the ASM-2306 carve-out flags (guard-set no-serve/no-populate, routing-arms cache-OFF, logical counters) live in the FROZEN ITEM MANIFEST so all workers enforce them identically - sharing widens the blast radius of a per-worker mis-config, so per-worker config is forbidden as the flag carrier; (f) XCACHE_VERIFY recompute-on-hit (ASM-2305) applies to remote-origin entries unchanged, catching cross-worker corruption by the same in-run memcmp.",
+   "rationale": "The maintainer's question includes an implicit safety clause; this records that a shared store is EXACTLY as safe as a local one under the existing key discipline, with the concurrency corners named and closed rather than waved at. Clause (b) corrected 2026-07-13 per the second GPT-5.6 review's blocker 3: CRC32 cannot provide a universal integrity guarantee, so the BLAKE3-128 record digest (ASM-2308) is the authoritative shared-tier integrity closure, byte-consistent with the core block.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md section 5; docs/next/design/glm52-expert-cache.md sections 3/4 (ASM-2303..2307) and section 2.4 (ASM-2308 record integrity); ASM-2324; poc/gpt56-review/expert-cache-r2/out/last-message.json blocker 3",
+   "owner": "designer-10",
+   "load_bearing": true,
+   "status": "open",
+   "resolution_path": "Clauses (d)-(f) become launch-script assertions and frozen-manifest fields checked at F1-K bring-up; clauses (a)-(c) are verified by the standing ASM-2305 verify counters remaining mismatch-free across a multi-worker dev rehearsal recorded in the run manifest.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2324",
+   "tag": "STIPULATED",
+   "claim": "S3 CONSISTENCY SEMANTICS per AWS documentation: S3 provides strong read-after-write consistency for PUTs (new and overwrite) and LISTs in all regions, and object writes are atomic - a GET never observes a partially-written object; multipart uploads become visible only on successful completion.",
+   "rationale": "Stipulated design input, not scholarly literature: vendor-documented platform behaviour the design commits to as a premise - S3 strong read-after-write consistency and atomic object visibility are a stipulated design input per the AWS S3 data-consistency-model documentation, 2026 (docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html#ConsistencyModel, read 2026-07-13). The ASM-2323 partial-write and read-after-write closures rest on it, which is why its re-check is pinned to the F1-K freeze in the resolution path.",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md section 5 (concurrency closures) and section 8 'Pricing sources' consistency entry (AWS S3 data consistency model documentation, retrieved 2026-07-13; URL named in the rationale)",
+   "owner": "designer-10",
+   "load_bearing": true,
+   "status": "open",
+   "resolution_path": "Standing platform behaviour; re-checked against current AWS documentation at F1-K freeze if the S3 tier's role is load-bearing in the run manifest.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2325",
+   "tag": "STIPULATED",
+   "claim": "RECOMMENDED SHARED-CACHE ARCHITECTURE (the answer to issue #30's note): TIERED - T0 per-worker NVMe hot tier (unchanged; ~52 GB/worker under 10-way item sharding); T1 the EXISTING shared S3 content-addressed bucket as the cross-worker tier, Standard class (not IA - retrieval fees invert at 10 workers per ASM-2322), segment-granular bulk/async only per ASM-2321; T2 a per-worker Bloom snapshot of the S3 segment manifests as the existence index ($0). TRIGGER-GATED UPGRADE: if the ASM-2313 origin-split counters show cross-worker duplicate compute > ~$5/campaign, add a DynamoDB on-demand key index (~$17-21/campaign, batched + async, never per-probe synchronous). A NEW SHARED POSTGRES IS NOT RECOMMENDED: as a blob store it is ~$227/mo at 17x S3 per-GB for a tier too slow for the probe path and no better than S3 for bulk; as an index it is ~$55/mo plus connection/vacuum operations for what the $0 Bloom answers; and it captures NO reuse class that content-addressed shared S3 does not already capture. Incremental cost of the recommendation over the ASM-2308 design ~ $0-5/mo, incremental compute $0, incremental prefill latency 0; the $149 ceiling and every XCACHE validity rule are unchanged.",
+   "rationale": "The design recommendation itself, asserted for the maintainer's decision; the underlying quantities carry their own tags (ASM-2313 benefit, ASM-2320 latency, ASM-2322 costs).",
+   "backing_ref": "docs/next/design/glm52-shared-cache.md sections 0/6/7; docs/next/design/glm52-expert-cache.md sections 2.4/5.1/7",
+   "owner": "designer-10",
+   "load_bearing": true,
+   "status": "open",
+   "resolution_path": "Adopted or amended by the maintainer/coordinator at the F1-K harness freeze; thereafter resolved by the run's storage line items, origin-split hit counters, and whether the DynamoDB trigger ever fires.",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "ASM-2326",
+   "tag": "STIPULATED",
+   "claim": "MODAL VOLUME EXCLUDED from the shared-tier comparison: separate accounts cannot share a local Modal Volume (limitation already recorded with the XCACHE assumptions), and the F1-K fleet per the $149 protocol and the #30 sharding conclusion is EC2 spot (i4i.2xlarge), not Modal, so a Modal Volume is reachable by none of the workers; it is therefore not a candidate backend for this programme's shared cache regardless of its price or semantics.",
+   "rationale": "Records why one of the maintainer-question's candidate backends is dismissed on reachability rather than price, so the comparison table is not read as an oversight.",
+   "backing_ref": "docs/next/design/asm-expert-cache-2300-2312.json (cross-account Volume limitation noted with the S3-mirror design); docs/next/design/glm52-f1k-cost-reduction.md (EC2 spot fleet); docs/next/design/glm52-shared-cache.md section 2",
+   "owner": "designer-10",
+   "load_bearing": false,
+   "status": "open",
+   "resolution_path": "Revisited only if the F1-K execution substrate moves to Modal under a single account, in which case the comparison is re-run with Volume latency/cost measured there.",
+   "date": "2026-07-13"
+  }
+ ]
+}
